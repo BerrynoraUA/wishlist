@@ -16,13 +16,17 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get("code");
   const redirectParam = requestUrl.searchParams.get("redirect_to");
   const fallback = new URL("/home", request.url);
+
+  if (!code) {
+    console.error("[auth/callback] No code param. URL:", request.url);
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("error", "no_code");
+    return NextResponse.redirect(loginUrl);
+  }
+
   const response = NextResponse.redirect(
     redirectParam ? new URL(redirectParam, request.url) : fallback,
   );
-
-  if (!code) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
@@ -41,7 +45,9 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     console.error("[auth/callback] exchangeCodeForSession failed:", error.message);
-    return NextResponse.redirect(new URL("/login", request.url));
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("error", encodeURIComponent(error.message));
+    return NextResponse.redirect(loginUrl);
   }
 
   return response;
