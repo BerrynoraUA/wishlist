@@ -1,4 +1,5 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { PaginationParams } from "@/types";
 import { Wishlist } from "@/types/wishlist";
 
 export async function getWishlists(
