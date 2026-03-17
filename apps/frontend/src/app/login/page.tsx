@@ -28,7 +28,6 @@ function LoginPageContent() {
   return (
     <main className={styles.page}>
       <div className={styles.content}>
-        HELLO
         <LoginHeader />
         <LoginTabs active={tab} onChange={setTab} />
         <div className={styles.cardWrap}>
