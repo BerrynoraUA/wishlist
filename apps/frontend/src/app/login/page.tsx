@@ -1,13 +1,21 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import styles from "./login.module.scss";
 import { LoginHeader } from "./components/LoginHeader";
 import { LoginTabs } from "./components/LoginTabs";
 import { AuthForm } from "./components/AuthForm";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginPageContent />
+    </Suspense>
+  );
+}
+
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<"login" | "register">("login");

@@ -16,6 +16,7 @@ import type {
   CreateWishlistParams,
   UpdateWishlistParams,
 } from "@/api/types/wishilst";
+import type { PaginationParams } from "@/types";
 
 // Query Keys
 export const wishlistKeys = {

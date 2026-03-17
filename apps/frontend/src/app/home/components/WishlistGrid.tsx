@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { WishlistCard } from "./WishlistCard";
 import styles from "./WishlistGrid.module.scss";
 import { useMyWishlists } from "@/hooks/use-wishlists";
@@ -10,6 +10,14 @@ import { useSearchParams } from "next/navigation";
 const PAGE_SIZE = 8;
 
 export function WishlistGrid() {
+  return (
+    <Suspense>
+      <WishlistGridContent />
+    </Suspense>
+  );
+}
+
+function WishlistGridContent() {
   const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
   const search = useMemo(

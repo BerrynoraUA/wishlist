@@ -23,7 +23,7 @@ export function ItemDetailModal({
   const { data: currentUserId = "" } = useCurrentUserId();
   const isReserved = item.isReserved;
   // reserved_by may be null or string, currentUserId always string
-  const reservedByMe = !!item.reserved_by && item.reserved_by.toString() === currentUserId;
+  const reservedByMe = !!item.reservedBy && item.reservedBy.toString() === currentUserId;
   const canToggleReservation = !isReserved || reservedByMe;
   const imgSrc = item.image_url || item.image;
 

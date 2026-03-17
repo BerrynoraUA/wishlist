@@ -32,7 +32,7 @@ export interface WishlistWithItems {
 export type DiscoverItem = {
   id: string;
   title: string;
-  price: number;
+  price: string | number;
   store: string;
   image: string;
   image_url?: string | null;
