@@ -19,9 +19,6 @@ export async function registerWithEmail(
   const { error } = await supabaseBrowser.auth.signUp({
     email,
     password,
-    options: {
-      emailRedirectTo: `${window.location.origin}/api/auth/callback`,
-    },
   });
 
   if (error) throw error;

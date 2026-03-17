@@ -3,12 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./ReservedItemCard.module.scss";
 import { ReservedItem } from "@/api/types/wishilst";
-import { Heart, ExternalLink, MoreHorizontal } from "lucide-react";
+import { Heart, ExternalLink, MoreHorizontal, ShoppingCart } from "lucide-react";
 import { ItemDetailModal } from "./ItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
 
 type Props = ReservedItem & {
+  mode?: "reserved" | "purchased";
   onToggleReserve?: (id: string) => void;
+  onToggleBought?: (id: string) => void;
   showDiscountBadge?: boolean;
 };
 
@@ -21,19 +23,24 @@ export function ReservedItemCard({
   priority,
   owner_name,
   wishlist_title,
+  status,
   share_url,
   url,
   discount_price,
+  mode = "reserved",
   onToggleReserve,
+  onToggleBought,
   showDiscountBadge = false,
 }: Props) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { data: currentUserId = "" } = useCurrentUserId();
-  const isReserved = true;
+  const isPurchased = status === 2;
+  const isReserved = !isPurchased;
   const reservedBy = currentUserId;
-  const canToggleReservation = true;
+  const canToggleReservation = !isPurchased;
+  const canToggleBought = true;
 
   const imgSrc = image;
   const priceNumber = typeof price === "number" ? price : Number(price) || 0;
@@ -102,7 +109,10 @@ export function ReservedItemCard({
 
   return (
     <>
-      <div className={styles.card} onClick={() => setDetailOpen(true)}>
+      <div
+        className={`${styles.card} ${mode === "purchased" ? styles.cardPurchased : ""}`}
+        onClick={() => setDetailOpen(true)}
+      >
         <div className={styles.imageWrapper}>
           <div className={styles.imageFrame}>
           {imgSrc ? (
@@ -112,9 +122,11 @@ export function ReservedItemCard({
           )}
           </div>
 
-          <div className={styles.badgeLeft}>
-            <Heart size={14} fill="currentColor" />
-            <span>Reserved</span>
+          <div
+            className={`${styles.badgeLeft} ${mode === "purchased" ? styles.badgeLeftPurchased : ""}`}
+          >
+            {isPurchased ? <ShoppingCart size={14} /> : <Heart size={14} fill="currentColor" />}
+            <span>{isPurchased ? "Purchased by you" : "Reserved by you"}</span>
           </div>
 
           {salePercentOff != null && (
@@ -127,7 +139,7 @@ export function ReservedItemCard({
 
           <div className={styles.quickActions}>
             <a
-              href={hasProductLink ? url ?? "#" : "#"}
+              href={hasProductLink ? url : "#"}
               target="_blank"
               rel="noopener noreferrer"
               className={`${styles.iconButton} ${!hasProductLink ? styles.disabled : ""}`}
@@ -183,17 +195,32 @@ export function ReservedItemCard({
 
           <div className={styles.actions}>
             <button
-              className={`${styles.reserveBtn} ${styles.reserved}`}
+              className={`${styles.reserveBtn} ${styles.reserved} ${onToggleBought ? styles.reserveCompact : ""} ${mode === "purchased" ? styles.reservePurchased : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
                 if (canToggleReservation && onToggleReserve)
                   onToggleReserve(item_id);
               }}
+              disabled={!canToggleReservation}
               aria-label="Release reservation"
             >
               <Heart size={16} fill="currentColor" />
-              <span>Reserved by you</span>
+              <span>{isPurchased ? "Purchased" : "Reserved by you"}</span>
             </button>
+
+            {onToggleBought && (
+              <button
+                className={`${styles.buyBtn} ${isPurchased ? styles.purchased : ""} ${mode === "purchased" ? styles.buyBtnPurchased : ""}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (canToggleBought) onToggleBought(item_id);
+                }}
+                aria-label={isPurchased ? "Mark as not purchased" : "Mark as purchased"}
+                title={isPurchased ? "Purchased" : "Mark as purchased"}
+              >
+                <ShoppingCart size={16} />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -208,13 +235,16 @@ export function ReservedItemCard({
           store,
           image: imgSrc,
           isReserved,
+          status,
           url,
           share_url,
           description: null,
           priority: priorityDisplay ?? undefined,
           reservedBy,
+          reservedByName: "you",
         }}
         onToggleReserve={onToggleReserve}
+        onToggleBought={onToggleBought}
       />
     </>
   );

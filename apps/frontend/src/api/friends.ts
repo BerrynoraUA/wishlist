@@ -4,6 +4,8 @@ import type {
   FriendWithDetails,
   FriendRequestWithDetails,
   ProfileSearchResult,
+  GetFriendsWithoutWishlistAccessParams,
+  WishlistAccessUser,
 } from "./types/friends";
 
 export async function getIncomingFriendRequests({
@@ -13,15 +15,15 @@ export async function getIncomingFriendRequests({
   const session = (await supabaseBrowser.auth.getSession()).data.session;
   const myUserId = session?.user.id;
 
-  if (!myUserId) throw new Error('Not authenticated');
+  if (!myUserId) throw new Error("Not authenticated");
 
   const { data, error } = await supabaseBrowser.rpc(
-    'get_incoming_friend_requests_with_details',
+    "get_incoming_friend_requests_with_details",
     {
       p_user_id: myUserId,
       p_skip: skip,
       p_take: take,
-    }
+    },
   );
 
   if (error) throw error;
@@ -36,15 +38,15 @@ export async function getOutgoingFriendRequests({
   const session = (await supabaseBrowser.auth.getSession()).data.session;
   const myUserId = session?.user.id;
 
-  if (!myUserId) throw new Error('Not authenticated');
+  if (!myUserId) throw new Error("Not authenticated");
 
   const { data, error } = await supabaseBrowser.rpc(
-    'get_outgoing_friend_requests_with_details',
+    "get_outgoing_friend_requests_with_details",
     {
       p_user_id: myUserId,
       p_skip: skip,
       p_take: take,
-    }
+    },
   );
 
   if (error) throw error;
@@ -119,16 +121,17 @@ export async function cancelFriendRequest(requestId: string): Promise<void> {
 export async function getFriends({
   skip = 0,
   take = 10,
+  search,
 }: PaginationParams = {}): Promise<FriendWithDetails[]> {
   const session = (await supabaseBrowser.auth.getSession()).data.session;
   const myUserId = session?.user.id;
 
-  if (!myUserId) throw new Error('Not authenticated');
+  if (!myUserId) throw new Error("Not authenticated");
 
-  const { data, error } = await supabaseBrowser.rpc('get_friends_with_details', {
-    p_user_id: myUserId,
+  const { data, error } = await supabaseBrowser.rpc("get_friends", {
     p_skip: skip,
     p_take: take,
+    p_search: search?.trim() || null,
   });
 
   if (error) throw error;
@@ -206,4 +209,50 @@ export async function removeFriend(userId: string): Promise<void> {
     );
 
   if (error) throw error;
+}
+
+export async function getFriendsWithoutWishlistAccess({
+  wishlistId,
+  search,
+  skip = 0,
+  take = 20,
+}: GetFriendsWithoutWishlistAccessParams): Promise<ProfileSearchResult[]> {
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_friends_without_wishlist_access",
+    {
+      p_wishlist_id: wishlistId,
+      p_search: search?.trim() ? search.trim() : null,
+      p_skip: skip,
+      p_take: take,
+    },
+  );
+
+  if (error) throw error;
+
+  return (data ?? []).map((row: any) => ({
+    id: row.id,
+    nickname: row.nickname,
+  }));
+}
+
+export async function getWishlistAccessList(
+  wishlistId: string,
+): Promise<WishlistAccessUser[]> {
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_wishlist_access_list",
+    {
+      p_wishlist_id: wishlistId,
+    },
+  );
+
+  if (error) throw error;
+
+  return (data ?? []).map((row: any) => ({
+    id: row.granted_to_user_id ?? row.target_user_id ?? row.user_id ?? row.id,
+    nickname:
+      row.nickname ?? row.owner_nickname ?? row.display_name ?? "unknown",
+    access_type: row.access_type,
+    access_role:
+      row.access_role ?? (row.access_type === 1 ? "editor" : "viewer"),
+  }));
 }

@@ -5,6 +5,7 @@ import {
   updateItem,
   deleteItem,
   toggleItemReservation,
+  toggleItemBought,
 } from "@/api/items";
 import type { CreateItemParams, UpdateItemParams } from "@/api/types/item";
 import { wishlistKeys } from "./use-wishlists";
@@ -84,7 +85,23 @@ export function useToggleItemReservation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
-      // Refresh friend/discover wishlists so reservation owner info updates
+      queryClient.invalidateQueries({
+        predicate: ({ queryKey }) =>
+          Array.isArray(queryKey) && queryKey[0] === wishlistKeys.all[0] &&
+          (queryKey[1] === "friends" || queryKey[1] === "friend"),
+      });
+    },
+  });
+}
+
+export function useToggleItemBought() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => toggleItemBought(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: itemKeys.all });
+      queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       queryClient.invalidateQueries({
         predicate: ({ queryKey }) =>
           Array.isArray(queryKey) && queryKey[0] === wishlistKeys.all[0] &&

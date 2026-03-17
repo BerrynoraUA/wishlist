@@ -3,13 +3,16 @@ import { Purchases } from "@revenuecat/purchases-js";
 const RC_API_KEY = process.env.NEXT_PUBLIC_REVENUECAT_API_KEY as string;
 
 let instance: Purchases | null = null;
+let currentUserId: string | null = null;
 
 /**
  * Returns a singleton Purchases instance for the given user.
  * Call `initRevenueCat(userId)` once after authentication.
  */
 export function initRevenueCat(userId: string): Purchases {
-  if (instance) return instance;
+  if (instance && currentUserId === userId) {
+    return instance;
+  }
 
   if (!RC_API_KEY) {
     console.warn(
@@ -18,6 +21,7 @@ export function initRevenueCat(userId: string): Purchases {
   }
 
   instance = Purchases.configure(RC_API_KEY, userId);
+  currentUserId = userId;
   return instance;
 }
 
@@ -33,4 +37,5 @@ export function getRevenueCat(): Purchases | null {
  */
 export function resetRevenueCat(): void {
   instance = null;
+  currentUserId = null;
 }

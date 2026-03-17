@@ -28,9 +28,13 @@ export function WishlistInfo({
   const router = useRouter();
   const visibility = visibilityLabel[wishlist.visibility_type] ?? "Private";
   const VisibilityIcon = visibilityIcon[wishlist.visibility_type];
-  const itemsCount = wishlist.itemsCount ?? 0;
+  const itemsCount =
+    wishlist.items_count ??
+    (wishlist as Wishlist & { itemsCount?: number }).itemsCount ??
+    0;
   const description = wishlist.description ?? "";
   const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
+  const canAddItem = Boolean(onAddItem);
 
   const atItemLimit = !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
 
@@ -50,7 +54,7 @@ export function WishlistInfo({
           {description && <p className={styles.description}>{description}</p>}
         </div>
 
-        {isOwner && (
+        {canAddItem && (
           <div className={styles.ownerActions}>
             {!isPro && (
               <span className={styles.limitCounter}>

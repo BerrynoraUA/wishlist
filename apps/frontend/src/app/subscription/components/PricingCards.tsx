@@ -16,10 +16,9 @@ import styles from "./PricingCards.module.scss";
 import { Button } from "@/components/ui/Button/Button";
 import {
   useSubscription,
-  useOfferings,
-  usePurchase,
+  useCheckout,
+  useSyncSubscription,
 } from "@/hooks/use-subscription";
-import { findPackageByProductId, RC_PRODUCT_IDS } from "@/api/subscription";
 import { PRICING, BillingInterval } from "@/types/subscription";
 
 const FREE_FEATURES = [
@@ -82,8 +81,8 @@ export function PricingCards() {
     BillingInterval.Monthly,
   );
   const { isPro } = useSubscription();
-  const { data: packages } = useOfferings();
-  const purchase = usePurchase();
+  const { checkout } = useCheckout();
+  const syncSubscription = useSyncSubscription();
 
   const isMonthly = interval === BillingInterval.Monthly;
   const perMonth = isMonthly
@@ -91,16 +90,11 @@ export function PricingCards() {
     : +(PRICING.yearly / 12).toFixed(2);
 
   function handleUpgrade() {
-    if (!packages?.length) return;
+    checkout(interval);
+  }
 
-    const productId = isMonthly
-      ? RC_PRODUCT_IDS.proMonthly
-      : RC_PRODUCT_IDS.proYearly;
-
-    const pkg = findPackageByProductId(packages, productId);
-    if (!pkg) return;
-
-    purchase.mutate(pkg);
+  function handleRestorePurchases() {
+    syncSubscription.mutate();
   }
 
   return (
@@ -211,13 +205,21 @@ export function PricingCards() {
           {isPro ? (
             <div className={styles.currentBadge}>Current Plan</div>
           ) : (
-            <Button
-              variant="primary"
-              onClick={handleUpgrade}
-              disabled={purchase.isPending}
-            >
-              {purchase.isPending ? "Processing…" : "Upgrade to Pro"}
-            </Button>
+            <>
+              <Button variant="primary" onClick={handleUpgrade}>
+                Upgrade to Pro
+              </Button>
+              <button
+                type="button"
+                className={styles.restoreLink}
+                onClick={handleRestorePurchases}
+                disabled={syncSubscription.isPending}
+              >
+                {syncSubscription.isPending
+                  ? "Syncing…"
+                  : "Already purchased? Restore"}
+              </button>
+            </>
           )}
         </div>
       </div>
