@@ -1,0 +1,44 @@
+@use "@/styles/variables" as *;
+
+.section {
+  background: $card;
+  border: 1.5px solid var(--color-border-light);
+  border-radius: $radius-xl;
+  padding: 24px;
+  margin-bottom: 20px;
+  animation: slideUp 0.4s $ease-out;
+
+  &.danger {
+    border-color: var(--color-danger);
+    border-style: dashed;
+  }
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: $text;
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+
+  .danger & {
+    color: var(--color-danger);
+  }
+}
+
+.description {
+  font-size: 14px;
+  color: $text-muted;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

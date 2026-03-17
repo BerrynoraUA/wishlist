@@ -1,0 +1,39 @@
+@use "@/styles/variables" as *;
+
+.filters {
+  width: 100%;
+  background: var(--nav-pill-bg);
+  border-radius: 999px;
+  padding: 5px;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  align-items: center;
+
+  button {
+    border: none;
+    background: transparent;
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    &:hover:not(.active) {
+      background: var(--nav-pill-hover);
+      color: var(--color-text-secondary);
+    }
+  }
+
+  .active {
+    background: var(--nav-active-bg);
+    font-weight: 600;
+    color: var(--color-text);
+    box-shadow: var(--nav-active-shadow);
+  }
+}

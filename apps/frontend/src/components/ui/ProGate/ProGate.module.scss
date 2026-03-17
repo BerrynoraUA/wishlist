@@ -1,0 +1,57 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  position: relative;
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.content {
+  filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.5;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.lockCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 36px;
+  border-radius: $radius-xl;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid var(--color-border-subtle);
+  box-shadow: $shadow-lg;
+  text-align: center;
+  animation: scaleIn 0.3s $ease-out;
+}
+
+.iconWrapper {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--brand-alpha-10);
+  color: $brand;
+}
+
+.message {
+  font-size: 15px;
+  font-weight: 600;
+  color: $text;
+  max-width: 220px;
+  line-height: 1.4;
+}

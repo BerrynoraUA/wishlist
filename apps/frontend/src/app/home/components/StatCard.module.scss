@@ -1,0 +1,64 @@
+@use "@/styles/variables" as *;
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-lg;
+  padding: 18px 22px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  min-height: 76px;
+  transition:
+    transform 0.3s $ease-out,
+    box-shadow 0.3s $ease-out,
+    border-color 0.3s $ease-out;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--card-hover-shadow);
+    border-color: var(--color-border);
+  }
+}
+
+/* Icon bubble */
+.iconWrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+
+  background: var(--gradient-brand-subtle);
+  color: $brand;
+
+  display: grid;
+  place-items: center;
+  transition: transform 0.3s $ease-spring;
+
+  .card:hover & {
+    transform: scale(1.08) rotate(-3deg);
+  }
+}
+
+/* Text block */
+.text {
+  font-family: var(--font-sans);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: $text;
+  }
+
+  span {
+    font-size: 13px;
+    color: $text-muted;
+    font-weight: 500;
+  }
+}

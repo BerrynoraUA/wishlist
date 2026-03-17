@@ -1,0 +1,70 @@
+@use "@/styles/variables" as *;
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  h1 {
+    font-family: var(--font-sans);
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0;
+  }
+
+  p {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: $text-muted;
+  }
+}
+
+.back {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border-light);
+  background: var(--card-bg);
+  display: grid;
+  place-items: center;
+  color: $text;
+  text-decoration: none;
+  transition: all 0.3s $ease-out;
+
+  &:hover {
+    border-color: $brand;
+    color: $brand;
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px var(--brand-alpha-12);
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.empty {
+  text-align: center;
+  color: $text-muted;
+  margin-top: 40px;
+}

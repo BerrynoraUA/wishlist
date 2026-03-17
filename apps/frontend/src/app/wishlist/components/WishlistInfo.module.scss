@@ -1,0 +1,139 @@
+@use "@/styles/variables" as *;
+
+.info {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 22px;
+  background: var(--gradient-header);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -45%;
+    right: -18%;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(
+      circle,
+      var(--radial-brand) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+}
+
+.titleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.titleGroup {
+  h1 {
+    font-family: var(--font-sans);
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0;
+    line-height: 1.25;
+    color: $text;
+  }
+}
+
+.description {
+  font-size: 14px;
+  color: $text-muted;
+  margin: 8px 0 0;
+  line-height: 1.5;
+  max-width: 660px;
+}
+
+.ownerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.limitCounter {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-muted;
+  padding: 4px 12px;
+  border-radius: $radius-pill;
+  background: var(--color-bg-muted);
+  border: 1px solid var(--color-border-light);
+  white-space: nowrap;
+}
+
+.iconBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border-light);
+  background: var(--card-bg);
+  color: $text-muted;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.3s $ease-out;
+
+  &:hover {
+    border-color: $brand;
+    color: $brand;
+    transform: scale(1.06);
+    box-shadow: 0 4px 12px var(--brand-alpha-10);
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+.dangerBtn {
+  &:hover {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+    background: var(--color-danger-bg);
+    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.1);
+  }
+}
+
+.badges {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.visibilityBadge,
+.countBadge,
+.dateBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: $radius-pill;
+  font-weight: 600;
+}
+
+.visibilityBadge {
+  background: var(--badge-visibility-bg);
+  color: $brand;
+}
+
+.countBadge {
+  background: var(--badge-count-bg);
+  color: $text-muted;
+}
+
+.dateBadge {
+  background: var(--badge-date-bg);
+  color: var(--color-info);
+}

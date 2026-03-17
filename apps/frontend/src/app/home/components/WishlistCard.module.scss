@@ -1,0 +1,110 @@
+@use "@/styles/variables" as *;
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: $radius-xl;
+  overflow: hidden;
+  transition:
+    transform 0.35s $ease-out,
+    box-shadow 0.35s $ease-out,
+    border-color 0.35s $ease-out;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--card-hover-shadow-xl);
+    border-color: transparent;
+  }
+
+  &:active {
+    transform: translateY(-4px);
+  }
+}
+
+/* ===== TOP AREA ===== */
+
+.top {
+  height: 120px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 50%, var(--brand-alpha-06));
+    pointer-events: none;
+  }
+}
+
+.icon {
+  color: rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 1;
+  transition: transform 0.35s $ease-spring;
+
+  .card:hover & {
+    transform: scale(1.15) rotate(-5deg);
+  }
+}
+
+/* Accent backgrounds — richer gradients */
+.pink {
+  background: var(--accent-pink);
+}
+
+.blue {
+  background: var(--accent-blue);
+}
+
+.peach {
+  background: var(--accent-peach);
+}
+
+.mint {
+  background: var(--accent-mint);
+}
+
+.lavender {
+  background: var(--accent-lavender);
+}
+
+/* ===== CONTENT ===== */
+
+.content {
+  padding: 18px 20px;
+}
+
+.title {
+  font-family: var(--font-sans);
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: $text;
+  letter-spacing: -0.01em;
+}
+
+/* Row under title */
+.meta {
+  font-family: var(--font-sans);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: $text-muted;
+}
+
+.items {
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.visibility {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}

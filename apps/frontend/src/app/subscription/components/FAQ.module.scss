@@ -1,0 +1,78 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  max-width: 680px;
+  margin: 0 auto 64px;
+  animation: slideUp 0.5s $ease-out;
+}
+
+.title {
+  font-family: var(--font-serif), "Playfair Display", serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: $text;
+  text-align: center;
+  letter-spacing: -0.02em;
+  margin-bottom: 28px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  border: 1.5px solid var(--color-border-light);
+  border-radius: $radius-lg;
+  background: $card;
+  overflow: hidden;
+  transition: all 0.25s $ease-out;
+
+  &.open {
+    border-color: var(--color-border);
+    box-shadow: $shadow-sm;
+  }
+}
+
+.question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 20px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  color: $text;
+  line-height: 1.4;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $brand;
+  }
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: $text-muted;
+  transition: transform 0.25s $ease-out;
+
+  &.rotated {
+    transform: rotate(180deg);
+  }
+}
+
+.answer {
+  padding: 0 20px 16px;
+  animation: slideUp 0.2s $ease-out;
+
+  p {
+    font-size: 14px;
+    color: $text-muted;
+    line-height: 1.7;
+  }
+}

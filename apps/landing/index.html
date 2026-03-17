@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wishly — Wishlists, Shared Beautifully</title>
+    <meta
+      name="description"
+      content="Create beautiful wishlists, share them with friends, and never miss the perfect gift again. Wishly makes gifting personal, easy, and delightful."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=Playfair+Display:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- ====== NAVIGATION ====== -->
+    <nav class="nav" id="nav">
+      <div class="nav__inner">
+        <a href="#" class="nav__logo">
+          <span class="nav__logo-icon">♡</span> Wishly
+        </a>
+        <div class="nav__links" id="navLinks">
+          <a href="#features" class="nav__link">Features</a>
+          <a href="#how-it-works" class="nav__link">How It Works</a>
+          <a href="#discover" class="nav__link">Discover</a>
+          <a href="#testimonials" class="nav__link">Testimonials</a>
+        </div>
+        <div class="nav__actions">
+          <a href="#" class="btn btn--ghost">Log In</a>
+          <a href="#" class="btn btn--primary">Get Started Free</a>
+        </div>
+        <button class="nav__burger" id="navBurger" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#features" class="mobile-menu__link">Features</a>
+      <a href="#how-it-works" class="mobile-menu__link">How It Works</a>
+      <a href="#discover" class="mobile-menu__link">Discover</a>
+      <a href="#testimonials" class="mobile-menu__link">Testimonials</a>
+      <div class="mobile-menu__actions">
+        <a href="#" class="btn btn--ghost btn--full">Log In</a>
+        <a href="#" class="btn btn--primary btn--full">Get Started Free</a>
+      </div>
+    </div>
+
+    <!-- ====== HERO ====== -->
+    <header class="hero">
+      <div class="hero__bg">
+        <div class="hero__blob hero__blob--1"></div>
+        <div class="hero__blob hero__blob--2"></div>
+        <div class="hero__blob hero__blob--3"></div>
+      </div>
+      <div class="container hero__inner">
+        <div class="hero__content" data-animate="fade-up">
+          <span class="hero__badge">✨ Gifting, reimagined</span>
+          <h1 class="hero__title">
+            Wishlists,<br />shared <em>beautifully</em>
+          </h1>
+          <p class="hero__subtitle">
+            Create stunning wishlists, share them with friends and family, and
+            never miss the perfect gift again. Wishly makes every occasion
+            unforgettable.
+          </p>
+          <div class="hero__cta">
+            <a href="#" class="btn btn--primary btn--lg">
+              Start Your First Wishlist
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+            <a href="#how-it-works" class="btn btn--outline btn--lg"
+              >See How It Works</a
+            >
+          </div>
+          <p class="hero__note">Free forever · No credit card required</p>
+        </div>
+        <div class="hero__visual" data-animate="fade-up" data-delay="200">
+          <div class="hero__mockup">
+            <div class="mockup-card mockup-card--main">
+              <div class="mockup-card__header">
+                <div
+                  class="mockup-card__color"
+                  style="background: linear-gradient(135deg, #f472b6, #c0267e)"
+                ></div>
+                <div>
+                  <h3 class="mockup-card__title">Birthday Wishes 🎂</h3>
+                  <span class="mockup-card__meta">8 items · March 15</span>
+                </div>
+                <span class="mockup-card__badge mockup-card__badge--friends"
+                  >👥 Friends</span
+                >
+              </div>
+              <div class="mockup-card__items">
+                <div class="mockup-item">
+                  <div class="mockup-item__img" style="background: #fde7f3">
+                    🎧
+                  </div>
+                  <div class="mockup-item__info">
+                    <span class="mockup-item__name">Wireless Headphones</span>
+                    <span class="mockup-item__price">$149.99</span>
+                  </div>
+                  <span
+                    class="mockup-item__priority mockup-item__priority--high"
+                    >High</span
+                  >
+                </div>
+                <div class="mockup-item">
+                  <div class="mockup-item__img" style="background: #e0f2fe">
+                    📚
+                  </div>
+                  <div class="mockup-item__info">
+                    <span class="mockup-item__name">Design Anthology Book</span>
+                    <span class="mockup-item__price">$34.00</span>
+                  </div>
+                  <span class="mockup-item__priority mockup-item__priority--med"
+                    >Medium</span
+                  >
+                </div>
+                <div class="mockup-item">
+                  <div class="mockup-item__img" style="background: #fef3c7">
+                    ☕
+                  </div>
+                  <div class="mockup-item__info">
+                    <span class="mockup-item__name">Ceramic Pour-Over Set</span>
+                    <span class="mockup-item__price">$62.00</span>
+                  </div>
+                  <span class="mockup-item__priority mockup-item__priority--low"
+                    >Low</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div
+              class="mockup-card mockup-card--float mockup-card--float-1"
+              data-animate="float"
+            >
+              <div class="mockup-float__inner">
+                <span class="mockup-float__icon">❤️</span>
+                <span class="mockup-float__text">Item reserved!</span>
+              </div>
+            </div>
+            <div
+              class="mockup-card mockup-card--float mockup-card--float-2"
+              data-animate="float"
+            >
+              <div class="mockup-float__inner">
+                <span class="mockup-float__icon">🔗</span>
+                <span class="mockup-float__text">Link shared</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ====== STATS BAR ====== -->
+    <section class="stats-bar">
+      <div class="container stats-bar__inner">
+        <div class="stat" data-animate="fade-up">
+          <span class="stat__number" data-count="10000">0</span
+          ><span class="stat__suffix">+</span>
+          <span class="stat__label">Wishlists Created</span>
+        </div>
+        <div class="stat" data-animate="fade-up" data-delay="100">
+          <span class="stat__number" data-count="50000">0</span
+          ><span class="stat__suffix">+</span>
+          <span class="stat__label">Gifts Tracked</span>
+        </div>
+        <div class="stat" data-animate="fade-up" data-delay="200">
+          <span class="stat__number" data-count="25000">0</span
+          ><span class="stat__suffix">+</span>
+          <span class="stat__label">Items Reserved</span>
+        </div>
+        <div class="stat" data-animate="fade-up" data-delay="300">
+          <span class="stat__number" data-count="98">0</span
+          ><span class="stat__suffix">%</span>
+          <span class="stat__label">Happy Gift-Givers</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== FEATURES ====== -->
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-header" data-animate="fade-up">
+          <span class="section-header__badge">Features</span>
+          <h2 class="section-header__title">
+            Everything you need for <em>perfect</em> gifting
+          </h2>
+          <p class="section-header__subtitle">
+            From creating wishlists to discovering what your friends want —
+            Wishly handles every part of the gifting journey.
+          </p>
+        </div>
+        <div class="features__grid">
+          <!-- Feature 1 -->
+          <div class="feature-card" data-animate="fade-up">
+            <div
+              class="feature-card__icon"
+              style="background: #fde7f3; color: #c0267e"
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
+            </div>
+            <h3 class="feature-card__title">Beautiful Wishlists</h3>
+            <p class="feature-card__desc">
+              Create stunning wishlists with custom colors, descriptions, and
+              event dates. Choose from five gorgeous accent colors to make each
+              list unique.
+            </p>
+          </div>
+          <!-- Feature 2 -->
+          <div class="feature-card" data-animate="fade-up" data-delay="100">
+            <div
+              class="feature-card__icon"
+              style="background: #e0f2fe; color: #2563eb"
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                />
+                <path
+                  d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                />
+              </svg>
+            </div>
+            <h3 class="feature-card__title">Smart Link Scraping</h3>
+            <p class="feature-card__desc">
+              Paste any product URL and Wishly auto-fills the title,
+              description, image, and price. Adding items has never been this
+              effortless.
+            </p>
+          </div>
+          <!-- Feature 3 -->
+          <div class="feature-card" data-animate="fade-up" data-delay="200">
+            <div
+              class="feature-card__icon"
+              style="background: #f0fdf4; color: #16a34a"
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <h3 class="feature-card__title">Friends & Sharing</h3>
+            <p class="feature-card__desc">
+              Connect with friends via invite links or username search. Share
+              wishlists publicly, with friends only, or keep them completely
+              private.
+            </p>
+          </div>
+          <!-- Feature 4 -->
+          <div class="feature-card" data-animate="fade-up">
+            <div
+              class="feature-card__icon"
+              style="background: #fef3c7; color: #d97706"
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+                />
+              </svg>
+            </div>
+            <h3 class="feature-card__title">Gift Reservations</h3>
+            <p class="feature-card__desc">
+              Reserve items on friends' wishlists so nobody buys the same gift.
+              Only you can see your reservations — it stays a surprise!
+            </p>
+          </div>
+          <!-- Feature 5 -->
+          <div class="feature-card" data-animate="fade-up" data-delay="100">
+            <div
+              class="feature-card__icon"
+              style="background: #ede9fe; color: #7c3aed"
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+              </svg>
+            </div>
+            <h3 class="feature-card__title">Real-Time Notifications</h3>
+            <p class="feature-card__desc">
+              Get notified when friends add new wishlists, send friend requests,
+              or when someone reserves an item. Stay in the loop effortlessly.
+            </p>
+          </div>
+          <!-- Feature 6 -->
+          <div class="feature-card" data-animate="fade-up" data-delay="200">
+            <div
+              class="feature-card__icon"
+              style="background: #fce7f3; color: #db2777"
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+            </div>
+            <h3 class="feature-card__title">Discover & Explore</h3>
+            <p class="feature-card__desc">
+              Browse friends' public wishlists, see upcoming events with
+              countdowns, and find the perfect gift from their curated
+              selections.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== HOW IT WORKS ====== -->
+    <section class="how-it-works" id="how-it-works">
+      <div class="container">
+        <div class="section-header" data-animate="fade-up">
+          <span class="section-header__badge">How It Works</span>
+          <h2 class="section-header__title">
+            Three steps to <em>gifting joy</em>
+          </h2>
+          <p class="section-header__subtitle">
+            Getting started with Wishly is as easy as making a wish.
+          </p>
+        </div>
+        <div class="steps">
+          <div class="step" data-animate="fade-up">
+            <div class="step__number">1</div>
+            <div class="step__content">
+              <h3 class="step__title">Create Your Wishlist</h3>
+              <p class="step__desc">
+                Name it, pick a color, set an event date, and choose who can see
+                it. Add items by pasting links — we'll auto-fill the details.
+              </p>
+            </div>
+            <div class="step__visual">
+              <div class="step__demo step__demo--create">
+                <div class="demo-input">
+                  <span class="demo-input__label">Wishlist Name</span>
+                  <span class="demo-input__value">Christmas 2026 🎄</span>
+                </div>
+                <div class="demo-colors">
+                  <span
+                    class="demo-color demo-color--active"
+                    style="background: #f472b6"
+                  ></span>
+                  <span class="demo-color" style="background: #60a5fa"></span>
+                  <span class="demo-color" style="background: #fdba74"></span>
+                  <span class="demo-color" style="background: #6ee7b7"></span>
+                  <span class="demo-color" style="background: #c4b5fd"></span>
+                </div>
+                <div class="demo-privacy">
+                  <span
+                    class="demo-privacy__option demo-privacy__option--active"
+                    >🌍 Public</span
+                  >
+                  <span class="demo-privacy__option">👥 Friends</span>
+                  <span class="demo-privacy__option">🔒 Private</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="step" data-animate="fade-up" data-delay="150">
+            <div class="step__number">2</div>
+            <div class="step__content">
+              <h3 class="step__title">Share With Friends</h3>
+              <p class="step__desc">
+                Invite friends by sharing your unique link or searching their
+                username. They'll see your wishlists and you'll see theirs.
+              </p>
+            </div>
+            <div class="step__visual">
+              <div class="step__demo step__demo--share">
+                <div class="demo-invite">
+                  <span class="demo-invite__label">Your invite link</span>
+                  <div class="demo-invite__link">
+                    <span>wishly.app/invite/sarah_j</span>
+                    <span class="demo-invite__copy">📋 Copied!</span>
+                  </div>
+                </div>
+                <div class="demo-friends">
+                  <div class="demo-friend">
+                    <div
+                      class="demo-friend__avatar"
+                      style="background: #fde7f3; color: #c0267e"
+                    >
+                      A
+                    </div>
+                    <div>
+                      <span class="demo-friend__name">Alex Chen</span>
+                      <span class="demo-friend__user">@alexc</span>
+                    </div>
+                  </div>
+                  <div class="demo-friend">
+                    <div
+                      class="demo-friend__avatar"
+                      style="background: #e0f2fe; color: #2563eb"
+                    >
+                      M
+                    </div>
+                    <div>
+                      <span class="demo-friend__name">Maya Patel</span>
+                      <span class="demo-friend__user">@mayap</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="step" data-animate="fade-up" data-delay="300">
+            <div class="step__number">3</div>
+            <div class="step__content">
+              <h3 class="step__title">Reserve & Surprise</h3>
+              <p class="step__desc">
+                Browse friends' wishlists and reserve items secretly. No
+                double-gifts, no ruined surprises — just perfect gifting every
+                time.
+              </p>
+            </div>
+            <div class="step__visual">
+              <div class="step__demo step__demo--reserve">
+                <div class="demo-reserve-item">
+                  <div
+                    class="demo-reserve-item__img"
+                    style="background: #fde7f3"
+                  >
+                    🎧
+                  </div>
+                  <div class="demo-reserve-item__info">
+                    <span class="demo-reserve-item__name">Sony WH-1000XM5</span>
+                    <span class="demo-reserve-item__price">$349.99</span>
+                  </div>
+                  <button
+                    class="demo-reserve-item__btn demo-reserve-item__btn--active"
+                  >
+                    ❤️
+                  </button>
+                </div>
+                <div class="demo-reserve-item">
+                  <div
+                    class="demo-reserve-item__img"
+                    style="background: #e0f2fe"
+                  >
+                    📖
+                  </div>
+                  <div class="demo-reserve-item__info">
+                    <span class="demo-reserve-item__name">Atomic Habits</span>
+                    <span class="demo-reserve-item__price">$18.99</span>
+                  </div>
+                  <button class="demo-reserve-item__btn">🤍</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== DISCOVER SECTION ====== -->
+    <section class="discover" id="discover">
+      <div class="container">
+        <div class="section-header" data-animate="fade-up">
+          <span class="section-header__badge">Discover</span>
+          <h2 class="section-header__title">
+            Find the <em>perfect gift</em>, every time
+          </h2>
+          <p class="section-header__subtitle">
+            Explore your friends' wishlists, see upcoming events, and never show
+            up empty-handed.
+          </p>
+        </div>
+        <div class="discover__showcase" data-animate="fade-up">
+          <div class="discover__event-banner">
+            <div class="discover__event-icon">🎉</div>
+            <div class="discover__event-text">
+              <strong>Alex's Birthday</strong> is in
+              <span class="discover__event-countdown">12 days</span>
+            </div>
+            <a href="#" class="btn btn--sm btn--primary">View Wishlist</a>
+          </div>
+          <div class="discover__grid">
+            <div class="discover-card" data-animate="fade-up">
+              <div
+                class="discover-card__img"
+                style="background: linear-gradient(135deg, #fde7f3, #fce7f3)"
+              >
+                <span class="discover-card__emoji">👟</span>
+              </div>
+              <div class="discover-card__body">
+                <span class="discover-card__store">Nike.com</span>
+                <h4 class="discover-card__title">Air Jordan 1 Retro</h4>
+                <div class="discover-card__footer">
+                  <span class="discover-card__price">$180.00</span>
+                  <span
+                    class="discover-card__priority discover-card__priority--high"
+                    >High</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="discover-card" data-animate="fade-up" data-delay="100">
+              <div
+                class="discover-card__img"
+                style="background: linear-gradient(135deg, #e0f2fe, #bfdbfe)"
+              >
+                <span class="discover-card__emoji">🎮</span>
+              </div>
+              <div class="discover-card__body">
+                <span class="discover-card__store">Amazon.com</span>
+                <h4 class="discover-card__title">PS5 DualSense Controller</h4>
+                <div class="discover-card__footer">
+                  <span class="discover-card__price">$69.99</span>
+                  <span
+                    class="discover-card__priority discover-card__priority--med"
+                    >Medium</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="discover-card" data-animate="fade-up" data-delay="200">
+              <div
+                class="discover-card__img"
+                style="background: linear-gradient(135deg, #fef3c7, #fde68a)"
+              >
+                <span class="discover-card__emoji">🕯️</span>
+              </div>
+              <div class="discover-card__body">
+                <span class="discover-card__store">Diptyque.com</span>
+                <h4 class="discover-card__title">Baies Scented Candle</h4>
+                <div class="discover-card__footer">
+                  <span class="discover-card__price">$76.00</span>
+                  <span
+                    class="discover-card__priority discover-card__priority--low"
+                    >Low</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== TESTIMONIALS ====== -->
+    <section class="testimonials" id="testimonials">
+      <div class="container">
+        <div class="section-header" data-animate="fade-up">
+          <span class="section-header__badge">Testimonials</span>
+          <h2 class="section-header__title">
+            Loved by <em>gift-givers</em> everywhere
+          </h2>
+        </div>
+        <div class="testimonials__grid">
+          <div class="testimonial" data-animate="fade-up">
+            <div class="testimonial__stars">★★★★★</div>
+            <p class="testimonial__text">
+              "Wishly completely changed how our family does holidays. No more
+              awkward duplicate gifts — everyone knows exactly what to get!"
+            </p>
+            <div class="testimonial__author">
+              <div
+                class="testimonial__avatar"
+                style="background: #fde7f3; color: #c0267e"
+              >
+                S
+              </div>
+              <div>
+                <span class="testimonial__name">Sarah Johnson</span>
+                <span class="testimonial__role">Mom of 3</span>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial" data-animate="fade-up" data-delay="100">
+            <div class="testimonial__stars">★★★★★</div>
+            <p class="testimonial__text">
+              "The link scraping feature is magic. I just paste an Amazon link
+              and boom — everything fills in automatically. So smooth."
+            </p>
+            <div class="testimonial__author">
+              <div
+                class="testimonial__avatar"
+                style="background: #e0f2fe; color: #2563eb"
+              >
+                J
+              </div>
+              <div>
+                <span class="testimonial__name">Jake Rivera</span>
+                <span class="testimonial__role">Tech Enthusiast</span>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial" data-animate="fade-up" data-delay="200">
+            <div class="testimonial__stars">★★★★★</div>
+            <p class="testimonial__text">
+              "I love the reservation system — I can claim a gift and nobody
+              else sees it. Perfect surprises every single time."
+            </p>
+            <div class="testimonial__author">
+              <div
+                class="testimonial__avatar"
+                style="background: #f0fdf4; color: #16a34a"
+              >
+                E
+              </div>
+              <div>
+                <span class="testimonial__name">Emma Nakamura</span>
+                <span class="testimonial__role">Gift Connoisseur</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== CTA ====== -->
+    <section class="cta">
+      <div class="container">
+        <div class="cta__card" data-animate="fade-up">
+          <div class="cta__bg">
+            <div class="cta__blob cta__blob--1"></div>
+            <div class="cta__blob cta__blob--2"></div>
+          </div>
+          <h2 class="cta__title">Ready to make gifting <em>magical</em>?</h2>
+          <p class="cta__subtitle">
+            Join thousands of people who've already simplified their gifting
+            with Wishly. It's free, it's beautiful, and it just works.
+          </p>
+          <div class="cta__actions">
+            <a href="#" class="btn btn--white btn--lg">
+              Create Your First Wishlist
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+          <p class="cta__note">
+            Free forever · No credit card needed · Set up in 30 seconds
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== FOOTER ====== -->
+    <footer class="footer">
+      <div class="container footer__inner">
+        <div class="footer__brand">
+          <a href="#" class="footer__logo"
+            ><span class="nav__logo-icon">♡</span> Wishly</a
+          >
+          <p class="footer__tagline">Wishlists, shared beautifully.</p>
+        </div>
+        <div class="footer__links">
+          <div class="footer__col">
+            <h4 class="footer__col-title">Product</h4>
+            <a href="#features" class="footer__link">Features</a>
+            <a href="#how-it-works" class="footer__link">How It Works</a>
+            <a href="#discover" class="footer__link">Discover</a>
+          </div>
+          <div class="footer__col">
+            <h4 class="footer__col-title">Company</h4>
+            <a href="#" class="footer__link">About</a>
+            <a href="#" class="footer__link">Blog</a>
+            <a href="#" class="footer__link">Careers</a>
+          </div>
+          <div class="footer__col">
+            <h4 class="footer__col-title">Legal</h4>
+            <a href="#" class="footer__link">Privacy</a>
+            <a href="#" class="footer__link">Terms</a>
+            <a href="#" class="footer__link">Cookies</a>
+          </div>
+        </div>
+        <div class="footer__bottom">
+          <p class="footer__copy">&copy; 2026 Wishly. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

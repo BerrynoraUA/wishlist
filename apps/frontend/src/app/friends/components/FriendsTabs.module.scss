@@ -1,0 +1,45 @@
+.tabs {
+  background: var(--nav-pill-bg);
+  border-radius: 999px;
+  padding: 5px;
+  display: inline-flex;
+  gap: 4px;
+  margin-bottom: 24px;
+
+  button {
+    border: none;
+    background: transparent;
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    color: var(--color-text-muted);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+    &:hover:not(.active) {
+      background: var(--nav-pill-hover);
+      color: var(--color-text-secondary);
+    }
+  }
+
+  .active {
+    background: var(--nav-active-bg);
+    font-weight: 600;
+    color: var(--color-text);
+    box-shadow: var(--nav-active-shadow);
+  }
+}
+
+.badge {
+  background: var(--color-brand);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+}

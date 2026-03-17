@@ -1,0 +1,11 @@
+@use "@/styles/variables" as *;
+
+.page {
+  > p {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    color: $text-muted;
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,21 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    font-family: var(--font-sans);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0;
+  }
+
+  p {
+    margin-top: 6px;
+    color: var(--color-text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}

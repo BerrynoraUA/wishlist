@@ -1,0 +1,320 @@
+@use "@/styles/variables" as *;
+
+.card {
+  background: var(--card-bg);
+  border-radius: $radius-lg;
+  border: 1px solid var(--color-border-subtle);
+  overflow: visible;
+  cursor: pointer;
+  transition: all 0.25s $ease-out;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--card-hover-shadow-lg);
+    border-color: transparent;
+  }
+
+  &:active {
+    transform: translateY(-2px);
+  }
+}
+
+.media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--gradient-placeholder);
+  overflow: visible;
+
+  .imageFrame {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: $radius-lg;
+    background: var(--gradient-placeholder);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s $ease-out;
+
+    .card:hover & {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-light);
+  background: var(--card-bg);
+}
+
+.badgeLeft,
+.badgeRight {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.badgeLeft {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--brand-alpha-15);
+  color: $brand;
+
+  svg {
+    fill: currentColor;
+  }
+}
+
+.badgeRight {
+  background: var(--card-bg);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text);
+}
+
+.badgeStackRight {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.saleBadge {
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.saleLabel {
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.salePercent {
+  font-variant-numeric: tabular-nums;
+}
+
+.low {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.2);
+  color: #1d4ed8;
+}
+
+.medium {
+  background: rgba(217, 119, 6, 0.12);
+  border-color: rgba(217, 119, 6, 0.2);
+  color: #b45309;
+}
+
+.high {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.2);
+  color: #b91c1c;
+}
+
+.quickActions {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+
+  @media (min-width: 768px) {
+    opacity: 0;
+
+    .card:hover & {
+      opacity: 1;
+    }
+  }
+}
+
+.iconButton {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-subtle);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-text);
+  display: grid;
+  place-items: center;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: $brand;
+    color: $brand;
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--input-focus-ring);
+    border-color: var(--input-focus-border);
+  }
+}
+
+.menuWrapper {
+  position: relative;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--glass-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+  min-width: 170px;
+  padding: 6px;
+  overflow: hidden;
+  z-index: 30;
+}
+
+.dropdownItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: var(--brand-alpha-06);
+    border-color: var(--color-border-subtle);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--input-focus-ring);
+    border-color: var(--input-focus-border);
+  }
+}
+
+.dangerItem {
+  color: var(--color-danger);
+
+  &:hover {
+    background: var(--color-danger-bg);
+    border-color: var(--color-danger);
+  }
+}
+
+.content {
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    overflow: hidden;
+    line-height: 1.25;
+    min-height: calc(1.25em * 2);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 20px;
+}
+
+.price {
+  font-size: 14px;
+  font-weight: 700;
+  color: $brand;
+}
+
+.store {
+  font-size: 12px;
+  color: $text-muted;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.description {
+  font-size: 13px;
+  color: $text-muted;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.reserveBtn {
+  margin-top: 8px;
+  width: 100%;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--card-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+  color: var(--color-text);
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--gradient-brand-subtle);
+    border-color: $brand;
+    color: $brand;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.reserved {
+  background: var(--gradient-brand-subtle);
+  border-color: $brand;
+  color: $brand;
+  box-shadow: 0 2px 8px var(--brand-alpha-15);
+}

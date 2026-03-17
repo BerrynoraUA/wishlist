@@ -1,0 +1,214 @@
+@use "@/styles/variables" as *;
+
+.loading {
+  text-align: center;
+  color: $text-muted;
+  padding: 40px;
+}
+
+/* ── Avatar ── */
+.avatarRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatarUpload {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px dashed var(--color-border-light);
+  background: var(--color-bg-subtle);
+  cursor: pointer;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: all 0.25s $ease-out;
+  padding: 0;
+
+  &:hover {
+    border-color: $brand;
+
+    .avatarOverlay {
+      opacity: 1;
+    }
+  }
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitial {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: 28px;
+  font-weight: 700;
+  color: $brand;
+  background: var(--gradient-brand-subtle);
+}
+
+.avatarOverlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s;
+  border-radius: 50%;
+}
+
+.fileInput {
+  display: none;
+}
+
+.avatarHint {
+  p {
+    font-size: 14px;
+    color: $text;
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+.hint {
+  font-size: 12px !important;
+  color: $text-muted !important;
+  font-weight: 400 !important;
+  margin-top: 2px !important;
+}
+
+/* ── Fields ── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.labelHint {
+  font-size: 12px;
+  font-weight: 400;
+  color: $text-light;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: $radius-md;
+  border: 1.5px solid var(--input-border);
+  background: var(--input-bg);
+  color: $text;
+  font-size: 14px;
+  transition: all 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--input-focus-ring);
+  }
+
+  &::placeholder {
+    color: $text-light;
+  }
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputPrefix {
+  position: absolute;
+  left: 14px;
+  font-size: 14px;
+  color: $text-muted;
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.withPrefix {
+  padding-left: 28px;
+  padding-right: 36px;
+}
+
+.nicknameOk {
+  position: absolute;
+  right: 12px;
+  color: var(--color-success);
+}
+
+.nicknameTaken {
+  position: absolute;
+  right: 12px;
+  color: var(--color-danger);
+}
+
+.errorText {
+  font-size: 12px;
+  color: var(--color-danger);
+  margin: 0;
+}
+
+.textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: $radius-md;
+  border: 1.5px solid var(--input-border);
+  background: var(--input-bg);
+  color: $text;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 72px;
+  transition: all 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--input-focus-ring);
+  }
+
+  &::placeholder {
+    color: $text-light;
+  }
+}
+
+.charCount {
+  font-size: 12px;
+  color: $text-light;
+  text-align: right;
+}
+
+/* ── Actions ── */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.successMsg {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-success);
+  animation: fadeIn 0.3s $ease-out;
+}

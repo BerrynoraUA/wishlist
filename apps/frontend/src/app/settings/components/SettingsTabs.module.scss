@@ -1,0 +1,54 @@
+@use "@/styles/variables" as *;
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: $radius-pill;
+  background: var(--nav-pill-bg);
+  border: 1px solid var(--color-border-light);
+  margin-bottom: 32px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tab {
+  flex: 1;
+  min-width: max-content;
+  padding: 10px 20px;
+  border: none;
+  border-radius: $radius-pill;
+  background: transparent;
+  color: $text-muted;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s $ease-out;
+  white-space: nowrap;
+
+  &:hover:not(.active) {
+    color: $text;
+    background: var(--nav-pill-hover);
+  }
+
+  &.active {
+    background: var(--nav-active-bg);
+    color: $text;
+    box-shadow: var(--nav-active-shadow);
+  }
+}
+
+@media (max-width: 520px) {
+  .tabs {
+    border-radius: $radius-lg;
+  }
+
+  .tab {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}

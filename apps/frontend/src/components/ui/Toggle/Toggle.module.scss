@@ -1,0 +1,61 @@
+@use "@/styles/variables" as *;
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: $radius-pill;
+  background: var(--color-bg-muted);
+  border: 1.5px solid var(--color-border-light);
+  cursor: pointer;
+  transition: all 0.25s $ease-out;
+  padding: 0;
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-border);
+  }
+
+  &.on {
+    background: $brand;
+    border-color: $brand;
+
+    .thumb {
+      transform: translateX(20px);
+      background: #fff;
+    }
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-text-light);
+  transition: all 0.25s $ease-out;
+}
+
+.label {
+  font-size: 14px;
+  color: $text;
+  user-select: none;
+}

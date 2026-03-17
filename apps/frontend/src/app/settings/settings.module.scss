@@ -1,0 +1,35 @@
+@use "@/styles/variables" as *;
+
+.page {
+  min-height: 100vh;
+  padding: 32px 24px 64px;
+}
+
+.container {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.heading {
+  font-size: 28px;
+  font-weight: 800;
+  color: $text;
+  margin: 0 0 24px;
+  letter-spacing: -0.5px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 20px 16px 48px;
+  }
+
+  .heading {
+    font-size: 24px;
+  }
+}

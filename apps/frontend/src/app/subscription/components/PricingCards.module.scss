@@ -1,0 +1,247 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  margin-bottom: 64px;
+  animation: slideUp 0.6s $ease-out;
+}
+
+/* ── Billing toggle ── */
+.toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: $radius-pill;
+  background: var(--nav-pill-bg);
+  border: 1px solid var(--color-border-light);
+}
+
+.toggleOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: $radius-pill;
+  background: transparent;
+  color: $text-muted;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s $ease-out;
+
+  &.active {
+    background: var(--color-bg-elevated);
+    color: $text;
+    box-shadow: $shadow-sm;
+  }
+}
+
+.saveBadge {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: $radius-pill;
+  background: var(--color-pro-gradient);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* ── Cards grid ── */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  width: 100%;
+  max-width: 820px;
+}
+
+@media (max-width: 680px) {
+  .cards {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+  }
+}
+
+/* ── Card base ── */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 28px;
+  border-radius: $radius-xl;
+  background: var(--color-free-card-bg);
+  border: 1.5px solid var(--color-border-light);
+  transition: all 0.35s $ease-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-hover-shadow);
+  }
+}
+
+/* ── Pro card ── */
+.proCard {
+  background: var(--color-pro-card-bg);
+  border-color: var(--color-pro-border);
+  box-shadow: var(--color-pro-glow);
+
+  &:hover {
+    box-shadow: var(--color-pro-glow), var(--card-hover-shadow-lg);
+    transform: translateY(-4px);
+  }
+
+  .planName {
+    color: $brand;
+  }
+
+  .checkIcon {
+    color: $brand;
+  }
+}
+
+/* ── Popular badge ── */
+.popularBadge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 16px;
+  border-radius: $radius-pill;
+  background: var(--color-pro-gradient);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: $shadow-brand;
+}
+
+/* ── Card header ── */
+.cardHeader {
+  margin-bottom: 20px;
+}
+
+.planName {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: $text;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.sparkle {
+  color: $brand;
+}
+
+.planDesc {
+  font-size: 14px;
+  color: $text-muted;
+  line-height: 1.5;
+}
+
+/* ── Price block ── */
+.priceBlock {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.priceAmount {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: $text;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.pricePeriod {
+  font-size: 15px;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.billedAs {
+  width: 100%;
+  font-size: 13px;
+  color: $text-light;
+  margin-top: 2px;
+}
+
+/* ── Feature list ── */
+.featureList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+  flex: 1;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: $text;
+  line-height: 1.4;
+
+  &.disabled {
+    color: $text-light;
+  }
+
+  &.highlighted {
+    font-weight: 600;
+  }
+}
+
+.checkIcon {
+  flex-shrink: 0;
+  color: var(--color-success);
+}
+
+.xIcon {
+  flex-shrink: 0;
+  color: $text-light;
+  opacity: 0.5;
+}
+
+.newBadge {
+  display: inline-flex;
+  padding: 1px 7px;
+  border-radius: $radius-pill;
+  background: var(--color-pro-gradient);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* ── Current plan badge ── */
+.currentBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 20px;
+  border-radius: $radius-pill;
+  background: var(--color-bg-muted);
+  color: $text-muted;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1.5px solid var(--color-border-light);
+}

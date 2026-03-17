@@ -1,0 +1,22 @@
+@use "@/styles/variables" as *;
+
+.select {
+  width: 100%;
+  border: 1.5px solid var(--input-border);
+  border-radius: $radius-md;
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  background: var(--input-bg);
+  color: $text;
+  cursor: pointer;
+  transition:
+    border-color 0.3s $ease-out,
+    box-shadow 0.3s $ease-out;
+
+  &:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 4px var(--input-focus-ring);
+    outline: none;
+  }
+}

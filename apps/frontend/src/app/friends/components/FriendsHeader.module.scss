@@ -1,0 +1,46 @@
+@use "@/styles/variables" as *;
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    font-family: var(--font-sans);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0;
+  }
+
+  p {
+    margin-top: 6px;
+    color: var(--color-text-muted);
+    font-size: 14px;
+  }
+}
+
+.button {
+  background: $brand;
+  color: white;
+  border: none;
+  border-radius: $radius-pill;
+  padding: 10px 20px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: $shadow-brand;
+  transition: all 0.3s $ease-out;
+
+  &:hover {
+    background: $brand-dark;
+    box-shadow: $shadow-brand-lg;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.97);
+  }
+}

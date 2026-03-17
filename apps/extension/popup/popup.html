@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wishly</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <!-- ============ Login Screen ============ -->
+    <div id="login-screen" class="screen hidden">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+            />
+          </svg>
+        </div>
+        <span class="logo-text">Wishly</span>
+      </div>
+
+      <p class="subtitle">Sign in to save items to your wishlists.</p>
+
+      <button id="google-btn" type="button" class="btn google full">
+        <svg width="16" height="16" viewBox="0 0 48 48">
+          <path
+            fill="#EA4335"
+            d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+          />
+          <path
+            fill="#4285F4"
+            d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+          />
+          <path
+            fill="#FBBC05"
+            d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.0 24.0 0 0 0 0 21.56l7.98-6.19z"
+          />
+          <path
+            fill="#34A853"
+            d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+          />
+        </svg>
+        Continue with Google
+      </button>
+
+      <div class="divider"><span>or</span></div>
+
+      <form id="login-form" autocomplete="on">
+        <div class="field">
+          <label for="login-email">Email</label>
+          <input
+            id="login-email"
+            type="email"
+            placeholder="you@email.com"
+            required
+            autocomplete="email"
+          />
+        </div>
+        <div class="field">
+          <label for="login-password">Password</label>
+          <input
+            id="login-password"
+            type="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+        <div id="login-error" class="error hidden"></div>
+        <div id="setup-hint" class="setup-hint hidden"></div>
+        <button id="login-btn" type="submit" class="btn primary full">
+          Sign in
+        </button>
+      </form>
+    </div>
+
+    <!-- ============ Main Screen ============ -->
+    <div id="main-screen" class="screen hidden">
+      <!-- Header -->
+      <div class="topbar">
+        <div class="logo-small">
+          <div class="logo-icon-sm">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              />
+            </svg>
+          </div>
+          <span>Wishly</span>
+        </div>
+        <button id="logout-btn" class="btn ghost small" title="Sign out">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Product preview -->
+      <div id="product-card" class="product-card">
+        <div class="product-image-wrap">
+          <img id="product-image" src="" alt="" />
+          <div id="product-image-placeholder" class="image-placeholder">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <input
+            id="product-title"
+            class="editable-title"
+            placeholder="Product name"
+          />
+          <input
+            id="product-price"
+            class="editable-price"
+            placeholder="Price"
+          />
+        </div>
+      </div>
+
+      <!-- Wishlist selector -->
+      <div class="section">
+        <label class="section-label">Add to wishlist</label>
+        <div id="wishlist-list" class="wishlist-list">
+          <div class="loading-shimmer"></div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="section">
+        <label class="section-label" for="item-notes"
+          >Notes <span class="optional">(optional)</span></label
+        >
+        <textarea
+          id="item-notes"
+          rows="2"
+          placeholder="Color, size, any details…"
+        ></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div id="main-error" class="error hidden"></div>
+      <button id="add-btn" class="btn primary full" disabled>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+          />
+        </svg>
+        Add to Wishlist
+      </button>
+    </div>
+
+    <!-- ============ Success Screen ============ -->
+    <div id="success-screen" class="screen hidden">
+      <div class="success-content">
+        <div class="success-icon">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        </div>
+        <h3>Added!</h3>
+        <p id="success-detail"></p>
+        <button id="success-close" class="btn ghost full">Close</button>
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

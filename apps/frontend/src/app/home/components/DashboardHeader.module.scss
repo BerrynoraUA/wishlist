@@ -1,0 +1,90 @@
+@use "@/styles/variables" as *;
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 36px;
+  padding: 28px 32px;
+  background: var(--gradient-header);
+  border-radius: $radius-xl;
+  border: 1px solid var(--glass-border);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(
+      circle,
+      var(--radial-brand) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  h1 {
+    font-family: var(--font-sans);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0;
+    color: $text;
+  }
+
+  p {
+    font-family: var(--font-sans);
+    margin: 6px 0 0;
+    color: $text-muted;
+    font-size: 15px;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.limitCounter {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-muted;
+  padding: 4px 12px;
+  border-radius: $radius-pill;
+  background: var(--color-bg-muted);
+  border: 1px solid var(--color-border-light);
+  white-space: nowrap;
+}
+
+.button {
+  font-family: var(--font-sans);
+  background: $brand;
+  color: white;
+  border: none;
+  border-radius: $radius-pill;
+  padding: 11px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: $shadow-brand;
+  transition: all 0.3s $ease-out;
+  position: relative;
+  z-index: 1;
+
+  &:hover {
+    background: $brand-dark;
+    box-shadow: $shadow-brand-lg;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.97);
+  }
+}
