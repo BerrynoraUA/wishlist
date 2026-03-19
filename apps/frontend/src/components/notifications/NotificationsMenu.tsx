@@ -14,8 +14,10 @@ import {
 
 export function NotificationsMenu() {
   const [open, setOpen] = useState(false);
+  const previousUnreadCountRef = useRef<number | null>(null);
 
-  const { data: unreadCount = 0 } = useUnreadNotificationsCount();
+  const { data: unreadCount = 0, isFetched: isUnreadCountFetched } =
+    useUnreadNotificationsCount();
   const {
     data: notifications = [],
     isLoading,
@@ -42,6 +44,22 @@ export function NotificationsMenu() {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  useEffect(() => {
+    if (!isUnreadCountFetched) {
+      return;
+    }
+
+    if (previousUnreadCountRef.current === null) {
+      previousUnreadCountRef.current = unreadCount;
+      return;
+    }
+
+    if (previousUnreadCountRef.current !== unreadCount) {
+      previousUnreadCountRef.current = unreadCount;
+      void refetch();
+    }
+  }, [isUnreadCountFetched, refetch, unreadCount]);
 
   return (
     <div className={styles.notification} ref={ref}>
