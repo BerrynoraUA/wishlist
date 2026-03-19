@@ -139,7 +139,7 @@ export function ReservedItemCard({
 
           <div className={styles.quickActions}>
             <a
-              href={hasProductLink ? url : "#"}
+              href={hasProductLink ? (url ?? "#") : "#"}
               target="_blank"
               rel="noopener noreferrer"
               className={`${styles.iconButton} ${!hasProductLink ? styles.disabled : ""}`}

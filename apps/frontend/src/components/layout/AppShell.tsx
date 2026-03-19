@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { TopNav } from "./TopNav";
 import { Providers } from "@/providers";
@@ -15,7 +15,11 @@ export function AppShell({ children }: Props) {
 
   return (
     <Providers>
-      {!hideTopNav && <TopNav />}
+      {!hideTopNav && (
+        <Suspense fallback={null}>
+          <TopNav />
+        </Suspense>
+      )}
       {children}
     </Providers>
   );

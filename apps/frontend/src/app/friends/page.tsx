@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { FriendsHeader } from "./components/FriendsHeader";
 import { FriendsTabs } from "./components/FriendsTabs";
@@ -18,7 +18,7 @@ import {
   useCancelFriendRequest,
 } from "@/hooks/use-friends";
 
-export default function FriendsPage() {
+function FriendsPageContent() {
   const [tab, setTab] = useState<"friends" | "requests" | "sent">("friends");
   const [open, setOpen] = useState(false);
   const searchParams = useSearchParams();
@@ -121,5 +121,13 @@ export default function FriendsPage() {
 
       <AddFriendModal open={open} onClose={() => setOpen(false)} />
     </main>
+  );
+}
+
+export default function FriendsPage() {
+  return (
+    <Suspense fallback={<main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px" }}><p>Loading friends...</p></main>}>
+      <FriendsPageContent />
+    </Suspense>
   );
 }

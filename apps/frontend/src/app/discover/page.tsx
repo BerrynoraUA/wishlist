@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DiscoverHeader } from "./components/DiscoverHeader";
 import { UpcomingEvents } from "./components/UpcomingEvents";
@@ -16,7 +16,7 @@ import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items
 import { useProfilesByIds } from "@/hooks/use-settings";
 import { useSubscription } from "@/hooks/use-subscription";
 
-export default function DiscoverPage() {
+function DiscoverPageContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -186,5 +186,13 @@ export default function DiscoverPage() {
         />
       )}
     </main>
+  );
+}
+
+export default function DiscoverPage() {
+  return (
+    <Suspense fallback={<main style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}><p>Loading discover...</p></main>}>
+      <DiscoverPageContent />
+    </Suspense>
   );
 }

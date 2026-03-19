@@ -15,9 +15,9 @@ export function SharedWishlistHeader({ wishlist }: Props) {
   const accent = accentClass[wishlist.accent_type] ?? "pink";
   const visibility = visibilityLabel[wishlist.visibility_type] ?? "Private";
   const VisibilityIcon = visibilityIcon[wishlist.visibility_type];
-  const itemsCount = wishlist.itemsCount ?? 0;
+  const itemsCount = wishlist.items_count ?? 0;
   const description = wishlist.description ?? "";
-  const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
+  const eventDate = wishlist.event_date;
 
   return (
     <div className={styles.header}>

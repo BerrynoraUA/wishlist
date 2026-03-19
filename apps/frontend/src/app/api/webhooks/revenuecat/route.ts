@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const RC_WEBHOOK_AUTH_KEY = process.env.REVENUECAT_WEBHOOK_AUTH_KEY as string;
 
@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const supabaseAdmin = getSupabaseAdmin();
     const body = await request.json();
     const event = body?.event;
     if (!event) {
