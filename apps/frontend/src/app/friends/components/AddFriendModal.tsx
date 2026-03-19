@@ -234,8 +234,8 @@ export function AddFriendModal({ open, onClose }: Props) {
             )}
           </div>
 
-          <Button onClick={handleInvite} disabled={inviteDisabled} loading={sendRequest.isPending}>
-            Invite
+          <Button onClick={handleInvite} disabled={inviteDisabled}>
+            {sendRequest.isPending ? "Inviting..." : "Invite"}
           </Button>
         </div>
 

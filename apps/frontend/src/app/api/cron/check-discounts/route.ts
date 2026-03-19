@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scrapeProduct, type ProductData } from "@/app/api/server/scrape-product/route";
 import { createSaleAlertNotificationsForFriends } from "@/api/notification";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const CRON_SECRET = process.env.CRON_SECRET as string;
 
@@ -14,6 +14,13 @@ type ItemRow = {
   discount_price: string | null;
   wishlist_id: string | null;
   wishlist?: { user_id: string | null; title: string | null } | null;
+};
+
+type ItemQueryRow = Omit<ItemRow, "wishlist"> & {
+  wishlist?:
+    | { user_id: string | null; title: string | null }
+    | { user_id: string | null; title: string | null }[]
+    | null;
 };
 
 type CronStats = {
@@ -61,7 +68,18 @@ function shouldNotifySaleAlert(item: ItemRow, product: ProductData): boolean {
   return item.has_discount !== true || prevDiscount !== nextDiscount;
 }
 
+function normalizeWishlist(
+  wishlist: ItemQueryRow["wishlist"],
+): ItemRow["wishlist"] {
+  if (Array.isArray(wishlist)) {
+    return wishlist[0] ?? null;
+  }
+
+  return wishlist ?? null;
+}
+
 async function fetchItemsToCheck(): Promise<ItemRow[]> {
+  const supabaseAdmin = getSupabaseAdmin();
   const { data, error } = await supabaseAdmin
     .from("item")
     .select(
@@ -71,10 +89,16 @@ async function fetchItemsToCheck(): Promise<ItemRow[]> {
     .neq("url", "");
 
   if (error) throw error;
-  return (data ?? []) as ItemRow[];
+
+  const rows = (data ?? []) as ItemQueryRow[];
+  return rows.map((row) => ({
+    ...row,
+    wishlist: normalizeWishlist(row.wishlist),
+  }));
 }
 
 async function updateItemFromProduct(itemId: string, product: ProductData): Promise<void> {
+  const supabaseAdmin = getSupabaseAdmin();
   const updateData: Record<string, unknown> = {
     has_discount: product.has_discount,
     discount_price: product.has_discount ? product.discount_price : null,
@@ -88,6 +112,7 @@ async function updateItemFromProduct(itemId: string, product: ProductData): Prom
 }
 
 async function insertPriceSnapshot(itemId: string, price: string): Promise<"inserted" | "duplicate" | "failed"> {
+  const supabaseAdmin = getSupabaseAdmin();
   const { error } = await supabaseAdmin
     .from("item_prices_cumulative")
     .insert({ item_id: itemId, price });
@@ -98,6 +123,7 @@ async function insertPriceSnapshot(itemId: string, price: string): Promise<"inse
 }
 
 async function sendSaleAlerts(item: ItemRow, product: ProductData): Promise<{ inserted: number; skippedNoOwner: boolean }>{
+  const supabaseAdmin = getSupabaseAdmin();
   const ownerId = item.wishlist?.user_id ?? null;
   if (!ownerId) return { inserted: 0, skippedNoOwner: true };
 

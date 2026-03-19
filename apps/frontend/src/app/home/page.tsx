@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardHeader } from "./components/DashboardHeader";
 import { StatsRow } from "./components/StatsRow";
@@ -13,7 +13,7 @@ function getInitialInvite(searchParams: URLSearchParams) {
   return searchParams.get("friendInvite") ?? "";
 }
 
-export default function HomePage() {
+function HomePageContent() {
   const [open, setOpen] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -60,5 +60,13 @@ export default function HomePage() {
         />
       </main>
     </>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}><p>Loading dashboard...</p></main>}>
+      <HomePageContent />
+    </Suspense>
   );
 }

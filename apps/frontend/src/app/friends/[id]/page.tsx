@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useFriendWishlists } from "@/hooks/use-wishlists";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/Button/Button";
 import { ArrowLeft, UserMinus } from "lucide-react";
 import styles from "./FriendWishlists.module.scss";
 
-export default function FriendWishlistsPage() {
+function FriendWishlistsPageContent() {
   const params = useParams();
   const router = useRouter();
   const friendId = params.id as string;
@@ -67,5 +67,13 @@ export default function FriendWishlistsPage() {
         ))}
       </div>
     </main>
+  );
+}
+
+export default function FriendWishlistsPage() {
+  return (
+    <Suspense fallback={<main className={styles.page}><p>Loading wishlists...</p></main>}>
+      <FriendWishlistsPageContent />
+    </Suspense>
   );
 }

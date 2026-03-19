@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL ||
   process.env.SUPABASE_URL) as string;
@@ -54,6 +54,8 @@ function getActiveSubscription(subscriber: RevenueCatSubscriber) {
 
 export async function POST(request: NextRequest) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
+
     if (!RC_API_KEY) {
       return NextResponse.json(
         {

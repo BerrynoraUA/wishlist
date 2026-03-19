@@ -32,7 +32,7 @@ export interface WishlistWithItems {
 export type DiscoverItem = {
   id: string;
   title: string;
-  price: number;
+  price: string | number | null;
   store: string;
   image: string;
   image_url?: string | null;
@@ -45,7 +45,7 @@ export type DiscoverItem = {
   reserved_by?: string | null;
   reservedBy?: string | null;
   reservedByName?: string | null;
-  discount_price?: number | null;
+  discount_price?: string | number | null;
 };
 
 export type DiscoverSection = {
@@ -63,7 +63,7 @@ export type DiscoverSection = {
 export type ReservedItem = {
   item_id: string;
   title: string;
-  price: number;
+  price: string | number | null;
   store: string;
   image: string;
   url?: string | null;
@@ -76,7 +76,7 @@ export type ReservedItem = {
   owner_name: string;
   owner_username: string; 
   owner_avatar: string;
-  discount_price?: number | null;
+  discount_price?: string | number | null;
 };
 
 export interface FriendUpcomingWishlist {
