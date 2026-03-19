@@ -1,5 +1,12 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
+const AUTH_REDIRECT_COOKIE = "bn_auth_redirect_to";
+
+function persistAuthRedirect(target?: string) {
+  const safeTarget = target?.startsWith("/") ? target : "/home";
+  document.cookie = `${AUTH_REDIRECT_COOKIE}=${encodeURIComponent(safeTarget)}; Path=/; Max-Age=600; SameSite=Lax`;
+}
+
 export async function loginWithEmail(
   email: string,
   password: string,
@@ -31,7 +38,8 @@ export async function logout(): Promise<void> {
 }
 
 export async function loginWithGoogle(redirectTo?: string): Promise<void> {
-  const callback = `${window.location.origin}/api/auth/callback${redirectTo ? `?redirect_to=${encodeURIComponent(redirectTo)}` : ""}`;
+  persistAuthRedirect(redirectTo);
+  const callback = `${window.location.origin}/auth/callback`;
 
   const { error } = await supabaseBrowser.auth.signInWithOAuth({
     provider: "google",
