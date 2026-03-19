@@ -42,7 +42,7 @@ function SharedWishlistContent() {
   });
 
   const items = itemsData ?? [];
-  const totalItems = wishlist?.itemsCount ?? items.length;
+  const totalItems = wishlist?.items_count ?? items.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
 
   // After login redirect: check friendship, redirect or send request
