@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { useMemo } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useFriendWishlists } from "@/hooks/use-wishlists";
@@ -11,14 +11,6 @@ import { ArrowLeft, UserMinus } from "lucide-react";
 import styles from "./FriendWishlists.module.scss";
 
 export default function FriendWishlistsPage() {
-  return (
-    <Suspense>
-      <FriendWishlistsContent />
-    </Suspense>
-  );
-}
-
-function FriendWishlistsContent() {
   const params = useParams();
   const router = useRouter();
   const friendId = params.id as string;
@@ -71,7 +63,7 @@ function FriendWishlistsContent() {
 
       <div className={styles.grid}>
         {wishlists.map((w) => (
-          <WishlistCard key={w.id} wishlist={w} />
+          <WishlistCard key={w.id} wishlist={w} showSharedMeta={false} />
         ))}
       </div>
     </main>

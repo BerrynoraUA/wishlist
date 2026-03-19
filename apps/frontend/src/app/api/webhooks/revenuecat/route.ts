@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
-const SUPABASE_URL = process.env.SUPABASE_URL as string;
-const SUPABASE_SERVICE_ROLE_KEY = process.env
-  .SUPABASE_SERVICE_ROLE_KEY as string;
 const RC_WEBHOOK_AUTH_KEY = process.env.REVENUECAT_WEBHOOK_AUTH_KEY as string;
 
 /**
@@ -12,7 +9,8 @@ const RC_WEBHOOK_AUTH_KEY = process.env.REVENUECAT_WEBHOOK_AUTH_KEY as string;
  * `user_subscriptions` table in Supabase using the service-role key.
  *
  * Expected events: INITIAL_PURCHASE, RENEWAL, CANCELLATION,
- * EXPIRATION, PRODUCT_CHANGE, BILLING_ISSUE, SUBSCRIBER_ALIAS
+ * EXPIRATION, PRODUCT_CHANGE, BILLING_ISSUE, SUBSCRIBER_ALIAS,
+ * UNCANCELLATION
  */
 export async function POST(request: NextRequest) {
   // ── Validate auth header ──
@@ -34,6 +32,7 @@ export async function POST(request: NextRequest) {
     const eventType: string = event.type;
     const appUserId: string | undefined = event.app_user_id;
     const expirationAtMs: number | undefined = event.expiration_at_ms;
+    const productId: string | undefined = event.product_id;
 
     if (!appUserId) {
       return NextResponse.json(
@@ -41,8 +40,6 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
-
-    const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const isPro = [
       "INITIAL_PURCHASE",
@@ -56,9 +53,8 @@ export async function POST(request: NextRequest) {
     const isCancelled = eventType === "CANCELLATION";
 
     // Determine subscription state
-    const plan = isPro ? "pro" : "free";
+    const plan = isPro ? "pro" : isExpired ? "free" : "pro"; // keep pro on cancel until expires
     const isActive = isPro || (isCancelled && !isExpired);
-    // On cancellation, the user keeps access until expiration
     const expiresAt = expirationAtMs
       ? new Date(expirationAtMs).toISOString()
       : null;
@@ -67,9 +63,10 @@ export async function POST(request: NextRequest) {
       {
         user_id: appUserId,
         revenuecat_customer_id: event.original_app_user_id ?? appUserId,
-        plan,
+        plan: isExpired ? "free" : plan,
         is_active: isActive,
         expires_at: expiresAt,
+        product_id: productId ?? null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" },
@@ -81,7 +78,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(
-      `[RevenueCat Webhook] ${eventType} for user ${appUserId} → plan=${plan}, active=${isActive}`,
+      `[RevenueCat Webhook] ${eventType} for user ${appUserId} → plan=${plan}, active=${isActive}, product=${productId ?? "n/a"}`,
     );
 
     return NextResponse.json({ success: true });

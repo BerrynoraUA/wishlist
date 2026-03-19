@@ -12,18 +12,22 @@ export enum WishlistAccent {
   Lavender = 4,
 }
 
-export interface Wishlist {
+export type Wishlist = {
   id: string;
   user_id: string;
   title: string;
   description: string | null;
-  event_date?: string | null;
-  visibility_type: WishlistVisibility;
   image_url: string | null;
+  created_at: string | null;
+  visibility_type: WishlistVisibility;
   accent_type: WishlistAccent;
-  created_at: string;
-  itemsCount?: number;
-}
+  event_date: string | null;
+  items_count: number;
+  can_edit: boolean;
+  is_owner: boolean;
+  access_type: number | null;
+  owner_nickname: string | null;
+};
 
 export interface Item {
   id: string;

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { FriendsHeader } from "./components/FriendsHeader";
 import { FriendsTabs } from "./components/FriendsTabs";
 import { FriendCard } from "./components/FriendCard";
@@ -20,8 +21,10 @@ import {
 export default function FriendsPage() {
   const [tab, setTab] = useState<"friends" | "requests" | "sent">("friends");
   const [open, setOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const search = useMemo(() => searchParams.get("search") ?? "", [searchParams]);
 
-  const { data, isLoading, isError } = useFriends();
+  const { data, isLoading, isError } = useFriends({ search });
   const friends = data ?? [];
 
   const {

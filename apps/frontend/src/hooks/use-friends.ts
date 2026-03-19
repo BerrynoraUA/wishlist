@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getIncomingFriendRequests,
   getOutgoingFriendRequests,
@@ -10,18 +10,24 @@ import {
   checkFriendship,
   removeFriend,
   searchProfilesByNickname,
-} from '@/api/friends';
+  getFriendsWithoutWishlistAccess,
+  getWishlistAccessList,
+} from "@/api/friends";
+import { GetFriendsWithoutWishlistAccessParams } from "@/api/types/friends";
 
 // Query Keys
 export const friendKeys = {
-  all: ['friends'] as const,
-  lists: () => [...friendKeys.all, 'list'] as const,
+  all: ["friends"] as const,
+  lists: () => [...friendKeys.all, "list"] as const,
   list: (params?: PaginationParams) => [...friendKeys.lists(), params] as const,
-  requests: () => [...friendKeys.all, 'requests'] as const,
-  incoming: (params?: PaginationParams) => [...friendKeys.requests(), 'incoming', params] as const,
-  outgoing: (params?: PaginationParams) => [...friendKeys.requests(), 'outgoing', params] as const,
-  check: (userId: string) => [...friendKeys.all, 'check', userId] as const,
-  search: (query: string, params?: PaginationParams) => [...friendKeys.all, 'search', query, params] as const,
+  requests: () => [...friendKeys.all, "requests"] as const,
+  incoming: (params?: PaginationParams) =>
+    [...friendKeys.requests(), "incoming", params] as const,
+  outgoing: (params?: PaginationParams) =>
+    [...friendKeys.requests(), "outgoing", params] as const,
+  check: (userId: string) => [...friendKeys.all, "check", userId] as const,
+  search: (query: string, params?: PaginationParams) =>
+    [...friendKeys.all, "search", query, params] as const,
 };
 
 // ============= QUERIES =============
@@ -55,16 +61,20 @@ export function useCheckFriendship(userId: string) {
   });
 }
 
-export function useSearchProfilesByNickname(query: string, params?: PaginationParams) {
-  const trimmed = query?.trim() ?? '';
+export function useSearchProfilesByNickname(
+  query: string,
+  params?: PaginationParams,
+) {
+  const trimmed = query?.trim() ?? "";
 
   return useQuery({
     queryKey: friendKeys.search(trimmed, params),
-    queryFn: () => searchProfilesByNickname({
-      query: trimmed,
-      skip: params?.skip,
-      take: params?.take,
-    }),
+    queryFn: () =>
+      searchProfilesByNickname({
+        query: trimmed,
+        skip: params?.skip,
+        take: params?.take,
+      }),
     enabled: !!trimmed,
     staleTime: 30_000,
   });
@@ -127,5 +137,38 @@ export function useRemoveFriend() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: friendKeys.lists() });
     },
+  });
+}
+
+export function useFriendsWithoutWishlistAccess(
+  params: GetFriendsWithoutWishlistAccessParams,
+) {
+  const { wishlistId, search, skip = 0, take = 20 } = params;
+
+  return useQuery({
+    queryKey: [
+      "friends-without-wishlist-access",
+      wishlistId,
+      search ?? "",
+      skip,
+      take,
+    ],
+    queryFn: () =>
+      getFriendsWithoutWishlistAccess({
+        wishlistId,
+        search,
+        skip,
+        take,
+      }),
+    enabled: Boolean(wishlistId),
+  });
+}
+
+
+export function useWishlistAccessList(wishlistId?: string) {
+  return useQuery({
+    queryKey: ["wishlist-access-list", wishlistId],
+    queryFn: () => getWishlistAccessList(wishlistId!),
+    enabled: !!wishlistId,
   });
 }

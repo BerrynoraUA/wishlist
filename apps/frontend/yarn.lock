@@ -618,10 +618,10 @@
     "@parcel/watcher-win32-ia32" "2.5.6"
     "@parcel/watcher-win32-x64" "2.5.6"
 
-"@revenuecat/purchases-js@^1.26.4":
-  version "1.26.4"
-  resolved "https://registry.npmjs.org/@revenuecat/purchases-js/-/purchases-js-1.26.4.tgz"
-  integrity sha512-7rtTbGFtt5jgX0jDZfG9rBMKZeoY0yT6h0oQx5afuaYOK39747z4jXGfsGW1VTzGHLB0FQvWddykxRkmMtHEHA==
+"@revenuecat/purchases-js@^1.28.0":
+  version "1.28.0"
+  resolved "https://registry.npmjs.org/@revenuecat/purchases-js/-/purchases-js-1.28.0.tgz"
+  integrity sha512-FtmOsoc4JNWueFnMtT+fIBAhTLxT1Uu7e0zTEg0WaUTvMWS8GOSxsKiT4h07qDdPiqUQw4Eh+GdhueSrXMjUpw==
 
 "@rtsao/scc@^1.1.0":
   version "1.1.0"

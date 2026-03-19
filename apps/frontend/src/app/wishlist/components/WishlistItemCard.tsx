@@ -7,6 +7,7 @@ import {
   Heart,
   ExternalLink,
   ShoppingBag,
+  ShoppingCart,
   MoreHorizontal,
 } from "lucide-react";
 import { WishlistItemDetailModal } from "./WishlistItemDetailModal";
@@ -17,6 +18,8 @@ type Props = {
   isOwner?: boolean;
   showDiscountBadge?: boolean;
   onToggleReserve?: (id: string) => void;
+  onToggleBought?: (id: string) => void;
+  reservedByName?: string | null;
   onDelete?: (id: string) => void;
   onEdit?: (item: Item) => void;
 };
@@ -26,6 +29,8 @@ export function WishlistItemCard({
   isOwner = false,
   showDiscountBadge = false,
   onToggleReserve,
+  onToggleBought,
+  reservedByName,
   onDelete,
   onEdit,
 }: Props) {
@@ -34,11 +39,16 @@ export function WishlistItemCard({
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { data: currentUserId = "" } = useCurrentUserId();
 
-  const isReserved = item.status === 1 || !!item.reserved_by;
+  const isPurchased = item.status === 2;
+  const isReserved = item.status === 1 || (!isPurchased && !!item.reserved_by);
   const reservedByMe = currentUserId
     ? item.reserved_by === currentUserId
     : false;
-  const canToggleReservation = !isOwner && (!isReserved || reservedByMe);
+  const canToggleReservation = !isOwner && !isPurchased && (!isReserved || reservedByMe);
+  const canToggleBought =
+    !isOwner &&
+    ((isPurchased && reservedByMe) ||
+      (!isPurchased && (!isReserved || reservedByMe)));
   const hasImage = Boolean(item.image_url);
   const price = item.price || "";
   const title = item.name;
@@ -96,6 +106,20 @@ export function WishlistItemCard({
     return Math.min(99, rounded);
   })();
 
+  const reserveStatusLabel = isPurchased
+    ? reservedByMe
+      ? "Purchased by you"
+      : reservedByName
+        ? `Purchased by ${reservedByName}`
+        : "Purchased"
+    : isReserved
+      ? reservedByMe
+        ? "Reserved by you"
+        : reservedByName
+          ? `Reserved by ${reservedByName}`
+          : "Reserved"
+      : null;
+
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -121,10 +145,16 @@ export function WishlistItemCard({
             )}
           </div>
 
-          {isReserved && !isOwner && (
-            <div className={styles.badgeLeft}>
-              <Heart size={14} fill="currentColor" />
-              <span>{reservedByMe ? "Reserved by you" : "Reserved"}</span>
+          {reserveStatusLabel && !isOwner && (
+            <div
+              className={`${styles.badgeLeft} ${isPurchased ? styles.purchasedBadge : ""}`}
+            >
+              {isPurchased ? (
+                <ShoppingCart size={14} />
+              ) : (
+                <Heart size={14} fill="currentColor" />
+              )}
+              <span>{reserveStatusLabel}</span>
             </div>
           )}
 
@@ -213,24 +243,43 @@ export function WishlistItemCard({
           </div>
 
           {!isOwner && (
-            <button
-              className={`${styles.reserveBtn} ${isReserved ? styles.reserved : ""}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (canToggleReservation && onToggleReserve)
-                  onToggleReserve(item.id);
-              }}
-              disabled={!canToggleReservation}
-            >
-              <Heart size={16} fill={isReserved ? "currentColor" : "none"} />
-              <span>
-                {isReserved
-                  ? reservedByMe
-                    ? "Reserved by you"
-                    : "Reserved"
-                  : "Reserve this gift"}
-              </span>
-            </button>
+            <div className={styles.actionsRow}>
+              <button
+                className={`${styles.reserveBtn} ${isReserved ? styles.reserved : ""} ${onToggleBought ? styles.reserveCompact : ""}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (canToggleReservation && onToggleReserve)
+                    onToggleReserve(item.id);
+                }}
+                disabled={!canToggleReservation}
+              >
+                <Heart size={16} fill={isReserved ? "currentColor" : "none"} />
+                <span>
+                  {isPurchased
+                    ? "Purchased"
+                    : isReserved
+                      ? reservedByMe
+                        ? "Reserved by you"
+                        : "Reserved"
+                      : "Reserve this gift"}
+                </span>
+              </button>
+
+              {onToggleBought && (
+                <button
+                  className={`${styles.buyBtn} ${isPurchased ? styles.purchased : ""}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (canToggleBought) onToggleBought(item.id);
+                  }}
+                  disabled={!canToggleBought}
+                  aria-label={isPurchased ? "Mark as not purchased" : "Mark as purchased"}
+                  title={isPurchased ? "Purchased" : "Mark as purchased"}
+                >
+                  <ShoppingCart size={16} />
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -241,6 +290,8 @@ export function WishlistItemCard({
         item={item}
         isOwner={isOwner}
         onToggleReserve={onToggleReserve}
+        onToggleBought={onToggleBought}
+        reservedByName={reservedByName}
         onDelete={onDelete}
         onEdit={onEdit}
       />

@@ -2,10 +2,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getSubscriptionStatus,
   getOfferings,
-  purchasePackage,
+  syncSubscription,
+  redirectToCheckout,
 } from "@/api/subscription";
-import { SubscriptionPlan } from "@/types/subscription";
-import type { Package } from "@revenuecat/purchases-js";
+import { SubscriptionPlan, BillingInterval } from "@/types/subscription";
 
 /* ── Query keys ── */
 export const subscriptionKeys = {
@@ -41,14 +41,22 @@ export function useOfferings() {
   });
 }
 
-/* ── Purchase mutation ── */
-export function usePurchase() {
+/* ── Checkout redirect ── */
+export function useCheckout() {
+  return {
+    checkout: (interval: BillingInterval) => {
+      redirectToCheckout(interval).catch(console.error);
+    },
+  };
+}
+
+/* ── Sync subscription (RevenueCat → Supabase) ── */
+export function useSyncSubscription() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (pkg: Package) => purchasePackage(pkg),
+    mutationFn: syncSubscription,
     onSuccess: () => {
-      // Refetch subscription status after successful purchase
       queryClient.invalidateQueries({
         queryKey: subscriptionKeys.status(),
       });

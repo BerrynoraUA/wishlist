@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { WishlistCard } from "./WishlistCard";
 import styles from "./WishlistGrid.module.scss";
 import { useMyWishlists } from "@/hooks/use-wishlists";
@@ -10,14 +10,6 @@ import { useSearchParams } from "next/navigation";
 const PAGE_SIZE = 8;
 
 export function WishlistGrid() {
-  return (
-    <Suspense>
-      <WishlistGridContent />
-    </Suspense>
-  );
-}
-
-function WishlistGridContent() {
   const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
   const search = useMemo(
@@ -36,7 +28,7 @@ function WishlistGridContent() {
 
   return (
     <div>
-      <h2 className={styles.title}>My Wishlists</h2>
+      <h2 className={styles.title}>Wishlists</h2>
       <div className={styles.grid}>
         {isLoading && <p>Loading...</p>}
         {isError && <p>Failed to load wishlists.</p>}
