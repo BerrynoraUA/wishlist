@@ -20,6 +20,7 @@ function copyCookies(from: NextResponse, to: NextResponse) {
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
+  // Public routes that don't require auth
   if (
     pathname.startsWith("/api") ||
     pathname === "/auth/callback" ||
@@ -47,6 +48,16 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // Landing page: unauthenticated users see it, authenticated get redirected
+  if (pathname === "/") {
+    if (user) {
+      const redirect = NextResponse.redirect(new URL("/home", request.url));
+      copyCookies(response, redirect);
+      return redirect;
+    }
+    return response;
+  }
 
   if (!user && pathname !== "/login") {
     const redirectUrl = new URL("/login", request.url);
