@@ -3,7 +3,7 @@
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { Item } from "@/types/item";
-import { Heart, ExternalLink, Trash2, Pencil } from "lucide-react";
+import { Heart, ExternalLink, Trash2, Pencil, ShoppingCart } from "lucide-react";
 import styles from "./WishlistItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
 
@@ -13,6 +13,8 @@ type Props = {
   item: Item;
   isOwner?: boolean;
   onToggleReserve?: (id: string) => void;
+  onToggleBought?: (id: string) => void;
+  reservedByName?: string | null;
   onDelete?: (id: string) => void;
   onEdit?: (item: Item) => void;
 };
@@ -29,15 +31,36 @@ export function WishlistItemDetailModal({
   item,
   isOwner = false,
   onToggleReserve,
+  onToggleBought,
+  reservedByName,
   onDelete,
   onEdit,
 }: Props) {
   const { data: currentUserId = "" } = useCurrentUserId();
-  const isReserved = item.status === 1 || !!item.reserved_by;
+  const isPurchased = item.status === 2;
+  const isReserved = item.status === 1 || (!isPurchased && !!item.reserved_by);
   const reservedByMe = currentUserId
     ? item.reserved_by === currentUserId
     : false;
-  const canToggleReservation = !isOwner && (!isReserved || reservedByMe);
+  const canToggleReservation = !isOwner && !isPurchased && (!isReserved || reservedByMe);
+  const canToggleBought =
+    !isOwner &&
+    ((isPurchased && reservedByMe) ||
+      (!isPurchased && (!isReserved || reservedByMe)));
+
+  const reserveStatusLabel = isPurchased
+    ? reservedByMe
+      ? "Purchased by you"
+      : reservedByName
+        ? `Purchased by ${reservedByName}`
+        : "Purchased"
+    : isReserved
+      ? reservedByMe
+        ? "Reserved by you"
+        : reservedByName
+          ? `Reserved by ${reservedByName}`
+          : "Reserved"
+      : null;
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -64,8 +87,8 @@ export function WishlistItemDetailModal({
                 {priorityLabel[item.priority]}
               </span>
             )}
-            {isReserved && (
-              <span className={styles.reservedBadge}>Reserved</span>
+            {reserveStatusLabel && (
+              <span className={styles.reservedBadge}>{reserveStatusLabel}</span>
             )}
           </div>
 
@@ -111,25 +134,43 @@ export function WishlistItemDetailModal({
               )}
 
               {!isOwner && (
-                <Button
-                  variant={isReserved ? "secondary" : "primary"}
-                  onClick={() => {
-                    if (canToggleReservation && onToggleReserve)
-                      onToggleReserve(item.id);
-                  }}
-                  disabled={!canToggleReservation}
-                >
-                  <Heart
-                    size={16}
-                    fill={isReserved ? "currentColor" : "none"}
-                    style={{ marginRight: 6 }}
-                  />
-                  {isReserved
-                    ? reservedByMe
-                      ? "Release reservation"
-                      : "Reserved"
-                    : "Reserve this gift"}
-                </Button>
+                <>
+                  <Button
+                    variant={isReserved ? "secondary" : "primary"}
+                    onClick={() => {
+                      if (canToggleReservation && onToggleReserve)
+                        onToggleReserve(item.id);
+                    }}
+                    disabled={!canToggleReservation}
+                  >
+                    <Heart
+                      size={16}
+                      fill={isReserved ? "currentColor" : "none"}
+                      style={{ marginRight: 6 }}
+                    />
+                    {isPurchased
+                      ? "Purchased"
+                      : isReserved
+                        ? reservedByMe
+                          ? "Release reservation"
+                          : "Reserved"
+                        : "Reserve this gift"}
+                  </Button>
+
+                  {onToggleBought && (
+                    <Button
+                      variant={isPurchased ? "secondary" : "primary"}
+                      size="sm"
+                      onClick={() => {
+                        if (canToggleBought) onToggleBought(item.id);
+                      }}
+                      disabled={!canToggleBought}
+                    >
+                      <ShoppingCart size={14} style={{ marginRight: 6 }} />
+                      {isPurchased ? "Purchased" : "Bought"}
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           </div>

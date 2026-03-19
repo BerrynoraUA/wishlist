@@ -71,7 +71,7 @@ async function fetchItemsToCheck(): Promise<ItemRow[]> {
     .neq("url", "");
 
   if (error) throw error;
-  return (data ?? []) as unknown as ItemRow[];
+  return (data ?? []) as ItemRow[];
 }
 
 async function updateItemFromProduct(itemId: string, product: ProductData): Promise<void> {

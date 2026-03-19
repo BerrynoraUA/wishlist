@@ -1,11 +1,11 @@
 "use client";
 
 import styles from "./DiscoverFilters.module.scss";
-import { Sparkles, Heart } from "lucide-react";
+import { Sparkles, Heart, ShoppingCart } from "lucide-react";
 
 type Props = {
-  active: "wishlists" | "reserved";
-  onChange: (v: "wishlists" | "reserved") => void;
+  active: "wishlists" | "reserved" | "purchased";
+  onChange: (v: "wishlists" | "reserved" | "purchased") => void;
 };
 
 export function DiscoverFilters({ active, onChange }: Props) {
@@ -24,6 +24,13 @@ export function DiscoverFilters({ active, onChange }: Props) {
       >
         <Heart size={16} />
         <span>Reserved</span>
+      </button>
+      <button
+        className={active === "purchased" ? styles.active : ""}
+        onClick={() => onChange("purchased")}
+      >
+        <ShoppingCart size={16} />
+        <span>Purchased</span>
       </button>
     </div>
   );

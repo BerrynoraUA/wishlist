@@ -20,6 +20,14 @@
   }
 }
 
+.cardPurchased {
+  border-color: rgba(22, 163, 74, 0.18);
+
+  &:hover {
+    box-shadow: 0 16px 32px rgba(22, 163, 74, 0.14);
+  }
+}
+
 .priority {
   position: absolute;
   top: 10px;
@@ -142,6 +150,16 @@
   }
 }
 
+.badgeLeftPurchased {
+  background: rgba(22, 163, 74, 0.1);
+  color: #14532d;
+  border-color: rgba(22, 163, 74, 0.24);
+
+  svg {
+    fill: none;
+  }
+}
+
 .saleBadgeLeft {
   position: absolute;
   top: 40px;
@@ -188,11 +206,12 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  gap: 8px;
   margin-top: 10px;
 }
 
 .reserveBtn {
-  width: 100%;
+  flex: 1;
   height: 34px;
   border-radius: 10px;
   border: 1px solid #e0d3dc;
@@ -210,6 +229,53 @@
     background: #f1e3eb;
     border-color: #d8c8d3;
   }
+}
+
+.reserveCompact {
+  font-size: 13px;
+}
+
+.reservePurchased {
+  background: rgba(22, 163, 74, 0.08);
+  border-color: rgba(22, 163, 74, 0.24);
+  color: #14532d;
+
+  &:hover:not(:disabled) {
+    background: rgba(22, 163, 74, 0.14);
+    border-color: rgba(22, 163, 74, 0.32);
+  }
+}
+
+.buyBtn {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  cursor: pointer;
+  border-radius: 10px;
+  border: 1px solid #e0d3dc;
+  background: #fff;
+  color: #333;
+  display: grid;
+  place-items: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #15803d;
+    color: #15803d;
+    background: rgba(22, 163, 74, 0.08);
+  }
+}
+
+.purchased {
+  border-color: #15803d;
+  color: #15803d;
+  background: rgba(22, 163, 74, 0.12);
+}
+
+.buyBtnPurchased {
+  border-color: rgba(22, 163, 74, 0.24);
+  color: #166534;
+  background: rgba(22, 163, 74, 0.08);
 }
 
 .reserved {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardHeader } from "./components/DashboardHeader";
 import { StatsRow } from "./components/StatsRow";
@@ -14,14 +14,6 @@ function getInitialInvite(searchParams: URLSearchParams) {
 }
 
 export default function HomePage() {
-  return (
-    <Suspense>
-      <HomePageContent />
-    </Suspense>
-  );
-}
-
-function HomePageContent() {
   const [open, setOpen] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();

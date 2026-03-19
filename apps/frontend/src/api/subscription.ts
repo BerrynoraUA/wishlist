@@ -3,9 +3,11 @@ import { getRevenueCat } from "@/lib/revenuecat";
 import {
   SubscriptionPlan,
   SubscriptionStatus,
+  BillingInterval,
+  RC_CHECKOUT_BASE_URL,
+  RC_PACKAGE_IDS,
   RC_PRODUCT_IDS,
 } from "@/types/subscription";
-import type { Package } from "@revenuecat/purchases-js";
 
 /* ────────────────────────────────────────
    Entitlement helpers
@@ -55,13 +57,77 @@ export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
 }
 
 /* ────────────────────────────────────────
-   Purchase helpers
+   Checkout redirect
    ──────────────────────────────────────── */
 
 /**
- * Fetch available packages from RevenueCat.
+ * Builds a RevenueCat checkout URL for the given user and billing interval.
+ * Format: https://pay.rev.cat/<PROJECT_ID>/<APP_USER_ID>?package_id=<PACKAGE_ID>
  */
-export async function getOfferings(): Promise<Package[]> {
+export function buildCheckoutUrl(
+  userId: string,
+  interval: BillingInterval,
+): string {
+  const packageId =
+    interval === BillingInterval.Monthly
+      ? RC_PACKAGE_IDS.proMonthly
+      : RC_PACKAGE_IDS.proYearly;
+
+  return `${RC_CHECKOUT_BASE_URL}/${encodeURIComponent(userId)}?package_id=${encodeURIComponent(packageId)}`;
+}
+
+/**
+ * Opens the RevenueCat-hosted checkout page in a new tab.
+ * Requires the authenticated user's ID.
+ */
+export async function redirectToCheckout(
+  interval: BillingInterval,
+): Promise<void> {
+  const {
+    data: { user },
+  } = await supabaseBrowser.auth.getUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const url = buildCheckoutUrl(user.id, interval);
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+/* ────────────────────────────────────────
+   RevenueCat sync helpers
+   ──────────────────────────────────────── */
+
+/**
+ * Sync subscription state from RevenueCat → Supabase
+ * by calling our server API which checks RevenueCat and updates the DB.
+ */
+export async function syncSubscription(): Promise<SubscriptionStatus> {
+  const {
+    data: { session },
+  } = await supabaseBrowser.auth.getSession();
+
+  if (!session) throw new Error("Not authenticated");
+
+  const res = await fetch("/api/server/subscription/sync", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? "Failed to sync subscription");
+  }
+
+  return res.json();
+}
+
+/**
+ * Fetch available packages from RevenueCat (client-side SDK).
+ */
+export async function getOfferings() {
   const rc = getRevenueCat();
   if (!rc) return [];
 
@@ -73,36 +139,10 @@ export async function getOfferings(): Promise<Package[]> {
 }
 
 /**
- * Initiate a purchase for a given package.
+ * Restore purchases — re-syncs RevenueCat state to Supabase.
  */
-export async function purchasePackage(pkg: Package) {
-  const rc = getRevenueCat();
-  if (!rc) throw new Error("RevenueCat not initialised");
-
-  const { customerInfo } = await rc.purchase({ rcPackage: pkg });
-  return customerInfo;
+export async function restorePurchases(): Promise<SubscriptionStatus> {
+  return syncSubscription();
 }
 
-/**
- * Restore purchases (useful for cross-platform).
- */
-export async function restorePurchases() {
-  const rc = getRevenueCat();
-  if (!rc) throw new Error("RevenueCat not initialised");
-
-  // For web, we re-fetch customer info which includes all entitlements
-  const customerInfo = await rc.getCustomerInfo();
-  return customerInfo;
-}
-
-/**
- * Find a specific package by product ID.
- */
-export function findPackageByProductId(
-  packages: Package[],
-  productId: string,
-): Package | undefined {
-  return packages.find((pkg) => pkg.rcBillingProduct?.identifier === productId);
-}
-
-export { RC_PRODUCT_IDS };
+export { RC_PRODUCT_IDS, RC_PACKAGE_IDS };

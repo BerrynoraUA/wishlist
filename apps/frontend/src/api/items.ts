@@ -188,6 +188,18 @@ export async function toggleItemReservation(itemId: string): Promise<Item> {
   return data as Item;
 }
 
+export async function toggleItemBought(itemId: string): Promise<Item> {
+  const { data, error } = await supabaseBrowser.rpc('toggle_item_bought', {
+    p_item_id: itemId,
+  });
+
+  if (error) {
+    console.error('Error toggling item bought status:', error);
+    throw new Error(error.message || 'Failed to toggle item bought status');
+  }
+
+  return data as Item;
+}
 
 export async function uploadItemImage(file: File): Promise<string> {
   const {

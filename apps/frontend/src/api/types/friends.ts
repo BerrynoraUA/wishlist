@@ -47,3 +47,18 @@ export interface ProfileSearchResult {
   id: string;
   nickname: string;
 }
+
+export type GetFriendsWithoutWishlistAccessParams = {
+  wishlistId: string;
+  search?: string;
+  skip?: number;
+  take?: number;
+};
+
+export type WishlistAccessUser = {
+  id: string;
+  nickname: string;
+  access_type: number;
+  access_role: "viewer" | "editor";
+  created_at?: string;
+};

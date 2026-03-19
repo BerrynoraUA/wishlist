@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./DiscoverItemCard.module.scss";
 import { DiscoverItem } from "@/api/types/wishilst";
-import { Heart, ExternalLink, MoreHorizontal } from "lucide-react";
+import { Heart, ExternalLink, MoreHorizontal, ShoppingCart } from "lucide-react";
 import { ItemDetailModal } from "./ItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
 
 type Props = DiscoverItem & {
   onToggleReserve?: (id: string) => void;
+  onToggleBought?: (id: string) => void;
   showDiscountBadge?: boolean;
 };
 
@@ -19,22 +20,32 @@ export function DiscoverItemCard({
   store,
   image,
   isReserved,
+  status,
   image_url,
   url,
   description,
   priority,
   reservedBy,
+  reserved_by,
+  reservedByName,
   share_url,
   discount_price,
   onToggleReserve,
+  onToggleBought,
   showDiscountBadge = false,
 }: Props) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { data: currentUserId = "" } = useCurrentUserId();
-  const reservedByMe = !!reservedBy && reservedBy.toString() === currentUserId;
-  const canToggleReservation = reservedByMe || !isReserved;
+  const reservedByValue = (reservedBy ?? reserved_by ?? null)?.toString() ?? null;
+  const isPurchased = status === 2;
+  const isReservedState = isReserved || status === 1 || (!!reservedByValue && !isPurchased);
+  const reservedByMe = !!reservedByValue && reservedByValue === currentUserId;
+  const canToggleReservation = !isPurchased && (reservedByMe || !isReservedState);
+  const canToggleBought =
+    (isPurchased && reservedByMe) ||
+    (!isPurchased && (!isReservedState || reservedByMe));
   const imgSrc = image_url || image;
   const shareLink = share_url || url || "";
   const hasShareLink = Boolean(shareLink);
@@ -84,6 +95,20 @@ export function DiscoverItemCard({
     return Math.min(99, rounded);
   })();
 
+  const reserveStatusLabel = isPurchased
+    ? reservedByMe
+      ? "Purchased by you"
+      : reservedByName
+        ? `Purchased by ${reservedByName}`
+        : "Purchased"
+    : isReservedState
+      ? reservedByMe
+        ? "Reserved by you"
+        : reservedByName
+          ? `Reserved by ${reservedByName}`
+          : "Reserved"
+      : null;
+
     useEffect(() => {
       function handleClickOutside(e: MouseEvent) {
         if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -130,7 +155,7 @@ export function DiscoverItemCard({
 
             <div className={styles.quickActions}>
               <a
-                href={hasProductLink ? url ?? "#" : "#"}
+                href={hasProductLink ? url : "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`${styles.iconButton} ${!hasProductLink ? styles.disabled : ""}`}
@@ -187,7 +212,7 @@ export function DiscoverItemCard({
 
           <div className={styles.actions}>
             <button
-              className={`${styles.reserveBtn} ${isReserved ? styles.reserved : ""}`}
+              className={`${styles.reserveBtn} ${isReservedState ? styles.reserved : ""} ${onToggleBought ? styles.reserveCompact : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
                 if (canToggleReservation && onToggleReserve)
@@ -195,16 +220,37 @@ export function DiscoverItemCard({
               }}
               disabled={!canToggleReservation}
             >
-              <Heart size={16} fill={isReserved ? "currentColor" : "none"} />
+              <Heart size={16} fill={isReservedState ? "currentColor" : "none"} />
               <span>
-                {isReserved
-                  ? reservedByMe
-                    ? "Reserved by you"
-                    : "Reserved"
-                  : "Reserve this gift"}
+                {isPurchased
+                  ? "Purchased"
+                  : isReservedState
+                    ? reservedByMe
+                      ? "Reserved by you"
+                      : "Reserved"
+                    : "Reserve this gift"}
               </span>
             </button>
+
+            {onToggleBought && (
+              <button
+                className={`${styles.buyBtn} ${isPurchased ? styles.purchased : ""}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (canToggleBought) onToggleBought(id);
+                }}
+                disabled={!canToggleBought}
+                aria-label={isPurchased ? "Mark as not purchased" : "Mark as purchased"}
+                title={reserveStatusLabel ?? "Mark as purchased"}
+              >
+                <ShoppingCart size={16} />
+              </button>
+            )}
           </div>
+
+          {reserveStatusLabel && (
+            <div className={styles.statusText}>{reserveStatusLabel}</div>
+          )}
         </div>
       </div>
 
@@ -217,15 +263,18 @@ export function DiscoverItemCard({
           price,
           store,
           image: imgSrc,
-          isReserved,
+          isReserved: isReservedState,
+          status,
           image_url,
           url,
           share_url,
           description,
           priority,
-          reservedBy,
+          reservedBy: reservedByValue,
+          reservedByName,
         }}
         onToggleReserve={onToggleReserve}
+        onToggleBought={onToggleBought}
       />
     </>
   );

@@ -43,10 +43,19 @@ export const RC_PRODUCT_IDS = {
   proYearly: "pro_yearly",
 } as const;
 
+/* ── RevenueCat checkout ── */
+export const RC_CHECKOUT_BASE_URL =
+  "https://pay.rev.cat/sandbox/uazbjrhnlqnlsydu" as const;
+
+export const RC_PACKAGE_IDS = {
+  proMonthly: "$rc_monthly",
+  proYearly: "Yearly",
+} as const;
+
 /* ── Pricing constants ── */
 export const PRICING = {
-  monthly: 2.99,
-  yearly: 30,
+  monthly: 0.99,
+  yearly: 1,
   get yearlySavingsPercent() {
     return Math.round((1 - this.yearly / (this.monthly * 12)) * 100);
   },

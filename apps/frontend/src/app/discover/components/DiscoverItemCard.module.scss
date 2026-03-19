@@ -151,6 +151,48 @@
   }
 }
 
+.reserveCompact {
+  font-size: 13px;
+  gap: 8px;
+}
+
+.buyBtn {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--card-bg);
+  color: var(--color-text);
+  display: grid;
+  place-items: center;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    border-color: #15803d;
+    color: #15803d;
+    background: rgba(22, 163, 74, 0.08);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.purchased {
+  border-color: #15803d;
+  color: #15803d;
+  background: rgba(22, 163, 74, 0.12);
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.15);
+}
+
+.statusText {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
 .reserved {
   background: $brand;
   color: #fff;
