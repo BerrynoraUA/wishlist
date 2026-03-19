@@ -6,6 +6,7 @@ import { Bell } from "lucide-react";
 import { NotificationsPanel } from "@/components/notifications/NotificationsPanel";
 import {
   useDeleteAllNotifications,
+  useMarkAllNotificationsAsRead,
   useNotifications,
   useUnreadNotificationsCount,
   useMarkNotificationAsRead,
@@ -23,6 +24,9 @@ export function NotificationsMenu() {
 
   const { mutateAsync: deleteAll, isPending: isDeleting } =
     useDeleteAllNotifications();
+
+  const { mutateAsync: markAllRead, isPending: isMarkingAll } =
+    useMarkAllNotificationsAsRead();
 
   const { mutateAsync: markRead } = useMarkNotificationAsRead();
 
@@ -55,7 +59,11 @@ export function NotificationsMenu() {
             await deleteAll();
             refetch();
           }}
-          isLoading={isLoading || isDeleting}
+          onReadAll={async () => {
+            await markAllRead();
+            refetch();
+          }}
+          isLoading={isLoading || isDeleting || isMarkingAll}
           onMarkRead={async (id) => {
             await markRead(id);
             refetch();

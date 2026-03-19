@@ -33,6 +33,12 @@
   }
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
 .list {
   list-style: none;
   padding: 0;

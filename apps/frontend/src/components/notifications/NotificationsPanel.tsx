@@ -7,6 +7,7 @@ import { Notification } from "@/types";
 type Props = {
   notifications: Notification[];
   onClear?: () => void;
+  onReadAll?: () => void;
   isLoading?: boolean;
   onMarkRead?: (id: string) => void;
 };
@@ -14,6 +15,7 @@ type Props = {
 export function NotificationsPanel({
   notifications,
   onClear,
+  onReadAll,
   isLoading,
   onMarkRead,
 }: Props) {
@@ -22,15 +24,29 @@ export function NotificationsPanel({
       <div className={styles.header}>
         <strong>Notifications</strong>
 
-        {notifications.length > 0 && onClear && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClear}
-            disabled={isLoading}
-          >
-            Clear
-          </Button>
+        {notifications.length > 0 && (
+          <div className={styles.actions}>
+            {onReadAll && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onReadAll}
+                disabled={isLoading}
+              >
+                Read All
+              </Button>
+            )}
+            {onClear && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClear}
+                disabled={isLoading}
+              >
+                Clear
+              </Button>
+            )}
+          </div>
         )}
       </div>
 
