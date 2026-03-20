@@ -19,8 +19,13 @@ function SharedWishlistContent() {
   const router = useRouter();
   const token = searchParams.get("token") ?? "";
   const action = searchParams.get("action");
-  const [page, setPage] = useState(1);
+  const reservedItemId = searchParams.get("item");
+  const requestedPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
+  const [page, setPage] = useState(
+    Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1,
+  );
   const [authPromptOpen, setAuthPromptOpen] = useState(false);
+  const [pendingReserveItemId, setPendingReserveItemId] = useState<string | null>(null);
   const [friendStatus, setFriendStatus] = useState<
     "sent" | "already_friends" | "error" | null
   >(null);
@@ -69,13 +74,37 @@ function SharedWishlistContent() {
         if (!user) return;
 
         if (user.id === wishlist.user_id) {
-          router.replace(`/wishlist/${wishlist.id}`);
+          const destination = new URLSearchParams();
+          if (reservedItemId) {
+            destination.set("item", reservedItemId);
+          }
+          if (page > 1) {
+            destination.set("page", String(page));
+          }
+
+          router.replace(
+            destination.size > 0
+              ? `/wishlist/${wishlist.id}?${destination.toString()}`
+              : `/wishlist/${wishlist.id}`,
+          );
           return;
         }
 
         const alreadyFriends = await checkFriendship(wishlist.user_id);
         if (alreadyFriends) {
-          router.replace(`/wishlist/${wishlist.id}`);
+          const destination = new URLSearchParams();
+          if (reservedItemId) {
+            destination.set("item", reservedItemId);
+          }
+          if (page > 1) {
+            destination.set("page", String(page));
+          }
+
+          router.replace(
+            destination.size > 0
+              ? `/wishlist/${wishlist.id}?${destination.toString()}`
+              : `/wishlist/${wishlist.id}`,
+          );
           return;
         }
 
@@ -86,9 +115,10 @@ function SharedWishlistContent() {
         router.replace("/home");
       }
     })();
-  }, [action, wishlist?.id, wishlist?.user_id, searchParams, router]);
+  }, [action, wishlist?.id, wishlist?.user_id, searchParams, router, reservedItemId, page]);
 
-  const handleReserveAttempt = () => {
+  const handleReserveAttempt = (itemId: string) => {
+    setPendingReserveItemId(itemId);
     setAuthPromptOpen(true);
   };
 
@@ -143,6 +173,8 @@ function SharedWishlistContent() {
         open={authPromptOpen}
         onClose={() => setAuthPromptOpen(false)}
         shareToken={token}
+        itemId={pendingReserveItemId}
+        page={page}
       />
 
       {friendStatus && (
