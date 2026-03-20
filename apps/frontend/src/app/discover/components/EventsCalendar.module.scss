@@ -1,0 +1,278 @@
+@use "@/styles/variables" as *;
+
+/* ── Popup container ── */
+.popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 400;
+  width: 340px;
+  padding: 18px;
+  background:
+    radial-gradient(circle at top left, var(--brand-alpha-10), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.82)),
+    var(--card-bg);
+  border: 1px solid rgba(224, 82, 160, 0.16);
+  border-radius: 22px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.16),
+    0 10px 30px var(--brand-alpha-10);
+  backdrop-filter: blur(16px);
+  isolation: isolate;
+  overflow: visible;
+  animation: calendarIn 0.42s $ease-spring;
+  user-select: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -35% auto auto -12%;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.55), transparent 68%);
+    opacity: 0.8;
+    pointer-events: none;
+    animation: calendarGlow 0.7s $ease-out;
+  }
+}
+
+@keyframes calendarIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.94);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.012);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes calendarGlow {
+  from {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+  to {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  animation: calendarContentIn 0.46s $ease-out;
+}
+
+@keyframes calendarContentIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Event cell overrides ── */
+.hasEvent.hasEvent {
+  cursor: pointer;
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 6px 14px rgba(17, 24, 39, 0.12);
+
+  &:hover {
+    opacity: 0.94;
+    transform: translateY(-1px) scale(1.04);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 10px 20px rgba(17, 24, 39, 0.18);
+  }
+}
+
+.multiEvent {
+  background-blend-mode: soft-light;
+}
+
+/* ── Day number variants ── */
+.dayNumber {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  line-height: 1;
+}
+
+.dayNumberToday {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-brand);
+  line-height: 1;
+}
+
+.dayNumberEvent {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+.eventCountBadge {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-text);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(17, 24, 39, 0.14);
+}
+
+/* ── Legend ── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.legendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(17, 24, 39, 0.12);
+}
+
+.legendLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Tooltip ── */
+.tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  padding: 10px 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.9)),
+    var(--card-bg);
+  border: 1px solid rgba(224, 82, 160, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(17, 24, 39, 0.18);
+  min-width: 160px;
+  max-width: 240px;
+  z-index: 420;
+  animation: tooltipIn 0.18s $ease-out;
+  pointer-events: auto;
+  backdrop-filter: blur(12px);
+}
+
+@keyframes tooltipIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% + 4px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -100%);
+  }
+}
+
+.tooltipRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 6px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s $ease-out;
+
+  &:hover {
+    background: var(--brand-alpha-06);
+  }
+
+  & + & {
+    border-top: 1px solid var(--color-border-subtle);
+    margin-top: 3px;
+    padding-top: 7px;
+  }
+}
+
+.tooltipHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-subtle);
+
+  span {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+}
+
+.tooltipDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(17, 24, 39, 0.12);
+}
+
+.tooltipText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+
+  strong {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  span {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
