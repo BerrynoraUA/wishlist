@@ -11,7 +11,7 @@ type Props = {
 
 export function AppShell({ children }: Props) {
   const pathname = usePathname();
-  const hideTopNav = pathname === "/login" || pathname === "/share";
+  const hideTopNav = pathname === "/" || pathname === "/login" || pathname === "/share";
 
   return (
     <Providers>
