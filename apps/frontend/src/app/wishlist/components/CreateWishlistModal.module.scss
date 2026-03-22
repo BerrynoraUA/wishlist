@@ -60,6 +60,38 @@
   }
 }
 
+.upload {
+  border: 1.5px dashed var(--color-border-light);
+  border-radius: $radius-md;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+  background: var(--elevated-bg);
+}
+
+.dropArea {
+  border: 1.5px solid var(--color-border-subtle);
+  border-radius: 10px;
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  color: var(--color-text-muted);
+  background: var(--card-bg);
+  transition: border-color 0.3s $ease-out;
+
+  &:hover {
+    border-color: var(--input-focus-border);
+  }
+}
+
+.preview {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  max-height: 180px;
+}
+
 .section {
   display: grid;
   gap: 8px;

@@ -4,7 +4,8 @@ export interface CreateWishlistParams {
   title: string;
   description?: string;
   visibility?: WishlistVisibility;
-  imageUrl?: string;
+  image?: File | null;
+  imageUrl?: string | null;
   event_date?: Date;
   accent?: WishlistAccent;
 }
@@ -13,7 +14,9 @@ export interface UpdateWishlistParams {
   title?: string;
   description?: string;
   visibility?: WishlistVisibility;
-  imageUrl?: string;
+  image?: File | null;
+  imageUrl?: string | null;
+  removeImage?: boolean;
   event_date?: Date;
   accent?: WishlistAccent;
 }
@@ -46,6 +49,7 @@ export type DiscoverItem = {
   reservedBy?: string | null;
   reservedByName?: string | null;
   discount_price?: string | number | null;
+  currency?: string | null;
 };
 
 export type DiscoverSection = {
@@ -77,6 +81,7 @@ export type ReservedItem = {
   owner_username: string; 
   owner_avatar: string;
   discount_price?: string | number | null;
+  currency?: string | null;
 };
 
 export interface FriendUpcomingWishlist {

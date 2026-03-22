@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { WishlistItemDetailModal } from "./WishlistItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
+import { formatItemPrice } from "@/lib/utils";
 
 type Props = {
   item: Item;
@@ -72,10 +73,7 @@ export function WishlistItemCard({
     }
   })();
 
-  const formattedPrice = (() => {
-    if (!price) return "";
-    return price.startsWith("$") ? price : `$${price}`;
-  })();
+  const formattedPrice = formatItemPrice(price, item.currency);
 
   function parsePriceToNumber(value: string | null | undefined): number | null {
     if (!value) return null;

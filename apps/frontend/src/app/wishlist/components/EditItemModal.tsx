@@ -54,6 +54,7 @@ function EditItemForm({
   const [imagePreview, setImagePreview] = useState(item.image_url ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
+  const [currency, setCurrency] = useState(item.currency ?? "USD");
 
   const { mutate, isPending } = useUpdateItem();
   const { isPro } = useSubscription();
@@ -86,6 +87,7 @@ function EditItemForm({
       description: description.trim() || null,
       price: price.trim() || null,
       url: link.trim() || null,
+      currency,
       ...(imageFile
         ? { image: imageFile }
         : { image_url: imagePreview || null }),
@@ -162,12 +164,29 @@ function EditItemForm({
 
         <div className={styles.field}>
           <label>Price (optional)</label>
-          <input
-            type="text"
-            placeholder="$199"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
+          <div className={styles.priceRow}>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              aria-label="Currency"
+            >
+              <option value="USD">$ USD</option>
+              <option value="EUR">€ EUR</option>
+              <option value="GBP">£ GBP</option>
+              <option value="UAH">₴ UAH</option>
+              <option value="PLN">zł PLN</option>
+              <option value="JPY">¥ JPY</option>
+              <option value="CAD">CA$ CAD</option>
+              <option value="AUD">A$ AUD</option>
+              <option value="CHF">CHF</option>
+            </select>
+            <input
+              type="text"
+              placeholder="199"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+          </div>
         </div>
 
         {isPro && (

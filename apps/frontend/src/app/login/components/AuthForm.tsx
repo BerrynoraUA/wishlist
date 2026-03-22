@@ -22,12 +22,10 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setNotice(null);
 
     if (!email || !password) {
       setError("Email and password are required.");
@@ -39,11 +37,11 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
     try {
       if (isLogin) {
         await loginWithEmail(email, password);
-        onLoginSuccess(redirectTo);
       } else {
         await registerWithEmail(email, password);
-        setNotice("Account created. Check your inbox to confirm your email.");
       }
+
+      onLoginSuccess(redirectTo);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -53,7 +51,6 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
 
   const handleGoogle = async () => {
     setError(null);
-    setNotice(null);
     setGoogleLoading(true);
 
     try {
@@ -100,7 +97,6 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
         />
 
         {error && <p className={styles.error}>{error}</p>}
-        {notice && <p className={styles.notice}>{notice}</p>}
 
         <button
           type="submit"

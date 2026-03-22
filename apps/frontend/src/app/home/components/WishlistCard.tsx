@@ -19,6 +19,7 @@ export function WishlistCard({ wishlist, showSharedMeta = true }: Props) {
   const router = useRouter();
 
   const accent = accentClass[wishlist.accent_type] ?? "pink";
+  const hasImage = Boolean(wishlist.image_url);
   const visibility = wishlist.visibility_type;
   const VisibilityIcon = visibilityIcon[visibility];
   const itemsCount =
@@ -27,6 +28,9 @@ export function WishlistCard({ wishlist, showSharedMeta = true }: Props) {
     0;
   const isShared = showSharedMeta && wishlist.is_owner === false;
   const ownerNickname = wishlist.owner_nickname?.trim();
+  const sharedTooltip = ownerNickname
+    ? `Shared by @${ownerNickname}`
+    : "Shared wishlist";
 
   return (
     <div
@@ -35,21 +39,31 @@ export function WishlistCard({ wishlist, showSharedMeta = true }: Props) {
       style={{ cursor: "pointer" }}
     >
       <div className={`${styles.top} ${styles[accent]}`}>
+        {hasImage && (
+          <img
+            src={wishlist.image_url as string}
+            alt={wishlist.title}
+            className={styles.coverImage}
+          />
+        )}
         {isShared && (
-          <div className={styles.sharedBadge}>
+          <div
+            className={styles.sharedBadge}
+            aria-label={sharedTooltip}
+            title={sharedTooltip}
+          >
             <Link2 size={12} />
             <span>Shared</span>
+            <span className={styles.sharedTooltip} role="tooltip">
+              {sharedTooltip}
+            </span>
           </div>
         )}
-        <Gift size={40} className={styles.icon} />
+        {!hasImage && <Gift size={40} className={styles.icon} />}
       </div>
 
       <div className={styles.content}>
         <h3 className={styles.title}>{wishlist.title}</h3>
-
-        {isShared && ownerNickname && (
-          <p className={styles.sharedByline}>Shared by @{ownerNickname}</p>
-        )}
 
         <div className={styles.meta}>
           <span className={styles.items}>{itemsCount} items</span>
