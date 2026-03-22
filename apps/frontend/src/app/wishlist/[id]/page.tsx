@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState, useCallback } from "react";
 import { WishlistHeader } from "../components/WishlistHeader";
 import { WishlistItemsGrid } from "../components/WishlistItemsGrid";
@@ -29,8 +29,13 @@ const PAGE_SIZE = 12;
 export default function WishlistItemsPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const id = params.id as string;
-  const [page, setPage] = useState(1);
+  const openItemId = searchParams.get("item");
+  const requestedPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
+  const [page, setPage] = useState(
+    Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1,
+  );
   const { data: currentUserId = "" } = useCurrentUserId();
 
   // Modal states
@@ -84,6 +89,23 @@ export default function WishlistItemsPage() {
     }
   }, [id]);
 
+  const handleOpenItemHandled = useCallback(
+    (itemId: string) => {
+      const nextParams = new URLSearchParams(searchParams.toString());
+
+      if (nextParams.get("item") !== itemId) {
+        return;
+      }
+
+      nextParams.delete("item");
+      const nextQuery = nextParams.toString();
+      router.replace(nextQuery ? `/wishlist/${id}?${nextQuery}` : `/wishlist/${id}`, {
+        scroll: false,
+      });
+    },
+    [searchParams, router, id],
+  );
+
   return (
     <main className={styles.page}>
       {wishlistLoading && <p>Loading wishlist...</p>}
@@ -115,6 +137,8 @@ export default function WishlistItemsPage() {
             onToggleBought={(itemId) => toggleBought.mutate(itemId)}
             onDelete={(itemId) => setDeleteItemId(itemId)}
             onEdit={(item) => setEditItem(item)}
+            openItemId={openItemId}
+            onOpenItemHandled={handleOpenItemHandled}
           />
           {totalPages > 1 && (
             <Pagination page={page} total={totalPages} onChange={setPage} />

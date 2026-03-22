@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button/Button";
 import { useUpdateWishlist } from "@/hooks/use-wishlists";
 import { Wishlist, WishlistAccent, WishlistVisibility } from "@/types/wishlist";
 import { Globe, Users, Lock, Check } from "lucide-react";
+import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import styles from "./CreateWishlistModal.module.scss";
 
 type Props = {
@@ -134,11 +135,7 @@ function EditWishlistForm({
 
         <div className={styles.field}>
           <label>Event Date (optional)</label>
-          <input
-            type="date"
-            value={eventDate}
-            onChange={(e) => setEventDate(e.target.value)}
-          />
+          <DatePickerField value={eventDate} onChange={setEventDate} />
         </div>
 
         <div className={styles.section}>

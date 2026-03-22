@@ -1,0 +1,86 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  position: relative;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid var(--input-border);
+  border-radius: $radius-md;
+  padding: 8px 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  cursor: pointer;
+  background: var(--input-bg);
+  transition:
+    border-color 0.3s $ease-out,
+    box-shadow 0.3s $ease-out;
+
+  &:hover {
+    border-color: var(--color-border-light);
+  }
+}
+
+.triggerActive {
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 4px var(--input-focus-ring);
+}
+
+.icon {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.value {
+  color: var(--color-text);
+}
+
+.placeholder {
+  color: var(--color-text-light);
+}
+
+.clearBtn {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-border-subtle);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s $ease-out;
+
+  &:hover {
+    background: var(--brand-alpha-10);
+    color: var(--color-brand);
+  }
+}
+
+.calendarWrap {
+  margin-top: 8px;
+  padding: 14px;
+  background:
+    radial-gradient(circle at top left, var(--brand-alpha-10), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.85)),
+    var(--card-bg);
+  border: 1px solid rgba(224, 82, 160, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  animation: expandIn 0.28s $ease-out;
+}
+
+@keyframes expandIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

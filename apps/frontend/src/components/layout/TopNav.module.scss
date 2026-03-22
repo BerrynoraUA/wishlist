@@ -235,19 +235,8 @@
 
 .notification {
   position: relative;
-  cursor: pointer;
-  color: var(--color-text-muted);
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &:hover {
-    color: var(--color-brand);
-    background: var(--brand-alpha-10);
-  }
 }
 
 .bell {
@@ -255,6 +244,17 @@
   align-items: center;
   justify-content: center;
   line-height: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    color: var(--color-brand);
+    background: var(--brand-alpha-10);
+  }
 }
 
 .badge {

@@ -13,6 +13,8 @@ type Props = {
   onToggleBought?: (id: string) => void;
   onDelete?: (id: string) => void;
   onEdit?: (item: Item) => void;
+  openItemId?: string | null;
+  onOpenItemHandled?: (id: string) => void;
 };
 
 export function WishlistItemsGrid({
@@ -23,6 +25,8 @@ export function WishlistItemsGrid({
   onToggleBought,
   onDelete,
   onEdit,
+  openItemId,
+  onOpenItemHandled,
 }: Props) {
   const { data: currentUserId = "" } = useCurrentUserId();
   const reservedByIds = useMemo(
@@ -64,6 +68,8 @@ export function WishlistItemsGrid({
             }
             onDelete={onDelete}
             onEdit={onEdit}
+            autoOpen={openItemId === item.id}
+            onAutoOpenHandled={onOpenItemHandled}
           />
         ))}
       </div>

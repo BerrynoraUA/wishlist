@@ -7,6 +7,7 @@ import { useCreateWishlist } from "@/hooks/use-wishlists";
 import { useSettings } from "@/hooks/use-settings";
 import { WishlistAccent, WishlistVisibility } from "@/types/wishlist";
 import { Globe, Users, Lock, Check } from "lucide-react";
+import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import styles from "./CreateWishlistModal.module.scss";
 
 type Props = {
@@ -108,15 +109,11 @@ export function CreateWishlistModal({ open, onClose }: Props) {
           />
         </div>
 
-          {/* Event Date */}
-          <div className={styles.field}>
-            <label>Event Date (optional)</label>
-            <input
-              type="date"
-              value={eventDate}
-              onChange={(e) => setEventDate(e.target.value)}
-            />
-          </div>
+        {/* Event Date */}
+        <div className={styles.field}>
+          <label>Event Date (optional)</label>
+          <DatePickerField value={eventDate} onChange={setEventDate} />
+        </div>
 
         {/* Privacy */}
         <div className={styles.section}>

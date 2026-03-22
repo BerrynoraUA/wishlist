@@ -1,0 +1,145 @@
+@use "@/styles/variables" as *;
+
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  user-select: none;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.navBtn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-subtle);
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.18s $ease-out;
+
+  &:hover {
+    background: var(--brand-alpha-08);
+    border-color: var(--brand-alpha-20);
+    color: var(--color-brand);
+    transform: translateY(-1px);
+  }
+}
+
+.monthLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 10px;
+  transition: all 0.18s $ease-out;
+  letter-spacing: -0.01em;
+
+  &:hover {
+    background: var(--brand-alpha-06);
+    color: var(--color-brand);
+  }
+}
+
+/* ── Weekdays ── */
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 8px;
+
+  span {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-light);
+    padding: 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}
+
+/* ── Grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.42);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: all 0.18s $ease-out;
+  cursor: pointer;
+
+  &:not(.blank):hover {
+    background: rgba(255, 255, 255, 0.76);
+    border-color: rgba(224, 82, 160, 0.12);
+  }
+}
+
+.blank {
+  pointer-events: none;
+  cursor: default;
+}
+
+.dayNumber {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  line-height: 1;
+}
+
+.today {
+  border: 2px solid var(--color-brand);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 0 0 3px var(--brand-alpha-06);
+
+  .dayNumber {
+    font-weight: 600;
+    color: var(--color-brand);
+  }
+}
+
+.selected {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  box-shadow: 0 4px 12px var(--brand-alpha-20);
+
+  &:not(.blank):hover {
+    background: var(--color-brand);
+    border-color: var(--color-brand);
+    opacity: 0.9;
+  }
+
+  .dayNumber {
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+.today.selected {
+  box-shadow:
+    0 0 0 3px var(--brand-alpha-10),
+    0 4px 12px var(--brand-alpha-20);
+}

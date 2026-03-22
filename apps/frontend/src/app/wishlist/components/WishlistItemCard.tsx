@@ -22,6 +22,8 @@ type Props = {
   reservedByName?: string | null;
   onDelete?: (id: string) => void;
   onEdit?: (item: Item) => void;
+  autoOpen?: boolean;
+  onAutoOpenHandled?: (id: string) => void;
 };
 
 export function WishlistItemCard({
@@ -33,6 +35,8 @@ export function WishlistItemCard({
   reservedByName,
   onDelete,
   onEdit,
+  autoOpen = false,
+  onAutoOpenHandled,
 }: Props) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -130,6 +134,13 @@ export function WishlistItemCard({
     if (menuOpen) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (!autoOpen) return;
+
+    setDetailOpen(true);
+    onAutoOpenHandled?.(item.id);
+  }, [autoOpen, item.id, onAutoOpenHandled]);
 
   return (
     <>

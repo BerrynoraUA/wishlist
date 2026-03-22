@@ -9,13 +9,34 @@ type Props = {
   open: boolean;
   onClose: () => void;
   shareToken: string;
+  itemId?: string | null;
+  page?: number;
 };
 
-export function AuthPromptModal({ open, onClose, shareToken }: Props) {
+export function AuthPromptModal({
+  open,
+  onClose,
+  shareToken,
+  itemId,
+  page,
+}: Props) {
   const router = useRouter();
 
   const handleSignIn = () => {
-    const returnTo = `/share?token=${encodeURIComponent(shareToken)}&action=reserve`;
+    const params = new URLSearchParams({
+      token: shareToken,
+      action: "reserve",
+    });
+
+    if (itemId) {
+      params.set("item", itemId);
+    }
+
+    if (page && page > 1) {
+      params.set("page", String(page));
+    }
+
+    const returnTo = `/share?${params.toString()}`;
     router.push(`/login?redirect_to=${encodeURIComponent(returnTo)}`);
   };
 
