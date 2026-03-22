@@ -49,7 +49,7 @@ export const DEFAULT_SETTINGS: Omit<UserSettings, "user_id"> = {
   notify_reservations: true,
   notify_sale_alerts: true,
   email_digest: false,
-  theme: "light",
+  theme: "system",
   default_accent: WishlistAccent.Pink,
   default_wishlist_color: 0,
 };

@@ -1,12 +1,12 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { Sun, Moon, Monitor, Check } from "lucide-react";
 import styles from "./AppearanceSettings.module.scss";
 import { SettingsSection } from "./SettingsSection";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { WishlistAccent } from "@/types/wishlist";
 import type { ThemePreference, WishlistColorIndex } from "@/types/settings";
+import { useAppTheme } from "@/providers";
 
 const THEMES: {
   id: ThemePreference;
@@ -52,12 +52,12 @@ const WISHLIST_COLORS: { id: WishlistColorIndex; label: string; cssClass: string
 ];
 
 export function AppearanceSettings() {
-  const { setTheme, theme: currentTheme } = useTheme();
+  const { persistedTheme, setPersistedTheme } = useAppTheme();
   const { data: settings } = useSettings();
   const updateSettings = useUpdateSettings();
 
   function handleTheme(theme: ThemePreference) {
-    setTheme(theme);
+    setPersistedTheme(theme);
     updateSettings.mutate({ theme });
   }
 
@@ -81,7 +81,7 @@ export function AppearanceSettings() {
         <div className={styles.themeGrid}>
           {THEMES.map((t) => {
             const Icon = t.icon;
-            const isActive = currentTheme === t.id;
+            const isActive = persistedTheme === t.id;
 
             return (
               <button

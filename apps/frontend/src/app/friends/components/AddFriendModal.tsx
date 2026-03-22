@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { Copy } from "lucide-react";
@@ -26,6 +27,12 @@ export function AddFriendModal({ open, onClose }: Props) {
   const [inviting, setInviting] = useState(false);
   const [inviteSuccess, setInviteSuccess] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownStyle, setDropdownStyle] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
+  const inputWrapperRef = useRef<HTMLDivElement>(null);
 
   const take = 10;
 
@@ -40,6 +47,9 @@ export function AddFriendModal({ open, onClose }: Props) {
   });
 
   const sendRequest = useSendFriendRequest();
+  const showDropdown = dropdownOpen && Boolean(debouncedQuery) && (search.isFetching || search.isFetched);
+  const hasMore = (search.data?.length ?? 0) === take;
+  const inviteDisabled = selected.length === 0 || inviting;
 
   function resetState({ keepSuccess = false }: { keepSuccess?: boolean } = {}) {
     setSelected([]);
@@ -107,6 +117,33 @@ export function AddFriendModal({ open, onClose }: Props) {
     }
   }, [open]);
 
+  useEffect(() => {
+    if (!open || !showDropdown || !inputWrapperRef.current) {
+      setDropdownStyle(null);
+      return;
+    }
+
+    const updateDropdownPosition = () => {
+      const rect = inputWrapperRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      setDropdownStyle({
+        top: rect.bottom + 6,
+        left: rect.left,
+        width: rect.width,
+      });
+    };
+
+    updateDropdownPosition();
+    window.addEventListener("resize", updateDropdownPosition);
+    window.addEventListener("scroll", updateDropdownPosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updateDropdownPosition);
+      window.removeEventListener("scroll", updateDropdownPosition, true);
+    };
+  }, [open, showDropdown]);
+
   function handleCopy() {
     if (!inviteLink) return;
     navigator.clipboard.writeText(inviteLink);
@@ -141,9 +178,49 @@ export function AddFriendModal({ open, onClose }: Props) {
     }
   }
 
-  const showDropdown = dropdownOpen && Boolean(debouncedQuery) && (search.isFetching || search.isFetched);
-  const hasMore = (search.data?.length ?? 0) === take;
-  const inviteDisabled = selected.length === 0 || inviting;
+  const dropdownContent = showDropdown ? (
+    <div
+      className={`${styles.searchDropdown} ${styles.searchDropdownPortal}`}
+      style={dropdownStyle ?? undefined}
+    >
+      {search.isFetching && results.length === 0 && (
+        <div className={styles.empty}>Searching...</div>
+      )}
+
+      {!search.isFetching && results.length === 0 && (
+        <div className={styles.empty}>No matches</div>
+      )}
+
+      {results.length > 0 && (
+        <div className={styles.resultsList}>
+          {results.map((profile) => (
+            <button
+              key={profile.id}
+              type="button"
+              className={`${styles.resultItem} ${selected.some((p) => p.id === profile.id) ? styles.active : ""}`}
+              onClick={() => handleSelect(profile)}
+            >
+              <div className={styles.avatarStub}>{profile.nickname?.[0]?.toUpperCase() ?? "?"}</div>
+              <div className={styles.resultMeta}>
+                <span className={styles.nickname}>@{profile.nickname}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {hasMore && (
+        <button
+          type="button"
+          className={styles.loadMore}
+          onClick={handleLoadMore}
+          disabled={search.isFetching}
+        >
+          {search.isFetching ? "Loading..." : "Load more"}
+        </button>
+      )}
+    </div>
+  ) : null;
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -180,7 +257,7 @@ export function AddFriendModal({ open, onClose }: Props) {
 
         {/* Username Search */}
         <div className={styles.searchRow}>
-          <div className={styles.usernameInput}>
+          <div className={styles.usernameInput} ref={inputWrapperRef}>
             <input
               placeholder="@username"
               value={username}
@@ -191,53 +268,14 @@ export function AddFriendModal({ open, onClose }: Props) {
               }}
               onFocus={() => setDropdownOpen(true)}
             />
-
-            {showDropdown && (
-              <div className={styles.searchDropdown}>
-                {search.isFetching && results.length === 0 && (
-                  <div className={styles.empty}>Searching...</div>
-                )}
-
-                {!search.isFetching && results.length === 0 && (
-                  <div className={styles.empty}>No matches</div>
-                )}
-
-                {results.length > 0 && (
-                  <div className={styles.resultsList}>
-                    {results.map((profile) => (
-                      <button
-                        key={profile.id}
-                        type="button"
-                        className={`${styles.resultItem} ${selected.some((p) => p.id === profile.id) ? styles.active : ""}`}
-                        onClick={() => handleSelect(profile)}
-                      >
-                        <div className={styles.avatarStub}>{profile.nickname?.[0]?.toUpperCase() ?? "?"}</div>
-                        <div className={styles.resultMeta}>
-                          <span className={styles.nickname}>@{profile.nickname}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {hasMore && (
-                  <button
-                    type="button"
-                    className={styles.loadMore}
-                    onClick={handleLoadMore}
-                    disabled={search.isFetching}
-                  >
-                    {search.isFetching ? "Loading..." : "Load more"}
-                  </button>
-                )}
-              </div>
-            )}
           </div>
 
           <Button onClick={handleInvite} disabled={inviteDisabled}>
             {sendRequest.isPending ? "Inviting..." : "Invite"}
           </Button>
         </div>
+
+        {dropdownContent && createPortal(dropdownContent, document.body)}
 
         {selected.length > 0 && (
           <div className={styles.selectedList}>
