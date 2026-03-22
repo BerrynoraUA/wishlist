@@ -37,6 +37,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [discountPrice, setDiscountPrice] = useState<string | null>(null);
   const [hasDiscount, setHasDiscount] = useState(false);
   const [discountEndDate, setDiscountEndDate] = useState<string | null>(null);
+  const [currency, setCurrency] = useState("USD");
 
   const { mutate, isPending } = useCreateItem();
   const { isPro } = useSubscription();
@@ -71,6 +72,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     setDiscountPrice(null);
     setHasDiscount(false);
     setDiscountEndDate(null);
+    setCurrency("USD");
   }
 
   function handleSubmit() {
@@ -93,6 +95,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       discount_price: discountPrice,
       has_discount: hasDiscount,
       discount_end_date: discountEndDate,
+      currency,
     };
 
     mutate(payload, {
@@ -241,12 +244,29 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
         <div className={styles.field}>
           <label>Price (optional)</label>
-          <input
-            type="text"
-            placeholder="$199"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
+          <div className={styles.priceRow}>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              aria-label="Currency"
+            >
+              <option value="USD">$ USD</option>
+              <option value="EUR">€ EUR</option>
+              <option value="GBP">£ GBP</option>
+              <option value="UAH">₴ UAH</option>
+              <option value="PLN">zł PLN</option>
+              <option value="JPY">¥ JPY</option>
+              <option value="CAD">CA$ CAD</option>
+              <option value="AUD">A$ AUD</option>
+              <option value="CHF">CHF</option>
+            </select>
+            <input
+              type="text"
+              placeholder="199"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+          </div>
         </div>
 
         {isPro && (

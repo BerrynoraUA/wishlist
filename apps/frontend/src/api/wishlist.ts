@@ -8,10 +8,16 @@ import {
   FriendUpcomingWishlist,
   ReservedItem,
 } from "./types/wishilst";
-import {
-  GetFriendsWithoutWishlistAccessParams,
-  ProfileSearchResult,
-} from "./types/friends";
+
+const WISHLIST_IMAGE_BUCKET = "items";
+const WISHLIST_IMAGE_PUBLIC_SEGMENT = "/storage/v1/object/public/items/";
+
+type WishlistFeedRow = Wishlist & {
+  items_count?: number;
+  owner_nickname?: string | null;
+  can_edit?: boolean;
+  is_owner?: boolean;
+};
 
 export async function getMyWishlists({
   skip = 0,
@@ -26,7 +32,7 @@ export async function getMyWishlists({
 
   if (error) throw error;
 
-  return (data ?? []).map((row: any) => ({
+  return (data ?? []).map((row: WishlistFeedRow) => ({
     ...row,
     itemsCount: row.items_count,
     ownerNickname: row.owner_nickname,
@@ -100,6 +106,7 @@ export async function createWishlist({
   description,
   visibility = WishlistVisibility.FriendsOnly,
   event_date,
+  image,
   imageUrl,
   accent = WishlistAccent.Pink,
 }: CreateWishlistParams): Promise<Wishlist> {
@@ -111,6 +118,16 @@ export async function createWishlist({
   if (sessionError) throw sessionError;
   if (!session?.user) throw new Error("Not authenticated");
 
+  let finalImageUrl: string | null = null;
+  let uploadedFile = false;
+
+  if (image) {
+    finalImageUrl = await uploadWishlistImage(image);
+    uploadedFile = true;
+  } else if (imageUrl) {
+    finalImageUrl = imageUrl;
+  }
+
   const { data, error } = await supabaseBrowser
     .from("wishlist")
     .insert({
@@ -118,14 +135,20 @@ export async function createWishlist({
       title,
       description,
       visibility_type: visibility,
-      image_url: imageUrl,
+      image_url: finalImageUrl,
       event_date: event_date ? event_date.toISOString() : null,
       accent_type: accent,
     })
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (uploadedFile && finalImageUrl) {
+      await deleteWishlistImage(finalImageUrl).catch(console.error);
+    }
+
+    throw error;
+  }
 
   if (
     visibility === WishlistVisibility.Public ||
@@ -148,17 +171,52 @@ export async function updateWishlist(
   wishlistId: string,
   updates: UpdateWishlistParams,
 ): Promise<Wishlist> {
+  const { image, removeImage, imageUrl, ...restUpdates } = updates;
   const dbUpdates: Partial<Wishlist> = {};
 
-  if (updates.title !== undefined) dbUpdates.title = updates.title;
-  if (updates.description !== undefined)
-    dbUpdates.description = updates.description;
-  if (updates.visibility !== undefined)
-    dbUpdates.visibility_type = updates.visibility;
-  if (updates.imageUrl !== undefined) dbUpdates.image_url = updates.imageUrl;
-  if (updates.accent !== undefined) dbUpdates.accent_type = updates.accent;
-  if (updates.event_date !== undefined)
-    dbUpdates.event_date = updates.event_date ? updates.event_date.toISOString() : null;
+  if (restUpdates.title !== undefined) dbUpdates.title = restUpdates.title;
+  if (restUpdates.description !== undefined)
+    dbUpdates.description = restUpdates.description;
+  if (restUpdates.visibility !== undefined)
+    dbUpdates.visibility_type = restUpdates.visibility;
+  if (restUpdates.accent !== undefined)
+    dbUpdates.accent_type = restUpdates.accent;
+  if (restUpdates.event_date !== undefined)
+    dbUpdates.event_date = restUpdates.event_date
+      ? restUpdates.event_date.toISOString()
+      : null;
+
+  if (image || removeImage || imageUrl !== undefined) {
+    const { data: currentWishlist } = await supabaseBrowser
+      .from("wishlist")
+      .select("image_url")
+      .eq("id", wishlistId)
+      .single();
+
+    let finalImageUrl: string | null | undefined = undefined;
+    let shouldDeleteOldImage = false;
+
+    if (removeImage) {
+      finalImageUrl = null;
+      shouldDeleteOldImage = true;
+    } else if (image) {
+      finalImageUrl = await uploadWishlistImage(image);
+      shouldDeleteOldImage = true;
+    } else if (imageUrl !== undefined) {
+      finalImageUrl = imageUrl;
+      if (imageUrl !== currentWishlist?.image_url) {
+        shouldDeleteOldImage = true;
+      }
+    }
+
+    if (shouldDeleteOldImage && currentWishlist?.image_url) {
+      await deleteWishlistImage(currentWishlist.image_url).catch(console.error);
+    }
+
+    if (finalImageUrl !== undefined) {
+      dbUpdates.image_url = finalImageUrl;
+    }
+  }
 
   const { data, error } = await supabaseBrowser
     .from("wishlist")
@@ -167,9 +225,76 @@ export async function updateWishlist(
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (image && dbUpdates.image_url && typeof dbUpdates.image_url === "string") {
+      await deleteWishlistImage(dbUpdates.image_url).catch(console.error);
+    }
+
+    throw error;
+  }
 
   return data;
+}
+
+export async function uploadWishlistImage(file: File): Promise<string> {
+  const {
+    data: { session },
+  } = await supabaseBrowser.auth.getSession();
+
+  if (!session?.user) throw new Error("Not authenticated");
+
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("Image size must be less than 5MB");
+  }
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("File must be an image");
+  }
+
+  const fileExt = file.name.split(".").pop();
+  const randomString = Math.random().toString(36).substring(2, 15);
+  const fileName = `${session.user.id}/wishlist-${Date.now()}-${randomString}.${fileExt}`;
+
+  const { data, error } = await supabaseBrowser.storage
+    .from(WISHLIST_IMAGE_BUCKET)
+    .upload(fileName, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (error) {
+    console.error("Error uploading wishlist image:", error);
+    throw new Error("Failed to upload image");
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabaseBrowser.storage
+    .from(WISHLIST_IMAGE_BUCKET)
+    .getPublicUrl(data.path);
+
+  return publicUrl;
+}
+
+export async function deleteWishlistImage(imageUrl: string): Promise<void> {
+  if (!imageUrl) return;
+
+  if (!imageUrl.includes(WISHLIST_IMAGE_PUBLIC_SEGMENT)) {
+    return;
+  }
+
+  const urlParts = imageUrl.split(`/${WISHLIST_IMAGE_BUCKET}/`);
+  if (urlParts.length < 2) return;
+
+  const path = urlParts[1];
+
+  const { error } = await supabaseBrowser.storage
+    .from(WISHLIST_IMAGE_BUCKET)
+    .remove([path]);
+
+  if (error) {
+    console.error("Error deleting wishlist image:", error);
+  }
 }
 
 export async function deleteWishlist(wishlistId: string): Promise<void> {

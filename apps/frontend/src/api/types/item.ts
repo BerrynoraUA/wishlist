@@ -11,6 +11,7 @@ export interface CreateItemParams {
   discount_price?: string | null;
   has_discount?: boolean;
   discount_end_date?: string | null;
+  currency?: string | null;
 }
 
 export interface UpdateItemParams {
@@ -27,4 +28,5 @@ export interface UpdateItemParams {
   discount_price?: string | null;
   has_discount?: boolean;
   discount_end_date?: string | null;
+  currency?: string | null;
 }

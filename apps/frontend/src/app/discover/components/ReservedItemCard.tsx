@@ -6,6 +6,7 @@ import { ReservedItem } from "@/api/types/wishilst";
 import { Heart, ExternalLink, MoreHorizontal, ShoppingCart } from "lucide-react";
 import { ItemDetailModal } from "./ItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
+import { formatItemPrice } from "@/lib/utils";
 
 type Props = ReservedItem & {
   mode?: "reserved" | "purchased";
@@ -27,6 +28,7 @@ export function ReservedItemCard({
   share_url,
   url,
   discount_price,
+  currency,
   mode = "reserved",
   onToggleReserve,
   onToggleBought,
@@ -189,7 +191,9 @@ export function ReservedItemCard({
         <div className={styles.info}>
           <strong>{title}</strong>
           <div className={styles.metaRow}>
-            <span className={styles.price}>${priceNumber.toFixed(2)}</span>
+            {price != null && price !== 0 && (
+              <span className={styles.price}>{formatItemPrice(price, currency)}</span>
+            )}
             {store && <span className={styles.store}>{store}</span>}
           </div>
 
@@ -242,6 +246,7 @@ export function ReservedItemCard({
           priority: priorityDisplay ?? undefined,
           reservedBy,
           reservedByName: "you",
+          currency,
         }}
         onToggleReserve={onToggleReserve}
         onToggleBought={onToggleBought}

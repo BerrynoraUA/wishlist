@@ -38,6 +38,7 @@ export function WishlistHeader({
   const menuRef = useRef<HTMLDivElement | null>(null);
   const showActions = Boolean(onShare || onManageAccess || onEdit || onDelete);
   const showMenu = Boolean(onEdit || onDelete);
+  const hasImage = Boolean(wishlist.image_url);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -60,7 +61,15 @@ export function WishlistHeader({
           </button>
 
           <div className={styles.bannerIcon}>
-            <Gift size={32} />
+            {hasImage ? (
+              <img
+                src={wishlist.image_url as string}
+                alt={wishlist.title}
+                className={styles.bannerIconImage}
+              />
+            ) : (
+              <Gift size={32} />
+            )}
           </div>
 
           {showActions && (
