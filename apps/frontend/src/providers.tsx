@@ -11,7 +11,7 @@ import {
 } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { initRevenueCat, resetRevenueCat } from "@/lib/revenuecat";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import type { ThemePreference } from "@/types/settings";
 
 type ResolvedTheme = "light" | "dark";
@@ -38,6 +38,7 @@ export function useAppTheme() {
 
 function AppThemeProvider({ children }: { children: React.ReactNode }) {
   const { data: settings } = useSettings();
+  const { mutate: mutateSettings } = useUpdateSettings();
   const [persistedTheme, setPersistedThemeState] =
     useState<ThemePreference>("system");
   const [temporaryTheme, setTemporaryTheme] = useState<ResolvedTheme | null>(
@@ -94,13 +95,16 @@ function AppThemeProvider({ children }: { children: React.ReactNode }) {
       setPersistedTheme: (theme) => {
         setPersistedThemeState(theme);
         setTemporaryTheme(null);
+        mutateSettings({ theme });
       },
     }),
-    [activeTheme, persistedTheme, resolvedTheme],
+    [activeTheme, mutateSettings, persistedTheme, resolvedTheme],
   );
 
   return (
-    <AppThemeContext.Provider value={value}>{children}</AppThemeContext.Provider>
+    <AppThemeContext.Provider value={value}>
+      {children}
+    </AppThemeContext.Provider>
   );
 }
 
@@ -144,9 +148,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AppThemeProvider>
-        <RevenueCatInitializer>
-          {children}
-        </RevenueCatInitializer>
+        <RevenueCatInitializer>{children}</RevenueCatInitializer>
       </AppThemeProvider>
     </QueryClientProvider>
   );

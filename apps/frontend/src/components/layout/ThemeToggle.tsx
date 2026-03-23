@@ -6,7 +6,7 @@ import styles from "./ThemeToggle.module.scss";
 import { useAppTheme } from "@/providers";
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTemporaryTheme } = useAppTheme();
+  const { resolvedTheme, setPersistedTheme } = useAppTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -20,7 +20,7 @@ export function ThemeToggle() {
   return (
     <button
       className={styles.toggle}
-      onClick={() => setTemporaryTheme(isDark ? "light" : "dark")}
+      onClick={() => setPersistedTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Light mode" : "Dark mode"}
     >

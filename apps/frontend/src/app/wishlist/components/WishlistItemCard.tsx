@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { WishlistItemDetailModal } from "./WishlistItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
-import { formatItemPrice } from "@/lib/utils";
+import { useCurrencyFormatter } from "@/hooks/use-currency";
 
 type Props = {
   item: Item;
@@ -49,7 +49,8 @@ export function WishlistItemCard({
   const reservedByMe = currentUserId
     ? item.reserved_by === currentUserId
     : false;
-  const canToggleReservation = !isOwner && !isPurchased && (!isReserved || reservedByMe);
+  const canToggleReservation =
+    !isOwner && !isPurchased && (!isReserved || reservedByMe);
   const canToggleBought =
     !isOwner &&
     ((isPurchased && reservedByMe) ||
@@ -73,7 +74,8 @@ export function WishlistItemCard({
     }
   })();
 
-  const formattedPrice = formatItemPrice(price, item.currency);
+  const { formatPrice } = useCurrencyFormatter();
+  const formattedPrice = formatPrice(price, item.currency);
 
   function parsePriceToNumber(value: string | null | undefined): number | null {
     if (!value) return null;
@@ -88,7 +90,8 @@ export function WishlistItemCard({
     const hasDot = safe.includes(".");
 
     // If both exist, treat comma as thousands separator.
-    const normalized = hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
+    const normalized =
+      hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
     const n = Number.parseFloat(normalized);
     return Number.isFinite(n) ? n : null;
   }
@@ -282,7 +285,9 @@ export function WishlistItemCard({
                     if (canToggleBought) onToggleBought(item.id);
                   }}
                   disabled={!canToggleBought}
-                  aria-label={isPurchased ? "Mark as not purchased" : "Mark as purchased"}
+                  aria-label={
+                    isPurchased ? "Mark as not purchased" : "Mark as purchased"
+                  }
                   title={isPurchased ? "Purchased" : "Mark as purchased"}
                 >
                   <ShoppingCart size={16} />
