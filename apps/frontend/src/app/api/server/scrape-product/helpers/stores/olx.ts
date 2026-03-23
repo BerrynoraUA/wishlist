@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
 import {
+  extractCurrency,
   extractNumericPrice,
   extractPriceFromJSON,
   extractTitle,
@@ -16,7 +17,6 @@ export function scrapeOLX(html: string, url: string): ProductData {
     $(".css-90xrc0").text().trim();
 
   const price = extractNumericPrice(priceText) || extractPriceFromJSON(html);
-
   return {
     title: $('[data-cy="ad_title"]').text().trim() || extractTitle($),
     description: extractDescription($),
@@ -25,5 +25,6 @@ export function scrapeOLX(html: string, url: string): ProductData {
     discount_price: null,
     has_discount: false,
     discount_end_date: null,
+    currency: extractCurrency($, html, url),
   };
 }

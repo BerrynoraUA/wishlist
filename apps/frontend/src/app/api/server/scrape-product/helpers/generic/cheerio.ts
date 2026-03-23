@@ -5,6 +5,7 @@ import {
   extractDescription,
   extractImage,
   extractPricesAdvanced,
+  extractCurrency,
 } from "../utils";
 
 /**
@@ -30,6 +31,7 @@ export function scrapeWithCheerio(html: string, url: string): ProductData {
       discount_price: hasDiscount ? currentPrice : null,
       has_discount: hasDiscount,
       discount_end_date: discountEndDate,
+      currency: extractCurrency($, html, url),
     };
   } catch (error) {
     console.error("Cheerio scraping failed:", error);

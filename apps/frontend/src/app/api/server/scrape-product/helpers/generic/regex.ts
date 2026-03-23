@@ -1,5 +1,6 @@
 import { ProductData, emptyProduct } from "../types";
 import {
+  extractCurrency,
   extractMetaTagRegex,
   extractTagRegex,
   extractPriceRegex,
@@ -9,7 +10,7 @@ import {
  * Regex скрапер — запасний варіант, працює без DOM-парсера.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function scrapeWithRegex(html: string, _url: string): ProductData {
+export function scrapeWithRegex(html: string, url: string): ProductData {
   try {
     return {
       title:
@@ -22,6 +23,7 @@ export function scrapeWithRegex(html: string, _url: string): ProductData {
       discount_price: null,
       has_discount: false,
       discount_end_date: null,
+      currency: extractCurrency(null, html, url),
     };
   } catch (error) {
     console.error("Regex scraping failed:", error);

@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
 import {
+  extractCurrency,
   extractNumericPrice,
   extractPriceFromJSON,
   extractTitle,
@@ -63,7 +64,6 @@ export function scrapeProm(html: string, url: string): ProductData {
   const hasDiscount = Boolean(
     oldPrice && currentPrice && oldPrice !== currentPrice,
   );
-
   return {
     title: $("h1").first().text().trim() || extractTitle($),
     description: extractDescription($),
@@ -72,5 +72,6 @@ export function scrapeProm(html: string, url: string): ProductData {
     discount_price: hasDiscount ? currentPrice : null,
     has_discount: hasDiscount,
     discount_end_date: null,
+    currency: extractCurrency($, html, url),
   };
 }
