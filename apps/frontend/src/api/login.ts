@@ -23,12 +23,16 @@ export async function registerWithEmail(
   email: string,
   password: string,
 ): Promise<void> {
-  const { error } = await supabaseBrowser.auth.signUp({
+  const { data, error } = await supabaseBrowser.auth.signUp({
     email,
     password,
   });
 
   if (error) throw error;
+
+  if (!data.session) {
+    await loginWithEmail(email, password);
+  }
 }
 
 export async function logout(): Promise<void> {

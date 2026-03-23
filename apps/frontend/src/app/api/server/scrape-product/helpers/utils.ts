@@ -1,5 +1,156 @@
 import * as cheerio from "cheerio";
 
+// === CURRENCY EXTRACTION ===
+
+const SYMBOL_TO_CODE: Record<string, string> = {
+  "CA$": "CAD",
+  "A$": "AUD",
+  "R$": "BRL",
+  "zł": "PLN",
+  "₴": "UAH",
+  "₽": "RUB",
+  "₹": "INR",
+  "€": "EUR",
+  "£": "GBP",
+  "¥": "JPY",
+  "$": "USD",
+};
+
+const TEXT_CURRENCY_PATTERNS: Array<{ pattern: RegExp; code: string }> = [
+  { pattern: /\b(?:ca\s?\$|cad)\b/i, code: "CAD" },
+  { pattern: /\b(?:a\s?\$|aud)\b/i, code: "AUD" },
+  { pattern: /\bchf\b/i, code: "CHF" },
+  { pattern: /zł|\bpln\b/i, code: "PLN" },
+  { pattern: /₴|\bгрн\b|\bгрив(?:ня|ні|ен)?\b/i, code: "UAH" },
+  { pattern: /€|\beur\b/i, code: "EUR" },
+  { pattern: /£|\bgbp\b/i, code: "GBP" },
+  { pattern: /¥|\bjpy\b/i, code: "JPY" },
+  { pattern: /₽|\brub\b/i, code: "RUB" },
+  { pattern: /₹|\binr\b/i, code: "INR" },
+  { pattern: /\bus\s?\$\b|\busd\b/i, code: "USD" },
+  { pattern: /\$/i, code: "USD" },
+];
+
+const KNOWN_CODES = new Set([
+  "USD", "EUR", "GBP", "UAH", "PLN", "JPY", "CAD", "AUD", "CHF",
+  "SEK", "NOK", "DKK", "CZK", "HUF", "RON", "BGN", "HRK", "RUB",
+  "TRY", "BRL", "INR", "CNY", "KRW", "MXN", "NZD", "SGD", "HKD",
+  "THB", "MYR", "PHP", "IDR", "VND", "ZAR", "ILS", "AED", "SAR",
+  "TWD", "ARS", "CLP", "COP", "PEN", "EGP", "NGN", "KES",
+]);
+
+function detectCurrencyInText(text: string): string | null {
+  const normalized = text.trim();
+  if (!normalized) return null;
+
+  for (const [symbol, code] of Object.entries(SYMBOL_TO_CODE)) {
+    if (normalized.includes(symbol)) return code;
+  }
+
+  for (const entry of TEXT_CURRENCY_PATTERNS) {
+    if (entry.pattern.test(normalized)) return entry.code;
+  }
+
+  return null;
+}
+
+function domainFallback(url: string): string | null {
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
+    if (hostname.endsWith(".com.ua") || hostname === "prom.ua" || hostname === "olx.ua") return "UAH";
+    if (hostname.includes("amazon.com") || hostname.includes("walmart.com")) return "USD";
+    if (hostname.includes("amazon.co.uk") || hostname.includes("ebay.co.uk")) return "GBP";
+    if (hostname.includes("amazon.de") || hostname.includes("amazon.fr") || hostname.includes("amazon.it") || hostname.includes("amazon.es")) return "EUR";
+    if (hostname.includes("amazon.co.jp")) return "JPY";
+    if (hostname.includes("amazon.ca")) return "CAD";
+    if (hostname.includes("amazon.com.au")) return "AUD";
+  } catch { /* ignore */ }
+  return null;
+}
+
+export function extractCurrency(
+  $: cheerio.CheerioAPI | null,
+  html: string,
+  url: string,
+): string | null {
+  // 1. Meta tags
+  if ($) {
+    const meta =
+      $('meta[property="product:price:currency"]').attr("content")?.trim() ||
+      $('meta[property="og:price:currency"]').attr("content")?.trim() ||
+      $('[itemprop="priceCurrency"]').attr("content")?.trim();
+    if (meta && KNOWN_CODES.has(meta.toUpperCase())) {
+      console.info("[currency] meta:", meta.toUpperCase(), url);
+      return meta.toUpperCase();
+    }
+  }
+
+  // 2. JSON-LD priceCurrency
+  const jsonLdMatch = html.match(/"priceCurrency"\s*:\s*"([A-Z]{3})"/i);
+  if (jsonLdMatch) {
+    const code = jsonLdMatch[1].toUpperCase();
+    if (KNOWN_CODES.has(code)) {
+      console.info("[currency] json-ld:", code, url);
+      return code;
+    }
+  }
+
+  // 3. content="NNN UAH/USD/..." meta pattern
+  const contentMatch = html.match(
+    /content=["']\d[\d\s,.]*\s*(UAH|USD|EUR|GBP|PLN|JPY|CAD|AUD|CHF)["']/i,
+  );
+  if (contentMatch) {
+    const code = contentMatch[1].toUpperCase();
+    console.info("[currency] meta content:", code, url);
+    return code;
+  }
+
+  // 4. Domain fallback (before HTML scan to avoid false positives)
+  const fallback = domainFallback(url);
+  if (fallback) {
+    console.info("[currency] domain fallback:", fallback, url);
+    return fallback;
+  }
+
+  // 5. Currency symbols in HTML text (last resort, can have false positives)
+  const fromHtml = detectCurrencyInText(html.slice(0, 50000));
+  if (fromHtml) {
+    console.info("[currency] html text:", fromHtml, url);
+    return fromHtml;
+  }
+
+  console.warn("[currency] undetected:", url);
+  return null;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function extractCurrencyFromJsonLd(data: any): string | null {
+  if (!data || typeof data !== "object") return null;
+
+  if (data["@graph"]) {
+    const items = Array.isArray(data["@graph"]) ? data["@graph"] : [data["@graph"]];
+    for (const item of items) {
+      const result = extractCurrencyFromJsonLd(item);
+      if (result) return result;
+    }
+  }
+
+  const arr = Array.isArray(data) ? data : [data];
+  for (const item of arr) {
+    if (item["@type"] !== "Product" && item["@type"] !== "http://schema.org/Product") continue;
+    const offers = item.offers;
+    if (!offers) continue;
+    const offerList = Array.isArray(offers) ? offers : [offers];
+    for (const offer of offerList) {
+      const code = offer.priceCurrency;
+      if (code && typeof code === "string" && KNOWN_CODES.has(code.toUpperCase())) {
+        return code.toUpperCase();
+      }
+    }
+  }
+  return null;
+}
+
 // === PRICE EXTRACTION ===
 
 /**

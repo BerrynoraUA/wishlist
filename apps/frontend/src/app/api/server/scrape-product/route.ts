@@ -34,7 +34,9 @@ export async function scrapeProduct(url: string): Promise<ProductData | null> {
   const storeScraper = getStoreScraper(url);
   if (storeScraper) {
     const storeResult = storeScraper(html, url);
-    if (storeResult.price) return storeResult;
+    if (storeResult.price) {
+      return storeResult;
+    }
   }
 
   // 2. Універсальний ланцюжок (від найспецифічнішого до найзагальнішого)
@@ -54,6 +56,8 @@ export async function scrapeProduct(url: string): Promise<ProductData | null> {
       product.has_discount = result.has_discount;
     if (!product.discount_end_date && result.discount_end_date)
       product.discount_end_date = result.discount_end_date;
+    if (!product.currency && result.currency)
+      product.currency = result.currency;
 
     // Якщо всі ключові поля заповнені — виходимо
     if (

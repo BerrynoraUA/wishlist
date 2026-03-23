@@ -33,15 +33,11 @@ export default function LoginScreen() {
     try {
       if (isSignUp) {
         await registerWithEmail(email.trim(), password);
-        Alert.alert(
-          "Check your email",
-          "We sent you a confirmation link. Please check your email.",
-          [{ text: "OK" }]
-        );
       } else {
         await loginWithEmail(email.trim(), password);
-        router.replace("/(tabs)/home");
       }
+
+      router.replace("/(tabs)/home");
     } catch (error: any) {
       Alert.alert("Error", error?.message || "Something went wrong");
     } finally {

@@ -18,6 +18,7 @@ export function SharedWishlistHeader({ wishlist }: Props) {
   const itemsCount = wishlist.items_count ?? 0;
   const description = wishlist.description ?? "";
   const eventDate = wishlist.event_date;
+  const hasImage = Boolean(wishlist.image_url);
 
   return (
     <div className={styles.header}>
@@ -25,7 +26,15 @@ export function SharedWishlistHeader({ wishlist }: Props) {
         <div className={styles.bannerInner}>
           <div />
           <div className={styles.bannerIcon}>
-            <Gift size={32} />
+            {hasImage ? (
+              <img
+                src={wishlist.image_url as string}
+                alt={wishlist.title}
+                className={styles.bannerIconImage}
+              />
+            ) : (
+              <Gift size={32} />
+            )}
           </div>
           <div />
         </div>

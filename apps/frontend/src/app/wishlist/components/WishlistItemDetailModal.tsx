@@ -6,6 +6,7 @@ import { Item } from "@/types/item";
 import { Heart, ExternalLink, Trash2, Pencil, ShoppingCart } from "lucide-react";
 import styles from "./WishlistItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
+import { formatItemPrice } from "@/lib/utils";
 
 type Props = {
   open: boolean;
@@ -80,7 +81,7 @@ export function WishlistItemDetailModal({
 
           <div className={styles.meta}>
             {item.price && (
-              <span className={styles.price}>{item.price}</span>
+              <span className={styles.price}>{formatItemPrice(item.price, item.currency)}</span>
             )}
             {item.priority != null && priorityLabel[item.priority] && (
               <span className={styles.priority}>

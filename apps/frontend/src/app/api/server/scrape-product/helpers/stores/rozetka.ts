@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
 import {
+  extractCurrency,
   extractNumericPrice,
   extractPriceFromJSON,
   extractTitle,
@@ -37,7 +38,6 @@ export function scrapeRozetka(html: string, url: string): ProductData {
     .text()
     .trim();
   const discountEndDate = extractDateFromText(promoEndText);
-
   return {
     title: $("h1.product__title").text().trim() || extractTitle($),
     description: extractDescription($),
@@ -47,5 +47,6 @@ export function scrapeRozetka(html: string, url: string): ProductData {
     discount_price: hasDiscount ? currentPrice : null,
     has_discount: hasDiscount,
     discount_end_date: discountEndDate,
+    currency: extractCurrency($, html, url),
   };
 }

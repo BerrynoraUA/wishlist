@@ -6,6 +6,7 @@ import { DiscoverItem } from "@/api/types/wishilst";
 import { Heart, ExternalLink, MoreHorizontal, ShoppingCart } from "lucide-react";
 import { ItemDetailModal } from "./ItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
+import { formatItemPrice } from "@/lib/utils";
 
 type Props = DiscoverItem & {
   onToggleReserve?: (id: string) => void;
@@ -30,6 +31,7 @@ export function DiscoverItemCard({
   reservedByName,
   share_url,
   discount_price,
+  currency,
   onToggleReserve,
   onToggleBought,
   showDiscountBadge = false,
@@ -50,14 +52,7 @@ export function DiscoverItemCard({
   const shareLink = share_url || url || "";
   const hasShareLink = Boolean(shareLink);
   const hasProductLink = Boolean(url);
-  const formattedPrice =
-    typeof price === "number"
-      ? `$${price.toFixed(2)}`
-      : price?.toString().startsWith("$")
-        ? price.toString()
-        : price
-          ? `$${price}`
-          : "";
+  const formattedPrice = formatItemPrice(price, currency);
 
   function parsePriceToNumber(
     value: string | number | null | undefined,
@@ -272,6 +267,7 @@ export function DiscoverItemCard({
           priority,
           reservedBy: reservedByValue,
           reservedByName,
+          currency,
         }}
         onToggleReserve={onToggleReserve}
         onToggleBought={onToggleBought}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useCreateWishlist } from "@/hooks/use-wishlists";
@@ -15,41 +15,65 @@ type Props = {
   onClose: () => void;
 };
 
+type PrivacyOption = "Public" | "Friends" | "Private";
+type ColorOption = "pink" | "peach" | "blue" | "lavender" | "mint";
+
+const colors: ColorOption[] = ["pink", "peach", "blue", "lavender", "mint"];
+
+const privacyToVisibility: Record<PrivacyOption, WishlistVisibility> = {
+  Public: WishlistVisibility.Public,
+  Friends: WishlistVisibility.FriendsOnly,
+  Private: WishlistVisibility.Private,
+};
+
+const colorToAccent: Record<ColorOption, WishlistAccent> = {
+  pink: WishlistAccent.Pink,
+  peach: WishlistAccent.Peach,
+  blue: WishlistAccent.Blue,
+  lavender: WishlistAccent.Lavender,
+  mint: WishlistAccent.Mint,
+};
+
 export function CreateWishlistModal({ open, onClose }: Props) {
-  const colors = ["pink", "peach", "blue", "lavender", "mint"] as const;
-  type ColorOption = (typeof colors)[number];
-  type PrivacyOption = "Public" | "Friends" | "Private";
+  const { data: settings } = useSettings();
+  const defaultColor: ColorOption =
+    colors[settings?.default_wishlist_color ?? 0] ?? "pink";
+
+  if (!open) return null;
+
+  return (
+    <CreateWishlistForm
+      key={`create-wishlist-${defaultColor}`}
+      defaultColor={defaultColor}
+      onClose={onClose}
+    />
+  );
+}
+
+function CreateWishlistForm({
+  defaultColor,
+  onClose,
+}: {
+  defaultColor: ColorOption;
+  onClose: () => void;
+}) {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [privacy, setPrivacy] = useState<PrivacyOption>("Public");
-  const [color, setColor] = useState<ColorOption>("pink");
+  const [color, setColor] = useState<ColorOption>(defaultColor);
   const [eventDate, setEventDate] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
 
   const { mutate, isPending } = useCreateWishlist();
-  const { data: settings } = useSettings();
-
-  const privacyToVisibility: Record<PrivacyOption, WishlistVisibility> = {
-    Public: WishlistVisibility.Public,
-    Friends: WishlistVisibility.FriendsOnly,
-    Private: WishlistVisibility.Private,
-  };
-
-  const colorToAccent: Record<ColorOption, WishlistAccent> = {
-    pink: WishlistAccent.Pink,
-    peach: WishlistAccent.Peach,
-    blue: WishlistAccent.Blue,
-    lavender: WishlistAccent.Lavender,
-    mint: WishlistAccent.Mint,
-  };
-
-  const defaultColor: ColorOption =
-    colors[settings?.default_wishlist_color ?? 0] ?? "pink";
 
   useEffect(() => {
-    if (!open) return;
-    setColor(defaultColor);
-  }, [defaultColor, open]);
+    return () => {
+      if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
+    };
+  }, [imageObjectUrl]);
 
   function resetForm() {
     setName("");
@@ -57,16 +81,36 @@ export function CreateWishlistModal({ open, onClose }: Props) {
     setPrivacy("Public");
     setColor(defaultColor);
     setEventDate("");
+    setImagePreview("");
+    setImageFile(null);
+    if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
+    setImageObjectUrl(null);
+  }
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
+    const objectUrl = URL.createObjectURL(file);
+    setImageObjectUrl(objectUrl);
+
+    setImageFile(file);
+    setImagePreview(objectUrl);
   }
 
   function handleSubmit() {
     if (!name.trim() || isPending) return;
+
+    const imageUrlToSave = imageFile ? null : imagePreview || null;
 
     mutate(
       {
         title: name.trim(),
         description: description.trim() || undefined,
         visibility: privacyToVisibility[privacy],
+        image: imageFile,
+        imageUrl: imageUrlToSave,
         accent: colorToAccent[color],
         event_date: eventDate ? new Date(eventDate) : undefined,
       },
@@ -79,8 +123,13 @@ export function CreateWishlistModal({ open, onClose }: Props) {
     );
   }
 
+  function handleClose() {
+    resetForm();
+    onClose();
+  }
+
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open onClose={handleClose}>
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
@@ -107,6 +156,29 @@ export function CreateWishlistModal({ open, onClose }: Props) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+        </div>
+
+        <div className={styles.field}>
+          <label>Cover Image (drag & drop or click)</label>
+          <div className={styles.upload}>
+            <label className={styles.dropArea}>
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Wishlist cover preview"
+                  className={styles.preview}
+                />
+              ) : (
+                <span>Drop an image or click to upload</span>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleFile}
+              />
+            </label>
+          </div>
         </div>
 
         {/* Event Date */}
@@ -165,7 +237,7 @@ export function CreateWishlistModal({ open, onClose }: Props) {
 
         {/* Footer */}
         <div className={styles.footer}>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={!name.trim() || isPending}>
@@ -177,7 +249,19 @@ export function CreateWishlistModal({ open, onClose }: Props) {
   );
 }
 
-function PrivacyCard({ icon, title, subtitle, selected, onClick }: any) {
+function PrivacyCard({
+  icon,
+  title,
+  subtitle,
+  selected,
+  onClick,
+}: {
+  icon: ReactNode;
+  title: string;
+  subtitle: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
   return (
     <div
       className={`${styles.privacyCard} ${selected ? styles.selected : ""}`}

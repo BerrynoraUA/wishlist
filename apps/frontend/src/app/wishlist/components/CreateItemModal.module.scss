@@ -67,6 +67,16 @@
   gap: 10px;
 }
 
+.priceRow {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+
+  select {
+    width: auto;
+  }
+}
+
 .error {
   margin: 4px 0 0;
   color: var(--color-danger);

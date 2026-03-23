@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
 import {
+  extractCurrency,
   extractNumericPrice,
   extractPriceFromJSON,
   extractTitle,
@@ -47,7 +48,6 @@ export function scrapeEbay(html: string, url: string): ProductData {
   const hasDiscount = Boolean(
     finalOld && finalCurrent && finalOld !== finalCurrent,
   );
-
   return {
     title: $("h1.x-item-title__mainTitle").text().trim() || extractTitle($),
     description: extractDescription($),
@@ -56,5 +56,6 @@ export function scrapeEbay(html: string, url: string): ProductData {
     discount_price: hasDiscount ? finalCurrent : null,
     has_discount: hasDiscount,
     discount_end_date: null,
+    currency: extractCurrency($, html, url),
   };
 }

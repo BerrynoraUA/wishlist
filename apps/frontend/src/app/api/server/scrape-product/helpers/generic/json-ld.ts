@@ -1,4 +1,5 @@
 import { ProductData, emptyProduct } from "../types";
+import { extractCurrencyFromJsonLd } from "../utils";
 
 /**
  * JSON-LD скрапер — найнадійніший для структурованих даних про товар.
@@ -207,6 +208,7 @@ function extractProductFromJSONLD(data: any): ProductData | null {
       discount_price: discountPrice ? String(discountPrice) : null,
       has_discount: hasDiscount,
       discount_end_date: discountEndDate,
+      currency: extractCurrencyFromJsonLd(item),
     };
   }
 
