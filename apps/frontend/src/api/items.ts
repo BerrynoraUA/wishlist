@@ -29,6 +29,7 @@ export async function createItem({
   discount_price,
   has_discount,
   discount_end_date,
+  currency,
 }: CreateItemParams): Promise<Item> {
   const {
     data: { session },
@@ -67,6 +68,7 @@ export async function createItem({
       discount_price: discount_price ?? null,
       has_discount: has_discount ?? false,
       discount_end_date: discount_end_date ?? null,
+      currency: currency ?? null,
     })
     .select()
     .single();

@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
 import {
+  extractCurrency,
   extractNumericPrice,
   extractTitle,
   extractDescription,
@@ -94,7 +95,6 @@ export function scrapeAliExpress(html: string, url: string): ProductData {
   const hasDiscount = Boolean(
     oldPrice && currentPrice && oldPrice !== currentPrice,
   );
-
   return {
     title: title || null,
     description: description || null,
@@ -103,6 +103,7 @@ export function scrapeAliExpress(html: string, url: string): ProductData {
     discount_price: hasDiscount ? currentPrice : null,
     has_discount: hasDiscount,
     discount_end_date: null,
+    currency: extractCurrency($, html, url),
   };
 }
 

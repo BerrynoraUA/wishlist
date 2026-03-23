@@ -6,6 +6,7 @@ import { DiscoverItem } from "@/api/types/wishilst";
 import { Heart, ExternalLink, ShoppingCart } from "lucide-react";
 import styles from "./ItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
+import { formatItemPrice } from "@/lib/utils";
 
 type Props = {
   open: boolean;
@@ -66,9 +67,7 @@ export function ItemDetailModal({
           <div className={styles.meta}>
             {item.price != null && (
               <span className={styles.price}>
-                {typeof item.price === "number"
-                  ? `$${item.price.toFixed(2)}`
-                  : item.price}
+                {formatItemPrice(item.price, item.currency)}
               </span>
             )}
             {item.store && <span className={styles.store}>{item.store}</span>}

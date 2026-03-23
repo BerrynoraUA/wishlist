@@ -13,4 +13,5 @@ export interface Item {
   discount_price: string | null;
   has_discount: boolean;
   discount_end_date: string | null;
+  currency: string | null;
 }
