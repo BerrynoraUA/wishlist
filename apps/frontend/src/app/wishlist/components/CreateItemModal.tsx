@@ -142,6 +142,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           discount_price: data?.discount_price ?? null,
           has_discount: data?.has_discount ?? false,
           discount_end_date: data?.discount_end_date ?? null,
+          currency: data?.currency ?? null,
         };
 
         const isEmpty =
@@ -155,6 +156,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         if (product.title) setName(product.title);
         if (product.description) setDescription(product.description);
         if (product.price) setPrice(product.price);
+        if (product.currency) setCurrency(product.currency);
         setDiscountPrice(product.discount_price);
         setHasDiscount(product.has_discount);
         setDiscountEndDate(product.discount_end_date);

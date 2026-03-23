@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
 import {
+  extractCurrency,
   extractNumericPrice,
   extractTitle,
   extractDescription,
@@ -58,8 +59,8 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
 
   // 5. Fallback: data-rewish-price attribute
   if (!currentPrice) {
-    const rewishPrice = $("[data-rewish-price]").attr("data-rewish-price");
-    if (rewishPrice) currentPrice = extractNumericPrice(rewishPrice);
+    const rewishAttr = $('[data-rewish-price]').attr('data-rewish-price');
+    if (rewishAttr) currentPrice = extractNumericPrice(rewishAttr);
   }
 
   // 6. Fallback: Schema.org microdata (itemprop="price" NOT inside <s>)
@@ -173,5 +174,6 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
     discount_price: hasDiscount ? currentPrice : null,
     has_discount: hasDiscount,
     discount_end_date: discountEndDate,
+    currency: extractCurrency($, html, url),
   };
 }
