@@ -3,10 +3,16 @@
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { Item } from "@/types/item";
-import { Heart, ExternalLink, Trash2, Pencil, ShoppingCart } from "lucide-react";
+import {
+  Heart,
+  ExternalLink,
+  Trash2,
+  Pencil,
+  ShoppingCart,
+} from "lucide-react";
 import styles from "./WishlistItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
-import { formatItemPrice } from "@/lib/utils";
+import { useCurrencyFormatter } from "@/hooks/use-currency";
 
 type Props = {
   open: boolean;
@@ -38,12 +44,14 @@ export function WishlistItemDetailModal({
   onEdit,
 }: Props) {
   const { data: currentUserId = "" } = useCurrentUserId();
+  const { formatPrice } = useCurrencyFormatter();
   const isPurchased = item.status === 2;
   const isReserved = item.status === 1 || (!isPurchased && !!item.reserved_by);
   const reservedByMe = currentUserId
     ? item.reserved_by === currentUserId
     : false;
-  const canToggleReservation = !isOwner && !isPurchased && (!isReserved || reservedByMe);
+  const canToggleReservation =
+    !isOwner && !isPurchased && (!isReserved || reservedByMe);
   const canToggleBought =
     !isOwner &&
     ((isPurchased && reservedByMe) ||
@@ -81,7 +89,9 @@ export function WishlistItemDetailModal({
 
           <div className={styles.meta}>
             {item.price && (
-              <span className={styles.price}>{formatItemPrice(item.price, item.currency)}</span>
+              <span className={styles.price}>
+                {formatPrice(item.price, item.currency)}
+              </span>
             )}
             {item.priority != null && priorityLabel[item.priority] && (
               <span className={styles.priority}>
