@@ -6,7 +6,7 @@ import { DiscoverItem } from "@/api/types/wishilst";
 import { Heart, ExternalLink, ShoppingCart } from "lucide-react";
 import styles from "./ItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
-import { formatItemPrice } from "@/lib/utils";
+import { useCurrencyFormatter } from "@/hooks/use-currency";
 
 type Props = {
   open: boolean;
@@ -24,9 +24,12 @@ export function ItemDetailModal({
   onToggleBought,
 }: Props) {
   const { data: currentUserId = "" } = useCurrentUserId();
-  const reservedByValue = (item.reservedBy ?? item.reserved_by ?? null)?.toString() ?? null;
+  const { formatPrice } = useCurrencyFormatter();
+  const reservedByValue =
+    (item.reservedBy ?? item.reserved_by ?? null)?.toString() ?? null;
   const isPurchased = item.status === 2;
-  const isReserved = item.isReserved || item.status === 1 || (!!reservedByValue && !isPurchased);
+  const isReserved =
+    item.isReserved || item.status === 1 || (!!reservedByValue && !isPurchased);
   const reservedByMe = !!reservedByValue && reservedByValue === currentUserId;
   const canToggleReservation = !isPurchased && (!isReserved || reservedByMe);
   const canToggleBought =
@@ -67,7 +70,7 @@ export function ItemDetailModal({
           <div className={styles.meta}>
             {item.price != null && (
               <span className={styles.price}>
-                {formatItemPrice(item.price, item.currency)}
+                {formatPrice(item.price, item.currency)}
               </span>
             )}
             {item.store && <span className={styles.store}>{item.store}</span>}

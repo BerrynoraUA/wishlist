@@ -1,4 +1,5 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { normalizeCurrencyCode } from "@/lib/currencies";
 import type {
   UserProfile,
   UserSettings,
@@ -71,7 +72,9 @@ export type PublicProfile = Pick<
   "id" | "display_name" | "nickname" | "avatar_url"
 >;
 
-export async function getProfilesByIds(userIds: string[]): Promise<PublicProfile[]> {
+export async function getProfilesByIds(
+  userIds: string[],
+): Promise<PublicProfile[]> {
   const uniqueIds = Array.from(new Set(userIds)).filter(Boolean);
   if (uniqueIds.length === 0) return [];
 
@@ -160,7 +163,9 @@ export async function deleteAvatarImage(avatarUrl: string): Promise<void> {
   const path = urlParts[1].split("?")[0];
   if (!path) return;
 
-  const { error } = await supabaseBrowser.storage.from("avatars").remove([path]);
+  const { error } = await supabaseBrowser.storage
+    .from("avatars")
+    .remove([path]);
 
   if (error) {
     console.error("Error deleting avatar image:", error);
@@ -244,4 +249,37 @@ export async function deleteAccount(): Promise<void> {
   if (error) throw error;
 
   await supabaseBrowser.auth.signOut();
+}
+
+/* ────────────────────────────────────────
+   Exchange Rates
+   ──────────────────────────────────────── */
+
+export interface ExchangeRates {
+  base: string;
+  rates: Record<string, number>;
+  updated_at: string;
+}
+
+export async function getExchangeRates(): Promise<ExchangeRates> {
+  const { data, error } = await supabaseBrowser
+    .from("exchange_rates")
+    .select("base_currency, target_currency, rate, updated_at")
+    .order("updated_at", { ascending: false });
+
+  if (error) throw error;
+
+  const rates: Record<string, number> = {};
+  let updatedAt = "";
+
+  for (const row of data ?? []) {
+    rates[normalizeCurrencyCode(row.target_currency)] = row.rate;
+    if (!updatedAt && row.updated_at) updatedAt = row.updated_at;
+  }
+
+  return {
+    base: "USD",
+    rates: { USD: 1, ...rates },
+    updated_at: updatedAt,
+  };
 }
