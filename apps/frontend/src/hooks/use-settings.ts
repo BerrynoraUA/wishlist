@@ -10,10 +10,12 @@ import {
   getAuthProvider,
   checkNicknameAvailable,
   getProfilesByIds,
+  getExchangeRates,
 } from "@/api/settings";
 import type {
   UpdateProfilePayload,
   UpdateSettingsPayload,
+  UserSettings,
 } from "@/types/settings";
 
 /* ── Query keys ── */
@@ -22,6 +24,7 @@ export const settingsKeys = {
   profile: () => [...settingsKeys.all, "profile"] as const,
   preferences: () => [...settingsKeys.all, "preferences"] as const,
   provider: () => [...settingsKeys.all, "provider"] as const,
+  exchangeRates: () => [...settingsKeys.all, "exchange-rates"] as const,
   profilesByIds: (idsKey: string) =>
     [...settingsKeys.all, "profiles-by-ids", idsKey] as const,
 };
@@ -89,9 +92,37 @@ export function useUpdateSettings() {
 
   return useMutation({
     mutationFn: (payload: UpdateSettingsPayload) => updateSettings(payload),
-    onSuccess: () => {
+    onMutate: async (payload) => {
+      await queryClient.cancelQueries({ queryKey: settingsKeys.preferences() });
+
+      const previousSettings = queryClient.getQueryData<UserSettings>(
+        settingsKeys.preferences(),
+      );
+
+      if (previousSettings) {
+        queryClient.setQueryData<UserSettings>(settingsKeys.preferences(), {
+          ...previousSettings,
+          ...payload,
+        });
+      }
+
+      return { previousSettings };
+    },
+    onError: (_error, _payload, context) => {
+      if (context?.previousSettings) {
+        queryClient.setQueryData(
+          settingsKeys.preferences(),
+          context.previousSettings,
+        );
+      }
+    },
+    onSuccess: (settings) => {
+      queryClient.setQueryData(settingsKeys.preferences(), settings);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: settingsKeys.preferences(),
+        refetchType: "active",
       });
     },
   });
@@ -116,5 +147,15 @@ export function useChangePassword() {
 export function useDeleteAccount() {
   return useMutation({
     mutationFn: () => deleteAccount(),
+  });
+}
+
+/* ── Exchange Rates ── */
+
+export function useExchangeRates() {
+  return useQuery({
+    queryKey: settingsKeys.exchangeRates(),
+    queryFn: getExchangeRates,
+    staleTime: 60 * 60 * 1000, // 1 hour
   });
 }

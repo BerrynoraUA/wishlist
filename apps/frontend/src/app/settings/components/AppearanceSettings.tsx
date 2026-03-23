@@ -7,6 +7,7 @@ import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { WishlistAccent } from "@/types/wishlist";
 import type { ThemePreference, WishlistColorIndex } from "@/types/settings";
 import { useAppTheme } from "@/providers";
+import { CurrencySettings } from "./CurrencySettings";
 
 const THEMES: {
   id: ThemePreference;
@@ -43,7 +44,11 @@ const ACCENTS: { id: WishlistAccent; label: string; cssClass: string }[] = [
 ];
 
 // 0-based order used by user_settings.default_wishlist_color
-const WISHLIST_COLORS: { id: WishlistColorIndex; label: string; cssClass: string }[] = [
+const WISHLIST_COLORS: {
+  id: WishlistColorIndex;
+  label: string;
+  cssClass: string;
+}[] = [
   { id: 0, label: "Pink", cssClass: "pink" },
   { id: 1, label: "Peach", cssClass: "peach" },
   { id: 2, label: "Blue", cssClass: "blue" },
@@ -58,7 +63,6 @@ export function AppearanceSettings() {
 
   function handleTheme(theme: ThemePreference) {
     setPersistedTheme(theme);
-    updateSettings.mutate({ theme });
   }
 
   function handleAccent(accent: WishlistAccent) {
@@ -150,6 +154,8 @@ export function AppearanceSettings() {
             "Pink"}
         </p>
       </SettingsSection>
+
+      <CurrencySettings />
     </>
   );
 }

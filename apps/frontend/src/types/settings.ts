@@ -1,4 +1,5 @@
 import { WishlistAccent } from "@/types/wishlist";
+export { SUPPORTED_CURRENCIES } from "@/lib/currencies";
 
 export type WishlistColorIndex = 0 | 1 | 2 | 3 | 4;
 
@@ -21,6 +22,7 @@ export interface UserSettings {
   default_accent: WishlistAccent;
   // 0-based index in UI order: pink, peach, blue, lavender, mint
   default_wishlist_color: WishlistColorIndex;
+  display_currency: string;
 }
 
 export type ThemePreference = "light" | "dark" | "system";
@@ -52,4 +54,5 @@ export const DEFAULT_SETTINGS: Omit<UserSettings, "user_id"> = {
   theme: "system",
   default_accent: WishlistAccent.Pink,
   default_wishlist_color: 0,
+  display_currency: "USD",
 };

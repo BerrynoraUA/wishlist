@@ -3,10 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./DiscoverItemCard.module.scss";
 import { DiscoverItem } from "@/api/types/wishilst";
-import { Heart, ExternalLink, MoreHorizontal, ShoppingCart } from "lucide-react";
+import {
+  Heart,
+  ExternalLink,
+  MoreHorizontal,
+  ShoppingCart,
+} from "lucide-react";
 import { ItemDetailModal } from "./ItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
-import { formatItemPrice } from "@/lib/utils";
+import { useCurrencyFormatter } from "@/hooks/use-currency";
 
 type Props = DiscoverItem & {
   onToggleReserve?: (id: string) => void;
@@ -40,11 +45,14 @@ export function DiscoverItemCard({
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { data: currentUserId = "" } = useCurrentUserId();
-  const reservedByValue = (reservedBy ?? reserved_by ?? null)?.toString() ?? null;
+  const reservedByValue =
+    (reservedBy ?? reserved_by ?? null)?.toString() ?? null;
   const isPurchased = status === 2;
-  const isReservedState = isReserved || status === 1 || (!!reservedByValue && !isPurchased);
+  const isReservedState =
+    isReserved || status === 1 || (!!reservedByValue && !isPurchased);
   const reservedByMe = !!reservedByValue && reservedByValue === currentUserId;
-  const canToggleReservation = !isPurchased && (reservedByMe || !isReservedState);
+  const canToggleReservation =
+    !isPurchased && (reservedByMe || !isReservedState);
   const canToggleBought =
     (isPurchased && reservedByMe) ||
     (!isPurchased && (!isReservedState || reservedByMe));
@@ -52,7 +60,8 @@ export function DiscoverItemCard({
   const shareLink = share_url || url || "";
   const hasShareLink = Boolean(shareLink);
   const hasProductLink = Boolean(url);
-  const formattedPrice = formatItemPrice(price, currency);
+  const { formatPrice } = useCurrencyFormatter();
+  const formattedPrice = formatPrice(price, currency);
 
   function parsePriceToNumber(
     value: string | number | null | undefined,
@@ -104,34 +113,34 @@ export function DiscoverItemCard({
           : "Reserved"
       : null;
 
-    useEffect(() => {
-      function handleClickOutside(e: MouseEvent) {
-        if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-          setMenuOpen(false);
-        }
-      }
-
-      if (menuOpen) document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [menuOpen]);
-
-    const handleShare = async () => {
-      if (!shareLink) return;
-
-      try {
-        if (navigator.share) {
-          await navigator.share({ url: shareLink });
-        } else if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(shareLink);
-        } else {
-          window.open(shareLink, "_blank", "noopener,noreferrer");
-        }
-      } catch (error) {
-        console.error("Failed to share item", error);
-      } finally {
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
       }
-    };
+    }
+
+    if (menuOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
+
+  const handleShare = async () => {
+    if (!shareLink) return;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ url: shareLink });
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareLink);
+      } else {
+        window.open(shareLink, "_blank", "noopener,noreferrer");
+      }
+    } catch (error) {
+      console.error("Failed to share item", error);
+    } finally {
+      setMenuOpen(false);
+    }
+  };
 
   return (
     <>
@@ -148,60 +157,62 @@ export function DiscoverItemCard({
             <div className={styles.placeholder}>No image</div>
           )}
 
-            <div className={styles.quickActions}>
-              <a
-                href={hasProductLink ? (url ?? "#") : "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${styles.iconButton} ${!hasProductLink ? styles.disabled : ""}`}
+          <div className={styles.quickActions}>
+            <a
+              href={hasProductLink ? (url ?? "#") : "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.iconButton} ${!hasProductLink ? styles.disabled : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!hasProductLink) e.preventDefault();
+              }}
+              aria-label="Open product link"
+              aria-disabled={!hasProductLink}
+            >
+              <ExternalLink size={16} />
+            </a>
+
+            <div className={styles.menuWrapper} ref={menuRef}>
+              <button
+                className={`${styles.iconButton} ${!hasShareLink ? styles.disabled : ""}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (!hasProductLink) e.preventDefault();
+                  if (!hasShareLink) return;
+                  setMenuOpen((prev) => !prev);
                 }}
-                aria-label="Open product link"
-                aria-disabled={!hasProductLink}
+                aria-label="Open item menu"
+                aria-disabled={!hasShareLink}
               >
-                <ExternalLink size={16} />
-              </a>
+                <MoreHorizontal size={16} />
+              </button>
 
-              <div className={styles.menuWrapper} ref={menuRef}>
-                <button
-                  className={`${styles.iconButton} ${!hasShareLink ? styles.disabled : ""}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!hasShareLink) return;
-                    setMenuOpen((prev) => !prev);
-                  }}
-                  aria-label="Open item menu"
-                  aria-disabled={!hasShareLink}
-                >
-                  <MoreHorizontal size={16} />
-                </button>
-
-                {menuOpen && (
-                  <div className={styles.dropdown}>
-                    <button
-                      className={`${styles.dropdownItem} ${hasShareLink ? styles.shareItem : styles.disabled}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!hasShareLink) return;
-                        handleShare();
-                      }}
-                      aria-disabled={!hasShareLink}
-                    >
-                      <span>Share</span>
-                    </button>
-                  </div>
-                )}
-              </div>
+              {menuOpen && (
+                <div className={styles.dropdown}>
+                  <button
+                    className={`${styles.dropdownItem} ${hasShareLink ? styles.shareItem : styles.disabled}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!hasShareLink) return;
+                      handleShare();
+                    }}
+                    aria-disabled={!hasShareLink}
+                  >
+                    <span>Share</span>
+                  </button>
+                </div>
+              )}
             </div>
+          </div>
         </div>
 
         <div className={styles.info}>
           <strong>{title}</strong>
 
           <div className={styles.metaRow}>
-            {formattedPrice && <span className={styles.price}>{formattedPrice}</span>}
+            {formattedPrice && (
+              <span className={styles.price}>{formattedPrice}</span>
+            )}
             {store && <span className={styles.store}>{store}</span>}
           </div>
 
@@ -215,7 +226,10 @@ export function DiscoverItemCard({
               }}
               disabled={!canToggleReservation}
             >
-              <Heart size={16} fill={isReservedState ? "currentColor" : "none"} />
+              <Heart
+                size={16}
+                fill={isReservedState ? "currentColor" : "none"}
+              />
               <span>
                 {isPurchased
                   ? "Purchased"
@@ -235,7 +249,9 @@ export function DiscoverItemCard({
                   if (canToggleBought) onToggleBought(id);
                 }}
                 disabled={!canToggleBought}
-                aria-label={isPurchased ? "Mark as not purchased" : "Mark as purchased"}
+                aria-label={
+                  isPurchased ? "Mark as not purchased" : "Mark as purchased"
+                }
                 title={reserveStatusLabel ?? "Mark as purchased"}
               >
                 <ShoppingCart size={16} />
