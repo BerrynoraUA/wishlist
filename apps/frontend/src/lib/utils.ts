@@ -68,15 +68,10 @@ export function convertPrice(
 
   if (!fromRate || !toRate) return null;
 
-  // Convert: price in FROM → USD → TO
   const priceInUsd = price / fromRate;
   return priceInUsd * toRate;
 }
 
-/**
- * Format a price for display in the user's display currency,
- * converting from item's original currency.
- */
 export function formatConvertedPrice(
   price: string | number | null | undefined,
   itemCurrency: string | null | undefined,
