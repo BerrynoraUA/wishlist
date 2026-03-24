@@ -89,7 +89,6 @@ export function WishlistItemCard({
     const hasComma = safe.includes(",");
     const hasDot = safe.includes(".");
 
-    // If both exist, treat comma as thousands separator.
     const normalized =
       hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
     const n = Number.parseFloat(normalized);
@@ -218,7 +217,7 @@ export function WishlistItemCard({
                   <div className={styles.dropdown}>
                     <button
                       type="button"
-                      className={styles.dropdownItem}
+                      className={`${styles.dropdownItem} ${styles.editItem}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         setMenuOpen(false);
