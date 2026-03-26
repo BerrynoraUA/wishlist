@@ -120,8 +120,9 @@ export function WishlistItemDetailModal({
               {isOwner && (
                 <>
                   <Button
-                    variant="secondary"
+                    variant="accent"
                     size="sm"
+                    className={styles.ownerAction}
                     onClick={() => {
                       if (onEdit) onEdit(item);
                       onClose();
@@ -133,6 +134,7 @@ export function WishlistItemDetailModal({
                   <Button
                     variant="danger"
                     size="sm"
+                    className={`${styles.ownerAction} ${styles.deleteAction}`}
                     onClick={() => {
                       if (onDelete) onDelete(item.id);
                       onClose();

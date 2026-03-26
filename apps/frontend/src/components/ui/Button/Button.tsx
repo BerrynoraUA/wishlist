@@ -1,13 +1,10 @@
 import styles from "./Button.module.scss";
-import { ReactNode } from "react";
+import { ButtonHTMLAttributes, ReactNode } from "react";
 
-type Props = {
+type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
-  variant?: "primary" | "secondary" | "ghost" | "danger" | "success";
+  variant?: "primary" | "secondary" | "ghost" | "danger" | "success" | "accent";
   size?: "md" | "sm";
-  onClick?: () => void;
-  disabled?: boolean;
-  type?: "button" | "submit";
 };
 
 export function Button({
@@ -15,12 +12,13 @@ export function Button({
   variant = "primary",
   size = "md",
   type = "button",
+  className,
   ...props
 }: Props) {
   return (
     <button
       type={type}
-      className={`${styles.button} ${styles[variant]} ${styles[size]}`}
+      className={`${styles.button} ${styles[variant]} ${styles[size]} ${className ?? ""}`.trim()}
       {...props}
     >
       {children}
