@@ -31,3 +31,16 @@
     box-shadow: var(--nav-active-shadow);
   }
 }
+
+@media (max-width: 480px) {
+  .tabs {
+    width: 100%;
+    display: flex;
+
+    button {
+      flex: 1;
+      text-align: center;
+      justify-content: center;
+    }
+  }
+}

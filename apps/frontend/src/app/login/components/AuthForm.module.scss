@@ -151,3 +151,9 @@
   color: var(--color-text-muted);
   font-size: 12px;
 }
+
+@media (max-width: 640px) {
+  .card {
+    padding: 20px 16px;
+  }
+}

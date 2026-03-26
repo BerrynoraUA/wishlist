@@ -143,3 +143,17 @@
     0 0 0 3px var(--brand-alpha-10),
     0 4px 12px var(--brand-alpha-20);
 }
+
+@media (max-width: 480px) {
+  .cell {
+    min-height: 38px;
+  }
+
+  .grid {
+    gap: 4px;
+  }
+
+  .dayNumber {
+    font-size: 12px;
+  }
+}
