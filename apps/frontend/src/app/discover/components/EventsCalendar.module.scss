@@ -51,6 +51,15 @@
   }
 }
 
+@media (max-width: 480px) {
+  .popup {
+    width: 300px;
+    padding: 14px;
+    border-radius: 18px;
+    left: -40px;
+  }
+}
+
 @keyframes calendarGlow {
   from {
     opacity: 0;

@@ -135,3 +135,26 @@
   line-height: 1.6;
   margin: 0;
 }
+
+@media (max-width: 640px) {
+  .infoRow {
+    flex-wrap: wrap;
+  }
+
+  .providerRow {
+    flex-wrap: wrap;
+  }
+
+  .input {
+    max-width: 100%;
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+
+    button {
+      width: 100%;
+    }
+  }
+}

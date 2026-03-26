@@ -42,3 +42,10 @@
   flex-direction: column;
   gap: 16px;
 }
+
+@media (max-width: 640px) {
+  .section {
+    padding: 18px 16px;
+    border-radius: 16px;
+  }
+}

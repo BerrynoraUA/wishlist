@@ -137,3 +137,29 @@
   background: var(--badge-date-bg);
   color: var(--color-info);
 }
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+  .info {
+    padding: 14px 16px;
+  }
+
+  .titleRow {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .titleGroup h1 {
+    font-size: 20px;
+  }
+
+  .ownerActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .description {
+    max-width: 100%;
+  }
+}
