@@ -102,3 +102,48 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
 }
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 2rem 1.5rem;
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+
+    &::before {
+      width: 250px;
+      height: 250px;
+    }
+
+    &::after {
+      width: 200px;
+      height: 200px;
+    }
+  }
+
+  .heroButtons {
+    flex-wrap: wrap;
+  }
+
+  .statsRow {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 1.5rem 1rem;
+  }
+
+  .heroButtons {
+    flex-direction: column;
+
+    .primaryBtn,
+    .secondaryBtn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}

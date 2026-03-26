@@ -60,3 +60,23 @@
   margin: 0 -24px;
   width: calc(100% + 48px);
 }
+
+@media (max-width: 640px) {
+  .row {
+    gap: 12px;
+  }
+
+  .rowInfo {
+    gap: 10px;
+  }
+
+  .rowIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .divider {
+    margin: 0 -16px;
+    width: calc(100% + 32px);
+  }
+}
