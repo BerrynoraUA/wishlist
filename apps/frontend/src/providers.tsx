@@ -1,6 +1,10 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   createContext,
   useContext,
@@ -11,6 +15,7 @@ import {
 } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { initRevenueCat, resetRevenueCat } from "@/lib/revenuecat";
+import { initPaddle, setOnCheckoutComplete } from "@/lib/paddle";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import type { ThemePreference } from "@/types/settings";
 
@@ -132,6 +137,23 @@ function RevenueCatInitializer({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function PaddleInitializer({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setOnCheckoutComplete(() => {
+      // Give the webhook a moment to process, then refresh subscription state
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["subscription"] });
+      }, 3000);
+    });
+
+    initPaddle();
+  }, [queryClient]);
+
+  return <>{children}</>;
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -148,7 +170,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AppThemeProvider>
-        <RevenueCatInitializer>{children}</RevenueCatInitializer>
+        <RevenueCatInitializer>
+          <PaddleInitializer>{children}</PaddleInitializer>
+        </RevenueCatInitializer>
       </AppThemeProvider>
     </QueryClientProvider>
   );

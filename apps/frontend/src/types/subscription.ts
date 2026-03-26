@@ -52,6 +52,12 @@ export const RC_PACKAGE_IDS = {
   proYearly: "Yearly",
 } as const;
 
+/* ── Paddle checkout ── */
+export const PADDLE_PRICE_IDS = {
+  proMonthly: process.env.NEXT_PUBLIC_PADDLE_MONTHLY_PRICE_ID ?? "",
+  proYearly: process.env.NEXT_PUBLIC_PADDLE_YEARLY_PRICE_ID ?? "",
+} as const;
+
 /* ── Pricing constants ── */
 export const PRICING = {
   monthly: 0.99,
