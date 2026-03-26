@@ -3,7 +3,7 @@ import {
   getSubscriptionStatus,
   getOfferings,
   syncSubscription,
-  redirectToCheckout,
+  openPaddleCheckout,
 } from "@/api/subscription";
 import { SubscriptionPlan, BillingInterval } from "@/types/subscription";
 
@@ -41,11 +41,11 @@ export function useOfferings() {
   });
 }
 
-/* ── Checkout redirect ── */
+/* ── Paddle checkout ── */
 export function useCheckout() {
   return {
     checkout: (interval: BillingInterval) => {
-      redirectToCheckout(interval).catch(console.error);
+      openPaddleCheckout(interval).catch(console.error);
     },
   };
 }

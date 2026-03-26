@@ -1,5 +1,6 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { getRevenueCat } from "@/lib/revenuecat";
+import { getPaddle } from "@/lib/paddle";
 import {
   SubscriptionPlan,
   SubscriptionStatus,
@@ -7,6 +8,7 @@ import {
   RC_CHECKOUT_BASE_URL,
   RC_PACKAGE_IDS,
   RC_PRODUCT_IDS,
+  PADDLE_PRICE_IDS,
 } from "@/types/subscription";
 
 /* ────────────────────────────────────────
@@ -57,13 +59,44 @@ export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
 }
 
 /* ────────────────────────────────────────
-   Checkout redirect
+   Paddle checkout (web)
    ──────────────────────────────────────── */
 
 /**
- * Builds a RevenueCat checkout URL for the given user and billing interval.
- * Format: https://pay.rev.cat/<PROJECT_ID>/<APP_USER_ID>?package_id=<PACKAGE_ID>
+ * Opens the Paddle inline checkout overlay.
+ * Passes the Supabase user ID inside `customData` so the
+ * webhook can map the payment back to the correct user.
  */
+export async function openPaddleCheckout(
+  interval: BillingInterval,
+): Promise<void> {
+  const {
+    data: { user },
+  } = await supabaseBrowser.auth.getUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const paddle = getPaddle();
+  if (!paddle) throw new Error("Paddle not initialised");
+
+  const priceId =
+    interval === BillingInterval.Monthly
+      ? PADDLE_PRICE_IDS.proMonthly
+      : PADDLE_PRICE_IDS.proYearly;
+
+  if (!priceId) throw new Error("Paddle price ID not configured");
+
+  paddle.Checkout.open({
+    items: [{ priceId, quantity: 1 }],
+    ...(user.email ? { customer: { email: user.email } } : {}),
+    customData: { user_id: user.id },
+  });
+}
+
+/* ────────────────────────────────────────
+   Legacy RevenueCat checkout (kept for reference)
+   ──────────────────────────────────────── */
+
 export function buildCheckoutUrl(
   userId: string,
   interval: BillingInterval,
@@ -74,23 +107,6 @@ export function buildCheckoutUrl(
       : RC_PACKAGE_IDS.proYearly;
 
   return `${RC_CHECKOUT_BASE_URL}/${encodeURIComponent(userId)}?package_id=${encodeURIComponent(packageId)}`;
-}
-
-/**
- * Opens the RevenueCat-hosted checkout page in a new tab.
- * Requires the authenticated user's ID.
- */
-export async function redirectToCheckout(
-  interval: BillingInterval,
-): Promise<void> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
-
-  if (!user) throw new Error("Not authenticated");
-
-  const url = buildCheckoutUrl(user.id, interval);
-  window.open(url, "_blank", "noopener,noreferrer");
 }
 
 /* ────────────────────────────────────────
