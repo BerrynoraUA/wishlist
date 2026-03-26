@@ -43,3 +43,17 @@
   padding: 2px 7px;
   border-radius: 999px;
 }
+
+@media (max-width: 520px) {
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: 16px;
+
+    button {
+      flex: 1;
+      justify-content: center;
+      min-width: 0;
+    }
+  }
+}
