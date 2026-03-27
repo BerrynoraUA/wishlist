@@ -442,6 +442,57 @@
   color: var(--color-info);
 }
 
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+  .banner {
+    height: 90px;
+  }
+
+  .bannerIcon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    bottom: -24px;
+  }
+
+  .body {
+    padding: 36px 16px 20px;
+  }
+
+  .titleRow {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .titleGroup h1 {
+    font-size: 22px;
+  }
+
+  .description {
+    max-width: 100%;
+  }
+
+  .ownerActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .banner {
+    height: 80px;
+  }
+
+  .body {
+    padding: 32px 12px 16px;
+  }
+
+  .titleGroup h1 {
+    font-size: 20px;
+  }
+}
+
 :global([data-theme="dark"]) .visibilityBadge,
 :global([data-theme="dark"]) .countBadge,
 :global([data-theme="dark"]) .dateBadge {

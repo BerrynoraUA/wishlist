@@ -9,3 +9,11 @@
     font-size: 14px;
   }
 }
+
+@media (max-width: 768px) {
+  .page {
+    > p {
+      padding: 12px 16px;
+    }
+  }
+}
