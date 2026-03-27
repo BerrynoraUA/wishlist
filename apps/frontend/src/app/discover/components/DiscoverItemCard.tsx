@@ -12,6 +12,10 @@ import {
 import { ItemDetailModal } from "./ItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
+import {
+  ActionConfirmModal,
+  type ItemActionConfirmType,
+} from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
 
 type Props = DiscoverItem & {
   onToggleReserve?: (id: string) => void;
@@ -43,6 +47,8 @@ export function DiscoverItemCard({
 }: Props) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmAction, setConfirmAction] =
+    useState<ItemActionConfirmType | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { data: currentUserId = "" } = useCurrentUserId();
   const reservedByValue =
@@ -142,6 +148,28 @@ export function DiscoverItemCard({
     }
   };
 
+  const handleReserveClick = () => {
+    if (!canToggleReservation || !onToggleReserve) return;
+    setConfirmAction(isReservedState ? "unreserve" : "reserve");
+  };
+
+  const handleBoughtClick = () => {
+    if (!canToggleBought || !onToggleBought) return;
+    setConfirmAction(isPurchased ? "unpurchase" : "purchase");
+  };
+
+  const handleConfirmAction = () => {
+    if (!confirmAction) return;
+
+    if (confirmAction === "reserve" || confirmAction === "unreserve") {
+      onToggleReserve?.(id);
+    } else {
+      onToggleBought?.(id);
+    }
+
+    setConfirmAction(null);
+  };
+
   return (
     <>
       <div className={styles.card} onClick={() => setDetailOpen(true)}>
@@ -162,20 +190,21 @@ export function DiscoverItemCard({
               href={hasProductLink ? (url ?? "#") : "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className={`${styles.iconButton} ${!hasProductLink ? styles.disabled : ""}`}
+              className={`${styles.iconButton} ${!hasProductLink ? styles.disabled : ""} iconTooltipTrigger`}
               onClick={(e) => {
                 e.stopPropagation();
                 if (!hasProductLink) e.preventDefault();
               }}
               aria-label="Open product link"
               aria-disabled={!hasProductLink}
+              data-tooltip="Open product link"
             >
               <ExternalLink size={16} />
             </a>
 
             <div className={styles.menuWrapper} ref={menuRef}>
               <button
-                className={`${styles.iconButton} ${!hasShareLink ? styles.disabled : ""}`}
+                className={`${styles.iconButton} ${!hasShareLink ? styles.disabled : ""} iconTooltipTrigger`}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (!hasShareLink) return;
@@ -183,6 +212,7 @@ export function DiscoverItemCard({
                 }}
                 aria-label="Open item menu"
                 aria-disabled={!hasShareLink}
+                data-tooltip="More options"
               >
                 <MoreHorizontal size={16} />
               </button>
@@ -221,8 +251,7 @@ export function DiscoverItemCard({
               className={`${styles.reserveBtn} ${isReservedState ? styles.reserved : ""} ${onToggleBought ? styles.reserveCompact : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
-                if (canToggleReservation && onToggleReserve)
-                  onToggleReserve(id);
+                handleReserveClick();
               }}
               disabled={!canToggleReservation}
             >
@@ -243,16 +272,19 @@ export function DiscoverItemCard({
 
             {onToggleBought && (
               <button
-                className={`${styles.buyBtn} ${isPurchased ? styles.purchased : ""}`}
+                className={`${styles.buyBtn} ${isPurchased ? styles.purchased : ""} iconTooltipTrigger`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (canToggleBought) onToggleBought(id);
+                  handleBoughtClick();
                 }}
                 disabled={!canToggleBought}
                 aria-label={
                   isPurchased ? "Mark as not purchased" : "Mark as purchased"
                 }
                 title={reserveStatusLabel ?? "Mark as purchased"}
+                data-tooltip={
+                  isPurchased ? "Mark as not purchased" : "Mark as purchased"
+                }
               >
                 <ShoppingCart size={16} />
               </button>
@@ -287,6 +319,14 @@ export function DiscoverItemCard({
         }}
         onToggleReserve={onToggleReserve}
         onToggleBought={onToggleBought}
+      />
+
+      <ActionConfirmModal
+        open={!!confirmAction}
+        onClose={() => setConfirmAction(null)}
+        onConfirm={handleConfirmAction}
+        action={confirmAction ?? "reserve"}
+        itemName={title}
       />
     </>
   );

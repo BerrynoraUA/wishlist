@@ -18,6 +18,7 @@ import { EditWishlistModal } from "../components/EditWishlistModal";
 import { GrantWishlistAccessModal } from "../components/GrantWishlistAccessModal";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
 import { Pagination } from "@/components/ui/Pagination/Pagination";
+import { ShareFeedbackModal } from "@/components/ui/ShareFeedbackModal/ShareFeedbackModal";
 import { Item } from "@/types/item";
 import styles from "./WishlistPage.module.scss";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -45,6 +46,19 @@ export default function WishlistItemsPage() {
   const [editWishlistOpen, setEditWishlistOpen] = useState(false);
   const [deleteWishlistOpen, setDeleteWishlistOpen] = useState(false);
   const [grantAccessOpen, setGrantAccessOpen] = useState(false);
+  const [shareFeedback, setShareFeedback] = useState<{
+    open: boolean;
+    variant: "success" | "error";
+    title: string;
+    description: string;
+    link?: string | null;
+  }>({
+    open: false,
+    variant: "success",
+    title: "",
+    description: "",
+    link: null,
+  });
 
   const {
     data: wishlist,
@@ -82,10 +96,31 @@ export default function WishlistItemsPage() {
       const { shareUrl } = await createWishlistShareToken(id, { shareBaseUrl });
       if (shareUrl) {
         await navigator.clipboard.writeText(shareUrl);
-        alert("Share link copied to clipboard!");
+        setShareFeedback({
+          open: true,
+          variant: "success",
+          title: "Link copied",
+          description: "Your wishlist share link is ready to send.",
+          link: shareUrl,
+        });
+        return;
       }
+
+      setShareFeedback({
+        open: true,
+        variant: "error",
+        title: "Could not create link",
+        description: "We couldn't generate a share link for this wishlist.",
+        link: null,
+      });
     } catch {
-      alert("Failed to generate share link.");
+      setShareFeedback({
+        open: true,
+        variant: "error",
+        title: "Share failed",
+        description: "Something went wrong while creating the share link.",
+        link: null,
+      });
     }
   }, [id]);
 
@@ -99,9 +134,12 @@ export default function WishlistItemsPage() {
 
       nextParams.delete("item");
       const nextQuery = nextParams.toString();
-      router.replace(nextQuery ? `/wishlist/${id}?${nextQuery}` : `/wishlist/${id}`, {
-        scroll: false,
-      });
+      router.replace(
+        nextQuery ? `/wishlist/${id}?${nextQuery}` : `/wishlist/${id}`,
+        {
+          scroll: false,
+        },
+      );
     },
     [searchParams, router, id],
   );
@@ -209,6 +247,20 @@ export default function WishlistItemsPage() {
         description="Are you sure you want to delete this entire wishlist and all its items? This action cannot be undone."
         confirmLabel="Delete Wishlist"
         isPending={deleteWishlistMutation.isPending}
+      />
+
+      <ShareFeedbackModal
+        open={shareFeedback.open}
+        onClose={() =>
+          setShareFeedback((current) => ({
+            ...current,
+            open: false,
+          }))
+        }
+        variant={shareFeedback.variant}
+        title={shareFeedback.title}
+        description={shareFeedback.description}
+        link={shareFeedback.link}
       />
     </main>
   );
