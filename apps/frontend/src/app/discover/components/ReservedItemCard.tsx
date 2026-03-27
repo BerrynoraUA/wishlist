@@ -3,10 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./ReservedItemCard.module.scss";
 import { ReservedItem } from "@/api/types/wishilst";
-import { Heart, ExternalLink, MoreHorizontal, ShoppingCart } from "lucide-react";
+import {
+  Heart,
+  ExternalLink,
+  MoreHorizontal,
+  ShoppingCart,
+} from "lucide-react";
 import { ItemDetailModal } from "./ItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { formatItemPrice } from "@/lib/utils";
+import {
+  ActionConfirmModal,
+  type ItemActionConfirmType,
+} from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
 
 type Props = ReservedItem & {
   mode?: "reserved" | "purchased";
@@ -36,6 +45,8 @@ export function ReservedItemCard({
 }: Props) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmAction, setConfirmAction] =
+    useState<ItemActionConfirmType | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { data: currentUserId = "" } = useCurrentUserId();
   const isPurchased = status === 2;
@@ -57,7 +68,9 @@ export function ReservedItemCard({
     Medium: "Medium",
     High: "High",
   };
-  const priorityDisplay = priority ? priorityLabel[String(priority)] || null : null;
+  const priorityDisplay = priority
+    ? priorityLabel[String(priority)] || null
+    : null;
   const priorityClass = priorityDisplay
     ? styles[priorityDisplay.toLowerCase() as "low" | "medium" | "high"]
     : "";
@@ -69,7 +82,11 @@ export function ReservedItemCard({
     const discounted =
       typeof discount_price === "number"
         ? discount_price
-        : Number.parseFloat(String(discount_price).replace(/[^0-9,.-]/g, "").replace(/,/g, "."));
+        : Number.parseFloat(
+            String(discount_price)
+              .replace(/[^0-9,.-]/g, "")
+              .replace(/,/g, "."),
+          );
 
     if (!Number.isFinite(discounted) || discounted <= 0) return null;
     if (priceNumber <= 0 || discounted >= priceNumber) return null;
@@ -109,6 +126,28 @@ export function ReservedItemCard({
     }
   };
 
+  const handleReserveClick = () => {
+    if (!canToggleReservation || !onToggleReserve) return;
+    setConfirmAction("unreserve");
+  };
+
+  const handleBoughtClick = () => {
+    if (!canToggleBought || !onToggleBought) return;
+    setConfirmAction(isPurchased ? "unpurchase" : "purchase");
+  };
+
+  const handleConfirmAction = () => {
+    if (!confirmAction) return;
+
+    if (confirmAction === "reserve" || confirmAction === "unreserve") {
+      onToggleReserve?.(item_id);
+    } else {
+      onToggleBought?.(item_id);
+    }
+
+    setConfirmAction(null);
+  };
+
   return (
     <>
       <div
@@ -117,17 +156,21 @@ export function ReservedItemCard({
       >
         <div className={styles.imageWrapper}>
           <div className={styles.imageFrame}>
-          {imgSrc ? (
-            <img src={imgSrc} alt={title} />
-          ) : (
-            <div className={styles.placeholder}>No image</div>
-          )}
+            {imgSrc ? (
+              <img src={imgSrc} alt={title} />
+            ) : (
+              <div className={styles.placeholder}>No image</div>
+            )}
           </div>
 
           <div
             className={`${styles.badgeLeft} ${mode === "purchased" ? styles.badgeLeftPurchased : ""}`}
           >
-            {isPurchased ? <ShoppingCart size={14} /> : <Heart size={14} fill="currentColor" />}
+            {isPurchased ? (
+              <ShoppingCart size={14} />
+            ) : (
+              <Heart size={14} fill="currentColor" />
+            )}
             <span>{isPurchased ? "Purchased by you" : "Reserved by you"}</span>
           </div>
 
@@ -136,7 +179,9 @@ export function ReservedItemCard({
           )}
 
           {priorityDisplay && (
-            <div className={`${styles.badgeRight} ${priorityClass}`}>{priorityDisplay}</div>
+            <div className={`${styles.badgeRight} ${priorityClass}`}>
+              {priorityDisplay}
+            </div>
           )}
 
           <div className={styles.quickActions}>
@@ -144,20 +189,21 @@ export function ReservedItemCard({
               href={hasProductLink ? (url ?? "#") : "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className={`${styles.iconButton} ${!hasProductLink ? styles.disabled : ""}`}
+              className={`${styles.iconButton} ${!hasProductLink ? styles.disabled : ""} iconTooltipTrigger`}
               onClick={(e) => {
                 e.stopPropagation();
                 if (!hasProductLink) e.preventDefault();
               }}
               aria-label="Open product link"
               aria-disabled={!hasProductLink}
+              data-tooltip="Open product link"
             >
               <ExternalLink size={16} />
             </a>
 
             <div className={styles.menuWrapper} ref={menuRef}>
               <button
-                className={`${styles.iconButton} ${!hasShareLink ? styles.disabled : ""}`}
+                className={`${styles.iconButton} ${!hasShareLink ? styles.disabled : ""} iconTooltipTrigger`}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (!hasShareLink) return;
@@ -165,6 +211,7 @@ export function ReservedItemCard({
                 }}
                 aria-label="Open item menu"
                 aria-disabled={!hasShareLink}
+                data-tooltip="More options"
               >
                 <MoreHorizontal size={16} />
               </button>
@@ -192,7 +239,9 @@ export function ReservedItemCard({
           <strong>{title}</strong>
           <div className={styles.metaRow}>
             {price != null && price !== 0 && (
-              <span className={styles.price}>{formatItemPrice(price, currency)}</span>
+              <span className={styles.price}>
+                {formatItemPrice(price, currency)}
+              </span>
             )}
             {store && <span className={styles.store}>{store}</span>}
           </div>
@@ -202,8 +251,7 @@ export function ReservedItemCard({
               className={`${styles.reserveBtn} ${styles.reserved} ${onToggleBought ? styles.reserveCompact : ""} ${mode === "purchased" ? styles.reservePurchased : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
-                if (canToggleReservation && onToggleReserve)
-                  onToggleReserve(item_id);
+                handleReserveClick();
               }}
               disabled={!canToggleReservation}
               aria-label="Release reservation"
@@ -214,13 +262,18 @@ export function ReservedItemCard({
 
             {onToggleBought && (
               <button
-                className={`${styles.buyBtn} ${isPurchased ? styles.purchased : ""} ${mode === "purchased" ? styles.buyBtnPurchased : ""}`}
+                className={`${styles.buyBtn} ${isPurchased ? styles.purchased : ""} ${mode === "purchased" ? styles.buyBtnPurchased : ""} iconTooltipTrigger`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (canToggleBought) onToggleBought(item_id);
+                  handleBoughtClick();
                 }}
-                aria-label={isPurchased ? "Mark as not purchased" : "Mark as purchased"}
+                aria-label={
+                  isPurchased ? "Mark as not purchased" : "Mark as purchased"
+                }
                 title={isPurchased ? "Purchased" : "Mark as purchased"}
+                data-tooltip={
+                  isPurchased ? "Mark as not purchased" : "Mark as purchased"
+                }
               >
                 <ShoppingCart size={16} />
               </button>
@@ -250,6 +303,14 @@ export function ReservedItemCard({
         }}
         onToggleReserve={onToggleReserve}
         onToggleBought={onToggleBought}
+      />
+
+      <ActionConfirmModal
+        open={!!confirmAction}
+        onClose={() => setConfirmAction(null)}
+        onConfirm={handleConfirmAction}
+        action={confirmAction ?? "reserve"}
+        itemName={title}
       />
     </>
   );

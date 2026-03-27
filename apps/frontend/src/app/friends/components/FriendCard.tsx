@@ -32,12 +32,13 @@ export function FriendCard({ friend, onRemove }: Props) {
       <div className={styles.actions}>
         {onRemove && (
           <button
-            className={styles.removeBtn}
+            className={`${styles.removeBtn} iconTooltipTrigger`}
             onClick={(e) => {
               e.stopPropagation();
               onRemove(friend.friend_id);
             }}
-            title="Remove friend"
+            aria-label="Remove friend"
+            data-tooltip="Remove friend"
           >
             <UserMinus size={14} />
           </button>
