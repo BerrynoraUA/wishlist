@@ -1,25 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getSubscriptionStatus,
-  getOfferings,
   syncSubscription,
-  redirectToCheckout,
+  openPaddleCheckout,
 } from "@/api/subscription";
 import { SubscriptionPlan, BillingInterval } from "@/types/subscription";
 
-/* ── Query keys ── */
+// Query Keys
 export const subscriptionKeys = {
   all: ["subscription"] as const,
   status: () => [...subscriptionKeys.all, "status"] as const,
-  offerings: () => [...subscriptionKeys.all, "offerings"] as const,
 };
 
-/* ── Subscription status ── */
+// Queries
 export function useSubscription() {
   const query = useQuery({
     queryKey: subscriptionKeys.status(),
     queryFn: getSubscriptionStatus,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
   return {
@@ -32,25 +30,15 @@ export function useSubscription() {
   };
 }
 
-/* ── Offerings (available packages) ── */
-export function useOfferings() {
-  return useQuery({
-    queryKey: subscriptionKeys.offerings(),
-    queryFn: getOfferings,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-  });
-}
-
-/* ── Checkout redirect ── */
+// Mutations
 export function useCheckout() {
   return {
     checkout: (interval: BillingInterval) => {
-      redirectToCheckout(interval).catch(console.error);
+      openPaddleCheckout(interval).catch(console.error);
     },
   };
 }
 
-/* ── Sync subscription (RevenueCat → Supabase) ── */
 export function useSyncSubscription() {
   const queryClient = useQueryClient();
 
