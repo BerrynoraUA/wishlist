@@ -158,3 +158,10 @@
     display: none;
   }
 }
+
+@media (max-width: 480px) {
+  .pagination {
+    gap: 8px;
+    margin-top: 24px;
+  }
+}

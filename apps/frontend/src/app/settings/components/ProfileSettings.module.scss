@@ -212,3 +212,20 @@
   color: var(--color-success);
   animation: fadeIn 0.3s $ease-out;
 }
+
+@media (max-width: 640px) {
+  .avatarRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+
+    button {
+      width: 100%;
+    }
+  }
+}

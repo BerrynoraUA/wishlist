@@ -189,3 +189,21 @@
   gap: 6px;
   font-weight: 500;
 }
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+  .card {
+    &:hover {
+      transform: none;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  .top {
+    height: 100px;
+  }
+}

@@ -8,8 +8,6 @@ import {
 
 const PADDLE_WEBHOOK_SECRET = process.env.PADDLE_WEBHOOK_SECRET as string;
 
-/* ── Signature verification ── */
-
 function verifyPaddleSignature(
   rawBody: string,
   signature: string | null,
@@ -43,8 +41,6 @@ function verifyPaddleSignature(
     return false;
   }
 }
-
-/* ── Type helpers ── */
 
 type PaddleCustomData = {
   user_id?: string;
@@ -92,8 +88,6 @@ type PaddleEvent = {
   data: PaddleSubscriptionData | PaddleTransactionData;
 };
 
-/* ── Duration mapping ── */
-
 function paddleIntervalToRCDuration(interval: string): "monthly" | "yearly" {
   return interval === "year" ? "yearly" : "monthly";
 }
@@ -101,8 +95,6 @@ function paddleIntervalToRCDuration(interval: string): "monthly" | "yearly" {
 function getBillingInterval(items: PaddleItem[]): string {
   return items[0]?.price?.billing_cycle?.interval ?? "month";
 }
-
-/* ── Webhook handler ── */
 
 export async function POST(request: NextRequest) {
   const rawBody = await request.text();
@@ -158,8 +150,6 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-/* ── Event handlers ── */
 
 async function handleSubscriptionActive(data: PaddleSubscriptionData) {
   const userId = data.custom_data?.user_id;

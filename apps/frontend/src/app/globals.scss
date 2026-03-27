@@ -480,3 +480,29 @@ a {
     box-shadow: 0 0 0 8px rgba(192, 38, 126, 0);
   }
 }
+
+/* ===== Mobile adaptive ===== */
+
+@media (max-width: 768px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font-size: 16px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}

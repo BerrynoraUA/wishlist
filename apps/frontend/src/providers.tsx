@@ -33,11 +33,7 @@ const AppThemeContext = createContext<AppThemeContextValue | null>(null);
 
 export function useAppTheme() {
   const context = useContext(AppThemeContext);
-
-  if (!context) {
-    throw new Error("useAppTheme must be used within Providers");
-  }
-
+  if (!context) throw new Error("useAppTheme must be used within Providers");
   return context;
 }
 
@@ -54,29 +50,16 @@ function AppThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const updateSystemTheme = () => {
-      setSystemTheme(mediaQuery.matches ? "dark" : "light");
-    };
-
-    updateSystemTheme();
-    mediaQuery.addEventListener("change", updateSystemTheme);
-
-    return () => mediaQuery.removeEventListener("change", updateSystemTheme);
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const update = () => setSystemTheme(mq.matches ? "dark" : "light");
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
   }, []);
 
   useEffect(() => {
     const nextTheme = settings?.theme ?? "system";
-
-    setPersistedThemeState((currentTheme) => {
-      if (currentTheme === nextTheme) {
-        return currentTheme;
-      }
-
-      return nextTheme;
-    });
-
+    setPersistedThemeState((curr) => (curr === nextTheme ? curr : nextTheme));
     if (lastSettingsThemeRef.current !== nextTheme) {
       setTemporaryTheme(null);
       lastSettingsThemeRef.current = nextTheme;
@@ -113,32 +96,28 @@ function AppThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-function RevenueCatInitializer({ children }: { children: React.ReactNode }) {
+/**
+ * Initialises RevenueCat (auth-gated) and Paddle (always).
+ * RevenueCat is used as the subscription state store.
+ * Paddle is the web payment provider.
+ */
+function SdkInitializer({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     supabaseBrowser.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        initRevenueCat(data.user.id);
-      }
+      if (data.user) initRevenueCat(data.user.id);
     });
 
     const {
       data: { subscription },
     } = supabaseBrowser.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        initRevenueCat(session.user.id);
-      } else {
-        resetRevenueCat();
-      }
+      if (session?.user) initRevenueCat(session.user.id);
+      else resetRevenueCat();
     });
 
     return () => subscription.unsubscribe();
   }, []);
-
-  return <>{children}</>;
-}
-
-function PaddleInitializer({ children }: { children: React.ReactNode }) {
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     setOnCheckoutComplete(() => {
@@ -147,7 +126,6 @@ function PaddleInitializer({ children }: { children: React.ReactNode }) {
         queryClient.invalidateQueries({ queryKey: ["subscription"] });
       }, 3000);
     });
-
     initPaddle();
   }, [queryClient]);
 
@@ -170,9 +148,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AppThemeProvider>
-        <RevenueCatInitializer>
-          <PaddleInitializer>{children}</PaddleInitializer>
-        </RevenueCatInitializer>
+        <SdkInitializer>{children}</SdkInitializer>
       </AppThemeProvider>
     </QueryClientProvider>
   );

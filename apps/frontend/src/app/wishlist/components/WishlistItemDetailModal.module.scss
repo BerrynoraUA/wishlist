@@ -122,3 +122,28 @@
     transform: translateY(0) scale(0.97);
   }
 }
+
+@media (max-width: 640px) {
+  .details h2 {
+    font-size: 19px;
+  }
+
+  .imageSection {
+    max-height: 200px;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .footerRight {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .linkBtn {
+    flex: 1;
+    justify-content: center;
+  }
+}

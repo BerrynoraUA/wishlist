@@ -4,3 +4,11 @@
   gap: 18px;
   margin-bottom: 40px;
 }
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+}

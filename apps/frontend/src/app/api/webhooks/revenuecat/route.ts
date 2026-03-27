@@ -3,17 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const RC_WEBHOOK_AUTH_KEY = process.env.REVENUECAT_WEBHOOK_AUTH_KEY as string;
 
-/**
- * RevenueCat webhook handler.
- * Receives subscription lifecycle events and syncs them to the
- * `user_subscriptions` table in Supabase using the service-role key.
- *
- * Expected events: INITIAL_PURCHASE, RENEWAL, CANCELLATION,
- * EXPIRATION, PRODUCT_CHANGE, BILLING_ISSUE, SUBSCRIBER_ALIAS,
- * UNCANCELLATION
- */
 export async function POST(request: NextRequest) {
-  // ── Validate auth header ──
   const authHeader = request.headers.get("Authorization");
   if (!RC_WEBHOOK_AUTH_KEY || authHeader !== `Bearer ${RC_WEBHOOK_AUTH_KEY}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -53,8 +43,8 @@ export async function POST(request: NextRequest) {
 
     const isCancelled = eventType === "CANCELLATION";
 
-    // Determine subscription state
-    const plan = isPro ? "pro" : isExpired ? "free" : "pro"; // keep pro on cancel until expires
+   
+    const plan = isPro ? "pro" : isExpired ? "free" : "pro"; 
     const isActive = isPro || (isCancelled && !isExpired);
     const expiresAt = expirationAtMs
       ? new Date(expirationAtMs).toISOString()
