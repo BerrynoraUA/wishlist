@@ -18,6 +18,10 @@ type RCDuration =
   | "yearly"
   | "lifetime";
 
+/**
+ * Grant a promotional entitlement in RevenueCat for a user.
+ * Used when a Paddle subscription is activated / renewed to keep RC in sync.
+ */
 export async function grantRevenueCatEntitlement(
   appUserId: string,
   duration: RCDuration,
@@ -58,6 +62,9 @@ export async function grantRevenueCatEntitlement(
   );
 }
 
+/**
+ * Revoke all promotional entitlements for a user.
+ */
 export async function revokeRevenueCatEntitlement(
   appUserId: string,
 ): Promise<void> {

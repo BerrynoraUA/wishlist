@@ -21,6 +21,7 @@ function verifyPaddleSignature(
 
   if (!tsStr || !h1) return false;
 
+  // Reject timestamps older than 5 minutes to prevent replay attacks
   const ts = parseInt(tsStr, 10);
   const now = Math.floor(Date.now() / 1000);
   if (Math.abs(now - ts) > 300) return false;
@@ -162,12 +163,14 @@ async function handleSubscriptionActive(data: PaddleSubscriptionData) {
   const periodStart = data.current_billing_period?.starts_at;
   const periodEnd = data.current_billing_period?.ends_at;
 
+  // Grant entitlement in RevenueCat
   await grantRevenueCatEntitlement(
     userId,
     rcDuration,
     periodStart ? new Date(periodStart).getTime() : undefined,
   );
 
+  // Update Supabase
   const supabaseAdmin = getSupabaseAdmin();
   const { error } = await supabaseAdmin.from("user_subscriptions").upsert(
     {
@@ -203,6 +206,7 @@ async function handleSubscriptionCanceled(data: PaddleSubscriptionData) {
   const periodEnd = data.current_billing_period?.ends_at;
   const effectiveAt = data.scheduled_change?.effective_at ?? periodEnd;
 
+  // Determine if the subscription is still in its paid period
   const isStillActive = effectiveAt
     ? new Date(effectiveAt) > new Date()
     : false;
@@ -227,6 +231,7 @@ async function handleSubscriptionCanceled(data: PaddleSubscriptionData) {
     throw error;
   }
 
+  // If fully expired, revoke RC entitlement
   if (!isStillActive) {
     try {
       await revokeRevenueCatEntitlement(userId);
@@ -247,6 +252,7 @@ async function handleSubscriptionPastDue(data: PaddleSubscriptionData) {
     return;
   }
 
+  // Keep active during Paddle's grace period
   const supabaseAdmin = getSupabaseAdmin();
   const { error } = await supabaseAdmin.from("user_subscriptions").upsert(
     {
@@ -265,17 +271,23 @@ async function handleSubscriptionPastDue(data: PaddleSubscriptionData) {
     console.error("[Paddle Webhook] Supabase upsert error:", error);
     throw error;
   }
+
+  console.log(
+    `[Paddle Webhook] Subscription past_due for user ${userId} — keeping active during grace period`,
+  );
 }
 
 async function handleTransactionCompleted(data: PaddleTransactionData) {
   const userId = data.custom_data?.user_id;
   if (!userId) {
+    // Transaction may not have custom_data (e.g. non-subscription transactions)
     console.log(
       "[Paddle Webhook] transaction.completed without user_id — skipping",
     );
     return;
   }
 
+  // Fires for initial & renewal payments — grant/extend RC entitlement
   const interval = getBillingInterval(data.items);
   const rcDuration = paddleIntervalToRCDuration(interval);
 

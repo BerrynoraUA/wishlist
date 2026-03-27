@@ -46,6 +46,11 @@ export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
   };
 }
 
+/**
+ * Opens the Paddle inline checkout overlay.
+ * Passes the Supabase user ID inside customData so the
+ * webhook can map the payment back to the correct user.
+ */
 export async function openPaddleCheckout(
   interval: BillingInterval,
 ): Promise<void> {
@@ -82,6 +87,10 @@ export async function openPaddleCheckout(
   });
 }
 
+/**
+ * Sync subscription state from RevenueCat -> Supabase
+ * by calling our server API which checks RevenueCat and updates the DB.
+ */
 export async function syncSubscription(): Promise<SubscriptionStatus> {
   const {
     data: { session },
