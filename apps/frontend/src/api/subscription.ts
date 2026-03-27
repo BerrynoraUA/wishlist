@@ -1,22 +1,12 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import { getRevenueCat } from "@/lib/revenuecat";
+import { getPaddle } from "@/lib/paddle";
 import {
   SubscriptionPlan,
   SubscriptionStatus,
   BillingInterval,
-  RC_CHECKOUT_BASE_URL,
-  RC_PACKAGE_IDS,
-  RC_PRODUCT_IDS,
+  PADDLE_PRICE_IDS,
 } from "@/types/subscription";
 
-/* ────────────────────────────────────────
-   Entitlement helpers
-   ──────────────────────────────────────── */
-
-/**
- * Primary source of truth: Supabase `user_subscriptions` table.
- * Falls back to free plan if no row exists.
- */
 export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
   const {
     data: { user },
@@ -56,31 +46,7 @@ export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
   };
 }
 
-/* ────────────────────────────────────────
-   Checkout redirect
-   ──────────────────────────────────────── */
-
-/**
- * Builds a RevenueCat checkout URL for the given user and billing interval.
- * Format: https://pay.rev.cat/<PROJECT_ID>/<APP_USER_ID>?package_id=<PACKAGE_ID>
- */
-export function buildCheckoutUrl(
-  userId: string,
-  interval: BillingInterval,
-): string {
-  const packageId =
-    interval === BillingInterval.Monthly
-      ? RC_PACKAGE_IDS.proMonthly
-      : RC_PACKAGE_IDS.proYearly;
-
-  return `${RC_CHECKOUT_BASE_URL}/${encodeURIComponent(userId)}?package_id=${encodeURIComponent(packageId)}`;
-}
-
-/**
- * Opens the RevenueCat-hosted checkout page in a new tab.
- * Requires the authenticated user's ID.
- */
-export async function redirectToCheckout(
+export async function openPaddleCheckout(
   interval: BillingInterval,
 ): Promise<void> {
   const {
@@ -89,18 +55,33 @@ export async function redirectToCheckout(
 
   if (!user) throw new Error("Not authenticated");
 
-  const url = buildCheckoutUrl(user.id, interval);
-  window.open(url, "_blank", "noopener,noreferrer");
+  const paddle = getPaddle();
+  if (!paddle) throw new Error("Paddle not initialised");
+
+  const priceId =
+    interval === BillingInterval.Monthly
+      ? PADDLE_PRICE_IDS.proMonthly
+      : PADDLE_PRICE_IDS.proYearly;
+
+  if (!priceId) throw new Error("Paddle price ID not configured");
+
+  const successUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/subscription?checkout=success`
+      : undefined;
+
+  paddle.Checkout.open({
+    items: [{ priceId, quantity: 1 }],
+    ...(user.email ? { customer: { email: user.email } } : {}),
+    settings: {
+      displayMode: "overlay",
+      variant: "multi-page",
+      ...(successUrl ? { successUrl } : {}),
+    },
+    customData: { user_id: user.id },
+  });
 }
 
-/* ────────────────────────────────────────
-   RevenueCat sync helpers
-   ──────────────────────────────────────── */
-
-/**
- * Sync subscription state from RevenueCat → Supabase
- * by calling our server API which checks RevenueCat and updates the DB.
- */
 export async function syncSubscription(): Promise<SubscriptionStatus> {
   const {
     data: { session },
@@ -123,26 +104,3 @@ export async function syncSubscription(): Promise<SubscriptionStatus> {
 
   return res.json();
 }
-
-/**
- * Fetch available packages from RevenueCat (client-side SDK).
- */
-export async function getOfferings() {
-  const rc = getRevenueCat();
-  if (!rc) return [];
-
-  const offerings = await rc.getOfferings();
-  const current = offerings.current;
-  if (!current) return [];
-
-  return current.availablePackages;
-}
-
-/**
- * Restore purchases — re-syncs RevenueCat state to Supabase.
- */
-export async function restorePurchases(): Promise<SubscriptionStatus> {
-  return syncSubscription();
-}
-
-export { RC_PRODUCT_IDS, RC_PACKAGE_IDS };

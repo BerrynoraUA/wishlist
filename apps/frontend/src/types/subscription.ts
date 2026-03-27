@@ -31,28 +31,16 @@ export interface PricingFeature {
   highlight?: boolean;
 }
 
-/* ── Free-tier limits ── */
 export const FREE_LIMITS = {
   maxWishlists: 5,
   maxItemsPerWishlist: 20,
 } as const;
 
-/* ── Product IDs (must match RevenueCat dashboard) ── */
-export const RC_PRODUCT_IDS = {
-  proMonthly: "pro_monthly",
-  proYearly: "pro_yearly",
+export const PADDLE_PRICE_IDS = {
+  proMonthly: process.env.NEXT_PUBLIC_PADDLE_MONTHLY_PRICE_ID ?? "",
+  proYearly: process.env.NEXT_PUBLIC_PADDLE_YEARLY_PRICE_ID ?? "",
 } as const;
 
-/* ── RevenueCat checkout ── */
-export const RC_CHECKOUT_BASE_URL =
-  "https://pay.rev.cat/sandbox/uazbjrhnlqnlsydu" as const;
-
-export const RC_PACKAGE_IDS = {
-  proMonthly: "$rc_monthly",
-  proYearly: "Yearly",
-} as const;
-
-/* ── Pricing constants ── */
 export const PRICING = {
   monthly: 0.99,
   yearly: 1,
