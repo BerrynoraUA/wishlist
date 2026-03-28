@@ -22,7 +22,6 @@ export function ThemeToggle() {
       className={styles.toggle}
       onClick={() => setPersistedTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      title={isDark ? "Light mode" : "Dark mode"}
     >
       <span
         className={`${styles.iconWrap} ${isDark ? styles.dark : styles.light}`}

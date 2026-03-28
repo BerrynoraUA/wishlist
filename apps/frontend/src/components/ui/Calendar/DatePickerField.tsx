@@ -33,13 +33,14 @@ export function DatePickerField({ value, onChange }: Props) {
         </span>
         {value && (
           <button
-            className={styles.clearBtn}
+            className={`${styles.clearBtn} iconTooltipTrigger`}
             onClick={(e) => {
               e.stopPropagation();
               onChange("");
             }}
             type="button"
             aria-label="Clear date"
+            data-tooltip="Clear date"
           >
             <X size={14} />
           </button>

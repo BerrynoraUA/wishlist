@@ -5,10 +5,12 @@
   border: 1px solid var(--glass-border);
   border-radius: $radius-lg;
   padding: 18px 22px;
+  width: 100%;
 
   display: flex;
   align-items: center;
   gap: 16px;
+  text-align: left;
 
   min-height: 76px;
   transition:
@@ -20,6 +22,19 @@
     transform: translateY(-4px);
     box-shadow: var(--card-hover-shadow);
     border-color: var(--color-border);
+  }
+}
+
+.interactive {
+  appearance: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      var(--card-hover-shadow),
+      0 0 0 4px var(--input-focus-ring);
+    border-color: var(--input-focus-border);
   }
 }
 

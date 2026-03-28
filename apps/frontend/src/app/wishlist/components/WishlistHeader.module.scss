@@ -36,7 +36,7 @@
 .heroLayout {
   width: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 20px;
   position: relative;
@@ -151,20 +151,20 @@
 .editItem {
   background: linear-gradient(
     135deg,
-    rgba(192, 38, 126, 0.1),
-    rgba(192, 38, 126, 0.04)
+    rgba(37, 99, 235, 0.1),
+    rgba(37, 99, 235, 0.04)
   );
-  border-color: rgba(192, 38, 126, 0.12);
-  color: $brand;
+  border-color: rgba(37, 99, 235, 0.14);
+  color: var(--color-info);
 
   &:hover {
     background: linear-gradient(
       135deg,
-      rgba(192, 38, 126, 0.16),
-      rgba(192, 38, 126, 0.08)
+      rgba(37, 99, 235, 0.16),
+      rgba(37, 99, 235, 0.08)
     );
-    border-color: rgba(192, 38, 126, 0.22);
-    color: var(--color-brand-dark);
+    border-color: rgba(37, 99, 235, 0.24);
+    color: #1d4ed8;
   }
 }
 
@@ -222,6 +222,11 @@
   border: 3px solid rgba(147, 197, 253, 0.9);
   transition: transform 0.3s $ease-out;
   overflow: hidden;
+
+  svg {
+    display: block;
+    flex-shrink: 0;
+  }
 }
 
 .bannerIconImage {
@@ -372,20 +377,20 @@
 :global([data-theme="dark"]) .editItem {
   background: linear-gradient(
     135deg,
-    rgba(224, 82, 160, 0.18),
-    rgba(224, 82, 160, 0.08)
+    rgba(59, 130, 246, 0.2),
+    rgba(59, 130, 246, 0.08)
   );
-  border-color: rgba(224, 82, 160, 0.2);
-  color: #f4a6cf;
+  border-color: rgba(96, 165, 250, 0.22);
+  color: #9ec5ff;
 
   &:hover {
     background: linear-gradient(
       135deg,
-      rgba(224, 82, 160, 0.26),
-      rgba(224, 82, 160, 0.12)
+      rgba(59, 130, 246, 0.28),
+      rgba(59, 130, 246, 0.12)
     );
-    border-color: rgba(224, 82, 160, 0.3);
-    color: #ffd0e5;
+    border-color: rgba(96, 165, 250, 0.32);
+    color: #d6e9ff;
   }
 }
 

@@ -46,7 +46,7 @@ function useCounters(containerRef: React.RefObject<HTMLElement | null>) {
           }
         });
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
 
     const statsBar = el.querySelector(`.${styles.statsBar}`);
@@ -69,14 +69,14 @@ function useFadeAnimations(containerRef: React.RefObject<HTMLElement | null>) {
           if (entry.isIntersecting) {
             const delay = parseInt(
               (entry.target as HTMLElement).dataset.delay || "0",
-              10
+              10,
             );
             setTimeout(() => entry.target.classList.add(styles.visible), delay);
             observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" },
     );
 
     animated.forEach((el) => observer.observe(el));
@@ -135,7 +135,7 @@ export default function LandingPage() {
       }
       closeMenu();
     },
-    [closeMenu]
+    [closeMenu],
   );
 
   return (
@@ -188,10 +188,11 @@ export default function LandingPage() {
             </Link>
           </div>
           <button
-            className={styles.navBurger}
+            className={`${styles.navBurger} iconTooltipTrigger`}
             ref={burgerRef}
             onClick={toggleMenu}
             aria-label="Open menu"
+            data-tooltip="Open menu"
           >
             <span />
             <span />
@@ -308,8 +309,7 @@ export default function LandingPage() {
                   <div
                     className={styles.mockupCardColor}
                     style={{
-                      background:
-                        "linear-gradient(135deg, #f472b6, #c0267e)",
+                      background: "linear-gradient(135deg, #f472b6, #c0267e)",
                     }}
                   />
                   <div>
@@ -327,9 +327,27 @@ export default function LandingPage() {
                   </span>
                 </div>
                 <div className={styles.mockupCardItems}>
-                  <MockupItem emoji="🎧" bg="#fde7f3" name="Wireless Headphones" price="$149.99" priority="high" />
-                  <MockupItem emoji="📚" bg="#e0f2fe" name="Design Anthology Book" price="$34.00" priority="med" />
-                  <MockupItem emoji="☕" bg="#fef3c7" name="Ceramic Pour-Over Set" price="$62.00" priority="low" />
+                  <MockupItem
+                    emoji="🎧"
+                    bg="#fde7f3"
+                    name="Wireless Headphones"
+                    price="$149.99"
+                    priority="high"
+                  />
+                  <MockupItem
+                    emoji="📚"
+                    bg="#e0f2fe"
+                    name="Design Anthology Book"
+                    price="$34.00"
+                    priority="med"
+                  />
+                  <MockupItem
+                    emoji="☕"
+                    bg="#fef3c7"
+                    name="Ceramic Pour-Over Set"
+                    price="$62.00"
+                    priority="low"
+                  />
                 </div>
               </div>
               <div
@@ -357,9 +375,24 @@ export default function LandingPage() {
       <section className={styles.statsBar}>
         <div className={`${styles.container} ${styles.statsBarInner}`}>
           <StatItem count={10000} suffix="+" label="Wishlists Created" />
-          <StatItem count={50000} suffix="+" label="Gifts Tracked" delay={100} />
-          <StatItem count={25000} suffix="+" label="Items Reserved" delay={200} />
-          <StatItem count={98} suffix="%" label="Happy Gift-Givers" delay={300} />
+          <StatItem
+            count={50000}
+            suffix="+"
+            label="Gifts Tracked"
+            delay={100}
+          />
+          <StatItem
+            count={25000}
+            suffix="+"
+            label="Items Reserved"
+            delay={200}
+          />
+          <StatItem
+            count={98}
+            suffix="%"
+            label="Happy Gift-Givers"
+            delay={300}
+          />
         </div>
       </section>
 
@@ -368,14 +401,28 @@ export default function LandingPage() {
         <div className={styles.container}>
           <SectionHeader
             badge="Features"
-            title={<>Everything you need for <em>perfect</em> gifting</>}
+            title={
+              <>
+                Everything you need for <em>perfect</em> gifting
+              </>
+            }
             subtitle="From creating wishlists to discovering what your friends want — Wishlane handles every part of the gifting journey."
           />
           <div className={styles.featuresGrid}>
             <FeatureCard
               icon={
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
                 </svg>
               }
               iconBg="#fde7f3"
@@ -385,7 +432,16 @@ export default function LandingPage() {
             />
             <FeatureCard
               icon={
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                   <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                 </svg>
@@ -398,9 +454,20 @@ export default function LandingPage() {
             />
             <FeatureCard
               icon={
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
               }
               iconBg="#f0fdf4"
@@ -411,7 +478,16 @@ export default function LandingPage() {
             />
             <FeatureCard
               icon={
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
                 </svg>
               }
@@ -422,8 +498,18 @@ export default function LandingPage() {
             />
             <FeatureCard
               icon={
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                  <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
                 </svg>
               }
               iconBg="#ede9fe"
@@ -434,8 +520,18 @@ export default function LandingPage() {
             />
             <FeatureCard
               icon={
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
                 </svg>
               }
               iconBg="#fce7f3"
@@ -453,7 +549,11 @@ export default function LandingPage() {
         <div className={styles.container}>
           <SectionHeader
             badge="How It Works"
-            title={<>Three steps to <em>gifting joy</em></>}
+            title={
+              <>
+                Three steps to <em>gifting joy</em>
+              </>
+            }
             subtitle="Getting started with Wishlane is as easy as making a wish."
           />
           <div className={styles.steps}>
@@ -469,13 +569,9 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className={styles.stepVisual}>
-                <div
-                  className={`${styles.stepDemo} ${styles.stepDemoCreate}`}
-                >
+                <div className={`${styles.stepDemo} ${styles.stepDemoCreate}`}>
                   <div className={styles.demoInput}>
-                    <span className={styles.demoInputLabel}>
-                      Wishlist Name
-                    </span>
+                    <span className={styles.demoInputLabel}>Wishlist Name</span>
                     <span className={styles.demoInputValue}>
                       Christmas 2026 🎄
                     </span>
@@ -501,18 +597,14 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className={styles.stepVisual}>
-                <div
-                  className={`${styles.stepDemo} ${styles.stepDemoShare}`}
-                >
+                <div className={`${styles.stepDemo} ${styles.stepDemoShare}`}>
                   <div className={styles.demoInvite}>
                     <span className={styles.demoInviteLabel}>
                       Your invite link
                     </span>
                     <div className={styles.demoInviteLink}>
                       <span>wishlane.net/invite/sarah_j</span>
-                      <span className={styles.demoInviteCopy}>
-                        📋 Copied!
-                      </span>
+                      <span className={styles.demoInviteCopy}>📋 Copied!</span>
                     </div>
                   </div>
                   <div className={styles.demoFriends}>
@@ -562,7 +654,11 @@ export default function LandingPage() {
         <div className={styles.container}>
           <SectionHeader
             badge="Discover"
-            title={<>Find the <em>perfect gift</em>, every time</>}
+            title={
+              <>
+                Find the <em>perfect gift</em>, every time
+              </>
+            }
             subtitle="Explore your friends' wishlists, see upcoming events, and never show up empty-handed."
           />
           <div className={`${styles.discoverShowcase} ${styles.animateIn}`}>
@@ -616,7 +712,11 @@ export default function LandingPage() {
         <div className={styles.container}>
           <SectionHeader
             badge="Testimonials"
-            title={<>Loved by <em>gift-givers</em> everywhere</>}
+            title={
+              <>
+                Loved by <em>gift-givers</em> everywhere
+              </>
+            }
           />
           <div className={styles.testimonialsGrid}>
             <Testimonial
@@ -731,15 +831,27 @@ export default function LandingPage() {
             </div>
             <div className={styles.footerCol}>
               <h4 className={styles.footerColTitle}>Company</h4>
-              <a href="#" className={styles.footerLink}>About</a>
-              <a href="#" className={styles.footerLink}>Blog</a>
-              <a href="#" className={styles.footerLink}>Careers</a>
+              <a href="#" className={styles.footerLink}>
+                About
+              </a>
+              <a href="#" className={styles.footerLink}>
+                Blog
+              </a>
+              <a href="#" className={styles.footerLink}>
+                Careers
+              </a>
             </div>
             <div className={styles.footerCol}>
               <h4 className={styles.footerColTitle}>Legal</h4>
-              <a href="#" className={styles.footerLink}>Privacy</a>
-              <a href="#" className={styles.footerLink}>Terms</a>
-              <a href="#" className={styles.footerLink}>Cookies</a>
+              <a href="#" className={styles.footerLink}>
+                Privacy
+              </a>
+              <a href="#" className={styles.footerLink}>
+                Terms
+              </a>
+              <a href="#" className={styles.footerLink}>
+                Cookies
+              </a>
             </div>
           </div>
           <div className={styles.footerBottom}>
@@ -784,7 +896,9 @@ function MockupItem({
         <span className={styles.mockupItemPrice}>{price}</span>
       </div>
       <span className={`${styles.mockupItemPriority} ${priorityClass}`}>
-        {priority === "med" ? "Medium" : priority.charAt(0).toUpperCase() + priority.slice(1)}
+        {priority === "med"
+          ? "Medium"
+          : priority.charAt(0).toUpperCase() + priority.slice(1)}
       </span>
     </div>
   );
@@ -825,9 +939,7 @@ function SectionHeader({
     <div className={`${styles.sectionHeader} ${styles.animateIn}`}>
       <span className={styles.sectionHeaderBadge}>{badge}</span>
       <h2 className={styles.sectionHeaderTitle}>{title}</h2>
-      {subtitle && (
-        <p className={styles.sectionHeaderSubtitle}>{subtitle}</p>
-      )}
+      {subtitle && <p className={styles.sectionHeaderSubtitle}>{subtitle}</p>}
     </div>
   );
 }
@@ -908,7 +1020,10 @@ function DemoFriend({
 }) {
   return (
     <div className={styles.demoFriend}>
-      <div className={styles.demoFriendAvatar} style={{ background: bg, color }}>
+      <div
+        className={styles.demoFriendAvatar}
+        style={{ background: bg, color }}
+      >
         {initial}
       </div>
       <div>
@@ -1007,7 +1122,11 @@ function DiscoverCard({
         <div className={styles.discoverCardFooter}>
           <span className={styles.discoverCardPrice}>{price}</span>
           <span className={`${styles.discoverCardPriority} ${priorityClass}`}>
-            {priority === "high" ? "High" : priority === "med" ? "Medium" : "Low"}
+            {priority === "high"
+              ? "High"
+              : priority === "med"
+                ? "Medium"
+                : "Low"}
           </span>
         </div>
       </div>

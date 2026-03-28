@@ -13,6 +13,10 @@ import {
 import { WishlistItemDetailModal } from "./WishlistItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
+import {
+  ActionConfirmModal,
+  type ItemActionConfirmType,
+} from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
 
 type Props = {
   item: Item;
@@ -41,6 +45,8 @@ export function WishlistItemCard({
 }: Props) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmAction, setConfirmAction] =
+    useState<ItemActionConfirmType | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { data: currentUserId = "" } = useCurrentUserId();
 
@@ -142,6 +148,28 @@ export function WishlistItemCard({
     onAutoOpenHandled?.(item.id);
   }, [autoOpen, item.id, onAutoOpenHandled]);
 
+  const handleReserveClick = () => {
+    if (!canToggleReservation || !onToggleReserve) return;
+    setConfirmAction(isReserved ? "unreserve" : "reserve");
+  };
+
+  const handleBoughtClick = () => {
+    if (!canToggleBought || !onToggleBought) return;
+    setConfirmAction(isPurchased ? "unpurchase" : "purchase");
+  };
+
+  const handleConfirmAction = () => {
+    if (!confirmAction) return;
+
+    if (confirmAction === "reserve" || confirmAction === "unreserve") {
+      onToggleReserve?.(item.id);
+    } else {
+      onToggleBought?.(item.id);
+    }
+
+    setConfirmAction(null);
+  };
+
   return (
     <>
       <div className={styles.card} onClick={() => setDetailOpen(true)}>
@@ -192,9 +220,10 @@ export function WishlistItemCard({
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={styles.iconButton}
+                className={`${styles.iconButton} iconTooltipTrigger`}
                 onClick={(e) => e.stopPropagation()}
                 aria-label="Open product link"
+                data-tooltip="Open product link"
               >
                 <ExternalLink size={16} />
               </a>
@@ -203,12 +232,13 @@ export function WishlistItemCard({
             {isOwner && (
               <div className={styles.menuWrapper} ref={menuRef}>
                 <button
-                  className={styles.iconButton}
+                  className={`${styles.iconButton} iconTooltipTrigger`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setMenuOpen((prev) => !prev);
                   }}
                   aria-label="Open item menu"
+                  data-tooltip="More options"
                 >
                   <MoreHorizontal size={16} />
                 </button>
@@ -259,8 +289,7 @@ export function WishlistItemCard({
                 className={`${styles.reserveBtn} ${isReserved ? styles.reserved : ""} ${onToggleBought ? styles.reserveCompact : ""}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (canToggleReservation && onToggleReserve)
-                    onToggleReserve(item.id);
+                  handleReserveClick();
                 }}
                 disabled={!canToggleReservation}
               >
@@ -278,12 +307,15 @@ export function WishlistItemCard({
 
               {onToggleBought && (
                 <button
-                  className={`${styles.buyBtn} ${isPurchased ? styles.purchased : ""}`}
+                  className={`${styles.buyBtn} ${isPurchased ? styles.purchased : ""} iconTooltipTrigger`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (canToggleBought) onToggleBought(item.id);
+                    handleBoughtClick();
                   }}
                   disabled={!canToggleBought}
+                  data-tooltip={
+                    isPurchased ? "Mark as not purchased" : "Mark as purchased"
+                  }
                   aria-label={
                     isPurchased ? "Mark as not purchased" : "Mark as purchased"
                   }
@@ -307,6 +339,14 @@ export function WishlistItemCard({
         reservedByName={reservedByName}
         onDelete={onDelete}
         onEdit={onEdit}
+      />
+
+      <ActionConfirmModal
+        open={!!confirmAction}
+        onClose={() => setConfirmAction(null)}
+        onConfirm={handleConfirmAction}
+        action={confirmAction ?? "reserve"}
+        itemName={item.name}
       />
     </>
   );
