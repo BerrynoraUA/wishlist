@@ -41,13 +41,13 @@ const ACCESS_OPTIONS: Array<{
   {
     value: 0,
     label: "View access",
-    description: "Can open the wishlist and keep track of its updates.",
+    description: "Can open and follow updates.",
     icon: Shield,
   },
   {
     value: 1,
     label: "Edit access",
-    description: "Can add, update, and manage items in this wishlist.",
+    description: "Can add and manage items.",
     icon: SquarePen,
   },
 ];
@@ -151,8 +151,7 @@ export function GrantWishlistAccessModal({
           <p className={styles.eyebrow}>Access control</p>
           <h2>Grant wishlist access</h2>
           <p className={styles.description}>
-            Choose a friend and decide whether they can only view this wishlist
-            or also edit it.
+            Pick a friend and choose whether they can view or edit.
           </p>
           <div className={styles.titleCard}>
             <span className={styles.titleLabel}>Wishlist</span>
@@ -177,9 +176,12 @@ export function GrantWishlistAccessModal({
             />
             <button
               type="button"
-              className={styles.chevronButton}
+              className={`${styles.chevronButton} iconTooltipTrigger`}
               onClick={() => setDropdownOpen((prev) => !prev)}
               aria-label="Toggle friend list"
+              data-tooltip={
+                dropdownOpen ? "Hide friend list" : "Show friend list"
+              }
             >
               <ChevronDown
                 size={16}
@@ -234,7 +236,7 @@ export function GrantWishlistAccessModal({
                               @{friend.nickname}
                             </span>
                             <span className={styles.resultNickname}>
-                              Available for access
+                              No access yet
                             </span>
                           </div>
                         </button>
@@ -253,7 +255,7 @@ export function GrantWishlistAccessModal({
                 </div>
                 <div>
                   <p>@{selectedFriend.nickname}</p>
-                  <span>Friend without access yet</span>
+                  <span>Ready to grant access</span>
                 </div>
               </div>
               <button
@@ -317,7 +319,7 @@ export function GrantWishlistAccessModal({
                           </div>
                           <div>
                             <p>@{user.nickname}</p>
-                            <span>Already has wishlist access</span>
+                            <span>Already has access</span>
                           </div>
                         </div>
                         <div className={styles.accessUserActions}>
@@ -326,7 +328,7 @@ export function GrantWishlistAccessModal({
                           </span>
                           <button
                             type="button"
-                            className={styles.revokeButton}
+                            className={`${styles.revokeButton} iconTooltipTrigger`}
                             onClick={() => handleRevokeAccess(targetUserId)}
                             disabled={
                               revokeAccess.isPending &&
@@ -334,6 +336,7 @@ export function GrantWishlistAccessModal({
                                 targetUserId
                             }
                             aria-label={`Revoke access for @${user.nickname}`}
+                            data-tooltip={`Revoke access for @${user.nickname}`}
                           >
                             {revokeAccess.isPending &&
                             revokeAccess.variables?.targetUserId ===

@@ -1,0 +1,137 @@
+@use "@/styles/variables" as *;
+
+.container {
+  display: grid;
+  gap: 16px;
+  padding: 10px 6px 4px;
+  text-align: center;
+}
+
+.iconWrapper {
+  width: 58px;
+  height: 58px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+  box-shadow: var(--shadow-md);
+}
+
+.success {
+  background: linear-gradient(
+    135deg,
+    rgba(22, 163, 74, 0.16),
+    rgba(34, 197, 94, 0.08)
+  );
+  color: var(--color-success);
+}
+
+.error {
+  background: linear-gradient(
+    135deg,
+    rgba(185, 28, 28, 0.14),
+    rgba(239, 68, 68, 0.08)
+  );
+  color: var(--color-danger);
+}
+
+.content {
+  display: grid;
+  gap: 6px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+}
+
+.description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.linkCard {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  text-align: left;
+  background:
+    radial-gradient(circle at top left, var(--brand-alpha-08), transparent 34%),
+    linear-gradient(180deg, var(--color-bg-subtle), transparent);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.linkLabelRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+
+.linkValue {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  word-break: break-all;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+:global([data-theme="dark"]) .success {
+  background: linear-gradient(
+    135deg,
+    rgba(22, 163, 74, 0.24),
+    rgba(34, 197, 94, 0.12)
+  );
+  color: #7ee7a4;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+:global([data-theme="dark"]) .error {
+  background: linear-gradient(
+    135deg,
+    rgba(185, 28, 28, 0.22),
+    rgba(239, 68, 68, 0.12)
+  );
+  color: #f6a7a7;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+:global([data-theme="dark"]) .linkCard {
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(224, 82, 160, 0.14),
+      transparent 34%
+    ),
+    linear-gradient(180deg, rgba(27, 27, 33, 0.96), rgba(18, 18, 23, 0.98));
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 14px 28px rgba(0, 0, 0, 0.24);
+}
+
+:global([data-theme="dark"]) .linkLabelRow {
+  color: rgba(209, 213, 219, 0.7);
+}
+
+:global([data-theme="dark"]) .linkValue {
+  color: rgba(243, 244, 246, 0.86);
+}

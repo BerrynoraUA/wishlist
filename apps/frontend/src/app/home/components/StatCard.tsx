@@ -4,11 +4,12 @@ import { Gift } from "lucide-react";
 type Props = {
   label: string;
   value: number;
+  onClick?: () => void;
 };
 
-export function StatCard({ label, value }: Props) {
-  return (
-    <div className={styles.card}>
+export function StatCard({ label, value, onClick }: Props) {
+  const content = (
+    <>
       <div className={styles.iconWrapper}>
         <Gift size={18} />
       </div>
@@ -17,6 +18,21 @@ export function StatCard({ label, value }: Props) {
         <strong>{value}</strong>
         <span>{label}</span>
       </div>
-    </div>
+    </>
   );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        className={`${styles.card} ${styles.interactive}`}
+        onClick={onClick}
+        aria-label={`Open ${label.toLowerCase()} in discover`}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return <div className={styles.card}>{content}</div>;
 }

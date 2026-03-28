@@ -88,9 +88,10 @@ export function WishlistHeader({
             <div className={styles.heroMain}>
               <button
                 type="button"
-                className={styles.back}
+                className={`${styles.back} iconTooltipTrigger`}
                 onClick={() => router.push("/home")}
                 aria-label="Back to home"
+                data-tooltip="Back to home"
               >
                 <ArrowLeft size={18} />
               </button>
@@ -166,9 +167,10 @@ export function WishlistHeader({
                   {onShare && (
                     <button
                       type="button"
-                      className={styles.menuButton}
+                      className={`${styles.menuButton} iconTooltipTrigger`}
                       onClick={onShare}
                       aria-label="Share wishlist"
+                      data-tooltip="Share wishlist"
                     >
                       <Share2 size={18} />
                     </button>
@@ -176,9 +178,10 @@ export function WishlistHeader({
                   {onManageAccess && (
                     <button
                       type="button"
-                      className={styles.menuButton}
+                      className={`${styles.menuButton} iconTooltipTrigger`}
                       onClick={onManageAccess}
                       aria-label="Manage wishlist access"
+                      data-tooltip="Manage access"
                     >
                       <KeyRound size={18} />
                     </button>
@@ -187,9 +190,10 @@ export function WishlistHeader({
                     <div className={styles.menuWrapper} ref={menuRef}>
                       <button
                         type="button"
-                        className={styles.menuButton}
+                        className={`${styles.menuButton} iconTooltipTrigger`}
                         onClick={() => setMenuOpen((prev) => !prev)}
                         aria-label="Wishlist actions"
+                        data-tooltip="More options"
                       >
                         <MoreHorizontal size={18} />
                       </button>

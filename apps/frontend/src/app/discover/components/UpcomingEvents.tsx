@@ -1,7 +1,11 @@
 import { useMemo, useRef, useState } from "react";
 import { useFriendsUpcomingWishlists } from "@/hooks/use-wishlists";
 import styles from "./UpcomingEvents.module.scss";
-import { getDaysUntil, formatShortDate, getDaysText } from "@/lib/discover-helper";
+import {
+  getDaysUntil,
+  formatShortDate,
+  getDaysText,
+} from "@/lib/discover-helper";
 import { CalendarDays } from "lucide-react";
 import { EventsCalendar } from "./EventsCalendar";
 
@@ -13,7 +17,8 @@ export function UpcomingEvents() {
     () =>
       [...(upcomingWishlists ?? [])].sort(
         (left, right) =>
-          new Date(left.event_date).getTime() - new Date(right.event_date).getTime(),
+          new Date(left.event_date).getTime() -
+          new Date(right.event_date).getTime(),
       ),
     [upcomingWishlists],
   );
@@ -32,9 +37,10 @@ export function UpcomingEvents() {
         <div className={styles.calendarAnchor}>
           <button
             ref={iconRef}
-            className={`${styles.iconCircle} ${calendarOpen ? styles.iconCircleActive : ""}`}
+            className={`${styles.iconCircle} ${calendarOpen ? styles.iconCircleActive : ""} iconTooltipTrigger`}
             onClick={() => setCalendarOpen((v) => !v)}
             aria-label="Open events calendar"
+            data-tooltip="Open events calendar"
           >
             <CalendarDays size={18} />
           </button>
