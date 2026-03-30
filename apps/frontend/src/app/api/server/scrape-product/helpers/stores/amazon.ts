@@ -76,11 +76,7 @@ export function scrapeAmazon(html: string, url: string): ProductData {
   }
   logAmazon("title.final", { title });
 
-  const image = pickFirstAttr($, "image", "src", [
-    "#landingImage",
-    "#imgTagWrapperId img",
-    "img[data-a-image-name='landingImage']",
-  ]);
+  const image = pickAmazonImage(html);
   logAmazon("image.final", { image });
 
   let description = pickFirstText($, "description", [
@@ -134,24 +130,54 @@ function pickFirstText(
   return "";
 }
 
-function pickFirstAttr(
-  $: cheerio.CheerioAPI,
-  label: string,
-  attr: string,
-  selectors: string[],
-): string {
-  for (const selector of selectors) {
-    const value = $(selector).first().attr(attr)?.trim() || "";
-    logAmazon(`${label}.check`, { selector, attr, value });
+function pickAmazonImage(html: string): string {
+  const imageDom = cheerio.load(html);
+  const image = imageDom("#landingImage").first();
+  const paperbackImage = imageDom("#imgBlkFront").first();
+  const ebookImage = imageDom("#ebooksImgBlkFront").first();
+  const element = image.length
+    ? image
+    : paperbackImage.length
+      ? paperbackImage
+      : ebookImage;
 
-    if (value) {
-      logAmazon(`${label}.match`, { selector, attr, value });
-      return value;
-    }
+  logAmazon("image.node", {
+    landingImageFound: image.length > 0,
+    imgBlkFrontFound: paperbackImage.length > 0,
+    ebooksImgBlkFrontFound: ebookImage.length > 0,
+    matchedId: element.attr("id") || null,
+  });
+
+  if (!element.length) {
+    return "";
   }
 
-  logAmazon(`${label}.miss`, { selectors, attr });
-  return "";
+  const rawHighRes = element.attr("data-old-hires") || "";
+  const rawSrc = element.attr("src") || "";
+  const rawValue = rawHighRes || rawSrc;
+
+  logAmazon("image.attrs", {
+    dataOldHires: rawHighRes,
+    src: rawSrc,
+    selectedAttr: rawHighRes ? "data-old-hires" : "src",
+  });
+
+  const decodedSrc = decodeHtmlEntities(rawValue.trim());
+  logAmazon("image.match", {
+    selector: `#${element.attr("id") || "unknown"}`,
+    attr: rawHighRes ? "data-old-hires" : "src",
+    value: decodedSrc,
+  });
+
+  return decodedSrc;
+}
+
+function decodeHtmlEntities(value: string): string {
+  if (!value) {
+    return "";
+  }
+
+  return cheerio.load(`<span>${value}</span>`)("span").text().trim();
 }
 
 function logAmazon(step: string, payload: unknown): void {
