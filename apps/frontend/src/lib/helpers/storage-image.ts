@@ -51,7 +51,7 @@ export function getStoragePathFromPublicUrl(
   url: string | null | undefined,
   bucket: string,
 ): string | null {
-  if (!isSupabasePublicImageUrl(url, bucket)) {
+  if (!url || !isSupabasePublicImageUrl(url, bucket)) {
     return null;
   }
 
@@ -101,10 +101,12 @@ export async function uploadPublicImage({
     randomString,
   });
 
-  const { data, error } = await supabaseBrowser.storage.from(bucket).upload(path, file, {
-    cacheControl: "3600",
-    upsert: false,
-  });
+  const { data, error } = await supabaseBrowser.storage
+    .from(bucket)
+    .upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
 
   if (error) {
     console.error(`Error uploading ${logLabel}:`, error);
