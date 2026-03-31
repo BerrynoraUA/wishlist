@@ -1,13 +1,13 @@
-type PaddleCustomData = {
+export type PaddleCustomData = {
   user_id?: string;
 };
 
-type PaddleBillingCycle = {
+export type PaddleBillingCycle = {
   interval: "day" | "week" | "month" | "year";
   frequency: number;
 };
 
-type PaddleItem = {
+export type PaddleItem = {
   price: {
     id: string;
     billing_cycle?: PaddleBillingCycle;
@@ -15,7 +15,7 @@ type PaddleItem = {
   status?: string;
 };
 
-type PaddleSubscriptionData = {
+export type PaddleSubscriptionData = {
   id: string;
   status: string;
   customer_id: string;
@@ -31,7 +31,7 @@ type PaddleSubscriptionData = {
   } | null;
 };
 
-type PaddleTransactionData = {
+export type PaddleTransactionData = {
   id: string;
   subscription_id?: string;
   customer_id: string;
@@ -39,7 +39,7 @@ type PaddleTransactionData = {
   items: PaddleItem[];
 };
 
-type PaddleEvent = {
+export type PaddleEvent = {
   event_type: string;
   data: PaddleSubscriptionData | PaddleTransactionData;
 };
