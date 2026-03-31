@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { ItemDetailModal } from "./ItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
-import { formatItemPrice } from "@/lib/utils";
+import { formatItemPrice } from "@/lib/helpers/price-helper";
 import {
   ActionConfirmModal,
   type ItemActionConfirmType,

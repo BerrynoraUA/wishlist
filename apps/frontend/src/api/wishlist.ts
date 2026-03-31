@@ -8,9 +8,9 @@ import {
   FriendUpcomingWishlist,
   ReservedItem,
 } from "./types/wishilst";
+import { deletePublicImage, uploadPublicImage } from "@/lib/helpers/storage-image";
 
 const WISHLIST_IMAGE_BUCKET = "items";
-const WISHLIST_IMAGE_PUBLIC_SEGMENT = "/storage/v1/object/public/items/";
 
 type WishlistFeedRow = Wishlist & {
   items_count?: number;
@@ -237,64 +237,24 @@ export async function updateWishlist(
 }
 
 export async function uploadWishlistImage(file: File): Promise<string> {
-  const {
-    data: { session },
-  } = await supabaseBrowser.auth.getSession();
-
-  if (!session?.user) throw new Error("Not authenticated");
-
-  if (file.size > 5 * 1024 * 1024) {
-    throw new Error("Image size must be less than 5MB");
-  }
-
-  if (!file.type.startsWith("image/")) {
-    throw new Error("File must be an image");
-  }
-
-  const fileExt = file.name.split(".").pop();
-  const randomString = Math.random().toString(36).substring(2, 15);
-  const fileName = `${session.user.id}/wishlist-${Date.now()}-${randomString}.${fileExt}`;
-
-  const { data, error } = await supabaseBrowser.storage
-    .from(WISHLIST_IMAGE_BUCKET)
-    .upload(fileName, file, {
-      cacheControl: "3600",
-      upsert: false,
-    });
-
-  if (error) {
-    console.error("Error uploading wishlist image:", error);
-    throw new Error("Failed to upload image");
-  }
-
-  const {
-    data: { publicUrl },
-  } = supabaseBrowser.storage
-    .from(WISHLIST_IMAGE_BUCKET)
-    .getPublicUrl(data.path);
-
-  return publicUrl;
+  return uploadPublicImage({
+    file,
+    bucket: WISHLIST_IMAGE_BUCKET,
+    maxBytes: 5 * 1024 * 1024,
+    oversizeMessage: "Image size must be less than 5MB",
+    uploadErrorMessage: "Failed to upload image",
+    logLabel: "wishlist image",
+    buildPath: ({ userId, extension, timestamp, randomString }) =>
+      `${userId}/wishlist-${timestamp}-${randomString}.${extension}`,
+  });
 }
 
 export async function deleteWishlistImage(imageUrl: string): Promise<void> {
-  if (!imageUrl) return;
-
-  if (!imageUrl.includes(WISHLIST_IMAGE_PUBLIC_SEGMENT)) {
-    return;
-  }
-
-  const urlParts = imageUrl.split(`/${WISHLIST_IMAGE_BUCKET}/`);
-  if (urlParts.length < 2) return;
-
-  const path = urlParts[1];
-
-  const { error } = await supabaseBrowser.storage
-    .from(WISHLIST_IMAGE_BUCKET)
-    .remove([path]);
-
-  if (error) {
-    console.error("Error deleting wishlist image:", error);
-  }
+  await deletePublicImage({
+    imageUrl,
+    bucket: WISHLIST_IMAGE_BUCKET,
+    logLabel: "wishlist image",
+  });
 }
 
 export async function deleteWishlist(wishlistId: string): Promise<void> {

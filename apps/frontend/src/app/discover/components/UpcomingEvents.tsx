@@ -5,7 +5,7 @@ import {
   getDaysUntil,
   formatShortDate,
   getDaysText,
-} from "@/lib/discover-helper";
+} from "@/lib/helpers/discover-helper";
 import { CalendarDays } from "lucide-react";
 import { EventsCalendar } from "./EventsCalendar";
 
