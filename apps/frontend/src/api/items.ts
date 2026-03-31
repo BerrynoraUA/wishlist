@@ -4,6 +4,9 @@ import { CreateItemParams, UpdateItemParams } from "./types/item";
 import { getItems } from "./helpers/item-helper";
 import { getSubscriptionStatus } from "./subscription";
 import { SubscriptionPlan } from "@/types/subscription";
+import { deletePublicImage, uploadPublicImage } from "@/lib/helpers/storage-image";
+
+const ITEM_IMAGE_BUCKET = "items";
 
 async function ensureProForPriority(priority: number | null | undefined) {
   if (priority == null) return;
@@ -204,74 +207,22 @@ export async function toggleItemBought(itemId: string): Promise<Item> {
 }
 
 export async function uploadItemImage(file: File): Promise<string> {
-  const {
-    data: { session },
-  } = await supabaseBrowser.auth.getSession();
-
-  if (!session?.user) throw new Error("Not authenticated");
-
-  if (file.size > 5 * 1024 * 1024) {
-    throw new Error('Image size must be less than 5MB');
-  }
-
-
-  if (!file.type.startsWith('image/')) {
-    throw new Error('File must be an image');
-  }
-
-
-  const fileExt = file.name.split('.').pop();
-  const randomString = Math.random().toString(36).substring(2, 15);
-  const fileName = `${session.user.id}/${Date.now()}-${randomString}.${fileExt}`;
-
-
-  const { data, error } = await supabaseBrowser.storage
-    .from('items')
-    .upload(fileName, file, {
-      cacheControl: '3600',
-      upsert: false,
-    });
-
-  if (error) {
-    console.error('Error uploading image:', error);
-    throw new Error('Failed to upload image');
-  }
-
-
-  const { data: { publicUrl } } = supabaseBrowser.storage
-    .from('items')
-    .getPublicUrl(data.path);
-
-  return publicUrl;
+  return uploadPublicImage({
+    file,
+    bucket: ITEM_IMAGE_BUCKET,
+    maxBytes: 5 * 1024 * 1024,
+    oversizeMessage: "Image size must be less than 5MB",
+    uploadErrorMessage: "Failed to upload image",
+  });
 }
 
 
  
 export async function deleteItemImage(imageUrl: string): Promise<void> {
-  if (!imageUrl) return;
-
-  if (!imageUrl.includes('/storage/v1/object/public/items/')) {
-   
-    return;
-  }
-
-  const urlParts = imageUrl.split('/items/');
-  if (urlParts.length < 2) return;
-  
-  const path = urlParts[1];
-
-  const { error } = await supabaseBrowser.storage
-    .from('items')
-    .remove([path]);
-
-  if (error) {
-    console.error('Error deleting image:', error);
-    
-  }
+  await deletePublicImage({
+    imageUrl,
+    bucket: ITEM_IMAGE_BUCKET,
+  });
 }
 
 
-export function isSupabaseStorageUrl(url: string | null): boolean {
-  if (!url) return false;
-  return url.includes('/storage/v1/object/public/items/');
-}

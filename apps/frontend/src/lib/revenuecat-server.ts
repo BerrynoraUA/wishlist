@@ -8,15 +8,8 @@ const RC_PRO_ENTITLEMENT_ID = "Berrynora Pro";
 const RC_API_BASE = "https://api.revenuecat.com/v1";
 
 type RCDuration =
-  | "daily"
-  | "three_day"
-  | "weekly"
   | "monthly"
-  | "two_month"
-  | "three_month"
-  | "six_month"
-  | "yearly"
-  | "lifetime";
+  | "yearly";
 
 /**
  * Grant a promotional entitlement in RevenueCat for a user.
