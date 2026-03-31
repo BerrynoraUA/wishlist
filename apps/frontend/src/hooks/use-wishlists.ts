@@ -43,7 +43,7 @@ export function useFriendsUpcomingWishlists() {
     queryFn: () => getFriendsUpcomingWishlists(),
   });
 }
-// Queries
+
 export function useMyWishlists(params?: PaginationParams) {
   return useQuery({
     queryKey: wishlistKeys.my(params),

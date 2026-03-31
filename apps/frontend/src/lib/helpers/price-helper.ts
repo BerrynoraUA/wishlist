@@ -1,11 +1,6 @@
 import { CURRENCY_SYMBOLS, normalizeCurrencyCode } from "@/lib/currencies";
 
-/**
- * Formats a price string with the correct currency symbol.
- * Strips any existing leading currency symbol before prepending the correct one.
- * Falls back to USD if currency is null/undefined.
- * Accepts both string and number prices.
- */
+
 export function formatItemPrice(
   price: string | number | null | undefined,
   currency: string | null | undefined,
@@ -22,10 +17,6 @@ export function formatItemPrice(
   return `${symbol}${clean}`;
 }
 
-/**
- * Parse a price string (with mixed separators) to a number.
- * Returns null for invalid/empty input.
- */
 export function parsePriceString(
   value: string | number | null | undefined,
 ): number | null {
@@ -47,11 +38,7 @@ export function parsePriceString(
   return Number.isFinite(n) ? n : null;
 }
 
-/**
- * Convert a price from one currency to another using exchange rates.
- * rates map is { [currencyCode]: rateRelativeToUSD }
- * Returns null if conversion is impossible.
- */
+
 export function convertPrice(
   price: number,
   fromCurrency: string,

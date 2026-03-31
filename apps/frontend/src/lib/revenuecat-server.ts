@@ -8,20 +8,10 @@ const RC_PRO_ENTITLEMENT_ID = "Berrynora Pro";
 const RC_API_BASE = "https://api.revenuecat.com/v1";
 
 type RCDuration =
-  | "daily"
-  | "three_day"
-  | "weekly"
   | "monthly"
-  | "two_month"
-  | "three_month"
-  | "six_month"
-  | "yearly"
-  | "lifetime";
+  | "yearly";
 
-/**
- * Grant a promotional entitlement in RevenueCat for a user.
- * Used when a Paddle subscription is activated / renewed to keep RC in sync.
- */
+
 export async function grantRevenueCatEntitlement(
   appUserId: string,
   duration: RCDuration,
@@ -31,7 +21,7 @@ export async function grantRevenueCatEntitlement(
     throw new Error("Missing REVENUECAT_SECRET_API_KEY");
   }
 
-  const url = `${RC_API_BASE}/subscribers/${encodeURIComponent(appUserId)}/entitlements/${encodeURIComponent(RC_PRO_ENTITLEMENT_ID)}/grant_promotional`;
+  const url = `${RC_API_BASE}/subscribers/${encodeURIComponent(appUserId)}/entitlements/${encodeURIComponent(RC_PRO_ENTITLEMENT_ID)}/promotional`;
 
   const body: Record<string, unknown> = { duration };
   if (startTimeMs) {
@@ -62,9 +52,7 @@ export async function grantRevenueCatEntitlement(
   );
 }
 
-/**
- * Revoke all promotional entitlements for a user.
- */
+
 export async function revokeRevenueCatEntitlement(
   appUserId: string,
 ): Promise<void> {

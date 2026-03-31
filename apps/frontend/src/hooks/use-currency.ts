@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useSettings, useExchangeRates } from "@/hooks/use-settings";
-import { formatConvertedPrice, formatItemPrice } from "@/lib/utils";
+import { formatConvertedPrice, formatItemPrice } from "@/lib/helpers/price-helper";
 
 export function useCurrencyFormatter() {
   const { data: settings } = useSettings();
