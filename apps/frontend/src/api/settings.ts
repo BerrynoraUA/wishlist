@@ -7,10 +7,13 @@ import type {
   UpdateSettingsPayload,
 } from "@/types/settings";
 import { DEFAULT_SETTINGS } from "@/types/settings";
+import {
+  deletePublicImage,
+  isSupabasePublicImageUrl,
+  uploadPublicImage,
+} from "@/lib/helpers/storage-image";
+import { PublicProfile } from "./types/user";
 
-/* ────────────────────────────────────────
-   Profile
-   ──────────────────────────────────────── */
 
 export async function getProfile(): Promise<UserProfile> {
   const {
@@ -67,10 +70,7 @@ export async function checkNicknameAvailable(
   return data === null;
 }
 
-export type PublicProfile = Pick<
-  UserProfile,
-  "id" | "display_name" | "nickname" | "avatar_url"
->;
+
 
 export async function getProfilesByIds(
   userIds: string[],
@@ -87,53 +87,24 @@ export async function getProfilesByIds(
   return (data ?? []) as PublicProfile[];
 }
 
-/* ────────────────────────────────────────
-   Avatar
-   ──────────────────────────────────────── */
 
 export async function uploadAvatar(file: File): Promise<string> {
-  const {
-    data: { session },
-  } = await supabaseBrowser.auth.getSession();
-
-  if (!session?.user) throw new Error("Not authenticated");
-
-  if (file.size > 2 * 1024 * 1024) {
-    throw new Error("Avatar image size must be less than 2MB");
-  }
-
-  if (!file.type.startsWith("image/")) {
-    throw new Error("File must be an image");
-  }
-
-  // Capture current avatar to clean up old files (best-effort)
   let previousAvatarUrl: string | null = null;
   try {
     const currentProfile = await getProfile();
     previousAvatarUrl = currentProfile.avatar_url;
   } catch {
-    // ignore — upload/update should still proceed
+
   }
 
-  const fileExt = (file.name.split(".").pop() ?? "png").toLowerCase();
-  const randomString = Math.random().toString(36).slice(2, 15);
-  const path = `${session.user.id}/${Date.now()}-${randomString}.${fileExt}`;
-
-  const { data: uploaded, error: uploadError } = await supabaseBrowser.storage
-    .from("avatars")
-    .upload(path, file, {
-      cacheControl: "3600",
-      upsert: false,
-    });
-
-  if (uploadError) {
-    console.error("Error uploading avatar:", uploadError);
-    throw new Error(uploadError.message || "Failed to upload avatar");
-  }
-
-  const {
-    data: { publicUrl },
-  } = supabaseBrowser.storage.from("avatars").getPublicUrl(uploaded.path);
+  const publicUrl = await uploadPublicImage({
+    file,
+    bucket: "avatars",
+    maxBytes: 2 * 1024 * 1024,
+    oversizeMessage: "Avatar image size must be less than 2MB",
+    uploadErrorMessage: "Failed to upload avatar",
+    logLabel: "avatar",
+  });
 
   await updateProfile({ avatar_url: publicUrl });
 
@@ -149,32 +120,17 @@ export async function uploadAvatar(file: File): Promise<string> {
 }
 
 export function isSupabaseAvatarUrl(url: string | null): boolean {
-  if (!url) return false;
-  return url.includes("/storage/v1/object/public/avatars/");
+  return isSupabasePublicImageUrl(url, "avatars");
 }
 
 export async function deleteAvatarImage(avatarUrl: string): Promise<void> {
-  if (!avatarUrl) return;
-  if (!isSupabaseAvatarUrl(avatarUrl)) return;
-
-  const urlParts = avatarUrl.split("/avatars/");
-  if (urlParts.length < 2) return;
-
-  const path = urlParts[1].split("?")[0];
-  if (!path) return;
-
-  const { error } = await supabaseBrowser.storage
-    .from("avatars")
-    .remove([path]);
-
-  if (error) {
-    console.error("Error deleting avatar image:", error);
-  }
+  await deletePublicImage({
+    imageUrl: avatarUrl,
+    bucket: "avatars",
+    logLabel: "avatar image",
+  });
 }
 
-/* ────────────────────────────────────────
-   Settings (preferences)
-   ──────────────────────────────────────── */
 
 export async function getSettings(): Promise<UserSettings> {
   const {
@@ -191,7 +147,6 @@ export async function getSettings(): Promise<UserSettings> {
 
   if (error) throw error;
 
-  // Return defaults if no settings row exists yet
   if (!data) {
     return { user_id: user.id, ...DEFAULT_SETTINGS };
   }
@@ -221,9 +176,6 @@ export async function updateSettings(
   return data;
 }
 
-/* ────────────────────────────────────────
-   Account
-   ──────────────────────────────────────── */
 
 export async function changePassword(newPassword: string): Promise<void> {
   const { error } = await supabaseBrowser.auth.updateUser({
@@ -250,10 +202,6 @@ export async function deleteAccount(): Promise<void> {
 
   await supabaseBrowser.auth.signOut();
 }
-
-/* ────────────────────────────────────────
-   Exchange Rates
-   ──────────────────────────────────────── */
 
 export interface ExchangeRates {
   base: string;
