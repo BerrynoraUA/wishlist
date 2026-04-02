@@ -22,7 +22,10 @@ function FriendsPageContent() {
   const [tab, setTab] = useState<"friends" | "requests" | "sent">("friends");
   const [open, setOpen] = useState(false);
   const searchParams = useSearchParams();
-  const search = useMemo(() => searchParams.get("search") ?? "", [searchParams]);
+  const search = useMemo(
+    () => searchParams.get("search") ?? "",
+    [searchParams],
+  );
 
   const { data, isLoading, isError } = useFriends({ search });
   const friends = data ?? [];
@@ -64,7 +67,11 @@ function FriendsPageContent() {
 
       {tab === "friends" && (
         <div
-          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: 16,
+          }}
         >
           {isLoading && <p>Loading...</p>}
           {isError && <p>Failed to load friends.</p>}
@@ -79,7 +86,11 @@ function FriendsPageContent() {
 
       {tab === "requests" && (
         <div
-          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: 16,
+          }}
         >
           {requestsLoading && <p>Loading...</p>}
           {requestsError && <p>Failed to load requests.</p>}
@@ -101,7 +112,11 @@ function FriendsPageContent() {
 
       {tab === "sent" && (
         <div
-          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: 16,
+          }}
         >
           {outgoingLoading && <p>Loading...</p>}
           {outgoingError && <p>Failed to load sent requests.</p>}
@@ -126,7 +141,13 @@ function FriendsPageContent() {
 
 export default function FriendsPage() {
   return (
-    <Suspense fallback={<main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px" }}><p>Loading friends...</p></main>}>
+    <Suspense
+      fallback={
+        <main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px" }}>
+          <p>Loading friends...</p>
+        </main>
+      }
+    >
       <FriendsPageContent />
     </Suspense>
   );
