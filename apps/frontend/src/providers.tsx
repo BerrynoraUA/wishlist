@@ -18,8 +18,157 @@ import { initRevenueCat, resetRevenueCat } from "@/lib/revenuecat";
 import { initPaddle, setOnCheckoutComplete } from "@/lib/paddle";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import type { ThemePreference } from "@/types/settings";
+import { WishlistAccent } from "@/types/wishlist";
 
 type ResolvedTheme = "light" | "dark";
+
+const ACCENT_TOKENS: Record<
+  WishlistAccent,
+  {
+    light: {
+      brand: string;
+      brandDark: string;
+      brandLight: string;
+      brandLighter: string;
+    };
+    dark: {
+      brand: string;
+      brandDark: string;
+      brandLight: string;
+      brandLighter: string;
+    };
+  }
+> = {
+  [WishlistAccent.Pink]: {
+    light: {
+      brand: "#c0267e",
+      brandDark: "#9b1f66",
+      brandLight: "#fde7f3",
+      brandLighter: "#fdf2f8",
+    },
+    dark: {
+      brand: "#e052a0",
+      brandDark: "#c0267e",
+      brandLight: "#3d1a2e",
+      brandLighter: "#2a1220",
+    },
+  },
+  [WishlistAccent.Blue]: {
+    light: {
+      brand: "#2563eb",
+      brandDark: "#1d4ed8",
+      brandLight: "#dbeafe",
+      brandLighter: "#eff6ff",
+    },
+    dark: {
+      brand: "#60a5fa",
+      brandDark: "#3b82f6",
+      brandLight: "#1e293b",
+      brandLighter: "#172033",
+    },
+  },
+  [WishlistAccent.Peach]: {
+    light: {
+      brand: "#d97706",
+      brandDark: "#b45309",
+      brandLight: "#fef3c7",
+      brandLighter: "#fffbeb",
+    },
+    dark: {
+      brand: "#fbbf24",
+      brandDark: "#d97706",
+      brandLight: "#2a2010",
+      brandLighter: "#1f1a0e",
+    },
+  },
+  [WishlistAccent.Mint]: {
+    light: {
+      brand: "#059669",
+      brandDark: "#047857",
+      brandLight: "#d1fae5",
+      brandLighter: "#ecfdf5",
+    },
+    dark: {
+      brand: "#34d399",
+      brandDark: "#10b981",
+      brandLight: "#132a20",
+      brandLighter: "#0f1f18",
+    },
+  },
+  [WishlistAccent.Lavender]: {
+    light: {
+      brand: "#7c3aed",
+      brandDark: "#6d28d9",
+      brandLight: "#ede9fe",
+      brandLighter: "#f5f3ff",
+    },
+    dark: {
+      brand: "#a78bfa",
+      brandDark: "#8b5cf6",
+      brandLight: "#241d3a",
+      brandLighter: "#1c162e",
+    },
+  },
+};
+
+function applyAccentTokens(
+  accent: WishlistAccent,
+  resolvedTheme: ResolvedTheme,
+) {
+  const tokens =
+    ACCENT_TOKENS[accent]?.[resolvedTheme] ??
+    ACCENT_TOKENS[WishlistAccent.Pink][resolvedTheme];
+  const root = document.documentElement;
+  root.style.setProperty("--color-brand", tokens.brand);
+  root.style.setProperty("--color-brand-dark", tokens.brandDark);
+  root.style.setProperty("--color-brand-light", tokens.brandLight);
+  root.style.setProperty("--color-brand-lighter", tokens.brandLighter);
+
+  // Rebuild alpha ramp from brand color
+  const alphaSteps = [
+    ["--brand-alpha-06", 0.06],
+    ["--brand-alpha-08", 0.08],
+    ["--brand-alpha-10", 0.1],
+    ["--brand-alpha-12", 0.12],
+    ["--brand-alpha-15", 0.15],
+    ["--brand-alpha-20", 0.2],
+    ["--brand-alpha-25", 0.25],
+    ["--brand-alpha-30", 0.3],
+    ["--brand-alpha-35", 0.35],
+  ] as const;
+  for (const [varName, alpha] of alphaSteps) {
+    root.style.setProperty(
+      varName,
+      `color-mix(in srgb, ${tokens.brand} ${Math.round(alpha * 100)}%, transparent)`,
+    );
+  }
+
+  // Focus ring / selection
+  root.style.setProperty(
+    "--input-focus-border",
+    `color-mix(in srgb, ${tokens.brand} 40%, transparent)`,
+  );
+  root.style.setProperty(
+    "--input-focus-ring",
+    `color-mix(in srgb, ${tokens.brand} 8%, transparent)`,
+  );
+  root.style.setProperty(
+    "--selection-bg",
+    `color-mix(in srgb, ${tokens.brand} 15%, transparent)`,
+  );
+  root.style.setProperty(
+    "--shadow-brand",
+    `0 4px 14px color-mix(in srgb, ${tokens.brand} 30%, transparent)`,
+  );
+  root.style.setProperty(
+    "--shadow-brand-lg",
+    `0 8px 30px color-mix(in srgb, ${tokens.brand} 20%, transparent)`,
+  );
+  root.style.setProperty(
+    "--gradient-brand-subtle",
+    `linear-gradient(135deg, ${tokens.brandLight}, ${tokens.brandLighter})`,
+  );
+}
 
 type AppThemeContextValue = {
   persistedTheme: ThemePreference;
@@ -73,6 +222,12 @@ function AppThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.setAttribute("data-theme", resolvedTheme);
     document.documentElement.style.colorScheme = resolvedTheme;
   }, [resolvedTheme]);
+
+  const accent = settings?.default_accent ?? WishlistAccent.Pink;
+
+  useEffect(() => {
+    applyAccentTokens(accent, resolvedTheme);
+  }, [accent, resolvedTheme]);
 
   const value = useMemo<AppThemeContextValue>(
     () => ({

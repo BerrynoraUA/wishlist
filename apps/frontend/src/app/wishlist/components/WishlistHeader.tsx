@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 import { Wishlist } from "@/types/wishlist";
 import { Button } from "@/components/ui/Button/Button";
 import {
-  accentClass,
+  getAccent,
   visibilityIcon,
   visibilityLabel,
 } from "@/lib/helpers/wishlist-helper";
@@ -79,7 +79,7 @@ export function WishlistHeader({
     }
   }
 
-  const accent = accentClass[wishlist.accent_type] ?? "pink";
+  const accent = getAccent(wishlist.accent_type);
   return (
     <div className={styles.header}>
       <div className={`${styles.banner} ${styles[accent]}`}>
