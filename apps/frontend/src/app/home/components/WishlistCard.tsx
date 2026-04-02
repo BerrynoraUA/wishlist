@@ -5,7 +5,7 @@ import styles from "./WishlistCard.module.scss";
 import { Wishlist } from "@/types/wishlist";
 import { Gift, Link2 } from "lucide-react";
 import {
-  accentClass,
+  getAccent,
   visibilityIcon,
   visibilityLabel,
 } from "@/lib/helpers/wishlist-helper";
@@ -18,7 +18,7 @@ type Props = {
 export function WishlistCard({ wishlist, showSharedMeta = true }: Props) {
   const router = useRouter();
 
-  const accent = accentClass[wishlist.accent_type] ?? "pink";
+  const accent = getAccent(wishlist.accent_type);
   const hasImage = Boolean(wishlist.image_url);
   const visibility = wishlist.visibility_type;
   const VisibilityIcon = visibilityIcon[visibility];

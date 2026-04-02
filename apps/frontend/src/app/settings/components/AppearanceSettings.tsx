@@ -112,7 +112,7 @@ export function AppearanceSettings() {
 
       <SettingsSection
         title="Default Accent Color"
-        description="Pre-selected color when creating new wishlists."
+        description="Secondary platform color used across the interface."
       >
         <div className={styles.accentGrid}>
           {ACCENTS.map((a) => (
@@ -134,7 +134,7 @@ export function AppearanceSettings() {
 
       <SettingsSection
         title="Default Wishlist Color"
-        description="Pre-selected wishlist color when creating new wishlists."
+        description="Pre-selected color when creating new wishlists."
       >
         <div className={styles.accentGrid}>
           {WISHLIST_COLORS.map((a) => (

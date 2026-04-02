@@ -3,7 +3,7 @@
 import styles from "../../wishlist/components/WishlistHeader.module.scss";
 import { Gift, Calendar } from "lucide-react";
 import { Wishlist } from "@/types/wishlist";
-import { accentClass } from "@/lib/helpers/wishlist-helper";
+import { getAccent } from "@/lib/helpers/wishlist-helper";
 import { visibilityLabel, visibilityIcon } from "@/lib/helpers/wishlist-helper";
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
 };
 
 export function SharedWishlistHeader({ wishlist }: Props) {
-  const accent = accentClass[wishlist.accent_type] ?? "pink";
+  const accent = getAccent(wishlist.accent_type);
   const visibility = visibilityLabel[wishlist.visibility_type] ?? "Private";
   const VisibilityIcon = visibilityIcon[wishlist.visibility_type];
   const itemsCount = wishlist.items_count ?? 0;
