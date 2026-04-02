@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import type { ThemePreference } from "@/types/settings";
 import {
   getInitialResolvedTheme,
   parseResolvedTheme,
@@ -76,7 +77,7 @@ export async function GET(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let persistedTheme = "system";
+  let persistedTheme: ThemePreference = "system";
   if (user) {
     const { data: settings } = await supabase
       .from("user_settings")
