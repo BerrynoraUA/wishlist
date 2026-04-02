@@ -158,5 +158,10 @@
     border-radius: 20px 20px 0 0;
     animation: slideUp 0.3s $ease-out;
     padding: 20px 16px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    z-index: 9999;
   }
 }
