@@ -1,5 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import type { ThemePreference } from "@/types/settings";
+import {
+  getInitialResolvedTheme,
+  parseResolvedTheme,
+  parseThemePreference,
+  RESOLVED_THEME_COOKIE_NAME,
+  THEME_COOKIE_MAX_AGE,
+  THEME_COOKIE_NAME,
+} from "@/lib/theme";
 
 const AUTH_REDIRECT_COOKIE = "bn_auth_redirect_to";
 
@@ -63,6 +72,41 @@ export async function GET(request: NextRequest) {
   if (error) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let persistedTheme: ThemePreference = "system";
+  if (user) {
+    const { data: settings } = await supabase
+      .from("user_settings")
+      .select("theme")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    persistedTheme = parseThemePreference(settings?.theme) ?? "system";
+  }
+
+  const resolvedTheme = getInitialResolvedTheme(
+    persistedTheme,
+    parseResolvedTheme(request.cookies.get(RESOLVED_THEME_COOKIE_NAME)?.value),
+  );
+
+  response.cookies.set({
+    name: THEME_COOKIE_NAME,
+    value: persistedTheme,
+    path: "/",
+    maxAge: THEME_COOKIE_MAX_AGE,
+    sameSite: "lax",
+  });
+  response.cookies.set({
+    name: RESOLVED_THEME_COOKIE_NAME,
+    value: resolvedTheme,
+    path: "/",
+    maxAge: THEME_COOKIE_MAX_AGE,
+    sameSite: "lax",
+  });
 
   return response;
 }

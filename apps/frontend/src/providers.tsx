@@ -5,22 +5,20 @@ import {
   QueryClientProvider,
   useQueryClient,
 } from "@tanstack/react-query";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { initRevenueCat, resetRevenueCat } from "@/lib/revenuecat";
 import { initPaddle, setOnCheckoutComplete } from "@/lib/paddle";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import type { ThemePreference } from "@/types/settings";
-import { WishlistAccent } from "@/types/wishlist";
+import {
+  buildResolvedThemeCookie,
+  buildThemeCookie,
+  resolveThemePreference,
+  type ResolvedTheme,
+} from "@/lib/theme";
 
-type ResolvedTheme = "light" | "dark";
+import { WishlistAccent } from "@/types/wishlist";
 
 const ACCENT_TOKENS: Record<
   WishlistAccent,
@@ -186,16 +184,24 @@ export function useAppTheme() {
   return context;
 }
 
-function AppThemeProvider({ children }: { children: React.ReactNode }) {
+function AppThemeProvider({
+  children,
+  initialTheme,
+  initialResolvedTheme,
+}: {
+  children: React.ReactNode;
+  initialTheme: ThemePreference;
+  initialResolvedTheme: ResolvedTheme;
+}) {
   const { data: settings } = useSettings();
   const { mutate: mutateSettings } = useUpdateSettings();
-  const [persistedTheme, setPersistedThemeState] =
-    useState<ThemePreference>("system");
+  const [pendingPersistedTheme, setPendingPersistedTheme] =
+    useState<ThemePreference | null>(null);
   const [temporaryTheme, setTemporaryTheme] = useState<ResolvedTheme | null>(
     null,
   );
-  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>("light");
-  const lastSettingsThemeRef = useRef<ThemePreference | null>(null);
+  const [systemTheme, setSystemTheme] =
+    useState<ResolvedTheme>(initialResolvedTheme);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -206,22 +212,17 @@ function AppThemeProvider({ children }: { children: React.ReactNode }) {
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  useEffect(() => {
-    const nextTheme = settings?.theme ?? "system";
-    setPersistedThemeState((curr) => (curr === nextTheme ? curr : nextTheme));
-    if (lastSettingsThemeRef.current !== nextTheme) {
-      setTemporaryTheme(null);
-      lastSettingsThemeRef.current = nextTheme;
-    }
-  }, [settings?.theme]);
-
+  const persistedTheme =
+    pendingPersistedTheme ?? settings?.theme ?? initialTheme;
   const activeTheme = temporaryTheme ?? persistedTheme;
-  const resolvedTheme = activeTheme === "system" ? systemTheme : activeTheme;
+  const resolvedTheme = resolveThemePreference(activeTheme, systemTheme);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", resolvedTheme);
     document.documentElement.style.colorScheme = resolvedTheme;
-  }, [resolvedTheme]);
+    document.cookie = buildThemeCookie(persistedTheme);
+    document.cookie = buildResolvedThemeCookie(resolvedTheme);
+  }, [persistedTheme, resolvedTheme]);
 
   const accent = settings?.default_accent ?? WishlistAccent.Pink;
 
@@ -236,9 +237,16 @@ function AppThemeProvider({ children }: { children: React.ReactNode }) {
       resolvedTheme,
       setTemporaryTheme,
       setPersistedTheme: (theme) => {
-        setPersistedThemeState(theme);
+        setPendingPersistedTheme(theme);
         setTemporaryTheme(null);
-        mutateSettings({ theme });
+        mutateSettings(
+          { theme },
+          {
+            onSettled: () => {
+              setPendingPersistedTheme(null);
+            },
+          },
+        );
       },
     }),
     [activeTheme, mutateSettings, persistedTheme, resolvedTheme],
@@ -287,7 +295,15 @@ function SdkInitializer({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+  initialTheme,
+  initialResolvedTheme,
+}: {
+  children: React.ReactNode;
+  initialTheme: ThemePreference;
+  initialResolvedTheme: ResolvedTheme;
+}) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -302,7 +318,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppThemeProvider>
+      <AppThemeProvider
+        initialTheme={initialTheme}
+        initialResolvedTheme={initialResolvedTheme}
+      >
         <SdkInitializer>{children}</SdkInitializer>
       </AppThemeProvider>
     </QueryClientProvider>
