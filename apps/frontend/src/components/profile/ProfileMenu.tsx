@@ -118,7 +118,10 @@ export function ProfileMenu({ onOpen }: Props) {
             </div>
             <div className={styles.profileMeta}>
               <span className={styles.profileName}>Account</span>
-              <span className={styles.profileEmail}>
+              <span
+                className={styles.profileEmail}
+                title={userEmail || undefined}
+              >
                 {userEmail || "Signed in"}
               </span>
             </div>

@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import styles from "./WishlistItemsGrid.module.scss";
 import { WishlistItemCard } from "./WishlistItemCard";
 import { Item } from "@/types/item";
 import { useProfilesByIds } from "@/hooks/use-settings";
 import { useCurrentUserId } from "@/hooks/use-user";
+import { LayoutGrid, LayoutList } from "lucide-react";
 
 type Props = {
   items: Item[];
@@ -29,6 +30,18 @@ export function WishlistItemsGrid({
   onOpenItemHandled,
 }: Props) {
   const { data: currentUserId = "" } = useCurrentUserId();
+
+  const [isMobile, setIsMobile] = useState(false);
+  const [cols, setCols] = useState<1 | 2>(2);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 480px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
   const reservedByIds = useMemo(
     () =>
       Array.from(
@@ -36,7 +49,8 @@ export function WishlistItemsGrid({
           items
             .map((item) => item.reserved_by)
             .filter(
-              (id): id is string => !!id && (!currentUserId || id !== currentUserId),
+              (id): id is string =>
+                !!id && (!currentUserId || id !== currentUserId),
             ),
         ),
       ),
@@ -54,7 +68,29 @@ export function WishlistItemsGrid({
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.grid}>
+      {isMobile && (
+        <div className={styles.layoutToggle}>
+          <button
+            type="button"
+            className={`${styles.toggleBtn} ${cols === 2 ? styles.toggleActive : ""}`}
+            onClick={() => setCols(2)}
+            aria-label="2 per row"
+          >
+            <LayoutGrid size={16} />
+          </button>
+          <button
+            type="button"
+            className={`${styles.toggleBtn} ${cols === 1 ? styles.toggleActive : ""}`}
+            onClick={() => setCols(1)}
+            aria-label="1 per row"
+          >
+            <LayoutList size={16} />
+          </button>
+        </div>
+      )}
+      <div
+        className={`${styles.grid} ${isMobile && cols === 1 ? styles.gridSingle : ""}`}
+      >
         {items.map((item) => (
           <WishlistItemCard
             key={item.id}
@@ -64,7 +100,9 @@ export function WishlistItemsGrid({
             onToggleReserve={onToggleReserve}
             onToggleBought={onToggleBought}
             reservedByName={
-              item.reserved_by ? (reservedByNameById.get(item.reserved_by) ?? null) : null
+              item.reserved_by
+                ? (reservedByNameById.get(item.reserved_by) ?? null)
+                : null
             }
             onDelete={onDelete}
             onEdit={onEdit}
