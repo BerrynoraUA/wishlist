@@ -139,15 +139,11 @@
 
 @media (max-width: 640px) {
   .panel {
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    border-radius: 20px 20px 0 0;
-    max-height: 70vh;
-    overflow-y: auto;
-    animation: slideUp 0.3s $ease-out;
+    position: absolute;
+    right: -60px;
+    top: 50px;
+    width: min(320px, calc(100vw - 24px));
+    border-radius: 18px;
+    z-index: 9999;
   }
 }
