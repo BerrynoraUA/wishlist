@@ -3,7 +3,7 @@
 import styles from "./ProfileMenu.module.scss";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, Crown, Settings } from "lucide-react";
+import { LogOut, Crown, Settings, TreePine } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { logout } from "@/api/login";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -138,6 +138,18 @@ export function ProfileMenu({ onOpen }: Props) {
             <Crown size={16} />
             <span>Subscription</span>
             {isPro && <ProBadge size="sm" />}
+          </button>
+
+          <button
+            type="button"
+            className={styles.menuItemSub}
+            onClick={() => {
+              setOpen(false);
+              router.push("/secret-santa");
+            }}
+          >
+            <TreePine size={16} />
+            <span>Secret Santa</span>
           </button>
 
           <button

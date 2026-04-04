@@ -77,6 +77,26 @@
   }
 }
 
+.selectWrap {
+  position: relative;
+  min-width: 112px;
+}
+
+.selectField {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 42px !important;
+}
+
+.selectChevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-light);
+  pointer-events: none;
+}
+
 .error {
   margin: 4px 0 0;
   color: var(--color-danger);

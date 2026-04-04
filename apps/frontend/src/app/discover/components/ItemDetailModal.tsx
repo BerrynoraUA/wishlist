@@ -13,12 +13,28 @@ import {
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
 
+type ReserveActionType = "reserve" | "unreserve";
+type BoughtActionType = "purchase" | "unpurchase";
+
+type ItemActionHandlerContext = {
+  item: DiscoverItem;
+  itemId: string;
+};
+
 type Props = {
   open: boolean;
   onClose: () => void;
   item: DiscoverItem;
   onToggleReserve?: (id: string) => void;
   onToggleBought?: (id: string) => void;
+  onReserveAction?: (
+    action: ReserveActionType,
+    context: ItemActionHandlerContext,
+  ) => void;
+  onBoughtAction?: (
+    action: BoughtActionType,
+    context: ItemActionHandlerContext,
+  ) => void;
 };
 
 export function ItemDetailModal({
@@ -27,6 +43,8 @@ export function ItemDetailModal({
   item,
   onToggleReserve,
   onToggleBought,
+  onReserveAction,
+  onBoughtAction,
 }: Props) {
   const { data: currentUserId = "" } = useCurrentUserId();
   const { formatPrice } = useCurrencyFormatter();
@@ -59,22 +77,35 @@ export function ItemDetailModal({
       : null;
 
   const handleReserveClick = () => {
-    if (!canToggleReservation || !onToggleReserve) return;
+    if (!canToggleReservation || (!onToggleReserve && !onReserveAction)) return;
     setConfirmAction(isReserved ? "unreserve" : "reserve");
   };
 
   const handleBoughtClick = () => {
-    if (!canToggleBought || !onToggleBought) return;
+    if (!canToggleBought || (!onToggleBought && !onBoughtAction)) return;
     setConfirmAction(isPurchased ? "unpurchase" : "purchase");
   };
 
   const handleConfirmAction = () => {
     if (!confirmAction) return;
 
+    const context = {
+      item,
+      itemId: item.id,
+    };
+
     if (confirmAction === "reserve" || confirmAction === "unreserve") {
-      onToggleReserve?.(item.id);
+      if (onReserveAction) {
+        onReserveAction(confirmAction, context);
+      } else {
+        onToggleReserve?.(item.id);
+      }
     } else {
-      onToggleBought?.(item.id);
+      if (onBoughtAction) {
+        onBoughtAction(confirmAction, context);
+      } else {
+        onToggleBought?.(item.id);
+      }
     }
 
     setConfirmAction(null);

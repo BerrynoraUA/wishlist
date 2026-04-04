@@ -39,9 +39,14 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #c0267e, #e052a0);
+  background: linear-gradient(
+    135deg,
+    var(--color-brand),
+    color-mix(in srgb, var(--color-brand-light) 78%, white 22%)
+  );
   color: white;
   box-shadow: var(--shadow-brand);
+  border: 1px solid var(--brand-alpha-20);
 
   display: grid;
   place-items: center;

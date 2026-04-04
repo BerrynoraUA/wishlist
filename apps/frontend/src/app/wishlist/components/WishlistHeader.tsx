@@ -5,12 +5,15 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   Calendar,
+  Check,
   Gift,
   KeyRound,
   MoreHorizontal,
+  Pencil,
   Plus,
   Share2,
   Sparkles,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Wishlist } from "@/types/wishlist";
@@ -21,6 +24,7 @@ import {
   visibilityLabel,
 } from "@/lib/helpers/wishlist-helper";
 import { useSubscription } from "@/hooks/use-subscription";
+import { useUpdateWishlist } from "@/hooks/use-wishlists";
 import { FREE_LIMITS } from "@/types/subscription";
 
 type Props = {
@@ -46,11 +50,15 @@ export function WishlistHeader({
   const { isPro } = useSubscription();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const showActions = Boolean(onShare || onManageAccess || onEdit || onDelete);
+  const showActions = Boolean(
+    onShare || onManageAccess || onEdit || onDelete || isOwner,
+  );
   const showMenu = Boolean(onEdit || onDelete);
   const hasImage = Boolean(wishlist.image_url);
   const visibility = visibilityLabel[wishlist.visibility_type] ?? "Private";
   const VisibilityIcon = visibilityIcon[wishlist.visibility_type];
+  const { mutate: updateWishlist, isPending: isUpdatingWishlist } =
+    useUpdateWishlist();
   const itemsCount =
     wishlist.items_count ??
     (wishlist as Wishlist & { itemsCount?: number }).itemsCount ??
@@ -58,7 +66,11 @@ export function WishlistHeader({
   const description = wishlist.description ?? "";
   const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
   const canAddItem = Boolean(onAddItem);
+  const canInlineEdit = isOwner;
   const atItemLimit = !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
+  const [isInlineEditing, setIsInlineEditing] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(wishlist.title);
+  const [descriptionDraft, setDescriptionDraft] = useState(description);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -71,11 +83,86 @@ export function WishlistHeader({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [menuOpen]);
 
+  useEffect(() => {
+    if (!isInlineEditing) {
+      setTitleDraft(wishlist.title);
+      setDescriptionDraft(description);
+    }
+  }, [wishlist.title, description, isInlineEditing]);
+
   function handleAddItem() {
     if (atItemLimit) {
       router.push("/subscription");
     } else {
       onAddItem?.();
+    }
+  }
+
+  function startEditing() {
+    setMenuOpen(false);
+    setIsInlineEditing(true);
+  }
+
+  function cancelEditing() {
+    setIsInlineEditing(false);
+    setTitleDraft(wishlist.title);
+    setDescriptionDraft(description);
+  }
+
+  function saveInlineChanges() {
+    if (isUpdatingWishlist) return;
+
+    const nextTitle = titleDraft.trim();
+    const nextDescription = descriptionDraft.trim();
+
+    if (!nextTitle) {
+      return;
+    }
+
+    if (nextTitle === wishlist.title && nextDescription === description) {
+      setIsInlineEditing(false);
+      return;
+    }
+
+    updateWishlist(
+      {
+        id: wishlist.id,
+        updates: {
+          title: nextTitle,
+          description: nextDescription,
+        },
+      },
+      {
+        onSuccess: () => {
+          setIsInlineEditing(false);
+        },
+      },
+    );
+  }
+
+  function handleTitleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      saveInlineChanges();
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      cancelEditing();
+    }
+  }
+
+  function handleDescriptionKeyDown(
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) {
+    if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+      event.preventDefault();
+      saveInlineChanges();
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      cancelEditing();
     }
   }
 
@@ -97,10 +184,65 @@ export function WishlistHeader({
               </button>
 
               <div className={styles.titleBlock}>
-                <h1>{wishlist.title}</h1>
-                {description && (
-                  <p className={styles.description}>{description}</p>
+                {isInlineEditing ? (
+                  <div className={styles.inlineEditorBlock}>
+                    <input
+                      className={styles.titleInput}
+                      value={titleDraft}
+                      onChange={(e) => setTitleDraft(e.target.value)}
+                      onKeyDown={handleTitleKeyDown}
+                      placeholder="Wishlist title"
+                      autoFocus
+                      disabled={isUpdatingWishlist}
+                    />
+                    <div className={styles.inlineActions}>
+                      <button
+                        type="button"
+                        className={`${styles.inlineActionButton} ${styles.inlineSaveButton}`}
+                        onClick={saveInlineChanges}
+                        disabled={!titleDraft.trim() || isUpdatingWishlist}
+                        aria-label="Save wishlist changes"
+                      >
+                        <Check size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.inlineActionButton} ${styles.inlineCancelButton}`}
+                        onClick={cancelEditing}
+                        disabled={isUpdatingWishlist}
+                        aria-label="Cancel inline editing"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles.titleRow}>
+                    <h1>{wishlist.title}</h1>
+                  </div>
                 )}
+
+                {(description || canInlineEdit || isInlineEditing) &&
+                  (isInlineEditing ? (
+                    <textarea
+                      className={styles.descriptionInput}
+                      value={descriptionDraft}
+                      onChange={(e) => setDescriptionDraft(e.target.value)}
+                      onKeyDown={handleDescriptionKeyDown}
+                      placeholder="Add a short description"
+                      disabled={isUpdatingWishlist}
+                    />
+                  ) : (
+                    <div className={styles.descriptionRow}>
+                      {description ? (
+                        <p className={styles.description}>{description}</p>
+                      ) : canInlineEdit ? (
+                        <p className={styles.descriptionPlaceholder}>
+                          Add a short description
+                        </p>
+                      ) : null}
+                    </div>
+                  ))}
 
                 <div className={styles.badges}>
                   <span className={styles.visibilityBadge}>
@@ -164,6 +306,31 @@ export function WishlistHeader({
 
               {showActions && (
                 <div className={styles.bannerActions}>
+                  {canInlineEdit && (
+                    <button
+                      type="button"
+                      className={`${styles.menuButton} ${styles.editToggleButton} ${isInlineEditing ? styles.editToggleButtonActive : ""} iconTooltipTrigger`}
+                      onClick={() => {
+                        if (isInlineEditing) {
+                          cancelEditing();
+                        } else {
+                          startEditing();
+                        }
+                      }}
+                      aria-label={
+                        isInlineEditing
+                          ? "Cancel inline editing"
+                          : "Inline edit wishlist"
+                      }
+                      data-tooltip={
+                        isInlineEditing
+                          ? "Cancel inline edit"
+                          : "Inline edit title and description"
+                      }
+                    >
+                      <Pencil size={18} />
+                    </button>
+                  )}
                   {onShare && (
                     <button
                       type="button"
