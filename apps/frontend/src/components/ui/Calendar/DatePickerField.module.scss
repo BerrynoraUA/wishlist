@@ -72,7 +72,7 @@
       rgba(255, 255, 255, 0.85)
     ),
     var(--card-bg);
-  border: 1px solid rgba(224, 82, 160, 0.12);
+  border: 1px solid var(--brand-alpha-12);
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
   animation: expandIn 0.28s $ease-out;
@@ -80,14 +80,10 @@
 
 :global([data-theme="dark"]) .calendarWrap {
   background:
-    radial-gradient(
-      circle at top left,
-      rgba(224, 82, 160, 0.16),
-      transparent 34%
-    ),
+    radial-gradient(circle at top left, var(--brand-alpha-15), transparent 34%),
     radial-gradient(
       circle at top right,
-      rgba(96, 165, 250, 0.08),
+      var(--brand-alpha-08),
       transparent 28%
     ),
     linear-gradient(180deg, rgba(24, 24, 30, 0.98), rgba(17, 17, 22, 0.96)),

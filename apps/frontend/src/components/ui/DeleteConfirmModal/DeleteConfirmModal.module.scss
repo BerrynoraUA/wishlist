@@ -11,12 +11,12 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
   display: grid;
   place-items: center;
   margin: 0 auto;
-  box-shadow: 0 4px 14px rgba(185, 28, 28, 0.1);
+  box-shadow: 0 4px 14px rgba(100, 116, 139, 0.12);
 }
 
 .title {

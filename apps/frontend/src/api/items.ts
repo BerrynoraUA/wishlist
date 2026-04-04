@@ -4,7 +4,10 @@ import { CreateItemParams, UpdateItemParams } from "./types/item";
 import { getItems } from "./helpers/item-helper";
 import { getSubscriptionStatus } from "./subscription";
 import { SubscriptionPlan } from "@/types/subscription";
-import { deletePublicImage, uploadPublicImage } from "@/lib/helpers/storage-image";
+import {
+  deletePublicImage,
+  uploadPublicImage,
+} from "@/lib/helpers/storage-image";
 
 const ITEM_IMAGE_BUCKET = "items";
 
@@ -12,7 +15,8 @@ async function ensureProForPriority(priority: number | null | undefined) {
   if (priority == null) return;
 
   const status = await getSubscriptionStatus();
-  const isPro = status.plan === SubscriptionPlan.Pro && status.isActive === true;
+  const isPro =
+    status.plan === SubscriptionPlan.Pro && status.isActive === true;
 
   if (!isPro) {
     throw new Error("Priority is available for Pro subscribers only");
@@ -48,14 +52,11 @@ export async function createItem({
   let uploadedFile = false;
 
   if (image) {
-
     finalImageUrl = await uploadItemImage(image);
     uploadedFile = true;
   } else if (image_url) {
-
     finalImageUrl = image_url;
   }
-
 
   const { data, error } = await supabaseBrowser
     .from("item")
@@ -77,7 +78,6 @@ export async function createItem({
     .single();
 
   if (error) {
-
     if (uploadedFile && finalImageUrl) {
       await deleteItemImage(finalImageUrl).catch(console.error);
     }
@@ -103,7 +103,6 @@ export async function updateItem(
   await ensureProForPriority(restUpdates.priority);
 
   if (image || removeImage || image_url !== undefined) {
-
     const { data: currentItem } = await supabaseBrowser
       .from("item")
       .select("image_url")
@@ -113,29 +112,22 @@ export async function updateItem(
     let finalImageUrl: string | null | undefined = undefined;
     let shouldDeleteOldImage = false;
 
-
-    
     if (removeImage) {
-     
       finalImageUrl = null;
       shouldDeleteOldImage = true;
     } else if (image) {
-    
       finalImageUrl = await uploadItemImage(image);
       shouldDeleteOldImage = true;
     } else if (image_url !== undefined) {
-
       finalImageUrl = image_url;
       if (image_url !== currentItem?.image_url) {
         shouldDeleteOldImage = true;
       }
     }
 
-    
     if (shouldDeleteOldImage && currentItem?.image_url) {
       await deleteItemImage(currentItem.image_url).catch(console.error);
     }
-
 
     const updatePayload: any = { ...restUpdates };
     if (finalImageUrl !== undefined) {
@@ -150,8 +142,7 @@ export async function updateItem(
       .single();
 
     if (error) {
-
-      if (image && finalImageUrl && typeof finalImageUrl === 'string') {
+      if (image && finalImageUrl && typeof finalImageUrl === "string") {
         await deleteItemImage(finalImageUrl).catch(console.error);
       }
       throw error;
@@ -181,26 +172,62 @@ export async function deleteItem(itemId: string): Promise<void> {
 }
 
 export async function toggleItemReservation(itemId: string): Promise<Item> {
-  const { data, error } = await supabaseBrowser.rpc('toggle_item_reservation', {
+  const { data, error } = await supabaseBrowser.rpc("toggle_item_reservation", {
     p_item_id: itemId,
   });
 
   if (error) {
-    console.error('Error toggling item reservation:', error);
-    throw new Error(error.message || 'Failed to toggle reservation');
+    console.error("Error toggling item reservation:", error);
+    throw new Error(error.message || "Failed to toggle reservation");
   }
 
   return data as Item;
 }
 
 export async function toggleItemBought(itemId: string): Promise<Item> {
-  const { data, error } = await supabaseBrowser.rpc('toggle_item_bought', {
+  const { data, error } = await supabaseBrowser.rpc("toggle_item_bought", {
     p_item_id: itemId,
   });
 
   if (error) {
-    console.error('Error toggling item bought status:', error);
-    throw new Error(error.message || 'Failed to toggle item bought status');
+    console.error("Error toggling item bought status:", error);
+    throw new Error(error.message || "Failed to toggle item bought status");
+  }
+
+  return data as Item;
+}
+
+export async function toggleItemReservationSecret(
+  itemId: string,
+): Promise<Item> {
+  const { data, error } = await supabaseBrowser.rpc(
+    "toggle_item_reservation_secret",
+    {
+      p_item_id: itemId,
+    },
+  );
+
+  if (error) {
+    console.error("Error toggling secret item reservation:", error);
+    throw new Error(error.message || "Failed to toggle secret reservation");
+  }
+
+  return data as Item;
+}
+
+export async function toggleItemBoughtSecret(itemId: string): Promise<Item> {
+  const { data, error } = await supabaseBrowser.rpc(
+    "toggle_item_bought_secret",
+    {
+      p_item_id: itemId,
+    },
+  );
+
+  if (error) {
+    console.error("Error toggling secret item bought status:", error);
+    throw new Error(
+      error.message || "Failed to toggle secret item bought status",
+    );
   }
 
   return data as Item;
@@ -216,13 +243,9 @@ export async function uploadItemImage(file: File): Promise<string> {
   });
 }
 
-
- 
 export async function deleteItemImage(imageUrl: string): Promise<void> {
   await deletePublicImage({
     imageUrl,
     bucket: ITEM_IMAGE_BUCKET,
   });
 }
-
-

@@ -74,13 +74,13 @@
 }
 
 .danger {
-  background: var(--color-danger);
+  background: #475569;
   color: white;
-  box-shadow: 0 4px 14px rgba(185, 28, 28, 0.25);
+  box-shadow: 0 4px 14px rgba(71, 85, 105, 0.24);
 
   &:hover:not(:disabled) {
-    background: #991b1b;
-    box-shadow: 0 6px 20px rgba(185, 28, 28, 0.35);
+    background: #334155;
+    box-shadow: 0 6px 20px rgba(71, 85, 105, 0.32);
     transform: translateY(-2px);
   }
 }
