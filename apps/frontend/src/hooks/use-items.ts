@@ -6,9 +6,12 @@ import {
   deleteItem,
   toggleItemReservation,
   toggleItemBought,
+  toggleItemReservationSecret,
+  toggleItemBoughtSecret,
 } from "@/api/items";
 import type { CreateItemParams, UpdateItemParams } from "@/api/types/item";
 import { wishlistKeys } from "./use-wishlists";
+import { secretSantaKeys } from "./use-secret-santa";
 
 // Query Keys
 export const itemKeys = {
@@ -87,7 +90,8 @@ export function useToggleItemReservation() {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       queryClient.invalidateQueries({
         predicate: ({ queryKey }) =>
-          Array.isArray(queryKey) && queryKey[0] === wishlistKeys.all[0] &&
+          Array.isArray(queryKey) &&
+          queryKey[0] === wishlistKeys.all[0] &&
           (queryKey[1] === "friends" || queryKey[1] === "friend"),
       });
     },
@@ -104,13 +108,37 @@ export function useToggleItemBought() {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       queryClient.invalidateQueries({
         predicate: ({ queryKey }) =>
-          Array.isArray(queryKey) && queryKey[0] === wishlistKeys.all[0] &&
+          Array.isArray(queryKey) &&
+          queryKey[0] === wishlistKeys.all[0] &&
           (queryKey[1] === "friends" || queryKey[1] === "friend"),
       });
     },
   });
 }
 
+export function useToggleItemReservationSecret() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => toggleItemReservationSecret(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
+      queryClient.invalidateQueries({ queryKey: itemKeys.all });
+    },
+  });
+}
+
+export function useToggleItemBoughtSecret() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => toggleItemBoughtSecret(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
+      queryClient.invalidateQueries({ queryKey: itemKeys.all });
+    },
+  });
+}
+
 // Alias for legacy call sites still using the old name
 export const useReserveItem = useToggleItemReservation;
-

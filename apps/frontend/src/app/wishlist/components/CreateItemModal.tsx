@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useCreateItem } from "@/hooks/use-items";
+import { useSettings } from "@/hooks/use-settings";
 import { useSubscription } from "@/hooks/use-subscription";
+import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/currencies";
 import styles from "./CreateItemModal.module.scss";
 
 import type { CreateItemParams } from "@/api/types/item";
@@ -23,6 +26,15 @@ const priorityToValue: Record<Exclude<PriorityOption, "None">, number> = {
   High: 3,
 };
 
+const supportedCurrencyCodes = new Set(
+  SUPPORTED_CURRENCIES.map((currency) => currency.code),
+);
+
+function resolveCurrency(value?: string | null) {
+  const normalized = normalizeCurrencyCode(value);
+  return supportedCurrencyCodes.has(normalized) ? normalized : "USD";
+}
+
 export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [link, setLink] = useState("");
   const [name, setName] = useState("");
@@ -37,16 +49,24 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [discountPrice, setDiscountPrice] = useState<string | null>(null);
   const [hasDiscount, setHasDiscount] = useState(false);
   const [discountEndDate, setDiscountEndDate] = useState<string | null>(null);
-  const [currency, setCurrency] = useState("USD");
+  const { data: settings } = useSettings();
+  const preferredCurrency = resolveCurrency(settings?.display_currency);
+  const [currency, setCurrency] = useState(preferredCurrency);
 
   const { mutate, isPending } = useCreateItem();
   const { isPro } = useSubscription();
 
   useEffect(() => {
     if (!open) {
-      resetForm();
+      resetForm(preferredCurrency);
     }
-  }, [open]);
+  }, [open, preferredCurrency]);
+
+  useEffect(() => {
+    if (open && !link && !name && !description && !price && !imagePreview) {
+      setCurrency(preferredCurrency);
+    }
+  }, [open, preferredCurrency, link, name, description, price, imagePreview]);
 
   useEffect(() => {
     if (!isPro) setPriority("None");
@@ -58,7 +78,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     };
   }, [imageObjectUrl]);
 
-  function resetForm() {
+  function resetForm(nextCurrency = preferredCurrency) {
     setLink("");
     setName("");
     setDescription("");
@@ -72,7 +92,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     setDiscountPrice(null);
     setHasDiscount(false);
     setDiscountEndDate(null);
-    setCurrency("USD");
+    setCurrency(nextCurrency);
   }
 
   function handleSubmit() {
@@ -80,7 +100,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
     const imageUrlToSave = imageFile ? null : imagePreview || null;
 
-    const priorityValue = priority === "None" ? null : priorityToValue[priority];
+    const priorityValue =
+      priority === "None" ? null : priorityToValue[priority];
 
     const payload: CreateItemParams = {
       wishlist_id: wishlistId,
@@ -146,7 +167,10 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         };
 
         const isEmpty =
-          !product.title && !product.description && !product.image && !product.price;
+          !product.title &&
+          !product.description &&
+          !product.image &&
+          !product.price;
 
         if (isEmpty) {
           setError("Не вдалося отримати дані");
@@ -156,7 +180,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         if (product.title) setName(product.title);
         if (product.description) setDescription(product.description);
         if (product.price) setPrice(product.price);
-        if (product.currency) setCurrency(product.currency);
+        if (product.currency) setCurrency(resolveCurrency(product.currency));
         setDiscountPrice(product.discount_price);
         setHasDiscount(product.has_discount);
         setDiscountEndDate(product.discount_end_date);
@@ -210,7 +234,11 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className={styles.preview} />
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className={styles.preview}
+                />
               ) : (
                 <>
                   <span>Drop an image or click to upload</span>
@@ -247,21 +275,24 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         <div className={styles.field}>
           <label>Price (optional)</label>
           <div className={styles.priceRow}>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              aria-label="Currency"
-            >
-              <option value="USD">$ USD</option>
-              <option value="EUR">€ EUR</option>
-              <option value="GBP">£ GBP</option>
-              <option value="UAH">₴ UAH</option>
-              <option value="PLN">zł PLN</option>
-              <option value="JPY">¥ JPY</option>
-              <option value="CAD">CA$ CAD</option>
-              <option value="AUD">A$ AUD</option>
-              <option value="CHF">CHF</option>
-            </select>
+            <div className={styles.selectWrap}>
+              <select
+                className={styles.selectField}
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                aria-label="Currency"
+              >
+                {SUPPORTED_CURRENCIES.map((supportedCurrency) => (
+                  <option
+                    key={supportedCurrency.code}
+                    value={supportedCurrency.code}
+                  >
+                    {supportedCurrency.symbol} {supportedCurrency.code}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className={styles.selectChevron} size={16} />
+            </div>
             <input
               type="text"
               placeholder="199"
@@ -274,15 +305,19 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         {isPro && (
           <div className={styles.field}>
             <label>Priority</label>
-            <select
-              value={priority}
-              onChange={(e) => setPriority(e.target.value as PriorityOption)}
-            >
-              <option value="None">No priority</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
+            <div className={styles.selectWrap}>
+              <select
+                className={styles.selectField}
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as PriorityOption)}
+              >
+                <option value="None">No priority</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+              <ChevronDown className={styles.selectChevron} size={16} />
+            </div>
           </div>
         )}
 

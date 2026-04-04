@@ -43,12 +43,6 @@ function buildSaleAlertText(item: SaleAlertItem): string {
   return `Sale alert: ${name}${wishlistPart} is now on sale.`;
 }
 
-/**
- * Server-side helper for cron/webhooks.
- * Creates notifications for ALL friends of the item owner who:
- *  - have an ACTIVE Pro subscription, and
- *  - have user_settings.notify_sale_alerts = true (missing row treated as true)
- */
 export async function createSaleAlertNotificationsForFriends(
   params: CreateSaleAlertNotificationsParams,
 ): Promise<{
@@ -88,7 +82,6 @@ export async function createSaleAlertNotificationsForFriends(
     };
   }
 
-  // 2) Only active Pro subscribers
   const { data: subsRows, error: subsError } = await supabase
     .from("user_subscriptions")
     .select("user_id")

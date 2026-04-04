@@ -151,35 +151,40 @@
 .editItem {
   background: linear-gradient(
     135deg,
-    rgba(37, 99, 235, 0.1),
-    rgba(37, 99, 235, 0.04)
+    var(--brand-alpha-15),
+    var(--brand-alpha-08)
   );
-  border-color: rgba(37, 99, 235, 0.14);
-  color: var(--color-info);
+  border-color: var(--brand-alpha-20);
+  color: var(--color-brand-dark);
 
   &:hover {
     background: linear-gradient(
       135deg,
-      rgba(37, 99, 235, 0.16),
-      rgba(37, 99, 235, 0.08)
+      var(--brand-alpha-20),
+      var(--brand-alpha-10)
     );
-    border-color: rgba(37, 99, 235, 0.24);
-    color: #1d4ed8;
+    border-color: var(--brand-alpha-30);
+    color: var(--color-brand);
   }
 }
 
 .dangerItem {
-  color: var(--color-danger);
-  background: linear-gradient(135deg, rgba(185, 28, 28, 0.08), transparent);
-  border-color: rgba(185, 28, 28, 0.1);
+  color: #475569;
+  background: linear-gradient(
+    135deg,
+    rgba(100, 116, 139, 0.16),
+    rgba(100, 116, 139, 0.07)
+  );
+  border-color: rgba(100, 116, 139, 0.2);
 
   &:hover {
     background: linear-gradient(
       135deg,
-      rgba(185, 28, 28, 0.14),
-      rgba(185, 28, 28, 0.05)
+      rgba(100, 116, 139, 0.22),
+      rgba(100, 116, 139, 0.12)
     );
-    border-color: rgba(185, 28, 28, 0.24);
+    border-color: rgba(100, 116, 139, 0.28);
+    color: #334155;
   }
 }
 
@@ -249,12 +254,143 @@
   }
 }
 
+.titleRow,
+.descriptionRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.titleRow {
+  h1 {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+}
+
+.descriptionRow {
+  margin-top: 8px;
+}
+
+.editToggleButton {
+  color: var(--color-brand);
+}
+
+.editToggleButtonActive {
+  background: var(--brand-alpha-12);
+  border: 1px solid var(--brand-alpha-20);
+  color: var(--color-brand-dark);
+  box-shadow: 0 10px 22px var(--brand-alpha-12);
+}
+
+.inlineEditorBlock {
+  display: grid;
+  gap: 10px;
+  width: min(100%, 560px);
+  margin-top: 4px;
+}
+
+.titleInput,
+.descriptionInput {
+  width: 100%;
+  border: 1.5px solid var(--input-focus-border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--card-bg) 90%, white 10%);
+  color: var(--color-text);
+  padding: 12px 14px;
+  font-family: var(--font-sans);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--input-focus-ring);
+  }
+}
+
+.titleInput {
+  font-size: clamp(20px, 2.8vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+}
+
+.descriptionInput {
+  min-height: 90px;
+  resize: vertical;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.inlineActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inlineActionButton {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+}
+
+.inlineSaveButton {
+  background: var(--color-brand);
+  color: #fff;
+  box-shadow: var(--shadow-brand);
+
+  &:not(:disabled):hover {
+    background: var(--color-brand-dark);
+    box-shadow: var(--shadow-brand-lg);
+  }
+}
+
+.inlineCancelButton {
+  background: rgba(100, 116, 139, 0.12);
+  border-color: rgba(100, 116, 139, 0.14);
+  color: #475569;
+
+  &:not(:disabled):hover {
+    background: rgba(100, 116, 139, 0.18);
+    border-color: rgba(100, 116, 139, 0.22);
+    color: #334155;
+  }
+}
+
 .description {
   font-size: 13px;
   color: var(--color-text-muted);
   margin: 8px 0 0;
   line-height: 1.55;
   max-width: 520px;
+}
+
+.descriptionPlaceholder {
+  margin: 8px 0 0;
+  color: var(--color-text-light);
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .addItemArea {
@@ -306,11 +442,7 @@
       rgba(0, 0, 0, 0.08) 42%,
       rgba(0, 0, 0, 0.26)
     ),
-    radial-gradient(
-      circle at 50% 42%,
-      rgba(96, 165, 250, 0.08),
-      transparent 24%
-    );
+    radial-gradient(circle at 50% 42%, var(--brand-alpha-08), transparent 24%);
 }
 
 :global([data-theme="dark"]) .pink {
@@ -347,11 +479,15 @@
 }
 
 :global([data-theme="dark"]) .bannerIcon {
-  background: linear-gradient(135deg, #252833 0%, #2d3340 100%);
-  border-color: rgba(147, 197, 253, 0.82);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-brand-dark) 56%, #13131a 44%),
+    color-mix(in srgb, var(--color-brand) 44%, #1a1a24 56%)
+  );
+  border-color: var(--brand-alpha-35);
   box-shadow:
     0 14px 28px rgba(0, 0, 0, 0.28),
-    0 0 22px rgba(96, 165, 250, 0.12);
+    0 0 22px var(--brand-alpha-20);
 }
 
 :global([data-theme="dark"]) .titleBlock h1 {
@@ -360,6 +496,10 @@
 
 :global([data-theme="dark"]) .description {
   color: rgba(209, 213, 219, 0.72);
+}
+
+:global([data-theme="dark"]) .descriptionPlaceholder {
+  color: rgba(209, 213, 219, 0.46);
 }
 
 :global([data-theme="dark"]) .limitCounter {
@@ -374,41 +514,51 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.42);
 }
 
+:global([data-theme="dark"]) .editToggleButtonActive {
+  color: color-mix(in srgb, var(--color-brand-lighter) 88%, white 12%);
+  border-color: var(--brand-alpha-25);
+  box-shadow:
+    0 12px 26px rgba(0, 0, 0, 0.28),
+    0 0 0 1px var(--brand-alpha-15);
+}
+
 :global([data-theme="dark"]) .editItem {
   background: linear-gradient(
     135deg,
-    rgba(59, 130, 246, 0.2),
-    rgba(59, 130, 246, 0.08)
+    var(--brand-alpha-20),
+    var(--brand-alpha-08)
   );
-  border-color: rgba(96, 165, 250, 0.22);
-  color: #9ec5ff;
+  border-color: var(--brand-alpha-25);
+  color: color-mix(in srgb, var(--color-brand-light) 78%, white 22%);
 
   &:hover {
     background: linear-gradient(
       135deg,
-      rgba(59, 130, 246, 0.28),
-      rgba(59, 130, 246, 0.12)
+      var(--brand-alpha-25),
+      var(--brand-alpha-12)
     );
-    border-color: rgba(96, 165, 250, 0.32);
-    color: #d6e9ff;
+    border-color: var(--brand-alpha-35);
+    color: color-mix(in srgb, var(--color-brand-lighter) 88%, white 12%);
   }
 }
 
 :global([data-theme="dark"]) .dangerItem {
   background: linear-gradient(
     135deg,
-    rgba(239, 68, 68, 0.16),
-    rgba(239, 68, 68, 0.06)
+    rgba(148, 163, 184, 0.16),
+    rgba(148, 163, 184, 0.08)
   );
-  border-color: rgba(239, 68, 68, 0.14);
+  border-color: rgba(148, 163, 184, 0.18);
+  color: #dbe4ef;
 
   &:hover {
     background: linear-gradient(
       135deg,
-      rgba(239, 68, 68, 0.24),
-      rgba(239, 68, 68, 0.1)
+      rgba(148, 163, 184, 0.22),
+      rgba(148, 163, 184, 0.12)
     );
-    border-color: rgba(239, 68, 68, 0.24);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #f8fafc;
   }
 }
 
@@ -539,8 +689,8 @@
 }
 
 :global([data-theme="dark"]) .visibilityBadge {
-  background: rgba(224, 82, 160, 0.12);
-  color: #f2a9ce;
+  background: var(--brand-alpha-12);
+  color: color-mix(in srgb, var(--color-brand-lighter) 84%, white 16%);
 }
 
 :global([data-theme="dark"]) .countBadge {
@@ -607,6 +757,15 @@
 
   .titleBlock h1 {
     font-size: 20px;
+  }
+
+  .titleRow,
+  .descriptionRow {
+    gap: 8px;
+  }
+
+  .inlineEditorBlock {
+    width: 100%;
   }
 
   .badges {

@@ -4,6 +4,10 @@ import { useState } from "react";
 import styles from "./NotificationsPanel.module.scss";
 import { Button } from "@/components/ui/Button/Button";
 import { Notification } from "@/types";
+import {
+  useAcceptSecretSantaInvite,
+  useDeclineSecretSantaInvite,
+} from "@/hooks/use-secret-santa";
 
 type Props = {
   notifications: Notification[];
@@ -21,6 +25,8 @@ export function NotificationsPanel({
   onMarkRead,
 }: Props) {
   const [pendingReadIds, setPendingReadIds] = useState<string[]>([]);
+  const acceptInvite = useAcceptSecretSantaInvite();
+  const declineInvite = useDeclineSecretSantaInvite();
 
   const handleHoverRead = (notification: Notification) => {
     if (
@@ -78,16 +84,42 @@ export function NotificationsPanel({
       ) : (
         <div className={styles.listWrap}>
           <ul className={styles.list}>
-            {notifications.map((n) => (
-              <li
-                key={n.id}
-                className={`${styles.item} ${!n.is_read ? styles.unread : ""}`}
-                onMouseEnter={() => handleHoverRead(n)}
-              >
-                <p>{n.text}</p>
-                <span>{formatNotificationTime(n.created_at)}</span>
-              </li>
-            ))}
+            {notifications.map((n) => {
+              const isInvite = n.type === 0 && n.entity_id != null;
+              const invitePending =
+                acceptInvite.isPending || declineInvite.isPending;
+
+              return (
+                <li
+                  key={n.id}
+                  className={`${styles.item} ${!n.is_read ? styles.unread : ""}`}
+                  onMouseEnter={() => handleHoverRead(n)}
+                >
+                  <div className={styles.itemContent}>
+                    <p>{n.text}</p>
+                    <span>{formatNotificationTime(n.created_at)}</span>
+                  </div>
+                  {isInvite && (
+                    <div className={styles.inviteActions}>
+                      <button
+                        className={styles.accept}
+                        onClick={() => acceptInvite.mutate(n.entity_id!)}
+                        disabled={invitePending}
+                      >
+                        {acceptInvite.isPending ? "Accepting..." : "Accept"}
+                      </button>
+                      <button
+                        className={styles.decline}
+                        onClick={() => declineInvite.mutate(n.entity_id!)}
+                        disabled={invitePending}
+                      >
+                        {declineInvite.isPending ? "Declining..." : "Decline"}
+                      </button>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
