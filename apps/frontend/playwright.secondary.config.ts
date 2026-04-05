@@ -1,9 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * E2E tests use a mock Supabase server so no real database is needed.
- * The mock runs on :54321 and the Next.js dev server talks to it via
- * NEXT_PUBLIC_SUPABASE_URL.
+ * Runner 2 — Secondary flows.
+ *
+ * Covers supporting features: notifications, Secret Santa events,
+ * settings, subscription/pricing, themes, and responsive/visual tests.
+ * These tests validate polish and supporting functionality.
+ *
+ * Run with: npm run test:e2e:secondary
  */
 
 const MOCK_SUPABASE_URL = "http://localhost:54321";
@@ -31,17 +35,24 @@ export default defineConfig({
       testMatch: /global-setup\.ts/,
     },
 
-    /* ── Anonymous tests (no login needed) ── */
+    /* ── Anonymous secondary tests ── */
     {
       name: "anonymous",
-      testMatch: /\/(landing|login)\.spec\.ts$/,
+      testMatch: /\/(landing)\.spec\.ts$/,
       use: { ...devices["Desktop Chrome"] },
     },
 
-    /* ── Authenticated tests ── */
+    /* ── Authenticated secondary tests ── */
     {
       name: "chromium",
-      testIgnore: /\/(landing|login)\.spec\.ts$/,
+      testMatch: [
+        /\/notifications\.spec\.ts$/,
+        /\/secret-santa\.spec\.ts$/,
+        /\/settings\.spec\.ts$/,
+        /\/subscription\.spec\.ts$/,
+        /\/theme\.spec\.ts$/,
+        /\/responsive\.spec\.ts$/,
+      ],
       dependencies: ["setup"],
       use: {
         ...devices["Desktop Chrome"],

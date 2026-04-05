@@ -132,18 +132,21 @@ test.describe("Modal interactions", () => {
     await page.goto("/wishlist/wl-001");
     await expect(page.locator("main")).toBeVisible();
 
-    const deleteBtn = page.getByRole("button", { name: /delete/i }).first();
-    const canDelete = await deleteBtn.isVisible({ timeout: 5_000 }).catch(() => false);
-    if (!canDelete) {
-      test.skip();
-      return;
-    }
-
-    await deleteBtn.click();
+    await page.getByRole("button", { name: "Wishlist actions" }).click();
+    await page
+      .locator(
+        '[class*="menuDropdown"] button, [class*="dropdown"] button',
+      )
+      .filter({ hasText: "Delete" })
+      .first()
+      .click();
     await expect(
-      page.getByText(/are you sure/i),
-    ).toBeVisible();
+      page.getByRole("heading", { name: /delete wishlist/i }),
+    ).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText(/are you sure/i)).toBeVisible();
     await page.getByRole("button", { name: /cancel/i }).click();
-    await expect(page.getByText(/are you sure/i)).not.toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /delete wishlist/i }),
+    ).not.toBeVisible();
   });
 });
