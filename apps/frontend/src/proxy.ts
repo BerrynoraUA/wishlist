@@ -28,12 +28,12 @@ function copyCookies(from: NextResponse, to: NextResponse) {
   });
 }
 
-/** Copy GT + Supabase cookies onto redirects (avoid copying middleware response headers). */
+/** Copy GT + Supabase cookies onto redirects (avoid copying proxy response headers). */
 function mergeCookiesIntoResponse(from: NextResponse, to: NextResponse) {
   copyCookies(from, to);
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   if (
