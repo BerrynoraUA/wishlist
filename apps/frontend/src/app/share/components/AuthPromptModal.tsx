@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import styles from "../../friends/components/FriendInviteModal.module.scss";
@@ -20,6 +21,7 @@ export function AuthPromptModal({
   itemId,
   page,
 }: Props) {
+  const t = useGT();
   const router = useRouter();
 
   const handleSignIn = () => {
@@ -43,14 +45,21 @@ export function AuthPromptModal({
   return (
     <Modal open={open} onClose={onClose}>
       <div className={styles.card}>
-        <p className={styles.eyebrow}>Sign in required</p>
-        <h2 className={styles.cardTitle}>Want to reserve this gift?</h2>
-        <p className={styles.cardText}>
-          You need to sign in or create an account to reserve items. After
-          signing in, a friend request will be sent to the wishlist owner
-          automatically.
+        <p className={styles.eyebrow}>
+          {t("Sign in required", { $id: "share.authPrompt.eyebrow" })}
         </p>
-        <Button onClick={handleSignIn}>Sign in</Button>
+        <h2 className={styles.cardTitle}>
+          {t("Want to reserve this gift?", { $id: "share.authPrompt.title" })}
+        </h2>
+        <p className={styles.cardText}>
+          {t(
+            "You need to sign in or create an account to reserve items. After signing in, a friend request will be sent to the wishlist owner automatically.",
+            { $id: "share.authPrompt.body" },
+          )}
+        </p>
+        <Button onClick={handleSignIn}>
+          {t("Sign in", { $id: "share.authPrompt.signIn" })}
+        </Button>
       </div>
     </Modal>
   );

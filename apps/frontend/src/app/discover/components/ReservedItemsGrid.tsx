@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT } from "gt-next";
 import styles from "./ReservedItemsGrid.module.scss";
 import { ReservedItemCard } from "./ReservedItemCard";
 import { ReservedItem } from "@/api/types/wishilst";
@@ -19,12 +20,21 @@ export function ReservedItemsGrid({
   onToggleBought,
   showDiscountBadge = false,
 }: Props) {
+  const t = useGT();
   return (
     <div className={styles.grid}>
       {items.map((item) => (
         <div key={item.item_id} className={styles.cardWrap}>
           <div className={styles.ownerLine}>
-            {mode === "purchased" ? "Purchased for" : "For"} {item.owner_name}
+            {mode === "purchased"
+              ? t("Purchased for {ownerName}", {
+                  ownerName: item.owner_name,
+                  $id: "discover.grid.purchasedFor",
+                })
+              : t("For {ownerName}", {
+                  ownerName: item.owner_name,
+                  $id: "discover.grid.forOwner",
+                })}
           </div>
           <ReservedItemCard
             {...item}

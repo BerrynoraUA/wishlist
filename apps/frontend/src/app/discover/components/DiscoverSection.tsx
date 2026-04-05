@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useGT } from "gt-next";
 import { UserRound } from "lucide-react";
 import styles from "./DiscoverSection.module.scss";
 import { DiscoverItemCard } from "./DiscoverItemCard";
@@ -27,6 +28,7 @@ export function DiscoverSection({
   onToggleBought,
   showDiscountBadge = false,
 }: Props) {
+  const t = useGT();
   const itemCount = items.length;
   const resolvedAvatarUrl = avatarUrl ?? avatar_url ?? null;
 
@@ -65,14 +67,25 @@ export function DiscoverSection({
 
         {wishlist_id ? (
           <Link href={`/wishlist/${wishlist_id}`} className={styles.viewAll}>
-            View all {itemCount}
+            {t("View all {count}", {
+              count: itemCount,
+              $id: "discover.section.viewAll",
+            })}
           </Link>
         ) : friend_id ? (
           <Link href={`/friends/${friend_id}`} className={styles.viewAll}>
-            View all {itemCount}
+            {t("View all {count}", {
+              count: itemCount,
+              $id: "discover.section.viewAll",
+            })}
           </Link>
         ) : (
-          <span className={styles.viewAll}>View all ({itemCount})</span>
+          <span className={styles.viewAll}>
+            {t("View all ({count})", {
+              count: itemCount,
+              $id: "discover.section.viewAllParen",
+            })}
+          </span>
         )}
       </header>
 

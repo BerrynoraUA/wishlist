@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DiscoverItem } from "@/api/types/wishilst";
@@ -46,6 +47,7 @@ export function ItemDetailModal({
   onReserveAction,
   onBoughtAction,
 }: Props) {
+  const t = useGT();
   const { data: currentUserId = "" } = useCurrentUserId();
   const { formatPrice } = useCurrencyFormatter();
   const [confirmAction, setConfirmAction] =
@@ -64,16 +66,26 @@ export function ItemDetailModal({
 
   const reserveStatusLabel = isPurchased
     ? reservedByMe
-      ? "Purchased by you"
+      ? t("Purchased by you", {
+          $id: "discover.detail.purchasedByYouStatus",
+        })
       : item.reservedByName
-        ? `Purchased by ${item.reservedByName}`
-        : "Purchased"
+        ? t("Purchased by {name}", {
+            name: item.reservedByName,
+            $id: "discover.detail.purchasedByNameStatus",
+          })
+        : t("Purchased", { $id: "discover.detail.purchasedStatus" })
     : isReserved
       ? reservedByMe
-        ? "Reserved by you"
+        ? t("Reserved by you", {
+            $id: "discover.detail.reservedByYouStatus",
+          })
         : item.reservedByName
-          ? `Reserved by ${item.reservedByName}`
-          : "Reserved"
+          ? t("Reserved by {name}", {
+              name: item.reservedByName,
+              $id: "discover.detail.reservedByNameStatus",
+            })
+          : t("Reserved", { $id: "discover.detail.reservedStatus" })
       : null;
 
   const handleReserveClick = () => {
@@ -135,8 +147,20 @@ export function ItemDetailModal({
                 </span>
               )}
               {item.store && <span className={styles.store}>{item.store}</span>}
-              {item.priority && (
-                <span className={styles.priority}>{item.priority}</span>
+              {item.priority != null && (
+                <span className={styles.priority}>
+                  {item.priority === "Low" || item.priority === 1
+                    ? t("Low", { $id: "discover.detail.priorityLow" })
+                    : item.priority === "Medium" || item.priority === 2
+                      ? t("Medium", {
+                          $id: "discover.detail.priorityMedium",
+                        })
+                      : item.priority === "High" || item.priority === 3
+                        ? t("High", {
+                            $id: "discover.detail.priorityHigh",
+                          })
+                        : item.priority}
+                </span>
               )}
             </div>
 
@@ -149,7 +173,11 @@ export function ItemDetailModal({
                   className={styles.linkBtn}
                 >
                   <ExternalLink size={14} />
-                  <span>Visit website</span>
+                  <span>
+                    {t("Visit website", {
+                      $id: "discover.detail.visitWebsite",
+                    })}
+                  </span>
                 </a>
               )}
 
@@ -165,12 +193,16 @@ export function ItemDetailModal({
                     style={{ marginRight: 6 }}
                   />
                   {isPurchased
-                    ? "Purchased"
+                    ? t("Purchased", { $id: "discover.detail.purchasedBtn" })
                     : isReserved
                       ? reservedByMe
-                        ? "Release reservation"
-                        : "Reserved"
-                      : "Reserve this gift"}
+                        ? t("Release reservation", {
+                            $id: "discover.detail.releaseReservation",
+                          })
+                        : t("Reserved", { $id: "discover.detail.reservedBtn" })
+                      : t("Reserve this gift", {
+                          $id: "discover.detail.reserveGift",
+                        })}
                 </Button>
 
                 {onToggleBought && (
@@ -181,7 +213,11 @@ export function ItemDetailModal({
                     disabled={!canToggleBought}
                   >
                     <ShoppingCart size={14} style={{ marginRight: 6 }} />
-                    {isPurchased ? "Purchased" : "Bought"}
+                    {isPurchased
+                      ? t("Purchased", {
+                          $id: "discover.detail.purchasedCartBtn",
+                        })
+                      : t("Bought", { $id: "discover.detail.bought" })}
                   </Button>
                 )}
               </div>

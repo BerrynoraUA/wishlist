@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useGT } from "gt-next";
 import styles from "../layout/TopNav.module.scss";
 import { Bell } from "lucide-react";
 import { NotificationsPanel } from "@/components/notifications/NotificationsPanel";
@@ -13,6 +14,7 @@ import {
 } from "@/hooks/use-notifications";
 
 export function NotificationsMenu() {
+  const t = useGT();
   const [open, setOpen] = useState(false);
   const previousUnreadCountRef = useRef<number | null>(null);
 
@@ -63,7 +65,19 @@ export function NotificationsMenu() {
 
   return (
     <div className={styles.notification} ref={ref}>
-      <div className={styles.bell} onClick={() => setOpen((prev) => !prev)}>
+      <div
+        className={styles.bell}
+        onClick={() => setOpen((prev) => !prev)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen((prev) => !prev);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label={t("Notifications", { $id: "notifications.openMenu" })}
+      >
         <Bell size={18} />
         {unreadCount > 0 && (
           <span className={styles.badge}>{unreadCount}</span>

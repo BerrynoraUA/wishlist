@@ -1,3 +1,6 @@
+"use client";
+
+import { useGT } from "gt-next";
 import styles from "./Pagination.module.scss";
 
 type Props = {
@@ -25,6 +28,8 @@ function buildPaginationItems(page: number, total: number): PaginationItem[] {
 }
 
 export function Pagination({ page, total, onChange }: Props) {
+  const t = useGT();
+
   if (total <= 1) {
     return null;
   }
@@ -32,19 +37,26 @@ export function Pagination({ page, total, onChange }: Props) {
   const items = buildPaginationItems(page, total);
 
   return (
-    <nav className={styles.pagination} aria-label="Pagination">
+    <nav
+      className={styles.pagination}
+      aria-label={t("Pagination", { $id: "pagination.navLabel" })}
+    >
       <div className={styles.controls}>
         <button
           type="button"
           className={`${styles.controlButton} ${styles.navButton}`}
           disabled={page === 1}
           onClick={() => onChange(page - 1)}
-          aria-label="Go to previous page"
+          aria-label={t("Go to previous page", {
+            $id: "pagination.previous"
+          })}
         >
           <span className={styles.navArrow} aria-hidden="true">
             &lt;
           </span>
-          <span className={styles.navText}>Previous</span>
+          <span className={styles.navText}>
+            {t("Previous", { $id: "pagination.previousText" })}
+          </span>
         </button>
 
         <div className={styles.pages}>
@@ -70,7 +82,10 @@ export function Pagination({ page, total, onChange }: Props) {
                 className={`${styles.controlButton} ${styles.pageButton} ${isActive ? styles.active : ""}`}
                 onClick={() => onChange(item)}
                 aria-current={isActive ? "page" : undefined}
-                aria-label={`Go to page ${item}`}
+                aria-label={t("Go to page {n}", {
+                  n: item,
+                  $id: "pagination.goToPage"
+                })}
               >
                 {item}
               </button>
@@ -83,9 +98,11 @@ export function Pagination({ page, total, onChange }: Props) {
           className={`${styles.controlButton} ${styles.navButton}`}
           disabled={page === total}
           onClick={() => onChange(page + 1)}
-          aria-label="Go to next page"
+          aria-label={t("Go to next page", { $id: "pagination.next" })}
         >
-          <span className={styles.navText}>Next</span>
+          <span className={styles.navText}>
+            {t("Next", { $id: "pagination.nextText" })}
+          </span>
           <span className={styles.navArrow} aria-hidden="true">
             &gt;
           </span>

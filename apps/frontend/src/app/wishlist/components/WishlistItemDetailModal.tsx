@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { Item } from "@/types/item";
@@ -31,12 +32,6 @@ type Props = {
   onEdit?: (item: Item) => void;
 };
 
-const priorityLabel: Record<number, string> = {
-  1: "Low",
-  2: "Medium",
-  3: "High",
-};
-
 export function WishlistItemDetailModal({
   open,
   onClose,
@@ -48,6 +43,7 @@ export function WishlistItemDetailModal({
   onDelete,
   onEdit,
 }: Props) {
+  const t = useGT();
   const { data: currentUserId = "" } = useCurrentUserId();
   const { formatPrice } = useCurrencyFormatter();
   const [confirmAction, setConfirmAction] =
@@ -64,18 +60,33 @@ export function WishlistItemDetailModal({
     ((isPurchased && reservedByMe) ||
       (!isPurchased && (!isReserved || reservedByMe)));
 
+  const priorityLabel = useMemo(
+    () => ({
+      1: t("Low", { $id: "item.priority.low" }),
+      2: t("Medium", { $id: "item.priority.medium" }),
+      3: t("High", { $id: "item.priority.high" }),
+    }),
+    [t],
+  );
+
   const reserveStatusLabel = isPurchased
     ? reservedByMe
-      ? "Purchased by you"
+      ? t("Purchased by you", { $id: "item.status.purchasedByYou" })
       : reservedByName
-        ? `Purchased by ${reservedByName}`
-        : "Purchased"
+        ? t("Purchased by {name}", {
+            name: reservedByName,
+            $id: "item.status.purchasedByName",
+          })
+        : t("Purchased", { $id: "item.status.purchased" })
     : isReserved
       ? reservedByMe
-        ? "Reserved by you"
+        ? t("Reserved by you", { $id: "item.status.reservedByYou" })
         : reservedByName
-          ? `Reserved by ${reservedByName}`
-          : "Reserved"
+          ? t("Reserved by {name}", {
+              name: reservedByName,
+              $id: "item.status.reservedByName",
+            })
+          : t("Reserved", { $id: "item.status.reserved" })
       : null;
 
   const handleReserveClick = () => {
@@ -123,11 +134,12 @@ export function WishlistItemDetailModal({
                   {formatPrice(item.price, item.currency)}
                 </span>
               )}
-              {item.priority != null && priorityLabel[item.priority] && (
-                <span className={styles.priority}>
-                  {priorityLabel[item.priority]}
-                </span>
-              )}
+              {item.priority != null &&
+                priorityLabel[item.priority as 1 | 2 | 3] && (
+                  <span className={styles.priority}>
+                    {priorityLabel[item.priority as 1 | 2 | 3]}
+                  </span>
+                )}
               {reserveStatusLabel && (
                 <span className={styles.reservedBadge}>
                   {reserveStatusLabel}
@@ -144,7 +156,9 @@ export function WishlistItemDetailModal({
                   className={styles.linkBtn}
                 >
                   <ExternalLink size={14} />
-                  <span>Visit website</span>
+                  <span>
+                    {t("Visit website", { $id: "item.detail.visitWebsite" })}
+                  </span>
                 </a>
               )}
 
@@ -161,7 +175,7 @@ export function WishlistItemDetailModal({
                       }}
                     >
                       <Pencil size={14} style={{ marginRight: 6 }} />
-                      Edit
+                      {t("Edit", { $id: "common.edit" })}
                     </Button>
                     <Button
                       variant="danger"
@@ -173,7 +187,7 @@ export function WishlistItemDetailModal({
                       }}
                     >
                       <Trash2 size={14} style={{ marginRight: 6 }} />
-                      Delete
+                      {t("Delete", { $id: "common.delete" })}
                     </Button>
                   </>
                 )}
@@ -191,12 +205,16 @@ export function WishlistItemDetailModal({
                         style={{ marginRight: 6 }}
                       />
                       {isPurchased
-                        ? "Purchased"
+                        ? t("Purchased", { $id: "item.status.purchased" })
                         : isReserved
                           ? reservedByMe
-                            ? "Release reservation"
-                            : "Reserved"
-                          : "Reserve this gift"}
+                            ? t("Release reservation", {
+                                $id: "item.detail.releaseReservation",
+                              })
+                            : t("Reserved", { $id: "item.status.reserved" })
+                          : t("Reserve this gift", {
+                              $id: "item.detail.reserveThisGift",
+                            })}
                     </Button>
 
                     {onToggleBought && (
@@ -207,7 +225,9 @@ export function WishlistItemDetailModal({
                         disabled={!canToggleBought}
                       >
                         <ShoppingCart size={14} style={{ marginRight: 6 }} />
-                        {isPurchased ? "Purchased" : "Bought"}
+                        {isPurchased
+                          ? t("Purchased", { $id: "item.status.purchased" })
+                          : t("Bought", { $id: "item.detail.bought" })}
                       </Button>
                     )}
                   </>

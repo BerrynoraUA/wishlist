@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useGT } from "gt-next";
 import { FriendUpcomingWishlist } from "@/api/types/wishilst";
 import { Calendar, type CalendarCell } from "@/components/ui/Calendar/Calendar";
 import styles from "./EventsCalendar.module.scss";
@@ -20,6 +21,7 @@ function getColor(index: number) {
 }
 
 export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
+  const t = useGT();
   const router = useRouter();
   const [tooltip, setTooltip] = useState<{
     x: number;
@@ -120,10 +122,13 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       const popupRect = popupRef.current?.getBoundingClientRect();
       const [year, month, day] = dateKey.split("-").map(Number);
-      const dateLabel = new Date(year, month - 1, day).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      });
+      const dateLabel = new Date(year, month - 1, day).toLocaleDateString(
+        undefined,
+        {
+          month: "short",
+          day: "numeric",
+        },
+      );
 
       setTooltip({
         x: rect.left - (popupRect?.left ?? 0) + rect.width / 2,
@@ -208,7 +213,14 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
   if (!open) return null;
 
   return (
-    <div className={styles.popup} ref={popupRef} role="dialog" aria-label="Events calendar">
+    <div
+      className={styles.popup}
+      ref={popupRef}
+      role="dialog"
+      aria-label={t("Events calendar", {
+        $id: "discover.calendar.dialogLabel",
+      })}
+    >
       <div className={styles.inner}>
         <Calendar
           onCellClick={handleCellClick}
@@ -234,7 +246,17 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
         >
           <div className={styles.tooltipHeader}>
             <span>{tooltip.dateLabel}</span>
-            <span>{tooltip.items.length} event{tooltip.items.length > 1 ? "s" : ""}</span>
+            <span>
+              {tooltip.items.length === 1
+                ? t("{n} event", {
+                    n: tooltip.items.length,
+                    $id: "discover.calendar.eventCountOne",
+                  })
+                : t("{n} events", {
+                    n: tooltip.items.length,
+                    $id: "discover.calendar.eventCountOther",
+                  })}
+            </span>
           </div>
           {tooltip.items.map((ev) => (
             <div

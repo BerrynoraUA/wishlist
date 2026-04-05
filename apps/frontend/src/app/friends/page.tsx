@@ -2,6 +2,7 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useGT } from "gt-next";
 import { FriendsHeader } from "./components/FriendsHeader";
 import { FriendsTabs } from "./components/FriendsTabs";
 import { FriendCard } from "./components/FriendCard";
@@ -19,6 +20,7 @@ import {
 } from "@/hooks/use-friends";
 
 function FriendsPageContent() {
+  const t = useGT();
   const [tab, setTab] = useState<"friends" | "requests" | "sent">("friends");
   const [open, setOpen] = useState(false);
   const searchParams = useSearchParams();
@@ -48,7 +50,13 @@ function FriendsPageContent() {
   const cancelRequest = useCancelFriendRequest();
 
   function handleRemoveFriend(friendId: string) {
-    if (confirm("Are you sure you want to remove this friend?")) {
+    if (
+      confirm(
+        t("Are you sure you want to remove this friend?", {
+          $id: "friends.page.confirmRemove",
+        }),
+      )
+    ) {
       removeFriend.mutate(friendId);
     }
   }
@@ -73,10 +81,18 @@ function FriendsPageContent() {
             gap: 16,
           }}
         >
-          {isLoading && <p>Loading...</p>}
-          {isError && <p>Failed to load friends.</p>}
+          {isLoading && (
+            <p>{t("Loading...", { $id: "friends.page.loading" })}</p>
+          )}
+          {isError && (
+            <p>
+              {t("Failed to load friends.", {
+                $id: "friends.page.friendsError",
+              })}
+            </p>
+          )}
           {!isLoading && !isError && friends.length === 0 && (
-            <p>No friends yet.</p>
+            <p>{t("No friends yet.", { $id: "friends.page.noFriends" })}</p>
           )}
           {friends.map((f) => (
             <FriendCard key={f.id} friend={f} onRemove={handleRemoveFriend} />
@@ -92,11 +108,25 @@ function FriendsPageContent() {
             gap: 16,
           }}
         >
-          {requestsLoading && <p>Loading...</p>}
-          {requestsError && <p>Failed to load requests.</p>}
+          {requestsLoading && (
+            <p>{t("Loading...", { $id: "friends.page.loading" })}</p>
+          )}
+          {requestsError && (
+            <p>
+              {t("Failed to load requests.", {
+                $id: "friends.page.requestsError",
+              })}
+            </p>
+          )}
           {!requestsLoading &&
             !requestsError &&
-            (requests?.length ?? 0) === 0 && <p>No incoming requests.</p>}
+            (requests?.length ?? 0) === 0 && (
+              <p>
+                {t("No incoming requests.", {
+                  $id: "friends.page.noIncomingRequests",
+                })}
+              </p>
+            )}
           {(requests ?? []).map((r) => (
             <RequestCard
               key={r.id}
@@ -118,11 +148,23 @@ function FriendsPageContent() {
             gap: 16,
           }}
         >
-          {outgoingLoading && <p>Loading...</p>}
-          {outgoingError && <p>Failed to load sent requests.</p>}
+          {outgoingLoading && (
+            <p>{t("Loading...", { $id: "friends.page.loading" })}</p>
+          )}
+          {outgoingError && (
+            <p>
+              {t("Failed to load sent requests.", {
+                $id: "friends.page.sentError",
+              })}
+            </p>
+          )}
           {!outgoingLoading &&
             !outgoingError &&
-            (outgoing?.length ?? 0) === 0 && <p>No sent requests.</p>}
+            (outgoing?.length ?? 0) === 0 && (
+              <p>
+                {t("No sent requests.", { $id: "friends.page.noSentRequests" })}
+              </p>
+            )}
           {(outgoing ?? []).map((r) => (
             <OutgoingRequestCard
               key={r.id}
@@ -140,11 +182,14 @@ function FriendsPageContent() {
 }
 
 export default function FriendsPage() {
+  const t = useGT();
   return (
     <Suspense
       fallback={
         <main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px" }}>
-          <p>Loading friends...</p>
+          <p>
+            {t("Loading friends...", { $id: "friends.page.suspenseLoading" })}
+          </p>
         </main>
       }
     >

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useCreateSecretSantaEvent } from "@/hooks/use-secret-santa";
@@ -27,6 +28,7 @@ export function CreateSecretSantaModal({ open, onClose }: Props) {
 }
 
 function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
+  const t = useGT();
   const [name, setName] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [budget, setBudget] = useState("");
@@ -131,16 +133,29 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <h2>Create Secret Santa Event</h2>
-            <p>Set up a gift exchange with your friends.</p>
+            <h2>
+              {t("Create Secret Santa Event", {
+                $id: "secretSanta.create.title",
+              })}
+            </h2>
+            <p>
+              {t("Set up a gift exchange with your friends.", {
+                $id: "secretSanta.create.subtitle",
+              })}
+            </p>
           </div>
         </div>
 
         {/* Name */}
         <div className={styles.field}>
-          <label>Event Name</label>
+          <label>
+            {t("Event Name", { $id: "secretSanta.create.eventNameLabel" })}
+          </label>
           <input
-            placeholder="e.g. Office Christmas Party, Family Gift Exchange"
+            placeholder={t(
+              "e.g. Office Christmas Party, Family Gift Exchange",
+              { $id: "secretSanta.create.eventNamePlaceholder" },
+            )}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -148,16 +163,20 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
 
         {/* Event Date */}
         <div className={styles.field}>
-          <label>Event Date</label>
+          <label>
+            {t("Event Date", { $id: "secretSanta.create.eventDateLabel" })}
+          </label>
           <DatePickerField value={eventDate} onChange={setEventDate} />
         </div>
 
         {/* Budget */}
         <div className={styles.field}>
-          <label>Budget</label>
+          <label>{t("Budget", { $id: "secretSanta.create.budgetLabel" })}</label>
           <input
             type="number"
-            placeholder="e.g. 25"
+            placeholder={t("e.g. 25", {
+              $id: "secretSanta.create.budgetPlaceholder",
+            })}
             min="0"
             step="0.01"
             value={budget}
@@ -167,17 +186,27 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
 
         {/* Cover Image */}
         <div className={styles.field}>
-          <label>Cover Image (optional)</label>
+          <label>
+            {t("Cover Image (optional)", {
+              $id: "secretSanta.create.coverLabel",
+            })}
+          </label>
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
                 <img
                   src={imagePreview}
-                  alt="Event cover preview"
+                  alt={t("Event cover preview", {
+                    $id: "secretSanta.create.coverAlt",
+                  })}
                   className={styles.preview}
                 />
               ) : (
-                <span>Drop an image or click to upload</span>
+                <span>
+                  {t("Drop an image or click to upload", {
+                    $id: "secretSanta.create.coverDrop",
+                  })}
+                </span>
               )}
               <input
                 type="file"
@@ -191,7 +220,9 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
 
         {/* Participants */}
         <div className={styles.section}>
-          <label>Participants</label>
+          <label>
+            {t("Participants", { $id: "secretSanta.create.participantsLabel" })}
+          </label>
 
           {participants.length > 0 && (
             <div className={styles.participantsList}>
@@ -210,12 +241,18 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
                         .toUpperCase()}
                     </span>
                   )}
-                  <span>{p.display_name ?? p.nickname ?? "User"}</span>
+                  <span>
+                    {p.display_name ??
+                      p.nickname ??
+                      t("User", { $id: "secretSanta.create.userFallback" })}
+                  </span>
                   <button
                     type="button"
                     className={styles.chipRemove}
                     onClick={() => removeParticipant(p.user_id)}
-                    aria-label="Remove participant"
+                    aria-label={t("Remove participant", {
+                      $id: "secretSanta.create.removeParticipantAria",
+                    })}
                   >
                     <X size={14} />
                   </button>
@@ -227,7 +264,9 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
           <div className={styles.friendSearch}>
             <Search size={14} />
             <input
-              placeholder="Search friends to add..."
+              placeholder={t("Search friends to add...", {
+                $id: "secretSanta.create.searchFriendsPlaceholder",
+              })}
               value={friendSearch}
               onChange={(e) => setFriendSearch(e.target.value)}
             />
@@ -235,7 +274,11 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
 
           <div className={styles.friendList}>
             {filteredFriends.length === 0 && (
-              <p className={styles.noFriends}>No friends to add</p>
+              <p className={styles.noFriends}>
+                {t("No friends to add", {
+                  $id: "secretSanta.create.noFriends",
+                })}
+              </p>
             )}
             {filteredFriends.slice(0, 8).map((f) => {
               const isSelected = participants.some(
@@ -260,7 +303,13 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
                     )}
                   </div>
                   <div className={styles.friendInfo}>
-                    <strong>{f.display_name ?? f.nickname ?? "User"}</strong>
+                    <strong>
+                      {f.display_name ??
+                        f.nickname ??
+                        t("User", {
+                          $id: "secretSanta.create.friendUserFallback",
+                        })}
+                    </strong>
                     {f.nickname && f.display_name && <span>@{f.nickname}</span>}
                   </div>
                   {isSelected ? (
@@ -277,7 +326,7 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
         {/* Footer */}
         <div className={styles.footer}>
           <Button variant="secondary" onClick={handleClose}>
-            Cancel
+            {t("Cancel", { $id: "secretSanta.create.cancel" })}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -289,7 +338,9 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
               isPending
             }
           >
-            {isPending ? "Creating..." : "Create Event"}
+            {isPending
+              ? t("Creating...", { $id: "secretSanta.create.creating" })
+              : t("Create Event", { $id: "secretSanta.create.submit" })}
           </Button>
         </div>
       </div>

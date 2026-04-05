@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT } from "gt-next";
 import { useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import styles from "./landing.module.scss";
@@ -101,6 +102,7 @@ function useNavScroll(navRef: React.RefObject<HTMLElement | null>) {
 }
 
 export default function LandingPage() {
+  const t = useGT();
   const pageRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const mobileMenuOpen = useRef(false);
@@ -144,7 +146,8 @@ export default function LandingPage() {
       <nav className={styles.nav} ref={navRef}>
         <div className={styles.navInner}>
           <a href="#" className={styles.navLogo}>
-            <span className={styles.navLogoIcon}>♡</span> Wishlane
+            <span className={styles.navLogoIcon}>♡</span>{" "}
+            {t("Wishlane", { $id: "landing.nav.brand" })}
           </a>
           <div className={styles.navLinks}>
             <a
@@ -152,47 +155,47 @@ export default function LandingPage() {
               className={styles.navLink}
               onClick={(e) => smoothScroll(e, "#features")}
             >
-              Features
+              {t("Features", { $id: "landing.nav.features" })}
             </a>
             <a
               href="#how-it-works"
               className={styles.navLink}
               onClick={(e) => smoothScroll(e, "#how-it-works")}
             >
-              How It Works
+              {t("How It Works", { $id: "landing.nav.howItWorks" })}
             </a>
             <a
               href="#discover"
               className={styles.navLink}
               onClick={(e) => smoothScroll(e, "#discover")}
             >
-              Discover
+              {t("Discover", { $id: "landing.nav.discover" })}
             </a>
             <a
               href="#testimonials"
               className={styles.navLink}
               onClick={(e) => smoothScroll(e, "#testimonials")}
             >
-              Testimonials
+              {t("Testimonials", { $id: "landing.nav.testimonials" })}
             </a>
           </div>
           <div className={styles.navActions}>
             <Link href="/login" className={`${styles.btn} ${styles.btnGhost}`}>
-              Log In
+              {t("Log In", { $id: "landing.nav.logIn" })}
             </Link>
             <Link
               href="/login"
               className={`${styles.btn} ${styles.btnPrimary}`}
             >
-              Get Started Free
+              {t("Get Started Free", { $id: "landing.nav.getStartedFree" })}
             </Link>
           </div>
           <button
             className={`${styles.navBurger} iconTooltipTrigger`}
             ref={burgerRef}
             onClick={toggleMenu}
-            aria-label="Open menu"
-            data-tooltip="Open menu"
+            aria-label={t("Open menu", { $id: "landing.nav.openMenu.aria" })}
+            data-tooltip={t("Open menu", { $id: "landing.nav.openMenu.tooltip" })}
           >
             <span />
             <span />
@@ -208,41 +211,41 @@ export default function LandingPage() {
           className={styles.mobileMenuLink}
           onClick={(e) => smoothScroll(e, "#features")}
         >
-          Features
+          {t("Features", { $id: "landing.mobile.features" })}
         </a>
         <a
           href="#how-it-works"
           className={styles.mobileMenuLink}
           onClick={(e) => smoothScroll(e, "#how-it-works")}
         >
-          How It Works
+          {t("How It Works", { $id: "landing.mobile.howItWorks" })}
         </a>
         <a
           href="#discover"
           className={styles.mobileMenuLink}
           onClick={(e) => smoothScroll(e, "#discover")}
         >
-          Discover
+          {t("Discover", { $id: "landing.mobile.discover" })}
         </a>
         <a
           href="#testimonials"
           className={styles.mobileMenuLink}
           onClick={(e) => smoothScroll(e, "#testimonials")}
         >
-          Testimonials
+          {t("Testimonials", { $id: "landing.mobile.testimonials" })}
         </a>
         <div className={styles.mobileMenuActions}>
           <Link
             href="/login"
             className={`${styles.btn} ${styles.btnGhost} ${styles.btnFull}`}
           >
-            Log In
+            {t("Log In", { $id: "landing.mobile.logIn" })}
           </Link>
           <Link
             href="/login"
             className={`${styles.btn} ${styles.btnPrimary} ${styles.btnFull}`}
           >
-            Get Started Free
+            {t("Get Started Free", { $id: "landing.mobile.getStartedFree" })}
           </Link>
         </div>
       </div>
@@ -256,23 +259,31 @@ export default function LandingPage() {
         </div>
         <div className={`${styles.container} ${styles.heroInner}`}>
           <div className={`${styles.heroContent} ${styles.animateIn}`}>
-            <span className={styles.heroBadge}>✨ Gifting, reimagined</span>
+            <span className={styles.heroBadge}>
+              {t("✨ Gifting, reimagined", { $id: "landing.hero.badge" })}
+            </span>
             <h1 className={styles.heroTitle}>
-              Wishlists,
+              {t("Wishlists,", { $id: "landing.hero.titleLine1" })}
               <br />
-              shared <em>beautifully</em>
+              {t("shared", { $id: "landing.hero.titleShared" })}{" "}
+              <em>
+                {t("beautifully", { $id: "landing.hero.titleEmphasis" })}
+              </em>
             </h1>
             <p className={styles.heroSubtitle}>
-              Create stunning wishlists, share them with friends and family, and
-              never miss the perfect gift again. Wishlane makes every occasion
-              unforgettable.
+              {t(
+                "Create stunning wishlists, share them with friends and family, and never miss the perfect gift again. Wishlane makes every occasion unforgettable.",
+                { $id: "landing.hero.subtitle" },
+              )}
             </p>
             <div className={styles.heroCta}>
               <Link
                 href="/login"
                 className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}
               >
-                Start Your First Wishlist
+                {t("Start Your First Wishlist", {
+                  $id: "landing.hero.ctaPrimary",
+                })}
                 <svg
                   width="20"
                   height="20"
@@ -292,11 +303,13 @@ export default function LandingPage() {
                 className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg}`}
                 onClick={(e) => smoothScroll(e, "#how-it-works")}
               >
-                See How It Works
+                {t("See How It Works", { $id: "landing.hero.ctaSecondary" })}
               </a>
             </div>
             <p className={styles.heroNote}>
-              Free forever · No credit card required
+              {t("Free forever · No credit card required", {
+                $id: "landing.hero.note",
+              })}
             </p>
           </div>
           <div
@@ -314,37 +327,49 @@ export default function LandingPage() {
                   />
                   <div>
                     <h3 className={styles.mockupCardTitle}>
-                      Birthday Wishes 🎂
+                      {t("Birthday Wishes 🎂", {
+                        $id: "landing.hero.mockup.title",
+                      })}
                     </h3>
                     <span className={styles.mockupCardMeta}>
-                      8 items · March 15
+                      {t("{count} items · {date}", {
+                        count: 8,
+                        date: "March 15",
+                        $id: "landing.hero.mockup.meta",
+                      })}
                     </span>
                   </div>
                   <span
                     className={`${styles.mockupCardBadge} ${styles.mockupCardBadgeFriends}`}
                   >
-                    👥 Friends
+                    {t("👥 Friends", { $id: "landing.hero.mockup.badgeFriends" })}
                   </span>
                 </div>
                 <div className={styles.mockupCardItems}>
                   <MockupItem
                     emoji="🎧"
                     bg="#fde7f3"
-                    name="Wireless Headphones"
+                    name={t("Wireless Headphones", {
+                      $id: "landing.hero.mockup.item1.name",
+                    })}
                     price="$149.99"
                     priority="high"
                   />
                   <MockupItem
                     emoji="📚"
                     bg="#e0f2fe"
-                    name="Design Anthology Book"
+                    name={t("Design Anthology Book", {
+                      $id: "landing.hero.mockup.item2.name",
+                    })}
                     price="$34.00"
                     priority="med"
                   />
                   <MockupItem
                     emoji="☕"
                     bg="#fef3c7"
-                    name="Ceramic Pour-Over Set"
+                    name={t("Ceramic Pour-Over Set", {
+                      $id: "landing.hero.mockup.item3.name",
+                    })}
                     price="$62.00"
                     priority="low"
                   />
@@ -355,7 +380,11 @@ export default function LandingPage() {
               >
                 <div className={styles.mockupFloatInner}>
                   <span className={styles.mockupFloatIcon}>❤️</span>
-                  <span className={styles.mockupFloatText}>Item reserved!</span>
+                  <span className={styles.mockupFloatText}>
+                    {t("Item reserved!", {
+                      $id: "landing.hero.mockup.floatReserved",
+                    })}
+                  </span>
                 </div>
               </div>
               <div
@@ -363,7 +392,11 @@ export default function LandingPage() {
               >
                 <div className={styles.mockupFloatInner}>
                   <span className={styles.mockupFloatIcon}>🔗</span>
-                  <span className={styles.mockupFloatText}>Link shared</span>
+                  <span className={styles.mockupFloatText}>
+                    {t("Link shared", {
+                      $id: "landing.hero.mockup.floatShared",
+                    })}
+                  </span>
                 </div>
               </div>
             </div>
@@ -374,23 +407,31 @@ export default function LandingPage() {
       {/* ====== STATS BAR ====== */}
       <section className={styles.statsBar}>
         <div className={`${styles.container} ${styles.statsBarInner}`}>
-          <StatItem count={10000} suffix="+" label="Wishlists Created" />
+          <StatItem
+            count={10000}
+            suffix="+"
+            label={t("Wishlists Created", {
+              $id: "landing.stats.wishlistsCreated",
+            })}
+          />
           <StatItem
             count={50000}
             suffix="+"
-            label="Gifts Tracked"
+            label={t("Gifts Tracked", { $id: "landing.stats.giftsTracked" })}
             delay={100}
           />
           <StatItem
             count={25000}
             suffix="+"
-            label="Items Reserved"
+            label={t("Items Reserved", { $id: "landing.stats.itemsReserved" })}
             delay={200}
           />
           <StatItem
             count={98}
             suffix="%"
-            label="Happy Gift-Givers"
+            label={t("Happy Gift-Givers", {
+              $id: "landing.stats.happyGiftGivers",
+            })}
             delay={300}
           />
         </div>
@@ -400,13 +441,22 @@ export default function LandingPage() {
       <section className={styles.features} id="features">
         <div className={styles.container}>
           <SectionHeader
-            badge="Features"
+            badge={t("Features", { $id: "landing.features.badge" })}
             title={
               <>
-                Everything you need for <em>perfect</em> gifting
+                {t("Everything you need for", {
+                  $id: "landing.features.titlePart1",
+                })}{" "}
+                <em>
+                  {t("perfect", { $id: "landing.features.titleEmphasis" })}
+                </em>{" "}
+                {t("gifting", { $id: "landing.features.titlePart2" })}
               </>
             }
-            subtitle="From creating wishlists to discovering what your friends want — Wishlane handles every part of the gifting journey."
+            subtitle={t(
+              "From creating wishlists to discovering what your friends want — Wishlane handles every part of the gifting journey.",
+              { $id: "landing.features.subtitle" },
+            )}
           />
           <div className={styles.featuresGrid}>
             <FeatureCard
@@ -427,8 +477,13 @@ export default function LandingPage() {
               }
               iconBg="#fde7f3"
               iconColor="#c0267e"
-              title="Beautiful Wishlists"
-              desc="Create stunning wishlists with custom colors, descriptions, and event dates. Choose from five gorgeous accent colors to make each list unique."
+              title={t("Beautiful Wishlists", {
+                $id: "landing.features.card1.title",
+              })}
+              desc={t(
+                "Create stunning wishlists with custom colors, descriptions, and event dates. Choose from five gorgeous accent colors to make each list unique.",
+                { $id: "landing.features.card1.desc" },
+              )}
             />
             <FeatureCard
               icon={
@@ -448,8 +503,13 @@ export default function LandingPage() {
               }
               iconBg="#e0f2fe"
               iconColor="#2563eb"
-              title="Smart Link Scraping"
-              desc="Paste any product URL and Wishlane auto-fills the title, description, image, and price. Adding items has never been this effortless."
+              title={t("Smart Link Scraping", {
+                $id: "landing.features.card2.title",
+              })}
+              desc={t(
+                "Paste any product URL and Wishlane auto-fills the title, description, image, and price. Adding items has never been this effortless.",
+                { $id: "landing.features.card2.desc" },
+              )}
               delay={100}
             />
             <FeatureCard
@@ -472,8 +532,13 @@ export default function LandingPage() {
               }
               iconBg="#f0fdf4"
               iconColor="#16a34a"
-              title="Friends & Sharing"
-              desc="Connect with friends via invite links or username search. Share wishlists publicly, with friends only, or keep them completely private."
+              title={t("Friends & Sharing", {
+                $id: "landing.features.card3.title",
+              })}
+              desc={t(
+                "Connect with friends via invite links or username search. Share wishlists publicly, with friends only, or keep them completely private.",
+                { $id: "landing.features.card3.desc" },
+              )}
               delay={200}
             />
             <FeatureCard
@@ -493,8 +558,13 @@ export default function LandingPage() {
               }
               iconBg="#fef3c7"
               iconColor="#d97706"
-              title="Gift Reservations"
-              desc="Reserve items on friends' wishlists so nobody buys the same gift. Only you can see your reservations — it stays a surprise!"
+              title={t("Gift Reservations", {
+                $id: "landing.features.card4.title",
+              })}
+              desc={t(
+                "Reserve items on friends' wishlists so nobody buys the same gift. Only you can see your reservations — it stays a surprise!",
+                { $id: "landing.features.card4.desc" },
+              )}
             />
             <FeatureCard
               icon={
@@ -514,8 +584,13 @@ export default function LandingPage() {
               }
               iconBg="#ede9fe"
               iconColor="#7c3aed"
-              title="Real-Time Notifications"
-              desc="Get notified when friends add new wishlists, send friend requests, or when someone reserves an item. Stay in the loop effortlessly."
+              title={t("Real-Time Notifications", {
+                $id: "landing.features.card5.title",
+              })}
+              desc={t(
+                "Get notified when friends add new wishlists, send friend requests, or when someone reserves an item. Stay in the loop effortlessly.",
+                { $id: "landing.features.card5.desc" },
+              )}
               delay={100}
             />
             <FeatureCard
@@ -536,8 +611,13 @@ export default function LandingPage() {
               }
               iconBg="#fce7f3"
               iconColor="#db2777"
-              title="Discover & Explore"
-              desc="Browse friends' public wishlists, see upcoming events with countdowns, and find the perfect gift from their curated selections."
+              title={t("Discover & Explore", {
+                $id: "landing.features.card6.title",
+              })}
+              desc={t(
+                "Browse friends' public wishlists, see upcoming events with countdowns, and find the perfect gift from their curated selections.",
+                { $id: "landing.features.card6.desc" },
+              )}
               delay={200}
             />
           </div>
@@ -548,32 +628,47 @@ export default function LandingPage() {
       <section className={styles.howItWorks} id="how-it-works">
         <div className={styles.container}>
           <SectionHeader
-            badge="How It Works"
+            badge={t("How It Works", { $id: "landing.how.badge" })}
             title={
               <>
-                Three steps to <em>gifting joy</em>
+                {t("Three steps to", { $id: "landing.how.titlePart1" })}{" "}
+                <em>
+                  {t("gifting joy", { $id: "landing.how.titleEmphasis" })}
+                </em>
               </>
             }
-            subtitle="Getting started with Wishlane is as easy as making a wish."
+            subtitle={t(
+              "Getting started with Wishlane is as easy as making a wish.",
+              { $id: "landing.how.subtitle" },
+            )}
           />
           <div className={styles.steps}>
             {/* Step 1 */}
             <div className={`${styles.step} ${styles.animateIn}`}>
               <div className={styles.stepNumber}>1</div>
               <div className={styles.stepContent}>
-                <h3 className={styles.stepTitle}>Create Your Wishlist</h3>
+                <h3 className={styles.stepTitle}>
+                  {t("Create Your Wishlist", { $id: "landing.how.step1.title" })}
+                </h3>
                 <p className={styles.stepDesc}>
-                  Name it, pick a color, set an event date, and choose who can
-                  see it. Add items by pasting links — we&apos;ll auto-fill the
-                  details.
+                  {t(
+                    "Name it, pick a color, set an event date, and choose who can see it. Add items by pasting links — we'll auto-fill the details.",
+                    { $id: "landing.how.step1.desc" },
+                  )}
                 </p>
               </div>
               <div className={styles.stepVisual}>
                 <div className={`${styles.stepDemo} ${styles.stepDemoCreate}`}>
                   <div className={styles.demoInput}>
-                    <span className={styles.demoInputLabel}>Wishlist Name</span>
+                    <span className={styles.demoInputLabel}>
+                      {t("Wishlist Name", {
+                        $id: "landing.how.step1.demoLabel",
+                      })}
+                    </span>
                     <span className={styles.demoInputValue}>
-                      Christmas 2026 🎄
+                      {t("Christmas 2026 🎄", {
+                        $id: "landing.how.step1.demoValue",
+                      })}
                     </span>
                   </div>
                   <DemoColors />
@@ -589,22 +684,31 @@ export default function LandingPage() {
             >
               <div className={styles.stepNumber}>2</div>
               <div className={styles.stepContent}>
-                <h3 className={styles.stepTitle}>Share With Friends</h3>
+                <h3 className={styles.stepTitle}>
+                  {t("Share With Friends", { $id: "landing.how.step2.title" })}
+                </h3>
                 <p className={styles.stepDesc}>
-                  Invite friends by sharing your unique link or searching their
-                  username. They&apos;ll see your wishlists and you&apos;ll see
-                  theirs.
+                  {t(
+                    "Invite friends by sharing your unique link or searching their username. They'll see your wishlists and you'll see theirs.",
+                    { $id: "landing.how.step2.desc" },
+                  )}
                 </p>
               </div>
               <div className={styles.stepVisual}>
                 <div className={`${styles.stepDemo} ${styles.stepDemoShare}`}>
                   <div className={styles.demoInvite}>
                     <span className={styles.demoInviteLabel}>
-                      Your invite link
+                      {t("Your invite link", {
+                        $id: "landing.how.step2.inviteLabel",
+                      })}
                     </span>
                     <div className={styles.demoInviteLink}>
                       <span>wishlane.net/invite/sarah_j</span>
-                      <span className={styles.demoInviteCopy}>📋 Copied!</span>
+                      <span className={styles.demoInviteCopy}>
+                        {t("📋 Copied!", {
+                          $id: "landing.how.step2.copied",
+                        })}
+                      </span>
                     </div>
                   </div>
                   <div className={styles.demoFriends}>
@@ -612,14 +716,18 @@ export default function LandingPage() {
                       initial="A"
                       bg="#fde7f3"
                       color="#c0267e"
-                      name="Alex Chen"
+                      name={t("Alex Chen", {
+                        $id: "landing.how.step2.friend1.name",
+                      })}
                       user="@alexc"
                     />
                     <DemoFriend
                       initial="M"
                       bg="#e0f2fe"
                       color="#2563eb"
-                      name="Maya Patel"
+                      name={t("Maya Patel", {
+                        $id: "landing.how.step2.friend2.name",
+                      })}
                       user="@mayap"
                     />
                   </div>
@@ -634,11 +742,14 @@ export default function LandingPage() {
             >
               <div className={styles.stepNumber}>3</div>
               <div className={styles.stepContent}>
-                <h3 className={styles.stepTitle}>Reserve & Surprise</h3>
+                <h3 className={styles.stepTitle}>
+                  {t("Reserve & Surprise", { $id: "landing.how.step3.title" })}
+                </h3>
                 <p className={styles.stepDesc}>
-                  Browse friends&apos; wishlists and reserve items secretly. No
-                  double-gifts, no ruined surprises — just perfect gifting every
-                  time.
+                  {t(
+                    "Browse friends' wishlists and reserve items secretly. No double-gifts, no ruined surprises — just perfect gifting every time.",
+                    { $id: "landing.how.step3.desc" },
+                  )}
                 </p>
               </div>
               <div className={styles.stepVisual}>
@@ -653,26 +764,43 @@ export default function LandingPage() {
       <section className={styles.discover} id="discover">
         <div className={styles.container}>
           <SectionHeader
-            badge="Discover"
+            badge={t("Discover", { $id: "landing.discover.badge" })}
             title={
               <>
-                Find the <em>perfect gift</em>, every time
+                {t("Find the", { $id: "landing.discover.titlePart1" })}{" "}
+                <em>
+                  {t("perfect gift", { $id: "landing.discover.titleEmphasis" })}
+                </em>
+                {t(", every time", { $id: "landing.discover.titlePart2" })}
               </>
             }
-            subtitle="Explore your friends' wishlists, see upcoming events, and never show up empty-handed."
+            subtitle={t(
+              "Explore your friends' wishlists, see upcoming events, and never show up empty-handed.",
+              { $id: "landing.discover.subtitle" },
+            )}
           />
           <div className={`${styles.discoverShowcase} ${styles.animateIn}`}>
             <div className={styles.discoverEventBanner}>
               <div className={styles.discoverEventIcon}>🎉</div>
               <div className={styles.discoverEventText}>
-                <strong>Alex&apos;s Birthday</strong> is in{" "}
-                <span className={styles.discoverEventCountdown}>12 days</span>
+                <strong>
+                  {t("Alex's Birthday", {
+                    $id: "landing.discover.eventName",
+                  })}
+                </strong>{" "}
+                {t("is in", { $id: "landing.discover.isIn" })}{" "}
+                <span className={styles.discoverEventCountdown}>
+                  {t("{count} days", {
+                    count: 12,
+                    $id: "landing.discover.countdown",
+                  })}
+                </span>
               </div>
               <Link
                 href="/login"
                 className={`${styles.btn} ${styles.btnSm} ${styles.btnPrimary}`}
               >
-                View Wishlist
+                {t("View Wishlist", { $id: "landing.discover.viewWishlist" })}
               </Link>
             </div>
             <div className={styles.discoverGrid}>
@@ -680,7 +808,9 @@ export default function LandingPage() {
                 gradient="linear-gradient(135deg, #fde7f3, #fce7f3)"
                 emoji="👟"
                 store="Nike.com"
-                title="Air Jordan 1 Retro"
+                title={t("Air Jordan 1 Retro", {
+                  $id: "landing.discover.card1.title",
+                })}
                 price="$180.00"
                 priority="high"
               />
@@ -688,7 +818,9 @@ export default function LandingPage() {
                 gradient="linear-gradient(135deg, #e0f2fe, #bfdbfe)"
                 emoji="🎮"
                 store="Amazon.com"
-                title="PS5 DualSense Controller"
+                title={t("PS5 DualSense Controller", {
+                  $id: "landing.discover.card2.title",
+                })}
                 price="$69.99"
                 priority="med"
                 delay={100}
@@ -697,7 +829,9 @@ export default function LandingPage() {
                 gradient="linear-gradient(135deg, #fef3c7, #fde68a)"
                 emoji="🕯️"
                 store="Diptyque.com"
-                title="Baies Scented Candle"
+                title={t("Baies Scented Candle", {
+                  $id: "landing.discover.card3.title",
+                })}
                 price="$76.00"
                 priority="low"
                 delay={200}
@@ -711,35 +845,60 @@ export default function LandingPage() {
       <section className={styles.testimonials} id="testimonials">
         <div className={styles.container}>
           <SectionHeader
-            badge="Testimonials"
+            badge={t("Testimonials", { $id: "landing.testimonials.badge" })}
             title={
               <>
-                Loved by <em>gift-givers</em> everywhere
+                {t("Loved by", { $id: "landing.testimonials.titlePart1" })}{" "}
+                <em>
+                  {t("gift-givers", {
+                    $id: "landing.testimonials.titleEmphasis",
+                  })}
+                </em>{" "}
+                {t("everywhere", { $id: "landing.testimonials.titlePart2" })}
               </>
             }
           />
           <div className={styles.testimonialsGrid}>
             <Testimonial
-              text="&ldquo;Wishlane completely changed how our family does holidays. No more awkward duplicate gifts — everyone knows exactly what to get!&rdquo;"
-              name="Sarah Johnson"
-              role="Mom of 3"
+              text={t(
+                "“Wishlane completely changed how our family does holidays. No more awkward duplicate gifts — everyone knows exactly what to get!”",
+                { $id: "landing.testimonials.quote1" },
+              )}
+              name={t("Sarah Johnson", {
+                $id: "landing.testimonials.author1.name",
+              })}
+              role={t("Mom of 3", { $id: "landing.testimonials.author1.role" })}
               initial="S"
               bg="#fde7f3"
               color="#c0267e"
             />
             <Testimonial
-              text="&ldquo;The link scraping feature is magic. I just paste an Amazon link and boom — everything fills in automatically. So smooth.&rdquo;"
-              name="Jake Rivera"
-              role="Tech Enthusiast"
+              text={t(
+                "“The link scraping feature is magic. I just paste an Amazon link and boom — everything fills in automatically. So smooth.”",
+                { $id: "landing.testimonials.quote2" },
+              )}
+              name={t("Jake Rivera", {
+                $id: "landing.testimonials.author2.name",
+              })}
+              role={t("Tech Enthusiast", {
+                $id: "landing.testimonials.author2.role",
+              })}
               initial="J"
               bg="#e0f2fe"
               color="#2563eb"
               delay={100}
             />
             <Testimonial
-              text="&ldquo;I love the reservation system — I can claim a gift and nobody else sees it. Perfect surprises every single time.&rdquo;"
-              name="Emma Nakamura"
-              role="Gift Connoisseur"
+              text={t(
+                "“I love the reservation system — I can claim a gift and nobody else sees it. Perfect surprises every single time.”",
+                { $id: "landing.testimonials.quote3" },
+              )}
+              name={t("Emma Nakamura", {
+                $id: "landing.testimonials.author3.name",
+              })}
+              role={t("Gift Connoisseur", {
+                $id: "landing.testimonials.author3.role",
+              })}
               initial="E"
               bg="#f0fdf4"
               color="#16a34a"
@@ -758,19 +917,25 @@ export default function LandingPage() {
               <div className={`${styles.ctaBlob} ${styles.ctaBlob2}`} />
             </div>
             <h2 className={styles.ctaTitle}>
-              Ready to make gifting <em>magical</em>?
+              {t("Ready to make gifting", {
+                $id: "landing.cta.titlePart1",
+              })}{" "}
+              <em>{t("magical", { $id: "landing.cta.titleEmphasis" })}</em>?
             </h2>
             <p className={styles.ctaSubtitle}>
-              Join thousands of people who&apos;ve already simplified their
-              gifting with Wishlane. It&apos;s free, it&apos;s beautiful, and it
-              just works.
+              {t(
+                "Join thousands of people who've already simplified their gifting with Wishlane. It's free, it's beautiful, and it just works.",
+                { $id: "landing.cta.subtitle" },
+              )}
             </p>
             <div className={styles.ctaActions}>
               <Link
                 href="/login"
                 className={`${styles.btn} ${styles.btnWhite} ${styles.btnLg}`}
               >
-                Create Your First Wishlist
+                {t("Create Your First Wishlist", {
+                  $id: "landing.cta.button",
+                })}
                 <svg
                   width="20"
                   height="20"
@@ -787,7 +952,10 @@ export default function LandingPage() {
               </Link>
             </div>
             <p className={styles.ctaNote}>
-              Free forever · No credit card needed · Set up in 30 seconds
+              {t(
+                "Free forever · No credit card needed · Set up in 30 seconds",
+                { $id: "landing.cta.note" },
+              )}
             </p>
           </div>
         </div>
@@ -798,65 +966,79 @@ export default function LandingPage() {
         <div className={`${styles.container} ${styles.footerInner}`}>
           <div className={styles.footerBrand}>
             <a href="#" className={styles.footerLogo}>
-              <span className={styles.navLogoIcon}>♡</span> Wishlane
+              <span className={styles.navLogoIcon}>♡</span>{" "}
+              {t("Wishlane", { $id: "landing.footer.brand" })}
             </a>
             <p className={styles.footerTagline}>
-              Wishlists, shared beautifully.
+              {t("Wishlists, shared beautifully.", {
+                $id: "landing.footer.tagline",
+              })}
             </p>
           </div>
           <div className={styles.footerLinks}>
             <div className={styles.footerCol}>
-              <h4 className={styles.footerColTitle}>Product</h4>
+              <h4 className={styles.footerColTitle}>
+                {t("Product", { $id: "landing.footer.col.product" })}
+              </h4>
               <a
                 href="#features"
                 className={styles.footerLink}
                 onClick={(e) => smoothScroll(e, "#features")}
               >
-                Features
+                {t("Features", { $id: "landing.footer.link.features" })}
               </a>
               <a
                 href="#how-it-works"
                 className={styles.footerLink}
                 onClick={(e) => smoothScroll(e, "#how-it-works")}
               >
-                How It Works
+                {t("How It Works", {
+                  $id: "landing.footer.link.howItWorks",
+                })}
               </a>
               <a
                 href="#discover"
                 className={styles.footerLink}
                 onClick={(e) => smoothScroll(e, "#discover")}
               >
-                Discover
+                {t("Discover", { $id: "landing.footer.link.discover" })}
               </a>
             </div>
             <div className={styles.footerCol}>
-              <h4 className={styles.footerColTitle}>Company</h4>
+              <h4 className={styles.footerColTitle}>
+                {t("Company", { $id: "landing.footer.col.company" })}
+              </h4>
               <a href="#" className={styles.footerLink}>
-                About
+                {t("About", { $id: "landing.footer.link.about" })}
               </a>
               <a href="#" className={styles.footerLink}>
-                Blog
+                {t("Blog", { $id: "landing.footer.link.blog" })}
               </a>
               <a href="#" className={styles.footerLink}>
-                Careers
+                {t("Careers", { $id: "landing.footer.link.careers" })}
               </a>
             </div>
             <div className={styles.footerCol}>
-              <h4 className={styles.footerColTitle}>Legal</h4>
+              <h4 className={styles.footerColTitle}>
+                {t("Legal", { $id: "landing.footer.col.legal" })}
+              </h4>
               <a href="#" className={styles.footerLink}>
-                Privacy
+                {t("Privacy", { $id: "landing.footer.link.privacy" })}
               </a>
               <a href="#" className={styles.footerLink}>
-                Terms
+                {t("Terms", { $id: "landing.footer.link.terms" })}
               </a>
               <a href="#" className={styles.footerLink}>
-                Cookies
+                {t("Cookies", { $id: "landing.footer.link.cookies" })}
               </a>
             </div>
           </div>
           <div className={styles.footerBottom}>
             <p className={styles.footerCopy}>
-              &copy; 2026 Wishlane. All rights reserved.
+              {t("© {year} Wishlane. All rights reserved.", {
+                year: 2026,
+                $id: "landing.footer.copyright",
+              })}
             </p>
           </div>
         </div>
@@ -880,12 +1062,19 @@ function MockupItem({
   price: string;
   priority: "high" | "med" | "low";
 }) {
+  const t = useGT();
   const priorityClass =
     priority === "high"
       ? styles.mockupItemPriorityHigh
       : priority === "med"
         ? styles.mockupItemPriorityMed
         : styles.mockupItemPriorityLow;
+  const priorityLabel =
+    priority === "high"
+      ? t("High", { $id: "landing.mockup.priority.high" })
+      : priority === "med"
+        ? t("Medium", { $id: "landing.mockup.priority.medium" })
+        : t("Low", { $id: "landing.mockup.priority.low" });
   return (
     <div className={styles.mockupItem}>
       <div className={styles.mockupItemImg} style={{ background: bg }}>
@@ -896,9 +1085,7 @@ function MockupItem({
         <span className={styles.mockupItemPrice}>{price}</span>
       </div>
       <span className={`${styles.mockupItemPriority} ${priorityClass}`}>
-        {priority === "med"
-          ? "Medium"
-          : priority.charAt(0).toUpperCase() + priority.slice(1)}
+        {priorityLabel}
       </span>
     </div>
   );
@@ -992,15 +1179,20 @@ function DemoColors() {
 }
 
 function DemoPrivacy() {
+  const t = useGT();
   return (
     <div className={styles.demoPrivacy}>
       <span
         className={`${styles.demoPrivacyOption} ${styles.demoPrivacyOptionActive}`}
       >
-        🌍 Public
+        {t("🌍 Public", { $id: "landing.demo.privacy.public" })}
       </span>
-      <span className={styles.demoPrivacyOption}>👥 Friends</span>
-      <span className={styles.demoPrivacyOption}>🔒 Private</span>
+      <span className={styles.demoPrivacyOption}>
+        {t("👥 Friends", { $id: "landing.demo.privacy.friends" })}
+      </span>
+      <span className={styles.demoPrivacyOption}>
+        {t("🔒 Private", { $id: "landing.demo.privacy.private" })}
+      </span>
     </div>
   );
 }
@@ -1035,19 +1227,24 @@ function DemoFriend({
 }
 
 function DemoReserve() {
+  const t = useGT();
   return (
     <div className={`${styles.stepDemo} ${styles.stepDemoReserve}`}>
       <DemoReserveItem
         emoji="🎧"
         bg="#fde7f3"
-        name="Sony WH-1000XM5"
+        name={t("Sony WH-1000XM5", {
+          $id: "landing.demo.reserve.item1.name",
+        })}
         price="$349.99"
         active
       />
       <DemoReserveItem
         emoji="📖"
         bg="#e0f2fe"
-        name="Atomic Habits"
+        name={t("Atomic Habits", {
+          $id: "landing.demo.reserve.item2.name",
+        })}
         price="$18.99"
       />
     </div>
@@ -1102,12 +1299,19 @@ function DiscoverCard({
   priority: "high" | "med" | "low";
   delay?: number;
 }) {
+  const t = useGT();
   const priorityClass =
     priority === "high"
       ? styles.discoverCardPriorityHigh
       : priority === "med"
         ? styles.discoverCardPriorityMed
         : styles.discoverCardPriorityLow;
+  const priorityLabel =
+    priority === "high"
+      ? t("High", { $id: "landing.discover.priority.high" })
+      : priority === "med"
+        ? t("Medium", { $id: "landing.discover.priority.medium" })
+        : t("Low", { $id: "landing.discover.priority.low" });
   return (
     <div
       className={`${styles.discoverCard} ${styles.animateIn}`}
@@ -1122,11 +1326,7 @@ function DiscoverCard({
         <div className={styles.discoverCardFooter}>
           <span className={styles.discoverCardPrice}>{price}</span>
           <span className={`${styles.discoverCardPriority} ${priorityClass}`}>
-            {priority === "high"
-              ? "High"
-              : priority === "med"
-                ? "Medium"
-                : "Low"}
+            {priorityLabel}
           </span>
         </div>
       </div>

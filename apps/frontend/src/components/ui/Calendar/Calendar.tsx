@@ -8,6 +8,7 @@ import {
   useRef,
   type ReactNode,
 } from "react";
+import { useGT, useLocale } from "gt-next";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./Calendar.module.scss";
 
@@ -33,22 +34,6 @@ type Props = {
   initialDate?: string | null;
 };
 
-const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
 export function Calendar({
   selectedDate,
   onDateSelect,
@@ -63,7 +48,40 @@ export function Calendar({
   className,
   initialDate,
 }: Props) {
+  const t = useGT();
+  const locale = useLocale();
   const today = useMemo(() => new Date(), []);
+
+  const weekdays = useMemo(
+    () => [
+      t("Mo", { $id: "calendar.weekday.mo" }),
+      t("Tu", { $id: "calendar.weekday.tu" }),
+      t("We", { $id: "calendar.weekday.we" }),
+      t("Th", { $id: "calendar.weekday.th" }),
+      t("Fr", { $id: "calendar.weekday.fr" }),
+      t("Sa", { $id: "calendar.weekday.sa" }),
+      t("Su", { $id: "calendar.weekday.su" }),
+    ],
+    [t],
+  );
+
+  const months = useMemo(
+    () => [
+      t("January", { $id: "calendar.month.january" }),
+      t("February", { $id: "calendar.month.february" }),
+      t("March", { $id: "calendar.month.march" }),
+      t("April", { $id: "calendar.month.april" }),
+      t("May", { $id: "calendar.month.may" }),
+      t("June", { $id: "calendar.month.june" }),
+      t("July", { $id: "calendar.month.july" }),
+      t("August", { $id: "calendar.month.august" }),
+      t("September", { $id: "calendar.month.september" }),
+      t("October", { $id: "calendar.month.october" }),
+      t("November", { $id: "calendar.month.november" }),
+      t("December", { $id: "calendar.month.december" }),
+    ],
+    [t],
+  );
   const pickerRef = useRef<HTMLDivElement | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerMode, setPickerMode] = useState<"month" | "year">("month");
@@ -167,11 +185,15 @@ export function Calendar({
     [onCellClick, onDateSelect],
   );
 
-  const monthLabel = new Date(viewYear, viewMonth).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-  const currentMonthLabel = MONTHS[viewMonth];
+  const monthLabel = useMemo(
+    () =>
+      new Date(viewYear, viewMonth).toLocaleDateString(locale ?? "en", {
+        month: "long",
+        year: "numeric",
+      }),
+    [viewYear, viewMonth, locale],
+  );
+  const currentMonthLabel = months[viewMonth];
 
   const yearOptions = useMemo(() => {
     const start = Math.min(today.getFullYear(), viewYear) - 12;
@@ -205,8 +227,12 @@ export function Calendar({
         <button
           className={`${styles.navBtn} iconTooltipTrigger`}
           onClick={prevMonth}
-          aria-label="Previous month"
-          data-tooltip="Previous month"
+          aria-label={t("Previous month", {
+            $id: "calendar.aria.prevMonth",
+          })}
+          data-tooltip={t("Previous month", {
+            $id: "calendar.tooltip.prevMonth",
+          })}
           type="button"
         >
           <ChevronLeft size={16} />
@@ -247,21 +273,27 @@ export function Calendar({
               className={`${styles.monthPickerPanel} ${pickerMode === "year" ? styles.monthPickerPanelYear : styles.monthPickerPanelMonth}`}
               role="dialog"
               aria-label={
-                pickerMode === "month" ? "Choose month" : "Choose year"
+                pickerMode === "month"
+                  ? t("Choose month", { $id: "calendar.aria.chooseMonth" })
+                  : t("Choose year", { $id: "calendar.aria.chooseYear" })
               }
             >
               <div className={styles.monthPickerField}>
                 <span>
-                  {pickerMode === "month" ? "Choose month" : "Choose year"}
+                  {pickerMode === "month"
+                    ? t("Choose month", { $id: "calendar.chooseMonth" })
+                    : t("Choose year", { $id: "calendar.chooseYear" })}
                 </span>
 
                 {pickerMode === "month" ? (
                   <div
                     className={styles.monthOptions}
                     role="listbox"
-                    aria-label="Choose month"
+                    aria-label={t("Choose month", {
+                      $id: "calendar.listbox.month",
+                    })}
                   >
-                    {MONTHS.map((month, index) => {
+                    {months.map((month, index) => {
                       const isSelected = index === viewMonth;
 
                       return (
@@ -282,7 +314,9 @@ export function Calendar({
                   <div
                     className={styles.yearList}
                     role="listbox"
-                    aria-label="Choose year"
+                    aria-label={t("Choose year", {
+                      $id: "calendar.listbox.year",
+                    })}
                   >
                     {yearOptions.map((year) => {
                       const isSelected = year === viewYear;
@@ -310,14 +344,14 @@ export function Calendar({
                   className={styles.monthPickerAction}
                   onClick={goToday}
                 >
-                  Today
+                  {t("Today", { $id: "calendar.action.today" })}
                 </button>
                 <button
                   type="button"
                   className={`${styles.monthPickerAction} ${styles.monthPickerActionPrimary}`}
                   onClick={() => setPickerOpen(false)}
                 >
-                  Done
+                  {t("Done", { $id: "calendar.action.done" })}
                 </button>
               </div>
             </div>
@@ -326,8 +360,12 @@ export function Calendar({
         <button
           className={`${styles.navBtn} iconTooltipTrigger`}
           onClick={nextMonth}
-          aria-label="Next month"
-          data-tooltip="Next month"
+          aria-label={t("Next month", {
+            $id: "calendar.aria.nextMonth",
+          })}
+          data-tooltip={t("Next month", {
+            $id: "calendar.tooltip.nextMonth",
+          })}
           type="button"
         >
           <ChevronRight size={16} />
@@ -335,8 +373,8 @@ export function Calendar({
       </div>
 
       <div className={styles.weekdays}>
-        {WEEKDAYS.map((wd) => (
-          <span key={wd}>{wd}</span>
+        {weekdays.map((wd, i) => (
+          <span key={`calendar-wd-${i}`}>{wd}</span>
         ))}
       </div>
 

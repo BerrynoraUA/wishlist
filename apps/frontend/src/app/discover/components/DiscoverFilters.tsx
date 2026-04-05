@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT } from "gt-next";
 import styles from "./DiscoverFilters.module.scss";
 import { Sparkles, Heart, ShoppingCart } from "lucide-react";
 
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export function DiscoverFilters({ active, onChange }: Props) {
+  const t = useGT();
   return (
     <div className={styles.filters}>
       <button
@@ -16,21 +18,23 @@ export function DiscoverFilters({ active, onChange }: Props) {
         onClick={() => onChange("wishlists")}
       >
         <Sparkles size={16} />
-        <span>All Wishlists</span>
+        <span>
+          {t("All Wishlists", { $id: "discover.filters.allWishlists" })}
+        </span>
       </button>
       <button
         className={active === "reserved" ? styles.active : ""}
         onClick={() => onChange("reserved")}
       >
         <Heart size={16} />
-        <span>Reserved</span>
+        <span>{t("Reserved", { $id: "discover.filters.reserved" })}</span>
       </button>
       <button
         className={active === "purchased" ? styles.active : ""}
         onClick={() => onChange("purchased")}
       >
         <ShoppingCart size={16} />
-        <span>Purchased</span>
+        <span>{t("Purchased", { $id: "discover.filters.purchased" })}</span>
       </button>
     </div>
   );
