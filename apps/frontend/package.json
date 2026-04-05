@@ -17,7 +17,9 @@
     "test:e2e:secondary": "playwright test --config playwright.secondary.config.ts",
     "test:e2e:secondary:ui": "playwright test --config playwright.secondary.config.ts --ui",
     "test:e2e:secondary:update-snapshots": "playwright test --config playwright.secondary.config.ts --update-snapshots",
-    "gt:translate": "gtx-cli translate"
+    "gt:translate": "gtx-cli translate",
+    "gt:sync": "gtx-cli save-local",
+    "gt:sync:publish": "gtx-cli save-local --publish"
   },
   "dependencies": {
     "@paddle/paddle-js": "^1.6.2",
