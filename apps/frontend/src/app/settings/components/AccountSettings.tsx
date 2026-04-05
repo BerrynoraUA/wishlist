@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useGT } from "gt-next";
 import { useRouter } from "next/navigation";
 import { Mail, Key, Shield, Trash2, Check } from "lucide-react";
 import styles from "./AccountSettings.module.scss";
@@ -15,6 +16,7 @@ import {
 } from "@/hooks/use-settings";
 
 export function AccountSettings() {
+  const t = useGT();
   const { data: user } = useCurrentUser();
   const { data: provider } = useAuthProvider();
   const changePassword = useChangePassword();
@@ -32,12 +34,20 @@ export function AccountSettings() {
     setPasswordError("");
 
     if (newPassword.length < 6) {
-      setPasswordError("Password must be at least 6 characters");
+      setPasswordError(
+        t("Password must be at least 6 characters", {
+          $id: "settings.account.error.passwordMinLength",
+        }),
+      );
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordError("Passwords do not match");
+      setPasswordError(
+        t("Passwords do not match", {
+          $id: "settings.account.error.passwordsMismatch",
+        }),
+      );
       return;
     }
 
@@ -61,8 +71,11 @@ export function AccountSettings() {
     <>
       {/* Email */}
       <SettingsSection
-        title="Email Address"
-        description="Your account email used for login and notifications."
+        title={t("Email Address", { $id: "settings.account.emailTitle" })}
+        description={t(
+          "Your account email used for login and notifications.",
+          { $id: "settings.account.emailDescription" },
+        )}
       >
         <div className={styles.infoRow}>
           <div className={styles.infoIcon}>
@@ -71,7 +84,9 @@ export function AccountSettings() {
           <div>
             <p className={styles.infoValue}>{user?.email ?? "—"}</p>
             <p className={styles.infoHint}>
-              Email cannot be changed at this time
+              {t("Email cannot be changed at this time", {
+                $id: "settings.account.emailLockedHint",
+              })}
             </p>
           </div>
         </div>
@@ -79,11 +94,15 @@ export function AccountSettings() {
 
       {/* Password */}
       <SettingsSection
-        title="Password"
+        title={t("Password", { $id: "settings.account.passwordTitle" })}
         description={
           isOAuth
-            ? "You signed in with Google — no password to manage."
-            : "Change your account password."
+            ? t("You signed in with Google — no password to manage.", {
+                $id: "settings.account.passwordOAuthDescription",
+              })
+            : t("Change your account password.", {
+                $id: "settings.account.passwordDescription",
+              })
         }
       >
         {isOAuth ? (
@@ -92,29 +111,49 @@ export function AccountSettings() {
               <Shield size={18} />
             </div>
             <div>
-              <p className={styles.infoValue}>Google Account</p>
-              <p className={styles.infoHint}>Authenticated via Google OAuth</p>
+              <p className={styles.infoValue}>
+                {t("Google Account", {
+                  $id: "settings.account.googleAccount",
+                })}
+              </p>
+              <p className={styles.infoHint}>
+                {t("Authenticated via Google OAuth", {
+                  $id: "settings.account.googleOAuthHint",
+                })}
+              </p>
             </div>
           </div>
         ) : (
           <>
             <div className={styles.field}>
-              <label className={styles.label}>New Password</label>
+              <label className={styles.label}>
+                {t("New Password", {
+                  $id: "settings.account.newPasswordLabel",
+                })}
+              </label>
               <input
                 type="password"
                 className={styles.input}
-                placeholder="Enter new password"
+                placeholder={t("Enter new password", {
+                  $id: "settings.account.newPasswordPlaceholder",
+                })}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
               />
             </div>
 
             <div className={styles.field}>
-              <label className={styles.label}>Confirm Password</label>
+              <label className={styles.label}>
+                {t("Confirm Password", {
+                  $id: "settings.account.confirmPasswordLabel",
+                })}
+              </label>
               <input
                 type="password"
                 className={styles.input}
-                placeholder="Confirm new password"
+                placeholder={t("Confirm new password", {
+                  $id: "settings.account.confirmPasswordPlaceholder",
+                })}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
@@ -132,11 +171,18 @@ export function AccountSettings() {
                 }
               >
                 <Key size={14} />
-                {changePassword.isPending ? "Updating…" : "Update Password"}
+                {changePassword.isPending
+                  ? t("Updating…", { $id: "settings.account.updatingPassword" })
+                  : t("Update Password", {
+                      $id: "settings.account.updatePassword",
+                    })}
               </Button>
               {changePassword.isSuccess && (
                 <span className={styles.successMsg}>
-                  <Check size={14} /> Password updated
+                  <Check size={14} />{" "}
+                  {t("Password updated", {
+                    $id: "settings.account.passwordUpdated",
+                  })}
                 </span>
               )}
             </div>
@@ -146,8 +192,13 @@ export function AccountSettings() {
 
       {/* Linked Accounts */}
       <SettingsSection
-        title="Linked Accounts"
-        description="External accounts connected to your Wishly profile."
+        title={t("Linked Accounts", {
+          $id: "settings.account.linkedAccountsTitle",
+        })}
+        description={t(
+          "External accounts connected to your Wishly profile.",
+          { $id: "settings.account.linkedAccountsDescription" },
+        )}
       >
         <div className={styles.providerRow}>
           <div
@@ -173,9 +224,15 @@ export function AccountSettings() {
             </svg>
           </div>
           <div>
-            <p className={styles.providerName}>Google</p>
+            <p className={styles.providerName}>
+              {t("Google", { $id: "settings.account.providerGoogle" })}
+            </p>
             <p className={styles.providerStatus}>
-              {isOAuth ? "Connected" : "Not connected"}
+              {isOAuth
+                ? t("Connected", { $id: "settings.account.providerConnected" })
+                : t("Not connected", {
+                    $id: "settings.account.providerNotConnected",
+                  })}
             </p>
           </div>
         </div>
@@ -183,18 +240,22 @@ export function AccountSettings() {
 
       {/* Danger Zone */}
       <SettingsSection
-        title="Danger Zone"
-        description="Permanently delete your account and all associated data."
+        title={t("Danger Zone", { $id: "settings.account.dangerTitle" })}
+        description={t(
+          "Permanently delete your account and all associated data.",
+          { $id: "settings.account.dangerDescription" },
+        )}
         danger
       >
         <p className={styles.dangerText}>
-          This will permanently delete your profile, wishlists, items, friend
-          connections, notifications, and subscription. This action cannot be
-          undone.
+          {t(
+            "This will permanently delete your profile, wishlists, items, friend connections, notifications, and subscription. This action cannot be undone.",
+            { $id: "settings.account.dangerBody" },
+          )}
         </p>
         <Button variant="danger" onClick={() => setDeleteOpen(true)}>
           <Trash2 size={14} />
-          Delete Account
+          {t("Delete Account", { $id: "settings.account.deleteAccount" })}
         </Button>
       </SettingsSection>
 
@@ -202,9 +263,16 @@ export function AccountSettings() {
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         onConfirm={handleDeleteAccount}
-        title="Delete Account"
-        description="Are you absolutely sure? This will permanently delete your account, all wishlists, items, friends, and subscription data. This action cannot be undone."
-        confirmLabel="Delete My Account"
+        title={t("Delete Account", {
+          $id: "settings.account.deleteModalTitle",
+        })}
+        description={t(
+          "Are you absolutely sure? This will permanently delete your account, all wishlists, items, friends, and subscription data. This action cannot be undone.",
+          { $id: "settings.account.deleteModalDescription" },
+        )}
+        confirmLabel={t("Delete My Account", {
+          $id: "settings.account.deleteModalConfirm",
+        })}
         isPending={deleteAccount.isPending}
       />
     </>

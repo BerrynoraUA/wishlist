@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useGT } from "gt-next";
 import { Gift, Heart, ShoppingCart } from "lucide-react";
 import type { VisibleItem } from "@/api/types/secret-santa";
 import { useGiftSuggestions } from "@/hooks/use-secret-santa";
@@ -40,6 +41,7 @@ function toWishlistItem(item: VisibleItem): Item {
 }
 
 export function SecretSantaGiftSuggestions({ budget, receiverId }: Props) {
+  const t = useGT();
   const { data, isLoading } = useGiftSuggestions(receiverId, budget);
   const toggleReserve = useToggleItemReservationSecret();
   const toggleBought = useToggleItemBoughtSecret();
@@ -53,18 +55,30 @@ export function SecretSantaGiftSuggestions({ budget, receiverId }: Props) {
     <section className={styles.card}>
       <div className={styles.header}>
         <Gift size={16} />
-        <span>Gift ideas up to {budget}$</span>
+        <span>
+          {t("Gift ideas up to {budget}$", {
+            budget,
+            $id: "secretSanta.gifts.header",
+          })}
+        </span>
       </div>
 
       <p className={styles.description}>
-        Items from your receiver&apos;s wishlists that fit the event budget.
+        {t(
+          "Items from your receiver's wishlists that fit the event budget.",
+          { $id: "secretSanta.gifts.description" },
+        )}
       </p>
 
       {isLoading ? (
-        <div className={styles.placeholder}>Loading suggestions…</div>
+        <div className={styles.placeholder}>
+          {t("Loading suggestions…", { $id: "secretSanta.gifts.loading" })}
+        </div>
       ) : items.length === 0 ? (
         <div className={styles.placeholder}>
-          No matching items found in their wishlists.
+          {t("No matching items found in their wishlists.", {
+            $id: "secretSanta.gifts.empty",
+          })}
         </div>
       ) : (
         <div className={styles.scrollArea}>
@@ -75,12 +89,20 @@ export function SecretSantaGiftSuggestions({ budget, receiverId }: Props) {
             const isReserved = item.status === 1 || !!item.reserved_by;
             const reserveStatusLabel = isPurchased
               ? reservedByMe
-                ? "Purchased by you"
-                : "Purchased"
+                ? t("Purchased by you", {
+                    $id: "secretSanta.gifts.status.purchasedByYou",
+                  })
+                : t("Purchased", {
+                    $id: "secretSanta.gifts.status.purchased",
+                  })
               : isReserved
                 ? reservedByMe
-                  ? "Reserved by you"
-                  : "Reserved"
+                  ? t("Reserved by you", {
+                      $id: "secretSanta.gifts.status.reservedByYou",
+                    })
+                  : t("Reserved", {
+                      $id: "secretSanta.gifts.status.reserved",
+                    })
                 : null;
 
             return (
@@ -94,7 +116,11 @@ export function SecretSantaGiftSuggestions({ budget, receiverId }: Props) {
                   {item.image_url ? (
                     <img src={item.image_url} alt={item.name} />
                   ) : (
-                    <div className={styles.itemImagePlaceholder}>No image</div>
+                    <div className={styles.itemImagePlaceholder}>
+                      {t("No image", {
+                        $id: "secretSanta.gifts.noImage",
+                      })}
+                    </div>
                   )}
 
                   {reserveStatusLabel && (

@@ -1,3 +1,6 @@
+"use client";
+
+import { useGT } from "gt-next";
 import styles from "./StatCard.module.scss";
 import { Gift } from "lucide-react";
 
@@ -8,6 +11,7 @@ type Props = {
 };
 
 export function StatCard({ label, value, onClick }: Props) {
+  const t = useGT();
   const content = (
     <>
       <div className={styles.iconWrapper}>
@@ -27,7 +31,10 @@ export function StatCard({ label, value, onClick }: Props) {
         type="button"
         className={`${styles.card} ${styles.interactive}`}
         onClick={onClick}
-        aria-label={`Open ${label.toLowerCase()} in discover`}
+        aria-label={t("Open {label} in discover", {
+          label,
+          $id: "home.stats.aria.openInDiscover",
+        })}
       >
         {content}
       </button>

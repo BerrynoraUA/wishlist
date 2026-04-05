@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT } from "gt-next";
 import { useMemo, useState } from "react";
 import { WishlistCard } from "./WishlistCard";
 import styles from "./WishlistGrid.module.scss";
@@ -10,6 +11,7 @@ import { useSearchParams } from "next/navigation";
 const PAGE_SIZE = 8;
 
 export function WishlistGrid() {
+  const t = useGT();
   const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
   const search = useMemo(
@@ -28,12 +30,22 @@ export function WishlistGrid() {
 
   return (
     <div>
-      <h2 className={styles.title}>Wishlists</h2>
+      <h2 className={styles.title}>
+        {t("Wishlists", { $id: "home.wishlistGrid.title" })}
+      </h2>
       <div className={styles.grid}>
-        {isLoading && <p>Loading...</p>}
-        {isError && <p>Failed to load wishlists.</p>}
+        {isLoading && (
+          <p>{t("Loading...", { $id: "home.wishlistGrid.loading" })}</p>
+        )}
+        {isError && (
+          <p>
+            {t("Failed to load wishlists.", {
+              $id: "home.wishlistGrid.error",
+            })}
+          </p>
+        )}
         {!isLoading && !isError && wishlists.length === 0 && (
-          <p>No wishlists yet.</p>
+          <p>{t("No wishlists yet.", { $id: "home.wishlistGrid.empty" })}</p>
         )}
         {wishlists.map((w) => (
           <WishlistCard key={w.id} wishlist={w} />

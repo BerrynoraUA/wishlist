@@ -1,14 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useGT } from "gt-next";
 import styles from "./WishlistCard.module.scss";
 import { Wishlist } from "@/types/wishlist";
 import { Gift, Link2 } from "lucide-react";
-import {
-  getAccent,
-  visibilityIcon,
-  visibilityLabel,
-} from "@/lib/helpers/wishlist-helper";
+import { getAccent, visibilityIcon } from "@/lib/helpers/wishlist-helper";
+import { useWishlistVisibilityLabels } from "@/lib/helpers/use-wishlist-visibility-labels";
 
 type Props = {
   wishlist: Wishlist;
@@ -16,7 +14,9 @@ type Props = {
 };
 
 export function WishlistCard({ wishlist, showSharedMeta = true }: Props) {
+  const t = useGT();
   const router = useRouter();
+  const visibilityLabels = useWishlistVisibilityLabels();
 
   const accent = getAccent(wishlist.accent_type);
   const hasImage = Boolean(wishlist.image_url);
@@ -29,8 +29,11 @@ export function WishlistCard({ wishlist, showSharedMeta = true }: Props) {
   const isShared = showSharedMeta && wishlist.is_owner === false;
   const ownerNickname = wishlist.owner_nickname?.trim();
   const sharedTooltip = ownerNickname
-    ? `Shared by @${ownerNickname}`
-    : "Shared wishlist";
+    ? t("Shared by {name}", {
+        name: `@${ownerNickname}`,
+        $id: "wishlistCard.sharedBy"
+      })
+    : t("Shared wishlist", { $id: "wishlistCard.sharedWishlist" });
 
   return (
     <div
@@ -53,7 +56,7 @@ export function WishlistCard({ wishlist, showSharedMeta = true }: Props) {
             title={sharedTooltip}
           >
             <Link2 size={12} />
-            <span>Shared</span>
+            <span>{t("Shared", { $id: "wishlistCard.shared" })}</span>
             <span className={styles.sharedTooltip} role="tooltip">
               {sharedTooltip}
             </span>
@@ -66,11 +69,18 @@ export function WishlistCard({ wishlist, showSharedMeta = true }: Props) {
         <h3 className={styles.title}>{wishlist.title}</h3>
 
         <div className={styles.meta}>
-          <span className={styles.items}>{itemsCount} items</span>
+          <span className={styles.items}>
+            {itemsCount === 1
+              ? t("{n} item", { n: itemsCount, $id: "wishlist.itemCount.one" })
+              : t("{n} items", {
+                  n: itemsCount,
+                  $id: "wishlist.itemCount.other"
+                })}
+          </span>
 
           <span className={styles.visibility}>
             <VisibilityIcon size={14} />
-            {visibilityLabel[visibility]}
+            {visibilityLabels[visibility]}
           </span>
         </div>
       </div>

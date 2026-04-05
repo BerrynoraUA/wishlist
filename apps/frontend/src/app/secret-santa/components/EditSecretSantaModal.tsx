@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useUpdateSecretSantaEvent } from "@/hooks/use-secret-santa";
@@ -32,6 +33,7 @@ function EditSecretSantaForm({
   event: SecretSantaDetails;
   onClose: () => void;
 }) {
+  const t = useGT();
   const [name, setName] = useState(event.name ?? "");
   const [budget, setBudget] = useState(String(event.budget ?? ""));
   const [imagePreview, setImagePreview] = useState(event.image_url ?? "");
@@ -81,25 +83,40 @@ function EditSecretSantaForm({
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <h2>Edit Secret Santa Event</h2>
-            <p>Update the event details without changing participants.</p>
+            <h2>
+              {t("Edit Secret Santa Event", {
+                $id: "secretSanta.edit.title",
+              })}
+            </h2>
+            <p>
+              {t("Update the event details without changing participants.", {
+                $id: "secretSanta.edit.subtitle",
+              })}
+            </p>
           </div>
         </div>
 
         <div className={styles.field}>
-          <label>Event Name</label>
+          <label>
+            {t("Event Name", { $id: "secretSanta.edit.eventNameLabel" })}
+          </label>
           <input
-            placeholder="e.g. Office Christmas Party, Family Gift Exchange"
+            placeholder={t(
+              "e.g. Office Christmas Party, Family Gift Exchange",
+              { $id: "secretSanta.edit.eventNamePlaceholder" },
+            )}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
 
         <div className={styles.field}>
-          <label>Budget</label>
+          <label>{t("Budget", { $id: "secretSanta.edit.budgetLabel" })}</label>
           <input
             type="number"
-            placeholder="e.g. 25"
+            placeholder={t("e.g. 25", {
+              $id: "secretSanta.edit.budgetPlaceholder",
+            })}
             min="0"
             step="0.01"
             value={budget}
@@ -108,17 +125,27 @@ function EditSecretSantaForm({
         </div>
 
         <div className={styles.field}>
-          <label>Cover Image (optional)</label>
+          <label>
+            {t("Cover Image (optional)", {
+              $id: "secretSanta.edit.coverLabel",
+            })}
+          </label>
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
                 <img
                   src={imagePreview}
-                  alt="Event cover preview"
+                  alt={t("Event cover preview", {
+                    $id: "secretSanta.edit.coverAlt",
+                  })}
                   className={styles.preview}
                 />
               ) : (
-                <span>Drop an image or click to upload</span>
+                <span>
+                  {t("Drop an image or click to upload", {
+                    $id: "secretSanta.edit.coverDrop",
+                  })}
+                </span>
               )}
               <input
                 type="file"
@@ -132,13 +159,15 @@ function EditSecretSantaForm({
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose} disabled={isPending}>
-            Cancel
+            {t("Cancel", { $id: "secretSanta.edit.cancel" })}
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!name.trim() || !budget || isPending}
           >
-            {isPending ? "Saving..." : "Save Changes"}
+            {isPending
+              ? t("Saving...", { $id: "secretSanta.edit.saving" })
+              : t("Save Changes", { $id: "secretSanta.edit.save" })}
           </Button>
         </div>
       </div>

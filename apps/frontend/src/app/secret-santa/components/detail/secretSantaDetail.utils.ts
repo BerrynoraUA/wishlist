@@ -13,8 +13,8 @@ export function getAccentFromId(id: string): SecretSantaAccent {
   return accents[Math.abs(hash) % accents.length];
 }
 
-export function formatEventDate(dateStr: string) {
-  return new Date(`${dateStr}T00:00:00`).toLocaleDateString("en-US", {
+export function formatEventDate(dateStr: string, locale = "en") {
+  return new Date(`${dateStr}T00:00:00`).toLocaleDateString(locale, {
     month: "long",
     day: "numeric",
     year: "numeric",

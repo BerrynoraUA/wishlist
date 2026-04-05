@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef, Suspense } from "react";
+import { useGT } from "gt-next";
 import { useWishlistByToken, useWishlistItemsByToken } from "@/hooks/use-share";
 import { WishlistItemsGrid } from "../wishlist/components/WishlistItemsGrid";
 import { SharedWishlistHeader } from "./components/SharedWishlistHeader";
@@ -14,7 +15,17 @@ import styles from "../wishlist/[id]/WishlistPage.module.scss";
 
 const PAGE_SIZE = 12;
 
+function SharePageSuspenseFallback() {
+  const t = useGT();
+  return (
+    <main className={styles.page}>
+      <p>{t("Loading...", { $id: "common.loading" })}</p>
+    </main>
+  );
+}
+
 function SharedWishlistContent() {
+  const t = useGT();
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token") ?? "";
@@ -125,28 +136,34 @@ function SharedWishlistContent() {
   if (!token)
     return (
       <main className={styles.page}>
-        <p>Invalid share link.</p>
+        <p>{t("Invalid share link.", { $id: "share.page.invalidLink" })}</p>
       </main>
     );
 
   if (wishlistLoading || itemsLoading)
     return (
       <main className={styles.page}>
-        <p>Loading wishlist...</p>
+        <p>
+          {t("Loading wishlist...", { $id: "wishlist.page.loadingWishlist" })}
+        </p>
       </main>
     );
 
   if (wishlistError || itemsError)
     return (
       <main className={styles.page}>
-        <p>Failed to load shared wishlist.</p>
+        <p>
+          {t("Failed to load shared wishlist.", {
+            $id: "share.page.loadError",
+          })}
+        </p>
       </main>
     );
 
   if (!wishlist)
     return (
       <main className={styles.page}>
-        <p>Wishlist not found.</p>
+        <p>{t("Wishlist not found.", { $id: "share.page.notFound" })}</p>
       </main>
     );
 
@@ -154,7 +171,9 @@ function SharedWishlistContent() {
     <main className={styles.page}>
       <SharedWishlistHeader wishlist={wishlist} />
 
-      {items.length === 0 && <p>No items yet.</p>}
+      {items.length === 0 && (
+        <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>
+      )}
       {items.length > 0 && (
         <>
           <WishlistItemsGrid
@@ -190,13 +209,7 @@ function SharedWishlistContent() {
 
 export default function SharedWishlistPage() {
   return (
-    <Suspense
-      fallback={
-        <main className={styles.page}>
-          <p>Loading...</p>
-        </main>
-      }
-    >
+    <Suspense fallback={<SharePageSuspenseFallback />}>
       <SharedWishlistContent />
     </Suspense>
   );
