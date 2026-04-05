@@ -1,9 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * E2E tests use a mock Supabase server so no real database is needed.
- * The mock runs on :54321 and the Next.js dev server talks to it via
- * NEXT_PUBLIC_SUPABASE_URL.
+ * Runner 1 — Critical flows.
+ *
+ * Covers the most important user journeys: auth, core wishlist CRUD,
+ * friends, discovery, sharing, and navigation. These tests MUST pass
+ * for the app to provide its core value.
+ *
+ * Run with: npm run test:e2e:critical
  */
 
 const MOCK_SUPABASE_URL = "http://localhost:54321";
@@ -31,17 +35,26 @@ export default defineConfig({
       testMatch: /global-setup\.ts/,
     },
 
-    /* ── Anonymous tests (no login needed) ── */
+    /* ── Anonymous critical tests ── */
     {
       name: "anonymous",
       testMatch: /\/(landing|login)\.spec\.ts$/,
       use: { ...devices["Desktop Chrome"] },
     },
 
-    /* ── Authenticated tests ── */
+    /* ── Authenticated critical tests ── */
     {
       name: "chromium",
-      testIgnore: /\/(landing|login)\.spec\.ts$/,
+      testMatch: [
+        /\/home\.spec\.ts$/,
+        /\/wishlist\.spec\.ts$/,
+        /\/wishlist-crud\.spec\.ts$/,
+        /\/auth-redirect\.spec\.ts$/,
+        /\/friends\.spec\.ts$/,
+        /\/discover\.spec\.ts$/,
+        /\/share\.spec\.ts$/,
+        /\/navigation\.spec\.ts$/,
+      ],
       dependencies: ["setup"],
       use: {
         ...devices["Desktop Chrome"],

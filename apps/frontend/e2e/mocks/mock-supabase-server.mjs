@@ -319,6 +319,10 @@ const RPC_HANDLERS = {
   get_wishlist_by_share_token: () => MOCK_WISHLISTS[0],
   get_wishlist_items_by_share_token: () => MOCK_ITEMS,
   get_user_statistics: () => MOCK_STATISTICS,
+  list_secret_santa_events: () => ({ items: [], total: 0, limit: 8, offset: 0 }),
+  create_secret_santa_event: () => ({ id: "ss-001", name: "Office Christmas Party", event_date: "2026-12-25T00:00:00Z", budget: 25, image_url: null }),
+  get_secret_santa_details: () => null,
+  join_secret_santa_event: () => ({ success: true }),
 };
 
 /* ────── Mutable state (persists within a test run) ────── */
@@ -364,6 +368,10 @@ function handleTableQuery(tableName, url, method, body) {
       if (method === "DELETE") return null;
       if (method === "PATCH") return { success: true };
       return MOCK_NOTIFICATIONS;
+    case "secret_santa":
+      if (method === "DELETE") return null;
+      if (method === "PATCH") return { id: "ss-001", name: "Test Event", event_date: "2026-12-25T00:00:00Z", budget: 25 };
+      return [];
     default:
       return [];
   }
