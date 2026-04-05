@@ -9,7 +9,13 @@
     "lint": "eslint",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:update-snapshots": "playwright test --update-snapshots"
+    "test:e2e:update-snapshots": "playwright test --update-snapshots",
+    "test:e2e:critical": "playwright test --config playwright.critical.config.ts",
+    "test:e2e:critical:ui": "playwright test --config playwright.critical.config.ts --ui",
+    "test:e2e:critical:update-snapshots": "playwright test --config playwright.critical.config.ts --update-snapshots",
+    "test:e2e:secondary": "playwright test --config playwright.secondary.config.ts",
+    "test:e2e:secondary:ui": "playwright test --config playwright.secondary.config.ts --ui",
+    "test:e2e:secondary:update-snapshots": "playwright test --config playwright.secondary.config.ts --update-snapshots"
   },
   "dependencies": {
     "@paddle/paddle-js": "^1.6.2",
