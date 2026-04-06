@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT } from "gt-next";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import styles from "./login.module.scss";
@@ -34,9 +35,18 @@ function LoginPageContent() {
   );
 }
 
+function LoginPageFallback() {
+  const t = useGT();
+  return (
+    <main className={styles.page}>
+      <p>{t("Loading login...", { $id: "login.page.loading" })}</p>
+    </main>
+  );
+}
+
 export default function LoginPage() {
   return (
-    <Suspense fallback={<main className={styles.page}><p>Loading login...</p></main>}>
+    <Suspense fallback={<LoginPageFallback />}>
       <LoginPageContent />
     </Suspense>
   );

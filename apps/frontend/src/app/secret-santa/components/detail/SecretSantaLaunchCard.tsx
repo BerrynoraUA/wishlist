@@ -1,3 +1,6 @@
+"use client";
+
+import { useGT } from "gt-next";
 import { Button } from "@/components/ui/Button/Button";
 import { CircleDashed, Sparkles } from "lucide-react";
 import styles from "./SecretSantaLaunchCard.module.scss";
@@ -11,27 +14,33 @@ type Props = {
 
 export function SecretSantaLaunchCard({
   canLaunch,
-  pendingInvitesCount,
-  participantsCount,
   onLaunch,
 }: Props) {
+  const t = useGT();
 
   return (
     <section className={styles.card}>
       <div className={styles.header}>
         <CircleDashed size={16} />
-        <span>Launch event</span>
+        <span>
+          {t("Launch event", { $id: "secretSanta.launchCard.title" })}
+        </span>
       </div>
 
       <p>
-        Generate receivers for every accepted participant.
+        {t("Generate receivers for every accepted participant.", {
+          $id: "secretSanta.launchCard.description",
+        })}
       </p>
 
       <Button disabled={!canLaunch} onClick={onLaunch}>
         <Sparkles size={16} />
-        <span>Launch Secret Santa</span>
+        <span>
+          {t("Launch Secret Santa", {
+            $id: "secretSanta.launchCard.button",
+          })}
+        </span>
       </Button>
-
     </section>
   );
 }

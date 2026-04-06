@@ -2,17 +2,22 @@
 
 import styles from "../../wishlist/components/WishlistHeader.module.scss";
 import { Gift, Calendar } from "lucide-react";
+import { useGT, useLocale } from "gt-next";
+import { formatLocalizedShortDate } from "@/lib/helpers/format-localized-short-date";
 import { Wishlist } from "@/types/wishlist";
-import { getAccent } from "@/lib/helpers/wishlist-helper";
-import { visibilityLabel, visibilityIcon } from "@/lib/helpers/wishlist-helper";
+import { getAccent, visibilityIcon } from "@/lib/helpers/wishlist-helper";
+import { useWishlistVisibilityLabels } from "@/lib/helpers/use-wishlist-visibility-labels";
 
 type Props = {
   wishlist: Wishlist;
 };
 
 export function SharedWishlistHeader({ wishlist }: Props) {
+  const t = useGT();
+  const locale = useLocale();
+  const visibilityLabels = useWishlistVisibilityLabels();
   const accent = getAccent(wishlist.accent_type);
-  const visibility = visibilityLabel[wishlist.visibility_type] ?? "Private";
+  const visibility = visibilityLabels[wishlist.visibility_type];
   const VisibilityIcon = visibilityIcon[wishlist.visibility_type];
   const itemsCount = wishlist.items_count ?? 0;
   const description = wishlist.description ?? "";
@@ -37,16 +42,20 @@ export function SharedWishlistHeader({ wishlist }: Props) {
                     {visibility}
                   </span>
                   <span className={styles.countBadge}>
-                    {itemsCount} {itemsCount === 1 ? "item" : "items"}
+                    {itemsCount === 1
+                      ? t("{n} item", {
+                          n: itemsCount,
+                          $id: "wishlist.itemCount.one"
+                        })
+                      : t("{n} items", {
+                          n: itemsCount,
+                          $id: "wishlist.itemCount.other"
+                        })}
                   </span>
                   {eventDate && (
                     <span className={styles.dateBadge}>
                       <Calendar size={13} />
-                      {new Date(eventDate).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
+                      {formatLocalizedShortDate(eventDate, locale)}
                     </span>
                   )}
                 </div>

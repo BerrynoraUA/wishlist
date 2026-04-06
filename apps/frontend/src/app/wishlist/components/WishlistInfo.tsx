@@ -1,11 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useGT, useLocale } from "gt-next";
+import { formatLocalizedShortDate } from "@/lib/helpers/format-localized-short-date";
 import styles from "./WishlistInfo.module.scss";
 import { Button } from "@/components/ui/Button/Button";
 import { Calendar, Plus, Sparkles } from "lucide-react";
 import { Wishlist } from "@/types/wishlist";
-import { visibilityLabel, visibilityIcon } from "@/lib/helpers/wishlist-helper";
+import { visibilityIcon } from "@/lib/helpers/wishlist-helper";
+import { useWishlistVisibilityLabels } from "@/lib/helpers/use-wishlist-visibility-labels";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FREE_LIMITS } from "@/types/subscription";
 
@@ -17,16 +20,13 @@ type Props = {
   isOwner?: boolean;
 };
 
-export function WishlistInfo({
-  wishlist,
-  onAddItem,
-  onEdit,
-  onDelete,
-  isOwner = false,
-}: Props) {
+export function WishlistInfo({ wishlist, onAddItem }: Props) {
+  const t = useGT();
+  const locale = useLocale();
+  const visibilityLabels = useWishlistVisibilityLabels();
   const { isPro } = useSubscription();
   const router = useRouter();
-  const visibility = visibilityLabel[wishlist.visibility_type] ?? "Private";
+  const visibility = visibilityLabels[wishlist.visibility_type];
   const VisibilityIcon = visibilityIcon[wishlist.visibility_type];
   const itemsCount =
     wishlist.items_count ??
@@ -58,19 +58,29 @@ export function WishlistInfo({
           <div className={styles.ownerActions}>
             {!isPro && (
               <span className={styles.limitCounter}>
-                {itemsCount}/{FREE_LIMITS.maxItemsPerWishlist} items
+                {t("{current}/{max} items", {
+                  current: itemsCount,
+                  max: FREE_LIMITS.maxItemsPerWishlist,
+                  $id: "wishlist.header.limitCounter"
+                })}
               </span>
             )}
             <Button size="sm" onClick={handleAddItem}>
               {atItemLimit ? (
                 <>
                   <Sparkles size={14} />
-                  <span>Upgrade to Add</span>
+                  <span>
+                    {t("Upgrade to Add", {
+                      $id: "wishlist.header.upgradeToAdd"
+                    })}
+                  </span>
                 </>
               ) : (
                 <>
                   <Plus size={14} />
-                  <span>Add Item</span>
+                  <span>
+                    {t("Add Item", { $id: "wishlist.header.addItem" })}
+                  </span>
                 </>
               )}
             </Button>
@@ -84,16 +94,14 @@ export function WishlistInfo({
           {visibility}
         </span>
         <span className={styles.countBadge}>
-          {itemsCount} {itemsCount === 1 ? "item" : "items"}
+          {itemsCount === 1
+            ? t("{n} item", { n: itemsCount, $id: "wishlist.itemCount.one" })
+            : t("{n} items", { n: itemsCount, $id: "wishlist.itemCount.other" })}
         </span>
         {eventDate && (
           <span className={styles.dateBadge}>
             <Calendar size={13} />
-            {new Date(eventDate).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+            {formatLocalizedShortDate(eventDate, locale)}
           </span>
         )}
       </div>

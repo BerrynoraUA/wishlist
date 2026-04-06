@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT } from "gt-next";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardHeader } from "./components/DashboardHeader";
@@ -63,9 +64,18 @@ function HomePageContent() {
   );
 }
 
+function HomePageFallback() {
+  const t = useGT();
+  return (
+    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
+      <p>{t("Loading dashboard...", { $id: "home.page.loading" })}</p>
+    </main>
+  );
+}
+
 export default function HomePage() {
   return (
-    <Suspense fallback={<main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}><p>Loading dashboard...</p></main>}>
+    <Suspense fallback={<HomePageFallback />}>
       <HomePageContent />
     </Suspense>
   );

@@ -1,6 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import { Heart, ShoppingCart } from "lucide-react";
+import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import styles from "./ActionConfirmModal.module.scss";
@@ -20,61 +22,13 @@ type Props = {
   isPending?: boolean;
 };
 
-const ACTION_COPY: Record<
-  ItemActionConfirmType,
-  {
-    title: string;
-    description: (itemName?: string) => string;
-    confirmLabel: string;
-    confirmVariant: "primary" | "secondary" | "danger" | "success" | "accent";
-    toneClass: string;
-    icon: typeof Heart;
-  }
-> = {
-  reserve: {
-    title: "Reserve this gift?",
-    description: (itemName) =>
-      itemName
-        ? `This will reserve ${itemName} for you so other people know it is already taken.`
-        : "This will reserve this gift for you so other people know it is already taken.",
-    confirmLabel: "Reserve",
-    confirmVariant: "primary",
-    toneClass: "reserve",
-    icon: Heart,
-  },
-  unreserve: {
-    title: "Release reservation?",
-    description: (itemName) =>
-      itemName
-        ? `This will remove your reservation from ${itemName} and make it available again.`
-        : "This will remove your reservation and make the gift available again.",
-    confirmLabel: "Release",
-    confirmVariant: "danger",
-    toneClass: "unreserve",
-    icon: Heart,
-  },
-  purchase: {
-    title: "Mark as purchased?",
-    description: (itemName) =>
-      itemName
-        ? `This will mark ${itemName} as purchased by you.`
-        : "This will mark this gift as purchased by you.",
-    confirmLabel: "Mark purchased",
-    confirmVariant: "success",
-    toneClass: "purchase",
-    icon: ShoppingCart,
-  },
-  unpurchase: {
-    title: "Remove purchased status?",
-    description: (itemName) =>
-      itemName
-        ? `This will remove the purchased status from ${itemName}.`
-        : "This will remove the purchased status from this gift.",
-    confirmLabel: "Remove status",
-    confirmVariant: "danger",
-    toneClass: "unpurchase",
-    icon: ShoppingCart,
-  },
+type ActionMeta = {
+  title: string;
+  description: string;
+  confirmLabel: string;
+  confirmVariant: "primary" | "secondary" | "danger" | "success" | "accent";
+  toneClass: string;
+  icon: typeof Heart;
 };
 
 export function ActionConfirmModal({
@@ -83,9 +37,88 @@ export function ActionConfirmModal({
   onConfirm,
   action,
   itemName,
-  isPending = false,
+  isPending = false
 }: Props) {
-  const config = ACTION_COPY[action];
+  const t = useGT();
+
+  const config = useMemo((): ActionMeta => {
+    const name = itemName?.trim();
+    switch (action) {
+      case "reserve":
+        return {
+          title: t("Reserve this gift?", { $id: "action.reserve.title" }),
+          description: name
+            ? t(
+                "This will reserve {itemName} for you so other people know it is already taken.",
+                { itemName: name, $id: "action.reserve.bodyWithName" }
+              )
+            : t(
+                "This will reserve this gift for you so other people know it is already taken.",
+                { $id: "action.reserve.body" }
+              ),
+          confirmLabel: t("Reserve", { $id: "action.reserve.confirm" }),
+          confirmVariant: "primary",
+          toneClass: "reserve",
+          icon: Heart
+        };
+      case "unreserve":
+        return {
+          title: t("Release reservation?", { $id: "action.unreserve.title" }),
+          description: name
+            ? t(
+                "This will remove your reservation from {itemName} and make it available again.",
+                { itemName: name, $id: "action.unreserve.bodyWithName" }
+              )
+            : t(
+                "This will remove your reservation and make the gift available again.",
+                { $id: "action.unreserve.body" }
+              ),
+          confirmLabel: t("Release", { $id: "action.unreserve.confirm" }),
+          confirmVariant: "danger",
+          toneClass: "unreserve",
+          icon: Heart
+        };
+      case "purchase":
+        return {
+          title: t("Mark as purchased?", { $id: "action.purchase.title" }),
+          description: name
+            ? t("This will mark {itemName} as purchased by you.", {
+                itemName: name,
+                $id: "action.purchase.bodyWithName"
+              })
+            : t("This will mark this gift as purchased by you.", {
+                $id: "action.purchase.body"
+              }),
+          confirmLabel: t("Mark purchased", {
+            $id: "action.purchase.confirm"
+          }),
+          confirmVariant: "success",
+          toneClass: "purchase",
+          icon: ShoppingCart
+        };
+      case "unpurchase":
+        return {
+          title: t("Remove purchased status?", {
+            $id: "action.unpurchase.title"
+          }),
+          description: name
+            ? t("This will remove the purchased status from {itemName}.", {
+                itemName: name,
+                $id: "action.unpurchase.bodyWithName"
+              })
+            : t("This will remove the purchased status from this gift.", {
+                $id: "action.unpurchase.body"
+              }),
+          confirmLabel: t("Remove status", {
+            $id: "action.unpurchase.confirm"
+          }),
+          confirmVariant: "danger",
+          toneClass: "unpurchase",
+          icon: ShoppingCart
+        };
+    }
+  }, [action, itemName, t]);
+
   const Icon = config.icon;
 
   return (
@@ -103,18 +136,20 @@ export function ActionConfirmModal({
         </div>
 
         <h3 className={styles.title}>{config.title}</h3>
-        <p className={styles.description}>{config.description(itemName)}</p>
+        <p className={styles.description}>{config.description}</p>
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose} disabled={isPending}>
-            Cancel
+            {t("Cancel", { $id: "common.cancel" })}
           </Button>
           <Button
             variant={config.confirmVariant}
             onClick={onConfirm}
             disabled={isPending}
           >
-            {isPending ? "Please wait..." : config.confirmLabel}
+            {isPending
+              ? t("Please wait...", { $id: "common.pleaseWait" })
+              : config.confirmLabel}
           </Button>
         </div>
       </div>

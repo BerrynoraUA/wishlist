@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT } from "gt-next";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button/Button";
 import styles from "./DashboardHeader.module.scss";
@@ -7,7 +8,6 @@ import { Plus, Sparkles } from "lucide-react";
 import { useCurrentUser, useMyStatistics } from "@/hooks/use-user";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FREE_LIMITS } from "@/types/subscription";
-import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 
 function getDisplayName(nameSource?: {
   email?: string | null;
@@ -39,11 +39,16 @@ type Props = {
 };
 
 export function DashboardHeader({ onNewWishlist }: Props) {
+  const t = useGT();
   const { data: user } = useCurrentUser();
   const { data: stats } = useMyStatistics();
   const { isPro } = useSubscription();
   const router = useRouter();
-  const displayName = getDisplayName(user ?? undefined);
+  const rawDisplayName = getDisplayName(user ?? undefined);
+  const displayName =
+    rawDisplayName === "there"
+      ? t("there", { $id: "home.dashboard.greeting.fallbackName" })
+      : rawDisplayName;
 
   const wishlistCount = stats?.wishlists_count ?? 0;
   const atLimit = !isPro && wishlistCount >= FREE_LIMITS.maxWishlists;
@@ -59,28 +64,44 @@ export function DashboardHeader({ onNewWishlist }: Props) {
   return (
     <div className={styles.header}>
       <div>
-        <h1>Good afternoon, {displayName}</h1>
+        <h1>
+          {t("Good afternoon, {name}", {
+            name: displayName,
+            $id: "home.dashboard.greeting",
+          })}
+        </h1>
         <p>
-          Manage your wishlists and discover what your friends are wishing for.
+          {t(
+            "Manage your wishlists and discover what your friends are wishing for.",
+            { $id: "home.dashboard.subtitle" },
+          )}
         </p>
       </div>
 
       <div className={styles.actions}>
         {!isPro && (
           <span className={styles.limitCounter}>
-            {wishlistCount}/{FREE_LIMITS.maxWishlists} wishlists
+            {t("{current}/{max} wishlists", {
+              current: wishlistCount,
+              max: FREE_LIMITS.maxWishlists,
+              $id: "home.dashboard.wishlistLimit",
+            })}
           </span>
         )}
         <Button size="sm" onClick={handleNewWishlist}>
           {atLimit ? (
             <>
               <Sparkles size={18} />
-              <span>Upgrade to Add</span>
+              <span>
+                {t("Upgrade to Add", { $id: "home.dashboard.upgradeToAdd" })}
+              </span>
             </>
           ) : (
             <>
               <Plus size={18} />
-              <span>Add Wishlist</span>
+              <span>
+                {t("Add Wishlist", { $id: "home.dashboard.addWishlist" })}
+              </span>
             </>
           )}
         </Button>

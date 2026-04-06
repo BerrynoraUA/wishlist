@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useGT, useLocale } from "gt-next";
 import type { SecretSantaDetails } from "@/api/types/secret-santa";
 import {
   CalendarDays,
@@ -39,6 +40,8 @@ export function SecretSantaDetailHero({
   onEdit,
   onDelete,
 }: Props) {
+  const t = useGT();
+  const locale = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const showMenu = Boolean(onEdit || onDelete);
@@ -62,8 +65,22 @@ export function SecretSantaDetailHero({
             type="button"
             className={styles.actionButton}
             onClick={onCopyLink}
-            aria-label={copied ? "Invite link copied" : "Copy invite link"}
-            title={copied ? "Copied" : "Copy invite link"}
+            aria-label={
+              copied
+                ? t("Invite link copied", {
+                    $id: "secretSanta.hero.aria.linkCopied",
+                  })
+                : t("Copy invite link", {
+                    $id: "secretSanta.hero.aria.copyLink",
+                  })
+            }
+            title={
+              copied
+                ? t("Copied", { $id: "secretSanta.hero.title.copied" })
+                : t("Copy invite link", {
+                    $id: "secretSanta.hero.title.copyLink",
+                  })
+            }
           >
             {copied ? <Check size={15} /> : <Copy size={15} />}
           </button>
@@ -74,8 +91,12 @@ export function SecretSantaDetailHero({
                 type="button"
                 className={styles.actionButton}
                 onClick={() => setMenuOpen((prev) => !prev)}
-                aria-label="Event actions"
-                title="More options"
+                aria-label={t("Event actions", {
+                  $id: "secretSanta.hero.aria.eventActions",
+                })}
+                title={t("More options", {
+                  $id: "secretSanta.hero.title.moreOptions",
+                })}
               >
                 <MoreHorizontal size={15} />
               </button>
@@ -91,7 +112,9 @@ export function SecretSantaDetailHero({
                         onEdit();
                       }}
                     >
-                      <span>Edit</span>
+                      <span>
+                        {t("Edit", { $id: "secretSanta.hero.menu.edit" })}
+                      </span>
                     </button>
                   )}
                   {onDelete && (
@@ -103,7 +126,9 @@ export function SecretSantaDetailHero({
                         onDelete();
                       }}
                     >
-                      <span>Delete</span>
+                      <span>
+                        {t("Delete", { $id: "secretSanta.hero.menu.delete" })}
+                      </span>
                     </button>
                   )}
                 </div>
@@ -131,15 +156,21 @@ export function SecretSantaDetailHero({
         <div className={styles.badges}>
           <span className={styles.badge}>
             <CalendarDays size={14} />
-            {formatEventDate(event.event_date)}
+            {formatEventDate(event.event_date, locale ?? "en")}
           </span>
           <span className={styles.badge}>
             <DollarSign size={14} />
-            Budget {event.budget}
+            {t("Budget {amount}", {
+              amount: String(event.budget),
+              $id: "secretSanta.hero.budgetBadge",
+            })}
           </span>
           <span className={styles.badge}>
             <Users size={14} />
-            {totalPeople} people
+            {t("{count} people", {
+              count: totalPeople,
+              $id: "secretSanta.hero.peopleBadge",
+            })}
           </span>
         </div>
 
@@ -149,28 +180,48 @@ export function SecretSantaDetailHero({
             {isOwner && (
               <span className={styles.ownerPill}>
                 <Crown size={14} />
-                You are the owner
+                {t("You are the owner", {
+                  $id: "secretSanta.hero.ownerPill",
+                })}
               </span>
             )}
           </div>
           <p>
             {isOwner
-              ? "Track accepted participants, monitor pending invites, and get this exchange ready to launch."
-              : "See who joined the event, check the budget and date, and watch for your assigned receiver."}
+              ? t(
+                  "Track accepted participants, monitor pending invites, and get this exchange ready to launch.",
+                  { $id: "secretSanta.hero.descriptionOwner" },
+                )
+              : t(
+                  "See who joined the event, check the budget and date, and watch for your assigned receiver.",
+                  { $id: "secretSanta.hero.descriptionGuest" },
+                )}
           </p>
         </div>
 
         <div className={styles.summaryGrid}>
           <article className={styles.summaryCard}>
-            <span>Accepted participants</span>
+            <span>
+              {t("Accepted participants", {
+                $id: "secretSanta.hero.summary.accepted",
+              })}
+            </span>
             <strong>{event.participants.length}</strong>
           </article>
           <article className={styles.summaryCard}>
-            <span>Pending invites</span>
+            <span>
+              {t("Pending invites", {
+                $id: "secretSanta.hero.summary.pending",
+              })}
+            </span>
             <strong>{event.pending_invites.length}</strong>
           </article>
           <article className={styles.summaryCard}>
-            <span>Budget per person</span>
+            <span>
+              {t("Budget per person", {
+                $id: "secretSanta.hero.summary.budget",
+              })}
+            </span>
             <strong>{event.budget}</strong>
           </article>
         </div>

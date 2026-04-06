@@ -3,7 +3,17 @@
 import styles from "./ProfileMenu.module.scss";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, Crown, Settings, TreePine } from "lucide-react";
+import {
+  LogOut,
+  Crown,
+  Settings,
+  TreePine,
+  Languages,
+  ChevronDown,
+  Check,
+} from "lucide-react";
+import { useGT, useLocale, useLocales } from "gt-next";
+import { useSetLocale } from "gt-next/client";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { logout } from "@/api/login";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -14,12 +24,22 @@ type Props = {
   onOpen?: () => void;
 };
 
+const LOCALE_LABELS: Record<string, string> = {
+  en: "English",
+  uk: "Українська",
+};
+
 export function ProfileMenu({ onOpen }: Props) {
+  const t = useGT();
   const router = useRouter();
+  const locale = useLocale();
+  const locales = useLocales();
+  const setLocale = useSetLocale();
   const { isPro } = useSubscription();
   const { data: profile } = useProfile();
 
   const [open, setOpen] = useState(false);
+  const [languageListOpen, setLanguageListOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [userInitial, setUserInitial] = useState("S");
@@ -42,6 +62,10 @@ export function ProfileMenu({ onOpen }: Props) {
   }, []);
 
   useEffect(() => {
+    if (!open) setLanguageListOpen(false);
+  }, [open]);
+
+  useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
@@ -58,8 +82,8 @@ export function ProfileMenu({ onOpen }: Props) {
       await logout();
       setOpen(false);
       router.push("/login");
-    } catch (error) {
-      console.error("Failed to logout", error);
+    } catch {
+      /* logout failed — user can retry */
     } finally {
       setIsLoggingOut(false);
     }
@@ -81,6 +105,9 @@ export function ProfileMenu({ onOpen }: Props) {
     .charAt(0)
     .toUpperCase();
 
+  const activeLocale = locale ?? locales[0] ?? "en";
+  const localeOptions = locales?.length ? locales : ["en", "uk"];
+
   return (
     <div className={styles.profile} ref={ref}>
       <button
@@ -90,7 +117,11 @@ export function ProfileMenu({ onOpen }: Props) {
       >
         {avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={avatarUrl} alt="Avatar" className={styles.avatarImg} />
+          <img
+            src={avatarUrl}
+            alt={t("Avatar", { $id: "profile.avatarAlt" })}
+            className={styles.avatarImg}
+          />
         ) : (
           displayInitial
         )}
@@ -109,7 +140,7 @@ export function ProfileMenu({ onOpen }: Props) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={avatarUrl}
-                  alt="Avatar"
+                  alt={t("Avatar", { $id: "profile.avatarAlt" })}
                   className={styles.avatarImg}
                 />
               ) : (
@@ -117,14 +148,79 @@ export function ProfileMenu({ onOpen }: Props) {
               )}
             </div>
             <div className={styles.profileMeta}>
-              <span className={styles.profileName}>Account</span>
+              <span className={styles.profileName}>
+                {t("Account", { $id: "profile.account" })}
+              </span>
               <span
                 className={styles.profileEmail}
                 title={userEmail || undefined}
               >
-                {userEmail || "Signed in"}
+                {userEmail || t("Signed in", { $id: "profile.signedIn" })}
               </span>
             </div>
+          </div>
+
+          <div className={styles.languageSection}>
+            <button
+              type="button"
+              className={styles.languageButton}
+              aria-expanded={languageListOpen}
+              aria-controls="profile-language-list"
+              id="profile-language-trigger"
+              onClick={() => setLanguageListOpen((v) => !v)}
+            >
+              <Languages size={16} aria-hidden />
+              <span className={styles.languageButtonLabel}>
+                {t("Language", { $id: "profile.language" })}
+              </span>
+              <ChevronDown
+                size={16}
+                aria-hidden
+                className={
+                  languageListOpen
+                    ? `${styles.languageChevron} ${styles.languageChevronOpen}`
+                    : styles.languageChevron
+                }
+              />
+            </button>
+            {languageListOpen && (
+              <ul
+                id="profile-language-list"
+                className={styles.languageList}
+                role="listbox"
+                aria-labelledby="profile-language-trigger"
+              >
+                {localeOptions.map((code) => {
+                  const selected = activeLocale === code;
+                  return (
+                    <li key={code} className={styles.languageListItem}>
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={selected}
+                        className={styles.languageOption}
+                        onClick={() => {
+                          setLocale(code);
+                          router.refresh();
+                          setLanguageListOpen(false);
+                        }}
+                      >
+                        <span
+                          className={styles.languageCheckbox}
+                          aria-hidden
+                          data-selected={selected}
+                        >
+                          {selected ? (
+                            <Check size={12} strokeWidth={3} />
+                          ) : null}
+                        </span>
+                        <span>{LOCALE_LABELS[code] ?? code}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
 
           <button
@@ -136,7 +232,7 @@ export function ProfileMenu({ onOpen }: Props) {
             }}
           >
             <Crown size={16} />
-            <span>Subscription</span>
+            <span>{t("Subscription", { $id: "profile.subscription" })}</span>
             {isPro && <ProBadge size="sm" />}
           </button>
 
@@ -149,7 +245,7 @@ export function ProfileMenu({ onOpen }: Props) {
             }}
           >
             <TreePine size={16} />
-            <span>Secret Santa</span>
+            <span>{t("Secret Santa", { $id: "profile.secretSanta" })}</span>
           </button>
 
           <button
@@ -161,7 +257,7 @@ export function ProfileMenu({ onOpen }: Props) {
             }}
           >
             <Settings size={16} />
-            <span>Settings</span>
+            <span>{t("Settings", { $id: "profile.settings" })}</span>
           </button>
 
           <button
@@ -171,7 +267,11 @@ export function ProfileMenu({ onOpen }: Props) {
             disabled={isLoggingOut}
           >
             <LogOut size={16} />
-            <span>{isLoggingOut ? "Logging out..." : "Log out"}</span>
+            <span>
+              {isLoggingOut
+                ? t("Logging out...", { $id: "profile.loggingOut" })
+                : t("Log out", { $id: "profile.logOut" })}
+            </span>
           </button>
         </div>
       )}

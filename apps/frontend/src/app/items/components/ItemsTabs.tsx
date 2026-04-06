@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT } from "gt-next";
 import styles from "./ItemsTabs.module.scss";
 
 type Props = {
@@ -9,20 +10,22 @@ type Props = {
 };
 
 export function ItemsTabs({ active, previewCount, onChange }: Props) {
+  const t = useGT();
   return (
     <div className={styles.tabs}>
       <button
         className={active === "add" ? styles.active : ""}
         onClick={() => onChange("add")}
       >
-        Add Link
+        {t("Add Link", { $id: "items.tabs.addLink" })}
       </button>
 
       <button
         className={active === "preview" ? styles.active : ""}
         onClick={() => onChange("preview")}
       >
-        Preview <span className={styles.badge}>{previewCount}</span>
+        {t("Preview", { $id: "items.tabs.preview" })}{" "}
+        <span className={styles.badge}>{previewCount}</span>
       </button>
     </div>
   );

@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "branchId": "",
+  "entries": [
+    {
+      "fileId": "879f3a5f954ee8b75bf1e91f4ea9916b41c933e5beba7eb6362647a637c9c66d",
+      "versionId": "fff4d3ba46636ef7035186e08ddc3a2153336e384216c974a2a68b76ee9c57b6",
+      "translations": {
+        "uk": {
+          "updatedAt": "2026-04-05T21:44:50.611Z",
+          "fileName": "C:\\Users\\roman\\source\\repos\\wishlist\\apps\\frontend\\public\\_gt\\uk.json",
+          "postProcessHash": "8d5db11611f62cc16da4e4d4e3147961e728ab2c883f449c5d24554fff04cfd3"
+        }
+      },
+      "fileName": "__INTERNAL_GT_TEMPLATE_NAME__",
+      "staged": false
+    }
+  ]
+}

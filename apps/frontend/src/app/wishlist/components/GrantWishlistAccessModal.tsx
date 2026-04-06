@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useGT } from "gt-next";
 import {
   Check,
   ChevronDown,
@@ -32,26 +33,6 @@ type Props = {
   wishlistTitle: string;
 };
 
-const ACCESS_OPTIONS: Array<{
-  value: AccessType;
-  label: string;
-  description: string;
-  icon: typeof Shield;
-}> = [
-  {
-    value: 0,
-    label: "View access",
-    description: "Can open and follow updates.",
-    icon: Shield,
-  },
-  {
-    value: 1,
-    label: "Edit access",
-    description: "Can add and manage items.",
-    icon: SquarePen,
-  },
-];
-
 const FRIEND_PAGE_SIZE = 100;
 
 export function GrantWishlistAccessModal({
@@ -60,6 +41,7 @@ export function GrantWishlistAccessModal({
   wishlistId,
   wishlistTitle,
 }: Props) {
+  const t = useGT();
   const [query, setQuery] = useState("");
   const [selectedFriend, setSelectedFriend] =
     useState<ProfileSearchResult | null>(null);
@@ -84,6 +66,29 @@ export function GrantWishlistAccessModal({
   } = useWishlistAccessList(wishlistId);
   const grantAccess = useGrantWishlistAccess();
   const revokeAccess = useRevokeWishlistAccess();
+
+  const accessOptions = useMemo(
+    () =>
+      [
+        {
+          value: 0 as const,
+          label: t("View access", { $id: "wishlist.grantAccess.viewLabel" }),
+          description: t("Can open and follow updates.", {
+            $id: "wishlist.grantAccess.viewDescription",
+          }),
+          icon: Shield,
+        },
+        {
+          value: 1 as const,
+          label: t("Edit access", { $id: "wishlist.grantAccess.editLabel" }),
+          description: t("Can add and manage items.", {
+            $id: "wishlist.grantAccess.editDescription",
+          }),
+          icon: SquarePen,
+        },
+      ] as const,
+    [t],
+  );
 
   useEffect(() => {
     if (!open) {
@@ -119,14 +124,22 @@ export function GrantWishlistAccessModal({
       onClose();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to grant access.";
+        error instanceof Error
+          ? error.message
+          : t("Failed to grant access.", {
+              $id: "wishlist.grantAccess.grantFailedFallback",
+            });
       setErrorMessage(message);
     }
   }
 
   async function handleRevokeAccess(targetUserId: string) {
     if (!targetUserId) {
-      setErrorMessage("Missing target user id for revoke access.");
+      setErrorMessage(
+        t("Missing target user id for revoke access.", {
+          $id: "wishlist.grantAccess.revokeMissingUser",
+        }),
+      );
       return;
     }
 
@@ -139,28 +152,49 @@ export function GrantWishlistAccessModal({
       });
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to revoke access.";
+        error instanceof Error
+          ? error.message
+          : t("Failed to revoke access.", {
+              $id: "wishlist.grantAccess.revokeFailedFallback",
+            });
       setErrorMessage(message);
     }
   }
+
+  const accessRoleLabel = (role: string) =>
+    role === "editor"
+      ? t("Editor", { $id: "wishlist.grantAccess.roleEditor" })
+      : role === "viewer"
+        ? t("Viewer", { $id: "wishlist.grantAccess.roleViewer" })
+        : role;
 
   return (
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <p className={styles.eyebrow}>Access control</p>
-          <h2>Grant wishlist access</h2>
+          <p className={styles.eyebrow}>
+            {t("Access control", { $id: "wishlist.grantAccess.eyebrow" })}
+          </p>
+          <h2>
+            {t("Grant wishlist access", { $id: "wishlist.grantAccess.title" })}
+          </h2>
           <p className={styles.description}>
-            Pick a friend and choose whether they can view or edit.
+            {t("Pick a friend and choose whether they can view or edit.", {
+              $id: "wishlist.grantAccess.subtitle",
+            })}
           </p>
           <div className={styles.titleCard}>
-            <span className={styles.titleLabel}>Wishlist</span>
+            <span className={styles.titleLabel}>
+              {t("Wishlist", { $id: "wishlist.grantAccess.wishlistLabel" })}
+            </span>
             <strong className={styles.inlineTitle}>{wishlistTitle}</strong>
           </div>
         </div>
 
         <div className={styles.section}>
-          <label className={styles.label}>Choose a friend</label>
+          <label className={styles.label}>
+            {t("Choose a friend", { $id: "wishlist.grantAccess.chooseFriend" })}
+          </label>
           <div className={styles.searchField}>
             <Search size={16} />
             <input
@@ -172,15 +206,25 @@ export function GrantWishlistAccessModal({
                 setErrorMessage(null);
               }}
               onFocus={() => setDropdownOpen(true)}
-              placeholder="Search among your friends"
+              placeholder={t("Search among your friends", {
+                $id: "wishlist.grantAccess.searchPlaceholder",
+              })}
             />
             <button
               type="button"
               className={`${styles.chevronButton} iconTooltipTrigger`}
               onClick={() => setDropdownOpen((prev) => !prev)}
-              aria-label="Toggle friend list"
+              aria-label={t("Toggle friend list", {
+                $id: "wishlist.grantAccess.toggleFriendList",
+              })}
               data-tooltip={
-                dropdownOpen ? "Hide friend list" : "Show friend list"
+                dropdownOpen
+                  ? t("Hide friend list", {
+                      $id: "wishlist.grantAccess.hideFriendList",
+                    })
+                  : t("Show friend list", {
+                      $id: "wishlist.grantAccess.showFriendList",
+                    })
               }
             >
               <ChevronDown
@@ -194,13 +238,19 @@ export function GrantWishlistAccessModal({
                 {friendsLoading && (
                   <div className={styles.emptyState}>
                     <Loader2 size={16} className={styles.spinner} />
-                    <span>Loading friends...</span>
+                    <span>
+                      {t("Loading friends...", {
+                        $id: "wishlist.grantAccess.loadingFriends",
+                      })}
+                    </span>
                   </div>
                 )}
 
                 {!friendsLoading && friendsError && (
                   <div className={styles.emptyState}>
-                    Could not load your friends right now.
+                    {t("Could not load your friends right now.", {
+                      $id: "wishlist.grantAccess.friendsLoadError",
+                    })}
                   </div>
                 )}
 
@@ -208,7 +258,9 @@ export function GrantWishlistAccessModal({
                   !friendsError &&
                   filteredFriends.length === 0 && (
                     <div className={styles.emptyState}>
-                      No matching friends found.
+                      {t("No matching friends found.", {
+                        $id: "wishlist.grantAccess.noMatchingFriends",
+                      })}
                     </div>
                   )}
 
@@ -236,7 +288,9 @@ export function GrantWishlistAccessModal({
                               @{friend.nickname}
                             </span>
                             <span className={styles.resultNickname}>
-                              No access yet
+                              {t("No access yet", {
+                                $id: "wishlist.grantAccess.noAccessYet",
+                              })}
                             </span>
                           </div>
                         </button>
@@ -255,7 +309,11 @@ export function GrantWishlistAccessModal({
                 </div>
                 <div>
                   <p>@{selectedFriend.nickname}</p>
-                  <span>Ready to grant access</span>
+                  <span>
+                    {t("Ready to grant access", {
+                      $id: "wishlist.grantAccess.readyToGrant",
+                    })}
+                  </span>
                 </div>
               </div>
               <button
@@ -267,7 +325,7 @@ export function GrantWishlistAccessModal({
                   setDropdownOpen(true);
                 }}
               >
-                Change
+                {t("Change", { $id: "wishlist.grantAccess.changeFriend" })}
               </button>
             </div>
           )}
@@ -275,10 +333,17 @@ export function GrantWishlistAccessModal({
 
         <div className={styles.section}>
           <div className={styles.sectionHeading}>
-            <label className={styles.label}>People with access</label>
+            <label className={styles.label}>
+              {t("People with access", {
+                $id: "wishlist.grantAccess.peopleWithAccess",
+              })}
+            </label>
             {!accessListLoading && accessList.length > 0 && (
               <span className={styles.sectionMeta}>
-                {accessList.length} total
+                {t("{n} total", {
+                  n: accessList.length,
+                  $id: "wishlist.grantAccess.accessTotal",
+                })}
               </span>
             )}
           </div>
@@ -287,20 +352,30 @@ export function GrantWishlistAccessModal({
             {accessListLoading && (
               <div className={styles.emptyState}>
                 <Loader2 size={16} className={styles.spinner} />
-                <span>Loading access list...</span>
+                <span>
+                  {t("Loading access list...", {
+                    $id: "wishlist.grantAccess.loadingAccessList",
+                  })}
+                </span>
               </div>
             )}
 
             {!accessListLoading && accessListError && (
               <div className={styles.emptyState}>
-                Could not load wishlist access right now.
+                {t("Could not load wishlist access right now.", {
+                  $id: "wishlist.grantAccess.accessListError",
+                })}
               </div>
             )}
 
             {!accessListLoading &&
               !accessListError &&
               accessList.length === 0 && (
-                <div className={styles.emptyState}>No one has access yet.</div>
+                <div className={styles.emptyState}>
+                  {t("No one has access yet.", {
+                    $id: "wishlist.grantAccess.noOneHasAccess",
+                  })}
+                </div>
               )}
 
             {!accessListLoading &&
@@ -319,12 +394,16 @@ export function GrantWishlistAccessModal({
                           </div>
                           <div>
                             <p>@{user.nickname}</p>
-                            <span>Already has access</span>
+                            <span>
+                              {t("Already has access", {
+                                $id: "wishlist.grantAccess.alreadyHasAccess",
+                              })}
+                            </span>
                           </div>
                         </div>
                         <div className={styles.accessUserActions}>
                           <span className={styles.roleBadge}>
-                            {user.access_role}
+                            {accessRoleLabel(user.access_role)}
                           </span>
                           <button
                             type="button"
@@ -335,8 +414,14 @@ export function GrantWishlistAccessModal({
                               revokeAccess.variables?.targetUserId ===
                                 targetUserId
                             }
-                            aria-label={`Revoke access for @${user.nickname}`}
-                            data-tooltip={`Revoke access for @${user.nickname}`}
+                            aria-label={t("Revoke access for {handle}", {
+                              handle: `@${user.nickname}`,
+                              $id: "wishlist.grantAccess.revokeAria",
+                            })}
+                            data-tooltip={t("Revoke access for {handle}", {
+                              handle: `@${user.nickname}`,
+                              $id: "wishlist.grantAccess.revokeTooltip",
+                            })}
                           >
                             {revokeAccess.isPending &&
                             revokeAccess.variables?.targetUserId ===
@@ -356,9 +441,11 @@ export function GrantWishlistAccessModal({
         </div>
 
         <div className={styles.section}>
-          <label className={styles.label}>Access level</label>
+          <label className={styles.label}>
+            {t("Access level", { $id: "wishlist.grantAccess.accessLevel" })}
+          </label>
           <div className={styles.accessGrid}>
-            {ACCESS_OPTIONS.map((option) => {
+            {accessOptions.map((option) => {
               const Icon = option.icon;
               const active = accessType === option.value;
 
@@ -393,10 +480,16 @@ export function GrantWishlistAccessModal({
             onClick={onClose}
             disabled={grantAccess.isPending}
           >
-            Cancel
+            {t("Cancel", { $id: "common.cancel" })}
           </Button>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
-            {grantAccess.isPending ? "Granting access..." : "Confirm access"}
+            {grantAccess.isPending
+              ? t("Granting access...", {
+                  $id: "wishlist.grantAccess.granting",
+                })
+              : t("Confirm access", {
+                  $id: "wishlist.grantAccess.confirmAccess",
+                })}
           </Button>
         </div>
       </div>

@@ -1,15 +1,15 @@
+"use client";
+
 import { useMemo, useRef, useState } from "react";
+import { useGT } from "gt-next";
 import { useFriendsUpcomingWishlists } from "@/hooks/use-wishlists";
 import styles from "./UpcomingEvents.module.scss";
-import {
-  getDaysUntil,
-  formatShortDate,
-  getDaysText,
-} from "@/lib/helpers/discover-helper";
+import { getDaysUntil } from "@/lib/helpers/discover-helper";
 import { CalendarDays } from "lucide-react";
 import { EventsCalendar } from "./EventsCalendar";
 
 export function UpcomingEvents() {
+  const t = useGT();
   const { data: upcomingWishlists, isLoading } = useFriendsUpcomingWishlists();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const iconRef = useRef<HTMLButtonElement | null>(null);
@@ -25,11 +25,32 @@ export function UpcomingEvents() {
   const firstEvent = sortedUpcomingWishlists[0];
   const visibleUpcomingWishlists = sortedUpcomingWishlists.slice(0, 4);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return <div>{t("Loading...", { $id: "discover.upcoming.loading" })}</div>;
+  }
   if (!firstEvent) return null;
 
   const daysUntil = getDaysUntil(firstEvent.event_date);
-  const title = `${firstEvent.friend_name}'s ${firstEvent.wishlist_title} is ${getDaysText(daysUntil)}`;
+  const when =
+    daysUntil === 0
+      ? t("today", { $id: "discover.upcoming.today" })
+      : daysUntil === 1
+        ? t("tomorrow", { $id: "discover.upcoming.tomorrow" })
+        : daysUntil < 0
+          ? t("{days} days ago", {
+              days: Math.abs(daysUntil),
+              $id: "discover.upcoming.daysAgo",
+            })
+          : t("in {days} days", {
+              days: daysUntil,
+              $id: "discover.upcoming.inDays",
+            });
+  const title = t("{friendName}'s {wishlistTitle} is {when}", {
+    friendName: firstEvent.friend_name,
+    wishlistTitle: firstEvent.wishlist_title,
+    when,
+    $id: "discover.upcoming.headline",
+  });
 
   return (
     <div className={`${styles.card} ${calendarOpen ? styles.cardOpen : ""}`}>
@@ -39,8 +60,12 @@ export function UpcomingEvents() {
             ref={iconRef}
             className={`${styles.iconCircle} ${calendarOpen ? styles.iconCircleActive : ""} iconTooltipTrigger`}
             onClick={() => setCalendarOpen((v) => !v)}
-            aria-label="Open events calendar"
-            data-tooltip="Open events calendar"
+            aria-label={t("Open events calendar", {
+              $id: "discover.upcoming.calendarAria",
+            })}
+            data-tooltip={t("Open events calendar", {
+              $id: "discover.upcoming.calendarTooltip",
+            })}
           >
             <CalendarDays size={18} />
           </button>
@@ -53,7 +78,9 @@ export function UpcomingEvents() {
           />
         </div>
         <div>
-          <strong>Upcoming Events</strong>
+          <strong>
+            {t("Upcoming Events", { $id: "discover.upcoming.sectionTitle" })}
+          </strong>
           <p>{title}</p>
         </div>
       </div>
@@ -61,7 +88,14 @@ export function UpcomingEvents() {
       <div className={styles.dates}>
         {visibleUpcomingWishlists.map((event) => (
           <span key={event.wishlist_id}>
-            {event.friend_name} · {formatShortDate(event.event_date)}
+            {t("{friendName} · {date}", {
+              friendName: event.friend_name,
+              date: new Date(event.event_date).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+              }),
+              $id: "discover.upcoming.dateRow",
+            })}
           </span>
         ))}
       </div>

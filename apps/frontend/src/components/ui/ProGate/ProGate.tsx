@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Lock, Sparkles } from "lucide-react";
+import { useGT } from "gt-next";
 import styles from "./ProGate.module.scss";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Button } from "@/components/ui/Button/Button";
@@ -16,12 +17,15 @@ type Props = {
  * Wraps children with a blurred lock overlay when the user is on the Free plan.
  * If the user is Pro, renders children normally.
  */
-export function ProGate({
-  children,
-  message = "Upgrade to Pro to unlock this feature",
-}: Props) {
+export function ProGate({ children, message }: Props) {
+  const t = useGT();
   const { isPro, isLoading } = useSubscription();
   const router = useRouter();
+  const resolvedMessage =
+    message ??
+    t("Upgrade to Pro to unlock this feature", {
+      $id: "proGate.defaultMessage"
+    });
 
   if (isLoading || isPro) {
     return <>{children}</>;
@@ -35,13 +39,13 @@ export function ProGate({
           <div className={styles.iconWrapper}>
             <Lock size={22} />
           </div>
-          <p className={styles.message}>{message}</p>
+          <p className={styles.message}>{resolvedMessage}</p>
           <Button
             variant="primary"
             onClick={() => router.push("/subscription")}
           >
             <Sparkles size={16} />
-            Upgrade to Pro
+            {t("Upgrade to Pro", { $id: "proGate.upgradeCta" })}
           </Button>
         </div>
       </div>

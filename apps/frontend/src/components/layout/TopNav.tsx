@@ -3,20 +3,16 @@
 import styles from "./TopNav.module.scss";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Gift, Users, Heart, Search } from "lucide-react";
+import { useGT } from "gt-next";
 import { ProfileMenu } from "../profile/ProfileMenu";
 import { NotificationsMenu } from "../notifications/NotificationsMenu";
 import { ThemeToggle } from "./ThemeToggle";
 
-const navItems = [
-  { label: "My Wishlists", href: "/home", icon: <Gift size={16} /> },
-  { label: "Friends", href: "/friends", icon: <Users size={16} /> },
-  { label: "Discover", href: "/discover", icon: <Heart size={16} /> },
-];
-
 export function TopNav() {
+  const t = useGT();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -24,14 +20,35 @@ export function TopNav() {
   const previousSearchModeRef = useRef<"home" | "friends" | "discover" | null>(null);
   const discoverTab = searchParams.get("tab");
 
+  const navItems = useMemo(
+    () => [
+      {
+        label: t("My Wishlists", { $id: "nav.myWishlists" }),
+        href: "/home",
+        icon: <Gift size={16} />
+      },
+      {
+        label: t("Friends", { $id: "nav.friends" }),
+        href: "/friends",
+        icon: <Users size={16} />
+      },
+      {
+        label: t("Discover", { $id: "nav.discover" }),
+        href: "/discover",
+        icon: <Heart size={16} />
+      }
+    ],
+    [t]
+  );
+
   const searchMode =
     pathname === "/home"
       ? "home"
       : pathname === "/discover"
         ? "discover"
-      : pathname === "/friends"
-        ? "friends"
-        : null;
+        : pathname === "/friends"
+          ? "friends"
+          : null;
   const isSearchVisible = searchMode !== null;
   const activeSearchKey =
     searchMode === "discover"
@@ -41,6 +58,16 @@ export function TopNav() {
           ? "purchasedSearch"
           : "discoverSearch"
       : "search";
+
+  const searchPlaceholder = useMemo(() => {
+    if (searchMode === "friends") {
+      return t("Search friends...", { $id: "nav.searchFriends" });
+    }
+    if (searchMode === "discover") {
+      return t("Search discover...", { $id: "nav.searchDiscover" });
+    }
+    return t("Search wishlists...", { $id: "nav.searchWishlists" });
+  }, [searchMode, t]);
 
   function clearSearchParams(params: URLSearchParams) {
     params.delete("search");
@@ -55,7 +82,7 @@ export function TopNav() {
       const params = new URLSearchParams(searchParams.toString());
       clearSearchParams(params);
       router.replace(params.toString() ? `${pathname}?${params.toString()}` : pathname, {
-        scroll: false,
+        scroll: false
       });
       setQuery("");
     }
@@ -78,7 +105,7 @@ export function TopNav() {
           <div className={styles.logoIcon}>
             <Gift size={16} />
           </div>
-          <span>Wishly</span>
+          <span>{t("Wishly", { $id: "brand.name" })}</span>
         </div>
 
         <nav className={styles.nav}>
@@ -94,7 +121,7 @@ export function TopNav() {
                     transition={{
                       type: "spring",
                       stiffness: 500,
-                      damping: 32,
+                      damping: 32
                     }}
                   />
                 )}
@@ -112,13 +139,7 @@ export function TopNav() {
               <div className={styles.search}>
                 <Search size={16} />
                 <input
-                  placeholder={
-                    searchMode === "friends"
-                      ? "Search friends..."
-                      : searchMode === "discover"
-                        ? "Search discover..."
-                        : "Search wishlists..."
-                  }
+                  placeholder={searchPlaceholder}
                   value={query}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -130,7 +151,7 @@ export function TopNav() {
 
                     router.replace(
                       params.toString() ? `${pathname}?${params.toString()}` : pathname,
-                      { scroll: false },
+                      { scroll: false }
                     );
                   }}
                 />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useGT } from "gt-next";
 import styles from "./DiscoverItemCard.module.scss";
 import { DiscoverItem } from "@/api/types/wishilst";
 import {
@@ -45,6 +46,7 @@ export function DiscoverItemCard({
   onToggleBought,
   showDiscountBadge = false,
 }: Props) {
+  const t = useGT();
   const [detailOpen, setDetailOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmAction, setConfirmAction] =
@@ -107,16 +109,22 @@ export function DiscoverItemCard({
 
   const reserveStatusLabel = isPurchased
     ? reservedByMe
-      ? "Purchased by you"
+      ? t("Purchased by you", { $id: "discover.item.purchasedByYouStatus" })
       : reservedByName
-        ? `Purchased by ${reservedByName}`
-        : "Purchased"
+        ? t("Purchased by {name}", {
+            name: reservedByName,
+            $id: "discover.item.purchasedByNameStatus",
+          })
+        : t("Purchased", { $id: "discover.item.purchasedStatus" })
     : isReservedState
       ? reservedByMe
-        ? "Reserved by you"
+        ? t("Reserved by you", { $id: "discover.item.reservedByYouStatus" })
         : reservedByName
-          ? `Reserved by ${reservedByName}`
-          : "Reserved"
+          ? t("Reserved by {name}", {
+              name: reservedByName,
+              $id: "discover.item.reservedByNameStatus",
+            })
+          : t("Reserved", { $id: "discover.item.reservedStatus" })
       : null;
 
   useEffect(() => {
@@ -141,8 +149,7 @@ export function DiscoverItemCard({
       } else {
         window.open(shareLink, "_blank", "noopener,noreferrer");
       }
-    } catch (error) {
-      console.error("Failed to share item", error);
+    } catch {
     } finally {
       setMenuOpen(false);
     }
@@ -174,7 +181,12 @@ export function DiscoverItemCard({
     <>
       <div className={styles.card} onClick={() => setDetailOpen(true)}>
         {salePercentOff != null && (
-          <span className={styles.saleBadge}>Sale -{salePercentOff}%</span>
+          <span className={styles.saleBadge}>
+            {t("Sale -{percent}%", {
+              percent: salePercentOff,
+              $id: "discover.item.saleBadge",
+            })}
+          </span>
         )}
         {priority && <span className={styles.priority}>{priority}</span>}
 
@@ -182,7 +194,9 @@ export function DiscoverItemCard({
           {imgSrc ? (
             <img src={imgSrc} alt={title} />
           ) : (
-            <div className={styles.placeholder}>No image</div>
+            <div className={styles.placeholder}>
+              {t("No image", { $id: "discover.item.noImage" })}
+            </div>
           )}
 
           <div className={styles.quickActions}>
@@ -195,9 +209,13 @@ export function DiscoverItemCard({
                 e.stopPropagation();
                 if (!hasProductLink) e.preventDefault();
               }}
-              aria-label="Open product link"
+              aria-label={t("Open product link", {
+                $id: "discover.item.openProductAria",
+              })}
               aria-disabled={!hasProductLink}
-              data-tooltip="Open product link"
+              data-tooltip={t("Open product link", {
+                $id: "discover.item.openProductTooltip",
+              })}
             >
               <ExternalLink size={16} />
             </a>
@@ -210,9 +228,13 @@ export function DiscoverItemCard({
                   if (!hasShareLink) return;
                   setMenuOpen((prev) => !prev);
                 }}
-                aria-label="Open item menu"
+                aria-label={t("Open item menu", {
+                  $id: "discover.item.menuAria",
+                })}
                 aria-disabled={!hasShareLink}
-                data-tooltip="More options"
+                data-tooltip={t("More options", {
+                  $id: "discover.item.moreOptionsTooltip",
+                })}
               >
                 <MoreHorizontal size={16} />
               </button>
@@ -228,7 +250,9 @@ export function DiscoverItemCard({
                     }}
                     aria-disabled={!hasShareLink}
                   >
-                    <span>Share</span>
+                    <span>
+                      {t("Share", { $id: "discover.item.share" })}
+                    </span>
                   </button>
                 </div>
               )}
@@ -261,12 +285,16 @@ export function DiscoverItemCard({
               />
               <span>
                 {isPurchased
-                  ? "Purchased"
+                  ? t("Purchased", { $id: "discover.item.purchasedBtn" })
                   : isReservedState
                     ? reservedByMe
-                      ? "Reserved by you"
-                      : "Reserved"
-                    : "Reserve this gift"}
+                      ? t("Reserved by you", {
+                          $id: "discover.item.reservedByYouBtn",
+                        })
+                      : t("Reserved", { $id: "discover.item.reservedBtn" })
+                    : t("Reserve this gift", {
+                        $id: "discover.item.reserveGift",
+                      })}
               </span>
             </button>
 
@@ -279,11 +307,28 @@ export function DiscoverItemCard({
                 }}
                 disabled={!canToggleBought}
                 aria-label={
-                  isPurchased ? "Mark as not purchased" : "Mark as purchased"
+                  isPurchased
+                    ? t("Mark as not purchased", {
+                        $id: "discover.item.unpurchaseAria",
+                      })
+                    : t("Mark as purchased", {
+                        $id: "discover.item.purchaseAria",
+                      })
                 }
-                title={reserveStatusLabel ?? "Mark as purchased"}
+                title={
+                  reserveStatusLabel ??
+                  t("Mark as purchased", {
+                    $id: "discover.item.purchaseTitle",
+                  })
+                }
                 data-tooltip={
-                  isPurchased ? "Mark as not purchased" : "Mark as purchased"
+                  isPurchased
+                    ? t("Mark as not purchased", {
+                        $id: "discover.item.unpurchaseTooltip",
+                      })
+                    : t("Mark as purchased", {
+                        $id: "discover.item.purchaseTooltip",
+                      })
                 }
               >
                 <ShoppingCart size={16} />
