@@ -127,7 +127,7 @@ export function NotificationSettings() {
         title={t("Email Notifications", {
           $id: "settings.notifications.emailTitle",
         })}
-        description={t("Manage email notifications from Wishly.", {
+        description={t("Manage email notifications from Wishlane.", {
           $id: "settings.notifications.emailDescription",
         })}
       >

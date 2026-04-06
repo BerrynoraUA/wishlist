@@ -48,7 +48,7 @@ export default function SecretSantaDetailPage() {
         key: person.id,
         subtitle: person.nickname
           ? `@${person.nickname}`
-          : t("Wishly member", { $id: "secretSanta.detail.wishlyMember" }),
+          : t("Wishlane member", { $id: "secretSanta.detail.wishlyMember" }),
       })),
     [data?.participants, t],
   );

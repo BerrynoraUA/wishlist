@@ -196,7 +196,7 @@ export function AccountSettings() {
           $id: "settings.account.linkedAccountsTitle",
         })}
         description={t(
-          "External accounts connected to your Wishly profile.",
+          "External accounts connected to your Wishlane profile.",
           { $id: "settings.account.linkedAccountsDescription" },
         )}
       >

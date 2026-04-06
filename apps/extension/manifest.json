@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Wishly — Add to Wishlist",
+  "name": "Wishlane — Add to Wishlist",
   "version": "1.0.0",
-  "description": "Save any product from the web to your Wishly wishlists with one click.",
+  "description": "Save any product from the web to your Wishlane wishlists with one click.",
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
@@ -16,7 +16,7 @@
       "32": "icons/icon-32.png",
       "48": "icons/icon-48.png"
     },
-    "default_title": "Add to Wishly"
+    "default_title": "Add to Wishlane"
   },
   "permissions": ["activeTab", "storage", "scripting", "identity"],
   "host_permissions": ["<all_urls>"],

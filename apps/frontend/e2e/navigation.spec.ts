@@ -5,8 +5,8 @@ test.describe("TopNav navigation", () => {
     await page.goto("/home");
   });
 
-  test("renders logo with Wishly text", async ({ page }) => {
-    await expect(page.getByText("Wishly")).toBeVisible();
+  test("renders logo with Wishlane text", async ({ page }) => {
+    await expect(page.getByText("Wishlane")).toBeVisible();
   });
 
   test("renders all nav items", async ({ page }) => {
