@@ -1,32 +1,48 @@
 "use client";
 
+import { useGT } from "gt-next";
 import { useRouter } from "next/navigation";
 import { StatCard } from "./StatCard";
 import styles from "./StatsRow.module.scss";
 import { useMyStatistics } from "@/hooks/use-user";
 
 export function StatsRow() {
+  const t = useGT();
   const router = useRouter();
   const { data, isLoading, isError } = useMyStatistics();
 
   if (isLoading) {
-    return <div className={styles.row}>Loading stats...</div>;
+    return (
+      <div className={styles.row}>
+        {t("Loading stats...", { $id: "home.stats.loading" })}
+      </div>
+    );
   }
 
   if (isError || !data) {
-    return <div className={styles.row}>Failed to load stats.</div>;
+    return (
+      <div className={styles.row}>
+        {t("Failed to load stats.", { $id: "home.stats.error" })}
+      </div>
+    );
   }
 
   const stats = [
-    { label: "Wishlists", value: data.wishlists_count },
-    { label: "Total Items", value: data.total_items_count },
     {
-      label: "Reserved",
+      label: t("Wishlists", { $id: "home.stats.label.wishlists" }),
+      value: data.wishlists_count,
+    },
+    {
+      label: t("Total Items", { $id: "home.stats.label.totalItems" }),
+      value: data.total_items_count,
+    },
+    {
+      label: t("Reserved", { $id: "home.stats.label.reserved" }),
       value: data.reserved_items_count,
       onClick: () => router.push("/discover?tab=reserved"),
     },
     {
-      label: "Purchased",
+      label: t("Purchased", { $id: "home.stats.label.purchased" }),
       value: data.purchased_items_count,
       onClick: () => router.push("/discover?tab=purchased"),
     },

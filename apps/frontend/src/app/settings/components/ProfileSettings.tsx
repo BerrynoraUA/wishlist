@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useGT } from "gt-next";
 import { Camera, Check, AlertCircle } from "lucide-react";
 import styles from "./ProfileSettings.module.scss";
 import { SettingsSection } from "./SettingsSection";
@@ -13,6 +14,7 @@ import {
 } from "@/hooks/use-settings";
 
 export function ProfileSettings() {
+  const t = useGT();
   const { data: profile, isLoading } = useProfile();
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadAvatar();
@@ -78,7 +80,11 @@ export function ProfileSettings() {
   }
 
   if (isLoading) {
-    return <p className={styles.loading}>Loading profile…</p>;
+    return (
+      <p className={styles.loading}>
+        {t("Loading profile…", { $id: "settings.profile.loading" })}
+      </p>
+    );
   }
 
   const avatarUrl = profile?.avatar_url;
@@ -89,8 +95,12 @@ export function ProfileSettings() {
   return (
     <>
       <SettingsSection
-        title="Profile Information"
-        description="This is how you appear to your friends on Wishly."
+        title={t("Profile Information", {
+          $id: "settings.profile.sectionTitle",
+        })}
+        description={t("This is how you appear to your friends on Wishly.", {
+          $id: "settings.profile.sectionDescription",
+        })}
       >
         {/* Avatar */}
         <div className={styles.avatarRow}>
@@ -102,7 +112,11 @@ export function ProfileSettings() {
           >
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarUrl} alt="Avatar" className={styles.avatarImg} />
+              <img
+                src={avatarUrl}
+                alt={t("Avatar", { $id: "settings.profile.avatarAlt" })}
+                className={styles.avatarImg}
+              />
             ) : (
               <span className={styles.avatarInitial}>{initial}</span>
             )}
@@ -118,18 +132,30 @@ export function ProfileSettings() {
             onChange={handleAvatarChange}
           />
           <div className={styles.avatarHint}>
-            <p>Click to upload a new avatar</p>
-            <p className={styles.hint}>JPG, PNG or WebP · Max 2 MB</p>
+            <p>
+              {t("Click to upload a new avatar", {
+                $id: "settings.profile.avatarHint",
+              })}
+            </p>
+            <p className={styles.hint}>
+              {t("JPG, PNG or WebP · Max 2 MB", {
+                $id: "settings.profile.avatarFormats",
+              })}
+            </p>
           </div>
         </div>
 
         {/* Display Name */}
         <div className={styles.field}>
-          <label className={styles.label}>Display Name</label>
+          <label className={styles.label}>
+            {t("Display Name", { $id: "settings.profile.displayNameLabel" })}
+          </label>
           <input
             type="text"
             className={styles.input}
-            placeholder="Your name"
+            placeholder={t("Your name", {
+              $id: "settings.profile.displayNamePlaceholder",
+            })}
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             maxLength={50}
@@ -139,9 +165,11 @@ export function ProfileSettings() {
         {/* Nickname */}
         <div className={styles.field}>
           <label className={styles.label}>
-            Nickname
+            {t("Nickname", { $id: "settings.profile.nicknameLabel" })}
             <span className={styles.labelHint}>
-              Friends can find you by this
+              {t("Friends can find you by this", {
+                $id: "settings.profile.nicknameHint",
+              })}
             </span>
           </label>
           <div className={styles.inputWrapper}>
@@ -149,7 +177,9 @@ export function ProfileSettings() {
             <input
               type="text"
               className={`${styles.input} ${styles.withPrefix}`}
-              placeholder="your-nickname"
+              placeholder={t("your-nickname", {
+                $id: "settings.profile.nicknamePlaceholder",
+              })}
               value={nickname}
               onChange={(e) =>
                 setNickname(
@@ -166,16 +196,24 @@ export function ProfileSettings() {
             )}
           </div>
           {nicknameStatus === "taken" && (
-            <p className={styles.errorText}>This nickname is already taken</p>
+            <p className={styles.errorText}>
+              {t("This nickname is already taken", {
+                $id: "settings.profile.nicknameTaken",
+              })}
+            </p>
           )}
         </div>
 
         {/* Bio */}
         <div className={styles.field}>
-          <label className={styles.label}>Bio</label>
+          <label className={styles.label}>
+            {t("Bio", { $id: "settings.profile.bioLabel" })}
+          </label>
           <textarea
             className={styles.textarea}
-            placeholder="Tell your friends a little about yourself…"
+            placeholder={t("Tell your friends a little about yourself…", {
+              $id: "settings.profile.bioPlaceholder",
+            })}
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             maxLength={160}
@@ -189,11 +227,14 @@ export function ProfileSettings() {
             onClick={handleSave}
             disabled={updateProfile.isPending || nicknameStatus === "taken"}
           >
-            {updateProfile.isPending ? "Saving…" : "Save Changes"}
+            {updateProfile.isPending
+              ? t("Saving…", { $id: "settings.profile.saving" })
+              : t("Save Changes", { $id: "settings.profile.saveChanges" })}
           </Button>
           {updateProfile.isSuccess && (
             <span className={styles.successMsg}>
-              <Check size={14} /> Saved
+              <Check size={14} />{" "}
+              {t("Saved", { $id: "settings.profile.saved" })}
             </span>
           )}
         </div>

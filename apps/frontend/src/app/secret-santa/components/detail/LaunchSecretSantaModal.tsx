@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import type { SecretSantaPerson } from "@/api/types/secret-santa";
@@ -30,6 +31,7 @@ export function LaunchSecretSantaModal({
   eventId,
   participants,
 }: Props) {
+  const t = useGT();
   // exclusions[giverId] = Set of receiverIds they must NOT get
   const [exclusions, setExclusions] = useState<Record<string, Set<string>>>({});
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -59,7 +61,10 @@ export function LaunchSecretSantaModal({
 
   // Pre-validate feasibility on the client
   const validationError = useMemo(() => {
-    if (participants.length < 2) return "At least 2 participants required.";
+    if (participants.length < 2)
+      return t("At least 2 participants required.", {
+        $id: "secretSanta.launchModal.error.minParticipants",
+      });
 
     const ids = participants.map((p) => p.id);
     const exMap = new Map<string, Set<string>>();
@@ -70,8 +75,10 @@ export function LaunchSecretSantaModal({
     const result = generateSecretSantaAssignment(ids, exMap, 200);
     return result
       ? null
-      : "These exclusions make a valid assignment impossible.";
-  }, [participants, exclusionList]);
+      : t("These exclusions make a valid assignment impossible.", {
+          $id: "secretSanta.launchModal.error.impossibleExclusions",
+        });
+  }, [participants, exclusionList, t]);
 
   function handleLaunch() {
     launch.mutate(
@@ -85,17 +92,34 @@ export function LaunchSecretSantaModal({
   }
 
   function getName(person: SecretSantaPerson) {
-    return person.display_name ?? person.nickname ?? "User";
+    return (
+      person.display_name ??
+      person.nickname ??
+      t("User", { $id: "secretSanta.launchModal.fallbackUser" })
+    );
   }
 
   if (!open) return null;
 
   return (
-    <Modal open={open} onClose={onClose} title="Launch Secret Santa">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t("Launch Secret Santa", {
+        $id: "secretSanta.launchModal.title",
+      })}
+    >
       <div className={styles.container}>
         <p className={styles.subtitle}>
-          Optionally choose who should <strong>not</strong> be matched together,
-          then launch the event.
+          {t("Optionally choose who should ", {
+            $id: "secretSanta.launchModal.subtitleBefore",
+          })}
+          <strong>
+            {t("not", { $id: "secretSanta.launchModal.subtitleEmphasis" })}
+          </strong>
+          {t(" be matched together, then launch the event.", {
+            $id: "secretSanta.launchModal.subtitleAfter",
+          })}
         </p>
 
         <div className={styles.participantList}>
@@ -165,21 +189,30 @@ export function LaunchSecretSantaModal({
           <div className={styles.warning}>
             <AlertTriangle size={14} />
             <span>
-              {(launch.error as Error)?.message ?? "Failed to launch event."}
+              {(launch.error as Error)?.message ??
+                t("Failed to launch event.", {
+                  $id: "secretSanta.launchModal.error.launchFailed",
+                })}
             </span>
           </div>
         )}
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            {t("Cancel", { $id: "secretSanta.launchModal.cancel" })}
           </Button>
           <Button
             onClick={handleLaunch}
             disabled={!!validationError || launch.isPending}
           >
             <Sparkles size={16} />
-            <span>{launch.isPending ? "Launching..." : "Start"}</span>
+            <span>
+              {launch.isPending
+                ? t("Launching...", {
+                    $id: "secretSanta.launchModal.launching",
+                  })
+                : t("Start", { $id: "secretSanta.launchModal.start" })}
+            </span>
           </Button>
         </div>
       </div>

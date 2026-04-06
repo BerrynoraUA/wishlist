@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useGT } from "gt-next";
 import { SecretSantaEventCard } from "./SecretSantaEventCard";
 import styles from "./SecretSantaGrid.module.scss";
 import { useSecretSantaEvents } from "@/hooks/use-secret-santa";
@@ -9,6 +10,7 @@ import { Pagination } from "@/components/ui/Pagination/Pagination";
 const PAGE_SIZE = 8;
 
 export function SecretSantaGrid() {
+  const t = useGT();
   const [page, setPage] = useState(1);
 
   const { data, isLoading, isError } = useSecretSantaEvents({
@@ -22,13 +24,25 @@ export function SecretSantaGrid() {
 
   return (
     <div>
-      <h2 className={styles.title}>Your Events</h2>
+      <h2 className={styles.title}>
+        {t("Your Events", { $id: "secretSanta.grid.title" })}
+      </h2>
       <div className={styles.grid}>
-        {isLoading && <p>Loading...</p>}
-        {isError && <p>Failed to load events.</p>}
+        {isLoading && (
+          <p>{t("Loading...", { $id: "secretSanta.grid.loading" })}</p>
+        )}
+        {isError && (
+          <p>
+            {t("Failed to load events.", {
+              $id: "secretSanta.grid.loadError",
+            })}
+          </p>
+        )}
         {!isLoading && !isError && events.length === 0 && (
           <p className={styles.empty}>
-            No Secret Santa events yet. Create one to get started!
+            {t("No Secret Santa events yet. Create one to get started!", {
+              $id: "secretSanta.grid.empty",
+            })}
           </p>
         )}
         {events.map((event) => (

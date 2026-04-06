@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useUpdateItem } from "@/hooks/use-items";
@@ -44,6 +45,7 @@ function EditItemForm({
   item: Item;
   onClose: () => void;
 }) {
+  const t = useGT();
   const [name, setName] = useState(item.name ?? "");
   const [description, setDescription] = useState(item.description ?? "");
   const [price, setPrice] = useState(item.price ?? "");
@@ -108,31 +110,37 @@ function EditItemForm({
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2>Edit Item</h2>
+          <h2>{t("Edit Item", { $id: "item.modal.edit.title" })}</h2>
         </div>
 
         <div className={styles.field}>
-          <label>Product link</label>
+          <label>{t("Product link", { $id: "item.modal.productLink" })}</label>
           <input
             type="url"
-            placeholder="Paste a product URL"
+            placeholder={t("Paste a product URL", {
+              $id: "item.modal.productUrlPlaceholder",
+            })}
             value={link}
             onChange={(e) => setLink(e.target.value)}
           />
         </div>
 
         <div className={styles.field}>
-          <label>Image</label>
+          <label>{t("Image", { $id: "item.modal.imageLabel" })}</label>
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
                 <img
                   src={imagePreview}
-                  alt="Preview"
+                  alt={t("Preview", { $id: "item.modal.previewAlt" })}
                   className={styles.preview}
                 />
               ) : (
-                <span>Drop an image or click to upload</span>
+                <span>
+                  {t("Drop an image or click to upload", {
+                    $id: "wishlist.modal.dropImage",
+                  })}
+                </span>
               )}
               <input
                 type="file"
@@ -145,44 +153,54 @@ function EditItemForm({
         </div>
 
         <div className={styles.field}>
-          <label>Name</label>
+          <label>{t("Name", { $id: "item.modal.nameLabel" })}</label>
           <input
-            placeholder="e.g. Noise-cancelling headphones"
+            placeholder={t("e.g. Noise-cancelling headphones", {
+              $id: "item.modal.namePlaceholder",
+            })}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
 
         <div className={styles.field}>
-          <label>Description (optional)</label>
+          <label>
+            {t("Description (optional)", {
+              $id: "wishlist.modal.descriptionLabel",
+            })}
+          </label>
           <textarea
-            placeholder="Add details, size, color..."
+            placeholder={t("Add details, size, color...", {
+              $id: "item.modal.descriptionPlaceholder",
+            })}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
         <div className={styles.field}>
-          <label>Price (optional)</label>
+          <label>
+            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
+          </label>
           <div className={styles.priceRow}>
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
-              aria-label="Currency"
+              aria-label={t("Currency", { $id: "item.modal.currencyAria" })}
             >
-              <option value="USD">$ USD</option>
-              <option value="EUR">€ EUR</option>
-              <option value="GBP">£ GBP</option>
-              <option value="UAH">₴ UAH</option>
-              <option value="PLN">zł PLN</option>
-              <option value="JPY">¥ JPY</option>
-              <option value="CAD">CA$ CAD</option>
-              <option value="AUD">A$ AUD</option>
-              <option value="CHF">CHF</option>
+              <option value="USD">{t("$ USD", { $id: "currency.usd" })}</option>
+              <option value="EUR">{t("€ EUR", { $id: "currency.eur" })}</option>
+              <option value="GBP">{t("£ GBP", { $id: "currency.gbp" })}</option>
+              <option value="UAH">{t("₴ UAH", { $id: "currency.uah" })}</option>
+              <option value="PLN">{t("zł PLN", { $id: "currency.pln" })}</option>
+              <option value="JPY">{t("¥ JPY", { $id: "currency.jpy" })}</option>
+              <option value="CAD">{t("CA$ CAD", { $id: "currency.cad" })}</option>
+              <option value="AUD">{t("A$ AUD", { $id: "currency.aud" })}</option>
+              <option value="CHF">{t("CHF", { $id: "currency.chf" })}</option>
             </select>
             <input
               type="text"
-              placeholder="199"
+              placeholder={t("199", { $id: "item.modal.pricePlaceholder" })}
               value={price}
               onChange={(e) => setPrice(e.target.value)}
             />
@@ -191,25 +209,35 @@ function EditItemForm({
 
         {isPro && (
           <div className={styles.field}>
-            <label>Priority</label>
+            <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as PriorityOption)}
             >
-              <option value="None">No priority</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
+              <option value="None">
+                {t("No priority", { $id: "item.modal.priorityNone" })}
+              </option>
+              <option value="Low">
+                {t("Low", { $id: "item.priority.low" })}
+              </option>
+              <option value="Medium">
+                {t("Medium", { $id: "item.priority.medium" })}
+              </option>
+              <option value="High">
+                {t("High", { $id: "item.priority.high" })}
+              </option>
             </select>
           </div>
         )}
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            {t("Cancel", { $id: "common.cancel" })}
           </Button>
           <Button onClick={handleSubmit} disabled={!name.trim() || isPending}>
-            {isPending ? "Saving..." : "Save Changes"}
+            {isPending
+              ? t("Saving...", { $id: "common.saving" })
+              : t("Save Changes", { $id: "wishlist.modal.saveChanges" })}
           </Button>
         </div>
       </div>

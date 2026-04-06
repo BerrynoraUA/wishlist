@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { createNextMiddleware } from "gt-next/middleware";
 import { createServerClient } from "@supabase/ssr";
 
 const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -11,24 +12,42 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   throw new Error("Missing Supabase public env variables");
 }
 
+/**
+ * General Translation locale detection (cookie, referer, Accept-Language).
+ * `localeRouting: false` keeps existing URLs; no `app/[locale]` tree required.
+ * @see https://generaltranslation.com/en-GB/docs/next/guides/middleware
+ */
+const gtLocaleMiddleware = createNextMiddleware({
+  localeRouting: false,
+  ignoreSourceMaps: true,
+});
+
 function copyCookies(from: NextResponse, to: NextResponse) {
   from.cookies.getAll().forEach((cookie) => {
     to.cookies.set(cookie);
   });
 }
 
-export async function middleware(request: NextRequest) {
+/** Copy GT + Supabase cookies onto redirects (avoid copying proxy response headers). */
+function mergeCookiesIntoResponse(from: NextResponse, to: NextResponse) {
+  copyCookies(from, to);
+}
+
+export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   if (
     pathname.startsWith("/api") ||
-    pathname === "/auth/callback" ||
-    pathname === "/share"
+    pathname === "/auth/callback"
   ) {
     return NextResponse.next();
   }
 
-  const response = NextResponse.next();
+  if (pathname === "/share") {
+    return gtLocaleMiddleware(request);
+  }
+
+  let response = gtLocaleMiddleware(request);
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
@@ -51,7 +70,7 @@ export async function middleware(request: NextRequest) {
   if (pathname === "/") {
     if (user) {
       const redirect = NextResponse.redirect(new URL("/home", request.url));
-      copyCookies(response, redirect);
+      mergeCookiesIntoResponse(response, redirect);
       return redirect;
     }
     return response;
@@ -63,7 +82,7 @@ export async function middleware(request: NextRequest) {
     redirectUrl.searchParams.set("redirect_to", returnTo);
 
     const redirect = NextResponse.redirect(redirectUrl);
-    copyCookies(response, redirect);
+    mergeCookiesIntoResponse(response, redirect);
     return redirect;
   }
 
@@ -71,7 +90,7 @@ export async function middleware(request: NextRequest) {
     const redirectParam = request.nextUrl.searchParams.get("redirect_to");
     const target = redirectParam || "/home";
     const redirect = NextResponse.redirect(new URL(target, request.url));
-    copyCookies(response, redirect);
+    mergeCookiesIntoResponse(response, redirect);
     return redirect;
   }
 
@@ -79,5 +98,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

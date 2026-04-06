@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT } from "gt-next";
 import styles from "./NotificationSettings.module.scss";
 import { SettingsSection } from "./SettingsSection";
 import { Toggle } from "@/components/ui/Toggle/Toggle";
@@ -9,6 +10,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { UserPlus, Gift, TrendingDown, Mail } from "lucide-react";
 
 export function NotificationSettings() {
+  const t = useGT();
   const { data: settings, isLoading } = useSettings();
   const updateSettings = useUpdateSettings();
   const { isPro } = useSubscription();
@@ -18,14 +20,25 @@ export function NotificationSettings() {
   }
 
   if (isLoading || !settings) {
-    return <p className={styles.loading}>Loading preferences…</p>;
+    return (
+      <p className={styles.loading}>
+        {t("Loading preferences…", {
+          $id: "settings.notifications.loading",
+        })}
+      </p>
+    );
   }
 
   return (
     <>
       <SettingsSection
-        title="Push Notifications"
-        description="Choose which notifications you receive in the app."
+        title={t("Push Notifications", {
+          $id: "settings.notifications.pushTitle",
+        })}
+        description={t(
+          "Choose which notifications you receive in the app.",
+          { $id: "settings.notifications.pushDescription" },
+        )}
       >
         <div className={styles.row}>
           <div className={styles.rowInfo}>
@@ -33,9 +46,15 @@ export function NotificationSettings() {
               <UserPlus size={16} />
             </div>
             <div>
-              <p className={styles.rowLabel}>Friend Requests</p>
+              <p className={styles.rowLabel}>
+                {t("Friend Requests", {
+                  $id: "settings.notifications.friendRequests",
+                })}
+              </p>
               <p className={styles.rowHint}>
-                When someone sends you a friend request
+                {t("When someone sends you a friend request", {
+                  $id: "settings.notifications.friendRequestsHint",
+                })}
               </p>
             </div>
           </div>
@@ -53,9 +72,15 @@ export function NotificationSettings() {
               <Gift size={16} />
             </div>
             <div>
-              <p className={styles.rowLabel}>Item Reservations</p>
+              <p className={styles.rowLabel}>
+                {t("Item Reservations", {
+                  $id: "settings.notifications.itemReservations",
+                })}
+              </p>
               <p className={styles.rowHint}>
-                When a friend reserves an item from your wishlist
+                {t("When a friend reserves an item from your wishlist", {
+                  $id: "settings.notifications.itemReservationsHint",
+                })}
               </p>
             </div>
           </div>
@@ -74,7 +99,9 @@ export function NotificationSettings() {
             </div>
             <div>
               <p className={styles.rowLabel}>
-                Sale Price Alerts
+                {t("Sale Price Alerts", {
+                  $id: "settings.notifications.saleAlerts",
+                })}
                 {!isPro && (
                   <span className={styles.proBadge}>
                     <ProBadge size="sm" />
@@ -82,7 +109,9 @@ export function NotificationSettings() {
                 )}
               </p>
               <p className={styles.rowHint}>
-                When an item in your wishlist goes on sale
+                {t("When an item in your wishlist goes on sale", {
+                  $id: "settings.notifications.saleAlertsHint",
+                })}
               </p>
             </div>
           </div>
@@ -95,8 +124,12 @@ export function NotificationSettings() {
       </SettingsSection>
 
       <SettingsSection
-        title="Email Notifications"
-        description="Manage email notifications from Wishly."
+        title={t("Email Notifications", {
+          $id: "settings.notifications.emailTitle",
+        })}
+        description={t("Manage email notifications from Wishly.", {
+          $id: "settings.notifications.emailDescription",
+        })}
       >
         <div className={styles.row}>
           <div className={styles.rowInfo}>
@@ -104,9 +137,15 @@ export function NotificationSettings() {
               <Mail size={16} />
             </div>
             <div>
-              <p className={styles.rowLabel}>Weekly Digest</p>
+              <p className={styles.rowLabel}>
+                {t("Weekly Digest", {
+                  $id: "settings.notifications.weeklyDigest",
+                })}
+              </p>
               <p className={styles.rowHint}>
-                A summary of friend activity and upcoming events
+                {t("A summary of friend activity and upcoming events", {
+                  $id: "settings.notifications.weeklyDigestHint",
+                })}
               </p>
             </div>
           </div>

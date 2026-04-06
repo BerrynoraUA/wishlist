@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useCreateWishlist } from "@/hooks/use-wishlists";
@@ -57,6 +58,7 @@ function CreateWishlistForm({
   defaultColor: ColorOption;
   onClose: () => void;
 }) {
+  const t = useGT();
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -133,16 +135,24 @@ function CreateWishlistForm({
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <h2>Create New Wishlist</h2>
-            <p>Give your wishlist a name and customize its appearance.</p>
+            <h2>
+              {t("Create New Wishlist", { $id: "wishlist.modal.create.title" })}
+            </h2>
+            <p>
+              {t("Give your wishlist a name and customize its appearance.", {
+                $id: "wishlist.modal.create.subtitle",
+              })}
+            </p>
           </div>
         </div>
 
         {/* Name */}
         <div className={styles.field}>
-          <label>Wishlist Name</label>
+          <label>{t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}</label>
           <input
-            placeholder="e.g. Birthday Wishes, Home Office Setup"
+            placeholder={t("e.g. Birthday Wishes, Home Office Setup", {
+              $id: "wishlist.modal.namePlaceholder",
+            })}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -150,26 +160,42 @@ function CreateWishlistForm({
 
         {/* Description */}
         <div className={styles.field}>
-          <label>Description (optional)</label>
+          <label>
+            {t("Description (optional)", {
+              $id: "wishlist.modal.descriptionLabel",
+            })}
+          </label>
           <textarea
-            placeholder="Add a note for your friends..."
+            placeholder={t("Add a note for your friends...", {
+              $id: "wishlist.modal.descriptionPlaceholder",
+            })}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
         <div className={styles.field}>
-          <label>Cover Image (drag & drop or click)</label>
+          <label>
+            {t("Cover Image (drag & drop or click)", {
+              $id: "wishlist.modal.create.coverLabel",
+            })}
+          </label>
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
                 <img
                   src={imagePreview}
-                  alt="Wishlist cover preview"
+                  alt={t("Wishlist cover preview", {
+                    $id: "wishlist.modal.coverAlt",
+                  })}
                   className={styles.preview}
                 />
               ) : (
-                <span>Drop an image or click to upload</span>
+                <span>
+                  {t("Drop an image or click to upload", {
+                    $id: "wishlist.modal.dropImage",
+                  })}
+                </span>
               )}
               <input
                 type="file"
@@ -183,35 +209,43 @@ function CreateWishlistForm({
 
         {/* Event Date */}
         <div className={styles.field}>
-          <label>Event Date (optional)</label>
+          <label>
+            {t("Event Date (optional)", {
+              $id: "wishlist.modal.eventDateLabel",
+            })}
+          </label>
           <DatePickerField value={eventDate} onChange={setEventDate} />
         </div>
 
         {/* Privacy */}
         <div className={styles.section}>
-          <label>Privacy</label>
+          <label>{t("Privacy", { $id: "wishlist.modal.privacyLabel" })}</label>
 
           <div className={styles.privacyOptions}>
             <PrivacyCard
               icon={<Globe size={18} />}
-              title="Public"
-              subtitle="Anyone can view"
+              title={t("Public", { $id: "wishlist.privacy.public" })}
+              subtitle={t("Anyone can view", {
+                $id: "wishlist.privacy.publicSubtitle",
+              })}
               selected={privacy === "Public"}
               onClick={() => setPrivacy("Public")}
             />
 
             <PrivacyCard
               icon={<Users size={18} />}
-              title="Friends Only"
-              subtitle="Only your friends"
+              title={t("Friends Only", { $id: "wishlist.privacy.friends" })}
+              subtitle={t("Only your friends", {
+                $id: "wishlist.privacy.friendsSubtitle",
+              })}
               selected={privacy === "Friends"}
               onClick={() => setPrivacy("Friends")}
             />
 
             <PrivacyCard
               icon={<Lock size={18} />}
-              title="Private"
-              subtitle="Only you"
+              title={t("Private", { $id: "wishlist.privacy.private" })}
+              subtitle={t("Only you", { $id: "wishlist.privacy.privateSubtitle" })}
               selected={privacy === "Private"}
               onClick={() => setPrivacy("Private")}
             />
@@ -220,7 +254,7 @@ function CreateWishlistForm({
 
         {/* Colors */}
         <div className={styles.section}>
-          <label>Cover Color</label>
+          <label>{t("Cover Color", { $id: "wishlist.modal.coverColor" })}</label>
 
           <div className={styles.colors}>
             {colors.map((c) => (
@@ -238,10 +272,12 @@ function CreateWishlistForm({
         {/* Footer */}
         <div className={styles.footer}>
           <Button variant="secondary" onClick={handleClose}>
-            Cancel
+            {t("Cancel", { $id: "common.cancel" })}
           </Button>
           <Button onClick={handleSubmit} disabled={!name.trim() || isPending}>
-            {isPending ? "Creating..." : "Create Wishlist"}
+            {isPending
+              ? t("Creating...", { $id: "wishlist.modal.creating" })
+              : t("Create Wishlist", { $id: "wishlist.modal.create.submit" })}
           </Button>
         </div>
       </div>

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useGT } from "gt-next";
 import styles from "./NotificationsPanel.module.scss";
 import { Button } from "@/components/ui/Button/Button";
 import { Notification } from "@/types";
 import {
   useAcceptSecretSantaInvite,
-  useDeclineSecretSantaInvite,
+  useDeclineSecretSantaInvite
 } from "@/hooks/use-secret-santa";
 
 type Props = {
@@ -22,8 +23,9 @@ export function NotificationsPanel({
   onClear,
   onReadAll,
   isLoading,
-  onMarkRead,
+  onMarkRead
 }: Props) {
+  const t = useGT();
   const [pendingReadIds, setPendingReadIds] = useState<string[]>([]);
   const acceptInvite = useAcceptSecretSantaInvite();
   const declineInvite = useDeclineSecretSantaInvite();
@@ -41,7 +43,7 @@ export function NotificationsPanel({
 
     Promise.resolve(onMarkRead(notification.id)).finally(() => {
       setPendingReadIds((current) =>
-        current.filter((id) => id !== notification.id),
+        current.filter((id) => id !== notification.id)
       );
     });
   };
@@ -49,7 +51,7 @@ export function NotificationsPanel({
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        <strong>Notifications</strong>
+        <strong>{t("Notifications", { $id: "notifications.title" })}</strong>
 
         {notifications.length > 0 && (
           <div className={styles.actions}>
@@ -60,7 +62,7 @@ export function NotificationsPanel({
                 onClick={onReadAll}
                 disabled={isLoading}
               >
-                Read all
+                {t("Read all", { $id: "notifications.readAll" })}
               </Button>
             )}
             {onClear && (
@@ -70,7 +72,7 @@ export function NotificationsPanel({
                 onClick={onClear}
                 disabled={isLoading}
               >
-                Clear
+                {t("Clear", { $id: "notifications.clear" })}
               </Button>
             )}
           </div>
@@ -78,9 +80,15 @@ export function NotificationsPanel({
       </div>
 
       {isLoading ? (
-        <div className={styles.empty}>Loading notifications...</div>
+        <div className={styles.empty}>
+          {t("Loading notifications...", {
+            $id: "notifications.loading"
+          })}
+        </div>
       ) : notifications.length === 0 ? (
-        <div className={styles.empty}>No notifications</div>
+        <div className={styles.empty}>
+          {t("No notifications", { $id: "notifications.empty" })}
+        </div>
       ) : (
         <div className={styles.listWrap}>
           <ul className={styles.list}>
@@ -97,7 +105,7 @@ export function NotificationsPanel({
                 >
                   <div className={styles.itemContent}>
                     <p>{n.text}</p>
-                    <span>{formatNotificationTime(n.created_at)}</span>
+                    <span>{formatNotificationTime(n.created_at, t)}</span>
                   </div>
                   {isInvite && (
                     <div className={styles.inviteActions}>
@@ -106,14 +114,22 @@ export function NotificationsPanel({
                         onClick={() => acceptInvite.mutate(n.entity_id!)}
                         disabled={invitePending}
                       >
-                        {acceptInvite.isPending ? "Accepting..." : "Accept"}
+                        {acceptInvite.isPending
+                          ? t("Accepting...", {
+                              $id: "notifications.accepting"
+                            })
+                          : t("Accept", { $id: "notifications.accept" })}
                       </button>
                       <button
                         className={styles.decline}
                         onClick={() => declineInvite.mutate(n.entity_id!)}
                         disabled={invitePending}
                       >
-                        {declineInvite.isPending ? "Declining..." : "Decline"}
+                        {declineInvite.isPending
+                          ? t("Declining...", {
+                              $id: "notifications.declining"
+                            })
+                          : t("Decline", { $id: "notifications.decline" })}
                       </button>
                     </div>
                   )}
@@ -127,21 +143,30 @@ export function NotificationsPanel({
   );
 }
 
-function formatNotificationTime(createdAt: string) {
+function formatNotificationTime(
+  createdAt: string,
+  t: (message: string, options?: { $id?: string; n?: number }) => string
+) {
   const date = new Date(createdAt);
   const diffMinutes = Math.floor((Date.now() - date.getTime()) / 60000);
 
-  if (diffMinutes < 1) return "Now";
-  if (diffMinutes < 60) return `${diffMinutes}m`;
+  if (diffMinutes < 1) return t("Now", { $id: "notifications.time.now" });
+  if (diffMinutes < 60) {
+    return t("{n}m", { n: diffMinutes, $id: "notifications.time.minutes" });
+  }
 
   const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours}h`;
+  if (diffHours < 24) {
+    return t("{n}h", { n: diffHours, $id: "notifications.time.hours" });
+  }
 
   const diffDays = Math.floor(diffHours / 24);
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffDays < 7) {
+    return t("{n}d ago", { n: diffDays, $id: "notifications.time.daysAgo" });
+  }
 
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(undefined, {
     month: "short",
-    day: "numeric",
+    day: "numeric"
   });
 }

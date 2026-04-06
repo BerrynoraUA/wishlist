@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useGT } from "gt-next";
 import { ChevronDown } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
@@ -36,6 +37,7 @@ function resolveCurrency(value?: string | null) {
 }
 
 export function CreateItemModal({ open, onClose, wishlistId }: Props) {
+  const t = useGT();
   const [link, setLink] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -173,7 +175,11 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           !product.price;
 
         if (isEmpty) {
-          setError("Не вдалося отримати дані");
+          setError(
+            t("Could not fetch product data", {
+              $id: "item.modal.scrapeEmpty",
+            }),
+          );
           return;
         }
 
@@ -191,11 +197,17 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           setImagePreview(product.image);
         }
       } else {
-        setError(data?.error || "Помилка при завантаженні");
+        setError(
+          data?.error ||
+            t("Error loading product", { $id: "item.modal.scrapeError" }),
+        );
       }
-    } catch (err) {
-      console.error("Scraping failed:", err);
-      setError("Не вдалося отримати дані");
+    } catch {
+      setError(
+        t("Could not fetch product data", {
+          $id: "item.modal.scrapeEmpty",
+        }),
+      );
     } finally {
       setLoading(false);
     }
@@ -205,16 +217,22 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2>Create Item</h2>
-          <p>Add a product to this wishlist.</p>
+          <h2>{t("Create Item", { $id: "item.modal.create.title" })}</h2>
+          <p>
+            {t("Add a product to this wishlist.", {
+              $id: "item.modal.create.subtitle",
+            })}
+          </p>
         </div>
 
         <div className={styles.field}>
-          <label>Product link</label>
+          <label>{t("Product link", { $id: "item.modal.productLink" })}</label>
           <div className={styles.urlRow}>
             <input
               type="url"
-              placeholder="Paste a product URL"
+              placeholder={t("Paste a product URL", {
+                $id: "item.modal.productUrlPlaceholder",
+              })}
               value={link}
               onChange={(e) => setLink(e.target.value)}
             />
@@ -223,25 +241,35 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               onClick={handleScrape}
               disabled={!link.trim() || loading}
             >
-              {loading ? "Loading..." : "Search"}
+              {loading
+                ? t("Loading...", { $id: "common.loading" })
+                : t("Search", { $id: "item.modal.searchProduct" })}
             </Button>
           </div>
           {error && <p className={styles.error}>{error}</p>}
         </div>
 
         <div className={styles.field}>
-          <label>Image (drag & drop or click)</label>
+          <label>
+            {t("Image (drag & drop or click)", {
+              $id: "item.modal.create.imageLabel",
+            })}
+          </label>
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
                 <img
                   src={imagePreview}
-                  alt="Preview"
+                  alt={t("Preview", { $id: "item.modal.previewAlt" })}
                   className={styles.preview}
                 />
               ) : (
                 <>
-                  <span>Drop an image or click to upload</span>
+                  <span>
+                    {t("Drop an image or click to upload", {
+                      $id: "wishlist.modal.dropImage",
+                    })}
+                  </span>
                 </>
               )}
               <input
@@ -255,32 +283,42 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>Name</label>
+          <label>{t("Name", { $id: "item.modal.nameLabel" })}</label>
           <input
-            placeholder="e.g. Noise-cancelling headphones"
+            placeholder={t("e.g. Noise-cancelling headphones", {
+              $id: "item.modal.namePlaceholder",
+            })}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
 
         <div className={styles.field}>
-          <label>Description (optional)</label>
+          <label>
+            {t("Description (optional)", {
+              $id: "wishlist.modal.descriptionLabel",
+            })}
+          </label>
           <textarea
-            placeholder="Add details, size, color..."
+            placeholder={t("Add details, size, color...", {
+              $id: "item.modal.descriptionPlaceholder",
+            })}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
         <div className={styles.field}>
-          <label>Price (optional)</label>
+          <label>
+            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
+          </label>
           <div className={styles.priceRow}>
             <div className={styles.selectWrap}>
               <select
                 className={styles.selectField}
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                aria-label="Currency"
+                aria-label={t("Currency", { $id: "item.modal.currencyAria" })}
               >
                 {SUPPORTED_CURRENCIES.map((supportedCurrency) => (
                   <option
@@ -295,7 +333,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
             </div>
             <input
               type="text"
-              placeholder="199"
+              placeholder={t("199", { $id: "item.modal.pricePlaceholder" })}
               value={price}
               onChange={(e) => setPrice(e.target.value)}
             />
@@ -304,17 +342,25 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
         {isPro && (
           <div className={styles.field}>
-            <label>Priority</label>
+            <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
             <div className={styles.selectWrap}>
               <select
                 className={styles.selectField}
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as PriorityOption)}
               >
-                <option value="None">No priority</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
+                <option value="None">
+                  {t("No priority", { $id: "item.modal.priorityNone" })}
+                </option>
+                <option value="Low">
+                  {t("Low", { $id: "item.priority.low" })}
+                </option>
+                <option value="Medium">
+                  {t("Medium", { $id: "item.priority.medium" })}
+                </option>
+                <option value="High">
+                  {t("High", { $id: "item.priority.high" })}
+                </option>
               </select>
               <ChevronDown className={styles.selectChevron} size={16} />
             </div>
@@ -323,10 +369,12 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            {t("Cancel", { $id: "common.cancel" })}
           </Button>
           <Button onClick={handleSubmit} disabled={!name.trim() || isPending}>
-            {isPending ? "Creating..." : "Create Item"}
+            {isPending
+              ? t("Creating...", { $id: "item.modal.creating" })
+              : t("Create Item", { $id: "item.modal.create.submit" })}
           </Button>
         </div>
       </div>
