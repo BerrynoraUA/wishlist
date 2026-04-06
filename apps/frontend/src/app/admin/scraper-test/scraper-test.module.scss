@@ -1,0 +1,496 @@
+@use "@/styles/variables" as *;
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+/* ===== Header ===== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: $text;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: $text-muted;
+  margin-top: 0.25rem;
+}
+
+.runBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: $brand;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: $radius-pill;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition:
+    transform $duration-fast $ease-out,
+    box-shadow $duration-fast $ease-out,
+    opacity $duration-fast;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: $shadow-brand;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== Progress ===== */
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background: var(--color-border);
+  border-radius: $radius-pill;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, $brand, $pink);
+  border-radius: $radius-pill;
+  transition: width 0.3s $ease-out;
+}
+
+/* ===== Stats row ===== */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.statCard {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-lg;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  strong {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: $text;
+    line-height: 1;
+  }
+
+  span {
+    font-size: 0.75rem;
+    color: $text-muted;
+    font-weight: 500;
+  }
+}
+
+.statSuccess {
+  color: #22c55e;
+}
+
+.statPartial {
+  color: #f59e0b;
+}
+
+.statFailed {
+  color: #ef4444;
+}
+
+.statTotal {
+  color: $brand;
+}
+
+/* ===== Results Grid ===== */
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: calc(100vh - 320px);
+  overflow-y: auto;
+  padding-right: 4px;
+
+  /* Scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: $text-muted;
+  }
+}
+
+/* ===== Result Card ===== */
+.resultCard {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-md;
+  overflow: hidden;
+  transition: border-color $duration-fast $ease-out;
+
+  &:hover {
+    border-color: var(--color-border);
+  }
+}
+
+.card_success {
+  border-left: 3px solid #22c55e;
+}
+
+.card_partial {
+  border-left: 3px solid #f59e0b;
+}
+
+.card_failed {
+  border-left: 3px solid #ef4444;
+}
+
+.resultHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: $text;
+  gap: 0.75rem;
+
+  &:hover {
+    background: var(--color-bg-warm);
+  }
+}
+
+.resultLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.resultInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.resultUrl {
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resultRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $text-muted;
+  flex-shrink: 0;
+}
+
+.duration {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: $text-muted;
+}
+
+/* ===== Status Icons ===== */
+.iconSuccess {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+.iconPartial {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.iconFailed {
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+/* ===== Badges ===== */
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: $radius-pill;
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.badge_success {
+  background: #dcfce7;
+  color: #166534;
+
+  :global([data-theme="dark"]) & {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+  }
+}
+
+.badge_partial {
+  background: #fef3c7;
+  color: #92400e;
+
+  :global([data-theme="dark"]) & {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+  }
+}
+
+.badge_failed {
+  background: #fee2e2;
+  color: #991b1b;
+
+  :global([data-theme="dark"]) & {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+  }
+}
+
+/* ===== Details (expanded) ===== */
+.details {
+  border-top: 1px solid var(--glass-border);
+  padding: 1rem;
+  animation: fadeIn 0.2s $ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detailUrl {
+  margin-bottom: 0.75rem;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    color: $brand;
+    text-decoration: none;
+    word-break: break-all;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.errorMsg {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.5rem 0.75rem;
+  border-radius: $radius-sm;
+  font-size: 0.8rem;
+  margin-bottom: 0.75rem;
+
+  :global([data-theme="dark"]) & {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+  }
+}
+
+.missingFields {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.5rem 0.75rem;
+  border-radius: $radius-sm;
+  font-size: 0.8rem;
+  margin-bottom: 0.75rem;
+
+  :global([data-theme="dark"]) & {
+    background: rgba(245, 158, 11, 0.12);
+    color: #fbbf24;
+  }
+}
+
+/* ===== Data grid (product details) ===== */
+.dataGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dataRow {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--glass-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.dataLabel {
+  flex-shrink: 0;
+  width: 120px;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.dataValue {
+  color: $text;
+  word-break: break-word;
+  flex: 1;
+  min-width: 0;
+}
+
+.empty {
+  color: $text-light;
+  font-style: italic;
+}
+
+.imageLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-decoration: none;
+  color: $brand;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.previewImg {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: $radius-sm;
+  border: 1px solid var(--glass-border);
+}
+
+.imgUrl {
+  font-size: 0.7rem;
+  word-break: break-all;
+  opacity: 0.7;
+}
+
+/* ===== Empty State ===== */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: $text-muted;
+  gap: 1rem;
+}
+
+.emptyIcon {
+  opacity: 0.2;
+  color: $brand;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .resultInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .dataRow {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .dataLabel {
+    width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .statCard {
+    padding: 0.75rem;
+  }
+}
