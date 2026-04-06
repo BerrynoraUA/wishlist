@@ -321,7 +321,7 @@ export function PricingCards() {
             </h3>
             <p className={styles.planDesc}>
               {t(
-                "Unlock the full Wishly experience with unlimited everything.",
+                "Unlock the full Wishlane experience with unlimited everything.",
                 { $id: "subscription.pricing.proDesc" },
               )}
             </p>

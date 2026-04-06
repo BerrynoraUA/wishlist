@@ -98,7 +98,7 @@ export function ProfileSettings() {
         title={t("Profile Information", {
           $id: "settings.profile.sectionTitle",
         })}
-        description={t("This is how you appear to your friends on Wishly.", {
+        description={t("This is how you appear to your friends on Wishlane.", {
           $id: "settings.profile.sectionDescription",
         })}
       >

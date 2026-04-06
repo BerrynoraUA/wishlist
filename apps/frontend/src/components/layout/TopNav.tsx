@@ -101,12 +101,12 @@ export function TopNav() {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <div className={styles.logo}>
+        <Link href="/home" className={styles.logo}>
           <div className={styles.logoIcon}>
             <Gift size={16} />
           </div>
-          <span>{t("Wishly", { $id: "brand.name" })}</span>
-        </div>
+          <span>{t("Wishlane", { $id: "brand.name" })}</span>
+        </Link>
 
         <nav className={styles.nav}>
           {navItems.map((item) => {
