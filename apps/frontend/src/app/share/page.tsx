@@ -15,14 +15,7 @@ import styles from "../wishlist/[id]/WishlistPage.module.scss";
 
 const PAGE_SIZE = 12;
 
-function SharePageSuspenseFallback() {
-  const t = useGT();
-  return (
-    <main className={styles.page}>
-      <p>{t("Loading...", { $id: "common.loading" })}</p>
-    </main>
-  );
-}
+
 
 function SharedWishlistContent() {
   const t = useGT();
@@ -141,13 +134,7 @@ function SharedWishlistContent() {
     );
 
   if (wishlistLoading || itemsLoading)
-    return (
-      <main className={styles.page}>
-        <p>
-          {t("Loading wishlist...", { $id: "wishlist.page.loadingWishlist" })}
-        </p>
-      </main>
-    );
+    return null;
 
   if (wishlistError || itemsError)
     return (
@@ -209,7 +196,7 @@ function SharedWishlistContent() {
 
 export default function SharedWishlistPage() {
   return (
-    <Suspense fallback={<SharePageSuspenseFallback />}>
+    <Suspense fallback={null}>
       <SharedWishlistContent />
     </Suspense>
   );

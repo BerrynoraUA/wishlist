@@ -81,9 +81,6 @@ function FriendsPageContent() {
             gap: 16,
           }}
         >
-          {isLoading && (
-            <p>{t("Loading...", { $id: "friends.page.loading" })}</p>
-          )}
           {isError && (
             <p>
               {t("Failed to load friends.", {
@@ -108,9 +105,6 @@ function FriendsPageContent() {
             gap: 16,
           }}
         >
-          {requestsLoading && (
-            <p>{t("Loading...", { $id: "friends.page.loading" })}</p>
-          )}
           {requestsError && (
             <p>
               {t("Failed to load requests.", {
@@ -148,9 +142,6 @@ function FriendsPageContent() {
             gap: 16,
           }}
         >
-          {outgoingLoading && (
-            <p>{t("Loading...", { $id: "friends.page.loading" })}</p>
-          )}
           {outgoingError && (
             <p>
               {t("Failed to load sent requests.", {
@@ -182,17 +173,8 @@ function FriendsPageContent() {
 }
 
 export default function FriendsPage() {
-  const t = useGT();
   return (
-    <Suspense
-      fallback={
-        <main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px" }}>
-          <p>
-            {t("Loading friends...", { $id: "friends.page.suspenseLoading" })}
-          </p>
-        </main>
-      }
-    >
+    <Suspense fallback={null}>
       <FriendsPageContent />
     </Suspense>
   );
