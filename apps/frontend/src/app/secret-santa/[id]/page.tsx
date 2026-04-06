@@ -69,13 +69,7 @@ export default function SecretSantaDetailPage() {
   );
 
   if (isLoading) {
-    return (
-      <SecretSantaPageShell>
-        <p className={styles.message}>
-          {t("Loading event...", { $id: "secretSanta.detail.loading" })}
-        </p>
-      </SecretSantaPageShell>
-    );
+    return null;
   }
 
   if (isError || !data) {

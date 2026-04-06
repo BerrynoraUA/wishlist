@@ -75,11 +75,6 @@ function FriendWishlistsPageContent() {
         </Button>
       </div>
 
-      {isLoading && (
-        <p>
-          {t("Loading wishlists...", { $id: "friends.detail.loading" })}
-        </p>
-      )}
       {isError && (
         <p>
           {t("Failed to load wishlists.", {
@@ -105,19 +100,8 @@ function FriendWishlistsPageContent() {
 }
 
 export default function FriendWishlistsPage() {
-  const t = useGT();
   return (
-    <Suspense
-      fallback={
-        <main className={styles.page}>
-          <p>
-            {t("Loading wishlists...", {
-              $id: "friends.detail.suspenseLoading",
-            })}
-          </p>
-        </main>
-      }
-    >
+    <Suspense fallback={null}>
       <FriendWishlistsPageContent />
     </Suspense>
   );

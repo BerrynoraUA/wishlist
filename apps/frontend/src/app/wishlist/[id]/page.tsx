@@ -156,9 +156,6 @@ export default function WishlistItemsPage() {
 
   return (
     <main className={styles.page}>
-      {wishlistLoading && (
-        <p>{t("Loading wishlist...", { $id: "wishlist.page.loadingWishlist" })}</p>
-      )}
       {wishlistError && (
         <p>{t("Failed to load wishlist.", { $id: "wishlist.page.wishlistError" })}</p>
       )}
@@ -174,9 +171,6 @@ export default function WishlistItemsPage() {
         />
       )}
 
-      {itemsLoading && (
-        <p>{t("Loading items...", { $id: "wishlist.page.loadingItems" })}</p>
-      )}
       {itemsError && (
         <p>{t("Failed to load items.", { $id: "wishlist.page.itemsError" })}</p>
       )}

@@ -138,11 +138,6 @@ function DiscoverPageContent() {
       <UpcomingEvents />
       <DiscoverFilters active={filter} onChange={setFilter} />
 
-      {isLoading && (
-        <p>
-          {t("Loading wishlists...", { $id: "discover.page.loadingWishlists" })}
-        </p>
-      )}
       {isError && (
         <p>
           {t("Failed to load wishlists.", {
@@ -208,21 +203,8 @@ function DiscoverPageContent() {
 }
 
 export default function DiscoverPage() {
-  const t = useGT();
   return (
-    <Suspense
-      fallback={
-        <main
-          style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}
-        >
-          <p>
-            {t("Loading discover...", {
-              $id: "discover.page.suspenseLoading",
-            })}
-          </p>
-        </main>
-      }
-    >
+    <Suspense fallback={null}>
       <DiscoverPageContent />
     </Suspense>
   );
