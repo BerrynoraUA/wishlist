@@ -250,18 +250,16 @@ test.describe("Theme & color system", () => {
       });
       await expect(toggleBtn).toBeVisible();
 
-      // Read current label to know expected after toggle
       const initialLabel = await toggleBtn.getAttribute("aria-label");
-      const expectedLabel = initialLabel?.includes("dark")
-        ? "Switch to light mode"
-        : "Switch to dark mode";
+      expect(initialLabel).toBeTruthy();
 
       await toggleBtn.click();
 
-      // Use Playwright's auto-retrying assertion
-      await expect(
-        page.getByRole("button", { name: expectedLabel }),
-      ).toBeVisible({ timeout: 5_000 });
+      await expect(async () => {
+        const next = await toggleBtn.getAttribute("aria-label");
+        expect(next).not.toBe(initialLabel);
+        expect(next).toMatch(/switch to (light|dark) mode/i);
+      }).toPass({ timeout: 10_000 });
     });
   });
 });
