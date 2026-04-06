@@ -14,6 +14,11 @@ import type {
 
 const WEBHOOK_TOLERANCE_SECONDS = 300;
 
+// Supabase user IDs are standard UUIDs — reject anything that doesn't match
+// to prevent a malicious actor from injecting arbitrary strings via custom_data.
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 type RevenueCatDuration = "monthly" | "yearly";
 
 type SubscriptionUpsertInput = {
@@ -115,7 +120,8 @@ function logIgnoredEvent(eventType: string): void {
 
 function getUserId(customData?: PaddleCustomData): string | null {
   const userId = customData?.user_id?.trim();
-  return userId || null;
+  if (!userId || !UUID_RE.test(userId)) return null;
+  return userId;
 }
 
 function getRevenueCatDuration(interval: string): RevenueCatDuration {
