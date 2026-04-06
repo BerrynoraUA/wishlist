@@ -1,7 +1,7 @@
 "use client";
 
 import { useGT } from "gt-next";
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import Link from "next/link";
 import styles from "./landing.module.scss";
 
@@ -145,10 +145,10 @@ export default function LandingPage() {
       {/* ====== NAVIGATION ====== */}
       <nav className={styles.nav} ref={navRef}>
         <div className={styles.navInner}>
-          <a href="#" className={styles.navLogo}>
+          <span className={styles.navLogo}>
             <span className={styles.navLogoIcon}>♡</span>{" "}
             {t("Wishlane", { $id: "landing.nav.brand" })}
-          </a>
+          </span>
           <div className={styles.navLinks}>
             <a
               href="#features"
@@ -658,22 +658,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className={styles.stepVisual}>
-                <div className={`${styles.stepDemo} ${styles.stepDemoCreate}`}>
-                  <div className={styles.demoInput}>
-                    <span className={styles.demoInputLabel}>
-                      {t("Wishlist Name", {
-                        $id: "landing.how.step1.demoLabel",
-                      })}
-                    </span>
-                    <span className={styles.demoInputValue}>
-                      {t("Christmas 2026 🎄", {
-                        $id: "landing.how.step1.demoValue",
-                      })}
-                    </span>
-                  </div>
-                  <DemoColors />
-                  <DemoPrivacy />
-                </div>
+                <StepDemoCreate />
               </div>
             </div>
 
@@ -965,10 +950,10 @@ export default function LandingPage() {
       <footer className={styles.footer}>
         <div className={`${styles.container} ${styles.footerInner}`}>
           <div className={styles.footerBrand}>
-            <a href="#" className={styles.footerLogo}>
+            <span className={styles.footerLogo}>
               <span className={styles.navLogoIcon}>♡</span>{" "}
               {t("Wishlane", { $id: "landing.footer.brand" })}
-            </a>
+            </span>
             <p className={styles.footerTagline}>
               {t("Wishlists, shared beautifully.", {
                 $id: "landing.footer.tagline",
@@ -1002,34 +987,6 @@ export default function LandingPage() {
                 onClick={(e) => smoothScroll(e, "#discover")}
               >
                 {t("Discover", { $id: "landing.footer.link.discover" })}
-              </a>
-            </div>
-            <div className={styles.footerCol}>
-              <h4 className={styles.footerColTitle}>
-                {t("Company", { $id: "landing.footer.col.company" })}
-              </h4>
-              <a href="#" className={styles.footerLink}>
-                {t("About", { $id: "landing.footer.link.about" })}
-              </a>
-              <a href="#" className={styles.footerLink}>
-                {t("Blog", { $id: "landing.footer.link.blog" })}
-              </a>
-              <a href="#" className={styles.footerLink}>
-                {t("Careers", { $id: "landing.footer.link.careers" })}
-              </a>
-            </div>
-            <div className={styles.footerCol}>
-              <h4 className={styles.footerColTitle}>
-                {t("Legal", { $id: "landing.footer.col.legal" })}
-              </h4>
-              <a href="#" className={styles.footerLink}>
-                {t("Privacy", { $id: "landing.footer.link.privacy" })}
-              </a>
-              <a href="#" className={styles.footerLink}>
-                {t("Terms", { $id: "landing.footer.link.terms" })}
-              </a>
-              <a href="#" className={styles.footerLink}>
-                {t("Cookies", { $id: "landing.footer.link.cookies" })}
               </a>
             </div>
           </div>
@@ -1163,36 +1120,62 @@ function FeatureCard({
   );
 }
 
-function DemoColors() {
-  const colors = ["#f472b6", "#60a5fa", "#fdba74", "#6ee7b7", "#c4b5fd"];
-  return (
-    <div className={styles.demoColors}>
-      {colors.map((c, i) => (
-        <span
-          key={c}
-          className={`${styles.demoColor} ${i === 0 ? styles.demoColorActive : ""}`}
-          style={{ background: c }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function DemoPrivacy() {
+function StepDemoCreate() {
   const t = useGT();
+  const colors = ["#f472b6", "#60a5fa", "#fdba74", "#6ee7b7", "#c4b5fd"];
+  const [activeColor, setActiveColor] = useState(0);
+  const [activePrivacy, setActivePrivacy] = useState(0);
+
+  const privacyOptions = [
+    t("🌍 Public", { $id: "landing.demo.privacy.public" }),
+    t("👥 Friends", { $id: "landing.demo.privacy.friends" }),
+    t("🔒 Private", { $id: "landing.demo.privacy.private" }),
+  ];
+
+  const color = colors[activeColor];
+
   return (
-    <div className={styles.demoPrivacy}>
-      <span
-        className={`${styles.demoPrivacyOption} ${styles.demoPrivacyOptionActive}`}
-      >
-        {t("🌍 Public", { $id: "landing.demo.privacy.public" })}
-      </span>
-      <span className={styles.demoPrivacyOption}>
-        {t("👥 Friends", { $id: "landing.demo.privacy.friends" })}
-      </span>
-      <span className={styles.demoPrivacyOption}>
-        {t("🔒 Private", { $id: "landing.demo.privacy.private" })}
-      </span>
+    <div className={`${styles.stepDemo} ${styles.stepDemoCreate}`}>
+      <div className={styles.demoInput}>
+        <span className={styles.demoInputLabel}>
+          {t("Wishlist Name", { $id: "landing.how.step1.demoLabel" })}
+        </span>
+        <span
+          className={styles.demoInputValue}
+          style={{ borderColor: color }}
+        >
+          {t("Christmas 2026 🎄", { $id: "landing.how.step1.demoValue" })}
+        </span>
+      </div>
+      <div className={styles.demoColors}>
+        {colors.map((c, i) => (
+          <span
+            key={c}
+            className={`${styles.demoColor} ${i === activeColor ? styles.demoColorActive : ""}`}
+            style={{
+              background: c,
+              borderColor: i === activeColor ? c : "transparent",
+            }}
+            onClick={() => setActiveColor(i)}
+          />
+        ))}
+      </div>
+      <div className={styles.demoPrivacy}>
+        {privacyOptions.map((label, i) => (
+          <span
+            key={i}
+            className={`${styles.demoPrivacyOption} ${i === activePrivacy ? styles.demoPrivacyOptionActive : ""}`}
+            style={
+              i === activePrivacy
+                ? { background: `${color}18`, borderColor: color, color }
+                : undefined
+            }
+            onClick={() => setActivePrivacy(i)}
+          >
+            {label}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
