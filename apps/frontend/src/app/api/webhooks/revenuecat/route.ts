@@ -43,8 +43,7 @@ export async function POST(request: NextRequest) {
 
     const isCancelled = eventType === "CANCELLATION";
 
-   
-    const plan = isPro ? "pro" : isExpired ? "free" : "pro"; 
+    const plan = isPro ? "pro" : "free";
     const isActive = isPro || (isCancelled && !isExpired);
     const expiresAt = expirationAtMs
       ? new Date(expirationAtMs).toISOString()

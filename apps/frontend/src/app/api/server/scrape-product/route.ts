@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ProductData, emptyProduct } from "./helpers/types";
 import { getStoreScraper } from "./helpers/stores";
 import { genericScrapers } from "./helpers/generic";
+import { isSafeUrl } from "./helpers/validate-url";
 
 // Re-export for consumers (e.g. cron route)
 export type { ProductData };
@@ -18,6 +19,8 @@ export type { ProductData };
  *    мерджимо поля з кожного рівня.
  */
 export async function scrapeProduct(url: string): Promise<ProductData | null> {
+  if (!isSafeUrl(url)) return null;
+
   const response = await fetch(url, {
     headers: {
       "User-Agent":
@@ -89,23 +92,39 @@ export async function scrapeProduct(url: string): Promise<ProductData | null> {
 
 // === HTTP HANDLERS ===
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+/** Browser `Origin` is scheme + host + port — no path (e.g. https://wishlane.net not …/ ). */
+const SCRAPER_ALLOWED_ORIGINS = ["https://wishlane.net"];
 
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+/**
+ * Restrict cross-origin access to the app origin. Requests from other origins
+ * get no CORS headers so browsers block them. Server-side calls have no Origin.
+ */
+function getCorsHeaders(request: NextRequest): Record<string, string> {
+  const requestOrigin = request.headers.get("Origin") ?? "";
+  if (!SCRAPER_ALLOWED_ORIGINS.includes(requestOrigin)) {
+    return {};
+  }
+
+  return {
+    "Access-Control-Allow-Origin": requestOrigin,
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    Vary: "Origin",
+  };
+}
+
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, { status: 204, headers: getCorsHeaders(request) });
 }
 
 export async function GET(request: NextRequest) {
+  const corsHeaders = getCorsHeaders(request);
   const url = request.nextUrl.searchParams.get("url");
 
   if (!url) {
     return NextResponse.json(
       { error: "Missing 'url' query parameter" },
-      { status: 400, headers: CORS_HEADERS },
+      { status: 400, headers: corsHeaders },
     );
   }
 
@@ -115,23 +134,22 @@ export async function GET(request: NextRequest) {
     if (!product) {
       return NextResponse.json(
         { error: "Could not extract any product data" },
-        { status: 404, headers: CORS_HEADERS },
+        { status: 404, headers: corsHeaders },
       );
     }
 
-    return NextResponse.json(product, { headers: CORS_HEADERS });
-  } catch (error) {
+    return NextResponse.json(product, { headers: corsHeaders });
+  } catch {
     return NextResponse.json(
-      {
-        error: "Failed to scrape",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500, headers: CORS_HEADERS },
+      { error: "Failed to scrape" },
+      { status: 500, headers: corsHeaders },
     );
   }
 }
 
 export async function POST(request: NextRequest) {
+  const corsHeaders = getCorsHeaders(request);
+
   try {
     const { url } = await request.json();
 
@@ -140,18 +158,15 @@ export async function POST(request: NextRequest) {
     if (!product) {
       return NextResponse.json(
         { error: "Could not extract any product data" },
-        { status: 404, headers: CORS_HEADERS },
+        { status: 404, headers: corsHeaders },
       );
     }
 
-    return NextResponse.json(product, { headers: CORS_HEADERS });
-  } catch (error) {
+    return NextResponse.json(product, { headers: corsHeaders });
+  } catch {
     return NextResponse.json(
-      {
-        error: "Failed to scrape",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500, headers: CORS_HEADERS },
+      { error: "Failed to scrape" },
+      { status: 500, headers: corsHeaders },
     );
   }
 }
