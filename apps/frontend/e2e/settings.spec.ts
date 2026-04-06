@@ -1,4 +1,8 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+function settingsTabButtons(page: Page) {
+  return page.getByRole("navigation", { name: /settings sections/i });
+}
 
 test.describe("Settings page", () => {
   test.beforeEach(async ({ page }) => {
@@ -14,17 +18,14 @@ test.describe("Settings page", () => {
   test("renders settings tabs: Profile, Account, Notifications, Appearance", async ({
     page,
   }) => {
+    const tabs = settingsTabButtons(page);
+    await expect(tabs.getByRole("button", { name: /profile/i })).toBeVisible();
+    await expect(tabs.getByRole("button", { name: /account/i })).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /profile/i }),
+      tabs.getByRole("button", { name: /notifications/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /account/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /notifications/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /appearance/i }),
+      tabs.getByRole("button", { name: /appearance/i }),
     ).toBeVisible();
   });
 
@@ -34,26 +35,32 @@ test.describe("Settings page", () => {
   });
 
   test("switch to Account tab shows account settings", async ({ page }) => {
-    await page.getByRole("button", { name: /account/i }).click();
+    await settingsTabButtons(page).getByRole("button", { name: /account/i }).click();
     await expect(page.locator("[class*='content']").first()).toBeVisible();
   });
 
   test("switch to Notifications tab shows notification settings", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: /notifications/i }).click();
+    await settingsTabButtons(page)
+      .getByRole("button", { name: /notifications/i })
+      .click();
     await expect(page.locator("[class*='content']").first()).toBeVisible();
   });
 
   test("switch to Appearance tab shows appearance settings", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: /appearance/i }).click();
+    await settingsTabButtons(page)
+      .getByRole("button", { name: /appearance/i })
+      .click();
     await expect(page.locator("[class*='content']").first()).toBeVisible();
   });
 
   test("Appearance settings has theme options", async ({ page }) => {
-    await page.getByRole("button", { name: /appearance/i }).click();
+    await settingsTabButtons(page)
+      .getByRole("button", { name: /appearance/i })
+      .click();
     await expect(page.getByRole("heading", { name: "Theme" })).toBeVisible();
     await expect(page.getByText("Select your preferred color scheme.")).toBeVisible();
   });
@@ -67,7 +74,9 @@ test.describe("Settings page", () => {
   });
 
   test("visual screenshot — appearance tab", async ({ page }) => {
-    await page.getByRole("button", { name: /appearance/i }).click();
+    await settingsTabButtons(page)
+      .getByRole("button", { name: /appearance/i })
+      .click();
     await expect(page.locator("[class*='content']").first()).toBeVisible();
     await expect(page).toHaveScreenshot("settings-appearance.png", {
       maxDiffPixelRatio: 0.05,
