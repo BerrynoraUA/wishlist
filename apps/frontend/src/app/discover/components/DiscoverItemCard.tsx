@@ -271,9 +271,7 @@ export function DiscoverItemCard({
                     }}
                     aria-disabled={!hasShareLink}
                   >
-                    <span>
-                      {t("Share", { $id: "discover.item.share" })}
-                    </span>
+                    <span>{t("Share", { $id: "discover.item.share" })}</span>
                   </button>
                 </div>
               )}
@@ -282,13 +280,17 @@ export function DiscoverItemCard({
         </div>
 
         <div className={styles.info}>
-          <strong>{title}</strong>
+          <strong title={title}>{title}</strong>
 
           <div className={styles.metaRow}>
             {formattedPrice && (
               <span className={styles.price}>{formattedPrice}</span>
             )}
-            {store && <span className={styles.store}>{store}</span>}
+            {store && (
+              <span className={styles.store} title={store}>
+                {store}
+              </span>
+            )}
           </div>
 
           <div className={styles.actions}>

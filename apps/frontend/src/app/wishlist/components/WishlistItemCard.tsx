@@ -73,14 +73,11 @@ export function WishlistItemCard({
     3: "High",
   };
 
-  const priorityKey = item.priority
-    ? priorityKeyByValue[item.priority]
-    : null;
+  const priorityKey = item.priority ? priorityKeyByValue[item.priority] : null;
 
   const priorityDisplay = useMemo(() => {
     if (!priorityKey) return null;
-    if (priorityKey === "Low")
-      return t("Low", { $id: "item.priority.low" });
+    if (priorityKey === "Low") return t("Low", { $id: "item.priority.low" });
     if (priorityKey === "Medium")
       return t("Medium", { $id: "item.priority.medium" });
     return t("High", { $id: "item.priority.high" });
@@ -322,12 +319,16 @@ export function WishlistItemCard({
         </div>
 
         <div className={styles.content}>
-          <h3>{title}</h3>
+          <h3 title={title}>{title}</h3>
           <div className={styles.metaRow}>
             {formattedPrice && (
               <span className={styles.price}>{formattedPrice}</span>
             )}
-            {store && <span className={styles.store}>{store}</span>}
+            {store && (
+              <span className={styles.store} title={store}>
+                {store}
+              </span>
+            )}
           </div>
 
           {!isOwner && (

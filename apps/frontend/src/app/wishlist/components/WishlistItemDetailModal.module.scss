@@ -37,6 +37,18 @@
   }
 }
 
+.tooltipTrigger {
+  position: relative;
+  display: grid;
+  min-width: 0;
+
+  &:hover .textTooltip,
+  &:focus-within .textTooltip {
+    opacity: 1;
+    transform: translateY(calc(-100% - 10px));
+  }
+}
+
 .titleBlock,
 .descriptionBlock {
   display: grid;
@@ -62,9 +74,12 @@
 }
 
 .textTooltip {
-  position: fixed;
+  position: absolute;
+  left: 0;
+  top: 0;
   z-index: 240;
   width: max-content;
+  max-width: min(420px, calc(100vw - 64px));
   display: grid;
   gap: 8px;
   padding: 12px 14px;
@@ -83,6 +98,7 @@
   pointer-events: none;
   white-space: normal;
   overflow-wrap: anywhere;
+  transform: translateY(calc(-100% - 6px));
   transition:
     opacity 0.18s $ease-out,
     transform 0.18s $ease-out;
