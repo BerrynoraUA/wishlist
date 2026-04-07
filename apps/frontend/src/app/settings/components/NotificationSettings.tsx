@@ -3,15 +3,12 @@
 import styles from "./NotificationSettings.module.scss";
 import { SettingsSection } from "./SettingsSection";
 import { Toggle } from "@/components/ui/Toggle/Toggle";
-import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
-import { useSubscription } from "@/hooks/use-subscription";
 import { UserPlus, Gift, TrendingDown, Mail } from "lucide-react";
 
 export function NotificationSettings() {
   const { data: settings, isLoading } = useSettings();
   const updateSettings = useUpdateSettings();
-  const { isPro } = useSubscription();
 
   function toggle(key: string, value: boolean) {
     updateSettings.mutate({ [key]: value });
@@ -73,14 +70,7 @@ export function NotificationSettings() {
               <TrendingDown size={16} />
             </div>
             <div>
-              <p className={styles.rowLabel}>
-                Sale Price Alerts
-                {!isPro && (
-                  <span className={styles.proBadge}>
-                    <ProBadge size="sm" />
-                  </span>
-                )}
-              </p>
+              <p className={styles.rowLabel}>Sale Price Alerts</p>
               <p className={styles.rowHint}>
                 When an item in your wishlist goes on sale
               </p>
@@ -89,7 +79,6 @@ export function NotificationSettings() {
           <Toggle
             checked={settings.notify_sale_alerts}
             onChange={(v) => toggle("notify_sale_alerts", v)}
-            disabled={!isPro}
           />
         </div>
       </SettingsSection>

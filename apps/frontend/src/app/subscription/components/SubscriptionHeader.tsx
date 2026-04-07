@@ -1,3 +1,5 @@
+"use client";
+
 import styles from "./SubscriptionHeader.module.scss";
 import { useSubscription } from "@/hooks/use-subscription";
 import { SubscriptionPlan } from "@/types/subscription";

@@ -12,7 +12,6 @@ import {
   Pencil,
   Plus,
   Share2,
-  Sparkles,
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -23,9 +22,7 @@ import {
   visibilityIcon,
   visibilityLabel,
 } from "@/lib/helpers/wishlist-helper";
-import { useSubscription } from "@/hooks/use-subscription";
 import { useUpdateWishlist } from "@/hooks/use-wishlists";
-import { FREE_LIMITS } from "@/types/subscription";
 
 type Props = {
   wishlist: Wishlist;
@@ -47,7 +44,6 @@ export function WishlistHeader({
   isOwner = false,
 }: Props) {
   const router = useRouter();
-  const { isPro } = useSubscription();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const showActions = Boolean(
@@ -67,7 +63,6 @@ export function WishlistHeader({
   const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
   const canAddItem = Boolean(onAddItem);
   const canInlineEdit = isOwner;
-  const atItemLimit = !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
   const [isInlineEditing, setIsInlineEditing] = useState(false);
   const [titleDraft, setTitleDraft] = useState(wishlist.title);
   const [descriptionDraft, setDescriptionDraft] = useState(description);
@@ -91,11 +86,7 @@ export function WishlistHeader({
   }, [wishlist.title, description, isInlineEditing]);
 
   function handleAddItem() {
-    if (atItemLimit) {
-      router.push("/subscription");
-    } else {
-      onAddItem?.();
-    }
+    onAddItem?.();
   }
 
   function startEditing() {
@@ -186,34 +177,46 @@ export function WishlistHeader({
               <div className={styles.titleBlock}>
                 {isInlineEditing ? (
                   <div className={styles.inlineEditorBlock}>
-                    <input
-                      className={styles.titleInput}
-                      value={titleDraft}
-                      onChange={(e) => setTitleDraft(e.target.value)}
-                      onKeyDown={handleTitleKeyDown}
-                      placeholder="Wishlist title"
-                      autoFocus
-                      disabled={isUpdatingWishlist}
-                    />
-                    <div className={styles.inlineActions}>
-                      <button
-                        type="button"
-                        className={`${styles.inlineActionButton} ${styles.inlineSaveButton}`}
-                        onClick={saveInlineChanges}
-                        disabled={!titleDraft.trim() || isUpdatingWishlist}
-                        aria-label="Save wishlist changes"
-                      >
-                        <Check size={14} />
-                      </button>
-                      <button
-                        type="button"
-                        className={`${styles.inlineActionButton} ${styles.inlineCancelButton}`}
-                        onClick={cancelEditing}
+                    <div className={styles.inlineEditorFields}>
+                      <input
+                        className={styles.titleInput}
+                        value={titleDraft}
+                        onChange={(e) => setTitleDraft(e.target.value)}
+                        onKeyDown={handleTitleKeyDown}
+                        placeholder="Wishlist title"
+                        autoFocus
                         disabled={isUpdatingWishlist}
-                        aria-label="Cancel inline editing"
-                      >
-                        <X size={14} />
-                      </button>
+                      />
+                      <textarea
+                        className={styles.descriptionInput}
+                        value={descriptionDraft}
+                        onChange={(e) => setDescriptionDraft(e.target.value)}
+                        onKeyDown={handleDescriptionKeyDown}
+                        placeholder="Add a short description"
+                        disabled={isUpdatingWishlist}
+                      />
+                    </div>
+                    <div className={styles.inlineActions}>
+                      <div className={styles.inlineActionButtons}>
+                        <button
+                          type="button"
+                          className={`${styles.inlineActionButton} ${styles.inlineCancelButton}`}
+                          onClick={cancelEditing}
+                          disabled={isUpdatingWishlist}
+                          aria-label="Cancel inline editing"
+                        >
+                          <X size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.inlineActionButton} ${styles.inlineSaveButton}`}
+                          onClick={saveInlineChanges}
+                          disabled={!titleDraft.trim() || isUpdatingWishlist}
+                          aria-label="Save wishlist changes"
+                        >
+                          <Check size={14} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -223,16 +226,7 @@ export function WishlistHeader({
                 )}
 
                 {(description || canInlineEdit || isInlineEditing) &&
-                  (isInlineEditing ? (
-                    <textarea
-                      className={styles.descriptionInput}
-                      value={descriptionDraft}
-                      onChange={(e) => setDescriptionDraft(e.target.value)}
-                      onKeyDown={handleDescriptionKeyDown}
-                      placeholder="Add a short description"
-                      disabled={isUpdatingWishlist}
-                    />
-                  ) : (
+                  (isInlineEditing ? null : (
                     <div className={styles.descriptionRow}>
                       {description ? (
                         <p className={styles.description}>{description}</p>
@@ -283,23 +277,9 @@ export function WishlistHeader({
             <div className={styles.heroAside}>
               {canAddItem && (
                 <div className={styles.addItemArea}>
-                  {!isPro && (
-                    <span className={styles.limitCounter}>
-                      {itemsCount}/{FREE_LIMITS.maxItemsPerWishlist} items
-                    </span>
-                  )}
                   <Button size="sm" onClick={handleAddItem}>
-                    {atItemLimit ? (
-                      <>
-                        <Sparkles size={14} />
-                        <span>Upgrade to Add</span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus size={14} />
-                        <span>Add Item</span>
-                      </>
-                    )}
+                    <Plus size={14} />
+                    <span>Add Item</span>
                   </Button>
                 </div>
               )}

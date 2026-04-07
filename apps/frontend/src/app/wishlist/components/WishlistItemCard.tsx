@@ -4,7 +4,6 @@ import styles from "./WishlistItemCard.module.scss";
 import { useEffect, useRef, useState } from "react";
 import { Item } from "@/types/item";
 import {
-  Heart,
   ExternalLink,
   ShoppingBag,
   ShoppingCart,
@@ -17,6 +16,7 @@ import {
   ActionConfirmModal,
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
+import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
 
 type Props = {
   item: Item;
@@ -191,7 +191,7 @@ export function WishlistItemCard({
               {isPurchased ? (
                 <ShoppingCart size={14} />
               ) : (
-                <Heart size={14} fill="currentColor" />
+                <ReservationLockIcon isReserved={true} size={14} />
               )}
               <span>{reserveStatusLabel}</span>
             </div>
@@ -293,7 +293,11 @@ export function WishlistItemCard({
                 }}
                 disabled={!canToggleReservation}
               >
-                <Heart size={16} fill={isReserved ? "currentColor" : "none"} />
+                <ReservationLockIcon
+                  isReserved={isReserved}
+                  size={16}
+                  animateOnReserve
+                />
                 <span>
                   {isPurchased
                     ? "Purchased"
