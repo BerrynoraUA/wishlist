@@ -5,13 +5,7 @@ import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { Item } from "@/types/item";
-import {
-  Heart,
-  ExternalLink,
-  Trash2,
-  Pencil,
-  ShoppingCart,
-} from "lucide-react";
+import { ExternalLink, Trash2, Pencil, ShoppingCart } from "lucide-react";
 import styles from "./WishlistItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
@@ -19,6 +13,8 @@ import {
   ActionConfirmModal,
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
+import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
+import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
 
 type Props = {
   open: boolean;
@@ -122,10 +118,26 @@ export function WishlistItemDetailModal({
           )}
 
           <div className={styles.details}>
-            <h2>{item.name}</h2>
+            <div className={styles.tooltipTrigger}>
+              <div className={styles.titleBlock}>
+                <h2>{item.name}</h2>
+              </div>
+              <div className={styles.textTooltip} role="tooltip">
+                <div className={styles.textTooltipArrow} />
+                <strong>{item.name}</strong>
+              </div>
+            </div>
 
             {item.description && (
-              <p className={styles.description}>{item.description}</p>
+              <div className={styles.tooltipTrigger}>
+                <div className={styles.descriptionBlock}>
+                  <p className={styles.description}>{item.description}</p>
+                </div>
+                <div className={styles.textTooltip} role="tooltip">
+                  <div className={styles.textTooltipArrow} />
+                  <span>{item.description}</span>
+                </div>
+              </div>
             )}
 
             <div className={styles.meta}>
@@ -160,6 +172,24 @@ export function WishlistItemDetailModal({
                     {t("Visit website", { $id: "item.detail.visitWebsite" })}
                   </span>
                 </a>
+              )}
+
+              {!isOwner && (
+                <SaveToWishlistButton
+                  item={{
+                    name: item.name,
+                    description: item.description ?? null,
+                    price: item.price ?? null,
+                    image_url: item.image_url ?? null,
+                    url: item.url ?? null,
+                    priority: item.priority ?? null,
+                    discount_price: item.discount_price ?? null,
+                    has_discount: item.has_discount ?? false,
+                    discount_end_date: item.discount_end_date ?? null,
+                    currency: item.currency ?? null,
+                  }}
+                  className={styles.saveBtn}
+                />
               )}
 
               <div className={styles.footerRight}>
@@ -199,11 +229,13 @@ export function WishlistItemDetailModal({
                       onClick={handleReserveClick}
                       disabled={!canToggleReservation}
                     >
-                      <Heart
-                        size={16}
-                        fill={isReserved ? "currentColor" : "none"}
-                        style={{ marginRight: 6 }}
-                      />
+                      <span style={{ marginRight: 6, display: "inline-flex" }}>
+                        <ReservationLockIcon
+                          isReserved={isReserved}
+                          size={16}
+                          animateOnReserve
+                        />
+                      </span>
                       {isPurchased
                         ? t("Purchased", { $id: "item.status.purchased" })
                         : isReserved

@@ -9,6 +9,7 @@ import { useCreateItem } from "@/hooks/use-items";
 import { useSettings } from "@/hooks/use-settings";
 import { useSubscription } from "@/hooks/use-subscription";
 import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/currencies";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import styles from "./CreateItemModal.module.scss";
 
 import type { CreateItemParams } from "@/api/types/item";
@@ -38,6 +39,8 @@ function resolveCurrency(value?: string | null) {
 
 export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const t = useGT();
+  const { isPro } = useSubscription();
+  const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
   const [link, setLink] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -56,7 +59,6 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [currency, setCurrency] = useState(preferredCurrency);
 
   const { mutate, isPending } = useCreateItem();
-  const { isPro } = useSubscription();
 
   useEffect(() => {
     if (!open) {
@@ -69,10 +71,6 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       setCurrency(preferredCurrency);
     }
   }, [open, preferredCurrency, link, name, description, price, imagePreview]);
-
-  useEffect(() => {
-    if (!isPro) setPriority("None");
-  }, [isPro]);
 
   useEffect(() => {
     return () => {
@@ -110,8 +108,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       name: name.trim(),
       description: description.trim() || null,
       price: price.trim() || null,
-      // Priority is a Pro-only feature
-      priority: isPro ? priorityValue : null,
+      priority: priorityValue,
       url: link.trim() || null, // original link user pasted
       image: imageFile,
       image_url: imageUrlToSave,
@@ -340,7 +337,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           </div>
         </div>
 
-        {isPro && (
+        {canUsePriority && (
           <div className={styles.field}>
             <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
             <div className={styles.selectWrap}>

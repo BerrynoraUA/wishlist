@@ -14,9 +14,11 @@ import { useCurrentUserId } from "@/hooks/use-user";
 import { WishlistItemDetailModal } from "@/app/wishlist/components/WishlistItemDetailModal";
 import type { Item } from "@/types/item";
 import styles from "./SecretSantaGiftSuggestions.module.scss";
+import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
 
 type Props = {
   budget: number;
+  currency?: string | null;
   receiverId?: string;
 };
 
@@ -40,7 +42,11 @@ function toWishlistItem(item: VisibleItem): Item {
   };
 }
 
-export function SecretSantaGiftSuggestions({ budget, receiverId }: Props) {
+export function SecretSantaGiftSuggestions({
+  budget,
+  currency,
+  receiverId,
+}: Props) {
   const t = useGT();
   const { data, isLoading } = useGiftSuggestions(receiverId, budget);
   const toggleReserve = useToggleItemReservationSecret();
@@ -56,18 +62,17 @@ export function SecretSantaGiftSuggestions({ budget, receiverId }: Props) {
       <div className={styles.header}>
         <Gift size={16} />
         <span>
-          {t("Gift ideas up to {budget}$", {
-            budget,
+          {t("Gift ideas up to {budget}", {
+            budget: formatPrice(budget, currency),
             $id: "secretSanta.gifts.header",
           })}
         </span>
       </div>
 
       <p className={styles.description}>
-        {t(
-          "Items from your receiver's wishlists that fit the event budget.",
-          { $id: "secretSanta.gifts.description" },
-        )}
+        {t("Items from your receiver's wishlists that fit the event budget.", {
+          $id: "secretSanta.gifts.description",
+        })}
       </p>
 
       {isLoading ? (
@@ -130,7 +135,7 @@ export function SecretSantaGiftSuggestions({ budget, receiverId }: Props) {
                       {isPurchased ? (
                         <ShoppingCart size={13} />
                       ) : (
-                        <Heart size={13} fill="currentColor" />
+                        <ReservationLockIcon isReserved={true} size={13} />
                       )}
                       <span>{reserveStatusLabel}</span>
                     </div>

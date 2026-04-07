@@ -11,6 +11,7 @@ import { visibilityIcon } from "@/lib/helpers/wishlist-helper";
 import { useWishlistVisibilityLabels } from "@/lib/helpers/use-wishlist-visibility-labels";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FREE_LIMITS } from "@/types/subscription";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 
 type Props = {
   wishlist: Wishlist;
@@ -35,15 +36,17 @@ export function WishlistInfo({ wishlist, onAddItem }: Props) {
   const description = wishlist.description ?? "";
   const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
   const canAddItem = Boolean(onAddItem);
-
-  const atItemLimit = !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
+  const atItemLimit =
+    SUBSCRIPTIONS_UI_ENABLED &&
+    !isPro &&
+    itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
 
   function handleAddItem() {
     if (atItemLimit) {
       router.push("/subscription");
-    } else {
-      onAddItem?.();
+      return;
     }
+    onAddItem?.();
   }
 
   return (
@@ -56,12 +59,12 @@ export function WishlistInfo({ wishlist, onAddItem }: Props) {
 
         {canAddItem && (
           <div className={styles.ownerActions}>
-            {!isPro && (
+            {SUBSCRIPTIONS_UI_ENABLED && !isPro && (
               <span className={styles.limitCounter}>
                 {t("{current}/{max} items", {
                   current: itemsCount,
                   max: FREE_LIMITS.maxItemsPerWishlist,
-                  $id: "wishlist.header.limitCounter"
+                  $id: "wishlist.header.limitCounter",
                 })}
               </span>
             )}
@@ -71,7 +74,7 @@ export function WishlistInfo({ wishlist, onAddItem }: Props) {
                   <Sparkles size={14} />
                   <span>
                     {t("Upgrade to Add", {
-                      $id: "wishlist.header.upgradeToAdd"
+                      $id: "wishlist.header.upgradeToAdd",
                     })}
                   </span>
                 </>
@@ -96,7 +99,10 @@ export function WishlistInfo({ wishlist, onAddItem }: Props) {
         <span className={styles.countBadge}>
           {itemsCount === 1
             ? t("{n} item", { n: itemsCount, $id: "wishlist.itemCount.one" })
-            : t("{n} items", { n: itemsCount, $id: "wishlist.itemCount.other" })}
+            : t("{n} items", {
+                n: itemsCount,
+                $id: "wishlist.itemCount.other",
+              })}
         </span>
         {eventDate && (
           <span className={styles.dateBadge}>

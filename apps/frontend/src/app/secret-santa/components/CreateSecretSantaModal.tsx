@@ -6,7 +6,9 @@ import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useCreateSecretSantaEvent } from "@/hooks/use-secret-santa";
 import { useFriends } from "@/hooks/use-friends";
+import { useSettings } from "@/hooks/use-settings";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
+import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/currencies";
 import { Search, X, UserPlus, Check } from "lucide-react";
 import styles from "./CreateSecretSantaModal.module.scss";
 
@@ -32,6 +34,7 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [budget, setBudget] = useState("");
+  const [currency, setCurrency] = useState("USD");
   const [imagePreview, setImagePreview] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
@@ -40,6 +43,11 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
 
   const { mutate, isPending } = useCreateSecretSantaEvent();
   const { data: friends } = useFriends();
+  const { data: settings } = useSettings();
+
+  useEffect(() => {
+    setCurrency(normalizeCurrencyCode(settings?.display_currency));
+  }, [settings?.display_currency]);
 
   const filteredFriends = (friends ?? []).filter((f) => {
     const alreadyAdded = participants.some((p) => p.user_id === f.friend_id);
@@ -62,6 +70,7 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
     setName("");
     setEventDate("");
     setBudget("");
+    setCurrency(normalizeCurrencyCode(settings?.display_currency));
     setImagePreview("");
     setImageFile(null);
     setParticipants([]);
@@ -110,6 +119,7 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
         name: name.trim(),
         event_date: eventDate,
         budget: parseFloat(budget),
+        currency,
         image: imageFile,
         imageUrl: imageFile ? null : imagePreview || null,
         invited_user_ids: participants.map((p) => p.user_id),
@@ -171,17 +181,32 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
 
         {/* Budget */}
         <div className={styles.field}>
-          <label>{t("Budget", { $id: "secretSanta.create.budgetLabel" })}</label>
-          <input
-            type="number"
-            placeholder={t("e.g. 25", {
-              $id: "secretSanta.create.budgetPlaceholder",
-            })}
-            min="0"
-            step="0.01"
-            value={budget}
-            onChange={(e) => setBudget(e.target.value)}
-          />
+          <label>
+            {t("Budget", { $id: "secretSanta.create.budgetLabel" })}
+          </label>
+          <div className={styles.budgetRow}>
+            <input
+              type="number"
+              placeholder={t("e.g. 25", {
+                $id: "secretSanta.create.budgetPlaceholder",
+              })}
+              min="0"
+              step="0.01"
+              value={budget}
+              onChange={(e) => setBudget(e.target.value)}
+            />
+            <select
+              className={styles.currencySelect}
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+            >
+              {SUPPORTED_CURRENCIES.map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.code}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Cover Image */}

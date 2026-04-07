@@ -35,6 +35,13 @@
   color: var(--color-text);
 }
 
+.logoIconWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .logoIcon {
   width: 36px;
   height: 36px;
@@ -55,6 +62,15 @@
   &:hover {
     transform: scale(1.08) rotate(-3deg);
   }
+}
+
+.logoBetaBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 1;
+  transform: translate(42%, -42%);
 }
 
 /* ===== NAV ===== */

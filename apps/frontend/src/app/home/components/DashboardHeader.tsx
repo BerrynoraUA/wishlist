@@ -8,6 +8,7 @@ import { Plus, Sparkles } from "lucide-react";
 import { useCurrentUser, useMyStatistics } from "@/hooks/use-user";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FREE_LIMITS } from "@/types/subscription";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 
 function getDisplayName(nameSource?: {
   email?: string | null;
@@ -44,21 +45,24 @@ export function DashboardHeader({ onNewWishlist }: Props) {
   const { data: stats } = useMyStatistics();
   const { isPro } = useSubscription();
   const router = useRouter();
+  const wishlistCount = stats?.wishlists_count ?? 0;
+  const atLimit =
+    SUBSCRIPTIONS_UI_ENABLED &&
+    !isPro &&
+    wishlistCount >= FREE_LIMITS.maxWishlists;
   const rawDisplayName = getDisplayName(user ?? undefined);
   const displayName =
     rawDisplayName === "there"
       ? t("there", { $id: "home.dashboard.greeting.fallbackName" })
       : rawDisplayName;
 
-  const wishlistCount = stats?.wishlists_count ?? 0;
-  const atLimit = !isPro && wishlistCount >= FREE_LIMITS.maxWishlists;
-
   function handleNewWishlist() {
     if (atLimit) {
       router.push("/subscription");
-    } else {
-      onNewWishlist();
+      return;
     }
+
+    onNewWishlist();
   }
 
   return (
@@ -79,7 +83,7 @@ export function DashboardHeader({ onNewWishlist }: Props) {
       </div>
 
       <div className={styles.actions}>
-        {!isPro && (
+        {SUBSCRIPTIONS_UI_ENABLED && !isPro && (
           <span className={styles.limitCounter}>
             {t("{current}/{max} wishlists", {
               current: wishlistCount,

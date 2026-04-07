@@ -2,8 +2,6 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 import { Item } from "@/types/item";
 import { CreateItemParams, UpdateItemParams } from "./types/item";
 import { getItems } from "./helpers/item-helper";
-import { getSubscriptionStatus } from "./subscription";
-import { SubscriptionPlan } from "@/types/subscription";
 import {
   deletePublicImage,
   uploadPublicImage,
@@ -12,15 +10,7 @@ import {
 const ITEM_IMAGE_BUCKET = "items";
 
 async function ensureProForPriority(priority: number | null | undefined) {
-  if (priority == null) return;
-
-  const status = await getSubscriptionStatus();
-  const isPro =
-    status.plan === SubscriptionPlan.Pro && status.isActive === true;
-
-  if (!isPro) {
-    throw new Error("Priority is available for Pro subscribers only");
-  }
+  void priority;
 }
 
 export async function createItem({
