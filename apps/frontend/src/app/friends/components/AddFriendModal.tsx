@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { Copy } from "lucide-react";
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export function AddFriendModal({ open, onClose }: Props) {
+  const t = useGT();
   const [origin, setOrigin] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [username, setUsername] = useState("");
@@ -192,11 +194,15 @@ export function AddFriendModal({ open, onClose }: Props) {
       style={dropdownStyle ?? undefined}
     >
       {search.isFetching && results.length === 0 && (
-        <div className={styles.empty}>Searching...</div>
+        <div className={styles.empty}>
+          {t("Searching...", { $id: "friends.addModal.searching" })}
+        </div>
       )}
 
       {!search.isFetching && results.length === 0 && (
-        <div className={styles.empty}>No matches</div>
+        <div className={styles.empty}>
+          {t("No matches", { $id: "friends.addModal.noMatches" })}
+        </div>
       )}
 
       {results.length > 0 && (
@@ -226,7 +232,9 @@ export function AddFriendModal({ open, onClose }: Props) {
           onClick={handleLoadMore}
           disabled={search.isFetching}
         >
-          {search.isFetching ? "Loading..." : "Load more"}
+          {search.isFetching
+            ? t("Loading...", { $id: "friends.addModal.loadMoreLoading" })
+            : t("Load more", { $id: "friends.addModal.loadMore" })}
         </button>
       )}
     </div>
@@ -236,42 +244,71 @@ export function AddFriendModal({ open, onClose }: Props) {
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <p className={styles.eyebrow}>Friends</p>
-          <h2>Invite friends</h2>
-          <p>Share your personal invite link or look up a friend by handle.</p>
+          <p className={styles.eyebrow}>
+            {t("Friends", { $id: "friends.addModal.eyebrow" })}
+          </p>
+          <h2>{t("Invite friends", { $id: "friends.addModal.title" })}</h2>
+          <p>
+            {t(
+              "Share your personal invite link or look up a friend by handle.",
+              { $id: "friends.addModal.subtitle" },
+            )}
+          </p>
         </div>
 
         {/* Invite Link */}
         <div className={styles.field}>
-          <label>Your invite link</label>
+          <label>
+            {t("Your invite link", { $id: "friends.addModal.inviteLinkLabel" })}
+          </label>
 
           <div className={styles.linkWrapper}>
-            <input value={inviteLink || "Loading..."} readOnly />
+            <input
+              value={
+                inviteLink ||
+                t("Loading...", { $id: "friends.addModal.linkLoading" })
+              }
+              readOnly
+            />
 
             <button
               className={`${styles.copyBtn} iconTooltipTrigger`}
               onClick={handleCopy}
               disabled={!inviteLink}
-              aria-label="Copy invite link"
-              data-tooltip="Copy invite link"
+              aria-label={t("Copy invite link", {
+                $id: "friends.addModal.copyAria",
+              })}
+              data-tooltip={t("Copy invite link", {
+                $id: "friends.addModal.copyTooltip",
+              })}
             >
               <Copy size={16} />
             </button>
           </div>
 
-          {copied && <span className={styles.copied}>Copied to clipboard</span>}
+          {copied && (
+            <span className={styles.copied}>
+              {t("Copied to clipboard", {
+                $id: "friends.addModal.copied",
+              })}
+            </span>
+          )}
         </div>
 
         {/* Divider */}
         <div className={styles.divider}>
-          <span>OR SEARCH</span>
+          <span>
+            {t("OR SEARCH", { $id: "friends.addModal.orSearch" })}
+          </span>
         </div>
 
         {/* Username Search */}
         <div className={styles.searchRow}>
           <div className={styles.usernameInput} ref={inputWrapperRef}>
             <input
-              placeholder="@username"
+              placeholder={t("@username", {
+                $id: "friends.addModal.usernamePlaceholder",
+              })}
               value={username}
               onChange={(e) => {
                 setUsername(e.target.value);
@@ -283,7 +320,9 @@ export function AddFriendModal({ open, onClose }: Props) {
           </div>
 
           <Button onClick={handleInvite} disabled={inviteDisabled}>
-            {sendRequest.isPending ? "Inviting..." : "Invite"}
+            {sendRequest.isPending
+              ? t("Inviting...", { $id: "friends.addModal.inviting" })
+              : t("Invite", { $id: "friends.addModal.invite" })}
           </Button>
         </div>
 
@@ -302,8 +341,12 @@ export function AddFriendModal({ open, onClose }: Props) {
                       prev.filter((p) => p.id !== profile.id),
                     )
                   }
-                  aria-label="Remove from invite list"
-                  data-tooltip="Remove from invite list"
+                  aria-label={t("Remove from invite list", {
+                    $id: "friends.addModal.removeBadgeAria",
+                  })}
+                  data-tooltip={t("Remove from invite list", {
+                    $id: "friends.addModal.removeBadgeTooltip",
+                  })}
                 >
                   ×
                 </button>
@@ -314,11 +357,17 @@ export function AddFriendModal({ open, onClose }: Props) {
 
         {search.isError && (
           <div className={styles.error}>
-            Could not search right now. Try again.
+            {t("Could not search right now. Try again.", {
+              $id: "friends.addModal.searchError",
+            })}
           </div>
         )}
 
-        {inviteSuccess && <div className={styles.success}>Invite sent!</div>}
+        {inviteSuccess && (
+          <div className={styles.success}>
+            {t("Invite sent!", { $id: "friends.addModal.inviteSent" })}
+          </div>
+        )}
       </div>
     </Modal>
   );

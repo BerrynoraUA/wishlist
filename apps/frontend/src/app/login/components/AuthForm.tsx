@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT } from "gt-next";
 import { useState } from "react";
 import { Chrome } from "lucide-react";
 import {
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
+  const t = useGT();
   const isLogin = mode === "login";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +30,7 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
     setError(null);
 
     if (!email || !password) {
-      setError("Email and password are required.");
+      setError(t("Email and password are required.", { $id: "login.form.error.required" }));
       return;
     }
 
@@ -43,7 +45,11 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
 
       onLoginSuccess(redirectTo);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(
+        err instanceof Error
+          ? err.message
+          : t("Something went wrong", { $id: "login.form.error.generic" }),
+      );
     } finally {
       setLoading(false);
     }
@@ -56,7 +62,11 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
     try {
       await loginWithGoogle(redirectTo);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Google login failed");
+      setError(
+        err instanceof Error
+          ? err.message
+          : t("Google login failed", { $id: "login.form.error.google" }),
+      );
       setGoogleLoading(false);
     }
   };
@@ -70,27 +80,33 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
         disabled={googleLoading}
       >
         <Chrome size={16} />
-        {googleLoading ? "Redirecting..." : "Continue with Google"}
+        {googleLoading
+          ? t("Redirecting...", { $id: "login.form.google.redirecting" })
+          : t("Continue with Google", { $id: "login.form.google.continue" })}
       </button>
 
       <div className={styles.divider}>
-        <span>or</span>
+        <span>{t("or", { $id: "login.form.divider.or" })}</span>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        <label className={styles.label}>Email</label>
+        <label className={styles.label}>
+          {t("Email", { $id: "login.form.label.email" })}
+        </label>
         <input
           type="email"
-          placeholder="you@email.com"
+          placeholder={t("you@email.com", { $id: "login.form.placeholder.email" })}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className={styles.input}
         />
 
-        <label className={styles.label}>Password</label>
+        <label className={styles.label}>
+          {t("Password", { $id: "login.form.label.password" })}
+        </label>
         <input
           type="password"
-          placeholder="••••••••"
+          placeholder={t("••••••••", { $id: "login.form.placeholder.password" })}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className={styles.input}
@@ -105,18 +121,26 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
         >
           {loading
             ? isLogin
-              ? "Signing in..."
-              : "Creating account..."
+              ? t("Signing in...", { $id: "login.form.submit.signingIn" })
+              : t("Creating account...", {
+                  $id: "login.form.submit.creatingAccount",
+                })
             : isLogin
-              ? "Sign in"
-              : "Create account"}
+              ? t("Sign in", { $id: "login.form.submit.signIn" })
+              : t("Create account", { $id: "login.form.submit.createAccount" })}
         </button>
       </form>
 
       <p className={styles.helper}>
         {isLogin
-          ? "New here? Choose Register above to create an account."
-          : "Already have an account? Switch back to Login."}
+          ? t(
+              "New here? Choose Register above to create an account.",
+              { $id: "login.form.helper.register" },
+            )
+          : t(
+              "Already have an account? Switch back to Login.",
+              { $id: "login.form.helper.login" },
+            )}
       </p>
     </div>
   );

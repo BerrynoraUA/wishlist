@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT, useLocale } from "gt-next";
 import { useRouter } from "next/navigation";
 import styles from "./SecretSantaEventCard.module.scss";
 import { TreePine, CalendarDays, Users } from "lucide-react";
@@ -21,9 +22,9 @@ function getAccentFromId(id: string): string {
   return accents[Math.abs(hash) % accents.length];
 }
 
-function formatEventDate(dateStr: string): string {
+function formatEventDate(dateStr: string, locale: string): string {
   try {
-    return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
+    return new Date(dateStr + "T00:00:00").toLocaleDateString(locale, {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -34,6 +35,8 @@ function formatEventDate(dateStr: string): string {
 }
 
 export function SecretSantaEventCard({ event }: Props) {
+  const t = useGT();
+  const locale = useLocale();
   const router = useRouter();
   const { formatPrice } = useCurrencyFormatter();
   const accent = getAccentFromId(event.id);
@@ -56,7 +59,9 @@ export function SecretSantaEventCard({ event }: Props) {
         {event.is_owner && (
           <div className={styles.ownerBadge}>
             <TreePine size={12} />
-            <span>Organizer</span>
+            <span>
+              {t("Organizer", { $id: "secretSanta.card.organizer" })}
+            </span>
           </div>
         )}
         {!hasImage && <TreePine size={40} className={styles.icon} />}
@@ -68,7 +73,10 @@ export function SecretSantaEventCard({ event }: Props) {
         <div className={styles.meta}>
           <span className={styles.metaItem}>
             <Users size={14} />
-            {event.participants_count} participants
+            {t("{count} participants", {
+              count: event.participants_count,
+              $id: "secretSanta.card.participantsCount",
+            })}
           </span>
 
           <span className={styles.metaItem}>
@@ -78,7 +86,9 @@ export function SecretSantaEventCard({ event }: Props) {
 
         <div className={styles.date}>
           <CalendarDays size={14} />
-          <span>{formatEventDate(event.event_date)}</span>
+          <span>
+            {formatEventDate(event.event_date, locale ?? "en")}
+          </span>
         </div>
       </div>
     </div>

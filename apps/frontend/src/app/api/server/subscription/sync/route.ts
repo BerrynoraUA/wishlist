@@ -123,11 +123,7 @@ export async function POST(request: NextRequest) {
       );
 
       return NextResponse.json(
-        {
-          error: "Failed to fetch subscription from RevenueCat",
-          revenueCatStatus: rcResponse.status,
-          revenueCatBody: upstreamBody,
-        },
+        { error: "Failed to fetch subscription data" },
         { status: 502 },
       );
     }

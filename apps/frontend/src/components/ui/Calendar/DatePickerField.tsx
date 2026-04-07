@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useGT, useLocale } from "gt-next";
 import { CalendarDays, X } from "lucide-react";
 import { Calendar } from "./Calendar";
 import styles from "./DatePickerField.module.scss";
@@ -11,10 +12,12 @@ type Props = {
 };
 
 export function DatePickerField({ value, onChange }: Props) {
+  const t = useGT();
+  const locale = useLocale();
   const [expanded, setExpanded] = useState(false);
 
   const displayValue = value
-    ? new Date(value + "T00:00:00").toLocaleDateString("en-US", {
+    ? new Date(value + "T00:00:00").toLocaleDateString(locale ?? "en", {
         month: "short",
         day: "numeric",
         year: "numeric",
@@ -29,7 +32,9 @@ export function DatePickerField({ value, onChange }: Props) {
       >
         <CalendarDays size={16} className={styles.icon} />
         <span className={value ? styles.value : styles.placeholder}>
-          {value ? displayValue : "Select a date"}
+          {value
+            ? displayValue
+            : t("Select a date", { $id: "datePicker.placeholder" })}
         </span>
         {value && (
           <button
@@ -39,8 +44,8 @@ export function DatePickerField({ value, onChange }: Props) {
               onChange("");
             }}
             type="button"
-            aria-label="Clear date"
-            data-tooltip="Clear date"
+            aria-label={t("Clear date", { $id: "datePicker.clearAria" })}
+            data-tooltip={t("Clear date", { $id: "datePicker.clearTooltip" })}
           >
             <X size={14} />
           </button>

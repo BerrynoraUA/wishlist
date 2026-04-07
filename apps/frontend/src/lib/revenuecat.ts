@@ -16,8 +16,9 @@ export function initRevenueCat(userId: string): Purchases {
 
   if (!RC_API_KEY) {
     console.warn(
-      "[RevenueCat] NEXT_PUBLIC_REVENUECAT_API_KEY is not set — subscription features will be unavailable.",
+      "[RevenueCat] NEXT_PUBLIC_REVENUECAT_API_KEY is not set \u2014 subscription features will be unavailable.",
     );
+    return null as unknown as Purchases;
   }
 
   instance = Purchases.configure(RC_API_KEY, userId);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useGT } from "gt-next";
 import styles from "./ReservedItemCard.module.scss";
 import { ReservedItem } from "@/api/types/wishilst";
 import { ExternalLink, MoreHorizontal, ShoppingCart } from "lucide-react";
@@ -40,6 +41,7 @@ export function ReservedItemCard({
   onToggleBought,
   showDiscountBadge = false,
 }: Props) {
+  const t = useGT();
   const [detailOpen, setDetailOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmAction, setConfirmAction] =
@@ -57,20 +59,34 @@ export function ReservedItemCard({
   const shareLink = share_url || url || "";
   const hasShareLink = Boolean(shareLink);
   const hasProductLink = Boolean(url);
-  const priorityLabel: Record<string, "Low" | "Medium" | "High"> = {
-    "1": "Low",
-    "2": "Medium",
-    "3": "High",
-    Low: "Low",
-    Medium: "Medium",
-    High: "High",
+  const priorityKeyByValue: Record<string, "low" | "medium" | "high"> = {
+    "1": "low",
+    "2": "medium",
+    "3": "high",
+    Low: "low",
+    Medium: "medium",
+    High: "high",
   };
-  const priorityDisplay = priority
-    ? priorityLabel[String(priority)] || null
+  const priorityKey = priority
+    ? (priorityKeyByValue[String(priority)] ?? null)
     : null;
-  const priorityClass = priorityDisplay
-    ? styles[priorityDisplay.toLowerCase() as "low" | "medium" | "high"]
-    : "";
+  const priorityClass = priorityKey ? styles[priorityKey] : "";
+  const priorityDisplay =
+    priorityKey === "low"
+      ? t("Low", { $id: "discover.reserved.priorityLow" })
+      : priorityKey === "medium"
+        ? t("Medium", { $id: "discover.reserved.priorityMedium" })
+        : priorityKey === "high"
+          ? t("High", { $id: "discover.reserved.priorityHigh" })
+          : null;
+  const priorityEnum: "Low" | "Medium" | "High" | undefined =
+    priorityKey === "low"
+      ? "Low"
+      : priorityKey === "medium"
+        ? "Medium"
+        : priorityKey === "high"
+          ? "High"
+          : undefined;
 
   const salePercentOff = (() => {
     if (!showDiscountBadge) return null;
@@ -116,8 +132,7 @@ export function ReservedItemCard({
       } else {
         window.open(shareLink, "_blank", "noopener,noreferrer");
       }
-    } catch (error) {
-      console.error("Failed to share reserved item", error);
+    } catch {
     } finally {
       setMenuOpen(false);
     }
@@ -156,7 +171,9 @@ export function ReservedItemCard({
             {imgSrc ? (
               <img src={imgSrc} alt={title} />
             ) : (
-              <div className={styles.placeholder}>No image</div>
+              <div className={styles.placeholder}>
+                {t("No image", { $id: "discover.reserved.noImage" })}
+              </div>
             )}
           </div>
 
@@ -168,11 +185,24 @@ export function ReservedItemCard({
             ) : (
               <ReservationLockIcon isReserved={true} size={14} />
             )}
-            <span>{isPurchased ? "Purchased by you" : "Reserved by you"}</span>
+            <span>
+              {isPurchased
+                ? t("Purchased by you", {
+                    $id: "discover.reserved.purchasedByYouBadge",
+                  })
+                : t("Reserved by you", {
+                    $id: "discover.reserved.reservedByYouBadge",
+                  })}
+            </span>
           </div>
 
           {salePercentOff != null && (
-            <div className={styles.saleBadgeLeft}>Sale -{salePercentOff}%</div>
+            <div className={styles.saleBadgeLeft}>
+              {t("Sale -{percent}%", {
+                percent: salePercentOff,
+                $id: "discover.reserved.saleBadge",
+              })}
+            </div>
           )}
 
           {priorityDisplay && (
@@ -215,9 +245,13 @@ export function ReservedItemCard({
                 e.stopPropagation();
                 if (!hasProductLink) e.preventDefault();
               }}
-              aria-label="Open product link"
+              aria-label={t("Open product link", {
+                $id: "discover.reserved.openProductAria",
+              })}
               aria-disabled={!hasProductLink}
-              data-tooltip="Open product link"
+              data-tooltip={t("Open product link", {
+                $id: "discover.reserved.openProductTooltip",
+              })}
             >
               <ExternalLink size={16} />
             </a>
@@ -230,9 +264,13 @@ export function ReservedItemCard({
                   if (!hasShareLink) return;
                   setMenuOpen((prev) => !prev);
                 }}
-                aria-label="Open item menu"
+                aria-label={t("Open item menu", {
+                  $id: "discover.reserved.menuAria",
+                })}
                 aria-disabled={!hasShareLink}
-                data-tooltip="More options"
+                data-tooltip={t("More options", {
+                  $id: "discover.reserved.moreOptionsTooltip",
+                })}
               >
                 <MoreHorizontal size={16} />
               </button>
@@ -248,7 +286,9 @@ export function ReservedItemCard({
                     }}
                     aria-disabled={!hasShareLink}
                   >
-                    <span>Share</span>
+                    <span>
+                      {t("Share", { $id: "discover.reserved.share" })}
+                    </span>
                   </button>
                 </div>
               )}
@@ -257,14 +297,18 @@ export function ReservedItemCard({
         </div>
 
         <div className={styles.info}>
-          <strong>{title}</strong>
+          <strong title={title}>{title}</strong>
           <div className={styles.metaRow}>
             {price != null && price !== 0 && (
               <span className={styles.price}>
                 {formatItemPrice(price, currency)}
               </span>
             )}
-            {store && <span className={styles.store}>{store}</span>}
+            {store && (
+              <span className={styles.store} title={store}>
+                {store}
+              </span>
+            )}
           </div>
 
           <div className={styles.actions}>
@@ -275,14 +319,22 @@ export function ReservedItemCard({
                 handleReserveClick();
               }}
               disabled={!canToggleReservation}
-              aria-label="Release reservation"
+              aria-label={t("Release reservation", {
+                $id: "discover.reserved.releaseAria",
+              })}
             >
               <ReservationLockIcon
                 isReserved={true}
                 size={16}
                 animateOnReserve
               />
-              <span>{isPurchased ? "Purchased" : "Reserved by you"}</span>
+              <span>
+                {isPurchased
+                  ? t("Purchased", { $id: "discover.reserved.purchasedBtn" })
+                  : t("Reserved by you", {
+                      $id: "discover.reserved.reservedByYouBtn",
+                    })}
+              </span>
             </button>
 
             {onToggleBought && (
@@ -293,11 +345,31 @@ export function ReservedItemCard({
                   handleBoughtClick();
                 }}
                 aria-label={
-                  isPurchased ? "Mark as not purchased" : "Mark as purchased"
+                  isPurchased
+                    ? t("Mark as not purchased", {
+                        $id: "discover.reserved.unpurchaseAria",
+                      })
+                    : t("Mark as purchased", {
+                        $id: "discover.reserved.purchaseAria",
+                      })
                 }
-                title={isPurchased ? "Purchased" : "Mark as purchased"}
+                title={
+                  isPurchased
+                    ? t("Purchased", {
+                        $id: "discover.reserved.purchasedTitle",
+                      })
+                    : t("Mark as purchased", {
+                        $id: "discover.reserved.purchaseTitle",
+                      })
+                }
                 data-tooltip={
-                  isPurchased ? "Mark as not purchased" : "Mark as purchased"
+                  isPurchased
+                    ? t("Mark as not purchased", {
+                        $id: "discover.reserved.unpurchaseTooltip",
+                      })
+                    : t("Mark as purchased", {
+                        $id: "discover.reserved.purchaseTooltip",
+                      })
                 }
               >
                 <ShoppingCart size={16} />
@@ -321,7 +393,7 @@ export function ReservedItemCard({
           url,
           share_url,
           description: null,
-          priority: priorityDisplay ?? undefined,
+          priority: priorityEnum,
           reservedBy,
           reservedByName: "you",
           currency,

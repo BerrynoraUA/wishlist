@@ -36,7 +36,7 @@ function LoginPageContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<main className={styles.page}><p>Loading login...</p></main>}>
+    <Suspense fallback={null}>
       <LoginPageContent />
     </Suspense>
   );

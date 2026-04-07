@@ -133,9 +133,9 @@ async function handleMessage(msg) {
     case "LOGIN_GOOGLE": {
       // Build Supabase OAuth URL for Google
       const redirectUrl = chrome.identity.getRedirectURL("callback");
-      console.log("[Wishly] OAuth redirect URL:", redirectUrl);
+      console.log("[Wishlane] OAuth redirect URL:", redirectUrl);
       console.log(
-        "[Wishly] Add this URL to Supabase → Authentication → URL Configuration → Redirect URLs",
+        "[Wishlane] Add this URL to Supabase → Authentication → URL Configuration → Redirect URLs",
       );
 
       const authUrl = new URL(`${SUPABASE_URL}/auth/v1/authorize`);
@@ -143,7 +143,7 @@ async function handleMessage(msg) {
       authUrl.searchParams.set("redirect_to", redirectUrl);
       authUrl.searchParams.set("scopes", "email profile");
 
-      console.log("[Wishly] Opening auth URL:", authUrl.toString());
+      console.log("[Wishlane] Opening auth URL:", authUrl.toString());
 
       // Open Google sign-in in a browser popup
       const responseUrl = await new Promise((resolve, reject) => {
@@ -269,7 +269,7 @@ async function handleMessage(msg) {
       const res = await fetch(scrapeEndpoint);
 
       if (!res.ok) {
-        console.warn("[Wishly] Server scrape failed:", res.status);
+        console.warn("[Wishlane] Server scrape failed:", res.status);
         return { product: null };
       }
 

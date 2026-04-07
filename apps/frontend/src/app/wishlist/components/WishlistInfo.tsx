@@ -1,10 +1,17 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useGT, useLocale } from "gt-next";
+import { formatLocalizedShortDate } from "@/lib/helpers/format-localized-short-date";
 import styles from "./WishlistInfo.module.scss";
 import { Button } from "@/components/ui/Button/Button";
-import { Calendar, Plus } from "lucide-react";
+import { Calendar, Plus, Sparkles } from "lucide-react";
 import { Wishlist } from "@/types/wishlist";
-import { visibilityLabel, visibilityIcon } from "@/lib/helpers/wishlist-helper";
+import { visibilityIcon } from "@/lib/helpers/wishlist-helper";
+import { useWishlistVisibilityLabels } from "@/lib/helpers/use-wishlist-visibility-labels";
+import { useSubscription } from "@/hooks/use-subscription";
+import { FREE_LIMITS } from "@/types/subscription";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 
 type Props = {
   wishlist: Wishlist;
@@ -14,14 +21,13 @@ type Props = {
   isOwner?: boolean;
 };
 
-export function WishlistInfo({
-  wishlist,
-  onAddItem,
-  onEdit,
-  onDelete,
-  isOwner = false,
-}: Props) {
-  const visibility = visibilityLabel[wishlist.visibility_type] ?? "Private";
+export function WishlistInfo({ wishlist, onAddItem }: Props) {
+  const t = useGT();
+  const locale = useLocale();
+  const visibilityLabels = useWishlistVisibilityLabels();
+  const { isPro } = useSubscription();
+  const router = useRouter();
+  const visibility = visibilityLabels[wishlist.visibility_type];
   const VisibilityIcon = visibilityIcon[wishlist.visibility_type];
   const itemsCount =
     wishlist.items_count ??
@@ -30,6 +36,18 @@ export function WishlistInfo({
   const description = wishlist.description ?? "";
   const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
   const canAddItem = Boolean(onAddItem);
+  const atItemLimit =
+    SUBSCRIPTIONS_UI_ENABLED &&
+    !isPro &&
+    itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
+
+  function handleAddItem() {
+    if (atItemLimit) {
+      router.push("/subscription");
+      return;
+    }
+    onAddItem?.();
+  }
 
   return (
     <div className={styles.info}>
@@ -41,9 +59,33 @@ export function WishlistInfo({
 
         {canAddItem && (
           <div className={styles.ownerActions}>
-            <Button size="sm" onClick={onAddItem}>
-              <Plus size={14} />
-              <span>Add Item</span>
+            {SUBSCRIPTIONS_UI_ENABLED && !isPro && (
+              <span className={styles.limitCounter}>
+                {t("{current}/{max} items", {
+                  current: itemsCount,
+                  max: FREE_LIMITS.maxItemsPerWishlist,
+                  $id: "wishlist.header.limitCounter",
+                })}
+              </span>
+            )}
+            <Button size="sm" onClick={handleAddItem}>
+              {atItemLimit ? (
+                <>
+                  <Sparkles size={14} />
+                  <span>
+                    {t("Upgrade to Add", {
+                      $id: "wishlist.header.upgradeToAdd",
+                    })}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Plus size={14} />
+                  <span>
+                    {t("Add Item", { $id: "wishlist.header.addItem" })}
+                  </span>
+                </>
+              )}
             </Button>
           </div>
         )}
@@ -55,16 +97,17 @@ export function WishlistInfo({
           {visibility}
         </span>
         <span className={styles.countBadge}>
-          {itemsCount} {itemsCount === 1 ? "item" : "items"}
+          {itemsCount === 1
+            ? t("{n} item", { n: itemsCount, $id: "wishlist.itemCount.one" })
+            : t("{n} items", {
+                n: itemsCount,
+                $id: "wishlist.itemCount.other",
+              })}
         </span>
         {eventDate && (
           <span className={styles.dateBadge}>
             <Calendar size={13} />
-            {new Date(eventDate).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+            {formatLocalizedShortDate(eventDate, locale)}
           </span>
         )}
       </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+import { useGT } from "gt-next";
 import { Sun, Moon, Monitor, Check } from "lucide-react";
 import styles from "./AppearanceSettings.module.scss";
 import { SettingsSection } from "./SettingsSection";
@@ -9,54 +11,24 @@ import type { ThemePreference, WishlistColorIndex } from "@/types/settings";
 import { useAppTheme } from "@/providers";
 import { CurrencySettings } from "./CurrencySettings";
 
-const THEMES: {
-  id: ThemePreference;
-  label: string;
-  icon: typeof Sun;
-  description: string;
-}[] = [
-  {
-    id: "light",
-    label: "Light",
-    icon: Sun,
-    description: "Clean and bright",
-  },
-  {
-    id: "dark",
-    label: "Dark",
-    icon: Moon,
-    description: "Easy on the eyes",
-  },
-  {
-    id: "system",
-    label: "System",
-    icon: Monitor,
-    description: "Match your device",
-  },
+const ACCENT_ENTRIES: { id: WishlistAccent; cssClass: string }[] = [
+  { id: WishlistAccent.Pink, cssClass: "pink" },
+  { id: WishlistAccent.Blue, cssClass: "blue" },
+  { id: WishlistAccent.Peach, cssClass: "peach" },
+  { id: WishlistAccent.Mint, cssClass: "mint" },
+  { id: WishlistAccent.Lavender, cssClass: "lavender" },
 ];
 
-const ACCENTS: { id: WishlistAccent; label: string; cssClass: string }[] = [
-  { id: WishlistAccent.Pink, label: "Pink", cssClass: "pink" },
-  { id: WishlistAccent.Blue, label: "Blue", cssClass: "blue" },
-  { id: WishlistAccent.Peach, label: "Peach", cssClass: "peach" },
-  { id: WishlistAccent.Mint, label: "Mint", cssClass: "mint" },
-  { id: WishlistAccent.Lavender, label: "Lavender", cssClass: "lavender" },
-];
-
-// 0-based order used by user_settings.default_wishlist_color
-const WISHLIST_COLORS: {
-  id: WishlistColorIndex;
-  label: string;
-  cssClass: string;
-}[] = [
-  { id: 0, label: "Pink", cssClass: "pink" },
-  { id: 1, label: "Peach", cssClass: "peach" },
-  { id: 2, label: "Blue", cssClass: "blue" },
-  { id: 3, label: "Lavender", cssClass: "lavender" },
-  { id: 4, label: "Mint", cssClass: "mint" },
+const WISHLIST_COLOR_ENTRIES: { id: WishlistColorIndex; cssClass: string }[] = [
+  { id: 0, cssClass: "pink" },
+  { id: 1, cssClass: "peach" },
+  { id: 2, cssClass: "blue" },
+  { id: 3, cssClass: "lavender" },
+  { id: 4, cssClass: "mint" },
 ];
 
 export function AppearanceSettings() {
+  const t = useGT();
   const { persistedTheme, setPersistedTheme } = useAppTheme();
   const { data: settings } = useSettings();
   const updateSettings = useUpdateSettings();
@@ -76,29 +48,117 @@ export function AppearanceSettings() {
   const activeAccent = settings?.default_accent ?? WishlistAccent.Pink;
   const activeWishlistColor = settings?.default_wishlist_color ?? 0;
 
+  const themes = useMemo(
+    () =>
+      [
+        {
+          id: "light" as const,
+          label: t("Light", { $id: "settings.appearance.theme.light" }),
+          icon: Sun,
+          description: t("Clean and bright", {
+            $id: "settings.appearance.theme.lightDesc",
+          }),
+        },
+        {
+          id: "dark" as const,
+          label: t("Dark", { $id: "settings.appearance.theme.dark" }),
+          icon: Moon,
+          description: t("Easy on the eyes", {
+            $id: "settings.appearance.theme.darkDesc",
+          }),
+        },
+        {
+          id: "system" as const,
+          label: t("System", { $id: "settings.appearance.theme.system" }),
+          icon: Monitor,
+          description: t("Match your device", {
+            $id: "settings.appearance.theme.systemDesc",
+          }),
+        },
+      ] satisfies {
+        id: ThemePreference;
+        label: string;
+        icon: typeof Sun;
+        description: string;
+      }[],
+    [t],
+  );
+
+  const accents = useMemo(
+    () =>
+      ACCENT_ENTRIES.map((a) => ({
+        ...a,
+        label:
+          a.cssClass === "pink"
+            ? t("Pink", { $id: "settings.appearance.accent.pink" })
+            : a.cssClass === "blue"
+              ? t("Blue", { $id: "settings.appearance.accent.blue" })
+              : a.cssClass === "peach"
+                ? t("Peach", { $id: "settings.appearance.accent.peach" })
+                : a.cssClass === "mint"
+                  ? t("Mint", { $id: "settings.appearance.accent.mint" })
+                  : t("Lavender", {
+                      $id: "settings.appearance.accent.lavender",
+                    }),
+      })),
+    [t],
+  );
+
+  const wishlistColors = useMemo(
+    () =>
+      WISHLIST_COLOR_ENTRIES.map((a) => ({
+        ...a,
+        label:
+          a.cssClass === "pink"
+            ? t("Pink", { $id: "settings.appearance.wishlistColor.pink" })
+            : a.cssClass === "peach"
+              ? t("Peach", {
+                  $id: "settings.appearance.wishlistColor.peach",
+                })
+              : a.cssClass === "blue"
+                ? t("Blue", {
+                    $id: "settings.appearance.wishlistColor.blue",
+                  })
+                : a.cssClass === "lavender"
+                  ? t("Lavender", {
+                      $id: "settings.appearance.wishlistColor.lavender",
+                    })
+                  : t("Mint", {
+                      $id: "settings.appearance.wishlistColor.mint",
+                    }),
+      })),
+    [t],
+  );
+
+  const defaultColorLabel = t("Pink", {
+    $id: "settings.appearance.wishlistColor.pink",
+  });
+
   return (
     <>
       <SettingsSection
-        title="Theme"
-        description="Select your preferred color scheme."
+        title={t("Theme", { $id: "settings.appearance.themeSectionTitle" })}
+        description={t("Select your preferred color scheme.", {
+          $id: "settings.appearance.themeSectionDescription",
+        })}
       >
         <div className={styles.themeGrid}>
-          {THEMES.map((t) => {
-            const Icon = t.icon;
-            const isActive = persistedTheme === t.id;
+          {themes.map((theme) => {
+            const Icon = theme.icon;
+            const isActive = persistedTheme === theme.id;
 
             return (
               <button
-                key={t.id}
+                key={theme.id}
                 type="button"
                 className={`${styles.themeCard} ${isActive ? styles.active : ""}`}
-                onClick={() => handleTheme(t.id)}
+                onClick={() => handleTheme(theme.id)}
               >
                 <div className={styles.themeIcon}>
                   <Icon size={22} />
                 </div>
-                <span className={styles.themeLabel}>{t.label}</span>
-                <span className={styles.themeDesc}>{t.description}</span>
+                <span className={styles.themeLabel}>{theme.label}</span>
+                <span className={styles.themeDesc}>{theme.description}</span>
                 {isActive && (
                   <div className={styles.themeCheck}>
                     <Check size={14} />
@@ -111,11 +171,16 @@ export function AppearanceSettings() {
       </SettingsSection>
 
       <SettingsSection
-        title="Default Accent Color"
-        description="Secondary platform color used across the interface."
+        title={t("Default Accent Color", {
+          $id: "settings.appearance.accentSectionTitle",
+        })}
+        description={t(
+          "Secondary platform color used across the interface.",
+          { $id: "settings.appearance.accentSectionDescription" },
+        )}
       >
         <div className={styles.accentGrid}>
-          {ACCENTS.map((a) => (
+          {accents.map((a) => (
             <button
               key={a.id}
               type="button"
@@ -128,16 +193,21 @@ export function AppearanceSettings() {
           ))}
         </div>
         <p className={styles.accentLabel}>
-          {ACCENTS.find((a) => a.id === activeAccent)?.label ?? "Pink"}
+          {accents.find((a) => a.id === activeAccent)?.label ?? defaultColorLabel}
         </p>
       </SettingsSection>
 
       <SettingsSection
-        title="Default Wishlist Color"
-        description="Pre-selected color when creating new wishlists."
+        title={t("Default Wishlist Color", {
+          $id: "settings.appearance.wishlistColorSectionTitle",
+        })}
+        description={t(
+          "Pre-selected color when creating new wishlists.",
+          { $id: "settings.appearance.wishlistColorSectionDescription" },
+        )}
       >
         <div className={styles.accentGrid}>
-          {WISHLIST_COLORS.map((a) => (
+          {wishlistColors.map((a) => (
             <button
               key={a.id}
               type="button"
@@ -150,8 +220,8 @@ export function AppearanceSettings() {
           ))}
         </div>
         <p className={styles.accentLabel}>
-          {WISHLIST_COLORS.find((a) => a.id === activeWishlistColor)?.label ??
-            "Pink"}
+          {wishlistColors.find((a) => a.id === activeWishlistColor)?.label ??
+            defaultColorLabel}
         </p>
       </SettingsSection>
 

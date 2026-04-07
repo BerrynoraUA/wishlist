@@ -2,6 +2,7 @@
 
 import { Suspense, useMemo } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useGT } from "gt-next";
 import Link from "next/link";
 import { useFriendWishlists } from "@/hooks/use-wishlists";
 import { useRemoveFriend } from "@/hooks/use-friends";
@@ -11,6 +12,7 @@ import { ArrowLeft, UserMinus } from "lucide-react";
 import styles from "./FriendWishlists.module.scss";
 
 function FriendWishlistsPageContent() {
+  const t = useGT();
   const params = useParams();
   const router = useRouter();
   const friendId = params.id as string;
@@ -29,7 +31,13 @@ function FriendWishlistsPageContent() {
   const removeFriend = useRemoveFriend();
 
   function handleRemoveFriend() {
-    if (confirm("Are you sure you want to remove this friend?")) {
+    if (
+      confirm(
+        t("Are you sure you want to remove this friend?", {
+          $id: "friends.detail.confirmRemove",
+        }),
+      )
+    ) {
       removeFriend.mutate(friendId, {
         onSuccess: () => router.push("/friends"),
       });
@@ -44,21 +52,42 @@ function FriendWishlistsPageContent() {
             <ArrowLeft size={18} />
           </Link>
           <div>
-            <h1>Friend&apos;s Wishlists</h1>
-            <p>{wishlists.length} wishlists</p>
+            <h1>
+              {t("Friend's Wishlists", { $id: "friends.detail.title" })}
+            </h1>
+            <p>
+              {wishlists.length === 1
+                ? t("{count} wishlist", {
+                    count: wishlists.length,
+                    $id: "friends.detail.wishlistCountOne",
+                  })
+                : t("{count} wishlists", {
+                    count: wishlists.length,
+                    $id: "friends.detail.wishlistCountOther",
+                  })}
+            </p>
           </div>
         </div>
 
         <Button variant="danger" size="sm" onClick={handleRemoveFriend}>
           <UserMinus size={14} style={{ marginRight: 6 }} />
-          Remove Friend
+          {t("Remove Friend", { $id: "friends.detail.removeFriend" })}
         </Button>
       </div>
 
-      {isLoading && <p>Loading wishlists...</p>}
-      {isError && <p>Failed to load wishlists.</p>}
+      {isError && (
+        <p>
+          {t("Failed to load wishlists.", {
+            $id: "friends.detail.loadError",
+          })}
+        </p>
+      )}
       {!isLoading && !isError && wishlists.length === 0 && (
-        <p className={styles.empty}>This friend has no visible wishlists.</p>
+        <p className={styles.empty}>
+          {t("This friend has no visible wishlists.", {
+            $id: "friends.detail.empty",
+          })}
+        </p>
       )}
 
       <div className={styles.grid}>
@@ -72,7 +101,7 @@ function FriendWishlistsPageContent() {
 
 export default function FriendWishlistsPage() {
   return (
-    <Suspense fallback={<main className={styles.page}><p>Loading wishlists...</p></main>}>
+    <Suspense fallback={null}>
       <FriendWishlistsPageContent />
     </Suspense>
   );

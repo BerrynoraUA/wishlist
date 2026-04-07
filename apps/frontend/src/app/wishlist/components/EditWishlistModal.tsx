@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useUpdateWishlist } from "@/hooks/use-wishlists";
@@ -70,6 +71,7 @@ function EditWishlistForm({
   wishlist: Wishlist;
   onClose: () => void;
 }) {
+  const t = useGT();
   const [name, setName] = useState(wishlist.title ?? "");
   const [description, setDescription] = useState(wishlist.description ?? "");
   const [privacy, setPrivacy] = useState<PrivacyOption>(
@@ -135,41 +137,59 @@ function EditWishlistForm({
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <h2>Edit Wishlist</h2>
-            <p>Update your wishlist details and customize its appearance.</p>
+            <h2>{t("Edit Wishlist", { $id: "wishlist.modal.edit.title" })}</h2>
+            <p>
+              {t("Update your wishlist details and customize its appearance.", {
+                $id: "wishlist.modal.edit.subtitle",
+              })}
+            </p>
           </div>
         </div>
 
         <div className={styles.field}>
-          <label>Wishlist Name</label>
+          <label>{t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}</label>
           <input
-            placeholder="e.g. Birthday Wishes, Home Office Setup"
+            placeholder={t("e.g. Birthday Wishes, Home Office Setup", {
+              $id: "wishlist.modal.namePlaceholder",
+            })}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
 
         <div className={styles.field}>
-          <label>Description (optional)</label>
+          <label>
+            {t("Description (optional)", {
+              $id: "wishlist.modal.descriptionLabel",
+            })}
+          </label>
           <textarea
-            placeholder="Add a note for your friends..."
+            placeholder={t("Add a note for your friends...", {
+              $id: "wishlist.modal.descriptionPlaceholder",
+            })}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
         <div className={styles.field}>
-          <label>Cover Image</label>
+          <label>{t("Cover Image", { $id: "wishlist.modal.coverLabel" })}</label>
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
                 <img
                   src={imagePreview}
-                  alt="Wishlist cover preview"
+                  alt={t("Wishlist cover preview", {
+                    $id: "wishlist.modal.coverAlt",
+                  })}
                   className={styles.preview}
                 />
               ) : (
-                <span>Drop an image or click to upload</span>
+                <span>
+                  {t("Drop an image or click to upload", {
+                    $id: "wishlist.modal.dropImage",
+                  })}
+                </span>
               )}
               <input
                 type="file"
@@ -182,31 +202,39 @@ function EditWishlistForm({
         </div>
 
         <div className={styles.field}>
-          <label>Event Date (optional)</label>
+          <label>
+            {t("Event Date (optional)", {
+              $id: "wishlist.modal.eventDateLabel",
+            })}
+          </label>
           <DatePickerField value={eventDate} onChange={setEventDate} />
         </div>
 
         <div className={styles.section}>
-          <label>Privacy</label>
+          <label>{t("Privacy", { $id: "wishlist.modal.privacyLabel" })}</label>
           <div className={styles.privacyOptions}>
             <PrivacyCard
               icon={<Globe size={18} />}
-              title="Public"
-              subtitle="Anyone can view"
+              title={t("Public", { $id: "wishlist.privacy.public" })}
+              subtitle={t("Anyone can view", {
+                $id: "wishlist.privacy.publicSubtitle",
+              })}
               selected={privacy === "Public"}
               onClick={() => setPrivacy("Public")}
             />
             <PrivacyCard
               icon={<Users size={18} />}
-              title="Friends Only"
-              subtitle="Only your friends"
+              title={t("Friends Only", { $id: "wishlist.privacy.friends" })}
+              subtitle={t("Only your friends", {
+                $id: "wishlist.privacy.friendsSubtitle",
+              })}
               selected={privacy === "Friends"}
               onClick={() => setPrivacy("Friends")}
             />
             <PrivacyCard
               icon={<Lock size={18} />}
-              title="Private"
-              subtitle="Only you"
+              title={t("Private", { $id: "wishlist.privacy.private" })}
+              subtitle={t("Only you", { $id: "wishlist.privacy.privateSubtitle" })}
               selected={privacy === "Private"}
               onClick={() => setPrivacy("Private")}
             />
@@ -214,7 +242,7 @@ function EditWishlistForm({
         </div>
 
         <div className={styles.section}>
-          <label>Cover Color</label>
+          <label>{t("Cover Color", { $id: "wishlist.modal.coverColor" })}</label>
           <div className={styles.colors}>
             {colors.map((c) => (
               <div
@@ -230,10 +258,12 @@ function EditWishlistForm({
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            {t("Cancel", { $id: "common.cancel" })}
           </Button>
           <Button onClick={handleSubmit} disabled={!name.trim() || isPending}>
-            {isPending ? "Saving..." : "Save Changes"}
+            {isPending
+              ? t("Saving...", { $id: "common.saving" })
+              : t("Save Changes", { $id: "wishlist.modal.saveChanges" })}
           </Button>
         </div>
       </div>

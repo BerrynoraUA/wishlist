@@ -1,14 +1,15 @@
 "use client";
 
+import { useGT } from "gt-next";
 import { Button } from "@/components/ui/Button/Button";
 import styles from "./SecretSantaHeader.module.scss";
 import { Plus, TreePine } from "lucide-react";
 import { useCurrentUser } from "@/hooks/use-user";
 
-function getDisplayName(nameSource?: {
-  email?: string | null;
-  user_metadata?: Record<string, unknown>;
-}): string {
+function getDisplayName(
+  nameSource: { email?: string | null; user_metadata?: Record<string, unknown> } | undefined,
+  fallbackThere: string,
+): string {
   const metadata = (nameSource?.user_metadata ?? {}) as Record<string, unknown>;
   const rawFull = metadata.full_name ?? metadata.name;
   const rawFirst = metadata.first_name;
@@ -26,7 +27,7 @@ function getDisplayName(nameSource?: {
 
   if (fullName) return fullName;
   if (nameSource?.email) return nameSource.email.split("@")[0];
-  return "there";
+  return fallbackThere;
 }
 
 type Props = {
@@ -34,26 +35,32 @@ type Props = {
 };
 
 export function SecretSantaHeader({ onNewEvent }: Props) {
+  const t = useGT();
   const { data: user } = useCurrentUser();
-  const displayName = getDisplayName(user ?? undefined);
+  const displayName = getDisplayName(
+    user ?? undefined,
+    t("there", { $id: "secretSanta.header.guestName" }),
+  );
 
   return (
     <div className={styles.header}>
       <div className={styles.text}>
         <div className={styles.titleRow}>
           <TreePine size={28} className={styles.headerIcon} />
-          <h1>Secret Santa</h1>
+          <h1>{t("Secret Santa", { $id: "secretSanta.header.title" })}</h1>
         </div>
         <p>
-          Organize gift exchanges with your friends, {displayName}. Create an
-          event, add participants, and let the magic happen!
+          {t(
+            "Organize gift exchanges with your friends, {name}. Create an event, add participants, and let the magic happen!",
+            { name: displayName, $id: "secretSanta.header.subtitle" },
+          )}
         </p>
       </div>
 
       <div className={styles.actions}>
         <Button size="sm" onClick={onNewEvent}>
           <Plus size={18} />
-          <span>New Event</span>
+          <span>{t("New Event", { $id: "secretSanta.header.newEvent" })}</span>
         </Button>
       </div>
     </div>

@@ -20,13 +20,7 @@ function SecretSantaPageContent() {
 
 export default function SecretSantaPage() {
   return (
-    <Suspense
-      fallback={
-        <SecretSantaPageShell>
-          <p>Loading Secret Santa...</p>
-        </SecretSantaPageShell>
-      }
-    >
+    <Suspense fallback={null}>
       <SecretSantaPageContent />
     </Suspense>
   );

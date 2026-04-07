@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT } from "gt-next";
 import styles from "./FriendsTabs.module.scss";
 
 type TabValue = "friends" | "requests" | "sent";
@@ -19,27 +20,30 @@ export function FriendsTabs({
   sentCount = 0,
   onChange,
 }: Props) {
+  const t = useGT();
   return (
     <div className={styles.tabs}>
       <button
         className={active === "friends" ? styles.active : ""}
         onClick={() => onChange("friends")}
       >
-        All Friends <span>{friendsCount}</span>
+        {t("All Friends", { $id: "friends.tabs.all" })}{" "}
+        <span>{friendsCount}</span>
       </button>
 
       <button
         className={active === "requests" ? styles.active : ""}
         onClick={() => onChange("requests")}
       >
-        Requests <span className={styles.badge}>{requestsCount}</span>
+        {t("Requests", { $id: "friends.tabs.requests" })}{" "}
+        <span className={styles.badge}>{requestsCount}</span>
       </button>
 
       <button
         className={active === "sent" ? styles.active : ""}
         onClick={() => onChange("sent")}
       >
-        Sent <span>{sentCount}</span>
+        {t("Sent", { $id: "friends.tabs.sent" })} <span>{sentCount}</span>
       </button>
     </div>
   );

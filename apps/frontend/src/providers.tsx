@@ -19,6 +19,7 @@ import {
 } from "@/lib/theme";
 
 import { WishlistAccent } from "@/types/wishlist";
+import { PostHogProvider } from "@/components/PostHogProvider";
 
 const ACCENT_TOKENS: Record<
   WishlistAccent,
@@ -317,13 +318,15 @@ export function Providers({
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppThemeProvider
-        initialTheme={initialTheme}
-        initialResolvedTheme={initialResolvedTheme}
-      >
-        <SdkInitializer>{children}</SdkInitializer>
-      </AppThemeProvider>
-    </QueryClientProvider>
+    <PostHogProvider>
+      <QueryClientProvider client={queryClient}>
+        <AppThemeProvider
+          initialTheme={initialTheme}
+          initialResolvedTheme={initialResolvedTheme}
+        >
+          <SdkInitializer>{children}</SdkInitializer>
+        </AppThemeProvider>
+      </QueryClientProvider>
+    </PostHogProvider>
   );
 }

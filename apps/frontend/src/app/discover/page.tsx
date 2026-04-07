@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useGT } from "gt-next";
 import { DiscoverHeader } from "./components/DiscoverHeader";
 import { UpcomingEvents } from "./components/UpcomingEvents";
 import { DiscoverFilters } from "./components/DiscoverFilters";
@@ -20,6 +21,7 @@ import {
 import { useProfilesByIds } from "@/hooks/use-settings";
 
 function DiscoverPageContent() {
+  const t = useGT();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -159,18 +161,31 @@ function DiscoverPageContent() {
       <UpcomingEvents />
       <DiscoverFilters active={filter} onChange={setFilter} />
 
-      {isLoading && <p>Loading wishlists...</p>}
-      {isError && <p>Failed to load wishlists.</p>}
+      {isError && (
+        <p>
+          {t("Failed to load wishlists.", {
+            $id: "discover.page.loadError",
+          })}
+        </p>
+      )}
 
       {hasNoData && (
         <p style={{ color: "#6b7280", textAlign: "center", marginTop: 32 }}>
           {filter === "reserved"
-            ? "No reserved items yet."
+            ? t("No reserved items yet.", {
+                $id: "discover.page.emptyReserved",
+              })
             : filter === "purchased"
-              ? "No purchased items yet."
+              ? t("No purchased items yet.", {
+                  $id: "discover.page.emptyPurchased",
+                })
               : filter === "available"
-                ? "No available wishlists to discover."
-                : "No wishlists to discover."}
+                ? t("No available wishlists to discover.", {
+                    $id: "discover.page.emptyAvailable",
+                  })
+                : t("No wishlists to discover.", {
+                    $id: "discover.page.emptyWishlists",
+                  })}
         </p>
       )}
 
@@ -218,15 +233,7 @@ function DiscoverPageContent() {
 
 export default function DiscoverPage() {
   return (
-    <Suspense
-      fallback={
-        <main
-          style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}
-        >
-          <p>Loading discover...</p>
-        </main>
-      }
-    >
+    <Suspense fallback={null}>
       <DiscoverPageContent />
     </Suspense>
   );
