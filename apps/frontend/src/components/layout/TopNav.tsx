@@ -3,21 +3,17 @@
 import styles from "./TopNav.module.scss";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Gift, Users, Heart, Search } from "lucide-react";
+import { useGT } from "gt-next";
 import { ProfileMenu } from "../profile/ProfileMenu";
 import { NotificationsMenu } from "../notifications/NotificationsMenu";
 import { ThemeToggle } from "./ThemeToggle";
 import { ProBadge } from "../ui/ProBadge/ProBadge";
 
-const navItems = [
-  { label: "My Wishlists", href: "/home", icon: <Gift size={16} /> },
-  { label: "Friends", href: "/friends", icon: <Users size={16} /> },
-  { label: "Discover", href: "/discover", icon: <Heart size={16} /> },
-];
-
 export function TopNav() {
+  const t = useGT();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -26,6 +22,27 @@ export function TopNav() {
     null,
   );
   const discoverTab = searchParams.get("tab");
+
+  const navItems = useMemo(
+    () => [
+      {
+        label: t("My Wishlists", { $id: "nav.myWishlists" }),
+        href: "/home",
+        icon: <Gift size={16} />,
+      },
+      {
+        label: t("Friends", { $id: "nav.friends" }),
+        href: "/friends",
+        icon: <Users size={16} />,
+      },
+      {
+        label: t("Discover", { $id: "nav.discover" }),
+        href: "/discover",
+        icon: <Heart size={16} />,
+      },
+    ],
+    [t],
+  );
 
   const searchMode =
     pathname === "/home"
@@ -44,6 +61,16 @@ export function TopNav() {
           ? "purchasedSearch"
           : "discoverSearch"
       : "search";
+
+  const searchPlaceholder = useMemo(() => {
+    if (searchMode === "friends") {
+      return t("Search friends...", { $id: "nav.searchFriends" });
+    }
+    if (searchMode === "discover") {
+      return t("Search discover...", { $id: "nav.searchDiscover" });
+    }
+    return t("Search wishlists...", { $id: "nav.searchWishlists" });
+  }, [searchMode, t]);
 
   function clearSearchParams(params: URLSearchParams) {
     params.delete("search");
@@ -80,17 +107,17 @@ export function TopNav() {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <div className={styles.logo}>
+        <Link href="/home" className={styles.logo}>
           <div className={styles.logoIconWrap}>
             <div className={styles.logoIcon}>
               <Gift size={16} />
             </div>
             <span className={styles.logoBetaBadge}>
-              <ProBadge size="sm" label="BETA" />
+              <ProBadge size="sm" label={t("BETA", { $id: "nav.betaBadge" })} />
             </span>
           </div>
-          <span>Wishly</span>
-        </div>
+          <span>{t("Wishlane", { $id: "brand.name" })}</span>
+        </Link>
 
         <nav className={styles.nav}>
           {navItems.map((item) => {
@@ -123,13 +150,7 @@ export function TopNav() {
               <div className={styles.search}>
                 <Search size={16} />
                 <input
-                  placeholder={
-                    searchMode === "friends"
-                      ? "Search friends..."
-                      : searchMode === "discover"
-                        ? "Search discover..."
-                        : "Search wishlists..."
-                  }
+                  placeholder={searchPlaceholder}
                   value={query}
                   onChange={(e) => {
                     const val = e.target.value;

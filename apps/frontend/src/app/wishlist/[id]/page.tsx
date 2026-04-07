@@ -2,6 +2,7 @@
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState, useCallback } from "react";
+import { useGT } from "gt-next";
 import { WishlistHeader } from "../components/WishlistHeader";
 import { WishlistItemsGrid } from "../components/WishlistItemsGrid";
 import {
@@ -27,6 +28,7 @@ import { createWishlistShareToken } from "@/api/share";
 const PAGE_SIZE = 12;
 
 export default function WishlistItemsPage() {
+  const t = useGT();
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -97,8 +99,10 @@ export default function WishlistItemsPage() {
         setShareFeedback({
           open: true,
           variant: "success",
-          title: "Link copied",
-          description: "Your wishlist share link is ready to send.",
+          title: t("Link copied", { $id: "wishlist.share.linkCopiedTitle" }),
+          description: t("Your wishlist share link is ready to send.", {
+            $id: "wishlist.share.linkCopiedDescription",
+          }),
           link: shareUrl,
         });
         return;
@@ -107,20 +111,26 @@ export default function WishlistItemsPage() {
       setShareFeedback({
         open: true,
         variant: "error",
-        title: "Could not create link",
-        description: "We couldn't generate a share link for this wishlist.",
+        title: t("Could not create link", {
+          $id: "wishlist.share.createLinkErrorTitle",
+        }),
+        description: t("We couldn't generate a share link for this wishlist.", {
+          $id: "wishlist.share.createLinkErrorDescription",
+        }),
         link: null,
       });
     } catch {
       setShareFeedback({
         open: true,
         variant: "error",
-        title: "Share failed",
-        description: "Something went wrong while creating the share link.",
+        title: t("Share failed", { $id: "wishlist.share.shareFailedTitle" }),
+        description: t("Something went wrong while creating the share link.", {
+          $id: "wishlist.share.shareFailedDescription",
+        }),
         link: null,
       });
     }
-  }, [id]);
+  }, [id, t]);
 
   const handleOpenItemHandled = useCallback(
     (itemId: string) => {
@@ -144,8 +154,9 @@ export default function WishlistItemsPage() {
 
   return (
     <main className={styles.page}>
-      {wishlistLoading && <p>Loading wishlist...</p>}
-      {wishlistError && <p>Failed to load wishlist.</p>}
+      {wishlistError && (
+        <p>{t("Failed to load wishlist.", { $id: "wishlist.page.wishlistError" })}</p>
+      )}
       {wishlist && (
         <WishlistHeader
           wishlist={wishlist}
@@ -158,10 +169,11 @@ export default function WishlistItemsPage() {
         />
       )}
 
-      {itemsLoading && <p>Loading items...</p>}
-      {itemsError && <p>Failed to load items.</p>}
+      {itemsError && (
+        <p>{t("Failed to load items.", { $id: "wishlist.page.itemsError" })}</p>
+      )}
       {!itemsLoading && !itemsError && items.length === 0 && (
-        <p>No items yet.</p>
+        <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>
       )}
       {!itemsLoading && !itemsError && items.length > 0 && (
         <>
@@ -209,8 +221,11 @@ export default function WishlistItemsPage() {
             });
           }
         }}
-        title="Delete Item"
-        description="Are you sure you want to delete this item? This action cannot be undone."
+        title={t("Delete Item", { $id: "wishlist.page.deleteItemTitle" })}
+        description={t(
+          "Are you sure you want to delete this item? This action cannot be undone.",
+          { $id: "wishlist.page.deleteItemDescription" },
+        )}
         isPending={deleteItemMutation.isPending}
       />
 
@@ -241,9 +256,14 @@ export default function WishlistItemsPage() {
             onSuccess: () => router.push("/home"),
           });
         }}
-        title="Delete Wishlist"
-        description="Are you sure you want to delete this entire wishlist and all its items? This action cannot be undone."
-        confirmLabel="Delete Wishlist"
+        title={t("Delete Wishlist", { $id: "wishlist.page.deleteWishlistTitle" })}
+        description={t(
+          "Are you sure you want to delete this entire wishlist and all its items? This action cannot be undone.",
+          { $id: "wishlist.page.deleteWishlistDescription" },
+        )}
+        confirmLabel={t("Delete Wishlist", {
+          $id: "wishlist.page.deleteWishlistConfirm",
+        })}
         isPending={deleteWishlistMutation.isPending}
       />
 

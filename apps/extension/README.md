@@ -1,11 +1,11 @@
-# Wishly Chrome Extension
+# Wishlane Chrome Extension
 
-Save any product from the web to your Wishly wishlists with one click.
+Save any product from the web to your Wishlane wishlists with one click.
 
 ## How it works
 
 1. Browse any online store (Amazon, eBay, Etsy, Walmart, AliExpress, etc.)
-2. Click the Wishly heart icon in the toolbar
+2. Click the Wishlane heart icon in the toolbar
 3. The extension auto-extracts product name, price, and image
 4. Select a wishlist and click **Add to Wishlist**
 
@@ -46,7 +46,7 @@ environment variables used by the frontend. They're public keys and safe to ship
 ### 4. Sign in
 
 Click the extension icon — sign in with **Google** or **email + password**.
-Same account you use on the Wishly web app.
+Same account you use on the Wishlane web app.
 
 Credentials are stored locally in `chrome.storage.local` and never sent anywhere
 except your own Supabase project.
@@ -69,5 +69,5 @@ price, domain selectors fill in the gap.
 - **Quick-add badge** — floating heart button injected on product pages (content script overlay)
 - **Create new wishlist** — in-popup wishlist creation instead of requiring the web app
 - **Price tracking** — periodically re-scrape saved items and notify on price drops
-- **Browser context menu** — right-click any image → "Add to Wishly"
+- **Browser context menu** — right-click any image → "Add to Wishlane"
 - **Firefox / Safari ports** — manifest adjustments for cross-browser support

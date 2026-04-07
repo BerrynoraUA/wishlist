@@ -1,5 +1,6 @@
 "use client";
 
+import { useGT } from "gt-next";
 import { Button } from "@/components/ui/Button/Button";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { AlertCircle, CheckCircle2, Link2 } from "lucide-react";
@@ -20,8 +21,9 @@ export function ShareFeedbackModal({
   variant = "success",
   title,
   description,
-  link,
+  link
 }: Props) {
+  const t = useGT();
   const isSuccess = variant === "success";
   const Icon = isSuccess ? CheckCircle2 : AlertCircle;
 
@@ -43,14 +45,18 @@ export function ShareFeedbackModal({
           <div className={styles.linkCard}>
             <div className={styles.linkLabelRow}>
               <Link2 size={14} />
-              <span>Copied link</span>
+              <span>{t("Copied link", { $id: "share.copiedLink" })}</span>
             </div>
             <p className={styles.linkValue}>{link}</p>
           </div>
         )}
 
         <div className={styles.footer}>
-          <Button onClick={onClose}>{isSuccess ? "Done" : "Close"}</Button>
+          <Button onClick={onClose}>
+            {isSuccess
+              ? t("Done", { $id: "common.done" })
+              : t("Close", { $id: "common.close" })}
+          </Button>
         </div>
       </div>
     </Modal>

@@ -9,6 +9,7 @@ import {
   THEME_COOKIE_MAX_AGE,
   THEME_COOKIE_NAME,
 } from "@/lib/theme";
+import { getPostHogClient, identifyServerUser } from "@/lib/posthog-server";
 
 const AUTH_REDIRECT_COOKIE = "bn_auth_redirect_to";
 
@@ -86,6 +87,16 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     persistedTheme = parseThemePreference(settings?.theme) ?? "system";
+
+    if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+      try {
+        const ph = getPostHogClient();
+        identifyServerUser(ph, user);
+        await ph.shutdown();
+      } catch {
+        // Never block auth on analytics
+      }
+    }
   }
 
   const resolvedTheme = getInitialResolvedTheme(

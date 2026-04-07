@@ -65,7 +65,7 @@ function HomePageContent() {
 
 export default function HomePage() {
   return (
-    <Suspense fallback={<main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}><p>Loading dashboard...</p></main>}>
+    <Suspense fallback={null}>
       <HomePageContent />
     </Suspense>
   );

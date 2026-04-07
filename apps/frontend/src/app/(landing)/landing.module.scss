@@ -53,7 +53,10 @@ $font-serif: "Playfair Display", Georgia, serif;
 
   a {
     text-decoration: none;
-    color: inherit;
+
+    &:not([class*="btn"]) {
+      color: inherit;
+    }
   }
 
   em {
@@ -815,7 +818,10 @@ $font-serif: "Playfair Display", Georgia, serif;
 
 .demoPrivacyOption {
   flex: 1;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
   padding: 8px;
   border-radius: $radius-sm;
   font-size: 0.75rem;
@@ -1104,6 +1110,8 @@ $font-serif: "Playfair Display", Georgia, serif;
 }
 
 .testimonial {
+  display: flex;
+  flex-direction: column;
   padding: 32px;
   background: $bg;
   border: 1px solid $border;
@@ -1134,6 +1142,7 @@ $font-serif: "Playfair Display", Georgia, serif;
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-top: auto;
 }
 
 .testimonialAvatar {

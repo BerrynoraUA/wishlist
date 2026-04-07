@@ -39,12 +39,13 @@ export type SettingsTab =
   | "notifications"
   | "appearance";
 
-export const SETTINGS_TABS: { id: SettingsTab; label: string }[] = [
-  { id: "profile", label: "Profile" },
-  { id: "account", label: "Account" },
-  { id: "notifications", label: "Notifications" },
-  { id: "appearance", label: "Appearance" },
-];
+/** Tab order for settings navigation; labels come from `useGT` in the UI. */
+export const SETTINGS_TAB_ORDER: readonly SettingsTab[] = [
+  "profile",
+  "account",
+  "notifications",
+  "appearance",
+] as const;
 
 export const DEFAULT_SETTINGS: Omit<UserSettings, "user_id"> = {
   notify_friend_requests: true,

@@ -1,7 +1,8 @@
 "use client";
 
 import styles from "./WishlistItemCard.module.scss";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useGT } from "gt-next";
 import { Item } from "@/types/item";
 import {
   ExternalLink,
@@ -44,6 +45,7 @@ export function WishlistItemCard({
   autoOpen = false,
   onAutoOpenHandled,
 }: Props) {
+  const t = useGT();
   const [detailOpen, setDetailOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmAction, setConfirmAction] =
@@ -65,13 +67,24 @@ export function WishlistItemCard({
   const hasImage = Boolean(item.image_url);
   const price = item.price || "";
   const title = item.name;
-  const priorityLabel: Record<number, "Low" | "Medium" | "High"> = {
+  const priorityKeyByValue: Record<number, "Low" | "Medium" | "High"> = {
     1: "Low",
     2: "Medium",
     3: "High",
   };
 
-  const priority = item.priority ? priorityLabel[item.priority] : null;
+  const priorityKey = item.priority
+    ? priorityKeyByValue[item.priority]
+    : null;
+
+  const priorityDisplay = useMemo(() => {
+    if (!priorityKey) return null;
+    if (priorityKey === "Low")
+      return t("Low", { $id: "item.priority.low" });
+    if (priorityKey === "Medium")
+      return t("Medium", { $id: "item.priority.medium" });
+    return t("High", { $id: "item.priority.high" });
+  }, [priorityKey, t]);
   const store = (() => {
     if (!item.url) return "";
     try {
@@ -119,16 +132,22 @@ export function WishlistItemCard({
 
   const reserveStatusLabel = isPurchased
     ? reservedByMe
-      ? "Purchased by you"
+      ? t("Purchased by you", { $id: "item.status.purchasedByYou" })
       : reservedByName
-        ? `Purchased by ${reservedByName}`
-        : "Purchased"
+        ? t("Purchased by {name}", {
+            name: reservedByName,
+            $id: "item.status.purchasedByName",
+          })
+        : t("Purchased", { $id: "item.status.purchased" })
     : isReserved
       ? reservedByMe
-        ? "Reserved by you"
+        ? t("Reserved by you", { $id: "item.status.reservedByYou" })
         : reservedByName
-          ? `Reserved by ${reservedByName}`
-          : "Reserved"
+          ? t("Reserved by {name}", {
+              name: reservedByName,
+              $id: "item.status.reservedByName",
+            })
+          : t("Reserved", { $id: "item.status.reserved" })
       : null;
 
   useEffect(() => {
@@ -201,16 +220,18 @@ export function WishlistItemCard({
           <div className={styles.badgeStackRight}>
             {salePercentOff != null && (
               <div className={`${styles.badgeRight} ${styles.saleBadge}`}>
-                <span className={styles.saleLabel}>Sale</span>
+                <span className={styles.saleLabel}>
+                  {t("Sale", { $id: "item.card.sale" })}
+                </span>
                 <span className={styles.salePercent}>-{salePercentOff}%</span>
               </div>
             )}
 
-            {priority && (
+            {priorityKey && (
               <div
-                className={`${styles.badgeRight} ${styles[priority.toLowerCase()]}`}
+                className={`${styles.badgeRight} ${styles[priorityKey.toLowerCase()]}`}
               >
-                {priority}
+                {priorityDisplay}
               </div>
             )}
           </div>
@@ -240,8 +261,12 @@ export function WishlistItemCard({
                 rel="noopener noreferrer"
                 className={`${styles.iconButton} iconTooltipTrigger`}
                 onClick={(e) => e.stopPropagation()}
-                aria-label="Open product link"
-                data-tooltip="Open product link"
+                aria-label={t("Open product link", {
+                  $id: "item.card.openProductLink",
+                })}
+                data-tooltip={t("Open product link", {
+                  $id: "item.card.openProductLink",
+                })}
               >
                 <ExternalLink size={16} />
               </a>
@@ -255,8 +280,12 @@ export function WishlistItemCard({
                     e.stopPropagation();
                     setMenuOpen((prev) => !prev);
                   }}
-                  aria-label="Open item menu"
-                  data-tooltip="More options"
+                  aria-label={t("Open item menu", {
+                    $id: "item.card.openItemMenu",
+                  })}
+                  data-tooltip={t("More options", {
+                    $id: "item.card.moreOptions",
+                  })}
                 >
                   <MoreHorizontal size={16} />
                 </button>
@@ -272,7 +301,7 @@ export function WishlistItemCard({
                         if (onEdit) onEdit(item);
                       }}
                     >
-                      <span>Edit</span>
+                      <span>{t("Edit", { $id: "common.edit" })}</span>
                     </button>
                     <button
                       type="button"
@@ -283,7 +312,7 @@ export function WishlistItemCard({
                         if (onDelete) onDelete(item.id);
                       }}
                     >
-                      <span>Delete</span>
+                      <span>{t("Delete", { $id: "common.delete" })}</span>
                     </button>
                   </div>
                 )}
@@ -318,12 +347,16 @@ export function WishlistItemCard({
                 />
                 <span>
                   {isPurchased
-                    ? "Purchased"
+                    ? t("Purchased", { $id: "item.status.purchased" })
                     : isReserved
                       ? reservedByMe
-                        ? "Reserved by you"
-                        : "Reserved"
-                      : "Reserve this gift"}
+                        ? t("Reserved by you", {
+                            $id: "item.status.reservedByYou",
+                          })
+                        : t("Reserved", { $id: "item.status.reserved" })
+                      : t("Reserve this gift", {
+                          $id: "item.detail.reserveThisGift",
+                        })}
                 </span>
               </button>
 
@@ -336,12 +369,30 @@ export function WishlistItemCard({
                   }}
                   disabled={!canToggleBought}
                   data-tooltip={
-                    isPurchased ? "Mark as not purchased" : "Mark as purchased"
+                    isPurchased
+                      ? t("Mark as not purchased", {
+                          $id: "item.card.markNotPurchased",
+                        })
+                      : t("Mark as purchased", {
+                          $id: "item.card.markPurchased",
+                        })
                   }
                   aria-label={
-                    isPurchased ? "Mark as not purchased" : "Mark as purchased"
+                    isPurchased
+                      ? t("Mark as not purchased", {
+                          $id: "item.card.markNotPurchased",
+                        })
+                      : t("Mark as purchased", {
+                          $id: "item.card.markPurchased",
+                        })
                   }
-                  title={isPurchased ? "Purchased" : "Mark as purchased"}
+                  title={
+                    isPurchased
+                      ? t("Purchased", { $id: "item.status.purchased" })
+                      : t("Mark as purchased", {
+                          $id: "item.card.markPurchased",
+                        })
+                  }
                 >
                   <ShoppingCart size={16} />
                 </button>

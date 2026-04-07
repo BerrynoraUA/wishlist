@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { useGT } from "gt-next";
 import styles from "./WishlistItemsGrid.module.scss";
 import { WishlistItemCard } from "./WishlistItemCard";
 import { Item } from "@/types/item";
@@ -29,6 +30,7 @@ export function WishlistItemsGrid({
   openItemId,
   onOpenItemHandled,
 }: Props) {
+  const t = useGT();
   const { data: currentUserId = "" } = useCurrentUserId();
 
   const [isMobile, setIsMobile] = useState(false);
@@ -61,10 +63,15 @@ export function WishlistItemsGrid({
   const reservedByNameById = useMemo(() => {
     const map = new Map<string, string>();
     for (const p of reservedProfiles) {
-      map.set(p.id, p.display_name || p.nickname || "Unknown user");
+      map.set(
+        p.id,
+        p.display_name ||
+          p.nickname ||
+          t("Unknown user", { $id: "wishlist.grid.unknownUser" }),
+      );
     }
     return map;
-  }, [reservedProfiles]);
+  }, [reservedProfiles, t]);
 
   return (
     <div className={styles.wrapper}>
@@ -74,7 +81,7 @@ export function WishlistItemsGrid({
             type="button"
             className={`${styles.toggleBtn} ${cols === 2 ? styles.toggleActive : ""}`}
             onClick={() => setCols(2)}
-            aria-label="2 per row"
+            aria-label={t("2 per row", { $id: "wishlist.grid.layoutTwoPerRow" })}
           >
             <LayoutGrid size={16} />
           </button>
@@ -82,7 +89,7 @@ export function WishlistItemsGrid({
             type="button"
             className={`${styles.toggleBtn} ${cols === 1 ? styles.toggleActive : ""}`}
             onClick={() => setCols(1)}
-            aria-label="1 per row"
+            aria-label={t("1 per row", { $id: "wishlist.grid.layoutOnePerRow" })}
           >
             <LayoutList size={16} />
           </button>

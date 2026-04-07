@@ -1,9 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { scrapeProduct } from "@/app/api/server/scrape-product/route";
 
-export const maxDuration = 300; 
+export const maxDuration = 300;
 
-export async function POST(request: Request) {
+const ADMIN_SECRET = process.env.CRON_SECRET as string;
+
+function isAuthorized(request: NextRequest): boolean {
+  const authHeader = request.headers.get("Authorization");
+  return Boolean(ADMIN_SECRET) && authHeader === `Bearer ${ADMIN_SECRET}`;
+}
+
+export async function POST(request: NextRequest) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { urls } = (await request.json()) as { urls: string[] };
 
   if (!Array.isArray(urls) || urls.length === 0) {

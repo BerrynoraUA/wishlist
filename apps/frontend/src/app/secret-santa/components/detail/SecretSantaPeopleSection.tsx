@@ -1,3 +1,6 @@
+"use client";
+
+import { useGT } from "gt-next";
 import type { SecretSantaPerson } from "@/api/types/secret-santa";
 import { X } from "lucide-react";
 import { SecretSantaPersonAvatar } from "./SecretSantaPersonAvatar";
@@ -20,12 +23,15 @@ type Props = {
 
 export function SecretSantaPeopleSection({
   title,
-  description,
+  description: _description,
   emptyText,
   people,
   onRemove,
   removeLabel,
 }: Props) {
+  const t = useGT();
+  const userFallback = t("User", { $id: "secretSanta.peopleSection.userFallback" });
+
   return (
     <section className={styles.panel}>
       <div className={styles.panelHeader}>
@@ -48,7 +54,7 @@ export function SecretSantaPeopleSection({
               <SecretSantaPersonAvatar person={person} />
               <div className={styles.personMeta}>
                 <strong>
-                  {person.display_name ?? person.nickname ?? "User"}
+                  {person.display_name ?? person.nickname ?? userFallback}
                 </strong>
                 <span>{person.subtitle}</span>
               </div>

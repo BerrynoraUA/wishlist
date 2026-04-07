@@ -1,14 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useGT } from "gt-next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import type {
-  SecretSantaPendingInvite,
-  SecretSantaPerson,
-} from "@/api/types/secret-santa";
+import type { SecretSantaPendingInvite } from "@/api/types/secret-santa";
 import { SecretSantaPageShell } from "@/app/secret-santa/components/SecretSantaPageShell";
 import { SecretSantaDetailHero } from "@/app/secret-santa/components/detail/SecretSantaDetailHero";
 import { SecretSantaLaunchCard } from "@/app/secret-santa/components/detail/SecretSantaLaunchCard";
@@ -28,24 +26,8 @@ import {
 import { useCurrentUserId } from "@/hooks/use-user";
 import styles from "./SecretSantaDetailPage.module.scss";
 
-function mapParticipants(participants: SecretSantaPerson[]) {
-  return participants.map((person) => ({
-    ...person,
-    key: person.id,
-    subtitle: person.nickname ? `@${person.nickname}` : "Wishly member",
-  }));
-}
-
-function mapPendingInvites(invites: SecretSantaPendingInvite[]) {
-  return invites.map((person) => ({
-    ...person,
-    key: person.invite_id,
-    subtitle: person.nickname ? `@${person.nickname}` : "Invitation pending",
-    badge: "Pending",
-  }));
-}
-
 export default function SecretSantaDetailPage() {
+  const t = useGT();
   const params = useParams();
   const router = useRouter();
   const eventId = params.id as string;
@@ -59,18 +41,45 @@ export default function SecretSantaDetailPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
+  const peopleParticipants = useMemo(
+    () =>
+      (data?.participants ?? []).map((person) => ({
+        ...person,
+        key: person.id,
+        subtitle: person.nickname
+          ? `@${person.nickname}`
+          : t("Wishlane member", { $id: "secretSanta.detail.wishlyMember" }),
+      })),
+    [data?.participants, t],
+  );
+
+  const peoplePending = useMemo(
+    () =>
+      (data?.pending_invites ?? []).map((person: SecretSantaPendingInvite) => ({
+        ...person,
+        key: person.invite_id,
+        subtitle: person.nickname
+          ? `@${person.nickname}`
+          : t("Invitation pending", {
+              $id: "secretSanta.detail.invitationPending",
+            }),
+        badge: t("Pending", { $id: "secretSanta.detail.pendingBadge" }),
+      })),
+    [data?.pending_invites, t],
+  );
+
   if (isLoading) {
-    return (
-      <SecretSantaPageShell>
-        <p className={styles.message}>Loading event...</p>
-      </SecretSantaPageShell>
-    );
+    return null;
   }
 
   if (isError || !data) {
     return (
       <SecretSantaPageShell>
-        <p className={styles.message}>Failed to load Secret Santa event.</p>
+        <p className={styles.message}>
+          {t("Failed to load Secret Santa event.", {
+            $id: "secretSanta.detail.loadError",
+          })}
+        </p>
       </SecretSantaPageShell>
     );
   }
@@ -83,16 +92,23 @@ export default function SecretSantaDetailPage() {
   const canLaunch = pendingInvites.length === 0 && participants.length >= 2;
   const participantsSection = (
     <SecretSantaPeopleSection
-      title="Participants"
-      description="Everyone in the event can see accepted participants."
-      emptyText="No participants have accepted yet."
-      people={mapParticipants(participants)}
+      title={t("Participants", { $id: "secretSanta.detail.participantsTitle" })}
+      description={t(
+        "Everyone in the event can see accepted participants.",
+        { $id: "secretSanta.detail.participantsDescription" },
+      )}
+      emptyText={t("No participants have accepted yet.", {
+        $id: "secretSanta.detail.participantsEmpty",
+      })}
+      people={peopleParticipants}
       onRemove={
         isOwner && !isStarted
           ? (userId) => removeParticipant.mutate({ eventId, userId })
           : undefined
       }
-      removeLabel="Remove participant"
+      removeLabel={t("Remove participant", {
+        $id: "secretSanta.detail.removeParticipant",
+      })}
     />
   );
 
@@ -109,7 +125,9 @@ export default function SecretSantaDetailPage() {
       <div className={styles.shell}>
         <Link href="/secret-santa" className={styles.backLink}>
           <ArrowLeft size={15} />
-          <span>Back to events</span>
+          <span>
+            {t("Back to events", { $id: "secretSanta.detail.backToEvents" })}
+          </span>
         </Link>
 
         <SecretSantaDetailHero
@@ -152,14 +170,23 @@ export default function SecretSantaDetailPage() {
                 {participantsSection}
 
                 <SecretSantaPeopleSection
-                  title="Pending invites"
-                  description="These people still need to accept the invite."
-                  emptyText="No pending invites."
-                  people={mapPendingInvites(pendingInvites)}
+                  title={t("Pending invites", {
+                    $id: "secretSanta.detail.pendingTitle",
+                  })}
+                  description={t(
+                    "These people still need to accept the invite.",
+                    { $id: "secretSanta.detail.pendingDescription" },
+                  )}
+                  emptyText={t("No pending invites.", {
+                    $id: "secretSanta.detail.pendingEmpty",
+                  })}
+                  people={peoplePending}
                   onRemove={(inviteId) =>
                     removeInvite.mutate({ eventId, inviteId })
                   }
-                  removeLabel="Remove invite"
+                  removeLabel={t("Remove invite", {
+                    $id: "secretSanta.detail.removeInvite",
+                  })}
                 />
               </div>
 
@@ -198,9 +225,16 @@ export default function SecretSantaDetailPage() {
               onSuccess: () => router.push("/secret-santa"),
             });
           }}
-          title="Delete Event"
-          description="Are you sure you want to delete this Secret Santa event? This action cannot be undone."
-          confirmLabel="Delete Event"
+          title={t("Delete Event", {
+            $id: "secretSanta.detail.deleteModalTitle",
+          })}
+          description={t(
+            "Are you sure you want to delete this Secret Santa event? This action cannot be undone.",
+            { $id: "secretSanta.detail.deleteModalDescription" },
+          )}
+          confirmLabel={t("Delete Event", {
+            $id: "secretSanta.detail.deleteModalConfirm",
+          })}
           isPending={deleteEvent.isPending}
         />
       </div>

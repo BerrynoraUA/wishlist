@@ -9,62 +9,64 @@ import {
   getInitialResolvedTheme,
   parseThemePreference,
   RESOLVED_THEME_COOKIE_NAME,
-  THEME_COOKIE_NAME,
-} from "@/lib/theme";
+  THEME_COOKIE_NAME } from
+"@/lib/theme";
+import { getLocale } from "gt-next/server";
+import { GTProvider } from "gt-next";
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  viewportFit: "cover",
+  viewportFit: "cover"
 };
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
-  display: "swap",
+  display: "swap"
 });
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-serif",
-  display: "swap",
+  display: "swap"
 });
 
 export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+  children
+
+
+}: {children: React.ReactNode;}) {
   const cookieStore = await cookies();
   const initialTheme =
-    parseThemePreference(cookieStore.get(THEME_COOKIE_NAME)?.value) ?? "system";
+  parseThemePreference(cookieStore.get(THEME_COOKIE_NAME)?.value) ?? "system";
   const initialResolvedTheme = getInitialResolvedTheme(
     initialTheme,
-    cookieStore.get(RESOLVED_THEME_COOKIE_NAME)?.value,
+    cookieStore.get(RESOLVED_THEME_COOKIE_NAME)?.value
   );
 
   return (
-    <html
-      lang="en"
-      className={`${dmSans.variable} ${playfair.variable}`}
-      data-theme={initialResolvedTheme}
-      suppressHydrationWarning
-      style={{ colorScheme: initialResolvedTheme }}
-    >
+  <html
+
+    className={`${dmSans.variable} ${playfair.variable}`}
+    data-theme={initialResolvedTheme}
+    suppressHydrationWarning
+    style={{ colorScheme: initialResolvedTheme }} lang={await getLocale()}>
+    
       <head>
         <Script id="theme-init" strategy="beforeInteractive">
           {buildThemeInitScript()}
         </Script>
       </head>
-      <body suppressHydrationWarning>
+      <body suppressHydrationWarning><GTProvider>
         <AppShell
           initialTheme={initialTheme}
-          initialResolvedTheme={initialResolvedTheme}
-        >
+          initialResolvedTheme={initialResolvedTheme}>
+          
           {children}
         </AppShell>
-      </body>
+      </GTProvider></body>
     </html>
   );
 }
