@@ -9,6 +9,7 @@ import { Gift, Users, Heart, Search } from "lucide-react";
 import { ProfileMenu } from "../profile/ProfileMenu";
 import { NotificationsMenu } from "../notifications/NotificationsMenu";
 import { ThemeToggle } from "./ThemeToggle";
+import { ProBadge } from "../ui/ProBadge/ProBadge";
 
 const navItems = [
   { label: "My Wishlists", href: "/home", icon: <Gift size={16} /> },
@@ -21,7 +22,9 @@ export function TopNav() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
-  const previousSearchModeRef = useRef<"home" | "friends" | "discover" | null>(null);
+  const previousSearchModeRef = useRef<"home" | "friends" | "discover" | null>(
+    null,
+  );
   const discoverTab = searchParams.get("tab");
 
   const searchMode =
@@ -29,9 +32,9 @@ export function TopNav() {
       ? "home"
       : pathname === "/discover"
         ? "discover"
-      : pathname === "/friends"
-        ? "friends"
-        : null;
+        : pathname === "/friends"
+          ? "friends"
+          : null;
   const isSearchVisible = searchMode !== null;
   const activeSearchKey =
     searchMode === "discover"
@@ -54,9 +57,12 @@ export function TopNav() {
     if (previousMode && previousMode !== searchMode) {
       const params = new URLSearchParams(searchParams.toString());
       clearSearchParams(params);
-      router.replace(params.toString() ? `${pathname}?${params.toString()}` : pathname, {
-        scroll: false,
-      });
+      router.replace(
+        params.toString() ? `${pathname}?${params.toString()}` : pathname,
+        {
+          scroll: false,
+        },
+      );
       setQuery("");
     }
     previousSearchModeRef.current = searchMode;
@@ -75,8 +81,13 @@ export function TopNav() {
     <header className={styles.header}>
       <div className={styles.inner}>
         <div className={styles.logo}>
-          <div className={styles.logoIcon}>
-            <Gift size={16} />
+          <div className={styles.logoIconWrap}>
+            <div className={styles.logoIcon}>
+              <Gift size={16} />
+            </div>
+            <span className={styles.logoBetaBadge}>
+              <ProBadge size="sm" label="BETA" />
+            </span>
           </div>
           <span>Wishly</span>
         </div>
@@ -129,7 +140,9 @@ export function TopNav() {
                     else params.delete(activeSearchKey);
 
                     router.replace(
-                      params.toString() ? `${pathname}?${params.toString()}` : pathname,
+                      params.toString()
+                        ? `${pathname}?${params.toString()}`
+                        : pathname,
                       { scroll: false },
                     );
                   }}

@@ -1,7 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Notification } from "@/types";
 
-async function getSupabaseBrowser(): Promise<import("@supabase/supabase-js").SupabaseClient> {
+async function getSupabaseBrowser(): Promise<
+  import("@supabase/supabase-js").SupabaseClient
+> {
   const mod = await import("@/lib/supabase-browser");
   return mod.supabaseBrowser;
 }
@@ -82,34 +84,11 @@ export async function createSaleAlertNotificationsForFriends(
     };
   }
 
-  const { data: subsRows, error: subsError } = await supabase
-    .from("user_subscriptions")
-    .select("user_id")
-    .in("user_id", friendIds)
-    .eq("plan", "pro")
-    .eq("is_active", true);
-
-  if (subsError) throw subsError;
-
-  const proIds = Array.from(
-    new Set((subsRows ?? []).map((r: { user_id: string }) => r.user_id).filter(Boolean)),
-  );
-
-  if (proIds.length === 0) {
-    return {
-      inserted: 0,
-      receivers: [],
-      friendCandidates: friendIds.length,
-      proCandidates: 0,
-      eligibleReceivers: 0,
-    };
-  }
-
   // 3) Respect notification settings (missing row => default true)
   const { data: settingsRows, error: settingsError } = await supabase
     .from("user_settings")
     .select("user_id,notify_sale_alerts")
-    .in("user_id", proIds);
+    .in("user_id", friendIds);
 
   if (settingsError) throw settingsError;
 
@@ -117,11 +96,13 @@ export async function createSaleAlertNotificationsForFriends(
   for (const row of settingsRows ?? []) {
     const userId = (row as { user_id?: string }).user_id;
     if (!userId) continue;
-    const enabled = Boolean((row as { notify_sale_alerts?: boolean }).notify_sale_alerts);
+    const enabled = Boolean(
+      (row as { notify_sale_alerts?: boolean }).notify_sale_alerts,
+    );
     settingsByUserId.set(userId, enabled);
   }
 
-  const receivers = proIds.filter((userId) => {
+  const receivers = friendIds.filter((userId) => {
     const hasRow = settingsByUserId.has(userId);
     if (!hasRow) return true;
     return settingsByUserId.get(userId) === true;
@@ -132,7 +113,7 @@ export async function createSaleAlertNotificationsForFriends(
       inserted: 0,
       receivers: [],
       friendCandidates: friendIds.length,
-      proCandidates: proIds.length,
+      proCandidates: friendIds.length,
       eligibleReceivers: 0,
     };
   }
@@ -160,7 +141,7 @@ export async function createSaleAlertNotificationsForFriends(
     inserted,
     receivers,
     friendCandidates: friendIds.length,
-    proCandidates: proIds.length,
+    proCandidates: friendIds.length,
     eligibleReceivers: receivers.length,
   };
 }
@@ -172,7 +153,7 @@ export interface GetNotificationsParams {
 }
 
 export async function getUserNotifications(
-  params: GetNotificationsParams = {}
+  params: GetNotificationsParams = {},
 ): Promise<Notification[]> {
   const supabaseBrowser = await getSupabaseBrowser();
   const {
@@ -185,15 +166,12 @@ export async function getUserNotifications(
 
   const { limit = 20, offset = 0, unread_only = false } = params;
 
-  const { data, error } = await supabaseBrowser.rpc(
-    "get_user_notifications",
-    {
-      p_user_id: session.user.id,
-      p_limit: limit,
-      p_offset: offset,
-      p_unread_only: unread_only,
-    }
-  );
+  const { data, error } = await supabaseBrowser.rpc("get_user_notifications", {
+    p_user_id: session.user.id,
+    p_limit: limit,
+    p_offset: offset,
+    p_unread_only: unread_only,
+  });
 
   if (error) throw error;
 
@@ -201,7 +179,7 @@ export async function getUserNotifications(
 }
 
 export async function markNotificationAsRead(
-  notificationId: string
+  notificationId: string,
 ): Promise<void> {
   const supabaseBrowser = await getSupabaseBrowser();
   const { error } = await supabaseBrowser
@@ -249,7 +227,9 @@ export async function deleteAllNotifications(): Promise<void> {
   if (error) throw error;
 }
 
-export async function deleteNotification(notificationId: string): Promise<void> {
+export async function deleteNotification(
+  notificationId: string,
+): Promise<void> {
   const supabaseBrowser = await getSupabaseBrowser();
   const { error } = await supabaseBrowser
     .from("notifications")
@@ -273,7 +253,7 @@ export async function getUnreadNotificationsCount(): Promise<number> {
     "get_unread_notifications_count",
     {
       p_user_id: session.user.id,
-    }
+    },
   );
 
   if (error) throw error;

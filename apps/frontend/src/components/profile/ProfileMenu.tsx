@@ -9,6 +9,7 @@ import { logout } from "@/api/login";
 import { useSubscription } from "@/hooks/use-subscription";
 import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 import { useProfile } from "@/hooks/use-settings";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 
 type Props = {
   onOpen?: () => void;
@@ -127,18 +128,20 @@ export function ProfileMenu({ onOpen }: Props) {
             </div>
           </div>
 
-          <button
-            type="button"
-            className={styles.menuItemSub}
-            onClick={() => {
-              setOpen(false);
-              router.push("/subscription");
-            }}
-          >
-            <Crown size={16} />
-            <span>Subscription</span>
-            {isPro && <ProBadge size="sm" />}
-          </button>
+          {SUBSCRIPTIONS_UI_ENABLED && (
+            <button
+              type="button"
+              className={styles.menuItemSub}
+              onClick={() => {
+                setOpen(false);
+                router.push("/subscription");
+              }}
+            >
+              <Crown size={16} />
+              <span>Subscription</span>
+              {isPro && <ProBadge size="sm" />}
+            </button>
+          )}
 
           <button
             type="button"

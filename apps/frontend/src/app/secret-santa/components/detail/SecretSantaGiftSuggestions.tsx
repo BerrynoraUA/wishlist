@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Gift, Heart, ShoppingCart } from "lucide-react";
+import { Gift, ShoppingCart } from "lucide-react";
 import type { VisibleItem } from "@/api/types/secret-santa";
 import { useGiftSuggestions } from "@/hooks/use-secret-santa";
 import {
@@ -13,6 +13,7 @@ import { useCurrentUserId } from "@/hooks/use-user";
 import { WishlistItemDetailModal } from "@/app/wishlist/components/WishlistItemDetailModal";
 import type { Item } from "@/types/item";
 import styles from "./SecretSantaGiftSuggestions.module.scss";
+import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
 
 type Props = {
   budget: number;
@@ -104,7 +105,7 @@ export function SecretSantaGiftSuggestions({ budget, receiverId }: Props) {
                       {isPurchased ? (
                         <ShoppingCart size={13} />
                       ) : (
-                        <Heart size={13} fill="currentColor" />
+                        <ReservationLockIcon isReserved={true} size={13} />
                       )}
                       <span>{reserveStatusLabel}</span>
                     </div>

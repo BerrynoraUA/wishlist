@@ -1,16 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { Item } from "@/types/item";
-import {
-  Heart,
-  ExternalLink,
-  Trash2,
-  Pencil,
-  ShoppingCart,
-} from "lucide-react";
+import { ExternalLink, Trash2, Pencil, ShoppingCart } from "lucide-react";
 import styles from "./WishlistItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
@@ -18,6 +13,7 @@ import {
   ActionConfirmModal,
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
+import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
 
 type Props = {
   open: boolean;
@@ -36,6 +32,126 @@ const priorityLabel: Record<number, string> = {
   2: "Medium",
   3: "High",
 };
+
+type OverflowTooltipProps = {
+  className: string;
+  tooltipClassName: string;
+  tooltipVisibleClassName: string;
+  tooltipArrowClassName: string;
+  tooltipBody: ReactNode;
+  children: ReactNode;
+};
+
+function OverflowTooltip({
+  className,
+  tooltipClassName,
+  tooltipVisibleClassName,
+  tooltipArrowClassName,
+  tooltipBody,
+  children,
+}: OverflowTooltipProps) {
+  const triggerRef = useRef<HTMLDivElement | null>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0, maxWidth: 320 });
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const element = triggerRef.current;
+    if (!element) return;
+
+    const getMeasuredElement = () =>
+      (element.firstElementChild as HTMLElement | null) ?? element;
+
+    const measureOverflow = () => {
+      const measuredElement = getMeasuredElement();
+      const nextOverflow =
+        measuredElement.scrollHeight > measuredElement.clientHeight + 1 ||
+        measuredElement.scrollWidth > measuredElement.clientWidth + 1;
+
+      setIsOverflowing(nextOverflow);
+      if (!nextOverflow) setIsVisible(false);
+    };
+
+    measureOverflow();
+
+    const resizeObserver = new ResizeObserver(measureOverflow);
+    resizeObserver.observe(getMeasuredElement());
+
+    window.addEventListener("resize", measureOverflow);
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", measureOverflow);
+    };
+  }, [children]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const updatePosition = () => {
+      const element = triggerRef.current;
+      if (!element) return;
+
+      const rect = element.getBoundingClientRect();
+      const maxWidth = Math.min(360, Math.max(220, window.innerWidth - 32));
+      const left = Math.min(rect.left + 20, window.innerWidth - maxWidth - 16);
+
+      setPosition({
+        top: Math.max(16, rect.top - 14),
+        left: Math.max(16, left),
+        maxWidth,
+      });
+    };
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [isVisible]);
+
+  return (
+    <>
+      <div
+        ref={triggerRef}
+        className={className}
+        onMouseEnter={() => {
+          if (isOverflowing) setIsVisible(true);
+        }}
+        onMouseLeave={() => setIsVisible(false)}
+      >
+        {children}
+      </div>
+
+      {isMounted &&
+        isVisible &&
+        isOverflowing &&
+        createPortal(
+          <div
+            className={`${tooltipClassName} ${tooltipVisibleClassName}`}
+            style={{
+              top: position.top,
+              left: position.left,
+              maxWidth: position.maxWidth,
+              transform: "translateY(-100%)",
+            }}
+            role="tooltip"
+          >
+            <div className={tooltipArrowClassName} />
+            {tooltipBody}
+          </div>,
+          document.body,
+        )}
+    </>
+  );
+}
 
 export function WishlistItemDetailModal({
   open,
@@ -111,10 +227,26 @@ export function WishlistItemDetailModal({
           )}
 
           <div className={styles.details}>
-            <h2>{item.name}</h2>
+            <OverflowTooltip
+              className={styles.titleBlock}
+              tooltipClassName={styles.textTooltip}
+              tooltipVisibleClassName={styles.textTooltipVisible}
+              tooltipArrowClassName={styles.textTooltipArrow}
+              tooltipBody={<strong>{item.name}</strong>}
+            >
+              <h2>{item.name}</h2>
+            </OverflowTooltip>
 
             {item.description && (
-              <p className={styles.description}>{item.description}</p>
+              <OverflowTooltip
+                className={styles.descriptionBlock}
+                tooltipClassName={styles.textTooltip}
+                tooltipVisibleClassName={styles.textTooltipVisible}
+                tooltipArrowClassName={styles.textTooltipArrow}
+                tooltipBody={<span>{item.description}</span>}
+              >
+                <p className={styles.description}>{item.description}</p>
+              </OverflowTooltip>
             )}
 
             <div className={styles.meta}>
@@ -185,11 +317,13 @@ export function WishlistItemDetailModal({
                       onClick={handleReserveClick}
                       disabled={!canToggleReservation}
                     >
-                      <Heart
-                        size={16}
-                        fill={isReserved ? "currentColor" : "none"}
-                        style={{ marginRight: 6 }}
-                      />
+                      <span style={{ marginRight: 6, display: "inline-flex" }}>
+                        <ReservationLockIcon
+                          isReserved={isReserved}
+                          size={16}
+                          animateOnReserve
+                        />
+                      </span>
                       {isPurchased
                         ? "Purchased"
                         : isReserved

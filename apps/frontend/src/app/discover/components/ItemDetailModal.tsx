@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DiscoverItem } from "@/api/types/wishilst";
-import { Heart, ExternalLink, ShoppingCart } from "lucide-react";
+import { ExternalLink, ShoppingCart } from "lucide-react";
 import styles from "./ItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
@@ -12,6 +12,7 @@ import {
   ActionConfirmModal,
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
+import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
 
 type ReserveActionType = "reserve" | "unreserve";
 type BoughtActionType = "purchase" | "unpurchase";
@@ -159,11 +160,13 @@ export function ItemDetailModal({
                   onClick={handleReserveClick}
                   disabled={!canToggleReservation}
                 >
-                  <Heart
-                    size={16}
-                    fill={isReserved ? "currentColor" : "none"}
-                    style={{ marginRight: 6 }}
-                  />
+                  <span style={{ marginRight: 6, display: "inline-flex" }}>
+                    <ReservationLockIcon
+                      isReserved={isReserved}
+                      size={16}
+                      animateOnReserve
+                    />
+                  </span>
                   {isPurchased
                     ? "Purchased"
                     : isReserved

@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, ShoppingCart } from "lucide-react";
+import { Lock, LockOpen, ShoppingCart, type LucideIcon } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import styles from "./ActionConfirmModal.module.scss";
@@ -28,7 +28,7 @@ const ACTION_COPY: Record<
     confirmLabel: string;
     confirmVariant: "primary" | "secondary" | "danger" | "success" | "accent";
     toneClass: string;
-    icon: typeof Heart;
+    icon: LucideIcon;
   }
 > = {
   reserve: {
@@ -40,7 +40,7 @@ const ACTION_COPY: Record<
     confirmLabel: "Reserve",
     confirmVariant: "primary",
     toneClass: "reserve",
-    icon: Heart,
+    icon: LockOpen,
   },
   unreserve: {
     title: "Release reservation?",
@@ -51,7 +51,7 @@ const ACTION_COPY: Record<
     confirmLabel: "Release",
     confirmVariant: "danger",
     toneClass: "unreserve",
-    icon: Heart,
+    icon: LockOpen,
   },
   purchase: {
     title: "Mark as purchased?",
@@ -92,14 +92,7 @@ export function ActionConfirmModal({
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={`${styles.iconWrapper} ${styles[config.toneClass]}`}>
-          <Icon
-            size={24}
-            fill={
-              action === "reserve" || action === "unreserve"
-                ? "currentColor"
-                : "none"
-            }
-          />
+          <Icon size={24} />
         </div>
 
         <h3 className={styles.title}>{config.title}</h3>

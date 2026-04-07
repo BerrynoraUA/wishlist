@@ -12,9 +12,11 @@ import {
   useFriendsWishlistsPurchasedByMe,
   useFriendsWishlistsReservedByMe,
 } from "@/hooks/use-wishlists";
-import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
+import {
+  useToggleItemBought,
+  useToggleItemReservation,
+} from "@/hooks/use-items";
 import { useProfilesByIds } from "@/hooks/use-settings";
-import { useSubscription } from "@/hooks/use-subscription";
 
 function DiscoverPageContent() {
   const router = useRouter();
@@ -25,7 +27,9 @@ function DiscoverPageContent() {
     tabParam === "reserved" || tabParam === "purchased"
       ? tabParam
       : "wishlists";
-  const [filter, setFilter] = useState<"wishlists" | "reserved" | "purchased">(tabFromUrl);
+  const [filter, setFilter] = useState<"wishlists" | "reserved" | "purchased">(
+    tabFromUrl,
+  );
   const wishlistsSearch = useMemo(
     () => searchParams.get("discoverSearch") ?? "",
     [searchParams],
@@ -85,7 +89,6 @@ function DiscoverPageContent() {
     { search: purchasedSearch },
     filter === "purchased",
   );
-  const { isPro } = useSubscription();
 
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
@@ -123,7 +126,8 @@ function DiscoverPageContent() {
         ? isReservedError
         : isPurchasedError;
   const hasNoData =
-    !isLoading && !isError &&
+    !isLoading &&
+    !isError &&
     (filter === "wishlists"
       ? wishlistsSections.length === 0
       : filter === "reserved"
@@ -149,12 +153,14 @@ function DiscoverPageContent() {
         </p>
       )}
 
-      {!isLoading && !isError && filter === "wishlists" &&
+      {!isLoading &&
+        !isError &&
+        filter === "wishlists" &&
         wishlistsSections.map((section) => (
           <DiscoverSection
             key={section.id}
             {...section}
-            showDiscountBadge={isPro}
+            showDiscountBadge={true}
             avatarUrl={
               section.avatar_url ??
               (section.friend_id
@@ -170,7 +176,7 @@ function DiscoverPageContent() {
         <ReservedItemsGrid
           items={reservedSections}
           mode="reserved"
-          showDiscountBadge={isPro}
+          showDiscountBadge={true}
           onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
           onToggleBought={(itemId) => toggleBought.mutate(itemId)}
         />
@@ -180,7 +186,7 @@ function DiscoverPageContent() {
         <ReservedItemsGrid
           items={purchasedSections}
           mode="purchased"
-          showDiscountBadge={isPro}
+          showDiscountBadge={true}
           onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
           onToggleBought={(itemId) => toggleBought.mutate(itemId)}
         />
@@ -191,7 +197,15 @@ function DiscoverPageContent() {
 
 export default function DiscoverPage() {
   return (
-    <Suspense fallback={<main style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}><p>Loading discover...</p></main>}>
+    <Suspense
+      fallback={
+        <main
+          style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}
+        >
+          <p>Loading discover...</p>
+        </main>
+      }
+    >
       <DiscoverPageContent />
     </Suspense>
   );

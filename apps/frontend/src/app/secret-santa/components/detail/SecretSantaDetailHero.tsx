@@ -5,18 +5,23 @@ import type { SecretSantaDetails } from "@/api/types/secret-santa";
 import {
   CalendarDays,
   Check,
-  Copy,
   Crown,
   DollarSign,
   MoreHorizontal,
+  Pencil,
   TreePine,
+  Upload,
   Users,
+  UserPlus,
+  X,
 } from "lucide-react";
 import styles from "./SecretSantaDetailHero.module.scss";
 import {
   formatEventDate,
   type SecretSantaAccent,
 } from "./secretSantaDetail.utils";
+import { Button } from "@/components/ui/Button/Button";
+import { useUpdateSecretSantaEvent } from "@/hooks/use-secret-santa";
 
 type Props = {
   event: SecretSantaDetails;
@@ -40,8 +45,35 @@ export function SecretSantaDetailHero({
   onDelete,
 }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isInlineEditing, setIsInlineEditing] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(event.name);
+  const [imagePreview, setImagePreview] = useState(event.image_url ?? "");
+  const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
+  const [isDragActive, setIsDragActive] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const showMenu = Boolean(onEdit || onDelete);
+  const updateEvent = useUpdateSecretSantaEvent();
+
+  useEffect(() => {
+    if (!isInlineEditing) {
+      setTitleDraft(event.name);
+    }
+  }, [event.name, isInlineEditing]);
+
+  useEffect(() => {
+    if (!imageObjectUrl) {
+      setImagePreview(event.image_url ?? "");
+    }
+  }, [event.image_url, imageObjectUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (imageObjectUrl) {
+        URL.revokeObjectURL(imageObjectUrl);
+      }
+    };
+  }, [imageObjectUrl]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -54,19 +86,98 @@ export function SecretSantaDetailHero({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [menuOpen]);
 
+  function cancelInlineEditing() {
+    setIsInlineEditing(false);
+    setTitleDraft(event.name);
+  }
+
+  function saveInlineTitle() {
+    const nextName = titleDraft.trim();
+    if (!nextName || updateEvent.isPending) return;
+
+    if (nextName === event.name) {
+      setIsInlineEditing(false);
+      return;
+    }
+
+    updateEvent.mutate(
+      {
+        eventId: event.id,
+        updates: { name: nextName },
+      },
+      {
+        onSuccess: () => setIsInlineEditing(false),
+      },
+    );
+  }
+
+  function handleTitleKeyDown(eventKey: React.KeyboardEvent<HTMLInputElement>) {
+    if (eventKey.key === "Enter") {
+      eventKey.preventDefault();
+      saveInlineTitle();
+    }
+
+    if (eventKey.key === "Escape") {
+      eventKey.preventDefault();
+      cancelInlineEditing();
+    }
+  }
+
+  function handleImageSelection(file?: File | null) {
+    if (!file || updateEvent.isPending) return;
+
+    if (imageObjectUrl) {
+      URL.revokeObjectURL(imageObjectUrl);
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setImageObjectUrl(objectUrl);
+    setImagePreview(objectUrl);
+
+    updateEvent.mutate(
+      {
+        eventId: event.id,
+        updates: { image: file, imageUrl: null },
+      },
+      {
+        onSuccess: () => {
+          URL.revokeObjectURL(objectUrl);
+          setImageObjectUrl(null);
+        },
+        onError: () => {
+          URL.revokeObjectURL(objectUrl);
+          setImageObjectUrl(null);
+          setImagePreview(event.image_url ?? "");
+        },
+      },
+    );
+  }
+
+  function handleFileChange(eventFile: React.ChangeEvent<HTMLInputElement>) {
+    handleImageSelection(eventFile.target.files?.[0] ?? null);
+    eventFile.target.value = "";
+  }
+
+  function handleDrop(eventDrop: React.DragEvent<HTMLLabelElement>) {
+    eventDrop.preventDefault();
+    setIsDragActive(false);
+    handleImageSelection(eventDrop.dataTransfer.files?.[0] ?? null);
+  }
+
   return (
     <section className={styles.hero}>
       {isOwner && (
         <div className={styles.heroActions}>
-          <button
-            type="button"
-            className={styles.actionButton}
+          <Button
+            variant="accent"
+            size="sm"
+            className={styles.inviteButton}
             onClick={onCopyLink}
-            aria-label={copied ? "Invite link copied" : "Copy invite link"}
-            title={copied ? "Copied" : "Copy invite link"}
+            aria-label={copied ? "Invite link copied" : "Invite friends"}
           >
-            {copied ? <Check size={15} /> : <Copy size={15} />}
-          </button>
+            {copied ? <Check size={15} /> : <UserPlus size={15} />}
+            <span>{copied ? "Copied" : "Invite Friends"}</span>
+          </Button>
 
           {showMenu && (
             <div className={styles.menuWrapper} ref={menuRef}>
@@ -114,13 +225,39 @@ export function SecretSantaDetailHero({
       )}
 
       <div className={`${styles.heroVisual} ${styles[accent]}`}>
-        {event.image_url ? (
+        {imagePreview ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={event.image_url}
+            src={imagePreview}
             alt={event.name}
             className={styles.heroImage}
           />
+        ) : isOwner ? (
+          <label
+            className={`${styles.heroUpload} ${isDragActive ? styles.heroUploadActive : ""} ${updateEvent.isPending ? styles.heroUploadPending : ""}`}
+            onDragOver={(eventDrag) => {
+              eventDrag.preventDefault();
+              setIsDragActive(true);
+            }}
+            onDragLeave={() => setIsDragActive(false)}
+            onDrop={handleDrop}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className={styles.heroUploadInput}
+              onChange={handleFileChange}
+              disabled={updateEvent.isPending}
+            />
+            <Upload size={26} className={styles.heroUploadIcon} />
+            <span className={styles.heroUploadTitle}>
+              {updateEvent.isPending ? "Uploading cover..." : "Upload cover"}
+            </span>
+            <span className={styles.heroUploadHint}>
+              Drag and drop or click to choose an image
+            </span>
+          </label>
         ) : (
           <TreePine size={52} className={styles.heroIcon} />
         )}
@@ -145,7 +282,56 @@ export function SecretSantaDetailHero({
 
         <div className={styles.heroCopy}>
           <div className={styles.titleRow}>
-            <h1>{event.name}</h1>
+            {isInlineEditing ? (
+              <div className={styles.inlineTitleBlock}>
+                <input
+                  className={styles.titleInput}
+                  value={titleDraft}
+                  onChange={(eventTitle) =>
+                    setTitleDraft(eventTitle.target.value)
+                  }
+                  onKeyDown={handleTitleKeyDown}
+                  placeholder="Event name"
+                  autoFocus
+                  disabled={updateEvent.isPending}
+                />
+                <div className={styles.inlineTitleActions}>
+                  <button
+                    type="button"
+                    className={`${styles.inlineActionButton} ${styles.inlineCancelButton}`}
+                    onClick={cancelInlineEditing}
+                    disabled={updateEvent.isPending}
+                    aria-label="Cancel title editing"
+                  >
+                    <X size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.inlineActionButton} ${styles.inlineSaveButton}`}
+                    onClick={saveInlineTitle}
+                    disabled={!titleDraft.trim() || updateEvent.isPending}
+                    aria-label="Save event title"
+                  >
+                    <Check size={14} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <h1>{event.name}</h1>
+                {isOwner && (
+                  <button
+                    type="button"
+                    className={styles.inlineEditTrigger}
+                    onClick={() => setIsInlineEditing(true)}
+                    aria-label="Inline edit event title"
+                    title="Edit title"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                )}
+              </>
+            )}
             {isOwner && (
               <span className={styles.ownerPill}>
                 <Crown size={14} />

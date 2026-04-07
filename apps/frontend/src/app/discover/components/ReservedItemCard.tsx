@@ -3,12 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./ReservedItemCard.module.scss";
 import { ReservedItem } from "@/api/types/wishilst";
-import {
-  Heart,
-  ExternalLink,
-  MoreHorizontal,
-  ShoppingCart,
-} from "lucide-react";
+import { ExternalLink, MoreHorizontal, ShoppingCart } from "lucide-react";
 import { ItemDetailModal } from "./ItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { formatItemPrice } from "@/lib/helpers/price-helper";
@@ -16,6 +11,7 @@ import {
   ActionConfirmModal,
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
+import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
 
 type Props = ReservedItem & {
   mode?: "reserved" | "purchased";
@@ -169,7 +165,7 @@ export function ReservedItemCard({
             {isPurchased ? (
               <ShoppingCart size={14} />
             ) : (
-              <Heart size={14} fill="currentColor" />
+              <ReservationLockIcon isReserved={true} size={14} />
             )}
             <span>{isPurchased ? "Purchased by you" : "Reserved by you"}</span>
           </div>
@@ -256,7 +252,11 @@ export function ReservedItemCard({
               disabled={!canToggleReservation}
               aria-label="Release reservation"
             >
-              <Heart size={16} fill="currentColor" />
+              <ReservationLockIcon
+                isReserved={true}
+                size={16}
+                animateOnReserve
+              />
               <span>{isPurchased ? "Purchased" : "Reserved by you"}</span>
             </button>
 

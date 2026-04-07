@@ -6,7 +6,6 @@ import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useCreateItem } from "@/hooks/use-items";
 import { useSettings } from "@/hooks/use-settings";
-import { useSubscription } from "@/hooks/use-subscription";
 import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/currencies";
 import styles from "./CreateItemModal.module.scss";
 
@@ -54,7 +53,6 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [currency, setCurrency] = useState(preferredCurrency);
 
   const { mutate, isPending } = useCreateItem();
-  const { isPro } = useSubscription();
 
   useEffect(() => {
     if (!open) {
@@ -67,10 +65,6 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       setCurrency(preferredCurrency);
     }
   }, [open, preferredCurrency, link, name, description, price, imagePreview]);
-
-  useEffect(() => {
-    if (!isPro) setPriority("None");
-  }, [isPro]);
 
   useEffect(() => {
     return () => {
@@ -108,8 +102,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       name: name.trim(),
       description: description.trim() || null,
       price: price.trim() || null,
-      // Priority is a Pro-only feature
-      priority: isPro ? priorityValue : null,
+      priority: priorityValue,
       url: link.trim() || null, // original link user pasted
       image: imageFile,
       image_url: imageUrlToSave,
@@ -302,24 +295,22 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           </div>
         </div>
 
-        {isPro && (
-          <div className={styles.field}>
-            <label>Priority</label>
-            <div className={styles.selectWrap}>
-              <select
-                className={styles.selectField}
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as PriorityOption)}
-              >
-                <option value="None">No priority</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-              </select>
-              <ChevronDown className={styles.selectChevron} size={16} />
-            </div>
+        <div className={styles.field}>
+          <label>Priority</label>
+          <div className={styles.selectWrap}>
+            <select
+              className={styles.selectField}
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as PriorityOption)}
+            >
+              <option value="None">No priority</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+            <ChevronDown className={styles.selectChevron} size={16} />
           </div>
-        )}
+        </div>
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose}>
