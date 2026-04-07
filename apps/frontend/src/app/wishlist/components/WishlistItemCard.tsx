@@ -17,6 +17,7 @@ import {
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
 import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
+import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
 
 type Props = {
   item: Item;
@@ -215,6 +216,23 @@ export function WishlistItemCard({
           </div>
 
           <div className={styles.quickActions}>
+            {!isOwner && (
+              <SaveToWishlistButton
+                item={{
+                  name: item.name,
+                  description: item.description ?? null,
+                  price: item.price ?? null,
+                  image_url: item.image_url ?? null,
+                  url: item.url ?? null,
+                  priority: item.priority ?? null,
+                  discount_price: item.discount_price ?? null,
+                  has_discount: item.has_discount ?? false,
+                  discount_end_date: item.discount_end_date ?? null,
+                  currency: item.currency ?? null,
+                }}
+                className={`${styles.iconButton} iconTooltipTrigger`}
+              />
+            )}
             {item.url && (
               <a
                 href={item.url}

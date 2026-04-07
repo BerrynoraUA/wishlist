@@ -293,6 +293,26 @@
   }
 }
 
+.saveBtn {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 1.5px solid var(--color-border-light);
+  background: var(--card-bg);
+  color: var(--color-text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+    background: var(--brand-alpha-06);
+  }
+}
+
 @media (max-width: 640px) {
   .details h2 {
     font-size: 19px;

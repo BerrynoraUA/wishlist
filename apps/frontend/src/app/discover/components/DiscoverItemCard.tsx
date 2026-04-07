@@ -12,6 +12,7 @@ import {
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
 import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
+import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
 
 type Props = DiscoverItem & {
   onToggleReserve?: (id: string) => void;
@@ -182,6 +183,30 @@ export function DiscoverItemCard({
           )}
 
           <div className={styles.quickActions}>
+            <SaveToWishlistButton
+              item={{
+                name: title,
+                description: description ?? null,
+                price: price != null ? String(price) : null,
+                image_url: imgSrc || null,
+                url: url ?? null,
+                priority:
+                  typeof priority === "number"
+                    ? priority
+                    : priority === "High"
+                      ? 3
+                      : priority === "Medium"
+                        ? 2
+                        : priority === "Low"
+                          ? 1
+                          : null,
+                discount_price:
+                  discount_price != null ? String(discount_price) : null,
+                has_discount: discount_price != null,
+                currency: currency ?? null,
+              }}
+              className={styles.iconButton}
+            />
             <a
               href={hasProductLink ? (url ?? "#") : "#"}
               target="_blank"

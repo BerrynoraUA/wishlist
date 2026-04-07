@@ -72,6 +72,7 @@ export async function createSecretSantaEvent(
       p_name: restInput.name,
       p_event_date: restInput.event_date,
       p_budget: restInput.budget,
+      p_currency: restInput.currency,
       p_image_url: finalImageUrl,
       p_invited_user_ids: restInput.invited_user_ids,
     },
@@ -98,6 +99,8 @@ export async function updateSecretSantaEvent(
 
   if (restUpdates.name !== undefined) dbUpdates.name = restUpdates.name.trim();
   if (restUpdates.budget !== undefined) dbUpdates.budget = restUpdates.budget;
+  if (restUpdates.currency !== undefined)
+    dbUpdates.currency = restUpdates.currency;
 
   let uploadedImageUrl: string | null = null;
 
@@ -135,7 +138,7 @@ export async function updateSecretSantaEvent(
       .from("secret_santa")
       .update(dbUpdates)
       .eq("id", eventId)
-      .select("id, name, event_date, budget, image_url, owner_id")
+      .select("id, name, event_date, budget, currency, image_url, owner_id")
       .single();
 
     if (error) {
@@ -150,7 +153,7 @@ export async function updateSecretSantaEvent(
   } else {
     const { data: existingData, error } = await supabaseBrowser
       .from("secret_santa")
-      .select("id, name, event_date, budget, image_url, owner_id")
+      .select("id, name, event_date, budget, currency, image_url, owner_id")
       .eq("id", eventId)
       .single();
 

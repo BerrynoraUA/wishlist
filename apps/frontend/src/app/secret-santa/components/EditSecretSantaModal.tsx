@@ -5,6 +5,7 @@ import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useUpdateSecretSantaEvent } from "@/hooks/use-secret-santa";
 import type { SecretSantaDetails } from "@/api/types/secret-santa";
+import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/currencies";
 import styles from "./CreateSecretSantaModal.module.scss";
 
 type Props = {
@@ -34,6 +35,9 @@ function EditSecretSantaForm({
 }) {
   const [name, setName] = useState(event.name ?? "");
   const [budget, setBudget] = useState(String(event.budget ?? ""));
+  const [currency, setCurrency] = useState(
+    normalizeCurrencyCode(event.currency),
+  );
   const [imagePreview, setImagePreview] = useState(event.image_url ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
@@ -66,6 +70,7 @@ function EditSecretSantaForm({
         updates: {
           name: name.trim(),
           budget: parseFloat(budget),
+          currency,
           image: imageFile,
           imageUrl: imageFile ? null : imagePreview || null,
         },
@@ -97,14 +102,27 @@ function EditSecretSantaForm({
 
         <div className={styles.field}>
           <label>Budget</label>
-          <input
-            type="number"
-            placeholder="e.g. 25"
-            min="0"
-            step="0.01"
-            value={budget}
-            onChange={(e) => setBudget(e.target.value)}
-          />
+          <div className={styles.budgetRow}>
+            <input
+              type="number"
+              placeholder="e.g. 25"
+              min="0"
+              step="0.01"
+              value={budget}
+              onChange={(e) => setBudget(e.target.value)}
+            />
+            <select
+              className={styles.currencySelect}
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+            >
+              {SUPPORTED_CURRENCIES.map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.code}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className={styles.field}>

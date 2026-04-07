@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import styles from "./SecretSantaEventCard.module.scss";
-import { TreePine, CalendarDays, Users, DollarSign } from "lucide-react";
+import { TreePine, CalendarDays, Users } from "lucide-react";
 import type { SecretSantaListItem } from "@/api/types/secret-santa";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
 
@@ -72,7 +72,7 @@ export function SecretSantaEventCard({ event }: Props) {
           </span>
 
           <span className={styles.metaItem}>
-            {formatPrice(event.budget, "USD")}
+            {formatPrice(event.budget, event.currency)}
           </span>
         </div>
 
