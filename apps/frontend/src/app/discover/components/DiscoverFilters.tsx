@@ -5,8 +5,8 @@ import styles from "./DiscoverFilters.module.scss";
 import { Sparkles, Heart, ShoppingCart } from "lucide-react";
 
 type Props = {
-  active: "wishlists" | "reserved" | "purchased";
-  onChange: (v: "wishlists" | "reserved" | "purchased") => void;
+  active: "wishlists" | "available" | "reserved" | "purchased";
+  onChange: (v: "wishlists" | "available" | "reserved" | "purchased") => void;
 };
 
 export function DiscoverFilters({ active, onChange }: Props) {
@@ -21,6 +21,13 @@ export function DiscoverFilters({ active, onChange }: Props) {
         <span>
           {t("All Wishlists", { $id: "discover.filters.allWishlists" })}
         </span>
+      </button>
+      <button
+        className={active === "available" ? styles.active : ""}
+        onClick={() => onChange("available")}
+      >
+        <Sparkles size={16} />
+        <span>Available</span>
       </button>
       <button
         className={active === "reserved" ? styles.active : ""}

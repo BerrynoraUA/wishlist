@@ -159,6 +159,7 @@ export default function SecretSantaDetailPage() {
               <div className={styles.startedItemsRow}>
                 <SecretSantaGiftSuggestions
                   budget={data.budget}
+                  currency={data.currency}
                   receiverId={data.my_receiver?.id}
                 />
               </div>

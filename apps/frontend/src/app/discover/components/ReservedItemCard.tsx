@@ -4,12 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGT } from "gt-next";
 import styles from "./ReservedItemCard.module.scss";
 import { ReservedItem } from "@/api/types/wishilst";
-import {
-  Heart,
-  ExternalLink,
-  MoreHorizontal,
-  ShoppingCart,
-} from "lucide-react";
+import { ExternalLink, MoreHorizontal, ShoppingCart } from "lucide-react";
 import { ItemDetailModal } from "./ItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { formatItemPrice } from "@/lib/helpers/price-helper";
@@ -17,6 +12,8 @@ import {
   ActionConfirmModal,
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
+import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
+import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
 
 type Props = ReservedItem & {
   mode?: "reserved" | "purchased";
@@ -71,7 +68,7 @@ export function ReservedItemCard({
     High: "high",
   };
   const priorityKey = priority
-    ? priorityKeyByValue[String(priority)] ?? null
+    ? (priorityKeyByValue[String(priority)] ?? null)
     : null;
   const priorityClass = priorityKey ? styles[priorityKey] : "";
   const priorityDisplay =
@@ -186,7 +183,7 @@ export function ReservedItemCard({
             {isPurchased ? (
               <ShoppingCart size={14} />
             ) : (
-              <Heart size={14} fill="currentColor" />
+              <ReservationLockIcon isReserved={true} size={14} />
             )}
             <span>
               {isPurchased
@@ -215,6 +212,30 @@ export function ReservedItemCard({
           )}
 
           <div className={styles.quickActions}>
+            <SaveToWishlistButton
+              item={{
+                name: title,
+                description: null,
+                price: price != null ? String(price) : null,
+                image_url: image || null,
+                url: url ?? null,
+                priority:
+                  typeof priority === "number"
+                    ? priority
+                    : priority === "High"
+                      ? 3
+                      : priority === "Medium"
+                        ? 2
+                        : priority === "Low"
+                          ? 1
+                          : null,
+                discount_price:
+                  discount_price != null ? String(discount_price) : null,
+                has_discount: discount_price != null,
+                currency: currency ?? null,
+              }}
+              className={styles.iconButton}
+            />
             <a
               href={hasProductLink ? (url ?? "#") : "#"}
               target="_blank"
@@ -276,14 +297,18 @@ export function ReservedItemCard({
         </div>
 
         <div className={styles.info}>
-          <strong>{title}</strong>
+          <strong title={title}>{title}</strong>
           <div className={styles.metaRow}>
             {price != null && price !== 0 && (
               <span className={styles.price}>
                 {formatItemPrice(price, currency)}
               </span>
             )}
-            {store && <span className={styles.store}>{store}</span>}
+            {store && (
+              <span className={styles.store} title={store}>
+                {store}
+              </span>
+            )}
           </div>
 
           <div className={styles.actions}>
@@ -298,7 +323,11 @@ export function ReservedItemCard({
                 $id: "discover.reserved.releaseAria",
               })}
             >
-              <Heart size={16} fill="currentColor" />
+              <ReservationLockIcon
+                isReserved={true}
+                size={16}
+                animateOnReserve
+              />
               <span>
                 {isPurchased
                   ? t("Purchased", { $id: "discover.reserved.purchasedBtn" })
@@ -326,7 +355,9 @@ export function ReservedItemCard({
                 }
                 title={
                   isPurchased
-                    ? t("Purchased", { $id: "discover.reserved.purchasedTitle" })
+                    ? t("Purchased", {
+                        $id: "discover.reserved.purchasedTitle",
+                      })
                     : t("Mark as purchased", {
                         $id: "discover.reserved.purchaseTitle",
                       })

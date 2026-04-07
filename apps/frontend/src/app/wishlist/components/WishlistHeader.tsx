@@ -11,8 +11,8 @@ import {
   MoreHorizontal,
   Pencil,
   Plus,
-  Share2,
   Sparkles,
+  Share2,
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -25,6 +25,7 @@ import { useWishlistVisibilityLabels } from "@/lib/helpers/use-wishlist-visibili
 import { useSubscription } from "@/hooks/use-subscription";
 import { useUpdateWishlist } from "@/hooks/use-wishlists";
 import { FREE_LIMITS } from "@/types/subscription";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 
 type Props = {
   wishlist: Wishlist;
@@ -68,8 +69,11 @@ export function WishlistHeader({
   const description = wishlist.description ?? "";
   const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
   const canAddItem = Boolean(onAddItem);
+  const atItemLimit =
+    SUBSCRIPTIONS_UI_ENABLED &&
+    !isPro &&
+    itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
   const canInlineEdit = isOwner;
-  const atItemLimit = !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
   const [isInlineEditing, setIsInlineEditing] = useState(false);
   const [titleDraft, setTitleDraft] = useState(wishlist.title);
   const [descriptionDraft, setDescriptionDraft] = useState(description);
@@ -95,9 +99,10 @@ export function WishlistHeader({
   function handleAddItem() {
     if (atItemLimit) {
       router.push("/subscription");
-    } else {
-      onAddItem?.();
+      return;
     }
+
+    onAddItem?.();
   }
 
   function startEditing() {
@@ -179,8 +184,12 @@ export function WishlistHeader({
                 type="button"
                 className={`${styles.back} iconTooltipTrigger`}
                 onClick={() => router.push("/home")}
-                aria-label={t("Back to home", { $id: "wishlist.header.backHome" })}
-                data-tooltip={t("Back to home", { $id: "wishlist.header.backHome" })}
+                aria-label={t("Back to home", {
+                  $id: "wishlist.header.backHome",
+                })}
+                data-tooltip={t("Back to home", {
+                  $id: "wishlist.header.backHome",
+                })}
               >
                 <ArrowLeft size={18} />
               </button>
@@ -194,7 +203,7 @@ export function WishlistHeader({
                       onChange={(e) => setTitleDraft(e.target.value)}
                       onKeyDown={handleTitleKeyDown}
                       placeholder={t("Wishlist title", {
-                        $id: "wishlist.header.titlePlaceholder"
+                        $id: "wishlist.header.titlePlaceholder",
                       })}
                       autoFocus
                       disabled={isUpdatingWishlist}
@@ -206,7 +215,7 @@ export function WishlistHeader({
                         onClick={saveInlineChanges}
                         disabled={!titleDraft.trim() || isUpdatingWishlist}
                         aria-label={t("Save wishlist changes", {
-                          $id: "wishlist.header.saveChanges"
+                          $id: "wishlist.header.saveChanges",
                         })}
                       >
                         <Check size={14} />
@@ -217,7 +226,7 @@ export function WishlistHeader({
                         onClick={cancelEditing}
                         disabled={isUpdatingWishlist}
                         aria-label={t("Cancel inline editing", {
-                          $id: "wishlist.header.cancelInline"
+                          $id: "wishlist.header.cancelInline",
                         })}
                       >
                         <X size={14} />
@@ -238,7 +247,7 @@ export function WishlistHeader({
                       onChange={(e) => setDescriptionDraft(e.target.value)}
                       onKeyDown={handleDescriptionKeyDown}
                       placeholder={t("Add a short description", {
-                        $id: "wishlist.header.descPlaceholder"
+                        $id: "wishlist.header.descPlaceholder",
                       })}
                       disabled={isUpdatingWishlist}
                     />
@@ -249,7 +258,7 @@ export function WishlistHeader({
                       ) : canInlineEdit ? (
                         <p className={styles.descriptionPlaceholder}>
                           {t("Add a short description", {
-                            $id: "wishlist.header.descPlaceholderText"
+                            $id: "wishlist.header.descPlaceholderText",
                           })}
                         </p>
                       ) : null}
@@ -263,8 +272,14 @@ export function WishlistHeader({
                   </span>
                   <span className={styles.countBadge}>
                     {itemsCount === 1
-                      ? t("{n} item", { n: itemsCount, $id: "wishlist.itemCount.one" })
-                      : t("{n} items", { n: itemsCount, $id: "wishlist.itemCount.other" })}
+                      ? t("{n} item", {
+                          n: itemsCount,
+                          $id: "wishlist.itemCount.one",
+                        })
+                      : t("{n} items", {
+                          n: itemsCount,
+                          $id: "wishlist.itemCount.other",
+                        })}
                   </span>
                   {eventDate && (
                     <span className={styles.dateBadge}>
@@ -293,12 +308,12 @@ export function WishlistHeader({
             <div className={styles.heroAside}>
               {canAddItem && (
                 <div className={styles.addItemArea}>
-                  {!isPro && (
+                  {SUBSCRIPTIONS_UI_ENABLED && !isPro && (
                     <span className={styles.limitCounter}>
                       {t("{current}/{max} items", {
                         current: itemsCount,
                         max: FREE_LIMITS.maxItemsPerWishlist,
-                        $id: "wishlist.header.limitCounter"
+                        $id: "wishlist.header.limitCounter",
                       })}
                     </span>
                   )}
@@ -308,7 +323,7 @@ export function WishlistHeader({
                         <Sparkles size={14} />
                         <span>
                           {t("Upgrade to Add", {
-                            $id: "wishlist.header.upgradeToAdd"
+                            $id: "wishlist.header.upgradeToAdd",
                           })}
                         </span>
                       </>
@@ -340,19 +355,19 @@ export function WishlistHeader({
                       aria-label={
                         isInlineEditing
                           ? t("Cancel inline editing", {
-                              $id: "wishlist.header.cancelInline"
+                              $id: "wishlist.header.cancelInline",
                             })
                           : t("Inline edit wishlist", {
-                              $id: "wishlist.header.inlineEditAria"
+                              $id: "wishlist.header.inlineEditAria",
                             })
                       }
                       data-tooltip={
                         isInlineEditing
                           ? t("Cancel inline edit", {
-                              $id: "wishlist.header.cancelInlineTooltip"
+                              $id: "wishlist.header.cancelInlineTooltip",
                             })
                           : t("Inline edit title and description", {
-                              $id: "wishlist.header.inlineEditTooltip"
+                              $id: "wishlist.header.inlineEditTooltip",
                             })
                       }
                     >
@@ -365,10 +380,10 @@ export function WishlistHeader({
                       className={`${styles.menuButton} iconTooltipTrigger`}
                       onClick={onShare}
                       aria-label={t("Share wishlist", {
-                        $id: "wishlist.header.shareAria"
+                        $id: "wishlist.header.shareAria",
                       })}
                       data-tooltip={t("Share wishlist", {
-                        $id: "wishlist.header.shareTooltip"
+                        $id: "wishlist.header.shareTooltip",
                       })}
                     >
                       <Share2 size={18} />
@@ -380,10 +395,10 @@ export function WishlistHeader({
                       className={`${styles.menuButton} iconTooltipTrigger`}
                       onClick={onManageAccess}
                       aria-label={t("Manage wishlist access", {
-                        $id: "wishlist.header.manageAccessAria"
+                        $id: "wishlist.header.manageAccessAria",
                       })}
                       data-tooltip={t("Manage access", {
-                        $id: "wishlist.header.manageAccessTooltip"
+                        $id: "wishlist.header.manageAccessTooltip",
                       })}
                     >
                       <KeyRound size={18} />
@@ -396,10 +411,10 @@ export function WishlistHeader({
                         className={`${styles.menuButton} iconTooltipTrigger`}
                         onClick={() => setMenuOpen((prev) => !prev)}
                         aria-label={t("Wishlist actions", {
-                          $id: "wishlist.header.moreAria"
+                          $id: "wishlist.header.moreAria",
                         })}
                         data-tooltip={t("More options", {
-                          $id: "wishlist.header.moreTooltip"
+                          $id: "wishlist.header.moreTooltip",
                         })}
                       >
                         <MoreHorizontal size={18} />

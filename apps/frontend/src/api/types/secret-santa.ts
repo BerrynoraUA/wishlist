@@ -4,6 +4,7 @@ export type CreateSecretSantaEventInput = {
   name: string;
   event_date: string;
   budget: number;
+  currency: string;
   image?: File | null;
   imageUrl?: string | null;
   invited_user_ids: UUID[];
@@ -12,6 +13,7 @@ export type CreateSecretSantaEventInput = {
 export type UpdateSecretSantaEventInput = {
   name?: string;
   budget?: number;
+  currency?: string;
   image?: File | null;
   imageUrl?: string | null;
   removeImage?: boolean;
@@ -22,6 +24,7 @@ export type SecretSantaEvent = {
   name: string;
   event_date: string;
   budget: number;
+  currency: string | null;
   image_url: string | null;
   owner_id: UUID | null;
 };
@@ -42,6 +45,7 @@ export type SecretSantaDetails = {
   name: string;
   event_date: string;
   budget: number;
+  currency: string | null;
   image_url: string | null;
   owner_id: string | null;
   is_started: boolean;
@@ -55,6 +59,7 @@ export type SecretSantaListItem = {
   name: string;
   event_date: string;
   budget: number;
+  currency: string | null;
   image_url: string | null;
   owner_id: string | null;
   is_owner: boolean;

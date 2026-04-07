@@ -80,7 +80,7 @@ export function SecretSantaEventCard({ event }: Props) {
           </span>
 
           <span className={styles.metaItem}>
-            {formatPrice(event.budget, "USD")}
+            {formatPrice(event.budget, event.currency)}
           </span>
         </div>
 

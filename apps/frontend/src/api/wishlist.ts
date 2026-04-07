@@ -79,6 +79,28 @@ export async function getFriendsWishlistsDiscover(
   return data || [];
 }
 
+export async function getFriendsWishlistsDiscoverAll(
+  params: PaginationParams = {},
+): Promise<DiscoverSection[]> {
+  const { skip = 0, take = 10, search } = params;
+
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_friends_wishlists_discover_all",
+    {
+      p_skip: skip,
+      p_take: take,
+      p_search: search?.trim() || null,
+    },
+  );
+
+  if (error) {
+    console.error("Error fetching friends wishlists:", error);
+    throw error;
+  }
+
+  return data || [];
+}
+
 export async function getFriendsWishlistsReservedByMe(
   params: PaginationParams = {},
 ): Promise<ReservedItem[]> {

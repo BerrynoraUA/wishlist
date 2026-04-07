@@ -5,7 +5,7 @@ import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DiscoverItem } from "@/api/types/wishilst";
-import { Heart, ExternalLink, ShoppingCart } from "lucide-react";
+import { ExternalLink, ShoppingCart } from "lucide-react";
 import styles from "./ItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
@@ -13,6 +13,8 @@ import {
   ActionConfirmModal,
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
+import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
+import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
 
 type ReserveActionType = "reserve" | "unreserve";
 type BoughtActionType = "purchase" | "unpurchase";
@@ -134,10 +136,26 @@ export function ItemDetailModal({
           )}
 
           <div className={styles.details}>
-            <h2>{item.title}</h2>
+            <div className={styles.tooltipTrigger}>
+              <div className={styles.titleBlock}>
+                <h2>{item.title}</h2>
+              </div>
+              <div className={styles.textTooltip} role="tooltip">
+                <div className={styles.textTooltipArrow} />
+                <strong>{item.title}</strong>
+              </div>
+            </div>
 
             {item.description && (
-              <p className={styles.description}>{item.description}</p>
+              <div className={styles.tooltipTrigger}>
+                <div className={styles.descriptionBlock}>
+                  <p className={styles.description}>{item.description}</p>
+                </div>
+                <div className={styles.textTooltip} role="tooltip">
+                  <div className={styles.textTooltipArrow} />
+                  <span>{item.description}</span>
+                </div>
+              </div>
             )}
 
             <div className={styles.meta}>
@@ -181,17 +199,46 @@ export function ItemDetailModal({
                 </a>
               )}
 
+              <SaveToWishlistButton
+                item={{
+                  name: item.title,
+                  description: item.description ?? null,
+                  price: item.price != null ? String(item.price) : null,
+                  image_url: imgSrc || null,
+                  url: item.url ?? null,
+                  priority:
+                    typeof item.priority === "number"
+                      ? item.priority
+                      : item.priority === "High"
+                        ? 3
+                        : item.priority === "Medium"
+                          ? 2
+                          : item.priority === "Low"
+                            ? 1
+                            : null,
+                  discount_price:
+                    item.discount_price != null
+                      ? String(item.discount_price)
+                      : null,
+                  has_discount: item.discount_price != null,
+                  currency: item.currency ?? null,
+                }}
+                className={styles.saveBtn}
+              />
+
               <div className={styles.actions}>
                 <Button
                   variant={isReserved ? "secondary" : "primary"}
                   onClick={handleReserveClick}
                   disabled={!canToggleReservation}
                 >
-                  <Heart
-                    size={16}
-                    fill={isReserved ? "currentColor" : "none"}
-                    style={{ marginRight: 6 }}
-                  />
+                  <span style={{ marginRight: 6, display: "inline-flex" }}>
+                    <ReservationLockIcon
+                      isReserved={isReserved}
+                      size={16}
+                      animateOnReserve
+                    />
+                  </span>
                   {isPurchased
                     ? t("Purchased", { $id: "discover.detail.purchasedBtn" })
                     : isReserved

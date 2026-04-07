@@ -22,7 +22,6 @@ import { Pagination } from "@/components/ui/Pagination/Pagination";
 import { ShareFeedbackModal } from "@/components/ui/ShareFeedbackModal/ShareFeedbackModal";
 import { Item } from "@/types/item";
 import styles from "./WishlistPage.module.scss";
-import { useSubscription } from "@/hooks/use-subscription";
 import { useCheckFriendship } from "@/hooks/use-friends";
 import { createWishlistShareToken } from "@/api/share";
 
@@ -83,11 +82,10 @@ export default function WishlistItemsPage() {
   const isOwner = Boolean(wishlist?.is_owner);
   const canEditWishlist = Boolean(wishlist?.can_edit || wishlist?.is_owner);
 
-  const { isPro } = useSubscription();
   const friendshipCheckUserId =
     !isOwner && !!currentUserId && !!wishlist?.user_id ? wishlist.user_id : "";
   const { data: isFriend = false } = useCheckFriendship(friendshipCheckUserId);
-  const showDiscountBadge = !isOwner && isPro && isFriend;
+  const showDiscountBadge = !isOwner && isFriend;
 
   const totalItems = wishlist?.items_count ?? items.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));

@@ -286,18 +286,23 @@
 .inlineEditorBlock {
   display: grid;
   gap: 10px;
-  width: min(100%, 560px);
+  width: min(100%, 520px);
   margin-top: 4px;
+}
+
+.inlineEditorFields {
+  display: grid;
+  gap: 8px;
 }
 
 .titleInput,
 .descriptionInput {
   width: 100%;
-  border: 1.5px solid var(--input-focus-border);
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--card-bg) 90%, white 10%);
+  border: 1px solid var(--input-focus-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card-bg) 86%, white 14%);
   color: var(--color-text);
-  padding: 12px 14px;
+  padding: 10px 12px;
   font-family: var(--font-sans);
   transition:
     border-color 0.2s ease,
@@ -306,34 +311,54 @@
 
   &:focus {
     outline: none;
+    border-color: var(--input-focus-border);
     box-shadow: 0 0 0 4px var(--input-focus-ring);
+    background: var(--card-bg);
   }
 }
 
 .titleInput {
-  font-size: clamp(20px, 2.8vw, 28px);
+  font-size: clamp(18px, 2.4vw, 24px);
   font-weight: 800;
   letter-spacing: -0.04em;
-  line-height: 1.08;
+  line-height: 1.12;
 }
 
 .descriptionInput {
-  min-height: 90px;
+  min-height: 68px;
+  max-height: 140px;
   resize: vertical;
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .inlineActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
+}
+
+.inlineHint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--color-text-light);
+}
+
+.inlineActionButtons {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .inlineActionButton {
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
   border: 1px solid transparent;
   display: inline-grid;
   place-items: center;
@@ -367,8 +392,8 @@
 }
 
 .inlineCancelButton {
-  background: rgba(100, 116, 139, 0.12);
-  border-color: rgba(100, 116, 139, 0.14);
+  background: rgba(100, 116, 139, 0.1);
+  border-color: rgba(100, 116, 139, 0.12);
   color: #475569;
 
   &:not(:disabled):hover {
@@ -520,6 +545,22 @@
   box-shadow:
     0 12px 26px rgba(0, 0, 0, 0.28),
     0 0 0 1px var(--brand-alpha-15);
+}
+
+:global([data-theme="dark"]) .inlineEditorFields {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+:global([data-theme="dark"]) .titleInput,
+:global([data-theme="dark"]) .descriptionInput {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+:global([data-theme="dark"]) .inlineHint {
+  color: rgba(209, 213, 219, 0.52);
 }
 
 :global([data-theme="dark"]) .editItem {
@@ -757,6 +798,20 @@
 
   .titleBlock h1 {
     font-size: 20px;
+  }
+
+  .inlineEditorBlock {
+    width: 100%;
+  }
+
+  .inlineActions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .inlineActionButtons {
+    width: 100%;
+    justify-content: flex-end;
   }
 
   .titleRow,
