@@ -9,6 +9,7 @@ import { DiscoverSection } from "./components/DiscoverSection";
 import { ReservedItemsGrid } from "./components/ReservedItemsGrid";
 import {
   useFriendsWishlistsDiscover,
+  useFriendsWishlistsDiscoverAll,
   useFriendsWishlistsPurchasedByMe,
   useFriendsWishlistsReservedByMe,
 } from "@/hooks/use-wishlists";
@@ -23,13 +24,15 @@ function DiscoverPageContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const tabFromUrl: "wishlists" | "reserved" | "purchased" =
-    tabParam === "reserved" || tabParam === "purchased"
+  const tabFromUrl: "wishlists" | "available" | "reserved" | "purchased" =
+    tabParam === "available" ||
+    tabParam === "reserved" ||
+    tabParam === "purchased"
       ? tabParam
       : "wishlists";
-  const [filter, setFilter] = useState<"wishlists" | "reserved" | "purchased">(
-    tabFromUrl,
-  );
+  const [filter, setFilter] = useState<
+    "wishlists" | "available" | "reserved" | "purchased"
+  >(tabFromUrl);
   const wishlistsSearch = useMemo(
     () => searchParams.get("discoverSearch") ?? "",
     [searchParams],
@@ -64,12 +67,21 @@ function DiscoverPageContent() {
   }, [filter, tabFromUrl, pathname, router, searchParams]);
 
   const {
+    data: allWishlistsSections = [],
+    isLoading: isAllWishlistsLoading,
+    isError: isAllWishlistsError,
+  } = useFriendsWishlistsDiscoverAll(
+    { search: wishlistsSearch },
+    filter === "wishlists",
+  );
+
+  const {
     data: wishlistsSections = [],
     isLoading: isWishlistsLoading,
     isError: isWishlistsError,
   } = useFriendsWishlistsDiscover(
     { search: wishlistsSearch },
-    filter === "wishlists",
+    filter === "available",
   );
 
   const {
@@ -93,15 +105,18 @@ function DiscoverPageContent() {
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
 
+  const activeWishlistSections =
+    filter === "wishlists" ? allWishlistsSections : wishlistsSections;
+
   const friendIds = useMemo(() => {
     return Array.from(
       new Set(
-        (wishlistsSections ?? [])
+        (activeWishlistSections ?? [])
           .map((s) => s.friend_id)
           .filter((id): id is string => Boolean(id)),
       ),
     );
-  }, [wishlistsSections]);
+  }, [activeWishlistSections]);
 
   const { data: sectionProfiles = [] } = useProfilesByIds(friendIds);
 
@@ -115,21 +130,25 @@ function DiscoverPageContent() {
 
   const isLoading =
     filter === "wishlists"
-      ? isWishlistsLoading
-      : filter === "reserved"
-        ? isReservedLoading
-        : isPurchasedLoading;
+      ? isAllWishlistsLoading
+      : filter === "available"
+        ? isWishlistsLoading
+        : filter === "reserved"
+          ? isReservedLoading
+          : isPurchasedLoading;
   const isError =
     filter === "wishlists"
-      ? isWishlistsError
-      : filter === "reserved"
-        ? isReservedError
-        : isPurchasedError;
+      ? isAllWishlistsError
+      : filter === "available"
+        ? isWishlistsError
+        : filter === "reserved"
+          ? isReservedError
+          : isPurchasedError;
   const hasNoData =
     !isLoading &&
     !isError &&
-    (filter === "wishlists"
-      ? wishlistsSections.length === 0
+    (filter === "wishlists" || filter === "available"
+      ? activeWishlistSections.length === 0
       : filter === "reserved"
         ? reservedSections.length === 0
         : purchasedSections.length === 0);
@@ -149,14 +168,16 @@ function DiscoverPageContent() {
             ? "No reserved items yet."
             : filter === "purchased"
               ? "No purchased items yet."
-              : "No wishlists to discover."}
+              : filter === "available"
+                ? "No available wishlists to discover."
+                : "No wishlists to discover."}
         </p>
       )}
 
       {!isLoading &&
         !isError &&
-        filter === "wishlists" &&
-        wishlistsSections.map((section) => (
+        (filter === "wishlists" || filter === "available") &&
+        activeWishlistSections.map((section) => (
           <DiscoverSection
             key={section.id}
             {...section}

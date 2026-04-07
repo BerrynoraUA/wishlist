@@ -22,6 +22,7 @@ import {
 } from "./secretSantaDetail.utils";
 import { Button } from "@/components/ui/Button/Button";
 import { useUpdateSecretSantaEvent } from "@/hooks/use-secret-santa";
+import { useCurrencyFormatter } from "@/hooks/use-currency";
 
 type Props = {
   event: SecretSantaDetails;
@@ -54,6 +55,7 @@ export function SecretSantaDetailHero({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const showMenu = Boolean(onEdit || onDelete);
   const updateEvent = useUpdateSecretSantaEvent();
+  const { formatPrice } = useCurrencyFormatter();
 
   useEffect(() => {
     if (!isInlineEditing) {
@@ -272,7 +274,7 @@ export function SecretSantaDetailHero({
           </span>
           <span className={styles.badge}>
             <DollarSign size={14} />
-            Budget {event.budget}
+            Budget {formatPrice(event.budget, event.currency)}
           </span>
           <span className={styles.badge}>
             <Users size={14} />
@@ -357,7 +359,7 @@ export function SecretSantaDetailHero({
           </article>
           <article className={styles.summaryCard}>
             <span>Budget per person</span>
-            <strong>{event.budget}</strong>
+            <strong>{formatPrice(event.budget, event.currency)}</strong>
           </article>
         </div>
       </div>

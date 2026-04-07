@@ -14,6 +14,7 @@ import {
   grantWishlistAccess,
   getFriendsWishlistsPurchasedByMe,
   revokeWishlistAccess,
+  getFriendsWishlistsDiscoverAll,
 } from "@/api/wishlist";
 import type {
   CreateWishlistParams,
@@ -27,6 +28,8 @@ export const wishlistKeys = {
     [...wishlistKeys.all, "my", params] as const,
   friends: (params?: PaginationParams) =>
     [...wishlistKeys.all, "friends", params] as const,
+  friendsAll: (params?: PaginationParams) =>
+    [...wishlistKeys.all, "friends", "all", params] as const,
   friendsReserved: (params?: PaginationParams) =>
     [...wishlistKeys.all, "friends", "reserved", params] as const,
   friendsPurchased: (params?: PaginationParams) =>
@@ -69,6 +72,16 @@ export function useFriendsWishlistsDiscover(
   });
 }
 
+export function useFriendsWishlistsDiscoverAll(
+  params?: PaginationParams,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: wishlistKeys.friendsAll(params),
+    queryFn: () => getFriendsWishlistsDiscoverAll(params),
+    enabled,
+  });
+}
 export function useFriendsWishlistsReservedByMe(
   params?: PaginationParams,
   enabled = true,

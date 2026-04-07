@@ -17,6 +17,7 @@ import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/Reserva
 
 type Props = {
   budget: number;
+  currency?: string | null;
   receiverId?: string;
 };
 
@@ -40,7 +41,11 @@ function toWishlistItem(item: VisibleItem): Item {
   };
 }
 
-export function SecretSantaGiftSuggestions({ budget, receiverId }: Props) {
+export function SecretSantaGiftSuggestions({
+  budget,
+  currency,
+  receiverId,
+}: Props) {
   const { data, isLoading } = useGiftSuggestions(receiverId, budget);
   const toggleReserve = useToggleItemReservationSecret();
   const toggleBought = useToggleItemBoughtSecret();
@@ -54,7 +59,7 @@ export function SecretSantaGiftSuggestions({ budget, receiverId }: Props) {
     <section className={styles.card}>
       <div className={styles.header}>
         <Gift size={16} />
-        <span>Gift ideas up to {budget}$</span>
+        <span>Gift ideas up to {formatPrice(budget, currency)}</span>
       </div>
 
       <p className={styles.description}>

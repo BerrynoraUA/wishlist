@@ -1,5 +1,5 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import { normalizeCurrencyCode } from "@/lib/currencies";
+import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/currencies";
 import type {
   UserProfile,
   UserSettings,
@@ -13,7 +13,6 @@ import {
   uploadPublicImage,
 } from "@/lib/helpers/storage-image";
 import { PublicProfile } from "./types/user";
-
 
 export async function getProfile(): Promise<UserProfile> {
   const {
@@ -70,8 +69,6 @@ export async function checkNicknameAvailable(
   return data === null;
 }
 
-
-
 export async function getProfilesByIds(
   userIds: string[],
 ): Promise<PublicProfile[]> {
@@ -87,15 +84,12 @@ export async function getProfilesByIds(
   return (data ?? []) as PublicProfile[];
 }
 
-
 export async function uploadAvatar(file: File): Promise<string> {
   let previousAvatarUrl: string | null = null;
   try {
     const currentProfile = await getProfile();
     previousAvatarUrl = currentProfile.avatar_url;
-  } catch {
-
-  }
+  } catch {}
 
   const publicUrl = await uploadPublicImage({
     file,
@@ -130,7 +124,6 @@ export async function deleteAvatarImage(avatarUrl: string): Promise<void> {
     logLabel: "avatar image",
   });
 }
-
 
 export async function getSettings(): Promise<UserSettings> {
   const {
@@ -176,7 +169,6 @@ export async function updateSettings(
   return data;
 }
 
-
 export async function changePassword(newPassword: string): Promise<void> {
   const { error } = await supabaseBrowser.auth.updateUser({
     password: newPassword,
@@ -209,6 +201,45 @@ export interface ExchangeRates {
   updated_at: string;
 }
 
+type OpenExchangeRatesResponse = {
+  result?: string;
+  time_last_update_utc?: string;
+  rates?: Record<string, number>;
+};
+
+async function getFallbackExchangeRates(): Promise<{
+  rates: Record<string, number>;
+  updatedAt: string;
+}> {
+  try {
+    const response = await fetch("https://open.er-api.com/v6/latest/USD");
+
+    if (!response.ok) {
+      return { rates: {}, updatedAt: "" };
+    }
+
+    const data = (await response.json()) as OpenExchangeRatesResponse;
+    const supportedCodes = new Set(
+      SUPPORTED_CURRENCIES.map((item) => item.code),
+    );
+    const rates = Object.fromEntries(
+      Object.entries(data.rates ?? {}).filter(([code, rate]) => {
+        return (
+          supportedCodes.has(normalizeCurrencyCode(code)) &&
+          Number.isFinite(rate)
+        );
+      }),
+    );
+
+    return {
+      rates,
+      updatedAt: data.time_last_update_utc ?? "",
+    };
+  } catch {
+    return { rates: {}, updatedAt: "" };
+  }
+}
+
 export async function getExchangeRates(): Promise<ExchangeRates> {
   const { data, error } = await supabaseBrowser
     .from("exchange_rates")
@@ -223,6 +254,26 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
   for (const row of data ?? []) {
     rates[normalizeCurrencyCode(row.target_currency)] = row.rate;
     if (!updatedAt && row.updated_at) updatedAt = row.updated_at;
+  }
+
+  const supportedCodes = SUPPORTED_CURRENCIES.map((item) => item.code);
+  const missingCodes = supportedCodes.filter(
+    (code) => code !== "USD" && !rates[code],
+  );
+
+  if (missingCodes.length > 0) {
+    const fallback = await getFallbackExchangeRates();
+
+    for (const code of missingCodes) {
+      const fallbackRate = fallback.rates[code];
+      if (fallbackRate) {
+        rates[code] = fallbackRate;
+      }
+    }
+
+    if (!updatedAt && fallback.updatedAt) {
+      updatedAt = fallback.updatedAt;
+    }
   }
 
   return {

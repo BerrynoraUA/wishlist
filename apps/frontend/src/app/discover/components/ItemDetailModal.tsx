@@ -13,6 +13,7 @@ import {
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
 import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
+import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
 
 type ReserveActionType = "reserve" | "unreserve";
 type BoughtActionType = "purchase" | "unpurchase";
@@ -153,6 +154,33 @@ export function ItemDetailModal({
                   <span>Visit website</span>
                 </a>
               )}
+
+              <SaveToWishlistButton
+                item={{
+                  name: item.title,
+                  description: item.description ?? null,
+                  price: item.price != null ? String(item.price) : null,
+                  image_url: imgSrc || null,
+                  url: item.url ?? null,
+                  priority:
+                    typeof item.priority === "number"
+                      ? item.priority
+                      : item.priority === "High"
+                        ? 3
+                        : item.priority === "Medium"
+                          ? 2
+                          : item.priority === "Low"
+                            ? 1
+                            : null,
+                  discount_price:
+                    item.discount_price != null
+                      ? String(item.discount_price)
+                      : null,
+                  has_discount: item.discount_price != null,
+                  currency: item.currency ?? null,
+                }}
+                className={styles.saveBtn}
+              />
 
               <div className={styles.actions}>
                 <Button
