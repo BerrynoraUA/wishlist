@@ -136,10 +136,26 @@ export function ItemDetailModal({
           )}
 
           <div className={styles.details}>
-            <h2>{item.title}</h2>
+            <div className={styles.tooltipTrigger}>
+              <div className={styles.titleBlock}>
+                <h2>{item.title}</h2>
+              </div>
+              <div className={styles.textTooltip} role="tooltip">
+                <div className={styles.textTooltipArrow} />
+                <strong>{item.title}</strong>
+              </div>
+            </div>
 
             {item.description && (
-              <p className={styles.description}>{item.description}</p>
+              <div className={styles.tooltipTrigger}>
+                <div className={styles.descriptionBlock}>
+                  <p className={styles.description}>{item.description}</p>
+                </div>
+                <div className={styles.textTooltip} role="tooltip">
+                  <div className={styles.textTooltipArrow} />
+                  <span>{item.description}</span>
+                </div>
+              </div>
             )}
 
             <div className={styles.meta}>
