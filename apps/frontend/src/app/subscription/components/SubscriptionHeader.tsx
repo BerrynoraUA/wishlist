@@ -34,7 +34,9 @@ export function SubscriptionHeader() {
             {expiresAt && (
               <>
                 {" "}
-                {t("· Renews", { $id: "subscription.header.renewsPrefix" })}{" "}
+                {t("· Renews", {
+                  $id: "subscription.header.renewsPrefix",
+                })}{" "}
                 {new Date(expiresAt).toLocaleDateString(locale ?? "en", {
                   month: "long",
                   day: "numeric",

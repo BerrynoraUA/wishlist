@@ -37,7 +37,7 @@ export function ActionConfirmModal({
   onConfirm,
   action,
   itemName,
-  isPending = false
+  isPending = false,
 }: Props) {
   const t = useGT();
 
@@ -50,16 +50,16 @@ export function ActionConfirmModal({
           description: name
             ? t(
                 "This will reserve {itemName} for you so other people know it is already taken.",
-                { itemName: name, $id: "action.reserve.bodyWithName" }
+                { itemName: name, $id: "action.reserve.bodyWithName" },
               )
             : t(
                 "This will reserve this gift for you so other people know it is already taken.",
-                { $id: "action.reserve.body" }
+                { $id: "action.reserve.body" },
               ),
           confirmLabel: t("Reserve", { $id: "action.reserve.confirm" }),
           confirmVariant: "primary",
           toneClass: "reserve",
-          icon: Heart
+          icon: Heart,
         };
       case "unreserve":
         return {
@@ -67,16 +67,16 @@ export function ActionConfirmModal({
           description: name
             ? t(
                 "This will remove your reservation from {itemName} and make it available again.",
-                { itemName: name, $id: "action.unreserve.bodyWithName" }
+                { itemName: name, $id: "action.unreserve.bodyWithName" },
               )
             : t(
                 "This will remove your reservation and make the gift available again.",
-                { $id: "action.unreserve.body" }
+                { $id: "action.unreserve.body" },
               ),
           confirmLabel: t("Release", { $id: "action.unreserve.confirm" }),
           confirmVariant: "danger",
           toneClass: "unreserve",
-          icon: Heart
+          icon: Heart,
         };
       case "purchase":
         return {
@@ -84,37 +84,37 @@ export function ActionConfirmModal({
           description: name
             ? t("This will mark {itemName} as purchased by you.", {
                 itemName: name,
-                $id: "action.purchase.bodyWithName"
+                $id: "action.purchase.bodyWithName",
               })
             : t("This will mark this gift as purchased by you.", {
-                $id: "action.purchase.body"
+                $id: "action.purchase.body",
               }),
           confirmLabel: t("Mark purchased", {
-            $id: "action.purchase.confirm"
+            $id: "action.purchase.confirm",
           }),
           confirmVariant: "success",
           toneClass: "purchase",
-          icon: ShoppingCart
+          icon: ShoppingCart,
         };
       case "unpurchase":
         return {
           title: t("Remove purchased status?", {
-            $id: "action.unpurchase.title"
+            $id: "action.unpurchase.title",
           }),
           description: name
             ? t("This will remove the purchased status from {itemName}.", {
                 itemName: name,
-                $id: "action.unpurchase.bodyWithName"
+                $id: "action.unpurchase.bodyWithName",
               })
             : t("This will remove the purchased status from this gift.", {
-                $id: "action.unpurchase.body"
+                $id: "action.unpurchase.body",
               }),
           confirmLabel: t("Remove status", {
-            $id: "action.unpurchase.confirm"
+            $id: "action.unpurchase.confirm",
           }),
           confirmVariant: "danger",
           toneClass: "unpurchase",
-          icon: ShoppingCart
+          icon: ShoppingCart,
         };
     }
   }, [action, itemName, t]);
@@ -125,14 +125,7 @@ export function ActionConfirmModal({
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={`${styles.iconWrapper} ${styles[config.toneClass]}`}>
-          <Icon
-            size={24}
-            fill={
-              action === "reserve" || action === "unreserve"
-                ? "currentColor"
-                : "none"
-            }
-          />
+          <Icon size={24} />
         </div>
 
         <h3 className={styles.title}>{config.title}</h3>

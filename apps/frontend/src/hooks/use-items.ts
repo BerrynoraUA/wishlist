@@ -12,6 +12,7 @@ import {
 import type { CreateItemParams, UpdateItemParams } from "@/api/types/item";
 import { wishlistKeys } from "./use-wishlists";
 import { secretSantaKeys } from "./use-secret-santa";
+import { statisticsKeys } from "./use-user";
 
 // Query Keys
 export const itemKeys = {
@@ -88,6 +89,7 @@ export function useToggleItemReservation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+      queryClient.invalidateQueries({ queryKey: statisticsKeys.my() });
       queryClient.invalidateQueries({
         predicate: ({ queryKey }) =>
           Array.isArray(queryKey) &&
@@ -106,6 +108,7 @@ export function useToggleItemBought() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+      queryClient.invalidateQueries({ queryKey: statisticsKeys.my() });
       queryClient.invalidateQueries({
         predicate: ({ queryKey }) =>
           Array.isArray(queryKey) &&
@@ -124,6 +127,7 @@ export function useToggleItemReservationSecret() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
+      queryClient.invalidateQueries({ queryKey: statisticsKeys.my() });
     },
   });
 }
@@ -136,6 +140,7 @@ export function useToggleItemBoughtSecret() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
+      queryClient.invalidateQueries({ queryKey: statisticsKeys.my() });
     },
   });
 }

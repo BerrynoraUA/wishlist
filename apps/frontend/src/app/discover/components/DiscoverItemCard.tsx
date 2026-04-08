@@ -4,12 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGT } from "gt-next";
 import styles from "./DiscoverItemCard.module.scss";
 import { DiscoverItem } from "@/api/types/wishilst";
-import {
-  Heart,
-  ExternalLink,
-  MoreHorizontal,
-  ShoppingCart,
-} from "lucide-react";
+import { ExternalLink, MoreHorizontal, ShoppingCart } from "lucide-react";
 import { ItemDetailModal } from "./ItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
@@ -17,6 +12,8 @@ import {
   ActionConfirmModal,
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
+import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
+import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
 
 type Props = DiscoverItem & {
   onToggleReserve?: (id: string) => void;
@@ -200,6 +197,30 @@ export function DiscoverItemCard({
           )}
 
           <div className={styles.quickActions}>
+            <SaveToWishlistButton
+              item={{
+                name: title,
+                description: description ?? null,
+                price: price != null ? String(price) : null,
+                image_url: imgSrc || null,
+                url: url ?? null,
+                priority:
+                  typeof priority === "number"
+                    ? priority
+                    : priority === "High"
+                      ? 3
+                      : priority === "Medium"
+                        ? 2
+                        : priority === "Low"
+                          ? 1
+                          : null,
+                discount_price:
+                  discount_price != null ? String(discount_price) : null,
+                has_discount: discount_price != null,
+                currency: currency ?? null,
+              }}
+              className={styles.iconButton}
+            />
             <a
               href={hasProductLink ? (url ?? "#") : "#"}
               target="_blank"
@@ -250,9 +271,7 @@ export function DiscoverItemCard({
                     }}
                     aria-disabled={!hasShareLink}
                   >
-                    <span>
-                      {t("Share", { $id: "discover.item.share" })}
-                    </span>
+                    <span>{t("Share", { $id: "discover.item.share" })}</span>
                   </button>
                 </div>
               )}
@@ -261,13 +280,17 @@ export function DiscoverItemCard({
         </div>
 
         <div className={styles.info}>
-          <strong>{title}</strong>
+          <strong title={title}>{title}</strong>
 
           <div className={styles.metaRow}>
             {formattedPrice && (
               <span className={styles.price}>{formattedPrice}</span>
             )}
-            {store && <span className={styles.store}>{store}</span>}
+            {store && (
+              <span className={styles.store} title={store}>
+                {store}
+              </span>
+            )}
           </div>
 
           <div className={styles.actions}>
@@ -279,9 +302,10 @@ export function DiscoverItemCard({
               }}
               disabled={!canToggleReservation}
             >
-              <Heart
+              <ReservationLockIcon
+                isReserved={isReservedState}
                 size={16}
-                fill={isReservedState ? "currentColor" : "none"}
+                animateOnReserve
               />
               <span>
                 {isPurchased

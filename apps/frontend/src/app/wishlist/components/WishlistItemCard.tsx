@@ -5,7 +5,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGT } from "gt-next";
 import { Item } from "@/types/item";
 import {
-  Heart,
   ExternalLink,
   ShoppingBag,
   ShoppingCart,
@@ -18,6 +17,8 @@ import {
   ActionConfirmModal,
   type ItemActionConfirmType,
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
+import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
+import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
 
 type Props = {
   item: Item;
@@ -72,14 +73,11 @@ export function WishlistItemCard({
     3: "High",
   };
 
-  const priorityKey = item.priority
-    ? priorityKeyByValue[item.priority]
-    : null;
+  const priorityKey = item.priority ? priorityKeyByValue[item.priority] : null;
 
   const priorityDisplay = useMemo(() => {
     if (!priorityKey) return null;
-    if (priorityKey === "Low")
-      return t("Low", { $id: "item.priority.low" });
+    if (priorityKey === "Low") return t("Low", { $id: "item.priority.low" });
     if (priorityKey === "Medium")
       return t("Medium", { $id: "item.priority.medium" });
     return t("High", { $id: "item.priority.high" });
@@ -210,7 +208,7 @@ export function WishlistItemCard({
               {isPurchased ? (
                 <ShoppingCart size={14} />
               ) : (
-                <Heart size={14} fill="currentColor" />
+                <ReservationLockIcon isReserved={true} size={14} />
               )}
               <span>{reserveStatusLabel}</span>
             </div>
@@ -236,6 +234,23 @@ export function WishlistItemCard({
           </div>
 
           <div className={styles.quickActions}>
+            {!isOwner && (
+              <SaveToWishlistButton
+                item={{
+                  name: item.name,
+                  description: item.description ?? null,
+                  price: item.price ?? null,
+                  image_url: item.image_url ?? null,
+                  url: item.url ?? null,
+                  priority: item.priority ?? null,
+                  discount_price: item.discount_price ?? null,
+                  has_discount: item.has_discount ?? false,
+                  discount_end_date: item.discount_end_date ?? null,
+                  currency: item.currency ?? null,
+                }}
+                className={`${styles.iconButton} iconTooltipTrigger`}
+              />
+            )}
             {item.url && (
               <a
                 href={item.url}
@@ -304,12 +319,16 @@ export function WishlistItemCard({
         </div>
 
         <div className={styles.content}>
-          <h3>{title}</h3>
+          <h3 title={title}>{title}</h3>
           <div className={styles.metaRow}>
             {formattedPrice && (
               <span className={styles.price}>{formattedPrice}</span>
             )}
-            {store && <span className={styles.store}>{store}</span>}
+            {store && (
+              <span className={styles.store} title={store}>
+                {store}
+              </span>
+            )}
           </div>
 
           {!isOwner && (
@@ -322,7 +341,11 @@ export function WishlistItemCard({
                 }}
                 disabled={!canToggleReservation}
               >
-                <Heart size={16} fill={isReserved ? "currentColor" : "none"} />
+                <ReservationLockIcon
+                  isReserved={isReserved}
+                  size={16}
+                  animateOnReserve
+                />
                 <span>
                   {isPurchased
                     ? t("Purchased", { $id: "item.status.purchased" })

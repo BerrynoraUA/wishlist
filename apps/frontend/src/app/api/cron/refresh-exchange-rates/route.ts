@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ECB_SUPPORTED_CURRENCY_CODES } from "@/lib/currencies";
+import {
+  ECB_SUPPORTED_CURRENCY_CODES,
+  SUPPORTED_CURRENCIES,
+} from "@/lib/currencies";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const CRON_SECRET = process.env.CRON_SECRET as string;
@@ -15,6 +18,12 @@ type NbuRateResponse = Array<{
   rate: number;
 }>;
 
+type OpenExchangeRatesResponse = {
+  result?: string;
+  time_last_update_utc?: string;
+  rates?: Record<string, number>;
+};
+
 function isCronAuthorized(request: NextRequest): boolean {
   const authHeader = request.headers.get("Authorization");
   return Boolean(CRON_SECRET) && authHeader === `Bearer ${CRON_SECRET}`;
@@ -27,7 +36,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const ecbSymbols = ECB_SUPPORTED_CURRENCY_CODES.join(",");
-    const [ecbResponse, nbuResponse] = await Promise.all([
+    const [ecbResponse, nbuResponse, fallbackResponse] = await Promise.all([
       fetch(`https://api.frankfurter.app/latest?from=USD&to=${ecbSymbols}`, {
         next: { revalidate: 0 },
       }),
@@ -37,6 +46,9 @@ export async function GET(request: NextRequest) {
           next: { revalidate: 0 },
         },
       ),
+      fetch("https://open.er-api.com/v6/latest/USD", {
+        next: { revalidate: 0 },
+      }),
     ]);
 
     if (!ecbResponse.ok) {
@@ -50,9 +62,21 @@ export async function GET(request: NextRequest) {
     const nbuData = nbuResponse.ok
       ? ((await nbuResponse.json()) as NbuRateResponse)
       : [];
+    const fallbackData = fallbackResponse.ok
+      ? ((await fallbackResponse.json()) as OpenExchangeRatesResponse)
+      : null;
 
     const usdToUahRate = nbuData.find((row) => row.cc === "USD")?.rate;
+    const supportedCodes = new Set(
+      SUPPORTED_CURRENCIES.map((item) => item.code),
+    );
+    const fallbackRates = Object.fromEntries(
+      Object.entries(fallbackData?.rates ?? {}).filter(([currency, rate]) => {
+        return supportedCodes.has(currency) && Number.isFinite(rate);
+      }),
+    );
     const allRates: Record<string, number> = {
+      ...fallbackRates,
       ...ecbData.rates,
       ...(usdToUahRate ? { UAH: usdToUahRate } : {}),
     };

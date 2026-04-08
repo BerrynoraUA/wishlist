@@ -1,7 +1,8 @@
 "use client";
 
 import styles from "./Modal.module.scss";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 type Props = {
   open: boolean;
@@ -11,6 +12,12 @@ type Props = {
 };
 
 export function Modal({ open, onClose, children, title }: Props) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
 
@@ -24,14 +31,15 @@ export function Modal({ open, onClose, children, title }: Props) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  return createPortal(
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         {title && <h3 className={styles.title}>{title}</h3>}
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
