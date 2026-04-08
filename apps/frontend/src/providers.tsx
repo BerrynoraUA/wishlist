@@ -14,6 +14,7 @@ import type { ThemePreference } from "@/types/settings";
 import {
   buildResolvedThemeCookie,
   buildThemeCookie,
+  buildAccentCookie,
   resolveThemePreference,
   type ResolvedTheme,
 } from "@/lib/theme";
@@ -189,10 +190,12 @@ function AppThemeProvider({
   children,
   initialTheme,
   initialResolvedTheme,
+  initialAccent,
 }: {
   children: React.ReactNode;
   initialTheme: ThemePreference;
   initialResolvedTheme: ResolvedTheme;
+  initialAccent: number;
 }) {
   const { data: settings } = useSettings();
   const { mutate: mutateSettings } = useUpdateSettings();
@@ -225,10 +228,11 @@ function AppThemeProvider({
     document.cookie = buildResolvedThemeCookie(resolvedTheme);
   }, [persistedTheme, resolvedTheme]);
 
-  const accent = settings?.default_accent ?? WishlistAccent.Pink;
+  const accent = settings?.default_accent ?? (initialAccent as WishlistAccent);
 
   useEffect(() => {
     applyAccentTokens(accent, resolvedTheme);
+    document.cookie = buildAccentCookie(accent);
   }, [accent, resolvedTheme]);
 
   const value = useMemo<AppThemeContextValue>(
@@ -300,10 +304,12 @@ export function Providers({
   children,
   initialTheme,
   initialResolvedTheme,
+  initialAccent,
 }: {
   children: React.ReactNode;
   initialTheme: ThemePreference;
   initialResolvedTheme: ResolvedTheme;
+  initialAccent: number;
 }) {
   const [queryClient] = useState(
     () =>
@@ -323,6 +329,7 @@ export function Providers({
         <AppThemeProvider
           initialTheme={initialTheme}
           initialResolvedTheme={initialResolvedTheme}
+          initialAccent={initialAccent}
         >
           <SdkInitializer>{children}</SdkInitializer>
         </AppThemeProvider>
