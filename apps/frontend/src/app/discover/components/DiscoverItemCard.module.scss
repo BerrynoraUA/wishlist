@@ -145,8 +145,8 @@
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: #d94895;
-    border-color: #d94895;
+    background: $brand-dark;
+    border-color: $brand-dark;
     color: #fff;
   }
 
@@ -266,6 +266,10 @@
     border-color: $brand;
     color: $brand;
   }
+}
+
+:global([data-theme="dark"]) .iconButton {
+  background: rgba(22, 22, 25, 0.9);
 }
 
 .disabled {
