@@ -10,6 +10,7 @@ import { useGT } from "gt-next";
 import { ProfileMenu } from "../profile/ProfileMenu";
 import { NotificationsMenu } from "../notifications/NotificationsMenu";
 import { ThemeToggle } from "./ThemeToggle";
+import { ProBadge } from "../ui/ProBadge/ProBadge";
 
 export function TopNav() {
   const t = useGT();
@@ -17,7 +18,9 @@ export function TopNav() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
-  const previousSearchModeRef = useRef<"home" | "friends" | "discover" | null>(null);
+  const previousSearchModeRef = useRef<"home" | "friends" | "discover" | null>(
+    null,
+  );
   const discoverTab = searchParams.get("tab");
 
   const navItems = useMemo(
@@ -25,20 +28,20 @@ export function TopNav() {
       {
         label: t("My Wishlists", { $id: "nav.myWishlists" }),
         href: "/home",
-        icon: <Gift size={16} />
+        icon: <Gift size={16} />,
       },
       {
         label: t("Friends", { $id: "nav.friends" }),
         href: "/friends",
-        icon: <Users size={16} />
+        icon: <Users size={16} />,
       },
       {
         label: t("Discover", { $id: "nav.discover" }),
         href: "/discover",
-        icon: <Heart size={16} />
-      }
+        icon: <Heart size={16} />,
+      },
     ],
-    [t]
+    [t],
   );
 
   const searchMode =
@@ -81,9 +84,12 @@ export function TopNav() {
     if (previousMode && previousMode !== searchMode) {
       const params = new URLSearchParams(searchParams.toString());
       clearSearchParams(params);
-      router.replace(params.toString() ? `${pathname}?${params.toString()}` : pathname, {
-        scroll: false
-      });
+      router.replace(
+        params.toString() ? `${pathname}?${params.toString()}` : pathname,
+        {
+          scroll: false,
+        },
+      );
       setQuery("");
     }
     previousSearchModeRef.current = searchMode;
@@ -102,8 +108,13 @@ export function TopNav() {
     <header className={styles.header}>
       <div className={styles.inner}>
         <Link href="/home" className={styles.logo}>
-          <div className={styles.logoIcon}>
-            <Gift size={16} />
+          <div className={styles.logoIconWrap}>
+            <div className={styles.logoIcon}>
+              <Gift size={16} />
+            </div>
+            <span className={styles.logoBetaBadge}>
+              <ProBadge size="sm" label={t("BETA", { $id: "nav.betaBadge" })} />
+            </span>
           </div>
           <span>{t("Wishlane", { $id: "brand.name" })}</span>
         </Link>
@@ -121,7 +132,7 @@ export function TopNav() {
                     transition={{
                       type: "spring",
                       stiffness: 500,
-                      damping: 32
+                      damping: 32,
                     }}
                   />
                 )}
@@ -150,8 +161,10 @@ export function TopNav() {
                     else params.delete(activeSearchKey);
 
                     router.replace(
-                      params.toString() ? `${pathname}?${params.toString()}` : pathname,
-                      { scroll: false }
+                      params.toString()
+                        ? `${pathname}?${params.toString()}`
+                        : pathname,
+                      { scroll: false },
                     );
                   }}
                 />

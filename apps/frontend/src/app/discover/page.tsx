@@ -10,12 +10,15 @@ import { DiscoverSection } from "./components/DiscoverSection";
 import { ReservedItemsGrid } from "./components/ReservedItemsGrid";
 import {
   useFriendsWishlistsDiscover,
+  useFriendsWishlistsDiscoverAll,
   useFriendsWishlistsPurchasedByMe,
   useFriendsWishlistsReservedByMe,
 } from "@/hooks/use-wishlists";
-import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
+import {
+  useToggleItemBought,
+  useToggleItemReservation,
+} from "@/hooks/use-items";
 import { useProfilesByIds } from "@/hooks/use-settings";
-import { useSubscription } from "@/hooks/use-subscription";
 
 function DiscoverPageContent() {
   const t = useGT();
@@ -23,11 +26,15 @@ function DiscoverPageContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const tabFromUrl: "wishlists" | "reserved" | "purchased" =
-    tabParam === "reserved" || tabParam === "purchased"
+  const tabFromUrl: "wishlists" | "available" | "reserved" | "purchased" =
+    tabParam === "available" ||
+    tabParam === "reserved" ||
+    tabParam === "purchased"
       ? tabParam
       : "wishlists";
-  const [filter, setFilter] = useState<"wishlists" | "reserved" | "purchased">(tabFromUrl);
+  const [filter, setFilter] = useState<
+    "wishlists" | "available" | "reserved" | "purchased"
+  >(tabFromUrl);
   const wishlistsSearch = useMemo(
     () => searchParams.get("discoverSearch") ?? "",
     [searchParams],
@@ -62,12 +69,21 @@ function DiscoverPageContent() {
   }, [filter, tabFromUrl, pathname, router, searchParams]);
 
   const {
+    data: allWishlistsSections = [],
+    isLoading: isAllWishlistsLoading,
+    isError: isAllWishlistsError,
+  } = useFriendsWishlistsDiscoverAll(
+    { search: wishlistsSearch },
+    filter === "wishlists",
+  );
+
+  const {
     data: wishlistsSections = [],
     isLoading: isWishlistsLoading,
     isError: isWishlistsError,
   } = useFriendsWishlistsDiscover(
     { search: wishlistsSearch },
-    filter === "wishlists",
+    filter === "available",
   );
 
   const {
@@ -87,20 +103,22 @@ function DiscoverPageContent() {
     { search: purchasedSearch },
     filter === "purchased",
   );
-  const { isPro } = useSubscription();
 
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
 
+  const activeWishlistSections =
+    filter === "wishlists" ? allWishlistsSections : wishlistsSections;
+
   const friendIds = useMemo(() => {
     return Array.from(
       new Set(
-        (wishlistsSections ?? [])
+        (activeWishlistSections ?? [])
           .map((s) => s.friend_id)
           .filter((id): id is string => Boolean(id)),
       ),
     );
-  }, [wishlistsSections]);
+  }, [activeWishlistSections]);
 
   const { data: sectionProfiles = [] } = useProfilesByIds(friendIds);
 
@@ -114,20 +132,25 @@ function DiscoverPageContent() {
 
   const isLoading =
     filter === "wishlists"
-      ? isWishlistsLoading
-      : filter === "reserved"
-        ? isReservedLoading
-        : isPurchasedLoading;
+      ? isAllWishlistsLoading
+      : filter === "available"
+        ? isWishlistsLoading
+        : filter === "reserved"
+          ? isReservedLoading
+          : isPurchasedLoading;
   const isError =
     filter === "wishlists"
-      ? isWishlistsError
-      : filter === "reserved"
-        ? isReservedError
-        : isPurchasedError;
+      ? isAllWishlistsError
+      : filter === "available"
+        ? isWishlistsError
+        : filter === "reserved"
+          ? isReservedError
+          : isPurchasedError;
   const hasNoData =
-    !isLoading && !isError &&
-    (filter === "wishlists"
-      ? wishlistsSections.length === 0
+    !isLoading &&
+    !isError &&
+    (filter === "wishlists" || filter === "available"
+      ? activeWishlistSections.length === 0
       : filter === "reserved"
         ? reservedSections.length === 0
         : purchasedSections.length === 0);
@@ -156,18 +179,24 @@ function DiscoverPageContent() {
               ? t("No purchased items yet.", {
                   $id: "discover.page.emptyPurchased",
                 })
-              : t("No wishlists to discover.", {
-                  $id: "discover.page.emptyWishlists",
-                })}
+              : filter === "available"
+                ? t("No available wishlists to discover.", {
+                    $id: "discover.page.emptyAvailable",
+                  })
+                : t("No wishlists to discover.", {
+                    $id: "discover.page.emptyWishlists",
+                  })}
         </p>
       )}
 
-      {!isLoading && !isError && filter === "wishlists" &&
-        wishlistsSections.map((section) => (
+      {!isLoading &&
+        !isError &&
+        (filter === "wishlists" || filter === "available") &&
+        activeWishlistSections.map((section) => (
           <DiscoverSection
             key={section.id}
             {...section}
-            showDiscountBadge={isPro}
+            showDiscountBadge={true}
             avatarUrl={
               section.avatar_url ??
               (section.friend_id
@@ -183,7 +212,7 @@ function DiscoverPageContent() {
         <ReservedItemsGrid
           items={reservedSections}
           mode="reserved"
-          showDiscountBadge={isPro}
+          showDiscountBadge={true}
           onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
           onToggleBought={(itemId) => toggleBought.mutate(itemId)}
         />
@@ -193,7 +222,7 @@ function DiscoverPageContent() {
         <ReservedItemsGrid
           items={purchasedSections}
           mode="purchased"
-          showDiscountBadge={isPro}
+          showDiscountBadge={true}
           onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
           onToggleBought={(itemId) => toggleBought.mutate(itemId)}
         />

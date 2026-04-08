@@ -8,6 +8,7 @@ import { useUpdateItem } from "@/hooks/use-items";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Item } from "@/types/item";
 import type { UpdateItemParams } from "@/api/types/item";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import styles from "./CreateItemModal.module.scss";
 
 type PriorityOption = "Low" | "Medium" | "High" | "None";
@@ -46,6 +47,8 @@ function EditItemForm({
   onClose: () => void;
 }) {
   const t = useGT();
+  const { isPro } = useSubscription();
+  const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
   const [name, setName] = useState(item.name ?? "");
   const [description, setDescription] = useState(item.description ?? "");
   const [price, setPrice] = useState(item.price ?? "");
@@ -59,7 +62,6 @@ function EditItemForm({
   const [currency, setCurrency] = useState(item.currency ?? "USD");
 
   const { mutate, isPending } = useUpdateItem();
-  const { isPro } = useSubscription();
 
   useEffect(() => {
     return () => {
@@ -82,26 +84,20 @@ function EditItemForm({
   function handleSubmit() {
     if (!name.trim() || isPending) return;
 
-    const priorityValue = priority === "None" ? null : priorityToValue[priority];
+    const priorityValue =
+      priority === "None" ? null : priorityToValue[priority];
 
     const updates: UpdateItemParams = {
       name: name.trim(),
       description: description.trim() || null,
       price: price.trim() || null,
       url: link.trim() || null,
+      priority: priorityValue,
       currency,
       ...(imageFile
         ? { image: imageFile }
         : { image_url: imagePreview || null }),
     };
-
-    // Priority is a Pro-only feature.
-    // For non-Pro users we always send null as requested.
-    if (!isPro) {
-      updates.priority = null;
-    } else {
-      updates.priority = priorityValue;
-    }
 
     mutate({ id: item.id, updates }, { onSuccess: () => onClose() });
   }
@@ -192,10 +188,16 @@ function EditItemForm({
               <option value="EUR">{t("€ EUR", { $id: "currency.eur" })}</option>
               <option value="GBP">{t("£ GBP", { $id: "currency.gbp" })}</option>
               <option value="UAH">{t("₴ UAH", { $id: "currency.uah" })}</option>
-              <option value="PLN">{t("zł PLN", { $id: "currency.pln" })}</option>
+              <option value="PLN">
+                {t("zł PLN", { $id: "currency.pln" })}
+              </option>
               <option value="JPY">{t("¥ JPY", { $id: "currency.jpy" })}</option>
-              <option value="CAD">{t("CA$ CAD", { $id: "currency.cad" })}</option>
-              <option value="AUD">{t("A$ AUD", { $id: "currency.aud" })}</option>
+              <option value="CAD">
+                {t("CA$ CAD", { $id: "currency.cad" })}
+              </option>
+              <option value="AUD">
+                {t("A$ AUD", { $id: "currency.aud" })}
+              </option>
               <option value="CHF">{t("CHF", { $id: "currency.chf" })}</option>
             </select>
             <input
@@ -207,7 +209,7 @@ function EditItemForm({
           </div>
         </div>
 
-        {isPro && (
+        {canUsePriority && (
           <div className={styles.field}>
             <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
             <select

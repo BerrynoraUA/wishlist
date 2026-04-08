@@ -7,6 +7,7 @@ import { Toggle } from "@/components/ui/Toggle/Toggle";
 import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { useSubscription } from "@/hooks/use-subscription";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { UserPlus, Gift, TrendingDown, Mail } from "lucide-react";
 
 export function NotificationSettings() {
@@ -102,7 +103,7 @@ export function NotificationSettings() {
                 {t("Sale Price Alerts", {
                   $id: "settings.notifications.saleAlerts",
                 })}
-                {!isPro && (
+                {SUBSCRIPTIONS_UI_ENABLED && !isPro && (
                   <span className={styles.proBadge}>
                     <ProBadge size="sm" />
                   </span>
@@ -118,7 +119,6 @@ export function NotificationSettings() {
           <Toggle
             checked={settings.notify_sale_alerts}
             onChange={(v) => toggle("notify_sale_alerts", v)}
-            disabled={!isPro}
           />
         </div>
       </SettingsSection>

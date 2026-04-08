@@ -1,0 +1,85 @@
+.root {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  display: inline-grid;
+  place-items: center;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.open {
+  opacity: 1;
+  transform: translateY(0) scale(1) rotate(0deg);
+}
+
+.closed {
+  opacity: 0;
+  transform: translateY(1px) scale(0.82);
+}
+
+.root[data-reserved="true"] .open {
+  opacity: 0;
+  transform: translateY(-1px) scale(0.86);
+}
+
+.root[data-reserved="true"] .closed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.root[data-closing="true"] .open {
+  opacity: 1;
+  animation: lockOpenClose 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.root[data-closing="true"] .closed {
+  opacity: 0;
+  animation: lockClosedClose 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes lockOpenClose {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+
+  45% {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.04) rotate(-8deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-2px) scale(0.88) rotate(-18deg);
+  }
+}
+
+@keyframes lockClosedClose {
+  0% {
+    opacity: 0;
+    transform: translateY(2px) scale(0.7) rotate(12deg);
+  }
+
+  55% {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.08) rotate(-4deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
