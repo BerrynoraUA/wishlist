@@ -8,6 +8,7 @@ import {
   Crown,
   Settings,
   TreePine,
+  Lightbulb,
   Languages,
   ChevronDown,
   Check,
@@ -246,6 +247,18 @@ export function ProfileMenu({ onOpen }: Props) {
           >
             <TreePine size={16} />
             <span>{t("Secret Santa", { $id: "profile.secretSanta" })}</span>
+          </button>
+
+          <button
+            type="button"
+            className={styles.menuItemSub}
+            onClick={() => {
+              setOpen(false);
+              router.push("/ideas");
+            }}
+          >
+            <Lightbulb size={16} />
+            <span>{t("Request a Feature", { $id: "profile.requestFeature" })}</span>
           </button>
 
           <button

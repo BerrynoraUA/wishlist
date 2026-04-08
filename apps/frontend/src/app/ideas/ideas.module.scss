@@ -1,0 +1,275 @@
+@use "@/styles/variables" as *;
+
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+/* ── Header ── */
+.header {
+  margin-bottom: 32px;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.headerTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: $text;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.headerDescription {
+  margin: 8px 0 0;
+  font-size: 15px;
+  color: $text-muted;
+  line-height: 1.5;
+  max-width: 560px;
+}
+
+.submitButton {
+  flex-shrink: 0;
+}
+
+/* ── Info banner ── */
+.infoBanner {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-radius: $radius-lg;
+  background: var(--color-brand-lighter);
+  border: 1.5px solid var(--color-pro-border);
+  margin-bottom: 28px;
+  align-items: flex-start;
+}
+
+.infoIcon {
+  flex-shrink: 0;
+  color: $brand;
+  margin-top: 2px;
+}
+
+.infoText {
+  font-size: 14px;
+  line-height: 1.55;
+  color: $text;
+  margin: 0;
+}
+
+/* ── Submitted banner ── */
+.pendingBanner {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-radius: $radius-lg;
+  background: var(--color-bg-subtle);
+  border: 1.5px solid var(--color-border-light);
+  margin-bottom: 28px;
+  align-items: center;
+}
+
+.pendingIcon {
+  flex-shrink: 0;
+  color: $text-muted;
+}
+
+.pendingText {
+  font-size: 14px;
+  line-height: 1.55;
+  color: $text-muted;
+  margin: 0;
+}
+
+/* ── Idea list ── */
+.ideaList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px 16px;
+  color: $text-muted;
+  font-size: 15px;
+}
+
+/* ── Idea card ── */
+.ideaCard {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  border-radius: $radius-lg;
+  border: 1.5px solid var(--color-border-light);
+  background: var(--card-bg);
+  transition: all 0.3s $ease-out;
+
+  &:hover {
+    border-color: var(--color-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.voteSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.voteButton {
+  width: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 0;
+  border-radius: $radius-md;
+  border: 1.5px solid var(--color-border-light);
+  background: var(--elevated-bg);
+  cursor: pointer;
+  color: $text-muted;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.25s $ease-out;
+
+  &:hover {
+    border-color: $brand;
+    color: $brand;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.voteButtonActive {
+  border-color: $brand;
+  background: var(--color-brand-lighter);
+  color: $brand;
+}
+
+.ideaContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.ideaTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: $text;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.ideaDescription {
+  font-size: 14px;
+  color: $text-muted;
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+
+.ideaMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: $text-muted;
+}
+
+.ideaAuthorAvatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ── Submit modal form ── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fieldLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: $text;
+}
+
+.fieldInput {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: $radius-md;
+  border: 1.5px solid var(--color-border-light);
+  background: var(--elevated-bg);
+  color: $text;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s $ease-out;
+
+  &:focus {
+    outline: none;
+    border-color: $brand;
+  }
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.fieldTextarea {
+  composes: fieldInput;
+  min-height: 100px;
+  resize: vertical;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .page {
+    padding: 20px 16px 48px;
+  }
+
+  .headerTop {
+    flex-direction: column;
+  }
+
+  .headerTitle {
+    font-size: 24px;
+  }
+
+  .ideaCard {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .voteSection {
+    flex-direction: row;
+  }
+
+  .voteButton {
+    width: auto;
+    flex-direction: row;
+    padding: 6px 14px;
+    gap: 6px;
+  }
+}
