@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { useGT } from "gt-next";
-import { ChevronUp, Info, Lightbulb, Clock } from "lucide-react";
+import {
+  ChevronUp,
+  Info,
+  Lightbulb,
+  Clock,
+  Code,
+  CheckCircle,
+} from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import {
@@ -10,6 +17,7 @@ import {
   useCreateFeatureIdea,
   useToggleFeatureIdeaVote,
 } from "@/hooks/use-feature-ideas";
+import type { FeatureIdeaStatus } from "@/api/types/feature-ideas";
 import styles from "./ideas.module.scss";
 
 export default function IdeasPage() {
@@ -96,7 +104,12 @@ export default function IdeasPage() {
                 </button>
               </div>
               <div className={styles.ideaContent}>
-                <h3 className={styles.ideaTitle}>{idea.title}</h3>
+                <div className={styles.ideaTitleRow}>
+                  <h3 className={styles.ideaTitle}>{idea.title}</h3>
+                  {idea.status !== "approved" && (
+                    <StatusBadge status={idea.status} />
+                  )}
+                </div>
                 <p className={styles.ideaDescription}>{idea.description}</p>
                 <div className={styles.ideaMeta}>
                   {idea.user_avatar_url && (
@@ -107,11 +120,12 @@ export default function IdeasPage() {
                       className={styles.ideaAuthorAvatar}
                     />
                   )}
-                  <span>{idea.user_display_name ?? t("Anonymous", { $id: "ideas.page.anonymous" })}</span>
-                  <span>·</span>
                   <span>
-                    {new Date(idea.created_at).toLocaleDateString()}
+                    {idea.user_display_name ??
+                      t("Anonymous", { $id: "ideas.page.anonymous" })}
                   </span>
+                  <span>·</span>
+                  <span>{new Date(idea.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
@@ -125,6 +139,27 @@ export default function IdeasPage() {
       />
     </main>
   );
+}
+
+function StatusBadge({ status }: { status: FeatureIdeaStatus }) {
+  const t = useGT();
+  if (status === "in_development") {
+    return (
+      <span className={`${styles.statusBadge} ${styles.statusInDev}`}>
+        <Code size={12} />
+        {t("In Development", { $id: "ideas.status.inDevelopment" })}
+      </span>
+    );
+  }
+  if (status === "done") {
+    return (
+      <span className={`${styles.statusBadge} ${styles.statusDone}`}>
+        <CheckCircle size={12} />
+        {t("Done", { $id: "ideas.status.done" })}
+      </span>
+    );
+  }
+  return null;
 }
 
 function SubmitIdeaModal({
@@ -195,7 +230,9 @@ function SubmitIdeaModal({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!title.trim() || !description.trim() || createIdea.isPending}
+            disabled={
+              !title.trim() || !description.trim() || createIdea.isPending
+            }
           >
             {createIdea.isPending
               ? t("Submitting...", { $id: "ideas.modal.submitting" })
