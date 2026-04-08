@@ -1,6 +1,7 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import type {
   FeatureIdea,
+  FeatureIdeaStatus,
   CreateFeatureIdeaParams,
 } from "./types/feature-ideas";
 
@@ -10,15 +11,37 @@ export async function getApprovedFeatureIdeas(): Promise<FeatureIdea[]> {
 
   const { data: ideas, error } = await supabaseBrowser
     .from("feature_idea")
-    .select(
-      "id, title, description, user_id, status, created_at, profile:profile!feature_idea_user_id_fkey(display_name, avatar_url)",
-    )
-    .eq("status", "approved")
+    .select("id, title, description, user_id, status, created_at")
+    .neq("status", "pending")
     .order("created_at", { ascending: false });
 
   if (error) throw error;
 
   const ideaIds = (ideas ?? []).map((i: { id: string }) => i.id);
+  const userIds = [
+    ...new Set((ideas ?? []).map((i: { user_id: string }) => i.user_id)),
+  ];
+
+  // Fetch profile info separately
+  let profileMap: Record<
+    string,
+    { display_name: string | null; avatar_url: string | null }
+  > = {};
+  if (userIds.length > 0) {
+    const { data: profiles } = await supabaseBrowser
+      .from("profile")
+      .select("id, display_name, avatar_url")
+      .in("id", userIds);
+
+    if (profiles) {
+      for (const p of profiles) {
+        profileMap[p.id] = {
+          display_name: p.display_name,
+          avatar_url: p.avatar_url,
+        };
+      }
+    }
+  }
 
   let voteCounts: Record<string, number> = {};
   let userVotes = new Set<string>();
@@ -49,16 +72,13 @@ export async function getApprovedFeatureIdeas(): Promise<FeatureIdea[]> {
   }
 
   return (ideas ?? []).map((idea: Record<string, unknown>) => {
-    const profile = idea.profile as {
-      display_name: string | null;
-      avatar_url: string | null;
-    } | null;
+    const profile = profileMap[idea.user_id as string] ?? null;
     return {
       id: idea.id as string,
       title: idea.title as string,
       description: idea.description as string,
       user_id: idea.user_id as string,
-      status: idea.status as FeatureIdea["status"],
+      status: idea.status as FeatureIdeaStatus,
       votes_count: voteCounts[idea.id as string] ?? 0,
       has_voted: userVotes.has(idea.id as string),
       created_at: idea.created_at as string,
