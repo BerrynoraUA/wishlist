@@ -11,20 +11,24 @@ type Props = {
   children: ReactNode;
   initialTheme: ThemePreference;
   initialResolvedTheme: ResolvedTheme;
+  initialAccent: number;
 };
 
 export function AppShell({
   children,
   initialTheme,
   initialResolvedTheme,
+  initialAccent,
 }: Props) {
   const pathname = usePathname();
-  const hideTopNav = pathname === "/" || pathname === "/login" || pathname === "/share";
+  const hideTopNav =
+    pathname === "/" || pathname === "/login" || pathname === "/share";
 
   return (
     <Providers
       initialTheme={initialTheme}
       initialResolvedTheme={initialResolvedTheme}
+      initialAccent={initialAccent}
     >
       {!hideTopNav && (
         <Suspense fallback={null}>
