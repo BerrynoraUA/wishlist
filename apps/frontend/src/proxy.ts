@@ -23,7 +23,6 @@ function copyCookies(from: NextResponse, to: NextResponse) {
   });
 }
 
-/** Copy GT + Supabase cookies onto redirects (avoid copying proxy response headers). */
 function mergeCookiesIntoResponse(from: NextResponse, to: NextResponse) {
   copyCookies(from, to);
 }
