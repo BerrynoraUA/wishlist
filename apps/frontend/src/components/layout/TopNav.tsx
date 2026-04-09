@@ -113,7 +113,15 @@ export function TopNav() {
               <Gift size={16} />
             </div>
             <span className={styles.logoBetaBadge}>
-              <ProBadge size="sm" label={t("BETA", { $id: "nav.betaBadge" })} />
+              <ProBadge
+                size="sm"
+                label={
+                  typeof window !== "undefined" &&
+                  window.location.hostname === "staging.wishlane.net"
+                    ? "STAGING"
+                    : t("BETA", { $id: "nav.betaBadge" })
+                }
+              />
             </span>
           </div>
           <span>{t("Wishlane", { $id: "brand.name" })}</span>
