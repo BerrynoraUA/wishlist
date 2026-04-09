@@ -6,7 +6,8 @@
     "dev": "expo start -c",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "gt:translate": "gt translate"
   },
   "dependencies": {
     "@expo/ui": "~55.0.11",
@@ -32,6 +33,7 @@
     "expo-symbols": "~55.0.7",
     "expo-system-ui": "~55.0.15",
     "expo-web-browser": "~55.0.14",
+    "gt-react-native": "^0.0.17",
     "posthog-react-native": "^4.41.1",
     "react": "19.2.0",
     "react-native": "0.83.4",
@@ -47,6 +49,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
+    "gt": "^2.14.10",
     "typescript": "~5.9.2"
   },
   "private": true

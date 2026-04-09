@@ -1,7 +1,11 @@
+import "@/polyfills/gtIntlPolyfills";
 import type { PostHogEventProperties } from "@posthog/core";
 import { Stack, useGlobalSearchParams, usePathname } from "expo-router";
 import { useEffect } from "react";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
+import { GTProvider } from "gt-react-native";
+import gtConfig from "../../gt.config.json";
+import { loadTranslations } from "@/loadTranslations";
 
 const posthogApiKey = process.env.EXPO_PUBLIC_POSTHOG_KEY ?? "";
 const posthogHost = (
@@ -19,8 +23,18 @@ export default function RootLayout() {
       }}
       autocapture={{ captureScreens: false }}
     >
-      <PostHogScreenTracker />
-      <Stack />
+      <GTProvider
+        config={gtConfig}
+        loadTranslations={loadTranslations}
+        projectId={process.env.EXPO_PUBLIC_GT_PROJECT_ID}
+        devApiKey={process.env.EXPO_PUBLIC_GT_DEV_API_KEY}
+        renderSettings={{
+          method: "replace",
+        }}
+      >
+        <PostHogScreenTracker />
+        <Stack />
+      </GTProvider>
     </PostHogProvider>
   );
 }
