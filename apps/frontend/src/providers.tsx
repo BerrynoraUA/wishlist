@@ -264,11 +264,6 @@ function AppThemeProvider({
   );
 }
 
-/**
- * Initialises RevenueCat (auth-gated) and Paddle (always).
- * RevenueCat is used as the subscription state store.
- * Paddle is the web payment provider.
- */
 function SdkInitializer({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
 
