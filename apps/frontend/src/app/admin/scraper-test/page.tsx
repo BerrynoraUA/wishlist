@@ -11,8 +11,14 @@ import {
   Loader2,
   ExternalLink,
   Clock,
+  FileJson,
+  FileSpreadsheet,
 } from "lucide-react";
 import { TEST_CASES, type TestCase } from "./test-urls";
+import {
+  exportScraperResultsExcel,
+  exportScraperResultsJson,
+} from "./export-scraper-results";
 import styles from "./scraper-test.module.scss";
 
 interface ProductData {
@@ -41,6 +47,16 @@ interface ScrapeResult {
   missingFields?: string[];
   duration: number;
   validations: FieldValidation[];
+}
+
+/** Shape of each entry in POST /api/admin/scraper-test `results` (before client-side validation). */
+interface ApiScrapeResultRow {
+  url: string;
+  status: "success" | "partial" | "failed";
+  data: ProductData | null;
+  error?: string;
+  missingFields?: string[];
+  duration: number;
 }
 
 type TestState = "idle" | "running" | "done";
@@ -111,10 +127,27 @@ export default function ScraperTestPage() {
       try {
         const res = await fetch("/api/admin/scraper-test", {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ urls: [testCase.url] }),
         });
-        const json = await res.json();
+        const json = (await res.json()) as {
+          results?: ApiScrapeResultRow[];
+          error?: string;
+        };
+        if (!res.ok) {
+          allResults.push({
+            url: testCase.url,
+            status: "failed",
+            data: null,
+            error: json.error ?? `HTTP ${res.status}`,
+            duration: 0,
+            validations: validateResult(testCase, null),
+          });
+          setResults([...allResults]);
+          setProgress(i + 1);
+          continue;
+        }
         const raw = json.results?.[0];
         if (raw) {
           const validations = validateResult(testCase, raw.data);
@@ -172,6 +205,9 @@ export default function ScraperTestPage() {
         return "Failed";
     }
   };
+
+  const exportFilenameBase = () =>
+    `scraper-test-${new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)}`;
 
   return (
     <div className={styles.container}>
@@ -243,6 +279,31 @@ export default function ScraperTestPage() {
               <span>Total</span>
             </div>
           </div>
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <div className={styles.exportBar}>
+          <button
+            type="button"
+            className={styles.exportBtn}
+            onClick={() =>
+              exportScraperResultsJson(results, exportFilenameBase())
+            }
+          >
+            <FileJson size={18} />
+            Export JSON
+          </button>
+          <button
+            type="button"
+            className={styles.exportBtn}
+            onClick={() =>
+              exportScraperResultsExcel(results, exportFilenameBase())
+            }
+          >
+            <FileSpreadsheet size={18} />
+            Export Excel
+          </button>
         </div>
       )}
 

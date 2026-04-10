@@ -1,7 +1,12 @@
+import acceptanceCriteria from "./acceptance-criteria.json";
+
 /**
  * Список тест-кейсів для тестування скрапера.
  * Кожен кейс містить URL та очікувані значення для валідації.
  * Якщо поле expected = null — воно не перевіряється.
+ *
+ * Очікувані значення для конкретних URL зберігаються в acceptance-criteria.json
+ * і автоматично застосовуються до відповідних записів нижче.
  */
 export interface TestCase {
   url: string;
@@ -13,7 +18,11 @@ export interface TestCase {
   };
 }
 
-export const TEST_CASES: TestCase[] = [
+const ACCEPTANCE_CRITERIA: Map<string, TestCase["expected"]> = new Map(
+  (acceptanceCriteria as TestCase[]).map((c) => [c.url, c.expected]),
+);
+
+const RAW_TEST_CASES: TestCase[] = [
   {
     url: "https://www.amazon.com/Z-Edge-Monitor-Ultra-Fast-UG27H-Frameless/dp/B0DXKZZF9B/ref=sr_1_2_sspa?dib=eyJ2IjoiMSJ9.vXjaZ5LQ60nRmS_W_8Noo5EbjU0g5iDcpTDcuW-x0Ai4TsnH_52c6EQnFilOgEOw7lyeqG8fciuEJz5pU5M8FhOr106LXyJF0vREN39JZpvD-Tx36TnnU8LbgdJilZYcQEmjVvB2dItfC_QTgAzNJMWitddbBBMKv-MDM3e5_33TkRf7KyOgbmhsPgumqkU7i9ZiNTFyM9IpszjkbL6zsDzR-qNDgw-BdF7pgLs_tSJpMon1Ccx2x5tvTpJdtDA_b14fOPOJCnaeWPoa_M54XCfwH4CVI2mVRCX8aMT-AZA.GUnhwbskjvWrgc_aemTfL2vPCWGkY5eZ49U6NZtYZ9c&dib_tag=se&qid=1775680156&s=computers-intl-ship&sr=1-2-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGZfYnJvd3Nl&th=1",
     expected: { title: null, price: null, image: null, description: null },
@@ -463,3 +472,8 @@ export const TEST_CASES: TestCase[] = [
     expected: { title: null, price: null, image: null, description: null },
   },
 ];
+
+export const TEST_CASES: TestCase[] = RAW_TEST_CASES.map((tc) => ({
+  ...tc,
+  expected: ACCEPTANCE_CRITERIA.get(tc.url) ?? tc.expected,
+}));
