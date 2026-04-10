@@ -112,6 +112,9 @@ export function TopNav() {
             <div className={styles.logoIcon}>
               <Gift size={16} />
             </div>
+          </div>
+          <span className={styles.logoText}>
+            {t("Wishlane", { $id: "brand.name" })}
             <span className={styles.logoBetaBadge}>
               <ProBadge
                 size="sm"
@@ -123,8 +126,7 @@ export function TopNav() {
                 }
               />
             </span>
-          </div>
-          <span>{t("Wishlane", { $id: "brand.name" })}</span>
+          </span>
         </Link>
 
         <nav className={styles.nav}>

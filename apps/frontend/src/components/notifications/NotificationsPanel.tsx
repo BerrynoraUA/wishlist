@@ -60,7 +60,7 @@ export function NotificationsPanel({
                 variant="ghost"
                 size="sm"
                 onClick={onReadAll}
-                disabled={isLoading}
+                disabled={isLoading || notifications.every((n) => n.is_read)}
               >
                 {t("Read all", { $id: "notifications.readAll" })}
               </Button>
