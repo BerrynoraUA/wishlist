@@ -207,3 +207,20 @@
     height: 100px;
   }
 }
+
+/* ===== DARK THEME ===== */
+
+:global([data-theme="dark"]) .sharedBadge {
+  background: rgba(22, 22, 25, 0.75);
+  color: rgba(240, 240, 242, 0.9);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+:global([data-theme="dark"]) .sharedTooltip {
+  background: rgba(30, 30, 36, 0.95);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
+
+  &::before {
+    background: rgba(30, 30, 36, 0.95);
+  }
+}

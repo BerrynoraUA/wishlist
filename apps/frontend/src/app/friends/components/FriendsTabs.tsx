@@ -27,7 +27,7 @@ export function FriendsTabs({
         className={active === "friends" ? styles.active : ""}
         onClick={() => onChange("friends")}
       >
-        {t("All Friends", { $id: "friends.tabs.all" })}{" "}
+        {t("Friends", { $id: "friends.tabs.friends" })}{" "}
         <span>{friendsCount}</span>
       </button>
 

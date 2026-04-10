@@ -203,14 +203,14 @@ export function WishlistItemCard({
 
           {reserveStatusLabel && !isOwner && (
             <div
-              className={`${styles.badgeLeft} ${isPurchased ? styles.purchasedBadge : ""}`}
+              className={`${styles.badgeLeft} ${salePercentOff != null ? styles.badgeLeftCompact : ""} ${isPurchased ? styles.purchasedBadge : ""}`}
             >
               {isPurchased ? (
                 <ShoppingCart size={14} />
               ) : (
                 <ReservationLockIcon isReserved={true} size={14} />
               )}
-              <span>{reserveStatusLabel}</span>
+              {salePercentOff == null && <span>{reserveStatusLabel}</span>}
             </div>
           )}
 

@@ -178,38 +178,42 @@ export function ReservedItemCard({
           </div>
 
           <div
-            className={`${styles.badgeLeft} ${mode === "purchased" ? styles.badgeLeftPurchased : ""}`}
+            className={`${styles.badgeLeft} ${salePercentOff != null ? styles.badgeLeftCompact : styles.badgeLeftAbsolute} ${mode === "purchased" ? styles.badgeLeftPurchased : ""}`}
           >
             {isPurchased ? (
               <ShoppingCart size={14} />
             ) : (
               <ReservationLockIcon isReserved={true} size={14} />
             )}
-            <span>
-              {isPurchased
-                ? t("Purchased by you", {
-                    $id: "discover.reserved.purchasedByYouBadge",
-                  })
-                : t("Reserved by you", {
-                    $id: "discover.reserved.reservedByYouBadge",
-                  })}
-            </span>
+            {salePercentOff == null && (
+              <span>
+                {isPurchased
+                  ? t("Purchased by you", {
+                      $id: "discover.reserved.purchasedByYouBadge",
+                    })
+                  : t("Reserved by you", {
+                      $id: "discover.reserved.reservedByYouBadge",
+                    })}
+              </span>
+            )}
           </div>
 
-          {salePercentOff != null && (
-            <div className={styles.saleBadgeLeft}>
-              {t("Sale -{percent}%", {
-                percent: salePercentOff,
-                $id: "discover.reserved.saleBadge",
-              })}
-            </div>
-          )}
+          <div className={styles.badgeStackRight}>
+            {salePercentOff != null && (
+              <div className={styles.saleBadgeRight}>
+                {t("Sale -{percent}%", {
+                  percent: salePercentOff,
+                  $id: "discover.reserved.saleBadge",
+                })}
+              </div>
+            )}
 
-          {priorityDisplay && (
-            <div className={`${styles.badgeRight} ${priorityClass}`}>
-              {priorityDisplay}
-            </div>
-          )}
+            {priorityDisplay && (
+              <div className={`${styles.badgeRight} ${priorityClass}`}>
+                {priorityDisplay}
+              </div>
+            )}
+          </div>
 
           <div className={styles.quickActions}>
             <SaveToWishlistButton
