@@ -127,7 +127,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-pro-border);
+    outline: 2px solid var(--brand-alpha-25);
     outline-offset: 2px;
   }
 }
@@ -182,7 +182,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-pro-border);
+    outline: 2px solid var(--brand-alpha-25);
     outline-offset: -2px;
   }
 }
@@ -202,7 +202,7 @@
     background 0.2s $ease-out;
 
   &[data-selected="true"] {
-    border-color: var(--color-pro-border);
+    border-color: var(--brand-alpha-25);
     background: var(--color-brand-lighter);
   }
 }
@@ -223,7 +223,7 @@
 
   &:hover {
     background: var(--color-brand-lighter);
-    border-color: var(--color-pro-border);
+    border-color: var(--brand-alpha-25);
     color: $brand;
     transform: translateY(-1px);
   }

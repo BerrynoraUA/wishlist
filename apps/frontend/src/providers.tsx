@@ -168,6 +168,41 @@ function applyAccentTokens(
     "--gradient-brand-subtle",
     `linear-gradient(135deg, ${tokens.brandLight}, ${tokens.brandLighter})`,
   );
+
+  // Pro / accent border, glow, radial
+  root.style.setProperty(
+    "--color-pro-border",
+    `color-mix(in srgb, ${tokens.brand} 25%, transparent)`,
+  );
+  root.style.setProperty(
+    "--color-pro-glow",
+    `color-mix(in srgb, ${tokens.brand} 15%, transparent)`,
+  );
+  root.style.setProperty(
+    "--radial-brand",
+    `color-mix(in srgb, ${tokens.brand} 6%, transparent)`,
+  );
+
+  // Header / hero gradients
+  if (resolvedTheme === "dark") {
+    root.style.setProperty(
+      "--gradient-header",
+      `linear-gradient(135deg, #111114 0%, ${tokens.brandLighter} 50%, ${tokens.brandLight} 100%)`,
+    );
+    root.style.setProperty(
+      "--gradient-hero",
+      `linear-gradient(135deg, #111114, ${tokens.brandLighter}, ${tokens.brandLight})`,
+    );
+  } else {
+    root.style.setProperty(
+      "--gradient-header",
+      `linear-gradient(135deg, #fffafa 0%, ${tokens.brandLighter} 50%, ${tokens.brandLight} 100%)`,
+    );
+    root.style.setProperty(
+      "--gradient-hero",
+      `linear-gradient(135deg, #fffafa, ${tokens.brandLighter}, ${tokens.brandLight})`,
+    );
+  }
 }
 
 type AppThemeContextValue = {

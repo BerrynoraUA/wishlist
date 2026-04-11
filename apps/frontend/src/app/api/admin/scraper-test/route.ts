@@ -1,17 +1,55 @@
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 import { scrapeProduct } from "@/app/api/server/scrape-product/route";
 
 export const maxDuration = 300;
 
 const ADMIN_SECRET = process.env.CRON_SECRET as string;
 
-function isAuthorized(request: NextRequest): boolean {
+async function isAuthorized(request: NextRequest): Promise<boolean> {
   const authHeader = request.headers.get("Authorization");
-  return Boolean(ADMIN_SECRET) && authHeader === `Bearer ${ADMIN_SECRET}`;
+  if (Boolean(ADMIN_SECRET) && authHeader === `Bearer ${ADMIN_SECRET}`) {
+    return true;
+  }
+
+  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.SUPABASE_URL) as string | undefined;
+  const supabaseAnonKey = (process.env
+    .NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string | undefined;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return false;
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          try {
+            cookieStore.set(name, value, options);
+          } catch {
+            // ignore when cookies cannot be mutated in this context
+          }
+        });
+      },
+    },
+  });
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return Boolean(user);
 }
 
 export async function POST(request: NextRequest) {
-  if (!isAuthorized(request)) {
+  if (!(await isAuthorized(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -40,13 +40,12 @@
 
 @media (max-width: 640px) {
   .filters {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     border-radius: 16px;
     gap: 2px;
 
     button {
-      flex: 1 1 auto;
-      min-width: 0;
       justify-content: center;
       padding: 7px 12px;
       font-size: 12px;

@@ -1,0 +1,1376 @@
+[
+  {
+    "url": "https://www.amazon.com/Z-Edge-Monitor-Ultra-Fast-UG27H-Frameless/dp/B0DXKZZF9B/ref=sr_1_2_sspa?dib=eyJ2IjoiMSJ9.vXjaZ5LQ60nRmS_W_8Noo5EbjU0g5iDcpTDcuW-x0Ai4TsnH_52c6EQnFilOgEOw7lyeqG8fciuEJz5pU5M8FhOr106LXyJF0vREN39JZpvD-Tx36TnnU8LbgdJilZYcQEmjVvB2dItfC_QTgAzNJMWitddbBBMKv-MDM3e5_33TkRf7KyOgbmhsPgumqkU7i9ZiNTFyM9IpszjkbL6zsDzR-qNDgw-BdF7pgLs_tSJpMon1Ccx2x5tvTpJdtDA_b14fOPOJCnaeWPoa_M54XCfwH4CVI2mVRCX8aMT-AZA.GUnhwbskjvWrgc_aemTfL2vPCWGkY5eZ49U6NZtYZ9c&dib_tag=se&qid=1775680156&s=computers-intl-ship&sr=1-2-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGZfYnJvd3Nl&th=1",
+    "expected": {
+      "title": "Z-Edge 27 inch Curved Gaming Monitor, FHD 1080P 300Hz 240Hz PC Monitor, Ultra-Fast MPRT 1ms Curved Monitor, 1500R, 16.7M Colors, UG27H Frameless Bezel, 2X DP 1.4 Ports and 2X HDMI 2.0 Ports",
+      "_price_note": "Dynamically injected by React; not present in JSON-LD or OG meta at load time",
+      "price": null,
+      "_image_note": "Image URL served via CloudFront CDN with signed tokens; not in static OG meta",
+      "image": null,
+      "_description_note": "Product description rendered only in JS body, not exposed as structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.ebay.com/itm/356259697556?var=625249480255&itmmeta=01KNQCVPJBF7CHVRDS8M3NAQG8&hash=item52f2bb9394:g:PuwAAOSwtIlnNgB8&itmprp=enc%3AAQALAAAA4Hkk9oQdLPf26rRUt0UxvIvOt4d4qLWJYWGxSY%2FvgQnJOslN2yYD9hJVTbmfBDWXh5LfjeSC84tLbQJRJP%2BaONbJYjLEx2k2Qrwd6qDhH9f5UktGs3Py3eVUxa5%2FPLGZtNWymJb7XdhusiVofkU1%2Ba8R0v0Ed4GYdjTEydmH3jX5lVl7WrOMz%2FANaYjvlKHVpgNHXc45zldh%2BFtxPZryfEQrKbNGcI%2BeawEv4ymkUbK%2F1%2BT9CqKBqdyGs8a1oGi9bKTti18snk8OmP7vFmTaPhx7QS5QPtruXSKi6Vs5A6vI%7Ctkp%3ABk9SR7jp7uytZw",
+    "expected": {
+      "title": "Gucci Mens G Pattern Vest",
+      "price": "229.99 USD",
+      "image": "https://i.ebayimg.com/images/g/PuwAAOSwtIlnNgB8/s-l1600.jpg",
+      "_description_note": "eBay does not include item description in OG or JSON-LD structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.aliexpress.com/item/1005009812127841.html?pvid=de301d73-401e-4819-8c9d-0958efed2202&pdp_ext_f=%7B%22ship_from%22:%22CN%22,%22sku_id%22:%2212000050249700869%22%7D&scm=1007.45714.362894.0&scm-url=1007.45714.362894.0&scm_id=1007.45714.362894.0&pdp_npi=6%40dis%21UAH%21165%2C59%20%D0%B3%D1%80%D0%BD.%2169%2C54%20%D0%B3%D1%80%D0%BD.%21%21%2123.64%219.93%21%402103956a17756808832358187e85bf%2112000050249700869%21gdf%21UA%21%21X%211%210%21n_tag%3A-29910%3Bd%3A2567c2da%3Bm03_new_user%3A-29895%3BpisId%3A5000000203279194&mainPicRatio=1&spm=a2g0o.tm1000016012.5810419720.d2&aecmd=true",
+    "expected": {
+      "title": "Korean Retinol Shot Eyes Tightening Moisturizing Booster Cream Vitamin A Facial Skin Firming Lifting Care Serum",
+      "_price_note": "Price is injected by Vue.js SPA at runtime; absent in static HTML/meta",
+      "price": null,
+      "image": "https://ae01.alicdn.com/kf/S990b7898ec4a45a68d38cc2203d6b0e5K.jpeg",
+      "_description_note": "Description is rendered dynamically inside an iframe, not in page meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.etsy.com/listing/1403146486/handmade-ramadan-garland-felt-crescent?external=1&ref=hp_consolidated_gifting_listings-2&sr_prefetch=1&pf_from=home_non_recs&sts=1&logging_key=0f3f37222f75df8dc41c11ed0b16861fcacfe406%3A1403146486",
+    "_note": "Blocked by Etsy bot-detection even with real browser session; Cloudflare challenge could not be passed",
+    "expected": {
+      "_title_note": "Blocked by Etsy bot-detection even with real browser session; Cloudflare challenge could not be passed",
+      "title": null,
+      "_price_note": "Blocked by Etsy bot-detection even with real browser session; Cloudflare challenge could not be passed",
+      "price": null,
+      "_image_note": "Blocked by Etsy bot-detection even with real browser session; Cloudflare challenge could not be passed",
+      "image": null,
+      "_description_note": "Blocked by Etsy bot-detection even with real browser session; Cloudflare challenge could not be passed",
+      "description": null
+    }
+  },
+  {
+    "url": "https://ua-tao.com/ua/item/744686348106",
+    "_note": "Site blocked all access; returned error page even with real browser session",
+    "expected": {
+      "_title_note": "Site blocked all access; returned error page even with real browser session",
+      "title": null,
+      "_price_note": "Site blocked all access; returned error page even with real browser session",
+      "price": null,
+      "_image_note": "Site blocked all access; returned error page even with real browser session",
+      "image": null,
+      "_description_note": "Site blocked all access; returned error page even with real browser session",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.wildberries.ru/catalog/412803412/detail.aspx?targetUrl=MI",
+    "expected": {
+      "title": "Штаны спортивные широкие оверсайз y2k YStaler",
+      "price": "3 881 ₽",
+      "image": "https://basket-23.wbbasket.ru/vol4128/part412803/412803412/images/c246x328/1.webp",
+      "description": "Состав: хлопок 70%; полиэстер 30%. Пол: Мужской. Сезон: Круглогодичный."
+    }
+  },
+  {
+    "url": "https://www.trendyol.com/uk/deepsence/chorna-oversayz-basketbolna-futbolka-p-1128135535?boutiqueId=61",
+    "expected": {
+      "title": "DEEPSENCE Black Oversize T-Shirt Basket",
+      "price": "31.00 AED",
+      "image": "https://cdn.dsmcdn.com/ty1848/prod/QC_PREP/20260403/18/da3481d0-5039-355f-a715-d4c94a0a0b9d/1_org_zoom.jpg",
+      "description": "With Trendyol.com, you will be able to purchase DEEPSENCE Black Oversize T-Shirt Basket with very special discounts. Shop the trend now!"
+    }
+  },
+  {
+    "url": "https://www.target.com/p/shark-rocket-ultra-light-corded-stick-vacuum/-/A-95006512?preselect=94779672#lnk=sametab",
+    "expected": {
+      "title": "Shark Rocket Pet Corded Stick Vacuum HV301BL 8.5\" Cleaning Path Blue",
+      "price": "$109.99",
+      "image": "https://target.scene7.com/is/image/Target/GUEST_d6bcd3ff-5d99-4aa4-be34-7d511aedbccc?wid=300&hei=300&fmt=pjpeg",
+      "_description_note": "Target does not expose product description in JSON-LD or OG meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.flipkart.com/clothology-cotton-double-flat-144-tc-jaipuri-prints-1-bedsheet-2-pillow-covers/p/itmf55284f38bfdf?pid=BDSFWGF93RZRG6RK&lid=LSTBDSFWGF93RZRG6RKZLELHB&marketplace=FLIPKART&store=jra&srno=b_1_2&otracker=browse&fm=neo%2Fmerchandising&iid=en__7tc_vrSsNTnsR6r7ZtLMmd1fUomLZEA2e6y9zrXnBV7sM3p2kjFHpkZY4XmW1Pd7ji3V8vu0mv1uU_w9R8edQ%3D%3D&ppt=clp&ppn=home-kitchen-25-at-store&ssid=5jhhgyg47k0000001775681381797&ov_redirect=true&ov_redirect=true",
+    "expected": {
+      "title": "CLOTHOLOGY Cotton Double Flat 144 TC Jaipuri Prints 1 Bedsheet with 2 Pillow Covers",
+      "price": "300 INR",
+      "image": "https://rukmini1.flixcart.com/image/1500/1500/xif0q/bedsheet/t/v/o/brown-red-guldasta-1-mk-96-flat-clothology-original-imahjdceme5aqyza.jpeg?q=70",
+      "_description_note": "Description rendered only in JS-driven collapsible section, not in meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://allegro.pl/oferta/frytkownica-beztluszczowa-frytownica-air-fryer-separator-4l-14778181626",
+    "expected": {
+      "title": "FRYTKOWNICA BEZTŁUSZCZOWA FRYTOWNICA AIR FRYER SEPARATOR 4L",
+      "price": "144.99 PLN",
+      "image": "https://a.allegroimg.com/original/118474/8682c66946f2ae43f52b4fd83aac/FRYTKOWNICA-BEZTLUSZCZOWA-FRYTOWNICA-AIR-FRYER-SEPARATOR-4L",
+      "_description_note": "Allegro does not include description in OG meta or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.zalando.sk/nike-performance-everyday-cush-crew-3-pack-sportove-ponozky-blackwhite-n1244d06l-q11.html",
+    "expected": {
+      "title": "EVERYDAY CUSH CREW 3 PACK - Športové ponožky - black/white",
+      "price": "15.95 EUR",
+      "image": "https://img01.ztat.net/article/spp-media-p1/8f50d1d578a43e5191b40466a9c32f9d/10df79e9ea6744b6bd93cbc8812fe3e4.jpg?imwidth=200",
+      "_description_note": "Zalando does not expose description in structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.tokopedia.com/pose-shoes-idn/earthly-allure-live-streaming-pose-cloud-bounce-cat-paw-sandal-anti-selip-nyaman-elastis-materi-eva-cocok-untuk-aktivitas-di-dalam-dan-luar-unisex-home-living-2025-68101-1731699052112479870?t_id=1775681555863&t_st=1&t_pp=homepage&t_efo=pure_goods_card&t_ef=homepage&t_sm=rec_homepage_outer_flow&t_spt=homepage",
+    "_note": "Blocked by Tokopedia bot-detection (Cloudflare/fingerprinting) even with real browser",
+    "expected": {
+      "_title_note": "Blocked by Tokopedia bot-detection (Cloudflare/fingerprinting) even with real browser",
+      "title": null,
+      "_price_note": "Blocked by Tokopedia bot-detection (Cloudflare/fingerprinting) even with real browser",
+      "price": null,
+      "_image_note": "Blocked by Tokopedia bot-detection (Cloudflare/fingerprinting) even with real browser",
+      "image": null,
+      "_description_note": "Blocked by Tokopedia bot-detection (Cloudflare/fingerprinting) even with real browser",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.lazada.co.th/products/pdp-i160552266-s193339147.html?&scm=1007.17760.398138.0&pvid=2f6d12cb-306f-4bc8-8d90-35363c9dfb8d&search=flashsale?search=1&mp=1&c=fs&clickTrackInfo=rs%3A0.0%3Bfs_item_discount_price%3A969.00%3Bitem_id%3A160552266%3Bpctr%3A0.0%3Bcalib_pctr%3A0.0%3Bvoucher_price%3A969%3Bmt%3Ahot%3Bpromo_price%3A969%3Bfs_utdid%3A-1%3Bfs_item_sold_cnt%3A59%3Babid%3A398138%3Bfs_item_price%3A1276.00%3Bpvid%3A2f6d12cb-306f-4bc8-8d90-35363c9dfb8d%3Bfs_min_price_l30d%3A0%3Bdata_type%3Aflashsale%3Bis_nep_hot%3A0%3Bfs_pvid%3A2f6d12cb-306f-4bc8-8d90-35363c9dfb8d%3Btime%3A1775681618%3Bfs_biz_type%3Afs%3Bscm%3A1007.17760.398138.%3Bchannel_id%3A0000%3Bfs_item_discount%3A24%25%3Bcampaign_id%3A355457&scm=1007.17760.398138.0",
+    "_note": "Blocked by Lazada Thailand bot-detection even with real browser",
+    "expected": {
+      "_title_note": "Blocked by Lazada Thailand bot-detection even with real browser",
+      "title": null,
+      "_price_note": "Blocked by Lazada Thailand bot-detection even with real browser",
+      "price": null,
+      "_image_note": "Blocked by Lazada Thailand bot-detection even with real browser",
+      "image": null,
+      "_description_note": "Blocked by Lazada Thailand bot-detection even with real browser",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.wayfair.com/furniture/pdp/wrought-studio-472-led-coffee-table-with-storage-smart-coffee-table-with-wireless-charging-and-bluetooth-speaker-2-tier-high-gloss-marble-pattern-modern-coffee-table-for-living-room-w117891591.html?piid=1468129979",
+    "expected": {
+      "title": "Wrought Studio™ 47.2\" Led Coffee Table With Storage, Smart Coffee Table With Wireless Charging And Bluetooth Speaker, 2-tier High-gloss Marble-pattern Modern Coffee Table For Living Room",
+      "_price_note": "Price requires ZIP code/location context and is inserted via JS after geo-detection",
+      "price": null,
+      "image": "https://assets.wfcdn.com/im/85623872/compr-r85/4095/409530445/47.2%22+LEd+Coffee+Table+with+Storage%2C+Smart+Coffee+Table+with+Wireless+Charging+and+Bluetooth+Speaker%2C+2-tier+High-gloss+Marble-pattern+Modern+Coffee+Table+for+Living+Room%2C+White.jpg",
+      "_description_note": "Description is in a JS-rendered tab panel, not in OG meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.mercari.com/us/item/m92781892091/",
+    "expected": {
+      "title": "Victoria's Secret Pink 2pc Shorts Pullover atop Outfit Terrycloth M",
+      "price": "45 USD",
+      "_image_note": "Image URLs are generated at runtime by React; OG image tag is missing or session-gated",
+      "image": null,
+      "_description_note": "Description is rendered by React SPA, not present in static meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.hepsiburada.com/shaver-500-serisi-s591-05-islak-ve-kuru-elektrikli-kompakt-tiras-makinesi-p-HBCV0000AF62HL",
+    "expected": {
+      "title": "Shaver 500 Serisi S591/05 Islak ve Kuru Elektrikli Kompakt Tıraş",
+      "price": "4499.00 TRY",
+      "image": "https://productimages.hepsiburada.net/s/777/375/110001241452498.jpg/format:webp",
+      "_description_note": "Hepsiburada does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.americanas.com.br/kit-shampoo-350ml-e-condicionador-150ml-dove-bond-intense-repair-7501662710/p",
+    "expected": {
+      "title": "Dove Kit Shampoo+Cond Reparação 350/150ml | Americanas",
+      "price": "R$ 24,99",
+      "image": "https://americanas.vtexassets.com/arquivos/ids/491678/7501662712_1SZ.jpg?v=638750828383630000",
+      "_description_note": "Description loaded via lazy AJAX call, not in page meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.vinted.com/items/8601148335-vintage-the-sak-distressed-leather-crossbody-bag?homepage_session_id=7f014652-1947-4d3f-bd51-822783973055",
+    "expected": {
+      "title": "Vintage \"the Sak\" distressed leather crossbody bag",
+      "_price_note": "Price is rendered by Next.js hydration, absent in static HTML at scrape time",
+      "price": null,
+      "image": "https://images1.vinted.net/t/06_00459_zKg3CvwmwHt2XoskDcjjMRr7/f800/1775680726.webp?s=17734329759b53f1bab77aa341d0494070556c1a",
+      "_description_note": "Description rendered only after full JS hydration",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.bol.com/nl/nl/p/giorgio-armani-acqua-di-gioia-30ml-eau-de-parfum/9200000010670730/?promo=main_860_deals_for_you___product_1_9200000010670730&cid=1775681870235-2547469958054&bltgh=b795852a-7ae7-43e8-a0d7-464bb8ebf49e.topDealsForYou.product-tile-9200000010670730.ProductTitle&promo=main_860_deals_for_you___product_1_9200000010670730",
+    "_note": "Blocked by bol.com Cloudflare protection even with real browser session",
+    "expected": {
+      "_title_note": "Blocked by bol.com Cloudflare protection even with real browser session",
+      "title": null,
+      "_price_note": "Blocked by bol.com Cloudflare protection even with real browser session",
+      "price": null,
+      "_image_note": "Blocked by bol.com Cloudflare protection even with real browser session",
+      "image": null,
+      "_description_note": "Blocked by bol.com Cloudflare protection even with real browser session",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.kaufland.it/product/220946881/",
+    "_note": "Blocked by Kaufland bot-detection even with real browser",
+    "expected": {
+      "_title_note": "Blocked by Kaufland bot-detection even with real browser",
+      "title": null,
+      "_price_note": "Blocked by Kaufland bot-detection even with real browser",
+      "price": null,
+      "_image_note": "Blocked by Kaufland bot-detection even with real browser",
+      "image": null,
+      "_description_note": "Blocked by Kaufland bot-detection even with real browser",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.asos.com/new-balance/new-balance-boston-city-run-t-shirt-in-dark-green/prd/209035766#colourWayId-209035776",
+    "expected": {
+      "title": "New Balance Boston City Run t-shirt in dark green",
+      "price": "40 EUR",
+      "image": "https://images.asos-media.com/products/new-balance-boston-city-run-t-shirt-in-dark-green/209035766-1-darkgreen",
+      "_description_note": "ASOS does not include description in OG or JSON-LD structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.myntra.com/bra/dressberry/dressberry-bra-full-coverage/41155651/buy",
+    "expected": {
+      "title": "DressBerry Bra Full Coverage",
+      "price": "328 INR",
+      "image": "https://assets.myntassets.com/h_1440,q_100,w_1080/v1/assets/images/2026/APRIL/5/dVE7AldV_385d28af64344e1e8b9e05fe0743fed0.jpg",
+      "_description_note": "Myntra does not expose description in page meta; JS-rendered only",
+      "description": null
+    }
+  },
+  {
+    "url": "https://falabella.com.ua/index.php?route=product/product&product_id=97",
+    "expected": {
+      "title": "Борошно Диканька, 2 кг",
+      "price": "46.00 грн",
+      "image": "https://falabella.com.ua/image/cache/no-thumb-600x600.png",
+      "description": "Натуральне пшеничне борошно."
+    }
+  },
+  {
+    "url": "https://www.otto.de/p/mans-world-sweatjacke-stehkragen-und-dezentem-logodruck-1893718482/",
+    "expected": {
+      "title": "Man's World Sweatjacke Stehkragen und dezentem Logodruck",
+      "price": "22,99 €",
+      "image": "https://i.otto.de/i/otto/a76c54eb-bde5-50bd-bb0f-7444ac67bd40/mans-world-sweatjacke-stehkragen-und-dezentem-logodruck-gruen-meliert.jpg?$formatz$",
+      "description": "Casual sweatjacket with stand-up collar and subtle logo print. Features zip closure, soft fleece material from cotton-polyester blend, and regular fit for comfortable wear."
+    }
+  },
+  {
+    "url": "https://www.discogs.com/release/36638488-Fabiano-do-Nascimento-Vittor-Santos-Orquestra-Vila",
+    "expected": {
+      "title": "Fabiano do Nascimento & Vittor Santos Orquestra - Vila",
+      "_price_note": "Discogs marketplace has no fixed price; prices vary per seller listing and are not in meta",
+      "price": null,
+      "image": "https://i.discogs.com/xUIW6ssBK_1IO2SAMnrze1lW9d-OswZHY2X4aIwk5FQ/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz-RhdGFiYXNlLWltYWdlcy9SLTM2NjM4NDg4LTE3NzIyODAx-NjAtNDgwOS5qcGVn.jpeg",
+      "_description_note": "Artist/release notes are rendered in JS-driven tabs, not in OG description",
+      "description": null
+    }
+  },
+  {
+    "url": "https://poshmark.com/listing/Free-People-Feeling-Groovy-Bohemian-Floral-Drop-Waist-Maxi-Dress-Size-L-69bbe755b142f35093c067f1",
+    "expected": {
+      "title": "Free People Feeling Groovy Bohemian Floral Drop Waist Maxi Dress Size L",
+      "price": "$45.0",
+      "image": "https://di2ponv0v5otw.cloudfront.net/posts/2026/03/19/69bbe755b142f35093c067f1/m_69bbe7559936d69d316a8dcf.jpg",
+      "_description_note": "Poshmark does not include listing description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.decathlon.co.uk/p/kids-20-6-9-years-mountain-bike-expl-500-black/337823/c1c132m8733720",
+    "expected": {
+      "title": "Kids' 20\" 6-9 Years Mountain Bike Expl 500 - Black",
+      "price": "£219.99",
+      "image": "https://contents.mediadecathlon.com/p3126225/k$f01367643706d91e862a7a61ef003e05/650x0/3846pt2574/4115xcr5144/default.jpg?format=auto",
+      "description": "To ensure riders can easily overcome rough terrain, we've equipped this 20-inch MTB with a suspension fork. Easily tackle hilly paths with 6 speeds."
+    }
+  },
+  {
+    "url": "https://zozo.jp/shop/onitsukatiger/goods/102816448/?did=167744187&rid=1203",
+    "expected": {
+      "title": "【ONITSUKA TIGER YELLOW COLLECTION】 MEXICO 66 FRINGE / メキシコ 66 フリンジ（スニーカー）｜Onitsuka Tiger（オニツカタイガー）のファッション通販 - ZOZOTOWN",
+      "price": "¥29,700",
+      "image": "https://c.imgz.jp/448/103816448/103816448b_257_d_500.jpg",
+      "_description_note": "ZOZO does not include product description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.marktplaats.nl/v/computers-en-software/routers-en-modems/m2386534106-asus-router",
+    "expected": {
+      "title": "ASUS router",
+      "price": "€ 25,00",
+      "image": "https://cdn.marktplaats.com/api/v1/listing-mp-p/images/a45d4636-ed69-46c0-bb6b-5f90614a25d9?rule=ecg_mp_eps$_85",
+      "_description_note": "Marktplaats does not include ad description in OG meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.emag.ro/telefon-mobil-samsung-galaxy-s26-ultra-dual-sim-12gb-ram-512gb-5g-cobalt-violet-sm-s948bzvgeue/pd/DGWGTB2BM/?ref=profiled_categories_home_all_first_ml_1_2&provider=rec&recid=rec_106_ad6b4975a4629bca5efe0bb816d50b3697ab1484363d2adf425a82a0705389b2_1775683942&scenario_ID=106",
+    "expected": {
+      "title": "Telefon mobil Samsung Galaxy S26 Ultra, Dual SIM, 12GB RAM, 512GB, 5G, Cobalt Violet",
+      "price": "6632.68 Lei",
+      "image": "https://s13emagst.akamaized.net/products/114754/114753968/images/res_d4c7d33bebd9d76c304cb2c2dbced95b.jpg",
+      "description": "Premium flagship smartphone with 512GB storage, 12GB RAM, dual SIM support, and 5G connectivity in Cobalt Violet"
+    }
+  },
+  {
+    "url": "https://patriciawolf.bandcamp.com/album/music-to-watch-seeds-grow-by-009-patricia-wolf-yarrow",
+    "expected": {
+      "title": "Music To Watch Seeds Grow By 009: Patricia Wolf (Yarrow)",
+      "price": "£7 GBP or more",
+      "image": "https://f4.bcbits.com/img/a3082398958_10.jpg",
+      "description": "'Yarrow' is a bouquet of new music by Portland, Oregon-based musician and field recordist Patricia Wolf, marking the label's ninth release and the third of Season Two. These works are her reflections on the life cycle of plants and their dynamic ecological relationships."
+    }
+  },
+  {
+    "url": "https://www.dafiti.com.co/Tenis-Lifestyle-Blanco-Negro-Plateado-Nike-Initiator-1437678.html",
+    "expected": {
+      "title": "Tenis Lifestyle Blanco-Negro-Plateado Nike Initiator",
+      "price": "454.900 COP",
+      "image": "https://static.dafiti.com.co/p/nike-6811-8767341-1-product.jpg",
+      "description": "Lifestyle sneaker featuring white, black, and silver colorway with textile/synthetic upper, synthetic sole, and lace closure."
+    }
+  },
+  {
+    "url": "https://www.overstock.com/Home-Garden/SAFAVIEH-Tori-Antiqued-Tufted-Brown-Club-Chair-28-x-34.4-x-32.7-.-28-W-x-34-D-x-33-H/43061862/product.html?refccid=46MD7YHTQNCIZEF33CLO6QJDEY&searchidx=0",
+    "_note": "Blocked by Overstock Cloudflare protection even with real browser",
+    "expected": {
+      "_title_note": "Blocked by Overstock Cloudflare protection even with real browser",
+      "title": null,
+      "_price_note": "Blocked by Overstock Cloudflare protection even with real browser",
+      "price": null,
+      "_image_note": "Blocked by Overstock Cloudflare protection even with real browser",
+      "image": null,
+      "_description_note": "Blocked by Overstock Cloudflare protection even with real browser",
+      "description": null
+    }
+  },
+  {
+    "url": "http://farfetch.com/uk/shopping/men/gucci-lunetta-striped-shoulder-bag-item-35491510.aspx",
+    "expected": {
+      "title": "Gucci Lunetta striped shoulder bag",
+      "price": "£1,110",
+      "image": "https://cdn-images.farfetch-contents.com/35/49/15/10/35491510_66729683_1000.jpg",
+      "_description_note": "Farfetch does not include description in OG or JSON-LD structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.laredoute.ru/ppdp/prod-350176363.aspx",
+    "expected": {
+      "title": "Лампа переносная для улицы Spingolo / Спинголо",
+      "price": "13100 RUB",
+      "image": "https://cdn.laredoute.com/products/b/e/3/be3a85f535f9b1f81e2a8c0119ee1591.jpg",
+      "_description_note": "La Redoute does not expose description in structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://extra.in.ua/ru/rozkladne-krislo-lizhko-z-podushkoiu-leobro-sire-fcb-s08/",
+    "expected": {
+      "title": "Раскладное кресло кровать с подушкой LEOBRO Серое (FCB-S08)",
+      "price": "2499 UAH",
+      "image": "https://extra.in.ua/content/images/19/762x761l80mc0/14092969283302.webp",
+      "_description_note": "Description is in a JS-rendered accordion section, not in page meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://shophouzz.com/products/jerdon-lighted-mirror-direct-wire-nickel-prvw-vr-22409632",
+    "expected": {
+      "title": "Jerdon Lighted Mirror, Direct Wire, Nickel",
+      "price": "$134.99",
+      "image": "https://shophouzz.com/cdn/shop/files/e8575bc9-27b2-42f9-bdc8-52a963663a41.jpg?v=1750481415",
+      "_description_note": "Small Shopify store; no OG description set for this product",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.barnesandnoble.com/w/game-on-navessa-allen/1148120629?ean=9781638934561",
+    "expected": {
+      "title": "Game On (B&N Exclusive Edition) (Into Darkness Series #3)|BN Exclusive",
+      "price": "$14.25 USD",
+      "image": "http://prodimage.images-bn.com/pimages/9781638934561_p0_v5_s1200x630.jpg",
+      "_description_note": "B&N does not include synopsis in OG meta; it is in the JS-rendered body",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.manomano.fr/p/robot-de-piscine-airrobo-cp02-6000-lph-puissant-autonomie-de-120-minutes-fonction-dauto-stationnement-94400369",
+    "expected": {
+      "title": "Robot de piscine AIRROBO CP02, 6000 LPH Puissant, autonomie de 120 minutes, fonction d'auto-stationnement",
+      "price": "149.99 EUR",
+      "image": "https://cdn.manomano.com/images/images_products/25468326/P/177824557_1.jpg",
+      "_description_note": "ManoMano does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.cdiscount.com/jardin/outillage-de-jardin/mammotion-luba-mini-awd-lidar-robot-tondeuse-sans/f-1632601-aaaxs16573.html",
+    "expected": {
+      "title": "Mammotion LUBA Mini AWD LiDAR Robot Tondeuse Sans Fil Périphérique, LiDAR 3D+Vision, Jusqu'à 1500 m² , Pente 80%, avec Module 4G",
+      "price": "1399.00 EUR",
+      "image": "https://www.cdiscount.com/pdt2/5/7/3/1/700x700/aaaxs16573/rw/mammotion-luba-mini-awd-lidar-robot-tondeuse-sans.jpg",
+      "_description_note": "Cdiscount description is in a JS-rendered tab, not in page meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.meesho.com/frekman-stylish-cotton-blend-check-mens-shirt-pack-of-1/p/1kv4b",
+    "_note": "Blocked by Meesho bot-detection even with real browser",
+    "expected": {
+      "_title_note": "Blocked by Meesho bot-detection even with real browser",
+      "title": null,
+      "_price_note": "Blocked by Meesho bot-detection even with real browser",
+      "price": null,
+      "_image_note": "Blocked by Meesho bot-detection even with real browser",
+      "image": null,
+      "_description_note": "Blocked by Meesho bot-detection even with real browser",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.n11.com/urun/sleepy-bio-natural-premium-plus-gross-paket-bebek-bezi-5-numara-junior-200-adet-59084254?magaza=sleepy",
+    "_note": "Blocked by n11.com bot-detection even with real browser session",
+    "expected": {
+      "_title_note": "Blocked by n11.com bot-detection even with real browser session",
+      "title": null,
+      "_price_note": "Blocked by n11.com bot-detection even with real browser session",
+      "price": null,
+      "_image_note": "Blocked by n11.com bot-detection even with real browser session",
+      "image": null,
+      "_description_note": "Blocked by n11.com bot-detection even with real browser session",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.netshoes.com.br/p/camisa-botafogo-i-2526-sn-torcedor-reebok-masculina-D19-809O-028",
+    "expected": {
+      "title": "Camisa Botafogo I 25/26 s/n Torcedor Reebok Masculina",
+      "price": "121.49 BRL",
+      "image": "https://static.netshoes.com.br/produtos/camisa-botafogo-i-2526-sn-torcedor-reebok-masculina/28/D19-809O-028/D19-809O-028_zoom1.jpg?ts=1775790946",
+      "_description_note": "Netshoes does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.fnac.com/TV-OLED-Samsung-TQ55S90F-140-cm-4K-UHD-2025/a21545213/w-4#int=S:PFreco|PF|56328|21545213|BL3|L1",
+    "expected": {
+      "title": "TV OLED Samsung TQ55S90F 140 cm 2025",
+      "price": "1199 EUR",
+      "image": "https://static.fnac-static.com/multimedia/Images/FR/MDM/a7/f9/ad/28178855/3756-1/tsp20260324194401/TV-OLED-Samsung-TQ55S90F-140-cm-2025.jpg",
+      "_description_note": "Fnac does not expose description in OG meta; rendered in body only",
+      "description": null
+    }
+  },
+  {
+    "url": "https://stockx.com/en-gb/nike-fc-barcelona-2005-06-ronaldinho-10-home-jersey-multicolor",
+    "expected": {
+      "title": "Nike FC Barcelona Re-Issue 2005/06 Ronaldinho #10 Home Jersey Multicolor",
+      "price": "124 EUR",
+      "_image_note": "StockX loads product images via JS (React SPA); OG image not set",
+      "image": null,
+      "_description_note": "StockX does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.qoo10.jp/item/BYY%e3%82%b3%e3%83%a9%e3%83%9c-GIFT%e4%bb%98-AGE-R%e3%83%96%e3%83%bc%e3%82%b9%e3%82%bf%e3%83%bc%e3%83%97%e3%83%adX2-1%e5%8f%b06%e5%bd%b9%e9%ab%98%e7%b4%9a%e3%82%a8%e3%82%b9%e3%83%86%e3%82%b1%e3%82%a2-%e7%be%8e%e9%a1%94%e5%99%a8/1083259765?ga_priority=-1&ga_prdlist=bestseller&ga_tid=&ga_idx=1",
+    "expected": {
+      "title": "【公式正品】 AGE-RブースタープロX2 / 1台6役高級エステケア / 美顔器",
+      "price": "35500 JPY",
+      "image": "https://gd.image-qoo10.jp/li/952/123/8148123952.g_400-w_g.jpg",
+      "_description_note": "Qoo10 does not include item description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.newegg.com/p/3D5-006G-00047?Item=9SIC01CKPK0373&cm_sp=Homepage_SS-_-P3_9SIC01CKPK0373-_-04082026",
+    "expected": {
+      "title": "AOACE Gaming PC Desktop AMD Ryzen 7 5700X, RTX 5060 8G, 16GB RAM and 1TB NVMe M.2 SSD, WiFi6E, ARGB Fan, Game Design Office console, Sea View Room Windows 11",
+      "price": "$959.99 USD",
+      "image": "https://c1.neweggimages.com/productimage/nb640/C01CS2511290JD0E955.jpg",
+      "_description_note": "Newegg does not expose description in OG or JSON-LD structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://reverb.com/uk/item/94690136-line-6-pod-guitar-processor-red-fair?bk=eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJjNTAwMTcyOC0wZDBjLTQwNTktOGIwMi02ZjFlZGU3MjU4NzEiLCJpYXQiOjE3NzU2ODY2MzcsInVzZXJfaWQiOiIiLCJzZXNzaW9uX2lkIjoiOTcxOThiZTMtYTFlYy00ZDEyLTljMGYtMzE0MWVmNWE5ZWFiIiwiY29va2llX2lkIjoiMGY3OTQxODItN2RiMi00ZTE5LTkzNzEtMTBjM2ZkYTQ5NGE3IiwicHJvZHVjdF9pZCI6Ijk0NjkwMTM2Iiwic291cmNlIjoiTk9ORSJ9.ZHflLbrPksWDhPdtuMS213RBcAak8uI7EvRGvBM1GVg",
+    "expected": {
+      "title": "Line 6 POD - Guitar Processor - Red - Fair",
+      "price": "£69.93 GBP",
+      "image": "https://rvb-img.reverb.com/i/s--vSxA_B-L--/quality=medium-low,height=800,width=800,fit=contain/05c0831b-a66f-4387-a643-0dbdee5424ad.jpg",
+      "_description_note": "Reverb does not expose listing description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.trademe.co.nz/a/marketplace/home-living/lamps/floor-lamps/listing/5865596237",
+    "expected": {
+      "title": "Funnest lamp in the world",
+      "_price_note": "TradeMe is an auction/classified site; listing price not in OG meta (requires JS)",
+      "price": null,
+      "image": "https://trademe.tmcdn.co.nz/photoserver/full/2296064482.jpg",
+      "description": "Very fun lamp! You can move it into whatever shape/pose you like. Awesome for the kids room or as a feature in your living room (always sparks a comment from guests)."
+    }
+  },
+  {
+    "url": "https://www.bestbuy.ca/en-ca/product/apple-airpods-pro-3-noise-cancelling-true-wireless-earbuds-with-magsafe-charging-case/19451577?icmp=Recos_3across_tp_sllng_prdcts_plp&referrer=PLP+Top+Seller0",
+    "expected": {
+      "title": "Apple AirPods Pro 3 Noise Cancelling True Wireless Earbuds with MagSafe Charging Case",
+      "price": "$279.99 CAD",
+      "image": "https://multimedia.bbycastatic.ca/multimedia/products/500x500/194/19451/19451577.jpg",
+      "_description_note": "Best Buy Canada does not include description in OG or JSON-LD structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.noon.com/uae-en/galaxy-s26-ultra-dual-sim-black-12gb-ram-512gb-5g-middle-east-version/N70283859V/p/?o=b282326d7369c80c&shareId=774830ca-174b-4925-a15c-e002f7271fbb",
+    "expected": {
+      "title": "Galaxy S26 Ultra Dual SIM Black 12GB RAM 512GB 5G - Middle East Version",
+      "price": "5104.00 AED",
+      "image": "https://f.nooncdn.com/p/pzsku/ZD166A817EDDECB885C42Z/45/_/1772091278/8157e188-dd86-4579-bd80-df59ed638825.jpg?width=320",
+      "_description_note": "Noon does not expose description in structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.gunbroker.com/item/1158247715",
+    "expected": {
+      "title": "SIG SAUER MCX SPEAR LT 16\" 5.56 NATO RIFLE (RMCX-556N-16B-LT) - Semi Auto Rifles at GunBroker.com : 1158247715",
+      "_price_note": "GunBroker is an auction site; current bid price is JS-rendered and changes in real time",
+      "price": null,
+      "image": "https://assets.gunbroker.com/q_auto:best/f_auto/pics/1158247000/1158247715/pix662069033",
+      "_description_note": "GunBroker description requires authenticated session and is JS-rendered",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.lamoda.ru/p/ad002emiypi1/clothes-adidas-bryuki-sportivnye/",
+    "expected": {
+      "title": "Брюки спортивные adidas CON20 TR PNT",
+      "price": "2 204 ₽",
+      "image": "https://a.lmcdn.ru/img600x866/A/D/AD002EMIYPI1_10728933_1_v2_2x.jpg",
+      "_description_note": "Lamoda does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.fruugo.co.uk/handmade-cow-leather-wallet-hand-purse-soft-drawstring-storage-bag-coin-purse/p-449188675-944870516",
+    "expected": {
+      "title": "Handmade Cow-Leather Wallet Hand Purse Soft Drawstring Storage Bag ...",
+      "price": "13.95 GBP",
+      "image": "https://img.fruugo.com/product/7/78/2230847787_max.jpg",
+      "_description_note": "Fruugo does not expose description in OG or JSON-LD structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://tiki.in.ua/gorenje-ftg-30-smv9.html",
+    "expected": {
+      "title": "GORENJE FTG 30 SMV9 (478694) водонагрівач універсальний",
+      "price": "15 499 грн.",
+      "image": "https://tiki.in.ua/image/cache/catalog/gorenje/FTG%2030%20SMV9/FTG%2030%20SMV9-1-500x500.jpg",
+      "_description_note": "Description rendered in JS-driven collapsible, not in page meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.darty.com/nav/achat/informatique/ordinateur_portable-portable/portable/samsung_np750xqb_qlc_16_512.html#dartyclic=H_MFA_2_8096538",
+    "expected": {
+      "title": "PC portable Samsung Galaxy Book4 Edge 15,6\" Copilot+ Snapdragon® X 16 Go RAM 512 Go SSD Gris glacier | Darty",
+      "price": "649,99 €",
+      "_image_note": "Darty product image is loaded via JS gallery; OG image tag is absent",
+      "image": null,
+      "_description_note": "Darty does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.abebooks.com/products/isbn/9780593135228?ref_=gw_1_z",
+    "expected": {
+      "title": "Project Hail Mary: A Novel",
+      "price": "US$ 22.55",
+      "image": "https://pictures.abebooks.com/isbn/9780593135228-us.jpg",
+      "_description_note": "AbeBooks does not expose book description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.galaxus.ch/en/s1/product/apple-macbook-air-2026-1530-1000-gb-16-gb-ch-m5-notebooks-67998867",
+    "_note": "Blocked by Galaxus Cloudflare protection even with real browser",
+    "expected": {
+      "_title_note": "Blocked by Galaxus Cloudflare protection even with real browser",
+      "title": null,
+      "_price_note": "Blocked by Galaxus Cloudflare protection even with real browser",
+      "price": null,
+      "_image_note": "Blocked by Galaxus Cloudflare protection even with real browser",
+      "image": null,
+      "_description_note": "Blocked by Galaxus Cloudflare protection even with real browser",
+      "description": null
+    }
+  },
+  {
+    "url": "https://shoptime.com.ua/ua/p2775386543-zhenskaya-koftochka-dekolte.html",
+    "expected": {
+      "title": "Жіноча кофтинка з декольте сітка",
+      "price": "515 ₴",
+      "image": "https://images.prom.ua/6861015470_w640_h640_zhinocha-koftinka-z.jpg",
+      "_description_note": "Description is in a JS-rendered section, not in page meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.takealot.com/redmi-watch-5-active-black/PLID96707778",
+    "expected": {
+      "title": "Redmi Watch 5 Active - Black",
+      "price": "R 799",
+      "image": "https://media.takealot.com/covers_images/4314029865c54af7a46286446d5ca265/s-thumbnail.file",
+      "_description_note": "Takealot does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://shopgoodwill.com/item/260186871",
+    "expected": {
+      "title": "Wet Model Shaping Trimmer Abrasive Disc Gypsum Arch Inner Disc Wheel Jt-19c",
+      "_price_note": "ShopGoodWill is an auction site; current bid is JS-rendered and changes in real time",
+      "price": null,
+      "_image_note": "ShopGoodWill image loaded via JS gallery; absent in static OG meta",
+      "image": null,
+      "_description_note": "ShopGoodWill does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.dba.dk/recommerce/forsale/item/20189466",
+    "expected": {
+      "title": "IP terrasse brædder perfekt til blomsterkasser rest fra vores terrasse",
+      "_price_note": "DBA is a classifieds site; price not in OG meta, JS-rendered only",
+      "price": null,
+      "_image_note": "DBA listing image loaded via JS; absent in static OG meta",
+      "image": null,
+      "_description_note": "DBA does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.conforama.fr/gros-electromenager/refrigerateur/refrigerateur-congelateur-bas/refrigerateur-combine--congel-en-bas--far-cb2625wdwd/p/104411",
+    "expected": {
+      "title": "Refrigerateur combiné (congél en bas) froid Statique FAR CB2625WDWD - largeur 55 cm x hauteur 180 cm",
+      "price": "255.75 EUR",
+      "image": "https://media.conforama.fr/assets/bltd50d0089a2c99486/blt1bd75ae800e9d78d/G_104411_A.jpg",
+      "_description_note": "Conforama does not expose description in structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.joom.com/ru-ua/products/5ef9aba039b57e01067b679f?contextSeed=-stso9g&context=%7B%22type%22%3A%22product%22%2C%22value%22%3A%5B%7B%22id%22%3A%225ef9aba039b57e01067b679f%22%2C%22type%22%3A%22pg%22%2C%22data%22%3A%22IiLi4jc3b2%2BdnQEBAAAAAFUXkUm8DZpuEFruJQx476%2F2ztaKQN7Il9BH4%2Bcs9xZRoNxeTzxNliYMGTEoWSze4EG%2FPCMasEQI3vEtW%2F5o1rklbkbkmdi95YE29K9zvgD0krXti3qNzLjvgJyb3mahjMhZT8IgwLeJAECOwSEk%2FZD58j%2FeoVNKiYqZ9Rm7GTFYYI5%2BTxgRICXo4en56ITbXw1FmJkW44l%2F4An0D%2FFoMqk5rOdEQRTCGEDfSORcGWyDXOKkMAMDU6WnYfSKRdNZyIa1Uanlo7pBf248hWqjGOOdeCX4nMk3I66ViUGqfhwOZGKZpu1pwgH2KGjsL1j2C9R6elMuDKEHJKqJN92mcYOFoqyB%2FKOqFiLR2eEz1K8cwjkOkdC99yWdwtFSS90J%2BieMAYL0Js1EM9N%2BCEImdeEpg1yNBxVWiGI0%2BFIx4kByTSpn%2F6oQkp4bMTsqsO8S60SZocPVtzIQLnTQHe%2Fy4YtJMLl%2Fg05EHKatfOmNZL7JlL1RbL6mAdrKrLxGPJYD6KnCSO7Qbtl7neUCs8%2B1%2Bq1MBlgE1XlFP7aiBgEhtMVqMe2d3YF9sgL7xYSInMmqRZVM41Enz0H7WXpqSAhxoz8iHeir7l48bz%2BJBHrHo3qeRIZBnG3QcCMPIvTaq%2BBUUzPtRaeRw%2BSsY8XzAEnIly8%3D%22%7D%5D%7D",
+    "expected": {
+      "title": "Мужской спортивный костюм из футболки с коротким рукавом и шорт",
+      "price": "10.3 EUR",
+      "image": "https://img.joomcdn.net/e16d0fb8345880757075b643b6487aa2cdf1d983_original.jpeg",
+      "description": "Материал: полиэстер 100%\nСтирка: Ручная стирка холодная, Сухая чистка, Повесить сухим, Не отбеливать\nВоротник: Круглый вырез\n\nУкрашение: карманы\nТип узора: Твердый"
+    }
+  },
+  {
+    "url": "https://www.tradera.com/item/1001/725979990/volvo-xc60-classic-d4-awd",
+    "expected": {
+      "title": "Volvo XC60 Classic D4 AWD",
+      "price": "140 000 kr",
+      "image": "https://img.tradera.net/medium/710/641101710_02ab42f1-1dbb-495b-9754-4af43aba6cc2.jpg",
+      "_description_note": "Tradera C2C classifieds do not include description in OG meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.worten.pt/produtos/calcado-de-seguranca-sparco-impulse-milton-esd-s1ps-sr-fo-tamanho-43-mrkean-8033280556129",
+    "expected": {
+      "title": "Calçado de Segurança SPARCO Impulse Milton Esd S1Ps Sr Fo. Tamanho 43 | Worten.pt",
+      "price": "€104,27",
+      "image": "https://www.worten.pt/i/fb7fc99a7014a2f6ea7fc9d5316b047851b2dfef",
+      "_description_note": "Worten does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.sears.com/ef-ecoflow-efd521-ef-ecoflow-delta-pro-3-portable-power-station-4000wh-lfp-battery-expandable-to/p-A126471370",
+    "expected": {
+      "title": "EF EcoFlow EFD521 DELTA Pro 3 Portable Power Station 4000Wh LFP Battery Expandable to 48kWh 120/240V 4000W AC Output Solar Generator fo",
+      "price": "$2,656.96",
+      "_image_note": "Sears product image loaded dynamically via JS carousel; absent in static meta",
+      "image": null,
+      "_description_note": "Sears does not include description in OG or JSON-LD structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.g2a.com/gray-zone-warfare-pc-steam-account-global-i10000505385017",
+    "expected": {
+      "title": "Gray Zone Warfare (PC) - Steam Account - GLOBAL",
+      "price": "22.29 USD",
+      "image": "https://images.g2a.com/470x276/1x1x0/gray-zone-warfare-pc-steam-account-global-i10000505385017/02ce1a7908fe4607801447cb",
+      "_description_note": "G2A does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.digitec.ch/en/s1/product/panzerglass-empower-bank-10000-mah-20-w-37-wh-powerbanks-59413180",
+    "_note": "Blocked by Digitec Cloudflare protection even with real browser",
+    "expected": {
+      "_title_note": "Blocked by Digitec Cloudflare protection even with real browser",
+      "title": null,
+      "_price_note": "Blocked by Digitec Cloudflare protection even with real browser",
+      "price": null,
+      "_image_note": "Blocked by Digitec Cloudflare protection even with real browser",
+      "image": null,
+      "_description_note": "Blocked by Digitec Cloudflare protection even with real browser",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.goat.com/apparel/supreme-shadow-plaid-rayon-shirt-magenta-ss26s5-magenta",
+    "expected": {
+      "title": "Buy Supreme Shadow Plaid Rayon Shirt 'Magenta' - SS26S5 MAGENTA | GOAT",
+      "_price_note": "GOAT price is loaded by React SPA; absent in static HTML/OG at scrape time",
+      "price": null,
+      "image": "https://image.goat.com/transform/v1/attachments/product_template_additional_pictures/images/115/805/035/original/1747807_01.jpg.jpeg?width=750",
+      "_description_note": "GOAT does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.depop.com/products/whopapsretail-intimately-by-free-people-white-f330/?moduleOrigin=selling_trends&campaignTitle=free_people_skirt",
+    "expected": {
+      "title": "Intimately by Free People White maxi skirt, semi...",
+      "price": "34.44 USD",
+      "image": "https://media-photos.depop.com/b1/318149312/3624073332_6f54b79ee1ad46a984fbd5db23e21472/P0.jpg",
+      "description": "Intimately by Free People White maxi skirt, semi sheer, Size: XS #maxiskirt #feminine #freepeople brand new with tags"
+    }
+  },
+  {
+    "url": "https://www.spartoo.net/BIRKENSTOCK-Boston-Kids-x30405516.php",
+    "expected": {
+      "title": "BIRKENSTOCK Boston Kids Suede / New / Navy",
+      "price": "USD/$101.60",
+      "image": "https://photos6.spartoo.net/photos/304/30405516/30405516_350_A.jpg",
+      "_description_note": "Spartoo does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.theiconic.com.au/rich-raglan-fleece-crew-2713385.html?adId=6683%7Cd2ba630e-88d2-4087-ab47-1ec5685ed9ba-1775687869%7C0",
+    "expected": {
+      "title": "Rich Raglan Fleece Crew",
+      "price": "119.99 AUD",
+      "image": "https://img1.theiconic.com.au/iFm7edSmwV0gzx2dyWeBdY69_Fw=/fit-in/1000x0/filters:fill(ffffff):quality(85):format(webp)/http%3A%2F%2Fstatic.theiconic.com.au%2Fp%2Fnena-pasadena-1268-5833172-1.jpg",
+      "_description_note": "The Iconic does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://souq.co/product/morucha-rfid-blocking-genuine-leather-wallet-for-men-slim-bifold-bull-leather-wallet-with-coin-pocket-id-window-8-card-slots-premium-blackbrown-luxury-gift-box-model-m75-6POe6E",
+    "expected": {
+      "title": "MORUCHA RFID Blocking Genuine Leather Wallet for Men – Slim Bifold Bull Leather Wallet with Coin Pocket, ID Window, 8 Card Slots – Premium Black/Brown Luxury Gift Box (Model #M75)",
+      "price": "$59.99",
+      "image": "https://souq.co/storage/app/public/product/2026-01-21-6971baf37effe.webp",
+      "_description_note": "Souq does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.grailed.com/listings/94678382-versace-grail-versace-classic-v2-cufflinks-glossy-plisse-shirt?g_aidx=Listing_collectible_production&g_aqid=9722c05c775603dac57447af61ed66f0",
+    "expected": {
+      "title": "Versace GRAIL💥Versace Classic V2 cufflinks glossy plisse shirt",
+      "_price_note": "Grailed SPA loads price via JS; absent in static HTML at scrape time",
+      "price": null,
+      "_image_note": "Grailed SPA loads image via JS; OG image tag absent in static HTML",
+      "image": null,
+      "_description_note": "Grailed SPA renders description via JS; not in static page meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.zattini.com.br/p/camisa-polo-levis-casual-masculina-D74-587E-008",
+    "expected": {
+      "title": "Camisa Polo Levi's Casual Masculina",
+      "price": "104.49 BRL",
+      "image": "https://static.zattini.com.br/produtos/camisa-polo-levis-casual-masculina/08/D74-587E-008/D74-587E-008_zoom1.jpg?ts=1775790408",
+      "_description_note": "Zattini does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.zalora.com.hk/p/under-armour-project-rock-8-shoes-7273147",
+    "expected": {
+      "title": "Project Rock 8 Shoes",
+      "price": "HK$529.00",
+      "image": "https://dynamic.zacdn.com/9eMch_ll8lAJLnVs0xw4Otrwts4=/filters:quality(70):format(webp)/https://static-hk.zacdn.com/p/under-armour-2671-7413727-1.jpg",
+      "_description_note": "Zalora does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://cdon.se/produkt/apple-iphone-16e-5g-128gb-svart-08650bc7fd1a5e52/",
+    "expected": {
+      "title": "APPLE iPhone 16e 5G 128GB svart",
+      "price": "6299 SEK",
+      "image": "https://cdn.octopia-io.net/pdt2/2/3/4/1/700x700/AAAQS73234.jpg",
+      "_description_note": "CDON does not expose description in structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://kaspi.kz/shop/p/aisi-gr-1-chernyi-147897402/?c=750000000",
+    "expected": {
+      "title": "Аэрогриль AISI GR-1 4 л черный",
+      "_price_note": "Kaspi price is JS-rendered with regional/session context; absent in static meta",
+      "price": null,
+      "_image_note": "Kaspi product image loaded via JS gallery; OG image tag is absent",
+      "image": null,
+      "_description_note": "Kaspi does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.1stdibs.com/jewelry/necklaces/drop-necklaces/122-carat-natural-royal-blue-sapphire-diamond-necklace-made-platinum/id-j_24842262/",
+    "expected": {
+      "title": "1.22 Carat Natural Royal Blue Sapphire and Diamond Necklace Made in Platinum",
+      "price": "$2,400 USD",
+      "image": "https://a.1stdibscdn.com/122-carat-natural-royal-blue-sapphire-and-diamond-necklace-made-in-platinum-for-sale/j_19512/j_248422621733471380194/j_24842262_1733471381108_bg_processed.jpg",
+      "_description_note": "1stDibs does not include description in OG or JSON-LD structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://aukro.cz/crane-vesta-vel-s-7115519348",
+    "expected": {
+      "title": "Crane vesta vel S",
+      "price": "130 CZK",
+      "_image_note": "Aukro listing image is in a JS-rendered gallery; not present in OG meta tag",
+      "image": null,
+      "description": "Nepoužita vesta, na zip, boční kapse také na zip, polyester Délka 59, šířka pod průramky 92, pas 90"
+    }
+  },
+  {
+    "url": "https://us.vestiairecollective.com/women-clothing/jackets/hermes/beige-cotton-hermes-jacket-65815655.shtml",
+    "expected": {
+      "title": "Jacket",
+      "price": "1936 EUR",
+      "image": "https://images.vestiairecollective.com/images/resized/w=500,q=75,f=auto,/produit/beige-cotton-hermes-jacket-65815655-1_2.jpg",
+      "description": "H29693 Hermès Beige cotton hooded zip-up long-sleeved jacket, size 36 (S), in 99% new condition"
+    }
+  },
+  {
+    "url": "https://www.wehkamp.nl/jack-jones-junior-hoodie-lichtblauw-17479983/",
+    "expected": {
+      "title": "hoodie lichtblauw",
+      "price": "34.99 EUR",
+      "image": "https://images.wehkamp.nl/i/wehkamp/17479983_eb_07/jack-jones-junior-hoodie-lichtblauw-lichtblauw-5715865445266.jpg?w=1024",
+      "_description_note": "Wehkamp does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.morele.net/kawa-ziarnista-lavazza-qualita-oro-1-kg-869943/",
+    "expected": {
+      "title": "Kawa ziarnista Lavazza Qualita Oro 1 kg",
+      "price": "94,99 zł",
+      "image": "https://images.morele.net/i1064/869943_0_i1064.jpg",
+      "_description_note": "Morele does not include description in OG or JSON-LD structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.eprice.com.ua/product/24432/",
+    "_note": "Site returned error/empty page even with real browser; possibly geo-blocked",
+    "expected": {
+      "_title_note": "Site returned error/empty page even with real browser; possibly geo-blocked",
+      "title": null,
+      "_price_note": "Site returned error/empty page even with real browser; possibly geo-blocked",
+      "price": null,
+      "_image_note": "Site returned error/empty page even with real browser; possibly geo-blocked",
+      "image": null,
+      "_description_note": "Site returned error/empty page even with real browser; possibly geo-blocked",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.notonthehighstreet.com/joybycorrinesmith/product/family-birthstone-link-bracelet",
+    "expected": {
+      "title": "Family Birthstone Link Bracelet By Joy by Corrine Smith",
+      "price": "£28",
+      "image": "https://cdn.notonthehighstreet.com/fs/47/23/a76a-eaa8-4c38-904d-ca97ffe5b197/preview_family-birthstone-link-bracelet.jpg",
+      "_description_note": "NOTHS does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.onbuy.com/pl/p/sony-xperia-10-vii-5g-dual-sim-8-gb-128-gb-xq-fe72-turkusowy~p158299958/",
+    "expected": {
+      "title": "Sony Xperia 10 VII 5G Dual SIM 8 GB / 128 GB XQ-FE72 – Turkusowy",
+      "price": "1666.99 PLN",
+      "image": "https://cdn.onbuy.com/product/a02258e3a415492bb485011b01dd290e/500-500/pkdgnky.jpg",
+      "_description_note": "OnBuy does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.konga.com/product/samsung-65-neo-qled-8k-smart-tv-6452123",
+    "expected": {
+      "title": "Samsung 65\" Neo QLED 8k Smart TV",
+      "_price_note": "Konga price is JS-rendered; absent in static OG meta at scrape time",
+      "price": null,
+      "_image_note": "Konga product image loaded via JS; OG image tag absent in static HTML",
+      "image": null,
+      "_description_note": "Konga does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.galerieslafayette.com/p/doudoune+kiliagi+a+capuche-le+temps+des+cerises/50688820/320",
+    "expected": {
+      "title": "Doudoune KILIAGI à capuche Noir - Le Temps Des Cerises",
+      "_price_note": "Price requires JS rendering; absent in static OG meta",
+      "price": null,
+      "_image_note": "Image URL behind JS-rendered CDN; OG image tag missing",
+      "image": null,
+      "_description_note": "Description in JS-rendered tab, not in page meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.delcampe.net/en_GB/collectables/coins-banknotes/banknotes/djibouti/billet-territoire-francais-des-afars-et-issas-denomination-500-francs-usage-15387-a-1-laura-22106-2505911228.html",
+    "expected": {
+      "title": "Billet, Territoire français des Afars et Issas Dénomination : 500 francs // usagé // 15387 A.1 LAURA 22106",
+      "price": "€80.00",
+      "image": "https://www.delcampe.net/static/img_large/auction/002/505/911/228_001.jpg?v=3",
+      "_description_note": "Delcampe does not include auction description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.shpock.com/en-gb/i/ZCBHVYrfql1iPYuq/2-x-zierkissen-20",
+    "expected": {
+      "title": "2 x Zierkissen",
+      "price": "€20.00",
+      "image": "https://m1.secondhandapp.at/2.0/642047558adfaa5d62bf4173",
+      "_description_note": "Shpock does not expose listing description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.rueducommerce.fr/p/r24060018398.html",
+    "expected": {
+      "title": "Apple iPhone 15 - 5G - 6/128 Go - Noir",
+      "price": "576.98 EUR",
+      "image": "https://media.rueducommerce.fr/rd/products/bde/bdef5b871c6eac89495cb68e13bfd1652cc44b1f.jpeg",
+      "_description_note": "Rue du Commerce does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.etsy.com/listing/1905134263/consistent-trading-returns-with-mt4?ls=s&ga_order=most_relevant&ga_search_type=all&ga_view_type=gallery&ga_search_query=tradesy&ref=sr_gallery-1-2&sr_prefetch=0&pf_from=market&dd=1&content_source=ece66615-25f4-4dc0-8967-63e71b4f1c5c%253ALTef4c21ee6e6c91df19e4393290d759090fea7630&organic_search_click=1&logging_key=ece66615-25f4-4dc0-8967-63e71b4f1c5c%3ALTef4c21ee6e6c91df19e4393290d759090fea7630",
+    "expected": {
+      "title": "Consistent Trading Returns with MT4 Trading Bot for GBP/USD | Prop Firm can't resist funding this bot | Professional Trading for Forex",
+      "price": "8.77 EUR",
+      "image": "https://i.etsystatic.com/14596749/r/il/cc8ade/6801780418/il_1080xN.6801780418_kwx1.jpg",
+      "_description_note": "Etsy does not include listing description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.bonanza.com/listings/Nike-Lunarsolo-Gs-Kids-Shoes-Size-6Y-AA4403-404/1031704829?featured=true&search_term_id=70729744",
+    "expected": {
+      "title": "NIKE LUNARSOLO (GS) KIDS SHOES SIZE 6Y AA4403 404",
+      "price": "38.24",
+      "image": "https://images-bucket.bonanzastatic.com/afu/images/7b3a/3bec/a6c1_10320490790/__57.jpg",
+      "_description_note": "Bonanza does not expose item description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.miinto.com/p-la-days-t-shirt-866860d3-5e85-4793-bf25-610299a1d4d8",
+    "expected": {
+      "title": "LA Days T-Shirt | Casablanca | T-Shirts | Miinto",
+      "price": "166.50 USD",
+      "_image_note": "Miinto product image is loaded via JS carousel; OG image tag is absent",
+      "image": null,
+      "_description_note": "Miinto does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.ecrater.com/p/40942076/austin-nola-2021-topps-heritage-656-san",
+    "expected": {
+      "title": "Austin Nola 2021 Topps Heritage #656 San Diego Padres Baseball Card",
+      "price": "0.50 USD",
+      "image": "https://s.ecrater.com/stores/357549/622b1b7da6a54_357549b.jpg",
+      "description": "This is a 2021 Topps Heritage card of San Diego Padres catcher Austin Nola.    It is in the same shape as when pulled from a pack, and will be shipped the business day after receiving funds via USPS."
+    }
+  },
+  {
+    "url": "https://fyndiq.se/produkt/20w-snabbladdare-for-iphone11-12-13-14-med-2-m-kabel-1c24de4b27434357/",
+    "expected": {
+      "title": "20W snabbladdare för iphone11/12/13/14 med  2 m kabel",
+      "price": "99 SEK",
+      "image": "https://tk2.se/wp-content/uploads/2025/09/20w-1.png",
+      "_description_note": "Fyndiq does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://jane.com/store/johnny-threads/annualstrawberryfestival",
+    "expected": {
+      "title": "Vintage Annual Strawberry Festival Spring & Summer Floral Farmer's Market Graphic Tee",
+      "price": "18.99 USD",
+      "image": "https://images.jane.com/sellers/johnny-threads/product-images/annualstrawberryfestival4.jpg",
+      "_description_note": "Jane.com does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.gamestop.com/video-games/xbox-series-x%7Cs/products/crimson-desert---xbox-series-x/443001.html",
+    "expected": {
+      "title": "Crimson Desert - Xbox Series X",
+      "price": "69.99 USD",
+      "image": "https://media.gamestop.com/i/gamestop/20022973-3f0862c8?$thumb$",
+      "_description_note": "GameStop does not include description in OG or JSON-LD structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.shopclues.com/1-piece-plastic-rice-bowl-food-strainer-thick-drain-basket-with-handle-for-rice-vegetable-and-fruit-153676838.html",
+    "expected": {
+      "title": "Plastic Rice Bowl & Food Strainer - Thick Drain Basket with Handle for Kitchen Use (Random Color)",
+      "price": "₹99",
+      "image": "https://cdn2.shopclues.com/images1/thumbnails/118196/320/320/153676838-118196833-1762322717.jpg",
+      "_description_note": "Shopclues does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.okazii.ro/vidaxl-copertin-retractabil-manual-crem-4-3-m-3420250-a262669828",
+    "expected": {
+      "title": "vidaXL Copertină retractabilă manuală Crem 4 × 3 m 3420250",
+      "price": "1.920,99 Lei",
+      "image": "https://images.okr.ro/serve/product/2c2413f3e843382dd8c8e96d459f51fe-14015-1000_1000",
+      "_description_note": "Okazii does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.coolshop.co.uk/product/sonic-origins-plus-day-one-edition/23F8VD/?raptor_module=GetUserRecommendations",
+    "expected": {
+      "title": "Sonic Origins Plus (Day One Edition) - Nintendo Switch",
+      "price": "£14.99",
+      "image": "https://scale.coolshop-cdn.com/product-media.coolshop-cdn.com/23F8VD/2d3003d-a11648498b8e367b765946c0.jpg/f/sonic-origins-plus-day-one-edition.jpg?height=484&borderless=1&transparent=1",
+      "_description_note": "Coolshop does not include description in OG or JSON-LD structured data",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.storenvy.com/products/36762048-retro-thick-canvas-leather-cover-crossbody-bag-satchel-bags-tote-messenger-b",
+    "expected": {
+      "title": "Retro Thick Canvas Leather Cover Crossbody Bag Satchel Bags Tote Messenger Bag For Men Women Large Capacity Shoulder Bags ",
+      "price": "32.99 USD",
+      "image": "https://prod-cdn-01.storenvy.com/product_photos/105629686/file_dcf0208d85_medium.jpg",
+      "_description_note": "Storenvy does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.rubylane.com/item/1341942-SC1030/Antique-19th-C-Folk-Art-Silk?t=b6ddeab0",
+    "expected": {
+      "title": "Antique 19th C. Folk Art Silk on Linen Sampler Signed Mary E. Waterho???",
+      "price": "235 USD",
+      "image": "https://cdn0.rubylane.com/_podl/item/1341942/SC1030/Antique-19th-C-Folk-Art-Silk-pic-1A-2048-f847ce7e-f.jpg",
+      "_description_note": "Ruby Lane does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://sidelineswap.com/gear/lacrosse/lacrosse-helmets/11940095-cascade-xrs-pro-helmet-new",
+    "expected": {
+      "title": "Cascade XRS Pro Helmet (New)",
+      "price": "$250.00 USD",
+      "image": "https://edge.images.sidelineswap.com/production/090/737/191/74d03c2327087a62_original.jpeg?height=600",
+      "_description_note": "SidelineSwap does not expose listing description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.zvab.com/servlet/BookDetailsPL?bi=31088816021&cm_sp=collections-_-dXt0Onr9kvOKUyggDzEQm_item_1_2-_-bdp",
+    "expected": {
+      "title": "Cendrars refuse avec véhémence que toute distinction officielle soit associée à son œuvre littéraire...",
+      "price": "EUR 2.000,00",
+      "image": "https://pictures.abebooks.com/inventory/md/md31088816021.jpg",
+      "_description_note": "ZVAB (AbeBooks) does not include book description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.limeroad.com/blue-denim-tarama-p21998820?imgIdx=1&src_id=merge_feed_story__2&reference_story_id=69ce2cda72154ffec6d8d6e4",
+    "expected": {
+      "title": "Women Solid High Rise Straight Fit Jean",
+      "price": "₹1499",
+      "image": "https://img4.junaroad.com/uiproducts/21998820/zoom_0-1754151910.jpg",
+      "_description_note": "LimeRoad does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://bidorbuy.co.ke/listing/spacious-two-bedrooms-house-at-nanyuki-town-for-rent",
+    "expected": {
+      "title": "SPACIOUS TWO BEDROOMS HOUSE AT NANYUKI TOWN FOR RENT",
+      "price": "15000.00 KES",
+      "image": "https://bidorbuy.co.ke/storage/listings/3304/2KFBigC96vbLypK7iGPh.webp",
+      "_description_note": "BidOrBuy listing description is in JS-rendered body, not in OG meta",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.alibris.com/The-Seven-Husbands-of-Evelyn-Hugo-Taylor-Jenkins-Reid/book/37074077",
+    "expected": {
+      "title": "The Seven Husbands of Evelyn Hugo",
+      "_price_note": "Alibris price varies per seller and is loaded via JS; not in static meta",
+      "price": null,
+      "image": "https://www.alibris-static.com/the-seven-husbands-of-evelyn-hugo/isbn/9781501161933_l.jpg",
+      "_description_note": "Alibris does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.mumzworld.com/en/neobreez-octa-360-degree-rotating-seat-stroller-black-44483883-f8-nbr122bk?source=Category+Page",
+    "expected": {
+      "title": "Neobreez - Octa 360 Degree Reversible Stroller Compact Travel Stroller - Black",
+      "price": "850 AED",
+      "image": "https://s3-pwa-prod.mumzworld.com/media/catalog/product/44483883-F8-NBR122BK-1.jpg",
+      "_description_note": "Mumzworld does not include description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.natureetdecouvertes.com/bien-etre/massage/materiel-accessoires/renpho-masseur-de-pieds-renpho-shiatsu-foot-massager-fm058r-93384690",
+    "expected": {
+      "title": "Renpho - Masseur de pieds Renpho Shiatsu Foot Massager FM058R",
+      "price": "149.99 EUR",
+      "image": "https://cache.natureetdecouvertes.com/Medias/Images/Articles/93384690/800",
+      "_description_note": "Nature & Decouvertes does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "http://modaoperandi.com/women/p/christopher-esber/jo-flip-flop-5/721308",
+    "expected": {
+      "title": "Jo Pvc Flip Flop Sandals By Christopher Esber",
+      "_price_note": "Moda Operandi price requires JS rendering and login context; absent in static meta",
+      "price": null,
+      "_image_note": "Moda Operandi image loaded via JS; OG image tag absent in static HTML",
+      "image": null,
+      "_description_note": "Moda Operandi does not expose description in OG or JSON-LD",
+      "description": null
+    }
+  },
+  {
+    "url": "https://octopus.in.ua/boardgames/catan-dopovnennya-dlya-5-6-gravcv",
+    "expected": {
+      "title": "CATAN: Доповнення для 5-6 гравців",
+      "price": "1120",
+      "image": "https://octopus.in.ua/image/cache/catalog/Logo/tortuga/lplbaapswu08jbl0btym4kwjmnch80qi-600x600.png",
+      "description": null
+    }
+  },
+  {
+    "url": "https://leleka.camp/uk/pixy-hammock-orange-xl/",
+    "expected": {
+      "title": "Гамак Pixy Помаранчевий XL",
+      "price": "2 900.00",
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://hobymonster.com.ua/nastilna-hra-unmatched-bytva-lehend-chastyna-2/",
+    "expected": {
+      "title": "Настільна гра Unmatched: Битва Легенд Частина 2 UA",
+      "price": "1750",
+      "image": null,
+      "description": "Unmatched — це дуже асиметричний мініатюрний файтинг для двох або чотирьох гравців. Кожен герой представлений унікальною колодою, створеною для того, щоб проявитись стильно і легендарно в протистоянні героїв. Тактичні переміщення та розв’язання невдалого бою створюють унікальний досвід гри, але саме тоді, коли ви освоїте один набір, з’являються нові герої, щоб забезпечити всі нові матчі."
+    }
+  },
+  {
+    "url": "https://geekach.com.ua/spapliuzhenyi-hraal.-padinnia-avalonu-tainted-grail-the-fall-of-avalon/?gad_source=1&gad_campaignid=17178695679&gbraid=0AAAAACxBQ3HtzMQ8D5q5tecBok19tYMqt&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKeEisfLIyjmjFJ7tYULNk-3GkDFjN_IqhLDsxPzWPHUz9m2UdsIRqgaApYVEALw_wcB",
+    "expected": {
+      "title": "Спаплюжений Грааль. Падіння Авалону (Tainted Grail: The Fall of Avalon)",
+      "price": "7460",
+      "image": "https://geekach.com.ua/content/images/30/1600x1587l99br0/19043225966221.jpg",
+      "description": "Пригодницький кооператив за мотивами легенд про короля Артура і кельтських міфів. Настільна гра «Tainted Grail: The Fall of Avalon» була розроблена в 2019 році. Авторами гри виступили 3D-скульптор і а…"
+    }
+  },
+  {
+    "url": "https://www.yakaboo.ua/ua/vid-mak-komplekt-iz-8-knig-2257277.html?gad_source=1&gad_campaignid=22698815994&gbraid=0AAAAADoya-YauA1xe62oF82MvH_jZwLFh&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKfL148YDk7PcTn5wvY6XvmPUi0RG6N1VafHHssDZ530uYGRP197DQoaAtt5EALw_wcB",
+    "expected": {
+      "title": "Відьмак (комплект із 8 книг)",
+      "price": "3120",
+      "image": "https://static.yakaboo.ua/media/cloudflare/product/webp/600x840/5/1/51998_97536.jpg",
+      "description": "Від Яруги до Драконячих гір мандрує один з останніх відьмаків — Ґеральт із Рівії. Він зустрічає людей та істот, які чимось дуже нагадують персонажів відомих казок, і намагається зрозуміти, чи залишилося в ньому самому хоч щось від людини? Його пригоди тільки починаються…До комплекту увійшли такі книги:«Відьмак. Останнє бажання. Книга 1» «Відьмак. Меч призначення. Книга 2» «Відьмак. Кров ельфів. Книга 3»«Відьмак. Час погорди. Книга 4»«Відьмак. Хрещення вогнем. Книга 5»«Відьмак. Вежа Ластівки. Книга 6» «Відьмак. Володарка Озера. Книга 7»«Відьмак. Сезон гроз. Книга 8»"
+    }
+  },
+  {
+    "url": "https://kashalot.gift/ua/multitul-po-gri-stalker-podarunok-dlja-gejmera-ta-fanata/",
+    "expected": {
+      "title": "Ніж в стилі гри Stalker",
+      "price": "850",
+      "image": "https://kashalot.gift/image/cachewebp/catalog/Stalker/Nizh-Stalker/10.03.2026_stalker_knife_1-600x600.webp",
+      "description": null
+    }
+  },
+  {
+    "url": "https://katysoho.com.ua/product/kros-bodi-sumka-605-blakytnyj/?utm_source=google&utm_medium=cpc&utm_campaign=pmax_under1900&utm_content=&utm_term=&gad_source=1&gad_campaignid=23596277402&gbraid=0AAAAA-fV0axuW4YX9RbAo76eNOcnNeo1E&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKdLUqkShndoXI42mdUIyafld3cDCCsuhKkknL4UP2l8a9bwxJ7gBEwaAqo_EALw_wcB",
+    "expected": {
+      "title": "Сумка міні-бег блакитна KatySOHO / 605 - Katy Soho",
+      "price": "1200",
+      "image": null,
+      "description": "Сумка крос-боді з екошкіри на підкладці, застібка на магнітній кнопці. Всередині сумки є додаткова та потаємна кишенька на змійці. Ремінець регулюється. Має лого спереду та всередині сумки. Ремінець логотипу не має."
+    }
+  },
+  {
+    "url": "https://www.foxtrot.com.ua/ru/shop/skovorodki-bravo-chef-lappetit-236-5414.html",
+    "expected": {
+      "title": "Сковорода для блинов BRAVO CHEF L’Appetit 24 см Black (BC-1103-24Р)",
+      "price": "299",
+      "image": "https://files.foxtrot.com.ua/PhotoNew/img_0_236_5414_0_1_3pG7tQ_Small.jpg",
+      "description": null
+    }
+  },
+  {
+    "url": "https://symbol.ua/uk/store/bezevoe-plate-s-drapirovkoj-magda-butrym-dress11323526-bezevyj",
+    "expected": {
+      "title": "Magda Butrym - Бежева сукня з драпіруванням DRESS11323526 купити в Symbol",
+      "price": "112 056",
+      "image": "https://media4.symbol.ua/aio-images/d5/f7/d5f7e4bd8abfcb3b187226736af50323/0578c6b8-638c-4b3b-98b4-23b30be82345.jpg",
+      "description": null
+    }
+  },
+  {
+    "url": "https://avrora.ua/gel-dlya-prannya-wash-and-free-universal-4100-g/",
+    "expected": {
+      "title": "Гель для прання WASH&FREE Universal 4100 г",
+      "price": "229",
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://bujobox.com.ua/nabir-stikeriv-have-a-good-day-detektyv-u-spravi-15-sht/",
+    "expected": {
+      "title": "Набір стікерів Have a good day Детектив у справі 15 шт",
+      "price": "84",
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://epicentrk.ua/ua/shop/mplc-plaska-dla-vodi-sportivna-z-trubockou-1-6-l-hp-14-35-1eff757a-efac-6ae6-89a7-ffe08ddb7939.html?tak=NGJlMWZjMmFiY2JjMjhiOGE0ODVjNzQ5MTI5MGEyNTQtNS1NUDI0NzI0MjAyLTAuNTEtMzYxNjItMTk1OTI1ZjUtMjBkZi00OTc3LTg0ZTgtNGE1YjM3OWY2NWM3LS0t",
+    "expected": {
+      "title": "Пляшка для води спортивна з трубочкою 1,6 л (HP-14-35)",
+      "price": "623",
+      "image": "https://cdn.27.ua/sc--media--prod/default/15/cd/58/15cd580f-fd24-42ac-9831-26fa3dc0cd24.jpeg",
+      "description": null
+    }
+  },
+  {
+    "url": "http://vivat.com.ua/product/finalna-propozytsiia/?gad_source=1&gad_campaignid=22779391199&gbraid=0AAAAADGtG7FZk7dDW2ctEzq1UO0k_8m7F&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKej5HuoHtNY1zfIq_y4-O-0qAZvc7oQ6FWMTihXL7E3M4BUXomBG9MaAhhBEALw_wcB",
+    "expected": {
+      "title": "Фінальна пропозиція (Мільярдери з Дрімленду #3)",
+      "price": "599",
+      "image": "https://vivat.com.ua/resize_480x686x95/storage/1.d/files/3/b/3b2a200f_finalna-propoziciia.webp",
+      "description": null
+    }
+  },
+  {
+    "url": "https://ksd.ua/product/khroniky-buresvitla-komplekt-z-5-knyh?utm_source=google&utm_medium=cpc&utm_campaign=Ukr-Perform_Max-All-%D0%9A%D0%A1%D0%94&utm_content=gid__x_c_9198696_&utm_term=__&gad_source=1&gad_campaignid=23362505971&gbraid=0AAAAADq3rgtABTAC92Wox6ZJLO9gQDWIM&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKddcULSuA8gTS0ExzhGkhFq8ogI0IQv-Zmxtf0AD4z14bHz3zG38RAaAlZBEALw_wcB",
+    "expected": {
+      "title": "«Хроніки Буресвітла» комплект з 5 книг",
+      "price": "3780",
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://book-ye.com.ua/hudozhnja-literatura/proza/suchasna-zarubizhna-proza/ne-moja-istorija/?sc_content=37193_r2950v3562",
+    "_note": "Blocked by book-ye.com.ua server-side bot protection (403 Forbidden)",
+    "expected": {
+      "title": null,
+      "price": null,
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://bi.ua/ukr/product/nabor-syurpriz-lol-surprise-loves-hello-kitty-hello-kitty-i-druzya-523840.html?sc_content=34180_r2565v3090",
+    "expected": {
+      "title": "Набір-сюрприз LOL Surprise Loves Hello Kitty Hello Kitty та друзі (523840) купити в Києві, Україні за вигідною ціною | 【Будинок іграшок】",
+      "price": "865",
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://maudau.com.ua/ru/product/viski-chivas-brothers-royal-salute-v-korobtsi-40-07-l-4056?gad_source=1&gad_campaignid=21143810111&gbraid=0AAAAABiTv2oHNd3B4BJuaoOMyNJstNoS6&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKcRZZZWn_hXD8mpiKFMxSr1mBMR9Senbfy0zJWlC_rN9vNmheH-xBMaArH8EALw_wcB",
+    "expected": {
+      "title": "Виски Royal Salute 21 year old, в коробке, 40%, 0,7 л",
+      "price": "10647",
+      "image": "https://image.maudau.com.ua/webp/size/lg/products/28/66/aa/2866aa28-bb80-4d11-863d-347b56ff6ec9.jpg",
+      "description": null
+    }
+  },
+  {
+    "url": "https://rozetka.com.ua/ua/asus-90nr0lb2-m00970/p568837453/?gad_source=1&gad_campaignid=23516836960&gbraid=0AAAAABpmbmuCWPuac9GpjWE6ZuSNNv-FL&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKcYboCmQsr2zcaVhiEewFNAbju0Y7UMkHCEvqj58Iyj61sIbVbYxasaAnG2EALw_wcB",
+    "expected": {
+      "title": "Ноутбук ASUS ROG Strix G16 (2025) G615JMR-RV204 (90NR0LB2-M00970) Volt Green / 16\" IPS WUXGA 165 Гц / Intel Core i7-14650HX / RAM 16 ГБ / SSD 1 ТБ / nVidia GeForce RTX 5060, 8 ГБ (TDP 115 Вт)",
+      "price": "83999",
+      "image": "https://content.rozetka.com.ua/goods/images/big/643597835.jpg",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.olx.ua/d/uk/obyavlenie/radiomikrofony-komplekt-2sht-IDZ2CM3.html?search_reason=search%7Cpromoted",
+    "expected": {
+      "title": "Радиомикрофоны комплект 2шт",
+      "price": "1 055",
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://prom.ua/ua/p2841731603-hudi-frieren-waifu.html?utm_source=google_pmax&utm_medium=cpc&utm_content=pmax&utm_campaign=Pmax_cpa_muzhskie_tolstovki&gad_source=1&gad_campaignid=20408928155&gbraid=0AAAAADBxJSWpMFCbTUwd6WFCagND4LFZH&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKfb_dzJvdgC7m8LnwqQr1H110yKYapxds66rTzSltQhFhNwsTK4uwwaAnG-EALw_wcB",
+    "expected": {
+      "title": "Худі \"Frieren Waifu Edition 18+\" Sousou no Frieren, Чорний, XL",
+      "price": "1 310",
+      "image": "https://images.prom.ua/6959424614_w700_h500_hudi-frieren--.jpg",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.temu.com/ua-ru/kuiper/un9.html?subj=default-un-v2&_bg_fs=1&_p_jump_id=1100&_x_vst_scene=adg&goods_id=601099595424021&sku_id=17592515113823&adg_ctx=a-7486d2fc~c-dde9cefe~f-30ae0237&_x_ads_sub_channel=shopping&_p_rfs=1&_x_ns_prz_type=-1&_x_ns_sku_id=17592515113823&_x_ns_gid=601099595424021&mrk_rec=1&_x_ads_channel=google&_x_gmc_account=5343777111&_x_login_type=Google&_x_ns_gg_lnk_type=adr&_x_ads_account=8661564203&_x_ads_set=22886053880&_x_ads_id=182463914143&_x_ads_creative_id=769046477948&_x_ns_source=g&_x_ns_gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKfUf5HGYJWMTIDZy27AvSWN8hKinn1nWn7eaUKbM5uGN4DYpAqa5pgaAlpHEALw_wcB&_x_ns_placement=&_x_ns_match_type=&_x_ns_ad_position=&_x_ns_product_id=5343777111-ru-17592515113823&_x_ns_target=&_x_ns_devicemodel=&_x_ns_wbraid=CkAKCAjwnN3OBhBTEjAAkAejLi0r1dOCX_kYgRfV2e2ev9q0pQ-UgH3haM8bJBL-Hol4OViuO9TIsg3JmQkaAr5i&_x_ns_gbraid=0AAAAAo4mICH7jk6yLDZLIDQkTxdvepEeD&_x_ns_targetid=pla-2387322851245&gad_source=1&gad_campaignid=22886053880&gbraid=0AAAAAo4mICH7jk6yLDZLIDQkTxdvepEeD&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKfUf5HGYJWMTIDZy27AvSWN8hKinn1nWn7eaUKbM5uGN4DYpAqa5pgaAlpHEALw_wcB",
+    "expected": {
+      "title": "Великий Розмір - Великий Розмір - Жіноча Сукня 600002",
+      "price": "328.60",
+      "image": "https://img.kwcdn.com/thumbnail/s/2f0e9237b715830394fd1f82f2af18e1_126368fa04a7.jpg",
+      "description": null
+    }
+  }
+]

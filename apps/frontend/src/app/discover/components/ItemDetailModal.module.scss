@@ -133,7 +133,7 @@
   background:
     radial-gradient(
       circle at top left,
-      rgba(224, 82, 160, 0.14),
+      var(--brand-alpha-15),
       transparent 38%
     ),
     linear-gradient(180deg, rgba(28, 28, 34, 0.98), rgba(18, 18, 23, 0.98));

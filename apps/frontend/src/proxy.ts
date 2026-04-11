@@ -12,11 +12,6 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   throw new Error("Missing Supabase public env variables");
 }
 
-/**
- * General Translation locale detection (cookie, referer, Accept-Language).
- * `localeRouting: false` keeps existing URLs; no `app/[locale]` tree required.
- * @see https://generaltranslation.com/en-GB/docs/next/guides/middleware
- */
 const gtLocaleMiddleware = createNextMiddleware({
   localeRouting: false,
   ignoreSourceMaps: true,
@@ -28,7 +23,6 @@ function copyCookies(from: NextResponse, to: NextResponse) {
   });
 }
 
-/** Copy GT + Supabase cookies onto redirects (avoid copying proxy response headers). */
 function mergeCookiesIntoResponse(from: NextResponse, to: NextResponse) {
   copyCookies(from, to);
 }

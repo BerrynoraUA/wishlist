@@ -112,11 +112,21 @@ export function TopNav() {
             <div className={styles.logoIcon}>
               <Gift size={16} />
             </div>
-            <span className={styles.logoBetaBadge}>
-              <ProBadge size="sm" label={t("BETA", { $id: "nav.betaBadge" })} />
-            </span>
           </div>
-          <span>{t("Wishlane", { $id: "brand.name" })}</span>
+          <span className={styles.logoText}>
+            {t("Wishlane", { $id: "brand.name" })}
+            <span className={styles.logoBetaBadge}>
+              <ProBadge
+                size="sm"
+                label={
+                  typeof window !== "undefined" &&
+                  window.location.hostname === "staging.wishlane.net"
+                    ? "STAGING"
+                    : t("BETA", { $id: "nav.betaBadge" })
+                }
+              />
+            </span>
+          </span>
         </Link>
 
         <nav className={styles.nav}>
