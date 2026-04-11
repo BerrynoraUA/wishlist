@@ -1,7 +1,12 @@
+import acceptanceCriteria from "./acceptance-criteria.json";
+
 /**
  * Список тест-кейсів для тестування скрапера.
  * Кожен кейс містить URL та очікувані значення для валідації.
  * Якщо поле expected = null — воно не перевіряється.
+ *
+ * Очікувані значення для конкретних URL зберігаються в acceptance-criteria.json
+ * і автоматично застосовуються до відповідних записів нижче.
  */
 export interface TestCase {
   url: string;
@@ -13,7 +18,11 @@ export interface TestCase {
   };
 }
 
-export const TEST_CASES: TestCase[] = [
+const ACCEPTANCE_CRITERIA: Map<string, TestCase["expected"]> = new Map(
+  (acceptanceCriteria as TestCase[]).map((c) => [c.url, c.expected]),
+);
+
+const RAW_TEST_CASES: TestCase[] = [
   {
     url: "https://www.amazon.com/Z-Edge-Monitor-Ultra-Fast-UG27H-Frameless/dp/B0DXKZZF9B/ref=sr_1_2_sspa?dib=eyJ2IjoiMSJ9.vXjaZ5LQ60nRmS_W_8Noo5EbjU0g5iDcpTDcuW-x0Ai4TsnH_52c6EQnFilOgEOw7lyeqG8fciuEJz5pU5M8FhOr106LXyJF0vREN39JZpvD-Tx36TnnU8LbgdJilZYcQEmjVvB2dItfC_QTgAzNJMWitddbBBMKv-MDM3e5_33TkRf7KyOgbmhsPgumqkU7i9ZiNTFyM9IpszjkbL6zsDzR-qNDgw-BdF7pgLs_tSJpMon1Ccx2x5tvTpJdtDA_b14fOPOJCnaeWPoa_M54XCfwH4CVI2mVRCX8aMT-AZA.GUnhwbskjvWrgc_aemTfL2vPCWGkY5eZ49U6NZtYZ9c&dib_tag=se&qid=1775680156&s=computers-intl-ship&sr=1-2-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGZfYnJvd3Nl&th=1",
     expected: { title: null, price: null, image: null, description: null },
@@ -462,4 +471,93 @@ export const TEST_CASES: TestCase[] = [
     url: "http://modaoperandi.com/women/p/christopher-esber/jo-flip-flop-5/721308",
     expected: { title: null, price: null, image: null, description: null },
   },
-];
+  {
+    url: "https://www.temu.com/ua-ru/kuiper/un9.html?subj=default-un-v2&_bg_fs=1&_p_jump_id=1100&_x_vst_scene=adg&goods_id=601099595424021&sku_id=17592515113823&adg_ctx=a-7486d2fc~c-dde9cefe~f-30ae0237&_x_ads_sub_channel=shopping&_p_rfs=1&_x_ns_prz_type=-1&_x_ns_sku_id=17592515113823&_x_ns_gid=601099595424021&mrk_rec=1&_x_ads_channel=google&_x_gmc_account=5343777111&_x_login_type=Google&_x_ns_gg_lnk_type=adr&_x_ads_account=8661564203&_x_ads_set=22886053880&_x_ads_id=182463914143&_x_ads_creative_id=769046477948&_x_ns_source=g&_x_ns_gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKfUf5HGYJWMTIDZy27AvSWN8hKinn1nWn7eaUKbM5uGN4DYpAqa5pgaAlpHEALw_wcB&_x_ns_placement=&_x_ns_match_type=&_x_ns_ad_position=&_x_ns_product_id=5343777111-ru-17592515113823&_x_ns_target=&_x_ns_devicemodel=&_x_ns_wbraid=CkAKCAjwnN3OBhBTEjAAkAejLi0r1dOCX_kYgRfV2e2ev9q0pQ-UgH3haM8bJBL-Hol4OViuO9TIsg3JmQkaAr5i&_x_ns_gbraid=0AAAAAo4mICH7jk6yLDZLIDQkTxdvepEeD&_x_ns_targetid=pla-2387322851245&gad_source=1&gad_campaignid=22886053880&gbraid=0AAAAAo4mICH7jk6yLDZLIDQkTxdvepEeD&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKfUf5HGYJWMTIDZy27AvSWN8hKinn1nWn7eaUKbM5uGN4DYpAqa5pgaAlpHEALw_wcB",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://prom.ua/ua/p2841731603-hudi-frieren-waifu.html?utm_source=google_pmax&utm_medium=cpc&utm_content=pmax&utm_campaign=Pmax_cpa_muzhskie_tolstovki&gad_source=1&gad_campaignid=20408928155&gbraid=0AAAAADBxJSWpMFCbTUwd6WFCagND4LFZH&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKfb_dzJvdgC7m8LnwqQr1H110yKYapxds66rTzSltQhFhNwsTK4uwwaAnG-EALw_wcB",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://www.olx.ua/d/uk/obyavlenie/radiomikrofony-komplekt-2sht-IDZ2CM3.html?search_reason=search%7Cpromoted",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://rozetka.com.ua/ua/asus-90nr0lb2-m00970/p568837453/?gad_source=1&gad_campaignid=23516836960&gbraid=0AAAAABpmbmuCWPuac9GpjWE6ZuSNNv-FL&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKcYboCmQsr2zcaVhiEewFNAbju0Y7UMkHCEvqj58Iyj61sIbVbYxasaAnG2EALw_wcB",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://maudau.com.ua/ru/product/viski-chivas-brothers-royal-salute-v-korobtsi-40-07-l-4056?gad_source=1&gad_campaignid=21143810111&gbraid=0AAAAABiTv2oHNd3B4BJuaoOMyNJstNoS6&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKcRZZZWn_hXD8mpiKFMxSr1mBMR9Senbfy0zJWlC_rN9vNmheH-xBMaArH8EALw_wcB",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://bi.ua/ukr/product/nabor-syurpriz-lol-surprise-loves-hello-kitty-hello-kitty-i-druzya-523840.html?sc_content=34180_r2565v3090",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://book-ye.com.ua/hudozhnja-literatura/proza/suchasna-zarubizhna-proza/ne-moja-istorija/?sc_content=37193_r2950v3562",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://ksd.ua/product/khroniky-buresvitla-komplekt-z-5-knyh?utm_source=google&utm_medium=cpc&utm_campaign=Ukr-Perform_Max-All-%D0%9A%D0%A1%D0%94&utm_content=gid__x_c_9198696_&utm_term=__&gad_source=1&gad_campaignid=23362505971&gbraid=0AAAAADq3rgtABTAC92Wox6ZJLO9gQDWIM&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKddcULSuA8gTS0ExzhGkhFq8ogI0IQv-Zmxtf0AD4z14bHz3zG38RAaAlZBEALw_wcB",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://vivat.com.ua/product/finalna-propozytsiia/?gad_source=1&gad_campaignid=22779391199&gbraid=0AAAAADGtG7FZk7dDW2ctEzq1UO0k_8m7F&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKej5HuoHtNY1zfIq_y4-O-0qAZvc7oQ6FWMTihXL7E3M4BUXomBG9MaAhhBEALw_wcB",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://epicentrk.ua/ua/shop/mplc-plaska-dla-vodi-sportivna-z-trubockou-1-6-l-hp-14-35-1eff757a-efac-6ae6-89a7-ffe08ddb7939.html?tak=NGJlMWZjMmFiY2JjMjhiOGE0ODVjNzQ5MTI5MGEyNTQtNS1NUDI0NzI0MjAyLTAuNTEtMzYxNjItMTk1OTI1ZjUtMjBkZi00OTc3LTg0ZTgtNGE1YjM3OWY2NWM3LS0t",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://bujobox.com.ua/nabir-stikeriv-have-a-good-day-detektyv-u-spravi-15-sht/",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://avrora.ua/gel-dlya-prannya-wash-and-free-universal-4100-g/",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://symbol.ua/uk/store/bezevoe-plate-s-drapirovkoj-magda-butrym-dress11323526-bezevyj",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://www.foxtrot.com.ua/ru/shop/skovorodki-bravo-chef-lappetit-236-5414.html",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://katysoho.com.ua/product/kros-bodi-sumka-605-blakytnyj/?utm_source=google&utm_medium=cpc&utm_campaign=pmax_under1900&utm_content=&utm_term=&gad_source=1&gad_campaignid=23596277402&gbraid=0AAAAA-fV0axuW4YX9RbAo76eNOcnNeo1E&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKdLUqkShndoXI42mdUIyafld3cDCCsuhKkknL4UP2l8a9bwxJ7gBEwaAqo_EALw_wcB",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://kashalot.gift/ua/multitul-po-gri-stalker-podarunok-dlja-gejmera-ta-fanata/",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://www.yakaboo.ua/ua/vid-mak-komplekt-iz-8-knig-2257277.html?gad_source=1&gad_campaignid=22698815994&gbraid=0AAAAADoya-YauA1xe62oF82MvH_jZwLFh&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKfL148YDk7PcTn5wvY6XvmPUi0RG6N1VafHHssDZ530uYGRP197DQoaAtt5EALw_wcB",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://geekach.com.ua/spapliuzhenyi-hraal.-padinnia-avalonu-tainted-grail-the-fall-of-avalon/?gad_source=1&gad_campaignid=17178695679&gbraid=0AAAAACxBQ3HtzMQ8D5q5tecBok19tYMqt&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKeEisfLIyjmjFJ7tYULNk-3GkDFjN_IqhLDsxPzWPHUz9m2UdsIRqgaApYVEALw_wcB",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://hobymonster.com.ua/nastilna-hra-unmatched-bytva-lehend-chastyna-2/",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://leleka.camp/uk/pixy-hammock-orange-xl/",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+  {
+    url: "https://octopus.in.ua/boardgames/catan-dopovnennya-dlya-5-6-gravcv",
+    expected: { title: null, price: null, image: null, description: null },
+  },
+]; 
+
+export const TEST_CASES: TestCase[] = RAW_TEST_CASES.map((tc) => ({
+  ...tc,
+  expected: ACCEPTANCE_CRITERIA.get(tc.url) ?? tc.expected,
+}));
