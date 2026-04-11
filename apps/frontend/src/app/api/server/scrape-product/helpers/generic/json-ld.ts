@@ -200,10 +200,19 @@ function extractProductFromJSONLD(data: any): ProductData | null {
       }
     }
 
+    // Resolve image: can be string, array, or ImageObject {url: "..."}
+    let resolvedImage: string | null = null;
+    const rawImage = Array.isArray(item.image) ? item.image[0] : item.image;
+    if (typeof rawImage === "string") {
+      resolvedImage = rawImage;
+    } else if (rawImage && typeof rawImage === "object" && rawImage.url) {
+      resolvedImage = rawImage.url;
+    }
+
     return {
       title: item.name || null,
       description: item.description || null,
-      image: (Array.isArray(item.image) ? item.image[0] : item.image) || null,
+      image: resolvedImage,
       price: price ? String(price) : null,
       discount_price: discountPrice ? String(discountPrice) : null,
       has_discount: hasDiscount,

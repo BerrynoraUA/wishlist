@@ -61,6 +61,57 @@ interface ApiScrapeResultRow {
 
 type TestState = "idle" | "running" | "done";
 
+function parseComparablePrice(value: string | null): number | null {
+  if (value === null) {
+    return null;
+  }
+
+  const numericPart = value.replace(/[^\d.,\s]/g, "").trim();
+  if (!numericPart) {
+    return null;
+  }
+
+  const compactValue = numericPart.replace(/\s+/g, "");
+  const lastCommaIndex = compactValue.lastIndexOf(",");
+  const lastDotIndex = compactValue.lastIndexOf(".");
+
+  let normalizedValue = compactValue;
+
+  if (lastCommaIndex !== -1 && lastDotIndex !== -1) {
+    if (lastCommaIndex > lastDotIndex) {
+      normalizedValue = compactValue.replace(/\./g, "").replace(",", ".");
+    } else {
+      normalizedValue = compactValue.replace(/,/g, "");
+    }
+  } else if (lastCommaIndex !== -1) {
+    const fractionalDigits = compactValue.length - lastCommaIndex - 1;
+    normalizedValue =
+      fractionalDigits > 0 && fractionalDigits <= 2
+        ? compactValue.replace(",", ".")
+        : compactValue.replace(/,/g, "");
+  } else if (lastDotIndex !== -1) {
+    const fractionalDigits = compactValue.length - lastDotIndex - 1;
+    normalizedValue =
+      fractionalDigits > 0 && fractionalDigits <= 2
+        ? compactValue
+        : compactValue.replace(/\./g, "");
+  }
+
+  const parsedValue = Number(normalizedValue);
+  return Number.isFinite(parsedValue) ? parsedValue : null;
+}
+
+function isPriceMatch(expected: string | null, actual: string | null): boolean {
+  const expectedPrice = parseComparablePrice(expected);
+  const actualPrice = parseComparablePrice(actual);
+
+  if (expectedPrice === null || actualPrice === null) {
+    return expected === actual;
+  }
+
+  return expectedPrice === actualPrice;
+}
+
 function validateResult(
   testCase: TestCase,
   data: ProductData | null,
@@ -78,13 +129,34 @@ function validateResult(
 
   return fields.map(({ field, key, dataKey }) => {
     const expected = testCase.expected[key];
-    const actual = (data?.[dataKey] as string | null) ?? null;
+    const rawActual = data?.[dataKey];
+    const actual = rawActual == null ? null : String(rawActual);
 
     if (expected === null) {
       return { field, expected, actual, match: null };
     }
 
-    return { field, expected, actual, match: expected === actual };
+    const trimmedExpected = expected?.trim() ?? null;
+    const trimmedActual = actual?.trim() ?? null;
+
+    let match: boolean;
+    if (key === "price") {
+      match = isPriceMatch(trimmedExpected, trimmedActual);
+    } else if (key === "description" && trimmedExpected && trimmedActual) {
+      match =
+        trimmedActual === trimmedExpected ||
+        trimmedActual.startsWith(trimmedExpected.replace(/…$/, "")) ||
+        trimmedExpected.startsWith(trimmedActual.replace(/…$/, ""));
+    } else {
+      match = trimmedExpected === trimmedActual;
+    }
+
+    return {
+      field,
+      expected,
+      actual,
+      match,
+    };
   });
 }
 
