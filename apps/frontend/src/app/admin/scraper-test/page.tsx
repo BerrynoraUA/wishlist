@@ -11,8 +11,14 @@ import {
   Loader2,
   ExternalLink,
   Clock,
+  FileJson,
+  FileSpreadsheet,
 } from "lucide-react";
-import { TEST_URLS } from "./test-urls";
+import { TEST_CASES, type TestCase } from "./test-urls";
+import {
+  exportScraperResultsExcel,
+  exportScraperResultsJson,
+} from "./export-scraper-results";
 import styles from "./scraper-test.module.scss";
 
 interface ProductData {
@@ -26,7 +32,25 @@ interface ProductData {
   currency: string | null;
 }
 
+interface FieldValidation {
+  field: string;
+  expected: string | null;
+  actual: string | null;
+  match: boolean | null; // null = not validated (expected is null)
+}
+
 interface ScrapeResult {
+  url: string;
+  status: "success" | "partial" | "failed";
+  data: ProductData | null;
+  error?: string;
+  missingFields?: string[];
+  duration: number;
+  validations: FieldValidation[];
+}
+
+/** Shape of each entry in POST /api/admin/scraper-test `results` (before client-side validation). */
+interface ApiScrapeResultRow {
   url: string;
   status: "success" | "partial" | "failed";
   data: ProductData | null;
@@ -37,13 +61,126 @@ interface ScrapeResult {
 
 type TestState = "idle" | "running" | "done";
 
+function parseComparablePrice(value: string | null): number | null {
+  if (value === null) {
+    return null;
+  }
+
+  const numericPart = value.replace(/[^\d.,\s]/g, "").trim();
+  if (!numericPart) {
+    return null;
+  }
+
+  const compactValue = numericPart.replace(/\s+/g, "");
+  const lastCommaIndex = compactValue.lastIndexOf(",");
+  const lastDotIndex = compactValue.lastIndexOf(".");
+
+  let normalizedValue = compactValue;
+
+  if (lastCommaIndex !== -1 && lastDotIndex !== -1) {
+    if (lastCommaIndex > lastDotIndex) {
+      normalizedValue = compactValue.replace(/\./g, "").replace(",", ".");
+    } else {
+      normalizedValue = compactValue.replace(/,/g, "");
+    }
+  } else if (lastCommaIndex !== -1) {
+    const fractionalDigits = compactValue.length - lastCommaIndex - 1;
+    normalizedValue =
+      fractionalDigits > 0 && fractionalDigits <= 2
+        ? compactValue.replace(",", ".")
+        : compactValue.replace(/,/g, "");
+  } else if (lastDotIndex !== -1) {
+    const fractionalDigits = compactValue.length - lastDotIndex - 1;
+    normalizedValue =
+      fractionalDigits > 0 && fractionalDigits <= 2
+        ? compactValue
+        : compactValue.replace(/\./g, "");
+  }
+
+  const parsedValue = Number(normalizedValue);
+  return Number.isFinite(parsedValue) ? parsedValue : null;
+}
+
+function isPriceMatch(expected: string | null, actual: string | null): boolean {
+  const expectedPrice = parseComparablePrice(expected);
+  const actualPrice = parseComparablePrice(actual);
+
+  if (expectedPrice === null || actualPrice === null) {
+    return expected === actual;
+  }
+
+  return expectedPrice === actualPrice;
+}
+
+function validateResult(
+  testCase: TestCase,
+  data: ProductData | null,
+): FieldValidation[] {
+  const fields: {
+    field: string;
+    key: keyof TestCase["expected"];
+    dataKey: keyof ProductData;
+  }[] = [
+    { field: "Title", key: "title", dataKey: "title" },
+    { field: "Price", key: "price", dataKey: "price" },
+    { field: "Image", key: "image", dataKey: "image" },
+    { field: "Description", key: "description", dataKey: "description" },
+  ];
+
+  return fields.map(({ field, key, dataKey }) => {
+    const expected = testCase.expected[key];
+    const rawActual = data?.[dataKey];
+    const actual = rawActual == null ? null : String(rawActual);
+
+    if (expected === null) {
+      return { field, expected, actual, match: null };
+    }
+
+    const trimmedExpected = expected?.trim() ?? null;
+    const trimmedActual = actual?.trim() ?? null;
+
+    let match: boolean;
+    if (key === "price") {
+      match = isPriceMatch(trimmedExpected, trimmedActual);
+    } else if (key === "description" && trimmedExpected && trimmedActual) {
+      match =
+        trimmedActual === trimmedExpected ||
+        trimmedActual.startsWith(trimmedExpected.replace(/…$/, "")) ||
+        trimmedExpected.startsWith(trimmedActual.replace(/…$/, ""));
+    } else {
+      match = trimmedExpected === trimmedActual;
+    }
+
+    return {
+      field,
+      expected,
+      actual,
+      match,
+    };
+  });
+}
+
+function computeStatus(
+  scraperStatus: "success" | "partial" | "failed",
+  validations: FieldValidation[],
+): "success" | "partial" | "failed" {
+  if (scraperStatus === "failed") return "failed";
+
+  const checked = validations.filter((v) => v.match !== null);
+  if (checked.length === 0) return scraperStatus; // no expected values set, use scraper status
+  const allMatch = checked.every((v) => v.match);
+  if (allMatch) return "success";
+  const someMatch = checked.some((v) => v.match);
+  return someMatch ? "partial" : "failed";
+}
+
 export default function ScraperTestPage() {
   const [state, setState] = useState<TestState>("idle");
   const [results, setResults] = useState<ScrapeResult[]>([]);
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
 
-  const totalUrls = TEST_URLS.length;
+  const totalUrls = TEST_CASES.length;
 
   const successCount = results.filter((r) => r.status === "success").length;
   const partialCount = results.filter((r) => r.status === "partial").length;
@@ -55,30 +192,57 @@ export default function ScraperTestPage() {
     setExpandedIdx(null);
     setProgress(0);
 
-    // Скрапимо по одному щоб мати прогрес в реальному часі
     const allResults: ScrapeResult[] = [];
 
-    for (let i = 0; i < TEST_URLS.length; i++) {
-      const url = TEST_URLS[i];
+    for (let i = 0; i < TEST_CASES.length; i++) {
+      const testCase = TEST_CASES[i];
       try {
         const res = await fetch("/api/admin/scraper-test", {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ urls: [url] }),
+          body: JSON.stringify({ urls: [testCase.url] }),
         });
-        const json = await res.json();
-        if (json.results?.[0]) {
-          allResults.push(json.results[0]);
+        const json = (await res.json()) as {
+          results?: ApiScrapeResultRow[];
+          error?: string;
+        };
+        if (!res.ok) {
+          allResults.push({
+            url: testCase.url,
+            status: "failed",
+            data: null,
+            error: json.error ?? `HTTP ${res.status}`,
+            duration: 0,
+            validations: validateResult(testCase, null),
+          });
+          setResults([...allResults]);
+          setProgress(i + 1);
+          continue;
+        }
+        const raw = json.results?.[0];
+        if (raw) {
+          const validations = validateResult(testCase, raw.data);
+          const status = computeStatus(raw.status, validations);
+          allResults.push({ ...raw, status, validations });
         } else {
-          allResults.push({ url, status: "failed", data: null, error: "Empty response", duration: 0 });
+          allResults.push({
+            url: testCase.url,
+            status: "failed",
+            data: null,
+            error: "Empty response",
+            duration: 0,
+            validations: validateResult(testCase, null),
+          });
         }
       } catch (err) {
         allResults.push({
-          url,
+          url: testCase.url,
           status: "failed",
           data: null,
           error: err instanceof Error ? err.message : "Network error",
           duration: 0,
+          validations: validateResult(testCase, null),
         });
       }
       setResults([...allResults]);
@@ -114,14 +278,15 @@ export default function ScraperTestPage() {
     }
   };
 
+  const exportFilenameBase = () =>
+    `scraper-test-${new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)}`;
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>Scraper Test</h1>
-          <p className={styles.subtitle}>
-            {totalUrls} URLs to test
-          </p>
+          <p className={styles.subtitle}>{totalUrls} URLs to test</p>
         </div>
 
         <button
@@ -180,10 +345,37 @@ export default function ScraperTestPage() {
           <div className={`${styles.statCard} ${styles.statTotal}`}>
             <Clock size={20} />
             <div>
-              <strong>{results.length}/{totalUrls}</strong>
+              <strong>
+                {results.length}/{totalUrls}
+              </strong>
               <span>Total</span>
             </div>
           </div>
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <div className={styles.exportBar}>
+          <button
+            type="button"
+            className={styles.exportBtn}
+            onClick={() =>
+              exportScraperResultsJson(results, exportFilenameBase())
+            }
+          >
+            <FileJson size={18} />
+            Export JSON
+          </button>
+          <button
+            type="button"
+            className={styles.exportBtn}
+            onClick={() =>
+              exportScraperResultsExcel(results, exportFilenameBase())
+            }
+          >
+            <FileSpreadsheet size={18} />
+            Export Excel
+          </button>
         </div>
       )}
 
@@ -204,7 +396,9 @@ export default function ScraperTestPage() {
                   <span className={styles.resultUrl} title={result.url}>
                     {getDomain(result.url)}
                   </span>
-                  <span className={`${styles.badge} ${styles[`badge_${result.status}`]}`}>
+                  <span
+                    className={`${styles.badge} ${styles[`badge_${result.status}`]}`}
+                  >
                     {statusLabel(result.status)}
                   </span>
                 </div>
@@ -222,15 +416,52 @@ export default function ScraperTestPage() {
             {expandedIdx === idx && (
               <div className={styles.details}>
                 <div className={styles.detailUrl}>
-                  <a href={result.url} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={result.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {result.url}
                     <ExternalLink size={12} />
                   </a>
                 </div>
 
                 {result.error && (
-                  <div className={styles.errorMsg}>
-                    Error: {result.error}
+                  <div className={styles.errorMsg}>Error: {result.error}</div>
+                )}
+
+                {result.validations.some((v) => v.match !== null) && (
+                  <div className={styles.validationGrid}>
+                    <div className={styles.validationTitle}>Validation</div>
+                    {result.validations
+                      .filter((v) => v.match !== null)
+                      .map((v) => (
+                        <div
+                          key={v.field}
+                          className={`${styles.validationRow} ${v.match ? styles.validationMatch : styles.validationMismatch}`}
+                        >
+                          <span className={styles.validationIcon}>
+                            {v.match ? (
+                              <CheckCircle2 size={14} />
+                            ) : (
+                              <XCircle size={14} />
+                            )}
+                          </span>
+                          <span className={styles.validationField}>
+                            {v.field}
+                          </span>
+                          {!v.match && (
+                            <div className={styles.validationDiff}>
+                              <div className={styles.diffExpected}>
+                                <span>Expected:</span> {v.expected ?? "—"}
+                              </div>
+                              <div className={styles.diffActual}>
+                                <span>Got:</span> {v.actual ?? "—"}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
                   </div>
                 )}
 
@@ -243,13 +474,26 @@ export default function ScraperTestPage() {
                 {result.data && (
                   <div className={styles.dataGrid}>
                     <DataRow label="Title" value={result.data.title} />
-                    <DataRow label="Description" value={result.data.description} truncate />
+                    <DataRow
+                      label="Description"
+                      value={result.data.description}
+                      truncate
+                    />
                     <DataRow label="Image" value={result.data.image} isImage />
                     <DataRow label="Price" value={result.data.price} />
                     <DataRow label="Currency" value={result.data.currency} />
-                    <DataRow label="Discount Price" value={result.data.discount_price} />
-                    <DataRow label="Has Discount" value={result.data.has_discount ? "Yes" : "No"} />
-                    <DataRow label="Discount End" value={result.data.discount_end_date} />
+                    <DataRow
+                      label="Discount Price"
+                      value={result.data.discount_price}
+                    />
+                    <DataRow
+                      label="Has Discount"
+                      value={result.data.has_discount ? "Yes" : "No"}
+                    />
+                    <DataRow
+                      label="Discount End"
+                      value={result.data.discount_end_date}
+                    />
                   </div>
                 )}
               </div>
@@ -292,7 +536,12 @@ function DataRow({
       <span className={styles.dataLabel}>{label}</span>
       <span className={`${styles.dataValue} ${!value ? styles.empty : ""}`}>
         {isImage && value ? (
-          <a href={value} target="_blank" rel="noopener noreferrer" className={styles.imageLink}>
+          <a
+            href={value}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.imageLink}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={value} alt="product" className={styles.previewImg} />
             <span className={styles.imgUrl}>{value}</span>
@@ -300,7 +549,7 @@ function DataRow({
         ) : truncate && value && value.length > 200 ? (
           `${value.slice(0, 200)}…`
         ) : (
-          value ?? "—"
+          (value ?? "—")
         )}
       </span>
     </div>

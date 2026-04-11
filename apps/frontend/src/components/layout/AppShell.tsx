@@ -3,6 +3,7 @@
 import { ReactNode, Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { TopNav } from "./TopNav";
+import { MobileComingSoonBanner } from "./MobileComingSoonBanner";
 import { Providers } from "@/providers";
 import type { ResolvedTheme } from "@/lib/theme";
 import type { ThemePreference } from "@/types/settings";
@@ -35,6 +36,7 @@ export function AppShell({
           <TopNav />
         </Suspense>
       )}
+      {!hideTopNav && <MobileComingSoonBanner />}
       {children}
     </Providers>
   );
