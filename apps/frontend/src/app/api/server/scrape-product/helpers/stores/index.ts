@@ -7,6 +7,9 @@ import { scrapeEbay } from "./ebay";
 import { scrapeOLX } from "./olx";
 import { scrapeAmazon } from "./amazon";
 import { scrapeAliExpress } from "./aliexpress";
+import { scrapeAvrora } from "./avrora";
+import { scrapeOctopus } from "./octopus";
+import { scrapeHoroshop } from "./horoshop";
 
 /**
  * Реєстр магазинів: домен → скрапер.
@@ -21,6 +24,11 @@ const storeRegistry: { pattern: string; scraper: ScraperMethod }[] = [
   { pattern: "olx.ua", scraper: scrapeOLX },
   { pattern: "amazon.", scraper: scrapeAmazon },
   { pattern: "aliexpress.", scraper: scrapeAliExpress },
+  { pattern: "avrora.ua", scraper: scrapeAvrora },
+  { pattern: "octopus.in.ua", scraper: scrapeOctopus },
+  { pattern: "bujobox.com.ua", scraper: scrapeHoroshop },
+  { pattern: "hobymonster.com.ua", scraper: scrapeHoroshop },
+  { pattern: "leleka.camp", scraper: scrapeHoroshop },
 ];
 
 /**

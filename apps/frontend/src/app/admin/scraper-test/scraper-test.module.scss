@@ -143,6 +143,35 @@
   color: $brand;
 }
 
+.exportBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.exportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border-radius: $radius-pill;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: 1px solid var(--glass-border);
+  background: var(--card-bg);
+  color: $text;
+  transition:
+    border-color $duration-fast $ease-out,
+    background $duration-fast $ease-out;
+
+  &:hover {
+    border-color: $brand;
+    background: var(--color-bg-warm);
+  }
+}
+
 /* ===== Results Grid ===== */
 .grid {
   display: flex;
@@ -173,6 +202,7 @@
 
 /* ===== Result Card ===== */
 .resultCard {
+  flex-shrink: 0;
   background: var(--card-bg);
   border: 1px solid var(--glass-border);
   border-radius: $radius-md;

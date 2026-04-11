@@ -16,7 +16,7 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
   let discountEndDate: string | null = null;
 
   // 1. Current/sale price from [data-product-price-main]
-  const mainPriceEl = $("[data-product-price-main]");
+  const mainPriceEl = $("[data-product-price-main]").first();
   if (mainPriceEl.length) {
     const dataEl = mainPriceEl.find("data[value]").first();
     if (dataEl.length) {
@@ -29,7 +29,7 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
   }
 
   // 2. Old price from [data-product-price-old]
-  const oldPriceEl = $("[data-product-price-old]");
+  const oldPriceEl = $("[data-product-price-old]").first();
   if (oldPriceEl.length) {
     const dataEl = oldPriceEl.find("data[value]").first();
     if (dataEl.length) {
@@ -59,7 +59,7 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
 
   // 5. Fallback: data-rewish-price attribute
   if (!currentPrice) {
-    const rewishAttr = $('[data-rewish-price]').attr('data-rewish-price');
+    const rewishAttr = $("[data-rewish-price]").attr("data-rewish-price");
     if (rewishAttr) currentPrice = extractNumericPrice(rewishAttr);
   }
 
