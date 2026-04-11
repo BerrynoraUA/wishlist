@@ -1182,5 +1182,195 @@
       "_description_note": "Moda Operandi does not expose description in OG or JSON-LD",
       "description": null
     }
+  },
+  {
+    "url": "https://octopus.in.ua/boardgames/catan-dopovnennya-dlya-5-6-gravcv",
+    "expected": {
+      "title": "CATAN: Доповнення для 5-6 гравців",
+      "price": "1120",
+      "image": "https://octopus.in.ua/image/cache/catalog/Logo/tortuga/lplbaapswu08jbl0btym4kwjmnch80qi-600x600.png",
+      "description": null
+    }
+  },
+  {
+    "url": "https://leleka.camp/uk/pixy-hammock-orange-xl/",
+    "expected": {
+      "title": "Гамак Pixy Помаранчевий XL",
+      "price": "2 900.00",
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://hobymonster.com.ua/nastilna-hra-unmatched-bytva-lehend-chastyna-2/",
+    "expected": {
+      "title": "Настільна гра Unmatched: Битва Легенд Частина 2 UA",
+      "price": "1750",
+      "image": null,
+      "description": "Unmatched — це дуже асиметричний мініатюрний файтинг для двох або чотирьох гравців. Кожен герой представлений унікальною колодою, створеною для того, щоб проявитись стильно і легендарно в протистоянні героїв. Тактичні переміщення та розв’язання невдалого бою створюють унікальний досвід гри, але саме тоді, коли ви освоїте один набір, з’являються нові герої, щоб забезпечити всі нові матчі."
+    }
+  },
+  {
+    "url": "https://geekach.com.ua/spapliuzhenyi-hraal.-padinnia-avalonu-tainted-grail-the-fall-of-avalon/?gad_source=1&gad_campaignid=17178695679&gbraid=0AAAAACxBQ3HtzMQ8D5q5tecBok19tYMqt&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKeEisfLIyjmjFJ7tYULNk-3GkDFjN_IqhLDsxPzWPHUz9m2UdsIRqgaApYVEALw_wcB",
+    "expected": {
+      "title": "Спаплюжений Грааль. Падіння Авалону (Tainted Grail: The Fall of Avalon)",
+      "price": "7460",
+      "image": "https://geekach.com.ua/content/images/30/1600x1587l99br0/19043225966221.jpg",
+      "description": "Пригодницький кооператив за мотивами легенд про короля Артура і кельтських міфів. Настільна гра «Tainted Grail: The Fall of Avalon» була розроблена в 2019 році. Авторами гри виступили 3D-скульптор і а…"
+    }
+  },
+  {
+    "url": "https://www.yakaboo.ua/ua/vid-mak-komplekt-iz-8-knig-2257277.html?gad_source=1&gad_campaignid=22698815994&gbraid=0AAAAADoya-YauA1xe62oF82MvH_jZwLFh&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKfL148YDk7PcTn5wvY6XvmPUi0RG6N1VafHHssDZ530uYGRP197DQoaAtt5EALw_wcB",
+    "expected": {
+      "title": "Відьмак (комплект із 8 книг)",
+      "price": "3120",
+      "image": "https://static.yakaboo.ua/media/cloudflare/product/webp/600x840/5/1/51998_97536.jpg",
+      "description": "Від Яруги до Драконячих гір мандрує один з останніх відьмаків — Ґеральт із Рівії. Він зустрічає людей та істот, які чимось дуже нагадують персонажів відомих казок, і намагається зрозуміти, чи залишилося в ньому самому хоч щось від людини? Його пригоди тільки починаються…До комплекту увійшли такі книги:«Відьмак. Останнє бажання. Книга 1» «Відьмак. Меч призначення. Книга 2» «Відьмак. Кров ельфів. Книга 3»«Відьмак. Час погорди. Книга 4»«Відьмак. Хрещення вогнем. Книга 5»«Відьмак. Вежа Ластівки. Книга 6» «Відьмак. Володарка Озера. Книга 7»«Відьмак. Сезон гроз. Книга 8»"
+    }
+  },
+  {
+    "url": "https://kashalot.gift/ua/multitul-po-gri-stalker-podarunok-dlja-gejmera-ta-fanata/",
+    "expected": {
+      "title": "Ніж в стилі гри Stalker",
+      "price": "850",
+      "image": "https://kashalot.gift/image/cachewebp/catalog/Stalker/Nizh-Stalker/10.03.2026_stalker_knife_1-600x600.webp",
+      "description": null
+    }
+  },
+  {
+    "url": "https://katysoho.com.ua/product/kros-bodi-sumka-605-blakytnyj/?utm_source=google&utm_medium=cpc&utm_campaign=pmax_under1900&utm_content=&utm_term=&gad_source=1&gad_campaignid=23596277402&gbraid=0AAAAA-fV0axuW4YX9RbAo76eNOcnNeo1E&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKdLUqkShndoXI42mdUIyafld3cDCCsuhKkknL4UP2l8a9bwxJ7gBEwaAqo_EALw_wcB",
+    "expected": {
+      "title": "Сумка міні-бег блакитна KatySOHO / 605 - Katy Soho",
+      "price": "1200",
+      "image": null,
+      "description": "Сумка крос-боді з екошкіри на підкладці, застібка на магнітній кнопці. Всередині сумки є додаткова та потаємна кишенька на змійці. Ремінець регулюється. Має лого спереду та всередині сумки. Ремінець логотипу не має."
+    }
+  },
+  {
+    "url": "https://www.foxtrot.com.ua/ru/shop/skovorodki-bravo-chef-lappetit-236-5414.html",
+    "expected": {
+      "title": "Сковорода для блинов BRAVO CHEF L’Appetit 24 см Black (BC-1103-24Р)",
+      "price": "299",
+      "image": "https://files.foxtrot.com.ua/PhotoNew/img_0_236_5414_0_1_3pG7tQ_Small.jpg",
+      "description": null
+    }
+  },
+  {
+    "url": "https://symbol.ua/uk/store/bezevoe-plate-s-drapirovkoj-magda-butrym-dress11323526-bezevyj",
+    "expected": {
+      "title": "Magda Butrym - Бежева сукня з драпіруванням DRESS11323526 купити в Symbol",
+      "price": "112 056",
+      "image": "https://media4.symbol.ua/aio-images/d5/f7/d5f7e4bd8abfcb3b187226736af50323/0578c6b8-638c-4b3b-98b4-23b30be82345.jpg",
+      "description": null
+    }
+  },
+  {
+    "url": "https://avrora.ua/gel-dlya-prannya-wash-and-free-universal-4100-g/",
+    "expected": {
+      "title": "Гель для прання WASH&FREE Universal 4100 г",
+      "price": "229",
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://bujobox.com.ua/nabir-stikeriv-have-a-good-day-detektyv-u-spravi-15-sht/",
+    "expected": {
+      "title": "Набір стікерів Have a good day Детектив у справі 15 шт",
+      "price": "84",
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://epicentrk.ua/ua/shop/mplc-plaska-dla-vodi-sportivna-z-trubockou-1-6-l-hp-14-35-1eff757a-efac-6ae6-89a7-ffe08ddb7939.html?tak=NGJlMWZjMmFiY2JjMjhiOGE0ODVjNzQ5MTI5MGEyNTQtNS1NUDI0NzI0MjAyLTAuNTEtMzYxNjItMTk1OTI1ZjUtMjBkZi00OTc3LTg0ZTgtNGE1YjM3OWY2NWM3LS0t",
+    "expected": {
+      "title": "Пляшка для води спортивна з трубочкою 1,6 л (HP-14-35)",
+      "price": "623",
+      "image": "https://cdn.27.ua/sc--media--prod/default/15/cd/58/15cd580f-fd24-42ac-9831-26fa3dc0cd24.jpeg",
+      "description": null
+    }
+  },
+  {
+    "url": "http://vivat.com.ua/product/finalna-propozytsiia/?gad_source=1&gad_campaignid=22779391199&gbraid=0AAAAADGtG7FZk7dDW2ctEzq1UO0k_8m7F&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKej5HuoHtNY1zfIq_y4-O-0qAZvc7oQ6FWMTihXL7E3M4BUXomBG9MaAhhBEALw_wcB",
+    "expected": {
+      "title": "Фінальна пропозиція (Мільярдери з Дрімленду #3)",
+      "price": "599",
+      "image": "https://vivat.com.ua/resize_480x686x95/storage/1.d/files/3/b/3b2a200f_finalna-propoziciia.webp",
+      "description": null
+    }
+  },
+  {
+    "url": "https://ksd.ua/product/khroniky-buresvitla-komplekt-z-5-knyh?utm_source=google&utm_medium=cpc&utm_campaign=Ukr-Perform_Max-All-%D0%9A%D0%A1%D0%94&utm_content=gid__x_c_9198696_&utm_term=__&gad_source=1&gad_campaignid=23362505971&gbraid=0AAAAADq3rgtABTAC92Wox6ZJLO9gQDWIM&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKddcULSuA8gTS0ExzhGkhFq8ogI0IQv-Zmxtf0AD4z14bHz3zG38RAaAlZBEALw_wcB",
+    "expected": {
+      "title": "«Хроніки Буресвітла» комплект з 5 книг",
+      "price": "3780",
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://book-ye.com.ua/hudozhnja-literatura/proza/suchasna-zarubizhna-proza/ne-moja-istorija/?sc_content=37193_r2950v3562",
+    "_note": "Blocked by book-ye.com.ua server-side bot protection (403 Forbidden)",
+    "expected": {
+      "title": null,
+      "price": null,
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://bi.ua/ukr/product/nabor-syurpriz-lol-surprise-loves-hello-kitty-hello-kitty-i-druzya-523840.html?sc_content=34180_r2565v3090",
+    "expected": {
+      "title": "Набір-сюрприз LOL Surprise Loves Hello Kitty Hello Kitty та друзі (523840) купити в Києві, Україні за вигідною ціною | 【Будинок іграшок】",
+      "price": "865",
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://maudau.com.ua/ru/product/viski-chivas-brothers-royal-salute-v-korobtsi-40-07-l-4056?gad_source=1&gad_campaignid=21143810111&gbraid=0AAAAABiTv2oHNd3B4BJuaoOMyNJstNoS6&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKcRZZZWn_hXD8mpiKFMxSr1mBMR9Senbfy0zJWlC_rN9vNmheH-xBMaArH8EALw_wcB",
+    "expected": {
+      "title": "Виски Royal Salute 21 year old, в коробке, 40%, 0,7 л",
+      "price": "10647",
+      "image": "https://image.maudau.com.ua/webp/size/lg/products/28/66/aa/2866aa28-bb80-4d11-863d-347b56ff6ec9.jpg",
+      "description": null
+    }
+  },
+  {
+    "url": "https://rozetka.com.ua/ua/asus-90nr0lb2-m00970/p568837453/?gad_source=1&gad_campaignid=23516836960&gbraid=0AAAAABpmbmuCWPuac9GpjWE6ZuSNNv-FL&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKcYboCmQsr2zcaVhiEewFNAbju0Y7UMkHCEvqj58Iyj61sIbVbYxasaAnG2EALw_wcB",
+    "expected": {
+      "title": "Ноутбук ASUS ROG Strix G16 (2025) G615JMR-RV204 (90NR0LB2-M00970) Volt Green / 16\" IPS WUXGA 165 Гц / Intel Core i7-14650HX / RAM 16 ГБ / SSD 1 ТБ / nVidia GeForce RTX 5060, 8 ГБ (TDP 115 Вт)",
+      "price": "83999",
+      "image": "https://content.rozetka.com.ua/goods/images/big/643597835.jpg",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.olx.ua/d/uk/obyavlenie/radiomikrofony-komplekt-2sht-IDZ2CM3.html?search_reason=search%7Cpromoted",
+    "expected": {
+      "title": "Радиомикрофоны комплект 2шт",
+      "price": "1 055",
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://prom.ua/ua/p2841731603-hudi-frieren-waifu.html?utm_source=google_pmax&utm_medium=cpc&utm_content=pmax&utm_campaign=Pmax_cpa_muzhskie_tolstovki&gad_source=1&gad_campaignid=20408928155&gbraid=0AAAAADBxJSWpMFCbTUwd6WFCagND4LFZH&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKfb_dzJvdgC7m8LnwqQr1H110yKYapxds66rTzSltQhFhNwsTK4uwwaAnG-EALw_wcB",
+    "expected": {
+      "title": "Худі \"Frieren Waifu Edition 18+\" Sousou no Frieren, Чорний, XL",
+      "price": "1 310",
+      "image": "https://images.prom.ua/6959424614_w700_h500_hudi-frieren--.jpg",
+      "description": null
+    }
+  },
+  {
+    "url": "https://www.temu.com/ua-ru/kuiper/un9.html?subj=default-un-v2&_bg_fs=1&_p_jump_id=1100&_x_vst_scene=adg&goods_id=601099595424021&sku_id=17592515113823&adg_ctx=a-7486d2fc~c-dde9cefe~f-30ae0237&_x_ads_sub_channel=shopping&_p_rfs=1&_x_ns_prz_type=-1&_x_ns_sku_id=17592515113823&_x_ns_gid=601099595424021&mrk_rec=1&_x_ads_channel=google&_x_gmc_account=5343777111&_x_login_type=Google&_x_ns_gg_lnk_type=adr&_x_ads_account=8661564203&_x_ads_set=22886053880&_x_ads_id=182463914143&_x_ads_creative_id=769046477948&_x_ns_source=g&_x_ns_gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKfUf5HGYJWMTIDZy27AvSWN8hKinn1nWn7eaUKbM5uGN4DYpAqa5pgaAlpHEALw_wcB&_x_ns_placement=&_x_ns_match_type=&_x_ns_ad_position=&_x_ns_product_id=5343777111-ru-17592515113823&_x_ns_target=&_x_ns_devicemodel=&_x_ns_wbraid=CkAKCAjwnN3OBhBTEjAAkAejLi0r1dOCX_kYgRfV2e2ev9q0pQ-UgH3haM8bJBL-Hol4OViuO9TIsg3JmQkaAr5i&_x_ns_gbraid=0AAAAAo4mICH7jk6yLDZLIDQkTxdvepEeD&_x_ns_targetid=pla-2387322851245&gad_source=1&gad_campaignid=22886053880&gbraid=0AAAAAo4mICH7jk6yLDZLIDQkTxdvepEeD&gclid=Cj0KCQjwv-LOBhCdARIsAM5hdKfUf5HGYJWMTIDZy27AvSWN8hKinn1nWn7eaUKbM5uGN4DYpAqa5pgaAlpHEALw_wcB",
+    "expected": {
+      "title": "Великий Розмір - Великий Розмір - Жіноча Сукня 600002",
+      "price": "328.60",
+      "image": "https://img.kwcdn.com/thumbnail/s/2f0e9237b715830394fd1f82f2af18e1_126368fa04a7.jpg",
+      "description": null
+    }
   }
 ]

@@ -21,17 +21,42 @@ export type { ProductData };
 export async function scrapeProduct(url: string): Promise<ProductData | null> {
   if (!isSafeUrl(url)) return null;
 
-  const response = await fetch(url, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      "Accept-Language": "uk-UA,uk;q=0.9,en-US;q=0.8,en;q=0.7",
-    },
-  });
+  const fetchHeaders: Record<string, string> = {
+    "User-Agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "Accept-Language": "uk-UA,uk;q=0.9,en-US;q=0.8,en;q=0.7",
+  };
+
+  let response = await fetch(url, { headers: fetchHeaders });
 
   if (!response.ok) return null;
 
-  const html = await response.text();
+  let html = await response.text();
+
+  // Bypass JS cookie challenge (Horoshop-based sites like bujobox, hobymonster, leleka)
+  // These return a small script that sets a "challenge_passed" cookie and reloads.
+  // The retry must include session cookies (PHPSESSID etc.) from the first response.
+  const challengeMatch = html.match(
+    /const\s+defaultHash\s*=\s*"([a-f0-9]{64})"/,
+  );
+  if (
+    challengeMatch &&
+    html.length < 1000 &&
+    html.includes("challenge_passed")
+  ) {
+    const setCookies = response.headers.getSetCookie?.() ?? [];
+    const cookiePairs = setCookies.map((c) => c.split(";")[0]).filter(Boolean);
+    cookiePairs.push(`challenge_passed=${challengeMatch[1]}`);
+
+    response = await fetch(url, {
+      headers: {
+        ...fetchHeaders,
+        Cookie: cookiePairs.join("; "),
+      },
+    });
+    if (!response.ok) return null;
+    html = await response.text();
+  }
 
   // 1. Спробувати специфічний скрапер для відомого магазину
   const storeScraper = getStoreScraper(url);
@@ -78,6 +103,15 @@ export async function scrapeProduct(url: string): Promise<ProductData | null> {
     product.price = product.discount_price;
   }
 
+  // Resolve relative image URLs to absolute
+  if (product.image && !product.image.startsWith("http")) {
+    try {
+      product.image = new URL(product.image, url).href;
+    } catch {
+      // leave as-is if URL parsing fails
+    }
+  }
+
   if (
     !product.title &&
     !product.description &&
@@ -114,7 +148,10 @@ function getCorsHeaders(request: NextRequest): Record<string, string> {
 }
 
 export async function OPTIONS(request: NextRequest) {
-  return new NextResponse(null, { status: 204, headers: getCorsHeaders(request) });
+  return new NextResponse(null, {
+    status: 204,
+    headers: getCorsHeaders(request),
+  });
 }
 
 export async function GET(request: NextRequest) {
