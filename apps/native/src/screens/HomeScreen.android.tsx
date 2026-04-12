@@ -1,10 +1,8 @@
 import { Box, Column, Host, Text } from "@expo/ui/jetpack-compose";
-import { useGT } from "gt-react-native";
 import { GtLocaleSelector } from "@/components/GtLocaleSelector";
+import { T } from "gt-react-native";
 
 export default function HomeScreen() {
-  const gt = useGT();
-
   return (
     <Host style={{ flex: 1 }}>
       <Box contentAlignment="center">
@@ -13,9 +11,11 @@ export default function HomeScreen() {
           verticalArrangement={{ spacedBy: 16 }}
         >
           <GtLocaleSelector />
-          <Text style={{ textAlign: "center" }}>
-            {gt("Edit src/app/index.tsx to edit this screen.")}
-          </Text>
+          <T>
+            <Text style={{ textAlign: "center" }}>
+              Edit src/screens/HomeScreen.android.tsx to edit this screen.
+            </Text>
+          </T>
         </Column>
       </Box>
     </Host>

@@ -8,7 +8,6 @@
     "scheme": "native",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.berrynora.wishlane"
     },
     "android": {
