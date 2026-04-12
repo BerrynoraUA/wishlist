@@ -1440,7 +1440,7 @@
     decimal.js "^10.4.3"
     tslib "^2.8.0"
 
-"@formatjs/intl-displaynames@^6.8.13":
+"@formatjs/intl-displaynames@^6.8.13", "@formatjs/intl-displaynames@~6.8.13":
   version "6.8.13"
   resolved "https://registry.yarnpkg.com/@formatjs/intl-displaynames/-/intl-displaynames-6.8.13.tgz#5e85980b40fbaa0b81e504608e33db6e16a3891e"
   integrity sha512-VbY7BdYJX5eURVKLk2grndUQtnbCLNbcJId/Sb/PsX7fWXiqWvg7qt/mecVHRzqoSEoGCQToKDxzpJj8RC0s3g==
