@@ -32,10 +32,9 @@ export function NotificationsPanel({
   const acceptInvite = useAcceptSecretSantaInvite();
   const declineInvite = useDeclineSecretSantaInvite();
   const deleteNotification = useDeleteNotification();
-  const [pendingInviteAction, setPendingInviteAction] = useState<{
-    notificationId: string;
-    action: "accept" | "decline";
-  } | null>(null);
+  const [pendingInviteActions, setPendingInviteActions] = useState<
+    Record<string, "accept" | "decline">
+  >({});
 
   const handleHoverRead = (notification: Notification) => {
     if (
@@ -59,11 +58,14 @@ export function NotificationsPanel({
     notification: Notification,
     action: "accept" | "decline",
   ) => {
-    if (!notification.entity_id) {
+    if (!notification.entity_id || pendingInviteActions[notification.id]) {
       return;
     }
 
-    setPendingInviteAction({ notificationId: notification.id, action });
+    setPendingInviteActions((current) => ({
+      ...current,
+      [notification.id]: action,
+    }));
 
     try {
       if (action === "accept") {
@@ -74,7 +76,11 @@ export function NotificationsPanel({
 
       await deleteNotification.mutateAsync(notification.id);
     } finally {
-      setPendingInviteAction(null);
+      setPendingInviteActions((current) => {
+        const next = { ...current };
+        delete next[notification.id];
+        return next;
+      });
     }
   };
 
@@ -112,7 +118,10 @@ export function NotificationsPanel({
       {isLoading ? (
         <div style={{ display: "grid", gap: 12, padding: 16 }}>
           {[0, 1, 2].map((i) => (
-            <div key={i} style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <div
+              key={i}
+              style={{ display: "flex", gap: 10, alignItems: "center" }}
+            >
               <Skeleton variant="circle" width={36} height={36} />
               <div style={{ flex: 1, display: "grid", gap: 4 }}>
                 <Skeleton variant="text" width="80%" />
@@ -130,18 +139,10 @@ export function NotificationsPanel({
           <ul className={styles.list}>
             {notifications.map((n) => {
               const isInvite = n.type === 0 && n.entity_id != null;
-              const isAccepting =
-                pendingInviteAction?.notificationId === n.id &&
-                pendingInviteAction.action === "accept";
-              const isDeclining =
-                pendingInviteAction?.notificationId === n.id &&
-                pendingInviteAction.action === "decline";
-              const invitePending =
-                isAccepting ||
-                isDeclining ||
-                acceptInvite.isPending ||
-                declineInvite.isPending ||
-                deleteNotification.isPending;
+              const pendingInviteAction = pendingInviteActions[n.id];
+              const isAccepting = pendingInviteAction === "accept";
+              const isDeclining = pendingInviteAction === "decline";
+              const invitePending = isAccepting || isDeclining;
 
               return (
                 <li
