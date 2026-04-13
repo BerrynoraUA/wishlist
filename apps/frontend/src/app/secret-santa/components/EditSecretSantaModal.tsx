@@ -203,7 +203,9 @@ function EditSecretSantaForm({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!name.trim() || !budget || isPending || Boolean(imageError)}
+            disabled={
+              !name.trim() || !budget || isPending || Boolean(imageError)
+            }
           >
             {isPending
               ? t("Saving...", { $id: "secretSanta.edit.saving" })

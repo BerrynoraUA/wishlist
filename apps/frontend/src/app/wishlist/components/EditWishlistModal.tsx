@@ -165,7 +165,9 @@ function EditWishlistForm({
         </div>
 
         <div className={styles.field}>
-          <label>{t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}</label>
+          <label>
+            {t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}
+          </label>
           <input
             placeholder={t("e.g. Birthday Wishes, Home Office Setup", {
               $id: "wishlist.modal.namePlaceholder",
@@ -192,7 +194,9 @@ function EditWishlistForm({
 
         <div className={styles.field}>
           <div className={styles.labelRow}>
-            <label>{t("Cover Image", { $id: "wishlist.modal.coverLabel" })}</label>
+            <label>
+              {t("Cover Image", { $id: "wishlist.modal.coverLabel" })}
+            </label>
             <FileSizeBadge />
           </div>
           <div className={styles.upload}>
@@ -256,7 +260,9 @@ function EditWishlistForm({
             <PrivacyCard
               icon={<Lock size={18} />}
               title={t("Private", { $id: "wishlist.privacy.private" })}
-              subtitle={t("Only you", { $id: "wishlist.privacy.privateSubtitle" })}
+              subtitle={t("Only you", {
+                $id: "wishlist.privacy.privateSubtitle",
+              })}
               selected={privacy === "Private"}
               onClick={() => setPrivacy("Private")}
             />
@@ -264,7 +270,9 @@ function EditWishlistForm({
         </div>
 
         <div className={styles.section}>
-          <label>{t("Cover Color", { $id: "wishlist.modal.coverColor" })}</label>
+          <label>
+            {t("Cover Color", { $id: "wishlist.modal.coverColor" })}
+          </label>
           <div className={styles.colors}>
             {colors.map((c) => (
               <div
