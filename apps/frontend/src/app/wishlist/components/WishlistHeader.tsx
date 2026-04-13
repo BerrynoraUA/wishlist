@@ -181,12 +181,12 @@ export function WishlistHeader({
               <button
                 type="button"
                 className={`${styles.back} iconTooltipTrigger`}
-                onClick={() => router.push("/home")}
-                aria-label={t("Back to home", {
-                  $id: "wishlist.header.backHome",
+                onClick={() => router.back()}
+                aria-label={t("Back", {
+                  $id: "wishlist.header.back",
                 })}
-                data-tooltip={t("Back to home", {
-                  $id: "wishlist.header.backHome",
+                data-tooltip={t("Back", {
+                  $id: "wishlist.header.back",
                 })}
               >
                 <ArrowLeft size={18} />
