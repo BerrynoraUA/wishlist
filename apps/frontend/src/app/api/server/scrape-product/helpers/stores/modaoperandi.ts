@@ -71,12 +71,12 @@ export function scrapeModaOperandi(html: string, url: string): ProductData {
   });
 
   // Append brand to title if available and not already included
-  if (
-    title &&
-    brandName &&
-    !title.toLowerCase().includes(brandName.toLowerCase())
-  ) {
-    title = `${title} by ${brandName}`;
+  if (title != null && brandName != null) {
+    const titleValue = String(title);
+    const brandValue = String(brandName);
+    if (!titleValue.toLowerCase().includes(brandValue.toLowerCase())) {
+      title = `${titleValue} by ${brandValue}`;
+    }
   }
 
   // Fallbacks from meta/DOM
