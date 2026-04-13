@@ -31,11 +31,7 @@
   border-radius: $radius-pill;
   background: linear-gradient(
     135deg,
-    color-mix(
-      in srgb,
-      var(--color-bg-subtle) 84%,
-      var(--color-brand-light) 16%
-    ),
+    color-mix(in srgb, var(--color-bg-subtle) 84%, var(--color-brand-light) 16%),
     color-mix(in srgb, var(--color-bg-subtle) 92%, white 8%)
   );
   border: 1px solid var(--color-pro-border);

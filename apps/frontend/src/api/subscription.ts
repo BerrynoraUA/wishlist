@@ -51,9 +51,7 @@ export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
  * Passes the Supabase user ID inside customData so the
  * webhook can map the payment back to the correct user.
  */
-export async function openPaddleCheckout(
-  interval: BillingInterval,
-): Promise<void> {
+export async function openPaddleCheckout(interval: BillingInterval): Promise<void> {
   const {
     data: { user },
   } = await supabaseBrowser.auth.getUser();
@@ -64,9 +62,7 @@ export async function openPaddleCheckout(
   if (!paddle) throw new Error("Paddle not initialised");
 
   const priceId =
-    interval === BillingInterval.Monthly
-      ? PADDLE_PRICE_IDS.proMonthly
-      : PADDLE_PRICE_IDS.proYearly;
+    interval === BillingInterval.Monthly ? PADDLE_PRICE_IDS.proMonthly : PADDLE_PRICE_IDS.proYearly;
 
   if (!priceId) throw new Error("Paddle price ID not configured");
 

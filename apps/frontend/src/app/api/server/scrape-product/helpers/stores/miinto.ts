@@ -42,9 +42,7 @@ export const scrapeMiinto: ScraperMethod = (html, _url) => {
         ?.trim() || "";
 
     // Title: "Name | Brand | Category | Miinto"
-    title = [productName, brand, category, "Miinto"]
-      .filter(Boolean)
-      .join(" | ");
+    title = [productName, brand, category, "Miinto"].filter(Boolean).join(" | ");
 
     // Price (in cents → dollars)
     if (isOnSale && originalPriceCents !== salePriceCents) {
@@ -62,9 +60,7 @@ export const scrapeMiinto: ScraperMethod = (html, _url) => {
   }
 
   // --- Currency ---
-  currency =
-    $('meta[property="product:price:currency"]').attr("content")?.trim() ||
-    "USD";
+  currency = $('meta[property="product:price:currency"]').attr("content")?.trim() || "USD";
 
   // --- Image: og:image ---
   image = $('meta[property="og:image"]').attr("content")?.trim() || null;

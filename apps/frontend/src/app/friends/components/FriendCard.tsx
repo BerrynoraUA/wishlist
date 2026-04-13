@@ -16,10 +16,7 @@ export function FriendCard({ friend, onRemove }: Props) {
   const router = useRouter();
 
   return (
-    <div
-      className={styles.card}
-      onClick={() => router.push(`/friends/${friend.friend_id}`)}
-    >
+    <div className={styles.card} onClick={() => router.push(`/friends/${friend.friend_id}`)}>
       <div className={styles.avatar}>👤</div>
 
       <div className={styles.info}>

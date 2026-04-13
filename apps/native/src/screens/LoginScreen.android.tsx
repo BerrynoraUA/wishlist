@@ -33,11 +33,7 @@ export default function LoginScreen() {
           contentPadding={{ top: 24, bottom: 32, start: 24, end: 24 }}
         >
           <Text>Wishlist</Text>
-          <Text>
-            {isSignUp
-              ? "Create your account"
-              : "Sign in to manage your wishlists"}
-          </Text>
+          <Text>{isSignUp ? "Create your account" : "Sign in to manage your wishlists"}</Text>
 
           <OutlinedTextField
             key={`email-${isSignUp}`}
@@ -75,10 +71,7 @@ export default function LoginScreen() {
           </OutlinedTextField>
 
           {loading ? (
-            <Row
-              horizontalArrangement={{ spacedBy: 8 }}
-              verticalAlignment="center"
-            >
+            <Row horizontalArrangement={{ spacedBy: 8 }} verticalAlignment="center">
               <CircularProgressIndicator />
               <Text>{isSignUp ? "Signing up…" : "Signing in…"}</Text>
             </Row>
@@ -91,10 +84,7 @@ export default function LoginScreen() {
           <Text>or</Text>
 
           {googleLoading ? (
-            <Row
-              horizontalArrangement={{ spacedBy: 8 }}
-              verticalAlignment="center"
-            >
+            <Row horizontalArrangement={{ spacedBy: 8 }} verticalAlignment="center">
               <CircularProgressIndicator />
               <Text>Connecting…</Text>
             </Row>
@@ -106,9 +96,7 @@ export default function LoginScreen() {
 
           <Button enabled={!busy} onClick={toggleSignUp}>
             <Text>
-              {isSignUp
-                ? "Already have an account? Sign In"
-                : "Don't have an account? Sign Up"}
+              {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
             </Text>
           </Button>
         </LazyColumn>

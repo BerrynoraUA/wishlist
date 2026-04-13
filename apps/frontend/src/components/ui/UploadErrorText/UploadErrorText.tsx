@@ -10,7 +10,5 @@ export function UploadErrorText({ message, className }: Props) {
     return null;
   }
 
-  return (
-    <p className={`${styles.error} ${className ?? ""}`.trim()}>{message}</p>
-  );
+  return <p className={`${styles.error} ${className ?? ""}`.trim()}>{message}</p>;
 }

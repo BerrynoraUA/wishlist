@@ -9,10 +9,9 @@ export function DiscoverHeader() {
     <div className={styles.header}>
       <h1>{t("Discover", { $id: "discover.header.title" })}</h1>
       <p>
-        {t(
-          "Browse your friends' wishlists and find the perfect gifts.",
-          { $id: "discover.header.subtitle" },
-        )}
+        {t("Browse your friends' wishlists and find the perfect gifts.", {
+          $id: "discover.header.subtitle",
+        })}
       </p>
     </div>
   );

@@ -12,10 +12,7 @@ export function LoginTabs({ active, onChange }: Props) {
   const t = useGT();
   return (
     <div className={styles.tabs}>
-      <button
-        className={active === "login" ? styles.active : ""}
-        onClick={() => onChange("login")}
-      >
+      <button className={active === "login" ? styles.active : ""} onClick={() => onChange("login")}>
         {t("Login", { $id: "login.tabs.login" })}
       </button>
 

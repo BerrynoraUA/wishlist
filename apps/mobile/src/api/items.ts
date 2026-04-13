@@ -10,8 +10,7 @@ async function ensureProForPriority(priority: number | null | undefined) {
   if (priority == null) return;
 
   const status = await getSubscriptionStatus();
-  const isPro =
-    status.plan === SubscriptionPlan.Pro && status.isActive === true;
+  const isPro = status.plan === SubscriptionPlan.Pro && status.isActive === true;
 
   if (!isPro) {
     throw new Error("Priority is available for Pro subscribers only");
@@ -32,13 +31,11 @@ async function uploadItemImageFromUri(uri: string): Promise<string> {
   const randomString = Math.random().toString(36).substring(2, 15);
   const fileName = `${session.user.id}/${Date.now()}-${randomString}.${ext}`;
 
-  const { data, error } = await supabase.storage
-    .from("items")
-    .upload(fileName, blob, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: blob.type || "image/jpeg",
-    });
+  const { data, error } = await supabase.storage.from("items").upload(fileName, blob, {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: blob.type || "image/jpeg",
+  });
 
   if (error) throw new Error("Failed to upload image");
 
@@ -125,15 +122,12 @@ export async function createItem({
 
 export async function getWishlistItems(
   wishlistId: string,
-  params: PaginationParams = {}
+  params: PaginationParams = {},
 ): Promise<Item[]> {
   return getItems((query) => query.eq("wishlist_id", wishlistId), params);
 }
 
-export async function updateItem(
-  itemId: string,
-  updates: UpdateItemParams
-): Promise<Item> {
+export async function updateItem(itemId: string, updates: UpdateItemParams): Promise<Item> {
   const { image_uri, removeImage, image_url, ...restUpdates } = updates;
 
   await ensureProForPriority(restUpdates.priority);

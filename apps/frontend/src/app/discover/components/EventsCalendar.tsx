@@ -62,7 +62,10 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
   }, [events]);
 
   const legendEntries = useMemo(() => {
-    const uniqueFriends = new Map<string, { friendId: string; friendName: string; color: string }>();
+    const uniqueFriends = new Map<
+      string,
+      { friendId: string; friendName: string; color: string }
+    >();
 
     for (const event of events) {
       if (uniqueFriends.has(event.friend_id)) continue;
@@ -122,13 +125,10 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       const popupRect = popupRef.current?.getBoundingClientRect();
       const [year, month, day] = dateKey.split("-").map(Number);
-      const dateLabel = new Date(year, month - 1, day).toLocaleDateString(
-        undefined,
-        {
-          month: "short",
-          day: "numeric",
-        },
-      );
+      const dateLabel = new Date(year, month - 1, day).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      });
 
       setTooltip({
         x: rect.left - (popupRect?.left ?? 0) + rect.width / 2,
@@ -199,16 +199,17 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
     [eventsByDate],
   );
 
-  const legendFooter = legendEntries.length > 0 ? (
-    <div className={styles.legend}>
-      {legendEntries.map((entry) => (
-        <div key={entry.friendId} className={styles.legendItem}>
-          <span className={styles.legendSwatch} style={{ background: entry.color }} />
-          <span className={styles.legendLabel}>{entry.friendName}</span>
-        </div>
-      ))}
-    </div>
-  ) : undefined;
+  const legendFooter =
+    legendEntries.length > 0 ? (
+      <div className={styles.legend}>
+        {legendEntries.map((entry) => (
+          <div key={entry.friendId} className={styles.legendItem}>
+            <span className={styles.legendSwatch} style={{ background: entry.color }} />
+            <span className={styles.legendLabel}>{entry.friendName}</span>
+          </div>
+        ))}
+      </div>
+    ) : undefined;
 
   if (!open) return null;
 

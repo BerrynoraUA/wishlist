@@ -4,13 +4,7 @@ import styles from "./WishlistItemCard.module.scss";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useGT } from "gt-next";
 import { Item } from "@/types/item";
-import {
-  ExternalLink,
-  ShoppingBag,
-  ShoppingCart,
-  MoreHorizontal,
-  ThumbsUp,
-} from "lucide-react";
+import { ExternalLink, ShoppingBag, ShoppingCart, MoreHorizontal, ThumbsUp } from "lucide-react";
 import { WishlistItemDetailModal } from "./WishlistItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
@@ -55,22 +49,16 @@ export function WishlistItemCard({
   const t = useGT();
   const [detailOpen, setDetailOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [confirmAction, setConfirmAction] =
-    useState<ItemActionConfirmType | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ItemActionConfirmType | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { data: currentUserId = "" } = useCurrentUserId();
 
   const isPurchased = item.status === 2;
   const isReserved = item.status === 1 || (!isPurchased && !!item.reserved_by);
-  const reservedByMe = currentUserId
-    ? item.reserved_by === currentUserId
-    : false;
-  const canToggleReservation =
-    !isOwner && !isPurchased && (!isReserved || reservedByMe);
+  const reservedByMe = currentUserId ? item.reserved_by === currentUserId : false;
+  const canToggleReservation = !isOwner && !isPurchased && (!isReserved || reservedByMe);
   const canToggleBought =
-    !isOwner &&
-    ((isPurchased && reservedByMe) ||
-      (!isPurchased && (!isReserved || reservedByMe)));
+    !isOwner && ((isPurchased && reservedByMe) || (!isPurchased && (!isReserved || reservedByMe)));
   const hasImage = Boolean(item.image_url);
   const price = item.price || "";
   const title = item.name;
@@ -85,8 +73,7 @@ export function WishlistItemCard({
   const priorityDisplay = useMemo(() => {
     if (!priorityKey) return null;
     if (priorityKey === "Low") return t("Low", { $id: "item.priority.low" });
-    if (priorityKey === "Medium")
-      return t("Medium", { $id: "item.priority.medium" });
+    if (priorityKey === "Medium") return t("Medium", { $id: "item.priority.medium" });
     return t("High", { $id: "item.priority.high" });
   }, [priorityKey, t]);
   const store = (() => {
@@ -113,8 +100,7 @@ export function WishlistItemCard({
     const hasComma = safe.includes(",");
     const hasDot = safe.includes(".");
 
-    const normalized =
-      hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
+    const normalized = hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
     const n = Number.parseFloat(normalized);
     return Number.isFinite(n) ? n : null;
   }
@@ -224,17 +210,13 @@ export function WishlistItemCard({
           <div className={styles.badgeStackRight}>
             {salePercentOff != null && (
               <div className={`${styles.badgeRight} ${styles.saleBadge}`}>
-                <span className={styles.saleLabel}>
-                  {t("Sale", { $id: "item.card.sale" })}
-                </span>
+                <span className={styles.saleLabel}>{t("Sale", { $id: "item.card.sale" })}</span>
                 <span className={styles.salePercent}>-{salePercentOff}%</span>
               </div>
             )}
 
             {priorityKey && (
-              <div
-                className={`${styles.badgeRight} ${styles[priorityKey.toLowerCase()]}`}
-              >
+              <div className={`${styles.badgeRight} ${styles[priorityKey.toLowerCase()]}`}>
                 {priorityDisplay}
               </div>
             )}
@@ -327,13 +309,9 @@ export function WishlistItemCard({
 
         <div className={styles.content}>
           <h3 title={title}>{title}</h3>
-          {item.description && (
-            <p className={styles.description}>{item.description}</p>
-          )}
+          {item.description && <p className={styles.description}>{item.description}</p>}
           <div className={styles.metaRow}>
-            {formattedPrice && (
-              <span className={styles.price}>{formattedPrice}</span>
-            )}
+            {formattedPrice && <span className={styles.price}>{formattedPrice}</span>}
             {store && (
               <span className={styles.store} title={store}>
                 {store}
@@ -350,9 +328,7 @@ export function WishlistItemCard({
               }}
             >
               <ThumbsUp size={14} />
-              {voteCount > 0 && (
-                <span className={styles.voteCount}>{voteCount}</span>
-              )}
+              {voteCount > 0 && <span className={styles.voteCount}>{voteCount}</span>}
             </button>
           )}
 
@@ -366,11 +342,7 @@ export function WishlistItemCard({
                 }}
                 disabled={!canToggleReservation}
               >
-                <ReservationLockIcon
-                  isReserved={isReserved}
-                  size={16}
-                  animateOnReserve
-                />
+                <ReservationLockIcon isReserved={isReserved} size={16} animateOnReserve />
                 <span>
                   {isPurchased
                     ? t("Purchased", { $id: "item.status.purchased" })

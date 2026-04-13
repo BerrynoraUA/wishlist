@@ -4,7 +4,7 @@ import type { PaginationParams } from "@/types";
 
 export async function getItems(
   queryModifier?: (query: any) => any,
-  params: PaginationParams = {}
+  params: PaginationParams = {},
 ): Promise<Item[]> {
   const { skip = 0, take = 50 } = params;
   const from = skip;

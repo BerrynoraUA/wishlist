@@ -7,9 +7,6 @@
       "output": "public/_gt/[locale].json"
     }
   },
-  "locales": [
-    "en",
-    "uk"
-  ],
+  "locales": ["en", "uk"],
   "_versionId": "0082454e7629785d565ddf9ee9bd1e99eee91dd621100698551d1718c3421ad4"
 }

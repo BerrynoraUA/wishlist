@@ -16,9 +16,7 @@ export function scrapeProm(html: string, url: string): ProductData {
   let oldPrice: string | null = null;
 
   // 1. data-qaprice attributes (most reliable)
-  const currentPriceAttr = $('[data-qaid="product_price"]').attr(
-    "data-qaprice",
-  );
+  const currentPriceAttr = $('[data-qaid="product_price"]').attr("data-qaprice");
   if (currentPriceAttr) {
     currentPrice = extractNumericPrice(currentPriceAttr);
   }
@@ -31,8 +29,7 @@ export function scrapeProm(html: string, url: string): ProductData {
   // 2. Fallback: text content
   if (!currentPrice) {
     const currentPriceText =
-      $('[data-qaid="product_price"]').text().trim() ||
-      $(".product-price").text().trim();
+      $('[data-qaid="product_price"]').text().trim() || $(".product-price").text().trim();
     currentPrice = extractNumericPrice(currentPriceText);
   }
 
@@ -61,9 +58,7 @@ export function scrapeProm(html: string, url: string): ProductData {
     }
   }
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
   return {
     title: $("h1").first().text().trim() || extractTitle($),
     description: extractDescription($),

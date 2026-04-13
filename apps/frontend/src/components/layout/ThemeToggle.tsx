@@ -29,9 +29,7 @@ export function ThemeToggle() {
           : t("Switch to dark mode", { $id: "theme.switchDark" })
       }
     >
-      <span
-        className={`${styles.iconWrap} ${isDark ? styles.dark : styles.light}`}
-      >
+      <span className={`${styles.iconWrap} ${isDark ? styles.dark : styles.light}`}>
         {isDark ? <Moon size={16} /> : <Sun size={16} />}
       </span>
     </button>

@@ -40,15 +40,7 @@ export function EditItemModal({ open, onClose, item }: Props) {
   return <EditItemForm open={open} item={item} onClose={onClose} />;
 }
 
-function EditItemForm({
-  open,
-  item,
-  onClose,
-}: {
-  open: boolean;
-  item: Item;
-  onClose: () => void;
-}) {
+function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onClose: () => void }) {
   const t = useGT();
   const { isPro } = useSubscription();
   const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
@@ -102,8 +94,7 @@ function EditItemForm({
       return;
     }
 
-    const priorityValue =
-      priority === "None" ? null : priorityToValue[priority];
+    const priorityValue = priority === "None" ? null : priorityToValue[priority];
 
     const updates: UpdateItemParams = {
       name: name.trim(),
@@ -112,9 +103,7 @@ function EditItemForm({
       url: link.trim() || null,
       priority: priorityValue,
       currency,
-      ...(imageFile
-        ? { image: imageFile }
-        : { image_url: imagePreview || null }),
+      ...(imageFile ? { image: imageFile } : { image_url: imagePreview || null }),
     };
 
     mutate({ id: item.id, updates }, { onSuccess: () => onClose() });
@@ -197,9 +186,7 @@ function EditItemForm({
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
-          </label>
+          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
           <div className={styles.priceRow}>
             <select
               value={currency}
@@ -210,16 +197,10 @@ function EditItemForm({
               <option value="EUR">{t("€ EUR", { $id: "currency.eur" })}</option>
               <option value="GBP">{t("£ GBP", { $id: "currency.gbp" })}</option>
               <option value="UAH">{t("₴ UAH", { $id: "currency.uah" })}</option>
-              <option value="PLN">
-                {t("zł PLN", { $id: "currency.pln" })}
-              </option>
+              <option value="PLN">{t("zł PLN", { $id: "currency.pln" })}</option>
               <option value="JPY">{t("¥ JPY", { $id: "currency.jpy" })}</option>
-              <option value="CAD">
-                {t("CA$ CAD", { $id: "currency.cad" })}
-              </option>
-              <option value="AUD">
-                {t("A$ AUD", { $id: "currency.aud" })}
-              </option>
+              <option value="CAD">{t("CA$ CAD", { $id: "currency.cad" })}</option>
+              <option value="AUD">{t("A$ AUD", { $id: "currency.aud" })}</option>
               <option value="CHF">{t("CHF", { $id: "currency.chf" })}</option>
             </select>
             <input
@@ -238,18 +219,10 @@ function EditItemForm({
               value={priority}
               onChange={(e) => setPriority(e.target.value as PriorityOption)}
             >
-              <option value="None">
-                {t("No priority", { $id: "item.modal.priorityNone" })}
-              </option>
-              <option value="Low">
-                {t("Low", { $id: "item.priority.low" })}
-              </option>
-              <option value="Medium">
-                {t("Medium", { $id: "item.priority.medium" })}
-              </option>
-              <option value="High">
-                {t("High", { $id: "item.priority.high" })}
-              </option>
+              <option value="None">{t("No priority", { $id: "item.modal.priorityNone" })}</option>
+              <option value="Low">{t("Low", { $id: "item.priority.low" })}</option>
+              <option value="Medium">{t("Medium", { $id: "item.priority.medium" })}</option>
+              <option value="High">{t("High", { $id: "item.priority.high" })}</option>
             </select>
           </div>
         )}

@@ -1,8 +1,11 @@
 {
   "name": "wishlist",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "type": "module",
-  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "turbo run dev --filter=frontend --filter=native --filter=mobile",
     "build": "turbo run build --filter=frontend",

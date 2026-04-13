@@ -15,16 +15,13 @@ export function FriendsHeader({ onInvite }: Props) {
       <div>
         <h1>{t("Friends", { $id: "friends.header.title" })}</h1>
         <p>
-          {t(
-            "Connect with friends and discover their wishlists.",
-            { $id: "friends.header.subtitle" },
-          )}
+          {t("Connect with friends and discover their wishlists.", {
+            $id: "friends.header.subtitle",
+          })}
         </p>
       </div>
 
-      <Button onClick={onInvite}>
-        {t("Invite Friends", { $id: "friends.header.invite" })}
-      </Button>
+      <Button onClick={onInvite}>{t("Invite Friends", { $id: "friends.header.invite" })}</Button>
     </div>
   );
 }

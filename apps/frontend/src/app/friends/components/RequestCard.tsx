@@ -23,24 +23,14 @@ export function RequestCard({
       <div className={styles.info}>
         <strong>{request.display_name}</strong>
         {request.nickname && <span>@{request.nickname}</span>}
-        <div className={styles.meta}>
-          {request.mutual_friends_count} mutual friends
-        </div>
+        <div className={styles.meta}>{request.mutual_friends_count} mutual friends</div>
       </div>
 
       <div className={styles.actions}>
-        <button
-          className={styles.accept}
-          onClick={onAccept}
-          disabled={accepting || rejecting}
-        >
+        <button className={styles.accept} onClick={onAccept} disabled={accepting || rejecting}>
           {accepting ? "Accepting..." : "Accept"}
         </button>
-        <button
-          className={styles.decline}
-          onClick={onReject}
-          disabled={accepting || rejecting}
-        >
+        <button className={styles.decline} onClick={onReject} disabled={accepting || rejecting}>
           {rejecting ? "Declining..." : "Decline"}
         </button>
       </div>

@@ -4,7 +4,14 @@ export default function IdeasLoading() {
   return (
     <main style={{ maxWidth: 800, margin: "0 auto", padding: "32px 24px 64px" }}>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          marginBottom: 32,
+        }}
+      >
         <div>
           <Skeleton variant="heading" width={180} />
           <Skeleton variant="text" width={340} style={{ marginTop: 10 }} />

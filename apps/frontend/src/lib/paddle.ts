@@ -23,9 +23,7 @@ export function initPaddle(): Promise<Paddle | null> {
   }
 
   initPromise = initializePaddle({
-    environment:
-      (process.env.NEXT_PUBLIC_PADDLE_ENV as "sandbox" | "production") ??
-      "sandbox",
+    environment: (process.env.NEXT_PUBLIC_PADDLE_ENV as "sandbox" | "production") ?? "sandbox",
     token,
     eventCallback: (event) => {
       if (event.name === "checkout.completed") {

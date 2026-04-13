@@ -16,9 +16,7 @@ export const scrapeDBA: ScraperMethod = (html, _url) => {
 
   // --- Title ---
   let title =
-    $('meta[property="og:title"]').attr("content")?.trim() ||
-    $("title").text().trim() ||
-    null;
+    $('meta[property="og:title"]').attr("content")?.trim() || $("title").text().trim() || null;
 
   if (title) {
     // Remove " | DBA" suffix

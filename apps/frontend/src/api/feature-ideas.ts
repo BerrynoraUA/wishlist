@@ -18,15 +18,10 @@ export async function getApprovedFeatureIdeas(): Promise<FeatureIdea[]> {
   if (error) throw error;
 
   const ideaIds = (ideas ?? []).map((i: { id: string }) => i.id);
-  const userIds = [
-    ...new Set((ideas ?? []).map((i: { user_id: string }) => i.user_id)),
-  ];
+  const userIds = [...new Set((ideas ?? []).map((i: { user_id: string }) => i.user_id))];
 
   // Fetch profile info separately
-  let profileMap: Record<
-    string,
-    { display_name: string | null; avatar_url: string | null }
-  > = {};
+  let profileMap: Record<string, { display_name: string | null; avatar_url: string | null }> = {};
   if (userIds.length > 0) {
     const { data: profiles } = await supabaseBrowser
       .from("profile")
@@ -88,9 +83,7 @@ export async function getApprovedFeatureIdeas(): Promise<FeatureIdea[]> {
   });
 }
 
-export async function createFeatureIdea(
-  params: CreateFeatureIdeaParams,
-): Promise<{ id: string }> {
+export async function createFeatureIdea(params: CreateFeatureIdeaParams): Promise<{ id: string }> {
   const session = (await supabaseBrowser.auth.getSession()).data.session;
   if (!session?.user.id) throw new Error("Not authenticated");
 

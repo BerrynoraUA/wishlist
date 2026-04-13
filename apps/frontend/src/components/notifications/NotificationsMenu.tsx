@@ -18,19 +18,12 @@ export function NotificationsMenu() {
   const [open, setOpen] = useState(false);
   const previousUnreadCountRef = useRef<number | null>(null);
 
-  const { data: unreadCount = 0, isFetched: isUnreadCountFetched } =
-    useUnreadNotificationsCount();
-  const {
-    data: notifications = [],
-    isLoading,
-    refetch,
-  } = useNotifications({ limit: 20 });
+  const { data: unreadCount = 0, isFetched: isUnreadCountFetched } = useUnreadNotificationsCount();
+  const { data: notifications = [], isLoading, refetch } = useNotifications({ limit: 20 });
 
-  const { mutateAsync: deleteAll, isPending: isDeleting } =
-    useDeleteAllNotifications();
+  const { mutateAsync: deleteAll, isPending: isDeleting } = useDeleteAllNotifications();
 
-  const { mutateAsync: markAllRead, isPending: isMarkingAll } =
-    useMarkAllNotificationsAsRead();
+  const { mutateAsync: markAllRead, isPending: isMarkingAll } = useMarkAllNotificationsAsRead();
 
   const { mutateAsync: markRead } = useMarkNotificationAsRead();
 
@@ -79,9 +72,7 @@ export function NotificationsMenu() {
         aria-label={t("Notifications", { $id: "notifications.openMenu" })}
       >
         <Bell size={18} />
-        {unreadCount > 0 && (
-          <span className={styles.badge}>{unreadCount}</span>
-        )}
+        {unreadCount > 0 && <span className={styles.badge}>{unreadCount}</span>}
       </div>
 
       {open && (

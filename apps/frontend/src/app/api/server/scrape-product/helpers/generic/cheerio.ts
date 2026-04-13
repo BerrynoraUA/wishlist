@@ -15,13 +15,8 @@ export function scrapeWithCheerio(html: string, url: string): ProductData {
   try {
     const $ = cheerio.load(html);
 
-    const { currentPrice, oldPrice, discountEndDate } = extractPricesAdvanced(
-      $,
-      html,
-    );
-    const hasDiscount = Boolean(
-      oldPrice && currentPrice && oldPrice !== currentPrice,
-    );
+    const { currentPrice, oldPrice, discountEndDate } = extractPricesAdvanced($, html);
+    const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
 
     return {
       title: extractTitle($),

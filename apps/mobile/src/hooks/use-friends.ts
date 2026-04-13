@@ -16,15 +16,11 @@ import type { PaginationParams } from "@/types";
 export const friendKeys = {
   all: ["friends"] as const,
   lists: () => [...friendKeys.all, "list"] as const,
-  list: (params?: PaginationParams) =>
-    [...friendKeys.lists(), params] as const,
+  list: (params?: PaginationParams) => [...friendKeys.lists(), params] as const,
   requests: () => [...friendKeys.all, "requests"] as const,
-  incoming: (params?: PaginationParams) =>
-    [...friendKeys.requests(), "incoming", params] as const,
-  outgoing: (params?: PaginationParams) =>
-    [...friendKeys.requests(), "outgoing", params] as const,
-  check: (userId: string) =>
-    [...friendKeys.all, "check", userId] as const,
+  incoming: (params?: PaginationParams) => [...friendKeys.requests(), "incoming", params] as const,
+  outgoing: (params?: PaginationParams) => [...friendKeys.requests(), "outgoing", params] as const,
+  check: (userId: string) => [...friendKeys.all, "check", userId] as const,
   search: (query: string, params?: PaginationParams) =>
     [...friendKeys.all, "search", query, params] as const,
 };
@@ -58,10 +54,7 @@ export function useCheckFriendship(userId: string) {
   });
 }
 
-export function useSearchProfilesByNickname(
-  query: string,
-  params?: PaginationParams
-) {
+export function useSearchProfilesByNickname(query: string, params?: PaginationParams) {
   const trimmed = query?.trim() ?? "";
 
   return useQuery({

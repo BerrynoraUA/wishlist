@@ -29,9 +29,7 @@ type Props = {
 };
 
 export function SaveToWishlistModal({ open, onClose, item }: Props) {
-  const [selectedWishlistId, setSelectedWishlistId] = useState<string | null>(
-    null,
-  );
+  const [selectedWishlistId, setSelectedWishlistId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -105,18 +103,12 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
               <Bookmark size={24} />
             </div>
             <h3 className={styles.title}>Save to wishlist</h3>
-            <p className={styles.subtitle}>
-              Choose which wishlist you want to add this item to
-            </p>
+            <p className={styles.subtitle}>Choose which wishlist you want to add this item to</p>
           </div>
 
           <div className={styles.itemPreview}>
             {item.image_url ? (
-              <img
-                className={styles.itemImage}
-                src={item.image_url}
-                alt={item.name}
-              />
+              <img className={styles.itemImage} src={item.image_url} alt={item.name} />
             ) : (
               <div className={styles.itemImagePlaceholder}>
                 <ShoppingBag size={20} />
@@ -154,9 +146,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
 
             {!isLoading && filteredWishlists.length === 0 && (
               <div className={styles.emptyState}>
-                {search
-                  ? "No wishlists found"
-                  : "You don't have any wishlists yet"}
+                {search ? "No wishlists found" : "You don't have any wishlists yet"}
               </div>
             )}
 
@@ -184,13 +174,10 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
                   <div className={styles.wishlistMeta}>
                     <div className={styles.wishlistTitle}>{wishlist.title}</div>
                     <div className={styles.wishlistCount}>
-                      {wishlist.items_count}{" "}
-                      {wishlist.items_count === 1 ? "item" : "items"}
+                      {wishlist.items_count} {wishlist.items_count === 1 ? "item" : "items"}
                     </div>
                   </div>
-                  {isSelected && (
-                    <Check size={18} className={styles.selectedCheck} />
-                  )}
+                  {isSelected && <Check size={18} className={styles.selectedCheck} />}
                 </button>
               );
             })}

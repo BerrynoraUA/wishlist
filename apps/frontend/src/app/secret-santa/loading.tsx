@@ -5,7 +5,14 @@ export default function SecretSantaLoading() {
   return (
     <SecretSantaPageShell>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 28,
+        }}
+      >
         <div>
           <Skeleton variant="heading" width={220} />
           <Skeleton variant="text" width={160} style={{ marginTop: 8 }} />
@@ -14,7 +21,13 @@ export default function SecretSantaLoading() {
       </div>
 
       {/* Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+          gap: 20,
+        }}
+      >
         {[0, 1, 2].map((i) => (
           <SkeletonCard key={i}>
             <Skeleton variant="text" width="60%" />

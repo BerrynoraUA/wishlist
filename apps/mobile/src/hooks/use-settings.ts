@@ -11,18 +11,14 @@ import {
   checkNicknameAvailable,
   getProfilesByIds,
 } from "@/api/settings";
-import type {
-  UpdateProfilePayload,
-  UpdateSettingsPayload,
-} from "@/types/settings";
+import type { UpdateProfilePayload, UpdateSettingsPayload } from "@/types/settings";
 
 export const settingsKeys = {
   all: ["settings"] as const,
   profile: () => [...settingsKeys.all, "profile"] as const,
   preferences: () => [...settingsKeys.all, "preferences"] as const,
   provider: () => [...settingsKeys.all, "provider"] as const,
-  profilesByIds: (idsKey: string) =>
-    [...settingsKeys.all, "profiles-by-ids", idsKey] as const,
+  profilesByIds: (idsKey: string) => [...settingsKeys.all, "profiles-by-ids", idsKey] as const,
 };
 
 export function useProfile() {

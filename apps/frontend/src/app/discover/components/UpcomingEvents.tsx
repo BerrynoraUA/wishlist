@@ -17,9 +17,7 @@ export function UpcomingEvents() {
   const sortedUpcomingWishlists = useMemo(
     () =>
       [...(upcomingWishlists ?? [])].sort(
-        (left, right) =>
-          new Date(left.event_date).getTime() -
-          new Date(right.event_date).getTime(),
+        (left, right) => new Date(left.event_date).getTime() - new Date(right.event_date).getTime(),
       ),
     [upcomingWishlists],
   );
@@ -85,9 +83,7 @@ export function UpcomingEvents() {
           />
         </div>
         <div>
-          <strong>
-            {t("Upcoming Events", { $id: "discover.upcoming.sectionTitle" })}
-          </strong>
+          <strong>{t("Upcoming Events", { $id: "discover.upcoming.sectionTitle" })}</strong>
           <p>{title}</p>
         </div>
       </div>

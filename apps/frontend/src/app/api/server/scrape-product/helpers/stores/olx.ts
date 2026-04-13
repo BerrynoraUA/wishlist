@@ -24,9 +24,7 @@ export function scrapeOLX(html: string, url: string): ProductData {
     if (titleMatch) {
       title = titleMatch[1].trim();
     } else {
-      title = pageTitle
-        .replace(/\s*[-–|:]\s*(.*\bon\s*OLX|.*на\s*Olx).*$/i, "")
-        .trim();
+      title = pageTitle.replace(/\s*[-–|:]\s*(.*\bon\s*OLX|.*на\s*Olx).*$/i, "").trim();
     }
   }
 
@@ -78,8 +76,7 @@ export function scrapeOLX(html: string, url: string): ProductData {
   }
 
   // --- Description ---
-  const ogDescription =
-    $('meta[property="og:description"]').attr("content") || null;
+  const ogDescription = $('meta[property="og:description"]').attr("content") || null;
   const description = extractDescription($) || ogDescription;
 
   return {

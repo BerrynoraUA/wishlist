@@ -2,15 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useGT } from "gt-next";
-import {
-  ChevronUp,
-  Info,
-  Lightbulb,
-  Clock,
-  Code,
-  CheckCircle,
-  Sparkles,
-} from "lucide-react";
+import { ChevronUp, Info, Lightbulb, Clock, Code, CheckCircle, Sparkles } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import {
@@ -150,15 +142,10 @@ export default function IdeasPage() {
                 <div className={styles.ideaMeta}>
                   {idea.user_avatar_url && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={idea.user_avatar_url}
-                      alt=""
-                      className={styles.ideaAuthorAvatar}
-                    />
+                    <img src={idea.user_avatar_url} alt="" className={styles.ideaAuthorAvatar} />
                   )}
                   <span>
-                    {idea.user_display_name ??
-                      t("Anonymous", { $id: "ideas.page.anonymous" })}
+                    {idea.user_display_name ?? t("Anonymous", { $id: "ideas.page.anonymous" })}
                   </span>
                   <span>·</span>
                   <span>{new Date(idea.created_at).toLocaleDateString()}</span>
@@ -274,9 +261,7 @@ function SubmitIdeaModal({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={
-              !title.trim() || !description.trim() || createIdea.isPending
-            }
+            disabled={!title.trim() || !description.trim() || createIdea.isPending}
           >
             {createIdea.isPending
               ? t("Submitting...", { $id: "ideas.modal.submitting" })

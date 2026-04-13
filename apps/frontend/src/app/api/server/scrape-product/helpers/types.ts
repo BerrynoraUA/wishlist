@@ -10,10 +10,7 @@ export interface ProductData {
 }
 
 export type ScraperMethod = (html: string, url: string) => ProductData;
-export type AsyncScraperMethod = (
-  html: string,
-  url: string,
-) => Promise<ProductData>;
+export type AsyncScraperMethod = (html: string, url: string) => Promise<ProductData>;
 
 export function emptyProduct(): ProductData {
   return {

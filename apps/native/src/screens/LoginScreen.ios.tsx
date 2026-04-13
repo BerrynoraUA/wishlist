@@ -32,11 +32,7 @@ export default function LoginScreen() {
         <ScrollView>
           <VStack spacing={20} alignment="center">
             <Text>Wishlist</Text>
-            <Text>
-              {isSignUp
-                ? "Create your account"
-                : "Sign in to manage your wishlists"}
-            </Text>
+            <Text>{isSignUp ? "Create your account" : "Sign in to manage your wishlists"}</Text>
 
             <TextField
               key={`email-${isSignUp}`}
@@ -81,9 +77,7 @@ export default function LoginScreen() {
             <Button
               onPress={busy ? undefined : toggleSignUp}
               label={
-                isSignUp
-                  ? "Already have an account? Sign In"
-                  : "Don't have an account? Sign Up"
+                isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"
               }
             />
           </VStack>

@@ -18,9 +18,7 @@ export function TopNav() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
-  const previousSearchModeRef = useRef<"home" | "friends" | "discover" | null>(
-    null,
-  );
+  const previousSearchModeRef = useRef<"home" | "friends" | "discover" | null>(null);
   const discoverTab = searchParams.get("tab");
 
   const navItems = useMemo(
@@ -85,9 +83,7 @@ export function TopNav() {
         if (val) params.set(key, val);
         else params.delete(key);
         router.replace(
-          params.toString()
-            ? `${pathnameRef.current}?${params.toString()}`
-            : pathnameRef.current,
+          params.toString() ? `${pathnameRef.current}?${params.toString()}` : pathnameRef.current,
           { scroll: false },
         );
       }, 300);
@@ -117,12 +113,9 @@ export function TopNav() {
     if (previousMode && previousMode !== searchMode) {
       const params = new URLSearchParams(searchParams.toString());
       clearSearchParams(params);
-      router.replace(
-        params.toString() ? `${pathname}?${params.toString()}` : pathname,
-        {
-          scroll: false,
-        },
-      );
+      router.replace(params.toString() ? `${pathname}?${params.toString()}` : pathname, {
+        scroll: false,
+      });
       setQuery("");
     }
     previousSearchModeRef.current = searchMode;

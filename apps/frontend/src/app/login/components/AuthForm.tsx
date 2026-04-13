@@ -3,11 +3,7 @@
 import { useGT } from "gt-next";
 import { useState } from "react";
 import { Chrome } from "lucide-react";
-import {
-  loginWithEmail,
-  loginWithGoogle,
-  registerWithEmail,
-} from "@/api/login";
+import { loginWithEmail, loginWithGoogle, registerWithEmail } from "@/api/login";
 import styles from "./AuthForm.module.scss";
 
 type Props = {
@@ -90,9 +86,7 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
-        <label className={styles.label}>
-          {t("Email", { $id: "login.form.label.email" })}
-        </label>
+        <label className={styles.label}>{t("Email", { $id: "login.form.label.email" })}</label>
         <input
           type="email"
           placeholder={t("you@email.com", { $id: "login.form.placeholder.email" })}
@@ -114,11 +108,7 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <button
-          type="submit"
-          className={styles.submit}
-          disabled={loading || googleLoading}
-        >
+        <button type="submit" className={styles.submit} disabled={loading || googleLoading}>
           {loading
             ? isLogin
               ? t("Signing in...", { $id: "login.form.submit.signingIn" })
@@ -133,14 +123,10 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
 
       <p className={styles.helper}>
         {isLogin
-          ? t(
-              "New here? Choose Register above to create an account.",
-              { $id: "login.form.helper.register" },
-            )
-          : t(
-              "Already have an account? Switch back to Login.",
-              { $id: "login.form.helper.login" },
-            )}
+          ? t("New here? Choose Register above to create an account.", {
+              $id: "login.form.helper.register",
+            })
+          : t("Already have an account? Switch back to Login.", { $id: "login.form.helper.login" })}
       </p>
     </div>
   );

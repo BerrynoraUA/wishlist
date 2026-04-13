@@ -20,10 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { TEST_CASES, type TestCase } from "./test-urls";
-import {
-  exportScraperResultsExcel,
-  exportScraperResultsJson,
-} from "./export-scraper-results";
+import { exportScraperResultsExcel, exportScraperResultsJson } from "./export-scraper-results";
 import styles from "./scraper-test.module.scss";
 
 interface ProductData {
@@ -117,10 +114,7 @@ function isPriceMatch(expected: string | null, actual: string | null): boolean {
   return expectedPrice === actualPrice;
 }
 
-function validateResult(
-  testCase: TestCase,
-  data: ProductData | null,
-): FieldValidation[] {
+function validateResult(testCase: TestCase, data: ProductData | null): FieldValidation[] {
   const fields: {
     field: string;
     key: keyof TestCase["expected"];
@@ -328,15 +322,7 @@ export default function ScraperTestPage() {
     });
 
     return list;
-  }, [
-    results,
-    searchQuery,
-    statusFilter,
-    durationMin,
-    durationMax,
-    sortField,
-    sortDir,
-  ]);
+  }, [results, searchQuery, statusFilter, durationMin, durationMax, sortField, sortDir]);
 
   const toggleExpand = (url: string) => {
     setExpandedIdx(expandedIdx === url ? null : url);
@@ -365,8 +351,7 @@ export default function ScraperTestPage() {
   };
 
   const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field)
-      return <ArrowUpDown size={12} className={styles.sortIconIdle} />;
+    if (sortField !== field) return <ArrowUpDown size={12} className={styles.sortIconIdle} />;
     return sortDir === "asc" ? (
       <ArrowUp size={12} className={styles.sortIconActive} />
     ) : (
@@ -375,10 +360,7 @@ export default function ScraperTestPage() {
   };
 
   const hasActiveFilters =
-    searchQuery.trim() !== "" ||
-    statusFilter !== "all" ||
-    durationMin !== "" ||
-    durationMax !== "";
+    searchQuery.trim() !== "" || statusFilter !== "all" || durationMin !== "" || durationMax !== "";
 
   const clearFilters = () => {
     setSearchQuery("");
@@ -407,14 +389,9 @@ export default function ScraperTestPage() {
                 allCount={results.length}
                 filteredCount={filteredAndSorted.length}
                 hasActiveFilters={hasActiveFilters}
-                onExportAll={() =>
-                  exportScraperResultsJson(results, exportFilenameBase())
-                }
+                onExportAll={() => exportScraperResultsJson(results, exportFilenameBase())}
                 onExportFiltered={() =>
-                  exportScraperResultsJson(
-                    filteredAndSorted,
-                    `${exportFilenameBase()}-filtered`,
-                  )
+                  exportScraperResultsJson(filteredAndSorted, `${exportFilenameBase()}-filtered`)
                 }
               />
               <ExportDropdown
@@ -423,24 +400,15 @@ export default function ScraperTestPage() {
                 allCount={results.length}
                 filteredCount={filteredAndSorted.length}
                 hasActiveFilters={hasActiveFilters}
-                onExportAll={() =>
-                  exportScraperResultsExcel(results, exportFilenameBase())
-                }
+                onExportAll={() => exportScraperResultsExcel(results, exportFilenameBase())}
                 onExportFiltered={() =>
-                  exportScraperResultsExcel(
-                    filteredAndSorted,
-                    `${exportFilenameBase()}-filtered`,
-                  )
+                  exportScraperResultsExcel(filteredAndSorted, `${exportFilenameBase()}-filtered`)
                 }
               />
             </>
           )}
 
-          <button
-            className={styles.runBtn}
-            onClick={runTest}
-            disabled={state === "running"}
-          >
+          <button className={styles.runBtn} onClick={runTest} disabled={state === "running"}>
             {state === "running" ? (
               <>
                 <Loader2 size={16} className={styles.spinner} />
@@ -502,10 +470,7 @@ export default function ScraperTestPage() {
               <tr>
                 {/* Site column header + filter */}
                 <th className={styles.th}>
-                  <button
-                    className={styles.thBtn}
-                    onClick={() => handleSort("site")}
-                  >
+                  <button className={styles.thBtn} onClick={() => handleSort("site")}>
                     Site <SortIcon field="site" />
                   </button>
                   <div className={styles.filterCell}>
@@ -519,10 +484,7 @@ export default function ScraperTestPage() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                       />
                       {searchQuery && (
-                        <button
-                          className={styles.clearBtn}
-                          onClick={() => setSearchQuery("")}
-                        >
+                        <button className={styles.clearBtn} onClick={() => setSearchQuery("")}>
                           <X size={10} />
                         </button>
                       )}
@@ -532,19 +494,14 @@ export default function ScraperTestPage() {
 
                 {/* Status column header + filter */}
                 <th className={styles.th}>
-                  <button
-                    className={styles.thBtn}
-                    onClick={() => handleSort("status")}
-                  >
+                  <button className={styles.thBtn} onClick={() => handleSort("status")}>
                     Status <SortIcon field="status" />
                   </button>
                   <div className={styles.filterCell}>
                     <select
                       className={styles.filterSelect}
                       value={statusFilter}
-                      onChange={(e) =>
-                        setStatusFilter(e.target.value as StatusFilter)
-                      }
+                      onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
                     >
                       <option value="all">All</option>
                       <option value="success">Success</option>
@@ -556,10 +513,7 @@ export default function ScraperTestPage() {
 
                 {/* Duration column header + filter */}
                 <th className={styles.th}>
-                  <button
-                    className={styles.thBtn}
-                    onClick={() => handleSort("duration")}
-                  >
+                  <button className={styles.thBtn} onClick={() => handleSort("duration")}>
                     Time <SortIcon field="duration" />
                   </button>
                   <div className={styles.filterCell}>
@@ -657,9 +611,7 @@ function ResultRow({
           <span className={styles.siteName}>{getDomain(result.url)}</span>
         </td>
         <td className={styles.td}>
-          <span
-            className={`${styles.badge} ${styles[`badge_${result.status}`]}`}
-          >
+          <span className={`${styles.badge} ${styles[`badge_${result.status}`]}`}>
             {statusIcon(result.status)}
             {statusLabel(result.status)}
           </span>
@@ -692,9 +644,7 @@ function ResultRow({
                 </a>
               </div>
 
-              {result.error && (
-                <div className={styles.errorMsg}>Error: {result.error}</div>
-              )}
+              {result.error && <div className={styles.errorMsg}>Error: {result.error}</div>}
 
               {result.validations.some((v) => v.match !== null) && (
                 <div className={styles.validationGrid}>
@@ -707,15 +657,9 @@ function ResultRow({
                         className={`${styles.validationRow} ${v.match ? styles.validationMatch : styles.validationMismatch}`}
                       >
                         <span className={styles.validationIcon}>
-                          {v.match ? (
-                            <CheckCircle2 size={14} />
-                          ) : (
-                            <XCircle size={14} />
-                          )}
+                          {v.match ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
                         </span>
-                        <span className={styles.validationField}>
-                          {v.field}
-                        </span>
+                        <span className={styles.validationField}>{v.field}</span>
                         {!v.match && (
                           <div className={styles.validationDiff}>
                             <div className={styles.diffExpected}>
@@ -740,26 +684,13 @@ function ResultRow({
               {result.data && (
                 <div className={styles.dataGrid}>
                   <DataRow label="Title" value={result.data.title} />
-                  <DataRow
-                    label="Description"
-                    value={result.data.description}
-                    truncate
-                  />
+                  <DataRow label="Description" value={result.data.description} truncate />
                   <DataRow label="Image" value={result.data.image} isImage />
                   <DataRow label="Price" value={result.data.price} />
                   <DataRow label="Currency" value={result.data.currency} />
-                  <DataRow
-                    label="Discount Price"
-                    value={result.data.discount_price}
-                  />
-                  <DataRow
-                    label="Has Discount"
-                    value={result.data.has_discount ? "Yes" : "No"}
-                  />
-                  <DataRow
-                    label="Discount End"
-                    value={result.data.discount_end_date}
-                  />
+                  <DataRow label="Discount Price" value={result.data.discount_price} />
+                  <DataRow label="Has Discount" value={result.data.has_discount ? "Yes" : "No"} />
+                  <DataRow label="Discount End" value={result.data.discount_end_date} />
                 </div>
               )}
             </div>
@@ -794,12 +725,7 @@ function DataRow({
       <span className={styles.dataLabel}>{label}</span>
       <span className={`${styles.dataValue} ${!value ? styles.empty : ""}`}>
         {isImage && value ? (
-          <a
-            href={value}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.imageLink}
-          >
+          <a href={value} target="_blank" rel="noopener noreferrer" className={styles.imageLink}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={value} alt="product" className={styles.previewImg} />
             <span className={styles.imgUrl}>{value}</span>
@@ -857,11 +783,7 @@ function ExportDropdown({
 
   return (
     <div className={styles.exportDropdown} ref={ref}>
-      <button
-        type="button"
-        className={styles.exportBtn}
-        onClick={() => setOpen((v) => !v)}
-      >
+      <button type="button" className={styles.exportBtn} onClick={() => setOpen((v) => !v)}>
         {icon}
         {label}
         <ChevronDown size={12} className={open ? styles.chevronOpen : ""} />

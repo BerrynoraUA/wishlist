@@ -16,10 +16,11 @@ export async function getIncomingFriendRequests({
 
   if (!myUserId) throw new Error("Not authenticated");
 
-  const { data, error } = await supabase.rpc(
-    "get_incoming_friend_requests_with_details",
-    { p_user_id: myUserId, p_skip: skip, p_take: take }
-  );
+  const { data, error } = await supabase.rpc("get_incoming_friend_requests_with_details", {
+    p_user_id: myUserId,
+    p_skip: skip,
+    p_take: take,
+  });
 
   if (error) throw error;
   return data ?? [];
@@ -34,18 +35,17 @@ export async function getOutgoingFriendRequests({
 
   if (!myUserId) throw new Error("Not authenticated");
 
-  const { data, error } = await supabase.rpc(
-    "get_outgoing_friend_requests_with_details",
-    { p_user_id: myUserId, p_skip: skip, p_take: take }
-  );
+  const { data, error } = await supabase.rpc("get_outgoing_friend_requests_with_details", {
+    p_user_id: myUserId,
+    p_skip: skip,
+    p_take: take,
+  });
 
   if (error) throw error;
   return data ?? [];
 }
 
-export async function sendFriendRequest(
-  receiverId: string
-): Promise<FriendRequest> {
+export async function sendFriendRequest(receiverId: string): Promise<FriendRequest> {
   const {
     data: { session },
     error: sessionError,
@@ -106,10 +106,9 @@ export async function cancelFriendRequest(requestId: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function getFriends({
-  skip = 0,
-  take = 10,
-}: PaginationParams = {}): Promise<FriendWithDetails[]> {
+export async function getFriends({ skip = 0, take = 10 }: PaginationParams = {}): Promise<
+  FriendWithDetails[]
+> {
   const session = (await supabase.auth.getSession()).data.session;
   const myUserId = session?.user.id;
 
@@ -165,7 +164,7 @@ export async function checkFriendship(userId: string): Promise<boolean> {
     .from("friends")
     .select("id")
     .or(
-      `and(user_f.eq.${session.user.id},user_s.eq.${userId}),and(user_f.eq.${userId},user_s.eq.${session.user.id})`
+      `and(user_f.eq.${session.user.id},user_s.eq.${userId}),and(user_f.eq.${userId},user_s.eq.${session.user.id})`,
     )
     .maybeSingle();
 
@@ -186,7 +185,7 @@ export async function removeFriend(userId: string): Promise<void> {
     .from("friends")
     .delete()
     .or(
-      `and(user_f.eq.${session.user.id},user_s.eq.${userId}),and(user_f.eq.${userId},user_s.eq.${session.user.id})`
+      `and(user_f.eq.${session.user.id},user_s.eq.${userId}),and(user_f.eq.${userId},user_s.eq.${session.user.id})`,
     );
 
   if (error) throw error;

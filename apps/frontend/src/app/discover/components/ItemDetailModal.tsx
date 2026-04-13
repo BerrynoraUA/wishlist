@@ -30,14 +30,8 @@ type Props = {
   item: DiscoverItem;
   onToggleReserve?: (id: string) => void;
   onToggleBought?: (id: string) => void;
-  onReserveAction?: (
-    action: ReserveActionType,
-    context: ItemActionHandlerContext,
-  ) => void;
-  onBoughtAction?: (
-    action: BoughtActionType,
-    context: ItemActionHandlerContext,
-  ) => void;
+  onReserveAction?: (action: ReserveActionType, context: ItemActionHandlerContext) => void;
+  onBoughtAction?: (action: BoughtActionType, context: ItemActionHandlerContext) => void;
 };
 
 export function ItemDetailModal({
@@ -52,18 +46,14 @@ export function ItemDetailModal({
   const t = useGT();
   const { data: currentUserId = "" } = useCurrentUserId();
   const { formatPrice } = useCurrencyFormatter();
-  const [confirmAction, setConfirmAction] =
-    useState<ItemActionConfirmType | null>(null);
-  const reservedByValue =
-    (item.reservedBy ?? item.reserved_by ?? null)?.toString() ?? null;
+  const [confirmAction, setConfirmAction] = useState<ItemActionConfirmType | null>(null);
+  const reservedByValue = (item.reservedBy ?? item.reserved_by ?? null)?.toString() ?? null;
   const isPurchased = item.status === 2;
-  const isReserved =
-    item.isReserved || item.status === 1 || (!!reservedByValue && !isPurchased);
+  const isReserved = item.isReserved || item.status === 1 || (!!reservedByValue && !isPurchased);
   const reservedByMe = !!reservedByValue && reservedByValue === currentUserId;
   const canToggleReservation = !isPurchased && (!isReserved || reservedByMe);
   const canToggleBought =
-    (isPurchased && reservedByMe) ||
-    (!isPurchased && (!isReserved || reservedByMe));
+    (isPurchased && reservedByMe) || (!isPurchased && (!isReserved || reservedByMe));
   const imgSrc = item.image_url || item.image;
 
   const reserveStatusLabel = isPurchased
@@ -160,9 +150,7 @@ export function ItemDetailModal({
 
             <div className={styles.meta}>
               {item.price != null && (
-                <span className={styles.price}>
-                  {formatPrice(item.price, item.currency)}
-                </span>
+                <span className={styles.price}>{formatPrice(item.price, item.currency)}</span>
               )}
               {item.store && <span className={styles.store}>{item.store}</span>}
               {item.priority != null && (
@@ -216,10 +204,7 @@ export function ItemDetailModal({
                           : item.priority === "Low"
                             ? 1
                             : null,
-                  discount_price:
-                    item.discount_price != null
-                      ? String(item.discount_price)
-                      : null,
+                  discount_price: item.discount_price != null ? String(item.discount_price) : null,
                   has_discount: item.discount_price != null,
                   currency: item.currency ?? null,
                 }}
@@ -233,11 +218,7 @@ export function ItemDetailModal({
                   disabled={!canToggleReservation}
                 >
                   <span style={{ marginRight: 6, display: "inline-flex" }}>
-                    <ReservationLockIcon
-                      isReserved={isReserved}
-                      size={16}
-                      animateOnReserve
-                    />
+                    <ReservationLockIcon isReserved={isReserved} size={16} animateOnReserve />
                   </span>
                   {isPurchased
                     ? t("Purchased", { $id: "discover.detail.purchasedBtn" })

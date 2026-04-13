@@ -1,9 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  getSubscriptionStatus,
-  getOfferings,
-  purchasePackage,
-} from "@/api/subscription";
+import { getSubscriptionStatus, getOfferings, purchasePackage } from "@/api/subscription";
 import { SubscriptionPlan } from "@/types/subscription";
 import type { PurchasesPackage } from "react-native-purchases";
 
@@ -23,9 +19,7 @@ export function useSubscription() {
   return {
     ...query,
     plan: query.data?.plan ?? SubscriptionPlan.Free,
-    isPro:
-      query.data?.plan === SubscriptionPlan.Pro &&
-      query.data?.isActive === true,
+    isPro: query.data?.plan === SubscriptionPlan.Pro && query.data?.isActive === true,
     expiresAt: query.data?.expiresAt ?? null,
   };
 }

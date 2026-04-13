@@ -1,11 +1,6 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
-import {
-  extractCurrency,
-  extractNumericPrice,
-  extractTitle,
-  extractDescription,
-} from "../utils";
+import { extractCurrency, extractNumericPrice, extractTitle, extractDescription } from "../utils";
 
 export function scrapeAmazon(html: string, url: string): ProductData {
   const $ = cheerio.load(html);
@@ -76,9 +71,7 @@ export function scrapeAmazon(html: string, url: string): ProductData {
   }
   logAmazon("price.normalized", { currentPrice, oldPrice });
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
   logAmazon("discount", { hasDiscount });
 
   let title = pickFirstText($, "title", [
@@ -89,15 +82,11 @@ export function scrapeAmazon(html: string, url: string): ProductData {
 
   if (!title) {
     // OG/meta title fallback — clean Amazon suffix
-    const ogTitle =
-      $('meta[property="og:title"]').attr("content")?.trim() || "";
+    const ogTitle = $('meta[property="og:title"]').attr("content")?.trim() || "";
     const metaTitle = $("title").text().trim() || "";
     const raw = ogTitle || metaTitle;
     title = raw
-      .replace(
-        /\s*:\s*(?:Electronics|Computers & Accessories|Amazon\.com).*$/i,
-        "",
-      )
+      .replace(/\s*:\s*(?:Electronics|Computers & Accessories|Amazon\.com).*$/i, "")
       .replace(/^Amazon\.com:\s*/i, "")
       .trim();
     logAmazon("title.metaFallback", { ogTitle, metaTitle, cleaned: title });
@@ -155,11 +144,7 @@ export function scrapeAmazon(html: string, url: string): ProductData {
   return result;
 }
 
-function pickFirstText(
-  $: cheerio.CheerioAPI,
-  label: string,
-  selectors: string[],
-): string {
+function pickFirstText($: cheerio.CheerioAPI, label: string, selectors: string[]): string {
   for (const selector of selectors) {
     const value = $(selector).first().text().trim();
     logAmazon(`${label}.check`, { selector, value });
@@ -179,11 +164,7 @@ function pickAmazonImage(html: string, $: cheerio.CheerioAPI): string {
   const image = imageDom("#landingImage").first();
   const paperbackImage = imageDom("#imgBlkFront").first();
   const ebookImage = imageDom("#ebooksImgBlkFront").first();
-  const element = image.length
-    ? image
-    : paperbackImage.length
-      ? paperbackImage
-      : ebookImage;
+  const element = image.length ? image : paperbackImage.length ? paperbackImage : ebookImage;
 
   logAmazon("image.node", {
     landingImageFound: image.length > 0,

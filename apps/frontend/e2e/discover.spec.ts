@@ -13,18 +13,10 @@ test.describe("Discover page", () => {
     await expect(page.locator("main")).toBeVisible();
   });
 
-  test("renders filter tabs: All Wishlists, Reserved, Purchased", async ({
-    page,
-  }) => {
-    await expect(
-      page.getByRole("button", { name: /all wishlists/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Reserved", exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Purchased", exact: true }),
-    ).toBeVisible();
+  test("renders filter tabs: All Wishlists, Reserved, Purchased", async ({ page }) => {
+    await expect(page.getByRole("button", { name: /all wishlists/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Reserved", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Purchased", exact: true })).toBeVisible();
   });
 
   test("Wishlists tab loads content from mock", async ({ page }) => {
@@ -33,33 +25,23 @@ test.describe("Discover page", () => {
       page
         .getByText("Alice's Bookshelf")
         .or(page.getByText("No wishlists to discover."))
-        .or(page.locator("main"))
+        .or(page.locator("main")),
     ).toBeVisible({ timeout: 10_000 });
   });
 
-  test("switch to Reserved tab updates URL and shows reserved content", async ({
-    page,
-  }) => {
+  test("switch to Reserved tab updates URL and shows reserved content", async ({ page }) => {
     await page.getByRole("button", { name: "Reserved", exact: true }).click();
     await expect(page).toHaveURL(/tab=reserved/);
-    await expect(
-      page.getByText("No reserved items yet."),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("No reserved items yet.")).toBeVisible({ timeout: 10_000 });
   });
 
-  test("switch to Purchased tab updates URL and shows purchased content", async ({
-    page,
-  }) => {
+  test("switch to Purchased tab updates URL and shows purchased content", async ({ page }) => {
     await page.getByRole("button", { name: "Purchased", exact: true }).click();
     await expect(page).toHaveURL(/tab=purchased/);
-    await expect(
-      page.getByText("No purchased items yet."),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("No purchased items yet.")).toBeVisible({ timeout: 10_000 });
   });
 
-  test("switching tabs back to Wishlists removes tab param", async ({
-    page,
-  }) => {
+  test("switching tabs back to Wishlists removes tab param", async ({ page }) => {
     await page.getByRole("button", { name: "Reserved", exact: true }).click();
     await expect(page).toHaveURL(/tab=reserved/);
     await page.getByRole("button", { name: /all wishlists/i }).click();

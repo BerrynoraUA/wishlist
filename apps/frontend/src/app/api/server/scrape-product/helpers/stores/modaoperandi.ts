@@ -1,10 +1,6 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
-import {
-  extractNumericPrice,
-  extractCurrency,
-  extractDescription,
-} from "../utils";
+import { extractNumericPrice, extractCurrency, extractDescription } from "../utils";
 
 /**
  * Moda Operandi — luxury fashion marketplace.
@@ -43,9 +39,7 @@ export function scrapeModaOperandi(html: string, url: string): ProductData {
           const imgUrl = typeof img === "string" ? img : img?.contentUrl;
           if (imgUrl) {
             // Prefer "large" over "medium" or "small"
-            image = imgUrl
-              .replace(/\/medium_/, "/large_")
-              .replace(/\/small_/, "/large_");
+            image = imgUrl.replace(/\/medium_/, "/large_").replace(/\/small_/, "/large_");
             break;
           }
         }
@@ -88,9 +82,7 @@ export function scrapeModaOperandi(html: string, url: string): ProductData {
   }
   if (!description) {
     description =
-      $('meta[property="og:description"]').attr("content")?.trim() ||
-      extractDescription($) ||
-      null;
+      $('meta[property="og:description"]').attr("content")?.trim() || extractDescription($) || null;
   }
   if (!image) {
     image = $('meta[property="og:image"]').attr("content")?.trim() || null;
@@ -112,9 +104,7 @@ export function scrapeModaOperandi(html: string, url: string): ProductData {
     if (oN === cN) oldPrice = null;
   }
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
 
   return {
     title: title || null,

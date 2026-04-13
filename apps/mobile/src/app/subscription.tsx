@@ -22,13 +22,9 @@ export default function SubscriptionScreen() {
         </TouchableOpacity>
       </View>
       <View style={styles.content}>
-        <Text style={styles.title}>
-          {isPro ? "You're on Pro ✨" : "Upgrade to Pro"}
-        </Text>
+        <Text style={styles.title}>{isPro ? "You're on Pro ✨" : "Upgrade to Pro"}</Text>
         <Text style={styles.subtitle}>
-          {isPro
-            ? "Thanks for supporting Wishlist!"
-            : "Unlock unlimited wishlists & items"}
+          {isPro ? "Thanks for supporting Wishlist!" : "Unlock unlimited wishlists & items"}
         </Text>
 
         {!isPro && offerings && (

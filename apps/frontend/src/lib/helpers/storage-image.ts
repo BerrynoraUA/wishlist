@@ -38,10 +38,7 @@ function resolveFileExtension(file: File): string {
   return (file.name.split(".").pop() ?? "png").toLowerCase();
 }
 
-export function isSupabasePublicImageUrl(
-  url: string | null | undefined,
-  bucket: string,
-): boolean {
+export function isSupabasePublicImageUrl(url: string | null | undefined, bucket: string): boolean {
   if (!url) return false;
 
   return url.includes(`/storage/v1/object/public/${bucket}/`);
@@ -101,12 +98,10 @@ export async function uploadPublicImage({
     randomString,
   });
 
-  const { data, error } = await supabaseBrowser.storage
-    .from(bucket)
-    .upload(path, file, {
-      cacheControl: "3600",
-      upsert: false,
-    });
+  const { data, error } = await supabaseBrowser.storage.from(bucket).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+  });
 
   if (error) {
     console.error(`Error uploading ${logLabel}:`, error);

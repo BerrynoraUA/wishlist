@@ -59,25 +59,18 @@ export default function FriendProfileScreen() {
         </View>
       )}
       <Text style={styles.displayName}>{profile?.display_name || "—"}</Text>
-      {profile?.nickname && (
-        <Text style={styles.nickname}>@{profile.nickname}</Text>
-      )}
+      {profile?.nickname && <Text style={styles.nickname}>@{profile.nickname}</Text>}
       {profile?.bio && <Text style={styles.bio}>{profile.bio}</Text>}
 
       <View style={styles.actionRow}>
         {friendship && (
-          <TouchableOpacity
-            style={styles.removeFriendButton}
-            onPress={handleRemoveFriend}
-          >
+          <TouchableOpacity style={styles.removeFriendButton} onPress={handleRemoveFriend}>
             <Text style={styles.removeFriendText}>Remove Friend</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      <Text style={styles.sectionTitle}>
-        Wishlists ({wishlists?.length ?? 0})
-      </Text>
+      <Text style={styles.sectionTitle}>Wishlists ({wishlists?.length ?? 0})</Text>
     </View>
   );
 
@@ -100,8 +93,7 @@ export default function FriendProfileScreen() {
           )}
           <Text style={styles.wishlistMeta}>
             {item.itemsCount ?? 0} items
-            {item.event_date &&
-              ` · ${new Date(item.event_date).toLocaleDateString()}`}
+            {item.event_date && ` · ${new Date(item.event_date).toLocaleDateString()}`}
           </Text>
         </View>
       </TouchableOpacity>
@@ -200,7 +192,11 @@ const styles = StyleSheet.create({
   wishlistAccent: { width: 5 },
   wishlistContent: { flex: 1, padding: Spacing.lg },
   wishlistTitle: { fontSize: FontSize.md, fontWeight: "600", color: Colors.text },
-  wishlistDescription: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: Spacing.xs },
+  wishlistDescription: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+  },
   wishlistMeta: { fontSize: FontSize.xs, color: Colors.textTertiary, marginTop: Spacing.sm },
   empty: { alignItems: "center", paddingVertical: Spacing.xxxl },
   emptyTitle: { fontSize: FontSize.md, color: Colors.textSecondary },

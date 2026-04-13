@@ -60,12 +60,7 @@
     content: "";
     height: 1px;
     flex: 1;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--divider-color),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, var(--divider-color), transparent);
   }
 }
 

@@ -2,13 +2,10 @@
 
 import { useState } from "react";
 import { useGT } from "gt-next";
-import { Gift, Heart, Loader2, ShoppingCart } from "lucide-react";
+import { Gift, Loader2, ShoppingCart } from "lucide-react";
 import type { VisibleItem } from "@/api/types/secret-santa";
 import { useGiftSuggestions } from "@/hooks/use-secret-santa";
-import {
-  useToggleItemReservationSecret,
-  useToggleItemBoughtSecret,
-} from "@/hooks/use-items";
+import { useToggleItemReservationSecret, useToggleItemBoughtSecret } from "@/hooks/use-items";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { WishlistItemDetailModal } from "@/app/wishlist/components/WishlistItemDetailModal";
@@ -42,11 +39,7 @@ function toWishlistItem(item: VisibleItem): Item {
   };
 }
 
-export function SecretSantaGiftSuggestions({
-  budget,
-  currency,
-  receiverId,
-}: Props) {
+export function SecretSantaGiftSuggestions({ budget, currency, receiverId }: Props) {
   const t = useGT();
   const { data, isLoading } = useGiftSuggestions(receiverId, budget);
   const toggleReserve = useToggleItemReservationSecret();
@@ -88,8 +81,7 @@ export function SecretSantaGiftSuggestions({
       ) : (
         <div className={styles.scrollArea}>
           {items.map((item) => {
-            const reservedByMe =
-              !!currentUserId && item.reserved_by === currentUserId;
+            const reservedByMe = !!currentUserId && item.reserved_by === currentUserId;
             const isPurchased = item.status === 2;
             const isReserved = item.status === 1 || !!item.reserved_by;
             const reserveStatusLabel = isPurchased

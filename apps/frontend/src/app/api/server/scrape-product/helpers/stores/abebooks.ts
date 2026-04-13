@@ -1,11 +1,6 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
-import {
-  extractNumericPrice,
-  extractTitle,
-  extractDescription,
-  extractImage,
-} from "../utils";
+import { extractNumericPrice, extractTitle, extractDescription, extractImage } from "../utils";
 
 /**
  * AbeBooks.com — книжковий маркетплейс.

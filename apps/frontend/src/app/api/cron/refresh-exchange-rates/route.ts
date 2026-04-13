@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  ECB_SUPPORTED_CURRENCY_CODES,
-  SUPPORTED_CURRENCIES,
-} from "@/lib/currencies";
+import { ECB_SUPPORTED_CURRENCY_CODES, SUPPORTED_CURRENCIES } from "@/lib/currencies";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const CRON_SECRET = process.env.CRON_SECRET as string;
@@ -40,12 +37,9 @@ export async function GET(request: NextRequest) {
       fetch(`https://api.frankfurter.app/latest?from=USD&to=${ecbSymbols}`, {
         next: { revalidate: 0 },
       }),
-      fetch(
-        "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json",
-        {
-          next: { revalidate: 0 },
-        },
-      ),
+      fetch("https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json", {
+        next: { revalidate: 0 },
+      }),
       fetch("https://open.er-api.com/v6/latest/USD", {
         next: { revalidate: 0 },
       }),
@@ -59,17 +53,13 @@ export async function GET(request: NextRequest) {
     }
 
     const ecbData = (await ecbResponse.json()) as FrankfurterResponse;
-    const nbuData = nbuResponse.ok
-      ? ((await nbuResponse.json()) as NbuRateResponse)
-      : [];
+    const nbuData = nbuResponse.ok ? ((await nbuResponse.json()) as NbuRateResponse) : [];
     const fallbackData = fallbackResponse.ok
       ? ((await fallbackResponse.json()) as OpenExchangeRatesResponse)
       : null;
 
     const usdToUahRate = nbuData.find((row) => row.cc === "USD")?.rate;
-    const supportedCodes = new Set(
-      SUPPORTED_CURRENCIES.map((item) => item.code),
-    );
+    const supportedCodes = new Set(SUPPORTED_CURRENCIES.map((item) => item.code));
     const fallbackRates = Object.fromEntries(
       Object.entries(fallbackData?.rates ?? {}).filter(([currency, rate]) => {
         return supportedCodes.has(currency) && Number.isFinite(rate);

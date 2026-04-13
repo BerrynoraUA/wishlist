@@ -55,10 +55,7 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
     if (alreadyAdded) return false;
     if (!friendSearch.trim()) return true;
     const q = friendSearch.toLowerCase();
-    return (
-      f.nickname?.toLowerCase().includes(q) ||
-      f.display_name?.toLowerCase().includes(q)
-    );
+    return f.nickname?.toLowerCase().includes(q) || f.display_name?.toLowerCase().includes(q);
   });
 
   useEffect(() => {
@@ -174,14 +171,11 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
 
         {/* Name */}
         <div className={styles.field}>
-          <label>
-            {t("Event Name", { $id: "secretSanta.create.eventNameLabel" })}
-          </label>
+          <label>{t("Event Name", { $id: "secretSanta.create.eventNameLabel" })}</label>
           <input
-            placeholder={t(
-              "e.g. Office Christmas Party, Family Gift Exchange",
-              { $id: "secretSanta.create.eventNamePlaceholder" },
-            )}
+            placeholder={t("e.g. Office Christmas Party, Family Gift Exchange", {
+              $id: "secretSanta.create.eventNamePlaceholder",
+            })}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -189,17 +183,13 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
 
         {/* Event Date */}
         <div className={styles.field}>
-          <label>
-            {t("Event Date", { $id: "secretSanta.create.eventDateLabel" })}
-          </label>
+          <label>{t("Event Date", { $id: "secretSanta.create.eventDateLabel" })}</label>
           <DatePickerField value={eventDate} onChange={setEventDate} />
         </div>
 
         {/* Budget */}
         <div className={styles.field}>
-          <label>
-            {t("Budget", { $id: "secretSanta.create.budgetLabel" })}
-          </label>
+          <label>{t("Budget", { $id: "secretSanta.create.budgetLabel" })}</label>
           <div className={styles.budgetRow}>
             <input
               type="number"
@@ -265,25 +255,17 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
 
         {/* Participants */}
         <div className={styles.section}>
-          <label>
-            {t("Participants", { $id: "secretSanta.create.participantsLabel" })}
-          </label>
+          <label>{t("Participants", { $id: "secretSanta.create.participantsLabel" })}</label>
 
           {participants.length > 0 && (
             <div className={styles.participantsList}>
               {participants.map((p) => (
                 <div key={p.user_id} className={styles.participantChip}>
                   {p.avatar_url ? (
-                    <img
-                      src={p.avatar_url}
-                      alt=""
-                      className={styles.chipAvatar}
-                    />
+                    <img src={p.avatar_url} alt="" className={styles.chipAvatar} />
                   ) : (
                     <span className={styles.chipInitial}>
-                      {(p.display_name ?? p.nickname ?? "?")
-                        .charAt(0)
-                        .toUpperCase()}
+                      {(p.display_name ?? p.nickname ?? "?").charAt(0).toUpperCase()}
                     </span>
                   )}
                   <span>
@@ -326,9 +308,7 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
               </p>
             )}
             {filteredFriends.slice(0, 8).map((f) => {
-              const isSelected = participants.some(
-                (p) => p.user_id === f.friend_id,
-              );
+              const isSelected = participants.some((p) => p.user_id === f.friend_id);
 
               return (
                 <button
@@ -342,9 +322,7 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
                     {f.avatar_url ? (
                       <img src={f.avatar_url} alt="" />
                     ) : (
-                      (f.display_name ?? f.nickname ?? "?")
-                        .charAt(0)
-                        .toUpperCase()
+                      (f.display_name ?? f.nickname ?? "?").charAt(0).toUpperCase()
                     )}
                   </div>
                   <div className={styles.friendInfo}>

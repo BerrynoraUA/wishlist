@@ -13,10 +13,7 @@ export function ItemsTabs({ active, previewCount, onChange }: Props) {
   const t = useGT();
   return (
     <div className={styles.tabs}>
-      <button
-        className={active === "add" ? styles.active : ""}
-        onClick={() => onChange("add")}
-      >
+      <button className={active === "add" ? styles.active : ""} onClick={() => onChange("add")}>
         {t("Add Link", { $id: "items.tabs.addLink" })}
       </button>
 

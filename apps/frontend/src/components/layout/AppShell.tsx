@@ -15,15 +15,9 @@ type Props = {
   initialAccent: number;
 };
 
-export function AppShell({
-  children,
-  initialTheme,
-  initialResolvedTheme,
-  initialAccent,
-}: Props) {
+export function AppShell({ children, initialTheme, initialResolvedTheme, initialAccent }: Props) {
   const pathname = usePathname();
-  const hideTopNav =
-    pathname === "/" || pathname === "/login" || pathname === "/share";
+  const hideTopNav = pathname === "/" || pathname === "/login" || pathname === "/share";
 
   return (
     <Providers

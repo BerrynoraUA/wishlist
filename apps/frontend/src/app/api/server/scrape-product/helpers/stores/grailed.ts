@@ -28,9 +28,7 @@ export const scrapeGrailed: ScraperMethod = (html, _url) => {
       // Title: prepend brand name if available
       const name = data.name?.trim() || null;
       const brand =
-        typeof data.brand === "string"
-          ? data.brand.trim()
-          : data.brand?.name?.trim() || null;
+        typeof data.brand === "string" ? data.brand.trim() : data.brand?.name?.trim() || null;
 
       if (name && brand) {
         title = `${brand} ${name}`;

@@ -80,13 +80,9 @@ function EditWishlistForm({
   const [privacy, setPrivacy] = useState<PrivacyOption>(
     visibilityToPrivacy[wishlist.visibility_type] ?? "Public",
   );
-  const [color, setColor] = useState<ColorOption>(
-    accentToColor[wishlist.accent_type] ?? "pink",
-  );
+  const [color, setColor] = useState<ColorOption>(accentToColor[wishlist.accent_type] ?? "pink");
   const [eventDate, setEventDate] = useState(() => {
-    const raw =
-      wishlist.event_date ??
-      (wishlist as Wishlist & { event_date?: string }).event_date;
+    const raw = wishlist.event_date ?? (wishlist as Wishlist & { event_date?: string }).event_date;
     return raw ? String(raw).split("T")[0] : "";
   });
   const [imagePreview, setImagePreview] = useState(wishlist.image_url ?? "");
@@ -165,9 +161,7 @@ function EditWishlistForm({
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}
-          </label>
+          <label>{t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}</label>
           <input
             placeholder={t("e.g. Birthday Wishes, Home Office Setup", {
               $id: "wishlist.modal.namePlaceholder",
@@ -194,9 +188,7 @@ function EditWishlistForm({
 
         <div className={styles.field}>
           <div className={styles.labelRow}>
-            <label>
-              {t("Cover Image", { $id: "wishlist.modal.coverLabel" })}
-            </label>
+            <label>{t("Cover Image", { $id: "wishlist.modal.coverLabel" })}</label>
             <FileSizeBadge />
           </div>
           <div className={styles.upload}>
@@ -270,16 +262,12 @@ function EditWishlistForm({
         </div>
 
         <div className={styles.section}>
-          <label>
-            {t("Cover Color", { $id: "wishlist.modal.coverColor" })}
-          </label>
+          <label>{t("Cover Color", { $id: "wishlist.modal.coverColor" })}</label>
           <div className={styles.colors}>
             {colors.map((c) => (
               <div
                 key={c}
-                className={`${styles.color} ${styles[c]} ${
-                  color === c ? styles.active : ""
-                }`}
+                className={`${styles.color} ${styles[c]} ${color === c ? styles.active : ""}`}
                 onClick={() => setColor(c)}
               />
             ))}
@@ -318,10 +306,7 @@ function PrivacyCard({
   onClick: () => void;
 }) {
   return (
-    <div
-      className={`${styles.privacyCard} ${selected ? styles.selected : ""}`}
-      onClick={onClick}
-    >
+    <div className={`${styles.privacyCard} ${selected ? styles.selected : ""}`} onClick={onClick}>
       <div className={styles.privacyIcon}>{icon}</div>
       <div>
         <strong>{title}</strong>

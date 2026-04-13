@@ -13,21 +13,13 @@ test.describe("Friends page", () => {
   });
 
   test("renders Invite Friends button", async ({ page }) => {
-    await expect(
-      page.getByRole("button", { name: "Invite Friends" }),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Invite Friends" })).toBeVisible();
   });
 
   test("renders three tabs: All Friends, Requests, Sent", async ({ page }) => {
-    await expect(
-      page.getByRole("button", { name: /All Friends/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /Requests/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /Sent/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /All Friends/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Requests/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Sent/i })).toBeVisible();
   });
 
   test("All Friends tab shows mock friends", async ({ page }) => {
@@ -44,9 +36,7 @@ test.describe("Friends page", () => {
     ).toBeVisible({ timeout: 10_000 });
   });
 
-  test("switch to Sent tab shows outgoing requests", async ({
-    page,
-  }) => {
+  test("switch to Sent tab shows outgoing requests", async ({ page }) => {
     await page.getByRole("button", { name: /Sent/i }).click();
     // Mock returns Diana Prince as an outgoing request
     await expect(
@@ -74,9 +64,7 @@ test.describe("Friends page", () => {
     await page.getByRole("button", { name: "Invite Friends" }).click();
     await expect(page.getByRole("heading", { name: /Invite friends/i })).toBeVisible();
     await page.keyboard.press("Escape");
-    await expect(
-      page.getByRole("heading", { name: /Invite friends/i }),
-    ).not.toBeVisible();
+    await expect(page.getByRole("heading", { name: /Invite friends/i })).not.toBeVisible();
   });
 
   test("visual screenshot", async ({ page }) => {

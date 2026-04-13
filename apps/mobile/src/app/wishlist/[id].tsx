@@ -25,7 +25,7 @@ import {
   useToggleItemReservation,
 } from "@/hooks/use-items";
 import type { Item } from "@/types/item";
-import type { Wishlist } from "@/types/wishlist";
+
 import { WishlistVisibility } from "@/types/wishlist";
 import { Colors, Spacing, FontSize, BorderRadius, ACCENT_COLORS } from "@/constants/theme";
 
@@ -60,9 +60,7 @@ function ItemCard({
 
   return (
     <View style={styles.itemCard}>
-      {item.image_url && (
-        <Image source={{ uri: item.image_url }} style={styles.itemImage} />
-      )}
+      {item.image_url && <Image source={{ uri: item.image_url }} style={styles.itemImage} />}
       <View style={styles.itemContent}>
         <Text style={styles.itemName} numberOfLines={2}>
           {item.name}
@@ -74,37 +72,25 @@ function ItemCard({
         )}
         <View style={styles.itemMeta}>
           {item.price && (
-            <Text
-              style={[styles.itemPrice, hasDiscount && styles.priceStrikethrough]}
-            >
+            <Text style={[styles.itemPrice, hasDiscount && styles.priceStrikethrough]}>
               ${item.price}
             </Text>
           )}
-          {hasDiscount && (
-            <Text style={styles.itemDiscountPrice}>${item.discount_price}</Text>
-          )}
+          {hasDiscount && <Text style={styles.itemDiscountPrice}>${item.discount_price}</Text>}
           {item.priority != null && item.priority > 0 && (
-            <Text style={styles.itemPriority}>
-              {"★".repeat(Math.min(item.priority, 5))}
-            </Text>
+            <Text style={styles.itemPriority}>{"★".repeat(Math.min(item.priority, 5))}</Text>
           )}
         </View>
 
         <View style={styles.itemActions}>
           {item.url && (
-            <TouchableOpacity
-              style={styles.linkButton}
-              onPress={() => Linking.openURL(item.url!)}
-            >
+            <TouchableOpacity style={styles.linkButton} onPress={() => Linking.openURL(item.url!)}>
               <Text style={styles.linkButtonText}>View</Text>
             </TouchableOpacity>
           )}
           {isOwner ? (
             <>
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => onEdit(item)}
-              >
+              <TouchableOpacity style={styles.editButton} onPress={() => onEdit(item)}>
                 <Text style={styles.editButtonText}>Edit</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => onDelete(item.id)}>
@@ -113,18 +99,10 @@ function ItemCard({
             </>
           ) : (
             <TouchableOpacity
-              style={[
-                styles.reserveButton,
-                isReserved && styles.reservedButton,
-              ]}
+              style={[styles.reserveButton, isReserved && styles.reservedButton]}
               onPress={() => onReserve(item.id)}
             >
-              <Text
-                style={[
-                  styles.reserveButtonText,
-                  isReserved && styles.reservedButtonText,
-                ]}
-              >
+              <Text style={[styles.reserveButtonText, isReserved && styles.reservedButtonText]}>
                 {isReserved ? "Reserved" : "Reserve"}
               </Text>
             </TouchableOpacity>
@@ -163,7 +141,7 @@ export default function WishlistDetailScreen() {
   const updateItem = useUpdateItem();
   const deleteItem = useDeleteItem();
   const toggleReservation = useToggleItemReservation();
-  const updateWishlist = useUpdateWishlist();
+
   const deleteWishlist = useDeleteWishlist();
 
   const [showItemModal, setShowItemModal] = useState(false);
@@ -341,9 +319,7 @@ export default function WishlistDetailScreen() {
             <Text style={styles.emptyEmoji}>📦</Text>
             <Text style={styles.emptyTitle}>No items yet</Text>
             {isOwner && (
-              <Text style={styles.emptyText}>
-                Tap "+ Add Item" to add your first wish
-              </Text>
+              <Text style={styles.emptyText}>Tap "+ Add Item" to add your first wish</Text>
             )}
           </View>
         }
@@ -353,9 +329,7 @@ export default function WishlistDetailScreen() {
       <Modal visible={showItemModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              {editingItem ? "Edit Item" : "Add Item"}
-            </Text>
+            <Text style={styles.modalTitle}>{editingItem ? "Edit Item" : "Add Item"}</Text>
 
             <TextInput
               style={styles.input}
@@ -407,19 +381,14 @@ export default function WishlistDetailScreen() {
             </TouchableOpacity>
 
             <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.modalCancel}
-                onPress={() => setShowItemModal(false)}
-              >
+              <TouchableOpacity style={styles.modalCancel} onPress={() => setShowItemModal(false)}>
                 <Text style={styles.modalCancelText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalSave, { backgroundColor: accentColor }]}
                 onPress={handleSaveItem}
               >
-                <Text style={styles.modalSaveText}>
-                  {editingItem ? "Update" : "Add"}
-                </Text>
+                <Text style={styles.modalSaveText}>{editingItem ? "Update" : "Add"}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -459,7 +428,12 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.sm,
   },
   badgeText: { fontSize: FontSize.xs, color: Colors.textSecondary, fontWeight: "600" },
-  headerMeta: { flexDirection: "row", alignItems: "center", marginTop: Spacing.sm, gap: Spacing.md },
+  headerMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: Spacing.sm,
+    gap: Spacing.md,
+  },
   eventDate: { fontSize: FontSize.sm, color: Colors.textSecondary },
   itemCount: { fontSize: FontSize.sm, color: Colors.textTertiary },
   ownerActions: {
@@ -528,7 +502,12 @@ const styles = StyleSheet.create({
   // Empty
   empty: { alignItems: "center", paddingVertical: Spacing.xxxl * 2 },
   emptyEmoji: { fontSize: 48, marginBottom: Spacing.lg },
-  emptyTitle: { fontSize: FontSize.lg, fontWeight: "600", color: Colors.text, marginBottom: Spacing.sm },
+  emptyTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: "600",
+    color: Colors.text,
+    marginBottom: Spacing.sm,
+  },
   emptyText: { fontSize: FontSize.md, color: Colors.textSecondary },
   // Modal
   modalOverlay: {
@@ -543,7 +522,12 @@ const styles = StyleSheet.create({
     padding: Spacing.xl,
     maxHeight: "85%",
   },
-  modalTitle: { fontSize: FontSize.xl, fontWeight: "700", color: Colors.text, marginBottom: Spacing.lg },
+  modalTitle: {
+    fontSize: FontSize.xl,
+    fontWeight: "700",
+    color: Colors.text,
+    marginBottom: Spacing.lg,
+  },
   input: {
     borderWidth: 1,
     borderColor: Colors.border,

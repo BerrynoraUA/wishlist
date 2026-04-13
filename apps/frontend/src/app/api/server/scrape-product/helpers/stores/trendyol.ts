@@ -1,10 +1,6 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
-import {
-  extractNumericPrice,
-  extractImage,
-  extractDescription,
-} from "../utils";
+import { extractNumericPrice, extractImage, extractDescription } from "../utils";
 
 /**
  * Trendyol — ціни в __PRODUCT_DETAIL__DATALAYER (JSON), валюта в конфігу сторінки.
@@ -21,9 +17,7 @@ export function scrapeTrendyol(html: string, url: string): ProductData {
 
   // --- image ---
   const image =
-    $('meta[property="og:image"]').attr("content")?.trim() ||
-    extractImage($, url) ||
-    null;
+    $('meta[property="og:image"]').attr("content")?.trim() || extractImage($, url) || null;
 
   // --- description ---
   const description =
@@ -37,9 +31,7 @@ export function scrapeTrendyol(html: string, url: string): ProductData {
   let oldPrice: string | null = null;
 
   // product_discounted_price / product_price / product_original_price
-  const discountedMatch = html.match(
-    /"product_discounted_price"\s*:\s*([\d.]+)/,
-  );
+  const discountedMatch = html.match(/"product_discounted_price"\s*:\s*([\d.]+)/);
   const priceMatch = html.match(/"product_price"\s*:\s*([\d.]+)/);
   const originalMatch = html.match(/"product_original_price"\s*:\s*([\d.]+)/);
 
@@ -48,12 +40,7 @@ export function scrapeTrendyol(html: string, url: string): ProductData {
   const original = originalMatch ? parseFloat(originalMatch[1]) : null;
 
   // Pick the best current price (discounted > price)
-  const curNum =
-    discounted && discounted > 0
-      ? discounted
-      : price && price > 0
-        ? price
-        : null;
+  const curNum = discounted && discounted > 0 ? discounted : price && price > 0 ? price : null;
   // Pick original if it differs
   const origNum = original && original > 0 ? original : null;
 
@@ -68,15 +55,11 @@ export function scrapeTrendyol(html: string, url: string): ProductData {
     if (oN === cN) oldPrice = null;
   }
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
 
   // --- currency from page config: "currency":"UAH" or "currency":"TRY" ---
   let currency: string | null = null;
-  const currencyMatch = html.match(
-    /"currency"\s*:\s*"([A-Z]{3})"\s*,\s*"currencySymbol"/,
-  );
+  const currencyMatch = html.match(/"currency"\s*:\s*"([A-Z]{3})"\s*,\s*"currencySymbol"/);
   if (currencyMatch) {
     currency = currencyMatch[1];
   }

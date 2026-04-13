@@ -181,21 +181,13 @@ export function FriendInviteModal({ open, userId, onClose }: Props) {
           </Button>
         )}
 
-        {status === "sent" && (
-          <Button onClick={onClose}>{statusInfo[status].action}</Button>
-        )}
+        {status === "sent" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
 
-        {status === "missing" && (
-          <Button onClick={onClose}>{statusInfo[status].action}</Button>
-        )}
+        {status === "missing" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
 
-        {status === "self" && (
-          <Button onClick={onClose}>{statusInfo[status].action}</Button>
-        )}
+        {status === "self" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
 
-        {status === "unauth" && (
-          <Button onClick={onClose}>{statusInfo[status].action}</Button>
-        )}
+        {status === "unauth" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
       </div>
     </Modal>
   );

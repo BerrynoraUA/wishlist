@@ -31,9 +31,7 @@ const priorityToValue: Record<Exclude<PriorityOption, "None">, number> = {
   High: 3,
 };
 
-const supportedCurrencyCodes = new Set(
-  SUPPORTED_CURRENCIES.map((currency) => currency.code),
-);
+const supportedCurrencyCodes = new Set(SUPPORTED_CURRENCIES.map((currency) => currency.code));
 
 function resolveCurrency(value?: string | null) {
   const normalized = normalizeCurrencyCode(value);
@@ -111,8 +109,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
     const imageUrlToSave = imageFile ? null : imagePreview || null;
 
-    const priorityValue =
-      priority === "None" ? null : priorityToValue[priority];
+    const priorityValue = priority === "None" ? null : priorityToValue[priority];
 
     const payload: CreateItemParams = {
       wishlist_id: wishlistId,
@@ -184,11 +181,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           currency: data?.currency ?? null,
         };
 
-        const isEmpty =
-          !product.title &&
-          !product.description &&
-          !product.image &&
-          !product.price;
+        const isEmpty = !product.title && !product.description && !product.image && !product.price;
 
         if (isEmpty) {
           setError(
@@ -213,10 +206,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           setImagePreview(product.image);
         }
       } else {
-        setError(
-          data?.error ||
-            t("Error loading product", { $id: "item.modal.scrapeError" }),
-        );
+        setError(data?.error || t("Error loading product", { $id: "item.modal.scrapeError" }));
       }
     } catch {
       setError(
@@ -252,14 +242,12 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               value={link}
               onChange={(e) => setLink(e.target.value)}
             />
-            <Button
-              variant="secondary"
-              onClick={handleScrape}
-              disabled={!link.trim() || loading}
-            >
-              {loading
-                ? <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
-                : t("Search", { $id: "item.modal.searchProduct" })}
+            <Button variant="secondary" onClick={handleScrape} disabled={!link.trim() || loading}>
+              {loading ? (
+                <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
+              ) : (
+                t("Search", { $id: "item.modal.searchProduct" })
+              )}
             </Button>
           </div>
           {error && <p className={styles.error}>{error}</p>}
@@ -329,9 +317,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
-          </label>
+          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
           <div className={styles.priceRow}>
             <div className={styles.selectWrap}>
               <select
@@ -341,10 +327,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                 aria-label={t("Currency", { $id: "item.modal.currencyAria" })}
               >
                 {SUPPORTED_CURRENCIES.map((supportedCurrency) => (
-                  <option
-                    key={supportedCurrency.code}
-                    value={supportedCurrency.code}
-                  >
+                  <option key={supportedCurrency.code} value={supportedCurrency.code}>
                     {supportedCurrency.symbol} {supportedCurrency.code}
                   </option>
                 ))}
@@ -369,18 +352,10 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as PriorityOption)}
               >
-                <option value="None">
-                  {t("No priority", { $id: "item.modal.priorityNone" })}
-                </option>
-                <option value="Low">
-                  {t("Low", { $id: "item.priority.low" })}
-                </option>
-                <option value="Medium">
-                  {t("Medium", { $id: "item.priority.medium" })}
-                </option>
-                <option value="High">
-                  {t("High", { $id: "item.priority.high" })}
-                </option>
+                <option value="None">{t("No priority", { $id: "item.modal.priorityNone" })}</option>
+                <option value="Low">{t("Low", { $id: "item.priority.low" })}</option>
+                <option value="Medium">{t("Medium", { $id: "item.priority.medium" })}</option>
+                <option value="High">{t("High", { $id: "item.priority.high" })}</option>
               </select>
               <ChevronDown className={styles.selectChevron} size={16} />
             </div>

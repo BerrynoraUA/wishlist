@@ -29,8 +29,7 @@ export const scrapeRubylane: ScraperMethod = (html, _url) => {
   }
 
   // --- Title ---
-  let title =
-    $('meta[property="og:title"]').attr("content")?.trim() || pageTitle || null;
+  let title = $('meta[property="og:title"]').attr("content")?.trim() || pageTitle || null;
 
   // Remove " : Ruby Lane" suffix if present
   if (title) {

@@ -18,6 +18,7 @@ supabase link --project-ref <project-id>
 ```
 
 > **Project refs:**
+>
 > - **Staging (frontend):** `usqolbxpvnhiwdispocs`
 > - **Production / Mobile:** `mdwqtqqlqlzyqvnnhlln`
 >
@@ -27,12 +28,12 @@ supabase link --project-ref <project-id>
 
 ## Key Concepts
 
-| Term | Meaning |
-|------|---------|
-| **Migration** | A versioned SQL file in `supabase/migrations/` that describes a schema change |
-| **Remote schema** | The current state of the database on staging/prod |
-| **Shadow database** | A local temporary DB used by `supabase db diff` to generate migrations |
-| **Diffing** | Comparing local schema vs remote schema to auto-generate migration SQL |
+| Term                | Meaning                                                                       |
+| ------------------- | ----------------------------------------------------------------------------- |
+| **Migration**       | A versioned SQL file in `supabase/migrations/` that describes a schema change |
+| **Remote schema**   | The current state of the database on staging/prod                             |
+| **Shadow database** | A local temporary DB used by `supabase db diff` to generate migrations        |
+| **Diffing**         | Comparing local schema vs remote schema to auto-generate migration SQL        |
 
 ---
 
@@ -283,9 +284,11 @@ supabase migration repair --status applied <migration_version>
 ### Export data before destructive migrations
 
 Via Supabase Dashboard:
+
 1. Go to **Database → Backups** to download a backup (Pro plan)
 
 Via `pg_dump`:
+
 ```bash
 # Get connection string from Supabase Dashboard → Settings → Database
 pg_dump "postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres" \
@@ -305,18 +308,18 @@ psql "postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supab
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Start local env | `supabase start` |
-| Stop local env | `supabase stop` |
-| Create empty migration | `supabase migration new <name>` |
-| Generate migration from diff | `supabase db diff -f <name>` |
-| Reset local DB | `supabase db reset` |
-| Link to remote project | `supabase link --project-ref <id>` |
-| Push migrations to remote | `supabase db push` |
-| Pull remote changes | `supabase db pull` |
-| List migrations status | `supabase migration list` |
-| Repair migration history | `supabase migration repair --status applied <version>` |
+| Task                         | Command                                                |
+| ---------------------------- | ------------------------------------------------------ |
+| Start local env              | `supabase start`                                       |
+| Stop local env               | `supabase stop`                                        |
+| Create empty migration       | `supabase migration new <name>`                        |
+| Generate migration from diff | `supabase db diff -f <name>`                           |
+| Reset local DB               | `supabase db reset`                                    |
+| Link to remote project       | `supabase link --project-ref <id>`                     |
+| Push migrations to remote    | `supabase db push`                                     |
+| Pull remote changes          | `supabase db pull`                                     |
+| List migrations status       | `supabase migration list`                              |
+| Repair migration history     | `supabase migration repair --status applied <version>` |
 
 ---
 

@@ -4,7 +4,14 @@ export default function FriendWishlistsLoading() {
   return (
     <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
       {/* Header: back + title */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 28,
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <Skeleton variant="circle" width={38} height={38} />
           <div>
@@ -16,7 +23,13 @@ export default function FriendWishlistsLoading() {
       </div>
 
       {/* WishlistGrid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 20 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+          gap: 20,
+        }}
+      >
         {[0, 1, 2, 3].map((i) => (
           <SkeletonCard key={i} style={{ padding: 0 }}>
             <Skeleton width="100%" height={140} style={{ borderRadius: "12px 12px 0 0" }} />

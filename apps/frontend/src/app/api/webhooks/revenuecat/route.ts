@@ -14,10 +14,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const event = body?.event;
     if (!event) {
-      return NextResponse.json(
-        { error: "Missing event payload" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Missing event payload" }, { status: 400 });
     }
 
     const eventType: string = event.type;
@@ -26,18 +23,12 @@ export async function POST(request: NextRequest) {
     const productId: string | undefined = event.product_id;
 
     if (!appUserId) {
-      return NextResponse.json(
-        { error: "Missing app_user_id" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Missing app_user_id" }, { status: 400 });
     }
 
-    const isPro = [
-      "INITIAL_PURCHASE",
-      "RENEWAL",
-      "PRODUCT_CHANGE",
-      "UNCANCELLATION",
-    ].includes(eventType);
+    const isPro = ["INITIAL_PURCHASE", "RENEWAL", "PRODUCT_CHANGE", "UNCANCELLATION"].includes(
+      eventType,
+    );
 
     const isExpired = ["EXPIRATION", "BILLING_ISSUE"].includes(eventType);
 
@@ -45,9 +36,7 @@ export async function POST(request: NextRequest) {
 
     const plan = isPro ? "pro" : "free";
     const isActive = isPro || (isCancelled && !isExpired);
-    const expiresAt = expirationAtMs
-      ? new Date(expirationAtMs).toISOString()
-      : null;
+    const expiresAt = expirationAtMs ? new Date(expirationAtMs).toISOString() : null;
 
     const { error } = await supabaseAdmin.from("user_subscriptions").upsert(
       {
@@ -74,9 +63,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("[RevenueCat Webhook] Unexpected error:", err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

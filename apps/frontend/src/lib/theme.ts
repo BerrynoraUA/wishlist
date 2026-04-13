@@ -7,9 +7,7 @@ export const RESOLVED_THEME_COOKIE_NAME = "bn_resolved_theme";
 export const ACCENT_COOKIE_NAME = "bn_accent";
 export const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
-export function parseThemePreference(
-  value: string | null | undefined,
-): ThemePreference | null {
+export function parseThemePreference(value: string | null | undefined): ThemePreference | null {
   if (value === "light" || value === "dark" || value === "system") {
     return value;
   }
@@ -23,9 +21,7 @@ export function parseAccentCookie(value: string | null | undefined): number {
   return n >= 0 && n <= 4 ? n : 0;
 }
 
-export function parseResolvedTheme(
-  value: string | null | undefined,
-): ResolvedTheme | null {
+export function parseResolvedTheme(value: string | null | undefined): ResolvedTheme | null {
   if (value === "light" || value === "dark") {
     return value;
   }
@@ -94,8 +90,7 @@ export function getAccentInlineStyles(
   resolvedTheme: ResolvedTheme,
 ): Record<string, string> {
   const t = (ACCENT_MAP[accent] ?? ACCENT_MAP[0])[resolvedTheme];
-  const cm = (pct: number) =>
-    `color-mix(in srgb, ${t.b} ${pct}%, transparent)`;
+  const cm = (pct: number) => `color-mix(in srgb, ${t.b} ${pct}%, transparent)`;
 
   return {
     "--color-brand": t.b,

@@ -23,15 +23,13 @@ export function WishlistCard({ wishlist, showSharedMeta = true }: Props) {
   const visibility = wishlist.visibility_type;
   const VisibilityIcon = visibilityIcon[visibility];
   const itemsCount =
-    wishlist.items_count ??
-    (wishlist as Wishlist & { itemsCount?: number }).itemsCount ??
-    0;
+    wishlist.items_count ?? (wishlist as Wishlist & { itemsCount?: number }).itemsCount ?? 0;
   const isShared = showSharedMeta && wishlist.is_owner === false;
   const ownerNickname = wishlist.owner_nickname?.trim();
   const sharedTooltip = ownerNickname
     ? t("Shared by {name}", {
         name: `@${ownerNickname}`,
-        $id: "wishlistCard.sharedBy"
+        $id: "wishlistCard.sharedBy",
       })
     : t("Shared wishlist", { $id: "wishlistCard.sharedWishlist" });
 
@@ -50,11 +48,7 @@ export function WishlistCard({ wishlist, showSharedMeta = true }: Props) {
           />
         )}
         {isShared && (
-          <div
-            className={styles.sharedBadge}
-            aria-label={sharedTooltip}
-            title={sharedTooltip}
-          >
+          <div className={styles.sharedBadge} aria-label={sharedTooltip} title={sharedTooltip}>
             <Link2 size={12} />
             <span>{t("Shared", { $id: "wishlistCard.shared" })}</span>
             <span className={styles.sharedTooltip} role="tooltip">
@@ -74,7 +68,7 @@ export function WishlistCard({ wishlist, showSharedMeta = true }: Props) {
               ? t("{n} item", { n: itemsCount, $id: "wishlist.itemCount.one" })
               : t("{n} items", {
                   n: itemsCount,
-                  $id: "wishlist.itemCount.other"
+                  $id: "wishlist.itemCount.other",
                 })}
           </span>
 

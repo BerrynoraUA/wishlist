@@ -1,10 +1,5 @@
 import { ProductData, emptyProduct } from "../types";
-import {
-  extractCurrency,
-  extractMetaTagRegex,
-  extractTagRegex,
-  extractPriceRegex,
-} from "../utils";
+import { extractCurrency, extractMetaTagRegex, extractTagRegex, extractPriceRegex } from "../utils";
 
 /**
  * Regex скрапер — запасний варіант, працює без DOM-парсера.
@@ -13,11 +8,9 @@ import {
 export function scrapeWithRegex(html: string, url: string): ProductData {
   try {
     return {
-      title:
-        extractMetaTagRegex(html, "og:title") || extractTagRegex(html, "h1"),
+      title: extractMetaTagRegex(html, "og:title") || extractTagRegex(html, "h1"),
       description:
-        extractMetaTagRegex(html, "og:description") ||
-        extractMetaTagRegex(html, "description"),
+        extractMetaTagRegex(html, "og:description") || extractMetaTagRegex(html, "description"),
       image: extractMetaTagRegex(html, "og:image"),
       price: extractPriceRegex(html),
       discount_price: null,

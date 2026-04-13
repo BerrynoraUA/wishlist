@@ -22,17 +22,14 @@ function resolveRedirectTarget(rawTarget: string | null, request: NextRequest): 
 }
 
 export async function GET(request: NextRequest) {
-  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    process.env.SUPABASE_URL) as string | undefined;
-  const supabaseAnonKey = (process.env
-    .NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL) as
+    | string
+    | undefined;
+  const supabaseAnonKey = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string | undefined;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    return NextResponse.json(
-      { error: "Missing Supabase public env variables" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Missing Supabase public env variables" }, { status: 500 });
   }
 
   const requestUrl = new URL(request.url);

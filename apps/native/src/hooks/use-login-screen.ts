@@ -1,11 +1,7 @@
 import { useCallback, useState } from "react";
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import {
-  loginWithEmail,
-  loginWithGoogle,
-  registerWithEmail,
-} from "@/api/login";
+import { loginWithEmail, loginWithGoogle, registerWithEmail } from "@/api/login";
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;

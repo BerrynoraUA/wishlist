@@ -4,8 +4,8 @@ import { getMyStatistics } from "@/api/user";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 export const statisticsKeys = {
-  all: ['statistics'] as const,
-  my: () => [...statisticsKeys.all, 'my'] as const,
+  all: ["statistics"] as const,
+  my: () => [...statisticsKeys.all, "my"] as const,
 };
 
 export function useMyStatistics() {
@@ -16,7 +16,7 @@ export function useMyStatistics() {
 }
 
 const authKeys = {
-  user: ['auth', 'user'] as const,
+  user: ["auth", "user"] as const,
 };
 
 async function fetchCurrentUser(): Promise<User | null> {

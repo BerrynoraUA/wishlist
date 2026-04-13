@@ -12,19 +12,14 @@ type Props = {
   onLaunch?: () => void;
 };
 
-export function SecretSantaLaunchCard({
-  canLaunch,
-  onLaunch,
-}: Props) {
+export function SecretSantaLaunchCard({ canLaunch, onLaunch }: Props) {
   const t = useGT();
 
   return (
     <section className={styles.card}>
       <div className={styles.header}>
         <CircleDashed size={16} />
-        <span>
-          {t("Launch event", { $id: "secretSanta.launchCard.title" })}
-        </span>
+        <span>{t("Launch event", { $id: "secretSanta.launchCard.title" })}</span>
       </div>
 
       <p>

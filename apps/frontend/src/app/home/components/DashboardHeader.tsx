@@ -46,10 +46,7 @@ export function DashboardHeader({ onNewWishlist }: Props) {
   const { isPro } = useSubscription();
   const router = useRouter();
   const wishlistCount = stats?.wishlists_count ?? 0;
-  const atLimit =
-    SUBSCRIPTIONS_UI_ENABLED &&
-    !isPro &&
-    wishlistCount >= FREE_LIMITS.maxWishlists;
+  const atLimit = SUBSCRIPTIONS_UI_ENABLED && !isPro && wishlistCount >= FREE_LIMITS.maxWishlists;
   const rawDisplayName = getDisplayName(user ?? undefined);
   const displayName =
     rawDisplayName === "there"
@@ -75,10 +72,9 @@ export function DashboardHeader({ onNewWishlist }: Props) {
           })}
         </h1>
         <p>
-          {t(
-            "Manage your wishlists and discover what your friends are wishing for.",
-            { $id: "home.dashboard.subtitle" },
-          )}
+          {t("Manage your wishlists and discover what your friends are wishing for.", {
+            $id: "home.dashboard.subtitle",
+          })}
         </p>
       </div>
 
@@ -96,16 +92,12 @@ export function DashboardHeader({ onNewWishlist }: Props) {
           {atLimit ? (
             <>
               <Sparkles size={18} />
-              <span>
-                {t("Upgrade to Add", { $id: "home.dashboard.upgradeToAdd" })}
-              </span>
+              <span>{t("Upgrade to Add", { $id: "home.dashboard.upgradeToAdd" })}</span>
             </>
           ) : (
             <>
               <Plus size={18} />
-              <span>
-                {t("Add Wishlist", { $id: "home.dashboard.addWishlist" })}
-              </span>
+              <span>{t("Add Wishlist", { $id: "home.dashboard.addWishlist" })}</span>
             </>
           )}
         </Button>
