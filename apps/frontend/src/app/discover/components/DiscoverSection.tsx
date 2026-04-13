@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useGT } from "gt-next";
 import { UserRound } from "lucide-react";
 import styles from "./DiscoverSection.module.scss";
@@ -29,6 +30,7 @@ export function DiscoverSection({
   showDiscountBadge = false,
 }: Props) {
   const t = useGT();
+  const router = useRouter();
   const itemCount = items.length;
   const resolvedAvatarUrl = avatarUrl ?? avatar_url ?? null;
 
@@ -37,7 +39,16 @@ export function DiscoverSection({
       <header>
         <div className={styles.meta}>
           <div className={styles.identity}>
-            <span className={styles.avatar} aria-hidden="true">
+            <span
+              className={`${styles.avatar} ${friend_id ? styles.avatarClickable : ""}`}
+              role={friend_id ? "link" : undefined}
+              aria-label={friend_id ? owner : undefined}
+              onClick={() => {
+                if (friend_id) {
+                  router.push(`/friends/${friend_id}`);
+                }
+              }}
+            >
               {resolvedAvatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -52,7 +63,16 @@ export function DiscoverSection({
 
             <div className={styles.title}>
               <div className={styles.titleRow}>
-                <span className={styles.owner}>{owner}</span>
+                {friend_id ? (
+                  <Link
+                    href={`/friends/${friend_id}`}
+                    className={styles.ownerLink}
+                  >
+                    {owner}
+                  </Link>
+                ) : (
+                  <span className={styles.owner}>{owner}</span>
+                )}
                   <span className={styles.arrow} aria-hidden="true">&gt;</span>
                 <span className={styles.wishlist}>{wishlist}</span>
               </div>

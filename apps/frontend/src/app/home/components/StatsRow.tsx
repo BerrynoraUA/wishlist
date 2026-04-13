@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { StatCard } from "./StatCard";
 import styles from "./StatsRow.module.scss";
 import { useMyStatistics } from "@/hooks/use-user";
+import { Skeleton, SkeletonCard } from "@/components/ui/Skeleton/Skeleton";
 
 export function StatsRow() {
   const t = useGT();
@@ -14,7 +15,12 @@ export function StatsRow() {
   if (isLoading) {
     return (
       <div className={styles.row}>
-        {t("Loading stats...", { $id: "home.stats.loading" })}
+        {[0, 1, 2, 3].map((i) => (
+          <SkeletonCard key={i}>
+            <Skeleton variant="text" width={100} />
+            <Skeleton variant="heading" width={60} style={{ marginTop: 12 }} />
+          </SkeletonCard>
+        ))}
       </div>
     );
   }

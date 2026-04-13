@@ -14,6 +14,7 @@ import type { ThemePreference } from "@/types/settings";
 import {
   buildResolvedThemeCookie,
   buildThemeCookie,
+  buildAccentCookie,
   resolveThemePreference,
   type ResolvedTheme,
 } from "@/lib/theme";
@@ -167,6 +168,41 @@ function applyAccentTokens(
     "--gradient-brand-subtle",
     `linear-gradient(135deg, ${tokens.brandLight}, ${tokens.brandLighter})`,
   );
+
+  // Pro / accent border, glow, radial
+  root.style.setProperty(
+    "--color-pro-border",
+    `color-mix(in srgb, ${tokens.brand} 25%, transparent)`,
+  );
+  root.style.setProperty(
+    "--color-pro-glow",
+    `color-mix(in srgb, ${tokens.brand} 15%, transparent)`,
+  );
+  root.style.setProperty(
+    "--radial-brand",
+    `color-mix(in srgb, ${tokens.brand} 6%, transparent)`,
+  );
+
+  // Header / hero gradients
+  if (resolvedTheme === "dark") {
+    root.style.setProperty(
+      "--gradient-header",
+      `linear-gradient(135deg, #111114 0%, ${tokens.brandLighter} 50%, ${tokens.brandLight} 100%)`,
+    );
+    root.style.setProperty(
+      "--gradient-hero",
+      `linear-gradient(135deg, #111114, ${tokens.brandLighter}, ${tokens.brandLight})`,
+    );
+  } else {
+    root.style.setProperty(
+      "--gradient-header",
+      `linear-gradient(135deg, #fffafa 0%, ${tokens.brandLighter} 50%, ${tokens.brandLight} 100%)`,
+    );
+    root.style.setProperty(
+      "--gradient-hero",
+      `linear-gradient(135deg, #fffafa, ${tokens.brandLighter}, ${tokens.brandLight})`,
+    );
+  }
 }
 
 type AppThemeContextValue = {
@@ -189,10 +225,12 @@ function AppThemeProvider({
   children,
   initialTheme,
   initialResolvedTheme,
+  initialAccent,
 }: {
   children: React.ReactNode;
   initialTheme: ThemePreference;
   initialResolvedTheme: ResolvedTheme;
+  initialAccent: number;
 }) {
   const { data: settings } = useSettings();
   const { mutate: mutateSettings } = useUpdateSettings();
@@ -225,10 +263,11 @@ function AppThemeProvider({
     document.cookie = buildResolvedThemeCookie(resolvedTheme);
   }, [persistedTheme, resolvedTheme]);
 
-  const accent = settings?.default_accent ?? WishlistAccent.Pink;
+  const accent = settings?.default_accent ?? (initialAccent as WishlistAccent);
 
   useEffect(() => {
     applyAccentTokens(accent, resolvedTheme);
+    document.cookie = buildAccentCookie(accent);
   }, [accent, resolvedTheme]);
 
   const value = useMemo<AppThemeContextValue>(
@@ -260,11 +299,6 @@ function AppThemeProvider({
   );
 }
 
-/**
- * Initialises RevenueCat (auth-gated) and Paddle (always).
- * RevenueCat is used as the subscription state store.
- * Paddle is the web payment provider.
- */
 function SdkInitializer({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
 
@@ -300,10 +334,12 @@ export function Providers({
   children,
   initialTheme,
   initialResolvedTheme,
+  initialAccent,
 }: {
   children: React.ReactNode;
   initialTheme: ThemePreference;
   initialResolvedTheme: ResolvedTheme;
+  initialAccent: number;
 }) {
   const [queryClient] = useState(
     () =>
@@ -323,6 +359,7 @@ export function Providers({
         <AppThemeProvider
           initialTheme={initialTheme}
           initialResolvedTheme={initialResolvedTheme}
+          initialAccent={initialAccent}
         >
           <SdkInitializer>{children}</SdkInitializer>
         </AppThemeProvider>

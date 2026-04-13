@@ -137,7 +137,14 @@ export function ProfileMenu({ onOpen }: Props) {
       {open && (
         <div className={styles.profileMenu}>
           <div className={styles.profileHeader}>
-            <div className={styles.profileInitial}>
+            <div
+              className={styles.profileInitial}
+              role="button"
+              tabIndex={0}
+              style={{ cursor: "pointer" }}
+              onClick={() => { setOpen(false); router.push("/settings"); }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(false); router.push("/settings"); } }}
+            >
               {avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -250,6 +257,7 @@ export function ProfileMenu({ onOpen }: Props) {
           >
             <TreePine size={16} />
             <span>{t("Secret Santa", { $id: "profile.secretSanta" })}</span>
+            <ProBadge size="sm" label={t("NEW", { $id: "profile.secretSanta.newBadge" })} />
           </button>
 
           <button

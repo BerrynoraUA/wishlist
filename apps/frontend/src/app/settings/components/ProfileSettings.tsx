@@ -3,8 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useGT } from "gt-next";
 import { Camera, Check, AlertCircle } from "lucide-react";
+import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
+import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
+import { validateImageUploadFile } from "@/lib/image-upload";
 import styles from "./ProfileSettings.module.scss";
 import { SettingsSection } from "./SettingsSection";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { Button } from "@/components/ui/Button/Button";
 import {
   useProfile,
@@ -23,6 +27,7 @@ export function ProfileSettings() {
   const [displayName, setDisplayName] = useState("");
   const [nickname, setNickname] = useState("");
   const [bio, setBio] = useState("");
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const [nicknameStatus, setNicknameStatus] = useState<
     "idle" | "checking" | "available" | "taken"
   >("idle");
@@ -76,14 +81,32 @@ export function ProfileSettings() {
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const nextAvatarError = validateImageUploadFile(file);
+    if (nextAvatarError) {
+      setAvatarError(nextAvatarError);
+      e.target.value = "";
+      return;
+    }
+
+    setAvatarError(null);
     uploadAvatar.mutate(file);
   }
 
   if (isLoading) {
     return (
-      <p className={styles.loading}>
-        {t("Loading profile…", { $id: "settings.profile.loading" })}
-      </p>
+      <div style={{ display: "grid", gap: 16 }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <Skeleton variant="circle" width={56} height={56} />
+          <div style={{ display: "grid", gap: 6, flex: 1 }}>
+            <Skeleton variant="text" width="40%" />
+            <Skeleton variant="text" width="25%" />
+          </div>
+        </div>
+        <Skeleton width="100%" height={44} borderRadius={12} />
+        <Skeleton width="100%" height={44} borderRadius={12} />
+        <Skeleton width="100%" height={80} borderRadius={12} />
+      </div>
     );
   }
 
@@ -137,11 +160,13 @@ export function ProfileSettings() {
                 $id: "settings.profile.avatarHint",
               })}
             </p>
+            <FileSizeBadge className={styles.avatarBadge} />
             <p className={styles.hint}>
-              {t("JPG, PNG or WebP · Max 2 MB", {
+              {t("JPG, PNG or WebP", {
                 $id: "settings.profile.avatarFormats",
               })}
             </p>
+            <UploadErrorText message={avatarError} />
           </div>
         </div>
 

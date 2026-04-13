@@ -12,6 +12,7 @@ import {
   isSupabasePublicImageUrl,
   uploadPublicImage,
 } from "@/lib/helpers/storage-image";
+import { MAX_IMAGE_UPLOAD_BYTES } from "@/lib/image-upload";
 import { PublicProfile } from "./types/user";
 
 export async function getProfile(): Promise<UserProfile> {
@@ -94,8 +95,8 @@ export async function uploadAvatar(file: File): Promise<string> {
   const publicUrl = await uploadPublicImage({
     file,
     bucket: "avatars",
-    maxBytes: 2 * 1024 * 1024,
-    oversizeMessage: "Avatar image size must be less than 2MB",
+    maxBytes: MAX_IMAGE_UPLOAD_BYTES,
+    oversizeMessage: "Avatar image size must be less than 5MB",
     uploadErrorMessage: "Failed to upload avatar",
     logLabel: "avatar",
   });

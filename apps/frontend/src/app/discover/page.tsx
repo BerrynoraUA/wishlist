@@ -19,6 +19,7 @@ import {
   useToggleItemReservation,
 } from "@/hooks/use-items";
 import { useProfilesByIds } from "@/hooks/use-settings";
+import { useFriends } from "@/hooks/use-friends";
 
 function DiscoverPageContent() {
   const t = useGT();
@@ -107,6 +108,15 @@ function DiscoverPageContent() {
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
 
+  const { data: friendsList = [] } = useFriends();
+  const nicknameToFriendId = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const f of friendsList) {
+      if (f.nickname) map.set(f.nickname, f.friend_id);
+    }
+    return map;
+  }, [friendsList]);
+
   const activeWishlistSections =
     filter === "wishlists" ? allWishlistsSections : wishlistsSections;
 
@@ -114,11 +124,13 @@ function DiscoverPageContent() {
     return Array.from(
       new Set(
         (activeWishlistSections ?? [])
-          .map((s) => s.friend_id)
+          .map(
+            (s) => s.friend_id ?? nicknameToFriendId.get(s.username),
+          )
           .filter((id): id is string => Boolean(id)),
       ),
     );
-  }, [activeWishlistSections]);
+  }, [activeWishlistSections, nicknameToFriendId]);
 
   const { data: sectionProfiles = [] } = useProfilesByIds(friendIds);
 
@@ -196,11 +208,19 @@ function DiscoverPageContent() {
           <DiscoverSection
             key={section.id}
             {...section}
+            friend_id={
+              section.friend_id ??
+              nicknameToFriendId.get(section.username)
+            }
             showDiscountBadge={true}
             avatarUrl={
               section.avatar_url ??
-              (section.friend_id
-                ? (avatarById.get(section.friend_id) ?? null)
+              ((section.friend_id ?? nicknameToFriendId.get(section.username))
+                ? (avatarById.get(
+                    section.friend_id ??
+                      nicknameToFriendId.get(section.username) ??
+                      "",
+                  ) ?? null)
                 : null)
             }
             onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}

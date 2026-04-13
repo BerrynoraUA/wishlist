@@ -2,6 +2,7 @@
 
 import { useGT } from "gt-next";
 import { Button } from "@/components/ui/Button/Button";
+import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 import styles from "./SecretSantaHeader.module.scss";
 import { Plus, TreePine } from "lucide-react";
 import { useCurrentUser } from "@/hooks/use-user";
@@ -48,6 +49,7 @@ export function SecretSantaHeader({ onNewEvent }: Props) {
         <div className={styles.titleRow}>
           <TreePine size={28} className={styles.headerIcon} />
           <h1>{t("Secret Santa", { $id: "secretSanta.header.title" })}</h1>
+          <ProBadge size="sm" label={t("NEW", { $id: "secretSanta.newBadge" })} />
         </div>
         <p>
           {t(

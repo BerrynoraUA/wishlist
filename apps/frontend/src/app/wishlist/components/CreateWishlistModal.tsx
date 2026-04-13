@@ -9,6 +9,9 @@ import { useSettings } from "@/hooks/use-settings";
 import { WishlistAccent, WishlistVisibility } from "@/types/wishlist";
 import { Globe, Users, Lock, Check } from "lucide-react";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
+import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
+import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
+import { validateImageUploadFile } from "@/lib/image-upload";
 import styles from "./CreateWishlistModal.module.scss";
 
 type Props = {
@@ -68,6 +71,7 @@ function CreateWishlistForm({
   const [imagePreview, setImagePreview] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const { mutate, isPending } = useCreateWishlist();
 
@@ -85,6 +89,7 @@ function CreateWishlistForm({
     setEventDate("");
     setImagePreview("");
     setImageFile(null);
+    setImageError(null);
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     setImageObjectUrl(null);
   }
@@ -93,16 +98,30 @@ function CreateWishlistForm({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const nextImageError = validateImageUploadFile(file);
+    if (nextImageError) {
+      setImageError(nextImageError);
+      e.target.value = "";
+      return;
+    }
+
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     const objectUrl = URL.createObjectURL(file);
     setImageObjectUrl(objectUrl);
 
+    setImageError(null);
     setImageFile(file);
     setImagePreview(objectUrl);
   }
 
   function handleSubmit() {
     if (!name.trim() || isPending) return;
+
+    const nextImageError = validateImageUploadFile(imageFile);
+    if (nextImageError) {
+      setImageError(nextImageError);
+      return;
+    }
 
     const imageUrlToSave = imageFile ? null : imagePreview || null;
 
@@ -148,7 +167,9 @@ function CreateWishlistForm({
 
         {/* Name */}
         <div className={styles.field}>
-          <label>{t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}</label>
+          <label>
+            {t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}
+          </label>
           <input
             placeholder={t("e.g. Birthday Wishes, Home Office Setup", {
               $id: "wishlist.modal.namePlaceholder",
@@ -175,11 +196,14 @@ function CreateWishlistForm({
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Cover Image (drag & drop or click)", {
-              $id: "wishlist.modal.create.coverLabel",
-            })}
-          </label>
+          <div className={styles.labelRow}>
+            <label>
+              {t("Cover Image (drag & drop or click)", {
+                $id: "wishlist.modal.create.coverLabel",
+              })}
+            </label>
+            <FileSizeBadge />
+          </div>
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
@@ -205,6 +229,7 @@ function CreateWishlistForm({
               />
             </label>
           </div>
+          <UploadErrorText message={imageError} />
         </div>
 
         {/* Event Date */}
@@ -245,7 +270,9 @@ function CreateWishlistForm({
             <PrivacyCard
               icon={<Lock size={18} />}
               title={t("Private", { $id: "wishlist.privacy.private" })}
-              subtitle={t("Only you", { $id: "wishlist.privacy.privateSubtitle" })}
+              subtitle={t("Only you", {
+                $id: "wishlist.privacy.privateSubtitle",
+              })}
               selected={privacy === "Private"}
               onClick={() => setPrivacy("Private")}
             />
@@ -254,7 +281,9 @@ function CreateWishlistForm({
 
         {/* Colors */}
         <div className={styles.section}>
-          <label>{t("Cover Color", { $id: "wishlist.modal.coverColor" })}</label>
+          <label>
+            {t("Cover Color", { $id: "wishlist.modal.coverColor" })}
+          </label>
 
           <div className={styles.colors}>
             {colors.map((c) => (
@@ -274,7 +303,10 @@ function CreateWishlistForm({
           <Button variant="secondary" onClick={handleClose}>
             {t("Cancel", { $id: "common.cancel" })}
           </Button>
-          <Button onClick={handleSubmit} disabled={!name.trim() || isPending}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!name.trim() || isPending || Boolean(imageError)}
+          >
             {isPending
               ? t("Creating...", { $id: "wishlist.modal.creating" })
               : t("Create Wishlist", { $id: "wishlist.modal.create.submit" })}

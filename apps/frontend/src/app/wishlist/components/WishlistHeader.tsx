@@ -5,15 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   Calendar,
-  Check,
   Gift,
   KeyRound,
   MoreHorizontal,
-  Pencil,
   Plus,
   Sparkles,
   Share2,
-  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useGT, useLocale } from "gt-next";
@@ -74,9 +71,12 @@ export function WishlistHeader({
     !isPro &&
     itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
   const canInlineEdit = isOwner;
-  const [isInlineEditing, setIsInlineEditing] = useState(false);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingDescription, setEditingDescription] = useState(false);
   const [titleDraft, setTitleDraft] = useState(wishlist.title);
   const [descriptionDraft, setDescriptionDraft] = useState(description);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
+  const descriptionInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -90,11 +90,12 @@ export function WishlistHeader({
   }, [menuOpen]);
 
   useEffect(() => {
-    if (!isInlineEditing) {
-      setTitleDraft(wishlist.title);
-      setDescriptionDraft(description);
-    }
-  }, [wishlist.title, description, isInlineEditing]);
+    if (!editingTitle) setTitleDraft(wishlist.title);
+  }, [wishlist.title, editingTitle]);
+
+  useEffect(() => {
+    if (!editingDescription) setDescriptionDraft(description);
+  }, [description, editingDescription]);
 
   function handleAddItem() {
     if (atItemLimit) {
@@ -105,71 +106,68 @@ export function WishlistHeader({
     onAddItem?.();
   }
 
-  function startEditing() {
-    setMenuOpen(false);
-    setIsInlineEditing(true);
-  }
-
-  function cancelEditing() {
-    setIsInlineEditing(false);
+  function startEditingTitle() {
+    setEditingTitle(true);
     setTitleDraft(wishlist.title);
-    setDescriptionDraft(description);
+    requestAnimationFrame(() => titleInputRef.current?.focus());
   }
 
-  function saveInlineChanges() {
+  function startEditingDescription() {
+    setEditingDescription(true);
+    setDescriptionDraft(description);
+    requestAnimationFrame(() => descriptionInputRef.current?.focus());
+  }
+
+  function saveTitleChange() {
     if (isUpdatingWishlist) return;
-
     const nextTitle = titleDraft.trim();
-    const nextDescription = descriptionDraft.trim();
-
     if (!nextTitle) {
+      setTitleDraft(wishlist.title);
+      setEditingTitle(false);
       return;
     }
-
-    if (nextTitle === wishlist.title && nextDescription === description) {
-      setIsInlineEditing(false);
+    if (nextTitle === wishlist.title) {
+      setEditingTitle(false);
       return;
     }
-
     updateWishlist(
-      {
-        id: wishlist.id,
-        updates: {
-          title: nextTitle,
-          description: nextDescription,
-        },
-      },
-      {
-        onSuccess: () => {
-          setIsInlineEditing(false);
-        },
-      },
+      { id: wishlist.id, updates: { title: nextTitle } },
+      { onSuccess: () => setEditingTitle(false) },
+    );
+  }
+
+  function saveDescriptionChange() {
+    if (isUpdatingWishlist) return;
+    const nextDescription = descriptionDraft.trim();
+    if (nextDescription === description) {
+      setEditingDescription(false);
+      return;
+    }
+    updateWishlist(
+      { id: wishlist.id, updates: { description: nextDescription } },
+      { onSuccess: () => setEditingDescription(false) },
     );
   }
 
   function handleTitleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter") {
       event.preventDefault();
-      saveInlineChanges();
+      titleInputRef.current?.blur();
     }
-
     if (event.key === "Escape") {
       event.preventDefault();
-      cancelEditing();
+      setTitleDraft(wishlist.title);
+      setEditingTitle(false);
     }
   }
 
   function handleDescriptionKeyDown(
     event: React.KeyboardEvent<HTMLTextAreaElement>,
   ) {
-    if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-      event.preventDefault();
-      saveInlineChanges();
-    }
-
     if (event.key === "Escape") {
       event.preventDefault();
-      cancelEditing();
+      setDescriptionDraft(description);
+      setEditingDescription(false);
     }
   }
 
@@ -183,80 +181,83 @@ export function WishlistHeader({
               <button
                 type="button"
                 className={`${styles.back} iconTooltipTrigger`}
-                onClick={() => router.push("/home")}
-                aria-label={t("Back to home", {
-                  $id: "wishlist.header.backHome",
+                onClick={() => router.back()}
+                aria-label={t("Back", {
+                  $id: "wishlist.header.back",
                 })}
-                data-tooltip={t("Back to home", {
-                  $id: "wishlist.header.backHome",
+                data-tooltip={t("Back", {
+                  $id: "wishlist.header.back",
                 })}
               >
                 <ArrowLeft size={18} />
               </button>
 
               <div className={styles.titleBlock}>
-                {isInlineEditing ? (
-                  <div className={styles.inlineEditorBlock}>
-                    <input
-                      className={styles.titleInput}
-                      value={titleDraft}
-                      onChange={(e) => setTitleDraft(e.target.value)}
-                      onKeyDown={handleTitleKeyDown}
-                      placeholder={t("Wishlist title", {
-                        $id: "wishlist.header.titlePlaceholder",
-                      })}
-                      autoFocus
-                      disabled={isUpdatingWishlist}
-                    />
-                    <div className={styles.inlineActions}>
-                      <button
-                        type="button"
-                        className={`${styles.inlineActionButton} ${styles.inlineSaveButton}`}
-                        onClick={saveInlineChanges}
-                        disabled={!titleDraft.trim() || isUpdatingWishlist}
-                        aria-label={t("Save wishlist changes", {
-                          $id: "wishlist.header.saveChanges",
-                        })}
-                      >
-                        <Check size={14} />
-                      </button>
-                      <button
-                        type="button"
-                        className={`${styles.inlineActionButton} ${styles.inlineCancelButton}`}
-                        onClick={cancelEditing}
-                        disabled={isUpdatingWishlist}
-                        aria-label={t("Cancel inline editing", {
-                          $id: "wishlist.header.cancelInline",
-                        })}
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  </div>
+                {editingTitle ? (
+                  <input
+                    ref={titleInputRef}
+                    className={styles.titleInput}
+                    value={titleDraft}
+                    onChange={(e) => setTitleDraft(e.target.value)}
+                    onKeyDown={handleTitleKeyDown}
+                    onBlur={saveTitleChange}
+                    placeholder={t("Wishlist title", {
+                      $id: "wishlist.header.titlePlaceholder",
+                    })}
+                    autoFocus
+                    disabled={isUpdatingWishlist}
+                  />
                 ) : (
-                  <div className={styles.titleRow}>
-                    <h1>{wishlist.title}</h1>
+                  <div
+                    className={styles.titleRow}
+                    onDoubleClick={
+                      canInlineEdit ? startEditingTitle : undefined
+                    }
+                  >
+                    <h1
+                      className={
+                        canInlineEdit ? styles.editableText : undefined
+                      }
+                    >
+                      {wishlist.title}
+                    </h1>
                   </div>
                 )}
 
-                {(description || canInlineEdit || isInlineEditing) &&
-                  (isInlineEditing ? (
+                {(description || canInlineEdit) &&
+                  (editingDescription ? (
                     <textarea
+                      ref={descriptionInputRef}
                       className={styles.descriptionInput}
                       value={descriptionDraft}
                       onChange={(e) => setDescriptionDraft(e.target.value)}
                       onKeyDown={handleDescriptionKeyDown}
+                      onBlur={saveDescriptionChange}
                       placeholder={t("Add a short description", {
                         $id: "wishlist.header.descPlaceholder",
                       })}
+                      autoFocus
                       disabled={isUpdatingWishlist}
                     />
                   ) : (
-                    <div className={styles.descriptionRow}>
+                    <div
+                      className={styles.descriptionRow}
+                      onDoubleClick={
+                        canInlineEdit
+                          ? startEditingDescription
+                          : undefined
+                      }
+                    >
                       {description ? (
-                        <p className={styles.description}>{description}</p>
+                        <p
+                          className={`${styles.description} ${canInlineEdit ? styles.editableText : ""}`}
+                        >
+                          {description}
+                        </p>
                       ) : canInlineEdit ? (
-                        <p className={styles.descriptionPlaceholder}>
+                        <p
+                          className={`${styles.descriptionPlaceholder} ${styles.editableText}`}
+                        >
                           {t("Add a short description", {
                             $id: "wishlist.header.descPlaceholderText",
                           })}
@@ -341,39 +342,6 @@ export function WishlistHeader({
 
               {showActions && (
                 <div className={styles.bannerActions}>
-                  {canInlineEdit && (
-                    <button
-                      type="button"
-                      className={`${styles.menuButton} ${styles.editToggleButton} ${isInlineEditing ? styles.editToggleButtonActive : ""} iconTooltipTrigger`}
-                      onClick={() => {
-                        if (isInlineEditing) {
-                          cancelEditing();
-                        } else {
-                          startEditing();
-                        }
-                      }}
-                      aria-label={
-                        isInlineEditing
-                          ? t("Cancel inline editing", {
-                              $id: "wishlist.header.cancelInline",
-                            })
-                          : t("Inline edit wishlist", {
-                              $id: "wishlist.header.inlineEditAria",
-                            })
-                      }
-                      data-tooltip={
-                        isInlineEditing
-                          ? t("Cancel inline edit", {
-                              $id: "wishlist.header.cancelInlineTooltip",
-                            })
-                          : t("Inline edit title and description", {
-                              $id: "wishlist.header.inlineEditTooltip",
-                            })
-                      }
-                    >
-                      <Pencil size={18} />
-                    </button>
-                  )}
                   {onShare && (
                     <button
                       type="button"

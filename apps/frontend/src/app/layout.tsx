@@ -7,10 +7,13 @@ import { cookies } from "next/headers";
 import {
   buildThemeInitScript,
   getInitialResolvedTheme,
+  getAccentInlineStyles,
   parseThemePreference,
+  parseAccentCookie,
+  ACCENT_COOKIE_NAME,
   RESOLVED_THEME_COOKIE_NAME,
-  THEME_COOKIE_NAME } from
-"@/lib/theme";
+  THEME_COOKIE_NAME,
+} from "@/lib/theme";
 import { getLocale } from "gt-next/server";
 import { GTProvider } from "gt-next";
 
@@ -18,55 +21,64 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  viewportFit: "cover"
+  viewportFit: "cover",
 };
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
-  display: "swap"
+  display: "swap",
 });
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-serif",
-  display: "swap"
+  display: "swap",
 });
 
 export default async function RootLayout({
-  children
-
-
-}: {children: React.ReactNode;}) {
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const cookieStore = await cookies();
   const initialTheme =
-  parseThemePreference(cookieStore.get(THEME_COOKIE_NAME)?.value) ?? "system";
+    parseThemePreference(cookieStore.get(THEME_COOKIE_NAME)?.value) ?? "system";
   const initialResolvedTheme = getInitialResolvedTheme(
     initialTheme,
-    cookieStore.get(RESOLVED_THEME_COOKIE_NAME)?.value
+    cookieStore.get(RESOLVED_THEME_COOKIE_NAME)?.value,
+  );
+  const initialAccent = parseAccentCookie(
+    cookieStore.get(ACCENT_COOKIE_NAME)?.value,
   );
 
   return (
-  <html
-
-    className={`${dmSans.variable} ${playfair.variable}`}
-    data-theme={initialResolvedTheme}
-    suppressHydrationWarning
-    style={{ colorScheme: initialResolvedTheme }} lang={await getLocale()}>
-    
+    <html
+      className={`${dmSans.variable} ${playfair.variable}`}
+      data-theme={initialResolvedTheme}
+      suppressHydrationWarning
+      style={{
+        colorScheme: initialResolvedTheme,
+        ...getAccentInlineStyles(initialAccent, initialResolvedTheme),
+      } as React.CSSProperties}
+      lang={await getLocale()}
+    >
       <head>
         <Script id="theme-init" strategy="beforeInteractive">
           {buildThemeInitScript()}
         </Script>
       </head>
-      <body suppressHydrationWarning><GTProvider>
-        <AppShell
-          initialTheme={initialTheme}
-          initialResolvedTheme={initialResolvedTheme}>
-          
-          {children}
-        </AppShell>
-      </GTProvider></body>
+      <body suppressHydrationWarning>
+        <GTProvider>
+          <AppShell
+            initialTheme={initialTheme}
+            initialResolvedTheme={initialResolvedTheme}
+            initialAccent={initialAccent}
+          >
+            {children}
+          </AppShell>
+        </GTProvider>
+      </body>
     </html>
   );
 }

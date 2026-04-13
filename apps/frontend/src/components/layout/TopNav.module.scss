@@ -42,6 +42,12 @@
   justify-content: center;
 }
 
+.logoText {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
 .logoIcon {
   width: 36px;
   height: 36px;
@@ -66,11 +72,10 @@
 
 .logoBetaBadge {
   position: absolute;
-  top: 0;
-  right: 0;
+  right: -6px;
+  top: -2px;
+  transform: translate(50%, -50%);
   pointer-events: none;
-  z-index: 1;
-  transform: translate(42%, -42%);
 }
 
 /* ===== NAV ===== */
@@ -335,6 +340,10 @@
   }
 
   .logo span {
+    display: none;
+  }
+
+  .logoBetaBadge {
     display: none;
   }
 
