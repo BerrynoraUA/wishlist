@@ -272,38 +272,28 @@
   margin-top: 8px;
 }
 
-.editToggleButton {
-  color: var(--color-brand);
+.editableText {
+  cursor: text;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: var(--brand-alpha-06);
+  }
 }
 
-.editToggleButtonActive {
-  background: var(--brand-alpha-12);
-  border: 1px solid var(--brand-alpha-20);
-  color: var(--color-brand-dark);
-  box-shadow: 0 10px 22px var(--brand-alpha-12);
-}
-
-.inlineEditorBlock {
-  display: grid;
-  gap: 10px;
+.titleInput {
   width: min(100%, 520px);
-  margin-top: 4px;
-}
-
-.inlineEditorFields {
-  display: grid;
-  gap: 8px;
-}
-
-.titleInput,
-.descriptionInput {
-  width: 100%;
   border: 1px solid var(--input-focus-border);
   border-radius: 14px;
   background: color-mix(in srgb, var(--card-bg) 86%, white 14%);
   color: var(--color-text);
   padding: 10px 12px;
   font-family: var(--font-sans);
+  font-size: clamp(18px, 2.4vw, 24px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.12;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
@@ -317,89 +307,30 @@
   }
 }
 
-.titleInput {
-  font-size: clamp(18px, 2.4vw, 24px);
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1.12;
-}
-
 .descriptionInput {
+  width: min(100%, 520px);
+  border: 1px solid var(--input-focus-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card-bg) 86%, white 14%);
+  color: var(--color-text);
+  padding: 10px 12px;
+  font-family: var(--font-sans);
   min-height: 68px;
   max-height: 140px;
   resize: vertical;
   font-size: 13px;
   line-height: 1.5;
-}
-
-.inlineActions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 0 4px;
-}
-
-.inlineHint {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  font-size: 11px;
-  color: var(--color-text-light);
-}
-
-.inlineActionButtons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.inlineActionButton {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  border: 1px solid transparent;
-  display: inline-grid;
-  place-items: center;
-  cursor: pointer;
+  margin-top: 8px;
   transition:
-    transform 0.2s ease,
     border-color 0.2s ease,
-    background 0.2s ease,
     box-shadow 0.2s ease,
-    color 0.2s ease;
+    background 0.2s ease;
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  &:not(:disabled):hover {
-    transform: translateY(-1px);
-  }
-}
-
-.inlineSaveButton {
-  background: var(--color-brand);
-  color: #fff;
-  box-shadow: var(--shadow-brand);
-
-  &:not(:disabled):hover {
-    background: var(--color-brand-dark);
-    box-shadow: var(--shadow-brand-lg);
-  }
-}
-
-.inlineCancelButton {
-  background: rgba(100, 116, 139, 0.1);
-  border-color: rgba(100, 116, 139, 0.12);
-  color: #475569;
-
-  &:not(:disabled):hover {
-    background: rgba(100, 116, 139, 0.18);
-    border-color: rgba(100, 116, 139, 0.22);
-    color: #334155;
+  &:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 4px var(--input-focus-ring);
+    background: var(--card-bg);
   }
 }
 
@@ -539,28 +470,10 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.42);
 }
 
-:global([data-theme="dark"]) .editToggleButtonActive {
-  color: color-mix(in srgb, var(--color-brand-lighter) 88%, white 12%);
-  border-color: var(--brand-alpha-25);
-  box-shadow:
-    0 12px 26px rgba(0, 0, 0, 0.28),
-    0 0 0 1px var(--brand-alpha-15);
-}
-
-:global([data-theme="dark"]) .inlineEditorFields {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-}
-
 :global([data-theme="dark"]) .titleInput,
 :global([data-theme="dark"]) .descriptionInput {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.08);
-}
-
-:global([data-theme="dark"]) .inlineHint {
-  color: rgba(209, 213, 219, 0.52);
 }
 
 :global([data-theme="dark"]) .editItem {

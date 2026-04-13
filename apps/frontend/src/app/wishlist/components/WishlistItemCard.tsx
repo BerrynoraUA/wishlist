@@ -9,6 +9,7 @@ import {
   ShoppingBag,
   ShoppingCart,
   MoreHorizontal,
+  ThumbsUp,
 } from "lucide-react";
 import { WishlistItemDetailModal } from "./WishlistItemDetailModal";
 import { useCurrentUserId } from "@/hooks/use-user";
@@ -31,6 +32,9 @@ type Props = {
   onEdit?: (item: Item) => void;
   autoOpen?: boolean;
   onAutoOpenHandled?: (id: string) => void;
+  voteCount?: number;
+  hasVoted?: boolean;
+  onToggleVote?: (id: string) => void;
 };
 
 export function WishlistItemCard({
@@ -44,6 +48,9 @@ export function WishlistItemCard({
   onEdit,
   autoOpen = false,
   onAutoOpenHandled,
+  voteCount = 0,
+  hasVoted = false,
+  onToggleVote,
 }: Props) {
   const t = useGT();
   const [detailOpen, setDetailOpen] = useState(false);
@@ -320,6 +327,9 @@ export function WishlistItemCard({
 
         <div className={styles.content}>
           <h3 title={title}>{title}</h3>
+          {item.description && (
+            <p className={styles.description}>{item.description}</p>
+          )}
           <div className={styles.metaRow}>
             {formattedPrice && (
               <span className={styles.price}>{formattedPrice}</span>
@@ -330,6 +340,21 @@ export function WishlistItemCard({
               </span>
             )}
           </div>
+
+          {!isOwner && onToggleVote && (
+            <button
+              className={`${styles.voteBtn} ${hasVoted ? styles.voted : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleVote(item.id);
+              }}
+            >
+              <ThumbsUp size={14} />
+              {voteCount > 0 && (
+                <span className={styles.voteCount}>{voteCount}</span>
+              )}
+            </button>
+          )}
 
           {!isOwner && (
             <div className={styles.actionsRow}>

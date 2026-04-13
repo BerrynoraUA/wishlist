@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useGT } from "gt-next";
 import styles from "./NotificationsPanel.module.scss";
 import { Button } from "@/components/ui/Button/Button";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { Notification } from "@/types";
 import {
   useAcceptSecretSantaInvite,
@@ -109,10 +110,16 @@ export function NotificationsPanel({
       </div>
 
       {isLoading ? (
-        <div className={styles.empty}>
-          {t("Loading notifications...", {
-            $id: "notifications.loading",
-          })}
+        <div style={{ display: "grid", gap: 12, padding: 16 }}>
+          {[0, 1, 2].map((i) => (
+            <div key={i} style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              <Skeleton variant="circle" width={36} height={36} />
+              <div style={{ flex: 1, display: "grid", gap: 4 }}>
+                <Skeleton variant="text" width="80%" />
+                <Skeleton variant="text" width="50%" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : notifications.length === 0 ? (
         <div className={styles.empty}>
