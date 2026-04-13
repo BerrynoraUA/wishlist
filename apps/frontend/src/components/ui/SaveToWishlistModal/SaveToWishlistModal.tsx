@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useMyWishlists } from "@/hooks/use-wishlists";
 import { useCreateItem } from "@/hooks/use-items";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import styles from "./SaveToWishlistModal.module.scss";
 
 export type SaveItemData = {
@@ -141,7 +142,15 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
           )}
 
           <div className={styles.wishlistList}>
-            {isLoading && <div className={styles.emptyState}>Loading...</div>}
+            {isLoading && (
+              <div className={styles.emptyState}>
+                <div style={{ display: "grid", gap: 8, width: "100%" }}>
+                  {[0, 1, 2].map((i) => (
+                    <Skeleton key={i} width="100%" height={44} borderRadius={12} />
+                  ))}
+                </div>
+              </div>
+            )}
 
             {!isLoading && filteredWishlists.length === 0 && (
               <div className={styles.emptyState}>

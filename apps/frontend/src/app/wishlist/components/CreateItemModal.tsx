@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useGT } from "gt-next";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useCreateItem } from "@/hooks/use-items";
@@ -239,7 +239,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               disabled={!link.trim() || loading}
             >
               {loading
-                ? t("Loading...", { $id: "common.loading" })
+                ? <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
                 : t("Search", { $id: "item.modal.searchProduct" })}
             </Button>
           </div>

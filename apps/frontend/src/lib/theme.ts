@@ -63,6 +63,63 @@ export function buildAccentCookie(accent: number): string {
   return `${ACCENT_COOKIE_NAME}=${accent}; Path=/; Max-Age=${THEME_COOKIE_MAX_AGE}; SameSite=Lax`;
 }
 
+const ACCENT_MAP: Record<
+  number,
+  Record<"light" | "dark", { b: string; d: string; l: string; r: string }>
+> = {
+  0: {
+    light: { b: "#c0267e", d: "#9b1f66", l: "#fde7f3", r: "#fdf2f8" },
+    dark: { b: "#e052a0", d: "#c0267e", l: "#3d1a2e", r: "#2a1220" },
+  },
+  1: {
+    light: { b: "#2563eb", d: "#1d4ed8", l: "#dbeafe", r: "#eff6ff" },
+    dark: { b: "#60a5fa", d: "#3b82f6", l: "#1e293b", r: "#172033" },
+  },
+  2: {
+    light: { b: "#d97706", d: "#b45309", l: "#fef3c7", r: "#fffbeb" },
+    dark: { b: "#fbbf24", d: "#d97706", l: "#2a2010", r: "#1f1a0e" },
+  },
+  3: {
+    light: { b: "#059669", d: "#047857", l: "#d1fae5", r: "#ecfdf5" },
+    dark: { b: "#34d399", d: "#10b981", l: "#132a20", r: "#0f1f18" },
+  },
+  4: {
+    light: { b: "#7c3aed", d: "#6d28d9", l: "#ede9fe", r: "#f5f3ff" },
+    dark: { b: "#a78bfa", d: "#8b5cf6", l: "#241d3a", r: "#1c162e" },
+  },
+};
+
+export function getAccentInlineStyles(
+  accent: number,
+  resolvedTheme: ResolvedTheme,
+): Record<string, string> {
+  const t = (ACCENT_MAP[accent] ?? ACCENT_MAP[0])[resolvedTheme];
+  const cm = (pct: number) =>
+    `color-mix(in srgb, ${t.b} ${pct}%, transparent)`;
+
+  return {
+    "--color-brand": t.b,
+    "--color-brand-dark": t.d,
+    "--color-brand-light": t.l,
+    "--color-brand-lighter": t.r,
+    "--brand-alpha-06": cm(6),
+    "--brand-alpha-08": cm(8),
+    "--brand-alpha-10": cm(10),
+    "--brand-alpha-12": cm(12),
+    "--brand-alpha-15": cm(15),
+    "--brand-alpha-20": cm(20),
+    "--brand-alpha-25": cm(25),
+    "--brand-alpha-30": cm(30),
+    "--brand-alpha-35": cm(35),
+    "--input-focus-border": cm(40),
+    "--input-focus-ring": cm(8),
+    "--selection-bg": cm(15),
+    "--shadow-brand": `0 4px 14px ${cm(30)}`,
+    "--shadow-brand-lg": `0 8px 30px ${cm(20)}`,
+    "--gradient-brand-subtle": `linear-gradient(135deg, ${t.l}, ${t.r})`,
+  };
+}
+
 export function buildThemeInitScript(): string {
   return `(() => {
   var readCookie = function(name) {

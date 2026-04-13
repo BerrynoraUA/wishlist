@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import {
   buildThemeInitScript,
   getInitialResolvedTheme,
+  getAccentInlineStyles,
   parseThemePreference,
   parseAccentCookie,
   ACCENT_COOKIE_NAME,
@@ -56,7 +57,10 @@ export default async function RootLayout({
       className={`${dmSans.variable} ${playfair.variable}`}
       data-theme={initialResolvedTheme}
       suppressHydrationWarning
-      style={{ colorScheme: initialResolvedTheme }}
+      style={{
+        colorScheme: initialResolvedTheme,
+        ...getAccentInlineStyles(initialAccent, initialResolvedTheme),
+      } as React.CSSProperties}
       lang={await getLocale()}
     >
       <head>

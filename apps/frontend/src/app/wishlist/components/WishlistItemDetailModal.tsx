@@ -129,15 +129,7 @@ export function WishlistItemDetailModal({
             </div>
 
             {item.description && (
-              <div className={styles.tooltipTrigger}>
-                <div className={styles.descriptionBlock}>
-                  <p className={styles.description}>{item.description}</p>
-                </div>
-                <div className={styles.textTooltip} role="tooltip">
-                  <div className={styles.textTooltipArrow} />
-                  <span>{item.description}</span>
-                </div>
-              </div>
+              <p className={styles.descriptionFull}>{item.description}</p>
             )}
 
             <div className={styles.meta}>
