@@ -28,10 +28,7 @@ export function SettingsTabs({ active, onChange }: Props) {
   );
 
   return (
-    <nav
-      className={styles.tabs}
-      aria-label={t("Settings sections", { $id: "settings.tabs.nav" })}
-    >
+    <nav className={styles.tabs} aria-label={t("Settings sections", { $id: "settings.tabs.nav" })}>
       {SETTINGS_TAB_ORDER.map((id) => (
         <button
           key={id}

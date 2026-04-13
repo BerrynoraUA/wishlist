@@ -6,36 +6,24 @@ test.describe("Landing page", () => {
   });
 
   test("renders the hero section with heading and CTA", async ({ page }) => {
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Wishlists",
-    );
-    await expect(
-      page.getByRole("link", { name: "Start Your First Wishlist" }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: "See How It Works" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Wishlists");
+    await expect(page.getByRole("link", { name: "Start Your First Wishlist" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "See How It Works" })).toBeVisible();
   });
 
   test("navigation links are visible", async ({ page }) => {
     const nav = page.locator("nav");
     await expect(nav.getByRole("link", { name: "Features" })).toBeVisible();
-    await expect(
-      nav.getByRole("link", { name: "How It Works" }),
-    ).toBeVisible();
+    await expect(nav.getByRole("link", { name: "How It Works" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Discover" })).toBeVisible();
-    await expect(
-      nav.getByRole("link", { name: "Testimonials" }),
-    ).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Testimonials" })).toBeVisible();
   });
 
   test("Log In and Get Started buttons link to /login", async ({ page }) => {
     const logInLink = page.getByRole("link", { name: "Log In" }).first();
     await expect(logInLink).toHaveAttribute("href", "/login");
 
-    const getStartedLink = page
-      .getByRole("link", { name: "Get Started Free" })
-      .first();
+    const getStartedLink = page.getByRole("link", { name: "Get Started Free" }).first();
     await expect(getStartedLink).toHaveAttribute("href", "/login");
   });
 
@@ -58,9 +46,7 @@ test.describe("Landing page", () => {
   });
 
   test("free forever note is visible", async ({ page }) => {
-    await expect(
-      page.getByText("Free forever · No credit card required"),
-    ).toBeVisible();
+    await expect(page.getByText("Free forever · No credit card required")).toBeVisible();
   });
 
   test("mockup card previews are rendered", async ({ page }) => {

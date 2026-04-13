@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  RefreshControl,
-} from "react-native";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   useNotifications,
@@ -30,10 +23,7 @@ function NotificationCard({
 
   return (
     <TouchableOpacity
-      style={[
-        styles.notificationCard,
-        !notification.is_read && styles.unreadCard,
-      ]}
+      style={[styles.notificationCard, !notification.is_read && styles.unreadCard]}
       onPress={() => !notification.is_read && onMarkRead(notification.id)}
       onLongPress={() => onDelete(notification.id)}
     >
@@ -107,9 +97,7 @@ export default function NotificationsScreen() {
             <View style={styles.empty}>
               <Text style={styles.emptyEmoji}>🔔</Text>
               <Text style={styles.emptyTitle}>No notifications</Text>
-              <Text style={styles.emptyText}>
-                You'll see alerts and activity here
-              </Text>
+              <Text style={styles.emptyText}>You'll see alerts and activity here</Text>
             </View>
           ) : null
         }

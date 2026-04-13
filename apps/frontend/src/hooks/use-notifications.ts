@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getUserNotifications,
   markNotificationAsRead,
@@ -7,16 +7,15 @@ import {
   deleteAllNotifications,
   getUnreadNotificationsCount,
   type GetNotificationsParams,
-} from '@/api/notification';
+} from "@/api/notification";
 
 // Query Keys
 export const notificationKeys = {
-  all: ['notifications'] as const,
-  lists: () => [...notificationKeys.all, 'list'] as const,
-  list: (params?: GetNotificationsParams) => 
-    [...notificationKeys.lists(), params] as const,
-  unread: () => [...notificationKeys.all, 'unread'] as const,
-  unreadCount: () => [...notificationKeys.all, 'unreadCount'] as const,
+  all: ["notifications"] as const,
+  lists: () => [...notificationKeys.all, "list"] as const,
+  list: (params?: GetNotificationsParams) => [...notificationKeys.lists(), params] as const,
+  unread: () => [...notificationKeys.all, "unread"] as const,
+  unreadCount: () => [...notificationKeys.all, "unreadCount"] as const,
 };
 
 // Отримати всі нотифікації
@@ -50,8 +49,7 @@ export function useMarkNotificationAsRead() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (notificationId: string) => 
-      markNotificationAsRead(notificationId),
+    mutationFn: (notificationId: string) => markNotificationAsRead(notificationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: notificationKeys.all });
     },
@@ -75,8 +73,7 @@ export function useDeleteNotification() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (notificationId: string) => 
-      deleteNotification(notificationId),
+    mutationFn: (notificationId: string) => deleteNotification(notificationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: notificationKeys.all });
     },

@@ -50,11 +50,7 @@ export function SaveToWishlistButton({
         <Bookmark size={size} />
       </button>
 
-      <SaveToWishlistModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        item={item}
-      />
+      <SaveToWishlistModal open={modalOpen} onClose={() => setModalOpen(false)} item={item} />
     </>
   );
 }

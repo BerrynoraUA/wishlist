@@ -9,11 +9,7 @@ import { SettingsSection } from "./SettingsSection";
 import { Button } from "@/components/ui/Button/Button";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
 import { useCurrentUser } from "@/hooks/use-user";
-import {
-  useAuthProvider,
-  useChangePassword,
-  useDeleteAccount,
-} from "@/hooks/use-settings";
+import { useAuthProvider, useChangePassword, useDeleteAccount } from "@/hooks/use-settings";
 
 export function AccountSettings() {
   const t = useGT();
@@ -72,10 +68,9 @@ export function AccountSettings() {
       {/* Email */}
       <SettingsSection
         title={t("Email Address", { $id: "settings.account.emailTitle" })}
-        description={t(
-          "Your account email used for login and notifications.",
-          { $id: "settings.account.emailDescription" },
-        )}
+        description={t("Your account email used for login and notifications.", {
+          $id: "settings.account.emailDescription",
+        })}
       >
         <div className={styles.infoRow}>
           <div className={styles.infoIcon}>
@@ -159,16 +154,12 @@ export function AccountSettings() {
               />
             </div>
 
-            {passwordError && (
-              <p className={styles.errorText}>{passwordError}</p>
-            )}
+            {passwordError && <p className={styles.errorText}>{passwordError}</p>}
 
             <div className={styles.actions}>
               <Button
                 onClick={handleChangePassword}
-                disabled={
-                  changePassword.isPending || !newPassword || !confirmPassword
-                }
+                disabled={changePassword.isPending || !newPassword || !confirmPassword}
               >
                 <Key size={14} />
                 {changePassword.isPending
@@ -195,15 +186,12 @@ export function AccountSettings() {
         title={t("Linked Accounts", {
           $id: "settings.account.linkedAccountsTitle",
         })}
-        description={t(
-          "External accounts connected to your Wishlane profile.",
-          { $id: "settings.account.linkedAccountsDescription" },
-        )}
+        description={t("External accounts connected to your Wishlane profile.", {
+          $id: "settings.account.linkedAccountsDescription",
+        })}
       >
         <div className={styles.providerRow}>
-          <div
-            className={`${styles.providerIcon} ${isOAuth ? styles.connected : ""}`}
-          >
+          <div className={`${styles.providerIcon} ${isOAuth ? styles.connected : ""}`}>
             <svg viewBox="0 0 24 24" width="18" height="18">
               <path
                 fill="currentColor"
@@ -241,10 +229,9 @@ export function AccountSettings() {
       {/* Danger Zone */}
       <SettingsSection
         title={t("Danger Zone", { $id: "settings.account.dangerTitle" })}
-        description={t(
-          "Permanently delete your account and all associated data.",
-          { $id: "settings.account.dangerDescription" },
-        )}
+        description={t("Permanently delete your account and all associated data.", {
+          $id: "settings.account.dangerDescription",
+        })}
         danger
       >
         <p className={styles.dangerText}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import {
   Play,
   CheckCircle2,
@@ -13,12 +13,14 @@ import {
   Clock,
   FileJson,
   FileSpreadsheet,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Search,
+  X,
 } from "lucide-react";
 import { TEST_CASES, type TestCase } from "./test-urls";
-import {
-  exportScraperResultsExcel,
-  exportScraperResultsJson,
-} from "./export-scraper-results";
+import { exportScraperResultsExcel, exportScraperResultsJson } from "./export-scraper-results";
 import styles from "./scraper-test.module.scss";
 
 interface ProductData {
@@ -112,10 +114,7 @@ function isPriceMatch(expected: string | null, actual: string | null): boolean {
   return expectedPrice === actualPrice;
 }
 
-function validateResult(
-  testCase: TestCase,
-  data: ProductData | null,
-): FieldValidation[] {
+function validateResult(testCase: TestCase, data: ProductData | null): FieldValidation[] {
   const fields: {
     field: string;
     key: keyof TestCase["expected"];
@@ -174,11 +173,31 @@ function computeStatus(
   return someMatch ? "partial" : "failed";
 }
 
+type SortField = "site" | "status" | "duration";
+type SortDir = "asc" | "desc";
+type StatusFilter = "all" | "success" | "partial" | "failed";
+
+const STATUS_ORDER: Record<string, number> = {
+  success: 0,
+  partial: 1,
+  failed: 2,
+};
+
 export default function ScraperTestPage() {
   const [state, setState] = useState<TestState>("idle");
   const [results, setResults] = useState<ScrapeResult[]>([]);
-  const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+  const [expandedIdx, setExpandedIdx] = useState<string | null>(null); // keyed by url
   const [progress, setProgress] = useState(0);
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [durationMin, setDurationMin] = useState("");
+  const [durationMax, setDurationMax] = useState("");
+
+  // Sort
+  const [sortField, setSortField] = useState<SortField>("site");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   const totalUrls = TEST_CASES.length;
 
@@ -252,18 +271,71 @@ export default function ScraperTestPage() {
     setState("done");
   }, []);
 
-  const toggleExpand = (idx: number) => {
-    setExpandedIdx(expandedIdx === idx ? null : idx);
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  };
+
+  const filteredAndSorted = useMemo(() => {
+    let list = [...results];
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter((r) => getDomain(r.url).toLowerCase().includes(q));
+    }
+
+    // Status filter
+    if (statusFilter !== "all") {
+      list = list.filter((r) => r.status === statusFilter);
+    }
+
+    // Duration filter
+    const minMs = durationMin ? Number(durationMin) : null;
+    const maxMs = durationMax ? Number(durationMax) : null;
+    if (minMs !== null && !isNaN(minMs)) {
+      list = list.filter((r) => r.duration >= minMs);
+    }
+    if (maxMs !== null && !isNaN(maxMs)) {
+      list = list.filter((r) => r.duration <= maxMs);
+    }
+
+    // Sort
+    list.sort((a, b) => {
+      let cmp = 0;
+      switch (sortField) {
+        case "site":
+          cmp = getDomain(a.url).localeCompare(getDomain(b.url));
+          break;
+        case "status":
+          cmp = (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3);
+          break;
+        case "duration":
+          cmp = a.duration - b.duration;
+          break;
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+
+    return list;
+  }, [results, searchQuery, statusFilter, durationMin, durationMax, sortField, sortDir]);
+
+  const toggleExpand = (url: string) => {
+    setExpandedIdx(expandedIdx === url ? null : url);
   };
 
   const statusIcon = (status: string) => {
     switch (status) {
       case "success":
-        return <CheckCircle2 size={18} className={styles.iconSuccess} />;
+        return <CheckCircle2 size={14} className={styles.iconSuccess} />;
       case "partial":
-        return <AlertTriangle size={18} className={styles.iconPartial} />;
+        return <AlertTriangle size={14} className={styles.iconPartial} />;
       default:
-        return <XCircle size={18} className={styles.iconFailed} />;
+        return <XCircle size={14} className={styles.iconFailed} />;
     }
   };
 
@@ -278,6 +350,25 @@ export default function ScraperTestPage() {
     }
   };
 
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return <ArrowUpDown size={12} className={styles.sortIconIdle} />;
+    return sortDir === "asc" ? (
+      <ArrowUp size={12} className={styles.sortIconActive} />
+    ) : (
+      <ArrowDown size={12} className={styles.sortIconActive} />
+    );
+  };
+
+  const hasActiveFilters =
+    searchQuery.trim() !== "" || statusFilter !== "all" || durationMin !== "" || durationMax !== "";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setDurationMin("");
+    setDurationMax("");
+  };
+
   const exportFilenameBase = () =>
     `scraper-test-${new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)}`;
 
@@ -289,23 +380,48 @@ export default function ScraperTestPage() {
           <p className={styles.subtitle}>{totalUrls} URLs to test</p>
         </div>
 
-        <button
-          className={styles.runBtn}
-          onClick={runTest}
-          disabled={state === "running"}
-        >
-          {state === "running" ? (
+        <div className={styles.headerActions}>
+          {results.length > 0 && (
             <>
-              <Loader2 size={18} className={styles.spinner} />
-              Testing... {progress}/{totalUrls}
-            </>
-          ) : (
-            <>
-              <Play size={18} />
-              {state === "done" ? "Run Again" : "Start Test"}
+              <ExportDropdown
+                icon={<FileJson size={16} />}
+                label="JSON"
+                allCount={results.length}
+                filteredCount={filteredAndSorted.length}
+                hasActiveFilters={hasActiveFilters}
+                onExportAll={() => exportScraperResultsJson(results, exportFilenameBase())}
+                onExportFiltered={() =>
+                  exportScraperResultsJson(filteredAndSorted, `${exportFilenameBase()}-filtered`)
+                }
+              />
+              <ExportDropdown
+                icon={<FileSpreadsheet size={16} />}
+                label="Excel"
+                allCount={results.length}
+                filteredCount={filteredAndSorted.length}
+                hasActiveFilters={hasActiveFilters}
+                onExportAll={() => exportScraperResultsExcel(results, exportFilenameBase())}
+                onExportFiltered={() =>
+                  exportScraperResultsExcel(filteredAndSorted, `${exportFilenameBase()}-filtered`)
+                }
+              />
             </>
           )}
-        </button>
+
+          <button className={styles.runBtn} onClick={runTest} disabled={state === "running"}>
+            {state === "running" ? (
+              <>
+                <Loader2 size={16} className={styles.spinner} />
+                {progress}/{totalUrls}
+              </>
+            ) : (
+              <>
+                <Play size={16} />
+                {state === "done" ? "Rerun" : "Start"}
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Progress bar */}
@@ -322,193 +438,266 @@ export default function ScraperTestPage() {
       {results.length > 0 && (
         <div className={styles.stats}>
           <div className={`${styles.statCard} ${styles.statSuccess}`}>
-            <CheckCircle2 size={20} />
-            <div>
-              <strong>{successCount}</strong>
-              <span>Success</span>
-            </div>
+            <CheckCircle2 size={16} />
+            <strong>{successCount}</strong>
+            <span>Success</span>
           </div>
           <div className={`${styles.statCard} ${styles.statPartial}`}>
-            <AlertTriangle size={20} />
-            <div>
-              <strong>{partialCount}</strong>
-              <span>Partial</span>
-            </div>
+            <AlertTriangle size={16} />
+            <strong>{partialCount}</strong>
+            <span>Partial</span>
           </div>
           <div className={`${styles.statCard} ${styles.statFailed}`}>
-            <XCircle size={20} />
-            <div>
-              <strong>{failedCount}</strong>
-              <span>Failed</span>
-            </div>
+            <XCircle size={16} />
+            <strong>{failedCount}</strong>
+            <span>Failed</span>
           </div>
           <div className={`${styles.statCard} ${styles.statTotal}`}>
-            <Clock size={20} />
-            <div>
-              <strong>
-                {results.length}/{totalUrls}
-              </strong>
-              <span>Total</span>
-            </div>
+            <Clock size={16} />
+            <strong>
+              {results.length}/{totalUrls}
+            </strong>
+            <span>Total</span>
           </div>
         </div>
       )}
 
+      {/* Table */}
       {results.length > 0 && (
-        <div className={styles.exportBar}>
-          <button
-            type="button"
-            className={styles.exportBtn}
-            onClick={() =>
-              exportScraperResultsJson(results, exportFilenameBase())
-            }
-          >
-            <FileJson size={18} />
-            Export JSON
-          </button>
-          <button
-            type="button"
-            className={styles.exportBtn}
-            onClick={() =>
-              exportScraperResultsExcel(results, exportFilenameBase())
-            }
-          >
-            <FileSpreadsheet size={18} />
-            Export Excel
-          </button>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                {/* Site column header + filter */}
+                <th className={styles.th}>
+                  <button className={styles.thBtn} onClick={() => handleSort("site")}>
+                    Site <SortIcon field="site" />
+                  </button>
+                  <div className={styles.filterCell}>
+                    <div className={styles.searchWrap}>
+                      <Search size={12} className={styles.searchIcon} />
+                      <input
+                        type="text"
+                        className={styles.filterInput}
+                        placeholder="Search..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                      {searchQuery && (
+                        <button className={styles.clearBtn} onClick={() => setSearchQuery("")}>
+                          <X size={10} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </th>
+
+                {/* Status column header + filter */}
+                <th className={styles.th}>
+                  <button className={styles.thBtn} onClick={() => handleSort("status")}>
+                    Status <SortIcon field="status" />
+                  </button>
+                  <div className={styles.filterCell}>
+                    <select
+                      className={styles.filterSelect}
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                    >
+                      <option value="all">All</option>
+                      <option value="success">Success</option>
+                      <option value="partial">Partial</option>
+                      <option value="failed">Failed</option>
+                    </select>
+                  </div>
+                </th>
+
+                {/* Duration column header + filter */}
+                <th className={styles.th}>
+                  <button className={styles.thBtn} onClick={() => handleSort("duration")}>
+                    Time <SortIcon field="duration" />
+                  </button>
+                  <div className={styles.filterCell}>
+                    <div className={styles.rangeFilter}>
+                      <input
+                        type="number"
+                        className={styles.filterInputSm}
+                        placeholder="Min"
+                        value={durationMin}
+                        onChange={(e) => setDurationMin(e.target.value)}
+                        min={0}
+                      />
+                      <span className={styles.rangeSep}>–</span>
+                      <input
+                        type="number"
+                        className={styles.filterInputSm}
+                        placeholder="Max"
+                        value={durationMax}
+                        onChange={(e) => setDurationMax(e.target.value)}
+                        min={0}
+                      />
+                    </div>
+                  </div>
+                </th>
+
+                {/* Expand toggle column */}
+                <th className={styles.thNarrow}>
+                  {hasActiveFilters && (
+                    <button
+                      className={styles.clearAllBtn}
+                      onClick={clearFilters}
+                      title="Clear all filters"
+                    >
+                      <X size={12} /> Clear
+                    </button>
+                  )}
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredAndSorted.map((result) => (
+                <ResultRow
+                  key={result.url}
+                  result={result}
+                  isExpanded={expandedIdx === result.url}
+                  onToggle={() => toggleExpand(result.url)}
+                  statusIcon={statusIcon}
+                  statusLabel={statusLabel}
+                />
+              ))}
+              {filteredAndSorted.length === 0 && (
+                <tr>
+                  <td colSpan={4} className={styles.emptyRow}>
+                    No results match the current filters
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       )}
-
-      {/* Results grid */}
-      <div className={styles.grid}>
-        {results.map((result, idx) => (
-          <div
-            key={idx}
-            className={`${styles.resultCard} ${styles[`card_${result.status}`]}`}
-          >
-            <button
-              className={styles.resultHeader}
-              onClick={() => toggleExpand(idx)}
-            >
-              <div className={styles.resultLeft}>
-                {statusIcon(result.status)}
-                <div className={styles.resultInfo}>
-                  <span className={styles.resultUrl} title={result.url}>
-                    {getDomain(result.url)}
-                  </span>
-                  <span
-                    className={`${styles.badge} ${styles[`badge_${result.status}`]}`}
-                  >
-                    {statusLabel(result.status)}
-                  </span>
-                </div>
-              </div>
-              <div className={styles.resultRight}>
-                <span className={styles.duration}>{result.duration}ms</span>
-                {expandedIdx === idx ? (
-                  <ChevronUp size={16} />
-                ) : (
-                  <ChevronDown size={16} />
-                )}
-              </div>
-            </button>
-
-            {expandedIdx === idx && (
-              <div className={styles.details}>
-                <div className={styles.detailUrl}>
-                  <a
-                    href={result.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {result.url}
-                    <ExternalLink size={12} />
-                  </a>
-                </div>
-
-                {result.error && (
-                  <div className={styles.errorMsg}>Error: {result.error}</div>
-                )}
-
-                {result.validations.some((v) => v.match !== null) && (
-                  <div className={styles.validationGrid}>
-                    <div className={styles.validationTitle}>Validation</div>
-                    {result.validations
-                      .filter((v) => v.match !== null)
-                      .map((v) => (
-                        <div
-                          key={v.field}
-                          className={`${styles.validationRow} ${v.match ? styles.validationMatch : styles.validationMismatch}`}
-                        >
-                          <span className={styles.validationIcon}>
-                            {v.match ? (
-                              <CheckCircle2 size={14} />
-                            ) : (
-                              <XCircle size={14} />
-                            )}
-                          </span>
-                          <span className={styles.validationField}>
-                            {v.field}
-                          </span>
-                          {!v.match && (
-                            <div className={styles.validationDiff}>
-                              <div className={styles.diffExpected}>
-                                <span>Expected:</span> {v.expected ?? "—"}
-                              </div>
-                              <div className={styles.diffActual}>
-                                <span>Got:</span> {v.actual ?? "—"}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                  </div>
-                )}
-
-                {result.missingFields && result.missingFields.length > 0 && (
-                  <div className={styles.missingFields}>
-                    Missing: {result.missingFields.join(", ")}
-                  </div>
-                )}
-
-                {result.data && (
-                  <div className={styles.dataGrid}>
-                    <DataRow label="Title" value={result.data.title} />
-                    <DataRow
-                      label="Description"
-                      value={result.data.description}
-                      truncate
-                    />
-                    <DataRow label="Image" value={result.data.image} isImage />
-                    <DataRow label="Price" value={result.data.price} />
-                    <DataRow label="Currency" value={result.data.currency} />
-                    <DataRow
-                      label="Discount Price"
-                      value={result.data.discount_price}
-                    />
-                    <DataRow
-                      label="Has Discount"
-                      value={result.data.has_discount ? "Yes" : "No"}
-                    />
-                    <DataRow
-                      label="Discount End"
-                      value={result.data.discount_end_date}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
 
       {state === "idle" && (
         <div className={styles.emptyState}>
           <Play size={48} className={styles.emptyIcon} />
-          <p>Click &quot;Start Test&quot; to begin scraping verification</p>
+          <p>Click &quot;Start&quot; to begin scraping verification</p>
         </div>
       )}
     </div>
+  );
+}
+
+/* ===== Extracted row component ===== */
+function ResultRow({
+  result,
+  isExpanded,
+  onToggle,
+  statusIcon,
+  statusLabel,
+}: {
+  result: ScrapeResult;
+  isExpanded: boolean;
+  onToggle: () => void;
+  statusIcon: (s: string) => React.ReactNode;
+  statusLabel: (s: string) => string;
+}) {
+  return (
+    <>
+      <tr
+        className={`${styles.row} ${styles[`row_${result.status}`]} ${isExpanded ? styles.rowExpanded : ""}`}
+        onClick={onToggle}
+      >
+        <td className={styles.td}>
+          <span className={styles.siteName}>{getDomain(result.url)}</span>
+        </td>
+        <td className={styles.td}>
+          <span className={`${styles.badge} ${styles[`badge_${result.status}`]}`}>
+            {statusIcon(result.status)}
+            {statusLabel(result.status)}
+          </span>
+        </td>
+        <td className={styles.td}>
+          <span className={styles.duration}>{result.duration}ms</span>
+        </td>
+        <td className={styles.tdNarrow}>
+          {isExpanded ? (
+            <ChevronUp size={14} className={styles.chevron} />
+          ) : (
+            <ChevronDown size={14} className={styles.chevron} />
+          )}
+        </td>
+      </tr>
+
+      {isExpanded && (
+        <tr className={styles.expandRow}>
+          <td colSpan={4} className={styles.expandCell}>
+            <div className={styles.details}>
+              <div className={styles.detailUrl}>
+                <a
+                  href={result.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {result.url}
+                  <ExternalLink size={12} />
+                </a>
+              </div>
+
+              {result.error && <div className={styles.errorMsg}>Error: {result.error}</div>}
+
+              {result.validations.some((v) => v.match !== null) && (
+                <div className={styles.validationGrid}>
+                  <div className={styles.validationTitle}>Validation</div>
+                  {result.validations
+                    .filter((v) => v.match !== null)
+                    .map((v) => (
+                      <div
+                        key={v.field}
+                        className={`${styles.validationRow} ${v.match ? styles.validationMatch : styles.validationMismatch}`}
+                      >
+                        <span className={styles.validationIcon}>
+                          {v.match ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+                        </span>
+                        <span className={styles.validationField}>{v.field}</span>
+                        {!v.match && (
+                          <div className={styles.validationDiff}>
+                            <div className={styles.diffExpected}>
+                              <span>Expected:</span> {v.expected ?? "—"}
+                            </div>
+                            <div className={styles.diffActual}>
+                              <span>Got:</span> {v.actual ?? "—"}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              )}
+
+              {result.missingFields && result.missingFields.length > 0 && (
+                <div className={styles.missingFields}>
+                  Missing: {result.missingFields.join(", ")}
+                </div>
+              )}
+
+              {result.data && (
+                <div className={styles.dataGrid}>
+                  <DataRow label="Title" value={result.data.title} />
+                  <DataRow label="Description" value={result.data.description} truncate />
+                  <DataRow label="Image" value={result.data.image} isImage />
+                  <DataRow label="Price" value={result.data.price} />
+                  <DataRow label="Currency" value={result.data.currency} />
+                  <DataRow label="Discount Price" value={result.data.discount_price} />
+                  <DataRow label="Has Discount" value={result.data.has_discount ? "Yes" : "No"} />
+                  <DataRow label="Discount End" value={result.data.discount_end_date} />
+                </div>
+              )}
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 
@@ -536,12 +725,7 @@ function DataRow({
       <span className={styles.dataLabel}>{label}</span>
       <span className={`${styles.dataValue} ${!value ? styles.empty : ""}`}>
         {isImage && value ? (
-          <a
-            href={value}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.imageLink}
-          >
+          <a href={value} target="_blank" rel="noopener noreferrer" className={styles.imageLink}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={value} alt="product" className={styles.previewImg} />
             <span className={styles.imgUrl}>{value}</span>
@@ -552,6 +736,70 @@ function DataRow({
           (value ?? "—")
         )}
       </span>
+    </div>
+  );
+}
+
+function ExportDropdown({
+  icon,
+  label,
+  allCount,
+  filteredCount,
+  hasActiveFilters,
+  onExportAll,
+  onExportFiltered,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  allCount: number;
+  filteredCount: number;
+  hasActiveFilters: boolean;
+  onExportAll: () => void;
+  onExportFiltered: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const handleAll = () => {
+    onExportAll();
+    setOpen(false);
+  };
+
+  const handleFiltered = () => {
+    onExportFiltered();
+    setOpen(false);
+  };
+
+  return (
+    <div className={styles.exportDropdown} ref={ref}>
+      <button type="button" className={styles.exportBtn} onClick={() => setOpen((v) => !v)}>
+        {icon}
+        {label}
+        <ChevronDown size={12} className={open ? styles.chevronOpen : ""} />
+      </button>
+      {open && (
+        <div className={styles.exportMenu}>
+          <button className={styles.exportMenuItem} onClick={handleAll}>
+            All results ({allCount})
+          </button>
+          {hasActiveFilters && (
+            <button className={styles.exportMenuItem} onClick={handleFiltered}>
+              Filtered ({filteredCount})
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

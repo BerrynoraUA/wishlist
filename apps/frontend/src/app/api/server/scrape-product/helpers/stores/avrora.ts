@@ -1,11 +1,6 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
-import {
-  extractCurrency,
-  extractNumericPrice,
-  extractDescription,
-  extractImage,
-} from "../utils";
+import { extractCurrency, extractNumericPrice, extractDescription, extractImage } from "../utils";
 
 export function scrapeAvrora(html: string, url: string): ProductData {
   const $ = cheerio.load(html);
@@ -41,9 +36,7 @@ export function scrapeAvrora(html: string, url: string): ProductData {
     oldPrice = extractNumericPrice(oldPriceEl.first().text());
   }
 
-  const currentPriceEl = $(".ty-price-update .ty-price-num, .ty-price-num").not(
-    oldPriceEl,
-  );
+  const currentPriceEl = $(".ty-price-update .ty-price-num, .ty-price-num").not(oldPriceEl);
   if (currentPriceEl.length) {
     currentPrice = extractNumericPrice(currentPriceEl.first().text());
   }
@@ -59,9 +52,7 @@ export function scrapeAvrora(html: string, url: string): ProductData {
 
   // Fallback: meta product:price
   if (!currentPrice) {
-    const metaPrice = $('meta[property="product:price:amount"]').attr(
-      "content",
-    );
+    const metaPrice = $('meta[property="product:price:amount"]').attr("content");
     if (metaPrice) {
       currentPrice = extractNumericPrice(metaPrice);
     }
@@ -79,9 +70,7 @@ export function scrapeAvrora(html: string, url: string): ProductData {
     }
   }
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
 
   return {
     title: title || null,

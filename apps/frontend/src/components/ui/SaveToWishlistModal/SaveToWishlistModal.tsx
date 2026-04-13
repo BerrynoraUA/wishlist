@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Bookmark, Check, Gift, Search, ShoppingBag } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useMyWishlists } from "@/hooks/use-wishlists";
 import { useCreateItem } from "@/hooks/use-items";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import styles from "./SaveToWishlistModal.module.scss";
 
 export type SaveItemData = {
@@ -32,16 +33,29 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
     null,
   );
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const { data: wishlists = [], isLoading } = useMyWishlists({ take: 100 });
+  const { data: wishlists = [], isLoading } = useMyWishlists({
+    take: 100,
+    search: debouncedSearch,
+  });
   const createItem = useCreateItem();
 
-  const filteredWishlists = useMemo(() => {
-    if (!search.trim()) return wishlists;
-    const q = search.toLowerCase();
-    return wishlists.filter((w) => w.title.toLowerCase().includes(q));
-  }, [wishlists, search]);
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 220);
+
+    return () => clearTimeout(handle);
+  }, [search]);
+
+  useEffect(() => {
+    if (!selectedWishlistId) return;
+    if (wishlists.some((wishlist) => wishlist.id === selectedWishlistId))
+      return;
+    setSelectedWishlistId(null);
+  }, [wishlists, selectedWishlistId]);
 
   const handleSave = async () => {
     if (!selectedWishlistId) return;
@@ -69,6 +83,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
   const handleClose = () => {
     setSelectedWishlistId(null);
     setSearch("");
+    setDebouncedSearch("");
     setShowSuccess(false);
     onClose();
   };
@@ -127,31 +142,42 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
             </div>
           </div>
 
-          {wishlists.length > 5 && (
-            <div className={styles.searchWrapper}>
-              <Search size={16} className={styles.searchIcon} />
-              <input
-                className={styles.searchInput}
-                type="text"
-                placeholder="Search wishlists..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          )}
+          <div className={styles.searchWrapper}>
+            <Search size={14} className={styles.searchIcon} />
+            <input
+              className={styles.searchInput}
+              type="text"
+              placeholder="Search wishlists..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
 
           <div className={styles.wishlistList}>
-            {isLoading && <div className={styles.emptyState}>Loading...</div>}
-
-            {!isLoading && filteredWishlists.length === 0 && (
+            {isLoading && (
               <div className={styles.emptyState}>
-                {search
+                <div style={{ display: "grid", gap: 8, width: "100%" }}>
+                  {[0, 1, 2].map((i) => (
+                    <Skeleton
+                      key={i}
+                      width="100%"
+                      height={44}
+                      borderRadius={12}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {!isLoading && wishlists.length === 0 && (
+              <div className={styles.emptyState}>
+                {debouncedSearch
                   ? "No wishlists found"
                   : "You don't have any wishlists yet"}
               </div>
             )}
 
-            {filteredWishlists.map((wishlist) => {
+            {wishlists.map((wishlist) => {
               const isSelected = selectedWishlistId === wishlist.id;
 
               return (

@@ -268,8 +268,26 @@ const MOCK_DISCOVER = [
     friend_id: "friend-001",
     wishlist_id: "wl-friend-001",
     items: [
-      { id: "disc-item-001", name: "Design Anthology", price: "34.00", image: "", url: null, priority: 2, status: 0, currency: "USD" },
-      { id: "disc-item-002", name: "Ceramic Mug Set", price: "28.00", image: "", url: null, priority: 1, status: 0, currency: "USD" },
+      {
+        id: "disc-item-001",
+        name: "Design Anthology",
+        price: "34.00",
+        image: "",
+        url: null,
+        priority: 2,
+        status: 0,
+        currency: "USD",
+      },
+      {
+        id: "disc-item-002",
+        name: "Ceramic Mug Set",
+        price: "28.00",
+        image: "",
+        url: null,
+        priority: 1,
+        status: 0,
+        currency: "USD",
+      },
     ],
   },
 ];
@@ -320,7 +338,13 @@ const RPC_HANDLERS = {
   get_wishlist_items_by_share_token: () => MOCK_ITEMS,
   get_user_statistics: () => MOCK_STATISTICS,
   list_secret_santa_events: () => ({ items: [], total: 0, limit: 8, offset: 0 }),
-  create_secret_santa_event: () => ({ id: "ss-001", name: "Office Christmas Party", event_date: "2026-12-25T00:00:00Z", budget: 25, image_url: null }),
+  create_secret_santa_event: () => ({
+    id: "ss-001",
+    name: "Office Christmas Party",
+    event_date: "2026-12-25T00:00:00Z",
+    budget: 25,
+    image_url: null,
+  }),
   get_secret_santa_details: () => null,
   join_secret_santa_event: () => ({ success: true }),
 };
@@ -337,14 +361,20 @@ function handleTableQuery(tableName, url, method, body) {
       return [MOCK_PROFILE];
     case "user_settings":
       if (method === "PATCH" || method === "POST" || method === "PUT") {
-        currentSettings = { ...currentSettings, ...(body || {}) };
+        currentSettings = { ...currentSettings, ...body };
         return [currentSettings];
       }
       return [currentSettings];
     case "user_subscriptions":
       return [MOCK_SUBSCRIPTION];
     case "exchange_rates":
-      return [{ base: "USD", rates: { EUR: 0.92, GBP: 0.79, UAH: 41.3, PLN: 4.05 }, updated_at: "2026-04-03T06:00:00Z" }];
+      return [
+        {
+          base: "USD",
+          rates: { EUR: 0.92, GBP: 0.79, UAH: 41.3, PLN: 4.05 },
+          updated_at: "2026-04-03T06:00:00Z",
+        },
+      ];
     case "item":
       if (method === "GET") return MOCK_ITEMS;
       if (method === "POST") return MOCK_ITEMS[0];
@@ -358,7 +388,8 @@ function handleTableQuery(tableName, url, method, body) {
       if (method === "DELETE") return null;
       return MOCK_WISHLISTS;
     case "friend_requests":
-      if (method === "POST") return { id: "req-new", sender_id: MOCK_USER_ID, receiver_id: "someone", status: 0 };
+      if (method === "POST")
+        return { id: "req-new", sender_id: MOCK_USER_ID, receiver_id: "someone", status: 0 };
       if (method === "DELETE") return null;
       return [];
     case "friends":
@@ -370,7 +401,8 @@ function handleTableQuery(tableName, url, method, body) {
       return MOCK_NOTIFICATIONS;
     case "secret_santa":
       if (method === "DELETE") return null;
-      if (method === "PATCH") return { id: "ss-001", name: "Test Event", event_date: "2026-12-25T00:00:00Z", budget: 25 };
+      if (method === "PATCH")
+        return { id: "ss-001", name: "Test Event", event_date: "2026-12-25T00:00:00Z", budget: 25 };
       return [];
     default:
       return [];

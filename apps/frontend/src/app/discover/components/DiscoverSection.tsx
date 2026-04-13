@@ -51,11 +51,7 @@ export function DiscoverSection({
             >
               {resolvedAvatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={resolvedAvatarUrl}
-                  alt=""
-                  className={styles.avatarImg}
-                />
+                <img src={resolvedAvatarUrl} alt="" className={styles.avatarImg} />
               ) : (
                 <UserRound size={16} />
               )}
@@ -64,16 +60,15 @@ export function DiscoverSection({
             <div className={styles.title}>
               <div className={styles.titleRow}>
                 {friend_id ? (
-                  <Link
-                    href={`/friends/${friend_id}`}
-                    className={styles.ownerLink}
-                  >
+                  <Link href={`/friends/${friend_id}`} className={styles.ownerLink}>
                     {owner}
                   </Link>
                 ) : (
                   <span className={styles.owner}>{owner}</span>
                 )}
-                  <span className={styles.arrow} aria-hidden="true">&gt;</span>
+                <span className={styles.arrow} aria-hidden="true">
+                  &gt;
+                </span>
                 <span className={styles.wishlist}>{wishlist}</span>
               </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useGT } from "gt-next";
 import { DiscoverHeader } from "./components/DiscoverHeader";
@@ -33,9 +33,7 @@ function DiscoverPageContent() {
     tabParam === "purchased"
       ? tabParam
       : "wishlists";
-  const [filter, setFilter] = useState<
-    "wishlists" | "available" | "reserved" | "purchased"
-  >(tabFromUrl);
+  const filter = tabFromUrl;
   const wishlistsSearch = useMemo(
     () => searchParams.get("discoverSearch") ?? "",
     [searchParams],
@@ -49,25 +47,26 @@ function DiscoverPageContent() {
     [searchParams],
   );
 
-  useEffect(() => {
-    setFilter(tabFromUrl);
-  }, [tabFromUrl]);
+  const handleFilterChange = useCallback(
+    (nextFilter: "wishlists" | "available" | "reserved" | "purchased") => {
+      if (nextFilter === filter) return;
 
-  useEffect(() => {
-    if (filter === tabFromUrl) return;
+      const params = new URLSearchParams(searchParams.toString());
+      if (nextFilter === "wishlists") {
+        params.delete("tab");
+      } else {
+        params.set("tab", nextFilter);
+      }
 
-    const params = new URLSearchParams(searchParams.toString());
-    if (filter === "wishlists") {
-      params.delete("tab");
-    } else {
-      params.set("tab", filter);
-    }
-
-    router.replace(
-      params.toString() ? `${pathname}?${params.toString()}` : pathname,
-      { scroll: false },
-    );
-  }, [filter, tabFromUrl, pathname, router, searchParams]);
+      router.replace(
+        params.toString() ? `${pathname}?${params.toString()}` : pathname,
+        {
+          scroll: false,
+        },
+      );
+    },
+    [filter, pathname, router, searchParams],
+  );
 
   const {
     data: allWishlistsSections = [],
@@ -124,9 +123,7 @@ function DiscoverPageContent() {
     return Array.from(
       new Set(
         (activeWishlistSections ?? [])
-          .map(
-            (s) => s.friend_id ?? nicknameToFriendId.get(s.username),
-          )
+          .map((s) => s.friend_id ?? nicknameToFriendId.get(s.username))
           .filter((id): id is string => Boolean(id)),
       ),
     );
@@ -171,7 +168,7 @@ function DiscoverPageContent() {
     <main style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}>
       <DiscoverHeader />
       <UpcomingEvents />
-      <DiscoverFilters active={filter} onChange={setFilter} />
+      <DiscoverFilters active={filter} onChange={handleFilterChange} />
 
       {isError && (
         <p>
@@ -209,8 +206,7 @@ function DiscoverPageContent() {
             key={section.id}
             {...section}
             friend_id={
-              section.friend_id ??
-              nicknameToFriendId.get(section.username)
+              section.friend_id ?? nicknameToFriendId.get(section.username)
             }
             showDiscountBadge={true}
             avatarUrl={

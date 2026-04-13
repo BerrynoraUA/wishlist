@@ -174,10 +174,9 @@ export function AppearanceSettings() {
         title={t("Default Accent Color", {
           $id: "settings.appearance.accentSectionTitle",
         })}
-        description={t(
-          "Secondary platform color used across the interface.",
-          { $id: "settings.appearance.accentSectionDescription" },
-        )}
+        description={t("Secondary platform color used across the interface.", {
+          $id: "settings.appearance.accentSectionDescription",
+        })}
       >
         <div className={styles.accentGrid}>
           {accents.map((a) => (
@@ -201,10 +200,9 @@ export function AppearanceSettings() {
         title={t("Default Wishlist Color", {
           $id: "settings.appearance.wishlistColorSectionTitle",
         })}
-        description={t(
-          "Pre-selected color when creating new wishlists.",
-          { $id: "settings.appearance.wishlistColorSectionDescription" },
-        )}
+        description={t("Pre-selected color when creating new wishlists.", {
+          $id: "settings.appearance.wishlistColorSectionDescription",
+        })}
       >
         <div className={styles.accentGrid}>
           {wishlistColors.map((a) => (
@@ -220,8 +218,7 @@ export function AppearanceSettings() {
           ))}
         </div>
         <p className={styles.accentLabel}>
-          {wishlistColors.find((a) => a.id === activeWishlistColor)?.label ??
-            defaultColorLabel}
+          {wishlistColors.find((a) => a.id === activeWishlistColor)?.label ?? defaultColorLabel}
         </p>
       </SettingsSection>
 

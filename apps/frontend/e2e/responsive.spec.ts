@@ -8,9 +8,7 @@ test.describe("Responsive — Mobile viewport", () => {
 
   test("landing page renders on mobile", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Wishlists",
-    );
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Wishlists");
   });
 
   test("landing page has burger menu on mobile", async ({ page }) => {
@@ -57,9 +55,7 @@ test.describe("Responsive — Mobile viewport (authenticated)", () => {
 
   test("settings page renders on mobile", async ({ page }) => {
     await page.goto("/settings");
-    await expect(
-      page.getByRole("heading", { name: "Settings" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
   });
 
   test("visual screenshot — home mobile", async ({ page }) => {

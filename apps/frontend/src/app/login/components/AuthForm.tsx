@@ -30,7 +30,11 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
     setError(null);
 
     if (!email || !password) {
-      setError(t("Email and password are required.", { $id: "login.form.error.required" }));
+      setError(
+        t("Email and password are required.", {
+          $id: "login.form.error.required",
+        }),
+      );
       return;
     }
 
@@ -73,29 +77,15 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
 
   return (
     <div className={styles.card}>
-      <button
-        type="button"
-        className={styles.googleButton}
-        onClick={handleGoogle}
-        disabled={googleLoading}
-      >
-        <Chrome size={16} />
-        {googleLoading
-          ? t("Redirecting...", { $id: "login.form.google.redirecting" })
-          : t("Continue with Google", { $id: "login.form.google.continue" })}
-      </button>
-
-      <div className={styles.divider}>
-        <span>{t("or", { $id: "login.form.divider.or" })}</span>
-      </div>
-
       <form onSubmit={handleSubmit} className={styles.form}>
         <label className={styles.label}>
           {t("Email", { $id: "login.form.label.email" })}
         </label>
         <input
           type="email"
-          placeholder={t("you@email.com", { $id: "login.form.placeholder.email" })}
+          placeholder={t("you@email.com", {
+            $id: "login.form.placeholder.email",
+          })}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className={styles.input}
@@ -106,7 +96,9 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
         </label>
         <input
           type="password"
-          placeholder={t("••••••••", { $id: "login.form.placeholder.password" })}
+          placeholder={t("••••••••", {
+            $id: "login.form.placeholder.password",
+          })}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className={styles.input}
@@ -133,15 +125,31 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
 
       <p className={styles.helper}>
         {isLogin
-          ? t(
-              "New here? Choose Register above to create an account.",
-              { $id: "login.form.helper.register" },
-            )
-          : t(
-              "Already have an account? Switch back to Login.",
-              { $id: "login.form.helper.login" },
-            )}
+          ? t("New here? Choose Register above to create an account.", {
+              $id: "login.form.helper.register",
+            })
+          : t("Already have an account? Switch back to Login.", {
+              $id: "login.form.helper.login",
+            })}
       </p>
+
+      <div className={styles.googleSection}>
+        <div className={styles.divider}>
+          <span>{t("or", { $id: "login.form.divider.or" })}</span>
+        </div>
+
+        <button
+          type="button"
+          className={styles.googleButton}
+          onClick={handleGoogle}
+          disabled={googleLoading}
+        >
+          <Chrome size={16} />
+          {googleLoading
+            ? t("Redirecting...", { $id: "login.form.google.redirecting" })
+            : t("Continue with Google", { $id: "login.form.google.continue" })}
+        </button>
+      </div>
     </div>
   );
 }

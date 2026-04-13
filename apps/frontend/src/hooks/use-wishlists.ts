@@ -16,18 +16,13 @@ import {
   revokeWishlistAccess,
   getFriendsWishlistsDiscoverAll,
 } from "@/api/wishlist";
-import type {
-  CreateWishlistParams,
-  UpdateWishlistParams,
-} from "@/api/types/wishilst";
+import type { CreateWishlistParams, UpdateWishlistParams } from "@/api/types/wishilst";
 
 // Query Keys
 export const wishlistKeys = {
   all: ["wishlists"] as const,
-  my: (params?: PaginationParams) =>
-    [...wishlistKeys.all, "my", params] as const,
-  friends: (params?: PaginationParams) =>
-    [...wishlistKeys.all, "friends", params] as const,
+  my: (params?: PaginationParams) => [...wishlistKeys.all, "my", params] as const,
+  friends: (params?: PaginationParams) => [...wishlistKeys.all, "friends", params] as const,
   friendsAll: (params?: PaginationParams) =>
     [...wishlistKeys.all, "friends", "all", params] as const,
   friendsReserved: (params?: PaginationParams) =>
@@ -61,10 +56,7 @@ export function usePublicWishlists(params?: PaginationParams) {
   });
 }
 
-export function useFriendsWishlistsDiscover(
-  params?: PaginationParams,
-  enabled = true,
-) {
+export function useFriendsWishlistsDiscover(params?: PaginationParams, enabled = true) {
   return useQuery({
     queryKey: wishlistKeys.friends(params),
     queryFn: () => getFriendsWishlistsDiscover(params),
@@ -72,20 +64,14 @@ export function useFriendsWishlistsDiscover(
   });
 }
 
-export function useFriendsWishlistsDiscoverAll(
-  params?: PaginationParams,
-  enabled = true,
-) {
+export function useFriendsWishlistsDiscoverAll(params?: PaginationParams, enabled = true) {
   return useQuery({
     queryKey: wishlistKeys.friendsAll(params),
     queryFn: () => getFriendsWishlistsDiscoverAll(params),
     enabled,
   });
 }
-export function useFriendsWishlistsReservedByMe(
-  params?: PaginationParams,
-  enabled = true,
-) {
+export function useFriendsWishlistsReservedByMe(params?: PaginationParams, enabled = true) {
   return useQuery({
     queryKey: wishlistKeys.friendsReserved(params),
     queryFn: () => getFriendsWishlistsReservedByMe(params),
@@ -93,10 +79,7 @@ export function useFriendsWishlistsReservedByMe(
   });
 }
 
-export function useFriendsWishlistsPurchasedByMe(
-  params?: PaginationParams,
-  enabled = true,
-) {
+export function useFriendsWishlistsPurchasedByMe(params?: PaginationParams, enabled = true) {
   return useQuery({
     queryKey: wishlistKeys.friendsPurchased(params),
     queryFn: () => getFriendsWishlistsPurchasedByMe(params),
@@ -119,13 +102,8 @@ export function useUpdateWishlist() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      updates,
-    }: {
-      id: string;
-      updates: UpdateWishlistParams;
-    }) => updateWishlist(id, updates),
+    mutationFn: ({ id, updates }: { id: string; updates: UpdateWishlistParams }) =>
+      updateWishlist(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
     },
@@ -196,13 +174,8 @@ export function useRevokeWishlistAccess() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      wishlistId,
-      targetUserId,
-    }: {
-      wishlistId: string;
-      targetUserId: string;
-    }) => revokeWishlistAccess(wishlistId, targetUserId),
+    mutationFn: ({ wishlistId, targetUserId }: { wishlistId: string; targetUserId: string }) =>
+      revokeWishlistAccess(wishlistId, targetUserId),
 
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({

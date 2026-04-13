@@ -32,9 +32,7 @@ export function SharedWishlistHeader({ wishlist }: Props) {
             <div className={styles.heroMain}>
               <div className={styles.titleBlock}>
                 <h1>{wishlist.title}</h1>
-                {description && (
-                  <p className={styles.description}>{description}</p>
-                )}
+                {description && <p className={styles.description}>{description}</p>}
 
                 <div className={styles.badges}>
                   <span className={styles.visibilityBadge}>
@@ -45,11 +43,11 @@ export function SharedWishlistHeader({ wishlist }: Props) {
                     {itemsCount === 1
                       ? t("{n} item", {
                           n: itemsCount,
-                          $id: "wishlist.itemCount.one"
+                          $id: "wishlist.itemCount.one",
                         })
                       : t("{n} items", {
                           n: itemsCount,
-                          $id: "wishlist.itemCount.other"
+                          $id: "wishlist.itemCount.other",
                         })}
                   </span>
                   {eventDate && (

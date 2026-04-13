@@ -7,10 +7,7 @@ function persistAuthRedirect(target?: string) {
   document.cookie = `${AUTH_REDIRECT_COOKIE}=${encodeURIComponent(safeTarget)}; Path=/; Max-Age=600; SameSite=Lax`;
 }
 
-export async function loginWithEmail(
-  email: string,
-  password: string,
-): Promise<void> {
+export async function loginWithEmail(email: string, password: string): Promise<void> {
   const { error } = await supabaseBrowser.auth.signInWithPassword({
     email,
     password,
@@ -19,10 +16,7 @@ export async function loginWithEmail(
   if (error) throw error;
 }
 
-export async function registerWithEmail(
-  email: string,
-  password: string,
-): Promise<void> {
+export async function registerWithEmail(email: string, password: string): Promise<void> {
   const { data, error } = await supabaseBrowser.auth.signUp({
     email,
     password,

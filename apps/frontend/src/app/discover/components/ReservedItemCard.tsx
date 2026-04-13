@@ -44,8 +44,7 @@ export function ReservedItemCard({
   const t = useGT();
   const [detailOpen, setDetailOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [confirmAction, setConfirmAction] =
-    useState<ItemActionConfirmType | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ItemActionConfirmType | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { data: currentUserId = "" } = useCurrentUserId();
   const isPurchased = status === 2;
@@ -67,9 +66,7 @@ export function ReservedItemCard({
     Medium: "medium",
     High: "high",
   };
-  const priorityKey = priority
-    ? (priorityKeyByValue[String(priority)] ?? null)
-    : null;
+  const priorityKey = priority ? (priorityKeyByValue[String(priority)] ?? null) : null;
   const priorityClass = priorityKey ? styles[priorityKey] : "";
   const priorityDisplay =
     priorityKey === "low"
@@ -209,9 +206,7 @@ export function ReservedItemCard({
             )}
 
             {priorityDisplay && (
-              <div className={`${styles.badgeRight} ${priorityClass}`}>
-                {priorityDisplay}
-              </div>
+              <div className={`${styles.badgeRight} ${priorityClass}`}>{priorityDisplay}</div>
             )}
           </div>
 
@@ -233,8 +228,7 @@ export function ReservedItemCard({
                         : priority === "Low"
                           ? 1
                           : null,
-                discount_price:
-                  discount_price != null ? String(discount_price) : null,
+                discount_price: discount_price != null ? String(discount_price) : null,
                 has_discount: discount_price != null,
                 currency: currency ?? null,
               }}
@@ -290,9 +284,7 @@ export function ReservedItemCard({
                     }}
                     aria-disabled={!hasShareLink}
                   >
-                    <span>
-                      {t("Share", { $id: "discover.reserved.share" })}
-                    </span>
+                    <span>{t("Share", { $id: "discover.reserved.share" })}</span>
                   </button>
                 </div>
               )}
@@ -304,9 +296,7 @@ export function ReservedItemCard({
           <strong title={title}>{title}</strong>
           <div className={styles.metaRow}>
             {price != null && price !== 0 && (
-              <span className={styles.price}>
-                {formatItemPrice(price, currency)}
-              </span>
+              <span className={styles.price}>{formatItemPrice(price, currency)}</span>
             )}
             {store && (
               <span className={styles.store} title={store}>
@@ -327,11 +317,7 @@ export function ReservedItemCard({
                 $id: "discover.reserved.releaseAria",
               })}
             >
-              <ReservationLockIcon
-                isReserved={true}
-                size={16}
-                animateOnReserve
-              />
+              <ReservationLockIcon isReserved={true} size={16} animateOnReserve />
               <span>
                 {isPurchased
                   ? t("Purchased", { $id: "discover.reserved.purchasedBtn" })

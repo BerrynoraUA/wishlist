@@ -9,14 +9,7 @@ type Props = {
   style?: React.CSSProperties;
 };
 
-export function Skeleton({
-  width,
-  height,
-  borderRadius,
-  variant,
-  className,
-  style,
-}: Props) {
+export function Skeleton({ width, height, borderRadius, variant, className, style }: Props) {
   const classes = [
     styles.bone,
     variant === "circle" && styles.circle,
@@ -28,12 +21,7 @@ export function Skeleton({
     .filter(Boolean)
     .join(" ");
 
-  return (
-    <div
-      className={classes}
-      style={{ width, height, borderRadius, ...style }}
-    />
-  );
+  return <div className={classes} style={{ width, height, borderRadius, ...style }} />;
 }
 
 export function SkeletonCard({
@@ -46,10 +34,7 @@ export function SkeletonCard({
   style?: React.CSSProperties;
 }) {
   return (
-    <div
-      className={[styles.card, className].filter(Boolean).join(" ")}
-      style={style}
-    >
+    <div className={[styles.card, className].filter(Boolean).join(" ")} style={style}>
       {children}
     </div>
   );

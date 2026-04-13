@@ -8,6 +8,9 @@ import { useUpdateWishlist } from "@/hooks/use-wishlists";
 import { Wishlist, WishlistAccent, WishlistVisibility } from "@/types/wishlist";
 import { Globe, Users, Lock, Check } from "lucide-react";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
+import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
+import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
+import { validateImageUploadFile } from "@/lib/image-upload";
 import styles from "./CreateWishlistModal.module.scss";
 
 type Props = {
@@ -77,18 +80,15 @@ function EditWishlistForm({
   const [privacy, setPrivacy] = useState<PrivacyOption>(
     visibilityToPrivacy[wishlist.visibility_type] ?? "Public",
   );
-  const [color, setColor] = useState<ColorOption>(
-    accentToColor[wishlist.accent_type] ?? "pink",
-  );
+  const [color, setColor] = useState<ColorOption>(accentToColor[wishlist.accent_type] ?? "pink");
   const [eventDate, setEventDate] = useState(() => {
-    const raw =
-      wishlist.event_date ??
-      (wishlist as Wishlist & { event_date?: string }).event_date;
+    const raw = wishlist.event_date ?? (wishlist as Wishlist & { event_date?: string }).event_date;
     return raw ? String(raw).split("T")[0] : "";
   });
   const [imagePreview, setImagePreview] = useState(wishlist.image_url ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const { mutate, isPending } = useUpdateWishlist();
 
@@ -102,16 +102,30 @@ function EditWishlistForm({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const nextImageError = validateImageUploadFile(file);
+    if (nextImageError) {
+      setImageError(nextImageError);
+      e.target.value = "";
+      return;
+    }
+
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     const objectUrl = URL.createObjectURL(file);
     setImageObjectUrl(objectUrl);
 
+    setImageError(null);
     setImageFile(file);
     setImagePreview(objectUrl);
   }
 
   function handleSubmit() {
     if (!name.trim() || isPending) return;
+
+    const nextImageError = validateImageUploadFile(imageFile);
+    if (nextImageError) {
+      setImageError(nextImageError);
+      return;
+    }
 
     const imageUrlToSave = imageFile ? null : imagePreview || null;
 
@@ -173,7 +187,10 @@ function EditWishlistForm({
         </div>
 
         <div className={styles.field}>
-          <label>{t("Cover Image", { $id: "wishlist.modal.coverLabel" })}</label>
+          <div className={styles.labelRow}>
+            <label>{t("Cover Image", { $id: "wishlist.modal.coverLabel" })}</label>
+            <FileSizeBadge />
+          </div>
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
@@ -199,6 +216,7 @@ function EditWishlistForm({
               />
             </label>
           </div>
+          <UploadErrorText message={imageError} />
         </div>
 
         <div className={styles.field}>
@@ -234,7 +252,9 @@ function EditWishlistForm({
             <PrivacyCard
               icon={<Lock size={18} />}
               title={t("Private", { $id: "wishlist.privacy.private" })}
-              subtitle={t("Only you", { $id: "wishlist.privacy.privateSubtitle" })}
+              subtitle={t("Only you", {
+                $id: "wishlist.privacy.privateSubtitle",
+              })}
               selected={privacy === "Private"}
               onClick={() => setPrivacy("Private")}
             />
@@ -247,9 +267,7 @@ function EditWishlistForm({
             {colors.map((c) => (
               <div
                 key={c}
-                className={`${styles.color} ${styles[c]} ${
-                  color === c ? styles.active : ""
-                }`}
+                className={`${styles.color} ${styles[c]} ${color === c ? styles.active : ""}`}
                 onClick={() => setColor(c)}
               />
             ))}
@@ -260,7 +278,10 @@ function EditWishlistForm({
           <Button variant="secondary" onClick={onClose}>
             {t("Cancel", { $id: "common.cancel" })}
           </Button>
-          <Button onClick={handleSubmit} disabled={!name.trim() || isPending}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!name.trim() || isPending || Boolean(imageError)}
+          >
             {isPending
               ? t("Saving...", { $id: "common.saving" })
               : t("Save Changes", { $id: "wishlist.modal.saveChanges" })}
@@ -285,10 +306,7 @@ function PrivacyCard({
   onClick: () => void;
 }) {
   return (
-    <div
-      className={`${styles.privacyCard} ${selected ? styles.selected : ""}`}
-      onClick={onClick}
-    >
+    <div className={`${styles.privacyCard} ${selected ? styles.selected : ""}`} onClick={onClick}>
       <div className={styles.privacyIcon}>{icon}</div>
       <div>
         <strong>{title}</strong>

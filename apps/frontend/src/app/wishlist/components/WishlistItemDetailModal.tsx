@@ -42,19 +42,13 @@ export function WishlistItemDetailModal({
   const t = useGT();
   const { data: currentUserId = "" } = useCurrentUserId();
   const { formatPrice } = useCurrencyFormatter();
-  const [confirmAction, setConfirmAction] =
-    useState<ItemActionConfirmType | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ItemActionConfirmType | null>(null);
   const isPurchased = item.status === 2;
   const isReserved = item.status === 1 || (!isPurchased && !!item.reserved_by);
-  const reservedByMe = currentUserId
-    ? item.reserved_by === currentUserId
-    : false;
-  const canToggleReservation =
-    !isOwner && !isPurchased && (!isReserved || reservedByMe);
+  const reservedByMe = currentUserId ? item.reserved_by === currentUserId : false;
+  const canToggleReservation = !isOwner && !isPurchased && (!isReserved || reservedByMe);
   const canToggleBought =
-    !isOwner &&
-    ((isPurchased && reservedByMe) ||
-      (!isPurchased && (!isReserved || reservedByMe)));
+    !isOwner && ((isPurchased && reservedByMe) || (!isPurchased && (!isReserved || reservedByMe)));
 
   const priorityLabel = useMemo(
     () => ({
@@ -128,34 +122,17 @@ export function WishlistItemDetailModal({
               </div>
             </div>
 
-            {item.description && (
-              <div className={styles.tooltipTrigger}>
-                <div className={styles.descriptionBlock}>
-                  <p className={styles.description}>{item.description}</p>
-                </div>
-                <div className={styles.textTooltip} role="tooltip">
-                  <div className={styles.textTooltipArrow} />
-                  <span>{item.description}</span>
-                </div>
-              </div>
-            )}
+            {item.description && <p className={styles.descriptionFull}>{item.description}</p>}
 
             <div className={styles.meta}>
               {item.price && (
-                <span className={styles.price}>
-                  {formatPrice(item.price, item.currency)}
-                </span>
+                <span className={styles.price}>{formatPrice(item.price, item.currency)}</span>
               )}
-              {item.priority != null &&
-                priorityLabel[item.priority as 1 | 2 | 3] && (
-                  <span className={styles.priority}>
-                    {priorityLabel[item.priority as 1 | 2 | 3]}
-                  </span>
-                )}
+              {item.priority != null && priorityLabel[item.priority as 1 | 2 | 3] && (
+                <span className={styles.priority}>{priorityLabel[item.priority as 1 | 2 | 3]}</span>
+              )}
               {reserveStatusLabel && (
-                <span className={styles.reservedBadge}>
-                  {reserveStatusLabel}
-                </span>
+                <span className={styles.reservedBadge}>{reserveStatusLabel}</span>
               )}
             </div>
 
@@ -168,9 +145,7 @@ export function WishlistItemDetailModal({
                   className={styles.linkBtn}
                 >
                   <ExternalLink size={14} />
-                  <span>
-                    {t("Visit website", { $id: "item.detail.visitWebsite" })}
-                  </span>
+                  <span>{t("Visit website", { $id: "item.detail.visitWebsite" })}</span>
                 </a>
               )}
 
@@ -230,11 +205,7 @@ export function WishlistItemDetailModal({
                       disabled={!canToggleReservation}
                     >
                       <span style={{ marginRight: 6, display: "inline-flex" }}>
-                        <ReservationLockIcon
-                          isReserved={isReserved}
-                          size={16}
-                          animateOnReserve
-                        />
+                        <ReservationLockIcon isReserved={isReserved} size={16} animateOnReserve />
                       </span>
                       {isPurchased
                         ? t("Purchased", { $id: "item.status.purchased" })

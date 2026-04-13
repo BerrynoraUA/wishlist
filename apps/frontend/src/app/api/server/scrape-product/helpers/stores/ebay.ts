@@ -12,23 +12,20 @@ import {
 export function scrapeEbay(html: string, url: string): ProductData {
   const $ = cheerio.load(html);
 
+  // Use first span to avoid text duplication from nested/hidden sibling spans
   const currentPriceText =
-    $(".x-price-primary").text().trim() ||
+    $(".x-price-primary span.ux-textspans").first().text().trim() ||
+    $(".x-price-primary").first().children().first().text().trim() ||
     $('[itemprop="price"]').attr("content") ||
-    $('[itemprop="price"]').text().trim();
+    $('[itemprop="price"]').first().text().trim();
 
   const oldPriceText =
-    $(".x-price-primary")
-      .parent()
-      .find(".ux-textspans--STRIKETHROUGH")
-      .text()
-      .trim() ||
-    $(".x-additional-info .ux-textspans--STRIKETHROUGH").text().trim() ||
+    $(".x-price-primary").parent().find(".ux-textspans--STRIKETHROUGH").first().text().trim() ||
+    $(".x-additional-info .ux-textspans--STRIKETHROUGH").first().text().trim() ||
     $('[class*="STRIKETHROUGH"]').first().text().trim() ||
-    $(".x-price-was").text().trim();
+    $(".x-price-was span.ux-textspans").first().text().trim();
 
-  const currentPrice =
-    extractNumericPrice(currentPriceText) || extractPriceFromJSON(html);
+  const currentPrice = extractNumericPrice(currentPriceText) || extractPriceFromJSON(html);
   const oldPrice = extractNumericPrice(oldPriceText);
 
   // Validate: old must be > current
@@ -45,13 +42,18 @@ export function scrapeEbay(html: string, url: string): ProductData {
     }
   }
 
-  const hasDiscount = Boolean(
-    finalOld && finalCurrent && finalOld !== finalCurrent,
-  );
+  const hasDiscount = Boolean(finalOld && finalCurrent && finalOld !== finalCurrent);
+  // Image: prefer larger size; eBay default is s-l400, upgrade to s-l1600
+  let image = extractImage($, url);
+  if (image && image.includes("ebayimg.com")) {
+    image = image.replace(/\/s-l\d+\./, "/s-l1600.");
+  }
+
   return {
-    title: $("h1.x-item-title__mainTitle").text().trim() || extractTitle($),
+    title:
+      $("h1.x-item-title__mainTitle span.ux-textspans").first().text().trim() || extractTitle($),
     description: extractDescription($),
-    image: extractImage($, url),
+    image,
     price: hasDiscount ? finalOld : finalCurrent,
     discount_price: hasDiscount ? finalCurrent : null,
     has_discount: hasDiscount,

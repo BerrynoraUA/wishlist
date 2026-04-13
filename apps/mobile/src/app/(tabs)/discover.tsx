@@ -33,15 +33,10 @@ function DiscoverCard({ section }: { section: DiscoverSection }) {
         }
       >
         {section.avatar_url ? (
-          <Image
-            source={{ uri: section.avatar_url }}
-            style={styles.avatar}
-          />
+          <Image source={{ uri: section.avatar_url }} style={styles.avatar} />
         ) : (
           <View style={[styles.avatar, styles.avatarPlaceholder]}>
-            <Text style={styles.avatarText}>
-              {section.owner?.charAt(0)?.toUpperCase() || "?"}
-            </Text>
+            <Text style={styles.avatarText}>{section.owner?.charAt(0)?.toUpperCase() || "?"}</Text>
           </View>
         )}
         <View style={styles.sectionInfo}>
@@ -54,16 +49,12 @@ function DiscoverCard({ section }: { section: DiscoverSection }) {
 
       {section.items.slice(0, 3).map((item) => (
         <View key={item.id} style={styles.itemRow}>
-          {item.image_url && (
-            <Image source={{ uri: item.image_url }} style={styles.itemImage} />
-          )}
+          {item.image_url && <Image source={{ uri: item.image_url }} style={styles.itemImage} />}
           <View style={styles.itemInfo}>
             <Text style={styles.itemTitle} numberOfLines={1}>
               {item.title}
             </Text>
-            {item.price != null && (
-              <Text style={styles.itemPrice}>${item.price}</Text>
-            )}
+            {item.price != null && <Text style={styles.itemPrice}>${item.price}</Text>}
           </View>
           {item.isReserved && (
             <View style={styles.reservedBadge}>
@@ -87,9 +78,7 @@ function ReservedCard({ item }: { item: ReservedItem }) {
         })
       }
     >
-      {item.image ? (
-        <Image source={{ uri: item.image }} style={styles.reservedImage} />
-      ) : null}
+      {item.image ? <Image source={{ uri: item.image }} style={styles.reservedImage} /> : null}
       <View style={styles.reservedInfo}>
         <Text style={styles.reservedTitle} numberOfLines={1}>
           {item.title}
@@ -97,9 +86,7 @@ function ReservedCard({ item }: { item: ReservedItem }) {
         <Text style={styles.reservedOwner} numberOfLines={1}>
           For {item.owner_name} • {item.wishlist_title}
         </Text>
-        {item.price != null && (
-          <Text style={styles.reservedPrice}>${item.price}</Text>
-        )}
+        {item.price != null && <Text style={styles.reservedPrice}>${item.price}</Text>}
       </View>
     </TouchableOpacity>
   );
@@ -130,25 +117,13 @@ export default function DiscoverScreen() {
             style={[styles.tab, tab === "friends" && styles.tabActive]}
             onPress={() => setTab("friends")}
           >
-            <Text
-              style={[
-                styles.tabText,
-                tab === "friends" && styles.tabTextActive,
-              ]}
-            >
-              Friends
-            </Text>
+            <Text style={[styles.tabText, tab === "friends" && styles.tabTextActive]}>Friends</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tab, tab === "reserved" && styles.tabActive]}
             onPress={() => setTab("reserved")}
           >
-            <Text
-              style={[
-                styles.tabText,
-                tab === "reserved" && styles.tabTextActive,
-              ]}
-            >
+            <Text style={[styles.tabText, tab === "reserved" && styles.tabTextActive]}>
               Reserved
             </Text>
           </TouchableOpacity>
@@ -173,9 +148,7 @@ export default function DiscoverScreen() {
               <View style={styles.empty}>
                 <Text style={styles.emptyEmoji}>🔍</Text>
                 <Text style={styles.emptyTitle}>Nothing here yet</Text>
-                <Text style={styles.emptyText}>
-                  Add friends to discover their wishlists
-                </Text>
+                <Text style={styles.emptyText}>Add friends to discover their wishlists</Text>
               </View>
             ) : null
           }

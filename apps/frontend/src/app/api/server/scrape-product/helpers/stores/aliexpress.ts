@@ -39,9 +39,7 @@ export function scrapeAliExpress(html: string, url: string): ProductData {
     extractTitle($);
 
   // Очищаємо суфікс " - AliExpress N" з заголовку
-  const title = rawTitle
-    ? rawTitle.replace(/\s*[-–|]\s*AliExpress.*$/i, "").trim()
-    : null;
+  const title = rawTitle ? rawTitle.replace(/\s*[-–|]\s*AliExpress.*$/i, "").trim() : null;
 
   // ── Image ──────────────────────────────────────────────────────
   const image =
@@ -59,18 +57,15 @@ export function scrapeAliExpress(html: string, url: string): ProductData {
     extractDescription($);
 
   // Очищаємо generic опис AliExpress
-  const description =
-    rawDesc && !/^Smarter Shopping/i.test(rawDesc) ? rawDesc : null;
+  const description = rawDesc && !/^Smarter Shopping/i.test(rawDesc) ? rawDesc : null;
 
   // ── Prices (URL → DOM → meta → script) ────────────────────────
   // URL pdp_npi parameter — найнадійніше джерело, бо AliExpress
   // є SPA і server-side fetch не отримує клієнтський DOM.
   const urlPrices = extractPricesFromUrl(url);
 
-  let currentPrice =
-    urlPrices.currentPrice || domPrices.currentPrice || fromScript.currentPrice;
-  let oldPrice =
-    urlPrices.oldPrice || domPrices.oldPrice || fromScript.oldPrice;
+  let currentPrice = urlPrices.currentPrice || domPrices.currentPrice || fromScript.currentPrice;
+  let oldPrice = urlPrices.oldPrice || domPrices.oldPrice || fromScript.oldPrice;
 
   // Fallback: meta-tags
   if (!currentPrice) {
@@ -92,9 +87,7 @@ export function scrapeAliExpress(html: string, url: string): ProductData {
     }
   }
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
   return {
     title: title || null,
     description: description || null,
@@ -204,17 +197,12 @@ function parseRunParamsData(data: any, result: ScriptData): void {
 
   // Description
   if (!result.description) {
-    result.description =
-      dig(data, "description") || dig(product, "description");
+    result.description = dig(data, "description") || dig(product, "description");
   }
 
   // Prices — look in known locations
   const priceModule =
-    data.priceModule ??
-    data.data?.priceComponent ??
-    data.data?.priceModule ??
-    data.price ??
-    data;
+    data.priceModule ?? data.data?.priceComponent ?? data.data?.priceModule ?? data.price ?? data;
 
   // Current (discounted) price
   if (!result.currentPrice) {
@@ -256,8 +244,7 @@ function dig(obj: any, key: string, firstArray = false): string | null {
 
   if (key in obj && obj[key] != null) {
     const val = obj[key];
-    if (firstArray && Array.isArray(val) && val.length > 0)
-      return String(val[0]);
+    if (firstArray && Array.isArray(val) && val.length > 0) return String(val[0]);
     if (typeof val === "string" || typeof val === "number") return String(val);
   }
 
@@ -267,10 +254,8 @@ function dig(obj: any, key: string, firstArray = false): string | null {
     if (child && typeof child === "object" && !Array.isArray(child)) {
       if (key in child && child[key] != null) {
         const val = child[key];
-        if (firstArray && Array.isArray(val) && val.length > 0)
-          return String(val[0]);
-        if (typeof val === "string" || typeof val === "number")
-          return String(val);
+        if (firstArray && Array.isArray(val) && val.length > 0) return String(val[0]);
+        if (typeof val === "string" || typeof val === "number") return String(val);
       }
     }
   }

@@ -10,7 +10,14 @@ export default function SubscriptionLoading() {
       </div>
 
       {/* PricingCards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24, marginBottom: 48 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: 24,
+          marginBottom: 48,
+        }}
+      >
         {[0, 1].map((i) => (
           <SkeletonCard key={i} style={{ padding: 32 }}>
             <Skeleton variant="text" width={80} />
@@ -30,7 +37,15 @@ export default function SubscriptionLoading() {
       <SkeletonCard style={{ marginBottom: 32 }}>
         <Skeleton variant="heading" width={200} style={{ marginBottom: 20 }} />
         {[0, 1, 2, 3, 4].map((i) => (
-          <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid var(--color-border)" }}>
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "12px 0",
+              borderBottom: "1px solid var(--color-border)",
+            }}
+          >
             <Skeleton variant="text" width="40%" />
             <div style={{ display: "flex", gap: 48 }}>
               <Skeleton variant="text" width={60} />

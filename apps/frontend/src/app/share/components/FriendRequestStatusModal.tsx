@@ -38,10 +38,9 @@ export function FriendRequestStatusModal({ open, onClose, status }: Props) {
         title: t("Something went wrong", {
           $id: "share.friendRequestStatus.errorTitle",
         }),
-        description: t(
-          "We couldn't send the friend request. Please try again later.",
-          { $id: "share.friendRequestStatus.errorBody" },
-        ),
+        description: t("We couldn't send the friend request. Please try again later.", {
+          $id: "share.friendRequestStatus.errorBody",
+        }),
       },
     }),
     [t],
@@ -55,9 +54,7 @@ export function FriendRequestStatusModal({ open, onClose, status }: Props) {
         </p>
         <h2 className={styles.cardTitle}>{info[status].title}</h2>
         <p className={styles.cardText}>{info[status].description}</p>
-        <Button onClick={onClose}>
-          {t("Close", { $id: "common.close" })}
-        </Button>
+        <Button onClick={onClose}>{t("Close", { $id: "common.close" })}</Button>
       </div>
     </Modal>
   );

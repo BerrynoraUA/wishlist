@@ -3,17 +3,17 @@ import * as cheerio from "cheerio";
 // === CURRENCY EXTRACTION ===
 
 const SYMBOL_TO_CODE: Record<string, string> = {
-  "CA$": "CAD",
-  "A$": "AUD",
-  "R$": "BRL",
-  "zł": "PLN",
+  CA$: "CAD",
+  A$: "AUD",
+  R$: "BRL",
+  zł: "PLN",
   "₴": "UAH",
   "₽": "RUB",
   "₹": "INR",
   "€": "EUR",
   "£": "GBP",
   "¥": "JPY",
-  "$": "USD",
+  $: "USD",
 };
 
 const TEXT_CURRENCY_PATTERNS: Array<{ pattern: RegExp; code: string }> = [
@@ -32,11 +32,50 @@ const TEXT_CURRENCY_PATTERNS: Array<{ pattern: RegExp; code: string }> = [
 ];
 
 const KNOWN_CODES = new Set([
-  "USD", "EUR", "GBP", "UAH", "PLN", "JPY", "CAD", "AUD", "CHF",
-  "SEK", "NOK", "DKK", "CZK", "HUF", "RON", "BGN", "HRK", "RUB",
-  "TRY", "BRL", "INR", "CNY", "KRW", "MXN", "NZD", "SGD", "HKD",
-  "THB", "MYR", "PHP", "IDR", "VND", "ZAR", "ILS", "AED", "SAR",
-  "TWD", "ARS", "CLP", "COP", "PEN", "EGP", "NGN", "KES",
+  "USD",
+  "EUR",
+  "GBP",
+  "UAH",
+  "PLN",
+  "JPY",
+  "CAD",
+  "AUD",
+  "CHF",
+  "SEK",
+  "NOK",
+  "DKK",
+  "CZK",
+  "HUF",
+  "RON",
+  "BGN",
+  "HRK",
+  "RUB",
+  "TRY",
+  "BRL",
+  "INR",
+  "CNY",
+  "KRW",
+  "MXN",
+  "NZD",
+  "SGD",
+  "HKD",
+  "THB",
+  "MYR",
+  "PHP",
+  "IDR",
+  "VND",
+  "ZAR",
+  "ILS",
+  "AED",
+  "SAR",
+  "TWD",
+  "ARS",
+  "CLP",
+  "COP",
+  "PEN",
+  "EGP",
+  "NGN",
+  "KES",
 ]);
 
 function detectCurrencyInText(text: string): string | null {
@@ -57,14 +96,23 @@ function detectCurrencyInText(text: string): string | null {
 function domainFallback(url: string): string | null {
   try {
     const hostname = new URL(url).hostname.toLowerCase();
-    if (hostname.endsWith(".com.ua") || hostname === "prom.ua" || hostname === "olx.ua") return "UAH";
+    if (hostname.endsWith(".com.ua") || hostname === "prom.ua" || hostname === "olx.ua")
+      return "UAH";
     if (hostname.includes("amazon.com") || hostname.includes("walmart.com")) return "USD";
     if (hostname.includes("amazon.co.uk") || hostname.includes("ebay.co.uk")) return "GBP";
-    if (hostname.includes("amazon.de") || hostname.includes("amazon.fr") || hostname.includes("amazon.it") || hostname.includes("amazon.es")) return "EUR";
+    if (
+      hostname.includes("amazon.de") ||
+      hostname.includes("amazon.fr") ||
+      hostname.includes("amazon.it") ||
+      hostname.includes("amazon.es")
+    )
+      return "EUR";
     if (hostname.includes("amazon.co.jp")) return "JPY";
     if (hostname.includes("amazon.ca")) return "CAD";
     if (hostname.includes("amazon.com.au")) return "AUD";
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return null;
 }
 
@@ -160,11 +208,11 @@ export function extractNumericPrice(text: string): string | null {
   if (!text) return null;
 
   // Видаляємо символи валют та інші нечислові (зберігаємо цифри, крапки, коми, пробіли)
-  let cleaned = text.replace(/[^\d\s,.\-]/g, "").trim();
+  let cleaned = text.replace(/[^\d\s,.-]/g, "").trim();
   if (!cleaned || !/\d/.test(cleaned)) return null;
 
   // Видаляємо початкові/кінцеві роздільники
-  cleaned = cleaned.replace(/^[\s,.\-]+|[\s,.\-]+$/g, "");
+  cleaned = cleaned.replace(/^[\s,.-]+|[\s,.-]+$/g, "");
   if (!cleaned) return null;
 
   // Визначаємо формат числа та нормалізуємо
@@ -276,8 +324,7 @@ export function extractDateFromText(text: string): string | null {
 
   // DD.MM.YYYY або DD/MM/YYYY
   const euMatch = text.match(/(\d{1,2})[./](\d{1,2})[./](\d{4})/);
-  if (euMatch)
-    return `${euMatch[3]}-${euMatch[2].padStart(2, "0")}-${euMatch[1].padStart(2, "0")}`;
+  if (euMatch) return `${euMatch[3]}-${euMatch[2].padStart(2, "0")}-${euMatch[1].padStart(2, "0")}`;
 
   // MM/DD/YYYY
   const usMatch = text.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
@@ -345,8 +392,7 @@ export function isDiscountBadge($: cheerio.CheerioAPI, el: any): boolean {
 
   const text = $el.text().trim();
   if (/^[-−–]\s*\d/.test(text)) return true;
-  if (/^save\b|^savings\b|^you save\b|^економія|^знижка|^вигода/i.test(text))
-    return true;
+  if (/^save\b|^savings\b|^you save\b|^економія|^знижка|^вигода/i.test(text)) return true;
 
   return false;
 }
@@ -413,10 +459,7 @@ export function extractDescription($: cheerio.CheerioAPI): string | null {
   return null;
 }
 
-export function extractImage(
-  $: cheerio.CheerioAPI,
-  baseUrl: string,
-): string | null {
+export function extractImage($: cheerio.CheerioAPI, baseUrl: string): string | null {
   const selectors = [
     'meta[property="og:image"]',
     'meta[name="twitter:image"]',
@@ -442,23 +485,11 @@ export function extractImage(
   return null;
 }
 
-export function extractMetaTagRegex(
-  html: string,
-  property: string,
-): string | null {
+export function extractMetaTagRegex(html: string, property: string): string | null {
   const patterns = [
-    new RegExp(
-      `<meta[^>]*property=["']og:${property}["'][^>]*content=["']([^"']+)["']`,
-      "i",
-    ),
-    new RegExp(
-      `<meta[^>]*name=["']${property}["'][^>]*content=["']([^"']+)["']`,
-      "i",
-    ),
-    new RegExp(
-      `<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:${property}["']`,
-      "i",
-    ),
+    new RegExp(`<meta[^>]*property=["']og:${property}["'][^>]*content=["']([^"']+)["']`, "i"),
+    new RegExp(`<meta[^>]*name=["']${property}["'][^>]*content=["']([^"']+)["']`, "i"),
+    new RegExp(`<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:${property}["']`, "i"),
   ];
 
   for (const pattern of patterns) {
@@ -531,8 +562,7 @@ export function extractPricePairFromDOM($: cheerio.CheerioAPI): {
         .each((_, priceEl) => {
           if (currentPrice) return;
           const $priceEl = $(priceEl);
-          if ($priceEl.is(strikeEl) || $priceEl.find(strikeEl).length > 0)
-            return;
+          if ($priceEl.is(strikeEl) || $priceEl.find(strikeEl).length > 0) return;
           if (
             $priceEl.closest(
               'del, s, [class*="STRIKETHROUGH"], [class*="strikethrough"], [style*="line-through"]',
@@ -551,8 +581,7 @@ export function extractPricePairFromDOM($: cheerio.CheerioAPI): {
     }
   });
 
-  if (oldPrice && currentPrice)
-    return validatePricePair(oldPrice, currentPrice);
+  if (oldPrice && currentPrice) return validatePricePair(oldPrice, currentPrice);
 
   // --- Стратегія 2: <del>/<s> з ціною і нова ціна поруч ---
   $(strikethroughSelector).each((_, el) => {
@@ -602,9 +631,7 @@ export function extractPricePairFromDOM($: cheerio.CheerioAPI): {
     const parentClone = parent.clone();
     parentClone.find(strikethroughSelector).remove();
     parentClone
-      .find(
-        '[data-discount-badge], [class*="discount-badge"], [class*="discount_badge"]',
-      )
+      .find('[data-discount-badge], [class*="discount-badge"], [class*="discount_badge"]')
       .remove();
     const remainingText = parentClone.text().trim();
     if (remainingText && /\d/.test(remainingText)) {
@@ -623,9 +650,7 @@ export function extractPricePairFromDOM($: cheerio.CheerioAPI): {
       const gpClone = grandparent.clone();
       gpClone.find(strikethroughSelector).remove();
       gpClone
-        .find(
-          '[data-discount-badge], [class*="discount-badge"], [class*="discount_badge"]',
-        )
+        .find('[data-discount-badge], [class*="discount-badge"], [class*="discount_badge"]')
         .remove();
 
       gpClone.children().each((_, child) => {
@@ -654,8 +679,7 @@ export function extractPricePairFromDOM($: cheerio.CheerioAPI): {
     }
   });
 
-  if (oldPrice && currentPrice)
-    return validatePricePair(oldPrice, currentPrice);
+  if (oldPrice && currentPrice) return validatePricePair(oldPrice, currentPrice);
 
   // --- Стратегія 3: відомі пари CSS класів ---
   const classPairs = [
@@ -732,9 +756,7 @@ export function extractPricesAdvanced(
   }
 
   // Sale price from meta
-  const saleMeta = $('meta[property="product:sale_price:amount"]').attr(
-    "content",
-  );
+  const saleMeta = $('meta[property="product:sale_price:amount"]').attr("content");
   if (saleMeta) {
     const salePrice = extractNumericPrice(saleMeta);
     if (salePrice && currentPrice && salePrice !== currentPrice) {
@@ -745,9 +767,7 @@ export function extractPricesAdvanced(
 
   // Original price from meta
   if (!oldPrice) {
-    const originalMetaVal = $(
-      'meta[property="product:original_price:amount"]',
-    ).attr("content");
+    const originalMetaVal = $('meta[property="product:original_price:amount"]').attr("content");
     if (originalMetaVal) {
       const origPrice = extractNumericPrice(originalMetaVal);
       if (origPrice && currentPrice && origPrice !== currentPrice) {
@@ -758,8 +778,7 @@ export function extractPricesAdvanced(
 
   // 2. Schema.org microdata
   const itemPropPrice =
-    $('[itemprop="price"]').attr("content") ||
-    $('[itemprop="price"]').text().trim();
+    $('[itemprop="price"]').attr("content") || $('[itemprop="price"]').text().trim();
   if (itemPropPrice && !currentPrice) {
     const price = extractNumericPrice(itemPropPrice);
     if (price) currentPrice = price;
@@ -918,10 +937,7 @@ export function extractPricesAdvanced(
           return;
         }
 
-        const text =
-          $(el).attr("content") ||
-          $(el).attr("data-price") ||
-          $(el).text().trim();
+        const text = $(el).attr("content") || $(el).attr("data-price") || $(el).text().trim();
         if (text) {
           const price = extractNumericPrice(text);
           if (price && parseFloat(price.replace(/[^\d.]/g, "")) > 0) {

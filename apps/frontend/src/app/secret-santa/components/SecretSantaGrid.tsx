@@ -6,6 +6,7 @@ import { SecretSantaEventCard } from "./SecretSantaEventCard";
 import styles from "./SecretSantaGrid.module.scss";
 import { useSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { Pagination } from "@/components/ui/Pagination/Pagination";
+import { SkeletonCard, Skeleton } from "@/components/ui/Skeleton/Skeleton";
 
 const PAGE_SIZE = 8;
 
@@ -24,12 +25,17 @@ export function SecretSantaGrid() {
 
   return (
     <div>
-      <h2 className={styles.title}>
-        {t("Your Events", { $id: "secretSanta.grid.title" })}
-      </h2>
+      <h2 className={styles.title}>{t("Your Events", { $id: "secretSanta.grid.title" })}</h2>
       <div className={styles.grid}>
         {isLoading && (
-          <p>{t("Loading...", { $id: "secretSanta.grid.loading" })}</p>
+          <>
+            {[0, 1, 2].map((i) => (
+              <SkeletonCard key={i}>
+                <Skeleton variant="heading" width="70%" />
+                <Skeleton variant="text" width="40%" style={{ marginTop: 10 }} />
+              </SkeletonCard>
+            ))}
+          </>
         )}
         {isError && (
           <p>
@@ -50,9 +56,7 @@ export function SecretSantaGrid() {
         ))}
       </div>
 
-      {totalPages > 1 && (
-        <Pagination page={page} total={totalPages} onChange={setPage} />
-      )}
+      {totalPages > 1 && <Pagination page={page} total={totalPages} onChange={setPage} />}
     </div>
   );
 }

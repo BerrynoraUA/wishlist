@@ -9,13 +9,7 @@ import type { SecretSantaExclusion } from "@/api/types/secret-santa";
 import { generateSecretSantaAssignment } from "@/api/secret-santa";
 import { useLaunchSecretSanta } from "@/hooks/use-secret-santa";
 import { SecretSantaPersonAvatar } from "./SecretSantaPersonAvatar";
-import {
-  Ban,
-  Sparkles,
-  ChevronDown,
-  ChevronUp,
-  AlertTriangle,
-} from "lucide-react";
+import { Ban, Sparkles, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
 import styles from "./LaunchSecretSantaModal.module.scss";
 
 type Props = {
@@ -25,12 +19,7 @@ type Props = {
   participants: SecretSantaPerson[];
 };
 
-export function LaunchSecretSantaModal({
-  open,
-  onClose,
-  eventId,
-  participants,
-}: Props) {
+export function LaunchSecretSantaModal({ open, onClose, eventId, participants }: Props) {
   const t = useGT();
   // exclusions[giverId] = Set of receiverIds they must NOT get
   const [exclusions, setExclusions] = useState<Record<string, Set<string>>>({});
@@ -114,9 +103,7 @@ export function LaunchSecretSantaModal({
           {t("Optionally choose who should ", {
             $id: "secretSanta.launchModal.subtitleBefore",
           })}
-          <strong>
-            {t("not", { $id: "secretSanta.launchModal.subtitleEmphasis" })}
-          </strong>
+          <strong>{t("not", { $id: "secretSanta.launchModal.subtitleEmphasis" })}</strong>
           {t(" be matched together, then launch the event.", {
             $id: "secretSanta.launchModal.subtitleAfter",
           })}
@@ -158,11 +145,7 @@ export function LaunchSecretSantaModal({
                         <button
                           key={other.id}
                           type="button"
-                          className={
-                            isExcluded
-                              ? styles.personChipExcluded
-                              : styles.personChip
-                          }
+                          className={isExcluded ? styles.personChipExcluded : styles.personChip}
                           onClick={() => toggleExclusion(giver.id, other.id)}
                         >
                           <SecretSantaPersonAvatar person={other} />
@@ -201,10 +184,7 @@ export function LaunchSecretSantaModal({
           <Button variant="secondary" onClick={onClose}>
             {t("Cancel", { $id: "secretSanta.launchModal.cancel" })}
           </Button>
-          <Button
-            onClick={handleLaunch}
-            disabled={!!validationError || launch.isPending}
-          >
+          <Button onClick={handleLaunch} disabled={!!validationError || launch.isPending}>
             <Sparkles size={16} />
             <span>
               {launch.isPending

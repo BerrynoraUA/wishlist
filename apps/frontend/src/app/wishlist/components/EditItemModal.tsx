@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
+import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { useUpdateItem } from "@/hooks/use-items";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Item } from "@/types/item";
 import type { UpdateItemParams } from "@/api/types/item";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
+import { validateImageUploadFile } from "@/lib/image-upload";
 import styles from "./CreateItemModal.module.scss";
 
 type PriorityOption = "Low" | "Medium" | "High" | "None";
@@ -37,15 +40,7 @@ export function EditItemModal({ open, onClose, item }: Props) {
   return <EditItemForm open={open} item={item} onClose={onClose} />;
 }
 
-function EditItemForm({
-  open,
-  item,
-  onClose,
-}: {
-  open: boolean;
-  item: Item;
-  onClose: () => void;
-}) {
+function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onClose: () => void }) {
   const t = useGT();
   const { isPro } = useSubscription();
   const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
@@ -60,6 +55,7 @@ function EditItemForm({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
   const [currency, setCurrency] = useState(item.currency ?? "USD");
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const { mutate, isPending } = useUpdateItem();
 
@@ -73,10 +69,18 @@ function EditItemForm({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const nextImageError = validateImageUploadFile(file);
+    if (nextImageError) {
+      setImageError(nextImageError);
+      e.target.value = "";
+      return;
+    }
+
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     const objectUrl = URL.createObjectURL(file);
     setImageObjectUrl(objectUrl);
 
+    setImageError(null);
     setImageFile(file);
     setImagePreview(objectUrl);
   }
@@ -84,8 +88,13 @@ function EditItemForm({
   function handleSubmit() {
     if (!name.trim() || isPending) return;
 
-    const priorityValue =
-      priority === "None" ? null : priorityToValue[priority];
+    const nextImageError = validateImageUploadFile(imageFile);
+    if (nextImageError) {
+      setImageError(nextImageError);
+      return;
+    }
+
+    const priorityValue = priority === "None" ? null : priorityToValue[priority];
 
     const updates: UpdateItemParams = {
       name: name.trim(),
@@ -94,9 +103,7 @@ function EditItemForm({
       url: link.trim() || null,
       priority: priorityValue,
       currency,
-      ...(imageFile
-        ? { image: imageFile }
-        : { image_url: imagePreview || null }),
+      ...(imageFile ? { image: imageFile } : { image_url: imagePreview || null }),
     };
 
     mutate({ id: item.id, updates }, { onSuccess: () => onClose() });
@@ -122,7 +129,10 @@ function EditItemForm({
         </div>
 
         <div className={styles.field}>
-          <label>{t("Image", { $id: "item.modal.imageLabel" })}</label>
+          <div className={styles.labelRow}>
+            <label>{t("Image", { $id: "item.modal.imageLabel" })}</label>
+            <FileSizeBadge />
+          </div>
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
@@ -146,6 +156,7 @@ function EditItemForm({
               />
             </label>
           </div>
+          <UploadErrorText message={imageError} />
         </div>
 
         <div className={styles.field}>
@@ -175,9 +186,7 @@ function EditItemForm({
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
-          </label>
+          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
           <div className={styles.priceRow}>
             <select
               value={currency}
@@ -188,16 +197,10 @@ function EditItemForm({
               <option value="EUR">{t("€ EUR", { $id: "currency.eur" })}</option>
               <option value="GBP">{t("£ GBP", { $id: "currency.gbp" })}</option>
               <option value="UAH">{t("₴ UAH", { $id: "currency.uah" })}</option>
-              <option value="PLN">
-                {t("zł PLN", { $id: "currency.pln" })}
-              </option>
+              <option value="PLN">{t("zł PLN", { $id: "currency.pln" })}</option>
               <option value="JPY">{t("¥ JPY", { $id: "currency.jpy" })}</option>
-              <option value="CAD">
-                {t("CA$ CAD", { $id: "currency.cad" })}
-              </option>
-              <option value="AUD">
-                {t("A$ AUD", { $id: "currency.aud" })}
-              </option>
+              <option value="CAD">{t("CA$ CAD", { $id: "currency.cad" })}</option>
+              <option value="AUD">{t("A$ AUD", { $id: "currency.aud" })}</option>
               <option value="CHF">{t("CHF", { $id: "currency.chf" })}</option>
             </select>
             <input
@@ -216,18 +219,10 @@ function EditItemForm({
               value={priority}
               onChange={(e) => setPriority(e.target.value as PriorityOption)}
             >
-              <option value="None">
-                {t("No priority", { $id: "item.modal.priorityNone" })}
-              </option>
-              <option value="Low">
-                {t("Low", { $id: "item.priority.low" })}
-              </option>
-              <option value="Medium">
-                {t("Medium", { $id: "item.priority.medium" })}
-              </option>
-              <option value="High">
-                {t("High", { $id: "item.priority.high" })}
-              </option>
+              <option value="None">{t("No priority", { $id: "item.modal.priorityNone" })}</option>
+              <option value="Low">{t("Low", { $id: "item.priority.low" })}</option>
+              <option value="Medium">{t("Medium", { $id: "item.priority.medium" })}</option>
+              <option value="High">{t("High", { $id: "item.priority.high" })}</option>
             </select>
           </div>
         )}
@@ -236,7 +231,10 @@ function EditItemForm({
           <Button variant="secondary" onClick={onClose}>
             {t("Cancel", { $id: "common.cancel" })}
           </Button>
-          <Button onClick={handleSubmit} disabled={!name.trim() || isPending}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!name.trim() || isPending || Boolean(imageError)}
+          >
             {isPending
               ? t("Saving...", { $id: "common.saving" })
               : t("Save Changes", { $id: "wishlist.modal.saveChanges" })}

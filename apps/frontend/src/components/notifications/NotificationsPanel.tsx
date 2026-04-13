@@ -4,11 +4,10 @@ import { useState } from "react";
 import { useGT } from "gt-next";
 import styles from "./NotificationsPanel.module.scss";
 import { Button } from "@/components/ui/Button/Button";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { Notification } from "@/types";
-import {
-  useAcceptSecretSantaInvite,
-  useDeclineSecretSantaInvite
-} from "@/hooks/use-secret-santa";
+import { useAcceptSecretSantaInvite, useDeclineSecretSantaInvite } from "@/hooks/use-secret-santa";
+import { useDeleteNotification } from "@/hooks/use-notifications";
 
 type Props = {
   notifications: Notification[];
@@ -23,29 +22,54 @@ export function NotificationsPanel({
   onClear,
   onReadAll,
   isLoading,
-  onMarkRead
+  onMarkRead,
 }: Props) {
   const t = useGT();
   const [pendingReadIds, setPendingReadIds] = useState<string[]>([]);
   const acceptInvite = useAcceptSecretSantaInvite();
   const declineInvite = useDeclineSecretSantaInvite();
+  const deleteNotification = useDeleteNotification();
+  const [pendingInviteActions, setPendingInviteActions] = useState<
+    Record<string, "accept" | "decline">
+  >({});
 
   const handleHoverRead = (notification: Notification) => {
-    if (
-      notification.is_read ||
-      !onMarkRead ||
-      pendingReadIds.includes(notification.id)
-    ) {
+    if (notification.is_read || !onMarkRead || pendingReadIds.includes(notification.id)) {
       return;
     }
 
     setPendingReadIds((current) => [...current, notification.id]);
 
     Promise.resolve(onMarkRead(notification.id)).finally(() => {
-      setPendingReadIds((current) =>
-        current.filter((id) => id !== notification.id)
-      );
+      setPendingReadIds((current) => current.filter((id) => id !== notification.id));
     });
+  };
+
+  const handleInviteAction = async (notification: Notification, action: "accept" | "decline") => {
+    if (!notification.entity_id || pendingInviteActions[notification.id]) {
+      return;
+    }
+
+    setPendingInviteActions((current) => ({
+      ...current,
+      [notification.id]: action,
+    }));
+
+    try {
+      if (action === "accept") {
+        await acceptInvite.mutateAsync(notification.entity_id);
+      } else {
+        await declineInvite.mutateAsync(notification.entity_id);
+      }
+
+      await deleteNotification.mutateAsync(notification.id);
+    } finally {
+      setPendingInviteActions((current) => {
+        const next = { ...current };
+        delete next[notification.id];
+        return next;
+      });
+    }
   };
 
   return (
@@ -66,12 +90,7 @@ export function NotificationsPanel({
               </Button>
             )}
             {onClear && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClear}
-                disabled={isLoading}
-              >
+              <Button variant="ghost" size="sm" onClick={onClear} disabled={isLoading}>
                 {t("Clear", { $id: "notifications.clear" })}
               </Button>
             )}
@@ -80,22 +99,28 @@ export function NotificationsPanel({
       </div>
 
       {isLoading ? (
-        <div className={styles.empty}>
-          {t("Loading notifications...", {
-            $id: "notifications.loading"
-          })}
+        <div style={{ display: "grid", gap: 12, padding: 16 }}>
+          {[0, 1, 2].map((i) => (
+            <div key={i} style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              <Skeleton variant="circle" width={36} height={36} />
+              <div style={{ flex: 1, display: "grid", gap: 4 }}>
+                <Skeleton variant="text" width="80%" />
+                <Skeleton variant="text" width="50%" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : notifications.length === 0 ? (
-        <div className={styles.empty}>
-          {t("No notifications", { $id: "notifications.empty" })}
-        </div>
+        <div className={styles.empty}>{t("No notifications", { $id: "notifications.empty" })}</div>
       ) : (
         <div className={styles.listWrap}>
           <ul className={styles.list}>
             {notifications.map((n) => {
               const isInvite = n.type === 0 && n.entity_id != null;
-              const invitePending =
-                acceptInvite.isPending || declineInvite.isPending;
+              const pendingInviteAction = pendingInviteActions[n.id];
+              const isAccepting = pendingInviteAction === "accept";
+              const isDeclining = pendingInviteAction === "decline";
+              const invitePending = isAccepting || isDeclining;
 
               return (
                 <li
@@ -111,23 +136,23 @@ export function NotificationsPanel({
                     <div className={styles.inviteActions}>
                       <button
                         className={styles.accept}
-                        onClick={() => acceptInvite.mutate(n.entity_id!)}
+                        onClick={() => handleInviteAction(n, "accept")}
                         disabled={invitePending}
                       >
-                        {acceptInvite.isPending
+                        {isAccepting
                           ? t("Accepting...", {
-                              $id: "notifications.accepting"
+                              $id: "notifications.accepting",
                             })
                           : t("Accept", { $id: "notifications.accept" })}
                       </button>
                       <button
                         className={styles.decline}
-                        onClick={() => declineInvite.mutate(n.entity_id!)}
+                        onClick={() => handleInviteAction(n, "decline")}
                         disabled={invitePending}
                       >
-                        {declineInvite.isPending
+                        {isDeclining
                           ? t("Declining...", {
-                              $id: "notifications.declining"
+                              $id: "notifications.declining",
                             })
                           : t("Decline", { $id: "notifications.decline" })}
                       </button>
@@ -145,7 +170,7 @@ export function NotificationsPanel({
 
 function formatNotificationTime(
   createdAt: string,
-  t: (message: string, options?: { $id?: string; n?: number }) => string
+  t: (message: string, options?: { $id?: string; n?: number }) => string,
 ) {
   const date = new Date(createdAt);
   const diffMinutes = Math.floor((Date.now() - date.getTime()) / 60000);
@@ -167,6 +192,6 @@ function formatNotificationTime(
 
   return date.toLocaleDateString(undefined, {
     month: "short",
-    day: "numeric"
+    day: "numeric",
   });
 }

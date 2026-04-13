@@ -50,18 +50,12 @@ export function SecretSantaEventCard({ event }: Props) {
     >
       <div className={`${styles.top} ${styles[accent]}`}>
         {hasImage && (
-          <img
-            src={event.image_url as string}
-            alt={event.name}
-            className={styles.coverImage}
-          />
+          <img src={event.image_url as string} alt={event.name} className={styles.coverImage} />
         )}
         {event.is_owner && (
           <div className={styles.ownerBadge}>
             <TreePine size={12} />
-            <span>
-              {t("Organizer", { $id: "secretSanta.card.organizer" })}
-            </span>
+            <span>{t("Organizer", { $id: "secretSanta.card.organizer" })}</span>
           </div>
         )}
         {!hasImage && <TreePine size={40} className={styles.icon} />}
@@ -79,16 +73,12 @@ export function SecretSantaEventCard({ event }: Props) {
             })}
           </span>
 
-          <span className={styles.metaItem}>
-            {formatPrice(event.budget, event.currency)}
-          </span>
+          <span className={styles.metaItem}>{formatPrice(event.budget, event.currency)}</span>
         </div>
 
         <div className={styles.date}>
           <CalendarDays size={14} />
-          <span>
-            {formatEventDate(event.event_date, locale ?? "en")}
-          </span>
+          <span>{formatEventDate(event.event_date, locale ?? "en")}</span>
         </div>
       </div>
     </div>

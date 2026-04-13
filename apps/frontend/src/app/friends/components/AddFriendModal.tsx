@@ -5,13 +5,10 @@ import { createPortal } from "react-dom";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
-import { Copy } from "lucide-react";
+import { Copy, Loader2 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import styles from "./AddFriendModal.module.scss";
-import {
-  useSearchProfilesByNickname,
-  useSendFriendRequest,
-} from "@/hooks/use-friends";
+import { useSearchProfilesByNickname, useSendFriendRequest } from "@/hooks/use-friends";
 import type { ProfileSearchResult } from "@/api/types/friends";
 
 type Props = {
@@ -53,9 +50,7 @@ export function AddFriendModal({ open, onClose }: Props) {
 
   const sendRequest = useSendFriendRequest();
   const showDropdown =
-    dropdownOpen &&
-    Boolean(debouncedQuery) &&
-    (search.isFetching || search.isFetched);
+    dropdownOpen && Boolean(debouncedQuery) && (search.isFetching || search.isFetched);
   const hasMore = (search.data?.length ?? 0) === take;
   const inviteDisabled = selected.length === 0 || inviting;
 
@@ -178,9 +173,7 @@ export function AddFriendModal({ open, onClose }: Props) {
     if (!selected.length) return;
     try {
       setInviting(true);
-      await Promise.all(
-        selected.map((profile) => sendRequest.mutateAsync(profile.id)),
-      );
+      await Promise.all(selected.map((profile) => sendRequest.mutateAsync(profile.id)));
       resetState({ keepSuccess: true });
       setInviteSuccess(true);
     } finally {
@@ -200,9 +193,7 @@ export function AddFriendModal({ open, onClose }: Props) {
       )}
 
       {!search.isFetching && results.length === 0 && (
-        <div className={styles.empty}>
-          {t("No matches", { $id: "friends.addModal.noMatches" })}
-        </div>
+        <div className={styles.empty}>{t("No matches", { $id: "friends.addModal.noMatches" })}</div>
       )}
 
       {results.length > 0 && (
@@ -214,9 +205,7 @@ export function AddFriendModal({ open, onClose }: Props) {
               className={`${styles.resultItem} ${selected.some((p) => p.id === profile.id) ? styles.active : ""}`}
               onClick={() => handleSelect(profile)}
             >
-              <div className={styles.avatarStub}>
-                {profile.nickname?.[0]?.toUpperCase() ?? "?"}
-              </div>
+              <div className={styles.avatarStub}>{profile.nickname?.[0]?.toUpperCase() ?? "?"}</div>
               <div className={styles.resultMeta}>
                 <span className={styles.nickname}>@{profile.nickname}</span>
               </div>
@@ -232,9 +221,11 @@ export function AddFriendModal({ open, onClose }: Props) {
           onClick={handleLoadMore}
           disabled={search.isFetching}
         >
-          {search.isFetching
-            ? t("Loading...", { $id: "friends.addModal.loadMoreLoading" })
-            : t("Load more", { $id: "friends.addModal.loadMore" })}
+          {search.isFetching ? (
+            <Loader2 size={14} style={{ animation: "spin 0.8s linear infinite" }} />
+          ) : (
+            t("Load more", { $id: "friends.addModal.loadMore" })
+          )}
         </button>
       )}
     </div>
@@ -244,32 +235,21 @@ export function AddFriendModal({ open, onClose }: Props) {
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <p className={styles.eyebrow}>
-            {t("Friends", { $id: "friends.addModal.eyebrow" })}
-          </p>
+          <p className={styles.eyebrow}>{t("Friends", { $id: "friends.addModal.eyebrow" })}</p>
           <h2>{t("Invite friends", { $id: "friends.addModal.title" })}</h2>
           <p>
-            {t(
-              "Share your personal invite link or look up a friend by handle.",
-              { $id: "friends.addModal.subtitle" },
-            )}
+            {t("Share your personal invite link or look up a friend by handle.", {
+              $id: "friends.addModal.subtitle",
+            })}
           </p>
         </div>
 
         {/* Invite Link */}
         <div className={styles.field}>
-          <label>
-            {t("Your invite link", { $id: "friends.addModal.inviteLinkLabel" })}
-          </label>
+          <label>{t("Your invite link", { $id: "friends.addModal.inviteLinkLabel" })}</label>
 
           <div className={styles.linkWrapper}>
-            <input
-              value={
-                inviteLink ||
-                t("Loading...", { $id: "friends.addModal.linkLoading" })
-              }
-              readOnly
-            />
+            <input value={inviteLink || ""} readOnly placeholder="..." />
 
             <button
               className={`${styles.copyBtn} iconTooltipTrigger`}
@@ -297,9 +277,7 @@ export function AddFriendModal({ open, onClose }: Props) {
 
         {/* Divider */}
         <div className={styles.divider}>
-          <span>
-            {t("OR SEARCH", { $id: "friends.addModal.orSearch" })}
-          </span>
+          <span>{t("OR SEARCH", { $id: "friends.addModal.orSearch" })}</span>
         </div>
 
         {/* Username Search */}
@@ -336,11 +314,7 @@ export function AddFriendModal({ open, onClose }: Props) {
                 <button
                   type="button"
                   className="iconTooltipTrigger"
-                  onClick={() =>
-                    setSelected((prev) =>
-                      prev.filter((p) => p.id !== profile.id),
-                    )
-                  }
+                  onClick={() => setSelected((prev) => prev.filter((p) => p.id !== profile.id))}
                   aria-label={t("Remove from invite list", {
                     $id: "friends.addModal.removeBadgeAria",
                   })}

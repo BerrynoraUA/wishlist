@@ -13,10 +13,10 @@ async function isAuthorized(request: NextRequest): Promise<boolean> {
     return true;
   }
 
-  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    process.env.SUPABASE_URL) as string | undefined;
-  const supabaseAnonKey = (process.env
-    .NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL) as
+    | string
+    | undefined;
+  const supabaseAnonKey = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string | undefined;
 
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -56,10 +56,7 @@ export async function POST(request: NextRequest) {
   const { urls } = (await request.json()) as { urls: string[] };
 
   if (!Array.isArray(urls) || urls.length === 0) {
-    return NextResponse.json(
-      { error: "Missing or empty 'urls' array" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Missing or empty 'urls' array" }, { status: 400 });
   }
 
   const results = [];

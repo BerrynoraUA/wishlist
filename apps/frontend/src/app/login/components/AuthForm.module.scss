@@ -10,6 +10,8 @@
   box-shadow:
     var(--shadow-lg),
     0 0 0 1px rgba(0, 0, 0, 0.02);
+  display: grid;
+  gap: 0;
 }
 
 .googleButton {
@@ -49,7 +51,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 20px 0;
+  margin: 0;
   color: var(--color-text-light);
   font-size: 12px;
   text-transform: uppercase;
@@ -67,6 +69,12 @@
       transparent
     );
   }
+}
+
+.googleSection {
+  margin-top: 28px;
+  display: grid;
+  gap: 18px;
 }
 
 .form {

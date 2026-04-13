@@ -68,10 +68,7 @@ function useFadeAnimations(containerRef: React.RefObject<HTMLElement | null>) {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const delay = parseInt(
-              (entry.target as HTMLElement).dataset.delay || "0",
-              10,
-            );
+            const delay = parseInt((entry.target as HTMLElement).dataset.delay || "0", 10);
             setTimeout(() => entry.target.classList.add(styles.visible), delay);
             observer.unobserve(entry.target);
           }
@@ -131,8 +128,7 @@ export default function LandingPage() {
       e.preventDefault();
       const target = document.querySelector(href);
       if (target) {
-        const offsetTop =
-          target.getBoundingClientRect().top + window.scrollY - 80;
+        const offsetTop = target.getBoundingClientRect().top + window.scrollY - 80;
         window.scrollTo({ top: offsetTop, behavior: "smooth" });
       }
       closeMenu();
@@ -183,10 +179,7 @@ export default function LandingPage() {
             <Link href="/login" className={`${styles.btn} ${styles.btnGhost}`}>
               {t("Log In", { $id: "landing.nav.logIn" })}
             </Link>
-            <Link
-              href="/login"
-              className={`${styles.btn} ${styles.btnPrimary}`}
-            >
+            <Link href="/login" className={`${styles.btn} ${styles.btnPrimary}`}>
               {t("Get Started Free", { $id: "landing.nav.getStartedFree" })}
             </Link>
           </div>
@@ -235,16 +228,10 @@ export default function LandingPage() {
           {t("Testimonials", { $id: "landing.mobile.testimonials" })}
         </a>
         <div className={styles.mobileMenuActions}>
-          <Link
-            href="/login"
-            className={`${styles.btn} ${styles.btnGhost} ${styles.btnFull}`}
-          >
+          <Link href="/login" className={`${styles.btn} ${styles.btnGhost} ${styles.btnFull}`}>
             {t("Log In", { $id: "landing.mobile.logIn" })}
           </Link>
-          <Link
-            href="/login"
-            className={`${styles.btn} ${styles.btnPrimary} ${styles.btnFull}`}
-          >
+          <Link href="/login" className={`${styles.btn} ${styles.btnPrimary} ${styles.btnFull}`}>
             {t("Get Started Free", { $id: "landing.mobile.getStartedFree" })}
           </Link>
         </div>
@@ -266,9 +253,7 @@ export default function LandingPage() {
               {t("Wishlists,", { $id: "landing.hero.titleLine1" })}
               <br />
               {t("shared", { $id: "landing.hero.titleShared" })}{" "}
-              <em>
-                {t("beautifully", { $id: "landing.hero.titleEmphasis" })}
-              </em>
+              <em>{t("beautifully", { $id: "landing.hero.titleEmphasis" })}</em>
             </h1>
             <p className={styles.heroSubtitle}>
               {t(
@@ -277,10 +262,7 @@ export default function LandingPage() {
               )}
             </p>
             <div className={styles.heroCta}>
-              <Link
-                href="/login"
-                className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}
-              >
+              <Link href="/login" className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}>
                 {t("Start Your First Wishlist", {
                   $id: "landing.hero.ctaPrimary",
                 })}
@@ -312,10 +294,7 @@ export default function LandingPage() {
               })}
             </p>
           </div>
-          <div
-            className={`${styles.heroVisual} ${styles.animateIn}`}
-            data-delay="200"
-          >
+          <div className={`${styles.heroVisual} ${styles.animateIn}`} data-delay="200">
             <div className={styles.heroMockup}>
               <div className={styles.mockupCardMain}>
                 <div className={styles.mockupCardHeader}>
@@ -339,9 +318,7 @@ export default function LandingPage() {
                       })}
                     </span>
                   </div>
-                  <span
-                    className={`${styles.mockupCardBadge} ${styles.mockupCardBadgeFriends}`}
-                  >
+                  <span className={`${styles.mockupCardBadge} ${styles.mockupCardBadgeFriends}`}>
                     {t("👥 Friends", { $id: "landing.hero.mockup.badgeFriends" })}
                   </span>
                 </div>
@@ -375,9 +352,7 @@ export default function LandingPage() {
                   />
                 </div>
               </div>
-              <div
-                className={`${styles.mockupCardFloat} ${styles.mockupCardFloat1}`}
-              >
+              <div className={`${styles.mockupCardFloat} ${styles.mockupCardFloat1}`}>
                 <div className={styles.mockupFloatInner}>
                   <span className={styles.mockupFloatIcon}>❤️</span>
                   <span className={styles.mockupFloatText}>
@@ -387,9 +362,7 @@ export default function LandingPage() {
                   </span>
                 </div>
               </div>
-              <div
-                className={`${styles.mockupCardFloat} ${styles.mockupCardFloat2}`}
-              >
+              <div className={`${styles.mockupCardFloat} ${styles.mockupCardFloat2}`}>
                 <div className={styles.mockupFloatInner}>
                   <span className={styles.mockupFloatIcon}>🔗</span>
                   <span className={styles.mockupFloatText}>
@@ -447,9 +420,7 @@ export default function LandingPage() {
                 {t("Everything you need for", {
                   $id: "landing.features.titlePart1",
                 })}{" "}
-                <em>
-                  {t("perfect", { $id: "landing.features.titleEmphasis" })}
-                </em>{" "}
+                <em>{t("perfect", { $id: "landing.features.titleEmphasis" })}</em>{" "}
                 {t("gifting", { $id: "landing.features.titlePart2" })}
               </>
             }
@@ -632,15 +603,12 @@ export default function LandingPage() {
             title={
               <>
                 {t("Three steps to", { $id: "landing.how.titlePart1" })}{" "}
-                <em>
-                  {t("gifting joy", { $id: "landing.how.titleEmphasis" })}
-                </em>
+                <em>{t("gifting joy", { $id: "landing.how.titleEmphasis" })}</em>
               </>
             }
-            subtitle={t(
-              "Getting started with Wishlane is as easy as making a wish.",
-              { $id: "landing.how.subtitle" },
-            )}
+            subtitle={t("Getting started with Wishlane is as easy as making a wish.", {
+              $id: "landing.how.subtitle",
+            })}
           />
           <div className={styles.steps}>
             {/* Step 1 */}
@@ -663,10 +631,7 @@ export default function LandingPage() {
             </div>
 
             {/* Step 2 */}
-            <div
-              className={`${styles.step} ${styles.animateIn}`}
-              data-delay="150"
-            >
+            <div className={`${styles.step} ${styles.animateIn}`} data-delay="150">
               <div className={styles.stepNumber}>2</div>
               <div className={styles.stepContent}>
                 <h3 className={styles.stepTitle}>
@@ -721,10 +686,7 @@ export default function LandingPage() {
             </div>
 
             {/* Step 3 */}
-            <div
-              className={`${styles.step} ${styles.animateIn}`}
-              data-delay="300"
-            >
+            <div className={`${styles.step} ${styles.animateIn}`} data-delay="300">
               <div className={styles.stepNumber}>3</div>
               <div className={styles.stepContent}>
                 <h3 className={styles.stepTitle}>
@@ -753,9 +715,7 @@ export default function LandingPage() {
             title={
               <>
                 {t("Find the", { $id: "landing.discover.titlePart1" })}{" "}
-                <em>
-                  {t("perfect gift", { $id: "landing.discover.titleEmphasis" })}
-                </em>
+                <em>{t("perfect gift", { $id: "landing.discover.titleEmphasis" })}</em>
                 {t(", every time", { $id: "landing.discover.titlePart2" })}
               </>
             }
@@ -781,10 +741,7 @@ export default function LandingPage() {
                   })}
                 </span>
               </div>
-              <Link
-                href="/login"
-                className={`${styles.btn} ${styles.btnSm} ${styles.btnPrimary}`}
-              >
+              <Link href="/login" className={`${styles.btn} ${styles.btnSm} ${styles.btnPrimary}`}>
                 {t("View Wishlist", { $id: "landing.discover.viewWishlist" })}
               </Link>
             </div>
@@ -914,10 +871,7 @@ export default function LandingPage() {
               )}
             </p>
             <div className={styles.ctaActions}>
-              <Link
-                href="/login"
-                className={`${styles.btn} ${styles.btnWhite} ${styles.btnLg}`}
-              >
+              <Link href="/login" className={`${styles.btn} ${styles.btnWhite} ${styles.btnLg}`}>
                 {t("Create Your First Wishlist", {
                   $id: "landing.cta.button",
                 })}
@@ -937,10 +891,9 @@ export default function LandingPage() {
               </Link>
             </div>
             <p className={styles.ctaNote}>
-              {t(
-                "Free forever · No credit card needed · Set up in 30 seconds",
-                { $id: "landing.cta.note" },
-              )}
+              {t("Free forever · No credit card needed · Set up in 30 seconds", {
+                $id: "landing.cta.note",
+              })}
             </p>
           </div>
         </div>
@@ -1041,9 +994,7 @@ function MockupItem({
         <span className={styles.mockupItemName}>{name}</span>
         <span className={styles.mockupItemPrice}>{price}</span>
       </div>
-      <span className={`${styles.mockupItemPriority} ${priorityClass}`}>
-        {priorityLabel}
-      </span>
+      <span className={`${styles.mockupItemPriority} ${priorityClass}`}>{priorityLabel}</span>
     </div>
   );
 }
@@ -1104,14 +1055,8 @@ function FeatureCard({
   delay?: number;
 }) {
   return (
-    <div
-      className={`${styles.featureCard} ${styles.animateIn}`}
-      data-delay={delay}
-    >
-      <div
-        className={styles.featureCardIcon}
-        style={{ background: iconBg, color: iconColor }}
-      >
+    <div className={`${styles.featureCard} ${styles.animateIn}`} data-delay={delay}>
+      <div className={styles.featureCardIcon} style={{ background: iconBg, color: iconColor }}>
         {icon}
       </div>
       <h3 className={styles.featureCardTitle}>{title}</h3>
@@ -1140,10 +1085,7 @@ function StepDemoCreate() {
         <span className={styles.demoInputLabel}>
           {t("Wishlist Name", { $id: "landing.how.step1.demoLabel" })}
         </span>
-        <span
-          className={styles.demoInputValue}
-          style={{ borderColor: color }}
-        >
+        <span className={styles.demoInputValue} style={{ borderColor: color }}>
           {t("Christmas 2026 🎄", { $id: "landing.how.step1.demoValue" })}
         </span>
       </div>
@@ -1195,10 +1137,7 @@ function DemoFriend({
 }) {
   return (
     <div className={styles.demoFriend}>
-      <div
-        className={styles.demoFriendAvatar}
-        style={{ background: bg, color }}
-      >
+      <div className={styles.demoFriendAvatar} style={{ background: bg, color }}>
         {initial}
       </div>
       <div>
@@ -1296,10 +1235,7 @@ function DiscoverCard({
         ? t("Medium", { $id: "landing.discover.priority.medium" })
         : t("Low", { $id: "landing.discover.priority.low" });
   return (
-    <div
-      className={`${styles.discoverCard} ${styles.animateIn}`}
-      data-delay={delay}
-    >
+    <div className={`${styles.discoverCard} ${styles.animateIn}`} data-delay={delay}>
       <div className={styles.discoverCardImg} style={{ background: gradient }}>
         <span className={styles.discoverCardEmoji}>{emoji}</span>
       </div>
@@ -1308,9 +1244,7 @@ function DiscoverCard({
         <h4 className={styles.discoverCardTitle}>{title}</h4>
         <div className={styles.discoverCardFooter}>
           <span className={styles.discoverCardPrice}>{price}</span>
-          <span className={`${styles.discoverCardPriority} ${priorityClass}`}>
-            {priorityLabel}
-          </span>
+          <span className={`${styles.discoverCardPriority} ${priorityClass}`}>{priorityLabel}</span>
         </div>
       </div>
     </div>
@@ -1335,20 +1269,11 @@ function Testimonial({
   delay?: number;
 }) {
   return (
-    <div
-      className={`${styles.testimonial} ${styles.animateIn}`}
-      data-delay={delay}
-    >
+    <div className={`${styles.testimonial} ${styles.animateIn}`} data-delay={delay}>
       <div className={styles.testimonialStars}>★★★★★</div>
-      <p
-        className={styles.testimonialText}
-        dangerouslySetInnerHTML={{ __html: text }}
-      />
+      <p className={styles.testimonialText} dangerouslySetInnerHTML={{ __html: text }} />
       <div className={styles.testimonialAuthor}>
-        <div
-          className={styles.testimonialAvatar}
-          style={{ background: bg, color }}
-        >
+        <div className={styles.testimonialAvatar} style={{ background: bg, color }}>
           {initial}
         </div>
         <div>

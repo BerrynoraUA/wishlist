@@ -4,7 +4,14 @@ export default function FriendsLoading() {
   return (
     <main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px" }}>
       {/* FriendsHeader */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 24,
+        }}
+      >
         <Skeleton variant="heading" width={200} />
         <Skeleton variant="pill" width={140} height={40} />
       </div>
@@ -17,7 +24,13 @@ export default function FriendsLoading() {
       </div>
 
       {/* FriendsGrid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+          gap: 16,
+        }}
+      >
         {[0, 1, 2, 3].map((i) => (
           <SkeletonCard key={i}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

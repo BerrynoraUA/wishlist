@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { WishlistCard } from "./WishlistCard";
 import styles from "./WishlistGrid.module.scss";
 import { useMyWishlists } from "@/hooks/use-wishlists";
+import { SkeletonCard, Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { Pagination } from "@/components/ui/Pagination/Pagination";
 import { useSearchParams } from "next/navigation";
 
@@ -14,10 +15,7 @@ export function WishlistGrid() {
   const t = useGT();
   const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
-  const search = useMemo(
-    () => searchParams.get("search") ?? "",
-    [searchParams],
-  );
+  const search = useMemo(() => searchParams.get("search") ?? "", [searchParams]);
 
   const { data, isLoading, isError } = useMyWishlists({
     skip: (page - 1) * PAGE_SIZE,
@@ -30,12 +28,17 @@ export function WishlistGrid() {
 
   return (
     <div>
-      <h2 className={styles.title}>
-        {t("Wishlists", { $id: "home.wishlistGrid.title" })}
-      </h2>
+      <h2 className={styles.title}>{t("Wishlists", { $id: "home.wishlistGrid.title" })}</h2>
       <div className={styles.grid}>
         {isLoading && (
-          <p>{t("Loading...", { $id: "home.wishlistGrid.loading" })}</p>
+          <>
+            {[0, 1, 2, 3].map((i) => (
+              <SkeletonCard key={i}>
+                <Skeleton variant="heading" width="70%" />
+                <Skeleton variant="text" width="40%" style={{ marginTop: 10 }} />
+              </SkeletonCard>
+            ))}
+          </>
         )}
         {isError && (
           <p>

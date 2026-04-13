@@ -47,20 +47,14 @@ export function SecretSantaPeopleSection({
           {people.map((person) => (
             <article
               key={person.key}
-              className={
-                person.badge ? styles.personCardMuted : styles.personCard
-              }
+              className={person.badge ? styles.personCardMuted : styles.personCard}
             >
               <SecretSantaPersonAvatar person={person} />
               <div className={styles.personMeta}>
-                <strong>
-                  {person.display_name ?? person.nickname ?? userFallback}
-                </strong>
+                <strong>{person.display_name ?? person.nickname ?? userFallback}</strong>
                 <span>{person.subtitle}</span>
               </div>
-              {person.badge && (
-                <span className={styles.pendingBadge}>{person.badge}</span>
-              )}
+              {person.badge && <span className={styles.pendingBadge}>{person.badge}</span>}
               {onRemove && removeLabel && (
                 <button
                   type="button"

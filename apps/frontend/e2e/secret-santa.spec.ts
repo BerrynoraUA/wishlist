@@ -6,15 +6,13 @@ test.describe("Secret Santa page", () => {
   });
 
   test("renders Secret Santa page heading", async ({ page }) => {
-    await expect(
-      page.getByRole("heading", { name: /secret santa/i }),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("heading", { name: /secret santa/i })).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test("renders New Event button", async ({ page }) => {
-    await expect(
-      page.getByRole("button", { name: /new event/i }),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("button", { name: /new event/i })).toBeVisible({ timeout: 10_000 });
   });
 
   test("shows empty state when no events exist", async ({ page }) => {
@@ -30,15 +28,13 @@ test.describe("Secret Santa page", () => {
   test("clicking New Event opens CreateSecretSantaModal", async ({ page }) => {
     await page.getByRole("button", { name: /new event/i }).click();
     await expect(
-      page.getByRole("heading", { name: /create secret santa/i }).or(
-        page.getByRole("heading", { name: /new event/i }),
-      ),
+      page
+        .getByRole("heading", { name: /create secret santa/i })
+        .or(page.getByRole("heading", { name: /new event/i })),
     ).toBeVisible({ timeout: 5_000 });
   });
 
-  test("CreateSecretSantaModal has a text input for event name", async ({
-    page,
-  }) => {
+  test("CreateSecretSantaModal has a text input for event name", async ({ page }) => {
     await page.getByRole("button", { name: /new event/i }).click();
     // Wait for modal to open
     await page.waitForTimeout(300);
@@ -49,9 +45,7 @@ test.describe("Secret Santa page", () => {
     await expect(nameInput).toBeVisible({ timeout: 5_000 });
   });
 
-  test("CreateSecretSantaModal Cancel button closes the modal", async ({
-    page,
-  }) => {
+  test("CreateSecretSantaModal Cancel button closes the modal", async ({ page }) => {
     await page.getByRole("button", { name: /new event/i }).click();
     const modal = page.getByRole("heading", { name: /create secret santa|new event/i });
     await expect(modal).toBeVisible({ timeout: 5_000 });
@@ -68,9 +62,9 @@ test.describe("Secret Santa page", () => {
   });
 
   test("visual screenshot", async ({ page }) => {
-    await expect(
-      page.getByRole("heading", { name: /secret santa/i }),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("heading", { name: /secret santa/i })).toBeVisible({
+      timeout: 10_000,
+    });
     await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot("secret-santa-page.png", {
       maxDiffPixelRatio: 0.05,

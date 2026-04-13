@@ -73,6 +73,15 @@
   overflow: hidden;
 }
 
+.descriptionFull {
+  font-size: 14px;
+  color: $text-muted;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .textTooltip {
   position: absolute;
   left: 0;
@@ -141,11 +150,7 @@
 
 :global([data-theme="dark"]) .textTooltip {
   background:
-    radial-gradient(
-      circle at top left,
-      var(--brand-alpha-15),
-      transparent 38%
-    ),
+    radial-gradient(circle at top left, var(--brand-alpha-15), transparent 38%),
     linear-gradient(180deg, rgba(28, 28, 34, 0.98), rgba(18, 18, 23, 0.98));
   border-color: rgba(255, 255, 255, 0.06);
   box-shadow:
@@ -230,7 +235,7 @@
     var(--brand-alpha-08)
   );
   border: 1px solid var(--brand-alpha-20);
-  color: var(--color-brand-dark);
+  color: #475569;
   box-shadow: 0 8px 20px var(--brand-alpha-12);
 
   &:hover:not(:disabled) {
@@ -240,7 +245,7 @@
       var(--brand-alpha-10)
     );
     border-color: var(--brand-alpha-30);
-    color: var(--color-brand);
+    color: #334155;
     box-shadow: 0 12px 26px var(--brand-alpha-15);
   }
 }
@@ -260,7 +265,7 @@
     var(--brand-alpha-08)
   );
   border-color: var(--brand-alpha-25);
-  color: color-mix(in srgb, var(--color-brand-light) 78%, white 22%);
+  color: #dbe4ef;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
 
   &:hover:not(:disabled) {
@@ -270,7 +275,7 @@
       var(--brand-alpha-12)
     );
     border-color: var(--brand-alpha-35);
-    color: color-mix(in srgb, var(--color-brand-lighter) 88%, white 12%);
+    color: #f8fafc;
     box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
   }
 }

@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  handlePaddleEvent,
-  parsePaddleEvent,
-  verifyPaddleSignature,
-} from "./helpers";
+import { handlePaddleEvent, parsePaddleEvent, verifyPaddleSignature } from "./helpers";
 import type { PaddleEvent } from "@/types/paddle";
 
 const PADDLE_WEBHOOK_SECRET = process.env.PADDLE_WEBHOOK_SECRET as string;
@@ -29,9 +25,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error(`[Paddle Webhook] Error handling ${body.event_type}:`, err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

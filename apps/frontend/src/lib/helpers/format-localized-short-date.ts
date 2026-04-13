@@ -14,14 +14,10 @@ function parseFlexibleDate(value: string): Date {
  * Short calendar date in the active app locale (month abbreviation + day + year).
  * Date-only `YYYY-MM-DD` is interpreted as that calendar day (no UTC shift).
  */
-export function formatLocalizedShortDate(
-  dateInput: string | Date,
-  locale: string,
-): string {
+export function formatLocalizedShortDate(dateInput: string | Date, locale: string): string {
   const tag = locale || "en";
   try {
-    const d =
-      typeof dateInput === "string" ? parseFlexibleDate(dateInput) : dateInput;
+    const d = typeof dateInput === "string" ? parseFlexibleDate(dateInput) : dateInput;
     if (Number.isNaN(d.getTime())) {
       return typeof dateInput === "string" ? dateInput : "";
     }

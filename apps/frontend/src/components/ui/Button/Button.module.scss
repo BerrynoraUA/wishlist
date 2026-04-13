@@ -86,21 +86,13 @@
 }
 
 .accent {
-  background: linear-gradient(
-    135deg,
-    var(--color-brand-light),
-    var(--color-brand-lighter)
-  );
+  background: linear-gradient(135deg, var(--color-brand-light), var(--color-brand-lighter));
   border: 1px solid var(--brand-alpha-15);
   color: $brand;
   box-shadow: 0 6px 18px var(--brand-alpha-12);
 
   &:hover:not(:disabled) {
-    background: linear-gradient(
-      135deg,
-      var(--color-brand-lighter),
-      var(--color-brand-light)
-    );
+    background: linear-gradient(135deg, var(--color-brand-lighter), var(--color-brand-light));
     border-color: var(--brand-alpha-25);
     box-shadow: 0 10px 24px var(--brand-alpha-20);
     transform: translateY(-2px);

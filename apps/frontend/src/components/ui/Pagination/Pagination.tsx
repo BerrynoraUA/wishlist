@@ -37,10 +37,7 @@ export function Pagination({ page, total, onChange }: Props) {
   const items = buildPaginationItems(page, total);
 
   return (
-    <nav
-      className={styles.pagination}
-      aria-label={t("Pagination", { $id: "pagination.navLabel" })}
-    >
+    <nav className={styles.pagination} aria-label={t("Pagination", { $id: "pagination.navLabel" })}>
       <div className={styles.controls}>
         <button
           type="button"
@@ -48,7 +45,7 @@ export function Pagination({ page, total, onChange }: Props) {
           disabled={page === 1}
           onClick={() => onChange(page - 1)}
           aria-label={t("Go to previous page", {
-            $id: "pagination.previous"
+            $id: "pagination.previous",
           })}
         >
           <span className={styles.navArrow} aria-hidden="true">
@@ -63,11 +60,7 @@ export function Pagination({ page, total, onChange }: Props) {
           {items.map((item, index) => {
             if (item === "ellipsis") {
               return (
-                <span
-                  key={`ellipsis-${index}`}
-                  className={styles.ellipsis}
-                  aria-hidden="true"
-                >
+                <span key={`ellipsis-${index}`} className={styles.ellipsis} aria-hidden="true">
                   ...
                 </span>
               );
@@ -84,7 +77,7 @@ export function Pagination({ page, total, onChange }: Props) {
                 aria-current={isActive ? "page" : undefined}
                 aria-label={t("Go to page {n}", {
                   n: item,
-                  $id: "pagination.goToPage"
+                  $id: "pagination.goToPage",
                 })}
               >
                 {item}
@@ -100,9 +93,7 @@ export function Pagination({ page, total, onChange }: Props) {
           onClick={() => onChange(page + 1)}
           aria-label={t("Go to next page", { $id: "pagination.next" })}
         >
-          <span className={styles.navText}>
-            {t("Next", { $id: "pagination.nextText" })}
-          </span>
+          <span className={styles.navText}>{t("Next", { $id: "pagination.nextText" })}</span>
           <span className={styles.navArrow} aria-hidden="true">
             &gt;
           </span>

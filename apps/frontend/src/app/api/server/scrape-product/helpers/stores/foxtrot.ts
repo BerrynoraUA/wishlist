@@ -24,7 +24,12 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
       if (val) currentPrice = extractNumericPrice(val);
     }
     if (!currentPrice) {
-      currentPrice = extractNumericPrice(mainPriceEl.text().trim());
+      // Use first child element text to avoid duplication from nested spans
+      const firstSpan = mainPriceEl.find("span, data").first();
+      const priceText = firstSpan.length
+        ? firstSpan.text().trim()
+        : mainPriceEl.contents().first().text().trim();
+      if (priceText) currentPrice = extractNumericPrice(priceText);
     }
   }
 
@@ -37,7 +42,11 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
       if (val) oldPrice = extractNumericPrice(val);
     }
     if (!oldPrice) {
-      oldPrice = extractNumericPrice(oldPriceEl.text().trim());
+      const firstSpan = oldPriceEl.find("span, data").first();
+      const priceText = firstSpan.length
+        ? firstSpan.text().trim()
+        : oldPriceEl.contents().first().text().trim();
+      if (priceText) oldPrice = extractNumericPrice(priceText);
     }
   }
 
@@ -88,9 +97,7 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
     }
   }
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
 
   // Image: Foxtrot's og:image is often a generic store logo
   let image: string | null = null;
@@ -112,10 +119,7 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
   for (const selector of productImageSelectors) {
     const el = $(selector).first();
     if (el.length) {
-      const src =
-        el.attr("src") ||
-        el.attr("srcset")?.split(/[\s,]+/)?.[0] ||
-        el.attr("data-src");
+      const src = el.attr("src") || el.attr("srcset")?.split(/[\s,]+/)?.[0] || el.attr("data-src");
       if (src && !src.includes("placeholder") && !src.includes("no-image")) {
         image = src.startsWith("//") ? "https:" + src : src;
         break;
@@ -152,11 +156,7 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
   // og:image — only if it's NOT a generic store logo
   if (!image) {
     const ogImage = $('meta[property="og:image"]').attr("content");
-    if (
-      ogImage &&
-      !/foxtrot\.(png|jpg|jpeg|svg|webp)/i.test(ogImage) &&
-      !/logo/i.test(ogImage)
-    ) {
+    if (ogImage && !/foxtrot\.(png|jpg|jpeg|svg|webp)/i.test(ogImage) && !/logo/i.test(ogImage)) {
       image = ogImage;
     }
   }
