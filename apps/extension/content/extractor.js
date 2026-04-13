@@ -253,6 +253,7 @@
       description: null,
       image: null,
       price: null,
+      url: null,
     };
 
     for (const strategy of strategies) {
