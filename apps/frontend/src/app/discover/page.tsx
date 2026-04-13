@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useGT } from "gt-next";
 import { DiscoverHeader } from "./components/DiscoverHeader";
@@ -14,7 +14,10 @@ import {
   useFriendsWishlistsPurchasedByMe,
   useFriendsWishlistsReservedByMe,
 } from "@/hooks/use-wishlists";
-import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
+import {
+  useToggleItemBought,
+  useToggleItemReservation,
+} from "@/hooks/use-items";
 import { useProfilesByIds } from "@/hooks/use-settings";
 import { useFriends } from "@/hooks/use-friends";
 
@@ -25,58 +28,81 @@ function DiscoverPageContent() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
   const tabFromUrl: "wishlists" | "available" | "reserved" | "purchased" =
-    tabParam === "available" || tabParam === "reserved" || tabParam === "purchased"
+    tabParam === "available" ||
+    tabParam === "reserved" ||
+    tabParam === "purchased"
       ? tabParam
       : "wishlists";
-  const [filter, setFilter] = useState<"wishlists" | "available" | "reserved" | "purchased">(
-    tabFromUrl,
+  const filter = tabFromUrl;
+  const wishlistsSearch = useMemo(
+    () => searchParams.get("discoverSearch") ?? "",
+    [searchParams],
   );
-  const wishlistsSearch = useMemo(() => searchParams.get("discoverSearch") ?? "", [searchParams]);
-  const reservedSearch = useMemo(() => searchParams.get("reservedSearch") ?? "", [searchParams]);
-  const purchasedSearch = useMemo(() => searchParams.get("purchasedSearch") ?? "", [searchParams]);
+  const reservedSearch = useMemo(
+    () => searchParams.get("reservedSearch") ?? "",
+    [searchParams],
+  );
+  const purchasedSearch = useMemo(
+    () => searchParams.get("purchasedSearch") ?? "",
+    [searchParams],
+  );
 
-  useEffect(() => {
-    setFilter(tabFromUrl);
-  }, [tabFromUrl]);
+  const handleFilterChange = useCallback(
+    (nextFilter: "wishlists" | "available" | "reserved" | "purchased") => {
+      if (nextFilter === filter) return;
 
-  useEffect(() => {
-    if (filter === tabFromUrl) return;
+      const params = new URLSearchParams(searchParams.toString());
+      if (nextFilter === "wishlists") {
+        params.delete("tab");
+      } else {
+        params.set("tab", nextFilter);
+      }
 
-    const params = new URLSearchParams(searchParams.toString());
-    if (filter === "wishlists") {
-      params.delete("tab");
-    } else {
-      params.set("tab", filter);
-    }
-
-    router.replace(params.toString() ? `${pathname}?${params.toString()}` : pathname, {
-      scroll: false,
-    });
-  }, [filter, tabFromUrl, pathname, router, searchParams]);
+      router.replace(
+        params.toString() ? `${pathname}?${params.toString()}` : pathname,
+        {
+          scroll: false,
+        },
+      );
+    },
+    [filter, pathname, router, searchParams],
+  );
 
   const {
     data: allWishlistsSections = [],
     isLoading: isAllWishlistsLoading,
     isError: isAllWishlistsError,
-  } = useFriendsWishlistsDiscoverAll({ search: wishlistsSearch }, filter === "wishlists");
+  } = useFriendsWishlistsDiscoverAll(
+    { search: wishlistsSearch },
+    filter === "wishlists",
+  );
 
   const {
     data: wishlistsSections = [],
     isLoading: isWishlistsLoading,
     isError: isWishlistsError,
-  } = useFriendsWishlistsDiscover({ search: wishlistsSearch }, filter === "available");
+  } = useFriendsWishlistsDiscover(
+    { search: wishlistsSearch },
+    filter === "available",
+  );
 
   const {
     data: reservedSections = [],
     isLoading: isReservedLoading,
     isError: isReservedError,
-  } = useFriendsWishlistsReservedByMe({ search: reservedSearch }, filter === "reserved");
+  } = useFriendsWishlistsReservedByMe(
+    { search: reservedSearch },
+    filter === "reserved",
+  );
 
   const {
     data: purchasedSections = [],
     isLoading: isPurchasedLoading,
     isError: isPurchasedError,
-  } = useFriendsWishlistsPurchasedByMe({ search: purchasedSearch }, filter === "purchased");
+  } = useFriendsWishlistsPurchasedByMe(
+    { search: purchasedSearch },
+    filter === "purchased",
+  );
 
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
@@ -90,7 +116,8 @@ function DiscoverPageContent() {
     return map;
   }, [friendsList]);
 
-  const activeWishlistSections = filter === "wishlists" ? allWishlistsSections : wishlistsSections;
+  const activeWishlistSections =
+    filter === "wishlists" ? allWishlistsSections : wishlistsSections;
 
   const friendIds = useMemo(() => {
     return Array.from(
@@ -141,7 +168,7 @@ function DiscoverPageContent() {
     <main style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}>
       <DiscoverHeader />
       <UpcomingEvents />
-      <DiscoverFilters active={filter} onChange={setFilter} />
+      <DiscoverFilters active={filter} onChange={handleFilterChange} />
 
       {isError && (
         <p>
@@ -178,13 +205,17 @@ function DiscoverPageContent() {
           <DiscoverSection
             key={section.id}
             {...section}
-            friend_id={section.friend_id ?? nicknameToFriendId.get(section.username)}
+            friend_id={
+              section.friend_id ?? nicknameToFriendId.get(section.username)
+            }
             showDiscountBadge={true}
             avatarUrl={
               section.avatar_url ??
               ((section.friend_id ?? nicknameToFriendId.get(section.username))
                 ? (avatarById.get(
-                    section.friend_id ?? nicknameToFriendId.get(section.username) ?? "",
+                    section.friend_id ??
+                      nicknameToFriendId.get(section.username) ??
+                      "",
                   ) ?? null)
                 : null)
             }
