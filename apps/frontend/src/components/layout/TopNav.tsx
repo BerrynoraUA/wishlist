@@ -3,7 +3,7 @@
 import styles from "./TopNav.module.scss";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Gift, Users, Heart, Search } from "lucide-react";
 import { useGT } from "gt-next";
@@ -62,6 +62,39 @@ export function TopNav() {
           : "discoverSearch"
       : "search";
 
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const isTypingRef = useRef(false);
+  const searchParamsRef = useRef(searchParams);
+  const pathnameRef = useRef(pathname);
+  searchParamsRef.current = searchParams;
+  pathnameRef.current = pathname;
+
+  useEffect(() => {
+    return () => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    };
+  }, []);
+
+  const debouncedUpdateUrl = useCallback(
+    (val: string, key: string) => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+      isTypingRef.current = true;
+      searchTimerRef.current = setTimeout(() => {
+        isTypingRef.current = false;
+        const params = new URLSearchParams(searchParamsRef.current.toString());
+        if (val) params.set(key, val);
+        else params.delete(key);
+        router.replace(
+          params.toString()
+            ? `${pathnameRef.current}?${params.toString()}`
+            : pathnameRef.current,
+          { scroll: false },
+        );
+      }, 300);
+    },
+    [router],
+  );
+
   const searchPlaceholder = useMemo(() => {
     if (searchMode === "friends") {
       return t("Search friends...", { $id: "nav.searchFriends" });
@@ -96,6 +129,7 @@ export function TopNav() {
   }, [searchMode, pathname, searchParams, router]);
 
   useEffect(() => {
+    if (isTypingRef.current) return;
     if (!isSearchVisible) {
       setQuery("");
       return;
@@ -165,17 +199,7 @@ export function TopNav() {
                   onChange={(e) => {
                     const val = e.target.value;
                     setQuery(val);
-
-                    const params = new URLSearchParams(searchParams.toString());
-                    if (val) params.set(activeSearchKey, val);
-                    else params.delete(activeSearchKey);
-
-                    router.replace(
-                      params.toString()
-                        ? `${pathname}?${params.toString()}`
-                        : pathname,
-                      { scroll: false },
-                    );
+                    debouncedUpdateUrl(val, activeSearchKey);
                   }}
                 />
               </div>
