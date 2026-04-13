@@ -73,6 +73,15 @@
   overflow: hidden;
 }
 
+.descriptionFull {
+  font-size: 14px;
+  color: $text-muted;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .textTooltip {
   position: absolute;
   left: 0;

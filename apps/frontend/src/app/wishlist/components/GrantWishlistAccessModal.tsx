@@ -238,11 +238,6 @@ export function GrantWishlistAccessModal({
                 {friendsLoading && (
                   <div className={styles.emptyState}>
                     <Loader2 size={16} className={styles.spinner} />
-                    <span>
-                      {t("Loading friends...", {
-                        $id: "wishlist.grantAccess.loadingFriends",
-                      })}
-                    </span>
                   </div>
                 )}
 
@@ -352,11 +347,6 @@ export function GrantWishlistAccessModal({
             {accessListLoading && (
               <div className={styles.emptyState}>
                 <Loader2 size={16} className={styles.spinner} />
-                <span>
-                  {t("Loading access list...", {
-                    $id: "wishlist.grantAccess.loadingAccessList",
-                  })}
-                </span>
               </div>
             )}
 
