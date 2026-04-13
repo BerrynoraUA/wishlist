@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useGT } from "gt-next";
-import { Gift, Heart, ShoppingCart } from "lucide-react";
+import { Gift, Heart, Loader2, ShoppingCart } from "lucide-react";
 import type { VisibleItem } from "@/api/types/secret-santa";
 import { useGiftSuggestions } from "@/hooks/use-secret-santa";
 import {
