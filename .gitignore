@@ -1,0 +1,19 @@
+node_modules/
+.next/
+.expo/
+dist/
+build/
+out/
+*.tsbuildinfo
+pnpm-debug.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+*.crx
+*.pem
+
+.turbo

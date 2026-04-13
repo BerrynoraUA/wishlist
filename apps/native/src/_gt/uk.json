@@ -1,3 +1,12 @@
 {
-  "f1af0473bdb42cbc": "Відредагуйте src/app/index.tsx, щоб змінити цей екран."
+  "07231c9c096a5037": {
+    "c": "Щоб змінити цей екран, відредагуйте файл src/screens/HomeScreen.ios.tsx.",
+    "i": 1,
+    "t": "Text"
+  },
+  "9f3d4542d7b28b28": {
+    "c": "Щоб змінити цей екран, відредагуйте файл src/screens/HomeScreen.android.tsx.",
+    "i": 1,
+    "t": "Text"
+  }
 }

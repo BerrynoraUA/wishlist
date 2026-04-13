@@ -1,0 +1,12 @@
+{
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.next/**",
+    "**/.expo/**",
+    "**/out/**",
+    "**/.gt/**",
+    "pnpm-lock.yaml"
+  ]
+}

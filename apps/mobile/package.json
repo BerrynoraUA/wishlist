@@ -1,8 +1,10 @@
 {
   "name": "mobile",
   "version": "1.0.0",
+  "private": true,
   "main": "expo-router/entry",
   "scripts": {
+    "dev": "expo start --dev-client",
     "start": "expo start --dev-client",
     "start:tunnel": "expo start --dev-client --tunnel",
     "android": "expo run:android",
@@ -11,7 +13,9 @@
     "build:android:dev": "eas build --profile development --platform android",
     "build:android:preview": "eas build --profile preview --platform android",
     "build:ios": "eas build --platform ios",
-    "build:android": "eas build --platform android"
+    "build:android": "eas build --platform android",
+    "lint": "oxlint .",
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@react-native-google-signin/google-signin": "^16.1.2",
@@ -40,6 +44,5 @@
   "devDependencies": {
     "@types/react": "~19.2.2",
     "typescript": "~5.9.2"
-  },
-  "private": true
+  }
 }
