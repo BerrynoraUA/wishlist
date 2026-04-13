@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import", "react", "react-perf"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "no-console": "warn",
+    "import/no-unresolved": "off"
+  },
+  "env": {
+    "builtin": true,
+    "browser": true
+  },
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.next/**",
+    "**/.expo/**",
+    "**/out/**",
+    "**/.gt/**"
+  ],
+  "overrides": [
+    {
+      "files": ["apps/extension/**/*.js"],
+      "plugins": ["oxc"],
+      "rules": {
+        "typescript/*": "off"
+      }
+    }
+  ]
+}

@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "build:translated": "gtx-cli translate && next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "oxlint .",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:update-snapshots": "playwright test --update-snapshots",
@@ -19,7 +19,9 @@
     "test:e2e:secondary:update-snapshots": "playwright test --config playwright.secondary.config.ts --update-snapshots",
     "gt:translate": "gtx-cli translate",
     "gt:sync": "gtx-cli save-local",
-    "gt:sync:publish": "gtx-cli save-local --publish"
+    "gt:sync:publish": "gtx-cli save-local --publish",
+    "translate": "gtx-cli translate",
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@paddle/paddle-js": "^1.6.2",
@@ -46,8 +48,6 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.6",
     "gtx-cli": "^2.14.4",
     "sass": "^1.97.3",
     "typescript": "5.9.3"
