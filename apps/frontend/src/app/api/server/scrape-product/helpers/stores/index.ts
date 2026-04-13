@@ -10,6 +10,12 @@ import { scrapeAliExpress } from "./aliexpress";
 import { scrapeAvrora } from "./avrora";
 import { scrapeOctopus } from "./octopus";
 import { scrapeHoroshop } from "./horoshop";
+import { scrapeTarget } from "./target";
+import { scrapeTrendyol } from "./trendyol";
+import { scrapeHepsiburada } from "./hepsiburada";
+import { scrapeN11 } from "./n11";
+import { scrapeShopGoodwill } from "./shopgoodwill";
+import { scrapeAbebooks } from "./abebooks";
 
 /**
  * Реєстр магазинів: домен → скрапер.
@@ -29,6 +35,12 @@ const storeRegistry: { pattern: string; scraper: ScraperMethod }[] = [
   { pattern: "bujobox.com.ua", scraper: scrapeHoroshop },
   { pattern: "hobymonster.com.ua", scraper: scrapeHoroshop },
   { pattern: "leleka.camp", scraper: scrapeHoroshop },
+  { pattern: "target.com", scraper: scrapeTarget },
+  { pattern: "trendyol.com", scraper: scrapeTrendyol },
+  { pattern: "hepsiburada.com", scraper: scrapeHepsiburada },
+  { pattern: "n11.com", scraper: scrapeN11 },
+  { pattern: "shopgoodwill.com", scraper: scrapeShopGoodwill },
+  { pattern: "abebooks.com", scraper: scrapeAbebooks },
 ];
 
 /**
