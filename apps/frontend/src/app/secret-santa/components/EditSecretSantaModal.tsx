@@ -40,9 +40,7 @@ function EditSecretSantaForm({
   const t = useGT();
   const [name, setName] = useState(event.name ?? "");
   const [budget, setBudget] = useState(String(event.budget ?? ""));
-  const [currency, setCurrency] = useState(
-    normalizeCurrencyCode(event.currency),
-  );
+  const [currency, setCurrency] = useState(normalizeCurrencyCode(event.currency));
   const [imagePreview, setImagePreview] = useState(event.image_url ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
@@ -120,14 +118,11 @@ function EditSecretSantaForm({
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Event Name", { $id: "secretSanta.edit.eventNameLabel" })}
-          </label>
+          <label>{t("Event Name", { $id: "secretSanta.edit.eventNameLabel" })}</label>
           <input
-            placeholder={t(
-              "e.g. Office Christmas Party, Family Gift Exchange",
-              { $id: "secretSanta.edit.eventNamePlaceholder" },
-            )}
+            placeholder={t("e.g. Office Christmas Party, Family Gift Exchange", {
+              $id: "secretSanta.edit.eventNamePlaceholder",
+            })}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -203,9 +198,7 @@ function EditSecretSantaForm({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={
-              !name.trim() || !budget || isPending || Boolean(imageError)
-            }
+            disabled={!name.trim() || !budget || isPending || Boolean(imageError)}
           >
             {isPending
               ? t("Saving...", { $id: "secretSanta.edit.saving" })

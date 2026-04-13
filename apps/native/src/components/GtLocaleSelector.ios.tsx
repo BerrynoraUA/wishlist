@@ -5,8 +5,7 @@ import { useLocaleSelector } from "gt-react-native";
 const chipShape = shapes.roundedRectangle({ cornerRadius: 8 });
 
 export function GtLocaleSelector() {
-  const { locales, locale, setLocale, getLocaleProperties } =
-    useLocaleSelector();
+  const { locales, locale, setLocale, getLocaleProperties } = useLocaleSelector();
 
   return (
     <ScrollView axes="horizontal" showsIndicators={false}>
@@ -25,10 +24,7 @@ export function GtLocaleSelector() {
               modifiers={
                 active
                   ? [
-                      background(
-                        "rgba(32, 138, 239, 0.12)",
-                        chipShape,
-                      ),
+                      background("rgba(32, 138, 239, 0.12)", chipShape),
                       border({ color: "#208AEF", width: 1 }),
                     ]
                   : [border({ color: "#888888", width: 1 })]

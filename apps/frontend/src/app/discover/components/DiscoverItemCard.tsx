@@ -46,21 +46,16 @@ export function DiscoverItemCard({
   const t = useGT();
   const [detailOpen, setDetailOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [confirmAction, setConfirmAction] =
-    useState<ItemActionConfirmType | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ItemActionConfirmType | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { data: currentUserId = "" } = useCurrentUserId();
-  const reservedByValue =
-    (reservedBy ?? reserved_by ?? null)?.toString() ?? null;
+  const reservedByValue = (reservedBy ?? reserved_by ?? null)?.toString() ?? null;
   const isPurchased = status === 2;
-  const isReservedState =
-    isReserved || status === 1 || (!!reservedByValue && !isPurchased);
+  const isReservedState = isReserved || status === 1 || (!!reservedByValue && !isPurchased);
   const reservedByMe = !!reservedByValue && reservedByValue === currentUserId;
-  const canToggleReservation =
-    !isPurchased && (reservedByMe || !isReservedState);
+  const canToggleReservation = !isPurchased && (reservedByMe || !isReservedState);
   const canToggleBought =
-    (isPurchased && reservedByMe) ||
-    (!isPurchased && (!isReservedState || reservedByMe));
+    (isPurchased && reservedByMe) || (!isPurchased && (!isReservedState || reservedByMe));
   const imgSrc = image_url || image;
   const shareLink = share_url || url || "";
   const hasShareLink = Boolean(shareLink);
@@ -68,9 +63,7 @@ export function DiscoverItemCard({
   const { formatPrice } = useCurrencyFormatter();
   const formattedPrice = formatPrice(price, currency);
 
-  function parsePriceToNumber(
-    value: string | number | null | undefined,
-  ): number | null {
+  function parsePriceToNumber(value: string | number | null | undefined): number | null {
     if (value == null) return null;
     if (typeof value === "number") return Number.isFinite(value) ? value : null;
 
@@ -82,8 +75,7 @@ export function DiscoverItemCard({
 
     const hasComma = safe.includes(",");
     const hasDot = safe.includes(".");
-    const normalized =
-      hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
+    const normalized = hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
 
     const n = Number.parseFloat(normalized);
     return Number.isFinite(n) ? n : null;
@@ -214,8 +206,7 @@ export function DiscoverItemCard({
                         : priority === "Low"
                           ? 1
                           : null,
-                discount_price:
-                  discount_price != null ? String(discount_price) : null,
+                discount_price: discount_price != null ? String(discount_price) : null,
                 has_discount: discount_price != null,
                 currency: currency ?? null,
               }}
@@ -283,9 +274,7 @@ export function DiscoverItemCard({
           <strong title={title}>{title}</strong>
 
           <div className={styles.metaRow}>
-            {formattedPrice && (
-              <span className={styles.price}>{formattedPrice}</span>
-            )}
+            {formattedPrice && <span className={styles.price}>{formattedPrice}</span>}
             {store && (
               <span className={styles.store} title={store}>
                 {store}
@@ -302,11 +291,7 @@ export function DiscoverItemCard({
               }}
               disabled={!canToggleReservation}
             >
-              <ReservationLockIcon
-                isReserved={isReservedState}
-                size={16}
-                animateOnReserve
-              />
+              <ReservationLockIcon isReserved={isReservedState} size={16} animateOnReserve />
               <span>
                 {isPurchased
                   ? t("Purchased", { $id: "discover.item.purchasedBtn" })
@@ -360,9 +345,7 @@ export function DiscoverItemCard({
             )}
           </div>
 
-          {reserveStatusLabel && (
-            <div className={styles.statusText}>{reserveStatusLabel}</div>
-          )}
+          {reserveStatusLabel && <div className={styles.statusText}>{reserveStatusLabel}</div>}
         </div>
       </div>
 

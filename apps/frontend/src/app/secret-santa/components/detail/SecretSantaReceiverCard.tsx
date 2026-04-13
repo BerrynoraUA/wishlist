@@ -17,9 +17,7 @@ export function SecretSantaReceiverCard({ receiver }: Props) {
     <section className={styles.card}>
       <div className={styles.header}>
         <Sparkles size={16} />
-        <span>
-          {t("Your receiver", { $id: "secretSanta.receiverCard.title" })}
-        </span>
+        <span>{t("Your receiver", { $id: "secretSanta.receiverCard.title" })}</span>
       </div>
 
       <div className={styles.body}>

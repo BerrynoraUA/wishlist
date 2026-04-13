@@ -13,22 +13,12 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  useMyWishlists,
-  useCreateWishlist,
-  useDeleteWishlist,
-} from "@/hooks/use-wishlists";
+import { useMyWishlists, useCreateWishlist } from "@/hooks/use-wishlists";
 import { useMyStatistics } from "@/hooks/use-user";
 import { useProfile } from "@/hooks/use-settings";
 import type { Wishlist } from "@/types/wishlist";
-import { WishlistAccent, WishlistVisibility } from "@/types/wishlist";
-import {
-  Colors,
-  Spacing,
-  FontSize,
-  BorderRadius,
-  ACCENT_COLORS,
-} from "@/constants/theme";
+import { WishlistVisibility } from "@/types/wishlist";
+import { Colors, Spacing, FontSize, BorderRadius, ACCENT_COLORS } from "@/constants/theme";
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
@@ -53,12 +43,7 @@ function WishlistCard({ item }: { item: Wishlist }) {
       }
       activeOpacity={0.7}
     >
-      {item.image_url && (
-        <Image
-          source={{ uri: item.image_url }}
-          style={styles.wishlistImage}
-        />
-      )}
+      {item.image_url && <Image source={{ uri: item.image_url }} style={styles.wishlistImage} />}
       <View style={styles.wishlistContent}>
         <Text style={styles.wishlistTitle} numberOfLines={1}>
           {item.title}
@@ -69,18 +54,14 @@ function WishlistCard({ item }: { item: Wishlist }) {
           </Text>
         )}
         <View style={styles.wishlistMeta}>
-          <Text style={styles.wishlistItems}>
-            {item.itemsCount ?? 0} items
-          </Text>
-          <View
-            style={[styles.visibilityBadge, { backgroundColor: accentColor + "20" }]}
-          >
+          <Text style={styles.wishlistItems}>{item.itemsCount ?? 0} items</Text>
+          <View style={[styles.visibilityBadge, { backgroundColor: accentColor + "20" }]}>
             <Text style={[styles.visibilityText, { color: accentColor }]}>
               {item.visibility_type === WishlistVisibility.Public
                 ? "Public"
                 : item.visibility_type === WishlistVisibility.FriendsOnly
-                ? "Friends"
-                : "Private"}
+                  ? "Friends"
+                  : "Private"}
             </Text>
           </View>
         </View>
@@ -122,9 +103,7 @@ export default function HomeScreen() {
   const renderHeader = () => (
     <View style={styles.headerSection}>
       <View style={styles.greeting}>
-        <Text style={styles.greetingText}>
-          Hi, {profile?.display_name || "there"} 👋
-        </Text>
+        <Text style={styles.greetingText}>Hi, {profile?.display_name || "there"} 👋</Text>
         <Text style={styles.greetingSubtext}>Manage your wishlists</Text>
       </View>
 
@@ -136,10 +115,7 @@ export default function HomeScreen() {
         </View>
       )}
 
-      <TouchableOpacity
-        style={styles.createButton}
-        onPress={() => setShowCreateModal(true)}
-      >
+      <TouchableOpacity style={styles.createButton} onPress={() => setShowCreateModal(true)}>
         <Text style={styles.createButtonText}>+ New Wishlist</Text>
       </TouchableOpacity>
     </View>
@@ -165,9 +141,7 @@ export default function HomeScreen() {
             <View style={styles.empty}>
               <Text style={styles.emptyEmoji}>🎁</Text>
               <Text style={styles.emptyTitle}>No wishlists yet</Text>
-              <Text style={styles.emptyText}>
-                Create your first wishlist to get started!
-              </Text>
+              <Text style={styles.emptyText}>Create your first wishlist to get started!</Text>
             </View>
           ) : null
         }
@@ -201,10 +175,7 @@ export default function HomeScreen() {
                 <Text style={styles.modalCancelText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[
-                  styles.modalCreate,
-                  createWishlist.isPending && styles.buttonDisabled,
-                ]}
+                style={[styles.modalCreate, createWishlist.isPending && styles.buttonDisabled]}
                 onPress={handleCreateWishlist}
                 disabled={createWishlist.isPending}
               >

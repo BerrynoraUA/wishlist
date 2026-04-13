@@ -36,31 +36,26 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
-  const initialTheme =
-    parseThemePreference(cookieStore.get(THEME_COOKIE_NAME)?.value) ?? "system";
+  const initialTheme = parseThemePreference(cookieStore.get(THEME_COOKIE_NAME)?.value) ?? "system";
   const initialResolvedTheme = getInitialResolvedTheme(
     initialTheme,
     cookieStore.get(RESOLVED_THEME_COOKIE_NAME)?.value,
   );
-  const initialAccent = parseAccentCookie(
-    cookieStore.get(ACCENT_COOKIE_NAME)?.value,
-  );
+  const initialAccent = parseAccentCookie(cookieStore.get(ACCENT_COOKIE_NAME)?.value);
 
   return (
     <html
       className={`${dmSans.variable} ${playfair.variable}`}
       data-theme={initialResolvedTheme}
       suppressHydrationWarning
-      style={{
-        colorScheme: initialResolvedTheme,
-        ...getAccentInlineStyles(initialAccent, initialResolvedTheme),
-      } as React.CSSProperties}
+      style={
+        {
+          colorScheme: initialResolvedTheme,
+          ...getAccentInlineStyles(initialAccent, initialResolvedTheme),
+        } as React.CSSProperties
+      }
       lang={await getLocale()}
     >
       <head>

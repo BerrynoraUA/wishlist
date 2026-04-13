@@ -64,9 +64,7 @@ const ACCENT_CLASSES = ["pink", "blue", "peach", "mint", "lavender"];
 /* ------------------------------------------------------------------ */
 
 function showScreen(screen) {
-  [loginScreen, mainScreen, successScreen].forEach((s) =>
-    s.classList.add("hidden"),
-  );
+  [loginScreen, mainScreen, successScreen].forEach((s) => s.classList.add("hidden"));
   screen.classList.remove("hidden");
 }
 
@@ -225,7 +223,8 @@ async function initMainScreen() {
 
         if (response) {
           if (!productData.title && response.title) productData.title = response.title;
-          if (!productData.description && response.description) productData.description = response.description;
+          if (!productData.description && response.description)
+            productData.description = response.description;
           if (!productData.image && response.image) productData.image = response.image;
           if (!productData.price && response.price) productData.price = response.price;
           if (!productData.url && response.url) productData.url = response.url;
@@ -363,9 +362,7 @@ addBtn.addEventListener("click", async () => {
   }
 
   // Show success
-  const selectedOption = wishlistList.querySelector(
-    `.wishlist-option.selected .wishlist-name`,
-  );
+  const selectedOption = wishlistList.querySelector(`.wishlist-option.selected .wishlist-name`);
   const wlName = selectedOption?.textContent || "your wishlist";
   successDetail.textContent = `"${payload.name}" saved to ${wlName}.`;
   showScreen(successScreen);

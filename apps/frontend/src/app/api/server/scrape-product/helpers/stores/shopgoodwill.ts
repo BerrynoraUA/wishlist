@@ -1,23 +1,15 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
-import {
-  extractNumericPrice,
-  extractTitle,
-  extractDescription,
-} from "../utils";
+import { extractNumericPrice, extractTitle, extractDescription } from "../utils";
 
-const SGW_API_BASE =
-  "https://buyerapi.shopgoodwill.com/api/ItemDetail/GetItemDetailModelByItemId";
+const SGW_API_BASE = "https://buyerapi.shopgoodwill.com/api/ItemDetail/GetItemDetailModelByItemId";
 
 /**
  * ShopGoodwill.com — аукціонний сайт (Goodwill).
  * Angular SPA: дані рендеряться client-side через API.
  * Спочатку пробуємо API для повних даних, потім HTML fallback.
  */
-export async function scrapeShopGoodwill(
-  html: string,
-  url: string,
-): Promise<ProductData> {
+export async function scrapeShopGoodwill(html: string, url: string): Promise<ProductData> {
   // Extract item ID from URL: /item/260186871
   const itemIdMatch = url.match(/\/item\/(\d+)/i);
   const itemId = itemIdMatch?.[1];
@@ -36,13 +28,10 @@ export async function scrapeShopGoodwill(
   return scrapeShopGoodwillHtml(html);
 }
 
-async function fetchShopGoodwillApi(
-  itemId: string,
-): Promise<ProductData | null> {
+async function fetchShopGoodwillApi(itemId: string): Promise<ProductData | null> {
   const res = await fetch(`${SGW_API_BASE}/${itemId}`, {
     headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     },
   });
   if (!res.ok) return null;
@@ -69,8 +58,7 @@ async function fetchShopGoodwillApi(
 
   // Price: currentPrice or startingPrice
   const priceValue = data.currentPrice ?? data.startingPrice ?? null;
-  const price =
-    priceValue != null ? extractNumericPrice(String(priceValue)) : null;
+  const price = priceValue != null ? extractNumericPrice(String(priceValue)) : null;
 
   return {
     title: title || null,
@@ -87,10 +75,7 @@ async function fetchShopGoodwillApi(
 function scrapeShopGoodwillHtml(html: string): ProductData {
   const $ = cheerio.load(html);
 
-  let title =
-    $('meta[property="og:title"]').attr("content")?.trim() ||
-    extractTitle($) ||
-    null;
+  let title = $('meta[property="og:title"]').attr("content")?.trim() || extractTitle($) || null;
   if (title) {
     title = title.replace(/^(?:Used|New|Like New|Pre-Owned)\s+/i, "").trim();
   }

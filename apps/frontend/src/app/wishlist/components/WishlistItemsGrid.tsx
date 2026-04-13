@@ -51,10 +51,7 @@ export function WishlistItemsGrid({
         new Set(
           items
             .map((item) => item.reserved_by)
-            .filter(
-              (id): id is string =>
-                !!id && (!currentUserId || id !== currentUserId),
-            ),
+            .filter((id): id is string => !!id && (!currentUserId || id !== currentUserId)),
         ),
       ),
     [items, currentUserId],
@@ -66,9 +63,7 @@ export function WishlistItemsGrid({
     for (const p of reservedProfiles) {
       map.set(
         p.id,
-        p.display_name ||
-          p.nickname ||
-          t("Unknown user", { $id: "wishlist.grid.unknownUser" }),
+        p.display_name || p.nickname || t("Unknown user", { $id: "wishlist.grid.unknownUser" }),
       );
     }
     return map;
@@ -100,9 +95,7 @@ export function WishlistItemsGrid({
           </button>
         </div>
       )}
-      <div
-        className={`${styles.grid} ${isMobile && cols === 1 ? styles.gridSingle : ""}`}
-      >
+      <div className={`${styles.grid} ${isMobile && cols === 1 ? styles.gridSingle : ""}`}>
         {items.map((item) => (
           <WishlistItemCard
             key={item.id}
@@ -112,9 +105,7 @@ export function WishlistItemsGrid({
             onToggleReserve={onToggleReserve}
             onToggleBought={onToggleBought}
             reservedByName={
-              item.reserved_by
-                ? (reservedByNameById.get(item.reserved_by) ?? null)
-                : null
+              item.reserved_by ? (reservedByNameById.get(item.reserved_by) ?? null) : null
             }
             onDelete={onDelete}
             onEdit={onEdit}
@@ -122,9 +113,7 @@ export function WishlistItemsGrid({
             onAutoOpenHandled={onOpenItemHandled}
             voteCount={votesData?.counts[item.id] ?? 0}
             hasVoted={votesData?.userVotes.has(item.id) ?? false}
-            onToggleVote={
-              !isOwner ? (id) => toggleVote.mutate(id) : undefined
-            }
+            onToggleVote={!isOwner ? (id) => toggleVote.mutate(id) : undefined}
           />
         ))}
       </div>

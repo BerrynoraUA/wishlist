@@ -12,18 +12,13 @@ import {
   getFriendWishlists,
   getFriendsWishlistsReservedByMe,
 } from "@/api/wishlist";
-import type {
-  CreateWishlistParams,
-  UpdateWishlistParams,
-} from "@/api/types/wishlist";
+import type { CreateWishlistParams, UpdateWishlistParams } from "@/api/types/wishlist";
 import type { PaginationParams } from "@/types";
 
 export const wishlistKeys = {
   all: ["wishlists"] as const,
-  my: (params?: PaginationParams) =>
-    [...wishlistKeys.all, "my", params] as const,
-  friends: (params?: PaginationParams) =>
-    [...wishlistKeys.all, "friends", params] as const,
+  my: (params?: PaginationParams) => [...wishlistKeys.all, "my", params] as const,
+  friends: (params?: PaginationParams) => [...wishlistKeys.all, "friends", params] as const,
   friendsReserved: (params?: PaginationParams) =>
     [...wishlistKeys.all, "friends", "reserved", params] as const,
   friend: (userId: string, params?: PaginationParams) =>
@@ -82,13 +77,8 @@ export function useUpdateWishlist() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      updates,
-    }: {
-      id: string;
-      updates: UpdateWishlistParams;
-    }) => updateWishlist(id, updates),
+    mutationFn: ({ id, updates }: { id: string; updates: UpdateWishlistParams }) =>
+      updateWishlist(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
     },
@@ -122,10 +112,7 @@ export function useSearchWishlists(query: string) {
   });
 }
 
-export function useFriendWishlists(
-  userId: string,
-  params?: PaginationParams
-) {
+export function useFriendWishlists(userId: string, params?: PaginationParams) {
   return useQuery({
     queryKey: wishlistKeys.friend(userId, params),
     queryFn: () => getFriendWishlists(userId, params),

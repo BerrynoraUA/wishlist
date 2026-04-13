@@ -555,7 +555,7 @@ const RAW_TEST_CASES: TestCase[] = [
     url: "https://octopus.in.ua/boardgames/catan-dopovnennya-dlya-5-6-gravcv",
     expected: { title: null, price: null, image: null, description: null },
   },
-]; 
+];
 
 export const TEST_CASES: TestCase[] = RAW_TEST_CASES.map((tc) => ({
   ...tc,

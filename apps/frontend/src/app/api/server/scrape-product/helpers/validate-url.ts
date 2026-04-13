@@ -11,15 +11,15 @@ const BLOCKED_HOSTNAMES = new Set([
 ]);
 
 const PRIVATE_IP_PATTERNS: RegExp[] = [
-  /^127\./,                          // 127.0.0.0/8 loopback
-  /^10\./,                           // 10.0.0.0/8 private
-  /^172\.(1[6-9]|2\d|3[01])\./,     // 172.16–31.x.x private
-  /^192\.168\./,                     // 192.168.0.0/16 private
-  /^169\.254\./,                     // 169.254.0.0/16 link-local
-  /^0\./,                            // 0.x.x.x reserved
-  /^::1$/,                           // IPv6 loopback
+  /^127\./, // 127.0.0.0/8 loopback
+  /^10\./, // 10.0.0.0/8 private
+  /^172\.(1[6-9]|2\d|3[01])\./, // 172.16–31.x.x private
+  /^192\.168\./, // 192.168.0.0/16 private
+  /^169\.254\./, // 169.254.0.0/16 link-local
+  /^0\./, // 0.x.x.x reserved
+  /^::1$/, // IPv6 loopback
   /^\[::1\]$/,
-  /^fc[0-9a-f]{2}/i,                 // IPv6 unique-local fc00::/7
+  /^fc[0-9a-f]{2}/i, // IPv6 unique-local fc00::/7
   /^fd[0-9a-f]{2}/i,
 ];
 

@@ -26,9 +26,7 @@ export async function getProfile(): Promise<UserProfile> {
   return data;
 }
 
-export async function updateProfile(
-  payload: UpdateProfilePayload
-): Promise<UserProfile> {
+export async function updateProfile(payload: UpdateProfilePayload): Promise<UserProfile> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -46,9 +44,7 @@ export async function updateProfile(
   return data;
 }
 
-export async function checkNicknameAvailable(
-  nickname: string
-): Promise<boolean> {
+export async function checkNicknameAvailable(nickname: string): Promise<boolean> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -69,9 +65,7 @@ export type PublicProfile = Pick<
   "id" | "display_name" | "nickname" | "avatar_url" | "bio"
 >;
 
-export async function getProfilesByIds(
-  userIds: string[]
-): Promise<PublicProfile[]> {
+export async function getProfilesByIds(userIds: string[]): Promise<PublicProfile[]> {
   const uniqueIds = Array.from(new Set(userIds)).filter(Boolean);
   if (uniqueIds.length === 0) return [];
 
@@ -134,7 +128,10 @@ export async function uploadAvatar(uri: string): Promise<string> {
     if (urlParts.length >= 2) {
       const oldPath = urlParts[1].split("?")[0];
       if (oldPath) {
-        await supabase.storage.from("avatars").remove([oldPath]).catch(() => {});
+        await supabase.storage
+          .from("avatars")
+          .remove([oldPath])
+          .catch(() => {});
       }
     }
   }
@@ -162,9 +159,7 @@ export async function getSettings(): Promise<UserSettings> {
   return data;
 }
 
-export async function updateSettings(
-  payload: UpdateSettingsPayload
-): Promise<UserSettings> {
+export async function updateSettings(payload: UpdateSettingsPayload): Promise<UserSettings> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -175,7 +170,7 @@ export async function updateSettings(
     .from("user_settings")
     .upsert(
       { user_id: user.id, ...payload, updated_at: new Date().toISOString() },
-      { onConflict: "user_id" }
+      { onConflict: "user_id" },
     )
     .select("*")
     .single();

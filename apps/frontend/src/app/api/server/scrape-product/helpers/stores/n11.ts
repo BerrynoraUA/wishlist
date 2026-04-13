@@ -57,9 +57,7 @@ export function scrapeN11(html: string, url: string): ProductData {
 
   // Last resort: find any real image URL in n11scdn domain
   if (!image) {
-    const imgMatch = html.match(
-      /https:\/\/n11scdn\.akamaized\.net\/[^\s"']+\.(?:jpg|png|webp)/i,
-    );
+    const imgMatch = html.match(/https:\/\/n11scdn\.akamaized\.net\/[^\s"']+\.(?:jpg|png|webp)/i);
     if (imgMatch) image = imgMatch[0];
   }
 
@@ -143,9 +141,7 @@ export function scrapeN11(html: string, url: string): ProductData {
 
   // Regex fallback: "754,38 TL" pattern
   if (!currentPrice) {
-    const priceMatch = html.match(
-      /(?:SEPETTE|indirimli|fiyat)[^<]*?([\d.,\s]+)\s*TL/i,
-    );
+    const priceMatch = html.match(/(?:SEPETTE|indirimli|fiyat)[^<]*?([\d.,\s]+)\s*TL/i);
     if (priceMatch) {
       currentPrice = extractNumericPrice(priceMatch[1]);
     }
@@ -165,9 +161,7 @@ export function scrapeN11(html: string, url: string): ProductData {
     if (oN === cN) oldPrice = null;
   }
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
 
   return {
     title: title || null,

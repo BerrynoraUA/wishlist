@@ -2,10 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createNextMiddleware } from "gt-next/middleware";
 import { createServerClient } from "@supabase/ssr";
 
-const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  process.env.SUPABASE_URL) as string;
-const SUPABASE_ANON_KEY = (process.env
-  .NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL) as string;
+const SUPABASE_ANON_KEY = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string;
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -30,10 +28,7 @@ function mergeCookiesIntoResponse(from: NextResponse, to: NextResponse) {
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  if (
-    pathname.startsWith("/api") ||
-    pathname === "/auth/callback"
-  ) {
+  if (pathname.startsWith("/api") || pathname === "/auth/callback") {
     return NextResponse.next();
   }
 

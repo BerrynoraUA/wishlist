@@ -9,9 +9,10 @@ import { loadTranslations } from "@/loadTranslations";
 import { AuthProvider } from "@/providers/auth-provider";
 
 const posthogApiKey = process.env.EXPO_PUBLIC_POSTHOG_KEY ?? "";
-const posthogHost = (
-  process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com"
-).replace(/\/+$/, "");
+const posthogHost = (process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com").replace(
+  /\/+$/,
+  "",
+);
 const posthogEnabled = Boolean(posthogApiKey);
 
 export default function RootLayout() {
@@ -52,9 +53,7 @@ function PostHogScreenTracker() {
   const params = useGlobalSearchParams();
 
   useEffect(() => {
-    void posthog.screen(pathname, params as PostHogEventProperties).catch(
-      () => undefined,
-    );
+    void posthog.screen(pathname, params as PostHogEventProperties).catch(() => undefined);
   }, [pathname, params, posthog]);
 
   return null;

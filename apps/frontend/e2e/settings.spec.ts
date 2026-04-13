@@ -10,23 +10,15 @@ test.describe("Settings page", () => {
   });
 
   test("renders Settings heading", async ({ page }) => {
-    await expect(
-      page.getByRole("heading", { name: "Settings" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
   });
 
-  test("renders settings tabs: Profile, Account, Notifications, Appearance", async ({
-    page,
-  }) => {
+  test("renders settings tabs: Profile, Account, Notifications, Appearance", async ({ page }) => {
     const tabs = settingsTabButtons(page);
     await expect(tabs.getByRole("button", { name: /profile/i })).toBeVisible();
     await expect(tabs.getByRole("button", { name: /account/i })).toBeVisible();
-    await expect(
-      tabs.getByRole("button", { name: /notifications/i }),
-    ).toBeVisible();
-    await expect(
-      tabs.getByRole("button", { name: /appearance/i }),
-    ).toBeVisible();
+    await expect(tabs.getByRole("button", { name: /notifications/i })).toBeVisible();
+    await expect(tabs.getByRole("button", { name: /appearance/i })).toBeVisible();
   });
 
   test("Profile tab shows mock profile data", async ({ page }) => {
@@ -35,22 +27,20 @@ test.describe("Settings page", () => {
   });
 
   test("switch to Account tab shows account settings", async ({ page }) => {
-    await settingsTabButtons(page).getByRole("button", { name: /account/i }).click();
+    await settingsTabButtons(page)
+      .getByRole("button", { name: /account/i })
+      .click();
     await expect(page.locator("[class*='content']").first()).toBeVisible();
   });
 
-  test("switch to Notifications tab shows notification settings", async ({
-    page,
-  }) => {
+  test("switch to Notifications tab shows notification settings", async ({ page }) => {
     await settingsTabButtons(page)
       .getByRole("button", { name: /notifications/i })
       .click();
     await expect(page.locator("[class*='content']").first()).toBeVisible();
   });
 
-  test("switch to Appearance tab shows appearance settings", async ({
-    page,
-  }) => {
+  test("switch to Appearance tab shows appearance settings", async ({ page }) => {
     await settingsTabButtons(page)
       .getByRole("button", { name: /appearance/i })
       .click();

@@ -7,11 +7,7 @@ type Props = {
   cancelling?: boolean;
 };
 
-export function OutgoingRequestCard({
-  request,
-  onCancel,
-  cancelling = false,
-}: Props) {
+export function OutgoingRequestCard({ request, onCancel, cancelling = false }: Props) {
   return (
     <div className={styles.card}>
       <div className={styles.avatar}>👤</div>
@@ -19,17 +15,11 @@ export function OutgoingRequestCard({
       <div className={styles.info}>
         <strong>{request.display_name}</strong>
         {request.nickname && <span>@{request.nickname}</span>}
-        <div className={styles.meta}>
-          {request.mutual_friends_count} mutual friends
-        </div>
+        <div className={styles.meta}>{request.mutual_friends_count} mutual friends</div>
       </div>
 
       <div className={styles.actions}>
-        <button
-          className={styles.cancel}
-          onClick={onCancel}
-          disabled={cancelling}
-        >
+        <button className={styles.cancel} onClick={onCancel} disabled={cancelling}>
           {cancelling ? "Cancelling..." : "Cancel Request"}
         </button>
       </div>

@@ -20,8 +20,7 @@ export function scrapeBandcamp(html: string, url: string): ProductData {
   $('script[type="application/ld+json"]').each((_, el) => {
     try {
       const data = JSON.parse($(el).text());
-      if (data["@type"] !== "MusicAlbum" && data["@type"] !== "MusicRecording")
-        return;
+      if (data["@type"] !== "MusicAlbum" && data["@type"] !== "MusicRecording") return;
 
       // Title — album/track name without artist suffix
       if (data.name) title = data.name.trim();
@@ -80,8 +79,7 @@ export function scrapeBandcamp(html: string, url: string): ProductData {
   }
 
   if (!image) {
-    let ogImage =
-      $('meta[property="og:image"]').attr("content")?.trim() || null;
+    let ogImage = $('meta[property="og:image"]').attr("content")?.trim() || null;
     if (ogImage) {
       ogImage = ogImage.replace(/_\d+\.(\w+)$/, "_10.$1");
     }

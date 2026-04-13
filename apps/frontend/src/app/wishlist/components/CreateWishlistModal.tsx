@@ -40,8 +40,7 @@ const colorToAccent: Record<ColorOption, WishlistAccent> = {
 
 export function CreateWishlistModal({ open, onClose }: Props) {
   const { data: settings } = useSettings();
-  const defaultColor: ColorOption =
-    colors[settings?.default_wishlist_color ?? 0] ?? "pink";
+  const defaultColor: ColorOption = colors[settings?.default_wishlist_color ?? 0] ?? "pink";
 
   if (!open) return null;
 
@@ -154,9 +153,7 @@ function CreateWishlistForm({
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <h2>
-              {t("Create New Wishlist", { $id: "wishlist.modal.create.title" })}
-            </h2>
+            <h2>{t("Create New Wishlist", { $id: "wishlist.modal.create.title" })}</h2>
             <p>
               {t("Give your wishlist a name and customize its appearance.", {
                 $id: "wishlist.modal.create.subtitle",
@@ -167,9 +164,7 @@ function CreateWishlistForm({
 
         {/* Name */}
         <div className={styles.field}>
-          <label>
-            {t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}
-          </label>
+          <label>{t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}</label>
           <input
             placeholder={t("e.g. Birthday Wishes, Home Office Setup", {
               $id: "wishlist.modal.namePlaceholder",
@@ -281,17 +276,13 @@ function CreateWishlistForm({
 
         {/* Colors */}
         <div className={styles.section}>
-          <label>
-            {t("Cover Color", { $id: "wishlist.modal.coverColor" })}
-          </label>
+          <label>{t("Cover Color", { $id: "wishlist.modal.coverColor" })}</label>
 
           <div className={styles.colors}>
             {colors.map((c) => (
               <div
                 key={c}
-                className={`${styles.color} ${styles[c]} ${
-                  color === c ? styles.active : ""
-                }`}
+                className={`${styles.color} ${styles[c]} ${color === c ? styles.active : ""}`}
                 onClick={() => setColor(c)}
               />
             ))}
@@ -331,10 +322,7 @@ function PrivacyCard({
   onClick: () => void;
 }) {
   return (
-    <div
-      className={`${styles.privacyCard} ${selected ? styles.selected : ""}`}
-      onClick={onClick}
-    >
+    <div className={`${styles.privacyCard} ${selected ? styles.selected : ""}`} onClick={onClick}>
       <div className={styles.privacyIcon}>{icon}</div>
 
       <div>

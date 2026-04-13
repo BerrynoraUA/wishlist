@@ -27,9 +27,7 @@ export function FriendRequestSentModal({ open, onClose }: Props) {
             { $id: "share.friendRequestSent.body" },
           )}
         </p>
-        <Button onClick={onClose}>
-          {t("Got it", { $id: "share.friendRequestSent.gotIt" })}
-        </Button>
+        <Button onClick={onClose}>{t("Got it", { $id: "share.friendRequestSent.gotIt" })}</Button>
       </div>
     </Modal>
   );

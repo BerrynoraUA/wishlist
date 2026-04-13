@@ -26,7 +26,7 @@ import {
   useDeleteAccount,
 } from "@/hooks/use-settings";
 import { useSubscription } from "@/hooks/use-subscription";
-import type { ThemePreference } from "@/types/settings";
+
 import { Colors, Spacing, FontSize, BorderRadius } from "@/constants/theme";
 
 function SectionHeader({ title }: { title: string }) {
@@ -103,22 +103,27 @@ export default function SettingsScreen() {
   };
 
   const handleChangePassword = () => {
-    Alert.prompt("Change Password", "Enter your new password", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Update",
-        onPress: (newPw: string | undefined) => {
-          if (newPw && newPw.length >= 6) {
-            changePassword.mutate(newPw, {
-              onSuccess: () => Alert.alert("Success", "Password updated"),
-              onError: () => Alert.alert("Error", "Failed to update password"),
-            });
-          } else {
-            Alert.alert("Error", "Password must be at least 6 characters");
-          }
+    Alert.prompt(
+      "Change Password",
+      "Enter your new password",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Update",
+          onPress: (newPw: string | undefined) => {
+            if (newPw && newPw.length >= 6) {
+              changePassword.mutate(newPw, {
+                onSuccess: () => Alert.alert("Success", "Password updated"),
+                onError: () => Alert.alert("Error", "Failed to update password"),
+              });
+            } else {
+              Alert.alert("Error", "Password must be at least 6 characters");
+            }
+          },
         },
-      },
-    ], "secure-text");
+      ],
+      "secure-text",
+    );
   };
 
   const handleDeleteAccount = () => {
@@ -137,7 +142,7 @@ export default function SettingsScreen() {
             });
           },
         },
-      ]
+      ],
     );
   };
 
@@ -177,15 +182,9 @@ export default function SettingsScreen() {
         {/* Profile Section */}
         <SectionHeader title="Profile" />
         <View style={styles.card}>
-          <TouchableOpacity
-            style={styles.avatarRow}
-            onPress={handlePickAvatar}
-          >
+          <TouchableOpacity style={styles.avatarRow} onPress={handlePickAvatar}>
             {profile?.avatar_url ? (
-              <Image
-                source={{ uri: profile.avatar_url }}
-                style={styles.avatar}
-              />
+              <Image source={{ uri: profile.avatar_url }} style={styles.avatar} />
             ) : (
               <View style={[styles.avatar, styles.avatarPlaceholder]}>
                 <Text style={styles.avatarInitial}>
@@ -222,31 +221,19 @@ export default function SettingsScreen() {
                 multiline
               />
               <View style={styles.editButtons}>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => setEditing(false)}
-                >
+                <TouchableOpacity style={styles.cancelButton} onPress={() => setEditing(false)}>
                   <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.saveButton}
-                  onPress={handleSaveProfile}
-                >
+                <TouchableOpacity style={styles.saveButton} onPress={handleSaveProfile}>
                   <Text style={styles.saveButtonText}>Save</Text>
                 </TouchableOpacity>
               </View>
             </View>
           ) : (
             <TouchableOpacity onPress={startEditing} style={styles.profileInfo}>
-              <Text style={styles.profileName}>
-                {profile?.display_name || "—"}
-              </Text>
-              {profile?.nickname && (
-                <Text style={styles.profileNickname}>@{profile.nickname}</Text>
-              )}
-              {profile?.bio && (
-                <Text style={styles.profileBio}>{profile.bio}</Text>
-              )}
+              <Text style={styles.profileName}>{profile?.display_name || "—"}</Text>
+              {profile?.nickname && <Text style={styles.profileNickname}>@{profile.nickname}</Text>}
+              {profile?.bio && <Text style={styles.profileBio}>{profile.bio}</Text>}
               <Text style={styles.editHint}>Tap to edit</Text>
             </TouchableOpacity>
           )}
@@ -293,28 +280,21 @@ export default function SettingsScreen() {
         <SectionHeader title="Account" />
         <View style={styles.card}>
           {provider === "email" && (
-            <TouchableOpacity
-              style={styles.settingRow}
-              onPress={handleChangePassword}
-            >
+            <TouchableOpacity style={styles.settingRow} onPress={handleChangePassword}>
               <Text style={styles.settingLabel}>Change Password</Text>
               <Text style={styles.chevron}>›</Text>
             </TouchableOpacity>
           )}
 
           <TouchableOpacity style={styles.settingRow} onPress={handleSignOut}>
-            <Text style={[styles.settingLabel, { color: Colors.warning }]}>
-              Sign Out
-            </Text>
+            <Text style={[styles.settingLabel, { color: Colors.warning }]}>Sign Out</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.settingRow, { borderBottomWidth: 0 }]}
             onPress={handleDeleteAccount}
           >
-            <Text style={[styles.settingLabel, { color: Colors.error }]}>
-              Delete Account
-            </Text>
+            <Text style={[styles.settingLabel, { color: Colors.error }]}>Delete Account</Text>
           </TouchableOpacity>
         </View>
 

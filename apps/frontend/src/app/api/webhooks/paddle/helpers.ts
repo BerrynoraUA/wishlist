@@ -1,9 +1,6 @@
 import crypto from "crypto";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import {
-  grantRevenueCatEntitlement,
-  revokeRevenueCatEntitlement,
-} from "@/lib/revenuecat-server";
+import { grantRevenueCatEntitlement, revokeRevenueCatEntitlement } from "@/lib/revenuecat-server";
 import type {
   PaddleCustomData,
   PaddleEvent,
@@ -16,8 +13,7 @@ const WEBHOOK_TOLERANCE_SECONDS = 300;
 
 // Supabase user IDs are standard UUIDs — reject anything that doesn't match
 // to prevent a malicious actor from injecting arbitrary strings via custom_data.
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type RevenueCatDuration = "monthly" | "yearly";
 
@@ -55,10 +51,7 @@ export function verifyPaddleSignature(
   }
 
   const payload = `${timestamp}:${rawBody}`;
-  const expectedHash = crypto
-    .createHmac("sha256", secret.trim())
-    .update(payload)
-    .digest("hex");
+  const expectedHash = crypto.createHmac("sha256", secret.trim()).update(payload).digest("hex");
   const expectedBuffer = Buffer.from(expectedHash, "hex");
 
   return signatures.some((value) => {
@@ -132,9 +125,7 @@ function getBillingInterval(items: PaddleItem[]): string {
   return items[0]?.price?.billing_cycle?.interval ?? "month";
 }
 
-async function handleActiveSubscription(
-  data: PaddleSubscriptionData,
-): Promise<void> {
+async function handleActiveSubscription(data: PaddleSubscriptionData): Promise<void> {
   const userId = getUserId(data.custom_data);
   if (!userId) {
     console.error("[Paddle Webhook] Missing user_id in custom_data");
@@ -165,9 +156,7 @@ async function handleActiveSubscription(
   );
 }
 
-async function handleCanceledSubscription(
-  data: PaddleSubscriptionData,
-): Promise<void> {
+async function handleCanceledSubscription(data: PaddleSubscriptionData): Promise<void> {
   const userId = getUserId(data.custom_data);
   if (!userId) {
     console.error("[Paddle Webhook] Missing user_id in custom_data");
@@ -175,9 +164,7 @@ async function handleCanceledSubscription(
   }
 
   const effectiveAt =
-    data.scheduled_change?.effective_at ??
-    data.current_billing_period?.ends_at ??
-    null;
+    data.scheduled_change?.effective_at ?? data.current_billing_period?.ends_at ?? null;
   const isStillActive = effectiveAt ? new Date(effectiveAt) > new Date() : false;
 
   await upsertSubscriptionRecord({
@@ -202,9 +189,7 @@ async function handleCanceledSubscription(
   );
 }
 
-async function handlePastDueSubscription(
-  data: PaddleSubscriptionData,
-): Promise<void> {
+async function handlePastDueSubscription(data: PaddleSubscriptionData): Promise<void> {
   const userId = getUserId(data.custom_data);
   if (!userId) {
     console.error("[Paddle Webhook] Missing user_id in custom_data");
@@ -224,9 +209,7 @@ async function handlePastDueSubscription(
   );
 }
 
-async function handleCompletedTransaction(
-  data: PaddleTransactionData,
-): Promise<void> {
+async function handleCompletedTransaction(data: PaddleTransactionData): Promise<void> {
   const userId = getUserId(data.custom_data);
   if (!userId) {
     console.log("[Paddle Webhook] transaction.completed without user_id, skipping");
@@ -246,14 +229,10 @@ async function handleCompletedTransaction(
     paddleCustomerId: data.customer_id,
   });
 
-  console.log(
-    `[Paddle Webhook] Transaction completed for user ${userId}, granted RC ${duration}`,
-  );
+  console.log(`[Paddle Webhook] Transaction completed for user ${userId}, granted RC ${duration}`);
 }
 
-async function upsertSubscriptionRecord(
-  input: SubscriptionUpsertInput,
-): Promise<void> {
+async function upsertSubscriptionRecord(input: SubscriptionUpsertInput): Promise<void> {
   const supabaseAdmin = getSupabaseAdmin();
   const { error } = await supabaseAdmin.from("user_subscriptions").upsert(
     {

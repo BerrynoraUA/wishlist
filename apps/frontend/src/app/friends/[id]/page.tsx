@@ -17,16 +17,9 @@ function FriendWishlistsPageContent() {
   const router = useRouter();
   const friendId = params.id as string;
   const searchParams = useSearchParams();
-  const search = useMemo(
-    () => searchParams.get("search") ?? "",
-    [searchParams],
-  );
+  const search = useMemo(() => searchParams.get("search") ?? "", [searchParams]);
 
-  const {
-    data: wishlists = [],
-    isLoading,
-    isError,
-  } = useFriendWishlists(friendId, { search });
+  const { data: wishlists = [], isLoading, isError } = useFriendWishlists(friendId, { search });
 
   const removeFriend = useRemoveFriend();
 
@@ -52,9 +45,7 @@ function FriendWishlistsPageContent() {
             <ArrowLeft size={18} />
           </Link>
           <div>
-            <h1>
-              {t("Friend's Wishlists", { $id: "friends.detail.title" })}
-            </h1>
+            <h1>{t("Friend's Wishlists", { $id: "friends.detail.title" })}</h1>
             <p>
               {wishlists.length === 1
                 ? t("{count} wishlist", {

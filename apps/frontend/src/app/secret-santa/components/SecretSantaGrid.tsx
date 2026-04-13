@@ -25,9 +25,7 @@ export function SecretSantaGrid() {
 
   return (
     <div>
-      <h2 className={styles.title}>
-        {t("Your Events", { $id: "secretSanta.grid.title" })}
-      </h2>
+      <h2 className={styles.title}>{t("Your Events", { $id: "secretSanta.grid.title" })}</h2>
       <div className={styles.grid}>
         {isLoading && (
           <>
@@ -58,9 +56,7 @@ export function SecretSantaGrid() {
         ))}
       </div>
 
-      {totalPages > 1 && (
-        <Pagination page={page} total={totalPages} onChange={setPage} />
-      )}
+      {totalPages > 1 && <Pagination page={page} total={totalPages} onChange={setPage} />}
     </div>
   );
 }

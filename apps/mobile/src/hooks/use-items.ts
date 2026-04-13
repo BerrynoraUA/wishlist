@@ -16,10 +16,7 @@ export const itemKeys = {
     [...itemKeys.all, "wishlist", wishlistId, params] as const,
 };
 
-export function useWishlistItems(
-  wishlistId: string,
-  params?: PaginationParams
-) {
+export function useWishlistItems(wishlistId: string, params?: PaginationParams) {
   return useQuery({
     queryKey: itemKeys.wishlist(wishlistId, params),
     queryFn: () => getWishlistItems(wishlistId, params),

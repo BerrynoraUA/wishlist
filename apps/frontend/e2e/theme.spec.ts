@@ -1,10 +1,5 @@
 import { test, expect } from "@playwright/test";
-import {
-  getCssVar,
-  getDataTheme,
-  LIGHT_THEME,
-  DARK_THEME,
-} from "./helpers/theme";
+import { getDataTheme, DARK_THEME } from "./helpers/theme";
 
 test.describe("Theme & color system", () => {
   // Serialise because theme tests share mutable server state
@@ -240,9 +235,7 @@ test.describe("Theme & color system", () => {
       await expect(toggleBtn).toBeVisible();
     });
 
-    test("after click, aria-label updates to opposite mode", async ({
-      page,
-    }) => {
+    test("after click, aria-label updates to opposite mode", async ({ page }) => {
       await page.goto("/home");
 
       const toggleBtn = page.getByRole("button", {

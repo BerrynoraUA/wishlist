@@ -8,12 +8,7 @@ type Props = {
   danger?: boolean;
 };
 
-export function SettingsSection({
-  title,
-  description,
-  children,
-  danger = false,
-}: Props) {
+export function SettingsSection({ title, description, children, danger = false }: Props) {
   return (
     <div className={`${styles.section} ${danger ? styles.danger : ""}`}>
       <div className={styles.header}>

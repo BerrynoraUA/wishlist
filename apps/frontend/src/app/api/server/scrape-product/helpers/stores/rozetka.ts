@@ -24,25 +24,19 @@ export function scrapeRozetka(html: string, url: string): ProductData {
     $('[data-testid="price"]').text().trim() ||
     $('[class*="price"]').first().text().trim();
 
-  const currentPrice =
-    extractNumericPrice(currentPriceText) || extractPriceFromJSON(html);
+  const currentPrice = extractNumericPrice(currentPriceText) || extractPriceFromJSON(html);
   const oldPrice = extractNumericPrice(oldPriceText);
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
 
-  const promoEndText = $(
-    '[class*="promo-end"], [class*="timer"], [data-testid="promotion-end"]',
-  )
+  const promoEndText = $('[class*="promo-end"], [class*="timer"], [data-testid="promotion-end"]')
     .text()
     .trim();
   const discountEndDate = extractDateFromText(promoEndText);
   return {
     title: $("h1.product__title").text().trim() || extractTitle($),
     description: extractDescription($),
-    image:
-      $('meta[property="og:image"]').attr("content") || extractImage($, url),
+    image: $('meta[property="og:image"]').attr("content") || extractImage($, url),
     price: hasDiscount ? oldPrice : currentPrice,
     discount_price: hasDiscount ? currentPrice : null,
     has_discount: hasDiscount,

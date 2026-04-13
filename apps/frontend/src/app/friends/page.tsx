@@ -24,10 +24,7 @@ function FriendsPageContent() {
   const [tab, setTab] = useState<"friends" | "requests" | "sent">("friends");
   const [open, setOpen] = useState(false);
   const searchParams = useSearchParams();
-  const search = useMemo(
-    () => searchParams.get("search") ?? "",
-    [searchParams],
-  );
+  const search = useMemo(() => searchParams.get("search") ?? "", [searchParams]);
 
   const { data, isLoading, isError } = useFriends({ search });
   const friends = data ?? [];
@@ -112,15 +109,13 @@ function FriendsPageContent() {
               })}
             </p>
           )}
-          {!requestsLoading &&
-            !requestsError &&
-            (requests?.length ?? 0) === 0 && (
-              <p>
-                {t("No incoming requests.", {
-                  $id: "friends.page.noIncomingRequests",
-                })}
-              </p>
-            )}
+          {!requestsLoading && !requestsError && (requests?.length ?? 0) === 0 && (
+            <p>
+              {t("No incoming requests.", {
+                $id: "friends.page.noIncomingRequests",
+              })}
+            </p>
+          )}
           {(requests ?? []).map((r) => (
             <RequestCard
               key={r.id}
@@ -149,13 +144,9 @@ function FriendsPageContent() {
               })}
             </p>
           )}
-          {!outgoingLoading &&
-            !outgoingError &&
-            (outgoing?.length ?? 0) === 0 && (
-              <p>
-                {t("No sent requests.", { $id: "friends.page.noSentRequests" })}
-              </p>
-            )}
+          {!outgoingLoading && !outgoingError && (outgoing?.length ?? 0) === 0 && (
+            <p>{t("No sent requests.", { $id: "friends.page.noSentRequests" })}</p>
+          )}
           {(outgoing ?? []).map((r) => (
             <OutgoingRequestCard
               key={r.id}

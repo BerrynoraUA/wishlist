@@ -14,13 +14,7 @@ type Props = {
   page?: number;
 };
 
-export function AuthPromptModal({
-  open,
-  onClose,
-  shareToken,
-  itemId,
-  page,
-}: Props) {
+export function AuthPromptModal({ open, onClose, shareToken, itemId, page }: Props) {
   const t = useGT();
   const router = useRouter();
 
@@ -57,9 +51,7 @@ export function AuthPromptModal({
             { $id: "share.authPrompt.body" },
           )}
         </p>
-        <Button onClick={handleSignIn}>
-          {t("Sign in", { $id: "share.authPrompt.signIn" })}
-        </Button>
+        <Button onClick={handleSignIn}>{t("Sign in", { $id: "share.authPrompt.signIn" })}</Button>
       </div>
     </Modal>
   );

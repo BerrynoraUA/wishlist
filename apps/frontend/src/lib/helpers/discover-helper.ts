@@ -1,4 +1,3 @@
-
 export const getDaysUntil = (eventDate: string): number => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -10,12 +9,12 @@ export const getDaysUntil = (eventDate: string): number => {
 
 export const formatShortDate = (dateString: string): string => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 };
 
 export const getDaysText = (days: number): string => {
-  if (days === 0) return 'today';
-  if (days === 1) return 'tomorrow';
+  if (days === 0) return "today";
+  if (days === 1) return "tomorrow";
   if (days < 0) return `${Math.abs(days)} days ago`;
   return `in ${days} days`;
 };

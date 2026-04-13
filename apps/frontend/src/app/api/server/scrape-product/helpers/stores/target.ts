@@ -1,10 +1,6 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
-import {
-  extractNumericPrice,
-  extractImage,
-  extractDescription,
-} from "../utils";
+import { extractNumericPrice, extractImage, extractDescription } from "../utils";
 
 /**
  * Target.com — ціни зберігаються в __TGT_DATA__ JSON, не в DOM-елементах.
@@ -20,15 +16,11 @@ export function scrapeTarget(html: string, url: string): ProductData {
 
   // --- image ---
   const image =
-    $('meta[property="og:image"]').attr("content")?.trim() ||
-    extractImage($, url) ||
-    null;
+    $('meta[property="og:image"]').attr("content")?.trim() || extractImage($, url) || null;
 
   // --- description ---
   const description =
-    $('meta[property="og:description"]').attr("content")?.trim() ||
-    extractDescription($) ||
-    null;
+    $('meta[property="og:description"]').attr("content")?.trim() || extractDescription($) || null;
 
   // --- price from __TGT_DATA__ JSON ---
   let currentPrice: string | null = null;
@@ -53,9 +45,7 @@ export function scrapeTarget(html: string, url: string): ProductData {
     oldPrice = extractNumericPrice(regMatch[1]);
   }
   if (!oldPrice) {
-    const fmtRegMatch = html.match(
-      /"formatted_comparison_price"\s*:\s*"([^"]+)"/,
-    );
+    const fmtRegMatch = html.match(/"formatted_comparison_price"\s*:\s*"([^"]+)"/);
     if (fmtRegMatch) {
       oldPrice = extractNumericPrice(fmtRegMatch[1]);
     }
@@ -69,9 +59,7 @@ export function scrapeTarget(html: string, url: string): ProductData {
     if (oldNum === curNum) oldPrice = null;
   }
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
 
   return {
     title: title || null,

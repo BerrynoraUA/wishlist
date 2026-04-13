@@ -1,11 +1,6 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
-import {
-  extractNumericPrice,
-  extractImage,
-  extractTitle,
-  extractDescription,
-} from "../utils";
+import { extractNumericPrice, extractImage, extractTitle, extractDescription } from "../utils";
 
 /**
  * Hepsiburada.com — турецький маркетплейс.
@@ -78,11 +73,7 @@ export function scrapeHepsiburada(html: string, url: string): ProductData {
       const data = JSON.parse($(el).text());
       const items = Array.isArray(data) ? data : [data];
       for (const item of items) {
-        if (
-          item["@type"] !== "Product" &&
-          item["@type"] !== "http://schema.org/Product"
-        )
-          continue;
+        if (item["@type"] !== "Product" && item["@type"] !== "http://schema.org/Product") continue;
         const offers = item.offers;
         if (!offers) continue;
         const offerList = Array.isArray(offers) ? offers : [offers];
@@ -109,9 +100,7 @@ export function scrapeHepsiburada(html: string, url: string): ProductData {
   }
 
   // Original/list price
-  const listPriceMatch = html.match(
-    /"(?:originalPrice|listPrice|oldPrice)"\s*:\s*([\d.]+)/i,
-  );
+  const listPriceMatch = html.match(/"(?:originalPrice|listPrice|oldPrice)"\s*:\s*([\d.]+)/i);
   if (listPriceMatch) {
     oldPrice = extractNumericPrice(listPriceMatch[1]);
   }
@@ -124,9 +113,7 @@ export function scrapeHepsiburada(html: string, url: string): ProductData {
     if (oN === cN) oldPrice = null;
   }
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
 
   return {
     title: title || null,

@@ -5,12 +5,8 @@ test.describe("Home / Dashboard page", () => {
     await page.goto("/home");
   });
 
-  test("renders the dashboard header with Add Wishlist button", async ({
-    page,
-  }) => {
-    await expect(
-      page.getByRole("button", { name: /add wishlist/i }),
-    ).toBeVisible();
+  test("renders the dashboard header with Add Wishlist button", async ({ page }) => {
+    await expect(page.getByRole("button", { name: /add wishlist/i })).toBeVisible();
   });
 
   test("stats row renders stat cards", async ({ page }) => {
@@ -26,9 +22,7 @@ test.describe("Home / Dashboard page", () => {
     await expect(page.getByText("Home Office")).toBeVisible();
   });
 
-  test("clicking Add Wishlist opens create wishlist modal", async ({
-    page,
-  }) => {
+  test("clicking Add Wishlist opens create wishlist modal", async ({ page }) => {
     await page.getByRole("button", { name: /add wishlist/i }).click();
     // Modal should appear with "Create New Wishlist" heading
     await expect(page.getByRole("heading", { name: /create new wishlist/i })).toBeVisible();

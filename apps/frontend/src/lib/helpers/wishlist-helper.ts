@@ -15,13 +15,7 @@ export const accentClass: Record<WishlistAccent, string> = {
   [WishlistAccent.Lavender]: "lavender",
 };
 
-export function getAccent(
-  accentType: WishlistAccent | null | undefined,
-): string {
+export function getAccent(accentType: WishlistAccent | null | undefined): string {
   if (accentType == null) return "pink";
-  return (
-    accentClass[accentType] ??
-    accentClass[Number(accentType) as WishlistAccent] ??
-    "pink"
-  );
+  return accentClass[accentType] ?? accentClass[Number(accentType) as WishlistAccent] ?? "pink";
 }

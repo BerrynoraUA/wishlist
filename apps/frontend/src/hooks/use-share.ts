@@ -16,10 +16,7 @@ export function useWishlistByToken(token: string) {
   });
 }
 
-export function useWishlistItemsByToken(
-  token: string,
-  params?: PaginationParams,
-) {
+export function useWishlistItemsByToken(token: string, params?: PaginationParams) {
   return useQuery({
     queryKey: wishlistKeys.items(token, params),
     queryFn: () => getWishlistItemsByToken(token, params),

@@ -16,10 +16,7 @@ type Props = {
  * Wraps children with a blurred lock overlay when the user is on the Free plan.
  * If the user is Pro, renders children normally.
  */
-export function ProGate({
-  children,
-  message = "Upgrade to Pro to unlock this feature",
-}: Props) {
+export function ProGate({ children, message = "Upgrade to Pro to unlock this feature" }: Props) {
   const { isPro, isLoading } = useSubscription();
   const router = useRouter();
 
@@ -36,10 +33,7 @@ export function ProGate({
             <Lock size={22} />
           </div>
           <p className={styles.message}>{message}</p>
-          <Button
-            variant="primary"
-            onClick={() => router.push("/subscription")}
-          >
+          <Button variant="primary" onClick={() => router.push("/subscription")}>
             <Sparkles size={16} />
             Upgrade to Pro
           </Button>

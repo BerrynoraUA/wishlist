@@ -32,9 +32,7 @@ export function DatePickerField({ value, onChange }: Props) {
       >
         <CalendarDays size={16} className={styles.icon} />
         <span className={value ? styles.value : styles.placeholder}>
-          {value
-            ? displayValue
-            : t("Select a date", { $id: "datePicker.placeholder" })}
+          {value ? displayValue : t("Select a date", { $id: "datePicker.placeholder" })}
         </span>
         {value && (
           <button

@@ -1,20 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  Check,
-  X,
-  Sparkles,
-  Crown,
-} from "lucide-react";
+import { Check, X, Sparkles, Crown } from "lucide-react";
 import { useGT } from "gt-next";
 import styles from "./PricingCards.module.scss";
 import { Button } from "@/components/ui/Button/Button";
-import {
-  useSubscription,
-  useCheckout,
-  useSyncSubscription,
-} from "@/hooks/use-subscription";
+import { useSubscription, useCheckout, useSyncSubscription } from "@/hooks/use-subscription";
 import { PRICING, BillingInterval } from "@/types/subscription";
 
 type FreeFeature = { key: string; label: string; included: boolean };
@@ -27,9 +18,7 @@ type ProFeature = {
 
 export function PricingCards() {
   const t = useGT();
-  const [interval, setInterval] = useState<BillingInterval>(
-    BillingInterval.Monthly,
-  );
+  const [interval, setInterval] = useState<BillingInterval>(BillingInterval.Monthly);
   const { isPro } = useSubscription();
   const { checkout } = useCheckout();
   const syncSubscription = useSyncSubscription();
@@ -220,9 +209,7 @@ export function PricingCards() {
   );
 
   const isMonthly = interval === BillingInterval.Monthly;
-  const perMonth = isMonthly
-    ? PRICING.monthly
-    : +(PRICING.yearly / 12).toFixed(2);
+  const perMonth = isMonthly ? PRICING.monthly : +(PRICING.yearly / 12).toFixed(2);
 
   function handleUpgrade() {
     checkout(interval);
@@ -320,17 +307,14 @@ export function PricingCards() {
               <Sparkles size={20} className={styles.sparkle} />
             </h3>
             <p className={styles.planDesc}>
-              {t(
-                "Unlock the full Wishlane experience with unlimited everything.",
-                { $id: "subscription.pricing.proDesc" },
-              )}
+              {t("Unlock the full Wishlane experience with unlimited everything.", {
+                $id: "subscription.pricing.proDesc",
+              })}
             </p>
           </div>
 
           <div className={styles.priceBlock}>
-            <span className={styles.priceAmount}>
-              ${isMonthly ? PRICING.monthly : perMonth}
-            </span>
+            <span className={styles.priceAmount}>${isMonthly ? PRICING.monthly : perMonth}</span>
             <span className={styles.pricePeriod}>
               {t("/month", { $id: "subscription.pricing.perMonth" })}
             </span>

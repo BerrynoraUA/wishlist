@@ -15,10 +15,7 @@ export function WishlistGrid() {
   const t = useGT();
   const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
-  const search = useMemo(
-    () => searchParams.get("search") ?? "",
-    [searchParams],
-  );
+  const search = useMemo(() => searchParams.get("search") ?? "", [searchParams]);
 
   const { data, isLoading, isError } = useMyWishlists({
     skip: (page - 1) * PAGE_SIZE,
@@ -31,9 +28,7 @@ export function WishlistGrid() {
 
   return (
     <div>
-      <h2 className={styles.title}>
-        {t("Wishlists", { $id: "home.wishlistGrid.title" })}
-      </h2>
+      <h2 className={styles.title}>{t("Wishlists", { $id: "home.wishlistGrid.title" })}</h2>
       <div className={styles.grid}>
         {isLoading && (
           <>

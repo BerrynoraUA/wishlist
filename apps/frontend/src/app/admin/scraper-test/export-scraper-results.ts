@@ -54,12 +54,7 @@ function toRows(results: ExportRowInput[]): ExportRow[] {
     price: r.data?.price ?? "",
     currency: r.data?.currency ?? "",
     discount_price: r.data?.discount_price ?? "",
-    has_discount:
-      r.data?.has_discount === undefined
-        ? ""
-        : r.data.has_discount
-          ? "yes"
-          : "no",
+    has_discount: r.data?.has_discount === undefined ? "" : r.data.has_discount ? "yes" : "no",
     discount_end_date: r.data?.discount_end_date ?? "",
     validations: formatValidations(r.validations),
   }));

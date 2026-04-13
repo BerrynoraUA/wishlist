@@ -27,9 +27,7 @@ export function StatsRow() {
 
   if (isError || !data) {
     return (
-      <div className={styles.row}>
-        {t("Failed to load stats.", { $id: "home.stats.error" })}
-      </div>
+      <div className={styles.row}>{t("Failed to load stats.", { $id: "home.stats.error" })}</div>
     );
   }
 
@@ -57,12 +55,7 @@ export function StatsRow() {
   return (
     <div className={styles.row}>
       {stats.map((stat) => (
-        <StatCard
-          key={stat.label}
-          label={stat.label}
-          value={stat.value}
-          onClick={stat.onClick}
-        />
+        <StatCard key={stat.label} label={stat.label} value={stat.value} onClick={stat.onClick} />
       ))}
     </div>
   );

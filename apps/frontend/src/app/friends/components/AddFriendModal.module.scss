@@ -128,12 +128,7 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--divider-color),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, var(--divider-color), transparent);
     z-index: 0;
   }
 }

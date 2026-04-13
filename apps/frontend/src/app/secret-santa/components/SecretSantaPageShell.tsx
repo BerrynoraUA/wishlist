@@ -7,9 +7,5 @@ type Props = {
 };
 
 export function SecretSantaPageShell({ children, narrow = false }: Props) {
-  return (
-    <main className={narrow ? styles.shellNarrow : styles.shell}>
-      {children}
-    </main>
-  );
+  return <main className={narrow ? styles.shellNarrow : styles.shell}>{children}</main>;
 }

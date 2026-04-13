@@ -1,8 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import {
-  GoogleSignin,
-  statusCodes,
-} from "@react-native-google-signin/google-signin";
+import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-signin";
 
 const googleWebClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID?.trim();
 
@@ -40,10 +37,7 @@ function getGoogleSignInErrorMessage(error: unknown): string | null {
   }
 }
 
-export async function loginWithEmail(
-  email: string,
-  password: string,
-): Promise<void> {
+export async function loginWithEmail(email: string, password: string): Promise<void> {
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -52,10 +46,7 @@ export async function loginWithEmail(
   if (error) throw error;
 }
 
-export async function registerWithEmail(
-  email: string,
-  password: string,
-): Promise<void> {
+export async function registerWithEmail(email: string, password: string): Promise<void> {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,

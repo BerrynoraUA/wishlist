@@ -6,20 +6,15 @@ export async function createWishlistShareToken(
   wishlistId: string,
   options?: { shareBaseUrl?: string },
 ): Promise<CreateWishlistShareTokenResult> {
-  const { data, error } = await supabaseBrowser.rpc(
-    "create_wishlist_share_token",
-    {
-      p_wishlist_id: wishlistId,
-    },
-  );
+  const { data, error } = await supabaseBrowser.rpc("create_wishlist_share_token", {
+    p_wishlist_id: wishlistId,
+  });
 
   if (error) throw error;
   const token = data as string;
 
   const shareBaseUrl = options?.shareBaseUrl;
-  const shareUrl = shareBaseUrl
-    ? `${shareBaseUrl}?token=${encodeURIComponent(token)}`
-    : undefined;
+  const shareUrl = shareBaseUrl ? `${shareBaseUrl}?token=${encodeURIComponent(token)}` : undefined;
 
   return { token, shareUrl };
 }
@@ -27,12 +22,9 @@ export async function createWishlistShareToken(
 export async function verifyWishlistShareToken(
   token: string,
 ): Promise<{ valid: boolean; wishlistId: string | null }> {
-  const { data, error } = await supabaseBrowser.rpc(
-    "verify_wishlist_share_token",
-    {
-      p_token: token,
-    },
-  );
+  const { data, error } = await supabaseBrowser.rpc("verify_wishlist_share_token", {
+    p_token: token,
+  });
 
   if (error) {
     return { valid: false, wishlistId: null };
@@ -43,12 +35,9 @@ export async function verifyWishlistShareToken(
 }
 
 export async function getWishlistByToken(token: string): Promise<Wishlist> {
-  const { data, error } = await supabaseBrowser.rpc(
-    "get_wishlist_by_share_token",
-    {
-      p_token: token,
-    },
-  );
+  const { data, error } = await supabaseBrowser.rpc("get_wishlist_by_share_token", {
+    p_token: token,
+  });
 
   if (error) {
     console.error("Error fetching wishlist:", error);
@@ -64,14 +53,11 @@ export async function getWishlistItemsByToken<Item = any>(
 ): Promise<Item[]> {
   const { skip = 0, take = 50 } = params;
 
-  const { data, error } = await supabaseBrowser.rpc(
-    "get_wishlist_items_by_share_token",
-    {
-      p_token: token,
-      p_skip: skip,
-      p_take: take,
-    },
-  );
+  const { data, error } = await supabaseBrowser.rpc("get_wishlist_items_by_share_token", {
+    p_token: token,
+    p_skip: skip,
+    p_take: take,
+  });
 
   if (error) throw error;
   return (data as Item[]) || [];

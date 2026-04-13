@@ -12,10 +12,7 @@ function LoginPageContent() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<"login" | "register">("login");
 
-  const redirectTo = useMemo(
-    () => searchParams.get("redirect_to") || "/home",
-    [searchParams],
-  );
+  const redirectTo = useMemo(() => searchParams.get("redirect_to") || "/home", [searchParams]);
 
   return (
     <main className={styles.page}>

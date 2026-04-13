@@ -48,16 +48,13 @@ function isCronAuthorized(request: NextRequest): boolean {
 }
 
 function getEffectivePrice(product: ProductData): string | null {
-  const effective = product.has_discount
-    ? product.discount_price || product.price
-    : product.price;
+  const effective = product.has_discount ? product.discount_price || product.price : product.price;
   return effective || null;
 }
 
 function isDuplicateKeyError(error: { code?: string; message?: string }) {
   return (
-    error.code === "23505" ||
-    /duplicate key value|unique constraint/i.test(error.message || "")
+    error.code === "23505" || /duplicate key value|unique constraint/i.test(error.message || "")
   );
 }
 
@@ -68,9 +65,7 @@ function shouldNotifySaleAlert(item: ItemRow, product: ProductData): boolean {
   return item.has_discount !== true || prevDiscount !== nextDiscount;
 }
 
-function normalizeWishlist(
-  wishlist: ItemQueryRow["wishlist"],
-): ItemRow["wishlist"] {
+function normalizeWishlist(wishlist: ItemQueryRow["wishlist"]): ItemRow["wishlist"] {
   if (Array.isArray(wishlist)) {
     return wishlist[0] ?? null;
   }
@@ -111,7 +106,10 @@ async function updateItemFromProduct(itemId: string, product: ProductData): Prom
   if (error) throw error;
 }
 
-async function insertPriceSnapshot(itemId: string, price: string): Promise<"inserted" | "duplicate" | "failed"> {
+async function insertPriceSnapshot(
+  itemId: string,
+  price: string,
+): Promise<"inserted" | "duplicate" | "failed"> {
   const supabaseAdmin = getSupabaseAdmin();
   const { error } = await supabaseAdmin
     .from("item_prices_cumulative")
@@ -122,7 +120,10 @@ async function insertPriceSnapshot(itemId: string, price: string): Promise<"inse
   return "failed";
 }
 
-async function sendSaleAlerts(item: ItemRow, product: ProductData): Promise<{ inserted: number; skippedNoOwner: boolean }>{
+async function sendSaleAlerts(
+  item: ItemRow,
+  product: ProductData,
+): Promise<{ inserted: number; skippedNoOwner: boolean }> {
   const supabaseAdmin = getSupabaseAdmin();
   const ownerId = item.wishlist?.user_id ?? null;
   if (!ownerId) return { inserted: 0, skippedNoOwner: true };
@@ -215,9 +216,7 @@ export async function GET(request: NextRequest) {
 
   for (let i = 0; i < items.length; i += BATCH_SIZE) {
     const batch = items.slice(i, i + BATCH_SIZE);
-    const results = await Promise.allSettled(
-      batch.map(async (item) => processItem(item, stats)),
-    );
+    const results = await Promise.allSettled(batch.map(async (item) => processItem(item, stats)));
 
     for (let j = 0; j < results.length; j++) {
       const r = results[j];

@@ -9,21 +9,15 @@ export async function getCssVar(
   varName: string,
 ): Promise<string> {
   return page.evaluate((name) => {
-    return getComputedStyle(document.documentElement)
-      .getPropertyValue(name)
-      .trim();
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   }, varName);
 }
 
 /**
  * Get the current `data-theme` attribute from <html>.
  */
-export async function getDataTheme(
-  page: import("@playwright/test").Page,
-): Promise<string | null> {
-  return page.evaluate(() =>
-    document.documentElement.getAttribute("data-theme"),
-  );
+export async function getDataTheme(page: import("@playwright/test").Page): Promise<string | null> {
+  return page.evaluate(() => document.documentElement.getAttribute("data-theme"));
 }
 
 /** Expected CSS variable values for quick assertions. */

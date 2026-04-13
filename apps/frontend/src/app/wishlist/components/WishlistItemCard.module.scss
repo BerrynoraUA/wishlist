@@ -251,20 +251,12 @@
 }
 
 .editItem {
-  background: linear-gradient(
-    135deg,
-    var(--brand-alpha-15),
-    var(--brand-alpha-08)
-  );
+  background: linear-gradient(135deg, var(--brand-alpha-15), var(--brand-alpha-08));
   border-color: var(--brand-alpha-20);
   color: var(--color-brand-dark);
 
   &:hover {
-    background: linear-gradient(
-      135deg,
-      var(--brand-alpha-20),
-      var(--brand-alpha-10)
-    );
+    background: linear-gradient(135deg, var(--brand-alpha-20), var(--brand-alpha-10));
     border-color: var(--brand-alpha-30);
     color: var(--color-brand);
   }
@@ -272,59 +264,35 @@
 
 .dangerItem {
   color: #475569;
-  background: linear-gradient(
-    135deg,
-    rgba(100, 116, 139, 0.16),
-    rgba(100, 116, 139, 0.07)
-  );
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.16), rgba(100, 116, 139, 0.07));
   border-color: rgba(100, 116, 139, 0.2);
 
   &:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(100, 116, 139, 0.22),
-      rgba(100, 116, 139, 0.12)
-    );
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.22), rgba(100, 116, 139, 0.12));
     border-color: rgba(100, 116, 139, 0.28);
     color: #334155;
   }
 }
 
 :global([data-theme="dark"]) .editItem {
-  background: linear-gradient(
-    135deg,
-    var(--brand-alpha-20),
-    var(--brand-alpha-08)
-  );
+  background: linear-gradient(135deg, var(--brand-alpha-20), var(--brand-alpha-08));
   border-color: var(--brand-alpha-25);
   color: color-mix(in srgb, var(--color-brand-light) 78%, white 22%);
 
   &:hover {
-    background: linear-gradient(
-      135deg,
-      var(--brand-alpha-25),
-      var(--brand-alpha-12)
-    );
+    background: linear-gradient(135deg, var(--brand-alpha-25), var(--brand-alpha-12));
     border-color: var(--brand-alpha-35);
     color: color-mix(in srgb, var(--color-brand-lighter) 88%, white 12%);
   }
 }
 
 :global([data-theme="dark"]) .dangerItem {
-  background: linear-gradient(
-    135deg,
-    rgba(148, 163, 184, 0.16),
-    rgba(148, 163, 184, 0.08)
-  );
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.16), rgba(148, 163, 184, 0.08));
   border-color: rgba(148, 163, 184, 0.18);
   color: #dbe4ef;
 
   &:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(148, 163, 184, 0.22),
-      rgba(148, 163, 184, 0.12)
-    );
+    background: linear-gradient(135deg, rgba(148, 163, 184, 0.22), rgba(148, 163, 184, 0.12));
     border-color: rgba(148, 163, 184, 0.28);
     color: #f8fafc;
   }

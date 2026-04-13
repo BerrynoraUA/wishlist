@@ -33,7 +33,13 @@ export default function SecretSantaDetailLoading() {
         {/* Gift suggestions */}
         <div>
           <Skeleton variant="heading" width={180} style={{ marginBottom: 16 }} />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+              gap: 16,
+            }}
+          >
             {[0, 1, 2].map((i) => (
               <SkeletonCard key={i} style={{ padding: 0 }}>
                 <Skeleton width="100%" height={120} style={{ borderRadius: "12px 12px 0 0" }} />

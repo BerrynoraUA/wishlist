@@ -6,10 +6,7 @@ export default function HomeScreen() {
   return (
     <Host style={{ flex: 1 }}>
       <Box contentAlignment="center">
-        <Column
-          horizontalAlignment="center"
-          verticalArrangement={{ spacedBy: 16 }}
-        >
+        <Column horizontalAlignment="center" verticalArrangement={{ spacedBy: 16 }}>
           <GtLocaleSelector />
           <T>
             <Text style={{ textAlign: "center" }}>

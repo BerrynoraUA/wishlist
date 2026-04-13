@@ -20,13 +20,9 @@ function HomePageContent() {
   const cleaned = useRef(false);
 
   const [inviteUserId] = useState(() => getInitialInvite(searchParams));
-  const [inviteOpen, setInviteOpen] = useState(
-    () => !!getInitialInvite(searchParams),
-  );
+  const [inviteOpen, setInviteOpen] = useState(() => !!getInitialInvite(searchParams));
 
-  const [friendRequestSent] = useState(
-    () => searchParams.get("friendRequestSent") === "1",
-  );
+  const [friendRequestSent] = useState(() => searchParams.get("friendRequestSent") === "1");
   const [friendRequestSentOpen, setFriendRequestSentOpen] = useState(
     () => searchParams.get("friendRequestSent") === "1",
   );

@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
-const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  process.env.SUPABASE_URL) as string;
-const SUPABASE_ANON_KEY = (process.env
-  .NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL) as string;
+const SUPABASE_ANON_KEY = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string;
 const RC_API_KEY = (
   process.env.REVENUECAT_SECRET_API_KEY || process.env.REVENUECAT_API_KEY
@@ -32,8 +30,8 @@ function getActiveSubscription(subscriber: RevenueCatSubscriber) {
     return { isActive: true, expiresAt: entitlement?.expires_date ?? null };
   }
 
-  const activeEntitlement = Object.values(subscriber.entitlements ?? {}).find(
-    (item) => isFutureDate(item?.expires_date),
+  const activeEntitlement = Object.values(subscriber.entitlements ?? {}).find((item) =>
+    isFutureDate(item?.expires_date),
   );
   if (activeEntitlement) {
     return {
@@ -42,8 +40,8 @@ function getActiveSubscription(subscriber: RevenueCatSubscriber) {
     };
   }
 
-  const activeSubscription = Object.values(subscriber.subscriptions ?? {}).find(
-    (item) => isFutureDate(item?.expires_date),
+  const activeSubscription = Object.values(subscriber.subscriptions ?? {}).find((item) =>
+    isFutureDate(item?.expires_date),
   );
 
   return {
@@ -116,16 +114,9 @@ export async function POST(request: NextRequest) {
 
       const upstreamBody = await rcResponse.text();
 
-      console.error(
-        "[Subscription Sync] RevenueCat API error:",
-        rcResponse.status,
-        upstreamBody,
-      );
+      console.error("[Subscription Sync] RevenueCat API error:", rcResponse.status, upstreamBody);
 
-      return NextResponse.json(
-        { error: "Failed to fetch subscription data" },
-        { status: 502 },
-      );
+      return NextResponse.json({ error: "Failed to fetch subscription data" }, { status: 502 });
     }
 
     const rcData = await rcResponse.json();
@@ -135,28 +126,24 @@ export async function POST(request: NextRequest) {
     const plan = isPro ? "pro" : "free";
     const rcCustomerId = subscriber?.original_app_user_id ?? user.id;
 
-    const { error: dbError } = await supabaseAdmin
-      .from("user_subscriptions")
-      .upsert(
-        {
-          user_id: user.id,
-          revenuecat_customer_id: rcCustomerId,
-          plan,
-          is_active: isActive,
-          expires_at: expiresAt,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" },
-      );
+    const { error: dbError } = await supabaseAdmin.from("user_subscriptions").upsert(
+      {
+        user_id: user.id,
+        revenuecat_customer_id: rcCustomerId,
+        plan,
+        is_active: isActive,
+        expires_at: expiresAt,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
 
     if (dbError) {
       console.error("[Subscription Sync] Supabase upsert error:", dbError);
       return NextResponse.json({ error: "Database error" }, { status: 500 });
     }
 
-    console.log(
-      `[Subscription Sync] User ${user.id} → plan=${plan}, active=${isActive}`,
-    );
+    console.log(`[Subscription Sync] User ${user.id} → plan=${plan}, active=${isActive}`);
 
     return NextResponse.json({
       plan,
@@ -166,9 +153,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error("[Subscription Sync] Unexpected error:", err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

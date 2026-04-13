@@ -40,9 +40,7 @@ export function scrapeOctopus(html: string, url: string): ProductData {
     }
   }
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
 
   // --- Description ---
   let description: string | null = null;
@@ -52,8 +50,7 @@ export function scrapeOctopus(html: string, url: string): ProductData {
   }
 
   // --- Image ---
-  const image =
-    $('meta[property="og:image"]').attr("content") || extractImage($, url);
+  const image = $('meta[property="og:image"]').attr("content") || extractImage($, url);
 
   return {
     title,

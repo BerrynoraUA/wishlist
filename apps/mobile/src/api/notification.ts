@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { Notification, PaginationParams } from "@/types";
+import type { Notification } from "@/types";
 
 export interface GetNotificationsParams {
   limit?: number;
@@ -8,7 +8,7 @@ export interface GetNotificationsParams {
 }
 
 export async function getUserNotifications(
-  params: GetNotificationsParams = {}
+  params: GetNotificationsParams = {},
 ): Promise<Notification[]> {
   const {
     data: { session },
@@ -31,9 +31,7 @@ export async function getUserNotifications(
   return data || [];
 }
 
-export async function markNotificationAsRead(
-  notificationId: string
-): Promise<void> {
+export async function markNotificationAsRead(notificationId: string): Promise<void> {
   const { error } = await supabase
     .from("notifications")
     .update({ is_read: true })
@@ -77,13 +75,8 @@ export async function deleteAllNotifications(): Promise<void> {
   if (error) throw error;
 }
 
-export async function deleteNotification(
-  notificationId: string
-): Promise<void> {
-  const { error } = await supabase
-    .from("notifications")
-    .delete()
-    .eq("id", notificationId);
+export async function deleteNotification(notificationId: string): Promise<void> {
+  const { error } = await supabase.from("notifications").delete().eq("id", notificationId);
 
   if (error) throw error;
 }
@@ -97,10 +90,9 @@ export async function getUnreadNotificationsCount(): Promise<number> {
   if (sessionError) throw sessionError;
   if (!session?.user) throw new Error("Not authenticated");
 
-  const { data, error } = await supabase.rpc(
-    "get_unread_notifications_count",
-    { p_user_id: session.user.id }
-  );
+  const { data, error } = await supabase.rpc("get_unread_notifications_count", {
+    p_user_id: session.user.id,
+  });
 
   if (error) throw error;
   return data || 0;

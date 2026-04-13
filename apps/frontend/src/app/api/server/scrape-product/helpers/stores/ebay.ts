@@ -20,21 +20,12 @@ export function scrapeEbay(html: string, url: string): ProductData {
     $('[itemprop="price"]').first().text().trim();
 
   const oldPriceText =
-    $(".x-price-primary")
-      .parent()
-      .find(".ux-textspans--STRIKETHROUGH")
-      .first()
-      .text()
-      .trim() ||
-    $(".x-additional-info .ux-textspans--STRIKETHROUGH")
-      .first()
-      .text()
-      .trim() ||
+    $(".x-price-primary").parent().find(".ux-textspans--STRIKETHROUGH").first().text().trim() ||
+    $(".x-additional-info .ux-textspans--STRIKETHROUGH").first().text().trim() ||
     $('[class*="STRIKETHROUGH"]').first().text().trim() ||
     $(".x-price-was span.ux-textspans").first().text().trim();
 
-  const currentPrice =
-    extractNumericPrice(currentPriceText) || extractPriceFromJSON(html);
+  const currentPrice = extractNumericPrice(currentPriceText) || extractPriceFromJSON(html);
   const oldPrice = extractNumericPrice(oldPriceText);
 
   // Validate: old must be > current
@@ -51,9 +42,7 @@ export function scrapeEbay(html: string, url: string): ProductData {
     }
   }
 
-  const hasDiscount = Boolean(
-    finalOld && finalCurrent && finalOld !== finalCurrent,
-  );
+  const hasDiscount = Boolean(finalOld && finalCurrent && finalOld !== finalCurrent);
   // Image: prefer larger size; eBay default is s-l400, upgrade to s-l1600
   let image = extractImage($, url);
   if (image && image.includes("ebayimg.com")) {
@@ -62,8 +51,7 @@ export function scrapeEbay(html: string, url: string): ProductData {
 
   return {
     title:
-      $("h1.x-item-title__mainTitle span.ux-textspans").first().text().trim() ||
-      extractTitle($),
+      $("h1.x-item-title__mainTitle span.ux-textspans").first().text().trim() || extractTitle($),
     description: extractDescription($),
     image,
     price: hasDiscount ? finalOld : finalCurrent,

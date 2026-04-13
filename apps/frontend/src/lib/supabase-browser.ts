@@ -8,10 +8,10 @@ export function getSupabaseBrowser(): SupabaseClient {
     return browserClient;
   }
 
-  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    process.env.SUPABASE_URL) as string | undefined;
-  const supabaseAnonKey = (process.env
-    .NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL) as
+    | string
+    | undefined;
+  const supabaseAnonKey = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string | undefined;
 
   if (!supabaseUrl || !supabaseAnonKey) {
