@@ -5,6 +5,7 @@ import { useGT } from "gt-next";
 import { Camera, Check, AlertCircle } from "lucide-react";
 import styles from "./ProfileSettings.module.scss";
 import { SettingsSection } from "./SettingsSection";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { Button } from "@/components/ui/Button/Button";
 import {
   useProfile,
@@ -81,9 +82,18 @@ export function ProfileSettings() {
 
   if (isLoading) {
     return (
-      <p className={styles.loading}>
-        {t("Loading profile…", { $id: "settings.profile.loading" })}
-      </p>
+      <div style={{ display: "grid", gap: 16 }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <Skeleton variant="circle" width={56} height={56} />
+          <div style={{ display: "grid", gap: 6, flex: 1 }}>
+            <Skeleton variant="text" width="40%" />
+            <Skeleton variant="text" width="25%" />
+          </div>
+        </div>
+        <Skeleton width="100%" height={44} borderRadius={12} />
+        <Skeleton width="100%" height={44} borderRadius={12} />
+        <Skeleton width="100%" height={80} borderRadius={12} />
+      </div>
     );
   }
 

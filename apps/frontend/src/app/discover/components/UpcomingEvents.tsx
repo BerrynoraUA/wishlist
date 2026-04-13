@@ -6,6 +6,7 @@ import { useFriendsUpcomingWishlists } from "@/hooks/use-wishlists";
 import styles from "./UpcomingEvents.module.scss";
 import { getDaysUntil } from "@/lib/helpers/discover-helper";
 import { CalendarDays } from "lucide-react";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { EventsCalendar } from "./EventsCalendar";
 
 export function UpcomingEvents() {
@@ -26,7 +27,13 @@ export function UpcomingEvents() {
   const visibleUpcomingWishlists = sortedUpcomingWishlists.slice(0, 4);
 
   if (isLoading) {
-    return <div>{t("Loading...", { $id: "discover.upcoming.loading" })}</div>;
+    return (
+      <div style={{ display: "grid", gap: 8 }}>
+        <Skeleton variant="heading" width={200} />
+        <Skeleton variant="text" width="100%" />
+        <Skeleton variant="text" width="60%" />
+      </div>
+    );
   }
   if (!firstEvent) return null;
 

@@ -5,6 +5,7 @@ import styles from "./NotificationSettings.module.scss";
 import { SettingsSection } from "./SettingsSection";
 import { Toggle } from "@/components/ui/Toggle/Toggle";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { UserPlus, Gift } from "lucide-react";
 
 export function NotificationSettings() {
@@ -18,11 +19,14 @@ export function NotificationSettings() {
 
   if (isLoading || !settings) {
     return (
-      <p className={styles.loading}>
-        {t("Loading preferences…", {
-          $id: "settings.notifications.loading",
-        })}
-      </p>
+      <div style={{ display: "grid", gap: 14 }}>
+        {[0, 1, 2].map((i) => (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Skeleton variant="text" width={160} />
+            <Skeleton width={44} height={24} borderRadius={12} />
+          </div>
+        ))}
+      </div>
     );
   }
 

@@ -463,3 +463,39 @@
   color: $brand;
   box-shadow: 0 2px 8px var(--brand-alpha-15);
 }
+
+.voteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: $radius-pill;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--card-bg);
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: fit-content;
+
+  &:hover {
+    border-color: $brand;
+    color: $brand;
+    background: var(--brand-alpha-06);
+  }
+}
+
+.voted {
+  border-color: $brand;
+  color: $brand;
+  background: var(--brand-alpha-08);
+
+  svg {
+    fill: currentColor;
+  }
+}
+
+.voteCount {
+  font-variant-numeric: tabular-nums;
+}

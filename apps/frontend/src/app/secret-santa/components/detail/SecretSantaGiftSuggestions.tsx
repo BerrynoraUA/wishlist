@@ -77,7 +77,7 @@ export function SecretSantaGiftSuggestions({
 
       {isLoading ? (
         <div className={styles.placeholder}>
-          {t("Loading suggestions…", { $id: "secretSanta.gifts.loading" })}
+          <Loader2 size={16} className={styles.spinner} />
         </div>
       ) : items.length === 0 ? (
         <div className={styles.placeholder}>
