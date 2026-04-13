@@ -24,7 +24,12 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
       if (val) currentPrice = extractNumericPrice(val);
     }
     if (!currentPrice) {
-      currentPrice = extractNumericPrice(mainPriceEl.text().trim());
+      // Use first child element text to avoid duplication from nested spans
+      const firstSpan = mainPriceEl.find("span, data").first();
+      const priceText = firstSpan.length
+        ? firstSpan.text().trim()
+        : mainPriceEl.contents().first().text().trim();
+      if (priceText) currentPrice = extractNumericPrice(priceText);
     }
   }
 
@@ -37,7 +42,11 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
       if (val) oldPrice = extractNumericPrice(val);
     }
     if (!oldPrice) {
-      oldPrice = extractNumericPrice(oldPriceEl.text().trim());
+      const firstSpan = oldPriceEl.find("span, data").first();
+      const priceText = firstSpan.length
+        ? firstSpan.text().trim()
+        : oldPriceEl.contents().first().text().trim();
+      if (priceText) oldPrice = extractNumericPrice(priceText);
     }
   }
 
