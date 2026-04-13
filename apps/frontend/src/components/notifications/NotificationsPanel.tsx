@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/Button/Button";
 import { Notification } from "@/types";
 import {
   useAcceptSecretSantaInvite,
-  useDeclineSecretSantaInvite
+  useDeclineSecretSantaInvite,
 } from "@/hooks/use-secret-santa";
+import { useDeleteNotification } from "@/hooks/use-notifications";
 
 type Props = {
   notifications: Notification[];
@@ -23,12 +24,17 @@ export function NotificationsPanel({
   onClear,
   onReadAll,
   isLoading,
-  onMarkRead
+  onMarkRead,
 }: Props) {
   const t = useGT();
   const [pendingReadIds, setPendingReadIds] = useState<string[]>([]);
   const acceptInvite = useAcceptSecretSantaInvite();
   const declineInvite = useDeclineSecretSantaInvite();
+  const deleteNotification = useDeleteNotification();
+  const [pendingInviteAction, setPendingInviteAction] = useState<{
+    notificationId: string;
+    action: "accept" | "decline";
+  } | null>(null);
 
   const handleHoverRead = (notification: Notification) => {
     if (
@@ -43,9 +49,32 @@ export function NotificationsPanel({
 
     Promise.resolve(onMarkRead(notification.id)).finally(() => {
       setPendingReadIds((current) =>
-        current.filter((id) => id !== notification.id)
+        current.filter((id) => id !== notification.id),
       );
     });
+  };
+
+  const handleInviteAction = async (
+    notification: Notification,
+    action: "accept" | "decline",
+  ) => {
+    if (!notification.entity_id) {
+      return;
+    }
+
+    setPendingInviteAction({ notificationId: notification.id, action });
+
+    try {
+      if (action === "accept") {
+        await acceptInvite.mutateAsync(notification.entity_id);
+      } else {
+        await declineInvite.mutateAsync(notification.entity_id);
+      }
+
+      await deleteNotification.mutateAsync(notification.id);
+    } finally {
+      setPendingInviteAction(null);
+    }
   };
 
   return (
@@ -82,7 +111,7 @@ export function NotificationsPanel({
       {isLoading ? (
         <div className={styles.empty}>
           {t("Loading notifications...", {
-            $id: "notifications.loading"
+            $id: "notifications.loading",
           })}
         </div>
       ) : notifications.length === 0 ? (
@@ -94,8 +123,18 @@ export function NotificationsPanel({
           <ul className={styles.list}>
             {notifications.map((n) => {
               const isInvite = n.type === 0 && n.entity_id != null;
+              const isAccepting =
+                pendingInviteAction?.notificationId === n.id &&
+                pendingInviteAction.action === "accept";
+              const isDeclining =
+                pendingInviteAction?.notificationId === n.id &&
+                pendingInviteAction.action === "decline";
               const invitePending =
-                acceptInvite.isPending || declineInvite.isPending;
+                isAccepting ||
+                isDeclining ||
+                acceptInvite.isPending ||
+                declineInvite.isPending ||
+                deleteNotification.isPending;
 
               return (
                 <li
@@ -111,23 +150,23 @@ export function NotificationsPanel({
                     <div className={styles.inviteActions}>
                       <button
                         className={styles.accept}
-                        onClick={() => acceptInvite.mutate(n.entity_id!)}
+                        onClick={() => handleInviteAction(n, "accept")}
                         disabled={invitePending}
                       >
-                        {acceptInvite.isPending
+                        {isAccepting
                           ? t("Accepting...", {
-                              $id: "notifications.accepting"
+                              $id: "notifications.accepting",
                             })
                           : t("Accept", { $id: "notifications.accept" })}
                       </button>
                       <button
                         className={styles.decline}
-                        onClick={() => declineInvite.mutate(n.entity_id!)}
+                        onClick={() => handleInviteAction(n, "decline")}
                         disabled={invitePending}
                       >
-                        {declineInvite.isPending
+                        {isDeclining
                           ? t("Declining...", {
-                              $id: "notifications.declining"
+                              $id: "notifications.declining",
                             })
                           : t("Decline", { $id: "notifications.decline" })}
                       </button>
@@ -145,7 +184,7 @@ export function NotificationsPanel({
 
 function formatNotificationTime(
   createdAt: string,
-  t: (message: string, options?: { $id?: string; n?: number }) => string
+  t: (message: string, options?: { $id?: string; n?: number }) => string,
 ) {
   const date = new Date(createdAt);
   const diffMinutes = Math.floor((Date.now() - date.getTime()) / 60000);
@@ -167,6 +206,6 @@ function formatNotificationTime(
 
   return date.toLocaleDateString(undefined, {
     month: "short",
-    day: "numeric"
+    day: "numeric",
   });
 }

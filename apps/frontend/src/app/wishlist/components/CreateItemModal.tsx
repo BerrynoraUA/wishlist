@@ -8,8 +8,11 @@ import { Button } from "@/components/ui/Button/Button";
 import { useCreateItem } from "@/hooks/use-items";
 import { useSettings } from "@/hooks/use-settings";
 import { useSubscription } from "@/hooks/use-subscription";
+import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
+import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/currencies";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
+import { validateImageUploadFile } from "@/lib/image-upload";
 import styles from "./CreateItemModal.module.scss";
 
 import type { CreateItemParams } from "@/api/types/item";
@@ -51,6 +54,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
   const [discountPrice, setDiscountPrice] = useState<string | null>(null);
   const [hasDiscount, setHasDiscount] = useState(false);
   const [discountEndDate, setDiscountEndDate] = useState<string | null>(null);
@@ -89,6 +93,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     setImageObjectUrl(null);
     setError(null);
+    setImageError(null);
     setDiscountPrice(null);
     setHasDiscount(false);
     setDiscountEndDate(null);
@@ -97,6 +102,12 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
   function handleSubmit() {
     if (!name.trim() || !wishlistId || isPending) return;
+
+    const nextImageError = validateImageUploadFile(imageFile);
+    if (nextImageError) {
+      setImageError(nextImageError);
+      return;
+    }
 
     const imageUrlToSave = imageFile ? null : imagePreview || null;
 
@@ -130,10 +141,18 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const nextImageError = validateImageUploadFile(file);
+    if (nextImageError) {
+      setImageError(nextImageError);
+      e.target.value = "";
+      return;
+    }
+
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     const objectUrl = URL.createObjectURL(file);
     setImageObjectUrl(objectUrl);
 
+    setImageError(null);
     setImageFile(file);
     setImagePreview(objectUrl);
   }
@@ -247,11 +266,14 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Image (drag & drop or click)", {
-              $id: "item.modal.create.imageLabel",
-            })}
-          </label>
+          <div className={styles.labelRow}>
+            <label>
+              {t("Image (drag & drop or click)", {
+                $id: "item.modal.create.imageLabel",
+              })}
+            </label>
+            <FileSizeBadge />
+          </div>
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
@@ -277,6 +299,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               />
             </label>
           </div>
+          <UploadErrorText message={imageError} />
         </div>
 
         <div className={styles.field}>
@@ -368,7 +391,10 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           <Button variant="secondary" onClick={onClose}>
             {t("Cancel", { $id: "common.cancel" })}
           </Button>
-          <Button onClick={handleSubmit} disabled={!name.trim() || isPending}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!name.trim() || isPending || Boolean(imageError)}
+          >
             {isPending
               ? t("Creating...", { $id: "item.modal.creating" })
               : t("Create Item", { $id: "item.modal.create.submit" })}
