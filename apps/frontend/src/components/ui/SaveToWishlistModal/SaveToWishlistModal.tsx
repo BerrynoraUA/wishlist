@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Bookmark, Check, Gift, Search, ShoppingBag } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
@@ -29,18 +29,33 @@ type Props = {
 };
 
 export function SaveToWishlistModal({ open, onClose, item }: Props) {
-  const [selectedWishlistId, setSelectedWishlistId] = useState<string | null>(null);
+  const [selectedWishlistId, setSelectedWishlistId] = useState<string | null>(
+    null,
+  );
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const { data: wishlists = [], isLoading } = useMyWishlists({ take: 100 });
+  const { data: wishlists = [], isLoading } = useMyWishlists({
+    take: 100,
+    search: debouncedSearch,
+  });
   const createItem = useCreateItem();
 
-  const filteredWishlists = useMemo(() => {
-    if (!search.trim()) return wishlists;
-    const q = search.toLowerCase();
-    return wishlists.filter((w) => w.title.toLowerCase().includes(q));
-  }, [wishlists, search]);
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 220);
+
+    return () => clearTimeout(handle);
+  }, [search]);
+
+  useEffect(() => {
+    if (!selectedWishlistId) return;
+    if (wishlists.some((wishlist) => wishlist.id === selectedWishlistId))
+      return;
+    setSelectedWishlistId(null);
+  }, [wishlists, selectedWishlistId]);
 
   const handleSave = async () => {
     if (!selectedWishlistId) return;
@@ -68,6 +83,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
   const handleClose = () => {
     setSelectedWishlistId(null);
     setSearch("");
+    setDebouncedSearch("");
     setShowSuccess(false);
     onClose();
   };
@@ -103,12 +119,18 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
               <Bookmark size={24} />
             </div>
             <h3 className={styles.title}>Save to wishlist</h3>
-            <p className={styles.subtitle}>Choose which wishlist you want to add this item to</p>
+            <p className={styles.subtitle}>
+              Choose which wishlist you want to add this item to
+            </p>
           </div>
 
           <div className={styles.itemPreview}>
             {item.image_url ? (
-              <img className={styles.itemImage} src={item.image_url} alt={item.name} />
+              <img
+                className={styles.itemImage}
+                src={item.image_url}
+                alt={item.name}
+              />
             ) : (
               <div className={styles.itemImagePlaceholder}>
                 <ShoppingBag size={20} />
@@ -120,37 +142,42 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
             </div>
           </div>
 
-          {wishlists.length > 5 && (
-            <div className={styles.searchWrapper}>
-              <Search size={16} className={styles.searchIcon} />
-              <input
-                className={styles.searchInput}
-                type="text"
-                placeholder="Search wishlists..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          )}
+          <div className={styles.searchWrapper}>
+            <Search size={14} className={styles.searchIcon} />
+            <input
+              className={styles.searchInput}
+              type="text"
+              placeholder="Search wishlists..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
 
           <div className={styles.wishlistList}>
             {isLoading && (
               <div className={styles.emptyState}>
                 <div style={{ display: "grid", gap: 8, width: "100%" }}>
                   {[0, 1, 2].map((i) => (
-                    <Skeleton key={i} width="100%" height={44} borderRadius={12} />
+                    <Skeleton
+                      key={i}
+                      width="100%"
+                      height={44}
+                      borderRadius={12}
+                    />
                   ))}
                 </div>
               </div>
             )}
 
-            {!isLoading && filteredWishlists.length === 0 && (
+            {!isLoading && wishlists.length === 0 && (
               <div className={styles.emptyState}>
-                {search ? "No wishlists found" : "You don't have any wishlists yet"}
+                {debouncedSearch
+                  ? "No wishlists found"
+                  : "You don't have any wishlists yet"}
               </div>
             )}
 
-            {filteredWishlists.map((wishlist) => {
+            {wishlists.map((wishlist) => {
               const isSelected = selectedWishlistId === wishlist.id;
 
               return (
@@ -174,10 +201,13 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
                   <div className={styles.wishlistMeta}>
                     <div className={styles.wishlistTitle}>{wishlist.title}</div>
                     <div className={styles.wishlistCount}>
-                      {wishlist.items_count} {wishlist.items_count === 1 ? "item" : "items"}
+                      {wishlist.items_count}{" "}
+                      {wishlist.items_count === 1 ? "item" : "items"}
                     </div>
                   </div>
-                  {isSelected && <Check size={18} className={styles.selectedCheck} />}
+                  {isSelected && (
+                    <Check size={18} className={styles.selectedCheck} />
+                  )}
                 </button>
               );
             })}

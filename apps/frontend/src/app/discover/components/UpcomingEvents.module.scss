@@ -38,6 +38,16 @@
   }
 }
 
+.wishlistName {
+  font-size: inherit;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+:global([data-theme="dark"]) .wishlistName {
+  color: rgba(243, 244, 246, 0.94);
+}
+
 .cardOpen {
   z-index: 120;
 }

@@ -112,7 +112,11 @@ export function ProfileMenu({ onOpen }: Props) {
 
   return (
     <div className={styles.profile} ref={ref}>
-      <button type="button" className={styles.avatarButton} onClick={toggleOpen}>
+      <button
+        type="button"
+        className={styles.avatarButton}
+        onClick={toggleOpen}
+      >
         {avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -162,8 +166,13 @@ export function ProfileMenu({ onOpen }: Props) {
               )}
             </div>
             <div className={styles.profileMeta}>
-              <span className={styles.profileName}>{t("Account", { $id: "profile.account" })}</span>
-              <span className={styles.profileEmail} title={userEmail || undefined}>
+              <span className={styles.profileName}>
+                {t("Account", { $id: "profile.account" })}
+              </span>
+              <span
+                className={styles.profileEmail}
+                title={userEmail || undefined}
+              >
                 {userEmail || t("Signed in", { $id: "profile.signedIn" })}
               </span>
             </div>
@@ -180,7 +189,12 @@ export function ProfileMenu({ onOpen }: Props) {
             >
               <Languages size={16} aria-hidden />
               <span className={styles.languageButtonLabel}>
-                {t("Language", { $id: "profile.language" })}
+                <span className={styles.languageLabelText}>
+                  {t("Language", { $id: "profile.language" })}
+                </span>
+                <span className={styles.languageButtonValue}>
+                  {LOCALE_LABELS[activeLocale] ?? activeLocale}
+                </span>
               </span>
               <ChevronDown
                 size={16}
@@ -219,7 +233,9 @@ export function ProfileMenu({ onOpen }: Props) {
                           aria-hidden
                           data-selected={selected}
                         >
-                          {selected ? <Check size={12} strokeWidth={3} /> : null}
+                          {selected ? (
+                            <Check size={12} strokeWidth={3} />
+                          ) : null}
                         </span>
                         <span>{LOCALE_LABELS[code] ?? code}</span>
                       </button>
@@ -255,7 +271,10 @@ export function ProfileMenu({ onOpen }: Props) {
           >
             <TreePine size={16} />
             <span>{t("Secret Santa", { $id: "profile.secretSanta" })}</span>
-            <ProBadge size="sm" label={t("NEW", { $id: "profile.secretSanta.newBadge" })} />
+            <ProBadge
+              size="sm"
+              label={t("NEW", { $id: "profile.secretSanta.newBadge" })}
+            />
           </button>
 
           <button
@@ -267,7 +286,9 @@ export function ProfileMenu({ onOpen }: Props) {
             }}
           >
             <Lightbulb size={16} />
-            <span>{t("Request a Feature", { $id: "profile.requestFeature" })}</span>
+            <span>
+              {t("Request a Feature", { $id: "profile.requestFeature" })}
+            </span>
           </button>
 
           <button

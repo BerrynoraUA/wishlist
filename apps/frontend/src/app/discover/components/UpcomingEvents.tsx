@@ -17,7 +17,9 @@ export function UpcomingEvents() {
   const sortedUpcomingWishlists = useMemo(
     () =>
       [...(upcomingWishlists ?? [])].sort(
-        (left, right) => new Date(left.event_date).getTime() - new Date(right.event_date).getTime(),
+        (left, right) =>
+          new Date(left.event_date).getTime() -
+          new Date(right.event_date).getTime(),
       ),
     [upcomingWishlists],
   );
@@ -50,13 +52,6 @@ export function UpcomingEvents() {
               days: daysUntil,
               $id: "discover.upcoming.inDays",
             });
-  const title = t("{friendName}'s {wishlistTitle} is {when}", {
-    friendName: firstEvent.friend_name,
-    wishlistTitle: firstEvent.wishlist_title,
-    when,
-    $id: "discover.upcoming.headline",
-  });
-
   return (
     <div className={`${styles.card} ${calendarOpen ? styles.cardOpen : ""}`}>
       <div className={styles.titleRow}>
@@ -83,8 +78,26 @@ export function UpcomingEvents() {
           />
         </div>
         <div>
-          <strong>{t("Upcoming Events", { $id: "discover.upcoming.sectionTitle" })}</strong>
-          <p>{title}</p>
+          <strong>
+            {t("Upcoming Events", { $id: "discover.upcoming.sectionTitle" })}
+          </strong>
+          <p>
+            <span>
+              {t("{friendName}'s", {
+                friendName: firstEvent.friend_name,
+                $id: "discover.upcoming.headlinePrefix",
+              })}
+            </span>{" "}
+            <strong className={styles.wishlistName}>
+              {firstEvent.wishlist_title}
+            </strong>{" "}
+            <span>
+              {t("is {when}", {
+                when,
+                $id: "discover.upcoming.headlineSuffix",
+              })}
+            </span>
+          </p>
         </div>
       </div>
 

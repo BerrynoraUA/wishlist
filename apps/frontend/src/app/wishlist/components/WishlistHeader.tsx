@@ -15,7 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useGT, useLocale } from "gt-next";
 import { formatLocalizedShortDate } from "@/lib/helpers/format-localized-short-date";
-import { Wishlist } from "@/types/wishlist";
+import { Wishlist, WishlistVisibility } from "@/types/wishlist";
 import { Button } from "@/components/ui/Button/Button";
 import { getAccent, visibilityIcon } from "@/lib/helpers/wishlist-helper";
 import { useWishlistVisibilityLabels } from "@/lib/helpers/use-wishlist-visibility-labels";
@@ -50,19 +50,26 @@ export function WishlistHeader({
   const { isPro } = useSubscription();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const showActions = Boolean(onShare || onManageAccess || onEdit || onDelete || isOwner);
+  const showActions = Boolean(
+    onShare || onManageAccess || onEdit || onDelete || isOwner,
+  );
   const showMenu = Boolean(onEdit || onDelete);
   const hasImage = Boolean(wishlist.image_url);
   const visibility = visibilityLabels[wishlist.visibility_type];
   const VisibilityIcon = visibilityIcon[wishlist.visibility_type];
-  const { mutate: updateWishlist, isPending: isUpdatingWishlist } = useUpdateWishlist();
+  const { mutate: updateWishlist, isPending: isUpdatingWishlist } =
+    useUpdateWishlist();
   const itemsCount =
-    wishlist.items_count ?? (wishlist as Wishlist & { itemsCount?: number }).itemsCount ?? 0;
+    wishlist.items_count ??
+    (wishlist as Wishlist & { itemsCount?: number }).itemsCount ??
+    0;
   const description = wishlist.description ?? "";
   const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
   const canAddItem = Boolean(onAddItem);
   const atItemLimit =
-    SUBSCRIPTIONS_UI_ENABLED && !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
+    SUBSCRIPTIONS_UI_ENABLED &&
+    !isPro &&
+    itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
   const canInlineEdit = isOwner;
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
@@ -154,7 +161,9 @@ export function WishlistHeader({
     }
   }
 
-  function handleDescriptionKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+  function handleDescriptionKeyDown(
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) {
     if (event.key === "Escape") {
       event.preventDefault();
       setDescriptionDraft(description);
@@ -201,9 +210,15 @@ export function WishlistHeader({
                 ) : (
                   <div
                     className={styles.titleRow}
-                    onDoubleClick={canInlineEdit ? startEditingTitle : undefined}
+                    onDoubleClick={
+                      canInlineEdit ? startEditingTitle : undefined
+                    }
                   >
-                    <h1 className={canInlineEdit ? styles.editableText : undefined}>
+                    <h1
+                      className={
+                        canInlineEdit ? styles.editableText : undefined
+                      }
+                    >
                       {wishlist.title}
                     </h1>
                   </div>
@@ -227,7 +242,9 @@ export function WishlistHeader({
                   ) : (
                     <div
                       className={styles.descriptionRow}
-                      onDoubleClick={canInlineEdit ? startEditingDescription : undefined}
+                      onDoubleClick={
+                        canInlineEdit ? startEditingDescription : undefined
+                      }
                     >
                       {description ? (
                         <p
@@ -236,7 +253,9 @@ export function WishlistHeader({
                           {description}
                         </p>
                       ) : canInlineEdit ? (
-                        <p className={`${styles.descriptionPlaceholder} ${styles.editableText}`}>
+                        <p
+                          className={`${styles.descriptionPlaceholder} ${styles.editableText}`}
+                        >
                           {t("Add a short description", {
                             $id: "wishlist.header.descPlaceholderText",
                           })}
@@ -246,7 +265,9 @@ export function WishlistHeader({
                   ))}
 
                 <div className={styles.badges}>
-                  <span className={styles.visibilityBadge}>
+                  <span
+                    className={`${styles.visibilityBadge} ${wishlist.visibility_type === WishlistVisibility.FriendsOnly ? styles.friendsOnlyBadge : ""}`.trim()}
+                  >
                     {VisibilityIcon && <VisibilityIcon size={13} />}
                     {visibility}
                   </span>
@@ -310,7 +331,9 @@ export function WishlistHeader({
                     ) : (
                       <>
                         <Plus size={14} />
-                        <span>{t("Add Item", { $id: "wishlist.header.addItem" })}</span>
+                        <span>
+                          {t("Add Item", { $id: "wishlist.header.addItem" })}
+                        </span>
                       </>
                     )}
                   </Button>
@@ -388,7 +411,9 @@ export function WishlistHeader({
                                 onDelete();
                               }}
                             >
-                              <span>{t("Delete", { $id: "common.delete" })}</span>
+                              <span>
+                                {t("Delete", { $id: "common.delete" })}
+                              </span>
                             </button>
                           )}
                         </div>

@@ -134,6 +134,16 @@
   }
 }
 
+.inputInvalid {
+  border-color: var(--color-danger);
+
+  &:focus {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 3px
+      color-mix(in srgb, var(--color-danger) 18%, transparent);
+  }
+}
+
 .inputWrapper {
   position: relative;
   display: flex;

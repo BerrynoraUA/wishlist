@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect, useRef, type ReactNode } from "react";
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+  type ReactNode,
+} from "react";
 import { useGT, useLocale } from "gt-next";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./Calendar.module.scss";
@@ -17,7 +24,7 @@ type Props = {
   onDateSelect?: (dateKey: string) => void;
   onCellClick?: (dateKey: string, e: React.MouseEvent) => void;
   onCellMouseEnter?: (dateKey: string, e: React.MouseEvent) => void;
-  onCellMouseLeave?: () => void;
+  onCellMouseLeave?: (e: React.MouseEvent) => void;
   onMonthChange?: () => void;
   cellClassName?: (cell: CalendarCell) => string;
   cellStyle?: (cell: CalendarCell) => React.CSSProperties | undefined;
@@ -158,7 +165,9 @@ export function Calendar({
     for (let d = 1; d <= daysInMonth; d++) {
       const dateKey = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       const isToday =
-        d === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
+        d === today.getDate() &&
+        viewMonth === today.getMonth() &&
+        viewYear === today.getFullYear();
       result.push({ day: d, key: dateKey, dateKey, isToday });
     }
 
@@ -330,7 +339,11 @@ export function Calendar({
               </div>
 
               <div className={styles.monthPickerActions}>
-                <button type="button" className={styles.monthPickerAction} onClick={goToday}>
+                <button
+                  type="button"
+                  className={styles.monthPickerAction}
+                  onClick={goToday}
+                >
                   {t("Today", { $id: "calendar.action.today" })}
                 </button>
                 <button
@@ -367,7 +380,8 @@ export function Calendar({
 
       <div className={styles.grid}>
         {cells.map((cell) => {
-          const isSelected = selectedDate != null && cell.dateKey === selectedDate;
+          const isSelected =
+            selectedDate != null && cell.dateKey === selectedDate;
           const customStyle = cellStyle ? cellStyle(cell) : undefined;
           const showToday = cell.isToday && !customStyle;
           const extraClass = cellClassName ? cellClassName(cell) : "";
@@ -377,13 +391,19 @@ export function Calendar({
               key={cell.key}
               className={`${styles.cell} ${showToday ? styles.today : ""} ${isSelected ? styles.selected : ""} ${cell.day === null ? styles.blank : ""} ${extraClass}`}
               style={customStyle}
-              onClick={cell.dateKey ? (e) => handleCellClick(cell.dateKey!, e) : undefined}
+              onClick={
+                cell.dateKey
+                  ? (e) => handleCellClick(cell.dateKey!, e)
+                  : undefined
+              }
               onMouseEnter={
                 cell.dateKey && onCellMouseEnter
                   ? (e) => onCellMouseEnter(cell.dateKey!, e)
                   : undefined
               }
-              onMouseLeave={cell.dateKey && onCellMouseLeave ? onCellMouseLeave : undefined}
+              onMouseLeave={
+                cell.dateKey && onCellMouseLeave ? onCellMouseLeave : undefined
+              }
             >
               {cell.day !== null &&
                 (renderCellContent ? (
