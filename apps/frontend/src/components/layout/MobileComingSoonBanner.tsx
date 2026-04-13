@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGT } from "gt-next";
 import { Smartphone, X, Sparkles } from "lucide-react";
 import styles from "./MobileComingSoonBanner.module.scss";
@@ -14,9 +14,15 @@ function isDismissedFromCookie(): boolean {
 
 export function MobileComingSoonBanner() {
   const t = useGT();
-  const [dismissed, setDismissed] = useState(isDismissedFromCookie);
+  const [ready, setReady] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
 
-  if (dismissed) return null;
+  useEffect(() => {
+    setDismissed(isDismissedFromCookie());
+    setReady(true);
+  }, []);
+
+  if (!ready || dismissed) return null;
 
   return (
     <div className={styles.banner}>
