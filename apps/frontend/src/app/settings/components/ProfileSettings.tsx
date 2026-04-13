@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useGT } from "gt-next";
 import { Camera, Check, AlertCircle } from "lucide-react";
+import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
+import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
+import { validateImageUploadFile } from "@/lib/image-upload";
 import styles from "./ProfileSettings.module.scss";
 import { SettingsSection } from "./SettingsSection";
 import { Button } from "@/components/ui/Button/Button";
@@ -23,6 +26,7 @@ export function ProfileSettings() {
   const [displayName, setDisplayName] = useState("");
   const [nickname, setNickname] = useState("");
   const [bio, setBio] = useState("");
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const [nicknameStatus, setNicknameStatus] = useState<
     "idle" | "checking" | "available" | "taken"
   >("idle");
@@ -76,6 +80,15 @@ export function ProfileSettings() {
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const nextAvatarError = validateImageUploadFile(file);
+    if (nextAvatarError) {
+      setAvatarError(nextAvatarError);
+      e.target.value = "";
+      return;
+    }
+
+    setAvatarError(null);
     uploadAvatar.mutate(file);
   }
 
@@ -137,11 +150,13 @@ export function ProfileSettings() {
                 $id: "settings.profile.avatarHint",
               })}
             </p>
+            <FileSizeBadge className={styles.avatarBadge} />
             <p className={styles.hint}>
-              {t("JPG, PNG or WebP · Max 2 MB", {
+              {t("JPG, PNG or WebP", {
                 $id: "settings.profile.avatarFormats",
               })}
             </p>
+            <UploadErrorText message={avatarError} />
           </div>
         </div>
 
