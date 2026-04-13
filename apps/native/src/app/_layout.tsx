@@ -6,6 +6,7 @@ import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { GTProvider } from "gt-react-native";
 import gtConfig from "../../gt.config.json";
 import { loadTranslations } from "@/loadTranslations";
+import { AuthProvider } from "@/providers/auth-provider";
 
 const posthogApiKey = process.env.EXPO_PUBLIC_POSTHOG_KEY ?? "";
 const posthogHost = (
@@ -29,11 +30,17 @@ export default function RootLayout() {
         projectId={process.env.EXPO_PUBLIC_GT_PROJECT_ID}
         devApiKey={process.env.EXPO_PUBLIC_GT_DEV_API_KEY}
         renderSettings={{
-          method: "replace",
+          method: "skeleton",
         }}
       >
-        <PostHogScreenTracker />
-        <Stack />
+        <AuthProvider>
+          <PostHogScreenTracker />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          />
+        </AuthProvider>
       </GTProvider>
     </PostHogProvider>
   );
