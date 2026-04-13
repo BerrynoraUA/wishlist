@@ -13,7 +13,7 @@ const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY as st
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.warn(
-    "Missing Supabase env variables (EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY)"
+    "Missing Supabase env variables (EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY)",
   );
 }
 
@@ -27,5 +27,5 @@ export const supabase: SupabaseClient = createClient(
       persistSession: true,
       detectSessionInUrl: false,
     },
-  }
+  },
 );
