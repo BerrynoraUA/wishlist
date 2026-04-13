@@ -4,12 +4,12 @@
   "entries": [
     {
       "fileId": "879f3a5f954ee8b75bf1e91f4ea9916b41c933e5beba7eb6362647a637c9c66d",
-      "versionId": "0082454e7629785d565ddf9ee9bd1e99eee91dd621100698551d1718c3421ad4",
+      "versionId": "3dd9fa5b16b5ef2214f5f320581bbe244b983860e7c204e06949541be883669a",
       "translations": {
         "uk": {
-          "updatedAt": "2026-04-13T14:51:50.096Z",
+          "updatedAt": "2026-04-13T16:15:44.909Z",
           "fileName": "C:\\Users\\roman\\source\\repos\\wishlist\\apps\\frontend\\public\\_gt\\uk.json",
-          "postProcessHash": "b4dac5b2a839cfd13f599bcce347c1085d33434f72017ce66e493543a1c68be0"
+          "postProcessHash": "70468c8d367b3d11fed3bf5024ed77a54878e84f729abc3a630b2a61587562c9"
         }
       },
       "fileName": "__INTERNAL_GT_TEMPLATE_NAME__",
