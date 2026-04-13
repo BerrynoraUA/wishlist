@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "jsx": "react-native",
+    "strict": true,
+    "moduleResolution": "bundler",
+    "module": "preserve",
+    "target": "ESNext",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleSuffixes": [".ios", ".android", ""],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./apps/native/src/*"],
+      "@/assets/*": ["./apps/native/assets/*"]
+    }
+  },
+  "include": [
+    "apps/native/**/*.ts",
+    "apps/native/**/*.tsx",
+    "apps/native/.expo/types/**/*.ts",
+    "apps/native/expo-env.d.ts"
+  ],
+  "exclude": ["**/node_modules"]
+}
