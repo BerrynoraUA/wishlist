@@ -12,6 +12,7 @@ import {
   isSupabasePublicImageUrl,
   uploadPublicImage,
 } from "@/lib/helpers/storage-image";
+import { MAX_IMAGE_UPLOAD_BYTES } from "@/lib/image-upload";
 import { PublicProfile } from "./types/user";
 
 export async function getProfile(): Promise<UserProfile> {
@@ -31,9 +32,7 @@ export async function getProfile(): Promise<UserProfile> {
   return data;
 }
 
-export async function updateProfile(
-  payload: UpdateProfilePayload,
-): Promise<UserProfile> {
+export async function updateProfile(payload: UpdateProfilePayload): Promise<UserProfile> {
   const {
     data: { user },
   } = await supabaseBrowser.auth.getUser();
@@ -51,9 +50,7 @@ export async function updateProfile(
   return data;
 }
 
-export async function checkNicknameAvailable(
-  nickname: string,
-): Promise<boolean> {
+export async function checkNicknameAvailable(nickname: string): Promise<boolean> {
   const {
     data: { user },
   } = await supabaseBrowser.auth.getUser();
@@ -69,9 +66,7 @@ export async function checkNicknameAvailable(
   return data === null;
 }
 
-export async function getProfilesByIds(
-  userIds: string[],
-): Promise<PublicProfile[]> {
+export async function getProfilesByIds(userIds: string[]): Promise<PublicProfile[]> {
   const uniqueIds = Array.from(new Set(userIds)).filter(Boolean);
   if (uniqueIds.length === 0) return [];
 
@@ -94,8 +89,8 @@ export async function uploadAvatar(file: File): Promise<string> {
   const publicUrl = await uploadPublicImage({
     file,
     bucket: "avatars",
-    maxBytes: 2 * 1024 * 1024,
-    oversizeMessage: "Avatar image size must be less than 2MB",
+    maxBytes: MAX_IMAGE_UPLOAD_BYTES,
+    oversizeMessage: "Avatar image size must be less than 5MB",
     uploadErrorMessage: "Failed to upload avatar",
     logLabel: "avatar",
   });
@@ -147,9 +142,7 @@ export async function getSettings(): Promise<UserSettings> {
   return data;
 }
 
-export async function updateSettings(
-  payload: UpdateSettingsPayload,
-): Promise<UserSettings> {
+export async function updateSettings(payload: UpdateSettingsPayload): Promise<UserSettings> {
   const {
     data: { user },
   } = await supabaseBrowser.auth.getUser();
@@ -219,15 +212,10 @@ async function getFallbackExchangeRates(): Promise<{
     }
 
     const data = (await response.json()) as OpenExchangeRatesResponse;
-    const supportedCodes = new Set(
-      SUPPORTED_CURRENCIES.map((item) => item.code),
-    );
+    const supportedCodes = new Set(SUPPORTED_CURRENCIES.map((item) => item.code));
     const rates = Object.fromEntries(
       Object.entries(data.rates ?? {}).filter(([code, rate]) => {
-        return (
-          supportedCodes.has(normalizeCurrencyCode(code)) &&
-          Number.isFinite(rate)
-        );
+        return supportedCodes.has(normalizeCurrencyCode(code)) && Number.isFinite(rate);
       }),
     );
 
@@ -257,9 +245,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
   }
 
   const supportedCodes = SUPPORTED_CURRENCIES.map((item) => item.code);
-  const missingCodes = supportedCodes.filter(
-    (code) => code !== "USD" && !rates[code],
-  );
+  const missingCodes = supportedCodes.filter((code) => code !== "USD" && !rates[code]);
 
   if (missingCodes.length > 0) {
     const fallback = await getFallbackExchangeRates();

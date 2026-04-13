@@ -79,9 +79,7 @@ function translatedCurrencyLabel(t: TFn, code: string): string {
     case "ZAR":
       return t("South African Rand", { $id: "settings.currency.ZAR" });
     default:
-      return (
-        SUPPORTED_CURRENCIES.find((c) => c.code === code)?.label ?? code
-      );
+      return SUPPORTED_CURRENCIES.find((c) => c.code === code)?.label ?? code;
   }
 }
 
@@ -101,10 +99,7 @@ export function CurrencySettings() {
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
@@ -120,10 +115,9 @@ export function CurrencySettings() {
       title={t("Display Currency", {
         $id: "settings.currency.sectionTitle",
       })}
-      description={t(
-        "Prices on items will be converted and shown in your selected currency.",
-        { $id: "settings.currency.sectionDescription" },
-      )}
+      description={t("Prices on items will be converted and shown in your selected currency.", {
+        $id: "settings.currency.sectionDescription",
+      })}
     >
       <div className={styles.selectorWrapper} ref={dropdownRef}>
         <button
@@ -132,9 +126,7 @@ export function CurrencySettings() {
           onClick={() => setOpen((prev) => !prev)}
         >
           <span className={styles.selectedLabel}>
-            <span className={styles.currencySymbol}>
-              {selected?.symbol ?? "$"}
-            </span>
+            <span className={styles.currencySymbol}>{selected?.symbol ?? "$"}</span>
             <span>{selected?.code ?? "USD"}</span>
             <span className={styles.currencyName}>
               {translatedCurrencyLabel(t, selected?.code ?? "USD")}
@@ -161,9 +153,7 @@ export function CurrencySettings() {
                   <span className={styles.optionLeft}>
                     <span className={styles.currencySymbol}>{c.symbol}</span>
                     <span className={styles.optionCode}>{c.code}</span>
-                    <span className={styles.optionLabel}>
-                      {translatedCurrencyLabel(t, c.code)}
-                    </span>
+                    <span className={styles.optionLabel}>{translatedCurrencyLabel(t, c.code)}</span>
                   </span>
                   {isActive && <Check size={14} />}
                 </button>

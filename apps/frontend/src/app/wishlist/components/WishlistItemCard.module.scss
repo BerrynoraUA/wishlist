@@ -257,7 +257,7 @@
     var(--brand-alpha-08)
   );
   border-color: var(--brand-alpha-20);
-  color: var(--color-brand-dark);
+  color: #475569;
 
   &:hover {
     background: linear-gradient(
@@ -266,7 +266,7 @@
       var(--brand-alpha-10)
     );
     border-color: var(--brand-alpha-30);
-    color: var(--color-brand);
+    color: #334155;
   }
 }
 
@@ -297,7 +297,7 @@
     var(--brand-alpha-08)
   );
   border-color: var(--brand-alpha-25);
-  color: color-mix(in srgb, var(--color-brand-light) 78%, white 22%);
+  color: #dbe4ef;
 
   &:hover {
     background: linear-gradient(
@@ -306,7 +306,7 @@
       var(--brand-alpha-12)
     );
     border-color: var(--brand-alpha-35);
-    color: color-mix(in srgb, var(--color-brand-lighter) 88%, white 12%);
+    color: #f8fafc;
   }
 }
 
@@ -462,4 +462,40 @@
   border-color: $brand;
   color: $brand;
   box-shadow: 0 2px 8px var(--brand-alpha-15);
+}
+
+.voteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: $radius-pill;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--card-bg);
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: fit-content;
+
+  &:hover {
+    border-color: $brand;
+    color: $brand;
+    background: var(--brand-alpha-06);
+  }
+}
+
+.voted {
+  border-color: $brand;
+  color: $brand;
+  background: var(--brand-alpha-08);
+
+  svg {
+    fill: currentColor;
+  }
+}
+
+.voteCount {
+  font-variant-numeric: tabular-nums;
 }

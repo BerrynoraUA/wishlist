@@ -4,7 +4,7 @@ import type { PaginationParams } from "@/types";
 
 export async function getWishlists(
   filter: (query: any) => any,
-  { skip = 0, take = 10, search }: PaginationParams = {}
+  { skip = 0, take = 10, search }: PaginationParams = {},
 ): Promise<Wishlist[]> {
   const {
     data: { session },

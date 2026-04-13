@@ -1,11 +1,6 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
-import {
-  extractCurrency,
-  extractNumericPrice,
-  extractTitle,
-  extractDescription,
-} from "../utils";
+import { extractCurrency, extractNumericPrice, extractTitle, extractDescription } from "../utils";
 
 export function scrapeAmazon(html: string, url: string): ProductData {
   const $ = cheerio.load(html);
@@ -32,6 +27,29 @@ export function scrapeAmazon(html: string, url: string): ProductData {
 
   let currentPrice = extractNumericPrice(currentPriceText);
   let oldPrice = extractNumericPrice(oldPriceText);
+
+  // Fallback: try to find price in embedded JSON/JS data
+  if (!currentPrice) {
+    const pricePatterns = [
+      /"priceAmount"\s*:\s*"?([\d,.]+)"?/,
+      /"price"\s*:\s*"?([\d,.]+)"?/,
+      /"lowPrice"\s*:\s*"?([\d,.]+)"?/,
+    ];
+    for (const pat of pricePatterns) {
+      const m = html.match(pat);
+      if (m) {
+        currentPrice = extractNumericPrice(m[1]);
+        if (currentPrice) {
+          logAmazon("price.jsonFallback", {
+            pattern: pat.source,
+            value: currentPrice,
+          });
+          break;
+        }
+      }
+    }
+  }
+
   logAmazon("price.parsed", {
     currentPriceText,
     currentPrice,
@@ -53,9 +71,7 @@ export function scrapeAmazon(html: string, url: string): ProductData {
   }
   logAmazon("price.normalized", { currentPrice, oldPrice });
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
   logAmazon("discount", { hasDiscount });
 
   let title = pickFirstText($, "title", [
@@ -65,24 +81,41 @@ export function scrapeAmazon(html: string, url: string): ProductData {
   ]);
 
   if (!title) {
+    // OG/meta title fallback — clean Amazon suffix
+    const ogTitle = $('meta[property="og:title"]').attr("content")?.trim() || "";
+    const metaTitle = $("title").text().trim() || "";
+    const raw = ogTitle || metaTitle;
+    title = raw
+      .replace(/\s*:\s*(?:Electronics|Computers & Accessories|Amazon\.com).*$/i, "")
+      .replace(/^Amazon\.com:\s*/i, "")
+      .trim();
+    logAmazon("title.metaFallback", { ogTitle, metaTitle, cleaned: title });
+  }
+
+  if (!title) {
     title = extractTitle($) || "";
     logAmazon("title.fallback", { value: title });
   }
 
   if (title) {
     title = title
-      .replace(/\s*(About this item|Technical Details|Additional Information|Warranty & Support|Feedback|From the manufacturer|Product information|Product Description|Customer reviews)[\s\S]*/, "")
+      .replace(
+        /\s*(About this item|Technical Details|Additional Information|Warranty & Support|Feedback|From the manufacturer|Product information|Product Description|Customer reviews)[\s\S]*/,
+        "",
+      )
       .trim();
   }
   logAmazon("title.final", { title });
 
-  const image = pickAmazonImage(html);
+  const image = pickAmazonImage(html, $);
   logAmazon("image.final", { image });
 
   let description = pickFirstText($, "description", [
     "#feature-bullets ul",
     "#productDescription p",
-  ]).replace(/\s+/g, " ").trim();
+  ])
+    .replace(/\s+/g, " ")
+    .trim();
 
   if (!description) {
     description = extractDescription($) || "";
@@ -111,11 +144,7 @@ export function scrapeAmazon(html: string, url: string): ProductData {
   return result;
 }
 
-function pickFirstText(
-  $: cheerio.CheerioAPI,
-  label: string,
-  selectors: string[],
-): string {
+function pickFirstText($: cheerio.CheerioAPI, label: string, selectors: string[]): string {
   for (const selector of selectors) {
     const value = $(selector).first().text().trim();
     logAmazon(`${label}.check`, { selector, value });
@@ -130,16 +159,12 @@ function pickFirstText(
   return "";
 }
 
-function pickAmazonImage(html: string): string {
+function pickAmazonImage(html: string, $: cheerio.CheerioAPI): string {
   const imageDom = cheerio.load(html);
   const image = imageDom("#landingImage").first();
   const paperbackImage = imageDom("#imgBlkFront").first();
   const ebookImage = imageDom("#ebooksImgBlkFront").first();
-  const element = image.length
-    ? image
-    : paperbackImage.length
-      ? paperbackImage
-      : ebookImage;
+  const element = image.length ? image : paperbackImage.length ? paperbackImage : ebookImage;
 
   logAmazon("image.node", {
     landingImageFound: image.length > 0,
@@ -148,28 +173,36 @@ function pickAmazonImage(html: string): string {
     matchedId: element.attr("id") || null,
   });
 
-  if (!element.length) {
-    return "";
+  if (element.length) {
+    const rawHighRes = element.attr("data-old-hires") || "";
+    const rawSrc = element.attr("src") || "";
+    const rawValue = rawHighRes || rawSrc;
+
+    logAmazon("image.attrs", {
+      dataOldHires: rawHighRes,
+      src: rawSrc,
+      selectedAttr: rawHighRes ? "data-old-hires" : "src",
+    });
+
+    const decodedSrc = decodeHtmlEntities(rawValue.trim());
+    if (decodedSrc) {
+      logAmazon("image.match", {
+        selector: `#${element.attr("id") || "unknown"}`,
+        attr: rawHighRes ? "data-old-hires" : "src",
+        value: decodedSrc,
+      });
+      return upgradeAmazonImageQuality(decodedSrc);
+    }
   }
 
-  const rawHighRes = element.attr("data-old-hires") || "";
-  const rawSrc = element.attr("src") || "";
-  const rawValue = rawHighRes || rawSrc;
+  // Fallback: OG image or first large product image
+  const ogImage = $('meta[property="og:image"]').attr("content")?.trim() || "";
+  if (ogImage) {
+    logAmazon("image.ogFallback", { ogImage });
+    return upgradeAmazonImageQuality(ogImage);
+  }
 
-  logAmazon("image.attrs", {
-    dataOldHires: rawHighRes,
-    src: rawSrc,
-    selectedAttr: rawHighRes ? "data-old-hires" : "src",
-  });
-
-  const decodedSrc = decodeHtmlEntities(rawValue.trim());
-  logAmazon("image.match", {
-    selector: `#${element.attr("id") || "unknown"}`,
-    attr: rawHighRes ? "data-old-hires" : "src",
-    value: decodedSrc,
-  });
-
-  return decodedSrc;
+  return "";
 }
 
 function decodeHtmlEntities(value: string): string {
@@ -178,6 +211,17 @@ function decodeHtmlEntities(value: string): string {
   }
 
   return cheerio.load(`<span>${value}</span>`)("span").text().trim();
+}
+
+/**
+ * Upgrade Amazon image URL to a higher resolution.
+ * Amazon image URLs contain size tokens like ._AC_SR100,100_ or ._SY355_
+ * Replace them to get a larger image.
+ */
+function upgradeAmazonImageQuality(url: string): string {
+  if (!url) return url;
+  // Replace size/quality tokens: _AC_SR100,100_QL65_ → _AC_SL1500_
+  return url.replace(/\._[A-Z]{2}[^.]*_\./g, "._AC_SL1500_.");
 }
 
 function logAmazon(step: string, payload: unknown): void {

@@ -10,9 +10,7 @@ test.describe("Subscription page", () => {
   });
 
   test("renders pricing cards", async ({ page }) => {
-    await expect(
-      page.getByText(/free/i).first(),
-    ).toBeVisible();
+    await expect(page.getByText(/free/i).first()).toBeVisible();
   });
 
   test("renders feature comparison table", async ({ page }) => {
@@ -24,10 +22,7 @@ test.describe("Subscription page", () => {
   });
 
   test("FAQ items are expandable", async ({ page }) => {
-    const faqButton = page
-      .locator("[class*='faq'], [class*='FAQ']")
-      .locator("button")
-      .first();
+    const faqButton = page.locator("[class*='faq'], [class*='FAQ']").locator("button").first();
     const hasFaq = await faqButton.isVisible().catch(() => false);
     if (!hasFaq) {
       test.skip();

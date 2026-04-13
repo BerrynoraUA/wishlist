@@ -43,9 +43,7 @@ function extractProductFromJSONLD(data: any): ProductData | null {
 
   // Handle @graph structure (WordPress/WooCommerce, Shopify)
   if (data["@graph"]) {
-    const graphItems = Array.isArray(data["@graph"])
-      ? data["@graph"]
-      : [data["@graph"]];
+    const graphItems = Array.isArray(data["@graph"]) ? data["@graph"] : [data["@graph"]];
     for (const item of graphItems) {
       const result = extractProductFromJSONLD(item);
       if (result) return result;
@@ -79,10 +77,7 @@ function extractProductFromJSONLD(data: any): ProductData | null {
           offer["@type"] === "http://schema.org/AggregateOffer"
         ) {
           if (offer.lowPrice != null) {
-            if (
-              offer.highPrice != null &&
-              String(offer.highPrice) !== String(offer.lowPrice)
-            ) {
+            if (offer.highPrice != null && String(offer.highPrice) !== String(offer.lowPrice)) {
               price = String(offer.highPrice);
               discountPrice = String(offer.lowPrice);
               hasDiscount = true;
@@ -112,21 +107,13 @@ function extractProductFromJSONLD(data: any): ProductData | null {
             const specType = (spec["@type"] || spec.priceType || "").toString();
 
             if (
-              /ListPrice|MSRP|RegularPrice|SuggestedRetailPrice/i.test(
-                specType,
-              ) ||
-              /list|regular|original|retail|msrp|rrp|base|normal/i.test(
-                specType,
-              )
+              /ListPrice|MSRP|RegularPrice|SuggestedRetailPrice/i.test(specType) ||
+              /list|regular|original|retail|msrp|rrp|base|normal/i.test(specType)
             ) {
               listPrice = String(specPrice);
             } else if (
-              /SalePrice|MinimumAdvertisedPrice|DiscountPrice|PromotionalPrice/i.test(
-                specType,
-              ) ||
-              /sale|special|offer|discount|deal|promo|reduced|clearance/i.test(
-                specType,
-              )
+              /SalePrice|MinimumAdvertisedPrice|DiscountPrice|PromotionalPrice/i.test(specType) ||
+              /sale|special|offer|discount|deal|promo|reduced|clearance/i.test(specType)
             ) {
               salePrice = String(specPrice);
             } else if (!salePrice) {
@@ -134,8 +121,7 @@ function extractProductFromJSONLD(data: any): ProductData | null {
             }
 
             if (spec.validThrough || spec.priceValidUntil) {
-              discountEndDate =
-                discountEndDate || spec.validThrough || spec.priceValidUntil;
+              discountEndDate = discountEndDate || spec.validThrough || spec.priceValidUntil;
             }
           }
 
@@ -187,9 +173,7 @@ function extractProductFromJSONLD(data: any): ProductData | null {
     // Validate: ensure price > discountPrice
     if (hasDiscount && price && discountPrice) {
       const priceNum = parseFloat(String(price).replace(/[^\d.]/g, ""));
-      const discountNum = parseFloat(
-        String(discountPrice).replace(/[^\d.]/g, ""),
-      );
+      const discountNum = parseFloat(String(discountPrice).replace(/[^\d.]/g, ""));
       if (!isNaN(priceNum) && !isNaN(discountNum)) {
         if (discountNum > priceNum) {
           [price, discountPrice] = [discountPrice, price];

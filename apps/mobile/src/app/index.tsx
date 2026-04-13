@@ -1,10 +1,6 @@
 import { Redirect } from "expo-router";
 import { useAuth } from "@/providers/auth-provider";
-import {
-  ActivityIndicator,
-  View,
-  StyleSheet,
-} from "react-native";
+import { ActivityIndicator, View, StyleSheet } from "react-native";
 import { Colors } from "@/constants/theme";
 
 export default function Index() {

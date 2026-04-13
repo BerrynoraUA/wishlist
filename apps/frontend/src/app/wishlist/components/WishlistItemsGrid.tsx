@@ -5,6 +5,7 @@ import { WishlistItemCard } from "./WishlistItemCard";
 import { Item } from "@/types/item";
 import { useProfilesByIds } from "@/hooks/use-settings";
 import { useCurrentUserId } from "@/hooks/use-user";
+import { useItemVotes, useToggleItemVote } from "@/hooks/use-items";
 import { LayoutGrid, LayoutList } from "lucide-react";
 
 type Props = {
@@ -50,10 +51,7 @@ export function WishlistItemsGrid({
         new Set(
           items
             .map((item) => item.reserved_by)
-            .filter(
-              (id): id is string =>
-                !!id && (!currentUserId || id !== currentUserId),
-            ),
+            .filter((id): id is string => !!id && (!currentUserId || id !== currentUserId)),
         ),
       ),
     [items, currentUserId],
@@ -65,13 +63,15 @@ export function WishlistItemsGrid({
     for (const p of reservedProfiles) {
       map.set(
         p.id,
-        p.display_name ||
-          p.nickname ||
-          t("Unknown user", { $id: "wishlist.grid.unknownUser" }),
+        p.display_name || p.nickname || t("Unknown user", { $id: "wishlist.grid.unknownUser" }),
       );
     }
     return map;
   }, [reservedProfiles, t]);
+
+  const itemIds = useMemo(() => items.map((i) => i.id), [items]);
+  const { data: votesData } = useItemVotes(itemIds);
+  const toggleVote = useToggleItemVote(itemIds);
 
   return (
     <div className={styles.wrapper}>
@@ -95,9 +95,7 @@ export function WishlistItemsGrid({
           </button>
         </div>
       )}
-      <div
-        className={`${styles.grid} ${isMobile && cols === 1 ? styles.gridSingle : ""}`}
-      >
+      <div className={`${styles.grid} ${isMobile && cols === 1 ? styles.gridSingle : ""}`}>
         {items.map((item) => (
           <WishlistItemCard
             key={item.id}
@@ -107,14 +105,15 @@ export function WishlistItemsGrid({
             onToggleReserve={onToggleReserve}
             onToggleBought={onToggleBought}
             reservedByName={
-              item.reserved_by
-                ? (reservedByNameById.get(item.reserved_by) ?? null)
-                : null
+              item.reserved_by ? (reservedByNameById.get(item.reserved_by) ?? null) : null
             }
             onDelete={onDelete}
             onEdit={onEdit}
             autoOpen={openItemId === item.id}
             onAutoOpenHandled={onOpenItemHandled}
+            voteCount={votesData?.counts[item.id] ?? 0}
+            hasVoted={votesData?.userVotes.has(item.id) ?? false}
+            onToggleVote={!isOwner ? (id) => toggleVote.mutate(id) : undefined}
           />
         ))}
       </div>

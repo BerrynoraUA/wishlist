@@ -48,9 +48,7 @@ export const ECB_SUPPORTED_CURRENCY_CODES = SUPPORTED_CURRENCIES.map(
   (currency) => currency.code,
 ).filter((code) => code !== "USD" && code !== "UAH");
 
-export function normalizeCurrencyCode(
-  currency: string | null | undefined,
-): string {
+export function normalizeCurrencyCode(currency: string | null | undefined): string {
   const normalized = currency?.trim().toUpperCase();
   return normalized || "USD";
 }

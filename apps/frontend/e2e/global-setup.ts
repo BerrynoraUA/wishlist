@@ -11,8 +11,6 @@ const authFile = path.join(__dirname, ".auth", "user.json");
  * access token so the middleware's `auth.getUser()` always succeeds.
  */
 setup("authenticate", async ({ page }) => {
-  const baseURL = "http://localhost:3000";
-
   // The @supabase/ssr library stores the session under a cookie whose
   // name is derived from the Supabase URL: sb-{hostname_prefix}-auth-token
   // For http://localhost:54321 the prefix is "localhost".

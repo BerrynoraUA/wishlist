@@ -93,10 +93,9 @@ export default function SecretSantaDetailPage() {
   const participantsSection = (
     <SecretSantaPeopleSection
       title={t("Participants", { $id: "secretSanta.detail.participantsTitle" })}
-      description={t(
-        "Everyone in the event can see accepted participants.",
-        { $id: "secretSanta.detail.participantsDescription" },
-      )}
+      description={t("Everyone in the event can see accepted participants.", {
+        $id: "secretSanta.detail.participantsDescription",
+      })}
       emptyText={t("No participants have accepted yet.", {
         $id: "secretSanta.detail.participantsEmpty",
       })}
@@ -125,9 +124,7 @@ export default function SecretSantaDetailPage() {
       <div className={styles.shell}>
         <Link href="/secret-santa" className={styles.backLink}>
           <ArrowLeft size={15} />
-          <span>
-            {t("Back to events", { $id: "secretSanta.detail.backToEvents" })}
-          </span>
+          <span>{t("Back to events", { $id: "secretSanta.detail.backToEvents" })}</span>
         </Link>
 
         <SecretSantaDetailHero
@@ -145,9 +142,7 @@ export default function SecretSantaDetailPage() {
           {isStarted ? (
             <div className={styles.startedLayout}>
               <div className={styles.startedTopRow}>
-                <div className={styles.startedMainColumn}>
-                  {participantsSection}
-                </div>
+                <div className={styles.startedMainColumn}>{participantsSection}</div>
 
                 {data.my_receiver && (
                   <aside className={styles.startedSidebar}>
@@ -173,17 +168,14 @@ export default function SecretSantaDetailPage() {
                   title={t("Pending invites", {
                     $id: "secretSanta.detail.pendingTitle",
                   })}
-                  description={t(
-                    "These people still need to accept the invite.",
-                    { $id: "secretSanta.detail.pendingDescription" },
-                  )}
+                  description={t("These people still need to accept the invite.", {
+                    $id: "secretSanta.detail.pendingDescription",
+                  })}
                   emptyText={t("No pending invites.", {
                     $id: "secretSanta.detail.pendingEmpty",
                   })}
                   people={peoplePending}
-                  onRemove={(inviteId) =>
-                    removeInvite.mutate({ eventId, inviteId })
-                  }
+                  onRemove={(inviteId) => removeInvite.mutate({ eventId, inviteId })}
                   removeLabel={t("Remove invite", {
                     $id: "secretSanta.detail.removeInvite",
                   })}
@@ -211,11 +203,7 @@ export default function SecretSantaDetailPage() {
           participants={participants}
         />
 
-        <EditSecretSantaModal
-          open={editOpen}
-          onClose={() => setEditOpen(false)}
-          event={data}
-        />
+        <EditSecretSantaModal open={editOpen} onClose={() => setEditOpen(false)} event={data} />
 
         <DeleteConfirmModal
           open={deleteOpen}

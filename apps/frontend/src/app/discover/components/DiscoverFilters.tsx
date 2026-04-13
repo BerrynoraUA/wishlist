@@ -18,9 +18,7 @@ export function DiscoverFilters({ active, onChange }: Props) {
         onClick={() => onChange("wishlists")}
       >
         <Sparkles size={16} />
-        <span>
-          {t("All Wishlists", { $id: "discover.filters.allWishlists" })}
-        </span>
+        <span>{t("All Wishlists", { $id: "discover.filters.allWishlists" })}</span>
       </button>
       <button
         className={active === "available" ? styles.active : ""}

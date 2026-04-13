@@ -69,12 +69,19 @@
 }
 
 .avatarHint {
+  display: grid;
+  gap: 4px;
+
   p {
     font-size: 14px;
     color: $text;
     font-weight: 600;
     margin: 0;
   }
+}
+
+.avatarBadge {
+  justify-self: start;
 }
 
 .hint {
@@ -124,6 +131,16 @@
 
   &::placeholder {
     color: $text-light;
+  }
+}
+
+.inputInvalid {
+  border-color: var(--color-danger);
+
+  &:focus {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 3px
+      color-mix(in srgb, var(--color-danger) 18%, transparent);
   }
 }
 

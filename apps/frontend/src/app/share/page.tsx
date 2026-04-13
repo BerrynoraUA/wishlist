@@ -15,8 +15,6 @@ import styles from "../wishlist/[id]/WishlistPage.module.scss";
 
 const PAGE_SIZE = 12;
 
-
-
 function SharedWishlistContent() {
   const t = useGT();
   const searchParams = useSearchParams();
@@ -30,9 +28,9 @@ function SharedWishlistContent() {
   );
   const [authPromptOpen, setAuthPromptOpen] = useState(false);
   const [pendingReserveItemId, setPendingReserveItemId] = useState<string | null>(null);
-  const [friendStatus, setFriendStatus] = useState<
-    "sent" | "already_friends" | "error" | null
-  >(null);
+  const [friendStatus, setFriendStatus] = useState<"sent" | "already_friends" | "error" | null>(
+    null,
+  );
   const postLoginHandled = useRef(false);
 
   const {
@@ -56,12 +54,7 @@ function SharedWishlistContent() {
 
   // After login redirect: check friendship, redirect or send request
   useEffect(() => {
-    if (
-      action !== "reserve" ||
-      !wishlist?.id ||
-      !wishlist?.user_id ||
-      postLoginHandled.current
-    )
+    if (action !== "reserve" || !wishlist?.id || !wishlist?.user_id || postLoginHandled.current)
       return;
     postLoginHandled.current = true;
 
@@ -133,8 +126,7 @@ function SharedWishlistContent() {
       </main>
     );
 
-  if (wishlistLoading || itemsLoading)
-    return null;
+  if (wishlistLoading || itemsLoading) return null;
 
   if (wishlistError || itemsError)
     return (
@@ -158,9 +150,7 @@ function SharedWishlistContent() {
     <main className={styles.page}>
       <SharedWishlistHeader wishlist={wishlist} />
 
-      {items.length === 0 && (
-        <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>
-      )}
+      {items.length === 0 && <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>}
       {items.length > 0 && (
         <>
           <WishlistItemsGrid
@@ -169,9 +159,7 @@ function SharedWishlistContent() {
             showDiscountBadge={false}
             onToggleReserve={handleReserveAttempt}
           />
-          {totalPages > 1 && (
-            <Pagination page={page} total={totalPages} onChange={setPage} />
-          )}
+          {totalPages > 1 && <Pagination page={page} total={totalPages} onChange={setPage} />}
         </>
       )}
 

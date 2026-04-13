@@ -61,11 +61,7 @@ export default function WishlistItemsPage() {
     link: null,
   });
 
-  const {
-    data: wishlist,
-    isLoading: wishlistLoading,
-    isError: wishlistError,
-  } = useWishlistById(id);
+  const { data: wishlist, isError: wishlistError } = useWishlistById(id);
 
   const {
     data: itemsData,
@@ -142,12 +138,9 @@ export default function WishlistItemsPage() {
 
       nextParams.delete("item");
       const nextQuery = nextParams.toString();
-      router.replace(
-        nextQuery ? `/wishlist/${id}?${nextQuery}` : `/wishlist/${id}`,
-        {
-          scroll: false,
-        },
-      );
+      router.replace(nextQuery ? `/wishlist/${id}?${nextQuery}` : `/wishlist/${id}`, {
+        scroll: false,
+      });
     },
     [searchParams, router, id],
   );
@@ -169,9 +162,7 @@ export default function WishlistItemsPage() {
         />
       )}
 
-      {itemsError && (
-        <p>{t("Failed to load items.", { $id: "wishlist.page.itemsError" })}</p>
-      )}
+      {itemsError && <p>{t("Failed to load items.", { $id: "wishlist.page.itemsError" })}</p>}
       {!itemsLoading && !itemsError && items.length === 0 && (
         <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>
       )}
@@ -188,26 +179,16 @@ export default function WishlistItemsPage() {
             openItemId={openItemId}
             onOpenItemHandled={handleOpenItemHandled}
           />
-          {totalPages > 1 && (
-            <Pagination page={page} total={totalPages} onChange={setPage} />
-          )}
+          {totalPages > 1 && <Pagination page={page} total={totalPages} onChange={setPage} />}
         </>
       )}
 
       {/* Create Item */}
-      <CreateItemModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        wishlistId={id}
-      />
+      <CreateItemModal open={createOpen} onClose={() => setCreateOpen(false)} wishlistId={id} />
 
       {/* Edit Item */}
       {editItem && (
-        <EditItemModal
-          open={!!editItem}
-          onClose={() => setEditItem(null)}
-          item={editItem}
-        />
+        <EditItemModal open={!!editItem} onClose={() => setEditItem(null)} item={editItem} />
       )}
 
       {/* Delete Item */}
@@ -222,10 +203,9 @@ export default function WishlistItemsPage() {
           }
         }}
         title={t("Delete Item", { $id: "wishlist.page.deleteItemTitle" })}
-        description={t(
-          "Are you sure you want to delete this item? This action cannot be undone.",
-          { $id: "wishlist.page.deleteItemDescription" },
-        )}
+        description={t("Are you sure you want to delete this item? This action cannot be undone.", {
+          $id: "wishlist.page.deleteItemDescription",
+        })}
         isPending={deleteItemMutation.isPending}
       />
 

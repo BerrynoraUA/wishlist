@@ -78,7 +78,7 @@ export type ReservedItem = {
   wishlist_title: string;
   owner_id: string;
   owner_name: string;
-  owner_username: string; 
+  owner_username: string;
   owner_avatar: string;
   discount_price?: string | number | null;
   currency?: string | null;
@@ -90,5 +90,4 @@ export interface FriendUpcomingWishlist {
   event_date: string;
   wishlist_id: string;
   friend_id: string;
- 
 }

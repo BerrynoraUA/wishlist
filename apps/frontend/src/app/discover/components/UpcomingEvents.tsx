@@ -6,6 +6,7 @@ import { useFriendsUpcomingWishlists } from "@/hooks/use-wishlists";
 import styles from "./UpcomingEvents.module.scss";
 import { getDaysUntil } from "@/lib/helpers/discover-helper";
 import { CalendarDays } from "lucide-react";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { EventsCalendar } from "./EventsCalendar";
 
 export function UpcomingEvents() {
@@ -26,7 +27,13 @@ export function UpcomingEvents() {
   const visibleUpcomingWishlists = sortedUpcomingWishlists.slice(0, 4);
 
   if (isLoading) {
-    return <div>{t("Loading...", { $id: "discover.upcoming.loading" })}</div>;
+    return (
+      <div style={{ display: "grid", gap: 8 }}>
+        <Skeleton variant="heading" width={200} />
+        <Skeleton variant="text" width="100%" />
+        <Skeleton variant="text" width="60%" />
+      </div>
+    );
   }
   if (!firstEvent) return null;
 
@@ -45,13 +52,6 @@ export function UpcomingEvents() {
               days: daysUntil,
               $id: "discover.upcoming.inDays",
             });
-  const title = t("{friendName}'s {wishlistTitle} is {when}", {
-    friendName: firstEvent.friend_name,
-    wishlistTitle: firstEvent.wishlist_title,
-    when,
-    $id: "discover.upcoming.headline",
-  });
-
   return (
     <div className={`${styles.card} ${calendarOpen ? styles.cardOpen : ""}`}>
       <div className={styles.titleRow}>
@@ -81,7 +81,23 @@ export function UpcomingEvents() {
           <strong>
             {t("Upcoming Events", { $id: "discover.upcoming.sectionTitle" })}
           </strong>
-          <p>{title}</p>
+          <p>
+            <span>
+              {t("{friendName}'s", {
+                friendName: firstEvent.friend_name,
+                $id: "discover.upcoming.headlinePrefix",
+              })}
+            </span>{" "}
+            <strong className={styles.wishlistName}>
+              {firstEvent.wishlist_title}
+            </strong>{" "}
+            <span>
+              {t("is {when}", {
+                when,
+                $id: "discover.upcoming.headlineSuffix",
+              })}
+            </span>
+          </p>
         </div>
       </div>
 

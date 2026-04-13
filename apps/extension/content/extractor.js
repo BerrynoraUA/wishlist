@@ -40,9 +40,7 @@
   /** Extract the first price-like string from text. */
   function extractPrice(str) {
     if (!str) return null;
-    const m = str.match(
-      /(?:[\$€£¥₴₽]\s*[\d,.]+|[\d,.]+\s*(?:USD|EUR|GBP|UAH|грн))/i,
-    );
+    const m = str.match(/(?:[$€£¥₴₽]\s*[\d,.]+|[\d,.]+\s*(?:USD|EUR|GBP|UAH|грн))/i);
     return m ? m[0].trim() : null;
   }
 
@@ -51,34 +49,24 @@
   /* ------------------------------------------------------------------ */
 
   function fromJsonLd() {
-    const scripts = document.querySelectorAll(
-      'script[type="application/ld+json"]',
-    );
+    const scripts = document.querySelectorAll('script[type="application/ld+json"]');
 
     for (const script of scripts) {
       try {
         let data = JSON.parse(script.textContent);
 
         // Can be an array or wrapped in @graph
-        if (Array.isArray(data))
-          data = data.find((d) => d["@type"] === "Product") || data[0];
-        if (data?.["@graph"])
-          data = data["@graph"].find((d) => d["@type"] === "Product");
+        if (Array.isArray(data)) data = data.find((d) => d["@type"] === "Product") || data[0];
+        if (data?.["@graph"]) data = data["@graph"].find((d) => d["@type"] === "Product");
         if (!data || data["@type"] !== "Product") continue;
 
-        const offers = Array.isArray(data.offers)
-          ? data.offers[0]
-          : data.offers;
+        const offers = Array.isArray(data.offers) ? data.offers[0] : data.offers;
 
         return {
           title: data.name || null,
           description: data.description || null,
-          image: resolveUrl(
-            Array.isArray(data.image) ? data.image[0] : data.image,
-          ),
-          price: offers?.price
-            ? `${offers.priceCurrency || ""} ${offers.price}`.trim()
-            : null,
+          image: resolveUrl(Array.isArray(data.image) ? data.image[0] : data.image),
+          price: offers?.price ? `${offers.priceCurrency || ""} ${offers.price}`.trim() : null,
         };
       } catch {
         /* malformed JSON — skip */
@@ -92,17 +80,13 @@
   /* ------------------------------------------------------------------ */
 
   function fromMetaTags() {
-    const title =
-      meta("og:title") || meta("twitter:title") || document.title || null;
-    const description =
-      meta("og:description") || meta("twitter:description") || null;
+    const title = meta("og:title") || meta("twitter:title") || document.title || null;
+    const description = meta("og:description") || meta("twitter:description") || null;
     const image = resolveUrl(
       meta("og:image") || meta("twitter:image:src") || meta("twitter:image"),
     );
-    const price =
-      meta("product:price:amount") || meta("og:price:amount") || null;
-    const currency =
-      meta("product:price:currency") || meta("og:price:currency") || "";
+    const price = meta("product:price:amount") || meta("og:price:amount") || null;
+    const currency = meta("product:price:currency") || meta("og:price:currency") || "";
 
     if (!title && !image) return null;
 
@@ -144,9 +128,8 @@
         title: text(".x-item-title__mainTitle"),
         description: meta("og:description"),
         image:
-          document
-            .querySelector(".ux-image-carousel-item img")
-            ?.getAttribute("src") || meta("og:image"),
+          document.querySelector(".ux-image-carousel-item img")?.getAttribute("src") ||
+          meta("og:image"),
         price: text(".x-price-primary span") || null,
       }),
     },
@@ -157,10 +140,7 @@
         title: text("[itemprop='name']") || text("h1"),
         description: meta("og:description"),
         image: meta("og:image"),
-        price:
-          text("[itemprop='price']") ||
-          text("[data-testid='price-wrap']") ||
-          null,
+        price: text("[itemprop='price']") || text("[data-testid='price-wrap']") || null,
       }),
     },
     {
@@ -229,8 +209,7 @@
 
     // Price — first price-like string on page
     const priceEl =
-      document.querySelector("[class*='price' i]") ||
-      document.querySelector("[id*='price' i]");
+      document.querySelector("[class*='price' i]") || document.querySelector("[id*='price' i]");
     const price = extractPrice(priceEl?.textContent || "");
 
     if (!title && !image) return null;
@@ -242,17 +221,13 @@
   /* ------------------------------------------------------------------ */
 
   function extractProduct() {
-    const strategies = [
-      fromJsonLd,
-      fromDomainRules,
-      fromMetaTags,
-      fromHeuristics,
-    ];
+    const strategies = [fromJsonLd, fromDomainRules, fromMetaTags, fromHeuristics];
     const product = {
       title: null,
       description: null,
       image: null,
       price: null,
+      url: null,
     };
 
     for (const strategy of strategies) {
@@ -260,8 +235,7 @@
       if (!result) continue;
 
       if (!product.title && result.title) product.title = result.title;
-      if (!product.description && result.description)
-        product.description = result.description;
+      if (!product.description && result.description) product.description = result.description;
       if (!product.image && result.image) product.image = result.image;
       if (!product.price && result.price) product.price = result.price;
 

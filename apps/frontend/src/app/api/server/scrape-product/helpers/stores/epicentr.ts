@@ -71,12 +71,9 @@ export function scrapeEpicentr(html: string, url: string): ProductData {
         const items = Array.isArray(json) ? json : [json];
         for (const item of items) {
           if (item["@type"] === "Product" && item.offers) {
-            const offer = Array.isArray(item.offers)
-              ? item.offers[0]
-              : item.offers;
+            const offer = Array.isArray(item.offers) ? item.offers[0] : item.offers;
             if (offer.price) {
-              currentPrice =
-                currentPrice || extractNumericPrice(String(offer.price));
+              currentPrice = currentPrice || extractNumericPrice(String(offer.price));
             }
           }
         }
@@ -106,14 +103,11 @@ export function scrapeEpicentr(html: string, url: string): ProductData {
     }
   }
 
-  const hasDiscount = Boolean(
-    oldPrice && currentPrice && oldPrice !== currentPrice,
-  );
+  const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
   return {
     title: $("h1").first().text().trim() || extractTitle($),
     description: extractDescription($),
-    image:
-      $('meta[property="og:image"]').attr("content") || extractImage($, url),
+    image: $('meta[property="og:image"]').attr("content") || extractImage($, url),
     price: hasDiscount ? oldPrice : currentPrice,
     discount_price: hasDiscount ? currentPrice : null,
     has_discount: hasDiscount,

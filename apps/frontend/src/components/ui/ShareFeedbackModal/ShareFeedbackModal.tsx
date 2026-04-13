@@ -21,7 +21,7 @@ export function ShareFeedbackModal({
   variant = "success",
   title,
   description,
-  link
+  link,
 }: Props) {
   const t = useGT();
   const isSuccess = variant === "success";
@@ -30,9 +30,7 @@ export function ShareFeedbackModal({
   return (
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
-        <div
-          className={`${styles.iconWrapper} ${isSuccess ? styles.success : styles.error}`}
-        >
+        <div className={`${styles.iconWrapper} ${isSuccess ? styles.success : styles.error}`}>
           <Icon size={26} />
         </div>
 
@@ -53,9 +51,7 @@ export function ShareFeedbackModal({
 
         <div className={styles.footer}>
           <Button onClick={onClose}>
-            {isSuccess
-              ? t("Done", { $id: "common.done" })
-              : t("Close", { $id: "common.close" })}
+            {isSuccess ? t("Done", { $id: "common.done" }) : t("Close", { $id: "common.close" })}
           </Button>
         </div>
       </div>

@@ -7,10 +7,7 @@ const RC_API_KEY = (
 const RC_PRO_ENTITLEMENT_ID = "Berrynora Pro";
 const RC_API_BASE = "https://api.revenuecat.com/v1";
 
-type RCDuration =
-  | "monthly"
-  | "yearly";
-
+type RCDuration = "monthly" | "yearly";
 
 export async function grantRevenueCatEntitlement(
   appUserId: string,
@@ -39,23 +36,14 @@ export async function grantRevenueCatEntitlement(
 
   if (!res.ok) {
     const text = await res.text();
-    console.error(
-      `[RevenueCat] Failed to grant entitlement for ${appUserId}:`,
-      res.status,
-      text,
-    );
+    console.error(`[RevenueCat] Failed to grant entitlement for ${appUserId}:`, res.status, text);
     throw new Error(`RevenueCat grant failed: ${res.status}`);
   }
 
-  console.log(
-    `[RevenueCat] Granted "${RC_PRO_ENTITLEMENT_ID}" to ${appUserId} (${duration})`,
-  );
+  console.log(`[RevenueCat] Granted "${RC_PRO_ENTITLEMENT_ID}" to ${appUserId} (${duration})`);
 }
 
-
-export async function revokeRevenueCatEntitlement(
-  appUserId: string,
-): Promise<void> {
+export async function revokeRevenueCatEntitlement(appUserId: string): Promise<void> {
   if (!RC_API_KEY) {
     throw new Error("Missing REVENUECAT_SECRET_API_KEY");
   }
@@ -72,15 +60,9 @@ export async function revokeRevenueCatEntitlement(
 
   if (!res.ok) {
     const text = await res.text();
-    console.error(
-      `[RevenueCat] Failed to revoke entitlement for ${appUserId}:`,
-      res.status,
-      text,
-    );
+    console.error(`[RevenueCat] Failed to revoke entitlement for ${appUserId}:`, res.status, text);
     throw new Error(`RevenueCat revoke failed: ${res.status}`);
   }
 
-  console.log(
-    `[RevenueCat] Revoked "${RC_PRO_ENTITLEMENT_ID}" for ${appUserId}`,
-  );
+  console.log(`[RevenueCat] Revoked "${RC_PRO_ENTITLEMENT_ID}" for ${appUserId}`);
 }

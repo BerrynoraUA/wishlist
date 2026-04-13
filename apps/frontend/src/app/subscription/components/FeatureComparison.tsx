@@ -129,20 +129,13 @@ export function FeatureComparison() {
 
   return (
     <div className={styles.wrapper}>
-      <button
-        type="button"
-        className={styles.trigger}
-        onClick={() => setOpen((prev) => !prev)}
-      >
+      <button type="button" className={styles.trigger} onClick={() => setOpen((prev) => !prev)}>
         <span>
           {t("Full feature comparison", {
             $id: "subscription.compare.trigger",
           })}
         </span>
-        <ChevronDown
-          size={18}
-          className={`${styles.chevron} ${open ? styles.rotated : ""}`}
-        />
+        <ChevronDown size={18} className={`${styles.chevron} ${open ? styles.rotated : ""}`} />
       </button>
 
       {open && (

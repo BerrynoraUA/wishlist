@@ -56,9 +56,7 @@ async function saveSession(data) {
   const session = {
     access_token: data.access_token,
     refresh_token: data.refresh_token,
-    expires_at:
-      data.expires_at ||
-      Math.floor(Date.now() / 1000) + (data.expires_in || 3600),
+    expires_at: data.expires_at || Math.floor(Date.now() / 1000) + (data.expires_in || 3600),
     user: data.user,
   };
   await setStorage(SESSION_KEY, session);
@@ -72,17 +70,14 @@ async function clearSession() {
 }
 
 async function refreshSession(refreshToken) {
-  const res = await fetch(
-    `${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: SUPABASE_ANON_KEY,
-      },
-      body: JSON.stringify({ refresh_token: refreshToken }),
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_ANON_KEY,
     },
-  );
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
 
   if (!res.ok) throw new Error("Token refresh failed");
 
@@ -108,17 +103,14 @@ async function handleMessage(msg) {
     case "LOGIN_EMAIL": {
       const { email, password } = msg.payload;
 
-      const res = await fetch(
-        `${SUPABASE_URL}/auth/v1/token?grant_type=password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: SUPABASE_ANON_KEY,
-          },
-          body: JSON.stringify({ email, password }),
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_ANON_KEY,
         },
-      );
+        body: JSON.stringify({ email, password }),
+      });
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -284,8 +276,15 @@ async function handleMessage(msg) {
       if (!session) throw new Error("Not authenticated");
 
       const {
-        wishlist_id, name, description, price, image_url, url,
-        discount_price, has_discount, discount_end_date,
+        wishlist_id,
+        name,
+        description,
+        price,
+        image_url,
+        url,
+        discount_price,
+        has_discount,
+        discount_end_date,
       } = msg.payload;
 
       const res = await fetch(`${SUPABASE_URL}/rest/v1/item`, {

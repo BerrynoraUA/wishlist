@@ -2,14 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useGT } from "gt-next";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useCreateItem } from "@/hooks/use-items";
 import { useSettings } from "@/hooks/use-settings";
 import { useSubscription } from "@/hooks/use-subscription";
+import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
+import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/currencies";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
+import { validateImageUploadFile } from "@/lib/image-upload";
 import styles from "./CreateItemModal.module.scss";
 
 import type { CreateItemParams } from "@/api/types/item";
@@ -28,9 +31,7 @@ const priorityToValue: Record<Exclude<PriorityOption, "None">, number> = {
   High: 3,
 };
 
-const supportedCurrencyCodes = new Set(
-  SUPPORTED_CURRENCIES.map((currency) => currency.code),
-);
+const supportedCurrencyCodes = new Set(SUPPORTED_CURRENCIES.map((currency) => currency.code));
 
 function resolveCurrency(value?: string | null) {
   const normalized = normalizeCurrencyCode(value);
@@ -51,6 +52,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
   const [discountPrice, setDiscountPrice] = useState<string | null>(null);
   const [hasDiscount, setHasDiscount] = useState(false);
   const [discountEndDate, setDiscountEndDate] = useState<string | null>(null);
@@ -89,6 +91,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     setImageObjectUrl(null);
     setError(null);
+    setImageError(null);
     setDiscountPrice(null);
     setHasDiscount(false);
     setDiscountEndDate(null);
@@ -98,10 +101,15 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   function handleSubmit() {
     if (!name.trim() || !wishlistId || isPending) return;
 
+    const nextImageError = validateImageUploadFile(imageFile);
+    if (nextImageError) {
+      setImageError(nextImageError);
+      return;
+    }
+
     const imageUrlToSave = imageFile ? null : imagePreview || null;
 
-    const priorityValue =
-      priority === "None" ? null : priorityToValue[priority];
+    const priorityValue = priority === "None" ? null : priorityToValue[priority];
 
     const payload: CreateItemParams = {
       wishlist_id: wishlistId,
@@ -130,10 +138,18 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const nextImageError = validateImageUploadFile(file);
+    if (nextImageError) {
+      setImageError(nextImageError);
+      e.target.value = "";
+      return;
+    }
+
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     const objectUrl = URL.createObjectURL(file);
     setImageObjectUrl(objectUrl);
 
+    setImageError(null);
     setImageFile(file);
     setImagePreview(objectUrl);
   }
@@ -165,11 +181,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           currency: data?.currency ?? null,
         };
 
-        const isEmpty =
-          !product.title &&
-          !product.description &&
-          !product.image &&
-          !product.price;
+        const isEmpty = !product.title && !product.description && !product.image && !product.price;
 
         if (isEmpty) {
           setError(
@@ -194,10 +206,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           setImagePreview(product.image);
         }
       } else {
-        setError(
-          data?.error ||
-            t("Error loading product", { $id: "item.modal.scrapeError" }),
-        );
+        setError(data?.error || t("Error loading product", { $id: "item.modal.scrapeError" }));
       }
     } catch {
       setError(
@@ -233,25 +242,26 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               value={link}
               onChange={(e) => setLink(e.target.value)}
             />
-            <Button
-              variant="secondary"
-              onClick={handleScrape}
-              disabled={!link.trim() || loading}
-            >
-              {loading
-                ? t("Loading...", { $id: "common.loading" })
-                : t("Search", { $id: "item.modal.searchProduct" })}
+            <Button variant="secondary" onClick={handleScrape} disabled={!link.trim() || loading}>
+              {loading ? (
+                <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
+              ) : (
+                t("Search", { $id: "item.modal.searchProduct" })
+              )}
             </Button>
           </div>
           {error && <p className={styles.error}>{error}</p>}
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Image (drag & drop or click)", {
-              $id: "item.modal.create.imageLabel",
-            })}
-          </label>
+          <div className={styles.labelRow}>
+            <label>
+              {t("Image (drag & drop or click)", {
+                $id: "item.modal.create.imageLabel",
+              })}
+            </label>
+            <FileSizeBadge />
+          </div>
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
@@ -277,6 +287,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               />
             </label>
           </div>
+          <UploadErrorText message={imageError} />
         </div>
 
         <div className={styles.field}>
@@ -306,9 +317,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
-          </label>
+          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
           <div className={styles.priceRow}>
             <div className={styles.selectWrap}>
               <select
@@ -318,10 +327,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                 aria-label={t("Currency", { $id: "item.modal.currencyAria" })}
               >
                 {SUPPORTED_CURRENCIES.map((supportedCurrency) => (
-                  <option
-                    key={supportedCurrency.code}
-                    value={supportedCurrency.code}
-                  >
+                  <option key={supportedCurrency.code} value={supportedCurrency.code}>
                     {supportedCurrency.symbol} {supportedCurrency.code}
                   </option>
                 ))}
@@ -346,18 +352,10 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as PriorityOption)}
               >
-                <option value="None">
-                  {t("No priority", { $id: "item.modal.priorityNone" })}
-                </option>
-                <option value="Low">
-                  {t("Low", { $id: "item.priority.low" })}
-                </option>
-                <option value="Medium">
-                  {t("Medium", { $id: "item.priority.medium" })}
-                </option>
-                <option value="High">
-                  {t("High", { $id: "item.priority.high" })}
-                </option>
+                <option value="None">{t("No priority", { $id: "item.modal.priorityNone" })}</option>
+                <option value="Low">{t("Low", { $id: "item.priority.low" })}</option>
+                <option value="Medium">{t("Medium", { $id: "item.priority.medium" })}</option>
+                <option value="High">{t("High", { $id: "item.priority.high" })}</option>
               </select>
               <ChevronDown className={styles.selectChevron} size={16} />
             </div>
@@ -368,7 +366,10 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           <Button variant="secondary" onClick={onClose}>
             {t("Cancel", { $id: "common.cancel" })}
           </Button>
-          <Button onClick={handleSubmit} disabled={!name.trim() || isPending}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!name.trim() || isPending || Boolean(imageError)}
+          >
             {isPending
               ? t("Creating...", { $id: "item.modal.creating" })
               : t("Create Item", { $id: "item.modal.create.submit" })}

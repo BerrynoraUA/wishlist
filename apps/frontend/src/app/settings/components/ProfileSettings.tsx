@@ -3,8 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useGT } from "gt-next";
 import { Camera, Check, AlertCircle } from "lucide-react";
+import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
+import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
+import { validateImageUploadFile } from "@/lib/image-upload";
 import styles from "./ProfileSettings.module.scss";
 import { SettingsSection } from "./SettingsSection";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { Button } from "@/components/ui/Button/Button";
 import {
   useProfile,
@@ -23,6 +27,7 @@ export function ProfileSettings() {
   const [displayName, setDisplayName] = useState("");
   const [nickname, setNickname] = useState("");
   const [bio, setBio] = useState("");
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const [nicknameStatus, setNicknameStatus] = useState<
     "idle" | "checking" | "available" | "taken"
   >("idle");
@@ -43,14 +48,20 @@ export function ProfileSettings() {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    if (!nickname.trim() || nickname === profile?.nickname) {
+    const trimmedNickname = nickname.trim();
+
+    if (
+      !trimmedNickname ||
+      trimmedNickname.length < 3 ||
+      trimmedNickname === profile?.nickname
+    ) {
       setNicknameStatus("idle");
       return;
     }
 
     setNicknameStatus("checking");
     debounceRef.current = setTimeout(() => {
-      checkNickname.mutate(nickname.trim(), {
+      checkNickname.mutate(trimmedNickname, {
         onSuccess: (available) => {
           setNicknameStatus(available ? "available" : "taken");
         },
@@ -63,12 +74,42 @@ export function ProfileSettings() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nickname, profile?.nickname]);
 
+  const trimmedDisplayName = displayName.trim();
+  const trimmedNickname = nickname.trim();
+  const displayNameError =
+    trimmedDisplayName.length === 0
+      ? t("Display name is required", {
+          $id: "settings.profile.displayNameRequired",
+        })
+      : trimmedDisplayName.length < 3
+        ? t("Display name must be at least 3 characters", {
+            $id: "settings.profile.displayNameMinLength",
+          })
+        : null;
+  const nicknameError =
+    trimmedNickname.length === 0
+      ? t("Nickname is required", {
+          $id: "settings.profile.nicknameRequired",
+        })
+      : trimmedNickname.length < 3
+        ? t("Nickname must be at least 3 characters", {
+            $id: "settings.profile.nicknameMinLength",
+          })
+        : nicknameStatus === "taken"
+          ? t("This nickname is already taken", {
+              $id: "settings.profile.nicknameTaken",
+            })
+          : null;
+  const isNicknameTaken =
+    nicknameStatus === "taken" && trimmedNickname.length >= 3;
+  const hasProfileValidationError = Boolean(displayNameError || nicknameError);
+
   function handleSave() {
-    if (nicknameStatus === "taken") return;
+    if (hasProfileValidationError) return;
 
     updateProfile.mutate({
-      display_name: displayName.trim(),
-      nickname: nickname.trim() || null,
+      display_name: trimmedDisplayName,
+      nickname: trimmedNickname,
       bio: bio.trim() || null,
     });
   }
@@ -76,14 +117,32 @@ export function ProfileSettings() {
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const nextAvatarError = validateImageUploadFile(file);
+    if (nextAvatarError) {
+      setAvatarError(nextAvatarError);
+      e.target.value = "";
+      return;
+    }
+
+    setAvatarError(null);
     uploadAvatar.mutate(file);
   }
 
   if (isLoading) {
     return (
-      <p className={styles.loading}>
-        {t("Loading profile…", { $id: "settings.profile.loading" })}
-      </p>
+      <div style={{ display: "grid", gap: 16 }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <Skeleton variant="circle" width={56} height={56} />
+          <div style={{ display: "grid", gap: 6, flex: 1 }}>
+            <Skeleton variant="text" width="40%" />
+            <Skeleton variant="text" width="25%" />
+          </div>
+        </div>
+        <Skeleton width="100%" height={44} borderRadius={12} />
+        <Skeleton width="100%" height={44} borderRadius={12} />
+        <Skeleton width="100%" height={80} borderRadius={12} />
+      </div>
     );
   }
 
@@ -137,11 +196,13 @@ export function ProfileSettings() {
                 $id: "settings.profile.avatarHint",
               })}
             </p>
+            <FileSizeBadge className={styles.avatarBadge} />
             <p className={styles.hint}>
-              {t("JPG, PNG or WebP · Max 2 MB", {
+              {t("JPG, PNG or WebP", {
                 $id: "settings.profile.avatarFormats",
               })}
             </p>
+            <UploadErrorText message={avatarError} />
           </div>
         </div>
 
@@ -152,7 +213,7 @@ export function ProfileSettings() {
           </label>
           <input
             type="text"
-            className={styles.input}
+            className={`${styles.input} ${displayNameError ? styles.inputInvalid : ""}`.trim()}
             placeholder={t("Your name", {
               $id: "settings.profile.displayNamePlaceholder",
             })}
@@ -160,6 +221,9 @@ export function ProfileSettings() {
             onChange={(e) => setDisplayName(e.target.value)}
             maxLength={50}
           />
+          {displayNameError && (
+            <p className={styles.errorText}>{displayNameError}</p>
+          )}
         </div>
 
         {/* Nickname */}
@@ -176,7 +240,7 @@ export function ProfileSettings() {
             <span className={styles.inputPrefix}>@</span>
             <input
               type="text"
-              className={`${styles.input} ${styles.withPrefix}`}
+              className={`${styles.input} ${styles.withPrefix} ${nicknameError ? styles.inputInvalid : ""}`.trim()}
               placeholder={t("your-nickname", {
                 $id: "settings.profile.nicknamePlaceholder",
               })}
@@ -188,20 +252,14 @@ export function ProfileSettings() {
               }
               maxLength={30}
             />
-            {nicknameStatus === "available" && (
+            {nicknameStatus === "available" && !nicknameError && (
               <Check size={16} className={styles.nicknameOk} />
             )}
-            {nicknameStatus === "taken" && (
+            {isNicknameTaken && (
               <AlertCircle size={16} className={styles.nicknameTaken} />
             )}
           </div>
-          {nicknameStatus === "taken" && (
-            <p className={styles.errorText}>
-              {t("This nickname is already taken", {
-                $id: "settings.profile.nicknameTaken",
-              })}
-            </p>
-          )}
+          {nicknameError && <p className={styles.errorText}>{nicknameError}</p>}
         </div>
 
         {/* Bio */}
@@ -225,7 +283,7 @@ export function ProfileSettings() {
         <div className={styles.actions}>
           <Button
             onClick={handleSave}
-            disabled={updateProfile.isPending || nicknameStatus === "taken"}
+            disabled={updateProfile.isPending || hasProfileValidationError}
           >
             {updateProfile.isPending
               ? t("Saving…", { $id: "settings.profile.saving" })

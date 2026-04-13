@@ -1,10 +1,6 @@
 import * as cheerio from "cheerio";
 import { ProductData } from "../types";
-import {
-  extractNumericPrice,
-  extractDescription,
-  extractImage,
-} from "../utils";
+import { extractNumericPrice, extractDescription, extractImage } from "../utils";
 
 /**
  * Scraper for Horoshop-based Ukrainian stores (bujobox, hobymonster, leleka, etc.).

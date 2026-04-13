@@ -12,8 +12,7 @@ import {
 export const notificationKeys = {
   all: ["notifications"] as const,
   lists: () => [...notificationKeys.all, "list"] as const,
-  list: (params?: GetNotificationsParams) =>
-    [...notificationKeys.lists(), params] as const,
+  list: (params?: GetNotificationsParams) => [...notificationKeys.lists(), params] as const,
   unread: () => [...notificationKeys.all, "unread"] as const,
   unreadCount: () => [...notificationKeys.all, "unreadCount"] as const,
 };
@@ -45,8 +44,7 @@ export function useMarkNotificationAsRead() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (notificationId: string) =>
-      markNotificationAsRead(notificationId),
+    mutationFn: (notificationId: string) => markNotificationAsRead(notificationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: notificationKeys.all });
     },
@@ -68,8 +66,7 @@ export function useDeleteNotification() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (notificationId: string) =>
-      deleteNotification(notificationId),
+    mutationFn: (notificationId: string) => deleteNotification(notificationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: notificationKeys.all });
     },

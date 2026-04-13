@@ -12,11 +12,7 @@ import {
   getProfilesByIds,
   getExchangeRates,
 } from "@/api/settings";
-import type {
-  UpdateProfilePayload,
-  UpdateSettingsPayload,
-  UserSettings,
-} from "@/types/settings";
+import type { UpdateProfilePayload, UpdateSettingsPayload, UserSettings } from "@/types/settings";
 
 /* ── Query keys ── */
 export const settingsKeys = {
@@ -25,8 +21,7 @@ export const settingsKeys = {
   preferences: () => [...settingsKeys.all, "preferences"] as const,
   provider: () => [...settingsKeys.all, "provider"] as const,
   exchangeRates: () => [...settingsKeys.all, "exchange-rates"] as const,
-  profilesByIds: (idsKey: string) =>
-    [...settingsKeys.all, "profiles-by-ids", idsKey] as const,
+  profilesByIds: (idsKey: string) => [...settingsKeys.all, "profiles-by-ids", idsKey] as const,
 };
 
 /* ── Profile ── */
@@ -95,9 +90,7 @@ export function useUpdateSettings() {
     onMutate: async (payload) => {
       await queryClient.cancelQueries({ queryKey: settingsKeys.preferences() });
 
-      const previousSettings = queryClient.getQueryData<UserSettings>(
-        settingsKeys.preferences(),
-      );
+      const previousSettings = queryClient.getQueryData<UserSettings>(settingsKeys.preferences());
 
       if (previousSettings) {
         queryClient.setQueryData<UserSettings>(settingsKeys.preferences(), {
@@ -110,10 +103,7 @@ export function useUpdateSettings() {
     },
     onError: (_error, _payload, context) => {
       if (context?.previousSettings) {
-        queryClient.setQueryData(
-          settingsKeys.preferences(),
-          context.previousSettings,
-        );
+        queryClient.setQueryData(settingsKeys.preferences(), context.previousSettings);
       }
     },
     onSuccess: (settings) => {

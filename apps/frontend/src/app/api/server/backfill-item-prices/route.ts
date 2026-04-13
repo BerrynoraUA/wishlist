@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-const SUPABASE_SERVICE_ROLE_KEY = process.env
-  .SUPABASE_SERVICE_ROLE_KEY as string;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
 const CRON_SECRET = process.env.CRON_SECRET as string;
 
 type ItemRow = {
@@ -50,10 +49,7 @@ export async function GET(request: NextRequest) {
   }
 
   const daysParam = request.nextUrl.searchParams.get("days");
-  const days = Math.max(
-    1,
-    Math.min(30, daysParam ? Number.parseInt(daysParam, 10) : 10)
-  );
+  const days = Math.max(1, Math.min(30, daysParam ? Number.parseInt(daysParam, 10) : 10));
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -66,7 +62,7 @@ export async function GET(request: NextRequest) {
   if (fetchError) {
     return NextResponse.json(
       { error: "Failed to fetch items", details: fetchError.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -80,9 +76,7 @@ export async function GET(request: NextRequest) {
   const toUpsert: { item_id: string; price: string; price_date: string }[] = [];
 
   for (const item of rows) {
-    const basePriceStr = item.has_discount
-      ? item.discount_price || item.price
-      : item.price;
+    const basePriceStr = item.has_discount ? item.discount_price || item.price : item.price;
 
     if (!basePriceStr) {
       skippedNoBasePrice++;

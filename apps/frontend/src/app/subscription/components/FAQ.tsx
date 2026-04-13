@@ -13,16 +13,9 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 
   return (
     <div className={`${styles.item} ${open ? styles.open : ""}`}>
-      <button
-        type="button"
-        className={styles.question}
-        onClick={() => setOpen((prev) => !prev)}
-      >
+      <button type="button" className={styles.question} onClick={() => setOpen((prev) => !prev)}>
         <span>{question}</span>
-        <ChevronDown
-          size={18}
-          className={`${styles.chevron} ${open ? styles.rotated : ""}`}
-        />
+        <ChevronDown size={18} className={`${styles.chevron} ${open ? styles.rotated : ""}`} />
       </button>
       {open && (
         <div className={styles.answer}>
@@ -116,11 +109,7 @@ export function FAQ() {
       </h2>
       <div className={styles.list}>
         {items.map((item) => (
-          <FAQItem
-            key={item.key}
-            question={item.question}
-            answer={item.answer}
-          />
+          <FAQItem key={item.key} question={item.question} answer={item.answer} />
         ))}
       </div>
     </div>

@@ -1,0 +1,33 @@
+{
+  "name": "wishlist",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo run dev --filter=frontend --filter=native --filter=mobile",
+    "build": "turbo run build --filter=frontend",
+    "web": "turbo run dev --filter=frontend",
+    "native": "turbo run dev --filter=native",
+    "mobile": "turbo run dev --filter=mobile",
+    "android": "turbo run android --filter=native",
+    "ios": "turbo run ios --filter=native",
+    "test": "pnpm --filter frontend test:e2e",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix --fix-suggestions --fix-dangerously",
+    "format": "oxfmt --check",
+    "format:fix": "oxfmt",
+    "ref": "pnpm lint:fix && pnpm format:fix",
+    "check-types": "turbo run check-types",
+    "translate": "turbo run translate --filter=frontend --filter=native",
+    "clean": "pnpm -r exec -- node -e \"const fs=require('fs');try{fs.rmSync('node_modules',{recursive:true,force:true});console.log('Deleted node_modules')}catch(e){}\" && node -e \"const fs=require('fs');try{fs.rmSync('node_modules',{recursive:true,force:true});console.log('Deleted root node_modules')}catch(e){}\" && pnpm store prune"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.45.0",
+    "oxlint": "^1.60.0",
+    "turbo": "^2.9.6"
+  },
+  "packageManager": "pnpm@10.28.0"
+}

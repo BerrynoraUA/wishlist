@@ -27,8 +27,7 @@ export function FriendsTabs({
         className={active === "friends" ? styles.active : ""}
         onClick={() => onChange("friends")}
       >
-        {t("Friends", { $id: "friends.tabs.friends" })}{" "}
-        <span>{friendsCount}</span>
+        {t("Friends", { $id: "friends.tabs.friends" })} <span>{friendsCount}</span>
       </button>
 
       <button
@@ -39,10 +38,7 @@ export function FriendsTabs({
         <span className={styles.badge}>{requestsCount}</span>
       </button>
 
-      <button
-        className={active === "sent" ? styles.active : ""}
-        onClick={() => onChange("sent")}
-      >
+      <button className={active === "sent" ? styles.active : ""} onClick={() => onChange("sent")}>
         {t("Sent", { $id: "friends.tabs.sent" })} <span>{sentCount}</span>
       </button>
     </div>

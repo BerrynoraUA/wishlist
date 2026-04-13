@@ -1,6 +1,5 @@
 import { CURRENCY_SYMBOLS, normalizeCurrencyCode } from "@/lib/currencies";
 
-
 export function formatItemPrice(
   price: string | number | null | undefined,
   currency: string | null | undefined,
@@ -17,9 +16,7 @@ export function formatItemPrice(
   return `${symbol}${clean}`;
 }
 
-export function parsePriceString(
-  value: string | number | null | undefined,
-): number | null {
+export function parsePriceString(value: string | number | null | undefined): number | null {
   if (value == null) return null;
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
 
@@ -31,13 +28,11 @@ export function parsePriceString(
 
   const hasComma = safe.includes(",");
   const hasDot = safe.includes(".");
-  const normalized =
-    hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
+  const normalized = hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
 
   const n = Number.parseFloat(normalized);
   return Number.isFinite(n) ? n : null;
 }
-
 
 export function convertPrice(
   price: number,

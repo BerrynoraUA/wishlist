@@ -28,9 +28,7 @@ function FriendCard({ friend }: { friend: FriendWithDetails }) {
   return (
     <TouchableOpacity
       style={styles.friendCard}
-      onPress={() =>
-        router.push({ pathname: "/friends/[id]", params: { id: friend.friend_id } })
-      }
+      onPress={() => router.push({ pathname: "/friends/[id]", params: { id: friend.friend_id } })}
     >
       {friend.avatar_url ? (
         <Image source={{ uri: friend.avatar_url }} style={styles.avatar} />
@@ -43,9 +41,7 @@ function FriendCard({ friend }: { friend: FriendWithDetails }) {
       )}
       <View style={styles.friendInfo}>
         <Text style={styles.friendName}>{friend.display_name}</Text>
-        {friend.nickname && (
-          <Text style={styles.friendNickname}>@{friend.nickname}</Text>
-        )}
+        {friend.nickname && <Text style={styles.friendNickname}>@{friend.nickname}</Text>}
         <Text style={styles.friendMeta}>
           {friend.wishlists_count} wishlists • {friend.mutual_friends_count} mutual
         </Text>
@@ -71,21 +67,13 @@ function RequestCard({ request }: { request: FriendRequestWithDetails }) {
       )}
       <View style={styles.requestInfo}>
         <Text style={styles.friendName}>{request.display_name}</Text>
-        {request.nickname && (
-          <Text style={styles.friendNickname}>@{request.nickname}</Text>
-        )}
+        {request.nickname && <Text style={styles.friendNickname}>@{request.nickname}</Text>}
       </View>
       <View style={styles.requestActions}>
-        <TouchableOpacity
-          style={styles.acceptButton}
-          onPress={() => accept.mutate(request.id)}
-        >
+        <TouchableOpacity style={styles.acceptButton} onPress={() => accept.mutate(request.id)}>
           <Text style={styles.acceptText}>Accept</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.rejectButton}
-          onPress={() => reject.mutate(request.id)}
-        >
+        <TouchableOpacity style={styles.rejectButton} onPress={() => reject.mutate(request.id)}>
           <Text style={styles.rejectText}>Reject</Text>
         </TouchableOpacity>
       </View>
@@ -125,8 +113,8 @@ export default function FriendsScreen() {
                 {t === "friends"
                   ? "Friends"
                   : t === "requests"
-                  ? `Requests${incoming.data?.length ? ` (${incoming.data.length})` : ""}`
-                  : "Search"}
+                    ? `Requests${incoming.data?.length ? ` (${incoming.data.length})` : ""}`
+                    : "Search"}
               </Text>
             </TouchableOpacity>
           ))}
@@ -164,9 +152,7 @@ export default function FriendsScreen() {
               <View style={styles.empty}>
                 <Text style={styles.emptyEmoji}>👥</Text>
                 <Text style={styles.emptyTitle}>No friends yet</Text>
-                <Text style={styles.emptyText}>
-                  Search for people to connect with
-                </Text>
+                <Text style={styles.emptyText}>Search for people to connect with</Text>
               </View>
             ) : null
           }

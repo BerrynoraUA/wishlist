@@ -1,8 +1,4 @@
-export type FeatureIdeaStatus =
-  | "pending"
-  | "approved"
-  | "in_development"
-  | "done";
+export type FeatureIdeaStatus = "pending" | "approved" | "in_development" | "done";
 
 export interface FeatureIdea {
   id: string;

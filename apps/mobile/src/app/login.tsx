@@ -71,9 +71,7 @@ export default function LoginScreen() {
             <Text style={styles.logo}>🎁</Text>
             <Text style={styles.title}>Wishlist</Text>
             <Text style={styles.subtitle}>
-              {isSignUp
-                ? "Create your account"
-                : "Sign in to manage your wishlists"}
+              {isSignUp ? "Create your account" : "Sign in to manage your wishlists"}
             </Text>
           </View>
 
@@ -113,9 +111,7 @@ export default function LoginScreen() {
               {loading ? (
                 <ActivityIndicator color={Colors.textInverse} />
               ) : (
-                <Text style={styles.buttonText}>
-                  {isSignUp ? "Sign Up" : "Sign In"}
-                </Text>
+                <Text style={styles.buttonText}>{isSignUp ? "Sign Up" : "Sign In"}</Text>
               )}
             </TouchableOpacity>
 
@@ -133,20 +129,13 @@ export default function LoginScreen() {
               {googleLoading ? (
                 <ActivityIndicator color={Colors.text} />
               ) : (
-                <Text style={styles.googleButtonText}>
-                  Continue with Google
-                </Text>
+                <Text style={styles.googleButtonText}>Continue with Google</Text>
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.switchButton}
-              onPress={() => setIsSignUp(!isSignUp)}
-            >
+            <TouchableOpacity style={styles.switchButton} onPress={() => setIsSignUp(!isSignUp)}>
               <Text style={styles.switchText}>
-                {isSignUp
-                  ? "Already have an account? Sign In"
-                  : "Don't have an account? Sign Up"}
+                {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
               </Text>
             </TouchableOpacity>
           </View>

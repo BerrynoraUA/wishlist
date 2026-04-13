@@ -7,9 +7,7 @@ type Props = {
 };
 
 export function SecretSantaPersonAvatar({ person, size = "sm" }: Props) {
-  const initial = (person.display_name ?? person.nickname ?? "?")
-    .charAt(0)
-    .toUpperCase();
+  const initial = (person.display_name ?? person.nickname ?? "?").charAt(0).toUpperCase();
 
   const className = size === "md" ? styles.avatarMd : styles.avatarSm;
 

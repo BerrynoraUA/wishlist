@@ -9,6 +9,9 @@ import { useSettings } from "@/hooks/use-settings";
 import { WishlistAccent, WishlistVisibility } from "@/types/wishlist";
 import { Globe, Users, Lock, Check } from "lucide-react";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
+import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
+import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
+import { validateImageUploadFile } from "@/lib/image-upload";
 import styles from "./CreateWishlistModal.module.scss";
 
 type Props = {
@@ -37,8 +40,7 @@ const colorToAccent: Record<ColorOption, WishlistAccent> = {
 
 export function CreateWishlistModal({ open, onClose }: Props) {
   const { data: settings } = useSettings();
-  const defaultColor: ColorOption =
-    colors[settings?.default_wishlist_color ?? 0] ?? "pink";
+  const defaultColor: ColorOption = colors[settings?.default_wishlist_color ?? 0] ?? "pink";
 
   if (!open) return null;
 
@@ -68,6 +70,7 @@ function CreateWishlistForm({
   const [imagePreview, setImagePreview] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const { mutate, isPending } = useCreateWishlist();
 
@@ -85,6 +88,7 @@ function CreateWishlistForm({
     setEventDate("");
     setImagePreview("");
     setImageFile(null);
+    setImageError(null);
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     setImageObjectUrl(null);
   }
@@ -93,16 +97,30 @@ function CreateWishlistForm({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const nextImageError = validateImageUploadFile(file);
+    if (nextImageError) {
+      setImageError(nextImageError);
+      e.target.value = "";
+      return;
+    }
+
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     const objectUrl = URL.createObjectURL(file);
     setImageObjectUrl(objectUrl);
 
+    setImageError(null);
     setImageFile(file);
     setImagePreview(objectUrl);
   }
 
   function handleSubmit() {
     if (!name.trim() || isPending) return;
+
+    const nextImageError = validateImageUploadFile(imageFile);
+    if (nextImageError) {
+      setImageError(nextImageError);
+      return;
+    }
 
     const imageUrlToSave = imageFile ? null : imagePreview || null;
 
@@ -135,9 +153,7 @@ function CreateWishlistForm({
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <h2>
-              {t("Create New Wishlist", { $id: "wishlist.modal.create.title" })}
-            </h2>
+            <h2>{t("Create New Wishlist", { $id: "wishlist.modal.create.title" })}</h2>
             <p>
               {t("Give your wishlist a name and customize its appearance.", {
                 $id: "wishlist.modal.create.subtitle",
@@ -175,11 +191,14 @@ function CreateWishlistForm({
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Cover Image (drag & drop or click)", {
-              $id: "wishlist.modal.create.coverLabel",
-            })}
-          </label>
+          <div className={styles.labelRow}>
+            <label>
+              {t("Cover Image (drag & drop or click)", {
+                $id: "wishlist.modal.create.coverLabel",
+              })}
+            </label>
+            <FileSizeBadge />
+          </div>
           <div className={styles.upload}>
             <label className={styles.dropArea}>
               {imagePreview ? (
@@ -205,6 +224,7 @@ function CreateWishlistForm({
               />
             </label>
           </div>
+          <UploadErrorText message={imageError} />
         </div>
 
         {/* Event Date */}
@@ -245,7 +265,9 @@ function CreateWishlistForm({
             <PrivacyCard
               icon={<Lock size={18} />}
               title={t("Private", { $id: "wishlist.privacy.private" })}
-              subtitle={t("Only you", { $id: "wishlist.privacy.privateSubtitle" })}
+              subtitle={t("Only you", {
+                $id: "wishlist.privacy.privateSubtitle",
+              })}
               selected={privacy === "Private"}
               onClick={() => setPrivacy("Private")}
             />
@@ -260,9 +282,7 @@ function CreateWishlistForm({
             {colors.map((c) => (
               <div
                 key={c}
-                className={`${styles.color} ${styles[c]} ${
-                  color === c ? styles.active : ""
-                }`}
+                className={`${styles.color} ${styles[c]} ${color === c ? styles.active : ""}`}
                 onClick={() => setColor(c)}
               />
             ))}
@@ -274,7 +294,10 @@ function CreateWishlistForm({
           <Button variant="secondary" onClick={handleClose}>
             {t("Cancel", { $id: "common.cancel" })}
           </Button>
-          <Button onClick={handleSubmit} disabled={!name.trim() || isPending}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!name.trim() || isPending || Boolean(imageError)}
+          >
             {isPending
               ? t("Creating...", { $id: "wishlist.modal.creating" })
               : t("Create Wishlist", { $id: "wishlist.modal.create.submit" })}
@@ -299,10 +322,7 @@ function PrivacyCard({
   onClick: () => void;
 }) {
   return (
-    <div
-      className={`${styles.privacyCard} ${selected ? styles.selected : ""}`}
-      onClick={onClick}
-    >
+    <div className={`${styles.privacyCard} ${selected ? styles.selected : ""}`} onClick={onClick}>
       <div className={styles.privacyIcon}>{icon}</div>
 
       <div>

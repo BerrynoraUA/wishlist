@@ -2,25 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useGT } from "gt-next";
-import {
-  Check,
-  ChevronDown,
-  Loader2,
-  Search,
-  Shield,
-  SquarePen,
-  X,
-} from "lucide-react";
+import { Check, ChevronDown, Loader2, Search, Shield, SquarePen, X } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
-import {
-  useFriendsWithoutWishlistAccess,
-  useWishlistAccessList,
-} from "@/hooks/use-friends";
-import {
-  useGrantWishlistAccess,
-  useRevokeWishlistAccess,
-} from "@/hooks/use-wishlists";
+import { useFriendsWithoutWishlistAccess, useWishlistAccessList } from "@/hooks/use-friends";
+import { useGrantWishlistAccess, useRevokeWishlistAccess } from "@/hooks/use-wishlists";
 import type { ProfileSearchResult } from "@/api/types/friends";
 import styles from "./GrantWishlistAccessModal.module.scss";
 
@@ -35,16 +21,10 @@ type Props = {
 
 const FRIEND_PAGE_SIZE = 100;
 
-export function GrantWishlistAccessModal({
-  open,
-  onClose,
-  wishlistId,
-  wishlistTitle,
-}: Props) {
+export function GrantWishlistAccessModal({ open, onClose, wishlistId, wishlistTitle }: Props) {
   const t = useGT();
   const [query, setQuery] = useState("");
-  const [selectedFriend, setSelectedFriend] =
-    useState<ProfileSearchResult | null>(null);
+  const [selectedFriend, setSelectedFriend] = useState<ProfileSearchResult | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [accessType, setAccessType] = useState<AccessType>(1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -175,9 +155,7 @@ export function GrantWishlistAccessModal({
           <p className={styles.eyebrow}>
             {t("Access control", { $id: "wishlist.grantAccess.eyebrow" })}
           </p>
-          <h2>
-            {t("Grant wishlist access", { $id: "wishlist.grantAccess.title" })}
-          </h2>
+          <h2>{t("Grant wishlist access", { $id: "wishlist.grantAccess.title" })}</h2>
           <p className={styles.description}>
             {t("Pick a friend and choose whether they can view or edit.", {
               $id: "wishlist.grantAccess.subtitle",
@@ -227,10 +205,7 @@ export function GrantWishlistAccessModal({
                     })
               }
             >
-              <ChevronDown
-                size={16}
-                className={dropdownOpen ? styles.chevronOpen : ""}
-              />
+              <ChevronDown size={16} className={dropdownOpen ? styles.chevronOpen : ""} />
             </button>
 
             {showDropdown && (
@@ -238,11 +213,6 @@ export function GrantWishlistAccessModal({
                 {friendsLoading && (
                   <div className={styles.emptyState}>
                     <Loader2 size={16} className={styles.spinner} />
-                    <span>
-                      {t("Loading friends...", {
-                        $id: "wishlist.grantAccess.loadingFriends",
-                      })}
-                    </span>
                   </div>
                 )}
 
@@ -254,49 +224,43 @@ export function GrantWishlistAccessModal({
                   </div>
                 )}
 
-                {!friendsLoading &&
-                  !friendsError &&
-                  filteredFriends.length === 0 && (
-                    <div className={styles.emptyState}>
-                      {t("No matching friends found.", {
-                        $id: "wishlist.grantAccess.noMatchingFriends",
-                      })}
-                    </div>
-                  )}
+                {!friendsLoading && !friendsError && filteredFriends.length === 0 && (
+                  <div className={styles.emptyState}>
+                    {t("No matching friends found.", {
+                      $id: "wishlist.grantAccess.noMatchingFriends",
+                    })}
+                  </div>
+                )}
 
-                {!friendsLoading &&
-                  !friendsError &&
-                  filteredFriends.length > 0 && (
-                    <div className={styles.resultsList}>
-                      {filteredFriends.map((friend) => (
-                        <button
-                          key={friend.id}
-                          type="button"
-                          className={styles.resultItem}
-                          onClick={() => {
-                            setSelectedFriend(friend);
-                            setQuery(friend.nickname);
-                            setDropdownOpen(false);
-                            setErrorMessage(null);
-                          }}
-                        >
-                          <div className={styles.avatarStub}>
-                            {(friend.nickname?.[0] ?? "?").toUpperCase()}
-                          </div>
-                          <div className={styles.resultMeta}>
-                            <span className={styles.resultName}>
-                              @{friend.nickname}
-                            </span>
-                            <span className={styles.resultNickname}>
-                              {t("No access yet", {
-                                $id: "wishlist.grantAccess.noAccessYet",
-                              })}
-                            </span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                {!friendsLoading && !friendsError && filteredFriends.length > 0 && (
+                  <div className={styles.resultsList}>
+                    {filteredFriends.map((friend) => (
+                      <button
+                        key={friend.id}
+                        type="button"
+                        className={styles.resultItem}
+                        onClick={() => {
+                          setSelectedFriend(friend);
+                          setQuery(friend.nickname);
+                          setDropdownOpen(false);
+                          setErrorMessage(null);
+                        }}
+                      >
+                        <div className={styles.avatarStub}>
+                          {(friend.nickname?.[0] ?? "?").toUpperCase()}
+                        </div>
+                        <div className={styles.resultMeta}>
+                          <span className={styles.resultName}>@{friend.nickname}</span>
+                          <span className={styles.resultNickname}>
+                            {t("No access yet", {
+                              $id: "wishlist.grantAccess.noAccessYet",
+                            })}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -352,11 +316,6 @@ export function GrantWishlistAccessModal({
             {accessListLoading && (
               <div className={styles.emptyState}>
                 <Loader2 size={16} className={styles.spinner} />
-                <span>
-                  {t("Loading access list...", {
-                    $id: "wishlist.grantAccess.loadingAccessList",
-                  })}
-                </span>
               </div>
             )}
 
@@ -368,75 +327,69 @@ export function GrantWishlistAccessModal({
               </div>
             )}
 
-            {!accessListLoading &&
-              !accessListError &&
-              accessList.length === 0 && (
-                <div className={styles.emptyState}>
-                  {t("No one has access yet.", {
-                    $id: "wishlist.grantAccess.noOneHasAccess",
-                  })}
-                </div>
-              )}
+            {!accessListLoading && !accessListError && accessList.length === 0 && (
+              <div className={styles.emptyState}>
+                {t("No one has access yet.", {
+                  $id: "wishlist.grantAccess.noOneHasAccess",
+                })}
+              </div>
+            )}
 
-            {!accessListLoading &&
-              !accessListError &&
-              accessList.length > 0 && (
-                <div className={styles.accessList}>
-                  {accessList.map((user, index) => {
-                    const targetUserId = user.id;
-                    const rowKey = `${wishlistId}-${targetUserId || user.nickname}-${user.access_role}-${index}`;
+            {!accessListLoading && !accessListError && accessList.length > 0 && (
+              <div className={styles.accessList}>
+                {accessList.map((user, index) => {
+                  const targetUserId = user.id;
+                  const rowKey = `${wishlistId}-${targetUserId || user.nickname}-${user.access_role}-${index}`;
 
-                    return (
-                      <div key={rowKey} className={styles.accessUserRow}>
-                        <div className={styles.selectedIdentity}>
-                          <div className={styles.avatarStub}>
-                            {(user.nickname?.[0] ?? "?").toUpperCase()}
-                          </div>
-                          <div>
-                            <p>@{user.nickname}</p>
-                            <span>
-                              {t("Already has access", {
-                                $id: "wishlist.grantAccess.alreadyHasAccess",
-                              })}
-                            </span>
-                          </div>
+                  return (
+                    <div key={rowKey} className={styles.accessUserRow}>
+                      <div className={styles.selectedIdentity}>
+                        <div className={styles.avatarStub}>
+                          {(user.nickname?.[0] ?? "?").toUpperCase()}
                         </div>
-                        <div className={styles.accessUserActions}>
-                          <span className={styles.roleBadge}>
-                            {accessRoleLabel(user.access_role)}
+                        <div>
+                          <p>@{user.nickname}</p>
+                          <span>
+                            {t("Already has access", {
+                              $id: "wishlist.grantAccess.alreadyHasAccess",
+                            })}
                           </span>
-                          <button
-                            type="button"
-                            className={`${styles.revokeButton} iconTooltipTrigger`}
-                            onClick={() => handleRevokeAccess(targetUserId)}
-                            disabled={
-                              revokeAccess.isPending &&
-                              revokeAccess.variables?.targetUserId ===
-                                targetUserId
-                            }
-                            aria-label={t("Revoke access for {handle}", {
-                              handle: `@${user.nickname}`,
-                              $id: "wishlist.grantAccess.revokeAria",
-                            })}
-                            data-tooltip={t("Revoke access for {handle}", {
-                              handle: `@${user.nickname}`,
-                              $id: "wishlist.grantAccess.revokeTooltip",
-                            })}
-                          >
-                            {revokeAccess.isPending &&
-                            revokeAccess.variables?.targetUserId ===
-                              targetUserId ? (
-                              <Loader2 size={14} className={styles.spinner} />
-                            ) : (
-                              <X size={14} />
-                            )}
-                          </button>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                      <div className={styles.accessUserActions}>
+                        <span className={styles.roleBadge}>
+                          {accessRoleLabel(user.access_role)}
+                        </span>
+                        <button
+                          type="button"
+                          className={`${styles.revokeButton} iconTooltipTrigger`}
+                          onClick={() => handleRevokeAccess(targetUserId)}
+                          disabled={
+                            revokeAccess.isPending &&
+                            revokeAccess.variables?.targetUserId === targetUserId
+                          }
+                          aria-label={t("Revoke access for {handle}", {
+                            handle: `@${user.nickname}`,
+                            $id: "wishlist.grantAccess.revokeAria",
+                          })}
+                          data-tooltip={t("Revoke access for {handle}", {
+                            handle: `@${user.nickname}`,
+                            $id: "wishlist.grantAccess.revokeTooltip",
+                          })}
+                        >
+                          {revokeAccess.isPending &&
+                          revokeAccess.variables?.targetUserId === targetUserId ? (
+                            <Loader2 size={14} className={styles.spinner} />
+                          ) : (
+                            <X size={14} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
@@ -461,9 +414,7 @@ export function GrantWishlistAccessModal({
                   </div>
                   <div className={styles.accessContent}>
                     <span className={styles.accessLabel}>{option.label}</span>
-                    <span className={styles.accessDescription}>
-                      {option.description}
-                    </span>
+                    <span className={styles.accessDescription}>{option.description}</span>
                   </div>
                   {active && <Check size={16} className={styles.accessCheck} />}
                 </button>
@@ -475,11 +426,7 @@ export function GrantWishlistAccessModal({
         {errorMessage && <div className={styles.error}>{errorMessage}</div>}
 
         <div className={styles.actions}>
-          <Button
-            variant="secondary"
-            onClick={onClose}
-            disabled={grantAccess.isPending}
-          >
+          <Button variant="secondary" onClick={onClose} disabled={grantAccess.isPending}>
             {t("Cancel", { $id: "common.cancel" })}
           </Button>
           <Button onClick={handleSubmit} disabled={!canSubmit}>

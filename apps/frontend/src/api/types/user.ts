@@ -7,7 +7,4 @@ export interface UserStatistics {
   purchased_items_count: number;
 }
 
-export type PublicProfile = Pick<
-  UserProfile,
-  "id" | "display_name" | "nickname" | "avatar_url"
->;
+export type PublicProfile = Pick<UserProfile, "id" | "display_name" | "nickname" | "avatar_url">;

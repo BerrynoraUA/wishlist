@@ -1,4 +1,3 @@
-
 type TranslationsModule = { default: Record<string, unknown> };
 
 const loaders: Record<string, () => Promise<TranslationsModule>> = {

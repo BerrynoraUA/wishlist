@@ -7,12 +7,7 @@ type Props = {
   onChange: (v: "wishlists" | "reserved") => void;
 };
 
-export function DiscoverTabs({
-  active,
-  wishlistsCount,
-  reservedCount,
-  onChange,
-}: Props) {
+export function DiscoverTabs({ active, wishlistsCount, reservedCount, onChange }: Props) {
   return (
     <div className={styles.tabs}>
       <button

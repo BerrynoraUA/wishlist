@@ -87,6 +87,44 @@
   margin: 0;
 }
 
+/* ── Filter bar ── */
+.filterBar {
+  display: flex;
+  gap: 6px;
+  background: var(--nav-pill-bg);
+  border-radius: $radius-pill;
+  padding: 4px;
+  width: fit-content;
+  margin-bottom: 20px;
+}
+
+.filterPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 16px;
+  border-radius: $radius-pill;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s $ease-out;
+  white-space: nowrap;
+
+  &:hover:not(.filterActive) {
+    color: var(--color-text);
+    background: var(--nav-pill-hover);
+  }
+}
+
+.filterActive {
+  background: var(--nav-active-bg);
+  color: var(--color-text);
+  box-shadow: var(--nav-active-shadow);
+}
+
 /* ── Idea list ── */
 .ideaList {
   display: flex;
@@ -189,6 +227,11 @@
   border-radius: 999px;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.statusApproved {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
 }
 
 .statusInDev {
@@ -301,5 +344,10 @@
     flex-direction: row;
     padding: 6px 14px;
     gap: 6px;
+  }
+
+  .filterBar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }

@@ -17,9 +17,7 @@ export default function SettingsPage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <h1 className={styles.heading}>
-          {t("Settings", { $id: "settings.page.title" })}
-        </h1>
+        <h1 className={styles.heading}>{t("Settings", { $id: "settings.page.title" })}</h1>
 
         <SettingsTabs active={tab} onChange={setTab} />
 
