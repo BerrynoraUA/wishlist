@@ -300,6 +300,19 @@
   }
 }
 
+.secretSantaMenuItem {
+  gap: 5px;
+}
+
+.secretSantaBadgeWrap {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  transform: scale(0.88);
+  transform-origin: right center;
+}
+
 .menuItem {
   width: 100%;
   display: flex;

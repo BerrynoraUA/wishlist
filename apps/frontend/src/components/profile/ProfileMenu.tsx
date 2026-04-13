@@ -263,7 +263,7 @@ export function ProfileMenu({ onOpen }: Props) {
 
           <button
             type="button"
-            className={styles.menuItemSub}
+            className={`${styles.menuItemSub} ${styles.secretSantaMenuItem}`}
             onClick={() => {
               setOpen(false);
               router.push("/secret-santa");
@@ -271,10 +271,12 @@ export function ProfileMenu({ onOpen }: Props) {
           >
             <TreePine size={16} />
             <span>{t("Secret Santa", { $id: "profile.secretSanta" })}</span>
-            <ProBadge
-              size="sm"
-              label={t("NEW", { $id: "profile.secretSanta.newBadge" })}
-            />
+            <span className={styles.secretSantaBadgeWrap}>
+              <ProBadge
+                size="sm"
+                label={t("NEW", { $id: "profile.secretSanta.newBadge" })}
+              />
+            </span>
           </button>
 
           <button
