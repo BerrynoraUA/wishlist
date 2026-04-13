@@ -60,6 +60,14 @@
   }
 }
 
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .upload {
   border: 1.5px dashed var(--color-border-light);
   border-radius: $radius-md;
