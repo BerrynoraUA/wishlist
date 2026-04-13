@@ -1,9 +1,15 @@
+export type FeatureIdeaStatus =
+  | "pending"
+  | "approved"
+  | "in_development"
+  | "done";
+
 export interface FeatureIdea {
   id: string;
   title: string;
   description: string;
   user_id: string;
-  status: "pending" | "approved" | "rejected";
+  status: FeatureIdeaStatus;
   votes_count: number;
   has_voted: boolean;
   created_at: string;

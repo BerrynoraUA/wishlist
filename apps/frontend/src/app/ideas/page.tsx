@@ -1,8 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useGT } from "gt-next";
-import { ChevronUp, Info, Lightbulb, Clock } from "lucide-react";
+import {
+  ChevronUp,
+  Info,
+  Lightbulb,
+  Clock,
+  Code,
+  CheckCircle,
+  Sparkles,
+} from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import {
@@ -10,14 +18,21 @@ import {
   useCreateFeatureIdea,
   useToggleFeatureIdeaVote,
 } from "@/hooks/use-feature-ideas";
+import type { FeatureIdeaStatus } from "@/api/types/feature-ideas";
 import styles from "./ideas.module.scss";
 
 export default function IdeasPage() {
   const t = useGT();
   const [submitOpen, setSubmitOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<FeatureIdeaStatus | "all">("all");
   const { data: ideas = [], isLoading, isError } = useFeatureIdeas();
   const toggleVote = useToggleFeatureIdeaVote();
+
+  const filteredIdeas = useMemo(() => {
+    if (statusFilter === "all") return ideas;
+    return ideas.filter((idea) => idea.status === statusFilter);
+  }, [ideas, statusFilter]);
 
   return (
     <main className={styles.page}>
@@ -80,8 +95,39 @@ export default function IdeasPage() {
         </p>
       )}
 
+      <div className={styles.filterBar}>
+        {(["all", "approved", "in_development", "done"] as const).map((f) => (
+          <button
+            key={f}
+            type="button"
+            className={`${styles.filterPill} ${statusFilter === f ? styles.filterActive : ""}`}
+            onClick={() => setStatusFilter(f)}
+          >
+            {f === "all" && t("All", { $id: "ideas.filter.all" })}
+            {f === "approved" && (
+              <>
+                <Sparkles size={12} />
+                {t("Approved", { $id: "ideas.filter.approved" })}
+              </>
+            )}
+            {f === "in_development" && (
+              <>
+                <Code size={12} />
+                {t("In Development", { $id: "ideas.filter.inDevelopment" })}
+              </>
+            )}
+            {f === "done" && (
+              <>
+                <CheckCircle size={12} />
+                {t("Done", { $id: "ideas.filter.done" })}
+              </>
+            )}
+          </button>
+        ))}
+      </div>
+
       <div className={styles.ideaList}>
-        {ideas
+        {filteredIdeas
           .sort((a, b) => b.votes_count - a.votes_count)
           .map((idea) => (
             <div key={idea.id} className={styles.ideaCard}>
@@ -96,7 +142,10 @@ export default function IdeasPage() {
                 </button>
               </div>
               <div className={styles.ideaContent}>
-                <h3 className={styles.ideaTitle}>{idea.title}</h3>
+                <div className={styles.ideaTitleRow}>
+                  <h3 className={styles.ideaTitle}>{idea.title}</h3>
+                  <StatusBadge status={idea.status} />
+                </div>
                 <p className={styles.ideaDescription}>{idea.description}</p>
                 <div className={styles.ideaMeta}>
                   {idea.user_avatar_url && (
@@ -107,11 +156,12 @@ export default function IdeasPage() {
                       className={styles.ideaAuthorAvatar}
                     />
                   )}
-                  <span>{idea.user_display_name ?? t("Anonymous", { $id: "ideas.page.anonymous" })}</span>
-                  <span>·</span>
                   <span>
-                    {new Date(idea.created_at).toLocaleDateString()}
+                    {idea.user_display_name ??
+                      t("Anonymous", { $id: "ideas.page.anonymous" })}
                   </span>
+                  <span>·</span>
+                  <span>{new Date(idea.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
@@ -125,6 +175,35 @@ export default function IdeasPage() {
       />
     </main>
   );
+}
+
+function StatusBadge({ status }: { status: FeatureIdeaStatus }) {
+  const t = useGT();
+  if (status === "approved") {
+    return (
+      <span className={`${styles.statusBadge} ${styles.statusApproved}`}>
+        <Sparkles size={12} />
+        {t("Approved", { $id: "ideas.status.approved" })}
+      </span>
+    );
+  }
+  if (status === "in_development") {
+    return (
+      <span className={`${styles.statusBadge} ${styles.statusInDev}`}>
+        <Code size={12} />
+        {t("In Development", { $id: "ideas.status.inDevelopment" })}
+      </span>
+    );
+  }
+  if (status === "done") {
+    return (
+      <span className={`${styles.statusBadge} ${styles.statusDone}`}>
+        <CheckCircle size={12} />
+        {t("Done", { $id: "ideas.status.done" })}
+      </span>
+    );
+  }
+  return null;
 }
 
 function SubmitIdeaModal({
@@ -195,7 +274,9 @@ function SubmitIdeaModal({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!title.trim() || !description.trim() || createIdea.isPending}
+            disabled={
+              !title.trim() || !description.trim() || createIdea.isPending
+            }
           >
             {createIdea.isPending
               ? t("Submitting...", { $id: "ideas.modal.submitting" })

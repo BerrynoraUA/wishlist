@@ -23,6 +23,16 @@
   gap: 12px;
 }
 
+.avatarClickable {
+  cursor: pointer;
+  transition: transform 0.2s $ease-out, box-shadow 0.2s $ease-out;
+
+  &:hover {
+    transform: scale(1.08);
+    box-shadow: $shadow-md;
+  }
+}
+
 .avatar {
   width: 36px;
   height: 36px;
@@ -63,6 +73,19 @@
   font-weight: 700;
   letter-spacing: -0.01em;
   color: $text;
+}
+
+.ownerLink {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: $text;
+  text-decoration: none;
+  transition: color 0.2s $ease-out;
+
+  &:hover {
+    color: $brand;
+  }
 }
 
 .arrow {

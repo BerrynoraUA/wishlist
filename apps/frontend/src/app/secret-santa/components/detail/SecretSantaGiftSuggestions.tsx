@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useGT } from "gt-next";
-import { Gift, Heart, ShoppingCart } from "lucide-react";
+import { Gift, Heart, Loader2, ShoppingCart } from "lucide-react";
 import type { VisibleItem } from "@/api/types/secret-santa";
 import { useGiftSuggestions } from "@/hooks/use-secret-santa";
 import {
@@ -77,7 +77,7 @@ export function SecretSantaGiftSuggestions({
 
       {isLoading ? (
         <div className={styles.placeholder}>
-          {t("Loading suggestions…", { $id: "secretSanta.gifts.loading" })}
+          <Loader2 size={16} className={styles.spinner} />
         </div>
       ) : items.length === 0 ? (
         <div className={styles.placeholder}>

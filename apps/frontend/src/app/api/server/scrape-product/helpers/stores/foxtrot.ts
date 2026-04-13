@@ -16,7 +16,7 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
   let discountEndDate: string | null = null;
 
   // 1. Current/sale price from [data-product-price-main]
-  const mainPriceEl = $("[data-product-price-main]");
+  const mainPriceEl = $("[data-product-price-main]").first();
   if (mainPriceEl.length) {
     const dataEl = mainPriceEl.find("data[value]").first();
     if (dataEl.length) {
@@ -24,12 +24,17 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
       if (val) currentPrice = extractNumericPrice(val);
     }
     if (!currentPrice) {
-      currentPrice = extractNumericPrice(mainPriceEl.text().trim());
+      // Use first child element text to avoid duplication from nested spans
+      const firstSpan = mainPriceEl.find("span, data").first();
+      const priceText = firstSpan.length
+        ? firstSpan.text().trim()
+        : mainPriceEl.contents().first().text().trim();
+      if (priceText) currentPrice = extractNumericPrice(priceText);
     }
   }
 
   // 2. Old price from [data-product-price-old]
-  const oldPriceEl = $("[data-product-price-old]");
+  const oldPriceEl = $("[data-product-price-old]").first();
   if (oldPriceEl.length) {
     const dataEl = oldPriceEl.find("data[value]").first();
     if (dataEl.length) {
@@ -37,7 +42,11 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
       if (val) oldPrice = extractNumericPrice(val);
     }
     if (!oldPrice) {
-      oldPrice = extractNumericPrice(oldPriceEl.text().trim());
+      const firstSpan = oldPriceEl.find("span, data").first();
+      const priceText = firstSpan.length
+        ? firstSpan.text().trim()
+        : oldPriceEl.contents().first().text().trim();
+      if (priceText) oldPrice = extractNumericPrice(priceText);
     }
   }
 
@@ -59,7 +68,7 @@ export function scrapeFoxtrot(html: string, url: string): ProductData {
 
   // 5. Fallback: data-rewish-price attribute
   if (!currentPrice) {
-    const rewishAttr = $('[data-rewish-price]').attr('data-rewish-price');
+    const rewishAttr = $("[data-rewish-price]").attr("data-rewish-price");
     if (rewishAttr) currentPrice = extractNumericPrice(rewishAttr);
   }
 

@@ -40,8 +40,8 @@
 
 :global([data-theme="dark"]) .iconWrapper {
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
-  background: rgba(224, 82, 160, 0.16);
-  color: #f9a8d4;
+  background: var(--brand-alpha-15);
+  color: var(--color-brand);
 }
 
 .title {

@@ -4,17 +4,14 @@ import { useGT } from "gt-next";
 import styles from "./NotificationSettings.module.scss";
 import { SettingsSection } from "./SettingsSection";
 import { Toggle } from "@/components/ui/Toggle/Toggle";
-import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
-import { useSubscription } from "@/hooks/use-subscription";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
-import { UserPlus, Gift, TrendingDown, Mail } from "lucide-react";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
+import { UserPlus, Gift } from "lucide-react";
 
 export function NotificationSettings() {
   const t = useGT();
   const { data: settings, isLoading } = useSettings();
   const updateSettings = useUpdateSettings();
-  const { isPro } = useSubscription();
 
   function toggle(key: string, value: boolean) {
     updateSettings.mutate({ [key]: value });
@@ -22,11 +19,14 @@ export function NotificationSettings() {
 
   if (isLoading || !settings) {
     return (
-      <p className={styles.loading}>
-        {t("Loading preferences…", {
-          $id: "settings.notifications.loading",
-        })}
-      </p>
+      <div style={{ display: "grid", gap: 14 }}>
+        {[0, 1, 2].map((i) => (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Skeleton variant="text" width={160} />
+            <Skeleton width={44} height={24} borderRadius={12} />
+          </div>
+        ))}
+      </div>
     );
   }
 
@@ -91,69 +91,6 @@ export function NotificationSettings() {
           />
         </div>
 
-        <div className={styles.divider} />
-
-        <div className={styles.row}>
-          <div className={styles.rowInfo}>
-            <div className={styles.rowIcon}>
-              <TrendingDown size={16} />
-            </div>
-            <div>
-              <p className={styles.rowLabel}>
-                {t("Sale Price Alerts", {
-                  $id: "settings.notifications.saleAlerts",
-                })}
-                {SUBSCRIPTIONS_UI_ENABLED && !isPro && (
-                  <span className={styles.proBadge}>
-                    <ProBadge size="sm" />
-                  </span>
-                )}
-              </p>
-              <p className={styles.rowHint}>
-                {t("When an item in your wishlist goes on sale", {
-                  $id: "settings.notifications.saleAlertsHint",
-                })}
-              </p>
-            </div>
-          </div>
-          <Toggle
-            checked={settings.notify_sale_alerts}
-            onChange={(v) => toggle("notify_sale_alerts", v)}
-          />
-        </div>
-      </SettingsSection>
-
-      <SettingsSection
-        title={t("Email Notifications", {
-          $id: "settings.notifications.emailTitle",
-        })}
-        description={t("Manage email notifications from Wishlane.", {
-          $id: "settings.notifications.emailDescription",
-        })}
-      >
-        <div className={styles.row}>
-          <div className={styles.rowInfo}>
-            <div className={styles.rowIcon}>
-              <Mail size={16} />
-            </div>
-            <div>
-              <p className={styles.rowLabel}>
-                {t("Weekly Digest", {
-                  $id: "settings.notifications.weeklyDigest",
-                })}
-              </p>
-              <p className={styles.rowHint}>
-                {t("A summary of friend activity and upcoming events", {
-                  $id: "settings.notifications.weeklyDigestHint",
-                })}
-              </p>
-            </div>
-          </div>
-          <Toggle
-            checked={settings.email_digest}
-            onChange={(v) => toggle("email_digest", v)}
-          />
-        </div>
       </SettingsSection>
     </>
   );

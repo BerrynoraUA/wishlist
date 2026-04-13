@@ -1,0 +1,132 @@
+@use "@/styles/variables" as *;
+
+@keyframes bannerShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes sparkleFloat {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(15deg);
+  }
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 48px 10px 16px;
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-dark) 0%,
+    var(--color-brand) 50%,
+    var(--color-brand-dark) 100%
+  );
+  background-size: 200% 100%;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  position: relative;
+  z-index: 99;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.12) 50%,
+    transparent 60%
+  );
+  animation: bannerShimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(4px);
+  flex-shrink: 0;
+}
+
+.text {
+  white-space: nowrap;
+}
+
+.sparkle {
+  flex-shrink: 0;
+  opacity: 0.7;
+  animation: sparkleFloat 2s ease-in-out infinite;
+}
+
+.close {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 1;
+  backdrop-filter: blur(4px);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.35);
+    transform: translateY(-50%) scale(1.08);
+  }
+}
+
+@media (max-width: 480px) {
+  .banner {
+    font-size: 12px;
+    padding: 8px 40px 8px 12px;
+  }
+
+  .iconWrap {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}

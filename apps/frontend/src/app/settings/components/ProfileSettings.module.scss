@@ -69,12 +69,19 @@
 }
 
 .avatarHint {
+  display: grid;
+  gap: 4px;
+
   p {
     font-size: 14px;
     color: $text;
     font-weight: 600;
     margin: 0;
   }
+}
+
+.avatarBadge {
+  justify-self: start;
 }
 
 .hint {

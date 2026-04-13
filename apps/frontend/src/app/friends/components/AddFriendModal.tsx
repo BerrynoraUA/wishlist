@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
-import { Copy } from "lucide-react";
+import { Copy, Loader2 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import styles from "./AddFriendModal.module.scss";
 import {
@@ -233,7 +233,7 @@ export function AddFriendModal({ open, onClose }: Props) {
           disabled={search.isFetching}
         >
           {search.isFetching
-            ? t("Loading...", { $id: "friends.addModal.loadMoreLoading" })
+            ? <Loader2 size={14} style={{ animation: "spin 0.8s linear infinite" }} />
             : t("Load more", { $id: "friends.addModal.loadMore" })}
         </button>
       )}
@@ -264,11 +264,9 @@ export function AddFriendModal({ open, onClose }: Props) {
 
           <div className={styles.linkWrapper}>
             <input
-              value={
-                inviteLink ||
-                t("Loading...", { $id: "friends.addModal.linkLoading" })
-              }
+              value={inviteLink || ""}
               readOnly
+              placeholder="..."
             />
 
             <button
