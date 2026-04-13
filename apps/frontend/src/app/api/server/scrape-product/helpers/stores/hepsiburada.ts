@@ -26,13 +26,38 @@ export function scrapeHepsiburada(html: string, url: string): ProductData {
   }
 
   // --- image ---
-  let image =
-    $('meta[property="og:image"]').attr("content")?.trim() ||
-    extractImage($, url) ||
-    null;
+  let image = $('meta[property="og:image"]').attr("content")?.trim() || null;
+
+  // Hepsiburada often has no OG image; find product image from HTML
+  if (!image) {
+    // Look for the main product image (424-600 size is the standard display size)
+    const imgMatch = html.match(
+      /productimages\.hepsiburada\.net\/s\/\d+\/424-600\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp)/i,
+    );
+    if (imgMatch) {
+      image = "https://" + imgMatch[0];
+    }
+  }
+
+  // If still no image, try any productimages URL (skip tiny thumbnails 48-64, 80)
+  if (!image) {
+    const anyImg = html.match(
+      /productimages\.hepsiburada\.net\/s\/\d+\/(?!48-64|80\/)\d[\d-]*\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp)/i,
+    );
+    if (anyImg) {
+      image = "https://" + anyImg[0];
+    }
+  }
+
+  if (!image) {
+    image = extractImage($, url) || null;
+  }
+
   // Upgrade image size if needed (48-64 → 424-600)
   if (image && image.includes("productimages.hepsiburada.net")) {
     image = image.replace(/\/\d+-\d+\//, "/424-600/");
+    // Remove /format:webp suffix for broader compatibility
+    image = image.replace(/\/format:webp$/, "");
   }
 
   // --- description ---

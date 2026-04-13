@@ -29,7 +29,22 @@ export async function scrapeProduct(url: string): Promise<ProductData | null> {
 
   let response = await fetch(url, { headers: fetchHeaders });
 
-  if (!response.ok) return null;
+  if (!response.ok) {
+    // For async store scrapers (API-based), try even when HTML fetch fails
+    const storeEntry = getStoreScraper(url);
+    if (storeEntry?.async) {
+      const result = await (
+        storeEntry.scraper as (
+          html: string,
+          url: string,
+        ) => Promise<ProductData>
+      )("", url);
+      if (result && (result.title || result.image || result.price)) {
+        return result;
+      }
+    }
+    return null;
+  }
 
   let html = await response.text();
 
@@ -59,16 +74,31 @@ export async function scrapeProduct(url: string): Promise<ProductData | null> {
   }
 
   // 1. Спробувати специфічний скрапер для відомого магазину
-  const storeScraper = getStoreScraper(url);
-  if (storeScraper) {
-    const storeResult = storeScraper(html, url);
+  const storeEntry = getStoreScraper(url);
+  let storeResult: ProductData | null = null;
+  if (storeEntry) {
+    storeResult = storeEntry.async
+      ? await (
+          storeEntry.scraper as (
+            html: string,
+            url: string,
+          ) => Promise<ProductData>
+        )(html, url)
+      : (storeEntry.scraper as (html: string, url: string) => ProductData)(
+          html,
+          url,
+        );
     if (storeResult.price) {
       return storeResult;
     }
   }
 
   // 2. Універсальний ланцюжок (від найспецифічнішого до найзагальнішого)
-  const product: ProductData = emptyProduct();
+  //    Якщо специфічний скрапер знайшов дані (без ціни), використовуємо їх як базу
+  const product: ProductData =
+    storeResult && (storeResult.title || storeResult.image)
+      ? { ...storeResult }
+      : emptyProduct();
 
   for (const scraper of genericScrapers) {
     const result = scraper(html, url);

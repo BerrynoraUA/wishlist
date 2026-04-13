@@ -1,4 +1,4 @@
-import { ScraperMethod } from "../types";
+import { ScraperMethod, AsyncScraperMethod } from "../types";
 import { scrapeRozetka } from "./rozetka";
 import { scrapeEpicentr } from "./epicentr";
 import { scrapeFoxtrot } from "./foxtrot";
@@ -16,12 +16,25 @@ import { scrapeHepsiburada } from "./hepsiburada";
 import { scrapeN11 } from "./n11";
 import { scrapeShopGoodwill } from "./shopgoodwill";
 import { scrapeAbebooks } from "./abebooks";
+import { scrapeModaOperandi } from "./modaoperandi";
+import { scrapeBandcamp } from "./bandcamp";
+import { scrapeDBA } from "./dba";
+import { scrapeGrailed } from "./grailed";
+import { scrapeMiinto } from "./miinto";
+import { scrapeFlipkart } from "./flipkart";
+import { scrapeRubylane } from "./rubylane";
+import { scrapeWildberries } from "./wildberries";
 
 /**
  * Реєстр магазинів: домен → скрапер.
  * Ключ — підрядок домену, значення — функція-скрапер.
+ * async — якщо true, скрапер повертає Promise (потрібно для SPA-сайтів з API).
  */
-const storeRegistry: { pattern: string; scraper: ScraperMethod }[] = [
+const storeRegistry: {
+  pattern: string;
+  scraper: ScraperMethod | AsyncScraperMethod;
+  async?: boolean;
+}[] = [
   { pattern: "rozetka.com.ua", scraper: scrapeRozetka },
   { pattern: "epicentrk.ua", scraper: scrapeEpicentr },
   { pattern: "foxtrot.com.ua", scraper: scrapeFoxtrot },
@@ -39,19 +52,29 @@ const storeRegistry: { pattern: string; scraper: ScraperMethod }[] = [
   { pattern: "trendyol.com", scraper: scrapeTrendyol },
   { pattern: "hepsiburada.com", scraper: scrapeHepsiburada },
   { pattern: "n11.com", scraper: scrapeN11 },
-  { pattern: "shopgoodwill.com", scraper: scrapeShopGoodwill },
+  { pattern: "shopgoodwill.com", scraper: scrapeShopGoodwill, async: true },
   { pattern: "abebooks.com", scraper: scrapeAbebooks },
+  { pattern: "modaoperandi.com", scraper: scrapeModaOperandi },
+  { pattern: "bandcamp.com", scraper: scrapeBandcamp },
+  { pattern: "dba.dk", scraper: scrapeDBA },
+  { pattern: "grailed.com", scraper: scrapeGrailed },
+  { pattern: "miinto.com", scraper: scrapeMiinto },
+  { pattern: "flipkart.com", scraper: scrapeFlipkart },
+  { pattern: "rubylane.com", scraper: scrapeRubylane },
+  { pattern: "wildberries.ru", scraper: scrapeWildberries, async: true },
 ];
 
 /**
  * Повертає скрапер для конкретного магазину за URL, або null якщо невідомий домен.
  */
-export function getStoreScraper(url: string): ScraperMethod | null {
+export function getStoreScraper(
+  url: string,
+): { scraper: ScraperMethod | AsyncScraperMethod; async: boolean } | null {
   const domain = new URL(url).hostname.toLowerCase();
 
   for (const entry of storeRegistry) {
     if (domain.includes(entry.pattern)) {
-      return entry.scraper;
+      return { scraper: entry.scraper, async: entry.async ?? false };
     }
   }
 
