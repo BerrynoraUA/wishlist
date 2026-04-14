@@ -1,6 +1,10 @@
 "use client";
 
-import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { initRevenueCat, resetRevenueCat } from "@/lib/revenuecat";
@@ -107,9 +111,13 @@ const ACCENT_TOKENS: Record<
   },
 };
 
-function applyAccentTokens(accent: WishlistAccent, resolvedTheme: ResolvedTheme) {
+function applyAccentTokens(
+  accent: WishlistAccent,
+  resolvedTheme: ResolvedTheme,
+) {
   const tokens =
-    ACCENT_TOKENS[accent]?.[resolvedTheme] ?? ACCENT_TOKENS[WishlistAccent.Pink][resolvedTheme];
+    ACCENT_TOKENS[accent]?.[resolvedTheme] ??
+    ACCENT_TOKENS[WishlistAccent.Pink][resolvedTheme];
   const root = document.documentElement;
   root.style.setProperty("--color-brand", tokens.brand);
   root.style.setProperty("--color-brand-dark", tokens.brandDark);
@@ -144,7 +152,10 @@ function applyAccentTokens(accent: WishlistAccent, resolvedTheme: ResolvedTheme)
     "--input-focus-ring",
     `color-mix(in srgb, ${tokens.brand} 8%, transparent)`,
   );
-  root.style.setProperty("--selection-bg", `color-mix(in srgb, ${tokens.brand} 15%, transparent)`);
+  root.style.setProperty(
+    "--selection-bg",
+    `color-mix(in srgb, ${tokens.brand} 15%, transparent)`,
+  );
   root.style.setProperty(
     "--shadow-brand",
     `0 4px 14px color-mix(in srgb, ${tokens.brand} 30%, transparent)`,
@@ -167,7 +178,10 @@ function applyAccentTokens(accent: WishlistAccent, resolvedTheme: ResolvedTheme)
     "--color-pro-glow",
     `color-mix(in srgb, ${tokens.brand} 15%, transparent)`,
   );
-  root.style.setProperty("--radial-brand", `color-mix(in srgb, ${tokens.brand} 6%, transparent)`);
+  root.style.setProperty(
+    "--radial-brand",
+    `color-mix(in srgb, ${tokens.brand} 6%, transparent)`,
+  );
 
   // Header / hero gradients
   if (resolvedTheme === "dark") {
@@ -220,9 +234,13 @@ function AppThemeProvider({
 }) {
   const { data: settings } = useSettings();
   const { mutate: mutateSettings } = useUpdateSettings();
-  const [pendingPersistedTheme, setPendingPersistedTheme] = useState<ThemePreference | null>(null);
-  const [temporaryTheme, setTemporaryTheme] = useState<ResolvedTheme | null>(null);
-  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(initialResolvedTheme);
+  const [pendingPersistedTheme, setPendingPersistedTheme] =
+    useState<ThemePreference | null>(null);
+  const [temporaryTheme, setTemporaryTheme] = useState<ResolvedTheme | null>(
+    null,
+  );
+  const [systemTheme, setSystemTheme] =
+    useState<ResolvedTheme>(initialResolvedTheme);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -233,7 +251,8 @@ function AppThemeProvider({
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  const persistedTheme = pendingPersistedTheme ?? settings?.theme ?? initialTheme;
+  const persistedTheme =
+    pendingPersistedTheme ?? settings?.theme ?? initialTheme;
   const activeTheme = temporaryTheme ?? persistedTheme;
   const resolvedTheme = resolveThemePreference(activeTheme, systemTheme);
 
@@ -273,7 +292,11 @@ function AppThemeProvider({
     [activeTheme, mutateSettings, persistedTheme, resolvedTheme],
   );
 
-  return <AppThemeContext.Provider value={value}>{children}</AppThemeContext.Provider>;
+  return (
+    <AppThemeContext.Provider value={value}>
+      {children}
+    </AppThemeContext.Provider>
+  );
 }
 
 function SdkInitializer({ children }: { children: React.ReactNode }) {
@@ -286,13 +309,17 @@ function SdkInitializer({ children }: { children: React.ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabaseBrowser.auth.onAuthStateChange((_event, session) => {
+    } = supabaseBrowser.auth.onAuthStateChange((event, session) => {
       if (session?.user) initRevenueCat(session.user.id);
       else resetRevenueCat();
+
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        queryClient.clear();
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [queryClient]);
 
   useEffect(() => {
     setOnCheckoutComplete(() => {
