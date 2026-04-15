@@ -18,10 +18,7 @@ import { CardImage } from "./components/CardImage";
 import { CardBadges } from "./components/CardBadges";
 import { CardQuickActions } from "./components/CardQuickActions";
 import { CardInfo } from "./components/CardInfo";
-
-function cn(...args: (string | false | null | undefined)[]) {
-  return args.filter(Boolean).join(" ");
-}
+import { cn } from "./utils";
 
 const VARIANT_CLASS: Record<string, string | undefined> = {
   discover: styles.discover,
@@ -76,7 +73,11 @@ export function ItemCard({
   const priorityDisplay = buildItemPriorityLabel(priority, priorityLabels);
 
   const formattedPrice = formatPrice(price, currency);
-  const salePercentOff = getSalePercentOff(price, discountPrice, showDiscountBadge);
+  const salePercentOff = getSalePercentOff(
+    price,
+    discountPrice,
+    showDiscountBadge,
+  );
   const isWishlist = variant === "wishlist";
   const isPurchasedMode = mode === "purchased";
 
@@ -109,14 +110,16 @@ export function ItemCard({
           { isPurchased, isReserved: isReservedState, reservedByMe },
           reservedByName,
           {
-            purchasedByYou: () => t("Purchased by you", { $id: "itemCard.purchasedByYou" }),
+            purchasedByYou: () =>
+              t("Purchased by you", { $id: "itemCard.purchasedByYou" }),
             purchased: () => t("Purchased", { $id: "itemCard.purchased" }),
             purchasedByName: (n) =>
               t("Purchased by {name}", {
                 name: n,
                 $id: "itemCard.purchasedByName",
               }),
-            reservedByYou: () => t("Reserved by you", { $id: "itemCard.reservedByYou" }),
+            reservedByYou: () =>
+              t("Reserved by you", { $id: "itemCard.reservedByYou" }),
             reserved: () => t("Reserved", { $id: "itemCard.reserved" }),
             reservedByName: (n) =>
               t("Reserved by {name}", {
@@ -134,13 +137,16 @@ export function ItemCard({
           },
           {
             purchased: () => t("Purchased", { $id: "itemCard.purchasedBtn" }),
-            reservedByYou: () => t("Reserved by you", { $id: "itemCard.reservedByYouBtn" }),
+            reservedByYou: () =>
+              t("Reserved by you", { $id: "itemCard.reservedByYouBtn" }),
             reserved: () => t("Reserved", { $id: "itemCard.reservedBtn" }),
-            available: () => t("Reserve this gift", { $id: "itemCard.reserveGift" }),
+            available: () =>
+              t("Reserve this gift", { $id: "itemCard.reserveGift" }),
           },
         );
         const boughtActionLabel = buildPurchaseActionLabel(isPurchased, {
-          purchased: () => t("Mark as not purchased", { $id: "itemCard.unpurchase" }),
+          purchased: () =>
+            t("Mark as not purchased", { $id: "itemCard.unpurchase" }),
           available: () => t("Mark as purchased", { $id: "itemCard.purchase" }),
         });
 
