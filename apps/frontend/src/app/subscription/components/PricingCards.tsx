@@ -347,7 +347,9 @@ export function PricingCards() {
 
           {isPro ? (
             <div className={styles.currentBadge}>
-              {t("Current Plan", { $id: "subscription.pricing.currentPlanPro" })}
+              {t("Current Plan", {
+                $id: "subscription.pricing.currentPlanPro",
+              })}
             </div>
           ) : (
             <>
@@ -356,8 +358,9 @@ export function PricingCards() {
                   $id: "subscription.pricing.upgradeToPro",
                 })}
               </Button>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 className={styles.restoreLink}
                 onClick={handleRestorePurchases}
                 disabled={syncSubscription.isPending}
@@ -367,7 +370,7 @@ export function PricingCards() {
                   : t("Already purchased? Restore", {
                       $id: "subscription.pricing.restore",
                     })}
-              </button>
+              </Button>
             </>
           )}
         </div>

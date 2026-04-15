@@ -17,8 +17,12 @@ import { useGT, useLocale } from "gt-next";
 import { formatLocalizedShortDate } from "@/lib/helpers/format-localized-short-date";
 import { Wishlist, WishlistVisibility } from "@/types/wishlist";
 import { Button } from "@/components/ui/Button/Button";
-import { getAccent, visibilityIcon } from "@/lib/helpers/wishlist-helper";
-import { useWishlistVisibilityLabels } from "@/lib/helpers/use-wishlist-visibility-labels";
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
+import {
+  WISHLIST_VISIBILITY_ICONS,
+  getWishlistAccentClass,
+  getWishlistVisibilityLabels,
+} from "@/lib/helpers/wishlist-metadata";
 import { useSubscription } from "@/hooks/use-subscription";
 import { useUpdateWishlist } from "@/hooks/use-wishlists";
 import { FREE_LIMITS } from "@/types/subscription";
@@ -46,30 +50,21 @@ export function WishlistHeader({
   const t = useGT();
   const locale = useLocale();
   const router = useRouter();
-  const visibilityLabels = useWishlistVisibilityLabels();
+  const visibilityLabels = getWishlistVisibilityLabels(t);
   const { isPro } = useSubscription();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const showActions = Boolean(
-    onShare || onManageAccess || onEdit || onDelete || isOwner,
-  );
+  const showActions = Boolean(onShare || onManageAccess || onEdit || onDelete || isOwner);
   const showMenu = Boolean(onEdit || onDelete);
   const hasImage = Boolean(wishlist.image_url);
   const visibility = visibilityLabels[wishlist.visibility_type];
-  const VisibilityIcon = visibilityIcon[wishlist.visibility_type];
-  const { mutate: updateWishlist, isPending: isUpdatingWishlist } =
-    useUpdateWishlist();
+  const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[wishlist.visibility_type];
+  const { mutate: updateWishlist, isPending: isUpdatingWishlist } = useUpdateWishlist();
   const itemsCount =
-    wishlist.items_count ??
-    (wishlist as Wishlist & { itemsCount?: number }).itemsCount ??
-    0;
+    wishlist.items_count ?? (wishlist as Wishlist & { itemsCount?: number }).itemsCount ?? 0;
   const description = wishlist.description ?? "";
   const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
   const canAddItem = Boolean(onAddItem);
   const atItemLimit =
-    SUBSCRIPTIONS_UI_ENABLED &&
-    !isPro &&
-    itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
+    SUBSCRIPTIONS_UI_ENABLED && !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
   const canInlineEdit = isOwner;
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
@@ -77,17 +72,6 @@ export function WishlistHeader({
   const [descriptionDraft, setDescriptionDraft] = useState(description);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
   const descriptionInputRef = useRef<HTMLTextAreaElement | null>(null);
-
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    }
-
-    if (menuOpen) document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [menuOpen]);
 
   useEffect(() => {
     if (!editingTitle) setTitleDraft(wishlist.title);
@@ -161,9 +145,7 @@ export function WishlistHeader({
     }
   }
 
-  function handleDescriptionKeyDown(
-    event: React.KeyboardEvent<HTMLTextAreaElement>,
-  ) {
+  function handleDescriptionKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === "Escape") {
       event.preventDefault();
       setDescriptionDraft(description);
@@ -171,7 +153,7 @@ export function WishlistHeader({
     }
   }
 
-  const accent = getAccent(wishlist.accent_type);
+  const accent = getWishlistAccentClass(wishlist.accent_type);
   return (
     <div className={styles.header}>
       <div className={`${styles.banner} ${styles[accent]}`}>
@@ -210,15 +192,9 @@ export function WishlistHeader({
                 ) : (
                   <div
                     className={styles.titleRow}
-                    onDoubleClick={
-                      canInlineEdit ? startEditingTitle : undefined
-                    }
+                    onDoubleClick={canInlineEdit ? startEditingTitle : undefined}
                   >
-                    <h1
-                      className={
-                        canInlineEdit ? styles.editableText : undefined
-                      }
-                    >
+                    <h1 className={canInlineEdit ? styles.editableText : undefined}>
                       {wishlist.title}
                     </h1>
                   </div>
@@ -242,9 +218,7 @@ export function WishlistHeader({
                   ) : (
                     <div
                       className={styles.descriptionRow}
-                      onDoubleClick={
-                        canInlineEdit ? startEditingDescription : undefined
-                      }
+                      onDoubleClick={canInlineEdit ? startEditingDescription : undefined}
                     >
                       {description ? (
                         <p
@@ -253,9 +227,7 @@ export function WishlistHeader({
                           {description}
                         </p>
                       ) : canInlineEdit ? (
-                        <p
-                          className={`${styles.descriptionPlaceholder} ${styles.editableText}`}
-                        >
+                        <p className={`${styles.descriptionPlaceholder} ${styles.editableText}`}>
                           {t("Add a short description", {
                             $id: "wishlist.header.descPlaceholderText",
                           })}
@@ -331,9 +303,7 @@ export function WishlistHeader({
                     ) : (
                       <>
                         <Plus size={14} />
-                        <span>
-                          {t("Add Item", { $id: "wishlist.header.addItem" })}
-                        </span>
+                        <span>{t("Add Item", { $id: "wishlist.header.addItem" })}</span>
                       </>
                     )}
                   </Button>
@@ -373,52 +343,34 @@ export function WishlistHeader({
                     </button>
                   )}
                   {showMenu && (
-                    <div className={styles.menuWrapper} ref={menuRef}>
-                      <button
-                        type="button"
-                        className={`${styles.menuButton} iconTooltipTrigger`}
-                        onClick={() => setMenuOpen((prev) => !prev)}
-                        aria-label={t("Wishlist actions", {
-                          $id: "wishlist.header.moreAria",
-                        })}
-                        data-tooltip={t("More options", {
-                          $id: "wishlist.header.moreTooltip",
-                        })}
-                      >
-                        <MoreHorizontal size={18} />
-                      </button>
-
-                      {menuOpen && (
-                        <div className={styles.menuDropdown}>
-                          {onEdit && (
-                            <button
-                              type="button"
-                              className={`${styles.menuItem} ${styles.editItem}`}
-                              onClick={() => {
-                                setMenuOpen(false);
-                                onEdit();
-                              }}
-                            >
-                              <span>{t("Edit", { $id: "common.edit" })}</span>
-                            </button>
-                          )}
-                          {onDelete && (
-                            <button
-                              type="button"
-                              className={`${styles.menuItem} ${styles.dangerItem}`}
-                              onClick={() => {
-                                setMenuOpen(false);
-                                onDelete();
-                              }}
-                            >
-                              <span>
-                                {t("Delete", { $id: "common.delete" })}
-                              </span>
-                            </button>
-                          )}
-                        </div>
+                    <DropdownMenu
+                      trigger={({ toggle }) => (
+                        <button
+                          type="button"
+                          className={`${styles.menuButton} iconTooltipTrigger`}
+                          onClick={toggle}
+                          aria-label={t("Wishlist actions", {
+                            $id: "wishlist.header.moreAria",
+                          })}
+                          data-tooltip={t("More options", {
+                            $id: "wishlist.header.moreTooltip",
+                          })}
+                        >
+                          <MoreHorizontal size={18} />
+                        </button>
                       )}
-                    </div>
+                    >
+                      {onEdit && (
+                        <DropdownMenuItem variant="edit" onClick={() => onEdit()}>
+                          <span>{t("Edit", { $id: "common.edit" })}</span>
+                        </DropdownMenuItem>
+                      )}
+                      {onDelete && (
+                        <DropdownMenuItem variant="danger" onClick={() => onDelete()}>
+                          <span>{t("Delete", { $id: "common.delete" })}</span>
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenu>
                   )}
                 </div>
               )}

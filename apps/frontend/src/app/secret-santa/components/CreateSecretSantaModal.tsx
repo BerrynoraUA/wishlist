@@ -4,15 +4,16 @@ import { useEffect, useState } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Select } from "@/components/ui/Select/Select";
 import { useCreateSecretSantaEvent } from "@/hooks/use-secret-santa";
 import { useFriends } from "@/hooks/use-friends";
 import { useSettings } from "@/hooks/use-settings";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
-import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/currencies";
 import { validateImageUploadFile } from "@/lib/image-upload";
 import { Search, X, UserPlus, Check } from "lucide-react";
+import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import styles from "./CreateSecretSantaModal.module.scss";
 
 type Props = {
@@ -35,7 +36,8 @@ export function CreateSecretSantaModal({ open, onClose }: Props) {
 function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
   const t = useGT();
   const { data: settings } = useSettings();
-  const preferredCurrency = normalizeCurrencyCode(settings?.display_currency);
+  const preferredCurrency = resolveCurrency(settings?.display_currency);
+  const currencyOptions = getCompactCurrencyOptions();
   const [name, setName] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [budget, setBudget] = useState("");
@@ -201,17 +203,13 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
               value={budget}
               onChange={(e) => setBudget(e.target.value)}
             />
-            <select
-              className={styles.currencySelect}
+            <Select
               value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-            >
-              {SUPPORTED_CURRENCIES.map((option) => (
-                <option key={option.code} value={option.code}>
-                  {option.code}
-                </option>
-              ))}
-            </select>
+              onChange={setCurrency}
+              options={currencyOptions}
+              ariaLabel={t("Currency", { $id: "item.modal.currencyAria" })}
+              triggerClassName={styles.currencySelect}
+            />
           </div>
         </div>
 

@@ -7,8 +7,10 @@ import styles from "./WishlistInfo.module.scss";
 import { Button } from "@/components/ui/Button/Button";
 import { Calendar, Plus, Sparkles } from "lucide-react";
 import { Wishlist } from "@/types/wishlist";
-import { visibilityIcon } from "@/lib/helpers/wishlist-helper";
-import { useWishlistVisibilityLabels } from "@/lib/helpers/use-wishlist-visibility-labels";
+import {
+  WISHLIST_VISIBILITY_ICONS,
+  getWishlistVisibilityLabels,
+} from "@/lib/helpers/wishlist-metadata";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FREE_LIMITS } from "@/types/subscription";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
@@ -24,11 +26,11 @@ type Props = {
 export function WishlistInfo({ wishlist, onAddItem }: Props) {
   const t = useGT();
   const locale = useLocale();
-  const visibilityLabels = useWishlistVisibilityLabels();
+  const visibilityLabels = getWishlistVisibilityLabels(t);
   const { isPro } = useSubscription();
   const router = useRouter();
   const visibility = visibilityLabels[wishlist.visibility_type];
-  const VisibilityIcon = visibilityIcon[wishlist.visibility_type];
+  const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[wishlist.visibility_type];
   const itemsCount =
     wishlist.items_count ?? (wishlist as Wishlist & { itemsCount?: number }).itemsCount ?? 0;
   const description = wishlist.description ?? "";

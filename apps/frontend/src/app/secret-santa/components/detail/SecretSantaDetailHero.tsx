@@ -19,6 +19,7 @@ import {
 import styles from "./SecretSantaDetailHero.module.scss";
 import { formatEventDate, type SecretSantaAccent } from "./secretSantaDetail.utils";
 import { Button } from "@/components/ui/Button/Button";
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
 import { useUpdateSecretSantaEvent } from "@/hooks/use-secret-santa";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
 
@@ -45,13 +46,11 @@ export function SecretSantaDetailHero({
 }: Props) {
   const t = useGT();
   const locale = useLocale();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [isInlineEditing, setIsInlineEditing] = useState(false);
   const [titleDraft, setTitleDraft] = useState(event.name);
   const [imagePreview, setImagePreview] = useState(event.image_url ?? "");
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const showMenu = Boolean(onEdit || onDelete);
   const updateEvent = useUpdateSecretSantaEvent();
@@ -76,17 +75,6 @@ export function SecretSantaDetailHero({
       }
     };
   }, [imageObjectUrl]);
-
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    }
-
-    if (menuOpen) document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [menuOpen]);
 
   function cancelInlineEditing() {
     setIsInlineEditing(false);
@@ -197,50 +185,34 @@ export function SecretSantaDetailHero({
           </Button>
 
           {showMenu && (
-            <div className={styles.menuWrapper} ref={menuRef}>
-              <button
-                type="button"
-                className={styles.actionButton}
-                onClick={() => setMenuOpen((prev) => !prev)}
-                aria-label={t("Event actions", {
-                  $id: "secretSanta.hero.aria.eventActions",
-                })}
-                title={t("More options", {
-                  $id: "secretSanta.hero.title.moreOptions",
-                })}
-              >
-                <MoreHorizontal size={15} />
-              </button>
-
-              {menuOpen && (
-                <div className={styles.menuDropdown}>
-                  {onEdit && (
-                    <button
-                      type="button"
-                      className={`${styles.menuItem} ${styles.editItem}`}
-                      onClick={() => {
-                        setMenuOpen(false);
-                        onEdit();
-                      }}
-                    >
-                      <span>{t("Edit", { $id: "secretSanta.hero.menu.edit" })}</span>
-                    </button>
-                  )}
-                  {onDelete && (
-                    <button
-                      type="button"
-                      className={`${styles.menuItem} ${styles.dangerItem}`}
-                      onClick={() => {
-                        setMenuOpen(false);
-                        onDelete();
-                      }}
-                    >
-                      <span>{t("Delete", { $id: "secretSanta.hero.menu.delete" })}</span>
-                    </button>
-                  )}
-                </div>
+            <DropdownMenu
+              trigger={({ toggle }) => (
+                <button
+                  type="button"
+                  className={styles.actionButton}
+                  onClick={toggle}
+                  aria-label={t("Event actions", {
+                    $id: "secretSanta.hero.aria.eventActions",
+                  })}
+                  title={t("More options", {
+                    $id: "secretSanta.hero.title.moreOptions",
+                  })}
+                >
+                  <MoreHorizontal size={15} />
+                </button>
               )}
-            </div>
+            >
+              {onEdit && (
+                <DropdownMenuItem variant="edit" onClick={() => onEdit()}>
+                  <span>{t("Edit", { $id: "secretSanta.hero.menu.edit" })}</span>
+                </DropdownMenuItem>
+              )}
+              {onDelete && (
+                <DropdownMenuItem variant="danger" onClick={() => onDelete()}>
+                  <span>{t("Delete", { $id: "secretSanta.hero.menu.delete" })}</span>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenu>
           )}
         </div>
       )}

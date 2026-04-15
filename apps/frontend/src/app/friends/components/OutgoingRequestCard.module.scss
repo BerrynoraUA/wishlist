@@ -53,29 +53,11 @@
 
 .cancel {
   flex: 1;
-  background: var(--card-bg);
-  border: 1.5px solid var(--color-border-light);
-  border-radius: $radius-pill;
-  padding: 7px;
-  font-size: 13px;
-  color: var(--color-text);
-  cursor: pointer;
-  transition: all 0.3s $ease-out;
 
   &:hover:not(:disabled) {
     border-color: var(--color-danger);
     color: var(--color-danger);
     background: var(--color-danger-bg);
-    transform: translateY(-1px);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0) scale(0.97);
-  }
-
-  &:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
   }
 }
 

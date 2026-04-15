@@ -14,10 +14,7 @@ import {
   useFriendsWishlistsPurchasedByMe,
   useFriendsWishlistsReservedByMe,
 } from "@/hooks/use-wishlists";
-import {
-  useToggleItemBought,
-  useToggleItemReservation,
-} from "@/hooks/use-items";
+import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
 import { useProfilesByIds } from "@/hooks/use-settings";
 import { useFriends } from "@/hooks/use-friends";
 
@@ -28,24 +25,13 @@ function DiscoverPageContent() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
   const tabFromUrl: "wishlists" | "available" | "reserved" | "purchased" =
-    tabParam === "available" ||
-    tabParam === "reserved" ||
-    tabParam === "purchased"
+    tabParam === "available" || tabParam === "reserved" || tabParam === "purchased"
       ? tabParam
       : "wishlists";
   const filter = tabFromUrl;
-  const wishlistsSearch = useMemo(
-    () => searchParams.get("discoverSearch") ?? "",
-    [searchParams],
-  );
-  const reservedSearch = useMemo(
-    () => searchParams.get("reservedSearch") ?? "",
-    [searchParams],
-  );
-  const purchasedSearch = useMemo(
-    () => searchParams.get("purchasedSearch") ?? "",
-    [searchParams],
-  );
+  const wishlistsSearch = useMemo(() => searchParams.get("discoverSearch") ?? "", [searchParams]);
+  const reservedSearch = useMemo(() => searchParams.get("reservedSearch") ?? "", [searchParams]);
+  const purchasedSearch = useMemo(() => searchParams.get("purchasedSearch") ?? "", [searchParams]);
 
   const handleFilterChange = useCallback(
     (nextFilter: "wishlists" | "available" | "reserved" | "purchased") => {
@@ -58,12 +44,9 @@ function DiscoverPageContent() {
         params.set("tab", nextFilter);
       }
 
-      router.replace(
-        params.toString() ? `${pathname}?${params.toString()}` : pathname,
-        {
-          scroll: false,
-        },
-      );
+      router.replace(params.toString() ? `${pathname}?${params.toString()}` : pathname, {
+        scroll: false,
+      });
     },
     [filter, pathname, router, searchParams],
   );
@@ -72,37 +55,25 @@ function DiscoverPageContent() {
     data: allWishlistsSections = [],
     isLoading: isAllWishlistsLoading,
     isError: isAllWishlistsError,
-  } = useFriendsWishlistsDiscoverAll(
-    { search: wishlistsSearch },
-    filter === "wishlists",
-  );
+  } = useFriendsWishlistsDiscoverAll({ search: wishlistsSearch }, filter === "wishlists");
 
   const {
     data: wishlistsSections = [],
     isLoading: isWishlistsLoading,
     isError: isWishlistsError,
-  } = useFriendsWishlistsDiscover(
-    { search: wishlistsSearch },
-    filter === "available",
-  );
+  } = useFriendsWishlistsDiscover({ search: wishlistsSearch }, filter === "available");
 
   const {
     data: reservedSections = [],
     isLoading: isReservedLoading,
     isError: isReservedError,
-  } = useFriendsWishlistsReservedByMe(
-    { search: reservedSearch },
-    filter === "reserved",
-  );
+  } = useFriendsWishlistsReservedByMe({ search: reservedSearch }, filter === "reserved");
 
   const {
     data: purchasedSections = [],
     isLoading: isPurchasedLoading,
     isError: isPurchasedError,
-  } = useFriendsWishlistsPurchasedByMe(
-    { search: purchasedSearch },
-    filter === "purchased",
-  );
+  } = useFriendsWishlistsPurchasedByMe({ search: purchasedSearch }, filter === "purchased");
 
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
@@ -116,8 +87,7 @@ function DiscoverPageContent() {
     return map;
   }, [friendsList]);
 
-  const activeWishlistSections =
-    filter === "wishlists" ? allWishlistsSections : wishlistsSections;
+  const activeWishlistSections = filter === "wishlists" ? allWishlistsSections : wishlistsSections;
 
   const friendIds = useMemo(() => {
     return Array.from(
@@ -205,17 +175,13 @@ function DiscoverPageContent() {
           <DiscoverSection
             key={section.id}
             {...section}
-            friend_id={
-              section.friend_id ?? nicknameToFriendId.get(section.username)
-            }
+            friend_id={section.friend_id ?? nicknameToFriendId.get(section.username)}
             showDiscountBadge={true}
             avatarUrl={
               section.avatar_url ??
               ((section.friend_id ?? nicknameToFriendId.get(section.username))
                 ? (avatarById.get(
-                    section.friend_id ??
-                      nicknameToFriendId.get(section.username) ??
-                      "",
+                    section.friend_id ?? nicknameToFriendId.get(section.username) ?? "",
                   ) ?? null)
                 : null)
             }

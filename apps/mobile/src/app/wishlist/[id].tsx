@@ -16,7 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { useAuth } from "@/providers/auth-provider";
-import { useWishlistById, useUpdateWishlist, useDeleteWishlist } from "@/hooks/use-wishlists";
+import { useWishlistById, useDeleteWishlist } from "@/hooks/use-wishlists";
 import {
   useWishlistItems,
   useCreateItem,

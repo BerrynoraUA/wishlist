@@ -15,12 +15,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.08),
-    transparent 40%,
-    rgba(0, 0, 0, 0.08)
-  );
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.08), transparent 40%, rgba(0, 0, 0, 0.08));
   pointer-events: none;
 }
 
@@ -64,11 +59,6 @@
   min-width: 0;
 }
 
-.menuWrapper {
-  position: relative;
-  z-index: 30;
-}
-
 .bannerActions {
   display: flex;
   align-items: center;
@@ -99,92 +89,6 @@
 
   &:active {
     transform: scale(0.92);
-  }
-}
-
-.menuDropdown {
-  position: absolute;
-  right: 0;
-  top: 52px;
-  min-width: 120px;
-  background: var(--glass-surface);
-  border: 1px solid var(--glass-border);
-  border-radius: 14px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
-  padding: 8px;
-  display: grid;
-  gap: 6px;
-  z-index: 20;
-}
-
-.menuItem {
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--color-text);
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
-
-  &:hover {
-    background: var(--brand-alpha-06);
-    border-color: var(--color-border-subtle);
-    color: $brand;
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 4px var(--input-focus-ring);
-    border-color: var(--input-focus-border);
-  }
-}
-
-.editItem {
-  background: linear-gradient(
-    135deg,
-    var(--brand-alpha-15),
-    var(--brand-alpha-08)
-  );
-  border-color: var(--brand-alpha-20);
-  color: var(--color-brand-dark);
-
-  &:hover {
-    background: linear-gradient(
-      135deg,
-      var(--brand-alpha-20),
-      var(--brand-alpha-10)
-    );
-    border-color: var(--brand-alpha-30);
-    color: var(--color-brand);
-  }
-}
-
-.dangerItem {
-  color: #475569;
-  background: linear-gradient(
-    135deg,
-    rgba(100, 116, 139, 0.16),
-    rgba(100, 116, 139, 0.07)
-  );
-  border-color: rgba(100, 116, 139, 0.2);
-
-  &:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(100, 116, 139, 0.22),
-      rgba(100, 116, 139, 0.12)
-    );
-    border-color: rgba(100, 116, 139, 0.28);
-    color: #334155;
   }
 }
 
@@ -392,12 +296,7 @@
 
 :global([data-theme="dark"]) .banner::after {
   background:
-    linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0.28),
-      rgba(0, 0, 0, 0.08) 42%,
-      rgba(0, 0, 0, 0.26)
-    ),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.08) 42%, rgba(0, 0, 0, 0.26)),
     radial-gradient(circle at 50% 42%, var(--brand-alpha-08), transparent 24%);
 }
 
@@ -464,56 +363,10 @@
   color: rgba(209, 213, 219, 0.78);
 }
 
-:global([data-theme="dark"]) .menuDropdown {
-  background: rgba(17, 17, 22, 0.96);
-  border-color: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.42);
-}
-
 :global([data-theme="dark"]) .titleInput,
 :global([data-theme="dark"]) .descriptionInput {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.08);
-}
-
-:global([data-theme="dark"]) .editItem {
-  background: linear-gradient(
-    135deg,
-    var(--brand-alpha-20),
-    var(--brand-alpha-08)
-  );
-  border-color: var(--brand-alpha-25);
-  color: color-mix(in srgb, var(--color-brand-light) 78%, white 22%);
-
-  &:hover {
-    background: linear-gradient(
-      135deg,
-      var(--brand-alpha-25),
-      var(--brand-alpha-12)
-    );
-    border-color: var(--brand-alpha-35);
-    color: color-mix(in srgb, var(--color-brand-lighter) 88%, white 12%);
-  }
-}
-
-:global([data-theme="dark"]) .dangerItem {
-  background: linear-gradient(
-    135deg,
-    rgba(148, 163, 184, 0.16),
-    rgba(148, 163, 184, 0.08)
-  );
-  border-color: rgba(148, 163, 184, 0.18);
-  color: #dbe4ef;
-
-  &:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(148, 163, 184, 0.22),
-      rgba(148, 163, 184, 0.12)
-    );
-    border-color: rgba(148, 163, 184, 0.28);
-    color: #f8fafc;
-  }
 }
 
 .badges {
@@ -542,7 +395,7 @@
 }
 
 .friendsOnlyBadge {
-  color: #475569;
+  color: var(--color-text-tertiary);
 }
 
 .countBadge {
@@ -652,13 +505,8 @@
 }
 
 :global([data-theme="dark"]) .friendsOnlyBadge {
-  background: linear-gradient(
-    135deg,
-    rgba(148, 163, 184, 0.16),
-    rgba(148, 163, 184, 0.08)
-  );
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.16), rgba(148, 163, 184, 0.08));
   border-color: rgba(148, 163, 184, 0.18);
-  color: #dbe4ef;
 }
 
 :global([data-theme="dark"]) .countBadge {

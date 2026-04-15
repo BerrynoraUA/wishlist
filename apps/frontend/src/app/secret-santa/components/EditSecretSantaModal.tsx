@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Select } from "@/components/ui/Select/Select";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { useUpdateSecretSantaEvent } from "@/hooks/use-secret-santa";
 import type { SecretSantaDetails } from "@/api/types/secret-santa";
-import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/currencies";
 import { validateImageUploadFile } from "@/lib/image-upload";
+import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import styles from "./CreateSecretSantaModal.module.scss";
 
 type Props = {
@@ -38,9 +39,10 @@ function EditSecretSantaForm({
   onClose: () => void;
 }) {
   const t = useGT();
+  const currencyOptions = getCompactCurrencyOptions();
   const [name, setName] = useState(event.name ?? "");
   const [budget, setBudget] = useState(String(event.budget ?? ""));
-  const [currency, setCurrency] = useState(normalizeCurrencyCode(event.currency));
+  const [currency, setCurrency] = useState(resolveCurrency(event.currency));
   const [imagePreview, setImagePreview] = useState(event.image_url ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
@@ -141,17 +143,13 @@ function EditSecretSantaForm({
               value={budget}
               onChange={(e) => setBudget(e.target.value)}
             />
-            <select
-              className={styles.currencySelect}
+            <Select
               value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-            >
-              {SUPPORTED_CURRENCIES.map((option) => (
-                <option key={option.code} value={option.code}>
-                  {option.code}
-                </option>
-              ))}
-            </select>
+              onChange={setCurrency}
+              options={currencyOptions}
+              ariaLabel={t("Currency", { $id: "item.modal.currencyAria" })}
+              triggerClassName={styles.currencySelect}
+            />
           </div>
         </div>
 

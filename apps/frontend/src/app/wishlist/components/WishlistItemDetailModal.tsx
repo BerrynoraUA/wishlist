@@ -15,6 +15,16 @@ import {
 } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
 import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
 import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
+import {
+  buildItemPriorityLabel,
+  buildPurchaseActionLabel,
+  buildReservationActionLabel,
+  buildReservationStatusLabel,
+  buildSaveItemData,
+  getItemPriorityKey,
+  getItemReservationState,
+  getNextConfirmAction,
+} from "@/lib/helpers/item-card";
 
 type Props = {
   open: boolean;
@@ -43,50 +53,48 @@ export function WishlistItemDetailModal({
   const { data: currentUserId = "" } = useCurrentUserId();
   const { formatPrice } = useCurrencyFormatter();
   const [confirmAction, setConfirmAction] = useState<ItemActionConfirmType | null>(null);
-  const isPurchased = item.status === 2;
-  const isReserved = item.status === 1 || (!isPurchased && !!item.reserved_by);
-  const reservedByMe = currentUserId ? item.reserved_by === currentUserId : false;
-  const canToggleReservation = !isOwner && !isPurchased && (!isReserved || reservedByMe);
-  const canToggleBought =
-    !isOwner && ((isPurchased && reservedByMe) || (!isPurchased && (!isReserved || reservedByMe)));
-
-  const priorityLabel = useMemo(
+  const reservationState = getItemReservationState({
+    status: item.status,
+    reservedBy: item.reserved_by,
+    currentUserId,
+    isOwner,
+  });
+  const priorityKey = getItemPriorityKey(item.priority);
+  const priorityLabels = useMemo(
     () => ({
-      1: t("Low", { $id: "item.priority.low" }),
-      2: t("Medium", { $id: "item.priority.medium" }),
-      3: t("High", { $id: "item.priority.high" }),
+      low: t("Low", { $id: "item.priority.low" }),
+      medium: t("Medium", { $id: "item.priority.medium" }),
+      high: t("High", { $id: "item.priority.high" }),
     }),
     [t],
   );
+  const priorityLabel = buildItemPriorityLabel(item.priority, priorityLabels);
 
-  const reserveStatusLabel = isPurchased
-    ? reservedByMe
-      ? t("Purchased by you", { $id: "item.status.purchasedByYou" })
-      : reservedByName
-        ? t("Purchased by {name}", {
-            name: reservedByName,
-            $id: "item.status.purchasedByName",
-          })
-        : t("Purchased", { $id: "item.status.purchased" })
-    : isReserved
-      ? reservedByMe
-        ? t("Reserved by you", { $id: "item.status.reservedByYou" })
-        : reservedByName
-          ? t("Reserved by {name}", {
-              name: reservedByName,
-              $id: "item.status.reservedByName",
-            })
-          : t("Reserved", { $id: "item.status.reserved" })
-      : null;
+  const reserveStatusLabel = buildReservationStatusLabel(reservationState, reservedByName, {
+    purchasedByYou: () => t("Purchased by you", { $id: "item.status.purchasedByYou" }),
+    purchased: () => t("Purchased", { $id: "item.status.purchased" }),
+    purchasedByName: (name) =>
+      t("Purchased by {name}", {
+        name,
+        $id: "item.status.purchasedByName",
+      }),
+    reservedByYou: () => t("Reserved by you", { $id: "item.status.reservedByYou" }),
+    reserved: () => t("Reserved", { $id: "item.status.reserved" }),
+    reservedByName: (name) =>
+      t("Reserved by {name}", {
+        name,
+        $id: "item.status.reservedByName",
+      }),
+  });
 
   const handleReserveClick = () => {
-    if (!canToggleReservation || !onToggleReserve) return;
-    setConfirmAction(isReserved ? "unreserve" : "reserve");
+    if (!reservationState.canToggleReservation || !onToggleReserve) return;
+    setConfirmAction(getNextConfirmAction("reserve", reservationState.isReserved));
   };
 
   const handleBoughtClick = () => {
-    if (!canToggleBought || !onToggleBought) return;
-    setConfirmAction(isPurchased ? "unpurchase" : "purchase");
+    if (!reservationState.canToggleBought || !onToggleBought) return;
+    setConfirmAction(getNextConfirmAction("purchase", reservationState.isPurchased));
   };
 
   const handleConfirmAction = () => {
@@ -128,8 +136,8 @@ export function WishlistItemDetailModal({
               {item.price && (
                 <span className={styles.price}>{formatPrice(item.price, item.currency)}</span>
               )}
-              {item.priority != null && priorityLabel[item.priority as 1 | 2 | 3] && (
-                <span className={styles.priority}>{priorityLabel[item.priority as 1 | 2 | 3]}</span>
+              {priorityKey && priorityLabel && (
+                <span className={styles.priority}>{priorityLabel}</span>
               )}
               {reserveStatusLabel && (
                 <span className={styles.reservedBadge}>{reserveStatusLabel}</span>
@@ -151,18 +159,18 @@ export function WishlistItemDetailModal({
 
               {!isOwner && (
                 <SaveToWishlistButton
-                  item={{
+                  item={buildSaveItemData({
                     name: item.name,
-                    description: item.description ?? null,
-                    price: item.price ?? null,
-                    image_url: item.image_url ?? null,
-                    url: item.url ?? null,
-                    priority: item.priority ?? null,
-                    discount_price: item.discount_price ?? null,
-                    has_discount: item.has_discount ?? false,
-                    discount_end_date: item.discount_end_date ?? null,
-                    currency: item.currency ?? null,
-                  }}
+                    description: item.description,
+                    price: item.price,
+                    imageUrl: item.image_url,
+                    url: item.url,
+                    priority: item.priority,
+                    discountPrice: item.discount_price,
+                    hasDiscount: item.has_discount,
+                    discountEndDate: item.discount_end_date,
+                    currency: item.currency,
+                  })}
                   className={styles.saveBtn}
                 />
               )}
@@ -200,37 +208,43 @@ export function WishlistItemDetailModal({
                 {!isOwner && (
                   <>
                     <Button
-                      variant={isReserved ? "secondary" : "primary"}
+                      variant={reservationState.isReserved ? "secondary" : "primary"}
                       onClick={handleReserveClick}
-                      disabled={!canToggleReservation}
+                      disabled={!reservationState.canToggleReservation}
                     >
                       <span style={{ marginRight: 6, display: "inline-flex" }}>
-                        <ReservationLockIcon isReserved={isReserved} size={16} animateOnReserve />
+                        <ReservationLockIcon
+                          isReserved={reservationState.isReserved}
+                          size={16}
+                          animateOnReserve
+                        />
                       </span>
-                      {isPurchased
-                        ? t("Purchased", { $id: "item.status.purchased" })
-                        : isReserved
-                          ? reservedByMe
-                            ? t("Release reservation", {
-                                $id: "item.detail.releaseReservation",
-                              })
-                            : t("Reserved", { $id: "item.status.reserved" })
-                          : t("Reserve this gift", {
-                              $id: "item.detail.reserveThisGift",
-                            })}
+                      {buildReservationActionLabel(reservationState, {
+                        purchased: () => t("Purchased", { $id: "item.status.purchased" }),
+                        reservedByYou: () =>
+                          t("Release reservation", {
+                            $id: "item.detail.releaseReservation",
+                          }),
+                        reserved: () => t("Reserved", { $id: "item.status.reserved" }),
+                        available: () =>
+                          t("Reserve this gift", {
+                            $id: "item.detail.reserveThisGift",
+                          }),
+                      })}
                     </Button>
 
                     {onToggleBought && (
                       <Button
-                        variant={isPurchased ? "secondary" : "primary"}
+                        variant={reservationState.isPurchased ? "secondary" : "primary"}
                         size="sm"
                         onClick={handleBoughtClick}
-                        disabled={!canToggleBought}
+                        disabled={!reservationState.canToggleBought}
                       >
                         <ShoppingCart size={14} style={{ marginRight: 6 }} />
-                        {isPurchased
-                          ? t("Purchased", { $id: "item.status.purchased" })
-                          : t("Bought", { $id: "item.detail.bought" })}
+                        {buildPurchaseActionLabel(reservationState.isPurchased, {
+                          purchased: () => t("Purchased", { $id: "item.status.purchased" }),
+                          available: () => t("Bought", { $id: "item.detail.bought" }),
+                        })}
                       </Button>
                     )}
                   </>

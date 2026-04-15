@@ -132,13 +132,10 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       const popupRect = popupRef.current?.getBoundingClientRect();
       const [year, month, day] = dateKey.split("-").map(Number);
-      const dateLabel = new Date(year, month - 1, day).toLocaleDateString(
-        undefined,
-        {
-          month: "short",
-          day: "numeric",
-        },
-      );
+      const dateLabel = new Date(year, month - 1, day).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      });
 
       setTooltip({
         x: rect.left - (popupRect?.left ?? 0) + rect.width / 2,
@@ -178,8 +175,7 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
       if (!cell.dateKey) return undefined;
       const dayEvents = eventsByDate.get(cell.dateKey) ?? [];
       if (dayEvents.length === 0) return undefined;
-      const primaryColor =
-        friendColorMap.get(dayEvents[0].friend_id) ?? ACCENT_COLORS[0];
+      const primaryColor = friendColorMap.get(dayEvents[0].friend_id) ?? ACCENT_COLORS[0];
       return {
         background:
           dayEvents.length > 1
@@ -193,9 +189,7 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
 
   const renderCellContent = useCallback(
     (cell: CalendarCell) => {
-      const dayEvents = cell.dateKey
-        ? (eventsByDate.get(cell.dateKey) ?? [])
-        : [];
+      const dayEvents = cell.dateKey ? (eventsByDate.get(cell.dateKey) ?? []) : [];
       const hasEvents = dayEvents.length > 0;
 
       let dayClass: string | undefined;
@@ -224,10 +218,7 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
       <div className={styles.legend}>
         {legendEntries.map((entry) => (
           <div key={entry.friendId} className={styles.legendItem}>
-            <span
-              className={styles.legendSwatch}
-              style={{ background: entry.color }}
-            />
+            <span className={styles.legendSwatch} style={{ background: entry.color }} />
             <span className={styles.legendLabel}>{entry.friendName}</span>
           </div>
         ))}
@@ -260,10 +251,7 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
 
       {/* Tooltip */}
       {tooltip && (
-        <div
-          className={styles.tooltip}
-          style={{ left: tooltip.x, top: tooltip.y }}
-        >
+        <div className={styles.tooltip} style={{ left: tooltip.x, top: tooltip.y }}>
           <div className={styles.tooltipHeader}>
             <span>{tooltip.dateLabel}</span>
             <span>

@@ -5,8 +5,11 @@ import { useGT } from "gt-next";
 import styles from "./WishlistCard.module.scss";
 import { Wishlist } from "@/types/wishlist";
 import { Gift, Link2 } from "lucide-react";
-import { getAccent, visibilityIcon } from "@/lib/helpers/wishlist-helper";
-import { useWishlistVisibilityLabels } from "@/lib/helpers/use-wishlist-visibility-labels";
+import {
+  WISHLIST_VISIBILITY_ICONS,
+  getWishlistAccentClass,
+  getWishlistVisibilityLabels,
+} from "@/lib/helpers/wishlist-metadata";
 
 type Props = {
   wishlist: Wishlist;
@@ -16,12 +19,12 @@ type Props = {
 export function WishlistCard({ wishlist, showSharedMeta = true }: Props) {
   const t = useGT();
   const router = useRouter();
-  const visibilityLabels = useWishlistVisibilityLabels();
+  const visibilityLabels = getWishlistVisibilityLabels(t);
 
-  const accent = getAccent(wishlist.accent_type);
+  const accent = getWishlistAccentClass(wishlist.accent_type);
   const hasImage = Boolean(wishlist.image_url);
   const visibility = wishlist.visibility_type;
-  const VisibilityIcon = visibilityIcon[visibility];
+  const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[visibility];
   const itemsCount =
     wishlist.items_count ?? (wishlist as Wishlist & { itemsCount?: number }).itemsCount ?? 0;
   const isShared = showSharedMeta && wishlist.is_owner === false;

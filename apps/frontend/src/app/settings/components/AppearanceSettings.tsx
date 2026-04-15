@@ -10,22 +10,10 @@ import { WishlistAccent } from "@/types/wishlist";
 import type { ThemePreference, WishlistColorIndex } from "@/types/settings";
 import { useAppTheme } from "@/providers";
 import { CurrencySettings } from "./CurrencySettings";
-
-const ACCENT_ENTRIES: { id: WishlistAccent; cssClass: string }[] = [
-  { id: WishlistAccent.Pink, cssClass: "pink" },
-  { id: WishlistAccent.Blue, cssClass: "blue" },
-  { id: WishlistAccent.Peach, cssClass: "peach" },
-  { id: WishlistAccent.Mint, cssClass: "mint" },
-  { id: WishlistAccent.Lavender, cssClass: "lavender" },
-];
-
-const WISHLIST_COLOR_ENTRIES: { id: WishlistColorIndex; cssClass: string }[] = [
-  { id: 0, cssClass: "pink" },
-  { id: 1, cssClass: "peach" },
-  { id: 2, cssClass: "blue" },
-  { id: 3, cssClass: "lavender" },
-  { id: 4, cssClass: "mint" },
-];
+import {
+  getWishlistAccentSwatches,
+  getWishlistColorSwatches,
+} from "@/lib/helpers/wishlist-metadata";
 
 export function AppearanceSettings() {
   const t = useGT();
@@ -84,51 +72,9 @@ export function AppearanceSettings() {
     [t],
   );
 
-  const accents = useMemo(
-    () =>
-      ACCENT_ENTRIES.map((a) => ({
-        ...a,
-        label:
-          a.cssClass === "pink"
-            ? t("Pink", { $id: "settings.appearance.accent.pink" })
-            : a.cssClass === "blue"
-              ? t("Blue", { $id: "settings.appearance.accent.blue" })
-              : a.cssClass === "peach"
-                ? t("Peach", { $id: "settings.appearance.accent.peach" })
-                : a.cssClass === "mint"
-                  ? t("Mint", { $id: "settings.appearance.accent.mint" })
-                  : t("Lavender", {
-                      $id: "settings.appearance.accent.lavender",
-                    }),
-      })),
-    [t],
-  );
+  const accents = useMemo(() => getWishlistAccentSwatches(t), [t]);
 
-  const wishlistColors = useMemo(
-    () =>
-      WISHLIST_COLOR_ENTRIES.map((a) => ({
-        ...a,
-        label:
-          a.cssClass === "pink"
-            ? t("Pink", { $id: "settings.appearance.wishlistColor.pink" })
-            : a.cssClass === "peach"
-              ? t("Peach", {
-                  $id: "settings.appearance.wishlistColor.peach",
-                })
-              : a.cssClass === "blue"
-                ? t("Blue", {
-                    $id: "settings.appearance.wishlistColor.blue",
-                  })
-                : a.cssClass === "lavender"
-                  ? t("Lavender", {
-                      $id: "settings.appearance.wishlistColor.lavender",
-                    })
-                  : t("Mint", {
-                      $id: "settings.appearance.wishlistColor.mint",
-                    }),
-      })),
-    [t],
-  );
+  const wishlistColors = useMemo(() => getWishlistColorSwatches(t), [t]);
 
   const defaultColorLabel = t("Pink", {
     $id: "settings.appearance.wishlistColor.pink",

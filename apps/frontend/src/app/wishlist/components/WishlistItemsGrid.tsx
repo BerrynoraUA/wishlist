@@ -1,7 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { useGT } from "gt-next";
 import styles from "./WishlistItemsGrid.module.scss";
-import { WishlistItemCard } from "./WishlistItemCard";
+import { ItemCard, normalizeWishlistItem } from "@/components/shared/ItemCard";
+import { WishlistItemDetailModal } from "./WishlistItemDetailModal";
 import { Item } from "@/types/item";
 import { useProfilesByIds } from "@/hooks/use-settings";
 import { useCurrentUserId } from "@/hooks/use-user";
@@ -81,7 +82,9 @@ export function WishlistItemsGrid({
             type="button"
             className={`${styles.toggleBtn} ${cols === 2 ? styles.toggleActive : ""}`}
             onClick={() => setCols(2)}
-            aria-label={t("2 per row", { $id: "wishlist.grid.layoutTwoPerRow" })}
+            aria-label={t("2 per row", {
+              $id: "wishlist.grid.layoutTwoPerRow",
+            })}
           >
             <LayoutGrid size={16} />
           </button>
@@ -89,7 +92,9 @@ export function WishlistItemsGrid({
             type="button"
             className={`${styles.toggleBtn} ${cols === 1 ? styles.toggleActive : ""}`}
             onClick={() => setCols(1)}
-            aria-label={t("1 per row", { $id: "wishlist.grid.layoutOnePerRow" })}
+            aria-label={t("1 per row", {
+              $id: "wishlist.grid.layoutOnePerRow",
+            })}
           >
             <LayoutList size={16} />
           </button>
@@ -97,23 +102,39 @@ export function WishlistItemsGrid({
       )}
       <div className={`${styles.grid} ${isMobile && cols === 1 ? styles.gridSingle : ""}`}>
         {items.map((item) => (
-          <WishlistItemCard
+          <ItemCard
             key={item.id}
-            item={item}
+            {...normalizeWishlistItem(
+              item,
+              item.reserved_by ? (reservedByNameById.get(item.reserved_by) ?? null) : null,
+            )}
+            variant="wishlist"
             isOwner={isOwner}
             showDiscountBadge={showDiscountBadge}
             onToggleReserve={onToggleReserve}
             onToggleBought={onToggleBought}
-            reservedByName={
-              item.reserved_by ? (reservedByNameById.get(item.reserved_by) ?? null) : null
-            }
             onDelete={onDelete}
-            onEdit={onEdit}
+            onEdit={onEdit ? () => onEdit(item) : undefined}
             autoOpen={openItemId === item.id}
             onAutoOpenHandled={onOpenItemHandled}
             voteCount={votesData?.counts[item.id] ?? 0}
             hasVoted={votesData?.userVotes.has(item.id) ?? false}
             onToggleVote={!isOwner ? (id) => toggleVote.mutate(id) : undefined}
+            renderDetailModal={({ open, onClose }) => (
+              <WishlistItemDetailModal
+                open={open}
+                onClose={onClose}
+                item={item}
+                isOwner={isOwner}
+                onToggleReserve={onToggleReserve}
+                onToggleBought={onToggleBought}
+                reservedByName={
+                  item.reserved_by ? (reservedByNameById.get(item.reserved_by) ?? null) : null
+                }
+                onDelete={onDelete}
+                onEdit={onEdit}
+              />
+            )}
           />
         ))}
       </div>

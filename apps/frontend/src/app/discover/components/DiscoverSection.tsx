@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useGT } from "gt-next";
 import { UserRound } from "lucide-react";
 import styles from "./DiscoverSection.module.scss";
-import { DiscoverItemCard } from "./DiscoverItemCard";
+import { ItemCard, normalizeDiscoverItem } from "@/components/shared/ItemCard";
+import { ItemDetailModal } from "./ItemDetailModal";
 import { DiscoverSection as Section } from "@/api/types/wishilst";
 
 type Props = Section & {
@@ -106,12 +107,22 @@ export function DiscoverSection({
 
       <div className={styles.grid}>
         {items.map((item) => (
-          <DiscoverItemCard
+          <ItemCard
             key={item.id}
-            {...item}
+            {...normalizeDiscoverItem(item)}
+            variant="discover"
             showDiscountBadge={showDiscountBadge}
             onToggleReserve={onToggleReserve}
             onToggleBought={onToggleBought}
+            renderDetailModal={({ open, onClose }) => (
+              <ItemDetailModal
+                open={open}
+                onClose={onClose}
+                item={item}
+                onToggleReserve={onToggleReserve}
+                onToggleBought={onToggleBought}
+              />
+            )}
           />
         ))}
       </div>
