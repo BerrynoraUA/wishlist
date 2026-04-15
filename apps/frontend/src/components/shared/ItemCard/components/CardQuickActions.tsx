@@ -1,8 +1,12 @@
 import { useGT } from "gt-next";
 import { ExternalLink, MoreHorizontal } from "lucide-react";
 import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
-import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+} from "@/components/ui/DropdownMenu/DropdownMenu";
 import { buildSaveItemData, shareItemLink } from "@/lib/helpers/item-card";
+import type { ItemCardPriority } from "@/lib/helpers/item-card";
 import styles from "../ItemCard.module.scss";
 
 type CardQuickActionsProps = {
@@ -13,7 +17,7 @@ type CardQuickActionsProps = {
   price: string | number | null;
   url: string | null;
   shareUrl: string | null;
-  priority: "Low" | "Medium" | "High" | number | null;
+  priority: ItemCardPriority;
   discountPrice: string | number | null;
   currency: string | null;
   isOwner: boolean;
@@ -125,7 +129,10 @@ export function CardQuickActions({
             </button>
           )}
         >
-          <DropdownMenuItem variant="share" onClick={() => shareItemLink(shareUrl!)}>
+          <DropdownMenuItem
+            variant="share"
+            onClick={() => shareItemLink(shareUrl!)}
+          >
             <span>{t("Share", { $id: "itemCard.share" })}</span>
           </DropdownMenuItem>
         </DropdownMenu>

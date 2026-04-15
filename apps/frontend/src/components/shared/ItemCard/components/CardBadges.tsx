@@ -3,10 +3,7 @@ import { ShoppingCart } from "lucide-react";
 import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
 import type { ItemCardPriorityKey } from "@/lib/helpers/item-card";
 import styles from "../ItemCard.module.scss";
-
-function cn(...args: (string | false | null | undefined)[]) {
-  return args.filter(Boolean).join(" ");
-}
+import { cn } from "../utils";
 
 type CardBadgesProps = {
   variant: "discover" | "reserved" | "wishlist";
@@ -39,7 +36,11 @@ export function CardBadges({
             isPurchased && styles.purchasedBadge,
           )}
         >
-          {isPurchased ? <ShoppingCart size={14} /> : <ReservationLockIcon isReserved size={14} />}
+          {isPurchased ? (
+            <ShoppingCart size={14} />
+          ) : (
+            <ReservationLockIcon isReserved size={14} />
+          )}
           {salePercentOff == null && <span>{statusLabel}</span>}
         </div>
       )}
@@ -54,7 +55,9 @@ export function CardBadges({
           </div>
         )}
         {priorityKey && (
-          <div className={`${styles.badgeRight} ${styles[priorityKey]}`}>{priorityDisplay}</div>
+          <div className={`${styles.badgeRight} ${styles[priorityKey]}`}>
+            {priorityDisplay}
+          </div>
         )}
       </div>
     </>

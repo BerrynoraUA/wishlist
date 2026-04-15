@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { ItemCardPriority } from "@/lib/helpers/item-card";
 
 export type ItemCardData = {
   id: string;
@@ -9,7 +10,7 @@ export type ItemCardData = {
   url: string | null;
   shareUrl: string | null;
   description: string | null;
-  priority: "Low" | "Medium" | "High" | number | null;
+  priority: ItemCardPriority;
   discountPrice: string | number | null;
   currency: string | null;
   status: number | null;
@@ -33,5 +34,8 @@ export type ItemCardProps = ItemCardData & {
   voteCount?: number;
   hasVoted?: boolean;
   onToggleVote?: (id: string) => void;
-  renderDetailModal?: (opts: { open: boolean; onClose: () => void }) => ReactNode;
+  renderDetailModal?: (opts: {
+    open: boolean;
+    onClose: () => void;
+  }) => ReactNode;
 };
