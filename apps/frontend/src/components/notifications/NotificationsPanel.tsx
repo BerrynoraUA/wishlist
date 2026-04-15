@@ -134,7 +134,9 @@ export function NotificationsPanel({
                   </div>
                   {isInvite && (
                     <div className={styles.inviteActions}>
-                      <button
+                      <Button
+                        variant="success"
+                        size="sm"
                         className={styles.accept}
                         onClick={() => handleInviteAction(n, "accept")}
                         disabled={invitePending}
@@ -144,8 +146,10 @@ export function NotificationsPanel({
                               $id: "notifications.accepting",
                             })
                           : t("Accept", { $id: "notifications.accept" })}
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         className={styles.decline}
                         onClick={() => handleInviteAction(n, "decline")}
                         disabled={invitePending}
@@ -155,7 +159,7 @@ export function NotificationsPanel({
                               $id: "notifications.declining",
                             })
                           : t("Decline", { $id: "notifications.decline" })}
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </li>

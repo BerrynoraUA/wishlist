@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/Button/Button";
 import styles from "./OutgoingRequestCard.module.scss";
 import type { FriendRequestWithDetails } from "@/api/types/friends";
 
@@ -19,9 +20,15 @@ export function OutgoingRequestCard({ request, onCancel, cancelling = false }: P
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.cancel} onClick={onCancel} disabled={cancelling}>
+        <Button
+          variant="secondary"
+          size="sm"
+          className={styles.cancel}
+          onClick={onCancel}
+          disabled={cancelling}
+        >
           {cancelling ? "Cancelling..." : "Cancel Request"}
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import { useGT } from "gt-next";
-import styles from "./LoginTabs.module.scss";
+import { Tabs, type TabItem } from "@/components/ui/Tabs/Tabs";
 
 type Props = {
   active: "login" | "register";
@@ -10,18 +11,16 @@ type Props = {
 
 export function LoginTabs({ active, onChange }: Props) {
   const t = useGT();
-  return (
-    <div className={styles.tabs}>
-      <button className={active === "login" ? styles.active : ""} onClick={() => onChange("login")}>
-        {t("Login", { $id: "login.tabs.login" })}
-      </button>
-
-      <button
-        className={active === "register" ? styles.active : ""}
-        onClick={() => onChange("register")}
-      >
-        {t("Register", { $id: "login.tabs.register" })}
-      </button>
-    </div>
+  const items = useMemo<TabItem<"login" | "register">[]>(
+    () => [
+      { value: "login", label: t("Login", { $id: "login.tabs.login" }) },
+      {
+        value: "register",
+        label: t("Register", { $id: "login.tabs.register" }),
+      },
+    ],
+    [t],
   );
+
+  return <Tabs items={items} active={active} onChange={onChange} />;
 }

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { getDataTheme, DARK_THEME } from "./helpers/theme";
+import { getDataTheme } from "./helpers/theme";
 
 test.describe("Theme & color system", () => {
   // Serialise because theme tests share mutable server state

@@ -5,12 +5,22 @@ import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useUpdateWishlist } from "@/hooks/use-wishlists";
-import { Wishlist, WishlistAccent, WishlistVisibility } from "@/types/wishlist";
-import { Globe, Users, Lock, Check } from "lucide-react";
+import { Wishlist } from "@/types/wishlist";
+import { Check } from "lucide-react";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { validateImageUploadFile } from "@/lib/image-upload";
+import {
+  WISHLIST_COLOR_OPTIONS,
+  WISHLIST_PRIVACY_BY_VISIBILITY,
+  WISHLIST_VISIBILITY_BY_PRIVACY,
+  getWishlistAccentByColor,
+  getWishlistColorByAccent,
+  getWishlistPrivacyOptions,
+  type WishlistColorOption,
+  type WishlistPrivacyOption,
+} from "@/lib/helpers/wishlist-metadata";
 import styles from "./CreateWishlistModal.module.scss";
 
 type Props = {
@@ -32,39 +42,6 @@ export function EditWishlistModal({ open, onClose, wishlist }: Props) {
   );
 }
 
-type PrivacyOption = "Public" | "Friends" | "Private";
-type ColorOption = "pink" | "peach" | "blue" | "lavender" | "mint";
-
-const colors: ColorOption[] = ["pink", "peach", "blue", "lavender", "mint"];
-
-const visibilityToPrivacy: Record<WishlistVisibility, PrivacyOption> = {
-  [WishlistVisibility.Public]: "Public",
-  [WishlistVisibility.FriendsOnly]: "Friends",
-  [WishlistVisibility.Private]: "Private",
-};
-
-const privacyToVisibility: Record<PrivacyOption, WishlistVisibility> = {
-  Public: WishlistVisibility.Public,
-  Friends: WishlistVisibility.FriendsOnly,
-  Private: WishlistVisibility.Private,
-};
-
-const accentToColor: Record<WishlistAccent, ColorOption> = {
-  [WishlistAccent.Pink]: "pink",
-  [WishlistAccent.Blue]: "blue",
-  [WishlistAccent.Peach]: "peach",
-  [WishlistAccent.Mint]: "mint",
-  [WishlistAccent.Lavender]: "lavender",
-};
-
-const colorToAccent: Record<ColorOption, WishlistAccent> = {
-  pink: WishlistAccent.Pink,
-  peach: WishlistAccent.Peach,
-  blue: WishlistAccent.Blue,
-  lavender: WishlistAccent.Lavender,
-  mint: WishlistAccent.Mint,
-};
-
 function EditWishlistForm({
   open,
   wishlist,
@@ -75,12 +52,15 @@ function EditWishlistForm({
   onClose: () => void;
 }) {
   const t = useGT();
+  const privacyOptions = getWishlistPrivacyOptions(t);
   const [name, setName] = useState(wishlist.title ?? "");
   const [description, setDescription] = useState(wishlist.description ?? "");
-  const [privacy, setPrivacy] = useState<PrivacyOption>(
-    visibilityToPrivacy[wishlist.visibility_type] ?? "Public",
+  const [privacy, setPrivacy] = useState<WishlistPrivacyOption>(
+    WISHLIST_PRIVACY_BY_VISIBILITY[wishlist.visibility_type] ?? "Public",
   );
-  const [color, setColor] = useState<ColorOption>(accentToColor[wishlist.accent_type] ?? "pink");
+  const [color, setColor] = useState<WishlistColorOption>(
+    getWishlistColorByAccent(wishlist.accent_type),
+  );
   const [eventDate, setEventDate] = useState(() => {
     const raw = wishlist.event_date ?? (wishlist as Wishlist & { event_date?: string }).event_date;
     return raw ? String(raw).split("T")[0] : "";
@@ -135,10 +115,10 @@ function EditWishlistForm({
         updates: {
           title: name.trim(),
           description: description.trim() || undefined,
-          visibility: privacyToVisibility[privacy],
+          visibility: WISHLIST_VISIBILITY_BY_PRIVACY[privacy],
           image: imageFile,
           imageUrl: imageUrlToSave,
-          accent: colorToAccent[color],
+          accent: getWishlistAccentByColor(color),
           event_date: eventDate ? new Date(eventDate) : undefined,
         },
       },
@@ -231,40 +211,27 @@ function EditWishlistForm({
         <div className={styles.section}>
           <label>{t("Privacy", { $id: "wishlist.modal.privacyLabel" })}</label>
           <div className={styles.privacyOptions}>
-            <PrivacyCard
-              icon={<Globe size={18} />}
-              title={t("Public", { $id: "wishlist.privacy.public" })}
-              subtitle={t("Anyone can view", {
-                $id: "wishlist.privacy.publicSubtitle",
-              })}
-              selected={privacy === "Public"}
-              onClick={() => setPrivacy("Public")}
-            />
-            <PrivacyCard
-              icon={<Users size={18} />}
-              title={t("Friends Only", { $id: "wishlist.privacy.friends" })}
-              subtitle={t("Only your friends", {
-                $id: "wishlist.privacy.friendsSubtitle",
-              })}
-              selected={privacy === "Friends"}
-              onClick={() => setPrivacy("Friends")}
-            />
-            <PrivacyCard
-              icon={<Lock size={18} />}
-              title={t("Private", { $id: "wishlist.privacy.private" })}
-              subtitle={t("Only you", {
-                $id: "wishlist.privacy.privateSubtitle",
-              })}
-              selected={privacy === "Private"}
-              onClick={() => setPrivacy("Private")}
-            />
+            {privacyOptions.map((option) => {
+              const Icon = option.icon;
+
+              return (
+                <PrivacyCard
+                  key={option.value}
+                  icon={<Icon size={18} />}
+                  title={option.title}
+                  subtitle={option.subtitle}
+                  selected={privacy === option.value}
+                  onClick={() => setPrivacy(option.value)}
+                />
+              );
+            })}
           </div>
         </div>
 
         <div className={styles.section}>
           <label>{t("Cover Color", { $id: "wishlist.modal.coverColor" })}</label>
           <div className={styles.colors}>
-            {colors.map((c) => (
+            {WISHLIST_COLOR_OPTIONS.map((c) => (
               <div
                 key={c}
                 className={`${styles.color} ${styles[c]} ${color === c ? styles.active : ""}`}

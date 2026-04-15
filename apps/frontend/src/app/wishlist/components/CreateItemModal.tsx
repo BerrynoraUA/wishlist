@@ -2,17 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { useGT } from "gt-next";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Select } from "@/components/ui/Select/Select";
 import { useCreateItem } from "@/hooks/use-items";
 import { useSettings } from "@/hooks/use-settings";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
-import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@/lib/currencies";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { validateImageUploadFile } from "@/lib/image-upload";
+import {
+  getCompactCurrencyOptions,
+  getPriorityOptions,
+  priorityToValue,
+  resolveCurrency,
+  type ItemPriorityOption,
+} from "@/lib/helpers/form-select-options";
 import styles from "./CreateItemModal.module.scss";
 
 import type { CreateItemParams } from "@/api/types/item";
@@ -23,21 +30,6 @@ type Props = {
   wishlistId: string;
 };
 
-type PriorityOption = "Low" | "Medium" | "High" | "None";
-
-const priorityToValue: Record<Exclude<PriorityOption, "None">, number> = {
-  Low: 1,
-  Medium: 2,
-  High: 3,
-};
-
-const supportedCurrencyCodes = new Set(SUPPORTED_CURRENCIES.map((currency) => currency.code));
-
-function resolveCurrency(value?: string | null) {
-  const normalized = normalizeCurrencyCode(value);
-  return supportedCurrencyCodes.has(normalized) ? normalized : "USD";
-}
-
 export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const t = useGT();
   const { isPro } = useSubscription();
@@ -46,7 +38,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [priority, setPriority] = useState<PriorityOption>("None");
+  const [priority, setPriority] = useState<ItemPriorityOption>("None");
   const [imagePreview, setImagePreview] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
@@ -59,6 +51,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const { data: settings } = useSettings();
   const preferredCurrency = resolveCurrency(settings?.display_currency);
   const [currency, setCurrency] = useState(preferredCurrency);
+  const currencyOptions = getCompactCurrencyOptions();
+  const priorityOptions = getPriorityOptions(t);
 
   const { mutate, isPending } = useCreateItem();
 
@@ -319,21 +313,14 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         <div className={styles.field}>
           <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
           <div className={styles.priceRow}>
-            <div className={styles.selectWrap}>
-              <select
-                className={styles.selectField}
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                aria-label={t("Currency", { $id: "item.modal.currencyAria" })}
-              >
-                {SUPPORTED_CURRENCIES.map((supportedCurrency) => (
-                  <option key={supportedCurrency.code} value={supportedCurrency.code}>
-                    {supportedCurrency.symbol} {supportedCurrency.code}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className={styles.selectChevron} size={16} />
-            </div>
+            <Select
+              value={currency}
+              onChange={setCurrency}
+              options={currencyOptions}
+              ariaLabel={t("Currency", { $id: "item.modal.currencyAria" })}
+              className={styles.selectWrap}
+              triggerClassName={styles.selectField}
+            />
             <input
               type="text"
               placeholder={t("199", { $id: "item.modal.pricePlaceholder" })}
@@ -346,19 +333,13 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         {canUsePriority && (
           <div className={styles.field}>
             <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
-            <div className={styles.selectWrap}>
-              <select
-                className={styles.selectField}
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as PriorityOption)}
-              >
-                <option value="None">{t("No priority", { $id: "item.modal.priorityNone" })}</option>
-                <option value="Low">{t("Low", { $id: "item.priority.low" })}</option>
-                <option value="Medium">{t("Medium", { $id: "item.priority.medium" })}</option>
-                <option value="High">{t("High", { $id: "item.priority.high" })}</option>
-              </select>
-              <ChevronDown className={styles.selectChevron} size={16} />
-            </div>
+            <Select
+              value={priority}
+              onChange={setPriority}
+              options={priorityOptions}
+              ariaLabel={t("Priority", { $id: "item.modal.priorityLabel" })}
+              triggerClassName={styles.selectField}
+            />
           </div>
         )}
 

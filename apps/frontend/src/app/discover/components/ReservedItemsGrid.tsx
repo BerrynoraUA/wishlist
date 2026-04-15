@@ -2,8 +2,10 @@
 
 import { useGT } from "gt-next";
 import styles from "./ReservedItemsGrid.module.scss";
-import { ReservedItemCard } from "./ReservedItemCard";
+import { ItemCard, normalizeReservedItem } from "@/components/shared/ItemCard";
+import { ItemDetailModal } from "./ItemDetailModal";
 import { ReservedItem } from "@/api/types/wishilst";
+import { getItemPriorityKey } from "@/lib/helpers/item-card";
 
 type Props = {
   items: ReservedItem[];
@@ -36,12 +38,48 @@ export function ReservedItemsGrid({
                   $id: "discover.grid.forOwner",
                 })}
           </div>
-          <ReservedItemCard
-            {...item}
+          <ItemCard
+            {...normalizeReservedItem(item)}
+            variant="reserved"
+            reservedByCurrentUser
             mode={mode}
             showDiscountBadge={showDiscountBadge}
             onToggleReserve={onToggleReserve}
             onToggleBought={onToggleBought}
+            renderDetailModal={({ open, onClose }) => {
+              const pk = getItemPriorityKey(item.priority);
+              const priorityEnum =
+                pk === "low"
+                  ? "Low"
+                  : pk === "medium"
+                    ? "Medium"
+                    : pk === "high"
+                      ? "High"
+                      : undefined;
+              return (
+                <ItemDetailModal
+                  open={open}
+                  onClose={onClose}
+                  item={{
+                    id: item.item_id,
+                    title: item.title,
+                    price: item.price,
+                    store: item.store,
+                    image: item.image,
+                    isReserved: item.status !== 2,
+                    status: item.status,
+                    url: item.url,
+                    share_url: item.share_url,
+                    description: null,
+                    priority: priorityEnum,
+                    reservedByName: "you",
+                    currency: item.currency,
+                  }}
+                  onToggleReserve={onToggleReserve}
+                  onToggleBought={onToggleBought}
+                />
+              );
+            }}
           />
         </div>
       ))}

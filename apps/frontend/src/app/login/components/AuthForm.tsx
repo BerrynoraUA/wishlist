@@ -3,11 +3,8 @@
 import { useGT } from "gt-next";
 import { useState } from "react";
 import { Chrome } from "lucide-react";
-import {
-  loginWithEmail,
-  loginWithGoogle,
-  registerWithEmail,
-} from "@/api/login";
+import { loginWithEmail, loginWithGoogle, registerWithEmail } from "@/api/login";
+import { Button } from "@/components/ui/Button/Button";
 import styles from "./AuthForm.module.scss";
 
 type Props = {
@@ -78,9 +75,7 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
   return (
     <div className={styles.card}>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <label className={styles.label}>
-          {t("Email", { $id: "login.form.label.email" })}
-        </label>
+        <label className={styles.label}>{t("Email", { $id: "login.form.label.email" })}</label>
         <input
           type="email"
           placeholder={t("you@email.com", {
@@ -106,8 +101,9 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <button
+        <Button
           type="submit"
+          fullWidth
           className={styles.submit}
           disabled={loading || googleLoading}
         >
@@ -120,7 +116,7 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
             : isLogin
               ? t("Sign in", { $id: "login.form.submit.signIn" })
               : t("Create account", { $id: "login.form.submit.createAccount" })}
-        </button>
+        </Button>
       </form>
 
       <p className={styles.helper}>
@@ -138,8 +134,9 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
           <span>{t("or", { $id: "login.form.divider.or" })}</span>
         </div>
 
-        <button
-          type="button"
+        <Button
+          variant="secondary"
+          fullWidth
           className={styles.googleButton}
           onClick={handleGoogle}
           disabled={googleLoading}
@@ -148,7 +145,7 @@ export function AuthForm({ mode, redirectTo, onLoginSuccess }: Props) {
           {googleLoading
             ? t("Redirecting...", { $id: "login.form.google.redirecting" })
             : t("Continue with Google", { $id: "login.form.google.continue" })}
-        </button>
+        </Button>
       </div>
     </div>
   );

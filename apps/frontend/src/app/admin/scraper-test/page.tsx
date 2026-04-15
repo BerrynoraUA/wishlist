@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { TEST_CASES, type TestCase } from "./test-urls";
 import { exportScraperResultsExcel, exportScraperResultsJson } from "./export-scraper-results";
+import { Button } from "@/components/ui/Button/Button";
 import styles from "./scraper-test.module.scss";
 
 interface ProductData {
@@ -408,7 +409,7 @@ export default function ScraperTestPage() {
             </>
           )}
 
-          <button className={styles.runBtn} onClick={runTest} disabled={state === "running"}>
+          <Button className={styles.runBtn} onClick={runTest} disabled={state === "running"}>
             {state === "running" ? (
               <>
                 <Loader2 size={16} className={styles.spinner} />
@@ -420,7 +421,7 @@ export default function ScraperTestPage() {
                 {state === "done" ? "Rerun" : "Start"}
               </>
             )}
-          </button>
+          </Button>
         </div>
       </div>
 
