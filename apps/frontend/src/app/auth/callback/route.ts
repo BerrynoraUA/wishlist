@@ -90,9 +90,7 @@ export async function GET(request: NextRequest) {
         const ph = getPostHogClient();
         identifyServerUser(ph, user);
         await ph.shutdown();
-      } catch {
-        // Never block auth on analytics
-      }
+      } catch {}
     }
   }
 

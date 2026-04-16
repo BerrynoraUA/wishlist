@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Select } from "@/components/ui/Select/Select";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { useUpdateItem } from "@/hooks/use-items";
@@ -12,21 +13,15 @@ import { Item } from "@/types/item";
 import type { UpdateItemParams } from "@/api/types/item";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { validateImageUploadFile } from "@/lib/image-upload";
+import {
+  getCompactCurrencyOptions,
+  getPriorityOptions,
+  priorityToValue,
+  resolveCurrency,
+  valueToPriority,
+  type ItemPriorityOption,
+} from "@/lib/helpers/form-select-options";
 import styles from "./CreateItemModal.module.scss";
-
-type PriorityOption = "Low" | "Medium" | "High" | "None";
-
-const priorityToValue: Record<Exclude<PriorityOption, "None">, number> = {
-  Low: 1,
-  Medium: 2,
-  High: 3,
-};
-
-const valueToPriority: Record<number, PriorityOption> = {
-  1: "Low",
-  2: "Medium",
-  3: "High",
-};
 
 type Props = {
   open: boolean;
@@ -44,17 +39,19 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
   const t = useGT();
   const { isPro } = useSubscription();
   const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
+  const currencyOptions = getCompactCurrencyOptions();
+  const priorityOptions = getPriorityOptions(t);
   const [name, setName] = useState(item.name ?? "");
   const [description, setDescription] = useState(item.description ?? "");
   const [price, setPrice] = useState(item.price ?? "");
-  const [priority, setPriority] = useState<PriorityOption>(
+  const [priority, setPriority] = useState<ItemPriorityOption>(
     item.priority ? (valueToPriority[item.priority] ?? "None") : "None",
   );
   const [link, setLink] = useState(item.url ?? "");
   const [imagePreview, setImagePreview] = useState(item.image_url ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
-  const [currency, setCurrency] = useState(item.currency ?? "USD");
+  const [currency, setCurrency] = useState(resolveCurrency(item.currency));
   const [imageError, setImageError] = useState<string | null>(null);
 
   const { mutate, isPending } = useUpdateItem();
@@ -188,21 +185,14 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
         <div className={styles.field}>
           <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
           <div className={styles.priceRow}>
-            <select
+            <Select
               value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
+              onChange={setCurrency}
+              options={currencyOptions}
               aria-label={t("Currency", { $id: "item.modal.currencyAria" })}
-            >
-              <option value="USD">{t("$ USD", { $id: "currency.usd" })}</option>
-              <option value="EUR">{t("€ EUR", { $id: "currency.eur" })}</option>
-              <option value="GBP">{t("£ GBP", { $id: "currency.gbp" })}</option>
-              <option value="UAH">{t("₴ UAH", { $id: "currency.uah" })}</option>
-              <option value="PLN">{t("zł PLN", { $id: "currency.pln" })}</option>
-              <option value="JPY">{t("¥ JPY", { $id: "currency.jpy" })}</option>
-              <option value="CAD">{t("CA$ CAD", { $id: "currency.cad" })}</option>
-              <option value="AUD">{t("A$ AUD", { $id: "currency.aud" })}</option>
-              <option value="CHF">{t("CHF", { $id: "currency.chf" })}</option>
-            </select>
+              className={styles.selectWrap}
+              triggerClassName={styles.selectField}
+            />
             <input
               type="text"
               placeholder={t("199", { $id: "item.modal.pricePlaceholder" })}
@@ -215,15 +205,13 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
         {canUsePriority && (
           <div className={styles.field}>
             <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
-            <select
+            <Select
               value={priority}
-              onChange={(e) => setPriority(e.target.value as PriorityOption)}
-            >
-              <option value="None">{t("No priority", { $id: "item.modal.priorityNone" })}</option>
-              <option value="Low">{t("Low", { $id: "item.priority.low" })}</option>
-              <option value="Medium">{t("Medium", { $id: "item.priority.medium" })}</option>
-              <option value="High">{t("High", { $id: "item.priority.high" })}</option>
-            </select>
+              onChange={setPriority}
+              options={priorityOptions}
+              ariaLabel={t("Priority", { $id: "item.modal.priorityLabel" })}
+              triggerClassName={styles.selectField}
+            />
           </div>
         )}
 

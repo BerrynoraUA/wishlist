@@ -5,8 +5,11 @@ import { Gift, Calendar } from "lucide-react";
 import { useGT, useLocale } from "gt-next";
 import { formatLocalizedShortDate } from "@/lib/helpers/format-localized-short-date";
 import { Wishlist } from "@/types/wishlist";
-import { getAccent, visibilityIcon } from "@/lib/helpers/wishlist-helper";
-import { useWishlistVisibilityLabels } from "@/lib/helpers/use-wishlist-visibility-labels";
+import {
+  WISHLIST_VISIBILITY_ICONS,
+  getWishlistAccentClass,
+  getWishlistVisibilityLabels,
+} from "@/lib/helpers/wishlist-metadata";
 
 type Props = {
   wishlist: Wishlist;
@@ -15,10 +18,10 @@ type Props = {
 export function SharedWishlistHeader({ wishlist }: Props) {
   const t = useGT();
   const locale = useLocale();
-  const visibilityLabels = useWishlistVisibilityLabels();
-  const accent = getAccent(wishlist.accent_type);
+  const visibilityLabels = getWishlistVisibilityLabels(t);
+  const accent = getWishlistAccentClass(wishlist.accent_type);
   const visibility = visibilityLabels[wishlist.visibility_type];
-  const VisibilityIcon = visibilityIcon[wishlist.visibility_type];
+  const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[wishlist.visibility_type];
   const itemsCount = wishlist.items_count ?? 0;
   const description = wishlist.description ?? "";
   const eventDate = wishlist.event_date;
