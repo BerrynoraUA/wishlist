@@ -1,4 +1,5 @@
 import styles from "./ItemsHeader.module.scss";
+import { Button } from "@/components/ui/Button/Button";
 
 export function ItemsHeader() {
   return (
@@ -8,7 +9,7 @@ export function ItemsHeader() {
         <p>Add products from links and manage your wishlist.</p>
       </div>
 
-      <button className={styles.button}>Add Item</button>
+      <Button className={styles.button}>Add Item</Button>
     </div>
   );
 }

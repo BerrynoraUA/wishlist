@@ -1,7 +1,9 @@
 "use client";
 
+import { useMemo } from "react";
 import { useGT } from "gt-next";
 import styles from "./DiscoverFilters.module.scss";
+import { Tabs, type TabItem } from "@/components/ui/Tabs/Tabs";
 import { Sparkles, Heart, ShoppingCart } from "lucide-react";
 
 type Props = {
@@ -11,36 +13,57 @@ type Props = {
 
 export function DiscoverFilters({ active, onChange }: Props) {
   const t = useGT();
+
+  const items = useMemo<TabItem<"wishlists" | "available" | "reserved" | "purchased">[]>(
+    () => [
+      {
+        value: "wishlists",
+        label: (
+          <>
+            <Sparkles size={16} />
+            <span>{t("All Wishlists", { $id: "discover.filters.allWishlists" })}</span>
+          </>
+        ),
+      },
+      {
+        value: "available",
+        label: (
+          <>
+            <Sparkles size={16} />
+            <span>Available</span>
+          </>
+        ),
+      },
+      {
+        value: "reserved",
+        label: (
+          <>
+            <Heart size={16} />
+            <span>{t("Reserved", { $id: "discover.filters.reserved" })}</span>
+          </>
+        ),
+      },
+      {
+        value: "purchased",
+        label: (
+          <>
+            <ShoppingCart size={16} />
+            <span>{t("Purchased", { $id: "discover.filters.purchased" })}</span>
+          </>
+        ),
+      },
+    ],
+    [t],
+  );
+
   return (
-    <div className={styles.filters}>
-      <button
-        className={active === "wishlists" ? styles.active : ""}
-        onClick={() => onChange("wishlists")}
-      >
-        <Sparkles size={16} />
-        <span>{t("All Wishlists", { $id: "discover.filters.allWishlists" })}</span>
-      </button>
-      <button
-        className={active === "available" ? styles.active : ""}
-        onClick={() => onChange("available")}
-      >
-        <Sparkles size={16} />
-        <span>Available</span>
-      </button>
-      <button
-        className={active === "reserved" ? styles.active : ""}
-        onClick={() => onChange("reserved")}
-      >
-        <Heart size={16} />
-        <span>{t("Reserved", { $id: "discover.filters.reserved" })}</span>
-      </button>
-      <button
-        className={active === "purchased" ? styles.active : ""}
-        onClick={() => onChange("purchased")}
-      >
-        <ShoppingCart size={16} />
-        <span>{t("Purchased", { $id: "discover.filters.purchased" })}</span>
-      </button>
-    </div>
+    <Tabs
+      items={items}
+      active={active}
+      onChange={onChange}
+      className={styles.filters}
+      tabClassName={styles.filterTab}
+      activeTabClassName={styles.active}
+    />
   );
 }

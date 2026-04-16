@@ -31,8 +31,7 @@
   }
 
   input,
-  textarea,
-  select {
+  textarea {
     width: 100%;
     border: 1.5px solid var(--input-border);
     border-radius: $radius-md;
@@ -79,30 +78,14 @@
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 10px;
-
-  select {
-    width: auto;
-  }
 }
 
 .selectWrap {
-  position: relative;
   min-width: 112px;
 }
 
 .selectField {
-  appearance: none;
-  -webkit-appearance: none;
-  padding-right: 42px !important;
-}
-
-.selectChevron {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-text-light);
-  pointer-events: none;
+  width: 100%;
 }
 
 .error {

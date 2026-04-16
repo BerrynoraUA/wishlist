@@ -132,60 +132,14 @@
 
 .accept {
   flex: 1;
-  background: $brand;
-  color: white;
-  border: none;
-  border-radius: $radius-pill;
   padding: 6px 12px;
-  font-weight: 600;
   font-size: 12px;
-  cursor: pointer;
-  box-shadow: $shadow-brand;
-  transition: all 0.3s $ease-out;
-
-  &:hover:not(:disabled) {
-    background: $brand-dark;
-    box-shadow: $shadow-brand-lg;
-    transform: translateY(-1px);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0) scale(0.97);
-  }
-
-  &:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
 }
 
 .decline {
   flex: 1;
-  background: var(--card-bg);
-  border: 1.5px solid var(--color-border-light);
-  border-radius: $radius-pill;
   padding: 6px 12px;
   font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text);
-  cursor: pointer;
-  transition: all 0.3s $ease-out;
-
-  &:hover:not(:disabled) {
-    border-color: var(--color-border);
-    background: var(--color-bg-subtle);
-    transform: translateY(-1px);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0) scale(0.97);
-  }
-
-  &:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-  }
 }
 
 .unread {

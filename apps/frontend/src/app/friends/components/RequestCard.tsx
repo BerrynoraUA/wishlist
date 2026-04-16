@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/Button/Button";
 import styles from "./RequestCard.module.scss";
 import type { FriendRequestWithDetails } from "@/api/types/friends";
 
@@ -27,12 +28,23 @@ export function RequestCard({
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.accept} onClick={onAccept} disabled={accepting || rejecting}>
+        <Button
+          size="sm"
+          className={styles.accept}
+          onClick={onAccept}
+          disabled={accepting || rejecting}
+        >
           {accepting ? "Accepting..." : "Accept"}
-        </button>
-        <button className={styles.decline} onClick={onReject} disabled={accepting || rejecting}>
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          className={styles.decline}
+          onClick={onReject}
+          disabled={accepting || rejecting}
+        >
           {rejecting ? "Declining..." : "Decline"}
-        </button>
+        </Button>
       </div>
     </div>
   );

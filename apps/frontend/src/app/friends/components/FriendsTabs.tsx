@@ -1,7 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import { useGT } from "gt-next";
-import styles from "./FriendsTabs.module.scss";
+import { Tabs, type TabItem } from "@/components/ui/Tabs/Tabs";
 
 type TabValue = "friends" | "requests" | "sent";
 
@@ -21,26 +22,32 @@ export function FriendsTabs({
   onChange,
 }: Props) {
   const t = useGT();
-  return (
-    <div className={styles.tabs}>
-      <button
-        className={active === "friends" ? styles.active : ""}
-        onClick={() => onChange("friends")}
-      >
-        {t("Friends", { $id: "friends.tabs.friends" })} <span>{friendsCount}</span>
-      </button>
-
-      <button
-        className={active === "requests" ? styles.active : ""}
-        onClick={() => onChange("requests")}
-      >
-        {t("Requests", { $id: "friends.tabs.requests" })}{" "}
-        <span className={styles.badge}>{requestsCount}</span>
-      </button>
-
-      <button className={active === "sent" ? styles.active : ""} onClick={() => onChange("sent")}>
-        {t("Sent", { $id: "friends.tabs.sent" })} <span>{sentCount}</span>
-      </button>
-    </div>
+  const items = useMemo<TabItem<TabValue>[]>(
+    () => [
+      {
+        value: "friends",
+        label: (
+          <>
+            {t("Friends", { $id: "friends.tabs.friends" })} {friendsCount}
+          </>
+        ),
+      },
+      {
+        value: "requests",
+        label: t("Requests", { $id: "friends.tabs.requests" }),
+        badge: requestsCount,
+      },
+      {
+        value: "sent",
+        label: (
+          <>
+            {t("Sent", { $id: "friends.tabs.sent" })} {sentCount}
+          </>
+        ),
+      },
+    ],
+    [t, friendsCount, requestsCount, sentCount],
   );
+
+  return <Tabs items={items} active={active} onChange={onChange} />;
 }

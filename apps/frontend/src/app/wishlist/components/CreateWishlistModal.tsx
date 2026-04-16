@@ -6,12 +6,20 @@ import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useCreateWishlist } from "@/hooks/use-wishlists";
 import { useSettings } from "@/hooks/use-settings";
-import { WishlistAccent, WishlistVisibility } from "@/types/wishlist";
-import { Globe, Users, Lock, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { validateImageUploadFile } from "@/lib/image-upload";
+import {
+  WISHLIST_COLOR_OPTIONS,
+  WISHLIST_VISIBILITY_BY_PRIVACY,
+  getWishlistAccentByColor,
+  getWishlistColorByIndex,
+  getWishlistPrivacyOptions,
+  type WishlistColorOption,
+  type WishlistPrivacyOption,
+} from "@/lib/helpers/wishlist-metadata";
 import styles from "./CreateWishlistModal.module.scss";
 
 type Props = {
@@ -19,28 +27,9 @@ type Props = {
   onClose: () => void;
 };
 
-type PrivacyOption = "Public" | "Friends" | "Private";
-type ColorOption = "pink" | "peach" | "blue" | "lavender" | "mint";
-
-const colors: ColorOption[] = ["pink", "peach", "blue", "lavender", "mint"];
-
-const privacyToVisibility: Record<PrivacyOption, WishlistVisibility> = {
-  Public: WishlistVisibility.Public,
-  Friends: WishlistVisibility.FriendsOnly,
-  Private: WishlistVisibility.Private,
-};
-
-const colorToAccent: Record<ColorOption, WishlistAccent> = {
-  pink: WishlistAccent.Pink,
-  peach: WishlistAccent.Peach,
-  blue: WishlistAccent.Blue,
-  lavender: WishlistAccent.Lavender,
-  mint: WishlistAccent.Mint,
-};
-
 export function CreateWishlistModal({ open, onClose }: Props) {
   const { data: settings } = useSettings();
-  const defaultColor: ColorOption = colors[settings?.default_wishlist_color ?? 0] ?? "pink";
+  const defaultColor = getWishlistColorByIndex(settings?.default_wishlist_color);
 
   if (!open) return null;
 
@@ -57,15 +46,16 @@ function CreateWishlistForm({
   defaultColor,
   onClose,
 }: {
-  defaultColor: ColorOption;
+  defaultColor: WishlistColorOption;
   onClose: () => void;
 }) {
   const t = useGT();
+  const privacyOptions = getWishlistPrivacyOptions(t);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [privacy, setPrivacy] = useState<PrivacyOption>("Public");
-  const [color, setColor] = useState<ColorOption>(defaultColor);
+  const [privacy, setPrivacy] = useState<WishlistPrivacyOption>("Public");
+  const [color, setColor] = useState<WishlistColorOption>(defaultColor);
   const [eventDate, setEventDate] = useState("");
   const [imagePreview, setImagePreview] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -128,10 +118,10 @@ function CreateWishlistForm({
       {
         title: name.trim(),
         description: description.trim() || undefined,
-        visibility: privacyToVisibility[privacy],
+        visibility: WISHLIST_VISIBILITY_BY_PRIVACY[privacy],
         image: imageFile,
         imageUrl: imageUrlToSave,
-        accent: colorToAccent[color],
+        accent: getWishlistAccentByColor(color),
         event_date: eventDate ? new Date(eventDate) : undefined,
       },
       {
@@ -242,35 +232,20 @@ function CreateWishlistForm({
           <label>{t("Privacy", { $id: "wishlist.modal.privacyLabel" })}</label>
 
           <div className={styles.privacyOptions}>
-            <PrivacyCard
-              icon={<Globe size={18} />}
-              title={t("Public", { $id: "wishlist.privacy.public" })}
-              subtitle={t("Anyone can view", {
-                $id: "wishlist.privacy.publicSubtitle",
-              })}
-              selected={privacy === "Public"}
-              onClick={() => setPrivacy("Public")}
-            />
+            {privacyOptions.map((option) => {
+              const Icon = option.icon;
 
-            <PrivacyCard
-              icon={<Users size={18} />}
-              title={t("Friends Only", { $id: "wishlist.privacy.friends" })}
-              subtitle={t("Only your friends", {
-                $id: "wishlist.privacy.friendsSubtitle",
-              })}
-              selected={privacy === "Friends"}
-              onClick={() => setPrivacy("Friends")}
-            />
-
-            <PrivacyCard
-              icon={<Lock size={18} />}
-              title={t("Private", { $id: "wishlist.privacy.private" })}
-              subtitle={t("Only you", {
-                $id: "wishlist.privacy.privateSubtitle",
-              })}
-              selected={privacy === "Private"}
-              onClick={() => setPrivacy("Private")}
-            />
+              return (
+                <PrivacyCard
+                  key={option.value}
+                  icon={<Icon size={18} />}
+                  title={option.title}
+                  subtitle={option.subtitle}
+                  selected={privacy === option.value}
+                  onClick={() => setPrivacy(option.value)}
+                />
+              );
+            })}
           </div>
         </div>
 
@@ -279,7 +254,7 @@ function CreateWishlistForm({
           <label>{t("Cover Color", { $id: "wishlist.modal.coverColor" })}</label>
 
           <div className={styles.colors}>
-            {colors.map((c) => (
+            {WISHLIST_COLOR_OPTIONS.map((c) => (
               <div
                 key={c}
                 className={`${styles.color} ${styles[c]} ${color === c ? styles.active : ""}`}
