@@ -21,6 +21,10 @@ import {
   useGrantWishlistAccess,
   useRevokeWishlistAccess,
 } from "@/hooks/use-wishlists";
+import {
+  hasReachedSearchThreshold,
+  normalizeSearchQuery,
+} from "@/lib/helpers/search";
 import type { ProfileSearchResult } from "@/api/types/friends";
 import styles from "./GrantWishlistAccessModal.module.scss";
 
@@ -103,12 +107,14 @@ export function GrantWishlistAccessModal({
   }, [open]);
 
   const filteredFriends = useMemo(() => friends, [friends]);
+  const canSearch = hasReachedSearchThreshold(query);
 
   const canSubmit = Boolean(selectedFriend) && !grantAccess.isPending;
   const showDropdown =
     dropdownOpen &&
     !selectedFriend &&
-    (Boolean(query.trim()) || friendsLoading || filteredFriends.length > 0);
+    canSearch &&
+    (friendsLoading || filteredFriends.length > 0);
 
   async function handleSubmit() {
     if (!selectedFriend) return;
@@ -200,12 +206,13 @@ export function GrantWishlistAccessModal({
             <input
               value={selectedFriend ? `@${selectedFriend.nickname}` : query}
               onChange={(event) => {
+                const nextQuery = event.target.value;
                 setSelectedFriend(null);
-                setQuery(event.target.value);
-                setDropdownOpen(true);
+                setQuery(nextQuery);
+                setDropdownOpen(hasReachedSearchThreshold(nextQuery));
                 setErrorMessage(null);
               }}
-              onFocus={() => setDropdownOpen(true)}
+              onFocus={() => setDropdownOpen(hasReachedSearchThreshold(query))}
               placeholder={t("Search among your friends", {
                 $id: "wishlist.grantAccess.searchPlaceholder",
               })}
@@ -270,7 +277,7 @@ export function GrantWishlistAccessModal({
                           className={styles.resultItem}
                           onClick={() => {
                             setSelectedFriend(friend);
-                            setQuery(friend.nickname);
+                            setQuery(normalizeSearchQuery(friend.nickname));
                             setDropdownOpen(false);
                             setErrorMessage(null);
                           }}
@@ -317,7 +324,7 @@ export function GrantWishlistAccessModal({
                 onClick={() => {
                   setSelectedFriend(null);
                   setQuery("");
-                  setDropdownOpen(true);
+                  setDropdownOpen(false);
                 }}
               >
                 {t("Change", { $id: "wishlist.grantAccess.changeFriend" })}

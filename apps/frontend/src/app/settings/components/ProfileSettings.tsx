@@ -28,9 +28,9 @@ export function ProfileSettings() {
   const [nickname, setNickname] = useState("");
   const [bio, setBio] = useState("");
   const [avatarError, setAvatarError] = useState<string | null>(null);
-  const [nicknameStatus, setNicknameStatus] = useState<"idle" | "checking" | "available" | "taken">(
-    "idle",
-  );
+  const [nicknameStatus, setNicknameStatus] = useState<
+    "idle" | "checking" | "available" | "taken"
+  >("idle");
 
   const fileRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -50,7 +50,11 @@ export function ProfileSettings() {
 
     const trimmedNickname = nickname.trim();
 
-    if (!trimmedNickname || trimmedNickname.length < 3 || trimmedNickname === profile?.nickname) {
+    if (
+      !trimmedNickname ||
+      trimmedNickname.length < 3 ||
+      trimmedNickname === profile?.nickname
+    ) {
       setNicknameStatus("idle");
       return;
     }
@@ -72,6 +76,10 @@ export function ProfileSettings() {
 
   const trimmedDisplayName = displayName.trim();
   const trimmedNickname = nickname.trim();
+  const trimmedBio = bio.trim();
+  const initialDisplayName = profile?.display_name?.trim() ?? "";
+  const initialNickname = profile?.nickname?.trim() ?? "";
+  const initialBio = profile?.bio?.trim() ?? "";
   const displayNameError =
     trimmedDisplayName.length === 0
       ? t("Display name is required", {
@@ -96,16 +104,21 @@ export function ProfileSettings() {
               $id: "settings.profile.nicknameTaken",
             })
           : null;
-  const isNicknameTaken = nicknameStatus === "taken" && trimmedNickname.length >= 3;
+  const isNicknameTaken =
+    nicknameStatus === "taken" && trimmedNickname.length >= 3;
   const hasProfileValidationError = Boolean(displayNameError || nicknameError);
+  const hasProfileChanges =
+    trimmedDisplayName !== initialDisplayName ||
+    trimmedNickname !== initialNickname ||
+    trimmedBio !== initialBio;
 
   function handleSave() {
-    if (hasProfileValidationError) return;
+    if (hasProfileValidationError || !hasProfileChanges) return;
 
     updateProfile.mutate({
       display_name: trimmedDisplayName,
       nickname: trimmedNickname,
-      bio: bio.trim() || null,
+      bio: trimmedBio || null,
     });
   }
 
@@ -142,7 +155,9 @@ export function ProfileSettings() {
   }
 
   const avatarUrl = profile?.avatar_url;
-  const initial = (profile?.display_name ?? profile?.nickname ?? "U").charAt(0).toUpperCase();
+  const initial = (profile?.display_name ?? profile?.nickname ?? "U")
+    .charAt(0)
+    .toUpperCase();
 
   return (
     <>
@@ -214,7 +229,9 @@ export function ProfileSettings() {
             onChange={(e) => setDisplayName(e.target.value)}
             maxLength={50}
           />
-          {displayNameError && <p className={styles.errorText}>{displayNameError}</p>}
+          {displayNameError && (
+            <p className={styles.errorText}>{displayNameError}</p>
+          )}
         </div>
 
         {/* Nickname */}
@@ -237,21 +254,27 @@ export function ProfileSettings() {
               })}
               value={nickname}
               onChange={(e) =>
-                setNickname(e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, ""))
+                setNickname(
+                  e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, ""),
+                )
               }
               maxLength={30}
             />
             {nicknameStatus === "available" && !nicknameError && (
               <Check size={16} className={styles.nicknameOk} />
             )}
-            {isNicknameTaken && <AlertCircle size={16} className={styles.nicknameTaken} />}
+            {isNicknameTaken && (
+              <AlertCircle size={16} className={styles.nicknameTaken} />
+            )}
           </div>
           {nicknameError && <p className={styles.errorText}>{nicknameError}</p>}
         </div>
 
         {/* Bio */}
         <div className={styles.field}>
-          <label className={styles.label}>{t("Bio", { $id: "settings.profile.bioLabel" })}</label>
+          <label className={styles.label}>
+            {t("Bio", { $id: "settings.profile.bioLabel" })}
+          </label>
           <textarea
             className={styles.textarea}
             placeholder={t("Tell your friends a little about yourself…", {
@@ -268,7 +291,11 @@ export function ProfileSettings() {
         <div className={styles.actions}>
           <Button
             onClick={handleSave}
-            disabled={updateProfile.isPending || hasProfileValidationError}
+            disabled={
+              updateProfile.isPending ||
+              hasProfileValidationError ||
+              !hasProfileChanges
+            }
           >
             {updateProfile.isPending
               ? t("Saving…", { $id: "settings.profile.saving" })
@@ -276,7 +303,8 @@ export function ProfileSettings() {
           </Button>
           {updateProfile.isSuccess && (
             <span className={styles.successMsg}>
-              <Check size={14} /> {t("Saved", { $id: "settings.profile.saved" })}
+              <Check size={14} />{" "}
+              {t("Saved", { $id: "settings.profile.saved" })}
             </span>
           )}
         </div>
