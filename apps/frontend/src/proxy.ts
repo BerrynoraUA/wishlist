@@ -65,7 +65,9 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  if (!user && pathname !== "/login") {
+  const isAuthPage = pathname === "/login" || pathname === "/register";
+
+  if (!user && !isAuthPage) {
     const redirectUrl = new URL("/login", request.url);
     const returnTo = `${pathname}${search}`;
     redirectUrl.searchParams.set("redirect_to", returnTo);
@@ -75,7 +77,7 @@ export async function proxy(request: NextRequest) {
     return redirect;
   }
 
-  if (user && pathname === "/login") {
+  if (user && isAuthPage) {
     const redirectParam = request.nextUrl.searchParams.get("redirect_to");
     const target = redirectParam || "/home";
     const redirect = NextResponse.redirect(new URL(target, request.url));
