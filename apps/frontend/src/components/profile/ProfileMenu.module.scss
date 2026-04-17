@@ -39,9 +39,7 @@
   right: 0;
   top: 46px;
   width: 230px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--card-bg);
   border-radius: $radius-lg;
   border: 1px solid var(--color-border-subtle);
   box-shadow:
