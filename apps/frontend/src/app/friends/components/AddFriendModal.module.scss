@@ -19,14 +19,14 @@
 
 .header h2 {
   font-family: var(--font-sans);
-  font-size: 24px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.02em;
   margin: 0 0 6px;
 }
 
 .header p {
-  font-size: 14px;
+  font-size: 12px;
   color: $text-muted;
   margin: 0;
   line-height: 1.6;
@@ -39,7 +39,7 @@
   gap: 6px;
 
   label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
   }
 }
@@ -64,7 +64,7 @@
     outline: none;
     background: transparent;
     flex: 1;
-    font-size: 15px;
+    font-size: 12px;
     font-family: var(--font-sans);
     color: var(--color-text);
   }
@@ -155,7 +155,7 @@
     border: 1.5px solid var(--input-border);
     border-radius: $radius-md;
     padding: 10px 14px;
-    font-size: 15px;
+    font-size: 12px;
     color: $text;
     background: var(--input-bg);
     outline: none;
@@ -225,7 +225,7 @@
   display: grid;
   place-items: center;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .resultMeta {
@@ -235,7 +235,7 @@
 
 .nickname {
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--color-text);
 }
 
@@ -246,7 +246,7 @@
   background: var(--nav-pill-hover);
   color: $text;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   border-top: 1px solid var(--color-border-subtle);
   transition: background 0.2s ease;
@@ -294,7 +294,7 @@
     background: transparent;
     cursor: pointer;
     color: $text;
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1;
 
     &:hover {
@@ -318,11 +318,11 @@
 
 .error {
   color: var(--color-danger);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .success {
   color: var(--color-success);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
