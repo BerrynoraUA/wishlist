@@ -20,9 +20,13 @@ function HomePageContent() {
   const cleaned = useRef(false);
 
   const [inviteUserId] = useState(() => getInitialInvite(searchParams));
-  const [inviteOpen, setInviteOpen] = useState(() => !!getInitialInvite(searchParams));
+  const [inviteOpen, setInviteOpen] = useState(
+    () => !!getInitialInvite(searchParams),
+  );
 
-  const [friendRequestSent] = useState(() => searchParams.get("friendRequestSent") === "1");
+  const [friendRequestSent] = useState(
+    () => searchParams.get("friendRequestSent") === "1",
+  );
   const [friendRequestSentOpen, setFriendRequestSentOpen] = useState(
     () => searchParams.get("friendRequestSent") === "1",
   );
@@ -42,7 +46,7 @@ function HomePageContent() {
       <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
         <DashboardHeader onNewWishlist={() => setOpen(true)} />
         <StatsRow />
-        <WishlistGrid />
+        <WishlistGrid onCreateWishlist={() => setOpen(true)} />
 
         <CreateWishlistModal open={open} onClose={() => setOpen(false)} />
         <FriendInviteModal
