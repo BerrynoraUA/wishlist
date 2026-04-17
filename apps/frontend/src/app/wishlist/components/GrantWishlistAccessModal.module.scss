@@ -13,7 +13,7 @@
 
   h2 {
     margin: 0;
-    font-size: 21px;
+    font-size: 16px;
     line-height: 1.1;
     letter-spacing: -0.03em;
   }
@@ -21,7 +21,7 @@
   p {
     margin: 0;
     color: var(--color-text-muted);
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.5;
   }
 }
@@ -32,7 +32,7 @@
   border-radius: 999px;
   background: var(--brand-alpha-10);
   color: $brand;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -41,7 +41,7 @@
 .inlineTitle {
   color: var(--color-text);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.35;
   word-break: break-word;
 }
@@ -61,7 +61,7 @@
 }
 
 .titleLabel {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -81,7 +81,7 @@
 }
 
 .sectionMeta {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -119,7 +119,7 @@
     background: transparent;
     outline: none;
     color: var(--color-text);
-    font-size: 14px;
+    font-size: 12px;
     min-width: 0;
   }
 
@@ -200,13 +200,13 @@
 }
 
 .resultName {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--color-text);
 }
 
 .resultNickname {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--color-text-muted);
 }
 
@@ -278,7 +278,7 @@
   border-radius: 999px;
   background: var(--badge-visibility-bg);
   color: $brand;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: capitalize;
   white-space: nowrap;
@@ -328,7 +328,7 @@
   }
 
   span {
-    font-size: 10px;
+    font-size: 12px;
     color: var(--color-text-muted);
     line-height: 1.2;
   }
@@ -339,7 +339,7 @@
   border: none;
   background: transparent;
   color: $brand;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -399,13 +399,13 @@
 }
 
 .accessLabel {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--color-text);
 }
 
 .accessDescription {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.35;
   color: var(--color-text-muted);
 }
