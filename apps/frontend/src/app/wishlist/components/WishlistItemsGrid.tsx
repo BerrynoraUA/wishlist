@@ -7,6 +7,7 @@ import { Item } from "@/types/item";
 import { useProfilesByIds } from "@/hooks/use-settings";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useItemVotes, useToggleItemVote } from "@/hooks/use-items";
+import { AddCard } from "@/components/ui/AddCard/AddCard";
 import { LayoutGrid, LayoutList } from "lucide-react";
 
 type Props = {
@@ -17,6 +18,7 @@ type Props = {
   onToggleBought?: (id: string) => void;
   onDelete?: (id: string) => void;
   onEdit?: (item: Item) => void;
+  onAddItem?: () => void;
   openItemId?: string | null;
   onOpenItemHandled?: (id: string) => void;
 };
@@ -29,6 +31,7 @@ export function WishlistItemsGrid({
   onToggleBought,
   onDelete,
   onEdit,
+  onAddItem,
   openItemId,
   onOpenItemHandled,
 }: Props) {
@@ -52,7 +55,10 @@ export function WishlistItemsGrid({
         new Set(
           items
             .map((item) => item.reserved_by)
-            .filter((id): id is string => !!id && (!currentUserId || id !== currentUserId)),
+            .filter(
+              (id): id is string =>
+                !!id && (!currentUserId || id !== currentUserId),
+            ),
         ),
       ),
     [items, currentUserId],
@@ -64,7 +70,9 @@ export function WishlistItemsGrid({
     for (const p of reservedProfiles) {
       map.set(
         p.id,
-        p.display_name || p.nickname || t("Unknown user", { $id: "wishlist.grid.unknownUser" }),
+        p.display_name ||
+          p.nickname ||
+          t("Unknown user", { $id: "wishlist.grid.unknownUser" }),
       );
     }
     return map;
@@ -100,13 +108,17 @@ export function WishlistItemsGrid({
           </button>
         </div>
       )}
-      <div className={`${styles.grid} ${isMobile && cols === 1 ? styles.gridSingle : ""}`}>
+      <div
+        className={`${styles.grid} ${isMobile && cols === 1 ? styles.gridSingle : ""}`}
+      >
         {items.map((item) => (
           <ItemCard
             key={item.id}
             {...normalizeWishlistItem(
               item,
-              item.reserved_by ? (reservedByNameById.get(item.reserved_by) ?? null) : null,
+              item.reserved_by
+                ? (reservedByNameById.get(item.reserved_by) ?? null)
+                : null,
             )}
             variant="wishlist"
             isOwner={isOwner}
@@ -129,7 +141,9 @@ export function WishlistItemsGrid({
                 onToggleReserve={onToggleReserve}
                 onToggleBought={onToggleBought}
                 reservedByName={
-                  item.reserved_by ? (reservedByNameById.get(item.reserved_by) ?? null) : null
+                  item.reserved_by
+                    ? (reservedByNameById.get(item.reserved_by) ?? null)
+                    : null
                 }
                 onDelete={onDelete}
                 onEdit={onEdit}
@@ -137,6 +151,12 @@ export function WishlistItemsGrid({
             )}
           />
         ))}
+        {onAddItem && (
+          <AddCard
+            onClick={onAddItem}
+            label={t("Add item", { $id: "wishlist.grid.addItemCardLabel" })}
+          />
+        )}
       </div>
     </div>
   );

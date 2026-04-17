@@ -32,9 +32,23 @@ export function DatePickerField({ value, onChange }: Props) {
       >
         <CalendarDays size={16} className={styles.icon} />
         <span className={value ? styles.value : styles.placeholder}>
-          {value ? displayValue : t("Select a date", { $id: "datePicker.placeholder" })}
+          {value
+            ? displayValue
+            : t("Select a date", { $id: "datePicker.placeholder" })}
         </span>
-        {value && (
+        {expanded ? (
+          <button
+            className={styles.closeBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded(false);
+            }}
+            type="button"
+            aria-label={t("Close calendar", { $id: "datePicker.closeAria" })}
+          >
+            <X size={14} />
+          </button>
+        ) : value ? (
           <button
             className={`${styles.clearBtn} iconTooltipTrigger`}
             onClick={(e) => {
@@ -47,7 +61,7 @@ export function DatePickerField({ value, onChange }: Props) {
           >
             <X size={14} />
           </button>
-        )}
+        ) : null}
       </div>
 
       {expanded && (
