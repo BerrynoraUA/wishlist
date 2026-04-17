@@ -5,10 +5,10 @@ import Link from "next/link";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useGT } from "gt-next";
 import { Gift } from "lucide-react";
-import styles from "./login.module.scss";
-import { AuthForm } from "./components/AuthForm";
+import styles from "../login/login.module.scss";
+import { AuthForm } from "../login/components/AuthForm";
 
-function LoginPageContent() {
+function RegisterPageContent() {
   const t = useGT();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -18,28 +18,28 @@ function LoginPageContent() {
   const testimonials = useMemo(
     () => [
       {
-        quote: t('"Wishlane completely changed how our family does holidays!"', { $id: "login.testimonial.quote.1" }),
-        name: t("Sarah Johnson", { $id: "login.testimonial.name.1" }),
-        role: t("Mom of 3", { $id: "login.testimonial.role.1" }),
-        initial: "S",
-        bg: "#fde7f3",
-        color: "#c0267e",
-      },
-      {
-        quote: t('"I never forget a birthday gift anymore. This app is a lifesaver!"', { $id: "login.testimonial.quote.2" }),
-        name: t("Marcus Chen", { $id: "login.testimonial.name.2" }),
-        role: t("Gift enthusiast", { $id: "login.testimonial.role.2" }),
-        initial: "M",
+        quote: t('"The link scraping feature is magic. Just paste a URL and everything fills in automatically!"', { $id: "register.testimonial.quote.1" }),
+        name: t("Jake Rivera", { $id: "register.testimonial.name.1" }),
+        role: t("Tech Enthusiast", { $id: "register.testimonial.role.1" }),
+        initial: "J",
         bg: "#e0f2fe",
         color: "#2563eb",
       },
       {
-        quote: t('"Sharing wishlists with friends made group gifting so much easier."', { $id: "login.testimonial.quote.3" }),
-        name: t("Emily Park", { $id: "login.testimonial.name.3" }),
-        role: t("Event planner", { $id: "login.testimonial.role.3" }),
-        initial: "E",
-        bg: "#fef3c7",
-        color: "#d97706",
+        quote: t('"Setting up my first wishlist took less than a minute. So intuitive!"', { $id: "register.testimonial.quote.2" }),
+        name: t("Olivia Kim", { $id: "register.testimonial.name.2" }),
+        role: t("Design Student", { $id: "register.testimonial.role.2" }),
+        initial: "O",
+        bg: "#fde7f3",
+        color: "#c0267e",
+      },
+      {
+        quote: t('"Perfect for coordinating gifts with family across different countries."', { $id: "register.testimonial.quote.3" }),
+        name: t("Daniel Müller", { $id: "register.testimonial.name.3" }),
+        role: t("Frequent traveler", { $id: "register.testimonial.role.3" }),
+        initial: "D",
+        bg: "#f0fdf4",
+        color: "#16a34a",
       },
     ],
     [t],
@@ -75,13 +75,13 @@ function LoginPageContent() {
             {t("Wishlane", { $id: "auth.visual.brand" })}
           </span>
           <h2 className={styles.visualTitle}>
-            {t("Welcome back to", { $id: "login.visual.titleLine1" })}
+            {t("Start your", { $id: "register.visual.titleLine1" })}
             <br />
-            <em>{t("Wishlane", { $id: "login.visual.titleEmphasis" })}</em>
+            <em>{t("gifting journey", { $id: "register.visual.titleEmphasis" })}</em>
           </h2>
           <p className={styles.visualSubtitle}>
-            {t("Sign in to manage your wishlists, see what friends are wishing for, and never miss the perfect gift.", {
-              $id: "login.visual.subtitle",
+            {t("Create stunning wishlists, share them with friends and family, and never miss the perfect gift again.", {
+              $id: "register.visual.subtitle",
             })}
           </p>
 
@@ -91,44 +91,44 @@ function LoginPageContent() {
                 <div className={styles.mockupCardIcon}><Gift size={18} /></div>
                 <div>
                   <div className={styles.mockupCardTitle}>
-                    {t("Birthday Wishes 🎂", { $id: "login.mockup.title" })}
+                    {t("Christmas 2026 🎄", { $id: "register.mockup.title" })}
                   </div>
                   <span className={styles.mockupCardMeta}>
-                    {t("{count} items · {date}", { count: 8, date: "March 15", $id: "login.mockup.meta" })}
+                    {t("{count} items · {date}", { count: 5, date: "Dec 25", $id: "register.mockup.meta" })}
                   </span>
                 </div>
               </div>
               <div className={styles.mockupCardItems}>
                 <div className={styles.mockupItem}>
-                  <div className={styles.mockupItemIcon} style={{ background: "#fde7f3" }}>🎧</div>
+                  <div className={styles.mockupItemIcon} style={{ background: "#fde7f3" }}>🎁</div>
                   <div className={styles.mockupItemInfo}>
-                    <span className={styles.mockupItemName}>{t("Wireless Headphones", { $id: "login.mockup.item1" })}</span>
-                    <span className={styles.mockupItemPrice}>$149.99</span>
+                    <span className={styles.mockupItemName}>{t("Cozy Wool Sweater", { $id: "register.mockup.item1" })}</span>
+                    <span className={styles.mockupItemPrice}>$89.00</span>
                   </div>
                 </div>
                 <div className={styles.mockupItem}>
-                  <div className={styles.mockupItemIcon} style={{ background: "#e0f2fe" }}>📚</div>
+                  <div className={styles.mockupItemIcon} style={{ background: "#e0f2fe" }}>📱</div>
                   <div className={styles.mockupItemInfo}>
-                    <span className={styles.mockupItemName}>{t("Design Anthology", { $id: "login.mockup.item2" })}</span>
-                    <span className={styles.mockupItemPrice}>$34.00</span>
+                    <span className={styles.mockupItemName}>{t("Wireless Charger", { $id: "register.mockup.item2" })}</span>
+                    <span className={styles.mockupItemPrice}>$45.00</span>
                   </div>
                 </div>
                 <div className={styles.mockupItem}>
-                  <div className={styles.mockupItemIcon} style={{ background: "#fef3c7" }}>☕</div>
+                  <div className={styles.mockupItemIcon} style={{ background: "#f0fdf4" }}>🌱</div>
                   <div className={styles.mockupItemInfo}>
-                    <span className={styles.mockupItemName}>{t("Ceramic Pour-Over", { $id: "login.mockup.item3" })}</span>
-                    <span className={styles.mockupItemPrice}>$62.00</span>
+                    <span className={styles.mockupItemName}>{t("Indoor Plant Kit", { $id: "register.mockup.item3" })}</span>
+                    <span className={styles.mockupItemPrice}>$32.00</span>
                   </div>
                 </div>
               </div>
             </div>
             <div className={`${styles.mockupFloat} ${styles.mockupFloat1}`}>
-              <span>❤️</span>
-              <span>{t("Item reserved!", { $id: "login.mockup.float1" })}</span>
+              <span>🎉</span>
+              <span>{t("Wishlist created!", { $id: "register.mockup.float1" })}</span>
             </div>
             <div className={`${styles.mockupFloat} ${styles.mockupFloat2}`}>
-              <span>🔗</span>
-              <span>{t("Link shared", { $id: "login.mockup.float2" })}</span>
+              <span>👥</span>
+              <span>{t("3 friends joined", { $id: "register.mockup.float2" })}</span>
             </div>
           </div>
 
@@ -143,36 +143,36 @@ function LoginPageContent() {
               </div>
             </div>
           </div>
-          </div>
         </div>
+      </div>
 
       {/* ─── Form Panel ─── */}
       <div className={styles.formSide}>
         <div className={styles.formContent}>
           <div className={styles.formHeader}>
             <span className={styles.formBadge}>
-              {t("✨ Welcome back", { $id: "login.form.badge" })}
+              {t("✨ Get started free", { $id: "register.form.badge" })}
             </span>
             <h1 className={styles.formTitle}>
-              {t("Sign in to your account", { $id: "login.form.title" })}
+              {t("Create your account", { $id: "register.form.title" })}
             </h1>
             <p className={styles.formSubtitle}>
-              {t("Enter your credentials to continue where you left off.", {
-                $id: "login.form.subtitle",
+              {t("Join thousands of happy gift-givers. Free forever, no credit card required.", {
+                $id: "register.form.subtitle",
               })}
             </p>
           </div>
 
           <AuthForm
-            mode="login"
+            mode="register"
             redirectTo={redirectTo}
             onLoginSuccess={(target) => router.replace(target)}
           />
 
           <p className={styles.formSwitch}>
-            {t("Don't have an account?", { $id: "login.switch.text" })}{" "}
-            <Link href="/register">
-              {t("Create one", { $id: "login.switch.link" })}
+            {t("Already have an account?", { $id: "register.switch.text" })}{" "}
+            <Link href="/login">
+              {t("Sign in", { $id: "register.switch.link" })}
             </Link>
           </p>
         </div>
@@ -181,10 +181,10 @@ function LoginPageContent() {
   );
 }
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <Suspense fallback={null}>
-      <LoginPageContent />
+      <RegisterPageContent />
     </Suspense>
   );
 }

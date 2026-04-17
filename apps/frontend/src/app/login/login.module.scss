@@ -1,70 +1,580 @@
 @use "@/styles/variables" as *;
 
+/* ─── Auth Page — Scoped brand palette (accent-independent, like landing) ─── */
+
+$brand: #c0267e;
+$brand-light: #fde7f3;
+$brand-dark: #9b1f66;
+
+/* ─── Auth Page Layout ─── */
+
 .page {
-  min-height: 100dvh;
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #faf7f8;
+  overflow: hidden;
+
+  [data-theme="dark"] & {
+    background: #0c0c0f;
+  }
+}
+
+/* ─── Left Panel — Visual / Brand Side ─── */
+
+.visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 40px;
+  background: linear-gradient(160deg, #fffafa 0%, #fdf2f8 40%, #fde7f3 100%);
+  overflow: hidden;
+
+  [data-theme="dark"] & {
+    background: linear-gradient(160deg, #18141a 0%, #1c1320 40%, #201527 100%);
+  }
+}
+
+.visualBlob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.visualBlob1 {
+  width: 500px;
+  height: 500px;
+  background: $brand-light;
+  top: -120px;
+  right: -100px;
+
+  [data-theme="dark"] & {
+    background: rgba(224, 82, 160, 0.15);
+  }
+}
+
+.visualBlob2 {
+  width: 350px;
+  height: 350px;
+  background: #e0f2fe;
+  bottom: -80px;
+  left: -60px;
+
+  [data-theme="dark"] & {
+    background: rgba(96, 165, 250, 0.15);
+  }
+}
+
+.visualBlob3 {
+  width: 250px;
+  height: 250px;
+  background: #fef3c7;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  [data-theme="dark"] & {
+    background: rgba(253, 186, 116, 0.1);
+  }
+}
+
+.visualContent {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 400px;
+  animation: fadeSlideUp 0.8s $ease-out both;
+}
+
+.visualLogo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 24px;
+
+  [data-theme="dark"] & {
+    color: #f0f0f2;
+  }
+}
+
+.visualLogoIcon {
+  color: $brand;
+  font-size: 1.75rem;
+
+  [data-theme="dark"] & {
+    color: #e052a0;
+  }
+}
+
+.visualTitle {
+  font-family: var(--font-sans);
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 12px;
+  color: #111827;
+
+  [data-theme="dark"] & {
+    color: #f0f0f2;
+  }
+
+  em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: $brand;
+
+    [data-theme="dark"] & {
+      color: #e052a0;
+    }
+  }
+}
+
+.visualSubtitle {
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.7;
+  margin-bottom: 32px;
+
+  [data-theme="dark"] & {
+    color: #9ca3af;
+  }
+}
+
+/* Mockup card in the visual panel */
+.visualMockup {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.mockupCard {
+  background: #ffffff;
+  border-radius: $radius-xl;
+  padding: 18px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+  border: 1px solid #f3e8ee;
+
+  [data-theme="dark"] & {
+    background: #161619;
+    border-color: #27272d;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.mockupCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.mockupCardIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, $brand, lighten($brand, 18%));
+  color: white;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 14px rgba(192, 38, 126, 0.25);
+
+  [data-theme="dark"] & {
+    background: linear-gradient(135deg, #e052a0, lighten(#e052a0, 12%));
+    box-shadow: 0 4px 14px rgba(224, 82, 160, 0.25);
+  }
+}
+
+.mockupCardTitle {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #111827;
+
+  [data-theme="dark"] & {
+    color: #f0f0f2;
+  }
+}
+
+.mockupCardMeta {
+  font-size: 0.6875rem;
+  color: #6b7280;
+
+  [data-theme="dark"] & {
+    color: #9ca3af;
+  }
+}
+
+.mockupCardItems {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mockupItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: $radius-sm;
+  background: #faf7f8;
+  transition: transform 0.2s $ease-out;
+
+  [data-theme="dark"] & {
+    background: #1c1c20;
+  }
+
+  &:hover {
+    transform: translateX(4px);
+  }
+}
+
+.mockupItemIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.mockupItemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.mockupItemName {
+  display: block;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #111827;
+
+  [data-theme="dark"] & {
+    color: #f0f0f2;
+  }
+}
+
+.mockupItemPrice {
+  font-size: 0.6875rem;
+  color: #6b7280;
+
+  [data-theme="dark"] & {
+    color: #9ca3af;
+  }
+}
+
+.mockupFloat {
+  position: absolute;
+  background: #ffffff;
+  border-radius: $radius-lg;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f3e8ee;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #111827;
+
+  [data-theme="dark"] & {
+    background: #161619;
+    border-color: #27272d;
+    color: #f0f0f2;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.mockupFloat1 {
+  top: -10px;
+  right: -14px;
+  animation: floatBadge 3s ease-in-out infinite;
+}
+
+.mockupFloat2 {
+  bottom: 14px;
+  left: -20px;
+  animation: floatBadge 3s ease-in-out infinite 1.5s;
+}
+
+/* Testimonial in visual panel */
+.visualTestimonial {
+  position: relative;
+  z-index: 1;
+  margin-top: 28px;
+  text-align: center;
+}
+
+.testimonialFade {
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
+}
+
+.testimonialVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.testimonialStars {
+  color: #f59e0b;
+  font-size: 0.875rem;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+
+.testimonialQuote {
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.6;
+  font-style: italic;
+  margin-bottom: 10px;
+
+  [data-theme="dark"] & {
+    color: #d1d5db;
+  }
+}
+
+.testimonialAuthor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.testimonialAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.testimonialName {
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #111827;
+
+  [data-theme="dark"] & {
+    color: #f0f0f2;
+  }
+}
+
+.testimonialRole {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  margin-left: 4px;
+
+  [data-theme="dark"] & {
+    color: #9ca3af;
+  }
+}
+
+/* ─── Right Panel — Form Side ─── */
+
+.formSide {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 32px 24px;
-  background: var(--gradient-header);
-  background-color: var(--page-bg);
+  padding: 40px 40px;
   position: relative;
+  background: #faf7f8;
   overflow: hidden;
+
+  [data-theme="dark"] & {
+    background: #0c0c0f;
+  }
 
   &::before {
     content: "";
     position: absolute;
     top: -120px;
     right: -80px;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, var(--radial-brand) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: -100px;
-    left: -60px;
-    width: 350px;
-    height: 350px;
-    background: radial-gradient(circle, var(--brand-alpha-06) 0%, transparent 70%);
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(192, 38, 126, 0.06) 0%, transparent 70%);
     border-radius: 50%;
     pointer-events: none;
   }
 }
 
-.content {
+.formContent {
   width: 100%;
-  max-width: 520px;
+  max-width: 420px;
   position: relative;
   z-index: 1;
-  margin-top: -100px;
+  animation: fadeSlideUp 0.8s $ease-out 0.15s both;
 }
 
-.cardWrap {
-  margin-top: 8px;
+.formHeader {
+  margin-bottom: 28px;
+}
+
+.formBadge {
+  display: inline-block;
+  padding: 5px 14px;
+  background: $brand-light;
+  color: $brand;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: $radius-pill;
+  margin-bottom: 14px;
+
+  [data-theme="dark"] & {
+    background: rgba(224, 82, 160, 0.15);
+    color: #e052a0;
+  }
+}
+
+.formTitle {
+  font-family: var(--font-sans);
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 8px;
+  color: #111827;
+
+  [data-theme="dark"] & {
+    color: #f0f0f2;
+  }
+}
+
+.formSubtitle {
+  font-size: 0.9375rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+
+  [data-theme="dark"] & {
+    color: #9ca3af;
+  }
+}
+
+.formSwitch {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+
+  [data-theme="dark"] & {
+    color: #9ca3af;
+  }
+
+  a {
+    color: $brand;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s $ease-out;
+
+    [data-theme="dark"] & {
+      color: #e052a0;
+    }
+
+    &:hover {
+      color: $brand-dark;
+
+      [data-theme="dark"] & {
+        color: #f472b6;
+      }
+    }
+  }
+}
+
+/* ─── Animations ─── */
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatBadge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ─── Responsive ─── */
+
+@media (max-width: 960px) {
+  .page {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .visual {
+    display: none;
+  }
+
+  .formSide {
+    min-height: 100dvh;
+    padding: 32px 24px;
+    background: linear-gradient(180deg, #fffafa 0%, #faf7f8 100%);
+
+    [data-theme="dark"] & {
+      background: linear-gradient(180deg, #121215 0%, #0c0c0f 100%);
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -100px;
+      left: -60px;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(192, 38, 126, 0.06) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+  }
+
+  .formContent {
+    max-width: 480px;
+  }
 }
 
 @media (max-width: 640px) {
-  .page {
+  .formSide {
     padding: 24px 16px;
   }
 
-  .content {
-    max-width: 100%;
-    margin-top: -16px;
+  .formTitle {
+    font-size: 1.75rem;
   }
 }
 
 @media (max-width: 480px) {
-  .page {
+  .formSide {
     padding: 20px 12px;
   }
 
-  .content {
-    margin-top: -10px;
+  .formTitle {
+    font-size: 1.5rem;
   }
 }

@@ -11,24 +11,8 @@ test.describe("Login page", () => {
     await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
   });
 
-  test("renders Login and Register tabs", async ({ page }) => {
-    await expect(page.getByRole("button", { name: "Login" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Register" })).toBeVisible();
-  });
-
-  test("switches to Register tab and shows Create account button", async ({ page }) => {
-    await page.getByRole("button", { name: "Register" }).click();
-    await expect(page.getByRole("button", { name: "Create account" })).toBeVisible();
-    await expect(page.getByText("Already have an account? Switch back to Login.")).toBeVisible();
-  });
-
-  test("switches back to Login tab", async ({ page }) => {
-    await page.getByRole("button", { name: "Register" }).click();
-    await page.getByRole("button", { name: "Login" }).click();
-    await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
-    await expect(
-      page.getByText("New here? Choose Register above to create an account."),
-    ).toBeVisible();
+  test("shows link to register page", async ({ page }) => {
+    await expect(page.getByRole("link", { name: "Create one" })).toBeVisible();
   });
 
   test("shows validation error when submitting empty form", async ({ page }) => {
@@ -50,9 +34,33 @@ test.describe("Login page", () => {
       maxDiffPixelRatio: 0.05,
     });
   });
+});
+
+test.describe("Register page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/register");
+  });
+
+  test("renders register form with Create account button", async ({ page }) => {
+    await expect(page.getByPlaceholder("you@email.com")).toBeVisible();
+    await expect(page.getByPlaceholder("••••••••")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Create account" })).toBeVisible();
+  });
+
+  test("shows link to login page", async ({ page }) => {
+    await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+  });
+
+  test("shows validation error when submitting empty form", async ({ page }) => {
+    await page.getByRole("button", { name: "Create account" }).click();
+    await expect(page.getByText("Email and password are required.")).toBeVisible();
+  });
+
+  test("Google sign-in button is visible", async ({ page }) => {
+    await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
+  });
 
   test("visual screenshot — register tab", async ({ page }) => {
-    await page.getByRole("button", { name: "Register" }).click();
     await expect(page.getByRole("button", { name: "Create account" })).toBeVisible();
     await expect(page).toHaveScreenshot("register-page.png", {
       maxDiffPixelRatio: 0.05,
