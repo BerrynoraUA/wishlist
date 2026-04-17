@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
@@ -62,7 +62,9 @@ function EditWishlistForm({
     getWishlistColorByAccent(wishlist.accent_type),
   );
   const [eventDate, setEventDate] = useState(() => {
-    const raw = wishlist.event_date ?? (wishlist as Wishlist & { event_date?: string }).event_date;
+    const raw =
+      wishlist.event_date ??
+      (wishlist as Wishlist & { event_date?: string }).event_date;
     return raw ? String(raw).split("T")[0] : "";
   });
   const [imagePreview, setImagePreview] = useState(wishlist.image_url ?? "");
@@ -71,6 +73,40 @@ function EditWishlistForm({
   const [imageError, setImageError] = useState<string | null>(null);
 
   const { mutate, isPending } = useUpdateWishlist();
+
+  const hasChanges = useMemo(() => {
+    const initialTitle = wishlist.title?.trim() ?? "";
+    const initialDescription = wishlist.description?.trim() ?? "";
+    const initialPrivacy =
+      WISHLIST_PRIVACY_BY_VISIBILITY[wishlist.visibility_type] ?? "Public";
+    const initialColor = getWishlistColorByAccent(wishlist.accent_type);
+    const initialEventDate = (() => {
+      const raw =
+        wishlist.event_date ??
+        (wishlist as Wishlist & { event_date?: string }).event_date;
+      return raw ? String(raw).split("T")[0] : "";
+    })();
+    const initialImage = wishlist.image_url ?? "";
+
+    return (
+      name.trim() !== initialTitle ||
+      description.trim() !== initialDescription ||
+      privacy !== initialPrivacy ||
+      color !== initialColor ||
+      eventDate !== initialEventDate ||
+      Boolean(imageFile) ||
+      imagePreview !== initialImage
+    );
+  }, [
+    color,
+    description,
+    eventDate,
+    imageFile,
+    imagePreview,
+    name,
+    privacy,
+    wishlist,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -99,7 +135,7 @@ function EditWishlistForm({
   }
 
   function handleSubmit() {
-    if (!name.trim() || isPending) return;
+    if (!name.trim() || isPending || !hasChanges) return;
 
     const nextImageError = validateImageUploadFile(imageFile);
     if (nextImageError) {
@@ -141,7 +177,9 @@ function EditWishlistForm({
         </div>
 
         <div className={styles.field}>
-          <label>{t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}</label>
+          <label>
+            {t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}
+          </label>
           <input
             placeholder={t("e.g. Birthday Wishes, Home Office Setup", {
               $id: "wishlist.modal.namePlaceholder",
@@ -168,7 +206,9 @@ function EditWishlistForm({
 
         <div className={styles.field}>
           <div className={styles.labelRow}>
-            <label>{t("Cover Image", { $id: "wishlist.modal.coverLabel" })}</label>
+            <label>
+              {t("Cover Image", { $id: "wishlist.modal.coverLabel" })}
+            </label>
             <FileSizeBadge />
           </div>
           <div className={styles.upload}>
@@ -229,7 +269,9 @@ function EditWishlistForm({
         </div>
 
         <div className={styles.section}>
-          <label>{t("Cover Color", { $id: "wishlist.modal.coverColor" })}</label>
+          <label>
+            {t("Cover Color", { $id: "wishlist.modal.coverColor" })}
+          </label>
           <div className={styles.colors}>
             {WISHLIST_COLOR_OPTIONS.map((c) => (
               <div
@@ -247,7 +289,9 @@ function EditWishlistForm({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!name.trim() || isPending || Boolean(imageError)}
+            disabled={
+              !name.trim() || !hasChanges || isPending || Boolean(imageError)
+            }
           >
             {isPending
               ? t("Saving...", { $id: "common.saving" })
@@ -273,7 +317,10 @@ function PrivacyCard({
   onClick: () => void;
 }) {
   return (
-    <div className={`${styles.privacyCard} ${selected ? styles.selected : ""}`} onClick={onClick}>
+    <div
+      className={`${styles.privacyCard} ${selected ? styles.selected : ""}`}
+      onClick={onClick}
+    >
       <div className={styles.privacyIcon}>{icon}</div>
       <div>
         <strong>{title}</strong>

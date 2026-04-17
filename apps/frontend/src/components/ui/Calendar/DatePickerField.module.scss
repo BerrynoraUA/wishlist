@@ -61,12 +61,36 @@
   }
 }
 
+.closeBtn {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: var(--brand-alpha-10);
+  color: var(--color-brand);
+  cursor: pointer;
+  transition: all 0.15s $ease-out;
+
+  &:hover {
+    background: var(--brand-alpha-15);
+    color: var(--color-brand-dark);
+  }
+}
+
 .calendarWrap {
   margin-top: 8px;
   padding: 14px;
   background:
     radial-gradient(circle at top left, var(--brand-alpha-10), transparent 34%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.85)), var(--card-bg);
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.92),
+      rgba(255, 255, 255, 0.85)
+    ),
+    var(--card-bg);
   border: 1px solid var(--brand-alpha-12);
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
@@ -76,8 +100,13 @@
 :global([data-theme="dark"]) .calendarWrap {
   background:
     radial-gradient(circle at top left, var(--brand-alpha-15), transparent 34%),
-    radial-gradient(circle at top right, var(--brand-alpha-08), transparent 28%),
-    linear-gradient(180deg, rgba(24, 24, 30, 0.98), rgba(17, 17, 22, 0.96)), var(--card-bg);
+    radial-gradient(
+      circle at top right,
+      var(--brand-alpha-08),
+      transparent 28%
+    ),
+    linear-gradient(180deg, rgba(24, 24, 30, 0.98), rgba(17, 17, 22, 0.96)),
+    var(--card-bg);
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.04),
