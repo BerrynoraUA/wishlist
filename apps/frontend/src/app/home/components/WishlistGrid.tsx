@@ -9,14 +9,21 @@ import { useMyWishlists } from "@/hooks/use-wishlists";
 import { SkeletonCard, Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { Pagination } from "@/components/ui/Pagination/Pagination";
 import { useSearchParams } from "next/navigation";
+import { Wishlist } from "@/types/wishlist";
 
 const PAGE_SIZE = 8;
 
 type Props = {
   onCreateWishlist: () => void;
+  onEditWishlist: (wishlist: Wishlist) => void;
+  onDeleteWishlist: (wishlist: Wishlist) => void;
 };
 
-export function WishlistGrid({ onCreateWishlist }: Props) {
+export function WishlistGrid({
+  onCreateWishlist,
+  onEditWishlist,
+  onDeleteWishlist,
+}: Props) {
   const t = useGT();
   const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
@@ -62,7 +69,14 @@ export function WishlistGrid({ onCreateWishlist }: Props) {
           </p>
         )}
         {wishlists.map((w) => (
-          <WishlistCard key={w.id} wishlist={w} />
+          <WishlistCard
+            key={w.id}
+            wishlist={w}
+            onEdit={
+              w.is_owner || w.can_edit ? () => onEditWishlist(w) : undefined
+            }
+            onDelete={w.is_owner ? () => onDeleteWishlist(w) : undefined}
+          />
         ))}
         {!isLoading && !isError && wishlists.length > 0 && (
           <AddCard
