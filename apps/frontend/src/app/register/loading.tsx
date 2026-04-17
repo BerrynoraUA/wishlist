@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
-import styles from "./login.module.scss";
+import styles from "../login/login.module.scss";
 
-export default function LoginLoading() {
+export default function RegisterLoading() {
   return (
     <main className={styles.page}>
       <div className={styles.visual} />
@@ -9,9 +9,9 @@ export default function LoginLoading() {
       <div className={styles.formSide}>
         <div className={styles.formContent}>
           <div className={styles.formHeader}>
-            <Skeleton variant="pill" width={140} height={28} />
-            <Skeleton variant="heading" width={260} style={{ marginTop: 16 }} />
-            <Skeleton variant="text" width={300} style={{ marginTop: 8 }} />
+            <Skeleton variant="pill" width={160} height={28} />
+            <Skeleton variant="heading" width={240} style={{ marginTop: 16 }} />
+            <Skeleton variant="text" width={320} style={{ marginTop: 8 }} />
           </div>
 
           <Skeleton width="100%" height={44} borderRadius={12} />

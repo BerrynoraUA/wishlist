@@ -51,3 +51,31 @@ export async function loginWithGoogle(redirectTo?: string): Promise<void> {
 
   if (error) throw error;
 }
+
+export async function loginWithApple(redirectTo?: string): Promise<void> {
+  persistAuthRedirect(redirectTo);
+  const callback = `${window.location.origin}/auth/callback`;
+
+  const { error } = await supabaseBrowser.auth.signInWithOAuth({
+    provider: "apple",
+    options: {
+      redirectTo: callback,
+    },
+  });
+
+  if (error) throw error;
+}
+
+export async function loginWithFacebook(redirectTo?: string): Promise<void> {
+  persistAuthRedirect(redirectTo);
+  const callback = `${window.location.origin}/auth/callback`;
+
+  const { error } = await supabaseBrowser.auth.signInWithOAuth({
+    provider: "facebook",
+    options: {
+      redirectTo: callback,
+    },
+  });
+
+  if (error) throw error;
+}
