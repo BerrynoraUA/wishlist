@@ -162,7 +162,7 @@ export function ProfileMenu({ onOpen }: Props) {
               )}
             </div>
             <div className={styles.profileMeta}>
-              <span className={styles.profileName}>{t("Account", { $id: "profile.account" })}</span>
+              <span className={styles.profileName}>{profile?.display_name || t("Account", { $id: "profile.account" })}</span>
               <span className={styles.profileEmail} title={userEmail || undefined}>
                 {userEmail || t("Signed in", { $id: "profile.signedIn" })}
               </span>
