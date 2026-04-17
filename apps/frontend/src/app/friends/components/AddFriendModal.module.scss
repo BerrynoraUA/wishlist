@@ -128,7 +128,12 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--divider-color), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--divider-color),
+      transparent
+    );
     z-index: 0;
   }
 }
@@ -265,7 +270,6 @@
 }
 
 .selectedBadge {
-  margin-top: -4px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -277,6 +281,7 @@
   font-size: 12px;
   max-width: 100%;
   justify-content: space-between;
+  overflow: visible;
 
   span {
     overflow: hidden;
@@ -304,9 +309,8 @@
   grid-auto-rows: auto;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 8px;
-  max-height: 120px;
-  overflow-y: auto;
-  padding: 6px 8px;
+  overflow: visible;
+  padding: 8px;
   border: 1px dashed var(--color-border-subtle);
   border-radius: $radius-sm;
   background: var(--color-bg-subtle);

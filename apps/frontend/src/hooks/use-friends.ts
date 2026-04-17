@@ -14,6 +14,7 @@ import {
   getWishlistAccessList,
 } from "@/api/friends";
 import { GetFriendsWithoutWishlistAccessParams } from "@/api/types/friends";
+import { normalizeSearchQuery } from "@/lib/helpers/search";
 
 // Query Keys
 export const friendKeys = {
@@ -21,8 +22,10 @@ export const friendKeys = {
   lists: () => [...friendKeys.all, "list"] as const,
   list: (params?: PaginationParams) => [...friendKeys.lists(), params] as const,
   requests: () => [...friendKeys.all, "requests"] as const,
-  incoming: (params?: PaginationParams) => [...friendKeys.requests(), "incoming", params] as const,
-  outgoing: (params?: PaginationParams) => [...friendKeys.requests(), "outgoing", params] as const,
+  incoming: (params?: PaginationParams) =>
+    [...friendKeys.requests(), "incoming", params] as const,
+  outgoing: (params?: PaginationParams) =>
+    [...friendKeys.requests(), "outgoing", params] as const,
   check: (userId: string) => [...friendKeys.all, "check", userId] as const,
   search: (query: string, params?: PaginationParams) =>
     [...friendKeys.all, "search", query, params] as const,
@@ -45,9 +48,16 @@ export function useOutgoingFriendRequests(params?: PaginationParams) {
 }
 
 export function useFriends(params?: PaginationParams) {
+  const normalizedParams = params
+    ? {
+        ...params,
+        search: normalizeSearchQuery(params.search) || undefined,
+      }
+    : undefined;
+
   return useQuery({
-    queryKey: friendKeys.list(params),
-    queryFn: () => getFriends(params),
+    queryKey: friendKeys.list(normalizedParams),
+    queryFn: () => getFriends(normalizedParams),
   });
 }
 
@@ -59,8 +69,11 @@ export function useCheckFriendship(userId: string) {
   });
 }
 
-export function useSearchProfilesByNickname(query: string, params?: PaginationParams) {
-  const trimmed = query?.trim() ?? "";
+export function useSearchProfilesByNickname(
+  query: string,
+  params?: PaginationParams,
+) {
+  const trimmed = normalizeSearchQuery(query);
 
   return useQuery({
     queryKey: friendKeys.search(trimmed, params),
@@ -135,15 +148,24 @@ export function useRemoveFriend() {
   });
 }
 
-export function useFriendsWithoutWishlistAccess(params: GetFriendsWithoutWishlistAccessParams) {
+export function useFriendsWithoutWishlistAccess(
+  params: GetFriendsWithoutWishlistAccessParams,
+) {
   const { wishlistId, search, skip = 0, take = 20 } = params;
+  const normalizedSearch = normalizeSearchQuery(search) || undefined;
 
   return useQuery({
-    queryKey: ["friends-without-wishlist-access", wishlistId, search ?? "", skip, take],
+    queryKey: [
+      "friends-without-wishlist-access",
+      wishlistId,
+      normalizedSearch ?? "",
+      skip,
+      take,
+    ],
     queryFn: () =>
       getFriendsWithoutWishlistAccess({
         wishlistId,
-        search,
+        search: normalizedSearch,
         skip,
         take,
       }),
