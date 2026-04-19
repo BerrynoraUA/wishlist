@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   getApprovedFeatureIdeas,
   createFeatureIdea,
@@ -25,6 +26,10 @@ export function useCreateFeatureIdea() {
     mutationFn: (params: CreateFeatureIdeaParams) => createFeatureIdea(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: featureIdeaKeys.all });
+      toast.success("Idea submitted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to submit idea");
     },
   });
 }

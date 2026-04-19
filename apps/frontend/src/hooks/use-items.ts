@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   getWishlistItems,
   createItem,
@@ -54,6 +55,10 @@ export function useCreateItem() {
       queryClient.invalidateQueries({
         queryKey: wishlistKeys.detail(data.wishlist_id),
       });
+      toast.success("Item added");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to add item");
     },
   });
 }
@@ -66,6 +71,10 @@ export function useUpdateItem() {
       updateItem(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
+      toast.success("Item updated");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update item");
     },
   });
 }
@@ -78,6 +87,10 @@ export function useDeleteItem() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
       queryClient.invalidateQueries({ queryKey: wishlistKeys.my() });
+      toast.success("Item deleted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to delete item");
     },
   });
 }
@@ -98,6 +111,9 @@ export function useToggleItemReservation() {
           (queryKey[1] === "friends" || queryKey[1] === "friend"),
       });
     },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update reservation");
+    },
   });
 }
 
@@ -117,6 +133,9 @@ export function useToggleItemBought() {
           (queryKey[1] === "friends" || queryKey[1] === "friend"),
       });
     },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update purchase status");
+    },
   });
 }
 
@@ -130,6 +149,9 @@ export function useToggleItemReservationSecret() {
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
       queryClient.invalidateQueries({ queryKey: statisticsKeys.my() });
     },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update reservation");
+    },
   });
 }
 
@@ -142,6 +164,9 @@ export function useToggleItemBoughtSecret() {
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
       queryClient.invalidateQueries({ queryKey: statisticsKeys.my() });
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update purchase status");
     },
   });
 }
