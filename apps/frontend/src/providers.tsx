@@ -17,6 +17,8 @@ import {
 
 import { WishlistAccent } from "@/types/wishlist";
 import { PostHogProvider } from "@/components/PostHogProvider";
+import { Toaster } from "sonner";
+import { CircleCheck, CircleX, Info, AlertTriangle } from "lucide-react";
 
 const ACCENT_TOKENS: Record<
   WishlistAccent,
@@ -343,6 +345,23 @@ export function Providers({
           initialAccent={initialAccent}
         >
           <SdkInitializer>{children}</SdkInitializer>
+          <Toaster
+            position="bottom-right"
+            closeButton
+            duration={4000}
+            gap={10}
+            icons={{
+              success: <CircleCheck size={20} strokeWidth={2.2} />,
+              error: <CircleX size={20} strokeWidth={2.2} />,
+              info: <Info size={20} strokeWidth={2.2} />,
+              warning: <AlertTriangle size={20} strokeWidth={2.2} />,
+            }}
+            toastOptions={{
+              style: {
+                fontFamily: "inherit",
+              },
+            }}
+          />
         </AppThemeProvider>
       </QueryClientProvider>
     </PostHogProvider>
