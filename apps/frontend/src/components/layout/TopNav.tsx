@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Gift, Users, Heart } from "lucide-react";
+import { Gift, Users, Heart, TreePine } from "lucide-react";
 import { useGT } from "gt-next";
 import { ProfileMenu } from "../profile/ProfileMenu";
 import { NotificationsMenu } from "../notifications/NotificationsMenu";
@@ -32,6 +32,12 @@ export function TopNav() {
         label: t("Discover", { $id: "nav.discover" }),
         href: "/discover",
         icon: <Heart size={16} />,
+      },
+      {
+        label: t("Secret Santa", { $id: "nav.secretSanta" }),
+        href: "/secret-santa",
+        icon: <TreePine size={16} />,
+        isNew: true,
       },
     ],
     [t],
@@ -82,6 +88,14 @@ export function TopNav() {
 
                 <span className={styles.icon}>{item.icon}</span>
                 <span className={styles.label}>{item.label}</span>
+                {item.isNew ? (
+                  <span className={styles.navBadgeWrap}>
+                    <ProBadge
+                      size="sm"
+                      label={t("NEW", { $id: "nav.secretSanta.newBadge" })}
+                    />
+                  </span>
+                ) : null}
               </Link>
             );
           })}
