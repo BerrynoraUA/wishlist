@@ -304,6 +304,68 @@ const MOCK_UPCOMING = [
   },
 ];
 
+function sortMockWishlists(items, sort) {
+  const sorted = [...items];
+
+  switch (sort) {
+    case "oldest":
+      sorted.sort((a, b) => a.created_at.localeCompare(b.created_at));
+      break;
+    case "name-asc":
+      sorted.sort((a, b) => a.title.localeCompare(b.title));
+      break;
+    case "name-desc":
+      sorted.sort((a, b) => b.title.localeCompare(a.title));
+      break;
+    case "items-most":
+      sorted.sort((a, b) => (b.items_count ?? 0) - (a.items_count ?? 0));
+      break;
+    case "items-least":
+      sorted.sort((a, b) => (a.items_count ?? 0) - (b.items_count ?? 0));
+      break;
+    case "newest":
+    default:
+      sorted.sort((a, b) => b.created_at.localeCompare(a.created_at));
+      break;
+  }
+
+  return sorted;
+}
+
+function getMyWishlistsFeedMock(body = {}) {
+  const {
+    p_skip = 0,
+    p_take = 10,
+    p_search = null,
+    p_sort = "newest",
+    p_visibility_types = null,
+  } = body;
+
+  const normalizedSearch =
+    typeof p_search === "string" ? p_search.trim().toLowerCase() : "";
+  const visibilityTypes = Array.isArray(p_visibility_types)
+    ? p_visibility_types
+    : null;
+
+  let items = [...MOCK_WISHLISTS];
+
+  if (normalizedSearch) {
+    items = items.filter((wishlist) =>
+      wishlist.title.toLowerCase().includes(normalizedSearch),
+    );
+  }
+
+  if (visibilityTypes && visibilityTypes.length > 0) {
+    items = items.filter((wishlist) =>
+      visibilityTypes.includes(wishlist.visibility_type),
+    );
+  }
+
+  items = sortMockWishlists(items, p_sort);
+
+  return items.slice(p_skip, p_skip + p_take);
+}
+
 /* ────── RPC dispatch ────── */
 
 const RPC_HANDLERS = {
@@ -317,7 +379,7 @@ const RPC_HANDLERS = {
   get_wishlist_access_list: () => [],
   toggle_item_reservation: () => ({ success: true }),
   toggle_item_bought: () => ({ success: true }),
-  get_my_wishlists_feed: () => MOCK_WISHLISTS,
+  get_my_wishlists_feed: (body) => getMyWishlistsFeedMock(body),
   get_friends_wishlists_discover: () => MOCK_DISCOVER,
   get_reserved_items_by_me: () => [],
   get_my_bought_items: () => [],
@@ -337,7 +399,12 @@ const RPC_HANDLERS = {
   get_wishlist_by_share_token: () => MOCK_WISHLISTS[0],
   get_wishlist_items_by_share_token: () => MOCK_ITEMS,
   get_user_statistics: () => MOCK_STATISTICS,
-  list_secret_santa_events: () => ({ items: [], total: 0, limit: 8, offset: 0 }),
+  list_secret_santa_events: () => ({
+    items: [],
+    total: 0,
+    limit: 8,
+    offset: 0,
+  }),
   create_secret_santa_event: () => ({
     id: "ss-001",
     name: "Office Christmas Party",
@@ -389,7 +456,12 @@ function handleTableQuery(tableName, url, method, body) {
       return MOCK_WISHLISTS;
     case "friend_requests":
       if (method === "POST")
-        return { id: "req-new", sender_id: MOCK_USER_ID, receiver_id: "someone", status: 0 };
+        return {
+          id: "req-new",
+          sender_id: MOCK_USER_ID,
+          receiver_id: "someone",
+          status: 0,
+        };
       if (method === "DELETE") return null;
       return [];
     case "friends":
@@ -402,7 +474,12 @@ function handleTableQuery(tableName, url, method, body) {
     case "secret_santa":
       if (method === "DELETE") return null;
       if (method === "PATCH")
-        return { id: "ss-001", name: "Test Event", event_date: "2026-12-25T00:00:00Z", budget: 25 };
+        return {
+          id: "ss-001",
+          name: "Test Event",
+          event_date: "2026-12-25T00:00:00Z",
+          budget: 25,
+        };
       return [];
     default:
       return [];
@@ -433,9 +510,15 @@ const server = http.createServer(async (req, res) => {
 
   // CORS headers (browser makes cross-origin requests to mock)
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+  );
   res.setHeader("Access-Control-Allow-Headers", "*");
-  res.setHeader("Access-Control-Expose-Headers", "content-range,x-supabase-api-version");
+  res.setHeader(
+    "Access-Control-Expose-Headers",
+    "content-range,x-supabase-api-version",
+  );
 
   if (method === "OPTIONS") {
     res.writeHead(204);

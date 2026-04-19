@@ -2,6 +2,10 @@ export type PaginationParams = {
   skip?: number;
   take?: number;
   search?: string;
+  sort?: string;
+  visibilityTypes?: number[];
+  statuses?: number[];
+  priorities?: number[];
 };
 
 export interface Notification {

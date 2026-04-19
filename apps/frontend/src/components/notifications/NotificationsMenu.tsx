@@ -18,12 +18,19 @@ export function NotificationsMenu() {
   const [open, setOpen] = useState(false);
   const previousUnreadCountRef = useRef<number | null>(null);
 
-  const { data: unreadCount = 0, isFetched: isUnreadCountFetched } = useUnreadNotificationsCount();
-  const { data: notifications = [], isLoading, refetch } = useNotifications({ limit: 20 });
+  const { data: unreadCount = 0, isFetched: isUnreadCountFetched } =
+    useUnreadNotificationsCount();
+  const {
+    data: notifications = [],
+    isLoading,
+    refetch,
+  } = useNotifications({ limit: 20 });
 
-  const { mutateAsync: deleteAll, isPending: isDeleting } = useDeleteAllNotifications();
+  const { mutateAsync: deleteAll, isPending: isDeleting } =
+    useDeleteAllNotifications();
 
-  const { mutateAsync: markAllRead, isPending: isMarkingAll } = useMarkAllNotificationsAsRead();
+  const { mutateAsync: markAllRead, isPending: isMarkingAll } =
+    useMarkAllNotificationsAsRead();
 
   const { mutateAsync: markRead } = useMarkNotificationAsRead();
 
@@ -91,6 +98,7 @@ export function NotificationsMenu() {
             await markRead(id);
             refetch();
           }}
+          onClose={() => setOpen(false)}
         />
       )}
     </div>

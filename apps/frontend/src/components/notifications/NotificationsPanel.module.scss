@@ -76,7 +76,6 @@
   transition:
     background 0.2s $ease-out,
     transform 0.2s $ease-out;
-  cursor: pointer;
 
   &:hover {
     background: var(--brand-alpha-06);
@@ -150,6 +149,10 @@
     font-weight: 600;
     color: $text;
   }
+}
+
+.clickable {
+  cursor: pointer;
 }
 
 .empty {

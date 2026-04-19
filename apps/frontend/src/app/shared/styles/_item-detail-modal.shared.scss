@@ -58,7 +58,7 @@
   }
 
   .description {
-    font-size: 14px;
+    font-size: 12px;
     color: $text-muted;
     line-height: 1.6;
     margin: 0;
@@ -102,7 +102,7 @@
       transform 0.18s $ease-out;
 
     strong {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       line-height: 1.35;
       color: var(--color-text);
@@ -111,7 +111,7 @@
     }
 
     span {
-      font-size: 13px;
+      font-size: 12px;
       line-height: 1.5;
       color: var(--color-text-muted);
       white-space: normal;
@@ -169,7 +169,7 @@
   }
 
   .price {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: $brand;
   }
@@ -177,7 +177,7 @@
   .priority {
     background: var(--badge-priority-bg);
     color: $brand;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     padding: 4px 10px;
     border-radius: $radius-pill;
@@ -203,7 +203,7 @@
     background: var(--card-bg);
     color: $text;
     text-decoration: none;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     transition: all 0.3s $ease-out;
 
@@ -240,7 +240,7 @@
 
   @media (max-width: 640px) {
     .details h2 {
-      font-size: 19px;
+      font-size: 16px;
     }
 
     .imageSection {
