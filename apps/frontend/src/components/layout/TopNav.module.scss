@@ -102,7 +102,6 @@
   font-weight: 500;
   color: var(--color-text-muted);
 
-  overflow: hidden;
   transition: color 0.2s ease;
 
   &:hover {
@@ -124,6 +123,15 @@
 .label {
   position: relative;
   z-index: 1;
+}
+
+.navBadgeWrap {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  z-index: 2;
+  pointer-events: none;
+  transform: translate(40%, -55%) scale(0.92);
 }
 
 .activePill {
@@ -198,6 +206,12 @@
     font-size: 13px;
   }
 
+  .navBadgeWrap {
+    top: 1px;
+    right: 4px;
+    transform: translate(35%, -45%) scale(0.84);
+  }
+
   .label {
     display: none;
   }
@@ -230,5 +244,9 @@
 
   .navItem {
     padding: 6px 10px;
+  }
+
+  .navBadgeWrap {
+    display: none;
   }
 }
