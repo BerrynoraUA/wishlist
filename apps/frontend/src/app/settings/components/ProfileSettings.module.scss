@@ -139,7 +139,8 @@
 
   &:focus {
     border-color: var(--color-danger);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 18%, transparent);
+    box-shadow: 0 0 0 3px
+      color-mix(in srgb, var(--color-danger) 18%, transparent);
   }
 }
 
@@ -193,6 +194,8 @@
   font-family: inherit;
   resize: vertical;
   min-height: 72px;
+  max-height: 144px;
+  overflow-y: auto;
   transition: all 0.2s;
 
   &:focus {

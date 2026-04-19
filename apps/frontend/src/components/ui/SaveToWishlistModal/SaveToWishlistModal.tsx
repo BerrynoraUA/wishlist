@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button/Button";
 import { useMyWishlists } from "@/hooks/use-wishlists";
 import { useCreateItem } from "@/hooks/use-items";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
+import { normalizeSearchQuery } from "@/lib/helpers/search";
 import styles from "./SaveToWishlistModal.module.scss";
 
 export type SaveItemData = {
@@ -29,7 +30,9 @@ type Props = {
 };
 
 export function SaveToWishlistModal({ open, onClose, item }: Props) {
-  const [selectedWishlistId, setSelectedWishlistId] = useState<string | null>(null);
+  const [selectedWishlistId, setSelectedWishlistId] = useState<string | null>(
+    null,
+  );
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -42,7 +45,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
 
   useEffect(() => {
     const handle = setTimeout(() => {
-      setDebouncedSearch(search.trim());
+      setDebouncedSearch(normalizeSearchQuery(search));
     }, 220);
 
     return () => clearTimeout(handle);
@@ -50,7 +53,8 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
 
   useEffect(() => {
     if (!selectedWishlistId) return;
-    if (wishlists.some((wishlist) => wishlist.id === selectedWishlistId)) return;
+    if (wishlists.some((wishlist) => wishlist.id === selectedWishlistId))
+      return;
     setSelectedWishlistId(null);
   }, [wishlists, selectedWishlistId]);
 
@@ -116,12 +120,18 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
               <Bookmark size={24} />
             </div>
             <h3 className={styles.title}>Save to wishlist</h3>
-            <p className={styles.subtitle}>Choose which wishlist you want to add this item to</p>
+            <p className={styles.subtitle}>
+              Choose which wishlist you want to add this item to
+            </p>
           </div>
 
           <div className={styles.itemPreview}>
             {item.image_url ? (
-              <img className={styles.itemImage} src={item.image_url} alt={item.name} />
+              <img
+                className={styles.itemImage}
+                src={item.image_url}
+                alt={item.name}
+              />
             ) : (
               <div className={styles.itemImagePlaceholder}>
                 <ShoppingBag size={20} />
@@ -149,7 +159,12 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
               <div className={styles.emptyState}>
                 <div style={{ display: "grid", gap: 8, width: "100%" }}>
                   {[0, 1, 2].map((i) => (
-                    <Skeleton key={i} width="100%" height={44} borderRadius={12} />
+                    <Skeleton
+                      key={i}
+                      width="100%"
+                      height={44}
+                      borderRadius={12}
+                    />
                   ))}
                 </div>
               </div>
@@ -157,7 +172,9 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
 
             {!isLoading && wishlists.length === 0 && (
               <div className={styles.emptyState}>
-                {debouncedSearch ? "No wishlists found" : "You don't have any wishlists yet"}
+                {debouncedSearch
+                  ? "No wishlists found"
+                  : "You don't have any wishlists yet"}
               </div>
             )}
 
@@ -185,10 +202,13 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
                   <div className={styles.wishlistMeta}>
                     <div className={styles.wishlistTitle}>{wishlist.title}</div>
                     <div className={styles.wishlistCount}>
-                      {wishlist.items_count} {wishlist.items_count === 1 ? "item" : "items"}
+                      {wishlist.items_count}{" "}
+                      {wishlist.items_count === 1 ? "item" : "items"}
                     </div>
                   </div>
-                  {isSelected && <Check size={18} className={styles.selectedCheck} />}
+                  {isSelected && (
+                    <Check size={18} className={styles.selectedCheck} />
+                  )}
                 </button>
               );
             })}
