@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import {
   getMyWishlists,
   getPublicWishlists,
@@ -59,6 +64,7 @@ export function useMyWishlists(params?: PaginationParams) {
   return useQuery({
     queryKey: wishlistKeys.my(normalizedParams),
     queryFn: () => getMyWishlists(normalizedParams),
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -84,6 +90,7 @@ export function useFriendsWishlistsDiscover(
     queryKey: wishlistKeys.friends(normalizedParams),
     queryFn: () => getFriendsWishlistsDiscover(normalizedParams),
     enabled,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -102,6 +109,7 @@ export function useFriendsWishlistsDiscoverAll(
     queryKey: wishlistKeys.friendsAll(normalizedParams),
     queryFn: () => getFriendsWishlistsDiscoverAll(normalizedParams),
     enabled,
+    placeholderData: keepPreviousData,
   });
 }
 export function useFriendsWishlistsReservedByMe(
@@ -119,6 +127,7 @@ export function useFriendsWishlistsReservedByMe(
     queryKey: wishlistKeys.friendsReserved(normalizedParams),
     queryFn: () => getFriendsWishlistsReservedByMe(normalizedParams),
     enabled,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -137,6 +146,7 @@ export function useFriendsWishlistsPurchasedByMe(
     queryKey: wishlistKeys.friendsPurchased(normalizedParams),
     queryFn: () => getFriendsWishlistsPurchasedByMe(normalizedParams),
     enabled,
+    placeholderData: keepPreviousData,
   });
 }
 

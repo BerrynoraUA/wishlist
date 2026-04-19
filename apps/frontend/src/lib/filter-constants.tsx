@@ -1,6 +1,5 @@
 import {
   Clock3,
-  Funnel,
   Globe,
   Lock,
   PackageCheck,
@@ -9,11 +8,49 @@ import {
 } from "lucide-react";
 import { WishlistVisibility } from "@/types/wishlist";
 
+// ─── Priority Bar Icons ────────────────────────────────────
+function PriorityBars({ count, color }: { count: number; color: string }) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        gap: 2,
+        alignItems: "flex-end",
+        height: 13,
+      }}
+    >
+      {Array.from({ length: count }).map((_, i) => (
+        <span
+          key={i}
+          style={{
+            width: 3,
+            height: 5 + i * 3,
+            borderRadius: 1,
+            background: color,
+          }}
+        />
+      ))}
+    </span>
+  );
+}
+
 // ─── Item Status ───────────────────────────────────────────
 export const ITEM_STATUS_OPTIONS = [
-  { value: "available", label: "Available", icon: <PackageOpen size={13} /> },
-  { value: "reserved", label: "Reserved", icon: <Clock3 size={13} /> },
-  { value: "purchased", label: "Purchased", icon: <PackageCheck size={13} /> },
+  {
+    value: "available",
+    label: "Available",
+    icon: <PackageOpen size={13} style={{ color: "#3b82f6" }} />,
+  },
+  {
+    value: "reserved",
+    label: "Reserved",
+    icon: <Clock3 size={13} style={{ color: "#eab308" }} />,
+  },
+  {
+    value: "purchased",
+    label: "Purchased",
+    icon: <PackageCheck size={13} style={{ color: "#22c55e" }} />,
+  },
 ];
 
 export const ITEM_STATUS_MAP: Record<string, number> = {
@@ -30,9 +67,21 @@ export const ITEM_STATUS_LABELS: Record<string, string> = {
 
 // ─── Item Priority ─────────────────────────────────────────
 export const ITEM_PRIORITY_OPTIONS = [
-  { value: "3", label: "High", icon: <Funnel size={13} /> },
-  { value: "2", label: "Medium", icon: <Funnel size={13} /> },
-  { value: "1", label: "Low", icon: <Funnel size={13} /> },
+  {
+    value: "3",
+    label: "High",
+    icon: <PriorityBars count={3} color="#ef4444" />,
+  },
+  {
+    value: "2",
+    label: "Medium",
+    icon: <PriorityBars count={2} color="#eab308" />,
+  },
+  {
+    value: "1",
+    label: "Low",
+    icon: <PriorityBars count={1} color="#22c55e" />,
+  },
 ];
 
 export const ITEM_PRIORITY_LABELS: Record<string, string> = {
@@ -84,3 +133,14 @@ export const WISHLIST_SORT_OPTIONS = [
 
 // ─── Shared Defaults ───────────────────────────────────────
 export const DEFAULT_SORT = "newest";
+
+// ─── Discover Sort ─────────────────────────────────────────
+export const DISCOVER_SORT_OPTIONS = [
+  { value: "default", label: "Default" },
+  { value: "owner-asc", label: "Owner A → Z" },
+  { value: "owner-desc", label: "Owner Z → A" },
+  { value: "price-high", label: "Highest price" },
+  { value: "price-low", label: "Lowest price" },
+  { value: "priority-high", label: "Highest priority" },
+  { value: "priority-low", label: "Lowest priority" },
+];

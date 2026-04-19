@@ -70,7 +70,16 @@ export async function getPublicWishlists(
 export async function getFriendsWishlistsDiscover(
   params: PaginationParams = {},
 ): Promise<DiscoverSection[]> {
-  const { skip = 0, take = 10, search } = params;
+  const {
+    skip = 0,
+    take = 10,
+    search,
+    sort,
+    priorities,
+    priceMin,
+    priceMax,
+    displayCurrency,
+  } = params;
   const normalizedSearch = normalizeSearchQuery(search);
 
   const { data, error } = await supabaseBrowser.rpc(
@@ -79,6 +88,11 @@ export async function getFriendsWishlistsDiscover(
       p_skip: skip,
       p_take: take,
       p_search: normalizedSearch || null,
+      p_sort: sort || "default",
+      p_priorities: priorities?.length ? priorities : null,
+      p_price_min: priceMin ?? null,
+      p_price_max: priceMax ?? null,
+      p_display_currency: displayCurrency || "USD",
     },
   );
 
@@ -93,7 +107,16 @@ export async function getFriendsWishlistsDiscover(
 export async function getFriendsWishlistsDiscoverAll(
   params: PaginationParams = {},
 ): Promise<DiscoverSection[]> {
-  const { skip = 0, take = 10, search } = params;
+  const {
+    skip = 0,
+    take = 10,
+    search,
+    sort,
+    priorities,
+    priceMin,
+    priceMax,
+    displayCurrency,
+  } = params;
   const normalizedSearch = normalizeSearchQuery(search);
 
   const { data, error } = await supabaseBrowser.rpc(
@@ -102,6 +125,11 @@ export async function getFriendsWishlistsDiscoverAll(
       p_skip: skip,
       p_take: take,
       p_search: normalizedSearch || null,
+      p_sort: sort || "default",
+      p_priorities: priorities?.length ? priorities : null,
+      p_price_min: priceMin ?? null,
+      p_price_max: priceMax ?? null,
+      p_display_currency: displayCurrency || "USD",
     },
   );
 
@@ -116,7 +144,16 @@ export async function getFriendsWishlistsDiscoverAll(
 export async function getFriendsWishlistsReservedByMe(
   params: PaginationParams = {},
 ): Promise<ReservedItem[]> {
-  const { skip = 0, take = 10, search } = params;
+  const {
+    skip = 0,
+    take = 10,
+    search,
+    sort,
+    priorities,
+    priceMin,
+    priceMax,
+    displayCurrency,
+  } = params;
   const normalizedSearch = normalizeSearchQuery(search);
 
   const { data, error } = await supabaseBrowser.rpc(
@@ -125,6 +162,11 @@ export async function getFriendsWishlistsReservedByMe(
       p_skip: skip,
       p_take: take,
       p_search: normalizedSearch || null,
+      p_sort: sort || "default",
+      p_priorities: priorities?.length ? priorities : null,
+      p_price_min: priceMin ?? null,
+      p_price_max: priceMax ?? null,
+      p_display_currency: displayCurrency || "USD",
     },
   );
 
@@ -435,13 +477,27 @@ export async function revokeWishlistAccess(
 export async function getFriendsWishlistsPurchasedByMe(
   params: PaginationParams = {},
 ): Promise<ReservedItem[]> {
-  const { skip = 0, take = 10, search } = params;
+  const {
+    skip = 0,
+    take = 10,
+    search,
+    sort,
+    priorities,
+    priceMin,
+    priceMax,
+    displayCurrency,
+  } = params;
   const normalizedSearch = normalizeSearchQuery(search);
 
   const { data, error } = await supabaseBrowser.rpc("get_my_bought_items", {
     p_skip: skip,
     p_take: take,
     p_search: normalizedSearch || null,
+    p_sort: sort || "default",
+    p_priorities: priorities?.length ? priorities : null,
+    p_price_min: priceMin ?? null,
+    p_price_max: priceMax ?? null,
+    p_display_currency: displayCurrency || "USD",
   });
 
   if (error) {

@@ -50,6 +50,27 @@
   justify-content: flex-end;
 }
 
+.clearFiltersBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border-light);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+    background: var(--brand-alpha-10);
+  }
+}
+
 @media (max-width: 768px) {
   .page {
     > p {
