@@ -61,8 +61,6 @@ We may update this privacy policy from time to time. Changes will be posted on t
 ## 9. Contact
 
 If you have questions about this privacy policy, contact us at:
-- Email: [your-email@example.com]
+- Email: [valerii.inshyn@gmail.com]
 
 ---
-
-*Host this document as a public web page (e.g., wishlane.app/extension-privacy) and link to it in your Chrome Web Store listing.*
