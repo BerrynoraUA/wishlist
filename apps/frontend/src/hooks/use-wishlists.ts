@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   getMyWishlists,
   getPublicWishlists,
@@ -94,6 +95,10 @@ export function useCreateWishlist() {
     mutationFn: (params: CreateWishlistParams) => createWishlist(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+      toast.success("Wishlist created");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to create wishlist");
     },
   });
 }
@@ -106,6 +111,10 @@ export function useUpdateWishlist() {
       updateWishlist(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+      toast.success("Wishlist updated");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update wishlist");
     },
   });
 }
@@ -117,6 +126,10 @@ export function useDeleteWishlist() {
     mutationFn: (id: string) => deleteWishlist(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+      toast.success("Wishlist deleted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to delete wishlist");
     },
   });
 }
@@ -166,6 +179,10 @@ export function useGrantWishlistAccess() {
       queryClient.invalidateQueries({
         queryKey: ["wishlist-access-list"],
       });
+      toast.success("Access granted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to grant access");
     },
   });
 }
@@ -187,6 +204,10 @@ export function useRevokeWishlistAccess() {
         queryKey: ["friends-without-wishlist-access", variables.wishlistId],
         exact: false,
       });
+      toast.success("Access revoked");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to revoke access");
     },
   });
 }

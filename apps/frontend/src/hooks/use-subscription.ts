@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { getSubscriptionStatus, syncSubscription, openPaddleCheckout } from "@/api/subscription";
 import { SubscriptionPlan, BillingInterval } from "@/types/subscription";
 
@@ -42,6 +43,10 @@ export function useSyncSubscription() {
       queryClient.invalidateQueries({
         queryKey: subscriptionKeys.status(),
       });
+      toast.success("Subscription synced");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to sync subscription");
     },
   });
 }
