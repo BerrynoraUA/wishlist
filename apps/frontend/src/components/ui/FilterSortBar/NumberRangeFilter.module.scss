@@ -1,0 +1,68 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.label {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: $radius-pill;
+  border: 1.5px solid var(--color-border-light);
+  background: var(--input-bg);
+}
+
+.input {
+  width: 84px;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+
+  &::placeholder {
+    color: var(--color-text-light);
+  }
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+.separator {
+  color: var(--color-text-light);
+  font-size: 12px;
+  line-height: 1;
+  user-select: none;
+}
+
+@media (max-width: 640px) {
+  .wrapper {
+    width: 100%;
+  }
+
+  .range {
+    width: 100%;
+  }
+
+  .input {
+    width: 100%;
+  }
+}

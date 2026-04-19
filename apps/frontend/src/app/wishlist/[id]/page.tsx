@@ -1,7 +1,7 @@
 "use client";
 
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useState, useCallback } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useState, useCallback, useMemo } from "react";
 import { useGT } from "gt-next";
 import { WishlistHeader } from "../components/WishlistHeader";
 import { WishlistItemsGrid } from "../components/WishlistItemsGrid";
@@ -24,6 +24,36 @@ import { Item } from "@/types/item";
 import styles from "./WishlistPage.module.scss";
 import { useCheckFriendship } from "@/hooks/use-friends";
 import { createWishlistShareToken } from "@/api/share";
+import {
+  ActiveFilters,
+  FilterDropdown,
+  FilterSortActions,
+  FilterSortBar,
+  FilterSortRow,
+  NumberRangeFilter,
+  SearchFilter,
+  SortSelect,
+} from "@/components/ui/FilterSortBar";
+import { useDebouncedQueryParam } from "@/hooks/use-debounced-query-param";
+import { useQueryParams } from "@/hooks/use-query-params";
+import {
+  ITEM_STATUS_OPTIONS,
+  ITEM_STATUS_MAP,
+  ITEM_STATUS_LABELS,
+  ITEM_PRIORITY_OPTIONS,
+  ITEM_PRIORITY_LABELS,
+  ITEM_SORT_OPTIONS,
+  DEFAULT_SORT,
+} from "@/lib/filter-constants";
+import {
+  getMultiParamValues,
+  parsePage,
+  parseOptionalNumber,
+  mapFilterValues,
+  toNumberArray,
+  paginationFlags,
+  hasActiveFilters,
+} from "@/lib/filter-helpers";
 
 const PAGE_SIZE = 12;
 
@@ -31,14 +61,50 @@ export default function WishlistItemsPage() {
   const t = useGT();
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const id = params.id as string;
+  const {
+    searchParams,
+    updateQueryParams,
+    setPage,
+    setSingleValueParam,
+    setMultiValueParam,
+  } = useQueryParams(`/wishlist/${id}`);
   const openItemId = searchParams.get("item");
-  const requestedPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
-  const [page, setPage] = useState(
-    Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1,
+  const page = parsePage(searchParams);
+  const { value: itemSearch, setValue: setItemSearch } = useDebouncedQueryParam(
+    {
+      key: "itemSearch",
+    },
+  );
+  const { value: itemPriceMin, setValue: setItemPriceMin } =
+    useDebouncedQueryParam({
+      key: "itemPriceMin",
+    });
+  const { value: itemPriceMax, setValue: setItemPriceMax } =
+    useDebouncedQueryParam({
+      key: "itemPriceMax",
+    });
+  const itemSort = searchParams.get("itemSort") ?? DEFAULT_SORT;
+  const itemStatuses = useMemo(
+    () => getMultiParamValues(searchParams, "itemStatus"),
+    [searchParams],
+  );
+  const itemPriorities = useMemo(
+    () => getMultiParamValues(searchParams, "itemPriority"),
+    [searchParams],
   );
   const { data: currentUserId = "" } = useCurrentUserId();
+  const normalizedPriceMin = parseOptionalNumber(itemPriceMin);
+  const normalizedPriceMax = parseOptionalNumber(itemPriceMax);
+
+  const statusNumbers = useMemo(
+    () => mapFilterValues(itemStatuses, ITEM_STATUS_MAP),
+    [itemStatuses],
+  );
+  const priorityNumbers = useMemo(
+    () => toNumberArray(itemPriorities),
+    [itemPriorities],
+  );
 
   // Modal states
   const [createOpen, setCreateOpen] = useState(false);
@@ -67,7 +133,18 @@ export default function WishlistItemsPage() {
     data: itemsData,
     isLoading: itemsLoading,
     isError: itemsError,
-  } = useWishlistItems(id, { skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE });
+  } = useWishlistItems(id, {
+    skip: (page - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
+    search: itemSearch.trim() || undefined,
+    sort: itemSort,
+    statuses: statusNumbers.length ? statusNumbers : undefined,
+    priorities: priorityNumbers.length ? priorityNumbers : undefined,
+    priceMin: normalizedPriceMin,
+    priceMax: normalizedPriceMax,
+  });
+
+  const { data: allItemsData } = useWishlistItems(id, { skip: 0, take: 1 });
 
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
@@ -75,6 +152,7 @@ export default function WishlistItemsPage() {
   const deleteWishlistMutation = useDeleteWishlist();
 
   const items = itemsData ?? [];
+  const hasAnyItems = (allItemsData?.length ?? 0) > 0;
   const isOwner = Boolean(wishlist?.is_owner);
   const canEditWishlist = Boolean(wishlist?.can_edit || wishlist?.is_owner);
 
@@ -83,8 +161,79 @@ export default function WishlistItemsPage() {
   const { data: isFriend = false } = useCheckFriendship(friendshipCheckUserId);
   const showDiscountBadge = !isOwner && isFriend;
 
-  const totalItems = wishlist?.items_count ?? items.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+  const isFiltersActive = hasActiveFilters(
+    itemSearch,
+    [itemStatuses, itemPriorities],
+    [normalizedPriceMin, normalizedPriceMax],
+  );
+  const { hasNextPage, hasPrevPage, totalForPagination } = paginationFlags(
+    page,
+    items.length,
+    PAGE_SIZE,
+  );
+
+  const activeFilterItems = [
+    ...itemStatuses.map((status) => ({
+      key: `itemStatus::${status}`,
+      label: ITEM_STATUS_LABELS[status] ?? status,
+      groupLabel: t("Status", { $id: "wishlist.items.filter.status" }),
+    })),
+    ...itemPriorities.map((priority) => ({
+      key: `itemPriority::${priority}`,
+      label: ITEM_PRIORITY_LABELS[priority] ?? priority,
+      groupLabel: t("Priority", { $id: "wishlist.items.filter.priority" }),
+    })),
+    ...(normalizedPriceMin !== null
+      ? [
+          {
+            key: "itemPriceMin::value",
+            label: `${t("From", { $id: "wishlist.items.price.from" })} ${normalizedPriceMin}`,
+            groupLabel: t("Price", { $id: "wishlist.items.filter.price" }),
+          },
+        ]
+      : []),
+    ...(normalizedPriceMax !== null
+      ? [
+          {
+            key: "itemPriceMax::value",
+            label: `${t("To", { $id: "wishlist.items.price.to" })} ${normalizedPriceMax}`,
+            groupLabel: t("Price", { $id: "wishlist.items.filter.price" }),
+          },
+        ]
+      : []),
+  ];
+
+  const handleRemoveActiveFilter = useCallback(
+    (key: string) => {
+      const [paramKey, value] = key.split("::");
+      if (paramKey === "itemPriceMin") {
+        setItemPriceMin("");
+        setPage(1);
+        return;
+      }
+
+      if (paramKey === "itemPriceMax") {
+        setItemPriceMax("");
+        setPage(1);
+        return;
+      }
+
+      const queryKey =
+        paramKey === "itemStatus" ? "itemStatus" : "itemPriority";
+      const currentValues = getMultiParamValues(searchParams, queryKey);
+      setMultiValueParam(
+        queryKey,
+        currentValues.filter((current) => current !== value),
+      );
+    },
+    [
+      searchParams,
+      setItemPriceMax,
+      setItemPriceMin,
+      setMultiValueParam,
+      setPage,
+    ],
+  );
 
   const handleShare = useCallback(async () => {
     try {
@@ -130,22 +279,10 @@ export default function WishlistItemsPage() {
 
   const handleOpenItemHandled = useCallback(
     (itemId: string) => {
-      const nextParams = new URLSearchParams(searchParams.toString());
-
-      if (nextParams.get("item") !== itemId) {
-        return;
-      }
-
-      nextParams.delete("item");
-      const nextQuery = nextParams.toString();
-      router.replace(
-        nextQuery ? `/wishlist/${id}?${nextQuery}` : `/wishlist/${id}`,
-        {
-          scroll: false,
-        },
-      );
+      if (searchParams.get("item") !== itemId) return;
+      updateQueryParams((p) => p.delete("item"));
     },
-    [searchParams, router, id],
+    [searchParams, updateQueryParams],
   );
 
   return (
@@ -172,26 +309,143 @@ export default function WishlistItemsPage() {
       {itemsError && (
         <p>{t("Failed to load items.", { $id: "wishlist.page.itemsError" })}</p>
       )}
-      {!itemsLoading && !itemsError && items.length === 0 && (
-        <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>
-      )}
-      {!itemsLoading && !itemsError && items.length > 0 && (
+      {!itemsLoading && !itemsError && (
         <>
-          <WishlistItemsGrid
-            items={items}
-            isOwner={canEditWishlist}
-            showDiscountBadge={showDiscountBadge}
-            onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
-            onToggleBought={(itemId) => toggleBought.mutate(itemId)}
-            onDelete={(itemId) => setDeleteItemId(itemId)}
-            onEdit={(item) => setEditItem(item)}
-            onAddItem={canEditWishlist ? () => setCreateOpen(true) : undefined}
-            openItemId={openItemId}
-            onOpenItemHandled={handleOpenItemHandled}
-          />
-          {totalPages > 1 && (
-            <Pagination page={page} total={totalPages} onChange={setPage} />
-          )}
+          <section className={styles.itemsSection}>
+            <div className={styles.toolbar}>
+              <h2 className={styles.sectionTitle}>
+                {t("Items", { $id: "wishlist.page.itemsTitle" })}
+              </h2>
+
+              <FilterSortBar className={styles.filterBar}>
+                <FilterSortRow className={styles.filterRow}>
+                  <SearchFilter
+                    value={itemSearch}
+                    onChange={(value) => {
+                      setItemSearch(value);
+                      setPage(1);
+                    }}
+                    placeholder={t("Search items...", {
+                      $id: "wishlist.page.searchItems",
+                    })}
+                  />
+                  <FilterDropdown
+                    label={t("Status", { $id: "wishlist.items.filter.status" })}
+                    options={ITEM_STATUS_OPTIONS.map((option) => ({
+                      ...option,
+                      label: t(option.label, {
+                        $id: `wishlist.items.status.${option.value}`,
+                      }),
+                    }))}
+                    active={itemStatuses}
+                    onChange={(values) =>
+                      setMultiValueParam("itemStatus", values)
+                    }
+                    multiSelect
+                  />
+                  <FilterDropdown
+                    label={t("Priority", {
+                      $id: "wishlist.items.filter.priority",
+                    })}
+                    options={ITEM_PRIORITY_OPTIONS.map((option) => ({
+                      ...option,
+                      label: t(option.label, {
+                        $id: `wishlist.items.priority.${option.value}`,
+                      }),
+                    }))}
+                    active={itemPriorities}
+                    onChange={(values) =>
+                      setMultiValueParam("itemPriority", values)
+                    }
+                    multiSelect
+                  />
+                  <NumberRangeFilter
+                    label={t("Price", { $id: "wishlist.items.filter.price" })}
+                    minValue={itemPriceMin}
+                    maxValue={itemPriceMax}
+                    onMinChange={(value) => {
+                      setItemPriceMin(value);
+                      setPage(1);
+                    }}
+                    onMaxChange={(value) => {
+                      setItemPriceMax(value);
+                      setPage(1);
+                    }}
+                    minPlaceholder={t("From", {
+                      $id: "wishlist.items.price.from",
+                    })}
+                    maxPlaceholder={t("To", { $id: "wishlist.items.price.to" })}
+                  />
+                  <FilterSortActions>
+                    <SortSelect
+                      options={ITEM_SORT_OPTIONS.map((option) => ({
+                        ...option,
+                        label: t(option.label, {
+                          $id: `wishlist.items.sort.${option.value}`,
+                        }),
+                      }))}
+                      value={itemSort}
+                      onChange={(value) =>
+                        setSingleValueParam("itemSort", value, DEFAULT_SORT)
+                      }
+                    />
+                  </FilterSortActions>
+                </FilterSortRow>
+                <ActiveFilters
+                  items={activeFilterItems}
+                  onRemove={handleRemoveActiveFilter}
+                  onClearAll={() => {
+                    updateQueryParams((nextParams) => {
+                      nextParams.delete("itemStatus");
+                      nextParams.delete("itemPriority");
+                      nextParams.delete("itemPriceMin");
+                      nextParams.delete("itemPriceMax");
+                      nextParams.delete("page");
+                    });
+                  }}
+                  clearLabel={t("Clear all", { $id: "filter.clearAll" })}
+                />
+              </FilterSortBar>
+            </div>
+
+            {!itemsLoading && !hasAnyItems && !isFiltersActive && (
+              <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>
+            )}
+
+            {!itemsLoading && items.length === 0 && isFiltersActive && (
+              <p>
+                {t("No items match your filters.", {
+                  $id: "wishlist.page.noFilteredItems",
+                })}
+              </p>
+            )}
+
+            {!itemsLoading && items.length > 0 && (
+              <>
+                <WishlistItemsGrid
+                  items={items}
+                  isOwner={canEditWishlist}
+                  showDiscountBadge={showDiscountBadge}
+                  onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
+                  onToggleBought={(itemId) => toggleBought.mutate(itemId)}
+                  onDelete={(itemId) => setDeleteItemId(itemId)}
+                  onEdit={(item) => setEditItem(item)}
+                  onAddItem={
+                    canEditWishlist ? () => setCreateOpen(true) : undefined
+                  }
+                  openItemId={openItemId}
+                  onOpenItemHandled={handleOpenItemHandled}
+                />
+                {(hasPrevPage || hasNextPage) && (
+                  <Pagination
+                    page={page}
+                    total={totalForPagination}
+                    onChange={setPage}
+                  />
+                )}
+              </>
+            )}
+          </section>
         </>
       )}
 

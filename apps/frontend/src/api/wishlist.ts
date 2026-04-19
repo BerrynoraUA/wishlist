@@ -27,6 +27,8 @@ export async function getMyWishlists({
   skip = 0,
   take = 10,
   search,
+  sort,
+  visibilityTypes,
 }: PaginationParams = {}): Promise<Wishlist[]> {
   const normalizedSearch = normalizeSearchQuery(search);
 
@@ -34,6 +36,8 @@ export async function getMyWishlists({
     p_skip: skip,
     p_take: take,
     p_search: normalizedSearch || null,
+    p_sort: sort || "newest",
+    p_visibility_types: visibilityTypes?.length ? visibilityTypes : null,
   });
 
   if (error) throw error;
