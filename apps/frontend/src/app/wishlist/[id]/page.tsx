@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useCallback, useMemo } from "react";
 import { useGT } from "gt-next";
+import { RotateCcw } from "lucide-react";
 import { WishlistHeader } from "../components/WishlistHeader";
 import { WishlistItemsGrid } from "../components/WishlistItemsGrid";
 import {
@@ -132,6 +133,7 @@ export default function WishlistItemsPage() {
   const {
     data: itemsData,
     isLoading: itemsLoading,
+    isFetching: itemsFetching,
     isError: itemsError,
   } = useWishlistItems(id, {
     skip: (page - 1) * PAGE_SIZE,
@@ -309,9 +311,15 @@ export default function WishlistItemsPage() {
       {itemsError && (
         <p>{t("Failed to load items.", { $id: "wishlist.page.itemsError" })}</p>
       )}
-      {!itemsLoading && !itemsError && (
+      {!itemsError && (
         <>
-          <section className={styles.itemsSection}>
+          <section
+            className={styles.itemsSection}
+            style={{
+              opacity: itemsFetching && !itemsLoading ? 0.6 : 1,
+              transition: "opacity 0.2s ease",
+            }}
+          >
             <div className={styles.toolbar}>
               <h2 className={styles.sectionTitle}>
                 {t("Items", { $id: "wishlist.page.itemsTitle" })}
@@ -377,6 +385,30 @@ export default function WishlistItemsPage() {
                     maxPlaceholder={t("To", { $id: "wishlist.items.price.to" })}
                   />
                   <FilterSortActions>
+                    {isFiltersActive && (
+                      <button
+                        type="button"
+                        className={styles.clearFiltersBtn}
+                        onClick={() => {
+                          setItemSearch("");
+                          setItemPriceMin("");
+                          setItemPriceMax("");
+                          updateQueryParams((nextParams) => {
+                            nextParams.delete("itemStatus");
+                            nextParams.delete("itemPriority");
+                            nextParams.delete("itemPriceMin");
+                            nextParams.delete("itemPriceMax");
+                            nextParams.delete("itemSearch");
+                            nextParams.delete("page");
+                          });
+                        }}
+                        title={t("Clear filters", {
+                          $id: "filter.clearFilters",
+                        })}
+                      >
+                        <RotateCcw size={14} />
+                      </button>
+                    )}
                     <SortSelect
                       options={ITEM_SORT_OPTIONS.map((option) => ({
                         ...option,

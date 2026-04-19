@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useMemo } from "react";
+import { Suspense, useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useGT } from "gt-next";
 import { DiscoverHeader } from "./components/DiscoverHeader";
@@ -14,24 +14,71 @@ import {
   useFriendsWishlistsPurchasedByMe,
   useFriendsWishlistsReservedByMe,
 } from "@/hooks/use-wishlists";
-import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
+import {
+  useToggleItemBought,
+  useToggleItemReservation,
+} from "@/hooks/use-items";
 import { useProfilesByIds } from "@/hooks/use-settings";
 import { useFriends } from "@/hooks/use-friends";
+import { useCurrencyFormatter } from "@/hooks/use-currency";
+import {
+  FilterSortBar,
+  FilterSortRow,
+  FilterSortActions,
+  SearchFilter,
+  FilterDropdown,
+  NumberRangeFilter,
+  SortSelect,
+} from "@/components/ui/FilterSortBar";
+import {
+  ITEM_PRIORITY_OPTIONS,
+  DISCOVER_SORT_OPTIONS,
+} from "@/lib/filter-constants";
 
 function DiscoverPageContent() {
   const t = useGT();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { displayCurrency } = useCurrencyFormatter();
   const tabParam = searchParams.get("tab");
   const tabFromUrl: "wishlists" | "available" | "reserved" | "purchased" =
-    tabParam === "available" || tabParam === "reserved" || tabParam === "purchased"
+    tabParam === "available" ||
+    tabParam === "reserved" ||
+    tabParam === "purchased"
       ? tabParam
       : "wishlists";
   const filter = tabFromUrl;
-  const wishlistsSearch = useMemo(() => searchParams.get("discoverSearch") ?? "", [searchParams]);
-  const reservedSearch = useMemo(() => searchParams.get("reservedSearch") ?? "", [searchParams]);
-  const purchasedSearch = useMemo(() => searchParams.get("purchasedSearch") ?? "", [searchParams]);
+  const discoverSearch = useMemo(
+    () => searchParams.get("discoverSearch") ?? "",
+    [searchParams],
+  );
+  const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
+  const [discoverSort, setDiscoverSort] = useState("default");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+
+  // Server-side filter params
+  const serverParams = useMemo(
+    () => ({
+      search: discoverSearch || undefined,
+      sort: discoverSort !== "default" ? discoverSort : undefined,
+      priorities: priorityFilter.length
+        ? priorityFilter.map(Number)
+        : undefined,
+      priceMin: priceMin ? Number(priceMin) : undefined,
+      priceMax: priceMax ? Number(priceMax) : undefined,
+      displayCurrency,
+    }),
+    [
+      discoverSearch,
+      discoverSort,
+      priorityFilter,
+      priceMin,
+      priceMax,
+      displayCurrency,
+    ],
+  );
 
   const handleFilterChange = useCallback(
     (nextFilter: "wishlists" | "available" | "reserved" | "purchased") => {
@@ -44,36 +91,61 @@ function DiscoverPageContent() {
         params.set("tab", nextFilter);
       }
 
-      router.replace(params.toString() ? `${pathname}?${params.toString()}` : pathname, {
-        scroll: false,
-      });
+      router.replace(
+        params.toString() ? `${pathname}?${params.toString()}` : pathname,
+        {
+          scroll: false,
+        },
+      );
     },
     [filter, pathname, router, searchParams],
+  );
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value) {
+        params.set("discoverSearch", value);
+      } else {
+        params.delete("discoverSearch");
+      }
+      router.replace(
+        params.toString() ? `${pathname}?${params.toString()}` : pathname,
+        {
+          scroll: false,
+        },
+      );
+    },
+    [pathname, router, searchParams],
   );
 
   const {
     data: allWishlistsSections = [],
     isLoading: isAllWishlistsLoading,
+    isFetching: isAllWishlistsFetching,
     isError: isAllWishlistsError,
-  } = useFriendsWishlistsDiscoverAll({ search: wishlistsSearch }, filter === "wishlists");
+  } = useFriendsWishlistsDiscoverAll(serverParams, filter === "wishlists");
 
   const {
     data: wishlistsSections = [],
     isLoading: isWishlistsLoading,
+    isFetching: isWishlistsFetching,
     isError: isWishlistsError,
-  } = useFriendsWishlistsDiscover({ search: wishlistsSearch }, filter === "available");
+  } = useFriendsWishlistsDiscover(serverParams, filter === "available");
 
   const {
     data: reservedSections = [],
     isLoading: isReservedLoading,
+    isFetching: isReservedFetching,
     isError: isReservedError,
-  } = useFriendsWishlistsReservedByMe({ search: reservedSearch }, filter === "reserved");
+  } = useFriendsWishlistsReservedByMe(serverParams, filter === "reserved");
 
   const {
     data: purchasedSections = [],
     isLoading: isPurchasedLoading,
+    isFetching: isPurchasedFetching,
     isError: isPurchasedError,
-  } = useFriendsWishlistsPurchasedByMe({ search: purchasedSearch }, filter === "purchased");
+  } = useFriendsWishlistsPurchasedByMe(serverParams, filter === "purchased");
 
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
@@ -87,7 +159,10 @@ function DiscoverPageContent() {
     return map;
   }, [friendsList]);
 
-  const activeWishlistSections = filter === "wishlists" ? allWishlistsSections : wishlistsSections;
+  const activeWishlistSections =
+    filter === "wishlists" ? allWishlistsSections : wishlistsSections;
+  const activeReservedItems =
+    filter === "reserved" ? reservedSections : purchasedSections;
 
   const friendIds = useMemo(() => {
     return Array.from(
@@ -117,6 +192,14 @@ function DiscoverPageContent() {
         : filter === "reserved"
           ? isReservedLoading
           : isPurchasedLoading;
+  const isFetching =
+    filter === "wishlists"
+      ? isAllWishlistsFetching
+      : filter === "available"
+        ? isWishlistsFetching
+        : filter === "reserved"
+          ? isReservedFetching
+          : isPurchasedFetching;
   const isError =
     filter === "wishlists"
       ? isAllWishlistsError
@@ -130,15 +213,52 @@ function DiscoverPageContent() {
     !isError &&
     (filter === "wishlists" || filter === "available"
       ? activeWishlistSections.length === 0
-      : filter === "reserved"
-        ? reservedSections.length === 0
-        : purchasedSections.length === 0);
+      : activeReservedItems.length === 0);
 
   return (
     <main style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}>
       <DiscoverHeader />
       <UpcomingEvents />
       <DiscoverFilters active={filter} onChange={handleFilterChange} />
+
+      <FilterSortBar>
+        <FilterSortRow>
+          <SearchFilter
+            value={discoverSearch}
+            onChange={handleSearchChange}
+            placeholder={t("Search...", { $id: "discover.filter.search" })}
+          />
+          <FilterDropdown
+            label={t("Priority", { $id: "discover.filter.priority" })}
+            options={ITEM_PRIORITY_OPTIONS.map((o) => ({
+              ...o,
+              label: t(o.label, { $id: `discover.filter.priority.${o.value}` }),
+            }))}
+            active={priorityFilter}
+            onChange={setPriorityFilter}
+            multiSelect
+          />
+          <NumberRangeFilter
+            label={t("Price", { $id: "discover.filter.price" })}
+            minValue={priceMin}
+            maxValue={priceMax}
+            onMinChange={setPriceMin}
+            onMaxChange={setPriceMax}
+            minPlaceholder={t("From", { $id: "discover.filter.price.from" })}
+            maxPlaceholder={t("To", { $id: "discover.filter.price.to" })}
+          />
+          <FilterSortActions>
+            <SortSelect
+              options={DISCOVER_SORT_OPTIONS.map((o) => ({
+                ...o,
+                label: t(o.label, { $id: `discover.sort.${o.value}` }),
+              }))}
+              value={discoverSort}
+              onChange={setDiscoverSort}
+            />
+          </FilterSortActions>
+        </FilterSortRow>
+      </FilterSortBar>
 
       {isError && (
         <p>
@@ -168,47 +288,58 @@ function DiscoverPageContent() {
         </p>
       )}
 
-      {!isLoading &&
-        !isError &&
-        (filter === "wishlists" || filter === "available") &&
-        activeWishlistSections.map((section) => (
-          <DiscoverSection
-            key={section.id}
-            {...section}
-            friend_id={section.friend_id ?? nicknameToFriendId.get(section.username)}
+      <div
+        style={{
+          opacity: isFetching && !isLoading ? 0.6 : 1,
+          transition: "opacity 0.2s ease",
+        }}
+      >
+        {!isLoading &&
+          !isError &&
+          (filter === "wishlists" || filter === "available") &&
+          activeWishlistSections.map((section) => (
+            <DiscoverSection
+              key={section.id}
+              {...section}
+              friend_id={
+                section.friend_id ?? nicknameToFriendId.get(section.username)
+              }
+              showDiscountBadge={true}
+              avatarUrl={
+                section.avatar_url ??
+                ((section.friend_id ?? nicknameToFriendId.get(section.username))
+                  ? (avatarById.get(
+                      section.friend_id ??
+                        nicknameToFriendId.get(section.username) ??
+                        "",
+                    ) ?? null)
+                  : null)
+              }
+              onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
+              onToggleBought={(itemId) => toggleBought.mutate(itemId)}
+            />
+          ))}
+
+        {!isLoading && !isError && filter === "reserved" && (
+          <ReservedItemsGrid
+            items={activeReservedItems}
+            mode="reserved"
             showDiscountBadge={true}
-            avatarUrl={
-              section.avatar_url ??
-              ((section.friend_id ?? nicknameToFriendId.get(section.username))
-                ? (avatarById.get(
-                    section.friend_id ?? nicknameToFriendId.get(section.username) ?? "",
-                  ) ?? null)
-                : null)
-            }
             onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
             onToggleBought={(itemId) => toggleBought.mutate(itemId)}
           />
-        ))}
+        )}
 
-      {!isLoading && !isError && filter === "reserved" && (
-        <ReservedItemsGrid
-          items={reservedSections}
-          mode="reserved"
-          showDiscountBadge={true}
-          onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
-          onToggleBought={(itemId) => toggleBought.mutate(itemId)}
-        />
-      )}
-
-      {!isLoading && !isError && filter === "purchased" && (
-        <ReservedItemsGrid
-          items={purchasedSections}
-          mode="purchased"
-          showDiscountBadge={true}
-          onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
-          onToggleBought={(itemId) => toggleBought.mutate(itemId)}
-        />
-      )}
+        {!isLoading && !isError && filter === "purchased" && (
+          <ReservedItemsGrid
+            items={activeReservedItems}
+            mode="purchased"
+            showDiscountBadge={true}
+            onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
+            onToggleBought={(itemId) => toggleBought.mutate(itemId)}
+          />
+        )}
+      </div>
     </main>
   );
 }

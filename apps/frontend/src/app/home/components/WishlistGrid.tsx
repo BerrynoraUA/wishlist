@@ -16,14 +16,12 @@ import {
   SearchFilter,
   FilterChips,
   SortSelect,
-  ActiveFilters,
 } from "@/components/ui/FilterSortBar";
 import { useFilterSort } from "@/hooks/use-filter-sort";
 import { useDebouncedQueryParam } from "@/hooks/use-debounced-query-param";
 import {
   WISHLIST_VISIBILITY_OPTIONS,
   WISHLIST_VISIBILITY_MAP,
-  WISHLIST_VISIBILITY_LABELS,
   WISHLIST_SORT_OPTIONS,
   DEFAULT_SORT,
 } from "@/lib/filter-constants";
@@ -52,22 +50,16 @@ export function WishlistGrid({
     key: "search",
   });
 
-  const {
-    sort,
-    setSort,
-    filters,
-    setFilter,
-    removeFilter,
-    clearAllFilters,
-    activeFilterList,
-  } = useFilterSort({ defaultSort: DEFAULT_SORT });
+  const { sort, setSort, filters, setFilter } = useFilterSort({
+    defaultSort: DEFAULT_SORT,
+  });
 
   const visibilityTypes = mapFilterValues(
     filters.visibility ?? [],
     WISHLIST_VISIBILITY_MAP,
   );
 
-  const { data, isLoading, isError } = useMyWishlists({
+  const { data, isLoading, isFetching, isError } = useMyWishlists({
     skip: (page - 1) * PAGE_SIZE,
     take: PAGE_SIZE,
     search,
@@ -84,18 +76,9 @@ export function WishlistGrid({
   );
   const isFiltersActive = checkActiveFilters(
     search,
-    [activeFilterList.map((f) => f.value)],
+    [filters.visibility ?? []],
     [],
   );
-
-  const activeFilterItems = activeFilterList.map((f) => ({
-    key: f.key,
-    label: WISHLIST_VISIBILITY_LABELS[f.value] ?? f.value,
-    groupLabel:
-      f.groupKey === "visibility"
-        ? t("Visibility", { $id: "filter.visibility" })
-        : f.groupKey,
-  }));
 
   return (
     <div>
@@ -135,16 +118,16 @@ export function WishlistGrid({
               />
             </FilterSortActions>
           </FilterSortRow>
-          <ActiveFilters
-            items={activeFilterItems}
-            onRemove={(key) => removeFilter(key)}
-            onClearAll={clearAllFilters}
-            clearLabel={t("Clear all", { $id: "filter.clearAll" })}
-          />
         </FilterSortBar>
       </div>
 
-      <div className={styles.grid}>
+      <div
+        className={styles.grid}
+        style={{
+          opacity: isFetching && !isLoading ? 0.6 : 1,
+          transition: "opacity 0.2s ease",
+        }}
+      >
         {isLoading && (
           <>
             {[0, 1, 2, 3].map((i) => (

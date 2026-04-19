@@ -8,4 +8,5 @@ interface PaginationParams {
   priorities?: number[];
   priceMin?: number | null;
   priceMax?: number | null;
+  displayCurrency?: string;
 }
