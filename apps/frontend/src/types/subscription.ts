@@ -33,7 +33,8 @@ export interface PricingFeature {
 
 export const FREE_LIMITS = {
   maxWishlists: 5,
-  maxItemsPerWishlist: 20,
+  maxItemsPerWishlist: 10,
+  maxSecretSantaEvents: 1,
 } as const;
 
 export const PADDLE_PRICE_IDS = {

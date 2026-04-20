@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useGT } from "gt-next";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, X, Lock } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { Select } from "@/components/ui/Select/Select";
@@ -23,6 +23,7 @@ import {
 import styles from "./CreateItemModal.module.scss";
 
 import type { CreateItemParams } from "@/api/types/item";
+import type { ItemLink } from "@/types/item";
 
 type Props = {
   open: boolean;
@@ -34,7 +35,9 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const t = useGT();
   const { isPro } = useSubscription();
   const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
+  const canUseMultipleLinks = !SUBSCRIPTIONS_UI_ENABLED || isPro;
   const [link, setLink] = useState("");
+  const [additionalLinks, setAdditionalLinks] = useState<ItemLink[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -76,6 +79,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
   function resetForm(nextCurrency = preferredCurrency) {
     setLink("");
+    setAdditionalLinks([]);
     setName("");
     setDescription("");
     setPrice("");
@@ -103,7 +107,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
     const imageUrlToSave = imageFile ? null : imagePreview || null;
 
-    const priorityValue = priority === "None" ? null : priorityToValue[priority];
+    const priorityValue =
+      priority === "None" ? null : priorityToValue[priority];
 
     const payload: CreateItemParams = {
       wishlist_id: wishlistId,
@@ -112,6 +117,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       price: price.trim() || null,
       priority: priorityValue,
       url: link.trim() || null, // original link user pasted
+      additional_links: additionalLinks.filter((l) => l.url.trim()),
       image: imageFile,
       image_url: imageUrlToSave,
       discount_price: discountPrice,
@@ -175,7 +181,11 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           currency: data?.currency ?? null,
         };
 
-        const isEmpty = !product.title && !product.description && !product.image && !product.price;
+        const isEmpty =
+          !product.title &&
+          !product.description &&
+          !product.image &&
+          !product.price;
 
         if (isEmpty) {
           setError(
@@ -200,7 +210,10 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           setImagePreview(product.image);
         }
       } else {
-        setError(data?.error || t("Error loading product", { $id: "item.modal.scrapeError" }));
+        setError(
+          data?.error ||
+            t("Error loading product", { $id: "item.modal.scrapeError" }),
+        );
       }
     } catch {
       setError(
@@ -236,14 +249,87 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               value={link}
               onChange={(e) => setLink(e.target.value)}
             />
-            <Button variant="secondary" onClick={handleScrape} disabled={!link.trim() || loading}>
+            <Button
+              variant="secondary"
+              onClick={handleScrape}
+              disabled={!link.trim() || loading}
+            >
               {loading ? (
-                <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
+                <Loader2
+                  size={16}
+                  style={{ animation: "spin 0.8s linear infinite" }}
+                />
               ) : (
                 t("Search", { $id: "item.modal.searchProduct" })
               )}
             </Button>
           </div>
+
+          {canUseMultipleLinks && (
+            <div className={styles.additionalLinks}>
+              {additionalLinks.map((extraLink, index) => (
+                <div key={index} className={styles.additionalLinkRow}>
+                  <input
+                    type="url"
+                    placeholder={t("Additional link URL", {
+                      $id: "item.modal.additionalLinkPlaceholder",
+                    })}
+                    value={extraLink.url}
+                    onChange={(e) => {
+                      const updated = [...additionalLinks];
+                      updated[index] = {
+                        ...updated[index],
+                        url: e.target.value,
+                      };
+                      setAdditionalLinks(updated);
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className={styles.removeLinkBtn}
+                    onClick={() => {
+                      setAdditionalLinks(
+                        additionalLinks.filter((_, i) => i !== index),
+                      );
+                    }}
+                    aria-label={t("Remove link", {
+                      $id: "item.modal.removeLinkAria",
+                    })}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className={styles.addLinkBtn}
+                onClick={() =>
+                  setAdditionalLinks([...additionalLinks, { url: "" }])
+                }
+              >
+                <Plus size={14} />
+                <span>
+                  {t("Add another link", { $id: "item.modal.addAnotherLink" })}
+                </span>
+              </button>
+            </div>
+          )}
+
+          {!canUseMultipleLinks && SUBSCRIPTIONS_UI_ENABLED && (
+            <button
+              type="button"
+              className={styles.proLinkHint}
+              onClick={() => window.open("/subscription", "_blank")}
+            >
+              <Lock size={12} />
+              <span>
+                {t("Pro: Add multiple links", {
+                  $id: "item.modal.proMultipleLinks",
+                })}
+              </span>
+            </button>
+          )}
+
           {error && <p className={styles.error}>{error}</p>}
         </div>
 
@@ -311,7 +397,9 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
+          <label>
+            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
+          </label>
           <div className={styles.priceRow}>
             <Select
               value={currency}

@@ -21,6 +21,34 @@
   color: var(--color-text-muted);
 }
 
+.linksSection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.linkBtnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--elevated-bg);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: var(--color-brand);
+    border-color: var(--brand-alpha-20);
+    background: var(--brand-alpha-5, rgba(236, 72, 153, 0.05));
+  }
+}
+
 .linkBtn:hover {
   box-shadow: 0 4px 12px var(--brand-alpha-12);
 }

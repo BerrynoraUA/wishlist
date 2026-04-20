@@ -1,3 +1,5 @@
+import type { ItemLink } from "@/types/item";
+
 export enum WishlistVisibility {
   Public = 0,
   FriendsOnly = 1,
@@ -38,4 +40,5 @@ export interface Item {
   url: string | null;
   status: number; // 0 = available, 1 = reserved, 2 = purchased
   created_at: string;
+  additional_links?: ItemLink[] | null;
 }

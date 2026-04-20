@@ -1,3 +1,5 @@
+import type { ItemLink } from "@/types/item";
+
 export type UUID = string;
 
 export type CreateSecretSantaEventInput = {
@@ -108,6 +110,7 @@ export type VisibleItem = {
   status: number | null;
   reserved_by: string | null;
   created_at: string;
+  additional_links?: ItemLink[] | null;
 };
 
 export type VisibleItemsResponse = {

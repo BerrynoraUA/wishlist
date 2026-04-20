@@ -103,6 +103,12 @@
     color: rgba(20, 24, 31, 0.8);
   }
 
+  &.locked {
+    opacity: 0.45;
+    cursor: not-allowed;
+    color: rgba(20, 24, 31, 0.5);
+  }
+
   &.pink {
     background: var(--accent-pink);
   }

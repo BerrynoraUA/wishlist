@@ -17,9 +17,15 @@ import {
   X,
 } from "lucide-react";
 import styles from "./SecretSantaDetailHero.module.scss";
-import { formatEventDate, type SecretSantaAccent } from "./secretSantaDetail.utils";
+import {
+  formatEventDate,
+  type SecretSantaAccent,
+} from "./secretSantaDetail.utils";
 import { Button } from "@/components/ui/Button/Button";
-import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+} from "@/components/ui/DropdownMenu/DropdownMenu";
 import { useUpdateSecretSantaEvent } from "@/hooks/use-secret-santa";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
 
@@ -204,12 +210,16 @@ export function SecretSantaDetailHero({
             >
               {onEdit && (
                 <DropdownMenuItem variant="edit" onClick={() => onEdit()}>
-                  <span>{t("Edit", { $id: "secretSanta.hero.menu.edit" })}</span>
+                  <span>
+                    {t("Edit", { $id: "secretSanta.hero.menu.edit" })}
+                  </span>
                 </DropdownMenuItem>
               )}
               {onDelete && (
                 <DropdownMenuItem variant="danger" onClick={() => onDelete()}>
-                  <span>{t("Delete", { $id: "secretSanta.hero.menu.delete" })}</span>
+                  <span>
+                    {t("Delete", { $id: "secretSanta.hero.menu.delete" })}
+                  </span>
                 </DropdownMenuItem>
               )}
             </DropdownMenu>
@@ -220,7 +230,11 @@ export function SecretSantaDetailHero({
       <div className={`${styles.heroVisual} ${styles[accent]}`}>
         {imagePreview ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imagePreview} alt={event.name} className={styles.heroImage} />
+          <img
+            src={imagePreview}
+            alt={event.name}
+            className={styles.heroImage}
+          />
         ) : isOwner ? (
           <label
             className={`${styles.heroUpload} ${isDragActive ? styles.heroUploadActive : ""} ${updateEvent.isPending ? styles.heroUploadPending : ""}`}
@@ -243,7 +257,9 @@ export function SecretSantaDetailHero({
             <span className={styles.heroUploadTitle}>
               {updateEvent.isPending ? "Uploading cover..." : "Upload cover"}
             </span>
-            <span className={styles.heroUploadHint}>Drag and drop or click to choose an image</span>
+            <span className={styles.heroUploadHint}>
+              Drag and drop or click to choose an image
+            </span>
           </label>
         ) : (
           <TreePine size={52} className={styles.heroIcon} />
@@ -280,7 +296,9 @@ export function SecretSantaDetailHero({
                 <input
                   className={styles.titleInput}
                   value={titleDraft}
-                  onChange={(eventTitle) => setTitleDraft(eventTitle.target.value)}
+                  onChange={(eventTitle) =>
+                    setTitleDraft(eventTitle.target.value)
+                  }
                   onKeyDown={handleTitleKeyDown}
                   placeholder="Event name"
                   autoFocus

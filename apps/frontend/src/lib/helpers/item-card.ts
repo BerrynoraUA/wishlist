@@ -1,4 +1,5 @@
 import type { ItemActionConfirmType } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
+import type { ItemLink } from "@/types/item";
 
 export type ItemCardPriorityKey = "low" | "medium" | "high";
 export type ItemCardPriority = "Low" | "Medium" | "High" | number | null;
@@ -48,6 +49,7 @@ type SaveItemInput = {
   hasDiscount?: boolean;
   discountEndDate?: string | null;
   currency?: string | null;
+  additionalLinks?: ItemLink[] | null;
 };
 
 export function getReservedByValue(value: unknown): string | null {
@@ -262,6 +264,7 @@ export function buildSaveItemData({
   hasDiscount = false,
   discountEndDate = null,
   currency = null,
+  additionalLinks = null,
 }: SaveItemInput) {
   return {
     name,
@@ -274,5 +277,6 @@ export function buildSaveItemData({
     has_discount: hasDiscount || discountPrice != null,
     discount_end_date: discountEndDate,
     currency,
+    additional_links: additionalLinks,
   };
 }

@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useGT } from "gt-next";
+import { useSubscription } from "@/hooks/use-subscription";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useUpdateWishlist } from "@/hooks/use-wishlists";
 import { Wishlist } from "@/types/wishlist";
 import { Check } from "lucide-react";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
@@ -52,7 +54,9 @@ function EditWishlistForm({
   onClose: () => void;
 }) {
   const t = useGT();
+  const { isPro } = useSubscription();
   const privacyOptions = getWishlistPrivacyOptions(t);
+  const isColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
   const [name, setName] = useState(wishlist.title ?? "");
   const [description, setDescription] = useState(wishlist.description ?? "");
   const [privacy, setPrivacy] = useState<WishlistPrivacyOption>(
@@ -71,6 +75,13 @@ function EditWishlistForm({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
+  const availableColors = useMemo(() => {
+    if (!isColorGated) {
+      return WISHLIST_COLOR_OPTIONS;
+    }
+
+    return color === "pink" ? (["pink"] as const) : ([color] as const);
+  }, [color, isColorGated]);
 
   const { mutate, isPending } = useUpdateWishlist();
 
@@ -273,7 +284,7 @@ function EditWishlistForm({
             {t("Cover Color", { $id: "wishlist.modal.coverColor" })}
           </label>
           <div className={styles.colors}>
-            {WISHLIST_COLOR_OPTIONS.map((c) => (
+            {availableColors.map((c) => (
               <div
                 key={c}
                 className={`${styles.color} ${styles[c]} ${color === c ? styles.active : ""}`}

@@ -9,6 +9,7 @@ import { useCreateItem } from "@/hooks/use-items";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
 import styles from "./SaveToWishlistModal.module.scss";
+import type { ItemLink } from "@/types/item";
 
 export type SaveItemData = {
   name: string;
@@ -21,6 +22,7 @@ export type SaveItemData = {
   has_discount?: boolean;
   discount_end_date?: string | null;
   currency?: string | null;
+  additional_links?: ItemLink[] | null;
 };
 
 type Props = {
@@ -74,6 +76,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
         has_discount: item.has_discount,
         discount_end_date: item.discount_end_date,
         currency: item.currency,
+        additional_links: item.additional_links,
       });
       setShowSuccess(true);
     } catch (err) {

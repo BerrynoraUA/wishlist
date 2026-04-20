@@ -17,7 +17,8 @@ export interface SubscriptionStatus {
 
 export const FREE_LIMITS = {
   maxWishlists: 5,
-  maxItemsPerWishlist: 20,
+  maxItemsPerWishlist: 10,
+  maxSecretSantaEvents: 1,
 } as const;
 
 export const RC_PRODUCT_IDS = {

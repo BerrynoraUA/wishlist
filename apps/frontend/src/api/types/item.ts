@@ -1,3 +1,5 @@
+import type { ItemLink } from "@/types/item";
+
 export interface CreateItemParams {
   wishlist_id: string;
   name: string;
@@ -12,6 +14,7 @@ export interface CreateItemParams {
   has_discount?: boolean;
   discount_end_date?: string | null;
   currency?: string | null;
+  additional_links?: ItemLink[] | null;
 }
 
 export interface UpdateItemParams {
@@ -29,4 +32,5 @@ export interface UpdateItemParams {
   has_discount?: boolean;
   discount_end_date?: string | null;
   currency?: string | null;
+  additional_links?: ItemLink[] | null;
 }

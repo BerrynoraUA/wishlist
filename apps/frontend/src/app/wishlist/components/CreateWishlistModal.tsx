@@ -2,11 +2,14 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useGT } from "gt-next";
+import { useRouter } from "next/navigation";
+import { useSubscription } from "@/hooks/use-subscription";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { useCreateWishlist } from "@/hooks/use-wishlists";
 import { useSettings } from "@/hooks/use-settings";
-import { Check } from "lucide-react";
+import { Check, Lock } from "lucide-react";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
@@ -29,7 +32,9 @@ type Props = {
 
 export function CreateWishlistModal({ open, onClose }: Props) {
   const { data: settings } = useSettings();
-  const defaultColor = getWishlistColorByIndex(settings?.default_wishlist_color);
+  const defaultColor = getWishlistColorByIndex(
+    settings?.default_wishlist_color,
+  );
 
   if (!open) return null;
 
@@ -50,12 +55,16 @@ function CreateWishlistForm({
   onClose: () => void;
 }) {
   const t = useGT();
+  const router = useRouter();
+  const { isPro } = useSubscription();
   const privacyOptions = getWishlistPrivacyOptions(t);
+  const isColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
+  const initialColor = isColorGated ? "pink" : defaultColor;
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [privacy, setPrivacy] = useState<WishlistPrivacyOption>("Public");
-  const [color, setColor] = useState<WishlistColorOption>(defaultColor);
+  const [color, setColor] = useState<WishlistColorOption>(initialColor);
   const [eventDate, setEventDate] = useState("");
   const [imagePreview, setImagePreview] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -74,7 +83,7 @@ function CreateWishlistForm({
     setName("");
     setDescription("");
     setPrivacy("Public");
-    setColor(defaultColor);
+    setColor(initialColor);
     setEventDate("");
     setImagePreview("");
     setImageFile(null);
@@ -138,12 +147,23 @@ function CreateWishlistForm({
     onClose();
   }
 
+  function handleColorSelect(nextColor: WishlistColorOption) {
+    if (isColorGated && nextColor !== "pink") {
+      router.push("/subscription");
+      return;
+    }
+
+    setColor(nextColor);
+  }
+
   return (
     <Modal open onClose={handleClose}>
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <h2>{t("Create New Wishlist", { $id: "wishlist.modal.create.title" })}</h2>
+            <h2>
+              {t("Create New Wishlist", { $id: "wishlist.modal.create.title" })}
+            </h2>
             <p>
               {t("Give your wishlist a name and customize its appearance.", {
                 $id: "wishlist.modal.create.subtitle",
@@ -154,7 +174,9 @@ function CreateWishlistForm({
 
         {/* Name */}
         <div className={styles.field}>
-          <label>{t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}</label>
+          <label>
+            {t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}
+          </label>
           <input
             placeholder={t("e.g. Birthday Wishes, Home Office Setup", {
               $id: "wishlist.modal.namePlaceholder",
@@ -251,16 +273,36 @@ function CreateWishlistForm({
 
         {/* Colors */}
         <div className={styles.section}>
-          <label>{t("Cover Color", { $id: "wishlist.modal.coverColor" })}</label>
+          <label>
+            {t("Cover Color", { $id: "wishlist.modal.coverColor" })}
+          </label>
 
           <div className={styles.colors}>
-            {WISHLIST_COLOR_OPTIONS.map((c) => (
-              <div
-                key={c}
-                className={`${styles.color} ${styles[c]} ${color === c ? styles.active : ""}`}
-                onClick={() => setColor(c)}
-              />
-            ))}
+            {WISHLIST_COLOR_OPTIONS.map((c) => {
+              const locked = isColorGated && c !== "pink";
+
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  className={`${styles.color} ${styles[c]} ${color === c ? styles.active : ""} ${locked ? styles.locked : ""}`}
+                  onClick={() => handleColorSelect(c)}
+                  title={
+                    locked
+                      ? t("Upgrade to Pro", {
+                          $id: "wishlist.modal.coverColor.upgradeToPro",
+                        })
+                      : undefined
+                  }
+                >
+                  {locked ? (
+                    <Lock size={14} />
+                  ) : (
+                    color === c && <Check size={16} />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -297,7 +339,10 @@ function PrivacyCard({
   onClick: () => void;
 }) {
   return (
-    <div className={`${styles.privacyCard} ${selected ? styles.selected : ""}`} onClick={onClick}>
+    <div
+      className={`${styles.privacyCard} ${selected ? styles.selected : ""}`}
+      onClick={onClick}
+    >
       <div className={styles.privacyIcon}>{icon}</div>
 
       <div>

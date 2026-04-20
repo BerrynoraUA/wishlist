@@ -67,6 +67,7 @@ export function ReservedItemsGrid({
                     priority: priorityName,
                     reservedByName: "you",
                     currency: item.currency,
+                    additional_links: item.additional_links,
                   }}
                   onToggleReserve={onToggleReserve}
                   onToggleBought={onToggleBought}

@@ -5,7 +5,7 @@ import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DiscoverItem } from "@/api/types/wishilst";
-import { ExternalLink, ShoppingCart } from "lucide-react";
+import { ExternalLink, ShoppingCart, Link2 } from "lucide-react";
 import styles from "./ItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
@@ -23,6 +23,7 @@ import {
   buildSaveItemData,
   getItemPriorityKey,
   getItemReservationState,
+  getItemStoreFromUrl,
   getNextConfirmAction,
   getReservedByValue,
 } from "@/lib/helpers/item-card";
@@ -41,8 +42,14 @@ type Props = {
   item: DiscoverItem;
   onToggleReserve?: (id: string) => void;
   onToggleBought?: (id: string) => void;
-  onReserveAction?: (action: ReserveActionType, context: ItemActionHandlerContext) => void;
-  onBoughtAction?: (action: BoughtActionType, context: ItemActionHandlerContext) => void;
+  onReserveAction?: (
+    action: ReserveActionType,
+    context: ItemActionHandlerContext,
+  ) => void;
+  onBoughtAction?: (
+    action: BoughtActionType,
+    context: ItemActionHandlerContext,
+  ) => void;
 };
 
 export function ItemDetailModal({
@@ -57,8 +64,11 @@ export function ItemDetailModal({
   const t = useGT();
   const { data: currentUserId = "" } = useCurrentUserId();
   const { formatPrice } = useCurrencyFormatter();
-  const [confirmAction, setConfirmAction] = useState<ItemActionConfirmType | null>(null);
-  const reservedByValue = getReservedByValue(item.reservedBy ?? item.reserved_by ?? null);
+  const [confirmAction, setConfirmAction] =
+    useState<ItemActionConfirmType | null>(null);
+  const reservedByValue = getReservedByValue(
+    item.reservedBy ?? item.reserved_by ?? null,
+  );
   const reservationState = getItemReservationState({
     status: item.status,
     isReserved: item.isReserved,
@@ -74,37 +84,50 @@ export function ItemDetailModal({
   });
   const canShowBoughtAction = Boolean(onToggleBought || onBoughtAction);
 
-  const reserveStatusLabel = buildReservationStatusLabel(reservationState, item.reservedByName, {
-    purchasedByYou: () =>
-      t("Purchased by you", {
-        $id: "discover.detail.purchasedByYouStatus",
-      }),
-    purchased: () => t("Purchased", { $id: "discover.detail.purchasedStatus" }),
-    purchasedByName: (name) =>
-      t("Purchased by {name}", {
-        name,
-        $id: "discover.detail.purchasedByNameStatus",
-      }),
-    reservedByYou: () =>
-      t("Reserved by you", {
-        $id: "discover.detail.reservedByYouStatus",
-      }),
-    reserved: () => t("Reserved", { $id: "discover.detail.reservedStatus" }),
-    reservedByName: (name) =>
-      t("Reserved by {name}", {
-        name,
-        $id: "discover.detail.reservedByNameStatus",
-      }),
-  });
+  const reserveStatusLabel = buildReservationStatusLabel(
+    reservationState,
+    item.reservedByName,
+    {
+      purchasedByYou: () =>
+        t("Purchased by you", {
+          $id: "discover.detail.purchasedByYouStatus",
+        }),
+      purchased: () =>
+        t("Purchased", { $id: "discover.detail.purchasedStatus" }),
+      purchasedByName: (name) =>
+        t("Purchased by {name}", {
+          name,
+          $id: "discover.detail.purchasedByNameStatus",
+        }),
+      reservedByYou: () =>
+        t("Reserved by you", {
+          $id: "discover.detail.reservedByYouStatus",
+        }),
+      reserved: () => t("Reserved", { $id: "discover.detail.reservedStatus" }),
+      reservedByName: (name) =>
+        t("Reserved by {name}", {
+          name,
+          $id: "discover.detail.reservedByNameStatus",
+        }),
+    },
+  );
 
   const handleReserveClick = () => {
-    if (!reservationState.canToggleReservation || (!onToggleReserve && !onReserveAction)) return;
-    setConfirmAction(getNextConfirmAction("reserve", reservationState.isReserved));
+    if (
+      !reservationState.canToggleReservation ||
+      (!onToggleReserve && !onReserveAction)
+    )
+      return;
+    setConfirmAction(
+      getNextConfirmAction("reserve", reservationState.isReserved),
+    );
   };
 
   const handleBoughtClick = () => {
     if (!reservationState.canToggleBought || !canShowBoughtAction) return;
-    setConfirmAction(getNextConfirmAction("purchase", reservationState.isPurchased));
+    setConfirmAction(
+      getNextConfirmAction("purchase", reservationState.isPurchased),
+    );
   };
 
   const handleConfirmAction = () => {
@@ -167,7 +190,9 @@ export function ItemDetailModal({
 
             <div className={styles.meta}>
               {item.price != null && (
-                <span className={styles.price}>{formatPrice(item.price, item.currency)}</span>
+                <span className={styles.price}>
+                  {formatPrice(item.price, item.currency)}
+                </span>
               )}
               {item.store && <span className={styles.store}>{item.store}</span>}
               {priorityKey && priorityLabel && (
@@ -176,20 +201,42 @@ export function ItemDetailModal({
             </div>
 
             <div className={styles.footer}>
-              {item.url && (
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.linkBtn}
-                >
-                  <ExternalLink size={14} />
-                  <span>
-                    {t("Visit website", {
-                      $id: "discover.detail.visitWebsite",
-                    })}
-                  </span>
-                </a>
+              {(item.url ||
+                (item.additional_links &&
+                  item.additional_links.length > 0)) && (
+                <div className={styles.linksSection}>
+                  {item.url && (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.linkBtn}
+                    >
+                      <ExternalLink size={14} />
+                      <span>
+                        {t("Visit website", {
+                          $id: "discover.detail.visitWebsite",
+                        })}
+                      </span>
+                    </a>
+                  )}
+                  {item.additional_links?.map((link, index) => (
+                    <a
+                      key={index}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.linkBtnSecondary}
+                    >
+                      <Link2 size={14} />
+                      <span>
+                        {link.title ||
+                          getItemStoreFromUrl(link.url) ||
+                          t("Link", { $id: "item.detail.link" })}
+                      </span>
+                    </a>
+                  ))}
+                </div>
               )}
 
               <SaveToWishlistButton
@@ -203,13 +250,16 @@ export function ItemDetailModal({
                   discountPrice: item.discount_price,
                   hasDiscount: item.discount_price != null,
                   currency: item.currency,
+                  additionalLinks: item.additional_links,
                 })}
                 className={styles.saveBtn}
               />
 
               <div className={styles.actions}>
                 <Button
-                  variant={reservationState.isReserved ? "secondary" : "primary"}
+                  variant={
+                    reservationState.isReserved ? "secondary" : "primary"
+                  }
                   onClick={handleReserveClick}
                   disabled={!reservationState.canToggleReservation}
                 >
@@ -221,12 +271,14 @@ export function ItemDetailModal({
                     />
                   </span>
                   {buildReservationActionLabel(reservationState, {
-                    purchased: () => t("Purchased", { $id: "discover.detail.purchasedBtn" }),
+                    purchased: () =>
+                      t("Purchased", { $id: "discover.detail.purchasedBtn" }),
                     reservedByYou: () =>
                       t("Release reservation", {
                         $id: "discover.detail.releaseReservation",
                       }),
-                    reserved: () => t("Reserved", { $id: "discover.detail.reservedBtn" }),
+                    reserved: () =>
+                      t("Reserved", { $id: "discover.detail.reservedBtn" }),
                     available: () =>
                       t("Reserve this gift", {
                         $id: "discover.detail.reserveGift",
@@ -236,7 +288,9 @@ export function ItemDetailModal({
 
                 {canShowBoughtAction && (
                   <Button
-                    variant={reservationState.isPurchased ? "secondary" : "primary"}
+                    variant={
+                      reservationState.isPurchased ? "secondary" : "primary"
+                    }
                     size="sm"
                     onClick={handleBoughtClick}
                     disabled={!reservationState.canToggleBought}
@@ -247,7 +301,8 @@ export function ItemDetailModal({
                         t("Purchased", {
                           $id: "discover.detail.purchasedCartBtn",
                         }),
-                      available: () => t("Bought", { $id: "discover.detail.bought" }),
+                      available: () =>
+                        t("Bought", { $id: "discover.detail.bought" }),
                     })}
                   </Button>
                 )}

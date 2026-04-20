@@ -1,4 +1,5 @@
 import { Item, WishlistAccent, WishlistVisibility } from "@/types/wishlist";
+import type { ItemLink } from "@/types/item";
 
 export interface CreateWishlistParams {
   title: string;
@@ -50,6 +51,7 @@ export type DiscoverItem = {
   reservedByName?: string | null;
   discount_price?: string | number | null;
   currency?: string | null;
+  additional_links?: ItemLink[] | null;
 };
 
 export type DiscoverSection = {
@@ -82,6 +84,7 @@ export type ReservedItem = {
   owner_avatar: string;
   discount_price?: string | number | null;
   currency?: string | null;
+  additional_links?: ItemLink[] | null;
 };
 
 export interface FriendUpcomingWishlist {

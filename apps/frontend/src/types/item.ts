@@ -1,3 +1,8 @@
+export interface ItemLink {
+  url: string;
+  title?: string;
+}
+
 export interface Item {
   id: string;
   wishlist_id: string;
@@ -14,4 +19,5 @@ export interface Item {
   has_discount: boolean;
   discount_end_date: string | null;
   currency: string | null;
+  additional_links: ItemLink[] | null;
 }

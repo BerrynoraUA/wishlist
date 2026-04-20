@@ -172,8 +172,11 @@
   width: 32px;
   height: 32px;
   border-radius: 10px;
+  display: grid;
+  place-items: center;
   cursor: pointer;
   border: 2px solid transparent;
+  color: rgba(20, 24, 31, 0.8);
   transition:
     transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
     border-color 0.2s ease,
@@ -186,6 +189,11 @@
 
   &:active {
     transform: scale(0.95);
+  }
+
+  &.locked {
+    opacity: 0.45;
+    color: rgba(20, 24, 31, 0.5);
   }
 }
 

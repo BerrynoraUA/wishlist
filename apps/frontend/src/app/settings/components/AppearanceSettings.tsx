@@ -2,10 +2,13 @@
 
 import { useMemo } from "react";
 import { useGT } from "gt-next";
-import { Sun, Moon, Monitor, Check } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Sun, Moon, Monitor, Check, Lock } from "lucide-react";
 import styles from "./AppearanceSettings.module.scss";
 import { SettingsSection } from "./SettingsSection";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
+import { useSubscription } from "@/hooks/use-subscription";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { WishlistAccent } from "@/types/wishlist";
 import type { ThemePreference, WishlistColorIndex } from "@/types/settings";
 import { useAppTheme } from "@/providers";
@@ -17,19 +20,31 @@ import {
 
 export function AppearanceSettings() {
   const t = useGT();
+  const router = useRouter();
   const { persistedTheme, setPersistedTheme } = useAppTheme();
   const { data: settings } = useSettings();
   const updateSettings = useUpdateSettings();
+  const { isPro } = useSubscription();
+  const isAccentGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
+  const isWishlistColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
 
   function handleTheme(theme: ThemePreference) {
     setPersistedTheme(theme);
   }
 
   function handleAccent(accent: WishlistAccent) {
+    if (isAccentGated && accent !== WishlistAccent.Pink) {
+      router.push("/subscription");
+      return;
+    }
     updateSettings.mutate({ default_accent: accent });
   }
 
   function handleWishlistColor(colorIndex: WishlistColorIndex) {
+    if (isWishlistColorGated && colorIndex !== 0) {
+      router.push("/subscription");
+      return;
+    }
     updateSettings.mutate({ default_wishlist_color: colorIndex });
   }
 
@@ -125,20 +140,34 @@ export function AppearanceSettings() {
         })}
       >
         <div className={styles.accentGrid}>
-          {accents.map((a) => (
-            <button
-              key={a.id}
-              type="button"
-              className={`${styles.accentSwatch} ${styles[a.cssClass]} ${activeAccent === a.id ? styles.active : ""}`}
-              onClick={() => handleAccent(a.id)}
-              title={a.label}
-            >
-              {activeAccent === a.id && <Check size={16} />}
-            </button>
-          ))}
+          {accents.map((a) => {
+            const locked = isAccentGated && a.id !== WishlistAccent.Pink;
+            return (
+              <button
+                key={a.id}
+                type="button"
+                className={`${styles.accentSwatch} ${styles[a.cssClass]} ${activeAccent === a.id ? styles.active : ""} ${locked ? styles.locked : ""}`}
+                onClick={() => handleAccent(a.id)}
+                title={
+                  locked
+                    ? t("Upgrade to Pro", {
+                        $id: "settings.appearance.accent.upgradeToPro",
+                      })
+                    : a.label
+                }
+              >
+                {locked ? (
+                  <Lock size={14} />
+                ) : (
+                  activeAccent === a.id && <Check size={16} />
+                )}
+              </button>
+            );
+          })}
         </div>
         <p className={styles.accentLabel}>
-          {accents.find((a) => a.id === activeAccent)?.label ?? defaultColorLabel}
+          {accents.find((a) => a.id === activeAccent)?.label ??
+            defaultColorLabel}
         </p>
       </SettingsSection>
 
@@ -151,20 +180,34 @@ export function AppearanceSettings() {
         })}
       >
         <div className={styles.accentGrid}>
-          {wishlistColors.map((a) => (
-            <button
-              key={a.id}
-              type="button"
-              className={`${styles.accentSwatch} ${styles[a.cssClass]} ${activeWishlistColor === a.id ? styles.active : ""}`}
-              onClick={() => handleWishlistColor(a.id)}
-              title={a.label}
-            >
-              {activeWishlistColor === a.id && <Check size={16} />}
-            </button>
-          ))}
+          {wishlistColors.map((a) => {
+            const locked = isWishlistColorGated && a.id !== 0;
+            return (
+              <button
+                key={a.id}
+                type="button"
+                className={`${styles.accentSwatch} ${styles[a.cssClass]} ${activeWishlistColor === a.id ? styles.active : ""} ${locked ? styles.locked : ""}`}
+                onClick={() => handleWishlistColor(a.id)}
+                title={
+                  locked
+                    ? t("Upgrade to Pro", {
+                        $id: "settings.appearance.wishlistColor.upgradeToPro",
+                      })
+                    : a.label
+                }
+              >
+                {locked ? (
+                  <Lock size={14} />
+                ) : (
+                  activeWishlistColor === a.id && <Check size={16} />
+                )}
+              </button>
+            );
+          })}
         </div>
         <p className={styles.accentLabel}>
-          {wishlistColors.find((a) => a.id === activeWishlistColor)?.label ?? defaultColorLabel}
+          {wishlistColors.find((a) => a.id === activeWishlistColor)?.label ??
+            defaultColorLabel}
         </p>
       </SettingsSection>
 

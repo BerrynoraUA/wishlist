@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useGT } from "gt-next";
+import { Plus, X, Lock } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { Select } from "@/components/ui/Select/Select";
@@ -9,7 +10,7 @@ import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { useUpdateItem } from "@/hooks/use-items";
 import { useSubscription } from "@/hooks/use-subscription";
-import { Item } from "@/types/item";
+import { Item, ItemLink } from "@/types/item";
 import type { UpdateItemParams } from "@/api/types/item";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { validateImageUploadFile } from "@/lib/image-upload";
@@ -47,6 +48,7 @@ function EditItemForm({
   const t = useGT();
   const { isPro } = useSubscription();
   const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
+  const canUseMultipleLinks = !SUBSCRIPTIONS_UI_ENABLED || isPro;
   const currencyOptions = getCompactCurrencyOptions();
   const priorityOptions = getPriorityOptions(t);
   const [name, setName] = useState(item.name ?? "");
@@ -56,6 +58,9 @@ function EditItemForm({
     item.priority ? (valueToPriority[item.priority] ?? "None") : "None",
   );
   const [link, setLink] = useState(item.url ?? "");
+  const [additionalLinks, setAdditionalLinks] = useState<ItemLink[]>(
+    item.additional_links ?? [],
+  );
   const [imagePreview, setImagePreview] = useState(item.image_url ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
@@ -74,6 +79,11 @@ function EditItemForm({
       : "None";
     const initialCurrency = resolveCurrency(item.currency);
     const initialImage = item.image_url ?? "";
+    const initialAdditionalLinks = item.additional_links ?? [];
+
+    const additionalLinksChanged =
+      JSON.stringify(additionalLinks.filter((l) => l.url.trim())) !==
+      JSON.stringify(initialAdditionalLinks);
 
     return (
       name.trim() !== initialName ||
@@ -83,9 +93,11 @@ function EditItemForm({
       priority !== initialPriority ||
       currency !== initialCurrency ||
       Boolean(imageFile) ||
-      imagePreview !== initialImage
+      imagePreview !== initialImage ||
+      additionalLinksChanged
     );
   }, [
+    additionalLinks,
     currency,
     description,
     imageFile,
@@ -135,11 +147,15 @@ function EditItemForm({
     const priorityValue =
       priority === "None" ? null : priorityToValue[priority];
 
+    // Filter out empty additional links
+    const validAdditionalLinks = additionalLinks.filter((l) => l.url.trim());
+
     const updates: UpdateItemParams = {
       name: name.trim(),
       description: description.trim() || null,
       price: price.trim() || null,
       url: link.trim() || null,
+      additional_links: validAdditionalLinks,
       priority: priorityValue,
       currency,
       ...(imageFile
@@ -167,6 +183,72 @@ function EditItemForm({
             value={link}
             onChange={(e) => setLink(e.target.value)}
           />
+
+          {/* Additional links - Pro feature */}
+          {canUseMultipleLinks && (
+            <div className={styles.additionalLinks}>
+              {additionalLinks.map((extraLink, index) => (
+                <div key={index} className={styles.additionalLinkRow}>
+                  <input
+                    type="url"
+                    placeholder={t("Additional link URL", {
+                      $id: "item.modal.additionalLinkPlaceholder",
+                    })}
+                    value={extraLink.url}
+                    onChange={(e) => {
+                      const updated = [...additionalLinks];
+                      updated[index] = {
+                        ...updated[index],
+                        url: e.target.value,
+                      };
+                      setAdditionalLinks(updated);
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className={styles.removeLinkBtn}
+                    onClick={() => {
+                      setAdditionalLinks(
+                        additionalLinks.filter((_, i) => i !== index),
+                      );
+                    }}
+                    aria-label={t("Remove link", {
+                      $id: "item.modal.removeLinkAria",
+                    })}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className={styles.addLinkBtn}
+                onClick={() =>
+                  setAdditionalLinks([...additionalLinks, { url: "" }])
+                }
+              >
+                <Plus size={14} />
+                <span>
+                  {t("Add another link", { $id: "item.modal.addAnotherLink" })}
+                </span>
+              </button>
+            </div>
+          )}
+
+          {!canUseMultipleLinks && SUBSCRIPTIONS_UI_ENABLED && (
+            <button
+              type="button"
+              className={styles.proLinkHint}
+              onClick={() => window.open("/subscription", "_blank")}
+            >
+              <Lock size={12} />
+              <span>
+                {t("Pro: Add multiple links", {
+                  $id: "item.modal.proMultipleLinks",
+                })}
+              </span>
+            </button>
+          )}
         </div>
 
         <div className={styles.field}>

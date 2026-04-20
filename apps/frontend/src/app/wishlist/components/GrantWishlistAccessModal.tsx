@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useGT } from "gt-next";
+import { useRouter } from "next/navigation";
 import {
   Check,
   ChevronDown,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { useSubscription } from "@/hooks/use-subscription";
 import {
   useFriendsWithoutWishlistAccess,
   useWishlistAccessList,
@@ -25,6 +27,7 @@ import {
   hasReachedSearchThreshold,
   normalizeSearchQuery,
 } from "@/lib/helpers/search";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import type { ProfileSearchResult } from "@/api/types/friends";
 import styles from "./GrantWishlistAccessModal.module.scss";
 
@@ -46,6 +49,8 @@ export function GrantWishlistAccessModal({
   wishlistTitle,
 }: Props) {
   const t = useGT();
+  const router = useRouter();
+  const { isPro } = useSubscription();
   const [query, setQuery] = useState("");
   const [selectedFriend, setSelectedFriend] =
     useState<ProfileSearchResult | null>(null);
@@ -70,6 +75,7 @@ export function GrantWishlistAccessModal({
   } = useWishlistAccessList(wishlistId);
   const grantAccess = useGrantWishlistAccess();
   const revokeAccess = useRevokeWishlistAccess();
+  const isGrantAccessGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
 
   const accessOptions = useMemo(
     () =>
@@ -173,6 +179,61 @@ export function GrantWishlistAccessModal({
       : role === "viewer"
         ? t("Viewer", { $id: "wishlist.grantAccess.roleViewer" })
         : role;
+
+  if (isGrantAccessGated) {
+    return (
+      <Modal open={open} onClose={onClose}>
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <p className={styles.eyebrow}>
+              {t("Pro feature", { $id: "wishlist.grantAccess.proEyebrow" })}
+            </p>
+            <h2>
+              {t("Collaborative wishlists", {
+                $id: "wishlist.grantAccess.proTitle",
+              })}
+            </h2>
+            <p className={styles.description}>
+              {t(
+                "Granting view or edit access to other people is available only on the Pro plan.",
+                {
+                  $id: "wishlist.grantAccess.proDescription",
+                },
+              )}
+            </p>
+            <div className={styles.titleCard}>
+              <span className={styles.titleLabel}>
+                {t("Wishlist", { $id: "wishlist.grantAccess.wishlistLabel" })}
+              </span>
+              <strong className={styles.inlineTitle}>{wishlistTitle}</strong>
+            </div>
+          </div>
+
+          <div className={styles.upgradeCard}>
+            <p>
+              {t(
+                "Upgrade to Pro to invite collaborators and manage wishlist access levels.",
+                {
+                  $id: "wishlist.grantAccess.upgradeCopy",
+                },
+              )}
+            </p>
+          </div>
+
+          <div className={styles.actions}>
+            <Button variant="secondary" onClick={onClose}>
+              {t("Cancel", { $id: "common.cancel" })}
+            </Button>
+            <Button onClick={() => router.push("/subscription")}>
+              {t("Upgrade to Pro", {
+                $id: "wishlist.grantAccess.upgradeAction",
+              })}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <Modal open={open} onClose={onClose}>

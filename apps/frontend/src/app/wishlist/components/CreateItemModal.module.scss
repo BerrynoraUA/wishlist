@@ -132,6 +132,81 @@
   gap: 10px;
 }
 
+/* Additional links */
+.additionalLinks {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.additionalLinkRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.removeLinkBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-danger-alpha-10, rgba(239, 68, 68, 0.1));
+  color: var(--color-danger);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--color-danger-alpha-20, rgba(239, 68, 68, 0.2));
+  }
+}
+
+.addLinkBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1.5px dashed var(--color-border-light);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  justify-self: start;
+
+  &:hover {
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+    background: var(--brand-alpha-5, rgba(236, 72, 153, 0.05));
+  }
+}
+
+.proLinkHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--brand-alpha-10, rgba(236, 72, 153, 0.1));
+  color: var(--color-brand);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  justify-self: start;
+  margin-top: 4px;
+
+  &:hover {
+    background: var(--brand-alpha-15, rgba(236, 72, 153, 0.15));
+  }
+}
+
 @media (max-width: 640px) {
   .container {
     gap: 16px;

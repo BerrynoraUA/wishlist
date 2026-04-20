@@ -2,14 +2,23 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useGT } from "gt-next";
+import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import type { SecretSantaPerson } from "@/api/types/secret-santa";
 import type { SecretSantaExclusion } from "@/api/types/secret-santa";
 import { generateSecretSantaAssignment } from "@/api/secret-santa";
 import { useLaunchSecretSanta } from "@/hooks/use-secret-santa";
+import { useSubscription } from "@/hooks/use-subscription";
+import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { SecretSantaPersonAvatar } from "./SecretSantaPersonAvatar";
-import { Ban, Sparkles, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
+import {
+  Ban,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+  AlertTriangle,
+} from "lucide-react";
 import styles from "./LaunchSecretSantaModal.module.scss";
 
 type Props = {
@@ -19,12 +28,20 @@ type Props = {
   participants: SecretSantaPerson[];
 };
 
-export function LaunchSecretSantaModal({ open, onClose, eventId, participants }: Props) {
+export function LaunchSecretSantaModal({
+  open,
+  onClose,
+  eventId,
+  participants,
+}: Props) {
   const t = useGT();
+  const router = useRouter();
+  const { isPro } = useSubscription();
   // exclusions[giverId] = Set of receiverIds they must NOT get
   const [exclusions, setExclusions] = useState<Record<string, Set<string>>>({});
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const launch = useLaunchSecretSanta();
+  const canUseExclusions = !SUBSCRIPTIONS_UI_ENABLED || isPro;
 
   const toggleExclusion = useCallback((giverId: string, excludedId: string) => {
     setExclusions((prev) => {
@@ -55,6 +72,10 @@ export function LaunchSecretSantaModal({ open, onClose, eventId, participants }:
         $id: "secretSanta.launchModal.error.minParticipants",
       });
 
+    if (!canUseExclusions) {
+      return null;
+    }
+
     const ids = participants.map((p) => p.id);
     const exMap = new Map<string, Set<string>>();
     for (const ex of exclusionList) {
@@ -67,11 +88,14 @@ export function LaunchSecretSantaModal({ open, onClose, eventId, participants }:
       : t("These exclusions make a valid assignment impossible.", {
           $id: "secretSanta.launchModal.error.impossibleExclusions",
         });
-  }, [participants, exclusionList, t]);
+  }, [canUseExclusions, participants, exclusionList, t]);
 
   function handleLaunch() {
     launch.mutate(
-      { event_id: eventId, exclusions: exclusionList },
+      {
+        event_id: eventId,
+        exclusions: canUseExclusions ? exclusionList : [],
+      },
       {
         onSuccess: () => {
           onClose();
@@ -100,66 +124,103 @@ export function LaunchSecretSantaModal({ open, onClose, eventId, participants }:
     >
       <div className={styles.container}>
         <p className={styles.subtitle}>
-          {t("Optionally choose who should ", {
-            $id: "secretSanta.launchModal.subtitleBefore",
-          })}
-          <strong>{t("not", { $id: "secretSanta.launchModal.subtitleEmphasis" })}</strong>
-          {t(" be matched together, then launch the event.", {
-            $id: "secretSanta.launchModal.subtitleAfter",
-          })}
+          {canUseExclusions
+            ? t(
+                "Optionally choose who should not be matched together, then launch the event.",
+                {
+                  $id: "secretSanta.launchModal.subtitleWithExclusions",
+                },
+              )
+            : t(
+                "Launch the event now. Custom who-should-not-match rules are available on Pro.",
+                {
+                  $id: "secretSanta.launchModal.subtitleFreePlan",
+                },
+              )}
         </p>
 
-        <div className={styles.participantList}>
-          {participants.map((giver) => {
-            const isExpanded = expandedId === giver.id;
-            const excluded = exclusions[giver.id] ?? new Set<string>();
-            const others = participants.filter((p) => p.id !== giver.id);
+        {canUseExclusions ? (
+          <div className={styles.participantList}>
+            {participants.map((giver) => {
+              const isExpanded = expandedId === giver.id;
+              const excluded = exclusions[giver.id] ?? new Set<string>();
+              const others = participants.filter((p) => p.id !== giver.id);
 
-            return (
-              <div key={giver.id} className={styles.giverBlock}>
-                <button
-                  type="button"
-                  className={styles.giverRow}
-                  onClick={() => setExpandedId(isExpanded ? null : giver.id)}
-                >
-                  <SecretSantaPersonAvatar person={giver} />
-                  <span className={styles.giverName}>{getName(giver)}</span>
-                  {excluded.size > 0 && (
-                    <span className={styles.excludedCount}>
-                      <Ban size={12} />
-                      {excluded.size}
-                    </span>
-                  )}
-                  {isExpanded ? (
-                    <ChevronUp size={16} className={styles.chevron} />
-                  ) : (
-                    <ChevronDown size={16} className={styles.chevron} />
-                  )}
-                </button>
+              return (
+                <div key={giver.id} className={styles.giverBlock}>
+                  <button
+                    type="button"
+                    className={styles.giverRow}
+                    onClick={() => setExpandedId(isExpanded ? null : giver.id)}
+                  >
+                    <SecretSantaPersonAvatar person={giver} />
+                    <span className={styles.giverName}>{getName(giver)}</span>
+                    {excluded.size > 0 && (
+                      <span className={styles.excludedCount}>
+                        <Ban size={12} />
+                        {excluded.size}
+                      </span>
+                    )}
+                    {isExpanded ? (
+                      <ChevronUp size={16} className={styles.chevron} />
+                    ) : (
+                      <ChevronDown size={16} className={styles.chevron} />
+                    )}
+                  </button>
 
-                {isExpanded && (
-                  <div className={styles.exclusionGrid}>
-                    {others.map((other) => {
-                      const isExcluded = excluded.has(other.id);
-                      return (
-                        <button
-                          key={other.id}
-                          type="button"
-                          className={isExcluded ? styles.personChipExcluded : styles.personChip}
-                          onClick={() => toggleExclusion(giver.id, other.id)}
-                        >
-                          <SecretSantaPersonAvatar person={other} />
-                          <span>{getName(other)}</span>
-                          {isExcluded && <Ban size={12} />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                  {isExpanded && (
+                    <div className={styles.exclusionGrid}>
+                      {others.map((other) => {
+                        const isExcluded = excluded.has(other.id);
+                        return (
+                          <button
+                            key={other.id}
+                            type="button"
+                            className={
+                              isExcluded
+                                ? styles.personChipExcluded
+                                : styles.personChip
+                            }
+                            onClick={() => toggleExclusion(giver.id, other.id)}
+                          >
+                            <SecretSantaPersonAvatar person={other} />
+                            <span>{getName(other)}</span>
+                            {isExcluded && <Ban size={12} />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className={styles.upgradeCard}>
+            <span className={styles.upgradeBadge}>
+              {t("PRO", { $id: "common.proBadge" })}
+            </span>
+            <p>
+              {t(
+                "Custom assignment exclusions are available only on Pro. Free plan launches the draw with default matching.",
+                {
+                  $id: "secretSanta.launchModal.upgradeCopy",
+                },
+              )}
+            </p>
+            <Button
+              variant="secondary"
+              onClick={() => router.push("/subscription")}
+            >
+              <Sparkles size={16} />
+              <span>
+                {t("Upgrade to unlock", {
+                  $id: "secretSanta.launchModal.upgradeAction",
+                })}
+              </span>
+            </Button>
+          </div>
+        )}
 
         {validationError && (
           <div className={styles.warning}>
@@ -184,7 +245,10 @@ export function LaunchSecretSantaModal({ open, onClose, eventId, participants }:
           <Button variant="secondary" onClick={onClose}>
             {t("Cancel", { $id: "secretSanta.launchModal.cancel" })}
           </Button>
-          <Button onClick={handleLaunch} disabled={!!validationError || launch.isPending}>
+          <Button
+            onClick={handleLaunch}
+            disabled={!!validationError || launch.isPending}
+          >
             <Sparkles size={16} />
             <span>
               {launch.isPending
