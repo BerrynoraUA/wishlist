@@ -1,13 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useGT } from "gt-next";
 import styles from "./NotificationsPanel.module.scss";
 import { Button } from "@/components/ui/Button/Button";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { Notification } from "@/types";
-import { useAcceptSecretSantaInvite, useDeclineSecretSantaInvite } from "@/hooks/use-secret-santa";
+import {
+  useAcceptSecretSantaInvite,
+  useDeclineSecretSantaInvite,
+} from "@/hooks/use-secret-santa";
 import { useDeleteNotification } from "@/hooks/use-notifications";
+
+// Notification type: 0 = Secret Santa, 1 = Item (reservation/bought), 2 = Friends
+function getNotificationHref(n: Notification): string | null {
+  switch (n.type) {
+    case 1:
+      return n.entity_id ? `/wishlist/${n.entity_id}` : null;
+    case 2:
+      return "/friends";
+    default:
+      return null;
+  }
+}
 
 type Props = {
   notifications: Notification[];
@@ -15,6 +31,7 @@ type Props = {
   onReadAll?: () => void;
   isLoading?: boolean;
   onMarkRead?: (id: string) => void;
+  onClose?: () => void;
 };
 
 export function NotificationsPanel({
@@ -23,8 +40,10 @@ export function NotificationsPanel({
   onReadAll,
   isLoading,
   onMarkRead,
+  onClose,
 }: Props) {
   const t = useGT();
+  const router = useRouter();
   const [pendingReadIds, setPendingReadIds] = useState<string[]>([]);
   const acceptInvite = useAcceptSecretSantaInvite();
   const declineInvite = useDeclineSecretSantaInvite();
@@ -34,18 +53,27 @@ export function NotificationsPanel({
   >({});
 
   const handleHoverRead = (notification: Notification) => {
-    if (notification.is_read || !onMarkRead || pendingReadIds.includes(notification.id)) {
+    if (
+      notification.is_read ||
+      !onMarkRead ||
+      pendingReadIds.includes(notification.id)
+    ) {
       return;
     }
 
     setPendingReadIds((current) => [...current, notification.id]);
 
     Promise.resolve(onMarkRead(notification.id)).finally(() => {
-      setPendingReadIds((current) => current.filter((id) => id !== notification.id));
+      setPendingReadIds((current) =>
+        current.filter((id) => id !== notification.id),
+      );
     });
   };
 
-  const handleInviteAction = async (notification: Notification, action: "accept" | "decline") => {
+  const handleInviteAction = async (
+    notification: Notification,
+    action: "accept" | "decline",
+  ) => {
     if (!notification.entity_id || pendingInviteActions[notification.id]) {
       return;
     }
@@ -90,7 +118,12 @@ export function NotificationsPanel({
               </Button>
             )}
             {onClear && (
-              <Button variant="ghost" size="sm" onClick={onClear} disabled={isLoading}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClear}
+                disabled={isLoading}
+              >
                 {t("Clear", { $id: "notifications.clear" })}
               </Button>
             )}
@@ -101,7 +134,10 @@ export function NotificationsPanel({
       {isLoading ? (
         <div style={{ display: "grid", gap: 12, padding: 16 }}>
           {[0, 1, 2].map((i) => (
-            <div key={i} style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <div
+              key={i}
+              style={{ display: "flex", gap: 10, alignItems: "center" }}
+            >
               <Skeleton variant="circle" width={36} height={36} />
               <div style={{ flex: 1, display: "grid", gap: 4 }}>
                 <Skeleton variant="text" width="80%" />
@@ -111,7 +147,9 @@ export function NotificationsPanel({
           ))}
         </div>
       ) : notifications.length === 0 ? (
-        <div className={styles.empty}>{t("No notifications", { $id: "notifications.empty" })}</div>
+        <div className={styles.empty}>
+          {t("No notifications", { $id: "notifications.empty" })}
+        </div>
       ) : (
         <div className={styles.listWrap}>
           <ul className={styles.list}>
@@ -122,11 +160,19 @@ export function NotificationsPanel({
               const isDeclining = pendingInviteAction === "decline";
               const invitePending = isAccepting || isDeclining;
 
+              const href = getNotificationHref(n);
+
               return (
                 <li
                   key={n.id}
-                  className={`${styles.item} ${!n.is_read ? styles.unread : ""}`}
+                  className={`${styles.item} ${!n.is_read ? styles.unread : ""} ${href ? styles.clickable : ""}`}
                   onMouseEnter={() => handleHoverRead(n)}
+                  onClick={() => {
+                    if (href) {
+                      router.push(href);
+                      onClose?.();
+                    }
+                  }}
                 >
                   <div className={styles.itemContent}>
                     <p>{n.text}</p>

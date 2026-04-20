@@ -1,4 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   getWishlistItems,
   createItem,
@@ -22,15 +28,20 @@ export const itemKeys = {
   all: ["items"] as const,
   wishlist: (wishlistId: string, params?: PaginationParams) =>
     [...itemKeys.all, "wishlist", wishlistId, params] as const,
-  votes: (itemIds: string[]) => [...itemKeys.all, "votes", ...itemIds.sort()] as const,
+  votes: (itemIds: string[]) =>
+    [...itemKeys.all, "votes", ...itemIds.sort()] as const,
 };
 
 // Queries
-export function useWishlistItems(wishlistId: string, params?: PaginationParams) {
+export function useWishlistItems(
+  wishlistId: string,
+  params?: PaginationParams,
+) {
   return useQuery({
     queryKey: itemKeys.wishlist(wishlistId, params),
     queryFn: () => getWishlistItems(wishlistId, params),
     enabled: !!wishlistId,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -54,6 +65,10 @@ export function useCreateItem() {
       queryClient.invalidateQueries({
         queryKey: wishlistKeys.detail(data.wishlist_id),
       });
+      toast.success("Item added");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to add item");
     },
   });
 }
@@ -66,6 +81,10 @@ export function useUpdateItem() {
       updateItem(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
+      toast.success("Item updated");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update item");
     },
   });
 }
@@ -78,6 +97,10 @@ export function useDeleteItem() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
       queryClient.invalidateQueries({ queryKey: wishlistKeys.my() });
+      toast.success("Item deleted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to delete item");
     },
   });
 }
@@ -98,6 +121,9 @@ export function useToggleItemReservation() {
           (queryKey[1] === "friends" || queryKey[1] === "friend"),
       });
     },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update reservation");
+    },
   });
 }
 
@@ -117,6 +143,9 @@ export function useToggleItemBought() {
           (queryKey[1] === "friends" || queryKey[1] === "friend"),
       });
     },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update purchase status");
+    },
   });
 }
 
@@ -130,6 +159,9 @@ export function useToggleItemReservationSecret() {
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
       queryClient.invalidateQueries({ queryKey: statisticsKeys.my() });
     },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update reservation");
+    },
   });
 }
 
@@ -142,6 +174,9 @@ export function useToggleItemBoughtSecret() {
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
       queryClient.invalidateQueries({ queryKey: statisticsKeys.my() });
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update purchase status");
     },
   });
 }

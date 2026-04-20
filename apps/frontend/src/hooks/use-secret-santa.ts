@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   createSecretSantaEvent,
   deleteSecretSantaEvent,
@@ -19,11 +20,13 @@ import type {
   ListSecretSantaEventsParams,
   UpdateSecretSantaEventInput,
 } from "@/api/types/secret-santa";
+import { normalizeSearchQuery } from "@/lib/helpers/search";
 
 export const secretSantaKeys = {
   all: ["secret-santa"] as const,
   lists: () => [...secretSantaKeys.all, "list"] as const,
-  list: (params: ListSecretSantaEventsParams = {}) => [...secretSantaKeys.lists(), params] as const,
+  list: (params: ListSecretSantaEventsParams = {}) =>
+    [...secretSantaKeys.lists(), params] as const,
   details: () => [...secretSantaKeys.all, "detail"] as const,
   detail: (eventId: string) => [...secretSantaKeys.details(), eventId] as const,
   giftSuggestions: (userId: string, maxPrice: number) =>
@@ -32,7 +35,7 @@ export const secretSantaKeys = {
 
 export function useSecretSantaEvents(params: ListSecretSantaEventsParams = {}) {
   const normalizedParams = {
-    search: params.search?.trim() || undefined,
+    search: normalizeSearchQuery(params.search) || undefined,
     limit: params.limit,
     offset: params.offset,
   };
@@ -55,9 +58,14 @@ export function useCreateSecretSantaEvent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: CreateSecretSantaEventInput) => createSecretSantaEvent(input),
+    mutationFn: (input: CreateSecretSantaEventInput) =>
+      createSecretSantaEvent(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
+      toast.success("Secret Santa event created");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to create event");
     },
   });
 }
@@ -70,6 +78,10 @@ export function useDeleteSecretSantaEvent() {
     onSuccess: (_data, eventId) => {
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
       queryClient.removeQueries({ queryKey: secretSantaKeys.detail(eventId) });
+      toast.success("Secret Santa event deleted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to delete event");
     },
   });
 }
@@ -78,13 +90,22 @@ export function useUpdateSecretSantaEvent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ eventId, updates }: { eventId: string; updates: UpdateSecretSantaEventInput }) =>
-      updateSecretSantaEvent(eventId, updates),
+    mutationFn: ({
+      eventId,
+      updates,
+    }: {
+      eventId: string;
+      updates: UpdateSecretSantaEventInput;
+    }) => updateSecretSantaEvent(eventId, updates),
     onSuccess: (_data, { eventId }) => {
       queryClient.invalidateQueries({
         queryKey: secretSantaKeys.detail(eventId),
       });
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
+      toast.success("Event updated");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update event");
     },
   });
 }
@@ -97,6 +118,10 @@ export function useAcceptSecretSantaInvite() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("Invite accepted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to accept invite");
     },
   });
 }
@@ -109,6 +134,10 @@ export function useDeclineSecretSantaInvite() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("Invite declined");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to decline invite");
     },
   });
 }
@@ -120,6 +149,10 @@ export function useJoinSecretSantaEvent() {
     mutationFn: (eventId: string) => joinSecretSantaEvent(eventId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
+      toast.success("Joined event");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to join event");
     },
   });
 }
@@ -135,6 +168,10 @@ export function useRemoveSecretSantaParticipant() {
         queryKey: secretSantaKeys.detail(eventId),
       });
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
+      toast.success("Participant removed");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to remove participant");
     },
   });
 }
@@ -143,13 +180,22 @@ export function useRemoveSecretSantaInvite() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ eventId, inviteId }: { eventId: string; inviteId: string }) =>
-      removeSecretSantaInvite(inviteId),
+    mutationFn: ({
+      eventId,
+      inviteId,
+    }: {
+      eventId: string;
+      inviteId: string;
+    }) => removeSecretSantaInvite(inviteId),
     onSuccess: (_data, { eventId }) => {
       queryClient.invalidateQueries({
         queryKey: secretSantaKeys.detail(eventId),
       });
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
+      toast.success("Invite removed");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to remove invite");
     },
   });
 }
@@ -164,6 +210,10 @@ export function useLaunchSecretSanta() {
         queryKey: secretSantaKeys.detail(input.event_id),
       });
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
+      toast.success("Secret Santa launched!");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to launch Secret Santa");
     },
   });
 }

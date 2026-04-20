@@ -2,6 +2,8 @@
 
 .header {
   border-bottom: 1px solid var(--color-border-subtle);
+  position: relative;
+  z-index: 90;
 }
 
 /* ===== BANNER ===== */
@@ -15,7 +17,12 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.08), transparent 40%, rgba(0, 0, 0, 0.08));
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.08),
+    transparent 40%,
+    rgba(0, 0, 0, 0.08)
+  );
   pointer-events: none;
 }
 
@@ -68,6 +75,8 @@
 }
 
 .menuButton {
+  position: relative;
+  z-index: 91;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -93,6 +102,8 @@
 }
 
 .back {
+  position: relative;
+  z-index: 91;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -179,10 +190,184 @@
 .editableText {
   cursor: text;
   border-radius: 8px;
-  transition: background 0.2s ease;
+}
+
+.editableBadge {
+  cursor: pointer;
+  transition: all 0.2s ease;
 
   &:hover {
-    background: var(--brand-alpha-06);
+    filter: brightness(0.92);
+    transform: scale(1.04);
+  }
+}
+
+.badgeWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ===== VISIBILITY POPOVER ===== */
+
+.visibilityPopover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  min-width: 180px;
+  padding: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  animation: popoverIn 0.18s ease-out;
+}
+
+.visibilityOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--color-border-subtle);
+  }
+
+  svg {
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+}
+
+.visibilityOptionActive {
+  background: var(--brand-alpha-08);
+  color: var(--color-brand);
+
+  svg {
+    color: var(--color-brand);
+  }
+
+  &:hover {
+    background: var(--brand-alpha-12);
+  }
+}
+
+/* ===== DATE POPOVER ===== */
+
+.datePopover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  padding: 14px;
+  background:
+    radial-gradient(circle at top left, var(--brand-alpha-10), transparent 34%),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.92),
+      rgba(255, 255, 255, 0.85)
+    ),
+    var(--card-bg);
+  border: 1px solid var(--brand-alpha-12);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  animation: popoverIn 0.18s ease-out;
+}
+
+.dateBadgePlaceholder {
+  opacity: 0.6;
+  border-style: dashed;
+  border-width: 1px;
+  border-color: var(--color-border-light);
+}
+
+.dateClearBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--color-danger);
+  }
+}
+
+/* ===== IMAGE EDITING ===== */
+
+.bannerIconEditable {
+  cursor: pointer;
+  position: relative;
+}
+
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  border-radius: inherit;
+
+  .bannerIconEditable:hover & {
+    opacity: 1;
+  }
+}
+
+.imageUploading {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.hiddenInput {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes popoverIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -296,7 +481,12 @@
 
 :global([data-theme="dark"]) .banner::after {
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.08) 42%, rgba(0, 0, 0, 0.26)),
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.28),
+      rgba(0, 0, 0, 0.08) 42%,
+      rgba(0, 0, 0, 0.26)
+    ),
     radial-gradient(circle at 50% 42%, var(--brand-alpha-08), transparent 24%);
 }
 
@@ -501,11 +691,15 @@
 
 :global([data-theme="dark"]) .visibilityBadge {
   background: var(--brand-alpha-12);
-  color: color-mix(in srgb, var(--color-brand-lighter) 84%, white 16%);
+  color: rgba(240, 240, 242, 0.72);
 }
 
 :global([data-theme="dark"]) .friendsOnlyBadge {
-  background: linear-gradient(135deg, rgba(148, 163, 184, 0.16), rgba(148, 163, 184, 0.08));
+  background: linear-gradient(
+    135deg,
+    rgba(148, 163, 184, 0.16),
+    rgba(148, 163, 184, 0.08)
+  );
   border-color: rgba(148, 163, 184, 0.18);
 }
 
@@ -517,6 +711,66 @@
 :global([data-theme="dark"]) .dateBadge {
   background: rgba(59, 130, 246, 0.12);
   color: #9ec5ff;
+}
+
+:global([data-theme="dark"]) .visibilityPopover {
+  background: rgba(24, 24, 30, 0.98);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
+}
+
+:global([data-theme="dark"]) .visibilityOption {
+  color: rgba(240, 240, 242, 0.86);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  svg {
+    color: rgba(209, 213, 219, 0.6);
+  }
+}
+
+:global([data-theme="dark"]) .visibilityOptionActive {
+  background: var(--brand-alpha-12);
+  color: var(--color-brand);
+
+  svg {
+    color: var(--color-brand);
+  }
+
+  &:hover {
+    background: var(--brand-alpha-15);
+  }
+}
+
+:global([data-theme="dark"]) .datePopover {
+  background:
+    radial-gradient(circle at top left, var(--brand-alpha-15), transparent 34%),
+    radial-gradient(
+      circle at top right,
+      var(--brand-alpha-08),
+      transparent 28%
+    ),
+    linear-gradient(180deg, rgba(24, 24, 30, 0.98), rgba(17, 17, 22, 0.96)),
+    var(--card-bg);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 18px 40px rgba(0, 0, 0, 0.38);
+}
+
+:global([data-theme="dark"]) .dateClearBtn {
+  color: rgba(209, 213, 219, 0.6);
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+  }
+}
+
+:global([data-theme="dark"]) .dateBadgePlaceholder {
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 @media (max-width: 960px) {

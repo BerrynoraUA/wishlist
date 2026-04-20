@@ -1,0 +1,136 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: $radius-pill;
+  border: 1.5px solid var(--color-border-light);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s $ease-out;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: var(--color-border);
+    color: var(--color-text-secondary);
+    background: var(--nav-pill-hover);
+  }
+}
+
+.triggerActive {
+  background: var(--gradient-brand-subtle);
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: $radius-pill;
+  background: var(--color-brand);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.chevron {
+  color: inherit;
+  flex-shrink: 0;
+  transition: transform 0.2s $ease-out;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 200px;
+  z-index: 30;
+  background: var(--color-bg-elevated);
+  border: 1.5px solid var(--color-border-light);
+  border-radius: $radius-md;
+  box-shadow: $shadow-lg;
+  padding: 4px;
+  max-height: 280px;
+  overflow-y: auto;
+  animation: dropdownIn 0.15s $ease-out;
+}
+
+.option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border: none;
+  border-radius: calc($radius-md - 4px);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s $ease-out,
+    color 0.15s $ease-out;
+
+  &:hover:not(.optionActive) {
+    background: var(--color-bg-subtle);
+  }
+}
+
+.optionActive {
+  background: var(--gradient-brand-subtle);
+  color: var(--color-brand);
+  font-weight: 600;
+}
+
+.optionContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.optionIcon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.check {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-brand);
+  flex-shrink: 0;
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

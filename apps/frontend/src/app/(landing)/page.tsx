@@ -179,7 +179,7 @@ export default function LandingPage() {
             <Link href="/login" className={`${styles.btn} ${styles.btnGhost}`}>
               {t("Log In", { $id: "landing.nav.logIn" })}
             </Link>
-            <Link href="/login" className={`${styles.btn} ${styles.btnPrimary}`}>
+            <Link href="/register" className={`${styles.btn} ${styles.btnPrimary}`}>
               {t("Get Started Free", { $id: "landing.nav.getStartedFree" })}
             </Link>
           </div>
@@ -231,7 +231,7 @@ export default function LandingPage() {
           <Link href="/login" className={`${styles.btn} ${styles.btnGhost} ${styles.btnFull}`}>
             {t("Log In", { $id: "landing.mobile.logIn" })}
           </Link>
-          <Link href="/login" className={`${styles.btn} ${styles.btnPrimary} ${styles.btnFull}`}>
+          <Link href="/register" className={`${styles.btn} ${styles.btnPrimary} ${styles.btnFull}`}>
             {t("Get Started Free", { $id: "landing.mobile.getStartedFree" })}
           </Link>
         </div>
@@ -262,7 +262,7 @@ export default function LandingPage() {
               )}
             </p>
             <div className={styles.heroCta}>
-              <Link href="/login" className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}>
+              <Link href="/register" className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}>
                 {t("Start Your First Wishlist", {
                   $id: "landing.hero.ctaPrimary",
                 })}
@@ -741,7 +741,7 @@ export default function LandingPage() {
                   })}
                 </span>
               </div>
-              <Link href="/login" className={`${styles.btn} ${styles.btnSm} ${styles.btnPrimary}`}>
+              <Link href="/register" className={`${styles.btn} ${styles.btnSm} ${styles.btnPrimary}`}>
                 {t("View Wishlist", { $id: "landing.discover.viewWishlist" })}
               </Link>
             </div>
@@ -871,7 +871,7 @@ export default function LandingPage() {
               )}
             </p>
             <div className={styles.ctaActions}>
-              <Link href="/login" className={`${styles.btn} ${styles.btnWhite} ${styles.btnLg}`}>
+              <Link href="/register" className={`${styles.btn} ${styles.btnWhite} ${styles.btnLg}`}>
                 {t("Create Your First Wishlist", {
                   $id: "landing.cta.button",
                 })}

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   getIncomingFriendRequests,
   getOutgoingFriendRequests,
@@ -14,6 +15,7 @@ import {
   getWishlistAccessList,
 } from "@/api/friends";
 import { GetFriendsWithoutWishlistAccessParams } from "@/api/types/friends";
+import { normalizeSearchQuery } from "@/lib/helpers/search";
 
 // Query Keys
 export const friendKeys = {
@@ -21,8 +23,10 @@ export const friendKeys = {
   lists: () => [...friendKeys.all, "list"] as const,
   list: (params?: PaginationParams) => [...friendKeys.lists(), params] as const,
   requests: () => [...friendKeys.all, "requests"] as const,
-  incoming: (params?: PaginationParams) => [...friendKeys.requests(), "incoming", params] as const,
-  outgoing: (params?: PaginationParams) => [...friendKeys.requests(), "outgoing", params] as const,
+  incoming: (params?: PaginationParams) =>
+    [...friendKeys.requests(), "incoming", params] as const,
+  outgoing: (params?: PaginationParams) =>
+    [...friendKeys.requests(), "outgoing", params] as const,
   check: (userId: string) => [...friendKeys.all, "check", userId] as const,
   search: (query: string, params?: PaginationParams) =>
     [...friendKeys.all, "search", query, params] as const,
@@ -45,9 +49,16 @@ export function useOutgoingFriendRequests(params?: PaginationParams) {
 }
 
 export function useFriends(params?: PaginationParams) {
+  const normalizedParams = params
+    ? {
+        ...params,
+        search: normalizeSearchQuery(params.search) || undefined,
+      }
+    : undefined;
+
   return useQuery({
-    queryKey: friendKeys.list(params),
-    queryFn: () => getFriends(params),
+    queryKey: friendKeys.list(normalizedParams),
+    queryFn: () => getFriends(normalizedParams),
   });
 }
 
@@ -59,8 +70,11 @@ export function useCheckFriendship(userId: string) {
   });
 }
 
-export function useSearchProfilesByNickname(query: string, params?: PaginationParams) {
-  const trimmed = query?.trim() ?? "";
+export function useSearchProfilesByNickname(
+  query: string,
+  params?: PaginationParams,
+) {
+  const trimmed = normalizeSearchQuery(query);
 
   return useQuery({
     queryKey: friendKeys.search(trimmed, params),
@@ -86,6 +100,10 @@ export function useSendFriendRequest() {
       queryClient.invalidateQueries({ queryKey: friendKeys.all });
       queryClient.invalidateQueries({ queryKey: friendKeys.outgoing() });
       queryClient.invalidateQueries({ queryKey: friendKeys.lists() });
+      toast.success("Friend request sent");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to send friend request");
     },
   });
 }
@@ -98,6 +116,10 @@ export function useAcceptFriendRequest() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: friendKeys.incoming() });
       queryClient.invalidateQueries({ queryKey: friendKeys.lists() });
+      toast.success("Friend request accepted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to accept friend request");
     },
   });
 }
@@ -109,6 +131,10 @@ export function useRejectFriendRequest() {
     mutationFn: (requestId: string) => rejectFriendRequest(requestId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: friendKeys.incoming() });
+      toast.success("Friend request declined");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to decline friend request");
     },
   });
 }
@@ -120,6 +146,10 @@ export function useCancelFriendRequest() {
     mutationFn: (requestId: string) => cancelFriendRequest(requestId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: friendKeys.outgoing() });
+      toast.success("Friend request cancelled");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to cancel friend request");
     },
   });
 }
@@ -131,19 +161,32 @@ export function useRemoveFriend() {
     mutationFn: (friendshipId: string) => removeFriend(friendshipId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: friendKeys.lists() });
+      toast.success("Friend removed");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to remove friend");
     },
   });
 }
 
-export function useFriendsWithoutWishlistAccess(params: GetFriendsWithoutWishlistAccessParams) {
+export function useFriendsWithoutWishlistAccess(
+  params: GetFriendsWithoutWishlistAccessParams,
+) {
   const { wishlistId, search, skip = 0, take = 20 } = params;
+  const normalizedSearch = normalizeSearchQuery(search) || undefined;
 
   return useQuery({
-    queryKey: ["friends-without-wishlist-access", wishlistId, search ?? "", skip, take],
+    queryKey: [
+      "friends-without-wishlist-access",
+      wishlistId,
+      normalizedSearch ?? "",
+      skip,
+      take,
+    ],
     queryFn: () =>
       getFriendsWithoutWishlistAccess({
         wishlistId,
-        search,
+        search: normalizedSearch,
         skip,
         take,
       }),

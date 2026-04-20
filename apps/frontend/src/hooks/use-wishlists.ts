@@ -1,4 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   getMyWishlists,
   getPublicWishlists,
@@ -16,13 +22,19 @@ import {
   revokeWishlistAccess,
   getFriendsWishlistsDiscoverAll,
 } from "@/api/wishlist";
-import type { CreateWishlistParams, UpdateWishlistParams } from "@/api/types/wishilst";
+import type {
+  CreateWishlistParams,
+  UpdateWishlistParams,
+} from "@/api/types/wishilst";
+import { normalizeSearchQuery } from "@/lib/helpers/search";
 
 // Query Keys
 export const wishlistKeys = {
   all: ["wishlists"] as const,
-  my: (params?: PaginationParams) => [...wishlistKeys.all, "my", params] as const,
-  friends: (params?: PaginationParams) => [...wishlistKeys.all, "friends", params] as const,
+  my: (params?: PaginationParams) =>
+    [...wishlistKeys.all, "my", params] as const,
+  friends: (params?: PaginationParams) =>
+    [...wishlistKeys.all, "friends", params] as const,
   friendsAll: (params?: PaginationParams) =>
     [...wishlistKeys.all, "friends", "all", params] as const,
   friendsReserved: (params?: PaginationParams) =>
@@ -43,9 +55,17 @@ export function useFriendsUpcomingWishlists() {
 }
 
 export function useMyWishlists(params?: PaginationParams) {
+  const normalizedParams = params
+    ? {
+        ...params,
+        search: normalizeSearchQuery(params.search) || undefined,
+      }
+    : undefined;
+
   return useQuery({
-    queryKey: wishlistKeys.my(params),
-    queryFn: () => getMyWishlists(params),
+    queryKey: wishlistKeys.my(normalizedParams),
+    queryFn: () => getMyWishlists(normalizedParams),
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -56,34 +76,78 @@ export function usePublicWishlists(params?: PaginationParams) {
   });
 }
 
-export function useFriendsWishlistsDiscover(params?: PaginationParams, enabled = true) {
+export function useFriendsWishlistsDiscover(
+  params?: PaginationParams,
+  enabled = true,
+) {
+  const normalizedParams = params
+    ? {
+        ...params,
+        search: normalizeSearchQuery(params.search) || undefined,
+      }
+    : undefined;
+
   return useQuery({
-    queryKey: wishlistKeys.friends(params),
-    queryFn: () => getFriendsWishlistsDiscover(params),
+    queryKey: wishlistKeys.friends(normalizedParams),
+    queryFn: () => getFriendsWishlistsDiscover(normalizedParams),
     enabled,
+    placeholderData: keepPreviousData,
   });
 }
 
-export function useFriendsWishlistsDiscoverAll(params?: PaginationParams, enabled = true) {
+export function useFriendsWishlistsDiscoverAll(
+  params?: PaginationParams,
+  enabled = true,
+) {
+  const normalizedParams = params
+    ? {
+        ...params,
+        search: normalizeSearchQuery(params.search) || undefined,
+      }
+    : undefined;
+
   return useQuery({
-    queryKey: wishlistKeys.friendsAll(params),
-    queryFn: () => getFriendsWishlistsDiscoverAll(params),
+    queryKey: wishlistKeys.friendsAll(normalizedParams),
+    queryFn: () => getFriendsWishlistsDiscoverAll(normalizedParams),
     enabled,
+    placeholderData: keepPreviousData,
   });
 }
-export function useFriendsWishlistsReservedByMe(params?: PaginationParams, enabled = true) {
+export function useFriendsWishlistsReservedByMe(
+  params?: PaginationParams,
+  enabled = true,
+) {
+  const normalizedParams = params
+    ? {
+        ...params,
+        search: normalizeSearchQuery(params.search) || undefined,
+      }
+    : undefined;
+
   return useQuery({
-    queryKey: wishlistKeys.friendsReserved(params),
-    queryFn: () => getFriendsWishlistsReservedByMe(params),
+    queryKey: wishlistKeys.friendsReserved(normalizedParams),
+    queryFn: () => getFriendsWishlistsReservedByMe(normalizedParams),
     enabled,
+    placeholderData: keepPreviousData,
   });
 }
 
-export function useFriendsWishlistsPurchasedByMe(params?: PaginationParams, enabled = true) {
+export function useFriendsWishlistsPurchasedByMe(
+  params?: PaginationParams,
+  enabled = true,
+) {
+  const normalizedParams = params
+    ? {
+        ...params,
+        search: normalizeSearchQuery(params.search) || undefined,
+      }
+    : undefined;
+
   return useQuery({
-    queryKey: wishlistKeys.friendsPurchased(params),
-    queryFn: () => getFriendsWishlistsPurchasedByMe(params),
+    queryKey: wishlistKeys.friendsPurchased(normalizedParams),
+    queryFn: () => getFriendsWishlistsPurchasedByMe(normalizedParams),
     enabled,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -94,6 +158,10 @@ export function useCreateWishlist() {
     mutationFn: (params: CreateWishlistParams) => createWishlist(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+      toast.success("Wishlist created");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to create wishlist");
     },
   });
 }
@@ -102,10 +170,19 @@ export function useUpdateWishlist() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: UpdateWishlistParams }) =>
-      updateWishlist(id, updates),
+    mutationFn: ({
+      id,
+      updates,
+    }: {
+      id: string;
+      updates: UpdateWishlistParams;
+    }) => updateWishlist(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+      toast.success("Wishlist updated");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update wishlist");
     },
   });
 }
@@ -117,6 +194,10 @@ export function useDeleteWishlist() {
     mutationFn: (id: string) => deleteWishlist(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+      toast.success("Wishlist deleted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to delete wishlist");
     },
   });
 }
@@ -130,10 +211,12 @@ export function useWishlistById(wishlistId: string) {
 }
 
 export function useSearchWishlists(query: string) {
+  const normalizedQuery = normalizeSearchQuery(query);
+
   return useQuery({
-    queryKey: [...wishlistKeys.all, "search", query] as const,
-    queryFn: () => searchWishlists(query),
-    enabled: query.trim().length > 0,
+    queryKey: [...wishlistKeys.all, "search", normalizedQuery] as const,
+    queryFn: () => searchWishlists(normalizedQuery),
+    enabled: Boolean(normalizedQuery),
   });
 }
 
@@ -166,6 +249,10 @@ export function useGrantWishlistAccess() {
       queryClient.invalidateQueries({
         queryKey: ["wishlist-access-list"],
       });
+      toast.success("Access granted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to grant access");
     },
   });
 }
@@ -174,8 +261,13 @@ export function useRevokeWishlistAccess() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ wishlistId, targetUserId }: { wishlistId: string; targetUserId: string }) =>
-      revokeWishlistAccess(wishlistId, targetUserId),
+    mutationFn: ({
+      wishlistId,
+      targetUserId,
+    }: {
+      wishlistId: string;
+      targetUserId: string;
+    }) => revokeWishlistAccess(wishlistId, targetUserId),
 
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
@@ -187,6 +279,10 @@ export function useRevokeWishlistAccess() {
         queryKey: ["friends-without-wishlist-access", variables.wishlistId],
         exact: false,
       });
+      toast.success("Access revoked");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to revoke access");
     },
   });
 }

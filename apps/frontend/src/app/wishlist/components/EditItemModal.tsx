@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
@@ -35,7 +35,15 @@ export function EditItemModal({ open, onClose, item }: Props) {
   return <EditItemForm open={open} item={item} onClose={onClose} />;
 }
 
-function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onClose: () => void }) {
+function EditItemForm({
+  open,
+  item,
+  onClose,
+}: {
+  open: boolean;
+  item: Item;
+  onClose: () => void;
+}) {
   const t = useGT();
   const { isPro } = useSubscription();
   const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
@@ -55,6 +63,39 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
   const [imageError, setImageError] = useState<string | null>(null);
 
   const { mutate, isPending } = useUpdateItem();
+
+  const hasChanges = useMemo(() => {
+    const initialName = item.name?.trim() ?? "";
+    const initialDescription = item.description?.trim() ?? "";
+    const initialPrice = item.price?.trim() ?? "";
+    const initialLink = item.url?.trim() ?? "";
+    const initialPriority = item.priority
+      ? (valueToPriority[item.priority] ?? "None")
+      : "None";
+    const initialCurrency = resolveCurrency(item.currency);
+    const initialImage = item.image_url ?? "";
+
+    return (
+      name.trim() !== initialName ||
+      description.trim() !== initialDescription ||
+      price.trim() !== initialPrice ||
+      link.trim() !== initialLink ||
+      priority !== initialPriority ||
+      currency !== initialCurrency ||
+      Boolean(imageFile) ||
+      imagePreview !== initialImage
+    );
+  }, [
+    currency,
+    description,
+    imageFile,
+    imagePreview,
+    item,
+    link,
+    name,
+    price,
+    priority,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -83,7 +124,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
   }
 
   function handleSubmit() {
-    if (!name.trim() || isPending) return;
+    if (!name.trim() || isPending || !hasChanges) return;
 
     const nextImageError = validateImageUploadFile(imageFile);
     if (nextImageError) {
@@ -91,7 +132,8 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       return;
     }
 
-    const priorityValue = priority === "None" ? null : priorityToValue[priority];
+    const priorityValue =
+      priority === "None" ? null : priorityToValue[priority];
 
     const updates: UpdateItemParams = {
       name: name.trim(),
@@ -100,7 +142,9 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       url: link.trim() || null,
       priority: priorityValue,
       currency,
-      ...(imageFile ? { image: imageFile } : { image_url: imagePreview || null }),
+      ...(imageFile
+        ? { image: imageFile }
+        : { image_url: imagePreview || null }),
     };
 
     mutate({ id: item.id, updates }, { onSuccess: () => onClose() });
@@ -183,7 +227,9 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
         </div>
 
         <div className={styles.field}>
-          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
+          <label>
+            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
+          </label>
           <div className={styles.priceRow}>
             <Select
               value={currency}
@@ -221,7 +267,9 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!name.trim() || isPending || Boolean(imageError)}
+            disabled={
+              !name.trim() || !hasChanges || isPending || Boolean(imageError)
+            }
           >
             {isPending
               ? t("Saving...", { $id: "common.saving" })

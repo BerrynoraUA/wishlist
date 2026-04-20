@@ -17,7 +17,7 @@ export interface UpdateWishlistParams {
   image?: File | null;
   imageUrl?: string | null;
   removeImage?: boolean;
-  event_date?: Date;
+  event_date?: Date | null;
   accent?: WishlistAccent;
 }
 

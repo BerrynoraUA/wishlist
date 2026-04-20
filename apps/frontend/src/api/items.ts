@@ -1,8 +1,10 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { Item } from "@/types/item";
 import { CreateItemParams, UpdateItemParams } from "./types/item";
-import { getItems } from "./helpers/item-helper";
-import { deletePublicImage, uploadPublicImage } from "@/lib/helpers/storage-image";
+import {
+  deletePublicImage,
+  uploadPublicImage,
+} from "@/lib/helpers/storage-image";
 
 const ITEM_IMAGE_BUCKET = "items";
 
@@ -78,10 +80,38 @@ export async function getWishlistItems(
   wishlistId: string,
   params: PaginationParams = {},
 ): Promise<Item[]> {
-  return getItems((query) => query.eq("wishlist_id", wishlistId), params);
+  const {
+    skip = 0,
+    take = 50,
+    search,
+    sort = "newest",
+    statuses,
+    priorities,
+    priceMin,
+    priceMax,
+  } = params;
+
+  const { data, error } = await supabaseBrowser.rpc("get_wishlist_items", {
+    p_wishlist_id: wishlistId,
+    p_skip: skip,
+    p_take: take,
+    p_search: search || null,
+    p_sort: sort,
+    p_statuses: statuses?.length ? statuses : null,
+    p_priorities: priorities?.length ? priorities : null,
+    p_price_min: priceMin ?? null,
+    p_price_max: priceMax ?? null,
+  });
+
+  if (error) throw error;
+
+  return (data as Item[]) || [];
 }
 
-export async function updateItem(itemId: string, updates: UpdateItemParams): Promise<Item> {
+export async function updateItem(
+  itemId: string,
+  updates: UpdateItemParams,
+): Promise<Item> {
   const { image, removeImage, image_url, ...restUpdates } = updates;
 
   await ensureProForPriority(restUpdates.priority);
@@ -147,7 +177,10 @@ export async function updateItem(itemId: string, updates: UpdateItemParams): Pro
 }
 
 export async function deleteItem(itemId: string): Promise<void> {
-  const { error } = await supabaseBrowser.from("item").delete().eq("id", itemId);
+  const { error } = await supabaseBrowser
+    .from("item")
+    .delete()
+    .eq("id", itemId);
 
   if (error) throw error;
 }
@@ -178,10 +211,15 @@ export async function toggleItemBought(itemId: string): Promise<Item> {
   return data as Item;
 }
 
-export async function toggleItemReservationSecret(itemId: string): Promise<Item> {
-  const { data, error } = await supabaseBrowser.rpc("toggle_item_reservation_secret", {
-    p_item_id: itemId,
-  });
+export async function toggleItemReservationSecret(
+  itemId: string,
+): Promise<Item> {
+  const { data, error } = await supabaseBrowser.rpc(
+    "toggle_item_reservation_secret",
+    {
+      p_item_id: itemId,
+    },
+  );
 
   if (error) {
     console.error("Error toggling secret item reservation:", error);
@@ -192,13 +230,18 @@ export async function toggleItemReservationSecret(itemId: string): Promise<Item>
 }
 
 export async function toggleItemBoughtSecret(itemId: string): Promise<Item> {
-  const { data, error } = await supabaseBrowser.rpc("toggle_item_bought_secret", {
-    p_item_id: itemId,
-  });
+  const { data, error } = await supabaseBrowser.rpc(
+    "toggle_item_bought_secret",
+    {
+      p_item_id: itemId,
+    },
+  );
 
   if (error) {
     console.error("Error toggling secret item bought status:", error);
-    throw new Error(error.message || "Failed to toggle secret item bought status");
+    throw new Error(
+      error.message || "Failed to toggle secret item bought status",
+    );
   }
 
   return data as Item;
@@ -228,7 +271,9 @@ export interface ItemVotesResult {
   userVotes: Set<string>;
 }
 
-export async function getItemVotes(itemIds: string[]): Promise<ItemVotesResult> {
+export async function getItemVotes(
+  itemIds: string[],
+): Promise<ItemVotesResult> {
   if (itemIds.length === 0) return { counts: {}, userVotes: new Set() };
 
   const session = (await supabaseBrowser.auth.getSession()).data.session;
@@ -266,7 +311,10 @@ export async function toggleItemVote(itemId: string): Promise<void> {
     .maybeSingle();
 
   if (existing) {
-    const { error } = await supabaseBrowser.from("item_vote").delete().eq("id", existing.id);
+    const { error } = await supabaseBrowser
+      .from("item_vote")
+      .delete()
+      .eq("id", existing.id);
     if (error) throw error;
   } else {
     const { error } = await supabaseBrowser

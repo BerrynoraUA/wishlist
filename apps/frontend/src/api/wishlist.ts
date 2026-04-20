@@ -1,6 +1,7 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { Wishlist, WishlistAccent, WishlistVisibility } from "@/types/wishlist";
 import { getWishlists } from "@/api/helpers/wishlist-helper";
+import { normalizeSearchQuery } from "@/lib/helpers/search";
 import {
   CreateWishlistParams,
   UpdateWishlistParams,
@@ -8,7 +9,10 @@ import {
   FriendUpcomingWishlist,
   ReservedItem,
 } from "./types/wishilst";
-import { deletePublicImage, uploadPublicImage } from "@/lib/helpers/storage-image";
+import {
+  deletePublicImage,
+  uploadPublicImage,
+} from "@/lib/helpers/storage-image";
 
 const WISHLIST_IMAGE_BUCKET = "items";
 
@@ -23,11 +27,17 @@ export async function getMyWishlists({
   skip = 0,
   take = 10,
   search,
+  sort,
+  visibilityTypes,
 }: PaginationParams = {}): Promise<Wishlist[]> {
+  const normalizedSearch = normalizeSearchQuery(search);
+
   const { data, error } = await supabaseBrowser.rpc("get_my_wishlists_feed", {
     p_skip: skip,
     p_take: take,
-    p_search: search?.trim() ? search.trim() : null,
+    p_search: normalizedSearch || null,
+    p_sort: sort || "newest",
+    p_visibility_types: visibilityTypes?.length ? visibilityTypes : null,
   });
 
   if (error) throw error;
@@ -41,14 +51,18 @@ export async function getMyWishlists({
   }));
 }
 
-export async function getPublicWishlists(params: PaginationParams = {}): Promise<Wishlist[]> {
+export async function getPublicWishlists(
+  params: PaginationParams = {},
+): Promise<Wishlist[]> {
   const {
     data: { session },
   } = await supabaseBrowser.auth.getSession();
 
   return getWishlists(
     (query) =>
-      query.neq("user_id", session?.user?.id).eq("visibility_type", WishlistVisibility.Public),
+      query
+        .neq("user_id", session?.user?.id)
+        .eq("visibility_type", WishlistVisibility.Public),
     params,
   );
 }
@@ -56,13 +70,31 @@ export async function getPublicWishlists(params: PaginationParams = {}): Promise
 export async function getFriendsWishlistsDiscover(
   params: PaginationParams = {},
 ): Promise<DiscoverSection[]> {
-  const { skip = 0, take = 10, search } = params;
+  const {
+    skip = 0,
+    take = 10,
+    search,
+    sort,
+    priorities,
+    priceMin,
+    priceMax,
+    displayCurrency,
+  } = params;
+  const normalizedSearch = normalizeSearchQuery(search);
 
-  const { data, error } = await supabaseBrowser.rpc("get_friends_wishlists_discover", {
-    p_skip: skip,
-    p_take: take,
-    p_search: search?.trim() || null,
-  });
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_friends_wishlists_discover",
+    {
+      p_skip: skip,
+      p_take: take,
+      p_search: normalizedSearch || null,
+      p_sort: sort || "default",
+      p_priorities: priorities?.length ? priorities : null,
+      p_price_min: priceMin ?? null,
+      p_price_max: priceMax ?? null,
+      p_display_currency: displayCurrency || "USD",
+    },
+  );
 
   if (error) {
     console.error("Error fetching friends wishlists:", error);
@@ -75,13 +107,31 @@ export async function getFriendsWishlistsDiscover(
 export async function getFriendsWishlistsDiscoverAll(
   params: PaginationParams = {},
 ): Promise<DiscoverSection[]> {
-  const { skip = 0, take = 10, search } = params;
+  const {
+    skip = 0,
+    take = 10,
+    search,
+    sort,
+    priorities,
+    priceMin,
+    priceMax,
+    displayCurrency,
+  } = params;
+  const normalizedSearch = normalizeSearchQuery(search);
 
-  const { data, error } = await supabaseBrowser.rpc("get_friends_wishlists_discover_all", {
-    p_skip: skip,
-    p_take: take,
-    p_search: search?.trim() || null,
-  });
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_friends_wishlists_discover_all",
+    {
+      p_skip: skip,
+      p_take: take,
+      p_search: normalizedSearch || null,
+      p_sort: sort || "default",
+      p_priorities: priorities?.length ? priorities : null,
+      p_price_min: priceMin ?? null,
+      p_price_max: priceMax ?? null,
+      p_display_currency: displayCurrency || "USD",
+    },
+  );
 
   if (error) {
     console.error("Error fetching friends wishlists:", error);
@@ -94,13 +144,31 @@ export async function getFriendsWishlistsDiscoverAll(
 export async function getFriendsWishlistsReservedByMe(
   params: PaginationParams = {},
 ): Promise<ReservedItem[]> {
-  const { skip = 0, take = 10, search } = params;
+  const {
+    skip = 0,
+    take = 10,
+    search,
+    sort,
+    priorities,
+    priceMin,
+    priceMax,
+    displayCurrency,
+  } = params;
+  const normalizedSearch = normalizeSearchQuery(search);
 
-  const { data, error } = await supabaseBrowser.rpc("get_reserved_items_by_me", {
-    p_skip: skip,
-    p_take: take,
-    p_search: search?.trim() || null,
-  });
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_reserved_items_by_me",
+    {
+      p_skip: skip,
+      p_take: take,
+      p_search: normalizedSearch || null,
+      p_sort: sort || "default",
+      p_priorities: priorities?.length ? priorities : null,
+      p_price_min: priceMin ?? null,
+      p_price_max: priceMax ?? null,
+      p_display_currency: displayCurrency || "USD",
+    },
+  );
 
   if (error) {
     console.error("Error fetching reserved wishlists by me:", error);
@@ -159,11 +227,17 @@ export async function createWishlist({
     throw error;
   }
 
-  if (visibility === WishlistVisibility.Public || visibility === WishlistVisibility.FriendsOnly) {
+  if (
+    visibility === WishlistVisibility.Public ||
+    visibility === WishlistVisibility.FriendsOnly
+  ) {
     // Викликаємо SQL функцію для створення нотифікацій
-    const { error: notifyError } = await supabaseBrowser.rpc("notify_friends_about_new_wishlist", {
-      p_wishlist_id: data.id,
-    });
+    const { error: notifyError } = await supabaseBrowser.rpc(
+      "notify_friends_about_new_wishlist",
+      {
+        p_wishlist_id: data.id,
+      },
+    );
 
     if (notifyError) {
       console.error("Failed to notify friends:", notifyError);
@@ -180,11 +254,16 @@ export async function updateWishlist(
   const dbUpdates: Partial<Wishlist> = {};
 
   if (restUpdates.title !== undefined) dbUpdates.title = restUpdates.title;
-  if (restUpdates.description !== undefined) dbUpdates.description = restUpdates.description;
-  if (restUpdates.visibility !== undefined) dbUpdates.visibility_type = restUpdates.visibility;
-  if (restUpdates.accent !== undefined) dbUpdates.accent_type = restUpdates.accent;
+  if (restUpdates.description !== undefined)
+    dbUpdates.description = restUpdates.description;
+  if (restUpdates.visibility !== undefined)
+    dbUpdates.visibility_type = restUpdates.visibility;
+  if (restUpdates.accent !== undefined)
+    dbUpdates.accent_type = restUpdates.accent;
   if (restUpdates.event_date !== undefined)
-    dbUpdates.event_date = restUpdates.event_date ? restUpdates.event_date.toISOString() : null;
+    dbUpdates.event_date = restUpdates.event_date
+      ? restUpdates.event_date.toISOString()
+      : null;
 
   if (image || removeImage || imageUrl !== undefined) {
     const { data: currentWishlist } = await supabaseBrowser
@@ -226,7 +305,11 @@ export async function updateWishlist(
     .single();
 
   if (error) {
-    if (image && dbUpdates.image_url && typeof dbUpdates.image_url === "string") {
+    if (
+      image &&
+      dbUpdates.image_url &&
+      typeof dbUpdates.image_url === "string"
+    ) {
       await deleteWishlistImage(dbUpdates.image_url).catch(console.error);
     }
 
@@ -258,7 +341,10 @@ export async function deleteWishlistImage(imageUrl: string): Promise<void> {
 }
 
 export async function deleteWishlist(wishlistId: string): Promise<void> {
-  const { error } = await supabaseBrowser.from("wishlist").delete().eq("id", wishlistId);
+  const { error } = await supabaseBrowser
+    .from("wishlist")
+    .delete()
+    .eq("id", wishlistId);
 
   if (error) throw error;
 }
@@ -284,7 +370,10 @@ export async function getFriendWishlists(
     (query) =>
       query
         .eq("user_id", friendUserId)
-        .in("visibility_type", [WishlistVisibility.Public, WishlistVisibility.FriendsOnly]),
+        .in("visibility_type", [
+          WishlistVisibility.Public,
+          WishlistVisibility.FriendsOnly,
+        ]),
     params,
   );
 }
@@ -330,7 +419,9 @@ export async function searchWishlists(
   });
 }
 
-export async function getFriendsUpcomingWishlists(): Promise<FriendUpcomingWishlist[]> {
+export async function getFriendsUpcomingWishlists(): Promise<
+  FriendUpcomingWishlist[]
+> {
   const {
     data: { session },
     error: sessionError,
@@ -339,9 +430,12 @@ export async function getFriendsUpcomingWishlists(): Promise<FriendUpcomingWishl
   if (sessionError) throw sessionError;
   if (!session?.user) throw new Error("Not authenticated");
 
-  const { data, error } = await supabaseBrowser.rpc("get_friends_upcoming_wishlists", {
-    p_user_id: session.user.id,
-  });
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_friends_upcoming_wishlists",
+    {
+      p_user_id: session.user.id,
+    },
+  );
 
   if (error) throw error;
 
@@ -363,7 +457,10 @@ export async function grantWishlistAccess(
   return data;
 }
 
-export async function revokeWishlistAccess(wishlistId: string, targetUserId: string) {
+export async function revokeWishlistAccess(
+  wishlistId: string,
+  targetUserId: string,
+) {
   if (!targetUserId) {
     throw new Error("Missing target user id for revoke access");
   }
@@ -380,12 +477,27 @@ export async function revokeWishlistAccess(wishlistId: string, targetUserId: str
 export async function getFriendsWishlistsPurchasedByMe(
   params: PaginationParams = {},
 ): Promise<ReservedItem[]> {
-  const { skip = 0, take = 10, search } = params;
+  const {
+    skip = 0,
+    take = 10,
+    search,
+    sort,
+    priorities,
+    priceMin,
+    priceMax,
+    displayCurrency,
+  } = params;
+  const normalizedSearch = normalizeSearchQuery(search);
 
   const { data, error } = await supabaseBrowser.rpc("get_my_bought_items", {
     p_skip: skip,
     p_take: take,
-    p_search: search?.trim() || null,
+    p_search: normalizedSearch || null,
+    p_sort: sort || "default",
+    p_priorities: priorities?.length ? priorities : null,
+    p_price_min: priceMin ?? null,
+    p_price_max: priceMax ?? null,
+    p_display_currency: displayCurrency || "USD",
   });
 
   if (error) {

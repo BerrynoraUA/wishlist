@@ -92,23 +92,15 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 2.5px solid transparent;
+  border: none;
   cursor: pointer;
-  transition: all 0.25s $ease-out;
   display: grid;
   place-items: center;
   color: transparent;
   padding: 0;
 
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: $shadow-md;
-  }
-
   &.active {
-    border-color: $text;
-    color: #fff;
-    transform: scale(1.1);
+    color: rgba(20, 24, 31, 0.8);
   }
 
   &.pink {

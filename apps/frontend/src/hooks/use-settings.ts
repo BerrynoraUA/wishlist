@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   getProfile,
   updateProfile,
@@ -40,6 +41,10 @@ export function useUpdateProfile() {
     mutationFn: (payload: UpdateProfilePayload) => updateProfile(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.profile() });
+      toast.success("Profile updated");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update profile");
     },
   });
 }
@@ -51,6 +56,10 @@ export function useUploadAvatar() {
     mutationFn: (file: File) => uploadAvatar(file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.profile() });
+      toast.success("Avatar uploaded");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to upload avatar");
     },
   });
 }
@@ -105,6 +114,7 @@ export function useUpdateSettings() {
       if (context?.previousSettings) {
         queryClient.setQueryData(settingsKeys.preferences(), context.previousSettings);
       }
+      toast.error(_error.message || "Failed to update settings");
     },
     onSuccess: (settings) => {
       queryClient.setQueryData(settingsKeys.preferences(), settings);
@@ -131,12 +141,24 @@ export function useAuthProvider() {
 export function useChangePassword() {
   return useMutation({
     mutationFn: (newPassword: string) => changePassword(newPassword),
+    onSuccess: () => {
+      toast.success("Password changed");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to change password");
+    },
   });
 }
 
 export function useDeleteAccount() {
   return useMutation({
     mutationFn: () => deleteAccount(),
+    onSuccess: () => {
+      toast.success("Account deleted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to delete account");
+    },
   });
 }
 

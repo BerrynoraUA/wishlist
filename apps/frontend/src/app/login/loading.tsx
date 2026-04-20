@@ -4,25 +4,20 @@ import styles from "./login.module.scss";
 export default function LoginLoading() {
   return (
     <main className={styles.page}>
-      <div className={styles.content}>
-        {/* LoginHeader */}
-        <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <Skeleton variant="heading" width={160} style={{ margin: "0 auto" }} />
-          <Skeleton variant="text" width={240} style={{ margin: "10px auto 0" }} />
-        </div>
+      <div className={styles.visual} />
 
-        {/* LoginTabs */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-          <Skeleton variant="pill" width="50%" height={40} />
-          <Skeleton variant="pill" width="50%" height={40} />
-        </div>
+      <div className={styles.formSide}>
+        <div className={styles.formContent}>
+          <div className={styles.formHeader}>
+            <Skeleton variant="pill" width={140} height={28} />
+            <Skeleton variant="heading" width={260} style={{ marginTop: 16 }} />
+            <Skeleton variant="text" width={300} style={{ marginTop: 8 }} />
+          </div>
 
-        {/* AuthForm card */}
-        <div className={styles.cardWrap}>
-          <Skeleton width="100%" height={40} borderRadius={8} />
-          <Skeleton width="100%" height={40} borderRadius={8} style={{ marginTop: 16 }} />
-          <Skeleton variant="pill" width="100%" height={44} style={{ marginTop: 24 }} />
-          <Skeleton variant="text" width={180} style={{ margin: "16px auto 0" }} />
+          <Skeleton width="100%" height={44} borderRadius={12} />
+          <Skeleton width="100%" height={44} borderRadius={12} style={{ marginTop: 12 }} />
+          <Skeleton variant="pill" width="100%" height={48} style={{ marginTop: 20 }} />
+          <Skeleton variant="text" width={200} style={{ margin: "24px auto 0" }} />
         </div>
       </div>
     </main>

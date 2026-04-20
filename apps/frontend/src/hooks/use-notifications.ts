@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   getUserNotifications,
   markNotificationAsRead,
@@ -77,6 +78,9 @@ export function useDeleteNotification() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: notificationKeys.all });
     },
+    onError: (err) => {
+      toast.error(err.message || "Failed to delete notification");
+    },
   });
 }
 
@@ -88,6 +92,10 @@ export function useDeleteAllNotifications() {
     mutationFn: () => deleteAllNotifications(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: notificationKeys.all });
+      toast.success("All notifications deleted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to delete notifications");
     },
   });
 }
