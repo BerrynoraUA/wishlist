@@ -9,7 +9,7 @@ import {
   WISHLIST_VISIBILITY_ICONS,
   getWishlistAccentClass,
   getWishlistVisibilityLabels,
-} from "@/lib/helpers/wishlist-metadata";
+} from "@/lib/constans/wishlist-metadata";
 
 type Props = {
   wishlist: Wishlist;
@@ -35,7 +35,9 @@ export function SharedWishlistHeader({ wishlist }: Props) {
             <div className={styles.heroMain}>
               <div className={styles.titleBlock}>
                 <h1>{wishlist.title}</h1>
-                {description && <p className={styles.description}>{description}</p>}
+                {description && (
+                  <p className={styles.description}>{description}</p>
+                )}
 
                 <div className={styles.badges}>
                   <span className={styles.visibilityBadge}>

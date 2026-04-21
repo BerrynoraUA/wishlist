@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useGT } from "gt-next";
 import { Plus, X, Lock } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { Select } from "@/components/ui/Select/Select";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
+import { useSessionDraft } from "@/hooks/use-session-draft";
+import { useCurrentUserId } from "@/hooks/use-user";
 import { useUpdateItem } from "@/hooks/use-items";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Item, ItemLink } from "@/types/item";
@@ -30,6 +33,40 @@ type Props = {
   item: Item;
 };
 
+type EditItemDraft = {
+  name: string;
+  description: string;
+  price: string;
+  priority: ItemPriorityOption;
+  link: string;
+  additionalLinks: ItemLink[];
+  imagePreview: string;
+  currency: string;
+  hadLocalImage: boolean;
+};
+
+type RestoredEditItemFields = {
+  link: boolean;
+  additionalLinks: boolean;
+  image: boolean;
+  name: boolean;
+  description: boolean;
+  price: boolean;
+  currency: boolean;
+  priority: boolean;
+};
+
+const EMPTY_RESTORED_EDIT_ITEM_FIELDS: RestoredEditItemFields = {
+  link: false,
+  additionalLinks: false,
+  image: false,
+  name: false,
+  description: false,
+  price: false,
+  currency: false,
+  priority: false,
+};
+
 export function EditItemModal({ open, onClose, item }: Props) {
   if (!open) return null;
 
@@ -46,11 +83,28 @@ function EditItemForm({
   onClose: () => void;
 }) {
   const t = useGT();
+  const { data: currentUserId = "" } = useCurrentUserId();
   const { isPro } = useSubscription();
   const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
   const canUseMultipleLinks = !SUBSCRIPTIONS_UI_ENABLED || isPro;
   const currencyOptions = getCompactCurrencyOptions();
   const priorityOptions = getPriorityOptions(t);
+  const initialDraft = useMemo<EditItemDraft>(
+    () => ({
+      name: item.name ?? "",
+      description: item.description ?? "",
+      price: item.price ?? "",
+      priority: item.priority
+        ? (valueToPriority[item.priority] ?? "None")
+        : "None",
+      link: item.url ?? "",
+      additionalLinks: item.additional_links ?? [],
+      imagePreview: item.image_url ?? "",
+      currency: resolveCurrency(item.currency),
+      hadLocalImage: false,
+    }),
+    [item],
+  );
   const [name, setName] = useState(item.name ?? "");
   const [description, setDescription] = useState(item.description ?? "");
   const [price, setPrice] = useState(item.price ?? "");
@@ -66,8 +120,109 @@ function EditItemForm({
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
   const [currency, setCurrency] = useState(resolveCurrency(item.currency));
   const [imageError, setImageError] = useState<string | null>(null);
+  const [localImageNeedsReupload, setLocalImageNeedsReupload] = useState(false);
+  const [restoredFields, setRestoredFields] = useState<RestoredEditItemFields>(
+    EMPTY_RESTORED_EDIT_ITEM_FIELDS,
+  );
 
   const { mutate, isPending } = useUpdateItem();
+
+  const draftValue = useMemo<EditItemDraft>(
+    () => ({
+      name,
+      description,
+      price,
+      priority,
+      link,
+      additionalLinks,
+      imagePreview: imageFile ? "" : imagePreview,
+      currency,
+      hadLocalImage: Boolean(imageFile),
+    }),
+    [
+      additionalLinks,
+      currency,
+      description,
+      imageFile,
+      imagePreview,
+      link,
+      name,
+      price,
+      priority,
+    ],
+  );
+
+  const isMeaningfulDraft = useCallback(
+    (draft: EditItemDraft) => {
+      const additionalLinksChanged =
+        JSON.stringify(
+          draft.additionalLinks.filter((itemLink) => itemLink.url.trim()),
+        ) !== JSON.stringify(initialDraft.additionalLinks);
+
+      return (
+        draft.name.trim() !== initialDraft.name.trim() ||
+        draft.description.trim() !== initialDraft.description.trim() ||
+        draft.price.trim() !== initialDraft.price.trim() ||
+        draft.priority !== initialDraft.priority ||
+        draft.link.trim() !== initialDraft.link.trim() ||
+        draft.currency !== initialDraft.currency ||
+        draft.imagePreview !== initialDraft.imagePreview ||
+        draft.hadLocalImage ||
+        additionalLinksChanged
+      );
+    },
+    [initialDraft],
+  );
+
+  const getRestoredFields = useCallback(
+    (draft: EditItemDraft): RestoredEditItemFields => ({
+      link: draft.link.trim() !== initialDraft.link.trim(),
+      additionalLinks:
+        JSON.stringify(
+          draft.additionalLinks.filter((itemLink) => itemLink.url.trim()),
+        ) !== JSON.stringify(initialDraft.additionalLinks),
+      image:
+        draft.imagePreview !== initialDraft.imagePreview || draft.hadLocalImage,
+      name: draft.name.trim() !== initialDraft.name.trim(),
+      description: draft.description.trim() !== initialDraft.description.trim(),
+      price: draft.price.trim() !== initialDraft.price.trim(),
+      currency: draft.currency !== initialDraft.currency,
+      priority: draft.priority !== initialDraft.priority,
+    }),
+    [initialDraft],
+  );
+
+  const applyDraft = useCallback(
+    (draft: EditItemDraft) => {
+      setName(draft.name);
+      setDescription(draft.description);
+      setPrice(draft.price);
+      setPriority(draft.priority);
+      setLink(draft.link);
+      setAdditionalLinks(draft.additionalLinks);
+      if (imageObjectUrl) {
+        URL.revokeObjectURL(imageObjectUrl);
+      }
+      setImageObjectUrl(null);
+      setImageFile(null);
+      setImagePreview(draft.imagePreview);
+      setCurrency(draft.currency);
+      setImageError(null);
+      setLocalImageNeedsReupload(draft.hadLocalImage);
+      setRestoredFields(getRestoredFields(draft));
+    },
+    [getRestoredFields, imageObjectUrl],
+  );
+
+  const { isDraftRestored, clearDraft } = useSessionDraft({
+    userId: currentUserId,
+    kind: "edit-item",
+    scopeId: item.id,
+    open,
+    value: draftValue,
+    onRestore: applyDraft,
+    isMeaningful: isMeaningfulDraft,
+  });
 
   const hasChanges = useMemo(() => {
     const initialName = item.name?.trim() ?? "";
@@ -133,6 +288,31 @@ function EditItemForm({
     setImageError(null);
     setImageFile(file);
     setImagePreview(objectUrl);
+    setLocalImageNeedsReupload(false);
+  }
+
+  function restoreInitialState() {
+    setName(initialDraft.name);
+    setDescription(initialDraft.description);
+    setPrice(initialDraft.price);
+    setPriority(initialDraft.priority);
+    setLink(initialDraft.link);
+    setAdditionalLinks(initialDraft.additionalLinks);
+    if (imageObjectUrl) {
+      URL.revokeObjectURL(imageObjectUrl);
+    }
+    setImageObjectUrl(null);
+    setImageFile(null);
+    setImagePreview(initialDraft.imagePreview);
+    setCurrency(initialDraft.currency);
+    setImageError(null);
+    setLocalImageNeedsReupload(false);
+    setRestoredFields(EMPTY_RESTORED_EDIT_ITEM_FIELDS);
+  }
+
+  function handleDiscardDraft() {
+    clearDraft();
+    restoreInitialState();
   }
 
   function handleSubmit() {
@@ -163,17 +343,59 @@ function EditItemForm({
         : { image_url: imagePreview || null }),
     };
 
-    mutate({ id: item.id, updates }, { onSuccess: () => onClose() });
+    mutate(
+      { id: item.id, updates },
+      {
+        onSuccess: () => {
+          clearDraft();
+          onClose();
+        },
+      },
+    );
   }
 
   return (
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2>{t("Edit Item", { $id: "item.modal.edit.title" })}</h2>
+          <div className={styles.headerCopy}>
+            <h2>{t("Edit Item", { $id: "item.modal.edit.title" })}</h2>
+          </div>
+          {isDraftRestored && (
+            <div className={styles.draftBanner}>
+              <div className={styles.draftBannerMeta}>
+                <DraftBadge label={t("Draft", { $id: "draft.badge" })} />
+                <span>
+                  {isDraftRestored
+                    ? t("Draft restored for this item.", {
+                        $id: "draft.editItem.restored",
+                      })
+                    : t("Draft is saved for this item.", {
+                        $id: "draft.editItem.saved",
+                      })}
+                </span>
+              </div>
+              <button
+                type="button"
+                className={styles.draftAction}
+                onClick={handleDiscardDraft}
+              >
+                {t("Discard", { $id: "draft.discard" })}
+              </button>
+            </div>
+          )}
+          {isDraftRestored && localImageNeedsReupload && (
+            <p className={styles.draftNote}>
+              {t("Local image needs to be added again.", {
+                $id: "draft.localImageReupload",
+              })}
+            </p>
+          )}
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${isDraftRestored && (restoredFields.link || restoredFields.additionalLinks) ? styles.draftField : ""}`.trim()}
+        >
           <label>{t("Product link", { $id: "item.modal.productLink" })}</label>
           <input
             type="url"
@@ -251,13 +473,17 @@ function EditItemForm({
           )}
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${isDraftRestored && restoredFields.image ? styles.draftField : ""}`.trim()}
+        >
           <div className={styles.labelRow}>
             <label>{t("Image", { $id: "item.modal.imageLabel" })}</label>
             <FileSizeBadge />
           </div>
           <div className={styles.upload}>
-            <label className={styles.dropArea}>
+            <label
+              className={`${styles.dropArea} ${isDraftRestored && restoredFields.image ? styles.draftDropArea : ""}`.trim()}
+            >
               {imagePreview ? (
                 <img
                   src={imagePreview}
@@ -282,7 +508,9 @@ function EditItemForm({
           <UploadErrorText message={imageError} />
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${isDraftRestored && restoredFields.name ? styles.draftField : ""}`.trim()}
+        >
           <label>{t("Name", { $id: "item.modal.nameLabel" })}</label>
           <input
             placeholder={t("e.g. Noise-cancelling headphones", {
@@ -293,7 +521,9 @@ function EditItemForm({
           />
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${isDraftRestored && restoredFields.description ? styles.draftField : ""}`.trim()}
+        >
           <label>
             {t("Description (optional)", {
               $id: "wishlist.modal.descriptionLabel",
@@ -308,7 +538,9 @@ function EditItemForm({
           />
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${isDraftRestored && (restoredFields.price || restoredFields.currency) ? styles.draftField : ""}`.trim()}
+        >
           <label>
             {t("Price (optional)", { $id: "item.modal.priceLabel" })}
           </label>
@@ -319,7 +551,7 @@ function EditItemForm({
               options={currencyOptions}
               aria-label={t("Currency", { $id: "item.modal.currencyAria" })}
               className={styles.selectWrap}
-              triggerClassName={styles.selectField}
+              triggerClassName={`${styles.selectField} ${isDraftRestored && restoredFields.currency ? styles.draftSelectField : ""}`.trim()}
             />
             <input
               type="text"
@@ -331,14 +563,16 @@ function EditItemForm({
         </div>
 
         {canUsePriority && (
-          <div className={styles.field}>
+          <div
+            className={`${styles.field} ${isDraftRestored && restoredFields.priority ? styles.draftField : ""}`.trim()}
+          >
             <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
             <Select
               value={priority}
               onChange={setPriority}
               options={priorityOptions}
               ariaLabel={t("Priority", { $id: "item.modal.priorityLabel" })}
-              triggerClassName={styles.selectField}
+              triggerClassName={`${styles.selectField} ${isDraftRestored && restoredFields.priority ? styles.draftSelectField : ""}`.trim()}
             />
           </div>
         )}

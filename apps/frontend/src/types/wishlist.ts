@@ -1,3 +1,7 @@
+import {
+  WishlistColorOption,
+  WishlistPrivacyOption,
+} from "@/lib/constans/wishlist";
 import type { ItemLink } from "@/types/item";
 
 export enum WishlistVisibility {
@@ -42,3 +46,22 @@ export interface Item {
   created_at: string;
   additional_links?: ItemLink[] | null;
 }
+
+export type WishlistDraft = {
+  name: string;
+  description: string;
+  privacy: WishlistPrivacyOption;
+  color: WishlistColorOption;
+  eventDate: string;
+  imagePreview: string;
+  hadLocalImage: boolean;
+};
+
+export type RestoredEditWishlistFields = {
+  name: boolean;
+  description: boolean;
+  privacy: boolean;
+  color: boolean;
+  eventDate: boolean;
+  image: boolean;
+};

@@ -19,6 +19,7 @@ type Props = {
   onDelete?: (id: string) => void;
   onEdit?: (item: Item) => void;
   onAddItem?: () => void;
+  hasAddItemDraft?: boolean;
   openItemId?: string | null;
   onOpenItemHandled?: (id: string) => void;
 };
@@ -32,6 +33,7 @@ export function WishlistItemsGrid({
   onDelete,
   onEdit,
   onAddItem,
+  hasAddItemDraft = false,
   openItemId,
   onOpenItemHandled,
 }: Props) {
@@ -155,6 +157,7 @@ export function WishlistItemsGrid({
           <AddCard
             onClick={onAddItem}
             label={t("Add item", { $id: "wishlist.grid.addItemCardLabel" })}
+            hasDraft={hasAddItemDraft}
           />
         )}
       </div>

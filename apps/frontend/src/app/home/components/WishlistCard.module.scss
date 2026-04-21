@@ -198,6 +198,7 @@
 }
 
 .menuButton {
+  position: relative;
   width: 34px;
   height: 34px;
   border-radius: 12px;
@@ -225,6 +226,12 @@
     box-shadow: 0 0 0 4px var(--input-focus-ring);
     border-color: var(--input-focus-border);
   }
+}
+
+.menuButtonDraftDot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
 }
 
 /* Row under title */

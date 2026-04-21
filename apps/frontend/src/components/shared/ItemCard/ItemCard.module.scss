@@ -186,6 +186,7 @@
 }
 
 .iconButton {
+  position: relative;
   width: 34px;
   height: 34px;
   border-radius: 12px;
@@ -216,6 +217,12 @@
 
 :global([data-theme="dark"]) .iconButton {
   background: rgba(22, 22, 25, 0.9);
+}
+
+.iconButtonDraftDot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
 }
 
 /* ===== Info section ===== */

@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/FilterSortBar";
 import { useDebouncedQueryParam } from "@/hooks/use-debounced-query-param";
 import { useQueryParams } from "@/hooks/use-query-params";
+import { useSessionDraftPresence } from "@/hooks/use-session-draft";
 import {
   ITEM_STATUS_OPTIONS,
   ITEM_STATUS_MAP,
@@ -95,6 +96,16 @@ export default function WishlistItemsPage() {
     [searchParams],
   );
   const { data: currentUserId = "" } = useCurrentUserId();
+  const hasCreateItemDraft = useSessionDraftPresence({
+    userId: currentUserId,
+    kind: "create-item",
+    scopeId: id,
+  });
+  const hasEditWishlistDraft = useSessionDraftPresence({
+    userId: currentUserId,
+    kind: "edit-wishlist",
+    scopeId: id,
+  });
   const normalizedPriceMin = parseOptionalNumber(itemPriceMin);
   const normalizedPriceMax = parseOptionalNumber(itemPriceMax);
 
@@ -305,6 +316,8 @@ export default function WishlistItemsPage() {
           onShare={handleShare}
           onManageAccess={isOwner ? () => setGrantAccessOpen(true) : undefined}
           isOwner={isOwner}
+          hasAddItemDraft={hasCreateItemDraft}
+          hasEditWishlistDraft={hasEditWishlistDraft}
         />
       )}
 
@@ -465,6 +478,7 @@ export default function WishlistItemsPage() {
                   onAddItem={
                     canEditWishlist ? () => setCreateOpen(true) : undefined
                   }
+                  hasAddItemDraft={hasCreateItemDraft}
                   openItemId={openItemId}
                   onOpenItemHandled={handleOpenItemHandled}
                 />

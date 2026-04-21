@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { Select } from "@/components/ui/Select/Select";
+import { useCurrentUserId } from "@/hooks/use-user";
 import { useCreateSecretSantaEvent } from "@/hooks/use-secret-santa";
 import { useFriends } from "@/hooks/use-friends";
+import { useSessionDraft } from "@/hooks/use-session-draft";
 import { useSettings } from "@/hooks/use-settings";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
@@ -32,6 +35,16 @@ type SelectedParticipant = {
   avatar_url: string | null;
 };
 
+type CreateSecretSantaDraft = {
+  name: string;
+  eventDate: string;
+  budget: string;
+  currency: string;
+  imagePreview: string;
+  participants: SelectedParticipant[];
+  hadLocalImage: boolean;
+};
+
 export function CreateSecretSantaModal({ open, onClose }: Props) {
   if (!open) return null;
   return <CreateSecretSantaForm onClose={onClose} />;
@@ -39,6 +52,7 @@ export function CreateSecretSantaModal({ open, onClose }: Props) {
 
 function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
   const t = useGT();
+  const { data: currentUserId = "" } = useCurrentUserId();
   const { data: settings } = useSettings();
   const preferredCurrency = resolveCurrency(settings?.display_currency);
   const currencyOptions = getCompactCurrencyOptions();
@@ -52,10 +66,65 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
   const [imageError, setImageError] = useState<string | null>(null);
   const [participants, setParticipants] = useState<SelectedParticipant[]>([]);
   const [friendSearch, setFriendSearch] = useState("");
+  const [localImageNeedsReupload, setLocalImageNeedsReupload] = useState(false);
 
   const { mutate, isPending } = useCreateSecretSantaEvent();
   const { data: friends } = useFriends();
   const canSearchFriends = hasReachedSearchThreshold(friendSearch);
+
+  const draftValue = useMemo<CreateSecretSantaDraft>(
+    () => ({
+      name,
+      eventDate,
+      budget,
+      currency,
+      imagePreview: imageFile ? "" : imagePreview,
+      participants,
+      hadLocalImage: Boolean(imageFile),
+    }),
+    [budget, currency, eventDate, imageFile, imagePreview, name, participants],
+  );
+
+  const isMeaningfulDraft = useCallback(
+    (draft: CreateSecretSantaDraft) => {
+      return Boolean(
+        draft.name.trim() ||
+        draft.eventDate ||
+        draft.budget.trim() ||
+        draft.currency !== preferredCurrency ||
+        draft.imagePreview ||
+        draft.participants.length > 0 ||
+        draft.hadLocalImage,
+      );
+    },
+    [preferredCurrency],
+  );
+
+  const applyDraft = useCallback(
+    (draft: CreateSecretSantaDraft) => {
+      setName(draft.name);
+      setEventDate(draft.eventDate);
+      setBudget(draft.budget);
+      setCurrency(draft.currency || preferredCurrency);
+      setImageObjectUrl(null);
+      setImageFile(null);
+      setImagePreview(draft.imagePreview);
+      setImageError(null);
+      setParticipants(draft.participants);
+      setFriendSearch("");
+      setLocalImageNeedsReupload(draft.hadLocalImage);
+    },
+    [preferredCurrency],
+  );
+
+  const { isDraftRestored, clearDraft } = useSessionDraft({
+    userId: currentUserId,
+    kind: "create-secret-santa",
+    open: true,
+    value: draftValue,
+    onRestore: applyDraft,
+    isMeaningful: isMeaningfulDraft,
+  });
 
   const filteredFriends = (friends ?? []).filter((f) => {
     const alreadyAdded = participants.some((p) => p.user_id === f.friend_id);
@@ -84,8 +153,14 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
     setImageError(null);
     setParticipants([]);
     setFriendSearch("");
+    setLocalImageNeedsReupload(false);
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     setImageObjectUrl(null);
+  }
+
+  function handleDiscardDraft() {
+    clearDraft();
+    resetForm();
   }
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -105,6 +180,7 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
     setImageError(null);
     setImageFile(file);
     setImagePreview(objectUrl);
+    setLocalImageNeedsReupload(false);
   }
 
   function addParticipant(friend: {
@@ -149,6 +225,7 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
       },
       {
         onSuccess: () => {
+          clearDraft();
           resetForm();
           onClose();
         },
@@ -157,7 +234,6 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
   }
 
   function handleClose() {
-    resetForm();
     onClose();
   }
 
@@ -165,7 +241,7 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
     <Modal open onClose={handleClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <div>
+          <div className={styles.headerCopy}>
             <h2>
               {t("Create Secret Santa Event", {
                 $id: "secretSanta.create.title",
@@ -177,6 +253,36 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
               })}
             </p>
           </div>
+          {isDraftRestored && (
+            <div className={styles.draftBanner}>
+              <div className={styles.draftBannerMeta}>
+                <DraftBadge label={t("Draft", { $id: "draft.badge" })} />
+                <span>
+                  {isDraftRestored
+                    ? t("Draft restored for this event.", {
+                        $id: "draft.secretSanta.restored",
+                      })
+                    : t("Draft is saved for this event.", {
+                        $id: "draft.secretSanta.saved",
+                      })}
+                </span>
+              </div>
+              <button
+                type="button"
+                className={styles.draftAction}
+                onClick={handleDiscardDraft}
+              >
+                {t("Discard", { $id: "draft.discard" })}
+              </button>
+            </div>
+          )}
+          {isDraftRestored && localImageNeedsReupload && (
+            <p className={styles.draftNote}>
+              {t("Local image needs to be added again.", {
+                $id: "draft.localImageReupload",
+              })}
+            </p>
+          )}
         </div>
 
         {/* Name */}

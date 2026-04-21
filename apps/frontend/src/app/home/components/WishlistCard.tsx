@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useGT } from "gt-next";
 import styles from "./WishlistCard.module.scss";
+import cardStyles from "@/components/shared/ItemCard/ItemCard.module.scss";
 import { Wishlist } from "@/types/wishlist";
 import { Gift, Link2, MoreHorizontal } from "lucide-react";
 import {
@@ -14,7 +15,10 @@ import {
   WISHLIST_VISIBILITY_ICONS,
   getWishlistAccentClass,
   getWishlistVisibilityLabels,
-} from "@/lib/helpers/wishlist-metadata";
+} from "@/lib/constans/wishlist";
+import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
+import { useCurrentUserId } from "@/hooks/use-user";
+import { useSessionDraftPresence } from "@/hooks/use-session-draft";
 
 type Props = {
   wishlist: Wishlist;
@@ -42,6 +46,15 @@ export function WishlistCard({
     wishlist.items_count ??
     (wishlist as Wishlist & { itemsCount?: number }).itemsCount ??
     0;
+
+  const { data: currentUserId = "" } = useCurrentUserId();
+
+  const hasEditWishlistDraft = useSessionDraftPresence({
+    userId: currentUserId,
+    kind: "edit-wishlist",
+    scopeId: wishlist.id,
+  });
+
   const isShared = showSharedMeta && wishlist.is_owner === false;
   const showMenu = Boolean(onEdit || onDelete);
   const ownerNickname = wishlist.owner_nickname?.trim();
@@ -110,6 +123,12 @@ export function WishlistCard({
                     }}
                   >
                     <MoreHorizontal size={16} />
+                    {hasEditWishlistDraft && (
+                      <DraftBadge
+                        variant="dot"
+                        className={styles.menuButtonDraftDot}
+                      />
+                    )}
                   </button>
                 )}
                 className={styles.menuDropdown}

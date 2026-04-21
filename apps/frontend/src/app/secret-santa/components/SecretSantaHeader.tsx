@@ -3,6 +3,7 @@
 import { useGT } from "gt-next";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button/Button";
+import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 import styles from "./SecretSantaHeader.module.scss";
 import { Plus, TreePine, Sparkles } from "lucide-react";
@@ -40,9 +41,10 @@ function getDisplayName(
 
 type Props = {
   onNewEvent: () => void;
+  hasDraft?: boolean;
 };
 
-export function SecretSantaHeader({ onNewEvent }: Props) {
+export function SecretSantaHeader({ onNewEvent, hasDraft = false }: Props) {
   const t = useGT();
   const router = useRouter();
   const { data: user } = useCurrentUser();
@@ -111,6 +113,7 @@ export function SecretSantaHeader({ onNewEvent }: Props) {
               <span>
                 {t("New Event", { $id: "secretSanta.header.newEvent" })}
               </span>
+              {hasDraft && <DraftBadge variant="dot" />}
             </>
           )}
         </Button>

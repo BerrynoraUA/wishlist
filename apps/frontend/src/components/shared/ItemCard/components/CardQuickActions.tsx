@@ -1,6 +1,9 @@
 import { useGT } from "gt-next";
 import { ExternalLink, MoreHorizontal } from "lucide-react";
+import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
+import { useSessionDraftPresence } from "@/hooks/use-session-draft";
+import { useCurrentUserId } from "@/hooks/use-user";
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -43,8 +46,14 @@ export function CardQuickActions({
   onDelete,
 }: CardQuickActionsProps) {
   const t = useGT();
+  const { data: currentUserId = "" } = useCurrentUserId();
   const hasProductLink = Boolean(url);
   const hasShareLink = Boolean(shareUrl);
+  const hasEditDraft = useSessionDraftPresence({
+    userId: currentUserId,
+    kind: "edit-item",
+    scopeId: id,
+  });
 
   return (
     <div className={styles.quickActions}>
@@ -91,6 +100,12 @@ export function CardQuickActions({
               data-tooltip={t("More options", { $id: "itemCard.moreOptions" })}
             >
               <MoreHorizontal size={16} />
+              {hasEditDraft && (
+                <DraftBadge
+                  variant="dot"
+                  className={styles.iconButtonDraftDot}
+                />
+              )}
             </button>
           )}
         >

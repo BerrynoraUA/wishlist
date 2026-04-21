@@ -16,7 +16,7 @@ import { CurrencySettings } from "./CurrencySettings";
 import {
   getWishlistAccentSwatches,
   getWishlistColorSwatches,
-} from "@/lib/helpers/wishlist-metadata";
+} from "@/lib/constans/wishlist-metadata";
 
 export function AppearanceSettings() {
   const t = useGT();

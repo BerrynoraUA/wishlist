@@ -1,18 +1,31 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { useGT } from "gt-next";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
+import { useCurrentUserId } from "@/hooks/use-user";
+import { useSessionDraft } from "@/hooks/use-session-draft";
 import { useUpdateWishlist } from "@/hooks/use-wishlists";
-import { Wishlist } from "@/types/wishlist";
 import { Check } from "lucide-react";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { validateImageUploadFile } from "@/lib/image-upload";
+import {
+  RestoredEditWishlistFields,
+  WishlistDraft,
+  Wishlist,
+} from "@/types/wishlist";
 import {
   WISHLIST_COLOR_OPTIONS,
   WISHLIST_PRIVACY_BY_VISIBILITY,
@@ -22,7 +35,8 @@ import {
   getWishlistPrivacyOptions,
   type WishlistColorOption,
   type WishlistPrivacyOption,
-} from "@/lib/helpers/wishlist-metadata";
+  EMPTY_RESTORED_EDIT_WISHLIST_FIELDS,
+} from "@/lib/constans/wishlist";
 import styles from "./CreateWishlistModal.module.scss";
 
 type Props = {
@@ -54,9 +68,26 @@ function EditWishlistForm({
   onClose: () => void;
 }) {
   const t = useGT();
+  const { data: currentUserId = "" } = useCurrentUserId();
   const { isPro } = useSubscription();
   const privacyOptions = getWishlistPrivacyOptions(t);
   const isColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
+  const initialDraft = useMemo<WishlistDraft>(() => {
+    const rawEventDate =
+      wishlist.event_date ??
+      (wishlist as Wishlist & { event_date?: string }).event_date;
+
+    return {
+      name: wishlist.title ?? "",
+      description: wishlist.description ?? "",
+      privacy:
+        WISHLIST_PRIVACY_BY_VISIBILITY[wishlist.visibility_type] ?? "Public",
+      color: getWishlistColorByAccent(wishlist.accent_type),
+      eventDate: rawEventDate ? String(rawEventDate).split("T")[0] : "",
+      imagePreview: wishlist.image_url ?? "",
+      hadLocalImage: false,
+    };
+  }, [wishlist]);
   const [name, setName] = useState(wishlist.title ?? "");
   const [description, setDescription] = useState(wishlist.description ?? "");
   const [privacy, setPrivacy] = useState<WishlistPrivacyOption>(
@@ -75,6 +106,9 @@ function EditWishlistForm({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [localImageNeedsReupload, setLocalImageNeedsReupload] = useState(false);
+  const [restoredFields, setRestoredFields] =
+    useState<RestoredEditWishlistFields>(EMPTY_RESTORED_EDIT_WISHLIST_FIELDS);
   const availableColors = useMemo(() => {
     if (!isColorGated) {
       return WISHLIST_COLOR_OPTIONS;
@@ -84,6 +118,74 @@ function EditWishlistForm({
   }, [color, isColorGated]);
 
   const { mutate, isPending } = useUpdateWishlist();
+
+  const draftValue = useMemo<WishlistDraft>(
+    () => ({
+      name,
+      description,
+      privacy,
+      color,
+      eventDate,
+      imagePreview: imageFile ? "" : imagePreview,
+      hadLocalImage: Boolean(imageFile),
+    }),
+    [color, description, eventDate, imageFile, imagePreview, name, privacy],
+  );
+
+  const isMeaningfulDraft = useCallback(
+    (draft: WishlistDraft) => {
+      return (
+        draft.name.trim() !== initialDraft.name.trim() ||
+        draft.description.trim() !== initialDraft.description.trim() ||
+        draft.privacy !== initialDraft.privacy ||
+        draft.color !== initialDraft.color ||
+        draft.eventDate !== initialDraft.eventDate ||
+        draft.imagePreview !== initialDraft.imagePreview ||
+        draft.hadLocalImage
+      );
+    },
+    [initialDraft],
+  );
+
+  const getRestoredFields = useCallback(
+    (draft: WishlistDraft): RestoredEditWishlistFields => ({
+      name: draft.name.trim() !== initialDraft.name.trim(),
+      description: draft.description.trim() !== initialDraft.description.trim(),
+      privacy: draft.privacy !== initialDraft.privacy,
+      color: draft.color !== initialDraft.color,
+      eventDate: draft.eventDate !== initialDraft.eventDate,
+      image:
+        draft.imagePreview !== initialDraft.imagePreview || draft.hadLocalImage,
+    }),
+    [initialDraft],
+  );
+
+  const applyDraft = useCallback(
+    (draft: WishlistDraft) => {
+      setName(draft.name);
+      setDescription(draft.description);
+      setPrivacy(draft.privacy);
+      setColor(draft.color);
+      setEventDate(draft.eventDate);
+      setImageObjectUrl(null);
+      setImageFile(null);
+      setImagePreview(draft.imagePreview);
+      setImageError(null);
+      setLocalImageNeedsReupload(draft.hadLocalImage);
+      setRestoredFields(getRestoredFields(draft));
+    },
+    [getRestoredFields],
+  );
+
+  const { isDraftRestored, clearDraft } = useSessionDraft({
+    userId: currentUserId,
+    kind: "edit-wishlist",
+    scopeId: wishlist.id,
+    open,
+    value: draftValue,
+    onRestore: applyDraft,
+    isMeaningful: isMeaningfulDraft,
+  });
 
   const hasChanges = useMemo(() => {
     const initialTitle = wishlist.title?.trim() ?? "";
@@ -143,6 +245,27 @@ function EditWishlistForm({
     setImageError(null);
     setImageFile(file);
     setImagePreview(objectUrl);
+    setLocalImageNeedsReupload(false);
+  }
+
+  function restoreInitialState() {
+    setName(initialDraft.name);
+    setDescription(initialDraft.description);
+    setPrivacy(initialDraft.privacy);
+    setColor(initialDraft.color);
+    setEventDate(initialDraft.eventDate);
+    if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
+    setImageObjectUrl(null);
+    setImageFile(null);
+    setImagePreview(initialDraft.imagePreview);
+    setImageError(null);
+    setLocalImageNeedsReupload(false);
+    setRestoredFields(EMPTY_RESTORED_EDIT_WISHLIST_FIELDS);
+  }
+
+  function handleDiscardDraft() {
+    clearDraft();
+    restoreInitialState();
   }
 
   function handleSubmit() {
@@ -169,7 +292,12 @@ function EditWishlistForm({
           event_date: eventDate ? new Date(eventDate) : undefined,
         },
       },
-      { onSuccess: () => onClose() },
+      {
+        onSuccess: () => {
+          clearDraft();
+          onClose();
+        },
+      },
     );
   }
 
@@ -177,7 +305,7 @@ function EditWishlistForm({
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <div>
+          <div className={styles.headerCopy}>
             <h2>{t("Edit Wishlist", { $id: "wishlist.modal.edit.title" })}</h2>
             <p>
               {t("Update your wishlist details and customize its appearance.", {
@@ -185,9 +313,41 @@ function EditWishlistForm({
               })}
             </p>
           </div>
+          {isDraftRestored && (
+            <div className={styles.draftBanner}>
+              <div className={styles.draftBannerMeta}>
+                <DraftBadge label={t("Draft", { $id: "draft.badge" })} />
+                <span>
+                  {isDraftRestored
+                    ? t("Draft restored for this wishlist.", {
+                        $id: "draft.editWishlist.restored",
+                      })
+                    : t("Draft is saved for this wishlist.", {
+                        $id: "draft.editWishlist.saved",
+                      })}
+                </span>
+              </div>
+              <button
+                type="button"
+                className={styles.draftAction}
+                onClick={handleDiscardDraft}
+              >
+                {t("Discard", { $id: "draft.discard" })}
+              </button>
+            </div>
+          )}
+          {isDraftRestored && localImageNeedsReupload && (
+            <p className={styles.draftNote}>
+              {t("Local image needs to be added again.", {
+                $id: "draft.localImageReupload",
+              })}
+            </p>
+          )}
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${isDraftRestored && restoredFields.name ? styles.draftField : ""}`.trim()}
+        >
           <label>
             {t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}
           </label>
@@ -200,7 +360,9 @@ function EditWishlistForm({
           />
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${isDraftRestored && restoredFields.description ? styles.draftField : ""}`.trim()}
+        >
           <label>
             {t("Description (optional)", {
               $id: "wishlist.modal.descriptionLabel",
@@ -215,7 +377,9 @@ function EditWishlistForm({
           />
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${isDraftRestored && restoredFields.image ? styles.draftField : ""}`.trim()}
+        >
           <div className={styles.labelRow}>
             <label>
               {t("Cover Image", { $id: "wishlist.modal.coverLabel" })}
@@ -223,7 +387,9 @@ function EditWishlistForm({
             <FileSizeBadge />
           </div>
           <div className={styles.upload}>
-            <label className={styles.dropArea}>
+            <label
+              className={`${styles.dropArea} ${isDraftRestored && restoredFields.image ? styles.draftDropArea : ""}`.trim()}
+            >
               {imagePreview ? (
                 <img
                   src={imagePreview}
@@ -250,16 +416,28 @@ function EditWishlistForm({
           <UploadErrorText message={imageError} />
         </div>
 
-        <div className={styles.field}>
+        <div
+          className={`${styles.field} ${isDraftRestored && restoredFields.eventDate ? styles.draftField : ""}`.trim()}
+        >
           <label>
             {t("Event Date (optional)", {
               $id: "wishlist.modal.eventDateLabel",
             })}
           </label>
-          <DatePickerField value={eventDate} onChange={setEventDate} />
+          <DatePickerField
+            value={eventDate}
+            onChange={setEventDate}
+            triggerClassName={
+              isDraftRestored && restoredFields.eventDate
+                ? styles.draftDateTrigger
+                : undefined
+            }
+          />
         </div>
 
-        <div className={styles.section}>
+        <div
+          className={`${styles.section} ${isDraftRestored && restoredFields.privacy ? styles.draftSection : ""}`.trim()}
+        >
           <label>{t("Privacy", { $id: "wishlist.modal.privacyLabel" })}</label>
           <div className={styles.privacyOptions}>
             {privacyOptions.map((option) => {
@@ -272,6 +450,11 @@ function EditWishlistForm({
                   title={option.title}
                   subtitle={option.subtitle}
                   selected={privacy === option.value}
+                  draftHighlighted={
+                    isDraftRestored &&
+                    restoredFields.privacy &&
+                    privacy === option.value
+                  }
                   onClick={() => setPrivacy(option.value)}
                 />
               );
@@ -279,7 +462,9 @@ function EditWishlistForm({
           </div>
         </div>
 
-        <div className={styles.section}>
+        <div
+          className={`${styles.section} ${isDraftRestored && restoredFields.color ? styles.draftSection : ""}`.trim()}
+        >
           <label>
             {t("Cover Color", { $id: "wishlist.modal.coverColor" })}
           </label>
@@ -287,7 +472,7 @@ function EditWishlistForm({
             {availableColors.map((c) => (
               <div
                 key={c}
-                className={`${styles.color} ${styles[c]} ${color === c ? styles.active : ""}`}
+                className={`${styles.color} ${styles[c]} ${color === c ? styles.active : ""} ${isDraftRestored && restoredFields.color && color === c ? styles.draftColorActive : ""}`}
                 onClick={() => setColor(c)}
               />
             ))}
@@ -319,17 +504,19 @@ function PrivacyCard({
   title,
   subtitle,
   selected,
+  draftHighlighted,
   onClick,
 }: {
   icon: ReactNode;
   title: string;
   subtitle: string;
   selected: boolean;
+  draftHighlighted?: boolean;
   onClick: () => void;
 }) {
   return (
     <div
-      className={`${styles.privacyCard} ${selected ? styles.selected : ""}`}
+      className={`${styles.privacyCard} ${selected ? styles.selected : ""} ${draftHighlighted ? styles.draftPrivacySelected : ""}`.trim()}
       onClick={onClick}
     >
       <div className={styles.privacyIcon}>{icon}</div>

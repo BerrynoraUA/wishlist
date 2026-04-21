@@ -1,6 +1,6 @@
 import { Globe, Lock, Users, type LucideIcon } from "lucide-react";
 import type { WishlistColorIndex } from "@/types/settings";
-import { WishlistAccent, WishlistVisibility } from "@/types/wishlist";
+import { RestoredEditWishlistFields, WishlistAccent, WishlistVisibility } from "@/types/wishlist";
 
 export type WishlistPrivacyOption = "Public" | "Friends" | "Private";
 export type WishlistColorOption = "pink" | "peach" | "blue" | "lavender" | "mint";
@@ -14,6 +14,16 @@ export const WISHLIST_COLOR_OPTIONS: WishlistColorOption[] = [
   "lavender",
   "mint",
 ];
+
+export const EMPTY_RESTORED_EDIT_WISHLIST_FIELDS: RestoredEditWishlistFields = {
+  name: false,
+  description: false,
+  privacy: false,
+  color: false,
+  eventDate: false,
+  image: false,
+};
+
 
 export const WISHLIST_VISIBILITY_BY_PRIVACY: Record<WishlistPrivacyOption, WishlistVisibility> = {
   Public: WishlistVisibility.Public,

@@ -11,6 +11,8 @@ import { EditWishlistModal } from "@/app/wishlist/components/EditWishlistModal";
 import { FriendInviteModal } from "@/app/friends/components/FriendInviteModal";
 import { FriendRequestSentModal } from "@/app/share/components/FriendRequestSentModal";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
+import { useSessionDraftPresence } from "@/hooks/use-session-draft";
+import { useCurrentUserId } from "@/hooks/use-user";
 import { useDeleteWishlist } from "@/hooks/use-wishlists";
 import { Wishlist } from "@/types/wishlist";
 
@@ -20,6 +22,7 @@ function getInitialInvite(searchParams: URLSearchParams) {
 
 function HomePageContent() {
   const t = useGT();
+  const { data: currentUserId = "" } = useCurrentUserId();
   const [open, setOpen] = useState(false);
   const [editWishlist, setEditWishlist] = useState<Wishlist | null>(null);
   const [deleteWishlist, setDeleteWishlist] = useState<Wishlist | null>(null);
@@ -27,6 +30,10 @@ function HomePageContent() {
   const router = useRouter();
   const cleaned = useRef(false);
   const deleteWishlistMutation = useDeleteWishlist();
+  const hasCreateWishlistDraft = useSessionDraftPresence({
+    userId: currentUserId,
+    kind: "create-wishlist",
+  });
 
   const [inviteUserId] = useState(() => getInitialInvite(searchParams));
   const [inviteOpen, setInviteOpen] = useState(
@@ -53,12 +60,16 @@ function HomePageContent() {
   return (
     <>
       <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
-        <DashboardHeader onNewWishlist={() => setOpen(true)} />
+        <DashboardHeader
+          onNewWishlist={() => setOpen(true)}
+          hasDraft={hasCreateWishlistDraft}
+        />
         <StatsRow />
         <WishlistGrid
           onCreateWishlist={() => setOpen(true)}
           onEditWishlist={setEditWishlist}
           onDeleteWishlist={setDeleteWishlist}
+          hasCreateDraft={hasCreateWishlistDraft}
         />
 
         <CreateWishlistModal open={open} onClose={() => setOpen(false)} />

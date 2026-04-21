@@ -1,12 +1,21 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { useGT } from "gt-next";
 import { useRouter } from "next/navigation";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { useCreateWishlist } from "@/hooks/use-wishlists";
+import { useCurrentUserId } from "@/hooks/use-user";
+import { useSessionDraft } from "@/hooks/use-session-draft";
 import { useSettings } from "@/hooks/use-settings";
 import { Check, Lock } from "lucide-react";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
@@ -14,6 +23,7 @@ import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { validateImageUploadFile } from "@/lib/image-upload";
+import { WishlistDraft } from "@/types/wishlist";
 import {
   WISHLIST_COLOR_OPTIONS,
   WISHLIST_VISIBILITY_BY_PRIVACY,
@@ -22,7 +32,7 @@ import {
   getWishlistPrivacyOptions,
   type WishlistColorOption,
   type WishlistPrivacyOption,
-} from "@/lib/helpers/wishlist-metadata";
+} from "@/lib/constans/wishlist";
 import styles from "./CreateWishlistModal.module.scss";
 
 type Props = {
@@ -56,6 +66,7 @@ function CreateWishlistForm({
 }) {
   const t = useGT();
   const router = useRouter();
+  const { data: currentUserId = "" } = useCurrentUserId();
   const { isPro } = useSubscription();
   const privacyOptions = getWishlistPrivacyOptions(t);
   const isColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
@@ -70,8 +81,59 @@ function CreateWishlistForm({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [localImageNeedsReupload, setLocalImageNeedsReupload] = useState(false);
 
   const { mutate, isPending } = useCreateWishlist();
+
+  const draftValue = useMemo<WishlistDraft>(
+    () => ({
+      name,
+      description,
+      privacy,
+      color,
+      eventDate,
+      imagePreview: imageFile ? "" : imagePreview,
+      hadLocalImage: Boolean(imageFile),
+    }),
+    [color, description, eventDate, imageFile, imagePreview, name, privacy],
+  );
+
+  const isMeaningfulDraft = useCallback(
+    (draft: WishlistDraft) => {
+      return Boolean(
+        draft.name.trim() ||
+        draft.description.trim() ||
+        draft.privacy !== "Public" ||
+        draft.color !== initialColor ||
+        draft.eventDate ||
+        draft.imagePreview ||
+        draft.hadLocalImage,
+      );
+    },
+    [initialColor],
+  );
+
+  const applyDraft = useCallback((draft: WishlistDraft) => {
+    setName(draft.name);
+    setDescription(draft.description);
+    setPrivacy(draft.privacy);
+    setColor(draft.color);
+    setEventDate(draft.eventDate);
+    setImageObjectUrl(null);
+    setImageFile(null);
+    setImagePreview(draft.imagePreview);
+    setImageError(null);
+    setLocalImageNeedsReupload(draft.hadLocalImage);
+  }, []);
+
+  const { isDraftRestored, clearDraft } = useSessionDraft({
+    userId: currentUserId,
+    kind: "create-wishlist",
+    open: true,
+    value: draftValue,
+    onRestore: applyDraft,
+    isMeaningful: isMeaningfulDraft,
+  });
 
   useEffect(() => {
     return () => {
@@ -88,8 +150,14 @@ function CreateWishlistForm({
     setImagePreview("");
     setImageFile(null);
     setImageError(null);
+    setLocalImageNeedsReupload(false);
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     setImageObjectUrl(null);
+  }
+
+  function handleDiscardDraft() {
+    clearDraft();
+    resetForm();
   }
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -110,6 +178,7 @@ function CreateWishlistForm({
     setImageError(null);
     setImageFile(file);
     setImagePreview(objectUrl);
+    setLocalImageNeedsReupload(false);
   }
 
   function handleSubmit() {
@@ -135,6 +204,7 @@ function CreateWishlistForm({
       },
       {
         onSuccess: () => {
+          clearDraft();
           resetForm();
           onClose();
         },
@@ -143,7 +213,6 @@ function CreateWishlistForm({
   }
 
   function handleClose() {
-    resetForm();
     onClose();
   }
 
@@ -160,7 +229,7 @@ function CreateWishlistForm({
     <Modal open onClose={handleClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <div>
+          <div className={styles.headerCopy}>
             <h2>
               {t("Create New Wishlist", { $id: "wishlist.modal.create.title" })}
             </h2>
@@ -170,6 +239,36 @@ function CreateWishlistForm({
               })}
             </p>
           </div>
+          {isDraftRestored && (
+            <div className={styles.draftBanner}>
+              <div className={styles.draftBannerMeta}>
+                <DraftBadge label={t("Draft", { $id: "draft.badge" })} />
+                <span>
+                  {isDraftRestored
+                    ? t("Draft restored for this wishlist.", {
+                        $id: "draft.createWishlist.restored",
+                      })
+                    : t("Draft is saved for this wishlist.", {
+                        $id: "draft.createWishlist.saved",
+                      })}
+                </span>
+              </div>
+              <button
+                type="button"
+                className={styles.draftAction}
+                onClick={handleDiscardDraft}
+              >
+                {t("Discard", { $id: "draft.discard" })}
+              </button>
+            </div>
+          )}
+          {isDraftRestored && localImageNeedsReupload && (
+            <p className={styles.draftNote}>
+              {t("Local image needs to be added again.", {
+                $id: "draft.localImageReupload",
+              })}
+            </p>
+          )}
         </div>
 
         {/* Name */}

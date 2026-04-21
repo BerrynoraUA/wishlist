@@ -22,15 +22,11 @@ import { useGT, useLocale } from "gt-next";
 import { formatLocalizedShortDate } from "@/lib/helpers/format-localized-short-date";
 import { Wishlist, WishlistVisibility } from "@/types/wishlist";
 import { Button } from "@/components/ui/Button/Button";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
+import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
+import { DropdownMenu, DropdownMenuItem,
 } from "@/components/ui/DropdownMenu/DropdownMenu";
-import {
-  WISHLIST_VISIBILITY_ICONS,
-  getWishlistAccentClass,
-  getWishlistVisibilityLabels,
-} from "@/lib/helpers/wishlist-metadata";
+import { WISHLIST_VISIBILITY_ICONS, getWishlistAccentClass, getWishlistVisibilityLabels,
+} from "@/lib/constans/wishlist";
 import { useSubscription } from "@/hooks/use-subscription";
 import { useUpdateWishlist } from "@/hooks/use-wishlists";
 import { FREE_LIMITS } from "@/types/subscription";
@@ -46,6 +42,8 @@ type Props = {
   onShare?: () => void;
   onManageAccess?: () => void;
   isOwner?: boolean;
+  hasAddItemDraft?: boolean;
+  hasEditWishlistDraft?: boolean;
 };
 
 export function WishlistHeader({
@@ -56,6 +54,8 @@ export function WishlistHeader({
   onShare,
   onManageAccess,
   isOwner = false,
+  hasAddItemDraft = false,
+  hasEditWishlistDraft = false,
 }: Props) {
   const t = useGT();
   const locale = useLocale();
@@ -528,6 +528,7 @@ export function WishlistHeader({
                         <span>
                           {t("Add Item", { $id: "wishlist.header.addItem" })}
                         </span>
+                        {hasAddItemDraft && <DraftBadge variant="dot" />}
                       </>
                     )}
                   </Button>
@@ -581,6 +582,12 @@ export function WishlistHeader({
                           })}
                         >
                           <MoreHorizontal size={18} />
+                          {hasEditWishlistDraft && (
+                            <DraftBadge
+                              variant="dot"
+                              className={styles.menuButtonDraftDot}
+                            />
+                          )}
                         </button>
                       )}
                     >

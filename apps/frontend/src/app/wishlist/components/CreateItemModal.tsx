@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useGT } from "gt-next";
 import { Loader2, Plus, X, Lock } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { Select } from "@/components/ui/Select/Select";
+import { useCurrentUserId } from "@/hooks/use-user";
 import { useCreateItem } from "@/hooks/use-items";
 import { useSettings } from "@/hooks/use-settings";
+import { useSessionDraft } from "@/hooks/use-session-draft";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
@@ -31,8 +34,24 @@ type Props = {
   wishlistId: string;
 };
 
+type CreateItemDraft = {
+  link: string;
+  additionalLinks: ItemLink[];
+  name: string;
+  description: string;
+  price: string;
+  priority: ItemPriorityOption;
+  imagePreview: string;
+  discountPrice: string | null;
+  hasDiscount: boolean;
+  discountEndDate: string | null;
+  currency: string;
+  hadLocalImage: boolean;
+};
+
 export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const t = useGT();
+  const { data: currentUserId = "" } = useCurrentUserId();
   const { isPro } = useSubscription();
   const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
   const canUseMultipleLinks = !SUBSCRIPTIONS_UI_ENABLED || isPro;
@@ -51,6 +70,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [discountPrice, setDiscountPrice] = useState<string | null>(null);
   const [hasDiscount, setHasDiscount] = useState(false);
   const [discountEndDate, setDiscountEndDate] = useState<string | null>(null);
+  const [localImageNeedsReupload, setLocalImageNeedsReupload] = useState(false);
   const { data: settings } = useSettings();
   const preferredCurrency = resolveCurrency(settings?.display_currency);
   const [currency, setCurrency] = useState(preferredCurrency);
@@ -59,11 +79,86 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
   const { mutate, isPending } = useCreateItem();
 
-  useEffect(() => {
-    if (!open) {
-      resetForm(preferredCurrency);
-    }
-  }, [open, preferredCurrency]);
+  const draftValue = useMemo<CreateItemDraft>(
+    () => ({
+      link,
+      additionalLinks,
+      name,
+      description,
+      price,
+      priority,
+      imagePreview: imageFile ? "" : imagePreview,
+      discountPrice,
+      hasDiscount,
+      discountEndDate,
+      currency,
+      hadLocalImage: Boolean(imageFile),
+    }),
+    [
+      additionalLinks,
+      currency,
+      description,
+      discountEndDate,
+      discountPrice,
+      hasDiscount,
+      imageFile,
+      imagePreview,
+      link,
+      name,
+      price,
+      priority,
+    ],
+  );
+
+  const isMeaningfulDraft = useCallback((draft: CreateItemDraft) => {
+    return Boolean(
+      draft.link.trim() ||
+      draft.additionalLinks.some((itemLink) => itemLink.url.trim()) ||
+      draft.name.trim() ||
+      draft.description.trim() ||
+      draft.price.trim() ||
+      draft.priority !== "None" ||
+      draft.imagePreview ||
+      draft.discountPrice ||
+      draft.hasDiscount ||
+      draft.discountEndDate,
+    );
+  }, []);
+
+  const applyDraft = useCallback(
+    (draft: CreateItemDraft) => {
+      setLink(draft.link);
+      setAdditionalLinks(draft.additionalLinks);
+      setName(draft.name);
+      setDescription(draft.description);
+      setPrice(draft.price);
+      setPriority(draft.priority);
+      if (imageObjectUrl) {
+        URL.revokeObjectURL(imageObjectUrl);
+      }
+      setImageObjectUrl(null);
+      setImageFile(null);
+      setImagePreview(draft.imagePreview);
+      setError(null);
+      setImageError(null);
+      setDiscountPrice(draft.discountPrice);
+      setHasDiscount(draft.hasDiscount);
+      setDiscountEndDate(draft.discountEndDate);
+      setCurrency(draft.currency || preferredCurrency);
+      setLocalImageNeedsReupload(draft.hadLocalImage);
+    },
+    [imageObjectUrl, preferredCurrency],
+  );
+
+  const { isDraftRestored, clearDraft } = useSessionDraft({
+    userId: currentUserId,
+    kind: "create-item",
+    scopeId: wishlistId,
+    open,
+    value: draftValue,
+    onRestore: applyDraft,
+    isMeaningful: isMeaningfulDraft,
+  });
 
   useEffect(() => {
     if (open && !link && !name && !description && !price && !imagePreview) {
@@ -93,7 +188,13 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     setDiscountPrice(null);
     setHasDiscount(false);
     setDiscountEndDate(null);
+    setLocalImageNeedsReupload(false);
     setCurrency(nextCurrency);
+  }
+
+  function handleDiscardDraft() {
+    clearDraft();
+    resetForm(preferredCurrency);
   }
 
   function handleSubmit() {
@@ -128,6 +229,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
     mutate(payload, {
       onSuccess: () => {
+        clearDraft();
         resetForm();
         onClose();
       },
@@ -152,6 +254,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     setImageError(null);
     setImageFile(file);
     setImagePreview(objectUrl);
+    setLocalImageNeedsReupload(false);
   }
 
   async function handleScrape() {
@@ -230,12 +333,44 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2>{t("Create Item", { $id: "item.modal.create.title" })}</h2>
-          <p>
-            {t("Add a product to this wishlist.", {
-              $id: "item.modal.create.subtitle",
-            })}
-          </p>
+          <div className={styles.headerCopy}>
+            <h2>{t("Create Item", { $id: "item.modal.create.title" })}</h2>
+            <p>
+              {t("Add a product to this wishlist.", {
+                $id: "item.modal.create.subtitle",
+              })}
+            </p>
+          </div>
+          {isDraftRestored && (
+            <div className={styles.draftBanner}>
+              <div className={styles.draftBannerMeta}>
+                <DraftBadge label={t("Draft", { $id: "draft.badge" })} />
+                <span>
+                  {isDraftRestored
+                    ? t("Draft restored for this item.", {
+                        $id: "draft.createItem.restored",
+                      })
+                    : t("Draft is saved for this item.", {
+                        $id: "draft.createItem.saved",
+                      })}
+                </span>
+              </div>
+              <button
+                type="button"
+                className={styles.draftAction}
+                onClick={handleDiscardDraft}
+              >
+                {t("Discard", { $id: "draft.discard" })}
+              </button>
+            </div>
+          )}
+          {isDraftRestored && localImageNeedsReupload && (
+            <p className={styles.draftNote}>
+              {t("Local image needs to be added again.", {
+                $id: "draft.localImageReupload",
+              })}
+            </p>
+          )}
         </div>
 
         <div className={styles.field}>

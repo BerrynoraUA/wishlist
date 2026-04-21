@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { Item } from "@/types/item";
 import {
   ExternalLink,
@@ -15,6 +16,7 @@ import {
 import styles from "./WishlistItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
+import { useSessionDraftPresence } from "@/hooks/use-session-draft";
 import {
   ActionConfirmModal,
   type ItemActionConfirmType,
@@ -58,6 +60,11 @@ export function WishlistItemDetailModal({
 }: Props) {
   const t = useGT();
   const { data: currentUserId = "" } = useCurrentUserId();
+  const hasEditDraft = useSessionDraftPresence({
+    userId: currentUserId,
+    kind: "edit-item",
+    scopeId: item.id,
+  });
   const { formatPrice } = useCurrencyFormatter();
   const [confirmAction, setConfirmAction] =
     useState<ItemActionConfirmType | null>(null);
@@ -242,6 +249,12 @@ export function WishlistItemDetailModal({
                     >
                       <Pencil size={14} style={{ marginRight: 6 }} />
                       {t("Edit", { $id: "common.edit" })}
+                      {hasEditDraft && (
+                        <DraftBadge
+                          variant="dot"
+                          className={styles.ownerActionDraftDot}
+                        />
+                      )}
                     </Button>
                     <Button
                       variant="danger"

@@ -5,6 +5,7 @@
   width: 100%;
   display: grid;
   place-items: center;
+  position: relative;
   padding: 16px;
   border: none;
   border-radius: calc(#{$radius-xl} + 8px);
@@ -48,6 +49,12 @@
   &:active {
     transform: translateY(-1px);
   }
+}
+
+.draftDot {
+  position: absolute;
+  top: 16px;
+  right: 16px;
 }
 
 .plus {

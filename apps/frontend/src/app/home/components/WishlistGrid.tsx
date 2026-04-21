@@ -37,12 +37,14 @@ type Props = {
   onCreateWishlist: () => void;
   onEditWishlist: (wishlist: Wishlist) => void;
   onDeleteWishlist: (wishlist: Wishlist) => void;
+  hasCreateDraft?: boolean;
 };
 
 export function WishlistGrid({
   onCreateWishlist,
   onEditWishlist,
   onDeleteWishlist,
+  hasCreateDraft = false,
 }: Props) {
   const t = useGT();
   const [page, setPage] = useState(1);
@@ -175,6 +177,7 @@ export function WishlistGrid({
             label={t("Create wishlist", {
               $id: "home.wishlistGrid.createCardLabel",
             })}
+            hasDraft={hasCreateDraft}
           />
         )}
       </div>

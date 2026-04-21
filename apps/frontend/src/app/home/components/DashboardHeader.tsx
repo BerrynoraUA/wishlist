@@ -3,6 +3,7 @@
 import { useGT } from "gt-next";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button/Button";
+import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import styles from "./DashboardHeader.module.scss";
 import { Plus, Sparkles } from "lucide-react";
 import { useCurrentUser, useMyStatistics } from "@/hooks/use-user";
@@ -37,16 +38,20 @@ function getDisplayName(nameSource?: {
 
 type Props = {
   onNewWishlist: () => void;
+  hasDraft?: boolean;
 };
 
-export function DashboardHeader({ onNewWishlist }: Props) {
+export function DashboardHeader({ onNewWishlist, hasDraft = false }: Props) {
   const t = useGT();
   const { data: user } = useCurrentUser();
   const { data: stats } = useMyStatistics();
   const { isPro } = useSubscription();
   const router = useRouter();
   const wishlistCount = stats?.wishlists_count ?? 0;
-  const atLimit = SUBSCRIPTIONS_UI_ENABLED && !isPro && wishlistCount >= FREE_LIMITS.maxWishlists;
+  const atLimit =
+    SUBSCRIPTIONS_UI_ENABLED &&
+    !isPro &&
+    wishlistCount >= FREE_LIMITS.maxWishlists;
   const rawDisplayName = getDisplayName(user ?? undefined);
   const displayName =
     rawDisplayName === "there"
@@ -72,9 +77,12 @@ export function DashboardHeader({ onNewWishlist }: Props) {
           })}
         </h1>
         <p>
-          {t("Manage your wishlists and discover what your friends are wishing for.", {
-            $id: "home.dashboard.subtitle",
-          })}
+          {t(
+            "Manage your wishlists and discover what your friends are wishing for.",
+            {
+              $id: "home.dashboard.subtitle",
+            },
+          )}
         </p>
       </div>
 
@@ -92,12 +100,17 @@ export function DashboardHeader({ onNewWishlist }: Props) {
           {atLimit ? (
             <>
               <Sparkles size={18} />
-              <span>{t("Upgrade to Add", { $id: "home.dashboard.upgradeToAdd" })}</span>
+              <span>
+                {t("Upgrade to Add", { $id: "home.dashboard.upgradeToAdd" })}
+              </span>
             </>
           ) : (
             <>
               <Plus size={18} />
-              <span>{t("Add Wishlist", { $id: "home.dashboard.addWishlist" })}</span>
+              <span>
+                {t("Add Wishlist", { $id: "home.dashboard.addWishlist" })}
+              </span>
+              {hasDraft && <DraftBadge variant="dot" />}
             </>
           )}
         </Button>
