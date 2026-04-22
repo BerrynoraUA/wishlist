@@ -17,18 +17,11 @@
 }
 
 .header h2 {
-  font-family: var(--font-sans);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
   margin: 0 0 4px;
 }
 
 .header p {
-  font-size: 12px;
-  color: $text-muted;
   margin: 0 0 2px;
-  line-height: 1.6;
 }
 
 .draftBanner {
@@ -47,24 +40,46 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  @include t-caption;
   color: var(--color-text-muted);
-  font-size: 12px;
   line-height: 1.5;
 }
 
 .draftAction {
-  border: none;
-  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--brand-alpha-20);
+  border-radius: 999px;
+  background: var(--brand-alpha-06);
   color: var(--color-brand);
-  font-size: 12px;
-  font-weight: 700;
+  @include t-caption;
+  font-weight: var(--fw-bold);
   cursor: pointer;
-  padding: 0;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--brand-alpha-12);
+    border-color: var(--brand-alpha-30);
+    color: var(--color-brand-dark);
+    box-shadow: 0 8px 18px var(--brand-alpha-12);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--input-focus-ring);
+  }
 }
 
 .draftNote {
+  @include t-caption;
   margin: -2px 0 0;
-  font-size: 12px;
   color: var(--color-text-muted);
 }
 
@@ -318,10 +333,6 @@
   .container {
     gap: 12px;
     padding: 4px 0 0;
-  }
-
-  .header h2 {
-    font-size: 16px;
   }
 
   .draftBanner {

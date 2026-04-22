@@ -127,7 +127,7 @@ function CreateWishlistForm({
     setLocalImageNeedsReupload(draft.hadLocalImage);
   }, []);
 
-  const { isDraftRestored, clearDraft } = useSessionDraft({
+  const { hasDraft, isDraftRestored, clearDraft } = useSessionDraft({
     userId: currentUserId,
     kind: "create-wishlist",
     open: true,
@@ -240,7 +240,7 @@ function CreateWishlistForm({
               })}
             </Text>
           </div>
-          {isDraftRestored && (
+          {hasDraft && (
             <div className={styles.draftBanner}>
               <div className={styles.draftBannerMeta}>
                 <DraftBadge label={t("Draft", { $id: "draft.badge" })} />

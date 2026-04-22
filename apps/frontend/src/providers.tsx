@@ -18,6 +18,8 @@ import {
   clearAllSessionDrafts,
   clearSessionDraftsForUser,
 } from "@/lib/session-drafts";
+import { upsertKnownAccount } from "@/lib/known-accounts";
+import type { KnownAccountProvider } from "@/types/known-accounts";
 import { initRevenueCat, resetRevenueCat } from "@/lib/revenuecat";
 import { initPaddle, setOnCheckoutComplete } from "@/lib/paddle";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
@@ -228,6 +230,38 @@ type AppThemeContextValue = {
 
 const AppThemeContext = createContext<AppThemeContextValue | null>(null);
 
+const KNOWN_ACCOUNT_PROVIDERS = new Set<KnownAccountProvider>([
+  "email",
+  "google",
+  "apple",
+  "facebook",
+]);
+
+function resolveKnownAccountProvider(
+  appMetadata: Record<string, unknown> | undefined,
+): KnownAccountProvider {
+  const raw = appMetadata?.provider;
+  if (
+    typeof raw === "string" &&
+    KNOWN_ACCOUNT_PROVIDERS.has(raw as KnownAccountProvider)
+  ) {
+    return raw as KnownAccountProvider;
+  }
+  return "email";
+}
+
+function resolveKnownAccountProviders(
+  appMetadata: Record<string, unknown> | undefined,
+): KnownAccountProvider[] {
+  const raw = appMetadata?.providers;
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(
+    (value): value is KnownAccountProvider =>
+      typeof value === "string" &&
+      KNOWN_ACCOUNT_PROVIDERS.has(value as KnownAccountProvider),
+  );
+}
+
 export function useAppTheme() {
   const context = useContext(AppThemeContext);
   if (!context) throw new Error("useAppTheme must be used within Providers");
@@ -318,16 +352,33 @@ function SdkInitializer({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     supabaseBrowser.auth.getUser().then(({ data }) => {
-      const initialUserId = data.user?.id ?? null;
+      const initialUser = data.user ?? null;
+      const initialUserId = initialUser?.id ?? null;
       lastAuthUserIdRef.current = initialUserId;
 
       if (initialUserId) initRevenueCat(initialUserId);
+      if (initialUser?.id && initialUser.email) {
+        supabaseBrowser.auth.getSession().then(({ data: sessionData }) => {
+          const session = sessionData.session;
+          upsertKnownAccount({
+            userId: initialUser.id,
+            email: initialUser.email!,
+            provider: resolveKnownAccountProvider(initialUser.app_metadata),
+            providers: resolveKnownAccountProviders(initialUser.app_metadata),
+            lastUsedAt: Date.now(),
+            accessToken: session?.access_token ?? null,
+            refreshToken: session?.refresh_token ?? null,
+            expiresAt: session?.expires_at ?? null,
+          });
+        });
+      }
     });
 
     const {
       data: { subscription },
     } = supabaseBrowser.auth.onAuthStateChange((event, session) => {
-      const nextUserId = session?.user?.id ?? null;
+      const nextUser = session?.user ?? null;
+      const nextUserId = nextUser?.id ?? null;
       const previousUserId = lastAuthUserIdRef.current;
 
       if (nextUserId) initRevenueCat(nextUserId);
@@ -346,6 +397,26 @@ function SdkInitializer({ children }: { children: React.ReactNode }) {
       ) {
         clearSessionDraftsForUser(previousUserId);
         clearSessionDraftsForUser(nextUserId);
+      }
+
+      if (
+        (event === "SIGNED_IN" ||
+          event === "INITIAL_SESSION" ||
+          event === "TOKEN_REFRESHED") &&
+        nextUser?.id &&
+        nextUser.email &&
+        session
+      ) {
+        upsertKnownAccount({
+          userId: nextUser.id,
+          email: nextUser.email,
+          provider: resolveKnownAccountProvider(nextUser.app_metadata),
+          providers: resolveKnownAccountProviders(nextUser.app_metadata),
+          lastUsedAt: Date.now(),
+          accessToken: session.access_token,
+          refreshToken: session.refresh_token,
+          expiresAt: session.expires_at ?? null,
+        });
       }
 
       lastAuthUserIdRef.current = nextUserId;

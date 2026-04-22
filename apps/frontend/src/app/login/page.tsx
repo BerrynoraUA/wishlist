@@ -13,12 +13,22 @@ function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const redirectTo = useMemo(() => searchParams.get("redirect_to") || "/home", [searchParams]);
+  const redirectTo = useMemo(
+    () => searchParams.get("redirect_to") || "/home",
+    [searchParams],
+  );
+  const prefillEmail = useMemo(
+    () => searchParams.get("email") || "",
+    [searchParams],
+  );
 
   const testimonials = useMemo(
     () => [
       {
-        quote: t('"Wishlane completely changed how our family does holidays!"', { $id: "login.testimonial.quote.1" }),
+        quote: t(
+          '"Wishlane completely changed how our family does holidays!"',
+          { $id: "login.testimonial.quote.1" },
+        ),
         name: t("Sarah Johnson", { $id: "login.testimonial.name.1" }),
         role: t("Mom of 3", { $id: "login.testimonial.role.1" }),
         initial: "S",
@@ -26,7 +36,10 @@ function LoginPageContent() {
         color: "#c0267e",
       },
       {
-        quote: t('"I never forget a birthday gift anymore. This app is a lifesaver!"', { $id: "login.testimonial.quote.2" }),
+        quote: t(
+          '"I never forget a birthday gift anymore. This app is a lifesaver!"',
+          { $id: "login.testimonial.quote.2" },
+        ),
         name: t("Marcus Chen", { $id: "login.testimonial.name.2" }),
         role: t("Gift enthusiast", { $id: "login.testimonial.role.2" }),
         initial: "M",
@@ -34,7 +47,10 @@ function LoginPageContent() {
         color: "#2563eb",
       },
       {
-        quote: t('"Sharing wishlists with friends made group gifting so much easier."', { $id: "login.testimonial.quote.3" }),
+        quote: t(
+          '"Sharing wishlists with friends made group gifting so much easier."',
+          { $id: "login.testimonial.quote.3" },
+        ),
         name: t("Emily Park", { $id: "login.testimonial.name.3" }),
         role: t("Event planner", { $id: "login.testimonial.role.3" }),
         initial: "E",
@@ -71,7 +87,9 @@ function LoginPageContent() {
 
         <div className={styles.visualContent}>
           <span className={styles.visualLogo}>
-            <span className={styles.visualLogoIcon}><Gift size={20} /></span>{" "}
+            <span className={styles.visualLogoIcon}>
+              <Gift size={20} />
+            </span>{" "}
             {t("Wishlane", { $id: "auth.visual.brand" })}
           </span>
           <h2 className={styles.visualTitle}>
@@ -80,43 +98,73 @@ function LoginPageContent() {
             <em>{t("Wishlane", { $id: "login.visual.titleEmphasis" })}</em>
           </h2>
           <p className={styles.visualSubtitle}>
-            {t("Sign in to manage your wishlists, see what friends are wishing for, and never miss the perfect gift.", {
-              $id: "login.visual.subtitle",
-            })}
+            {t(
+              "Sign in to manage your wishlists, see what friends are wishing for, and never miss the perfect gift.",
+              {
+                $id: "login.visual.subtitle",
+              },
+            )}
           </p>
 
           <div className={styles.visualMockup}>
             <div className={styles.mockupCard}>
               <div className={styles.mockupCardHeader}>
-                <div className={styles.mockupCardIcon}><Gift size={18} /></div>
+                <div className={styles.mockupCardIcon}>
+                  <Gift size={18} />
+                </div>
                 <div>
                   <div className={styles.mockupCardTitle}>
                     {t("Birthday Wishes 🎂", { $id: "login.mockup.title" })}
                   </div>
                   <span className={styles.mockupCardMeta}>
-                    {t("{count} items · {date}", { count: 8, date: "March 15", $id: "login.mockup.meta" })}
+                    {t("{count} items · {date}", {
+                      count: 8,
+                      date: "March 15",
+                      $id: "login.mockup.meta",
+                    })}
                   </span>
                 </div>
               </div>
               <div className={styles.mockupCardItems}>
                 <div className={styles.mockupItem}>
-                  <div className={styles.mockupItemIcon} style={{ background: "#fde7f3" }}>🎧</div>
+                  <div
+                    className={styles.mockupItemIcon}
+                    style={{ background: "#fde7f3" }}
+                  >
+                    🎧
+                  </div>
                   <div className={styles.mockupItemInfo}>
-                    <span className={styles.mockupItemName}>{t("Wireless Headphones", { $id: "login.mockup.item1" })}</span>
+                    <span className={styles.mockupItemName}>
+                      {t("Wireless Headphones", { $id: "login.mockup.item1" })}
+                    </span>
                     <span className={styles.mockupItemPrice}>$149.99</span>
                   </div>
                 </div>
                 <div className={styles.mockupItem}>
-                  <div className={styles.mockupItemIcon} style={{ background: "#e0f2fe" }}>📚</div>
+                  <div
+                    className={styles.mockupItemIcon}
+                    style={{ background: "#e0f2fe" }}
+                  >
+                    📚
+                  </div>
                   <div className={styles.mockupItemInfo}>
-                    <span className={styles.mockupItemName}>{t("Design Anthology", { $id: "login.mockup.item2" })}</span>
+                    <span className={styles.mockupItemName}>
+                      {t("Design Anthology", { $id: "login.mockup.item2" })}
+                    </span>
                     <span className={styles.mockupItemPrice}>$34.00</span>
                   </div>
                 </div>
                 <div className={styles.mockupItem}>
-                  <div className={styles.mockupItemIcon} style={{ background: "#fef3c7" }}>☕</div>
+                  <div
+                    className={styles.mockupItemIcon}
+                    style={{ background: "#fef3c7" }}
+                  >
+                    ☕
+                  </div>
                   <div className={styles.mockupItemInfo}>
-                    <span className={styles.mockupItemName}>{t("Ceramic Pour-Over", { $id: "login.mockup.item3" })}</span>
+                    <span className={styles.mockupItemName}>
+                      {t("Ceramic Pour-Over", { $id: "login.mockup.item3" })}
+                    </span>
                     <span className={styles.mockupItemPrice}>$62.00</span>
                   </div>
                 </div>
@@ -134,17 +182,33 @@ function LoginPageContent() {
 
           <div className={styles.visualTestimonial}>
             <div className={styles.testimonialStars}>★★★★★</div>
-            <div className={`${styles.testimonialFade} ${fadeIn ? styles.testimonialVisible : ""}`}>
-              <p className={styles.testimonialQuote}>{currentTestimonial.quote}</p>
+            <div
+              className={`${styles.testimonialFade} ${fadeIn ? styles.testimonialVisible : ""}`}
+            >
+              <p className={styles.testimonialQuote}>
+                {currentTestimonial.quote}
+              </p>
               <div className={styles.testimonialAuthor}>
-                <div className={styles.testimonialAvatar} style={{ background: currentTestimonial.bg, color: currentTestimonial.color }}>{currentTestimonial.initial}</div>
-                <span className={styles.testimonialName}>{currentTestimonial.name}</span>
-                <span className={styles.testimonialRole}>{currentTestimonial.role}</span>
+                <div
+                  className={styles.testimonialAvatar}
+                  style={{
+                    background: currentTestimonial.bg,
+                    color: currentTestimonial.color,
+                  }}
+                >
+                  {currentTestimonial.initial}
+                </div>
+                <span className={styles.testimonialName}>
+                  {currentTestimonial.name}
+                </span>
+                <span className={styles.testimonialRole}>
+                  {currentTestimonial.role}
+                </span>
               </div>
             </div>
           </div>
-          </div>
         </div>
+      </div>
 
       {/* ─── Form Panel ─── */}
       <div className={styles.formSide}>
@@ -166,6 +230,7 @@ function LoginPageContent() {
           <AuthForm
             mode="login"
             redirectTo={redirectTo}
+            initialEmail={prefillEmail}
             onLoginSuccess={(target) => router.replace(target)}
           />
 

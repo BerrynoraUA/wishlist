@@ -151,7 +151,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     [imageObjectUrl, preferredCurrency],
   );
 
-  const { isDraftRestored, clearDraft } = useSessionDraft({
+  const { hasDraft, isDraftRestored, clearDraft } = useSessionDraft({
     userId: currentUserId,
     kind: "create-item",
     scopeId: wishlistId,
@@ -344,7 +344,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               })}
             </Text>
           </div>
-          {isDraftRestored && (
+          {hasDraft && (
             <div className={styles.draftBanner}>
               <div className={styles.draftBannerMeta}>
                 <DraftBadge label={t("Draft", { $id: "draft.badge" })} />
