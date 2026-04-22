@@ -5,6 +5,8 @@
 /* ==== Theme tokens ==== */
 
 :root {
+  @include typography.typography-tokens;
+
   // Backgrounds
   --color-bg: #faf7f8;
   --color-bg-elevated: #ffffff;
