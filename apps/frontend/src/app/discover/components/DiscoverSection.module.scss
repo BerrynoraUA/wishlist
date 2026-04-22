@@ -72,14 +72,14 @@
 
 .owner {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   letter-spacing: -0.01em;
   color: $text;
 }
 
 .ownerLink {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   letter-spacing: -0.01em;
   color: $text;
   text-decoration: none;
@@ -97,24 +97,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 .wishlist {
   font-size: 15px;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   color: $text;
   word-break: break-word;
 }
 
 .subline {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: var(--color-text-muted);
 }
 
 .viewAll {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
   color: $brand;
   cursor: pointer;
   text-decoration: none;

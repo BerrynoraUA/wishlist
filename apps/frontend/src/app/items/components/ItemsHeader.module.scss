@@ -17,7 +17,7 @@
   p {
     margin-top: 6px;
     color: var(--color-text-muted);
-    font-size: 14px;
+    font-size: var(--fs-body);
   }
 }
 
@@ -28,8 +28,8 @@
   border-radius: $radius-pill;
   padding: 10px 20px;
   font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-body);
   cursor: pointer;
   box-shadow: $shadow-brand;
   transition: all 0.3s $ease-out;

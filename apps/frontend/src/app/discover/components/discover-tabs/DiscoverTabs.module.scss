@@ -11,8 +11,8 @@
     background: transparent;
     padding: 7px 16px;
     border-radius: 999px;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: var(--fs-label);
+    font-weight: var(--fw-medium);
     font-family: var(--font-sans);
     cursor: pointer;
     color: var(--color-text-muted);
@@ -29,7 +29,7 @@
 
   .active {
     background: var(--nav-active-bg);
-    font-weight: 600;
+    font-weight: var(--fw-semibold);
     color: var(--color-text);
     box-shadow: var(--nav-active-shadow);
   }
@@ -38,8 +38,8 @@
 .badge {
   background: var(--color-brand);
   color: white;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-semibold);
   padding: 2px 7px;
   border-radius: 999px;
 }

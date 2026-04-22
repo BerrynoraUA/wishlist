@@ -20,14 +20,14 @@
 }
 
 .infoValue {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
   color: $text;
   margin: 0;
 }
 
 .infoHint {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: $text-light;
   margin: 2px 0 0;
 }
@@ -40,8 +40,8 @@
 }
 
 .label {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
   color: $text;
 }
 
@@ -53,7 +53,7 @@
   border: 1.5px solid var(--input-border);
   background: var(--input-bg);
   color: $text;
-  font-size: 14px;
+  font-size: var(--fs-body);
   transition: all 0.2s;
 
   &:focus {
@@ -68,7 +68,7 @@
 }
 
 .errorText {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: var(--color-danger);
   margin: 0;
 }
@@ -83,8 +83,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
   color: var(--color-success);
   animation: fadeIn 0.3s $ease-out;
 }
@@ -116,21 +116,21 @@
 }
 
 .providerName {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
   color: $text;
   margin: 0;
 }
 
 .providerStatus {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: $text-light;
   margin: 2px 0 0;
 }
 
 /* ── Danger ── */
 .dangerText {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: $text-muted;
   line-height: 1.6;
   margin: 0;

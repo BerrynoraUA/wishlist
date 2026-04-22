@@ -28,7 +28,7 @@
 
   p {
     margin: 4px 0 0;
-    font-size: 14px;
+    font-size: var(--fs-body);
     color: $text-muted;
   }
 }

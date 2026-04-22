@@ -14,8 +14,8 @@
   border: none;
   display: grid;
   place-items: center;
-  font-weight: 700;
-  font-size: 13px;
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-label);
   cursor: pointer;
   transition: all 0.3s $ease-out;
   box-shadow: 0 2px 8px var(--brand-alpha-10);
@@ -66,8 +66,8 @@
   color: $brand;
   display: grid;
   place-items: center;
-  font-weight: 700;
-  font-size: 13px;
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-label);
   overflow: hidden;
 }
 
@@ -78,14 +78,14 @@
 }
 
 .profileName {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
   letter-spacing: -0.01em;
 }
 
 .profileEmail {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: $text-muted;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -110,8 +110,8 @@
   border: 1.5px solid var(--color-border-light);
   background: var(--elevated-bg);
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 400;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
   color: $text;
   text-align: left;
   transition:
@@ -142,14 +142,14 @@
 }
 
 .languageLabelText {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
   color: var(--color-text);
 }
 
 .languageButtonValue {
-  font-size: 12px;
-  font-weight: 400;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-regular);
   color: var(--color-text-muted);
 }
 
@@ -190,7 +190,7 @@
   border-radius: 12px;
   background: color-mix(in srgb, var(--card-bg) 84%, transparent);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: $text;
   text-align: left;
   transition:
@@ -284,7 +284,7 @@
   border: 1.5px solid var(--color-border-light);
   background: var(--elevated-bg);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: $text;
   transition: all 0.3s $ease-out;
 
@@ -319,7 +319,7 @@
   border: 1.5px solid var(--color-border-light);
   background: var(--elevated-bg);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--color-danger);
   transition: all 0.3s $ease-out;
 

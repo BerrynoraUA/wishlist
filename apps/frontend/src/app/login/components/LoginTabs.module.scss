@@ -11,8 +11,8 @@
     background: transparent;
     padding: 7px 18px;
     border-radius: 999px;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: var(--fs-label);
+    font-weight: var(--fw-medium);
     font-family: var(--font-sans);
     cursor: pointer;
     color: var(--color-text-muted);
@@ -26,7 +26,7 @@
 
   .active {
     background: var(--nav-active-bg);
-    font-weight: 600;
+    font-weight: var(--fw-semibold);
     color: var(--color-text);
     box-shadow: var(--nav-active-shadow);
   }

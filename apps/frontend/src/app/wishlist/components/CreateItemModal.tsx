@@ -5,6 +5,7 @@ import { useGT } from "gt-next";
 import { Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading, Text } from "@/components/ui/Typography";
 import { Select } from "@/components/ui/Select/Select";
 import { useCreateItem } from "@/hooks/use-items";
 import { useSettings } from "@/hooks/use-settings";
@@ -103,7 +104,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
     const imageUrlToSave = imageFile ? null : imagePreview || null;
 
-    const priorityValue = priority === "None" ? null : priorityToValue[priority];
+    const priorityValue =
+      priority === "None" ? null : priorityToValue[priority];
 
     const payload: CreateItemParams = {
       wishlist_id: wishlistId,
@@ -175,7 +177,11 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           currency: data?.currency ?? null,
         };
 
-        const isEmpty = !product.title && !product.description && !product.image && !product.price;
+        const isEmpty =
+          !product.title &&
+          !product.description &&
+          !product.image &&
+          !product.price;
 
         if (isEmpty) {
           setError(
@@ -200,7 +206,10 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           setImagePreview(product.image);
         }
       } else {
-        setError(data?.error || t("Error loading product", { $id: "item.modal.scrapeError" }));
+        setError(
+          data?.error ||
+            t("Error loading product", { $id: "item.modal.scrapeError" }),
+        );
       }
     } catch {
       setError(
@@ -217,12 +226,14 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2>{t("Create Item", { $id: "item.modal.create.title" })}</h2>
-          <p>
+          <Heading>
+            {t("Create Item", { $id: "item.modal.create.title" })}
+          </Heading>
+          <Text variant="caption" tone="muted">
             {t("Add a product to this wishlist.", {
               $id: "item.modal.create.subtitle",
             })}
-          </p>
+          </Text>
         </div>
 
         <div className={styles.field}>
@@ -236,9 +247,16 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               value={link}
               onChange={(e) => setLink(e.target.value)}
             />
-            <Button variant="secondary" onClick={handleScrape} disabled={!link.trim() || loading}>
+            <Button
+              variant="secondary"
+              onClick={handleScrape}
+              disabled={!link.trim() || loading}
+            >
               {loading ? (
-                <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
+                <Loader2
+                  size={16}
+                  style={{ animation: "spin 0.8s linear infinite" }}
+                />
               ) : (
                 t("Search", { $id: "item.modal.searchProduct" })
               )}
@@ -311,7 +329,9 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
+          <label>
+            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
+          </label>
           <div className={styles.priceRow}>
             <Select
               value={currency}

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading } from "@/components/ui/Typography";
 import { Select } from "@/components/ui/Select/Select";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
@@ -154,7 +155,7 @@ function EditItemForm({
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2>{t("Edit Item", { $id: "item.modal.edit.title" })}</h2>
+          <Heading>{t("Edit Item", { $id: "item.modal.edit.title" })}</Heading>
         </div>
 
         <div className={styles.field}>

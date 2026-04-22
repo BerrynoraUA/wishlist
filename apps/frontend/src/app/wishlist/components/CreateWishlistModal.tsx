@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading, Text } from "@/components/ui/Typography";
 import { useCreateWishlist } from "@/hooks/use-wishlists";
 import { useSettings } from "@/hooks/use-settings";
 import { Check } from "lucide-react";
@@ -29,7 +30,9 @@ type Props = {
 
 export function CreateWishlistModal({ open, onClose }: Props) {
   const { data: settings } = useSettings();
-  const defaultColor = getWishlistColorByIndex(settings?.default_wishlist_color);
+  const defaultColor = getWishlistColorByIndex(
+    settings?.default_wishlist_color,
+  );
 
   if (!open) return null;
 
@@ -143,18 +146,22 @@ function CreateWishlistForm({
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <h2>{t("Create New Wishlist", { $id: "wishlist.modal.create.title" })}</h2>
-            <p>
+            <Heading>
+              {t("Create New Wishlist", { $id: "wishlist.modal.create.title" })}
+            </Heading>
+            <Text variant="caption" tone="muted">
               {t("Give your wishlist a name and customize its appearance.", {
                 $id: "wishlist.modal.create.subtitle",
               })}
-            </p>
+            </Text>
           </div>
         </div>
 
         {/* Name */}
         <div className={styles.field}>
-          <label>{t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}</label>
+          <label>
+            {t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}
+          </label>
           <input
             placeholder={t("e.g. Birthday Wishes, Home Office Setup", {
               $id: "wishlist.modal.namePlaceholder",
@@ -251,7 +258,9 @@ function CreateWishlistForm({
 
         {/* Colors */}
         <div className={styles.section}>
-          <label>{t("Cover Color", { $id: "wishlist.modal.coverColor" })}</label>
+          <label>
+            {t("Cover Color", { $id: "wishlist.modal.coverColor" })}
+          </label>
 
           <div className={styles.colors}>
             {WISHLIST_COLOR_OPTIONS.map((c) => (
@@ -297,7 +306,10 @@ function PrivacyCard({
   onClick: () => void;
 }) {
   return (
-    <div className={`${styles.privacyCard} ${selected ? styles.selected : ""}`} onClick={onClick}>
+    <div
+      className={`${styles.privacyCard} ${selected ? styles.selected : ""}`}
+      onClick={onClick}
+    >
       <div className={styles.privacyIcon}>{icon}</div>
 
       <div>

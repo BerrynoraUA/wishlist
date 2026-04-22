@@ -70,8 +70,8 @@
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   color: $text;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
   letter-spacing: 0.02em;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
   white-space: nowrap;
@@ -85,8 +85,8 @@
   border-radius: 12px;
   background: #0f172a;
   color: #fff;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
   letter-spacing: 0;
   box-shadow: 0 14px 28px rgba(15, 23, 42, 0.18);
   opacity: 0;
@@ -166,7 +166,7 @@
   font-family: var(--font-sans);
   margin: 0;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: $text;
   letter-spacing: -0.01em;
   line-height: 1.25;
@@ -233,21 +233,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
+  font-size: var(--fs-label);
   color: $text-muted;
   gap: 10px;
 }
 
 .items {
   white-space: nowrap;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 
 .visibility {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 
 /* ===== RESPONSIVE ===== */

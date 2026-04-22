@@ -14,8 +14,8 @@
   background: transparent;
   color: var(--color-text-muted);
   font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
   cursor: pointer;
   transition: all 0.25s $ease-out;
   white-space: nowrap;
@@ -69,7 +69,7 @@
   background: transparent;
   color: var(--color-text);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--fs-label);
   text-align: left;
   cursor: pointer;
   transition:
@@ -84,12 +84,12 @@
 .optionActive {
   background: var(--gradient-brand-subtle);
   color: var(--color-brand);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 .check {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-bold);
   color: var(--color-brand);
   flex-shrink: 0;
 }

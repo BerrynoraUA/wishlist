@@ -14,8 +14,8 @@
   background: transparent;
   color: var(--color-text-muted);
   font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
   cursor: pointer;
   transition: all 0.25s $ease-out;
   white-space: nowrap;
@@ -31,12 +31,12 @@
   background: var(--gradient-brand-subtle);
   border-color: var(--color-brand);
   color: var(--color-brand);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 .badge {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
@@ -87,7 +87,7 @@
   background: transparent;
   color: var(--color-text);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--fs-label);
   text-align: left;
   cursor: pointer;
   transition:
@@ -102,7 +102,7 @@
 .optionActive {
   background: var(--gradient-brand-subtle);
   color: var(--color-brand);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 .optionContent {
@@ -118,8 +118,8 @@
 }
 
 .check {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-bold);
   color: var(--color-brand);
   flex-shrink: 0;
 }

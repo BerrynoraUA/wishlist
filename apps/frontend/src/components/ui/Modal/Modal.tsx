@@ -3,6 +3,7 @@
 import styles from "./Modal.module.scss";
 import { ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { Heading } from "../Typography";
 
 type Props = {
   open: boolean;
@@ -37,7 +38,11 @@ export function Modal({ open, onClose, children, title }: Props) {
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.content}>
-          {title && <h3 className={styles.title}>{title}</h3>}
+          {title && (
+            <Heading level={3} className={styles.title}>
+              {title}
+            </Heading>
+          )}
           {children}
         </div>
       </div>

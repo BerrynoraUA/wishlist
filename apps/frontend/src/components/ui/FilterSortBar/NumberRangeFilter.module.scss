@@ -9,8 +9,8 @@
 
 .label {
   font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
   color: var(--color-text-muted);
   white-space: nowrap;
 }
@@ -32,7 +32,7 @@
   background: transparent;
   color: var(--color-text);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--fs-label);
   outline: none;
 
   &::placeholder {
@@ -48,7 +48,7 @@
 
 .separator {
   color: var(--color-text-light);
-  font-size: 12px;
+  font-size: var(--fs-caption);
   line-height: 1;
   user-select: none;
 }

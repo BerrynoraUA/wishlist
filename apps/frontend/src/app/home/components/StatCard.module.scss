@@ -72,9 +72,9 @@
   }
 
   span {
-    font-size: 13px;
+    font-size: var(--fs-label);
     color: $text-muted;
-    font-weight: 500;
+    font-weight: var(--fw-medium);
   }
 }
 

@@ -12,7 +12,7 @@
 
 .active {
   background: var(--nav-active-bg);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
   box-shadow: var(--nav-active-shadow);
 }
@@ -26,6 +26,6 @@
   .filterTab {
     justify-content: center;
     padding: 7px 12px;
-    font-size: 12px;
+    font-size: var(--fs-caption);
   }
 }

@@ -9,7 +9,7 @@
 .title {
   font-family: var(--font-serif), "Playfair Display", serif;
   font-size: 2.5rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: $text;
   letter-spacing: -0.03em;
   margin-bottom: 12px;
@@ -49,8 +49,8 @@
     color-mix(in srgb, var(--color-brand-light) 82%, white 18%)
   );
   color: #fff;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
   letter-spacing: 0.06em;
 }
 
@@ -61,13 +61,13 @@
   border-radius: $radius-pill;
   background: var(--color-bg-muted);
   color: $text-muted;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
   letter-spacing: 0.06em;
 }
 
 .planText {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: $text-muted;
 }
 

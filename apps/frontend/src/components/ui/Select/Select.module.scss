@@ -61,8 +61,8 @@
 }
 
 .label {
-  font-size: 14px;
-  font-weight: 400;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
@@ -70,7 +70,7 @@
 }
 
 .description {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -87,8 +87,8 @@
   border-radius: 10px;
   background: var(--color-bg-subtle);
   border: 1px solid var(--color-border-light);
-  font-weight: 700;
-  font-size: 13px;
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-label);
   color: var(--color-text);
   flex-shrink: 0;
 }

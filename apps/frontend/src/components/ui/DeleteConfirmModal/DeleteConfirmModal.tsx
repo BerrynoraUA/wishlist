@@ -3,6 +3,7 @@
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading, Text } from "@/components/ui/Typography";
 import { AlertTriangle } from "lucide-react";
 import styles from "./DeleteConfirmModal.module.scss";
 
@@ -32,7 +33,8 @@ export function DeleteConfirmModal({
     t("Are you sure? This action cannot be undone.", {
       $id: "confirm.delete.description",
     });
-  const resolvedConfirm = confirmLabel ?? t("Delete", { $id: "confirm.delete.confirm" });
+  const resolvedConfirm =
+    confirmLabel ?? t("Delete", { $id: "confirm.delete.confirm" });
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -41,15 +43,19 @@ export function DeleteConfirmModal({
           <AlertTriangle size={24} />
         </div>
 
-        <h3 className={styles.title}>{resolvedTitle}</h3>
-        <p className={styles.description}>{resolvedDescription}</p>
+        <Heading level={3}>{resolvedTitle}</Heading>
+        <Text variant="subtitle" tone="muted">
+          {resolvedDescription}
+        </Text>
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose} disabled={isPending}>
             {t("Cancel", { $id: "common.cancel" })}
           </Button>
           <Button variant="danger" onClick={onConfirm} disabled={isPending}>
-            {isPending ? t("Deleting...", { $id: "confirm.delete.deleting" }) : resolvedConfirm}
+            {isPending
+              ? t("Deleting...", { $id: "confirm.delete.deleting" })
+              : resolvedConfirm}
           </Button>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading, Text } from "@/components/ui/Typography";
 import { Select } from "@/components/ui/Select/Select";
 import { useCreateSecretSantaEvent } from "@/hooks/use-secret-santa";
 import { useFriends } from "@/hooks/use-friends";
@@ -166,16 +167,16 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <h2>
+            <Heading>
               {t("Create Secret Santa Event", {
                 $id: "secretSanta.create.title",
               })}
-            </h2>
-            <p>
+            </Heading>
+            <Text variant="caption" tone="muted">
               {t("Set up a gift exchange with your friends.", {
                 $id: "secretSanta.create.subtitle",
               })}
-            </p>
+            </Text>
           </div>
         </div>
 

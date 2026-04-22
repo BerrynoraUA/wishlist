@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading, Text } from "@/components/ui/Typography";
 import { useUpdateWishlist } from "@/hooks/use-wishlists";
 import { Wishlist } from "@/types/wishlist";
 import { Check } from "lucide-react";
@@ -167,12 +168,14 @@ function EditWishlistForm({
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <h2>{t("Edit Wishlist", { $id: "wishlist.modal.edit.title" })}</h2>
-            <p>
+            <Heading>
+              {t("Edit Wishlist", { $id: "wishlist.modal.edit.title" })}
+            </Heading>
+            <Text variant="caption" tone="muted">
               {t("Update your wishlist details and customize its appearance.", {
                 $id: "wishlist.modal.edit.subtitle",
               })}
-            </p>
+            </Text>
           </div>
         </div>
 

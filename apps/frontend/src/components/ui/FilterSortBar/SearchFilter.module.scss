@@ -24,7 +24,7 @@
   border-radius: $radius-pill;
   padding: 8px 34px 8px 34px;
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--fs-label);
   color: $text;
   transition:
     border-color 0.3s $ease-out,

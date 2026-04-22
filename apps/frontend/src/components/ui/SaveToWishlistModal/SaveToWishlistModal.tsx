@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Bookmark, Check, Gift, Search, ShoppingBag } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading, Text } from "@/components/ui/Typography";
 import { useMyWishlists } from "@/hooks/use-wishlists";
 import { useCreateItem } from "@/hooks/use-items";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
@@ -98,11 +99,11 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
           <div className={styles.successIcon}>
             <Check size={24} />
           </div>
-          <h3 className={styles.successTitle}>Saved!</h3>
-          <p className={styles.successDescription}>
+          <Heading level={3}>Saved!</Heading>
+          <Text variant="subtitle" tone="secondary">
             <strong>{item.name}</strong> has been added to{" "}
             <strong>{savedTo?.title ?? "your wishlist"}</strong>.
-          </p>
+          </Text>
           <Button variant="primary" onClick={handleClose}>
             Done
           </Button>
@@ -119,10 +120,14 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
             <div className={styles.iconWrapper}>
               <Bookmark size={24} />
             </div>
-            <h3 className={styles.title}>Save to wishlist</h3>
-            <p className={styles.subtitle}>
+            <Heading level={3}>Save to wishlist</Heading>
+            <Text
+              variant="subtitle"
+              tone="secondary"
+              className={styles.subtitle}
+            >
               Choose which wishlist you want to add this item to
-            </p>
+            </Text>
           </div>
 
           <div className={styles.itemPreview}>
