@@ -34,7 +34,7 @@ $brand-dark: #9b1f66;
   gap: 12px;
   margin: 0;
   color: #9ca3af;
-  font-size: 12px;
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 
@@ -61,8 +61,8 @@ $brand-dark: #9b1f66;
 }
 
 .label {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
   color: #6b7280;
   margin-top: 4px;
 
@@ -80,7 +80,7 @@ $brand-dark: #9b1f66;
   border: 1.5px solid #e5e7eb;
   border-radius: $radius-md;
   padding: 12px 14px;
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: #111827;
   background: #ffffff;
   outline: none;
@@ -159,8 +159,8 @@ $brand-dark: #9b1f66;
   border: none;
   border-radius: $radius-pill;
   font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-body);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -286,19 +286,19 @@ $brand-dark: #9b1f66;
 .error {
   margin: 6px 0 0;
   color: #dc2626;
-  font-size: 13px;
+  font-size: var(--fs-label);
 }
 
 .notice {
   margin: 6px 0 0;
   color: #16a34a;
-  font-size: 13px;
+  font-size: var(--fs-label);
 }
 
 .helper {
   margin-top: 14px;
   color: #6b7280;
-  font-size: 12px;
+  font-size: var(--fs-caption);
 
   [data-theme="dark"] & {
     color: #9ca3af;

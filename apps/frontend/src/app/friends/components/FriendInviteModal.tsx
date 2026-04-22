@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading, Text, Eyebrow } from "@/components/ui/Typography";
 import { useSendFriendRequest } from "@/hooks/use-friends";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import styles from "./FriendInviteModal.module.scss";
@@ -163,16 +164,20 @@ export function FriendInviteModal({ open, userId, onClose }: Props) {
   return (
     <Modal open={open} onClose={onClose}>
       <div className={styles.card}>
-        <p className={styles.eyebrow}>
+        <Eyebrow tone="muted" className={styles.eyebrow}>
           {t("Friend request", { $id: "friends.inviteModal.eyebrow" })}
-        </p>
-        <h2 className={styles.cardTitle}>{statusInfo[status].title}</h2>
-        <p className={styles.cardText}>{statusInfo[status].description}</p>
+        </Eyebrow>
+        <Heading className={styles.cardTitle}>
+          {statusInfo[status].title}
+        </Heading>
+        <Text variant="caption" tone="secondary" className={styles.cardText}>
+          {statusInfo[status].description}
+        </Text>
 
         {status === "idle" && sendRequest.isPending && (
-          <p className={styles.loading}>
+          <Text variant="caption" tone="muted" className={styles.loading}>
             {t("Sending...", { $id: "friends.inviteModal.sending" })}
-          </p>
+          </Text>
         )}
 
         {status === "error" && (
@@ -181,13 +186,21 @@ export function FriendInviteModal({ open, userId, onClose }: Props) {
           </Button>
         )}
 
-        {status === "sent" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
+        {status === "sent" && (
+          <Button onClick={onClose}>{statusInfo[status].action}</Button>
+        )}
 
-        {status === "missing" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
+        {status === "missing" && (
+          <Button onClick={onClose}>{statusInfo[status].action}</Button>
+        )}
 
-        {status === "self" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
+        {status === "self" && (
+          <Button onClick={onClose}>{statusInfo[status].action}</Button>
+        )}
 
-        {status === "unauth" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
+        {status === "unauth" && (
+          <Button onClick={onClose}>{statusInfo[status].action}</Button>
+        )}
       </div>
     </Modal>
   );

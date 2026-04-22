@@ -4,7 +4,7 @@
 @include shared.item-detail-modal-base;
 
 .store {
-  font-size: 13px;
+  font-size: var(--fs-label);
   color: $text-muted;
 }
 
@@ -17,7 +17,7 @@
 
 .statusText {
   width: 100%;
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: var(--color-text-muted);
 }
 

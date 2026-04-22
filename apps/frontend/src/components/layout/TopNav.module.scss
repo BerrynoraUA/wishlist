@@ -30,7 +30,7 @@
 
   font-family: var(--font-sans);
   font-size: 19px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   letter-spacing: -0.02em;
   color: var(--color-text);
 }
@@ -98,8 +98,8 @@
   border-radius: 999px;
   text-decoration: none;
   font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
   color: var(--color-text-muted);
 
   transition: color 0.2s ease;
@@ -182,7 +182,7 @@
 
   background: var(--color-brand);
   color: white;
-  font-size: 11px;
+  font-size: var(--fs-eyebrow);
   line-height: 1;
   padding: 3px 6px;
   border-radius: 999px;
@@ -203,7 +203,7 @@
 
   .navItem {
     padding: 6px 12px;
-    font-size: 13px;
+    font-size: var(--fs-label);
   }
 
   .navBadgeWrap {

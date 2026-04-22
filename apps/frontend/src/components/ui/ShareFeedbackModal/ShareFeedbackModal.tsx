@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useGT } from "gt-next";
 import { Button } from "@/components/ui/Button/Button";
 import { Modal } from "@/components/ui/Modal/Modal";
+import { Heading, Text, Eyebrow } from "@/components/ui/Typography";
 import { AlertCircle, Check, CheckCircle2, Copy, Link2 } from "lucide-react";
 import styles from "./ShareFeedbackModal.module.scss";
 
@@ -55,15 +56,19 @@ export function ShareFeedbackModal({
         </div>
 
         <div className={styles.content}>
-          <h3 className={styles.title}>{title}</h3>
-          <p className={styles.description}>{description}</p>
+          <Heading level={3}>{title}</Heading>
+          <Text variant="subtitle" tone="muted">
+            {description}
+          </Text>
         </div>
 
         {link && (
           <div className={styles.linkCard}>
             <div className={styles.linkLabelRow}>
               <Link2 size={14} />
-              <span>{t("Copied link", { $id: "share.copiedLink" })}</span>
+              <Eyebrow tone="muted">
+                {t("Copied link", { $id: "share.copiedLink" })}
+              </Eyebrow>
             </div>
             <p className={styles.linkValue}>{link}</p>
           </div>

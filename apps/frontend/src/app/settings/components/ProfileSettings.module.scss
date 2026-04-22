@@ -47,7 +47,7 @@
   width: 100%;
   height: 100%;
   font-size: 28px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: $brand;
   background: var(--gradient-brand-subtle);
 }
@@ -73,9 +73,9 @@
   gap: 4px;
 
   p {
-    font-size: 14px;
+    font-size: var(--fs-body);
     color: $text;
-    font-weight: 600;
+    font-weight: var(--fw-semibold);
     margin: 0;
   }
 }
@@ -85,7 +85,7 @@
 }
 
 .hint {
-  font-size: 12px !important;
+  font-size: var(--fs-caption) !important;
   color: $text-muted !important;
   font-weight: 400 !important;
   margin-top: 2px !important;
@@ -99,8 +99,8 @@
 }
 
 .label {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
   color: $text;
   display: flex;
   align-items: center;
@@ -108,8 +108,8 @@
 }
 
 .labelHint {
-  font-size: 12px;
-  font-weight: 400;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-regular);
   color: $text-light;
 }
 
@@ -120,7 +120,7 @@
   border: 1.5px solid var(--input-border);
   background: var(--input-bg);
   color: $text;
-  font-size: 14px;
+  font-size: var(--fs-body);
   transition: all 0.2s;
 
   &:focus {
@@ -153,9 +153,9 @@
 .inputPrefix {
   position: absolute;
   left: 14px;
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: $text-muted;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   pointer-events: none;
   z-index: 1;
 }
@@ -178,7 +178,7 @@
 }
 
 .errorText {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: var(--color-danger);
   margin: 0;
 }
@@ -190,7 +190,7 @@
   border: 1.5px solid var(--input-border);
   background: var(--input-bg);
   color: $text;
-  font-size: 14px;
+  font-size: var(--fs-body);
   font-family: inherit;
   resize: vertical;
   min-height: 72px;
@@ -210,7 +210,7 @@
 }
 
 .charCount {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: $text-light;
   text-align: right;
 }
@@ -226,8 +226,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
   color: var(--color-success);
   animation: fadeIn 0.3s $ease-out;
 }

@@ -5,9 +5,14 @@ import { Heart, ShoppingCart } from "lucide-react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading, Text } from "@/components/ui/Typography";
 import styles from "./ActionConfirmModal.module.scss";
 
-export type ItemActionConfirmType = "reserve" | "unreserve" | "purchase" | "unpurchase";
+export type ItemActionConfirmType =
+  | "reserve"
+  | "unreserve"
+  | "purchase"
+  | "unpurchase";
 
 type Props = {
   open: boolean;
@@ -44,13 +49,19 @@ export function ActionConfirmModal({
         return {
           title: t("Reserve this gift?", { $id: "action.reserve.title" }),
           description: name
-            ? t("This will reserve {itemName} for you so other people know it is already taken.", {
-                itemName: name,
-                $id: "action.reserve.bodyWithName",
-              })
-            : t("This will reserve this gift for you so other people know it is already taken.", {
-                $id: "action.reserve.body",
-              }),
+            ? t(
+                "This will reserve {itemName} for you so other people know it is already taken.",
+                {
+                  itemName: name,
+                  $id: "action.reserve.bodyWithName",
+                },
+              )
+            : t(
+                "This will reserve this gift for you so other people know it is already taken.",
+                {
+                  $id: "action.reserve.body",
+                },
+              ),
           confirmLabel: t("Reserve", { $id: "action.reserve.confirm" }),
           confirmVariant: "primary",
           toneClass: "reserve",
@@ -60,13 +71,19 @@ export function ActionConfirmModal({
         return {
           title: t("Release reservation?", { $id: "action.unreserve.title" }),
           description: name
-            ? t("This will remove your reservation from {itemName} and make it available again.", {
-                itemName: name,
-                $id: "action.unreserve.bodyWithName",
-              })
-            : t("This will remove your reservation and make the gift available again.", {
-                $id: "action.unreserve.body",
-              }),
+            ? t(
+                "This will remove your reservation from {itemName} and make it available again.",
+                {
+                  itemName: name,
+                  $id: "action.unreserve.bodyWithName",
+                },
+              )
+            : t(
+                "This will remove your reservation and make the gift available again.",
+                {
+                  $id: "action.unreserve.body",
+                },
+              ),
           confirmLabel: t("Release", { $id: "action.unreserve.confirm" }),
           confirmVariant: "danger",
           toneClass: "unreserve",
@@ -122,15 +139,23 @@ export function ActionConfirmModal({
           <Icon size={24} />
         </div>
 
-        <h3 className={styles.title}>{config.title}</h3>
-        <p className={styles.description}>{config.description}</p>
+        <Heading level={3}>{config.title}</Heading>
+        <Text variant="subtitle" tone="secondary">
+          {config.description}
+        </Text>
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose} disabled={isPending}>
             {t("Cancel", { $id: "common.cancel" })}
           </Button>
-          <Button variant={config.confirmVariant} onClick={onConfirm} disabled={isPending}>
-            {isPending ? t("Please wait...", { $id: "common.pleaseWait" }) : config.confirmLabel}
+          <Button
+            variant={config.confirmVariant}
+            onClick={onConfirm}
+            disabled={isPending}
+          >
+            {isPending
+              ? t("Please wait...", { $id: "common.pleaseWait" })
+              : config.confirmLabel}
           </Button>
         </div>
       </div>

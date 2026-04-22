@@ -50,7 +50,7 @@
 
 .message {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: $text;
   max-width: 220px;
   line-height: 1.4;

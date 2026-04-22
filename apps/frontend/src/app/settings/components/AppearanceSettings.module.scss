@@ -57,13 +57,13 @@
 }
 
 .themeLabel {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-bold);
   color: $text;
 }
 
 .themeDesc {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: $text-muted;
 }
 
@@ -131,8 +131,8 @@
 }
 
 .accentLabel {
-  font-size: 13px;
+  font-size: var(--fs-label);
   color: $text-muted;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   margin: 4px 0 0;
 }

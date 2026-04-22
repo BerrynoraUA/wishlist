@@ -55,7 +55,7 @@
 }
 
 .label {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: $text;
   user-select: none;
 }

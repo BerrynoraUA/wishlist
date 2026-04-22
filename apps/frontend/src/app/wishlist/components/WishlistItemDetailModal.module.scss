@@ -8,7 +8,7 @@
 }
 
 .descriptionFull {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: $text-muted;
   line-height: 1.6;
   margin: 0;
@@ -19,8 +19,8 @@
 .reservedBadge {
   background: var(--badge-reserved-bg);
   color: var(--color-info);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
   padding: 4px 10px;
   border-radius: $radius-pill;
 }

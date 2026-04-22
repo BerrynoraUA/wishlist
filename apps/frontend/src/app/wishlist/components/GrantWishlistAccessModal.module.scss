@@ -1,4 +1,5 @@
 @use "@/styles/variables" as *;
+@use "@/styles/typography" as *;
 
 .container {
   display: grid;
@@ -12,6 +13,7 @@
   gap: 4px;
 
   h2 {
+    @include t-title;
     margin: 0;
     font-size: 16px;
 
@@ -33,30 +35,25 @@
   }
 
   p {
+    @include t-caption;
     margin: 0;
     color: var(--color-text-muted);
-    font-size: 12px;
-    line-height: 1.5;
   }
 }
 
 .eyebrow {
+  @include t-eyebrow;
   margin: 0;
   padding: 3px 9px;
   border-radius: 999px;
   background: var(--brand-alpha-10);
   color: $brand;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .inlineTitle {
+  @include t-caption;
   color: var(--color-text);
-  font-weight: 700;
-  font-size: 12px;
-  line-height: 1.35;
+  font-weight: var(--fw-bold);
   word-break: break-word;
 }
 
@@ -75,10 +72,7 @@
 }
 
 .titleLabel {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  @include t-eyebrow;
   color: var(--color-text-light);
 }
 
@@ -95,16 +89,12 @@
 }
 
 .sectionMeta {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  @include t-eyebrow;
   color: var(--color-text-light);
 }
 
 .label {
-  font-size: 12px;
-  font-weight: 600;
+  @include t-label;
   color: var(--color-text);
 }
 
@@ -133,7 +123,7 @@
     background: transparent;
     outline: none;
     color: var(--color-text);
-    font-size: 12px;
+    font-size: var(--fs-body);
     min-width: 0;
   }
 
@@ -201,8 +191,8 @@
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
   color: var(--color-text);
   background: var(--gradient-placeholder);
 }
@@ -214,13 +204,13 @@
 }
 
 .resultName {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
 }
 
 .resultNickname {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: var(--color-text-muted);
 }
 
@@ -235,7 +225,7 @@
   justify-content: center;
   gap: 8px;
   padding: 14px;
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: var(--color-text-muted);
 }
 
@@ -292,8 +282,8 @@
   border-radius: 999px;
   background: var(--badge-visibility-bg);
   color: $brand;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
   text-transform: capitalize;
   white-space: nowrap;
 }
@@ -335,16 +325,16 @@
 
   p {
     margin: 0;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: var(--fs-label);
+    font-weight: var(--fw-semibold);
     color: var(--color-text);
-    line-height: 1.2;
+    line-height: var(--lh-tight);
   }
 
   span {
-    font-size: 12px;
+    font-size: var(--fs-caption);
     color: var(--color-text-muted);
-    line-height: 1.2;
+    line-height: var(--lh-tight);
   }
 }
 
@@ -353,8 +343,8 @@
   border: none;
   background: transparent;
   color: $brand;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-bold);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -413,14 +403,14 @@
 }
 
 .accessLabel {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-bold);
   color: var(--color-text);
 }
 
 .accessDescription {
-  font-size: 12px;
-  line-height: 1.35;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-snug);
   color: var(--color-text-muted);
 }
 
@@ -435,8 +425,8 @@
   border-radius: 12px;
   background: var(--color-danger-bg);
   color: var(--color-danger);
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
 }
 
 .actions {

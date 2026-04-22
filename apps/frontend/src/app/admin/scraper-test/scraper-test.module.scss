@@ -20,7 +20,7 @@
 .title {
   font-family: var(--font-serif);
   font-size: 1.75rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: $text;
   letter-spacing: -0.02em;
 }
@@ -46,7 +46,7 @@
   border: none;
   padding: 0.6rem 1.25rem;
   border-radius: $radius-pill;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: 0.85rem;
   cursor: pointer;
   transition:
@@ -124,7 +124,7 @@
   span {
     font-size: 0.7rem;
     color: $text-muted;
-    font-weight: 500;
+    font-weight: var(--fw-medium);
   }
 }
 
@@ -154,7 +154,7 @@
   gap: 0.35rem;
   padding: 0.55rem 0.85rem;
   border-radius: $radius-pill;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: 0.8rem;
   cursor: pointer;
   border: 1px solid var(--glass-border);
@@ -197,7 +197,7 @@
   background: none;
   text-align: left;
   font-size: 0.78rem;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   color: $text;
   cursor: pointer;
   transition: background $duration-fast;
@@ -264,7 +264,7 @@
   border: none;
   background: none;
   cursor: pointer;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -408,7 +408,7 @@
   background: none;
   cursor: pointer;
   font-size: 0.65rem;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: $text-muted;
   padding: 0.3rem 0.5rem;
   border-radius: $radius-sm;
@@ -466,7 +466,7 @@
 }
 
 .siteName {
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   color: $text;
   font-size: 0.825rem;
 }
@@ -477,7 +477,7 @@
 
 .duration {
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   color: $text-muted;
   font-variant-numeric: tabular-nums;
 }
@@ -506,7 +506,7 @@
   padding: 0.2rem 0.55rem;
   border-radius: $radius-pill;
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   white-space: nowrap;
 }
 
@@ -631,7 +631,7 @@
 
 .validationTitle {
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: $text-muted;
@@ -653,7 +653,7 @@
 }
 
 .validationField {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   flex-shrink: 0;
   min-width: 80px;
 }
@@ -688,7 +688,7 @@
   word-break: break-word;
 
   span {
-    font-weight: 600;
+    font-weight: var(--fw-semibold);
     opacity: 0.7;
   }
 }
@@ -698,7 +698,7 @@
 }
 
 .diffActual {
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 
 .dataRow {
@@ -717,7 +717,7 @@
   flex-shrink: 0;
   width: 120px;
   color: $text-muted;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 
 .dataValue {

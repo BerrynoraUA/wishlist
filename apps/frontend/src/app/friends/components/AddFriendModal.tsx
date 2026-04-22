@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading, Text, Eyebrow } from "@/components/ui/Typography";
 import { Copy, Loader2 } from "lucide-react";
 import {
   hasReachedSearchThreshold,
@@ -252,18 +253,20 @@ export function AddFriendModal({ open, onClose }: Props) {
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <p className={styles.eyebrow}>
+          <Eyebrow tone="muted" className={styles.eyebrow}>
             {t("Friends", { $id: "friends.addModal.eyebrow" })}
-          </p>
-          <h2>{t("Invite friends", { $id: "friends.addModal.title" })}</h2>
-          <p>
+          </Eyebrow>
+          <Heading>
+            {t("Invite friends", { $id: "friends.addModal.title" })}
+          </Heading>
+          <Text variant="caption" tone="muted">
             {t(
               "Share your personal invite link or look up a friend by handle.",
               {
                 $id: "friends.addModal.subtitle",
               },
             )}
-          </p>
+          </Text>
         </div>
 
         {/* Invite Link */}

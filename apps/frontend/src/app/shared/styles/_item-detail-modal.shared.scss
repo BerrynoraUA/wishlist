@@ -1,4 +1,5 @@
 @use "@/styles/variables" as *;
+@use "@/styles/typography" as *;
 
 @mixin item-detail-modal-base {
   .container {
@@ -24,10 +25,7 @@
     min-width: 0;
 
     h2 {
-      font-family: var(--font-sans);
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
+      @include t-title;
       margin: 0;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -58,9 +56,9 @@
   }
 
   .description {
-    font-size: 12px;
+    font-size: var(--fs-caption);
     color: $text-muted;
-    line-height: 1.6;
+    line-height: var(--lh-loose);
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -102,17 +100,17 @@
       transform 0.18s $ease-out;
 
     strong {
-      font-size: 12px;
-      font-weight: 700;
-      line-height: 1.35;
+      font-size: var(--fs-caption);
+      font-weight: var(--fw-bold);
+      line-height: var(--lh-snug);
       color: var(--color-text);
       white-space: normal;
       overflow-wrap: anywhere;
     }
 
     span {
-      font-size: 12px;
-      line-height: 1.5;
+      font-size: var(--fs-caption);
+      line-height: var(--lh-normal);
       color: var(--color-text-muted);
       white-space: normal;
       overflow-wrap: anywhere;
@@ -170,15 +168,15 @@
 
   .price {
     font-size: 16px;
-    font-weight: 700;
+    font-weight: var(--fw-bold);
     color: $brand;
   }
 
   .priority {
     background: var(--badge-priority-bg);
     color: $brand;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-semibold);
     padding: 4px 10px;
     border-radius: $radius-pill;
   }
@@ -203,8 +201,8 @@
     background: var(--card-bg);
     color: $text;
     text-decoration: none;
-    font-size: 12px;
-    font-weight: 500;
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-medium);
     transition: all 0.3s $ease-out;
 
     &:hover {
@@ -239,10 +237,6 @@
   }
 
   @media (max-width: 640px) {
-    .details h2 {
-      font-size: 16px;
-    }
-
     .imageSection {
       max-height: 200px;
     }

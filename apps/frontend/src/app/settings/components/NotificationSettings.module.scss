@@ -34,8 +34,8 @@
 }
 
 .rowLabel {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
   color: $text;
   margin: 0;
   display: flex;
@@ -44,7 +44,7 @@
 }
 
 .rowHint {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: $text-light;
   margin: 2px 0 0;
 }

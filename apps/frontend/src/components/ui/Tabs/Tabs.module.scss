@@ -15,8 +15,8 @@
 
 .sm .tab {
   padding: 7px 16px;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
 }
 
 /* ── Size: md ── */
@@ -37,8 +37,8 @@
   flex: 1;
   min-width: max-content;
   padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
   white-space: nowrap;
 }
 
@@ -64,7 +64,7 @@
 
 .active {
   background: var(--nav-active-bg);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
   box-shadow: var(--nav-active-shadow);
 }
@@ -73,8 +73,8 @@
 .badge {
   background: var(--color-brand);
   color: white;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-semibold);
   padding: 2px 7px;
   border-radius: $radius-pill;
 }
@@ -98,6 +98,6 @@
 
   .md .tab {
     padding: 8px 16px;
-    font-size: 13px;
+    font-size: var(--fs-label);
   }
 }

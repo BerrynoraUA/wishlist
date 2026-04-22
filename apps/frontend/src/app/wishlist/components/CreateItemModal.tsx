@@ -6,6 +6,7 @@ import { Loader2, Plus, X, Lock } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
+import { Heading, Text } from "@/components/ui/Typography";
 import { Select } from "@/components/ui/Select/Select";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCreateItem } from "@/hooks/use-items";

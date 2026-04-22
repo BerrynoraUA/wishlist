@@ -49,8 +49,8 @@
 }
 
 .limitCounter {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
   color: $text-muted;
   padding: 4px 12px;
   border-radius: $radius-pill;
@@ -66,8 +66,8 @@
   border: none;
   border-radius: $radius-pill;
   padding: 11px 22px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
   cursor: pointer;
   box-shadow: $shadow-brand;
   transition: all 0.3s $ease-out;
@@ -114,7 +114,7 @@
     }
 
     p {
-      font-size: 13px;
+      font-size: var(--fs-label);
     }
   }
 

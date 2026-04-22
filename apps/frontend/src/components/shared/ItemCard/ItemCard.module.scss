@@ -63,7 +63,7 @@
   display: grid;
   place-items: center;
   color: var(--color-text-light);
-  font-size: 13px;
+  font-size: var(--fs-label);
 }
 
 /* ===== Badges ===== */
@@ -75,8 +75,8 @@
   gap: 6px;
   padding: 6px 10px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -138,8 +138,8 @@
   align-items: center;
   padding: 4px 8px;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
   color: var(--color-danger);
   background: var(--color-danger-bg);
   border: 1px solid var(--color-danger);
@@ -232,8 +232,8 @@
 
   strong {
     display: block;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: var(--fs-body);
+    font-weight: var(--fw-semibold);
     letter-spacing: -0.01em;
     margin-bottom: 4px;
     white-space: normal;
@@ -247,7 +247,7 @@
 }
 
 .description {
-  font-size: 13px;
+  font-size: var(--fs-label);
   color: $text-muted;
   margin: 0;
   display: -webkit-box;
@@ -267,13 +267,13 @@
 }
 
 .price {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-bold);
   color: $brand;
 }
 
 .store {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: var(--color-text-light);
   white-space: normal;
   display: -webkit-box;
@@ -302,7 +302,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -320,7 +320,7 @@
 }
 
 .reserveCompact {
-  font-size: 13px;
+  font-size: var(--fs-label);
   gap: 8px;
 }
 
@@ -382,7 +382,7 @@
 
 .statusText {
   margin-top: 6px;
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: var(--color-text-muted);
 }
 
@@ -397,8 +397,8 @@
   border: 1px solid var(--color-border-subtle);
   background: var(--card-bg);
   color: var(--color-text-muted);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
   width: fit-content;
@@ -505,7 +505,7 @@
   }
 
   .price {
-    font-size: 14px;
+    font-size: var(--fs-body);
   }
 
   .metaRow {
