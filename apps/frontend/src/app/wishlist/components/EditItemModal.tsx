@@ -360,7 +360,9 @@ function EditItemForm({
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerCopy}>
-            <Heading>{t("Edit Item", { $id: "item.modal.edit.title" })}</Heading>
+            <Heading>
+              {t("Edit Item", { $id: "item.modal.edit.title" })}
+            </Heading>
           </div>
           {isDraftRestored && (
             <div className={styles.draftBanner}>
