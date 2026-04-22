@@ -8,12 +8,12 @@
 // files. Documented exceptions: marketing/landing display sizes.
 
 @mixin typography-tokens {
-  --fs-title: 20px;
-  --fs-subtitle: 14px;
-  --fs-body: 14px;
-  --fs-label: 13px;
-  --fs-caption: 12px;
-  --fs-eyebrow: 11px;
+  --fs-title: 20px; // modal headers, section titles
+  --fs-subtitle: 14px; // modal descriptions, secondary text
+  --fs-body: 14px; // inputs, paragraphs
+  --fs-label: 13px; // form labels
+  --fs-caption: 12px; // helpers, hints
+  --fs-eyebrow: 11px; // uppercase eyebrow
 
   --fw-regular: 400;
   --fw-medium: 500;

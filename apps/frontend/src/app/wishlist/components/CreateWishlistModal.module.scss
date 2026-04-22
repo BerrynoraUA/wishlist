@@ -17,18 +17,11 @@
 }
 
 .header h2 {
-  font-family: var(--font-sans);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
   margin: 0 0 4px;
 }
 
 .header p {
-  font-size: 12px;
-  color: $text-muted;
   margin: 0 0 2px;
-  line-height: 1.6;
 }
 
 .draftBanner {
@@ -47,8 +40,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  @include t-caption;
   color: var(--color-text-muted);
-  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -62,8 +55,8 @@
   border-radius: 999px;
   background: var(--brand-alpha-06);
   color: var(--color-brand);
-  font-size: 12px;
-  font-weight: 700;
+  @include t-caption;
+  font-weight: var(--fw-bold);
   cursor: pointer;
   transition:
     background 0.2s ease,
@@ -85,8 +78,8 @@
 }
 
 .draftNote {
+  @include t-caption;
   margin: -2px 0 0;
-  font-size: 12px;
   color: var(--color-text-muted);
 }
 
@@ -340,10 +333,6 @@
   .container {
     gap: 12px;
     padding: 4px 0 0;
-  }
-
-  .header h2 {
-    font-size: 16px;
   }
 
   .draftBanner {
