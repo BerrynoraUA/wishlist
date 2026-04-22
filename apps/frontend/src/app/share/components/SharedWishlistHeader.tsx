@@ -9,7 +9,7 @@ import {
   WISHLIST_VISIBILITY_ICONS,
   getWishlistAccentClass,
   getWishlistVisibilityLabels,
-} from "@/lib/constans/wishlist-metadata";
+} from "@/lib/constans/wishlist";
 
 type Props = {
   wishlist: Wishlist;

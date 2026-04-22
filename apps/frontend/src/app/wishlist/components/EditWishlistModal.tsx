@@ -11,6 +11,7 @@ import { useGT } from "gt-next";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading, Text } from "@/components/ui/Typography";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useSessionDraft } from "@/hooks/use-session-draft";

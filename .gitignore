@@ -15,5 +15,6 @@ pnpm-debug.log
 # Build artifacts
 *.crx
 *.pem
+*.vs
 
 .turbo

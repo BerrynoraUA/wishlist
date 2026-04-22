@@ -335,12 +335,12 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerCopy}>
-            <h2>{t("Create Item", { $id: "item.modal.create.title" })}</h2>
-            <p>
+            <Heading>{t("Create Item", { $id: "item.modal.create.title" })}</Heading>
+            <Text variant="caption" tone="muted">
               {t("Add a product to this wishlist.", {
                 $id: "item.modal.create.subtitle",
               })}
-            </p>
+            </Text>
           </div>
           {isDraftRestored && (
             <div className={styles.draftBanner}>
