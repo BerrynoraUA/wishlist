@@ -1,0 +1,66 @@
+.heading,
+.text,
+.label,
+.eyebrow {
+  margin: 0;
+  color: var(--color-text);
+}
+
+/* Variants */
+.title {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  font-size: var(--fs-subtitle);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-normal);
+}
+
+.body {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-loose);
+}
+
+.label {
+  display: inline-block;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+}
+
+.caption {
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-normal);
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Tones */
+.tonePrimary {
+  color: var(--color-text);
+}
+
+.toneSecondary {
+  color: var(--color-text-secondary);
+}
+
+.toneMuted {
+  color: var(--color-text-muted);
+}
+
+.toneBrand {
+  color: var(--color-brand);
+}

@@ -45,19 +45,11 @@
 }
 
 .title {
-  font-family: var(--font-sans);
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
   margin: 0;
   color: var(--color-text);
 }
 
 .subtitle {
-  font-size: 14px;
-  color: var(--color-text-secondary);
-  margin: 0;
-  line-height: 1.5;
   max-width: 320px;
 }
 
@@ -97,8 +89,8 @@
 }
 
 .itemName {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
@@ -107,8 +99,8 @@
 }
 
 .itemPrice {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
   color: var(--color-brand);
   margin: 2px 0 0;
 }
@@ -141,7 +133,7 @@
   border: none;
   background: transparent;
   color: var(--color-text);
-  font-size: 14px;
+  font-size: var(--fs-body);
   font-family: var(--font-sans);
   outline: none;
 
@@ -228,8 +220,8 @@
 }
 
 .wishlistTitle {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
@@ -237,7 +229,7 @@
 }
 
 .wishlistCount {
-  font-size: 11px;
+  font-size: var(--fs-eyebrow);
   color: var(--color-text-muted);
   margin-top: 1px;
 }
@@ -251,7 +243,7 @@
   text-align: center;
   padding: 24px 0;
   color: var(--color-text-muted);
-  font-size: 14px;
+  font-size: var(--fs-subtitle);
 }
 
 .footer {
@@ -292,17 +284,10 @@
 }
 
 .successTitle {
-  font-family: var(--font-sans);
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
   margin: 0;
   color: var(--color-text);
 }
 
 .successDescription {
-  font-size: 14px;
-  color: var(--color-text-secondary);
   margin: 0;
-  line-height: 1.5;
 }

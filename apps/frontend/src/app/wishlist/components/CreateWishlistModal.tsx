@@ -13,6 +13,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
+import { Heading, Text } from "@/components/ui/Typography";
 import { useCreateWishlist } from "@/hooks/use-wishlists";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useSessionDraft } from "@/hooks/use-session-draft";
@@ -229,15 +230,15 @@ function CreateWishlistForm({
     <Modal open onClose={handleClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <div className={styles.headerCopy}>
-            <h2>
+          <div>
+            <Heading>
               {t("Create New Wishlist", { $id: "wishlist.modal.create.title" })}
-            </h2>
-            <p>
+            </Heading>
+            <Text variant="caption" tone="muted">
               {t("Give your wishlist a name and customize its appearance.", {
                 $id: "wishlist.modal.create.subtitle",
               })}
-            </p>
+            </Text>
           </div>
           {hasDraft && (
             <div className={styles.draftBanner}>

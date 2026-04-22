@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading, Text, Eyebrow } from "@/components/ui/Typography";
 import styles from "../../friends/components/FriendInviteModal.module.scss";
 
 type Props = {
@@ -38,9 +39,12 @@ export function FriendRequestStatusModal({ open, onClose, status }: Props) {
         title: t("Something went wrong", {
           $id: "share.friendRequestStatus.errorTitle",
         }),
-        description: t("We couldn't send the friend request. Please try again later.", {
-          $id: "share.friendRequestStatus.errorBody",
-        }),
+        description: t(
+          "We couldn't send the friend request. Please try again later.",
+          {
+            $id: "share.friendRequestStatus.errorBody",
+          },
+        ),
       },
     }),
     [t],
@@ -49,11 +53,13 @@ export function FriendRequestStatusModal({ open, onClose, status }: Props) {
   return (
     <Modal open={open} onClose={onClose}>
       <div className={styles.card}>
-        <p className={styles.eyebrow}>
+        <Eyebrow tone="muted" className={styles.eyebrow}>
           {t("Friend request", { $id: "share.friendRequest.eyebrow" })}
-        </p>
-        <h2 className={styles.cardTitle}>{info[status].title}</h2>
-        <p className={styles.cardText}>{info[status].description}</p>
+        </Eyebrow>
+        <Heading className={styles.cardTitle}>{info[status].title}</Heading>
+        <Text variant="caption" tone="secondary" className={styles.cardText}>
+          {info[status].description}
+        </Text>
         <Button onClick={onClose}>{t("Close", { $id: "common.close" })}</Button>
       </div>
     </Modal>

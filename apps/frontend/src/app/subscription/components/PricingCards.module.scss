@@ -28,8 +28,8 @@
   border-radius: $radius-pill;
   background: transparent;
   color: $text-muted;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
   cursor: pointer;
   transition: all 0.25s $ease-out;
 
@@ -46,8 +46,8 @@
   border-radius: $radius-pill;
   background: var(--color-pro-gradient);
   color: #fff;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
   letter-spacing: 0.02em;
 }
 
@@ -117,8 +117,8 @@
   border-radius: $radius-pill;
   background: var(--color-pro-gradient);
   color: #fff;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
   letter-spacing: 0.02em;
   white-space: nowrap;
   box-shadow: $shadow-brand;
@@ -134,7 +134,7 @@
   align-items: center;
   gap: 6px;
   font-size: 1.4rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: $text;
   letter-spacing: -0.02em;
   margin-bottom: 4px;
@@ -145,7 +145,7 @@
 }
 
 .planDesc {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: $text-muted;
   line-height: 1.5;
 }
@@ -172,12 +172,12 @@
 .pricePeriod {
   font-size: 15px;
   color: $text-muted;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 
 .billedAs {
   width: 100%;
-  font-size: 13px;
+  font-size: var(--fs-label);
   color: $text-light;
   margin-top: 2px;
 }
@@ -196,7 +196,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: $text;
   line-height: 1.4;
 
@@ -205,7 +205,7 @@
   }
 
   &.highlighted {
-    font-weight: 600;
+    font-weight: var(--fw-semibold);
   }
 }
 
@@ -227,7 +227,7 @@
   background: var(--color-pro-gradient);
   color: #fff;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   letter-spacing: 0.04em;
 }
 
@@ -241,8 +241,8 @@
   border-radius: $radius-pill;
   background: var(--color-bg-muted);
   color: $text-muted;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
   border: 1.5px solid var(--color-border-light);
 }
 
@@ -255,7 +255,7 @@
   border: none;
   background: none;
   color: $text-muted;
-  font-size: 13px;
+  font-size: var(--fs-label);
   text-align: center;
   cursor: pointer;
   transition: color 0.2s $ease-out;

@@ -18,7 +18,7 @@
 }
 
 .ownerLine {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: var(--color-text-muted);
   padding-left: 4px;
 }

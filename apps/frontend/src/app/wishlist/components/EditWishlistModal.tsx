@@ -11,6 +11,7 @@ import { useGT } from "gt-next";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
+import { Heading, Text } from "@/components/ui/Typography";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useSessionDraft } from "@/hooks/use-session-draft";
@@ -305,13 +306,15 @@ function EditWishlistForm({
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <div className={styles.headerCopy}>
-            <h2>{t("Edit Wishlist", { $id: "wishlist.modal.edit.title" })}</h2>
-            <p>
+          <div>
+            <Heading>
+              {t("Edit Wishlist", { $id: "wishlist.modal.edit.title" })}
+            </Heading>
+            <Text variant="caption" tone="muted">
               {t("Update your wishlist details and customize its appearance.", {
                 $id: "wishlist.modal.edit.subtitle",
               })}
-            </p>
+            </Text>
           </div>
           {isDraftRestored && (
             <div className={styles.draftBanner}>

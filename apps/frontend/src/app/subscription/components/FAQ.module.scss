@@ -9,7 +9,7 @@
 .title {
   font-family: var(--font-serif), "Playfair Display", serif;
   font-size: 1.6rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: $text;
   text-align: center;
   letter-spacing: -0.02em;
@@ -46,7 +46,7 @@
   cursor: pointer;
   text-align: left;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: $text;
   line-height: 1.4;
   transition: color 0.2s;
@@ -71,7 +71,7 @@
   animation: slideUp 0.2s $ease-out;
 
   p {
-    font-size: 14px;
+    font-size: var(--fs-body);
     color: $text-muted;
     line-height: 1.7;
   }
@@ -89,7 +89,7 @@
 
   .question {
     padding: 14px 16px;
-    font-size: 14px;
+    font-size: var(--fs-body);
   }
 
   .answer {

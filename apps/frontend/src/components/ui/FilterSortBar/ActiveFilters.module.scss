@@ -24,14 +24,14 @@
   border: 1px solid var(--brand-alpha-15);
   color: var(--color-brand);
   font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
   animation: tagIn 0.2s $ease-out;
 }
 
 .groupLabel {
   color: var(--color-text-muted);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
 }
 
 .remove {
@@ -57,8 +57,8 @@
   background: transparent;
   color: var(--color-text-muted);
   font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
   cursor: pointer;
   padding: 4px 8px;
   border-radius: $radius-pill;

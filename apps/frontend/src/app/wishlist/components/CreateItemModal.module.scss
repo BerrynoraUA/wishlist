@@ -1,4 +1,5 @@
 @use "@/styles/variables" as *;
+@use "@/styles/typography" as *;
 
 .container {
   display: grid;
@@ -118,8 +119,7 @@
   gap: 8px;
 
   label {
-    font-size: 12px;
-    font-weight: 600;
+    @include t-label;
   }
 
   input,
@@ -128,7 +128,7 @@
     border: 1.5px solid var(--input-border);
     border-radius: $radius-md;
     padding: 12px 14px;
-    font-size: 12px;
+    font-size: var(--fs-body);
     color: $text;
     background: var(--input-bg);
     outline: none;
@@ -183,7 +183,7 @@
 .error {
   margin: 4px 0 0;
   color: var(--color-danger);
-  font-size: 12px;
+  font-size: var(--fs-caption);
 }
 
 .upload {

@@ -95,7 +95,7 @@ $brand-dark: #9b1f66;
   align-items: center;
   gap: 8px;
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: #111827;
   margin-bottom: 24px;
 
@@ -196,7 +196,7 @@ $brand-dark: #9b1f66;
 
 .mockupCardTitle {
   font-size: 0.9375rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: #111827;
 
   [data-theme="dark"] & {
@@ -255,7 +255,7 @@ $brand-dark: #9b1f66;
 
 .mockupItemName {
   display: block;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: 0.75rem;
   color: #111827;
 
@@ -284,7 +284,7 @@ $brand-dark: #9b1f66;
   align-items: center;
   gap: 8px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   white-space: nowrap;
   color: #111827;
 
@@ -362,12 +362,12 @@ $brand-dark: #9b1f66;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-size: 0.75rem;
 }
 
 .testimonialName {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: 0.75rem;
   color: #111827;
 
@@ -432,7 +432,7 @@ $brand-dark: #9b1f66;
   background: $brand-light;
   color: $brand;
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   border-radius: $radius-pill;
   margin-bottom: 14px;
 
@@ -478,7 +478,7 @@ $brand-dark: #9b1f66;
 
   a {
     color: $brand;
-    font-weight: 600;
+    font-weight: var(--fw-semibold);
     text-decoration: none;
     transition: color 0.2s $ease-out;
 

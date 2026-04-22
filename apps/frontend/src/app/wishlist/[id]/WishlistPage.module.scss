@@ -6,7 +6,7 @@
     margin: 0 auto;
     padding: 16px 24px;
     color: $text-muted;
-    font-size: 14px;
+    font-size: var(--fs-body);
   }
 }
 
@@ -17,7 +17,7 @@
 
   > p {
     color: $text-muted;
-    font-size: 14px;
+    font-size: var(--fs-body);
     margin: 0 0 18px;
   }
 }
@@ -35,7 +35,7 @@
   margin: 0;
   flex-shrink: 0;
   font-family: var(--font-sans);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-size: 18px;
   letter-spacing: -0.02em;
 }

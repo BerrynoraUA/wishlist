@@ -5,6 +5,7 @@ import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
+import { Heading, Text } from "@/components/ui/Typography";
 import { Select } from "@/components/ui/Select/Select";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCreateSecretSantaEvent } from "@/hooks/use-secret-santa";
@@ -241,17 +242,17 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
     <Modal open onClose={handleClose}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <div className={styles.headerCopy}>
-            <h2>
+          <div>
+            <Heading>
               {t("Create Secret Santa Event", {
                 $id: "secretSanta.create.title",
               })}
-            </h2>
-            <p>
+            </Heading>
+            <Text variant="caption" tone="muted">
               {t("Set up a gift exchange with your friends.", {
                 $id: "secretSanta.create.subtitle",
               })}
-            </p>
+            </Text>
           </div>
           {isDraftRestored && (
             <div className={styles.draftBanner}>

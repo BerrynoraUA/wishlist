@@ -19,21 +19,6 @@
   box-shadow: 0 4px 14px rgba(100, 116, 139, 0.12);
 }
 
-.title {
-  font-family: var(--font-sans);
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 0;
-}
-
-.description {
-  font-size: 14px;
-  color: $text-muted;
-  margin: 0;
-  line-height: 1.6;
-}
-
 .footer {
   display: flex;
   justify-content: center;

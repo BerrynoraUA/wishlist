@@ -239,8 +239,8 @@
   border-radius: 8px;
   background: transparent;
   color: var(--color-text);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
   cursor: pointer;
   transition: background 0.15s ease;
 
@@ -308,8 +308,8 @@
   border-radius: 8px;
   background: transparent;
   color: var(--color-text-muted);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
   cursor: pointer;
   transition: all 0.15s ease;
 
@@ -413,7 +413,7 @@
   min-height: 68px;
   max-height: 140px;
   resize: vertical;
-  font-size: 13px;
+  font-size: var(--fs-label);
   line-height: 1.5;
   margin-top: 8px;
   transition:
@@ -430,7 +430,7 @@
 }
 
 .description {
-  font-size: 13px;
+  font-size: var(--fs-label);
   color: var(--color-text-muted);
   margin: 8px 0 0;
   line-height: 1.55;
@@ -440,7 +440,7 @@
 .descriptionPlaceholder {
   margin: 8px 0 0;
   color: var(--color-text-light);
-  font-size: 13px;
+  font-size: var(--fs-label);
   line-height: 1.55;
 }
 
@@ -453,8 +453,8 @@
 }
 
 .limitCounter {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
   color: var(--color-text-muted);
   padding: 6px 12px;
   border-radius: $radius-pill;
@@ -579,10 +579,10 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
+  font-size: var(--fs-eyebrow);
   padding: 5px 10px;
   border-radius: $radius-pill;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 .visibilityBadge {
@@ -866,7 +866,7 @@
   .visibilityBadge,
   .countBadge,
   .dateBadge {
-    font-size: 11px;
+    font-size: var(--fs-eyebrow);
     padding: 5px 10px;
   }
 }

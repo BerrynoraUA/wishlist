@@ -24,8 +24,8 @@
   border-bottom: 1px solid var(--color-border-subtle);
 
   strong {
-    font-size: 14px;
-    font-weight: 700;
+    font-size: var(--fs-body);
+    font-weight: var(--fw-bold);
     letter-spacing: -0.015em;
     color: var(--color-text);
   }
@@ -84,7 +84,7 @@
 
   p {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--fs-label);
     line-height: 1.35;
     color: var(--color-text);
     display: -webkit-box;
@@ -95,7 +95,7 @@
 
   span {
     position: relative;
-    font-size: 11px;
+    font-size: var(--fs-eyebrow);
     color: color-mix(in srgb, var(--color-brand) 42%, var(--color-text-muted));
     white-space: nowrap;
     align-self: start;
@@ -132,13 +132,13 @@
 .accept {
   flex: 1;
   padding: 6px 12px;
-  font-size: 12px;
+  font-size: var(--fs-caption);
 }
 
 .decline {
   flex: 1;
   padding: 6px 12px;
-  font-size: 12px;
+  font-size: var(--fs-caption);
 }
 
 .unread {
@@ -146,7 +146,7 @@
   border-left: 3px solid $brand;
 
   p {
-    font-weight: 600;
+    font-weight: var(--fw-semibold);
     color: $text;
   }
 }
@@ -156,7 +156,7 @@
 }
 
 .empty {
-  font-size: 13px;
+  font-size: var(--fs-label);
   color: $text-muted;
   text-align: center;
   padding: 28px 16px;

@@ -10,7 +10,7 @@ import { Wishlist } from "@/types/wishlist";
 import {
   WISHLIST_VISIBILITY_ICONS,
   getWishlistVisibilityLabels,
-} from "@/lib/constans/wishlist-metadata";
+} from "@/lib/constans/wishlist";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FREE_LIMITS } from "@/types/subscription";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";

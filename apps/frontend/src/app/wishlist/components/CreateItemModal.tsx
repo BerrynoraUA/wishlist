@@ -6,6 +6,7 @@ import { Loader2, Plus, X, Lock } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
+import { Heading, Text } from "@/components/ui/Typography";
 import { Select } from "@/components/ui/Select/Select";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCreateItem } from "@/hooks/use-items";
@@ -334,12 +335,14 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerCopy}>
-            <h2>{t("Create Item", { $id: "item.modal.create.title" })}</h2>
-            <p>
+            <Heading>
+              {t("Create Item", { $id: "item.modal.create.title" })}
+            </Heading>
+            <Text variant="caption" tone="muted">
               {t("Add a product to this wishlist.", {
                 $id: "item.modal.create.subtitle",
               })}
-            </p>
+            </Text>
           </div>
           {hasDraft && (
             <div className={styles.draftBanner}>
