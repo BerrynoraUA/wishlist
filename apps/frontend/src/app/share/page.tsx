@@ -9,7 +9,7 @@ import { SharedWishlistHeader } from "./components/SharedWishlistHeader";
 import { AuthPromptModal } from "./components/AuthPromptModal";
 import { FriendRequestStatusModal } from "./components/FriendRequestStatusModal";
 import { Pagination } from "@/components/ui/Pagination/Pagination";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { useCurrentUserId } from "@/hooks/use-user";
 import { checkFriendship, sendFriendRequest } from "@/api/friends";
 import styles from "../wishlist/[id]/WishlistPage.module.scss";
 
@@ -27,11 +27,15 @@ function SharedWishlistContent() {
     Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1,
   );
   const [authPromptOpen, setAuthPromptOpen] = useState(false);
-  const [pendingReserveItemId, setPendingReserveItemId] = useState<string | null>(null);
-  const [friendStatus, setFriendStatus] = useState<"sent" | "already_friends" | "error" | null>(
-    null,
-  );
+  const [pendingReserveItemId, setPendingReserveItemId] = useState<
+    string | null
+  >(null);
+  const [friendStatus, setFriendStatus] = useState<
+    "sent" | "already_friends" | "error" | null
+  >(null);
   const postLoginHandled = useRef(false);
+  const { data: currentUserId = "", isLoading: isCurrentUserLoading } =
+    useCurrentUserId();
 
   const {
     data: wishlist,
@@ -54,8 +58,16 @@ function SharedWishlistContent() {
 
   // After login redirect: check friendship, redirect or send request
   useEffect(() => {
-    if (action !== "reserve" || !wishlist?.id || !wishlist?.user_id || postLoginHandled.current)
+    if (
+      action !== "reserve" ||
+      !wishlist?.id ||
+      !wishlist?.user_id ||
+      postLoginHandled.current
+    )
       return;
+
+    if (isCurrentUserLoading || !currentUserId) return;
+
     postLoginHandled.current = true;
 
     // Clean action param from URL
@@ -65,12 +77,7 @@ function SharedWishlistContent() {
 
     (async () => {
       try {
-        const {
-          data: { user },
-        } = await supabaseBrowser.auth.getUser();
-        if (!user) return;
-
-        if (user.id === wishlist.user_id) {
+        if (currentUserId === wishlist.user_id) {
           const destination = new URLSearchParams();
           if (reservedItemId) {
             destination.set("item", reservedItemId);
@@ -112,7 +119,17 @@ function SharedWishlistContent() {
         router.replace("/home");
       }
     })();
-  }, [action, wishlist?.id, wishlist?.user_id, searchParams, router, reservedItemId, page]);
+  }, [
+    action,
+    currentUserId,
+    isCurrentUserLoading,
+    wishlist?.id,
+    wishlist?.user_id,
+    searchParams,
+    router,
+    reservedItemId,
+    page,
+  ]);
 
   const handleReserveAttempt = (itemId: string) => {
     setPendingReserveItemId(itemId);
@@ -150,7 +167,9 @@ function SharedWishlistContent() {
     <main className={styles.page}>
       <SharedWishlistHeader wishlist={wishlist} />
 
-      {items.length === 0 && <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>}
+      {items.length === 0 && (
+        <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>
+      )}
       {items.length > 0 && (
         <>
           <WishlistItemsGrid
@@ -159,7 +178,9 @@ function SharedWishlistContent() {
             showDiscountBadge={false}
             onToggleReserve={handleReserveAttempt}
           />
-          {totalPages > 1 && <Pagination page={page} total={totalPages} onChange={setPage} />}
+          {totalPages > 1 && (
+            <Pagination page={page} total={totalPages} onChange={setPage} />
+          )}
         </>
       )}
 

@@ -1,4 +1,5 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { getCurrentUser } from "./user";
 import {
   CreateSecretSantaEventInput,
   LaunchSecretSantaInput,
@@ -245,9 +246,7 @@ export async function declineSecretSantaInvite(
 }
 
 export async function joinSecretSantaEvent(eventId: string): Promise<void> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
 

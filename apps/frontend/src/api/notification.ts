@@ -1,9 +1,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Notification } from "@/types";
 
-async function getSupabaseBrowser(): Promise<import("@supabase/supabase-js").SupabaseClient> {
+async function getSupabaseBrowser(): Promise<
+  import("@supabase/supabase-js").SupabaseClient
+> {
   const mod = await import("@/lib/supabase-browser");
   return mod.supabaseBrowser;
+}
+
+async function getNotificationSession() {
+  const mod = await import("./user");
+  return mod.getCurrentSession();
 }
 
 type SaleAlertItem = {
@@ -94,7 +101,9 @@ export async function createSaleAlertNotificationsForFriends(
   for (const row of settingsRows ?? []) {
     const userId = (row as { user_id?: string }).user_id;
     if (!userId) continue;
-    const enabled = Boolean((row as { notify_sale_alerts?: boolean }).notify_sale_alerts);
+    const enabled = Boolean(
+      (row as { notify_sale_alerts?: boolean }).notify_sale_alerts,
+    );
     settingsByUserId.set(userId, enabled);
   }
 
@@ -152,12 +161,7 @@ export async function getUserNotifications(
   params: GetNotificationsParams = {},
 ): Promise<Notification[]> {
   const supabaseBrowser = await getSupabaseBrowser();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getNotificationSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   const { limit = 20, offset = 0, unread_only = false } = params;
@@ -174,7 +178,9 @@ export async function getUserNotifications(
   return data || [];
 }
 
-export async function markNotificationAsRead(notificationId: string): Promise<void> {
+export async function markNotificationAsRead(
+  notificationId: string,
+): Promise<void> {
   const supabaseBrowser = await getSupabaseBrowser();
   const { error } = await supabaseBrowser
     .from("notifications")
@@ -186,12 +192,7 @@ export async function markNotificationAsRead(notificationId: string): Promise<vo
 
 export async function markAllNotificationsAsRead(): Promise<void> {
   const supabaseBrowser = await getSupabaseBrowser();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getNotificationSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   const { error } = await supabaseBrowser
@@ -205,12 +206,7 @@ export async function markAllNotificationsAsRead(): Promise<void> {
 
 export async function deleteAllNotifications(): Promise<void> {
   const supabaseBrowser = await getSupabaseBrowser();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getNotificationSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   const { error } = await supabaseBrowser
@@ -221,26 +217,29 @@ export async function deleteAllNotifications(): Promise<void> {
   if (error) throw error;
 }
 
-export async function deleteNotification(notificationId: string): Promise<void> {
+export async function deleteNotification(
+  notificationId: string,
+): Promise<void> {
   const supabaseBrowser = await getSupabaseBrowser();
-  const { error } = await supabaseBrowser.from("notifications").delete().eq("id", notificationId);
+  const { error } = await supabaseBrowser
+    .from("notifications")
+    .delete()
+    .eq("id", notificationId);
 
   if (error) throw error;
 }
 
 export async function getUnreadNotificationsCount(): Promise<number> {
   const supabaseBrowser = await getSupabaseBrowser();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getNotificationSession();
   if (!session?.user) throw new Error("Not authenticated");
 
-  const { data, error } = await supabaseBrowser.rpc("get_unread_notifications_count", {
-    p_user_id: session.user.id,
-  });
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_unread_notifications_count",
+    {
+      p_user_id: session.user.id,
+    },
+  );
 
   if (error) throw error;
 

@@ -1,7 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { User } from "@supabase/supabase-js";
-import { getMyStatistics } from "@/api/user";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { getCurrentUser, getMyStatistics } from "@/api/user";
 
 export const statisticsKeys = {
   all: ["statistics"] as const,
@@ -19,16 +17,10 @@ const authKeys = {
   user: ["auth", "user"] as const,
 };
 
-async function fetchCurrentUser(): Promise<User | null> {
-  const { data, error } = await supabaseBrowser.auth.getUser();
-  if (error) throw error;
-  return data.user ?? null;
-}
-
 export function useCurrentUser() {
   return useQuery({
     queryKey: authKeys.user,
-    queryFn: fetchCurrentUser,
+    queryFn: getCurrentUser,
   });
 }
 
@@ -36,7 +28,7 @@ export function useCurrentUser() {
 export function useCurrentUserId() {
   return useQuery({
     queryKey: authKeys.user,
-    queryFn: fetchCurrentUser,
+    queryFn: getCurrentUser,
     select: (user) => user?.id ?? "",
   });
 }

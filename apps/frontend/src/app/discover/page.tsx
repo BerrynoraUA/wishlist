@@ -1,26 +1,20 @@
 "use client";
 
-import { Suspense, useCallback, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useMemo } from "react";
 import { useGT } from "gt-next";
 import { DiscoverHeader } from "./components/DiscoverHeader";
 import { UpcomingEvents } from "./components/UpcomingEvents";
 import { DiscoverFilters } from "./components/DiscoverFilters";
 import { DiscoverSection } from "./components/DiscoverSection";
 import { ReservedItemsGrid } from "./components/ReservedItemsGrid";
-import {
-  useFriendsWishlistsDiscover,
-  useFriendsWishlistsDiscoverAll,
-  useFriendsWishlistsPurchasedByMe,
-  useFriendsWishlistsReservedByMe,
-} from "@/hooks/use-wishlists";
+import { useDiscoverTabData } from "./hooks/use-discover-tab-data";
+import { useDiscoverFilters } from "./hooks/use-discover-filters";
 import {
   useToggleItemBought,
   useToggleItemReservation,
 } from "@/hooks/use-items";
 import { useProfilesByIds } from "@/hooks/use-settings";
 import { useFriends } from "@/hooks/use-friends";
-import { useCurrencyFormatter } from "@/hooks/use-currency";
 import {
   FilterSortBar,
   FilterSortRow,
@@ -30,122 +24,34 @@ import {
   NumberRangeFilter,
   SortSelect,
 } from "@/components/ui/FilterSortBar";
-import {
-  ITEM_PRIORITY_OPTIONS,
-  DISCOVER_SORT_OPTIONS,
-} from "@/lib/filter-constants";
 
 function DiscoverPageContent() {
   const t = useGT();
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const { displayCurrency } = useCurrencyFormatter();
-  const tabParam = searchParams.get("tab");
-  const tabFromUrl: "wishlists" | "available" | "reserved" | "purchased" =
-    tabParam === "available" ||
-    tabParam === "reserved" ||
-    tabParam === "purchased"
-      ? tabParam
-      : "wishlists";
-  const filter = tabFromUrl;
-  const discoverSearch = useMemo(
-    () => searchParams.get("discoverSearch") ?? "",
-    [searchParams],
-  );
-  const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
-  const [discoverSort, setDiscoverSort] = useState("default");
-  const [priceMin, setPriceMin] = useState("");
-  const [priceMax, setPriceMax] = useState("");
-
-  // Server-side filter params
-  const serverParams = useMemo(
-    () => ({
-      search: discoverSearch || undefined,
-      sort: discoverSort !== "default" ? discoverSort : undefined,
-      priorities: priorityFilter.length
-        ? priorityFilter.map(Number)
-        : undefined,
-      priceMin: priceMin ? Number(priceMin) : undefined,
-      priceMax: priceMax ? Number(priceMax) : undefined,
-      displayCurrency,
-    }),
-    [
-      discoverSearch,
-      discoverSort,
-      priorityFilter,
-      priceMin,
-      priceMax,
-      displayCurrency,
-    ],
-  );
-
-  const handleFilterChange = useCallback(
-    (nextFilter: "wishlists" | "available" | "reserved" | "purchased") => {
-      if (nextFilter === filter) return;
-
-      const params = new URLSearchParams(searchParams.toString());
-      if (nextFilter === "wishlists") {
-        params.delete("tab");
-      } else {
-        params.set("tab", nextFilter);
-      }
-
-      router.replace(
-        params.toString() ? `${pathname}?${params.toString()}` : pathname,
-        {
-          scroll: false,
-        },
-      );
-    },
-    [filter, pathname, router, searchParams],
-  );
-
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (value) {
-        params.set("discoverSearch", value);
-      } else {
-        params.delete("discoverSearch");
-      }
-      router.replace(
-        params.toString() ? `${pathname}?${params.toString()}` : pathname,
-        {
-          scroll: false,
-        },
-      );
-    },
-    [pathname, router, searchParams],
-  );
+  const {
+    filter,
+    discoverSearch,
+    priorityFilter,
+    discoverSort,
+    priceMin,
+    priceMax,
+    serverParams,
+    priorityOptions,
+    sortOptions,
+    handleFilterChange,
+    handleSearchChange,
+    setPriorityFilter,
+    setDiscoverSort,
+    setPriceMin,
+    setPriceMax,
+  } = useDiscoverFilters();
 
   const {
-    data: allWishlistsSections = [],
-    isLoading: isAllWishlistsLoading,
-    isFetching: isAllWishlistsFetching,
-    isError: isAllWishlistsError,
-  } = useFriendsWishlistsDiscoverAll(serverParams, filter === "wishlists");
-
-  const {
-    data: wishlistsSections = [],
-    isLoading: isWishlistsLoading,
-    isFetching: isWishlistsFetching,
-    isError: isWishlistsError,
-  } = useFriendsWishlistsDiscover(serverParams, filter === "available");
-
-  const {
-    data: reservedSections = [],
-    isLoading: isReservedLoading,
-    isFetching: isReservedFetching,
-    isError: isReservedError,
-  } = useFriendsWishlistsReservedByMe(serverParams, filter === "reserved");
-
-  const {
-    data: purchasedSections = [],
-    isLoading: isPurchasedLoading,
-    isFetching: isPurchasedFetching,
-    isError: isPurchasedError,
-  } = useFriendsWishlistsPurchasedByMe(serverParams, filter === "purchased");
+    activeWishlistSections,
+    activeReservedItems,
+    isLoading,
+    isFetching,
+    isError,
+  } = useDiscoverTabData(serverParams, filter);
 
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
@@ -158,11 +64,6 @@ function DiscoverPageContent() {
     }
     return map;
   }, [friendsList]);
-
-  const activeWishlistSections =
-    filter === "wishlists" ? allWishlistsSections : wishlistsSections;
-  const activeReservedItems =
-    filter === "reserved" ? reservedSections : purchasedSections;
 
   const friendIds = useMemo(() => {
     return Array.from(
@@ -184,30 +85,6 @@ function DiscoverPageContent() {
     return map;
   }, [sectionProfiles]);
 
-  const isLoading =
-    filter === "wishlists"
-      ? isAllWishlistsLoading
-      : filter === "available"
-        ? isWishlistsLoading
-        : filter === "reserved"
-          ? isReservedLoading
-          : isPurchasedLoading;
-  const isFetching =
-    filter === "wishlists"
-      ? isAllWishlistsFetching
-      : filter === "available"
-        ? isWishlistsFetching
-        : filter === "reserved"
-          ? isReservedFetching
-          : isPurchasedFetching;
-  const isError =
-    filter === "wishlists"
-      ? isAllWishlistsError
-      : filter === "available"
-        ? isWishlistsError
-        : filter === "reserved"
-          ? isReservedError
-          : isPurchasedError;
   const hasNoData =
     !isLoading &&
     !isError &&
@@ -230,10 +107,7 @@ function DiscoverPageContent() {
           />
           <FilterDropdown
             label={t("Priority", { $id: "discover.filter.priority" })}
-            options={ITEM_PRIORITY_OPTIONS.map((o) => ({
-              ...o,
-              label: t(o.label, { $id: `discover.filter.priority.${o.value}` }),
-            }))}
+            options={priorityOptions}
             active={priorityFilter}
             onChange={setPriorityFilter}
             multiSelect
@@ -249,10 +123,7 @@ function DiscoverPageContent() {
           />
           <FilterSortActions>
             <SortSelect
-              options={DISCOVER_SORT_OPTIONS.map((o) => ({
-                ...o,
-                label: t(o.label, { $id: `discover.sort.${o.value}` }),
-              }))}
+              options={sortOptions}
               value={discoverSort}
               onChange={setDiscoverSort}
             />

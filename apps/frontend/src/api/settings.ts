@@ -13,12 +13,11 @@ import {
   uploadPublicImage,
 } from "@/lib/helpers/storage-image";
 import { MAX_IMAGE_UPLOAD_BYTES } from "@/lib/image-upload";
+import { getCurrentUser } from "./user";
 import { PublicProfile } from "./types/user";
 
 export async function getProfile(): Promise<UserProfile> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
 
@@ -32,10 +31,10 @@ export async function getProfile(): Promise<UserProfile> {
   return data;
 }
 
-export async function updateProfile(payload: UpdateProfilePayload): Promise<UserProfile> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+export async function updateProfile(
+  payload: UpdateProfilePayload,
+): Promise<UserProfile> {
+  const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
 
@@ -50,10 +49,10 @@ export async function updateProfile(payload: UpdateProfilePayload): Promise<User
   return data;
 }
 
-export async function checkNicknameAvailable(nickname: string): Promise<boolean> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+export async function checkNicknameAvailable(
+  nickname: string,
+): Promise<boolean> {
+  const user = await getCurrentUser();
 
   const { data, error } = await supabaseBrowser
     .from("profiles")
@@ -66,7 +65,9 @@ export async function checkNicknameAvailable(nickname: string): Promise<boolean>
   return data === null;
 }
 
-export async function getProfilesByIds(userIds: string[]): Promise<PublicProfile[]> {
+export async function getProfilesByIds(
+  userIds: string[],
+): Promise<PublicProfile[]> {
   const uniqueIds = Array.from(new Set(userIds)).filter(Boolean);
   if (uniqueIds.length === 0) return [];
 
@@ -121,9 +122,7 @@ export async function deleteAvatarImage(avatarUrl: string): Promise<void> {
 }
 
 export async function getSettings(): Promise<UserSettings> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
 
@@ -142,10 +141,10 @@ export async function getSettings(): Promise<UserSettings> {
   return data;
 }
 
-export async function updateSettings(payload: UpdateSettingsPayload): Promise<UserSettings> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+export async function updateSettings(
+  payload: UpdateSettingsPayload,
+): Promise<UserSettings> {
+  const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
 
@@ -171,9 +170,7 @@ export async function changePassword(newPassword: string): Promise<void> {
 }
 
 export async function getAuthProvider(): Promise<string> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) return "email";
 
@@ -212,10 +209,15 @@ async function getFallbackExchangeRates(): Promise<{
     }
 
     const data = (await response.json()) as OpenExchangeRatesResponse;
-    const supportedCodes = new Set(SUPPORTED_CURRENCIES.map((item) => item.code));
+    const supportedCodes = new Set(
+      SUPPORTED_CURRENCIES.map((item) => item.code),
+    );
     const rates = Object.fromEntries(
       Object.entries(data.rates ?? {}).filter(([code, rate]) => {
-        return supportedCodes.has(normalizeCurrencyCode(code)) && Number.isFinite(rate);
+        return (
+          supportedCodes.has(normalizeCurrencyCode(code)) &&
+          Number.isFinite(rate)
+        );
       }),
     );
 
@@ -245,7 +247,9 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
   }
 
   const supportedCodes = SUPPORTED_CURRENCIES.map((item) => item.code);
-  const missingCodes = supportedCodes.filter((code) => code !== "USD" && !rates[code]);
+  const missingCodes = supportedCodes.filter(
+    (code) => code !== "USD" && !rates[code],
+  );
 
   if (missingCodes.length > 0) {
     const fallback = await getFallbackExchangeRates();

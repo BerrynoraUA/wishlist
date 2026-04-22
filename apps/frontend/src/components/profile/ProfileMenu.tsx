@@ -15,11 +15,11 @@ import {
 } from "lucide-react";
 import { useGT, useLocale, useLocales } from "gt-next";
 import { useSetLocale } from "gt-next/client";
-import { supabaseBrowser } from "@/lib/supabase-browser";
 import { logout } from "@/api/login";
 import { useSubscription } from "@/hooks/use-subscription";
 import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 import { useProfile } from "@/hooks/use-settings";
+import { useCurrentUser } from "@/hooks/use-user";
 import { useKnownAccounts } from "@/hooks/use-known-accounts";
 import { upsertKnownAccount } from "@/lib/known-accounts";
 import { switchAccount } from "@/lib/account-switch";
@@ -43,36 +43,19 @@ export function ProfileMenu({ onOpen }: Props) {
   const setLocale = useSetLocale();
   const { isPro } = useSubscription();
   const { data: profile } = useProfile();
+  const { data: currentUser } = useCurrentUser();
 
   const [open, setOpen] = useState(false);
   const [languageListOpen, setLanguageListOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [switchingUserId, setSwitchingUserId] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState("");
-  const [userId, setUserId] = useState<string | null>(null);
-  const [userInitial, setUserInitial] = useState("S");
 
   const { accounts, removeAccount } = useKnownAccounts();
 
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    supabaseBrowser.auth
-      .getUser()
-      .then(({ data }) => {
-        const email = data.user?.email;
-        const id = data.user?.id ?? null;
-        setUserId(id);
-        if (email) {
-          setUserEmail(email);
-          setUserInitial(email.charAt(0).toUpperCase());
-        }
-      })
-      .catch(() => {
-        setUserEmail("");
-        setUserId(null);
-      });
-  }, []);
+  const userEmail = currentUser?.email ?? "";
+  const userId = currentUser?.id ?? null;
+  const userInitial = userEmail ? userEmail.charAt(0).toUpperCase() : "S";
 
   useEffect(() => {
     if (!open) setLanguageListOpen(false);

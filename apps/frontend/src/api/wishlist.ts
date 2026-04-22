@@ -1,6 +1,7 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { Wishlist, WishlistAccent, WishlistVisibility } from "@/types/wishlist";
 import { getWishlists } from "@/api/helpers/wishlist-helper";
+import { getCurrentSession } from "./user";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
 import {
   CreateWishlistParams,
@@ -54,9 +55,7 @@ export async function getMyWishlists({
 export async function getPublicWishlists(
   params: PaginationParams = {},
 ): Promise<Wishlist[]> {
-  const {
-    data: { session },
-  } = await supabaseBrowser.auth.getSession();
+  const session = await getCurrentSession();
 
   return getWishlists(
     (query) =>
@@ -187,12 +186,7 @@ export async function createWishlist({
   imageUrl,
   accent = WishlistAccent.Pink,
 }: CreateWishlistParams): Promise<Wishlist> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   let finalImageUrl: string | null = null;
@@ -384,9 +378,7 @@ export async function searchWishlists(
 ): Promise<Wishlist[]> {
   const { skip = 0, take = 10 } = params;
 
-  const {
-    data: { session },
-  } = await supabaseBrowser.auth.getSession();
+  const session = await getCurrentSession();
 
   if (!session?.user) throw new Error("Not authenticated");
 
@@ -422,12 +414,7 @@ export async function searchWishlists(
 export async function getFriendsUpcomingWishlists(): Promise<
   FriendUpcomingWishlist[]
 > {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   const { data, error } = await supabaseBrowser.rpc(

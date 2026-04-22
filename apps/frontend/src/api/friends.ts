@@ -1,5 +1,6 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
+import { getCurrentSession } from "./user";
 import type {
   FriendRequest,
   FriendWithDetails,
@@ -13,7 +14,7 @@ export async function getIncomingFriendRequests({
   skip = 0,
   take = 10,
 }: PaginationParams = {}): Promise<FriendRequestWithDetails[]> {
-  const session = (await supabaseBrowser.auth.getSession()).data.session;
+  const session = await getCurrentSession();
   const myUserId = session?.user.id;
 
   if (!myUserId) throw new Error("Not authenticated");
@@ -36,7 +37,7 @@ export async function getOutgoingFriendRequests({
   skip = 0,
   take = 10,
 }: PaginationParams = {}): Promise<FriendRequestWithDetails[]> {
-  const session = (await supabaseBrowser.auth.getSession()).data.session;
+  const session = await getCurrentSession();
   const myUserId = session?.user.id;
 
   if (!myUserId) throw new Error("Not authenticated");
@@ -58,12 +59,7 @@ export async function getOutgoingFriendRequests({
 export async function sendFriendRequest(
   receiverId: string,
 ): Promise<FriendRequest> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   if (session.user.id === receiverId) {
@@ -102,12 +98,7 @@ export async function rejectFriendRequest(requestId: string): Promise<void> {
 }
 
 export async function cancelFriendRequest(requestId: string): Promise<void> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   const { error } = await supabaseBrowser
@@ -124,7 +115,7 @@ export async function getFriends({
   take = 10,
   search,
 }: PaginationParams = {}): Promise<FriendWithDetails[]> {
-  const session = (await supabaseBrowser.auth.getSession()).data.session;
+  const session = await getCurrentSession();
   const myUserId = session?.user.id;
 
   if (!myUserId) throw new Error("Not authenticated");
@@ -151,7 +142,7 @@ export async function searchProfilesByNickname({
   skip?: number;
   take?: number;
 }): Promise<ProfileSearchResult[]> {
-  const session = (await supabaseBrowser.auth.getSession()).data.session;
+  const session = await getCurrentSession();
   const myUserId = session?.user?.id;
 
   if (!myUserId) throw new Error("Not authenticated");
@@ -174,12 +165,7 @@ export async function searchProfilesByNickname({
 }
 
 export async function checkFriendship(userId: string): Promise<boolean> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   const { data, error } = await supabaseBrowser
@@ -196,12 +182,7 @@ export async function checkFriendship(userId: string): Promise<boolean> {
 }
 
 export async function removeFriend(userId: string): Promise<void> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   const { error } = await supabaseBrowser

@@ -5,6 +5,7 @@ import posthog from "posthog-js";
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
 import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { getCurrentUser } from "@/api/user";
 import { posthogPersonPropsFromSupabaseUser } from "@/lib/posthog-person-from-supabase";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
@@ -24,8 +25,8 @@ function PostHogIdentity() {
 
     let cancelled = false;
 
-    void supabaseBrowser.auth.getUser().then(({ data }) => {
-      if (!cancelled) syncUser(data.user ?? null);
+    void getCurrentUser().then((user) => {
+      if (!cancelled) syncUser(user);
     });
 
     const {

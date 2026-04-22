@@ -13,6 +13,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { getCurrentSession, getCurrentUser } from "@/api/user";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import {
   clearAllSessionDrafts,
@@ -351,15 +352,13 @@ function SdkInitializer({ children }: { children: React.ReactNode }) {
   const lastAuthUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    supabaseBrowser.auth.getUser().then(({ data }) => {
-      const initialUser = data.user ?? null;
+    getCurrentUser().then((initialUser) => {
       const initialUserId = initialUser?.id ?? null;
       lastAuthUserIdRef.current = initialUserId;
 
       if (initialUserId) initRevenueCat(initialUserId);
       if (initialUser?.id && initialUser.email) {
-        supabaseBrowser.auth.getSession().then(({ data: sessionData }) => {
-          const session = sessionData.session;
+        getCurrentSession().then((session) => {
           upsertKnownAccount({
             userId: initialUser.id,
             email: initialUser.email!,

@@ -1,5 +1,6 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { getPaddle } from "@/lib/paddle";
+import { getCurrentSession, getCurrentUser } from "./user";
 import {
   SubscriptionPlan,
   SubscriptionStatus,
@@ -8,9 +9,7 @@ import {
 } from "@/types/subscription";
 
 export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return {
@@ -51,10 +50,10 @@ export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
  * Passes the Supabase user ID inside customData so the
  * webhook can map the payment back to the correct user.
  */
-export async function openPaddleCheckout(interval: BillingInterval): Promise<void> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+export async function openPaddleCheckout(
+  interval: BillingInterval,
+): Promise<void> {
+  const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
 
@@ -62,7 +61,9 @@ export async function openPaddleCheckout(interval: BillingInterval): Promise<voi
   if (!paddle) throw new Error("Paddle not initialised");
 
   const priceId =
-    interval === BillingInterval.Monthly ? PADDLE_PRICE_IDS.proMonthly : PADDLE_PRICE_IDS.proYearly;
+    interval === BillingInterval.Monthly
+      ? PADDLE_PRICE_IDS.proMonthly
+      : PADDLE_PRICE_IDS.proYearly;
 
   if (!priceId) throw new Error("Paddle price ID not configured");
 
@@ -88,9 +89,7 @@ export async function openPaddleCheckout(interval: BillingInterval): Promise<voi
  * by calling our server API which checks RevenueCat and updates the DB.
  */
 export async function syncSubscription(): Promise<SubscriptionStatus> {
-  const {
-    data: { session },
-  } = await supabaseBrowser.auth.getSession();
+  const session = await getCurrentSession();
 
   if (!session) throw new Error("Not authenticated");
 

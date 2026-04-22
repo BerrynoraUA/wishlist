@@ -35,27 +35,8 @@ import {
   SearchFilter,
   SortSelect,
 } from "@/components/ui/FilterSortBar";
-import { useDebouncedQueryParam } from "@/hooks/use-debounced-query-param";
-import { useQueryParams } from "@/hooks/use-query-params";
-import { useSessionDraftPresence } from "@/hooks/use-session-draft";
-import {
-  ITEM_STATUS_OPTIONS,
-  ITEM_STATUS_MAP,
-  ITEM_STATUS_LABELS,
-  ITEM_PRIORITY_OPTIONS,
-  ITEM_PRIORITY_LABELS,
-  ITEM_SORT_OPTIONS,
-  DEFAULT_SORT,
-} from "@/lib/filter-constants";
-import {
-  getMultiParamValues,
-  parsePage,
-  parseOptionalNumber,
-  mapFilterValues,
-  toNumberArray,
-  paginationFlags,
-  hasActiveFilters,
-} from "@/lib/filter-helpers";
+import { useWishlistItemFilters } from "./hooks/use-wishlist-item-filters";
+import { paginationFlags } from "@/lib/filter-helpers";
 
 const PAGE_SIZE = 12;
 
@@ -65,58 +46,35 @@ export default function WishlistItemsPage() {
   const router = useRouter();
   const id = params.id as string;
   const {
-    searchParams,
-    updateQueryParams,
+    currentUserId,
+    openItemId,
+    page,
     setPage,
-    setSingleValueParam,
-    setMultiValueParam,
-  } = useQueryParams(`/wishlist/${id}`);
-  const openItemId = searchParams.get("item");
-  const page = parsePage(searchParams);
-  const { value: itemSearch, setValue: setItemSearch } = useDebouncedQueryParam(
-    {
-      key: "itemSearch",
-    },
-  );
-  const { value: itemPriceMin, setValue: setItemPriceMin } =
-    useDebouncedQueryParam({
-      key: "itemPriceMin",
-    });
-  const { value: itemPriceMax, setValue: setItemPriceMax } =
-    useDebouncedQueryParam({
-      key: "itemPriceMax",
-    });
-  const itemSort = searchParams.get("itemSort") ?? DEFAULT_SORT;
-  const itemStatuses = useMemo(
-    () => getMultiParamValues(searchParams, "itemStatus"),
-    [searchParams],
-  );
-  const itemPriorities = useMemo(
-    () => getMultiParamValues(searchParams, "itemPriority"),
-    [searchParams],
-  );
-  const { data: currentUserId = "" } = useCurrentUserId();
-  const hasCreateItemDraft = useSessionDraftPresence({
-    userId: currentUserId,
-    kind: "create-item",
-    scopeId: id,
-  });
-  const hasEditWishlistDraft = useSessionDraftPresence({
-    userId: currentUserId,
-    kind: "edit-wishlist",
-    scopeId: id,
-  });
-  const normalizedPriceMin = parseOptionalNumber(itemPriceMin);
-  const normalizedPriceMax = parseOptionalNumber(itemPriceMax);
-
-  const statusNumbers = useMemo(
-    () => mapFilterValues(itemStatuses, ITEM_STATUS_MAP),
-    [itemStatuses],
-  );
-  const priorityNumbers = useMemo(
-    () => toNumberArray(itemPriorities),
-    [itemPriorities],
-  );
+    itemsQueryParams,
+    hasCreateItemDraft,
+    hasEditWishlistDraft,
+    itemSearch,
+    itemPriceMin,
+    itemPriceMax,
+    itemSort,
+    itemStatuses,
+    itemPriorities,
+    isFiltersActive,
+    activeFilterItems,
+    statusOptions,
+    priorityOptions,
+    sortOptions,
+    handleSearchChange,
+    handleMinPriceChange,
+    handleMaxPriceChange,
+    handleStatusChange,
+    handlePriorityChange,
+    handleSortChange,
+    handleRemoveActiveFilter,
+    clearToolbarFilters,
+    clearActiveFilters,
+    handleOpenItemHandled,
+  } = useWishlistItemFilters(id);
 
   // Modal states
   const [createOpen, setCreateOpen] = useState(false);
@@ -146,16 +104,7 @@ export default function WishlistItemsPage() {
     isLoading: itemsLoading,
     isFetching: itemsFetching,
     isError: itemsError,
-  } = useWishlistItems(id, {
-    skip: (page - 1) * PAGE_SIZE,
-    take: PAGE_SIZE,
-    search: itemSearch.trim() || undefined,
-    sort: itemSort,
-    statuses: statusNumbers.length ? statusNumbers : undefined,
-    priorities: priorityNumbers.length ? priorityNumbers : undefined,
-    priceMin: normalizedPriceMin,
-    priceMax: normalizedPriceMax,
-  });
+  } = useWishlistItems(id, itemsQueryParams);
 
   const { data: allItemsData } = useWishlistItems(id, { skip: 0, take: 1 });
 
@@ -174,78 +123,10 @@ export default function WishlistItemsPage() {
   const { data: isFriend = false } = useCheckFriendship(friendshipCheckUserId);
   const showDiscountBadge = !isOwner && isFriend;
 
-  const isFiltersActive = hasActiveFilters(
-    itemSearch,
-    [itemStatuses, itemPriorities],
-    [normalizedPriceMin, normalizedPriceMax],
-  );
   const { hasNextPage, hasPrevPage, totalForPagination } = paginationFlags(
     page,
     items.length,
     PAGE_SIZE,
-  );
-
-  const activeFilterItems = [
-    ...itemStatuses.map((status) => ({
-      key: `itemStatus::${status}`,
-      label: ITEM_STATUS_LABELS[status] ?? status,
-      groupLabel: t("Status", { $id: "wishlist.items.filter.status" }),
-    })),
-    ...itemPriorities.map((priority) => ({
-      key: `itemPriority::${priority}`,
-      label: ITEM_PRIORITY_LABELS[priority] ?? priority,
-      groupLabel: t("Priority", { $id: "wishlist.items.filter.priority" }),
-    })),
-    ...(normalizedPriceMin !== null
-      ? [
-          {
-            key: "itemPriceMin::value",
-            label: `${t("From", { $id: "wishlist.items.price.from" })} ${normalizedPriceMin}`,
-            groupLabel: t("Price", { $id: "wishlist.items.filter.price" }),
-          },
-        ]
-      : []),
-    ...(normalizedPriceMax !== null
-      ? [
-          {
-            key: "itemPriceMax::value",
-            label: `${t("To", { $id: "wishlist.items.price.to" })} ${normalizedPriceMax}`,
-            groupLabel: t("Price", { $id: "wishlist.items.filter.price" }),
-          },
-        ]
-      : []),
-  ];
-
-  const handleRemoveActiveFilter = useCallback(
-    (key: string) => {
-      const [paramKey, value] = key.split("::");
-      if (paramKey === "itemPriceMin") {
-        setItemPriceMin("");
-        setPage(1);
-        return;
-      }
-
-      if (paramKey === "itemPriceMax") {
-        setItemPriceMax("");
-        setPage(1);
-        return;
-      }
-
-      const queryKey =
-        paramKey === "itemStatus" ? "itemStatus" : "itemPriority";
-      const currentValues = getMultiParamValues(searchParams, queryKey);
-      setMultiValueParam(
-        queryKey,
-        currentValues.filter((current) => current !== value),
-      );
-    },
-    [
-      searchParams,
-      setItemPriceMax,
-      setItemPriceMin,
-      setMultiValueParam,
-      setPage,
-    ],
   );
 
   const handleShare = useCallback(async () => {
@@ -289,14 +170,6 @@ export default function WishlistItemsPage() {
       });
     }
   }, [id, t]);
-
-  const handleOpenItemHandled = useCallback(
-    (itemId: string) => {
-      if (searchParams.get("item") !== itemId) return;
-      updateQueryParams((p) => p.delete("item"));
-    },
-    [searchParams, updateQueryParams],
-  );
 
   return (
     <main className={styles.page}>
@@ -342,56 +215,33 @@ export default function WishlistItemsPage() {
                 <FilterSortRow className={styles.filterRow}>
                   <SearchFilter
                     value={itemSearch}
-                    onChange={(value) => {
-                      setItemSearch(value);
-                      setPage(1);
-                    }}
+                    onChange={handleSearchChange}
                     placeholder={t("Search items...", {
                       $id: "wishlist.page.searchItems",
                     })}
                   />
                   <FilterDropdown
                     label={t("Status", { $id: "wishlist.items.filter.status" })}
-                    options={ITEM_STATUS_OPTIONS.map((option) => ({
-                      ...option,
-                      label: t(option.label, {
-                        $id: `wishlist.items.status.${option.value}`,
-                      }),
-                    }))}
+                    options={statusOptions}
                     active={itemStatuses}
-                    onChange={(values) =>
-                      setMultiValueParam("itemStatus", values)
-                    }
+                    onChange={handleStatusChange}
                     multiSelect
                   />
                   <FilterDropdown
                     label={t("Priority", {
                       $id: "wishlist.items.filter.priority",
                     })}
-                    options={ITEM_PRIORITY_OPTIONS.map((option) => ({
-                      ...option,
-                      label: t(option.label, {
-                        $id: `wishlist.items.priority.${option.value}`,
-                      }),
-                    }))}
+                    options={priorityOptions}
                     active={itemPriorities}
-                    onChange={(values) =>
-                      setMultiValueParam("itemPriority", values)
-                    }
+                    onChange={handlePriorityChange}
                     multiSelect
                   />
                   <NumberRangeFilter
                     label={t("Price", { $id: "wishlist.items.filter.price" })}
                     minValue={itemPriceMin}
                     maxValue={itemPriceMax}
-                    onMinChange={(value) => {
-                      setItemPriceMin(value);
-                      setPage(1);
-                    }}
-                    onMaxChange={(value) => {
-                      setItemPriceMax(value);
-                      setPage(1);
-                    }}
+                    onMinChange={handleMinPriceChange}
+                    onMaxChange={handleMaxPriceChange}
                     minPlaceholder={t("From", {
                       $id: "wishlist.items.price.from",
                     })}
@@ -402,19 +252,7 @@ export default function WishlistItemsPage() {
                       <button
                         type="button"
                         className={styles.clearFiltersBtn}
-                        onClick={() => {
-                          setItemSearch("");
-                          setItemPriceMin("");
-                          setItemPriceMax("");
-                          updateQueryParams((nextParams) => {
-                            nextParams.delete("itemStatus");
-                            nextParams.delete("itemPriority");
-                            nextParams.delete("itemPriceMin");
-                            nextParams.delete("itemPriceMax");
-                            nextParams.delete("itemSearch");
-                            nextParams.delete("page");
-                          });
-                        }}
+                        onClick={clearToolbarFilters}
                         title={t("Clear filters", {
                           $id: "filter.clearFilters",
                         })}
@@ -423,31 +261,16 @@ export default function WishlistItemsPage() {
                       </button>
                     )}
                     <SortSelect
-                      options={ITEM_SORT_OPTIONS.map((option) => ({
-                        ...option,
-                        label: t(option.label, {
-                          $id: `wishlist.items.sort.${option.value}`,
-                        }),
-                      }))}
+                      options={sortOptions}
                       value={itemSort}
-                      onChange={(value) =>
-                        setSingleValueParam("itemSort", value, DEFAULT_SORT)
-                      }
+                      onChange={handleSortChange}
                     />
                   </FilterSortActions>
                 </FilterSortRow>
                 <ActiveFilters
                   items={activeFilterItems}
                   onRemove={handleRemoveActiveFilter}
-                  onClearAll={() => {
-                    updateQueryParams((nextParams) => {
-                      nextParams.delete("itemStatus");
-                      nextParams.delete("itemPriority");
-                      nextParams.delete("itemPriceMin");
-                      nextParams.delete("itemPriceMax");
-                      nextParams.delete("page");
-                    });
-                  }}
+                  onClearAll={clearActiveFilters}
                   clearLabel={t("Clear all", { $id: "filter.clearAll" })}
                 />
               </FilterSortBar>

@@ -11,12 +11,12 @@ import {
   hasReachedSearchThreshold,
   normalizeSearchQuery,
 } from "@/lib/helpers/search";
-import { supabaseBrowser } from "@/lib/supabase-browser";
 import styles from "./AddFriendModal.module.scss";
 import {
   useSearchProfilesByNickname,
   useSendFriendRequest,
 } from "@/hooks/use-friends";
+import { useCurrentUserId } from "@/hooks/use-user";
 import type { ProfileSearchResult } from "@/api/types/friends";
 
 type Props = {
@@ -27,7 +27,6 @@ type Props = {
 export function AddFriendModal({ open, onClose }: Props) {
   const t = useGT();
   const [origin, setOrigin] = useState<string>("");
-  const [userId, setUserId] = useState<string>("");
   const [username, setUsername] = useState("");
   const [copied, setCopied] = useState(false);
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -43,6 +42,7 @@ export function AddFriendModal({ open, onClose }: Props) {
     width: number;
   } | null>(null);
   const inputWrapperRef = useRef<HTMLDivElement>(null);
+  const { data: userId = "" } = useCurrentUserId();
 
   const take = 10;
 
@@ -77,16 +77,6 @@ export function AddFriendModal({ open, onClose }: Props) {
 
   useEffect(() => {
     setOrigin(window.location.origin);
-
-    supabaseBrowser.auth
-      .getUser()
-      .then(({ data }) => {
-        const id = data.user?.id;
-        if (id) setUserId(id);
-      })
-      .catch(() => {
-        setUserId("");
-      });
   }, []);
 
   // Debounce input to avoid spamming RPC

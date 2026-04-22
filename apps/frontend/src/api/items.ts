@@ -1,6 +1,7 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { Item } from "@/types/item";
 import { CreateItemParams, UpdateItemParams } from "./types/item";
+import { getCurrentSession } from "./user";
 import {
   deletePublicImage,
   uploadPublicImage,
@@ -28,12 +29,7 @@ export async function createItem({
   currency,
   additional_links,
 }: CreateItemParams): Promise<Item> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   await ensureProForPriority(priority);
@@ -278,7 +274,7 @@ export async function getItemVotes(
 ): Promise<ItemVotesResult> {
   if (itemIds.length === 0) return { counts: {}, userVotes: new Set() };
 
-  const session = (await supabaseBrowser.auth.getSession()).data.session;
+  const session = await getCurrentSession();
   const userId = session?.user.id;
 
   const { data: rows, error } = await supabaseBrowser
@@ -302,7 +298,7 @@ export async function getItemVotes(
 }
 
 export async function toggleItemVote(itemId: string): Promise<void> {
-  const session = (await supabaseBrowser.auth.getSession()).data.session;
+  const session = await getCurrentSession();
   if (!session?.user.id) throw new Error("Not authenticated");
 
   const { data: existing } = await supabaseBrowser

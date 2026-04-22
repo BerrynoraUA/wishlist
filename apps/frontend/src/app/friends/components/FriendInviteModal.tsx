@@ -6,7 +6,7 @@ import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { Heading, Text, Eyebrow } from "@/components/ui/Typography";
 import { useSendFriendRequest } from "@/hooks/use-friends";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { useCurrentUserId } from "@/hooks/use-user";
 import styles from "./FriendInviteModal.module.scss";
 
 type Status = "idle" | "missing" | "self" | "sent" | "error" | "unauth";
@@ -27,12 +27,13 @@ export function FriendInviteModal({ open, userId, onClose }: Props) {
   const t = useGT();
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const selfIdRef = useRef<string>("");
+  const { data: selfUserId = "", isLoading: isCurrentUserLoading } =
+    useCurrentUserId();
 
   const sendRequest = useSendFriendRequest();
 
   const sendInvite = () => {
-    if (!userId || !selfIdRef.current) return;
+    if (!userId || !selfUserId) return;
     setErrorMessage("");
 
     sendRequest.mutate(userId, {
@@ -62,45 +63,39 @@ export function FriendInviteModal({ open, userId, onClose }: Props) {
       return;
     }
 
-    supabaseBrowser.auth
-      .getUser()
-      .then(({ data }) => {
-        if (cancelled) return;
-        const id = data.user?.id ?? "";
-        selfIdRef.current = id;
+    if (isCurrentUserLoading) return;
 
-        if (!id) {
-          setStatus("unauth");
-        } else if (userId === id) {
-          setStatus("self");
-        } else {
-          sendRequest.mutate(userId, {
-            onSuccess: () => {
-              if (!cancelled) setStatus("sent");
-            },
-            onError: (err) => {
-              if (cancelled) return;
-              const message =
-                err instanceof Error
-                  ? err.message
-                  : t("Could not send request.", {
-                      $id: "friends.inviteModal.sendErrorFallback",
-                    });
-              setErrorMessage(message);
-              setStatus("error");
-            },
-          });
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setStatus("unauth");
-      });
+    if (!selfUserId) {
+      setStatus("unauth");
+      return;
+    }
+
+    if (userId === selfUserId) {
+      setStatus("self");
+      return;
+    }
+
+    sendRequest.mutate(userId, {
+      onSuccess: () => {
+        if (!cancelled) setStatus("sent");
+      },
+      onError: (err) => {
+        if (cancelled) return;
+        const message =
+          err instanceof Error
+            ? err.message
+            : t("Could not send request.", {
+                $id: "friends.inviteModal.sendErrorFallback",
+              });
+        setErrorMessage(message);
+        setStatus("error");
+      },
+    });
 
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [isCurrentUserLoading, open, selfUserId, sendRequest, t, userId]);
 
   const statusInfo: Record<Status, StatusInfo> = useMemo(
     () => ({
