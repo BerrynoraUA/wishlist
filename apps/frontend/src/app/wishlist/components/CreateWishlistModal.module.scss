@@ -52,13 +52,35 @@
 }
 
 .draftAction {
-  border: none;
-  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--brand-alpha-20);
+  border-radius: 999px;
+  background: var(--brand-alpha-06);
   color: var(--color-brand);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  padding: 0;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--brand-alpha-12);
+    border-color: var(--brand-alpha-30);
+    color: var(--color-brand-dark);
+    box-shadow: 0 8px 18px var(--brand-alpha-12);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--input-focus-ring);
+  }
 }
 
 .draftNote {

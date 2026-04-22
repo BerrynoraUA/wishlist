@@ -3,13 +3,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   SESSION_DRAFT_CHANGE_EVENT,
+  type SessionDraftDescriptor,
+  type SessionDraftKind,
+} from "@/types/session-storage";
+import {
   buildSessionDraftKey,
   clearSessionDraft,
   hasSessionDraft,
   readSessionDraft,
   writeSessionDraft,
-  type SessionDraftDescriptor,
-  type SessionDraftKind,
 } from "@/lib/session-drafts";
 
 type UseSessionDraftOptions<T> = {
@@ -94,6 +96,7 @@ export function useSessionDraft<T>({
 
   useEffect(() => {
     if (!open) {
+      hydratedRef.current = false;
       setIsDraftRestored(false);
     }
   }, [open]);

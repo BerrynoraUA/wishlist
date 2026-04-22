@@ -117,7 +117,7 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
     [preferredCurrency],
   );
 
-  const { isDraftRestored, clearDraft } = useSessionDraft({
+  const { hasDraft, isDraftRestored, clearDraft } = useSessionDraft({
     userId: currentUserId,
     kind: "create-secret-santa",
     open: true,
@@ -258,22 +258,11 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
               <div className={styles.draftBannerMeta}>
                 <DraftBadge label={t("Draft", { $id: "draft.badge" })} />
                 <span>
-                  {isDraftRestored
-                    ? t("Draft restored for this event.", {
-                        $id: "draft.secretSanta.restored",
-                      })
-                    : t("Draft is saved for this event.", {
-                        $id: "draft.secretSanta.saved",
-                      })}
+                  {t("Draft restored for this event.", {
+                    $id: "draft.secretSanta.restored",
+                  })}
                 </span>
               </div>
-              <button
-                type="button"
-                className={styles.draftAction}
-                onClick={handleDiscardDraft}
-              >
-                {t("Discard", { $id: "draft.discard" })}
-              </button>
             </div>
           )}
           {isDraftRestored && localImageNeedsReupload && (
@@ -481,6 +470,16 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
 
         {/* Footer */}
         <div className={styles.footer}>
+          {hasDraft && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.draftFooterAction}
+              onClick={handleDiscardDraft}
+            >
+              {t("Discard draft", { $id: "draft.discardAction" })}
+            </Button>
+          )}
           <Button variant="secondary" onClick={handleClose}>
             {t("Cancel", { $id: "secretSanta.create.cancel" })}
           </Button>
