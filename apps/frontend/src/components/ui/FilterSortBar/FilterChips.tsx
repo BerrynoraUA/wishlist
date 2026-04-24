@@ -18,18 +18,10 @@ type Props = {
   className?: string;
 };
 
-export function FilterChips({
-  options,
-  active,
-  onChange,
-  multiSelect = false,
-  className,
-}: Props) {
+export function FilterChips({ options, active, onChange, multiSelect = false, className }: Props) {
   function handleClick(value: string) {
     if (multiSelect) {
-      const next = active.includes(value)
-        ? active.filter((v) => v !== value)
-        : [...active, value];
+      const next = active.includes(value) ? active.filter((v) => v !== value) : [...active, value];
       onChange(next);
     } else {
       onChange(active.includes(value) ? [] : [value]);
@@ -47,13 +39,9 @@ export function FilterChips({
             className={`${styles.chip} ${isActive ? styles.active : ""}`}
             onClick={() => handleClick(option.value)}
           >
-            {option.icon && (
-              <span className={styles.chipIcon}>{option.icon}</span>
-            )}
+            {option.icon && <span className={styles.chipIcon}>{option.icon}</span>}
             <span>{option.label}</span>
-            {option.count !== undefined && (
-              <span className={styles.chipCount}>{option.count}</span>
-            )}
+            {option.count !== undefined && <span className={styles.chipCount}>{option.count}</span>}
           </button>
         );
       })}

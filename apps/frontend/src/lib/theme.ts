@@ -91,6 +91,7 @@ export function getAccentInlineStyles(
 ): Record<string, string> {
   const t = (ACCENT_MAP[accent] ?? ACCENT_MAP[0])[resolvedTheme];
   const cm = (pct: number) => `color-mix(in srgb, ${t.b} ${pct}%, transparent)`;
+  const bg = resolvedTheme === "dark" ? "#111114" : "#fffafa";
 
   return {
     "--color-brand": t.b,
@@ -112,6 +113,11 @@ export function getAccentInlineStyles(
     "--shadow-brand": `0 4px 14px ${cm(30)}`,
     "--shadow-brand-lg": `0 8px 30px ${cm(20)}`,
     "--gradient-brand-subtle": `linear-gradient(135deg, ${t.l}, ${t.r})`,
+    "--radial-brand": cm(6),
+    "--color-pro-border": cm(25),
+    "--color-pro-glow": cm(15),
+    "--gradient-header": `linear-gradient(135deg, ${bg} 0%, ${t.r} 50%, ${t.l} 100%)`,
+    "--gradient-hero": `linear-gradient(135deg, ${bg}, ${t.r}, ${t.l})`,
   };
 }
 
@@ -159,5 +165,11 @@ export function buildThemeInitScript(): string {
   root.style.setProperty("--shadow-brand", "0 4px 14px color-mix(in srgb, " + t.b + " 30%, transparent)");
   root.style.setProperty("--shadow-brand-lg", "0 8px 30px color-mix(in srgb, " + t.b + " 20%, transparent)");
   root.style.setProperty("--gradient-brand-subtle", "linear-gradient(135deg, " + t.l + ", " + t.r + ")");
+  root.style.setProperty("--radial-brand", "color-mix(in srgb, " + t.b + " 6%, transparent)");
+  root.style.setProperty("--color-pro-border", "color-mix(in srgb, " + t.b + " 25%, transparent)");
+  root.style.setProperty("--color-pro-glow", "color-mix(in srgb, " + t.b + " 15%, transparent)");
+  var bg = resolvedTheme === "dark" ? "#111114" : "#fffafa";
+  root.style.setProperty("--gradient-header", "linear-gradient(135deg, " + bg + " 0%, " + t.r + " 50%, " + t.l + " 100%)");
+  root.style.setProperty("--gradient-hero", "linear-gradient(135deg, " + bg + ", " + t.r + ", " + t.l + ")");
 })();`;
 }

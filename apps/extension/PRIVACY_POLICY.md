@@ -7,12 +7,15 @@ This privacy policy describes how the Wishlane browser extension ("Extension") c
 ## 1. Information We Collect
 
 ### Account Information
+
 When you sign in to the Extension, we process your email address and authentication credentials to verify your identity. If you use Google sign-in, we receive your name, email address, and profile picture from Google.
 
 ### Product Data
+
 When you click "Add to Wishlist," the Extension reads product information (title, price, image URL, and description) from the currently active web page. This data is only collected when you actively use the Extension — it is **not** collected automatically or in the background.
 
 ### Page URL
+
 The URL of the active tab is sent to the Wishlane server for product data extraction only when you open the Extension popup on that page.
 
 ## 2. Information We Do NOT Collect
@@ -36,10 +39,10 @@ The URL of the active tab is sent to the Wishlane server for product data extrac
 
 ## 5. Third-Party Services
 
-| Service | Purpose | Privacy Policy |
-|---------|---------|----------------|
-| Supabase | Authentication & data storage | https://supabase.com/privacy |
-| Google OAuth | Optional sign-in method | https://policies.google.com/privacy |
+| Service      | Purpose                       | Privacy Policy                      |
+| ------------ | ----------------------------- | ----------------------------------- |
+| Supabase     | Authentication & data storage | https://supabase.com/privacy        |
+| Google OAuth | Optional sign-in method       | https://policies.google.com/privacy |
 
 We do not sell, rent, or share your personal data with any other third parties.
 
@@ -50,6 +53,7 @@ Your data is retained as long as you maintain an active Wishlane account. You ca
 ## 7. Your Rights
 
 You may:
+
 - **Access** your data through the Wishlane web or mobile app.
 - **Delete** your account and all stored data at any time.
 - **Revoke** Google sign-in permissions via your Google Account settings.
@@ -61,6 +65,7 @@ We may update this privacy policy from time to time. Changes will be posted on t
 ## 9. Contact
 
 If you have questions about this privacy policy, contact us at:
+
 - Email: [valerii.inshyn@gmail.com]
 
 ---

@@ -1,5 +1,5 @@
 import { Skeleton, SkeletonCard } from "@/components/ui/Skeleton/Skeleton";
-import { SecretSantaPageShell } from "./components/SecretSantaPageShell";
+import { SecretSantaPageShell } from "./components/secret-santa-page-shell/SecretSantaPageShell";
 
 export default function SecretSantaLoading() {
   return (

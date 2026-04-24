@@ -1,9 +1,4 @@
-export type KnownAccountProvider =
-  | "email"
-  | "google"
-  | "apple"
-  | "facebook"
-  | "unknown";
+export type KnownAccountProvider = "email" | "google" | "apple" | "facebook" | "unknown";
 
 export type KnownAccount = {
   userId: string;
@@ -16,6 +11,7 @@ export type KnownAccount = {
   accessToken?: string | null;
   refreshToken?: string | null;
   expiresAt?: number | null;
+  defaultAccent?: number | null;
 };
 
 export const KNOWN_ACCOUNTS_STORAGE_KEY = "wishlist:known-accounts:v1";

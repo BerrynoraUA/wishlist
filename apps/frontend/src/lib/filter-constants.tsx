@@ -1,11 +1,4 @@
-import {
-  Clock3,
-  Globe,
-  Lock,
-  PackageCheck,
-  PackageOpen,
-  Users,
-} from "lucide-react";
+import { Clock3, Globe, Lock, PackageCheck, PackageOpen, Users } from "lucide-react";
 import { WishlistVisibility } from "@/types/wishlist";
 
 // ─── Priority Bar Icons ────────────────────────────────────

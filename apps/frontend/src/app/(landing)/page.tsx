@@ -188,7 +188,9 @@ export default function LandingPage() {
             ref={burgerRef}
             onClick={toggleMenu}
             aria-label={t("Open menu", { $id: "landing.nav.openMenu.aria" })}
-            data-tooltip={t("Open menu", { $id: "landing.nav.openMenu.tooltip" })}
+            data-tooltip={t("Open menu", {
+              $id: "landing.nav.openMenu.tooltip",
+            })}
           >
             <span />
             <span />
@@ -262,7 +264,10 @@ export default function LandingPage() {
               )}
             </p>
             <div className={styles.heroCta}>
-              <Link href="/register" className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}>
+              <Link
+                href="/register"
+                className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}
+              >
                 {t("Start Your First Wishlist", {
                   $id: "landing.hero.ctaPrimary",
                 })}
@@ -319,7 +324,9 @@ export default function LandingPage() {
                     </span>
                   </div>
                   <span className={`${styles.mockupCardBadge} ${styles.mockupCardBadgeFriends}`}>
-                    {t("👥 Friends", { $id: "landing.hero.mockup.badgeFriends" })}
+                    {t("👥 Friends", {
+                      $id: "landing.hero.mockup.badgeFriends",
+                    })}
                   </span>
                 </div>
                 <div className={styles.mockupCardItems}>
@@ -616,7 +623,9 @@ export default function LandingPage() {
               <div className={styles.stepNumber}>1</div>
               <div className={styles.stepContent}>
                 <h3 className={styles.stepTitle}>
-                  {t("Create Your Wishlist", { $id: "landing.how.step1.title" })}
+                  {t("Create Your Wishlist", {
+                    $id: "landing.how.step1.title",
+                  })}
                 </h3>
                 <p className={styles.stepDesc}>
                   {t(
@@ -741,7 +750,10 @@ export default function LandingPage() {
                   })}
                 </span>
               </div>
-              <Link href="/register" className={`${styles.btn} ${styles.btnSm} ${styles.btnPrimary}`}>
+              <Link
+                href="/register"
+                className={`${styles.btn} ${styles.btnSm} ${styles.btnPrimary}`}
+              >
                 {t("View Wishlist", { $id: "landing.discover.viewWishlist" })}
               </Link>
             </div>

@@ -56,14 +56,10 @@ export function CardInfo({
     <div className={styles.info}>
       <strong title={name}>{name}</strong>
 
-      {isWishlist && description && (
-        <p className={styles.description}>{description}</p>
-      )}
+      {isWishlist && description && <p className={styles.description}>{description}</p>}
 
       <div className={styles.metaRow}>
-        {formattedPrice && (
-          <span className={styles.price}>{formattedPrice}</span>
-        )}
+        {formattedPrice && <span className={styles.price}>{formattedPrice}</span>}
         {store && (
           <span className={styles.store} title={store}>
             {store}
@@ -80,9 +76,7 @@ export function CardInfo({
           }}
         >
           <ThumbsUp size={14} />
-          {voteCount > 0 && (
-            <span className={styles.voteCount}>{voteCount}</span>
-          )}
+          {voteCount > 0 && <span className={styles.voteCount}>{voteCount}</span>}
         </button>
       )}
 
@@ -101,11 +95,7 @@ export function CardInfo({
             }}
             disabled={!canToggleReservation}
           >
-            <ReservationLockIcon
-              isReserved={isReservedState}
-              size={16}
-              animateOnReserve
-            />
+            <ReservationLockIcon isReserved={isReservedState} size={16} animateOnReserve />
             <span>{reserveBtnLabel}</span>
           </button>
 

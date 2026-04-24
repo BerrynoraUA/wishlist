@@ -13,12 +13,7 @@ type Props = {
   triggerClassName?: string;
 };
 
-export function DatePickerField({
-  value,
-  onChange,
-  className,
-  triggerClassName,
-}: Props) {
+export function DatePickerField({ value, onChange, className, triggerClassName }: Props) {
   const t = useGT();
   const locale = useLocale();
   const [expanded, setExpanded] = useState(false);
@@ -39,9 +34,7 @@ export function DatePickerField({
       >
         <CalendarDays size={16} className={styles.icon} />
         <span className={value ? styles.value : styles.placeholder}>
-          {value
-            ? displayValue
-            : t("Select a date", { $id: "datePicker.placeholder" })}
+          {value ? displayValue : t("Select a date", { $id: "datePicker.placeholder" })}
         </span>
         {expanded ? (
           <button

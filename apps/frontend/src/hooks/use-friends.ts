@@ -23,10 +23,8 @@ export const friendKeys = {
   lists: () => [...friendKeys.all, "list"] as const,
   list: (params?: PaginationParams) => [...friendKeys.lists(), params] as const,
   requests: () => [...friendKeys.all, "requests"] as const,
-  incoming: (params?: PaginationParams) =>
-    [...friendKeys.requests(), "incoming", params] as const,
-  outgoing: (params?: PaginationParams) =>
-    [...friendKeys.requests(), "outgoing", params] as const,
+  incoming: (params?: PaginationParams) => [...friendKeys.requests(), "incoming", params] as const,
+  outgoing: (params?: PaginationParams) => [...friendKeys.requests(), "outgoing", params] as const,
   check: (userId: string) => [...friendKeys.all, "check", userId] as const,
   search: (query: string, params?: PaginationParams) =>
     [...friendKeys.all, "search", query, params] as const,
@@ -70,10 +68,7 @@ export function useCheckFriendship(userId: string) {
   });
 }
 
-export function useSearchProfilesByNickname(
-  query: string,
-  params?: PaginationParams,
-) {
+export function useSearchProfilesByNickname(query: string, params?: PaginationParams) {
   const trimmed = normalizeSearchQuery(query);
 
   return useQuery({
@@ -169,20 +164,12 @@ export function useRemoveFriend() {
   });
 }
 
-export function useFriendsWithoutWishlistAccess(
-  params: GetFriendsWithoutWishlistAccessParams,
-) {
+export function useFriendsWithoutWishlistAccess(params: GetFriendsWithoutWishlistAccessParams) {
   const { wishlistId, search, skip = 0, take = 20 } = params;
   const normalizedSearch = normalizeSearchQuery(search) || undefined;
 
   return useQuery({
-    queryKey: [
-      "friends-without-wishlist-access",
-      wishlistId,
-      normalizedSearch ?? "",
-      skip,
-      take,
-    ],
+    queryKey: ["friends-without-wishlist-access", wishlistId, normalizedSearch ?? "", skip, take],
     queryFn: () =>
       getFriendsWithoutWishlistAccess({
         wishlistId,

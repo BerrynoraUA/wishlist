@@ -1,0 +1,249 @@
+@use "@/styles/variables" as *;
+
+.loading {
+  text-align: center;
+  color: $text-muted;
+  padding: 40px;
+}
+
+/* ── Avatar ── */
+.avatarRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatarUpload {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px dashed var(--color-border-light);
+  background: var(--color-bg-subtle);
+  cursor: pointer;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: all 0.25s $ease-out;
+  padding: 0;
+
+  &:hover {
+    border-color: $brand;
+
+    .avatarOverlay {
+      opacity: 1;
+    }
+  }
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitial {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: 28px;
+  font-weight: var(--fw-bold);
+  color: $brand;
+  background: var(--gradient-brand-subtle);
+}
+
+.avatarOverlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s;
+  border-radius: 50%;
+}
+
+.fileInput {
+  display: none;
+}
+
+.avatarHint {
+  display: grid;
+  gap: 4px;
+
+  p {
+    font-size: var(--fs-body);
+    color: $text;
+    font-weight: var(--fw-semibold);
+    margin: 0;
+  }
+}
+
+.avatarBadge {
+  justify-self: start;
+}
+
+.hint {
+  font-size: var(--fs-caption) !important;
+  color: $text-muted !important;
+  font-weight: 400 !important;
+  margin-top: 2px !important;
+}
+
+/* ── Fields ── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  color: $text;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.labelHint {
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-regular);
+  color: $text-light;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: $radius-md;
+  border: 1.5px solid var(--input-border);
+  background: var(--input-bg);
+  color: $text;
+  font-size: var(--fs-body);
+  transition: all 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--input-focus-ring);
+  }
+
+  &::placeholder {
+    color: $text-light;
+  }
+}
+
+.inputInvalid {
+  border-color: var(--color-danger);
+
+  &:focus {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 18%, transparent);
+  }
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputPrefix {
+  position: absolute;
+  left: 14px;
+  font-size: var(--fs-body);
+  color: $text-muted;
+  font-weight: var(--fw-semibold);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.withPrefix {
+  padding-left: 28px;
+  padding-right: 36px;
+}
+
+.nicknameOk {
+  position: absolute;
+  right: 12px;
+  color: var(--color-success);
+}
+
+.nicknameTaken {
+  position: absolute;
+  right: 12px;
+  color: var(--color-danger);
+}
+
+.errorText {
+  font-size: var(--fs-caption);
+  color: var(--color-danger);
+  margin: 0;
+}
+
+.textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: $radius-md;
+  border: 1.5px solid var(--input-border);
+  background: var(--input-bg);
+  color: $text;
+  font-size: var(--fs-body);
+  font-family: inherit;
+  resize: vertical;
+  min-height: 72px;
+  max-height: 144px;
+  overflow-y: auto;
+  transition: all 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--input-focus-ring);
+  }
+
+  &::placeholder {
+    color: $text-light;
+  }
+}
+
+.charCount {
+  font-size: var(--fs-caption);
+  color: $text-light;
+  text-align: right;
+}
+
+/* ── Actions ── */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.successMsg {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  color: var(--color-success);
+  animation: fadeIn 0.3s $ease-out;
+}
+
+@media (max-width: 640px) {
+  .avatarRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+
+    button {
+      width: 100%;
+    }
+  }
+}

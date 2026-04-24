@@ -1,9 +1,4 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  keepPreviousData,
-} from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   getWishlistItems,
@@ -28,15 +23,11 @@ export const itemKeys = {
   all: ["items"] as const,
   wishlist: (wishlistId: string, params?: PaginationParams) =>
     [...itemKeys.all, "wishlist", wishlistId, params] as const,
-  votes: (itemIds: string[]) =>
-    [...itemKeys.all, "votes", ...itemIds.sort()] as const,
+  votes: (itemIds: string[]) => [...itemKeys.all, "votes", ...itemIds.sort()] as const,
 };
 
 // Queries
-export function useWishlistItems(
-  wishlistId: string,
-  params?: PaginationParams,
-) {
+export function useWishlistItems(wishlistId: string, params?: PaginationParams) {
   return useQuery({
     queryKey: itemKeys.wishlist(wishlistId, params),
     queryFn: () => getWishlistItems(wishlistId, params),

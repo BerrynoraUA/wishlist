@@ -34,8 +34,5 @@ export type ItemCardProps = ItemCardData & {
   voteCount?: number;
   hasVoted?: boolean;
   onToggleVote?: (id: string) => void;
-  renderDetailModal?: (opts: {
-    open: boolean;
-    onClose: () => void;
-  }) => ReactNode;
+  renderDetailModal?: (opts: { open: boolean; onClose: () => void }) => ReactNode;
 };

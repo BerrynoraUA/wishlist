@@ -44,6 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     cookieStore.get(RESOLVED_THEME_COOKIE_NAME)?.value,
   );
   const initialAccent = parseAccentCookie(cookieStore.get(ACCENT_COOKIE_NAME)?.value);
+  const initialBannerDismissed = Boolean(cookieStore.get("mobile_banner_dismissed")?.value);
 
   return (
     <html
@@ -69,6 +70,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             initialTheme={initialTheme}
             initialResolvedTheme={initialResolvedTheme}
             initialAccent={initialAccent}
+            initialBannerDismissed={initialBannerDismissed}
           >
             {children}
           </AppShell>

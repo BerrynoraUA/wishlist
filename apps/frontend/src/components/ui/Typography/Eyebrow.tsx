@@ -14,12 +14,7 @@ type EyebrowProps = HTMLAttributes<HTMLSpanElement> & {
   tone?: TypographyTone;
 };
 
-export function Eyebrow({
-  children,
-  tone = "muted",
-  className,
-  ...props
-}: EyebrowProps) {
+export function Eyebrow({ children, tone = "muted", className, ...props }: EyebrowProps) {
   const cls = `${styles.eyebrow} ${toneClass[tone]} ${className ?? ""}`.trim();
   return (
     <span className={cls} {...props}>

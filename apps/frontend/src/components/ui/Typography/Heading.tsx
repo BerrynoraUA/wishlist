@@ -24,7 +24,6 @@ export function Heading({
   className,
   ...props
 }: HeadingProps) {
-  const cls =
-    `${styles.heading} ${styles.title} ${toneClass[tone]} ${className ?? ""}`.trim();
+  const cls = `${styles.heading} ${styles.title} ${toneClass[tone]} ${className ?? ""}`.trim();
   return createElement(`h${level}`, { className: cls, ...props }, children);
 }

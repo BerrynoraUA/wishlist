@@ -31,9 +31,7 @@ export async function getProfile(): Promise<UserProfile> {
   return data;
 }
 
-export async function updateProfile(
-  payload: UpdateProfilePayload,
-): Promise<UserProfile> {
+export async function updateProfile(payload: UpdateProfilePayload): Promise<UserProfile> {
   const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
@@ -49,9 +47,7 @@ export async function updateProfile(
   return data;
 }
 
-export async function checkNicknameAvailable(
-  nickname: string,
-): Promise<boolean> {
+export async function checkNicknameAvailable(nickname: string): Promise<boolean> {
   const user = await getCurrentUser();
 
   const { data, error } = await supabaseBrowser
@@ -65,9 +61,7 @@ export async function checkNicknameAvailable(
   return data === null;
 }
 
-export async function getProfilesByIds(
-  userIds: string[],
-): Promise<PublicProfile[]> {
+export async function getProfilesByIds(userIds: string[]): Promise<PublicProfile[]> {
   const uniqueIds = Array.from(new Set(userIds)).filter(Boolean);
   if (uniqueIds.length === 0) return [];
 
@@ -141,9 +135,7 @@ export async function getSettings(): Promise<UserSettings> {
   return data;
 }
 
-export async function updateSettings(
-  payload: UpdateSettingsPayload,
-): Promise<UserSettings> {
+export async function updateSettings(payload: UpdateSettingsPayload): Promise<UserSettings> {
   const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
@@ -209,15 +201,10 @@ async function getFallbackExchangeRates(): Promise<{
     }
 
     const data = (await response.json()) as OpenExchangeRatesResponse;
-    const supportedCodes = new Set(
-      SUPPORTED_CURRENCIES.map((item) => item.code),
-    );
+    const supportedCodes = new Set(SUPPORTED_CURRENCIES.map((item) => item.code));
     const rates = Object.fromEntries(
       Object.entries(data.rates ?? {}).filter(([code, rate]) => {
-        return (
-          supportedCodes.has(normalizeCurrencyCode(code)) &&
-          Number.isFinite(rate)
-        );
+        return supportedCodes.has(normalizeCurrencyCode(code)) && Number.isFinite(rate);
       }),
     );
 
@@ -247,9 +234,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
   }
 
   const supportedCodes = SUPPORTED_CURRENCIES.map((item) => item.code);
-  const missingCodes = supportedCodes.filter(
-    (code) => code !== "USD" && !rates[code],
-  );
+  const missingCodes = supportedCodes.filter((code) => code !== "USD" && !rates[code]);
 
   if (missingCodes.length > 0) {
     const fallback = await getFallbackExchangeRates();

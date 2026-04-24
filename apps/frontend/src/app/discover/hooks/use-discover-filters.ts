@@ -1,97 +1,80 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo } from "react";
 import { useGT } from "gt-next";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
-import {
-  ITEM_PRIORITY_OPTIONS,
-  DISCOVER_SORT_OPTIONS,
-} from "@/lib/filter-constants";
+import { useDebouncedQueryParam } from "@/hooks/use-debounced-query-param";
+import { useQueryParams } from "@/hooks/use-query-params";
+import { ITEM_PRIORITY_OPTIONS, DISCOVER_SORT_OPTIONS } from "@/lib/filter-constants";
+import { getMultiParamValues } from "@/lib/filter-helpers";
 import type { DiscoverTab } from "./use-discover-tab-data";
 
+const DEFAULT_SORT = "default";
+const DEFAULT_TAB: DiscoverTab = "wishlists";
+
+/**
+ * URL-backed filter/sort/tab state for the Discover page.
+ * Safe to call from multiple components — everything is derived from
+ * `useSearchParams`, so all instances stay in sync.
+ */
 export function useDiscoverFilters() {
   const t = useGT();
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const { searchParams, setSingleValueParam, setMultiValueParam } = useQueryParams("/discover");
   const { displayCurrency } = useCurrencyFormatter();
 
   const tabParam = searchParams.get("tab");
   const filter: DiscoverTab =
-    tabParam === "available" ||
-    tabParam === "reserved" ||
-    tabParam === "purchased"
+    tabParam === "available" || tabParam === "reserved" || tabParam === "purchased"
       ? tabParam
-      : "wishlists";
+      : DEFAULT_TAB;
 
-  const discoverSearch = useMemo(
-    () => searchParams.get("discoverSearch") ?? "",
+  const { value: discoverSearch, setValue: setDiscoverSearch } = useDebouncedQueryParam({
+    key: "discoverSearch",
+  });
+  const { value: priceMin, setValue: setPriceMin } = useDebouncedQueryParam({
+    key: "discoverPriceMin",
+  });
+  const { value: priceMax, setValue: setPriceMax } = useDebouncedQueryParam({
+    key: "discoverPriceMax",
+  });
+
+  const priorityFilter = useMemo(
+    () => getMultiParamValues(searchParams, "discoverPriority"),
     [searchParams],
   );
-  const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
-  const [discoverSort, setDiscoverSort] = useState("default");
-  const [priceMin, setPriceMin] = useState("");
-  const [priceMax, setPriceMax] = useState("");
+  const discoverSort = searchParams.get("discoverSort") ?? DEFAULT_SORT;
 
   const serverParams = useMemo(
     () => ({
       search: discoverSearch || undefined,
-      sort: discoverSort !== "default" ? discoverSort : undefined,
-      priorities: priorityFilter.length
-        ? priorityFilter.map(Number)
-        : undefined,
+      sort: discoverSort !== DEFAULT_SORT ? discoverSort : undefined,
+      priorities: priorityFilter.length ? priorityFilter.map(Number) : undefined,
       priceMin: priceMin ? Number(priceMin) : undefined,
       priceMax: priceMax ? Number(priceMax) : undefined,
       displayCurrency,
     }),
-    [
-      discoverSearch,
-      discoverSort,
-      priorityFilter,
-      priceMin,
-      priceMax,
-      displayCurrency,
-    ],
+    [discoverSearch, discoverSort, priorityFilter, priceMin, priceMax, displayCurrency],
   );
 
   const handleFilterChange = useCallback(
     (nextFilter: DiscoverTab) => {
-      if (nextFilter === filter) return;
-
-      const params = new URLSearchParams(searchParams.toString());
-      if (nextFilter === "wishlists") {
-        params.delete("tab");
-      } else {
-        params.set("tab", nextFilter);
-      }
-
-      router.replace(
-        params.toString() ? `${pathname}?${params.toString()}` : pathname,
-        {
-          scroll: false,
-        },
-      );
+      setSingleValueParam("tab", nextFilter, DEFAULT_TAB);
     },
-    [filter, pathname, router, searchParams],
+    [setSingleValueParam],
   );
 
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (value) {
-        params.set("discoverSearch", value);
-      } else {
-        params.delete("discoverSearch");
-      }
-      router.replace(
-        params.toString() ? `${pathname}?${params.toString()}` : pathname,
-        {
-          scroll: false,
-        },
-      );
+  const handlePrioritiesChange = useCallback(
+    (values: string[]) => {
+      setMultiValueParam("discoverPriority", values);
     },
-    [pathname, router, searchParams],
+    [setMultiValueParam],
+  );
+
+  const handleSortChange = useCallback(
+    (value: string) => {
+      setSingleValueParam("discoverSort", value, DEFAULT_SORT);
+    },
+    [setSingleValueParam],
   );
 
   const priorityOptions = useMemo(
@@ -125,10 +108,10 @@ export function useDiscoverFilters() {
     priorityOptions,
     sortOptions,
     handleFilterChange,
-    handleSearchChange,
-    setPriorityFilter,
-    setDiscoverSort,
-    setPriceMin,
-    setPriceMax,
+    handleSearchChange: setDiscoverSearch,
+    handlePrioritiesChange,
+    handleSortChange,
+    handlePriceMinChange: setPriceMin,
+    handlePriceMaxChange: setPriceMax,
   };
 }

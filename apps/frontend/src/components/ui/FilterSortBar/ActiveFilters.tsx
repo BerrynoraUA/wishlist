@@ -32,9 +32,7 @@ export function ActiveFilters({
       <div className={styles.list}>
         {items.map((item) => (
           <span key={item.key} className={styles.tag}>
-            {item.groupLabel && (
-              <span className={styles.groupLabel}>{item.groupLabel}:</span>
-            )}
+            {item.groupLabel && <span className={styles.groupLabel}>{item.groupLabel}:</span>}
             <span>{item.label}</span>
             <button
               type="button"

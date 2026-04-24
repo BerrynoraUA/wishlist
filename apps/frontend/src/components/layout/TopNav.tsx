@@ -90,10 +90,7 @@ export function TopNav() {
                 <span className={styles.label}>{item.label}</span>
                 {item.isNew ? (
                   <span className={styles.navBadgeWrap}>
-                    <ProBadge
-                      size="sm"
-                      label={t("NEW", { $id: "nav.secretSanta.newBadge" })}
-                    />
+                    <ProBadge size="sm" label={t("NEW", { $id: "nav.secretSanta.newBadge" })} />
                   </span>
                 ) : null}
               </Link>

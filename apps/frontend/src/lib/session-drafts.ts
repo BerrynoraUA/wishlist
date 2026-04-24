@@ -31,9 +31,7 @@ function getScopeId(scopeId?: string | null) {
   return normalized ? normalized : GLOBAL_SCOPE;
 }
 
-export function createSessionDraftScope(
-  ...parts: Array<string | null | undefined>
-) {
+export function createSessionDraftScope(...parts: Array<string | null | undefined>) {
   const normalized = parts
     .map((part) => part?.trim())
     .filter((part): part is string => Boolean(part));
@@ -41,11 +39,7 @@ export function createSessionDraftScope(
   return normalized.length ? normalized.join("::") : GLOBAL_SCOPE;
 }
 
-export function buildSessionDraftKey({
-  userId,
-  kind,
-  scopeId,
-}: SessionDraftDescriptor) {
+export function buildSessionDraftKey({ userId, kind, scopeId }: SessionDraftDescriptor) {
   return `${STORAGE_PREFIX}:${userId}:${kind}:${getScopeId(scopeId)}`;
 }
 
@@ -70,10 +64,7 @@ export function readSessionDraft<T>(descriptor: SessionDraftDescriptor) {
   }
 }
 
-export function writeSessionDraft<T>(
-  descriptor: SessionDraftDescriptor,
-  data: T,
-) {
+export function writeSessionDraft<T>(descriptor: SessionDraftDescriptor, data: T) {
   const storage = getStorage();
 
   if (!storage) {

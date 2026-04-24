@@ -8,19 +8,15 @@ function isLocalHost(host: string): boolean {
 
 function resolveSubscriptionsUiEnabled(): boolean {
   const appEnv = normalizeEnv(process.env.NEXT_PUBLIC_APP_ENV);
-  const vercelEnv = normalizeEnv(
-    process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.VERCEL_ENV,
-  );
-  const appUrl = normalizeEnv(
-    process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL,
-  );
+  const vercelEnv = normalizeEnv(process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.VERCEL_ENV);
+  const appUrl = normalizeEnv(process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL);
 
   const isProductionEnv =
     appEnv === "production" ||
     appEnv === "prod" ||
     vercelEnv === "production" ||
     (appUrl.includes("wishlane.net") && !appUrl.includes("staging.wishlane.net"));
-    
+
   if (isProductionEnv) {
     return false;
   }

@@ -1,29 +1,20 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { SecretSantaPageShell } from "./components/SecretSantaPageShell";
-import { SecretSantaHeader } from "./components/SecretSantaHeader";
-import { SecretSantaGrid } from "./components/SecretSantaGrid";
-import { CreateSecretSantaModal } from "./components/CreateSecretSantaModal";
-import { useSessionDraftPresence } from "@/hooks/use-session-draft";
-import { useCurrentUserId } from "@/hooks/use-user";
+import { Suspense } from "react";
+import { SecretSantaPageShell } from "./components/secret-santa-page-shell/SecretSantaPageShell";
+import { SecretSantaHeader } from "./components/secret-santa-header/SecretSantaHeader";
+import { SecretSantaGrid } from "./components/secret-santa-grid/SecretSantaGrid";
+import { CreateSecretSantaModal } from "./components/create-secret-santa-modal/CreateSecretSantaModal";
+import { useSecretSantaListPage } from "./hooks/use-secret-santa-list-page";
 
 function SecretSantaPageContent() {
-  const { data: currentUserId = "" } = useCurrentUserId();
-  const [open, setOpen] = useState(false);
-  const hasCreateDraft = useSessionDraftPresence({
-    userId: currentUserId,
-    kind: "create-secret-santa",
-  });
+  const { createOpen, setCreateOpen, hasCreateDraft } = useSecretSantaListPage();
 
   return (
     <SecretSantaPageShell>
-      <SecretSantaHeader
-        onNewEvent={() => setOpen(true)}
-        hasDraft={hasCreateDraft}
-      />
+      <SecretSantaHeader onNewEvent={() => setCreateOpen(true)} hasDraft={hasCreateDraft} />
       <SecretSantaGrid />
-      <CreateSecretSantaModal open={open} onClose={() => setOpen(false)} />
+      <CreateSecretSantaModal open={createOpen} onClose={() => setCreateOpen(false)} />
     </SecretSantaPageShell>
   );
 }

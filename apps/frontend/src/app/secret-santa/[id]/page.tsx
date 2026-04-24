@@ -1,29 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useGT } from "gt-next";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import type { SecretSantaPendingInvite } from "@/api/types/secret-santa";
-import { SecretSantaPageShell } from "@/app/secret-santa/components/SecretSantaPageShell";
-import { SecretSantaDetailHero } from "@/app/secret-santa/components/detail/SecretSantaDetailHero";
-import { SecretSantaLaunchCard } from "@/app/secret-santa/components/detail/SecretSantaLaunchCard";
-import { LaunchSecretSantaModal } from "@/app/secret-santa/components/detail/LaunchSecretSantaModal";
-import { SecretSantaPeopleSection } from "@/app/secret-santa/components/detail/SecretSantaPeopleSection";
-import { SecretSantaReceiverCard } from "@/app/secret-santa/components/detail/SecretSantaReceiverCard";
-import { SecretSantaGiftSuggestions } from "@/app/secret-santa/components/detail/SecretSantaGiftSuggestions";
-import { EditSecretSantaModal } from "@/app/secret-santa/components/EditSecretSantaModal";
-import { getAccentFromId } from "@/app/secret-santa/components/detail/secretSantaDetail.utils";
+import { SecretSantaPageShell } from "@/app/secret-santa/components/secret-santa-page-shell/SecretSantaPageShell";
+import { SecretSantaDetailHero } from "@/app/secret-santa/components/detail/secret-santa-detail-hero/SecretSantaDetailHero";
+import { SecretSantaLaunchCard } from "@/app/secret-santa/components/detail/secret-santa-launch-card/SecretSantaLaunchCard";
+import { LaunchSecretSantaModal } from "@/app/secret-santa/components/detail/launch-secret-santa-modal/LaunchSecretSantaModal";
+import { SecretSantaPeopleSection } from "@/app/secret-santa/components/detail/secret-santa-people-section/SecretSantaPeopleSection";
+import { SecretSantaReceiverCard } from "@/app/secret-santa/components/detail/secret-santa-receiver-card/SecretSantaReceiverCard";
+import { SecretSantaGiftSuggestions } from "@/app/secret-santa/components/detail/secret-santa-gift-suggestions/SecretSantaGiftSuggestions";
+import { EditSecretSantaModal } from "@/app/secret-santa/components/edit-secret-santa-modal/EditSecretSantaModal";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
 import {
   useDeleteSecretSantaEvent,
   useRemoveSecretSantaInvite,
   useRemoveSecretSantaParticipant,
-  useSecretSantaDetails,
 } from "@/hooks/use-secret-santa";
-import { useCurrentUserId } from "@/hooks/use-user";
+import { getAccentFromId } from "@/app/secret-santa/helpers";
+import { useSecretSantaDetailPage } from "@/app/secret-santa/hooks/use-secret-santa-detail-page";
 import styles from "./SecretSantaDetailPage.module.scss";
 
 export default function SecretSantaDetailPage() {
@@ -31,42 +27,32 @@ export default function SecretSantaDetailPage() {
   const params = useParams();
   const router = useRouter();
   const eventId = params.id as string;
-  const { data: currentUserId = "" } = useCurrentUserId();
-  const { data, isLoading, isError } = useSecretSantaDetails(eventId);
+
+  const {
+    data,
+    isLoading,
+    isError,
+    peopleParticipants,
+    peoplePending,
+    participants,
+    pendingInvites,
+    totalPeople,
+    canLaunch,
+    isOwner,
+    isStarted,
+    copied,
+    launchOpen,
+    setLaunchOpen,
+    editOpen,
+    setEditOpen,
+    deleteOpen,
+    setDeleteOpen,
+    handleCopyLink,
+  } = useSecretSantaDetailPage(eventId);
+
   const removeParticipant = useRemoveSecretSantaParticipant();
   const removeInvite = useRemoveSecretSantaInvite();
   const deleteEvent = useDeleteSecretSantaEvent();
-  const [copied, setCopied] = useState(false);
-  const [launchOpen, setLaunchOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-
-  const peopleParticipants = useMemo(
-    () =>
-      (data?.participants ?? []).map((person) => ({
-        ...person,
-        key: person.id,
-        subtitle: person.nickname
-          ? `@${person.nickname}`
-          : t("Wishlane member", { $id: "secretSanta.detail.wishlyMember" }),
-      })),
-    [data?.participants, t],
-  );
-
-  const peoplePending = useMemo(
-    () =>
-      (data?.pending_invites ?? []).map((person: SecretSantaPendingInvite) => ({
-        ...person,
-        key: person.invite_id,
-        subtitle: person.nickname
-          ? `@${person.nickname}`
-          : t("Invitation pending", {
-              $id: "secretSanta.detail.invitationPending",
-            }),
-        badge: t("Pending", { $id: "secretSanta.detail.pendingBadge" }),
-      })),
-    [data?.pending_invites, t],
-  );
 
   if (isLoading) {
     return null;
@@ -84,12 +70,6 @@ export default function SecretSantaDetailPage() {
     );
   }
 
-  const isOwner = !!currentUserId && currentUserId === data.owner_id;
-  const isStarted = !!data.is_started;
-  const participants = data.participants ?? [];
-  const pendingInvites = data.pending_invites ?? [];
-  const totalPeople = participants.length + pendingInvites.length;
-  const canLaunch = pendingInvites.length === 0 && participants.length >= 2;
   const participantsSection = (
     <SecretSantaPeopleSection
       title={t("Participants", { $id: "secretSanta.detail.participantsTitle" })}
@@ -110,14 +90,6 @@ export default function SecretSantaDetailPage() {
       })}
     />
   );
-
-  function handleCopyLink() {
-    const url = `${window.location.origin}/secret-santa/join?event=${eventId}`;
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }
 
   return (
     <SecretSantaPageShell>

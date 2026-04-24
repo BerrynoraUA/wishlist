@@ -205,11 +205,7 @@
 
   &:hover {
     border-color: var(--input-focus-border);
-    background: color-mix(
-      in srgb,
-      var(--input-bg) 72%,
-      var(--brand-alpha-08) 28%
-    );
+    background: color-mix(in srgb, var(--input-bg) 72%, var(--brand-alpha-08) 28%);
     transform: translateY(-1px);
   }
 
@@ -404,22 +400,14 @@
 
 :global([data-theme="dark"]) .navBtn {
   border-color: rgba(255, 255, 255, 0.06);
-  background: linear-gradient(
-    180deg,
-    rgba(28, 28, 34, 0.96),
-    rgba(20, 20, 25, 0.92)
-  );
+  background: linear-gradient(180deg, rgba(28, 28, 34, 0.96), rgba(20, 20, 25, 0.92));
   color: rgba(209, 213, 219, 0.82);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.04),
     0 10px 22px rgba(0, 0, 0, 0.22);
 
   &:hover {
-    background: linear-gradient(
-      180deg,
-      rgba(39, 29, 39, 0.98),
-      rgba(30, 21, 31, 0.94)
-    );
+    background: linear-gradient(180deg, rgba(39, 29, 39, 0.98), rgba(30, 21, 31, 0.94));
     border-color: var(--brand-alpha-25);
     color: color-mix(in srgb, var(--color-brand-lighter) 88%, white 12%);
     box-shadow:
@@ -443,21 +431,13 @@
 
 :global([data-theme="dark"]) .cell {
   border-color: rgba(255, 255, 255, 0.04);
-  background: linear-gradient(
-    180deg,
-    rgba(27, 27, 33, 0.92),
-    rgba(18, 18, 23, 0.96)
-  );
+  background: linear-gradient(180deg, rgba(27, 27, 33, 0.92), rgba(18, 18, 23, 0.96));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
     0 8px 18px rgba(0, 0, 0, 0.18);
 
   &:not(.blank):hover {
-    background: linear-gradient(
-      180deg,
-      rgba(44, 30, 41, 0.96),
-      rgba(28, 21, 29, 0.98)
-    );
+    background: linear-gradient(180deg, rgba(44, 30, 41, 0.96), rgba(28, 21, 29, 0.98));
     border-color: var(--brand-alpha-20);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.04),
@@ -497,20 +477,12 @@
 
 :global([data-theme="dark"]) .monthPickerClose {
   border-color: rgba(255, 255, 255, 0.06);
-  background: linear-gradient(
-    180deg,
-    rgba(27, 27, 33, 0.96),
-    rgba(18, 18, 23, 0.98)
-  );
+  background: linear-gradient(180deg, rgba(27, 27, 33, 0.96), rgba(18, 18, 23, 0.98));
   color: rgba(243, 244, 246, 0.78);
 
   &:hover {
     border-color: var(--brand-alpha-25);
-    background: linear-gradient(
-      180deg,
-      rgba(40, 28, 39, 0.98),
-      rgba(24, 20, 26, 0.98)
-    );
+    background: linear-gradient(180deg, rgba(40, 28, 39, 0.98), rgba(24, 20, 26, 0.98));
     color: color-mix(in srgb, var(--color-brand-lighter) 88%, white 12%);
   }
 }
@@ -518,20 +490,12 @@
 :global([data-theme="dark"]) .monthOption,
 :global([data-theme="dark"]) .yearOption {
   border-color: rgba(255, 255, 255, 0.06);
-  background: linear-gradient(
-    180deg,
-    rgba(27, 27, 33, 0.96),
-    rgba(18, 18, 23, 0.98)
-  );
+  background: linear-gradient(180deg, rgba(27, 27, 33, 0.96), rgba(18, 18, 23, 0.98));
   color: rgba(243, 244, 246, 0.9);
 
   &:hover {
     border-color: var(--brand-alpha-25);
-    background: linear-gradient(
-      180deg,
-      rgba(40, 28, 39, 0.98),
-      rgba(24, 20, 26, 0.98)
-    );
+    background: linear-gradient(180deg, rgba(40, 28, 39, 0.98), rgba(24, 20, 26, 0.98));
   }
 
   &:focus-visible {
@@ -607,11 +571,7 @@
 
 :global([data-theme="dark"]) .today {
   border-color: color-mix(in srgb, var(--color-brand) 72%, white 28%);
-  background: linear-gradient(
-    180deg,
-    rgba(58, 30, 46, 0.96),
-    rgba(41, 19, 31, 0.98)
-  );
+  background: linear-gradient(180deg, rgba(58, 30, 46, 0.96), rgba(41, 19, 31, 0.98));
   box-shadow:
     0 0 0 3px var(--brand-alpha-12),
     inset 0 1px 0 rgba(255, 255, 255, 0.04),

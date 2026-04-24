@@ -5,10 +5,7 @@
 /**
  * Extract all unique values for a given key from URLSearchParams.
  */
-export function getMultiParamValues(
-  searchParams: URLSearchParams,
-  key: string,
-): string[] {
+export function getMultiParamValues(searchParams: URLSearchParams, key: string): string[] {
   return Array.from(new Set(searchParams.getAll(key).filter(Boolean)));
 }
 
@@ -33,10 +30,7 @@ export function parseOptionalNumber(value: string): number | null {
  * Convert string filter values to an array of numbers via a lookup map.
  * Entries that don't exist in the map are silently dropped.
  */
-export function mapFilterValues(
-  values: string[],
-  map: Record<string, number>,
-): number[] {
+export function mapFilterValues(values: string[], map: Record<string, number>): number[] {
   return values.map((v) => map[v]).filter((n) => n !== undefined);
 }
 
@@ -50,11 +44,7 @@ export function toNumberArray(values: string[]): number[] {
 /**
  * Determine basic cursor-based pagination flags given current page and items received.
  */
-export function paginationFlags(
-  page: number,
-  itemsCount: number,
-  pageSize: number,
-) {
+export function paginationFlags(page: number, itemsCount: number, pageSize: number) {
   return {
     hasNextPage: itemsCount === pageSize,
     hasPrevPage: page > 1,

@@ -148,11 +148,7 @@ type UseSessionDraftPresenceOptions = {
   scopeId?: string | null;
 };
 
-export function useSessionDraftPresence({
-  userId,
-  kind,
-  scopeId,
-}: UseSessionDraftPresenceOptions) {
+export function useSessionDraftPresence({ userId, kind, scopeId }: UseSessionDraftPresenceOptions) {
   const descriptor = useDraftDescriptor(userId, kind, scopeId);
   const descriptorKey = descriptor ? buildSessionDraftKey(descriptor) : "";
   const [hasDraft, setHasDraft] = useState(() =>
