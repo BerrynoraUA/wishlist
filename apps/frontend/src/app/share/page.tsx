@@ -1,140 +1,35 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect, useRef, Suspense } from "react";
+import { Suspense } from "react";
 import { useGT } from "gt-next";
-import { useWishlistByToken, useWishlistItemsByToken } from "@/hooks/use-share";
-import { WishlistItemsGrid } from "../wishlist/components/WishlistItemsGrid";
-import { SharedWishlistHeader } from "./components/SharedWishlistHeader";
-import { AuthPromptModal } from "./components/AuthPromptModal";
-import { FriendRequestStatusModal } from "./components/FriendRequestStatusModal";
+import { WishlistItemsGrid } from "../wishlist/[id]/components/wishlist-items-grid/WishlistItemsGrid";
+import { SharedWishlistHeader } from "./components/shared-wishlist-header/SharedWishlistHeader";
+import { AuthPromptModal } from "./components/auth-prompt-modal/AuthPromptModal";
+import { FriendRequestStatusModal } from "./components/friend-request-status-modal/FriendRequestStatusModal";
 import { Pagination } from "@/components/ui/Pagination/Pagination";
-import { useCurrentUserId } from "@/hooks/use-user";
-import { checkFriendship, sendFriendRequest } from "@/api/friends";
+import { useSharePage } from "./hooks/use-share-page";
 import styles from "../wishlist/[id]/WishlistPage.module.scss";
-
-const PAGE_SIZE = 12;
 
 function SharedWishlistContent() {
   const t = useGT();
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const token = searchParams.get("token") ?? "";
-  const action = searchParams.get("action");
-  const reservedItemId = searchParams.get("item");
-  const requestedPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
-  const [page, setPage] = useState(
-    Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1,
-  );
-  const [authPromptOpen, setAuthPromptOpen] = useState(false);
-  const [pendingReserveItemId, setPendingReserveItemId] = useState<
-    string | null
-  >(null);
-  const [friendStatus, setFriendStatus] = useState<
-    "sent" | "already_friends" | "error" | null
-  >(null);
-  const postLoginHandled = useRef(false);
-  const { data: currentUserId = "", isLoading: isCurrentUserLoading } =
-    useCurrentUserId();
-
   const {
-    data: wishlist,
-    isLoading: wishlistLoading,
-    isError: wishlistError,
-  } = useWishlistByToken(token);
-
-  const {
-    data: itemsData,
-    isLoading: itemsLoading,
-    isError: itemsError,
-  } = useWishlistItemsByToken(token, {
-    skip: (page - 1) * PAGE_SIZE,
-    take: PAGE_SIZE,
-  });
-
-  const items = itemsData ?? [];
-  const totalItems = wishlist?.items_count ?? items.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
-
-  // After login redirect: check friendship, redirect or send request
-  useEffect(() => {
-    if (
-      action !== "reserve" ||
-      !wishlist?.id ||
-      !wishlist?.user_id ||
-      postLoginHandled.current
-    )
-      return;
-
-    if (isCurrentUserLoading || !currentUserId) return;
-
-    postLoginHandled.current = true;
-
-    // Clean action param from URL
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("action");
-    router.replace(`/share?${params.toString()}`, { scroll: false });
-
-    (async () => {
-      try {
-        if (currentUserId === wishlist.user_id) {
-          const destination = new URLSearchParams();
-          if (reservedItemId) {
-            destination.set("item", reservedItemId);
-          }
-          if (page > 1) {
-            destination.set("page", String(page));
-          }
-
-          router.replace(
-            destination.size > 0
-              ? `/wishlist/${wishlist.id}?${destination.toString()}`
-              : `/wishlist/${wishlist.id}`,
-          );
-          return;
-        }
-
-        const alreadyFriends = await checkFriendship(wishlist.user_id);
-        if (alreadyFriends) {
-          const destination = new URLSearchParams();
-          if (reservedItemId) {
-            destination.set("item", reservedItemId);
-          }
-          if (page > 1) {
-            destination.set("page", String(page));
-          }
-
-          router.replace(
-            destination.size > 0
-              ? `/wishlist/${wishlist.id}?${destination.toString()}`
-              : `/wishlist/${wishlist.id}`,
-          );
-          return;
-        }
-
-        await sendFriendRequest(wishlist.user_id);
-        router.replace("/home?friendRequestSent=1");
-        return;
-      } catch {
-        router.replace("/home");
-      }
-    })();
-  }, [
-    action,
-    currentUserId,
-    isCurrentUserLoading,
-    wishlist?.id,
-    wishlist?.user_id,
-    searchParams,
-    router,
-    reservedItemId,
+    token,
     page,
-  ]);
-
-  const handleReserveAttempt = (itemId: string) => {
-    setPendingReserveItemId(itemId);
-    setAuthPromptOpen(true);
-  };
+    setPage,
+    totalPages,
+    wishlist,
+    wishlistLoading,
+    wishlistError,
+    items,
+    itemsLoading,
+    itemsError,
+    authPromptOpen,
+    setAuthPromptOpen,
+    pendingReserveItemId,
+    friendStatus,
+    setFriendStatus,
+    handleReserveAttempt,
+  } = useSharePage();
 
   if (!token)
     return (
@@ -167,9 +62,7 @@ function SharedWishlistContent() {
     <main className={styles.page}>
       <SharedWishlistHeader wishlist={wishlist} />
 
-      {items.length === 0 && (
-        <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>
-      )}
+      {items.length === 0 && <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>}
       {items.length > 0 && (
         <>
           <WishlistItemsGrid
@@ -178,9 +71,7 @@ function SharedWishlistContent() {
             showDiscountBadge={false}
             onToggleReserve={handleReserveAttempt}
           />
-          {totalPages > 1 && (
-            <Pagination page={page} total={totalPages} onChange={setPage} />
-          )}
+          {totalPages > 1 && <Pagination page={page} total={totalPages} onChange={setPage} />}
         </>
       )}
 

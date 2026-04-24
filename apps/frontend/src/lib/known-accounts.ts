@@ -83,9 +83,13 @@ export function listKnownAccounts(): KnownAccount[] {
   return readRaw(storage).sort((a, b) => b.lastUsedAt - a.lastUsedAt);
 }
 
-export function upsertKnownAccount(
-  account: Partial<KnownAccount> & Pick<KnownAccount, "userId">,
-) {
+export function getKnownAccount(userId: string): KnownAccount | null {
+  const storage = getStorage();
+  if (!storage) return null;
+  return readRaw(storage).find((item) => item.userId === userId) ?? null;
+}
+
+export function upsertKnownAccount(account: Partial<KnownAccount> & Pick<KnownAccount, "userId">) {
   const storage = getStorage();
   if (!storage) return;
 
@@ -96,13 +100,8 @@ export function upsertKnownAccount(
     userId: account.userId,
     email: account.email ?? existing?.email ?? "",
     displayName:
-      account.displayName !== undefined
-        ? account.displayName
-        : (existing?.displayName ?? null),
-    avatarUrl:
-      account.avatarUrl !== undefined
-        ? account.avatarUrl
-        : (existing?.avatarUrl ?? null),
+      account.displayName !== undefined ? account.displayName : (existing?.displayName ?? null),
+    avatarUrl: account.avatarUrl !== undefined ? account.avatarUrl : (existing?.avatarUrl ?? null),
     provider: account.provider ?? existing?.provider ?? "unknown",
     providers: mergeProviders(
       account.providers,
@@ -111,22 +110,17 @@ export function upsertKnownAccount(
     ),
     lastUsedAt: account.lastUsedAt ?? existing?.lastUsedAt ?? Date.now(),
     accessToken:
-      account.accessToken !== undefined
-        ? account.accessToken
-        : (existing?.accessToken ?? null),
+      account.accessToken !== undefined ? account.accessToken : (existing?.accessToken ?? null),
     refreshToken:
-      account.refreshToken !== undefined
-        ? account.refreshToken
-        : (existing?.refreshToken ?? null),
-    expiresAt:
-      account.expiresAt !== undefined
-        ? account.expiresAt
-        : (existing?.expiresAt ?? null),
+      account.refreshToken !== undefined ? account.refreshToken : (existing?.refreshToken ?? null),
+    expiresAt: account.expiresAt !== undefined ? account.expiresAt : (existing?.expiresAt ?? null),
+    defaultAccent:
+      account.defaultAccent !== undefined
+        ? account.defaultAccent
+        : (existing?.defaultAccent ?? null),
   };
 
-  const withoutExisting = accounts.filter(
-    (item) => item.userId !== account.userId,
-  );
+  const withoutExisting = accounts.filter((item) => item.userId !== account.userId);
   writeRaw(storage, [...withoutExisting, next]);
 }
 

@@ -6,7 +6,7 @@ import { useGT } from "gt-next";
 import Link from "next/link";
 import { useFriendWishlists } from "@/hooks/use-wishlists";
 import { useRemoveFriend } from "@/hooks/use-friends";
-import { WishlistCard } from "@/app/home/components/WishlistCard";
+import { WishlistCard } from "@/app/home/components/wishlist-card/WishlistCard";
 import { Button } from "@/components/ui/Button/Button";
 import { ArrowLeft, UserMinus } from "lucide-react";
 import styles from "./FriendWishlists.module.scss";

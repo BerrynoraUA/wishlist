@@ -18,6 +18,7 @@ Save any product from the web to your Wishlane wishlists with one click. Works o
 Wishlane makes it effortless to save products you love while shopping online.
 
 🛒 HOW IT WORKS
+
 1. Browse any online store
 2. Click the Wishlane icon in your toolbar
 3. The extension automatically detects the product name, price, and image
@@ -55,6 +56,7 @@ English
 Recommended sizes: 1280×800 or 640×400
 
 Prepare 3–5 screenshots showing:
+
 1. The popup extracting a product from Amazon (product image, name, price visible)
 2. Selecting a wishlist from the list
 3. Success confirmation after adding an item
@@ -62,6 +64,7 @@ Prepare 3–5 screenshots showing:
 5. (Optional) The saved item appearing in the Wishlane web app
 
 Tips:
+
 - Use a clean browser window with no other extensions visible
 - Show real product data for a compelling listing
 - You can use Chrome DevTools device toolbar to get exact 1280×800 frames

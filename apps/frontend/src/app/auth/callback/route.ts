@@ -5,9 +5,11 @@ import {
   getInitialResolvedTheme,
   parseResolvedTheme,
   parseThemePreference,
+  parseAccentCookie,
   RESOLVED_THEME_COOKIE_NAME,
   THEME_COOKIE_MAX_AGE,
   THEME_COOKIE_NAME,
+  ACCENT_COOKIE_NAME,
 } from "@/lib/theme";
 import { getPostHogClient, identifyServerUser } from "@/lib/posthog-server";
 
@@ -76,14 +78,18 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   let persistedTheme: ThemePreference = "system";
+  let persistedAccent = 0;
   if (user) {
     const { data: settings } = await supabase
       .from("user_settings")
-      .select("theme")
+      .select("theme, default_accent")
       .eq("user_id", user.id)
       .maybeSingle();
 
     persistedTheme = parseThemePreference(settings?.theme) ?? "system";
+    persistedAccent = parseAccentCookie(
+      settings?.default_accent != null ? String(settings.default_accent) : null,
+    );
 
     if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
       try {
@@ -109,6 +115,13 @@ export async function GET(request: NextRequest) {
   response.cookies.set({
     name: RESOLVED_THEME_COOKIE_NAME,
     value: resolvedTheme,
+    path: "/",
+    maxAge: THEME_COOKIE_MAX_AGE,
+    sameSite: "lax",
+  });
+  response.cookies.set({
+    name: ACCENT_COOKIE_NAME,
+    value: String(persistedAccent),
     path: "/",
     maxAge: THEME_COOKIE_MAX_AGE,
     sameSite: "lax",

@@ -7,10 +7,7 @@ import styles from "./NotificationsPanel.module.scss";
 import { Button } from "@/components/ui/Button/Button";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { Notification } from "@/types";
-import {
-  useAcceptSecretSantaInvite,
-  useDeclineSecretSantaInvite,
-} from "@/hooks/use-secret-santa";
+import { useAcceptSecretSantaInvite, useDeclineSecretSantaInvite } from "@/hooks/use-secret-santa";
 import { useDeleteNotification } from "@/hooks/use-notifications";
 
 // Notification type: 0 = Secret Santa, 1 = Item (reservation/bought), 2 = Friends
@@ -53,27 +50,18 @@ export function NotificationsPanel({
   >({});
 
   const handleHoverRead = (notification: Notification) => {
-    if (
-      notification.is_read ||
-      !onMarkRead ||
-      pendingReadIds.includes(notification.id)
-    ) {
+    if (notification.is_read || !onMarkRead || pendingReadIds.includes(notification.id)) {
       return;
     }
 
     setPendingReadIds((current) => [...current, notification.id]);
 
     Promise.resolve(onMarkRead(notification.id)).finally(() => {
-      setPendingReadIds((current) =>
-        current.filter((id) => id !== notification.id),
-      );
+      setPendingReadIds((current) => current.filter((id) => id !== notification.id));
     });
   };
 
-  const handleInviteAction = async (
-    notification: Notification,
-    action: "accept" | "decline",
-  ) => {
+  const handleInviteAction = async (notification: Notification, action: "accept" | "decline") => {
     if (!notification.entity_id || pendingInviteActions[notification.id]) {
       return;
     }
@@ -118,12 +106,7 @@ export function NotificationsPanel({
               </Button>
             )}
             {onClear && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClear}
-                disabled={isLoading}
-              >
+              <Button variant="ghost" size="sm" onClick={onClear} disabled={isLoading}>
                 {t("Clear", { $id: "notifications.clear" })}
               </Button>
             )}
@@ -134,10 +117,7 @@ export function NotificationsPanel({
       {isLoading ? (
         <div style={{ display: "grid", gap: 12, padding: 16 }}>
           {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              style={{ display: "flex", gap: 10, alignItems: "center" }}
-            >
+            <div key={i} style={{ display: "flex", gap: 10, alignItems: "center" }}>
               <Skeleton variant="circle" width={36} height={36} />
               <div style={{ flex: 1, display: "grid", gap: 4 }}>
                 <Skeleton variant="text" width="80%" />
@@ -147,9 +127,7 @@ export function NotificationsPanel({
           ))}
         </div>
       ) : notifications.length === 0 ? (
-        <div className={styles.empty}>
-          {t("No notifications", { $id: "notifications.empty" })}
-        </div>
+        <div className={styles.empty}>{t("No notifications", { $id: "notifications.empty" })}</div>
       ) : (
         <div className={styles.listWrap}>
           <ul className={styles.list}>

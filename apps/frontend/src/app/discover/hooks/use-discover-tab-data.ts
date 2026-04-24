@@ -51,10 +51,8 @@ export function useDiscoverTabData(
   } = useFriendsWishlistsPurchasedByMe(params, filter === "purchased");
 
   return {
-    activeWishlistSections:
-      filter === "wishlists" ? allWishlistsSections : wishlistsSections,
-    activeReservedItems:
-      filter === "reserved" ? reservedSections : purchasedSections,
+    activeWishlistSections: filter === "wishlists" ? allWishlistsSections : wishlistsSections,
+    activeReservedItems: filter === "reserved" ? reservedSections : purchasedSections,
     isLoading:
       filter === "wishlists"
         ? isAllWishlistsLoading

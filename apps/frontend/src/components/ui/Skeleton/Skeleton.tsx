@@ -24,6 +24,39 @@ export function Skeleton({ width, height, borderRadius, variant, className, styl
   return <div className={classes} style={{ width, height, borderRadius, ...style }} />;
 }
 
+/**
+ * Inline skeleton that inherits the exact line-box height of its parent
+ * (font-size × line-height). Render it INSIDE the real text element
+ * (`<h1><TextBone width={280}/></h1>`) so the skeleton occupies precisely
+ * the same vertical space the final text will occupy.
+ */
+export function TextBone({
+  width,
+  className,
+  style,
+}: {
+  width: string | number;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const classes = [styles.bone, className].filter(Boolean).join(" ");
+  return (
+    <span
+      className={classes}
+      aria-hidden="true"
+      style={{
+        display: "inline-block",
+        width,
+        verticalAlign: "middle",
+        borderRadius: 6,
+        ...style,
+      }}
+    >
+      {"\u00A0"}
+    </span>
+  );
+}
+
 export function SkeletonCard({
   children,
   className,

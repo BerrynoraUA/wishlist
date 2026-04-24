@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./DropdownMenu.module.scss";
 
 const DropdownMenuContext = createContext<{ close: () => void }>({
@@ -21,12 +14,7 @@ type Props = {
   className?: string;
 };
 
-export function DropdownMenu({
-  trigger,
-  children,
-  align = "right",
-  className,
-}: Props) {
+export function DropdownMenu({ trigger, children, align = "right", className }: Props) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const close = () => setOpen(false);
@@ -35,10 +23,7 @@ export function DropdownMenu({
     if (!open) return;
 
     function handleClickOutside(e: MouseEvent) {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(e.target as Node)
-      ) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
@@ -51,11 +36,7 @@ export function DropdownMenu({
     <DropdownMenuContext.Provider value={{ close }}>
       <div className={`${styles.wrapper} ${className ?? ""}`} ref={wrapperRef}>
         {trigger({ open, toggle: () => setOpen((p) => !p) })}
-        {open && (
-          <div className={`${styles.dropdown} ${styles[align]}`}>
-            {children}
-          </div>
-        )}
+        {open && <div className={`${styles.dropdown} ${styles[align]}`}>{children}</div>}
       </div>
     </DropdownMenuContext.Provider>
   );

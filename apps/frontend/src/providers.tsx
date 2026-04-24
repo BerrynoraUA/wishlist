@@ -1,24 +1,10 @@
 "use client";
 
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQueryClient,
-} from "@tanstack/react-query";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { getCurrentSession, getCurrentUser } from "@/api/user";
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import {
-  clearAllSessionDrafts,
-  clearSessionDraftsForUser,
-} from "@/lib/session-drafts";
+import { clearAllSessionDrafts, clearSessionDraftsForUser } from "@/lib/session-drafts";
 import { upsertKnownAccount } from "@/lib/known-accounts";
 import type { KnownAccountProvider } from "@/types/known-accounts";
 import { initRevenueCat, resetRevenueCat } from "@/lib/revenuecat";
@@ -127,13 +113,9 @@ const ACCENT_TOKENS: Record<
   },
 };
 
-function applyAccentTokens(
-  accent: WishlistAccent,
-  resolvedTheme: ResolvedTheme,
-) {
+function applyAccentTokens(accent: WishlistAccent, resolvedTheme: ResolvedTheme) {
   const tokens =
-    ACCENT_TOKENS[accent]?.[resolvedTheme] ??
-    ACCENT_TOKENS[WishlistAccent.Pink][resolvedTheme];
+    ACCENT_TOKENS[accent]?.[resolvedTheme] ?? ACCENT_TOKENS[WishlistAccent.Pink][resolvedTheme];
   const root = document.documentElement;
   root.style.setProperty("--color-brand", tokens.brand);
   root.style.setProperty("--color-brand-dark", tokens.brandDark);
@@ -168,10 +150,7 @@ function applyAccentTokens(
     "--input-focus-ring",
     `color-mix(in srgb, ${tokens.brand} 8%, transparent)`,
   );
-  root.style.setProperty(
-    "--selection-bg",
-    `color-mix(in srgb, ${tokens.brand} 15%, transparent)`,
-  );
+  root.style.setProperty("--selection-bg", `color-mix(in srgb, ${tokens.brand} 15%, transparent)`);
   root.style.setProperty(
     "--shadow-brand",
     `0 4px 14px color-mix(in srgb, ${tokens.brand} 30%, transparent)`,
@@ -194,10 +173,7 @@ function applyAccentTokens(
     "--color-pro-glow",
     `color-mix(in srgb, ${tokens.brand} 15%, transparent)`,
   );
-  root.style.setProperty(
-    "--radial-brand",
-    `color-mix(in srgb, ${tokens.brand} 6%, transparent)`,
-  );
+  root.style.setProperty("--radial-brand", `color-mix(in srgb, ${tokens.brand} 6%, transparent)`);
 
   // Header / hero gradients
   if (resolvedTheme === "dark") {
@@ -242,10 +218,7 @@ function resolveKnownAccountProvider(
   appMetadata: Record<string, unknown> | undefined,
 ): KnownAccountProvider {
   const raw = appMetadata?.provider;
-  if (
-    typeof raw === "string" &&
-    KNOWN_ACCOUNT_PROVIDERS.has(raw as KnownAccountProvider)
-  ) {
+  if (typeof raw === "string" && KNOWN_ACCOUNT_PROVIDERS.has(raw as KnownAccountProvider)) {
     return raw as KnownAccountProvider;
   }
   return "email";
@@ -258,8 +231,7 @@ function resolveKnownAccountProviders(
   if (!Array.isArray(raw)) return [];
   return raw.filter(
     (value): value is KnownAccountProvider =>
-      typeof value === "string" &&
-      KNOWN_ACCOUNT_PROVIDERS.has(value as KnownAccountProvider),
+      typeof value === "string" && KNOWN_ACCOUNT_PROVIDERS.has(value as KnownAccountProvider),
   );
 }
 
@@ -282,13 +254,9 @@ function AppThemeProvider({
 }) {
   const { data: settings } = useSettings();
   const { mutate: mutateSettings } = useUpdateSettings();
-  const [pendingPersistedTheme, setPendingPersistedTheme] =
-    useState<ThemePreference | null>(null);
-  const [temporaryTheme, setTemporaryTheme] = useState<ResolvedTheme | null>(
-    null,
-  );
-  const [systemTheme, setSystemTheme] =
-    useState<ResolvedTheme>(initialResolvedTheme);
+  const [pendingPersistedTheme, setPendingPersistedTheme] = useState<ThemePreference | null>(null);
+  const [temporaryTheme, setTemporaryTheme] = useState<ResolvedTheme | null>(null);
+  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(initialResolvedTheme);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -299,8 +267,7 @@ function AppThemeProvider({
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  const persistedTheme =
-    pendingPersistedTheme ?? settings?.theme ?? initialTheme;
+  const persistedTheme = pendingPersistedTheme ?? settings?.theme ?? initialTheme;
   const activeTheme = temporaryTheme ?? persistedTheme;
   const resolvedTheme = resolveThemePreference(activeTheme, systemTheme);
 
@@ -317,6 +284,22 @@ function AppThemeProvider({
     applyAccentTokens(accent, resolvedTheme);
     document.cookie = buildAccentCookie(accent);
   }, [accent, resolvedTheme]);
+
+  // Persist the accent on the active known-account record so account
+  // switching can paint the correct accent synchronously (before the new
+  // user's settings query resolves).
+  useEffect(() => {
+    if (settings?.default_accent === undefined || settings?.default_accent === null) return;
+    getCurrentUser()
+      .then((user) => {
+        if (!user?.id) return;
+        upsertKnownAccount({
+          userId: user.id,
+          defaultAccent: settings.default_accent,
+        });
+      })
+      .catch(() => {});
+  }, [settings?.default_accent]);
 
   const value = useMemo<AppThemeContextValue>(
     () => ({
@@ -340,11 +323,7 @@ function AppThemeProvider({
     [activeTheme, mutateSettings, persistedTheme, resolvedTheme],
   );
 
-  return (
-    <AppThemeContext.Provider value={value}>
-      {children}
-    </AppThemeContext.Provider>
-  );
+  return <AppThemeContext.Provider value={value}>{children}</AppThemeContext.Provider>;
 }
 
 function SdkInitializer({ children }: { children: React.ReactNode }) {
@@ -388,20 +367,13 @@ function SdkInitializer({ children }: { children: React.ReactNode }) {
         else clearAllSessionDrafts();
       }
 
-      if (
-        event === "SIGNED_IN" &&
-        previousUserId &&
-        nextUserId &&
-        previousUserId !== nextUserId
-      ) {
+      if (event === "SIGNED_IN" && previousUserId && nextUserId && previousUserId !== nextUserId) {
         clearSessionDraftsForUser(previousUserId);
         clearSessionDraftsForUser(nextUserId);
       }
 
       if (
-        (event === "SIGNED_IN" ||
-          event === "INITIAL_SESSION" ||
-          event === "TOKEN_REFRESHED") &&
+        (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") &&
         nextUser?.id &&
         nextUser.email &&
         session

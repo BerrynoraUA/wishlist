@@ -61,8 +61,7 @@ export function useFilterSort({
     );
   }, [filters]);
 
-  const hasActiveFilters =
-    search !== "" || activeFilterList.length > 0 || sort !== defaultSort;
+  const hasActiveFilters = search !== "" || activeFilterList.length > 0 || sort !== defaultSort;
 
   return {
     search,

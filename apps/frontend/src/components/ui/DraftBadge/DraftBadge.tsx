@@ -6,11 +6,7 @@ type Props = {
   className?: string;
 };
 
-export function DraftBadge({
-  label = "Draft",
-  variant = "pill",
-  className,
-}: Props) {
+export function DraftBadge({ label = "Draft", variant = "pill", className }: Props) {
   return (
     <span
       className={`${styles.badge} ${styles[variant]} ${className ?? ""}`.trim()}

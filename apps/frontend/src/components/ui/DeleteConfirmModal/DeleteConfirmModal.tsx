@@ -33,8 +33,7 @@ export function DeleteConfirmModal({
     t("Are you sure? This action cannot be undone.", {
       $id: "confirm.delete.description",
     });
-  const resolvedConfirm =
-    confirmLabel ?? t("Delete", { $id: "confirm.delete.confirm" });
+  const resolvedConfirm = confirmLabel ?? t("Delete", { $id: "confirm.delete.confirm" });
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -53,9 +52,7 @@ export function DeleteConfirmModal({
             {t("Cancel", { $id: "common.cancel" })}
           </Button>
           <Button variant="danger" onClick={onConfirm} disabled={isPending}>
-            {isPending
-              ? t("Deleting...", { $id: "confirm.delete.deleting" })
-              : resolvedConfirm}
+            {isPending ? t("Deleting...", { $id: "confirm.delete.deleting" }) : resolvedConfirm}
           </Button>
         </div>
       </div>

@@ -73,15 +73,11 @@ export function getItemReservationState({
     Boolean(isReserved) || status === 1 || (hasReservation && !isPurchased);
   const reservedByMe =
     reservedByCurrentUser ||
-    (Boolean(currentUserId) &&
-      Boolean(reservedByValue) &&
-      reservedByValue === currentUserId);
-  const canToggleReservation =
-    !isOwner && !isPurchased && (!resolvedIsReserved || reservedByMe);
+    (Boolean(currentUserId) && Boolean(reservedByValue) && reservedByValue === currentUserId);
+  const canToggleReservation = !isOwner && !isPurchased && (!resolvedIsReserved || reservedByMe);
   const canToggleBought =
     !isOwner &&
-    ((isPurchased && reservedByMe) ||
-      (!isPurchased && (!resolvedIsReserved || reservedByMe)));
+    ((isPurchased && reservedByMe) || (!isPurchased && (!resolvedIsReserved || reservedByMe)));
 
   return {
     reservedByValue,
@@ -93,9 +89,7 @@ export function getItemReservationState({
   };
 }
 
-export function parseItemPriceToNumber(
-  value: string | number | null | undefined,
-): number | null {
+export function parseItemPriceToNumber(value: string | number | null | undefined): number | null {
   if (value == null) return null;
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
 
@@ -107,8 +101,7 @@ export function parseItemPriceToNumber(
 
   const hasComma = safe.includes(",");
   const hasDot = safe.includes(".");
-  const normalized =
-    hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
+  const normalized = hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
   const parsed = Number.parseFloat(normalized);
 
   return Number.isFinite(parsed) ? parsed : null;
@@ -133,9 +126,7 @@ export function getSalePercentOff(
   return Math.min(99, rounded);
 }
 
-export function getItemPriorityKey(
-  priority: ItemCardPriorityInput,
-): ItemCardPriorityKey | null {
+export function getItemPriorityKey(priority: ItemCardPriorityInput): ItemCardPriorityKey | null {
   if (priority == null) return null;
 
   const normalized = String(priority);
@@ -146,9 +137,7 @@ export function getItemPriorityKey(
   return null;
 }
 
-export function getItemPriorityValue(
-  priority: ItemCardPriorityInput,
-): 1 | 2 | 3 | null {
+export function getItemPriorityValue(priority: ItemCardPriorityInput): 1 | 2 | 3 | null {
   const priorityKey = getItemPriorityKey(priority);
   if (priorityKey === "low") return 1;
   if (priorityKey === "medium") return 2;
@@ -156,9 +145,7 @@ export function getItemPriorityValue(
   return null;
 }
 
-export function getItemPriorityName(
-  priority: ItemCardPriorityInput,
-): ItemCardPriorityName | null {
+export function getItemPriorityName(priority: ItemCardPriorityInput): ItemCardPriorityName | null {
   const priorityKey = getItemPriorityKey(priority);
   if (priorityKey === "low") return "Low";
   if (priorityKey === "medium") return "Medium";

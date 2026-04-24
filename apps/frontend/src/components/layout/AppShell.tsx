@@ -13,11 +13,19 @@ type Props = {
   initialTheme: ThemePreference;
   initialResolvedTheme: ResolvedTheme;
   initialAccent: number;
+  initialBannerDismissed: boolean;
 };
 
-export function AppShell({ children, initialTheme, initialResolvedTheme, initialAccent }: Props) {
+export function AppShell({
+  children,
+  initialTheme,
+  initialResolvedTheme,
+  initialAccent,
+  initialBannerDismissed,
+}: Props) {
   const pathname = usePathname();
-  const hideTopNav = pathname === "/" || pathname === "/login" || pathname === "/register" || pathname === "/share";
+  const hideTopNav =
+    pathname === "/" || pathname === "/login" || pathname === "/register" || pathname === "/share";
 
   return (
     <Providers
@@ -30,7 +38,7 @@ export function AppShell({ children, initialTheme, initialResolvedTheme, initial
           <TopNav />
         </Suspense>
       )}
-      {!hideTopNav && <MobileComingSoonBanner />}
+      {!hideTopNav && <MobileComingSoonBanner initiallyDismissed={initialBannerDismissed} />}
       {children}
     </Providers>
   );

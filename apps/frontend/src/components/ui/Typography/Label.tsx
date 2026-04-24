@@ -14,12 +14,7 @@ type LabelProps = LabelHTMLAttributes<HTMLLabelElement> & {
   tone?: TypographyTone;
 };
 
-export function Label({
-  children,
-  tone = "primary",
-  className,
-  ...props
-}: LabelProps) {
+export function Label({ children, tone = "primary", className, ...props }: LabelProps) {
   const cls = `${styles.label} ${toneClass[tone]} ${className ?? ""}`.trim();
   return (
     <label className={cls} {...props}>
