@@ -60,6 +60,7 @@ export function WishlistItemFilters({ wishlistId }: Props) {
           })}
         />
         <FilterDropdown
+          className={styles.itemFilterControl}
           label={t("Status", { $id: "wishlist.items.filter.status" })}
           options={statusOptions}
           active={itemStatuses}
@@ -67,6 +68,7 @@ export function WishlistItemFilters({ wishlistId }: Props) {
           multiSelect
         />
         <FilterDropdown
+          className={styles.itemFilterControl}
           label={t("Priority", { $id: "wishlist.items.filter.priority" })}
           options={priorityOptions}
           active={itemPriorities}
@@ -74,6 +76,8 @@ export function WishlistItemFilters({ wishlistId }: Props) {
           multiSelect
         />
         <NumberRangeFilter
+          className={styles.itemPriceFilter}
+          compact
           label={t("Price", { $id: "wishlist.items.filter.price" })}
           minValue={itemPriceMin}
           maxValue={itemPriceMax}
@@ -82,7 +86,7 @@ export function WishlistItemFilters({ wishlistId }: Props) {
           minPlaceholder={t("From", { $id: "wishlist.items.price.from" })}
           maxPlaceholder={t("To", { $id: "wishlist.items.price.to" })}
         />
-        <FilterSortActions>
+        <FilterSortActions className={styles.itemFilterActions}>
           {isFiltersActive && (
             <button
               type="button"
@@ -93,7 +97,11 @@ export function WishlistItemFilters({ wishlistId }: Props) {
               <RotateCcw size={14} />
             </button>
           )}
-          <SortSelect options={sortOptions} value={itemSort} onChange={handleSortChange} />
+          <SortSelect
+            options={sortOptions}
+            value={itemSort}
+            onChange={handleSortChange}
+          />
         </FilterSortActions>
       </FilterSortRow>
       <ActiveFilters

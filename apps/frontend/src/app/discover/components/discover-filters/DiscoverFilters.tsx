@@ -14,14 +14,18 @@ type Props = {
 export function DiscoverFilters({ active, onChange }: Props) {
   const t = useGT();
 
-  const items = useMemo<TabItem<"wishlists" | "available" | "reserved" | "purchased">[]>(
+  const items = useMemo<
+    TabItem<"wishlists" | "available" | "reserved" | "purchased">[]
+  >(
     () => [
       {
         value: "wishlists",
         label: (
           <>
-            <Sparkles size={16} />
-            <span>{t("All Wishlists", { $id: "discover.filters.allWishlists" })}</span>
+            <Sparkles size={16} className={styles.icon} />
+            <span className={styles.label}>
+              {t("All Wishlists", { $id: "discover.filters.allWishlists" })}
+            </span>
           </>
         ),
       },
@@ -29,8 +33,8 @@ export function DiscoverFilters({ active, onChange }: Props) {
         value: "available",
         label: (
           <>
-            <Sparkles size={16} />
-            <span>Available</span>
+            <Sparkles size={16} className={styles.icon} />
+            <span className={styles.label}>Available</span>
           </>
         ),
       },
@@ -38,8 +42,10 @@ export function DiscoverFilters({ active, onChange }: Props) {
         value: "reserved",
         label: (
           <>
-            <Heart size={16} />
-            <span>{t("Reserved", { $id: "discover.filters.reserved" })}</span>
+            <Heart size={16} className={styles.icon} />
+            <span className={styles.label}>
+              {t("Reserved", { $id: "discover.filters.reserved" })}
+            </span>
           </>
         ),
       },
@@ -47,8 +53,10 @@ export function DiscoverFilters({ active, onChange }: Props) {
         value: "purchased",
         label: (
           <>
-            <ShoppingCart size={16} />
-            <span>{t("Purchased", { $id: "discover.filters.purchased" })}</span>
+            <ShoppingCart size={16} className={styles.icon} />
+            <span className={styles.label}>
+              {t("Purchased", { $id: "discover.filters.purchased" })}
+            </span>
           </>
         ),
       },

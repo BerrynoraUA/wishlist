@@ -1,0 +1,28 @@
+.row {
+  justify-content: flex-start;
+}
+
+@media (max-width: 640px) {
+  .row {
+    align-items: stretch;
+  }
+
+  .priorityFilter {
+    order: 1;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .actions {
+    order: 2;
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: stretch;
+  }
+
+  .priceFilter {
+    order: 3;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+}

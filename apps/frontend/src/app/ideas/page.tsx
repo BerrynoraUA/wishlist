@@ -1,13 +1,23 @@
 "use client";
 
+import { useMemo } from "react";
 import { useGT } from "gt-next";
-import { ChevronUp, Info, Lightbulb, Clock, Code, CheckCircle, Sparkles } from "lucide-react";
+import {
+  ChevronUp,
+  Info,
+  Lightbulb,
+  Clock,
+  Code,
+  CheckCircle,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button/Button";
+import { Tabs, type TabItem } from "@/components/ui/Tabs/Tabs";
 import { useToggleFeatureIdeaVote } from "@/hooks/use-feature-ideas";
 import { StatusBadge } from "./components/status-badge/StatusBadge";
 import { SubmitIdeaModal } from "./components/submit-idea-modal/SubmitIdeaModal";
 import { useIdeasPage } from "./hooks/use-ideas-page";
-import { IDEA_STATUS_FILTERS } from "./constants";
+import { IDEA_STATUS_FILTERS, type IdeaStatusFilter } from "./constants";
 import styles from "./ideas.module.scss";
 
 export default function IdeasPage() {
@@ -25,6 +35,41 @@ export default function IdeasPage() {
     isError,
   } = useIdeasPage();
   const toggleVote = useToggleFeatureIdeaVote();
+  const filterItems = useMemo<TabItem<IdeaStatusFilter>[]>(
+    () =>
+      IDEA_STATUS_FILTERS.map((filter) => ({
+        value: filter,
+        label:
+          filter === "all" ? (
+            <span className={styles.label}>All</span>
+          ) : filter === "approved" ? (
+            <>
+              <Sparkles size={16} className={styles.filterIcon} />
+              <span className={styles.label}>
+                {t("Approved", { $id: "ideas.filter.approved" })}
+              </span>
+            </>
+          ) : filter === "in_development" ? (
+            <>
+              <Code size={16} className={styles.filterIcon} />
+              <span className={`${styles.label} ${styles.labelLong}`}>
+                {t("In Development", { $id: "ideas.filter.inDevelopment" })}
+              </span>
+              <span className={`${styles.label} ${styles.labelShort}`}>
+                In Dev
+              </span>
+            </>
+          ) : (
+            <>
+              <CheckCircle size={16} className={styles.filterIcon} />
+              <span className={styles.label}>
+                {t("Done", { $id: "ideas.filter.done" })}
+              </span>
+            </>
+          ),
+      })),
+    [t],
+  );
 
   return (
     <main className={styles.page}>
@@ -34,12 +79,6 @@ export default function IdeasPage() {
             <h1 className={styles.headerTitle}>
               {t("Feature Ideas", { $id: "ideas.page.title" })}
             </h1>
-            <p className={styles.headerDescription}>
-              {t(
-                "Vote on ideas you love or submit your own. The most popular ideas get built first!",
-                { $id: "ideas.page.description" },
-              )}
-            </p>
           </div>
           <div className={styles.submitButton}>
             <Button onClick={() => setSubmitOpen(true)}>
@@ -87,36 +126,16 @@ export default function IdeasPage() {
         </p>
       )}
 
-      <div className={styles.filterBar}>
-        {IDEA_STATUS_FILTERS.map((f) => (
-          <button
-            key={f}
-            type="button"
-            className={`${styles.filterPill} ${statusFilter === f ? styles.filterActive : ""}`}
-            onClick={() => setStatusFilter(f)}
-          >
-            {f === "all" && t("All", { $id: "ideas.filter.all" })}
-            {f === "approved" && (
-              <>
-                <Sparkles size={12} />
-                {t("Approved", { $id: "ideas.filter.approved" })}
-              </>
-            )}
-            {f === "in_development" && (
-              <>
-                <Code size={12} />
-                {t("In Development", { $id: "ideas.filter.inDevelopment" })}
-              </>
-            )}
-            {f === "done" && (
-              <>
-                <CheckCircle size={12} />
-                {t("Done", { $id: "ideas.filter.done" })}
-              </>
-            )}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        items={filterItems}
+        active={statusFilter}
+        onChange={setStatusFilter}
+        as="nav"
+        ariaLabel={t("Ideas status filters", { $id: "ideas.filter.nav" })}
+        className={styles.filterTabs}
+        tabClassName={styles.filterTab}
+        activeTabClassName={styles.filterActive}
+      />
 
       <div className={styles.ideaList}>
         {visibleIdeas.map((idea) => (
@@ -140,10 +159,15 @@ export default function IdeasPage() {
               <div className={styles.ideaMeta}>
                 {idea.user_avatar_url && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={idea.user_avatar_url} alt="" className={styles.ideaAuthorAvatar} />
+                  <img
+                    src={idea.user_avatar_url}
+                    alt=""
+                    className={styles.ideaAuthorAvatar}
+                  />
                 )}
                 <span>
-                  {idea.user_display_name ?? t("Anonymous", { $id: "ideas.page.anonymous" })}
+                  {idea.user_display_name ??
+                    t("Anonymous", { $id: "ideas.page.anonymous" })}
                 </span>
                 <span>·</span>
                 <span>{new Date(idea.created_at).toLocaleDateString()}</span>

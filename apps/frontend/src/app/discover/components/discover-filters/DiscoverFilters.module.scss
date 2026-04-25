@@ -10,6 +10,17 @@
   gap: 8px;
 }
 
+.icon {
+  flex-shrink: 0;
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .active {
   background: var(--nav-active-bg);
   font-weight: var(--fw-semibold);
@@ -18,14 +29,14 @@
 }
 
 @media (max-width: 640px) {
-  .filters {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-
   .filterTab {
     justify-content: center;
-    padding: 7px 12px;
-    font-size: var(--fs-caption);
+    gap: 4px;
+    padding: 7px 8px;
+    font-size: var(--fs-eyebrow);
+  }
+
+  .icon {
+    display: none;
   }
 }
