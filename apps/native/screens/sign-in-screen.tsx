@@ -395,7 +395,15 @@ function MockupItem({
   );
 }
 
-function FloatingBadge({ className, icon, label }: { className: string; icon: string; label: string }) {
+function FloatingBadge({
+  className,
+  icon,
+  label,
+}: {
+  className: string;
+  icon: string;
+  label: string;
+}) {
   return (
     <View
       className={cn(

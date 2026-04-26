@@ -1,4 +1,4 @@
-import Animated from 'react-native-reanimated';
+import Animated from "react-native-reanimated";
 
 /**
  * This component keeps shared overlay animation call sites consistent.
@@ -9,9 +9,7 @@ import Animated from 'react-native-reanimated';
  *   <Text>I am only animated on native</Text>
  * </NativeOnlyAnimatedView>
  */
-function NativeOnlyAnimatedView(
-  props: React.ComponentProps<typeof Animated.View>
-) {
+function NativeOnlyAnimatedView(props: React.ComponentProps<typeof Animated.View>) {
   return <Animated.View {...props} />;
 }
 

@@ -11,7 +11,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary active:bg-primary/90 shadow-sm shadow-black/5",
-        destructive: "bg-destructive active:bg-destructive/90 dark:bg-destructive/60 shadow-sm shadow-black/5",
+        destructive:
+          "bg-destructive active:bg-destructive/90 dark:bg-destructive/60 shadow-sm shadow-black/5",
         outline:
           "border-border bg-background active:bg-accent dark:bg-input/30 dark:border-input dark:active:bg-input/50 border shadow-sm shadow-black/5",
         secondary: "bg-secondary active:bg-secondary/80 shadow-sm shadow-black/5",
@@ -32,33 +33,31 @@ const buttonVariants = cva(
   },
 );
 
-const buttonTextVariants = cva(
-  "text-text text-sm font-medium",
-  {
-    variants: {
-      variant: {
-        default: "text-primary-foreground",
-        destructive: "text-white",
-        outline: "group-active:text-accent-foreground",
-        secondary: "text-secondary-foreground",
-        ghost: "group-active:text-accent-foreground",
-        link: "text-primary group-active:underline",
-      },
-      size: {
-        default: "",
-        sm: "",
-        lg: "",
-        icon: "",
-      },
+const buttonTextVariants = cva("text-text text-sm font-medium", {
+  variants: {
+    variant: {
+      default: "text-primary-foreground",
+      destructive: "text-white",
+      outline: "group-active:text-accent-foreground",
+      secondary: "text-secondary-foreground",
+      ghost: "group-active:text-accent-foreground",
+      link: "text-primary group-active:underline",
     },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
+    size: {
+      default: "",
+      sm: "",
+      lg: "",
+      icon: "",
     },
   },
-);
+  defaultVariants: {
+    variant: "default",
+    size: "default",
+  },
+});
 
-type ButtonProps = React.ComponentProps<typeof AnimatedPressable> & VariantProps<typeof buttonVariants>;
+type ButtonProps = React.ComponentProps<typeof AnimatedPressable> &
+  VariantProps<typeof buttonVariants>;
 
 function Button({ className, variant, size, ...props }: ButtonProps) {
   return (

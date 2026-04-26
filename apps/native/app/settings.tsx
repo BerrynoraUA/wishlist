@@ -90,10 +90,7 @@ export default function SettingsScreen() {
                     {isActive ? <Icon as={CheckIcon} className="size-5 text-text" /> : null}
                   </View>
                   <Text
-                    className={cn(
-                      "text-body font-semibold text-text",
-                      isActive && "text-brand",
-                    )}
+                    className={cn("text-body font-semibold text-text", isActive && "text-brand")}
                   >
                     {accent.label}
                   </Text>

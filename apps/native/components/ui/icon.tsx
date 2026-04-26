@@ -42,9 +42,7 @@ const StyledIcon = withUniwind(IconImpl, {
  * @param {...LucideProps} ...props - Additional Lucide icon props passed to the "as" icon.
  */
 function Icon({ as: IconComponent, className, ...props }: IconProps) {
-  return (
-    <StyledIcon as={IconComponent} className={cn("text-text size-5", className)} {...props} />
-  );
+  return <StyledIcon as={IconComponent} className={cn("text-text size-5", className)} {...props} />;
 }
 
 export { Icon };

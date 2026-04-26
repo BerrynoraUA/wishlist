@@ -1,13 +1,13 @@
-import { cn } from '@/lib/utils';
-import { motionSpring } from '@/lib/motion';
-import * as ProgressPrimitive from '@rn-primitives/progress';
+import { cn } from "@/lib/utils";
+import { motionSpring } from "@/lib/motion";
+import * as ProgressPrimitive from "@rn-primitives/progress";
 import Animated, {
   Extrapolation,
   interpolate,
   useAnimatedStyle,
   useDerivedValue,
   withSpring,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
 function Progress({
   className,
@@ -15,12 +15,13 @@ function Progress({
   indicatorClassName,
   ...props
 }: React.ComponentProps<typeof ProgressPrimitive.Root> & {
-    indicatorClassName?: string;
-  }) {
+  indicatorClassName?: string;
+}) {
   return (
     <ProgressPrimitive.Root
-      className={cn('bg-primary/20 relative h-2 w-full overflow-hidden rounded-full', className)}
-      {...props}>
+      className={cn("bg-primary/20 relative h-2 w-full overflow-hidden rounded-full", className)}
+      {...props}
+    >
       <Indicator value={value} className={indicatorClassName} />
     </ProgressPrimitive.Root>
   );
@@ -42,15 +43,14 @@ function NativeIndicator({ value, className }: IndicatorProps) {
     return {
       width: withSpring(
         `${interpolate(progress.value, [0, 100], [1, 100], Extrapolation.CLAMP)}%`,
-        { ...motionSpring.navPill, overshootClamping: true }
+        { ...motionSpring.navPill, overshootClamping: true },
       ),
     };
   }, [value]);
 
   return (
     <ProgressPrimitive.Indicator asChild>
-      <Animated.View style={indicator} className={cn('bg-foreground h-full', className)} />
+      <Animated.View style={indicator} className={cn("bg-foreground h-full", className)} />
     </ProgressPrimitive.Indicator>
   );
 }
-

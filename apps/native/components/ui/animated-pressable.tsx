@@ -1,22 +1,22 @@
-import { motionDuration, motionPress, motionSpring, useReducedMotion } from '@/lib/motion';
-import * as React from 'react';
-import { Pressable } from 'react-native';
+import { motionDuration, motionPress, motionSpring, useReducedMotion } from "@/lib/motion";
+import * as React from "react";
+import { Pressable } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
 const ReanimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 type PressableProps = React.ComponentProps<typeof Pressable>;
-type PressEvent = Parameters<NonNullable<PressableProps['onPressIn']>>[0];
+type PressEvent = Parameters<NonNullable<PressableProps["onPressIn"]>>[0];
 
 type UseAnimatedPressFeedbackOptions = {
   disabled?: boolean | null;
-  onPressIn?: PressableProps['onPressIn'];
-  onPressOut?: PressableProps['onPressOut'];
+  onPressIn?: PressableProps["onPressIn"];
+  onPressOut?: PressableProps["onPressOut"];
   pressedOpacity?: number;
   pressedScale?: number;
 };

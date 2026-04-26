@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { AccessibilityInfo } from 'react-native';
+import * as React from "react";
+import { AccessibilityInfo } from "react-native";
 
 export const motionDuration = {
   fast: 150,
@@ -39,8 +39,8 @@ export function useReducedMotion() {
     });
 
     const subscription = AccessibilityInfo.addEventListener(
-      'reduceMotionChanged',
-      setReducedMotionEnabled
+      "reduceMotionChanged",
+      setReducedMotionEnabled,
     );
 
     return () => {

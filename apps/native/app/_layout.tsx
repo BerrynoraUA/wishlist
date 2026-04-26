@@ -34,7 +34,9 @@ export default function RootLayout() {
   const themeMode = getThemeMode(theme);
   const navigationTheme = getNavigationTheme(theme);
   const selectedTabBackground =
-    themeMode === "dark" ? `${navigationTheme.colors.primary}24` : `${navigationTheme.colors.primary}18`;
+    themeMode === "dark"
+      ? `${navigationTheme.colors.primary}24`
+      : `${navigationTheme.colors.primary}18`;
 
   useEffect(() => {
     Appearance.setColorScheme(themeMode);
