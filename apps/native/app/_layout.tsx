@@ -11,6 +11,7 @@ import { StatusBar } from "expo-status-bar";
 import { GTProvider } from "gt-react-native";
 import { useEffect } from "react";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
+import { Appearance } from "react-native";
 import { useUniwind } from "uniwind";
 import gtConfig from "../gt.config.json";
 import { loadTranslations } from "../loadTranslations";
@@ -29,6 +30,14 @@ const posthogEnabled = Boolean(posthogApiKey);
 
 export default function RootLayout() {
   const { theme } = useUniwind();
+  const themeMode = getThemeMode(theme);
+  const navigationTheme = getNavigationTheme(theme);
+  const selectedTabBackground =
+    themeMode === "dark" ? `${navigationTheme.colors.primary}24` : `${navigationTheme.colors.primary}18`;
+
+  useEffect(() => {
+    Appearance.setColorScheme(themeMode);
+  }, [themeMode]);
 
   return (
     <PostHogProvider
@@ -50,9 +59,15 @@ export default function RootLayout() {
       >
         <AuthProvider>
           <PostHogScreenTracker />
-          <ThemeProvider value={getNavigationTheme(theme)}>
-            <StatusBar style={getThemeMode(theme) === "dark" ? "light" : "dark"} />
-            <NativeTabs>
+          <ThemeProvider value={navigationTheme}>
+            <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
+            <NativeTabs
+              backgroundColor={navigationTheme.colors.card}
+              blurEffect={themeMode === "dark" ? "systemMaterialDark" : "systemMaterialLight"}
+              disableTransparentOnScrollEdge
+              indicatorColor={selectedTabBackground}
+              tintColor={navigationTheme.colors.primary}
+            >
               <NativeTabs.Trigger name="index">
                 <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
                 <NativeTabs.Trigger.Label>Wishlists</NativeTabs.Trigger.Label>
