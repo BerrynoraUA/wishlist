@@ -8,6 +8,9 @@ import type {
   ProfileSearchResult,
   GetFriendsWithoutWishlistAccessParams,
   WishlistAccessUser,
+  FriendGroup,
+  FriendGroupMember,
+  FriendGroupPayload,
 } from "./types/friends";
 
 export async function getIncomingFriendRequests({
@@ -19,11 +22,14 @@ export async function getIncomingFriendRequests({
 
   if (!myUserId) throw new Error("Not authenticated");
 
-  const { data, error } = await supabaseBrowser.rpc("get_incoming_friend_requests_with_details", {
-    p_user_id: myUserId,
-    p_skip: skip,
-    p_take: take,
-  });
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_incoming_friend_requests_with_details",
+    {
+      p_user_id: myUserId,
+      p_skip: skip,
+      p_take: take,
+    },
+  );
 
   if (error) throw error;
 
@@ -39,18 +45,23 @@ export async function getOutgoingFriendRequests({
 
   if (!myUserId) throw new Error("Not authenticated");
 
-  const { data, error } = await supabaseBrowser.rpc("get_outgoing_friend_requests_with_details", {
-    p_user_id: myUserId,
-    p_skip: skip,
-    p_take: take,
-  });
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_outgoing_friend_requests_with_details",
+    {
+      p_user_id: myUserId,
+      p_skip: skip,
+      p_take: take,
+    },
+  );
 
   if (error) throw error;
 
   return data ?? [];
 }
 
-export async function sendFriendRequest(receiverId: string): Promise<FriendRequest> {
+export async function sendFriendRequest(
+  receiverId: string,
+): Promise<FriendRequest> {
   const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
 
@@ -102,9 +113,11 @@ export async function cancelFriendRequest(requestId: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function getFriends({ skip = 0, take = 10, search }: PaginationParams = {}): Promise<
-  FriendWithDetails[]
-> {
+export async function getFriends({
+  skip = 0,
+  take = 10,
+  search,
+}: PaginationParams = {}): Promise<FriendWithDetails[]> {
   const session = await getCurrentSession();
   const myUserId = session?.user.id;
 
@@ -140,11 +153,14 @@ export async function searchProfilesByNickname({
   const trimmed = normalizeSearchQuery(query);
   if (!trimmed) return [];
 
-  const { data, error } = await supabaseBrowser.rpc("search_profiles_by_nickname", {
-    p_query: trimmed,
-    p_skip: skip,
-    p_take: take,
-  });
+  const { data, error } = await supabaseBrowser.rpc(
+    "search_profiles_by_nickname",
+    {
+      p_query: trimmed,
+      p_skip: skip,
+      p_take: take,
+    },
+  );
 
   if (error) throw error;
 
@@ -190,12 +206,15 @@ export async function getFriendsWithoutWishlistAccess({
 }: GetFriendsWithoutWishlistAccessParams): Promise<ProfileSearchResult[]> {
   const normalizedSearch = normalizeSearchQuery(search);
 
-  const { data, error } = await supabaseBrowser.rpc("get_friends_without_wishlist_access", {
-    p_wishlist_id: wishlistId,
-    p_search: normalizedSearch || null,
-    p_skip: skip,
-    p_take: take,
-  });
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_friends_without_wishlist_access",
+    {
+      p_wishlist_id: wishlistId,
+      p_search: normalizedSearch || null,
+      p_skip: skip,
+      p_take: take,
+    },
+  );
 
   if (error) throw error;
 
@@ -205,17 +224,189 @@ export async function getFriendsWithoutWishlistAccess({
   }));
 }
 
-export async function getWishlistAccessList(wishlistId: string): Promise<WishlistAccessUser[]> {
-  const { data, error } = await supabaseBrowser.rpc("get_wishlist_access_list", {
-    p_wishlist_id: wishlistId,
+export async function getWishlistAccessList(
+  wishlistId: string,
+): Promise<WishlistAccessUser[]> {
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_wishlist_access_list",
+    {
+      p_wishlist_id: wishlistId,
+    },
+  );
+
+  if (error) throw error;
+
+  return (data ?? []).map((row: any) => {
+    const targetType = row.target_type ?? (row.group_id ? "group" : "user");
+    const targetId =
+      row.target_id ??
+      row.granted_to_user_id ??
+      row.target_user_id ??
+      row.user_id ??
+      row.group_id ??
+      row.id;
+
+    return {
+      id: targetId,
+      nickname:
+        row.nickname ??
+        row.owner_nickname ??
+        row.display_name ??
+        row.name ??
+        "unknown",
+      access_type: row.access_type,
+      access_role: row.access_type === 1 ? "editor" : "viewer",
+      target_type: targetType,
+      group_id: row.group_id ?? null,
+      name: row.name ?? null,
+      description: row.description ?? null,
+      color: row.color ?? null,
+      icon: row.icon ?? null,
+      member_count: Number(row.member_count ?? 0),
+      created_at: row.created_at,
+    } satisfies WishlistAccessUser;
+  });
+}
+
+export async function getFriendGroups({
+  skip = 0,
+  take = 20,
+  search,
+}: PaginationParams = {}): Promise<FriendGroup[]> {
+  const normalizedSearch = normalizeSearchQuery(search);
+
+  const { data, error } = await supabaseBrowser.rpc("get_friend_groups", {
+    p_search: normalizedSearch || null,
+    p_skip: skip,
+    p_take: take,
   });
 
   if (error) throw error;
 
   return (data ?? []).map((row: any) => ({
-    id: row.granted_to_user_id ?? row.target_user_id ?? row.user_id ?? row.id,
-    nickname: row.nickname ?? row.owner_nickname ?? row.display_name ?? "unknown",
-    access_type: row.access_type,
-    access_role: row.access_role ?? (row.access_type === 1 ? "editor" : "viewer"),
+    id: row.id,
+    name: row.name,
+    description: row.description ?? null,
+    color: row.color ?? "pink",
+    icon: row.icon ?? "users",
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    member_count: Number(row.member_count ?? 0),
   }));
+}
+
+export async function getFriendGroupMembers(
+  groupId: string,
+): Promise<FriendGroupMember[]> {
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_friend_group_members",
+    {
+      p_group_id: groupId,
+    },
+  );
+
+  if (error) throw error;
+
+  return data ?? [];
+}
+
+export async function createFriendGroup(payload: FriendGroupPayload) {
+  const { data, error } = await supabaseBrowser.rpc("create_friend_group", {
+    p_name: payload.name,
+    p_description: payload.description ?? null,
+    p_color: payload.color,
+    p_icon: payload.icon,
+    p_member_ids: payload.memberIds,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateFriendGroup(
+  groupId: string,
+  payload: FriendGroupPayload,
+) {
+  const { data, error } = await supabaseBrowser.rpc("update_friend_group", {
+    p_group_id: groupId,
+    p_name: payload.name,
+    p_description: payload.description ?? null,
+    p_color: payload.color,
+    p_icon: payload.icon,
+    p_member_ids: payload.memberIds,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteFriendGroup(groupId: string) {
+  const { data, error } = await supabaseBrowser.rpc("delete_friend_group", {
+    p_group_id: groupId,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getFriendGroupsWithoutWishlistAccess({
+  wishlistId,
+  search,
+  skip = 0,
+  take = 20,
+}: GetFriendsWithoutWishlistAccessParams): Promise<FriendGroup[]> {
+  const normalizedSearch = normalizeSearchQuery(search);
+
+  const { data, error } = await supabaseBrowser.rpc(
+    "get_friend_groups_without_wishlist_access",
+    {
+      p_wishlist_id: wishlistId,
+      p_search: normalizedSearch || null,
+      p_skip: skip,
+      p_take: take,
+    },
+  );
+
+  if (error) throw error;
+
+  return (data ?? []).map((row: any) => ({
+    id: row.id,
+    name: row.name,
+    description: row.description ?? null,
+    color: row.color ?? "pink",
+    icon: row.icon ?? "users",
+    member_count: Number(row.member_count ?? 0),
+  }));
+}
+
+export async function grantWishlistGroupAccess(
+  wishlistId: string,
+  groupId: string,
+) {
+  const { data, error } = await supabaseBrowser.rpc(
+    "grant_wishlist_group_access",
+    {
+      p_wishlist_id: wishlistId,
+      p_group_id: groupId,
+    },
+  );
+
+  if (error) throw error;
+  return data;
+}
+
+export async function revokeWishlistGroupAccess(
+  wishlistId: string,
+  groupId: string,
+) {
+  const { data, error } = await supabaseBrowser.rpc(
+    "revoke_wishlist_group_access",
+    {
+      p_wishlist_id: wishlistId,
+      p_group_id: groupId,
+    },
+  );
+
+  if (error) throw error;
+  return data;
 }

@@ -5,6 +5,7 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
+  flex: 0 1 auto;
 }
 
 .label {
@@ -18,22 +19,38 @@
 .range {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
+  gap: 0;
+  min-width: 0;
+  padding: 3px;
   border-radius: $radius-pill;
-  border: 1.5px solid var(--color-border-light);
+  border: 1.5px solid var(--input-border);
   background: var(--input-bg);
+  box-shadow: none;
+  transition: border-color 0.2s $ease-out;
+
+  &:focus-within {
+    border-color: var(--input-border);
+    box-shadow: none;
+  }
 }
 
 .input {
-  width: 84px;
+  width: 76px;
   min-width: 0;
   border: none;
+  border-radius: $radius-pill;
   background: transparent;
   color: var(--color-text);
   font-family: var(--font-sans);
   font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
   outline: none;
+  padding: 5px 9px;
+  text-align: center;
+  appearance: textfield;
+  -moz-appearance: textfield;
+  transition: background 0.2s $ease-out;
 
   &::placeholder {
     color: var(--color-text-light);
@@ -44,18 +61,55 @@
     -webkit-appearance: none;
     margin: 0;
   }
+
+  &:focus {
+    background: transparent;
+  }
 }
 
 .separator {
+  width: 16px;
+  text-align: center;
   color: var(--color-text-light);
   font-size: var(--fs-caption);
   line-height: 1;
   user-select: none;
 }
 
+.compact {
+  gap: 6px;
+}
+
+.compact .range {
+  padding: 2px;
+
+  &:focus-within {
+    border-color: var(--input-border);
+    box-shadow: none;
+  }
+}
+
+.compact .input {
+  width: 64px;
+  padding-inline: 7px;
+
+  &:focus {
+    background: transparent;
+  }
+}
+
 @media (max-width: 640px) {
   .wrapper {
-    width: 100%;
+    flex: 1 1 220px;
+  }
+
+  .compact {
+    flex: 1 1 136px;
+    gap: 0;
+  }
+
+  .compact .label {
+    display: none;
   }
 
   .range {
@@ -63,6 +117,11 @@
   }
 
   .input {
-    width: 100%;
+    flex: 1 1 0;
+    width: 0;
+  }
+
+  .compact .separator {
+    width: 12px;
   }
 }

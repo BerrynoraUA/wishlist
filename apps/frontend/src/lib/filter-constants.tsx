@@ -1,4 +1,11 @@
-import { Clock3, Globe, Lock, PackageCheck, PackageOpen, Users } from "lucide-react";
+import {
+  Clock3,
+  Globe,
+  Lock,
+  PackageCheck,
+  PackageOpen,
+  Users,
+} from "lucide-react";
 import { WishlistVisibility } from "@/types/wishlist";
 
 // ─── Priority Bar Icons ────────────────────────────────────
@@ -99,18 +106,25 @@ export const ITEM_SORT_OPTIONS = [
 export const WISHLIST_VISIBILITY_OPTIONS = [
   { value: "public", label: "Public", icon: <Globe size={13} /> },
   { value: "friends", label: "Friends only", icon: <Users size={13} /> },
+  {
+    value: "selected-friends",
+    label: "Selected friends",
+    icon: <Users size={13} />,
+  },
   { value: "private", label: "Private", icon: <Lock size={13} /> },
 ];
 
 export const WISHLIST_VISIBILITY_MAP: Record<string, WishlistVisibility> = {
   public: WishlistVisibility.Public,
   friends: WishlistVisibility.FriendsOnly,
+  "selected-friends": WishlistVisibility.SelectedFriends,
   private: WishlistVisibility.Private,
 };
 
 export const WISHLIST_VISIBILITY_LABELS: Record<string, string> = {
   public: "Public",
   friends: "Friends only",
+  "selected-friends": "Selected friends",
   private: "Private",
 };
 

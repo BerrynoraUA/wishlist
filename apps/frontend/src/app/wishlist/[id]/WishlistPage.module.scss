@@ -96,6 +96,43 @@
 
   .filterRow {
     justify-content: flex-start;
+    align-items: stretch;
+  }
+
+  .filterRow .itemFilterControl {
+    order: 1;
+    flex: 1 1 calc((100% - 8px) / 2);
+    min-width: 0;
+  }
+
+  .filterRow .itemFilterControl button {
+    padding-inline: 8px;
+  }
+
+  .filterRow .itemFilterControl button > svg:first-child {
+    display: none;
+  }
+
+  .filterRow .itemPriceFilter {
+    order: 2;
+    flex: 1 1 calc((100% - 8px) / 2);
+    min-width: 0;
+  }
+
+  .filterRow .itemPriceFilter input {
+    padding-inline: 5px;
+  }
+
+  .filterRow .itemFilterActions {
+    order: 2;
+    flex: 1 1 calc((100% - 8px) / 2);
+    min-width: 0;
+    justify-content: flex-end;
+  }
+
+  .filterRow .itemFilterActions > :last-child {
+    flex: 1 1 0;
+    min-width: 0;
   }
 }
 

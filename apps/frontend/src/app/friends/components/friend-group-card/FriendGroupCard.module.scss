@@ -1,0 +1,145 @@
+@use "@/styles/variables" as *;
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: $radius-lg;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  transition: all 0.3s $ease-out;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--card-hover-shadow);
+    border-color: transparent;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: var(--color-text);
+  background: var(--gradient-brand-subtle);
+}
+
+.pink {
+  background: linear-gradient(
+    135deg,
+    rgba(244, 114, 182, 0.24),
+    rgba(251, 207, 232, 0.58)
+  );
+}
+
+.peach {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 146, 60, 0.22),
+    rgba(254, 215, 170, 0.54)
+  );
+}
+
+.blue {
+  background: linear-gradient(
+    135deg,
+    rgba(96, 165, 250, 0.22),
+    rgba(191, 219, 254, 0.54)
+  );
+}
+
+.lavender {
+  background: linear-gradient(
+    135deg,
+    rgba(167, 139, 250, 0.22),
+    rgba(221, 214, 254, 0.54)
+  );
+}
+
+.mint {
+  background: linear-gradient(
+    135deg,
+    rgba(52, 211, 153, 0.22),
+    rgba(187, 247, 208, 0.54)
+  );
+}
+
+.info {
+  min-width: 0;
+  flex: 1;
+
+  strong {
+    display: block;
+    color: var(--color-text);
+    font-size: var(--fs-body);
+    font-weight: var(--fw-semibold);
+  }
+}
+
+.description {
+  margin: 3px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+  line-height: 1.35;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.meta {
+  font-size: var(--fs-caption);
+  color: var(--color-text-light);
+  margin-top: 4px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.iconButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border-light);
+  background: var(--card-bg);
+  color: var(--color-text-light);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.3s $ease-out;
+
+  &:hover {
+    border-color: var(--brand-alpha-20);
+    color: $brand;
+    transform: scale(1.08);
+    background: var(--brand-alpha-06);
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+.danger:hover {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+@media (max-width: 768px) {
+  .card:hover {
+    transform: none;
+  }
+}

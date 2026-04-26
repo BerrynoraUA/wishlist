@@ -5,15 +5,24 @@ import { useGT } from "gt-next";
 import { FriendsHeader } from "./components/friends-header/FriendsHeader";
 import { FriendsTabs } from "./components/friends-tabs/FriendsTabs";
 import { FriendCard } from "./components/friend-card/FriendCard";
+import { FriendGroupCard } from "./components/friend-group-card/FriendGroupCard";
+import { FriendGroupModal } from "./components/friend-group-modal/FriendGroupModal";
 import { RequestCard } from "./components/request-card/RequestCard";
 import { OutgoingRequestCard } from "./components/outgoing-request-card/OutgoingRequestCard";
 import { AddFriendModal } from "./components/add-friend-modal/AddFriendModal";
 import { FriendCardSkeleton } from "./components/friends-skeleton/FriendsSkeleton";
 import { useFriendsPage } from "./hooks/use-friends-page";
-import { FRIENDS_GRID_STYLE, FRIENDS_SKELETON_COUNT, REQUESTS_SKELETON_COUNT } from "./constants";
+import {
+  FRIENDS_GRID_STYLE,
+  FRIENDS_SKELETON_COUNT,
+  REQUESTS_SKELETON_COUNT,
+} from "./constants";
+import { Button } from "@/components/ui/Button/Button";
 
 function renderSkeletons(count: number) {
-  return Array.from({ length: count }).map((_, i) => <FriendCardSkeleton key={i} />);
+  return Array.from({ length: count }).map((_, i) => (
+    <FriendCardSkeleton key={i} />
+  ));
 }
 
 function FriendsPageContent() {
@@ -23,9 +32,14 @@ function FriendsPageContent() {
     setTab,
     addOpen,
     setAddOpen,
+    groupModalOpen,
+    editingGroup,
     friends,
     friendsLoading,
     friendsError,
+    groups,
+    groupsLoading,
+    groupsError,
     requests,
     requestsLoading,
     requestsError,
@@ -35,7 +49,14 @@ function FriendsPageContent() {
     acceptRequest,
     rejectRequest,
     cancelRequest,
+    createGroup,
+    updateGroup,
     handleRemoveFriend,
+    handleCreateGroup,
+    handleEditGroup,
+    handleDeleteGroup,
+    handleCloseGroupModal,
+    handleSubmitGroup,
   } = useFriendsPage();
 
   return (
@@ -45,6 +66,7 @@ function FriendsPageContent() {
       <FriendsTabs
         active={tab}
         friendsCount={friends.length}
+        groupsCount={groups.length}
         requestsCount={requests.length}
         sentCount={outgoing.length}
         onChange={setTab}
@@ -67,6 +89,43 @@ function FriendsPageContent() {
             <FriendCard key={f.id} friend={f} onRemove={handleRemoveFriend} />
           ))}
         </div>
+      )}
+
+      {tab === "groups" && (
+        <>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: 16,
+            }}
+          >
+            <Button size="sm" onClick={handleCreateGroup}>
+              {t("Create group", { $id: "friends.groups.create" })}
+            </Button>
+          </div>
+          <div style={FRIENDS_GRID_STYLE}>
+            {groupsLoading && renderSkeletons(FRIENDS_SKELETON_COUNT)}
+            {groupsError && (
+              <p>
+                {t("Failed to load groups.", {
+                  $id: "friends.groups.loadError",
+                })}
+              </p>
+            )}
+            {!groupsLoading && !groupsError && groups.length === 0 && (
+              <p>{t("No groups yet.", { $id: "friends.groups.empty" })}</p>
+            )}
+            {groups.map((group) => (
+              <FriendGroupCard
+                key={group.id}
+                group={group}
+                onEdit={handleEditGroup}
+                onDelete={handleDeleteGroup}
+              />
+            ))}
+          </div>
+        </>
       )}
 
       {tab === "requests" && (
@@ -110,7 +169,9 @@ function FriendsPageContent() {
             </p>
           )}
           {!outgoingLoading && !outgoingError && outgoing.length === 0 && (
-            <p>{t("No sent requests.", { $id: "friends.page.noSentRequests" })}</p>
+            <p>
+              {t("No sent requests.", { $id: "friends.page.noSentRequests" })}
+            </p>
           )}
           {outgoing.map((r) => (
             <OutgoingRequestCard
@@ -124,6 +185,14 @@ function FriendsPageContent() {
       )}
 
       <AddFriendModal open={addOpen} onClose={() => setAddOpen(false)} />
+      <FriendGroupModal
+        open={groupModalOpen}
+        group={editingGroup}
+        friends={friends}
+        isSaving={createGroup.isPending || updateGroup.isPending}
+        onClose={handleCloseGroupModal}
+        onSubmit={handleSubmitGroup}
+      />
     </main>
   );
 }

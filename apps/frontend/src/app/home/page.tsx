@@ -42,7 +42,10 @@ function HomePageContent() {
         hasCreateDraft={hasCreateWishlistDraft}
       />
 
-      <CreateWishlistModal open={modals.createOpen} onClose={() => modals.setCreateOpen(false)} />
+      <CreateWishlistModal
+        open={modals.createOpen}
+        onClose={() => modals.setCreateOpen(false)}
+      />
       {modals.editWishlist && (
         <EditWishlistModal
           open={!!modals.editWishlist}

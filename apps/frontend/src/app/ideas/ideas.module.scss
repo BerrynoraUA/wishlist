@@ -87,42 +87,58 @@
   margin: 0;
 }
 
-/* ── Filter bar ── */
-.filterBar {
+.filterTabs {
+  width: 100%;
   display: flex;
-  gap: 6px;
-  background: var(--nav-pill-bg);
-  border-radius: $radius-pill;
-  padding: 4px;
-  width: fit-content;
+  align-items: center;
   margin-bottom: 20px;
 }
 
-.filterPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 7px 16px;
-  border-radius: $radius-pill;
-  border: none;
-  background: transparent;
-  color: var(--color-text-muted);
-  font-size: var(--fs-label);
-  font-weight: var(--fw-semibold);
-  cursor: pointer;
-  transition: all 0.2s $ease-out;
-  white-space: nowrap;
+.filterTab {
+  gap: 8px;
+}
 
-  &:hover:not(.filterActive) {
-    color: var(--color-text);
-    background: var(--nav-pill-hover);
-  }
+.filterIcon {
+  flex-shrink: 0;
 }
 
 .filterActive {
   background: var(--nav-active-bg);
+  font-weight: var(--fw-semibold);
   color: var(--color-text);
   box-shadow: var(--nav-active-shadow);
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.labelShort {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .filterTab {
+    justify-content: center;
+    gap: 4px;
+    padding: 7px 8px;
+    font-size: var(--fs-eyebrow);
+  }
+
+  .filterIcon {
+    display: none;
+  }
+
+  .labelLong {
+    display: none;
+  }
+
+  .labelShort {
+    display: inline;
+  }
 }
 
 /* ── Idea list ── */

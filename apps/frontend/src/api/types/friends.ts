@@ -48,6 +48,32 @@ export interface ProfileSearchResult {
   nickname: string;
 }
 
+export interface FriendGroup {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string;
+  icon: string;
+  created_at?: string;
+  updated_at?: string;
+  member_count: number;
+}
+
+export interface FriendGroupMember {
+  id: string;
+  nickname: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+}
+
+export type FriendGroupPayload = {
+  name: string;
+  description?: string | null;
+  color: string;
+  icon: string;
+  memberIds: string[];
+};
+
 export type GetFriendsWithoutWishlistAccessParams = {
   wishlistId: string;
   search?: string;
@@ -60,5 +86,12 @@ export type WishlistAccessUser = {
   nickname: string;
   access_type: number;
   access_role: "viewer" | "editor";
+  target_type?: "user" | "group";
+  group_id?: string | null;
+  name?: string | null;
+  description?: string | null;
+  color?: string | null;
+  icon?: string | null;
+  member_count?: number;
   created_at?: string;
 };

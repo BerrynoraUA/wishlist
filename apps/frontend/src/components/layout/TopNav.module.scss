@@ -16,9 +16,9 @@
   height: 64px;
 
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 32px;
+  gap: 24px;
 }
 
 /* ===== LOGO ===== */
@@ -85,7 +85,9 @@
   border-radius: 999px;
   padding: 4px;
   width: fit-content;
+  max-width: 100%;
   margin: 0 auto;
+  flex-wrap: nowrap;
 }
 
 .navItem {
@@ -101,6 +103,8 @@
   font-size: var(--fs-body);
   font-weight: var(--fw-medium);
   color: var(--color-text-muted);
+  min-width: 0;
+  white-space: nowrap;
 
   transition: color 0.2s ease;
 
@@ -123,6 +127,10 @@
 .label {
   position: relative;
   z-index: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .navBadgeWrap {
@@ -189,6 +197,37 @@
 }
 
 /* ===== RESPONSIVE ===== */
+
+@media (min-width: 769px) and (max-width: 1040px) {
+  .inner {
+    padding: 0 18px;
+    gap: 14px;
+  }
+
+  .logo {
+    gap: 8px;
+    font-size: 17px;
+  }
+
+  .logoIcon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .navItem {
+    gap: 6px;
+    padding: 8px 11px;
+    font-size: var(--fs-label);
+  }
+
+  .navBadgeWrap {
+    display: none;
+  }
+
+  .right {
+    gap: 8px;
+  }
+}
 
 @media (max-width: 768px) {
   .inner {
