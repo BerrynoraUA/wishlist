@@ -5,6 +5,8 @@
     "**/build/**",
     "**/.next/**",
     "**/.expo/**",
+    "**/.agents/**",
+    "**/.claude/**",
     "**/out/**",
     "**/.gt/**",
     "pnpm-lock.yaml",

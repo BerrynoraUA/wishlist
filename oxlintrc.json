@@ -20,6 +20,8 @@
     "**/build/**",
     "**/.next/**",
     "**/.expo/**",
+    "**/.agents/**",
+    "**/.claude/**",
     "**/out/**",
     "**/.gt/**",
     "apps/native/uniwind-types.d.ts"
