@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 import * as ToggleGroupPrimitive from '@rn-primitives/toggle-group';
 import type { VariantProps } from 'class-variance-authority';
 import * as React from 'react';
-import { Platform } from 'react-native';
 
 const ToggleGroupContext = React.createContext<VariantProps<typeof toggleVariants> | null>(null);
 
@@ -21,7 +20,6 @@ function ToggleGroup({
     <ToggleGroupPrimitive.Root
       className={cn(
         'flex flex-row items-center rounded-md shadow-none',
-        Platform.select({ web: 'w-fit' }),
         variant === 'outline' && 'shadow-sm shadow-black/5',
         className
       )}
@@ -63,9 +61,7 @@ function ToggleGroupItem({
     <TextClassContext.Provider
       value={cn(
         'text-sm text-foreground font-medium',
-        ToggleGroupPrimitive.utils.getIsSelected(value, props.value)
-          ? 'text-accent-foreground'
-          : Platform.select({ web: 'group-hover:text-muted-foreground' })
+        ToggleGroupPrimitive.utils.getIsSelected(value, props.value) && 'text-accent-foreground'
       )}>
       <ToggleGroupPrimitive.Item
         className={cn(
@@ -80,9 +76,6 @@ function ToggleGroupItem({
           isLast && 'rounded-r-md',
           (context.variant === 'outline' || variant === 'outline') && 'border-l-0',
           (context.variant === 'outline' || variant === 'outline') && isFirst && 'border-l',
-          Platform.select({
-            web: 'flex-1 focus:z-10 focus-visible:z-10',
-          }),
           className
         )}
         {...props}>

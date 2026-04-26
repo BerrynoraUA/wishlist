@@ -1,6 +1,6 @@
 import { motionDuration, motionPress, motionSpring, useReducedMotion } from '@/lib/motion';
 import * as React from 'react';
-import { Platform, Pressable } from 'react-native';
+import { Pressable } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -81,18 +81,6 @@ function AnimatedPressable({
     pressedOpacity,
     pressedScale,
   });
-
-  if (Platform.OS === 'web') {
-    return (
-      <Pressable
-        ref={ref}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        style={style}
-        {...props}
-      />
-    );
-  }
 
   return (
     <ReanimatedPressable

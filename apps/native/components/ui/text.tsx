@@ -2,29 +2,18 @@ import { cn } from "@/lib/utils";
 import * as Slot from "@rn-primitives/slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-import { Platform, Text as RNText, type Role } from "react-native";
+import { Text as RNText, type Role } from "react-native";
 
 const textVariants = cva(
-  cn(
-    "text-text text-base",
-    Platform.select({
-      web: "select-text",
-    }),
-  ),
+  "text-text text-base",
   {
     variants: {
       variant: {
         default: "",
-        h1: cn(
-          "text-center text-4xl font-extrabold tracking-tight",
-          Platform.select({ web: "scroll-m-20 text-balance" }),
-        ),
-        h2: cn(
-          "border-border border-b pb-2 text-3xl font-semibold tracking-tight",
-          Platform.select({ web: "scroll-m-20 first:mt-0" }),
-        ),
-        h3: cn("text-2xl font-semibold tracking-tight", Platform.select({ web: "scroll-m-20" })),
-        h4: cn("text-xl font-semibold tracking-tight", Platform.select({ web: "scroll-m-20" })),
+        h1: "text-center text-4xl font-extrabold tracking-tight",
+        h2: "border-border border-b pb-2 text-3xl font-semibold tracking-tight",
+        h3: "text-2xl font-semibold tracking-tight",
+        h4: "text-xl font-semibold tracking-tight",
         p: "mt-3 leading-7 sm:mt-6",
         blockquote: "mt-4 border-l-2 pl-3 italic sm:mt-6 sm:pl-6",
         code: cn(
@@ -51,8 +40,6 @@ const ROLE: Partial<Record<TextVariant, Role>> = {
   h2: "heading",
   h3: "heading",
   h4: "heading",
-  blockquote: Platform.select({ web: "blockquote" as Role }),
-  code: Platform.select({ web: "code" as Role }),
 };
 
 const ARIA_LEVEL: Partial<Record<TextVariant, string>> = {

@@ -2,7 +2,6 @@ import { useAnimatedPressFeedback } from '@/components/ui/animated-pressable';
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as TabsPrimitive from '@rn-primitives/tabs';
-import { Platform } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 const AnimatedTabsTrigger = Animated.createAnimatedComponent(TabsPrimitive.Trigger);
@@ -22,7 +21,7 @@ function TabsList({
     <TabsPrimitive.List
       className={cn(
         'bg-muted flex h-9 flex-row items-center justify-center rounded-lg p-[3px]',
-        Platform.select({ web: 'inline-flex w-fit', native: 'mr-auto' }),
+        'mr-auto',
         className
       )}
       {...props}
@@ -43,27 +42,22 @@ function TabsTrigger({
     onPressIn,
     onPressOut,
   });
-  const Trigger = Platform.OS === 'web' ? TabsPrimitive.Trigger : AnimatedTabsTrigger;
-
   return (
     <TextClassContext.Provider
       value={cn(
         'text-foreground dark:text-muted-foreground text-sm font-medium',
         value === props.value && 'dark:text-foreground'
       )}>
-      <Trigger
+      <AnimatedTabsTrigger
         className={cn(
           'flex flex-row items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 shadow-none shadow-black/5',
-          Platform.select({
-            web: 'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring web:h-[calc(100%-1px)] inline-flex cursor-default whitespace-nowrap transition-[color,box-shadow] focus-visible:outline-1 focus-visible:ring-[3px] disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
-          }),
           props.disabled && 'opacity-50',
           props.value === value && 'bg-background dark:border-foreground/10 dark:bg-input/30',
           className
         )}
-        onPressIn={Platform.OS === 'web' ? onPressIn : handlePressIn}
-        onPressOut={Platform.OS === 'web' ? onPressOut : handlePressOut}
-        style={Platform.OS === 'web' ? style : [style, animatedStyle]}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={[style, animatedStyle]}
         {...props}
       />
     </TextClassContext.Provider>
@@ -76,7 +70,7 @@ function TabsContent({
 }: React.ComponentProps<typeof TabsPrimitive.Content>) {
   return (
     <TabsPrimitive.Content
-      className={cn(Platform.select({ web: 'flex-1 outline-none' }), className)}
+      className={className}
       {...props}
     />
   );
