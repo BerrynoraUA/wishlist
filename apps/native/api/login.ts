@@ -1,40 +1,58 @@
 import { supabase } from "@/lib/supabase";
-import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-signin";
+import * as AppleAuthentication from "expo-apple-authentication";
+import * as Linking from "expo-linking";
+import * as WebBrowser from "expo-web-browser";
+import { Platform } from "react-native";
 
-const googleWebClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID?.trim();
+WebBrowser.maybeCompleteAuthSession();
 
-function configureGoogleSignin(): void {
-  if (!googleWebClientId) {
-    throw new Error(
-      "Missing EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID. Set it to your Google Web OAuth client ID before using Google sign-in.",
-    );
-  }
-
-  GoogleSignin.configure({
-    webClientId: googleWebClientId,
-  });
-}
-
-function getGoogleSignInErrorMessage(error: unknown): string | null {
+function getErrorCode(error: unknown): string | null {
   if (!error || typeof error !== "object" || !("code" in error)) {
     return null;
   }
 
-  const code = String((error as { code?: unknown }).code ?? "");
+  return String((error as { code?: unknown }).code ?? "");
+}
 
-  switch (code) {
-    case statusCodes.SIGN_IN_CANCELLED:
-      return "Google sign-in was cancelled.";
-    case statusCodes.IN_PROGRESS:
-      return "Google sign-in is already in progress.";
-    case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-      return "Google Play Services are unavailable or outdated on this device.";
-    case "10":
-    case "DEVELOPER_ERROR":
-      return "Google Sign-In is misconfigured for Android. Add or update an Android OAuth client in Google Cloud Console, and keep EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID set to your Web OAuth client ID.";
-    default:
-      return null;
+function extractSessionParamsFromUrl(url: string) {
+  const parsedUrl = new URL(url);
+  const params = new URLSearchParams(
+    parsedUrl.hash ? parsedUrl.hash.substring(1) : parsedUrl.search.substring(1),
+  );
+
+  return {
+    accessToken: params.get("access_token"),
+    refreshToken: params.get("refresh_token"),
+  };
+}
+
+function getAppleFullName(fullName: AppleAuthentication.AppleAuthenticationFullName | null) {
+  if (!fullName) {
+    return null;
   }
+
+  return [fullName.givenName, fullName.middleName, fullName.familyName]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+}
+
+async function updateAppleUserMetadata(
+  fullName: AppleAuthentication.AppleAuthenticationFullName | null,
+) {
+  const displayName = getAppleFullName(fullName);
+
+  if (!displayName) {
+    return;
+  }
+
+  await supabase.auth.updateUser({
+    data: {
+      full_name: displayName,
+      given_name: fullName?.givenName,
+      family_name: fullName?.familyName,
+    },
+  });
 }
 
 export async function loginWithEmail(email: string, password: string): Promise<void> {
@@ -47,27 +65,74 @@ export async function loginWithEmail(email: string, password: string): Promise<v
 }
 
 export async function loginWithGoogle(): Promise<void> {
-  configureGoogleSignin();
+  const redirectTo = Linking.createURL("google-auth");
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo,
+      queryParams: {
+        prompt: "consent",
+      },
+      skipBrowserRedirect: true,
+    },
+  });
+
+  if (error) throw error;
+
+  if (!data.url) {
+    throw new Error("Google sign-in did not return an authorization URL.");
+  }
+
+  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo, {
+    showInRecents: true,
+  });
+
+  if (result.type !== "success") {
+    throw new Error("Google sign-in was cancelled.");
+  }
+
+  const { accessToken, refreshToken } = extractSessionParamsFromUrl(result.url);
+
+  if (!accessToken || !refreshToken) {
+    throw new Error("Google sign-in did not return a Supabase session.");
+  }
+
+  const { error: sessionError } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+
+  if (sessionError) throw sessionError;
+}
+
+export async function loginWithApple(): Promise<void> {
+  if (Platform.OS !== "ios") {
+    throw new Error("Apple sign-in is only available on iOS.");
+  }
 
   try {
-    await GoogleSignin.hasPlayServices();
-    const response = await GoogleSignin.signIn();
+    const credential = await AppleAuthentication.signInAsync({
+      requestedScopes: [
+        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+      ],
+    });
 
-    if (!response.data?.idToken) {
-      throw new Error("No ID token returned from Google Sign-In");
+    if (!credential.identityToken) {
+      throw new Error("Apple sign-in did not return an identity token.");
     }
 
     const { error } = await supabase.auth.signInWithIdToken({
-      provider: "google",
-      token: response.data.idToken,
+      provider: "apple",
+      token: credential.identityToken,
     });
 
     if (error) throw error;
-  } catch (error) {
-    const friendlyMessage = getGoogleSignInErrorMessage(error);
 
-    if (friendlyMessage) {
-      throw new Error(friendlyMessage);
+    await updateAppleUserMetadata(credential.fullName);
+  } catch (error) {
+    if (getErrorCode(error) === "ERR_REQUEST_CANCELED") {
+      throw new Error("Apple sign-in was cancelled.");
     }
 
     throw error;

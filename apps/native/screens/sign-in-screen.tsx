@@ -1,4 +1,4 @@
-import { loginWithEmail, loginWithGoogle } from "@/api/login";
+import { loginWithApple, loginWithEmail, loginWithGoogle } from "@/api/login";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
@@ -7,6 +7,7 @@ import * as React from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   TextInput,
@@ -45,7 +46,7 @@ export function SignInScreen() {
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const [socialLoading, setSocialLoading] = React.useState<"google" | null>(null);
+  const [socialLoading, setSocialLoading] = React.useState<"apple" | "google" | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [testimonialIndex, setTestimonialIndex] = React.useState(0);
 
@@ -59,6 +60,7 @@ export function SignInScreen() {
 
   const testimonial = testimonials[testimonialIndex];
   const isBusy = loading || socialLoading !== null;
+  const showAppleSignIn = Platform.OS === "ios";
 
   async function handleSubmit() {
     setError(null);
@@ -102,8 +104,17 @@ export function SignInScreen() {
     }
   }
 
-  function handleUnavailableSocial(provider: "Apple" | "Facebook") {
-    setError(`${provider} sign-in is not configured in the native app yet.`);
+  async function handleAppleSignIn() {
+    setError(null);
+    setSocialLoading("apple");
+
+    try {
+      await loginWithApple();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Apple login failed");
+    } finally {
+      setSocialLoading(null);
+    }
   }
 
   return (
@@ -215,22 +226,20 @@ export function SignInScreen() {
                       <GoogleLogo />
                     )}
                   </SocialIconButton>
-                  <SocialIconButton
-                    accessibilityLabel="Continue with Apple"
-                    buttonClassName="border-black bg-black dark:border-white dark:bg-white"
-                    disabled={isBusy}
-                    onPress={() => handleUnavailableSocial("Apple")}
-                  >
-                    <AppleLogo />
-                  </SocialIconButton>
-                  <SocialIconButton
-                    accessibilityLabel="Continue with Facebook"
-                    buttonClassName="border-[#1877f2] bg-[#1877f2]"
-                    disabled={isBusy}
-                    onPress={() => handleUnavailableSocial("Facebook")}
-                  >
-                    <FacebookLogo />
-                  </SocialIconButton>
+                  {showAppleSignIn ? (
+                    <SocialIconButton
+                      accessibilityLabel="Continue with Apple"
+                      buttonClassName="border-black bg-black dark:border-white dark:bg-white"
+                      disabled={isBusy}
+                      onPress={handleAppleSignIn}
+                    >
+                      {socialLoading === "apple" ? (
+                        <ActivityIndicator colorClassName="accent-white" size="small" />
+                      ) : (
+                        <AppleLogo />
+                      )}
+                    </SocialIconButton>
+                  ) : null}
                 </View>
               </View>
             </View>
@@ -475,17 +484,6 @@ function AppleLogo() {
     <Svg width={20} height={20} viewBox="0 0 24 24">
       <Path
         d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"
-        fill="white"
-      />
-    </Svg>
-  );
-}
-
-function FacebookLogo() {
-  return (
-    <Svg width={22} height={22} viewBox="0 0 24 24">
-      <Path
-        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
         fill="white"
       />
     </Svg>

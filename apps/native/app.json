@@ -12,10 +12,13 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.berrynora.wishlane"
+      "bundleIdentifier": "com.berrynora.wishlane",
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "com.berrynora.wishlane",
@@ -50,10 +53,11 @@
         }
       ],
       "expo-localization",
+      "expo-apple-authentication",
       [
-        "@react-native-google-signin/google-signin",
+        "expo-web-browser",
         {
-          "iosUrlScheme": "com.googleusercontent.apps.PLACEHOLDER_IOS_CLIENT_ID"
+          "experimentalLauncherActivity": false
         }
       ]
     ],
