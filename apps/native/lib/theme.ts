@@ -54,27 +54,48 @@ export const NATIVE_ACCENTS = [
 type ThemePalette = {
   mode: NativeThemeMode;
   background: string;
+  foreground: string;
   card: string;
-  text: string;
-  border: string;
-  notification: string;
+  popover: string;
   primary: string;
+  secondary: string;
+  muted: string;
+  accent: string;
+  destructive: string;
+  border: string;
+  input: string;
+  ring: string;
+  radius: string;
 };
 
 const LIGHT_BASE = {
   background: "#faf7f8",
+  foreground: "#111827",
   card: "#ffffff",
-  text: "#111827",
+  popover: "#ffffff",
+  secondary: "#fdf2f8",
+  muted: "#f4f4f5",
+  accent: "#fce7f3",
+  destructive: "#b91c1c",
   border: "#f3e8ee",
-  notification: "#b91c1c",
+  input: "#f3e8ee",
+  ring: "#c0267e",
+  radius: "0.625rem",
 };
 
 const DARK_BASE = {
   background: "#0c0c0f",
+  foreground: "#f0f0f2",
   card: "#161619",
-  text: "#f0f0f2",
+  popover: "#161619",
+  secondary: "#27272d",
+  muted: "#27272d",
+  accent: "#4a1d35",
+  destructive: "#ef4444",
   border: "#27272d",
-  notification: "#ef4444",
+  input: "#27272d",
+  ring: "#e052a0",
+  radius: "0.625rem",
 };
 
 const THEME_PALETTES: Record<NativeThemeName, ThemePalette> = {
@@ -103,9 +124,9 @@ function createNavigationTheme(palette: ThemePalette): Theme {
       background: palette.background,
       border: palette.border,
       card: palette.card,
-      notification: palette.notification,
+      notification: palette.destructive,
       primary: palette.primary,
-      text: palette.text,
+      text: palette.foreground,
     },
   };
 }
