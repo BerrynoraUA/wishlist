@@ -5,7 +5,8 @@ import { AuthProvider } from "@/providers/auth-provider";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { PostHogEventProperties } from "@posthog/core";
-import { Stack, useGlobalSearchParams, usePathname } from "expo-router";
+import { useGlobalSearchParams, usePathname } from "expo-router";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { StatusBar } from "expo-status-bar";
 import { GTProvider } from "gt-react-native";
 import { useEffect } from "react";
@@ -51,7 +52,16 @@ export default function RootLayout() {
           <PostHogScreenTracker />
           <ThemeProvider value={getNavigationTheme(theme)}>
             <StatusBar style={getThemeMode(theme) === "dark" ? "light" : "dark"} />
-            <Stack />
+            <NativeTabs>
+              <NativeTabs.Trigger name="index">
+                <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
+                <NativeTabs.Trigger.Label>Wishlists</NativeTabs.Trigger.Label>
+              </NativeTabs.Trigger>
+              <NativeTabs.Trigger name="settings">
+                <NativeTabs.Trigger.Icon sf="gearshape.fill" md="settings" />
+                <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+              </NativeTabs.Trigger>
+            </NativeTabs>
             <PortalHost />
           </ThemeProvider>
         </AuthProvider>
