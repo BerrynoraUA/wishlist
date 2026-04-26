@@ -1,7 +1,8 @@
 import "@/global.css";
 
 import { getNavigationTheme, getThemeMode } from "@/lib/theme";
-import { AuthProvider } from "@/providers/auth-provider";
+import { AuthProvider, useAuth } from "@/providers/auth-provider";
+import { SignInScreen } from "@/screens/sign-in-screen";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { PostHogEventProperties } from "@posthog/core";
@@ -11,7 +12,7 @@ import { StatusBar } from "expo-status-bar";
 import { GTProvider } from "gt-react-native";
 import { useEffect } from "react";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
-import { Appearance } from "react-native";
+import { ActivityIndicator, Appearance, View } from "react-native";
 import { useUniwind } from "uniwind";
 import gtConfig from "../gt.config.json";
 import { loadTranslations } from "../loadTranslations";
@@ -61,27 +62,62 @@ export default function RootLayout() {
           <PostHogScreenTracker />
           <ThemeProvider value={navigationTheme}>
             <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
-            <NativeTabs
-              backgroundColor={navigationTheme.colors.card}
-              blurEffect={themeMode === "dark" ? "systemMaterialDark" : "systemMaterialLight"}
-              disableTransparentOnScrollEdge
-              indicatorColor={selectedTabBackground}
-              tintColor={navigationTheme.colors.primary}
-            >
-              <NativeTabs.Trigger name="index">
-                <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
-                <NativeTabs.Trigger.Label>Wishlists</NativeTabs.Trigger.Label>
-              </NativeTabs.Trigger>
-              <NativeTabs.Trigger name="settings">
-                <NativeTabs.Trigger.Icon sf="gearshape.fill" md="settings" />
-                <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
-              </NativeTabs.Trigger>
-            </NativeTabs>
+            <AuthGate
+              selectedTabBackground={selectedTabBackground}
+              tabBackgroundColor={navigationTheme.colors.card}
+              tabBlurEffect={themeMode === "dark" ? "systemMaterialDark" : "systemMaterialLight"}
+              tabTintColor={navigationTheme.colors.primary}
+            />
             <PortalHost />
           </ThemeProvider>
         </AuthProvider>
       </GTProvider>
     </PostHogProvider>
+  );
+}
+
+function AuthGate({
+  selectedTabBackground,
+  tabBackgroundColor,
+  tabBlurEffect,
+  tabTintColor,
+}: {
+  selectedTabBackground: string;
+  tabBackgroundColor: string;
+  tabBlurEffect: "systemMaterialDark" | "systemMaterialLight";
+  tabTintColor: string;
+}) {
+  const { isLoading, session } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-bg">
+        <ActivityIndicator colorClassName="accent-brand" />
+      </View>
+    );
+  }
+
+  if (!session) {
+    return <SignInScreen />;
+  }
+
+  return (
+    <NativeTabs
+      backgroundColor={tabBackgroundColor}
+      blurEffect={tabBlurEffect}
+      disableTransparentOnScrollEdge
+      indicatorColor={selectedTabBackground}
+      tintColor={tabTintColor}
+    >
+      <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
+        <NativeTabs.Trigger.Label>Wishlists</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="settings">
+        <NativeTabs.Trigger.Icon sf="gearshape.fill" md="settings" />
+        <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }
 
