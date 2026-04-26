@@ -23,8 +23,11 @@ export function DiscoverFilters({ active, onChange }: Props) {
         label: (
           <>
             <Sparkles size={16} className={styles.icon} />
-            <span className={styles.label}>
+            <span className={`${styles.label} ${styles.fullLabel}`}>
               {t("All Wishlists", { $id: "discover.filters.allWishlists" })}
+            </span>
+            <span className={`${styles.label} ${styles.compactLabel}`}>
+              {t("Wishlists", { $id: "discover.filters.wishlistsCompact" })}
             </span>
           </>
         ),

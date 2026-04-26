@@ -5,6 +5,7 @@
   border-radius: $radius-pill;
   display: inline-flex;
   gap: 4px;
+  flex-wrap: nowrap;
 }
 
 /* ── Size: sm (default) ── */
@@ -54,6 +55,8 @@
   gap: 6px;
   align-items: center;
   justify-content: center;
+  min-width: 0;
+  white-space: nowrap;
   transition: all 0.3s $ease-out;
 
   &:hover:not(.active) {
@@ -80,6 +83,21 @@
 }
 
 /* ── Responsive ── */
+@media (max-width: 960px) {
+  .sm {
+    display: flex;
+    width: 100%;
+    border-radius: $radius-lg;
+  }
+
+  .sm .tab {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    padding: 7px 10px;
+  }
+}
+
 @media (max-width: 520px) {
   .sm {
     display: flex;

@@ -8,6 +8,7 @@
 
 .filterTab {
   gap: 8px;
+  min-width: 0;
 }
 
 .icon {
@@ -19,6 +20,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.compactLabel {
+  display: none;
 }
 
 .active {
@@ -38,5 +43,25 @@
 
   .icon {
     display: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .filterTab {
+    justify-content: center;
+    gap: 5px;
+    padding-inline: 8px;
+  }
+
+  .icon {
+    display: none;
+  }
+
+  .fullLabel {
+    display: none;
+  }
+
+  .compactLabel {
+    display: inline;
   }
 }
