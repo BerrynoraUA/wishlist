@@ -239,7 +239,7 @@ export function useGrantWishlistAccess() {
     }: {
       wishlistId: string;
       grantedToUserId: string;
-      accessType: 0 | 1 | 2;
+      accessType: 0 | 1 | 2 | 3;
     }) => grantWishlistAccess(wishlistId, grantedToUserId, accessType),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });

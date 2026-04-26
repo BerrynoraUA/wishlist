@@ -218,6 +218,7 @@
 .accessPanel {
   display: grid;
   gap: 9px;
+  margin-bottom: 6px;
   padding: 10px;
   border: 1.5px solid var(--color-border-light);
   border-radius: $radius-md;

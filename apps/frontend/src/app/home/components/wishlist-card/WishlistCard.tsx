@@ -7,9 +7,13 @@ import styles from "./WishlistCard.module.scss";
 
 import { Wishlist } from "@/types/wishlist";
 import { Gift, Link2, MoreHorizontal } from "lucide-react";
-import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+} from "@/components/ui/DropdownMenu/DropdownMenu";
 import {
   WISHLIST_VISIBILITY_ICONS,
+  getWishlistDisplayVisibility,
   getWishlistAccentClass,
   getWishlistVisibilityLabels,
 } from "@/lib/constants/wishlist";
@@ -24,7 +28,12 @@ type Props = {
   onDelete?: () => void;
 };
 
-export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete }: Props) {
+export function WishlistCard({
+  wishlist,
+  showSharedMeta = true,
+  onEdit,
+  onDelete,
+}: Props) {
   const t = useGT();
   const router = useRouter();
   const [menuKey, setMenuKey] = useState(0);
@@ -32,10 +41,12 @@ export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete
 
   const accent = getWishlistAccentClass(wishlist.accent_type);
   const hasImage = Boolean(wishlist.image_url);
-  const visibility = wishlist.visibility_type;
+  const visibility = getWishlistDisplayVisibility(wishlist);
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[visibility];
   const itemsCount =
-    wishlist.items_count ?? (wishlist as Wishlist & { itemsCount?: number }).itemsCount ?? 0;
+    wishlist.items_count ??
+    (wishlist as Wishlist & { itemsCount?: number }).itemsCount ??
+    0;
 
   const { data: currentUserId = "" } = useCurrentUserId();
 
@@ -71,7 +82,11 @@ export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete
           />
         )}
         {isShared && (
-          <div className={styles.sharedBadge} aria-label={sharedTooltip} title={sharedTooltip}>
+          <div
+            className={styles.sharedBadge}
+            aria-label={sharedTooltip}
+            title={sharedTooltip}
+          >
             <Link2 size={12} />
             <span>{t("Shared", { $id: "wishlistCard.shared" })}</span>
             <span className={styles.sharedTooltip} role="tooltip">
@@ -86,7 +101,10 @@ export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete
         <div className={styles.titleRow}>
           <h3 className={styles.title}>{wishlist.title}</h3>
           {showMenu && (
-            <div className={styles.menuWrap} onClick={(e) => e.stopPropagation()}>
+            <div
+              className={styles.menuWrap}
+              onClick={(e) => e.stopPropagation()}
+            >
               <DropdownMenu
                 key={menuKey}
                 trigger={({ toggle, open }) => (
@@ -107,7 +125,10 @@ export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete
                   >
                     <MoreHorizontal size={16} />
                     {hasEditWishlistDraft && (
-                      <DraftBadge variant="dot" className={styles.menuButtonDraftDot} />
+                      <DraftBadge
+                        variant="dot"
+                        className={styles.menuButtonDraftDot}
+                      />
                     )}
                   </button>
                 )}

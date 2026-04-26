@@ -1,11 +1,28 @@
-import { Globe, Lock, Users, type LucideIcon } from "lucide-react";
+import { Globe, Lock, UserCheck, Users, type LucideIcon } from "lucide-react";
 import type { WishlistColorIndex } from "@/types/settings";
-import { RestoredEditWishlistFields, WishlistAccent, WishlistVisibility } from "@/types/wishlist";
+import {
+  RestoredEditWishlistFields,
+  WishlistAccent,
+  WishlistVisibility,
+} from "@/types/wishlist";
 
-export type WishlistPrivacyOption = "Public" | "Friends" | "Private";
-export type WishlistColorOption = "pink" | "peach" | "blue" | "lavender" | "mint";
+export type WishlistPrivacyOption =
+  | "Public"
+  | "Friends"
+  | "SelectedFriends"
+  | "Private";
+export type WishlistColorOption =
+  | "pink"
+  | "peach"
+  | "blue"
+  | "lavender"
+  | "mint";
+export const SELECTED_FRIENDS_ACCESS_TYPE = 3;
 
-type TranslateFn = (message: string, options?: Record<string, unknown>) => string;
+type TranslateFn = (
+  message: string,
+  options?: Record<string, unknown>,
+) => string;
 
 export const WISHLIST_COLOR_OPTIONS: WishlistColorOption[] = [
   "pink",
@@ -24,25 +41,52 @@ export const EMPTY_RESTORED_EDIT_WISHLIST_FIELDS: RestoredEditWishlistFields = {
   image: false,
 };
 
-export const WISHLIST_VISIBILITY_BY_PRIVACY: Record<WishlistPrivacyOption, WishlistVisibility> = {
+export const WISHLIST_VISIBILITY_BY_PRIVACY: Record<
+  WishlistPrivacyOption,
+  WishlistVisibility
+> = {
   Public: WishlistVisibility.Public,
   Friends: WishlistVisibility.FriendsOnly,
+  SelectedFriends: WishlistVisibility.SelectedFriends,
   Private: WishlistVisibility.Private,
 };
 
-export const WISHLIST_PRIVACY_BY_VISIBILITY: Record<WishlistVisibility, WishlistPrivacyOption> = {
+export const WISHLIST_PRIVACY_BY_VISIBILITY: Record<
+  WishlistVisibility,
+  WishlistPrivacyOption
+> = {
   [WishlistVisibility.Public]: "Public",
   [WishlistVisibility.FriendsOnly]: "Friends",
   [WishlistVisibility.Private]: "Private",
+  [WishlistVisibility.SelectedFriends]: "SelectedFriends",
 };
 
-export const WISHLIST_VISIBILITY_ICONS: Record<WishlistVisibility, LucideIcon> = {
-  [WishlistVisibility.Public]: Globe,
-  [WishlistVisibility.FriendsOnly]: Users,
-  [WishlistVisibility.Private]: Lock,
-};
+export const WISHLIST_VISIBILITY_ICONS: Record<WishlistVisibility, LucideIcon> =
+  {
+    [WishlistVisibility.Public]: Globe,
+    [WishlistVisibility.FriendsOnly]: Users,
+    [WishlistVisibility.Private]: Lock,
+    [WishlistVisibility.SelectedFriends]: UserCheck,
+  };
 
-export const WISHLIST_COLOR_BY_ACCENT: Record<WishlistAccent, WishlistColorOption> = {
+export function getWishlistDisplayVisibility(wishlist: {
+  visibility_type: WishlistVisibility;
+  access_type?: number | null;
+}): WishlistVisibility {
+  if (
+    wishlist.visibility_type === WishlistVisibility.SelectedFriends ||
+    wishlist.access_type === SELECTED_FRIENDS_ACCESS_TYPE
+  ) {
+    return WishlistVisibility.SelectedFriends;
+  }
+
+  return wishlist.visibility_type;
+}
+
+export const WISHLIST_COLOR_BY_ACCENT: Record<
+  WishlistAccent,
+  WishlistColorOption
+> = {
   [WishlistAccent.Pink]: "pink",
   [WishlistAccent.Blue]: "blue",
   [WishlistAccent.Peach]: "peach",
@@ -50,7 +94,10 @@ export const WISHLIST_COLOR_BY_ACCENT: Record<WishlistAccent, WishlistColorOptio
   [WishlistAccent.Lavender]: "lavender",
 };
 
-export const WISHLIST_ACCENT_BY_COLOR: Record<WishlistColorOption, WishlistAccent> = {
+export const WISHLIST_ACCENT_BY_COLOR: Record<
+  WishlistColorOption,
+  WishlistAccent
+> = {
   pink: WishlistAccent.Pink,
   peach: WishlistAccent.Peach,
   blue: WishlistAccent.Blue,
@@ -75,7 +122,9 @@ export function getWishlistColorByAccent(
   return getWishlistAccentClass(accent);
 }
 
-export function getWishlistAccentByColor(color: WishlistColorOption): WishlistAccent {
+export function getWishlistAccentByColor(
+  color: WishlistColorOption,
+): WishlistAccent {
   return WISHLIST_ACCENT_BY_COLOR[color];
 }
 
@@ -85,12 +134,16 @@ export function getWishlistColorByIndex(
   return WISHLIST_COLOR_OPTIONS[index ?? 0] ?? "pink";
 }
 
-export function getWishlistColorIndex(color: WishlistColorOption): WishlistColorIndex {
+export function getWishlistColorIndex(
+  color: WishlistColorOption,
+): WishlistColorIndex {
   const index = WISHLIST_COLOR_OPTIONS.indexOf(color);
   return (index >= 0 ? index : 0) as WishlistColorIndex;
 }
 
-export function getWishlistVisibilityLabels(t: TranslateFn): Record<WishlistVisibility, string> {
+export function getWishlistVisibilityLabels(
+  t: TranslateFn,
+): Record<WishlistVisibility, string> {
   return {
     [WishlistVisibility.Public]: t("Public", {
       $id: "wishlist.visibility.public",
@@ -102,6 +155,10 @@ export function getWishlistVisibilityLabels(t: TranslateFn): Record<WishlistVisi
     }),
     [WishlistVisibility.Private]: t("Private", {
       $id: "wishlist.visibility.private",
+      $context: "wishlist visibility option",
+    }),
+    [WishlistVisibility.SelectedFriends]: t("Selected friends", {
+      $id: "wishlist.visibility.selectedFriends",
       $context: "wishlist visibility option",
     }),
   };
@@ -123,6 +180,14 @@ export function getWishlistPrivacyOptions(t: TranslateFn) {
       title: t("Friends Only", { $id: "wishlist.privacy.friends" }),
       subtitle: t("Only your friends", {
         $id: "wishlist.privacy.friendsSubtitle",
+      }),
+    },
+    {
+      value: "SelectedFriends" as const,
+      icon: UserCheck,
+      title: t("Selected friends", { $id: "wishlist.privacy.selectedFriends" }),
+      subtitle: t("Only friends you choose", {
+        $id: "wishlist.privacy.selectedFriendsSubtitle",
       }),
     },
     {

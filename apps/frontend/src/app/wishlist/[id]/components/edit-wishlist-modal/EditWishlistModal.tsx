@@ -35,9 +35,11 @@ import {
   RestoredEditWishlistFields,
   WishlistDraft,
   Wishlist,
+  WishlistVisibility,
 } from "@/types/wishlist";
 import {
   WISHLIST_COLOR_OPTIONS,
+  SELECTED_FRIENDS_ACCESS_TYPE,
   WISHLIST_PRIVACY_BY_VISIBILITY,
   WISHLIST_VISIBILITY_BY_PRIVACY,
   getWishlistAccentByColor,
@@ -87,22 +89,6 @@ function EditWishlistForm({
   const { isPro } = useSubscription();
   const privacyOptions = getWishlistPrivacyOptions(t);
   const isColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
-  const initialDraft = useMemo<WishlistDraft>(() => {
-    const rawEventDate =
-      wishlist.event_date ??
-      (wishlist as Wishlist & { event_date?: string }).event_date;
-
-    return {
-      name: wishlist.title ?? "",
-      description: wishlist.description ?? "",
-      privacy:
-        WISHLIST_PRIVACY_BY_VISIBILITY[wishlist.visibility_type] ?? "Public",
-      color: getWishlistColorByAccent(wishlist.accent_type),
-      eventDate: rawEventDate ? String(rawEventDate).split("T")[0] : "",
-      imagePreview: wishlist.image_url ?? "",
-      hadLocalImage: false,
-    };
-  }, [wishlist]);
   const [name, setName] = useState(wishlist.title ?? "");
   const [description, setDescription] = useState(wishlist.description ?? "");
   const [privacy, setPrivacy] = useState<WishlistPrivacyOption>(
@@ -157,10 +143,36 @@ function EditWishlistForm({
   const { data: accessList = [], isLoading: accessListLoading } =
     useWishlistAccessList(wishlist.id);
   const specificAccessList = useMemo(
-    () => accessList.filter((user) => user.access_type === 2),
+    () => accessList.filter((user) => user.access_type === SELECTED_FRIENDS_ACCESS_TYPE),
     [accessList],
   );
-  const canManagePrivateAccess = wishlist.is_owner;
+  const canManageSelectedFriendsAccess = wishlist.is_owner;
+  const initialPrivacy = useMemo<WishlistPrivacyOption>(() => {
+    if (
+      (wishlist.visibility_type === WishlistVisibility.Private ||
+        wishlist.visibility_type === WishlistVisibility.SelectedFriends) &&
+      specificAccessList.length > 0
+    ) {
+      return "SelectedFriends";
+    }
+
+    return WISHLIST_PRIVACY_BY_VISIBILITY[wishlist.visibility_type] ?? "Public";
+  }, [specificAccessList.length, wishlist.visibility_type]);
+  const initialDraft = useMemo<WishlistDraft>(() => {
+    const rawEventDate =
+      wishlist.event_date ??
+      (wishlist as Wishlist & { event_date?: string }).event_date;
+
+    return {
+      name: wishlist.title ?? "",
+      description: wishlist.description ?? "",
+      privacy: initialPrivacy,
+      color: getWishlistColorByAccent(wishlist.accent_type),
+      eventDate: rawEventDate ? String(rawEventDate).split("T")[0] : "",
+      imagePreview: wishlist.image_url ?? "",
+      hadLocalImage: false,
+    };
+  }, [initialPrivacy, wishlist]);
 
   const { mutateAsync, isPending } = useUpdateWishlist();
   const revokeAccess = useRevokeWishlistAccess();
@@ -267,8 +279,8 @@ function EditWishlistForm({
     wishlist,
   ]);
   const hasAccessChanges =
-    canManagePrivateAccess &&
-    privacy === "Private" &&
+    canManageSelectedFriendsAccess &&
+    privacy === "SelectedFriends" &&
     selectedAccessFriends.length > 0;
 
   useEffect(() => {
@@ -278,10 +290,26 @@ function EditWishlistForm({
   }, [imageObjectUrl]);
 
   useEffect(() => {
-    if (privacy !== "Private" && selectedAccessFriends.length > 0) {
+    if (privacy !== "SelectedFriends" && selectedAccessFriends.length > 0) {
       setSelectedAccessFriends([]);
     }
   }, [privacy, selectedAccessFriends.length]);
+
+  useEffect(() => {
+    setPrivacy((currentPrivacy) => {
+      if (currentPrivacy === initialPrivacy) return currentPrivacy;
+
+      if (
+        currentPrivacy === "Private" &&
+        initialPrivacy === "SelectedFriends" &&
+        specificAccessList.length > 0
+      ) {
+        return initialPrivacy;
+      }
+
+      return currentPrivacy;
+    });
+  }, [initialPrivacy, specificAccessList.length]);
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -361,11 +389,23 @@ function EditWishlistForm({
         });
       }
 
+      if (privacy !== "SelectedFriends" && specificAccessList.length > 0) {
+        setIsGrantingAccess(true);
+        await Promise.all(
+          specificAccessList.map((friend) =>
+            revokeAccess.mutateAsync({
+              wishlistId: wishlist.id,
+              targetUserId: friend.id,
+            }),
+          ),
+        );
+      }
+
       if (hasAccessChanges) {
         setIsGrantingAccess(true);
         await Promise.all(
           selectedAccessFriends.map((friend) =>
-            grantWishlistAccess(wishlist.id, friend.id, 2),
+            grantWishlistAccess(wishlist.id, friend.id, SELECTED_FRIENDS_ACCESS_TYPE),
           ),
         );
         queryClient.invalidateQueries({
@@ -557,62 +597,70 @@ function EditWishlistForm({
               const Icon = option.icon;
 
               return (
-                <PrivacyCard
-                  key={option.value}
-                  icon={<Icon size={18} />}
-                  title={option.title}
-                  subtitle={option.subtitle}
-                  selected={privacy === option.value}
-                  draftHighlighted={
-                    isDraftRestored &&
-                    restoredFields.privacy &&
-                    privacy === option.value
-                  }
-                  onClick={() => setPrivacy(option.value)}
-                />
+                <div key={option.value}>
+                  {option.value === "Private" &&
+                    privacy === "SelectedFriends" &&
+                    canManageSelectedFriendsAccess && (
+                      <WishlistAccessPicker
+                        title={t("Selected friends", {
+                          $id: "wishlist.modal.access.title",
+                        })}
+                        friends={friendOptions}
+                        selected={selectedAccessFriends}
+                        onChange={(nextSelected) => {
+                          setSelectedAccessFriends(nextSelected);
+                          setAccessError(null);
+                        }}
+                        isLoading={friendsWithoutAccessLoading}
+                        isError={friendsWithoutAccessError}
+                        emptyLabel={t(
+                          "All available friends already have access.",
+                          {
+                            $id: "wishlist.modal.access.emptyFriendsWithoutAccess",
+                          },
+                        )}
+                        errorLabel={t("Could not load friends right now.", {
+                          $id: "wishlist.modal.access.loadError",
+                        })}
+                        existingAccess={specificAccessList}
+                        existingAccessTitle={t("Already selected", {
+                          $id: "wishlist.modal.access.currentTitle",
+                        })}
+                        existingAccessEmptyLabel={
+                          accessListLoading
+                            ? t("Loading current access...", {
+                                $id: "wishlist.modal.access.currentLoading",
+                              })
+                            : t("No selected friends yet.", {
+                                $id: "wishlist.modal.access.currentEmpty",
+                              })
+                        }
+                        onRevokeAccess={handleRevokeSpecificAccess}
+                        revokingUserId={
+                          revokeAccess.variables?.targetUserId ?? null
+                        }
+                      />
+                    )}
+
+                  <PrivacyCard
+                    icon={<Icon size={18} />}
+                    title={option.title}
+                    subtitle={option.subtitle}
+                    selected={privacy === option.value}
+                    draftHighlighted={
+                      isDraftRestored &&
+                      restoredFields.privacy &&
+                      privacy === option.value
+                    }
+                    onClick={() => setPrivacy(option.value)}
+                  />
+                </div>
               );
             })}
           </div>
         </div>
 
-        {privacy === "Private" && canManagePrivateAccess && (
-          <WishlistAccessPicker
-            title={t("Selected friends", {
-              $id: "wishlist.modal.access.title",
-            })}
-            friends={friendOptions}
-            selected={selectedAccessFriends}
-            onChange={(nextSelected) => {
-              setSelectedAccessFriends(nextSelected);
-              setAccessError(null);
-            }}
-            isLoading={friendsWithoutAccessLoading}
-            isError={friendsWithoutAccessError}
-            emptyLabel={t("All available friends already have access.", {
-              $id: "wishlist.modal.access.emptyFriendsWithoutAccess",
-            })}
-            errorLabel={t("Could not load friends right now.", {
-              $id: "wishlist.modal.access.loadError",
-            })}
-            existingAccess={specificAccessList}
-            existingAccessTitle={t("Already selected", {
-              $id: "wishlist.modal.access.currentTitle",
-            })}
-            existingAccessEmptyLabel={
-              accessListLoading
-                ? t("Loading current access...", {
-                    $id: "wishlist.modal.access.currentLoading",
-                  })
-                : t("No selected friends yet.", {
-                    $id: "wishlist.modal.access.currentEmpty",
-                  })
-            }
-            onRevokeAccess={handleRevokeSpecificAccess}
-            revokingUserId={revokeAccess.variables?.targetUserId ?? null}
-          />
-        )}
-
-        {canManagePrivateAccess && accessError && (
+        {canManageSelectedFriendsAccess && accessError && (
           <div className={styles.accessError}>{accessError}</div>
         )}
 
@@ -644,7 +692,7 @@ function EditWishlistForm({
               (!hasChanges && !hasAccessChanges) ||
               isPending ||
               isGrantingAccess ||
-              (canManagePrivateAccess && revokeAccess.isPending) ||
+              (canManageSelectedFriendsAccess && revokeAccess.isPending) ||
               Boolean(imageError)
             }
           >

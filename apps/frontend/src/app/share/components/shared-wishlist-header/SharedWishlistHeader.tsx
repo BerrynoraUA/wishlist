@@ -7,6 +7,7 @@ import { formatLocalizedShortDate } from "@/lib/helpers/format-localized-short-d
 import { Wishlist } from "@/types/wishlist";
 import {
   WISHLIST_VISIBILITY_ICONS,
+  getWishlistDisplayVisibility,
   getWishlistAccentClass,
   getWishlistVisibilityLabels,
 } from "@/lib/constants/wishlist";
@@ -20,8 +21,9 @@ export function SharedWishlistHeader({ wishlist }: Props) {
   const locale = useLocale();
   const visibilityLabels = getWishlistVisibilityLabels(t);
   const accent = getWishlistAccentClass(wishlist.accent_type);
-  const visibility = visibilityLabels[wishlist.visibility_type];
-  const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[wishlist.visibility_type];
+  const displayVisibility = getWishlistDisplayVisibility(wishlist);
+  const visibility = visibilityLabels[displayVisibility];
+  const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[displayVisibility];
   const itemsCount = wishlist.items_count ?? 0;
   const description = wishlist.description ?? "";
   const eventDate = wishlist.event_date;
@@ -35,7 +37,9 @@ export function SharedWishlistHeader({ wishlist }: Props) {
             <div className={styles.heroMain}>
               <div className={styles.titleBlock}>
                 <h1>{wishlist.title}</h1>
-                {description && <p className={styles.description}>{description}</p>}
+                {description && (
+                  <p className={styles.description}>{description}</p>
+                )}
 
                 <div className={styles.badges}>
                   <span className={styles.visibilityBadge}>

@@ -23,9 +23,13 @@ import { formatLocalizedShortDate } from "@/lib/helpers/format-localized-short-d
 import { Wishlist, WishlistVisibility } from "@/types/wishlist";
 import { Button } from "@/components/ui/Button/Button";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
-import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+} from "@/components/ui/DropdownMenu/DropdownMenu";
 import {
   WISHLIST_VISIBILITY_ICONS,
+  getWishlistDisplayVisibility,
   getWishlistAccentClass,
   getWishlistVisibilityLabels,
 } from "@/lib/constants/wishlist";
@@ -64,19 +68,27 @@ export function WishlistHeader({
   const router = useRouter();
   const visibilityLabels = getWishlistVisibilityLabels(t);
   const { isPro } = useSubscription();
-  const showActions = Boolean(onShare || onManageAccess || onEdit || onDelete || isOwner);
+  const showActions = Boolean(
+    onShare || onManageAccess || onEdit || onDelete || isOwner,
+  );
   const showMenu = Boolean(onEdit || onDelete);
   const hasImage = Boolean(wishlist.image_url);
-  const visibility = visibilityLabels[wishlist.visibility_type];
-  const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[wishlist.visibility_type];
-  const { mutate: updateWishlist, isPending: isUpdatingWishlist } = useUpdateWishlist();
+  const displayVisibility = getWishlistDisplayVisibility(wishlist);
+  const visibility = visibilityLabels[displayVisibility];
+  const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[displayVisibility];
+  const { mutate: updateWishlist, isPending: isUpdatingWishlist } =
+    useUpdateWishlist();
   const itemsCount =
-    wishlist.items_count ?? (wishlist as Wishlist & { itemsCount?: number }).itemsCount ?? 0;
+    wishlist.items_count ??
+    (wishlist as Wishlist & { itemsCount?: number }).itemsCount ??
+    0;
   const description = wishlist.description ?? "";
   const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
   const canAddItem = Boolean(onAddItem);
   const atItemLimit =
-    SUBSCRIPTIONS_UI_ENABLED && !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
+    SUBSCRIPTIONS_UI_ENABLED &&
+    !isPro &&
+    itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
   const canInlineEdit = isOwner;
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
@@ -102,7 +114,10 @@ export function WishlistHeader({
   useEffect(() => {
     if (!editingDate) return;
     function handleClickOutside(e: MouseEvent) {
-      if (datePopoverRef.current && !datePopoverRef.current.contains(e.target as Node)) {
+      if (
+        datePopoverRef.current &&
+        !datePopoverRef.current.contains(e.target as Node)
+      ) {
         setEditingDate(false);
       }
     }
@@ -240,7 +255,9 @@ export function WishlistHeader({
     }
   }
 
-  function handleDescriptionKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+  function handleDescriptionKeyDown(
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) {
     if (event.key === "Escape") {
       event.preventDefault();
       setDescriptionDraft(description);
@@ -287,9 +304,15 @@ export function WishlistHeader({
                 ) : (
                   <div
                     className={styles.titleRow}
-                    onDoubleClick={canInlineEdit ? startEditingTitle : undefined}
+                    onDoubleClick={
+                      canInlineEdit ? startEditingTitle : undefined
+                    }
                   >
-                    <h1 className={canInlineEdit ? styles.editableText : undefined}>
+                    <h1
+                      className={
+                        canInlineEdit ? styles.editableText : undefined
+                      }
+                    >
                       {wishlist.title}
                     </h1>
                   </div>
@@ -313,7 +336,9 @@ export function WishlistHeader({
                   ) : (
                     <div
                       className={styles.descriptionRow}
-                      onDoubleClick={canInlineEdit ? startEditingDescription : undefined}
+                      onDoubleClick={
+                        canInlineEdit ? startEditingDescription : undefined
+                      }
                     >
                       {description ? (
                         <p
@@ -322,7 +347,9 @@ export function WishlistHeader({
                           {description}
                         </p>
                       ) : canInlineEdit ? (
-                        <p className={`${styles.descriptionPlaceholder} ${styles.editableText}`}>
+                        <p
+                          className={`${styles.descriptionPlaceholder} ${styles.editableText}`}
+                        >
                           {t("Add a short description", {
                             $id: "wishlist.header.descPlaceholderText",
                           })}
@@ -332,10 +359,17 @@ export function WishlistHeader({
                   ))}
 
                 <div className={styles.badges}>
-                  <div className={styles.badgeWrapper} ref={visibilityPopoverRef}>
+                  <div
+                    className={styles.badgeWrapper}
+                    ref={visibilityPopoverRef}
+                  >
                     <span
                       className={`${styles.visibilityBadge} ${wishlist.visibility_type === WishlistVisibility.FriendsOnly ? styles.friendsOnlyBadge : ""} ${canInlineEdit ? styles.editableBadge : ""}`.trim()}
-                      onClick={canInlineEdit ? () => setEditingVisibility((v) => !v) : undefined}
+                      onClick={
+                        canInlineEdit
+                          ? () => setEditingVisibility((v) => !v)
+                          : undefined
+                      }
                     >
                       {VisibilityIcon && <VisibilityIcon size={13} />}
                       {visibility}
@@ -347,17 +381,22 @@ export function WishlistHeader({
                             {
                               value: WishlistVisibility.Public,
                               icon: Globe,
-                              label: visibilityLabels[WishlistVisibility.Public],
+                              label:
+                                visibilityLabels[WishlistVisibility.Public],
                             },
                             {
                               value: WishlistVisibility.FriendsOnly,
                               icon: Users,
-                              label: visibilityLabels[WishlistVisibility.FriendsOnly],
+                              label:
+                                visibilityLabels[
+                                  WishlistVisibility.FriendsOnly
+                                ],
                             },
                             {
                               value: WishlistVisibility.Private,
                               icon: Lock,
-                              label: visibilityLabels[WishlistVisibility.Private],
+                              label:
+                                visibilityLabels[WishlistVisibility.Private],
                             },
                           ] as const
                         ).map((opt) => (
@@ -390,7 +429,11 @@ export function WishlistHeader({
                     {eventDate ? (
                       <span
                         className={`${styles.dateBadge} ${canInlineEdit ? styles.editableBadge : ""}`}
-                        onClick={canInlineEdit ? () => setEditingDate((v) => !v) : undefined}
+                        onClick={
+                          canInlineEdit
+                            ? () => setEditingDate((v) => !v)
+                            : undefined
+                        }
                       >
                         <CalendarIcon size={13} />
                         {formatLocalizedShortDate(eventDate, locale)}
@@ -489,7 +532,9 @@ export function WishlistHeader({
                     ) : (
                       <>
                         <Plus size={14} />
-                        <span>{t("Add Item", { $id: "wishlist.header.addItem" })}</span>
+                        <span>
+                          {t("Add Item", { $id: "wishlist.header.addItem" })}
+                        </span>
                         {hasAddItemDraft && <DraftBadge variant="dot" />}
                       </>
                     )}
@@ -545,18 +590,27 @@ export function WishlistHeader({
                         >
                           <MoreHorizontal size={18} />
                           {hasEditWishlistDraft && (
-                            <DraftBadge variant="dot" className={styles.menuButtonDraftDot} />
+                            <DraftBadge
+                              variant="dot"
+                              className={styles.menuButtonDraftDot}
+                            />
                           )}
                         </button>
                       )}
                     >
                       {onEdit && (
-                        <DropdownMenuItem variant="edit" onClick={() => onEdit()}>
+                        <DropdownMenuItem
+                          variant="edit"
+                          onClick={() => onEdit()}
+                        >
                           <span>{t("Edit", { $id: "common.edit" })}</span>
                         </DropdownMenuItem>
                       )}
                       {onDelete && (
-                        <DropdownMenuItem variant="danger" onClick={() => onDelete()}>
+                        <DropdownMenuItem
+                          variant="danger"
+                          onClick={() => onDelete()}
+                        >
                           <span>{t("Delete", { $id: "common.delete" })}</span>
                         </DropdownMenuItem>
                       )}

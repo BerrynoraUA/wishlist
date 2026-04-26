@@ -6,7 +6,10 @@ import { WishlistCard } from "../wishlist-card/WishlistCard";
 import { WishlistFilters } from "../wishlist-filters/WishlistFilters";
 import styles from "./WishlistGrid.module.scss";
 import { useMyWishlists } from "@/hooks/use-wishlists";
-import { WishlistCardSkeleton, WishlistGridToolbarSkeleton } from "../home-skeleton/HomeSkeleton";
+import {
+  WishlistCardSkeleton,
+  WishlistGridToolbarSkeleton,
+} from "../home-skeleton/HomeSkeleton";
 import { Pagination } from "@/components/ui/Pagination/Pagination";
 import { Wishlist } from "@/types/wishlist";
 import { paginationFlags } from "@/lib/filter-helpers";
@@ -27,7 +30,8 @@ export function WishlistGrid({
   hasCreateDraft = false,
 }: Props) {
   const t = useGT();
-  const { page, setPage, queryParams, isFiltersActive } = useHomeWishlistFilters();
+  const { page, setPage, queryParams, isFiltersActive } =
+    useHomeWishlistFilters();
 
   const { data, isLoading, isFetching, isError } = useMyWishlists(queryParams);
 
@@ -55,7 +59,9 @@ export function WishlistGrid({
   return (
     <div>
       <div className={styles.toolbar}>
-        <h2 className={styles.title}>{t("Wishlists", { $id: "home.wishlistGrid.title" })}</h2>
+        <h2 className={styles.title}>
+          {t("Wishlists", { $id: "home.wishlistGrid.title" })}
+        </h2>
 
         <WishlistFilters />
       </div>
@@ -85,7 +91,9 @@ export function WishlistGrid({
           <WishlistCard
             key={w.id}
             wishlist={w}
-            onEdit={w.is_owner || w.can_edit ? () => onEditWishlist(w) : undefined}
+            onEdit={
+              w.is_owner || w.can_edit ? () => onEditWishlist(w) : undefined
+            }
             onDelete={w.is_owner ? () => onDeleteWishlist(w) : undefined}
           />
         ))}
@@ -100,7 +108,9 @@ export function WishlistGrid({
         )}
       </div>
 
-      {showPagination && <Pagination page={page} total={totalForPagination} onChange={setPage} />}
+      {showPagination && (
+        <Pagination page={page} total={totalForPagination} onChange={setPage} />
+      )}
     </div>
   );
 }

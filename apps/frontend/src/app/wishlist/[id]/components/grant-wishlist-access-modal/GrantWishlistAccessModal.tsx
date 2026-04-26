@@ -28,6 +28,7 @@ import {
   normalizeSearchQuery,
 } from "@/lib/helpers/search";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
+import { SELECTED_FRIENDS_ACCESS_TYPE } from "@/lib/constants/wishlist";
 import type { ProfileSearchResult } from "@/api/types/friends";
 import styles from "./GrantWishlistAccessModal.module.scss";
 
@@ -114,7 +115,7 @@ export function GrantWishlistAccessModal({
 
   const filteredFriends = useMemo(() => friends, [friends]);
   const visibleAccessList = useMemo(
-    () => accessList.filter((user) => user.access_type !== 2),
+    () => accessList.filter((user) => user.access_type !== SELECTED_FRIENDS_ACCESS_TYPE),
     [accessList],
   );
   const canShowFriends =

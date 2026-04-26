@@ -442,7 +442,7 @@ export async function getFriendsUpcomingWishlists(): Promise<
 export async function grantWishlistAccess(
   wishlistId: string,
   grantedToUserId: string,
-  accessType: 0 | 1 | 2,
+  accessType: 0 | 1 | 2 | 3,
 ) {
   const { data, error } = await supabaseBrowser.rpc("grant_wishlist_access", {
     p_wishlist_id: wishlistId,
