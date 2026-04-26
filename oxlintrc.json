@@ -21,7 +21,8 @@
     "**/.next/**",
     "**/.expo/**",
     "**/out/**",
-    "**/.gt/**"
+    "**/.gt/**",
+    "apps/native/uniwind-types.d.ts"
   ],
   "overrides": [
     {

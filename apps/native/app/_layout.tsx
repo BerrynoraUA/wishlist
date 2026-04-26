@@ -1,12 +1,23 @@
-import "@/polyfills/gtIntlPolyfills";
-import type { PostHogEventProperties } from "@posthog/core";
+import "@/global.css";
+
+import { NAV_THEME } from "@/lib/theme";
+import { AuthProvider } from "@/providers/auth-provider";
+import { ThemeProvider } from "@react-navigation/native";
+import { PortalHost } from "@rn-primitives/portal";
+import { PostHogEventProperties } from "@posthog/core";
 import { Stack, useGlobalSearchParams, usePathname } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { GTProvider } from "gt-react-native";
 import { useEffect } from "react";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
-import { GTProvider } from "gt-react-native";
-import gtConfig from "../../gt.config.json";
-import { loadTranslations } from "@/loadTranslations";
-import { AuthProvider } from "@/providers/auth-provider";
+import { useUniwind } from "uniwind";
+import gtConfig from "../gt.config.json";
+import { loadTranslations } from "../loadTranslations";
+
+export {
+  // Catch any errors thrown by the Layout component.
+  ErrorBoundary,
+} from "expo-router";
 
 const posthogApiKey = process.env.EXPO_PUBLIC_POSTHOG_KEY ?? "";
 const posthogHost = (process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com").replace(
@@ -16,6 +27,8 @@ const posthogHost = (process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posth
 const posthogEnabled = Boolean(posthogApiKey);
 
 export default function RootLayout() {
+  const { theme } = useUniwind();
+
   return (
     <PostHogProvider
       apiKey={posthogEnabled ? posthogApiKey : "__POSTHOG_DISABLED__"}
@@ -27,20 +40,20 @@ export default function RootLayout() {
     >
       <GTProvider
         config={gtConfig}
+        devApiKey={process.env.EXPO_PUBLIC_GT_DEV_API_KEY}
         loadTranslations={loadTranslations}
         projectId={process.env.EXPO_PUBLIC_GT_PROJECT_ID}
-        devApiKey={process.env.EXPO_PUBLIC_GT_DEV_API_KEY}
         renderSettings={{
           method: "skeleton",
         }}
       >
         <AuthProvider>
           <PostHogScreenTracker />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          />
+          <ThemeProvider value={NAV_THEME[theme ?? "light"]}>
+            <StatusBar style={theme === "dark" ? "light" : "dark"} />
+            <Stack />
+            <PortalHost />
+          </ThemeProvider>
         </AuthProvider>
       </GTProvider>
     </PostHogProvider>

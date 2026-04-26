@@ -3,7 +3,7 @@
  * Metro cannot resolve fully dynamic requires; locales are enumerated explicitly.
  */
 const translations: Record<string, Record<string, unknown>> = {
-  uk: require("@/_gt/uk.json"),
+  uk: require("@/content/uk.json"),
 };
 
 export async function loadTranslations(locale: string) {
