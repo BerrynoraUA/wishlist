@@ -1,3 +1,4 @@
+import { useAnimatedPressFeedback } from '@/components/ui/animated-pressable';
 import { Icon } from '@/components/ui/icon';
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
@@ -5,6 +6,9 @@ import * as TogglePrimitive from '@rn-primitives/toggle';
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 import { Platform } from 'react-native';
+import Animated from 'react-native-reanimated';
+
+const AnimatedToggleRoot = Animated.createAnimatedComponent(TogglePrimitive.Root);
 
 const toggleVariants = cva(
   cn(
@@ -39,10 +43,20 @@ const toggleVariants = cva(
 
 function Toggle({
   className,
+  onPressIn,
+  onPressOut,
+  style,
   variant,
   size,
   ...props
 }: React.ComponentProps<typeof TogglePrimitive.Root> & VariantProps<typeof toggleVariants>) {
+  const { animatedStyle, handlePressIn, handlePressOut } = useAnimatedPressFeedback({
+    disabled: props.disabled,
+    onPressIn,
+    onPressOut,
+  });
+  const ToggleRoot = Platform.OS === 'web' ? TogglePrimitive.Root : AnimatedToggleRoot;
+
   return (
     <TextClassContext.Provider
       value={cn(
@@ -52,13 +66,16 @@ function Toggle({
           : Platform.select({ web: 'group-hover:text-muted-foreground' }),
         className
       )}>
-      <TogglePrimitive.Root
+      <ToggleRoot
         className={cn(
           toggleVariants({ variant, size }),
           props.disabled && 'opacity-50',
           props.pressed && 'bg-accent',
           className
         )}
+        onPressIn={Platform.OS === 'web' ? onPressIn : handlePressIn}
+        onPressOut={Platform.OS === 'web' ? onPressOut : handlePressOut}
+        style={Platform.OS === 'web' ? style : [style, animatedStyle]}
         {...props}
       />
     </TextClassContext.Provider>

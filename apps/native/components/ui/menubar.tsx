@@ -1,6 +1,7 @@
 import { Icon } from '@/components/ui/icon';
 import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
 import { TextClassContext } from '@/components/ui/text';
+import { motionDuration } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import * as MenubarPrimitive from '@rn-primitives/menubar';
 import { Portal } from '@rn-primitives/portal';
@@ -137,7 +138,7 @@ function MenubarSubContent({
   ...props
 }: React.ComponentProps<typeof MenubarPrimitive.SubContent>) {
   return (
-    <NativeOnlyAnimatedView entering={FadeIn}>
+    <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
       <MenubarPrimitive.SubContent
         className={cn(
           'bg-popover border-border overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5',
@@ -154,8 +155,8 @@ function MenubarSubContent({
 
 function MenubarContent({
   className,
-  overlayClassName,
-  overlayStyle,
+  overlayClassName: _overlayClassName,
+  overlayStyle: _overlayStyle,
   portalHost,
   align = 'start',
   alignOffset = -4,
@@ -170,7 +171,7 @@ function MenubarContent({
     <MenubarPrimitive.Portal hostName={portalHost}>
       <FullWindowOverlay>
         <NativeOnlyAnimatedView
-          entering={FadeIn}
+          entering={FadeIn.duration(motionDuration.normal)}
           style={StyleSheet.absoluteFill}
           pointerEvents="box-none">
           <TextClassContext.Provider value="text-popover-foreground">

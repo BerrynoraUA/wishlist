@@ -1,5 +1,6 @@
 import { Icon } from '@/components/ui/icon';
 import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
+import { motionDuration } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import * as DialogPrimitive from '@rn-primitives/dialog';
 import { X } from 'lucide-react-native';
@@ -37,8 +38,12 @@ function DialogOverlay({
         )}
         {...props}
         asChild={Platform.OS !== 'web'}>
-        <NativeOnlyAnimatedView entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
-          <NativeOnlyAnimatedView entering={FadeIn.delay(50)} exiting={FadeOut.duration(150)}>
+        <NativeOnlyAnimatedView
+          entering={FadeIn.duration(motionDuration.normal)}
+          exiting={FadeOut.duration(motionDuration.fast)}>
+          <NativeOnlyAnimatedView
+            entering={FadeIn.delay(50)}
+            exiting={FadeOut.duration(motionDuration.fast)}>
             <>{children}</>
           </NativeOnlyAnimatedView>
         </NativeOnlyAnimatedView>

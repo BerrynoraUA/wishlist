@@ -1,5 +1,6 @@
 import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
 import { TextClassContext } from '@/components/ui/text';
+import { motionDuration } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import * as PopoverPrimitive from '@rn-primitives/popover';
 import * as React from 'react';
@@ -26,7 +27,9 @@ function PopoverContent({
     <PopoverPrimitive.Portal hostName={portalHost}>
       <FullWindowOverlay>
         <PopoverPrimitive.Overlay style={Platform.select({ native: StyleSheet.absoluteFill })}>
-          <NativeOnlyAnimatedView entering={FadeIn.duration(200)} exiting={FadeOut}>
+          <NativeOnlyAnimatedView
+            entering={FadeIn.duration(motionDuration.normal)}
+            exiting={FadeOut.duration(motionDuration.fast)}>
             <TextClassContext.Provider value="text-popover-foreground">
               <PopoverPrimitive.Content
                 align={align}

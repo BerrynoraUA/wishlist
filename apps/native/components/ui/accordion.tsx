@@ -1,5 +1,6 @@
 import { Icon } from '@/components/ui/icon';
 import { TextClassContext } from '@/components/ui/text';
+import { motionDuration } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import * as AccordionPrimitive from '@rn-primitives/accordion';
 import { ChevronDown } from 'lucide-react-native';
@@ -15,7 +16,7 @@ import Animated, {
 
 function Accordion({
   children,
-  ref,
+  ref: _ref,
   ...props
 }: Omit<React.ComponentProps<typeof AccordionPrimitive.Root>, 'asChild'>) {
   return (
@@ -23,7 +24,9 @@ function Accordion({
       <AccordionPrimitive.Root
         {...(props as AccordionPrimitive.RootProps)}
         asChild={Platform.OS !== 'web'}>
-        <Animated.View layout={LinearTransition.duration(200)}>{children}</Animated.View>
+        <Animated.View layout={LinearTransition.duration(motionDuration.normal)}>
+          {children}
+        </Animated.View>
       </AccordionPrimitive.Root>
     </LayoutAnimationConfig>
   );
@@ -47,7 +50,7 @@ function AccordionItem({
       {...props}>
       <Animated.View
         className="native:overflow-hidden"
-        layout={Platform.select({ native: LinearTransition.duration(200) })}>
+        layout={Platform.select({ native: LinearTransition.duration(motionDuration.normal) })}>
         {children}
       </Animated.View>
     </AccordionPrimitive.Item>
@@ -66,7 +69,10 @@ function AccordionTrigger({
   const { isExpanded } = AccordionPrimitive.useItemContext();
 
   const progress = useDerivedValue(
-    () => (isExpanded ? withTiming(1, { duration: 250 }) : withTiming(0, { duration: 200 })),
+    () =>
+      isExpanded
+        ? withTiming(1, { duration: motionDuration.normal })
+        : withTiming(0, { duration: motionDuration.fast }),
     [isExpanded]
   );
   const chevronStyle = useAnimatedStyle(
@@ -129,7 +135,7 @@ function AccordionContent({
         )}
         {...props}>
         <Animated.View
-          exiting={Platform.select({ native: FadeOutUp.duration(200) })}
+          exiting={Platform.select({ native: FadeOutUp.duration(motionDuration.fast) })}
           className={cn('pb-4', className)}>
           {children}
         </Animated.View>

@@ -1,6 +1,7 @@
 import { buttonTextVariants, buttonVariants } from '@/components/ui/button';
 import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
 import { TextClassContext } from '@/components/ui/text';
+import { motionDuration } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import * as AlertDialogPrimitive from '@rn-primitives/alert-dialog';
 import * as React from 'react';
@@ -35,8 +36,8 @@ function AlertDialogOverlay({
         )}
         {...props}>
         <NativeOnlyAnimatedView
-          entering={FadeIn.duration(200).delay(50)}
-          exiting={FadeOut.duration(150)}>
+          entering={FadeIn.duration(motionDuration.normal).delay(50)}
+          exiting={FadeOut.duration(motionDuration.fast)}>
           <>{children}</>
         </NativeOnlyAnimatedView>
       </AlertDialogPrimitive.Overlay>

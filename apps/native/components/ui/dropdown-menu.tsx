@@ -1,6 +1,7 @@
 import { Icon } from '@/components/ui/icon';
 import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
 import { TextClassContext } from '@/components/ui/text';
+import { motionDuration } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import * as DropdownMenuPrimitive from '@rn-primitives/dropdown-menu';
 import { Check, ChevronDown, ChevronRight, ChevronUp } from 'lucide-react-native';
@@ -70,7 +71,7 @@ function DropdownMenuSubContent({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {
   return (
-    <NativeOnlyAnimatedView entering={FadeIn}>
+    <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
       <DropdownMenuPrimitive.SubContent
         className={cn(
           'bg-popover border-border overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5',
@@ -112,7 +113,7 @@ function DropdownMenuContent({
               : StyleSheet.absoluteFill,
           })}
           className={overlayClassName}>
-          <NativeOnlyAnimatedView entering={FadeIn}>
+          <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
             <TextClassContext.Provider value="text-popover-foreground">
               <DropdownMenuPrimitive.Content
                 className={cn(

@@ -1,7 +1,11 @@
+import { useAnimatedPressFeedback } from '@/components/ui/animated-pressable';
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as TabsPrimitive from '@rn-primitives/tabs';
 import { Platform } from 'react-native';
+import Animated from 'react-native-reanimated';
+
+const AnimatedTabsTrigger = Animated.createAnimatedComponent(TabsPrimitive.Trigger);
 
 function Tabs({
   className,
@@ -28,16 +32,26 @@ function TabsList({
 
 function TabsTrigger({
   className,
+  onPressIn,
+  onPressOut,
+  style,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
   const { value } = TabsPrimitive.useRootContext();
+  const { animatedStyle, handlePressIn, handlePressOut } = useAnimatedPressFeedback({
+    disabled: props.disabled,
+    onPressIn,
+    onPressOut,
+  });
+  const Trigger = Platform.OS === 'web' ? TabsPrimitive.Trigger : AnimatedTabsTrigger;
+
   return (
     <TextClassContext.Provider
       value={cn(
         'text-foreground dark:text-muted-foreground text-sm font-medium',
         value === props.value && 'dark:text-foreground'
       )}>
-      <TabsPrimitive.Trigger
+      <Trigger
         className={cn(
           'flex flex-row items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 shadow-none shadow-black/5',
           Platform.select({
@@ -47,6 +61,9 @@ function TabsTrigger({
           props.value === value && 'bg-background dark:border-foreground/10 dark:bg-input/30',
           className
         )}
+        onPressIn={Platform.OS === 'web' ? onPressIn : handlePressIn}
+        onPressOut={Platform.OS === 'web' ? onPressOut : handlePressOut}
+        style={Platform.OS === 'web' ? style : [style, animatedStyle]}
         {...props}
       />
     </TextClassContext.Provider>

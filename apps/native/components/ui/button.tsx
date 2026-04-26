@@ -1,7 +1,8 @@
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { TextClassContext } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Platform, Pressable } from "react-native";
+import { Platform } from "react-native";
 
 // NOTE: group-* is not supported yet by Uniwind
 
@@ -90,14 +91,12 @@ const buttonTextVariants = cva(
   },
 );
 
-type ButtonProps = React.ComponentProps<typeof Pressable> &
-  React.RefAttributes<typeof Pressable> &
-  VariantProps<typeof buttonVariants>;
+type ButtonProps = React.ComponentProps<typeof AnimatedPressable> & VariantProps<typeof buttonVariants>;
 
 function Button({ className, variant, size, ...props }: ButtonProps) {
   return (
     <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
-      <Pressable
+      <AnimatedPressable
         className={cn(props.disabled && "opacity-50", buttonVariants({ variant, size }), className)}
         role="button"
         {...props}

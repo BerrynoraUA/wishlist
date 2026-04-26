@@ -1,6 +1,7 @@
 import { Icon } from '@/components/ui/icon';
 import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
 import { TextClassContext } from '@/components/ui/text';
+import { motionDuration } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import * as ContextMenuPrimitive from '@rn-primitives/context-menu';
 import { Check, ChevronDown, ChevronRight, ChevronUp } from 'lucide-react-native';
@@ -64,7 +65,7 @@ function ContextMenuSubContent({
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.SubContent>) {
   return (
-    <NativeOnlyAnimatedView entering={FadeIn}>
+    <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
       <ContextMenuPrimitive.SubContent
         className={cn(
           'bg-popover border-border overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5',
@@ -106,7 +107,7 @@ function ContextMenuContent({
               : StyleSheet.absoluteFill,
           })}
           className={overlayClassName}>
-          <NativeOnlyAnimatedView entering={FadeIn}>
+          <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
             <TextClassContext.Provider value="text-popover-foreground">
               <ContextMenuPrimitive.Content
                 className={cn(

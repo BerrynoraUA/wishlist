@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { motionDuration } from '@/lib/motion';
 import { View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -8,8 +9,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as React from 'react';
 
-const duration = 1000;
-
 function Skeleton({
   className,
   ...props
@@ -17,7 +16,7 @@ function Skeleton({
   const sv = useSharedValue(1);
 
   React.useEffect(() => {
-    sv.value = withRepeat(withTiming(0.5, { duration }), -1, true);
+    sv.value = withRepeat(withTiming(0.5, { duration: motionDuration.loading }), -1, true);
   }, []);
 
   const style = useAnimatedStyle(

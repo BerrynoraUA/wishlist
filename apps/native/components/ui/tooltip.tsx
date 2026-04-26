@@ -1,5 +1,6 @@
 import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
 import { TextClassContext } from '@/components/ui/text';
+import { motionDuration } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import * as TooltipPrimitive from '@rn-primitives/tooltip';
 import * as React from 'react';
@@ -29,10 +30,14 @@ function TooltipContent({
           <NativeOnlyAnimatedView
             entering={
               side === 'top'
-                ? FadeInDown.withInitialValues({ transform: [{ translateY: 3 }] }).duration(150)
-                : FadeInUp.withInitialValues({ transform: [{ translateY: -5 }] })
+                ? FadeInDown.withInitialValues({ transform: [{ translateY: 3 }] }).duration(
+                    motionDuration.fast
+                  )
+                : FadeInUp.withInitialValues({ transform: [{ translateY: -5 }] }).duration(
+                    motionDuration.fast
+                  )
             }
-            exiting={FadeOut}>
+            exiting={FadeOut.duration(motionDuration.fast)}>
             <TextClassContext.Provider value="text-xs text-primary-foreground">
               <TooltipPrimitive.Content
                 sideOffset={sideOffset}

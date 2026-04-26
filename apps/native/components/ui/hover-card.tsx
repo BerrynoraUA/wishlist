@@ -1,5 +1,6 @@
 import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
 import { TextClassContext } from '@/components/ui/text';
+import { motionDuration } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import * as HoverCardPrimitive from '@rn-primitives/hover-card';
 import * as React from 'react';
@@ -23,7 +24,9 @@ function HoverCardContent({
     <HoverCardPrimitive.Portal>
       <FullWindowOverlay>
         <HoverCardPrimitive.Overlay style={Platform.select({ native: StyleSheet.absoluteFill })}>
-          <NativeOnlyAnimatedView entering={FadeIn} exiting={FadeOut}>
+          <NativeOnlyAnimatedView
+            entering={FadeIn.duration(motionDuration.normal)}
+            exiting={FadeOut.duration(motionDuration.fast)}>
             <TextClassContext.Provider value="text-popover-foreground">
               <HoverCardPrimitive.Content
                 align={align}
