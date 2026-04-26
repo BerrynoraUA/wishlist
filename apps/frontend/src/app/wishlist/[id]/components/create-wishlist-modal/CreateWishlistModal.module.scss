@@ -254,6 +254,35 @@
   white-space: nowrap;
 }
 
+.accessTabs {
+  display: flex;
+  gap: 6px;
+}
+
+.accessTab {
+  border: 1px solid var(--color-border-light);
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: var(--card-bg);
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  transition: all 0.2s $ease-out;
+
+  &:hover {
+    border-color: var(--brand-alpha-20);
+    background: var(--brand-alpha-06);
+    color: var(--color-text);
+  }
+}
+
+.accessTabActive {
+  border-color: $brand;
+  background: var(--brand-alpha-10);
+  color: $brand;
+}
+
 .accessSearch {
   width: 100%;
   border: 1.5px solid var(--input-border);

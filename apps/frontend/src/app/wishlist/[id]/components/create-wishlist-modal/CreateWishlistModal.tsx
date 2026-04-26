@@ -16,7 +16,8 @@ import { Button } from "@/components/ui/Button/Button";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { Heading, Text } from "@/components/ui/Typography";
 import { grantWishlistAccess } from "@/api/wishlist";
-import { useFriends } from "@/hooks/use-friends";
+import { grantWishlistGroupAccess } from "@/api/friends";
+import { useFriendGroups, useFriends } from "@/hooks/use-friends";
 import { useCreateWishlist } from "@/hooks/use-wishlists";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useSessionDraft } from "@/hooks/use-session-draft";
@@ -97,6 +98,10 @@ function CreateWishlistForm({
   const [selectedAccessFriends, setSelectedAccessFriends] = useState<
     WishlistAccessFriendOption[]
   >([]);
+  const [selectedAccessGroups, setSelectedAccessGroups] = useState<
+    WishlistAccessFriendOption[]
+  >([]);
+  const [accessTab, setAccessTab] = useState<"friends" | "groups">("friends");
   const [accessError, setAccessError] = useState<string | null>(null);
   const [isGrantingAccess, setIsGrantingAccess] = useState(false);
 
@@ -105,6 +110,14 @@ function CreateWishlistForm({
     isLoading: friendsLoading,
     isError: friendsError,
   } = useFriends({
+    skip: 0,
+    take: 100,
+  });
+  const {
+    data: groups = [],
+    isLoading: groupsLoading,
+    isError: groupsError,
+  } = useFriendGroups({
     skip: 0,
     take: 100,
   });
@@ -119,6 +132,14 @@ function CreateWishlistForm({
         }))
         .filter((friend) => Boolean(friend.id)),
     [friends],
+  );
+  const groupOptions = useMemo<WishlistAccessFriendOption[]>(
+    () =>
+      groups.map((group) => ({
+        id: group.id,
+        nickname: group.name,
+      })),
+    [groups],
   );
 
   const draftValue = useMemo<WishlistDraft>(
@@ -181,7 +202,10 @@ function CreateWishlistForm({
     if (privacy !== "SelectedFriends" && selectedAccessFriends.length > 0) {
       setSelectedAccessFriends([]);
     }
-  }, [privacy, selectedAccessFriends.length]);
+    if (privacy !== "SelectedFriends" && selectedAccessGroups.length > 0) {
+      setSelectedAccessGroups([]);
+    }
+  }, [privacy, selectedAccessFriends.length, selectedAccessGroups.length]);
 
   function resetForm() {
     setName("");
@@ -194,6 +218,8 @@ function CreateWishlistForm({
     setImageError(null);
     setLocalImageNeedsReupload(false);
     setSelectedAccessFriends([]);
+    setSelectedAccessGroups([]);
+    setAccessTab("friends");
     setAccessError(null);
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     setImageObjectUrl(null);
@@ -249,15 +275,28 @@ function CreateWishlistForm({
         event_date: eventDate ? new Date(eventDate) : undefined,
       });
 
-      if (privacy === "SelectedFriends" && selectedAccessFriends.length > 0) {
+      if (
+        privacy === "SelectedFriends" &&
+        (selectedAccessFriends.length > 0 || selectedAccessGroups.length > 0)
+      ) {
         setIsGrantingAccess(true);
-        await Promise.all(
-          selectedAccessFriends.map((friend) =>
-            grantWishlistAccess(wishlist.id, friend.id, SELECTED_FRIENDS_ACCESS_TYPE),
+        await Promise.all([
+          ...selectedAccessFriends.map((friend) =>
+            grantWishlistAccess(
+              wishlist.id,
+              friend.id,
+              SELECTED_FRIENDS_ACCESS_TYPE,
+            ),
           ),
-        );
+          ...selectedAccessGroups.map((group) =>
+            grantWishlistGroupAccess(wishlist.id, group.id),
+          ),
+        ]);
         queryClient.invalidateQueries({
           queryKey: ["friends-without-wishlist-access"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["friend-groups-without-wishlist-access"],
         });
         queryClient.invalidateQueries({ queryKey: ["wishlist-access-list"] });
       }
@@ -426,25 +465,73 @@ function CreateWishlistForm({
                 <div key={option.value}>
                   {option.value === "Private" &&
                     privacy === "SelectedFriends" && (
-                      <WishlistAccessPicker
-                        title={t("Selected friends", {
-                          $id: "wishlist.modal.access.title",
-                        })}
-                        friends={friendOptions}
-                        selected={selectedAccessFriends}
-                        onChange={(nextSelected) => {
-                          setSelectedAccessFriends(nextSelected);
-                          setAccessError(null);
-                        }}
-                        isLoading={friendsLoading}
-                        isError={friendsError}
-                        emptyLabel={t("No friends found yet.", {
-                          $id: "wishlist.modal.access.emptyFriends",
-                        })}
-                        errorLabel={t("Could not load friends right now.", {
-                          $id: "wishlist.modal.access.loadError",
-                        })}
-                      />
+                      <div>
+                        <div className={styles.accessTabs}>
+                          <button
+                            type="button"
+                            className={`${styles.accessTab} ${accessTab === "friends" ? styles.accessTabActive : ""}`}
+                            onClick={() => setAccessTab("friends")}
+                          >
+                            {t("Friends", {
+                              $id: "wishlist.modal.access.friendsTab",
+                            })}
+                          </button>
+                          <button
+                            type="button"
+                            className={`${styles.accessTab} ${accessTab === "groups" ? styles.accessTabActive : ""}`}
+                            onClick={() => setAccessTab("groups")}
+                          >
+                            {t("Groups", {
+                              $id: "wishlist.modal.access.groupsTab",
+                            })}
+                          </button>
+                        </div>
+                        {accessTab === "friends" ? (
+                          <WishlistAccessPicker
+                            title={t("Selected friends", {
+                              $id: "wishlist.modal.access.title",
+                            })}
+                            friends={friendOptions}
+                            selected={selectedAccessFriends}
+                            onChange={(nextSelected) => {
+                              setSelectedAccessFriends(nextSelected);
+                              setAccessError(null);
+                            }}
+                            isLoading={friendsLoading}
+                            isError={friendsError}
+                            emptyLabel={t("No friends found yet.", {
+                              $id: "wishlist.modal.access.emptyFriends",
+                            })}
+                            errorLabel={t("Could not load friends right now.", {
+                              $id: "wishlist.modal.access.loadError",
+                            })}
+                          />
+                        ) : (
+                          <WishlistAccessPicker
+                            title={t("Selected groups", {
+                              $id: "wishlist.modal.access.groupsTitle",
+                            })}
+                            friends={groupOptions}
+                            selected={selectedAccessGroups}
+                            onChange={(nextSelected) => {
+                              setSelectedAccessGroups(nextSelected);
+                              setAccessError(null);
+                            }}
+                            isLoading={groupsLoading}
+                            isError={groupsError}
+                            emptyLabel={t("No groups found yet.", {
+                              $id: "wishlist.modal.access.emptyGroups",
+                            })}
+                            errorLabel={t("Could not load groups right now.", {
+                              $id: "wishlist.modal.access.groupsLoadError",
+                            })}
+                            searchPlaceholder={t("Search groups", {
+                              $id: "wishlist.modal.access.searchGroups",
+                            })}
+                            selectedLabelPrefix=""
+                          />
+                        )}
+                      </div>
                     )}
 
                   <PrivacyCard
@@ -535,6 +622,8 @@ export function WishlistAccessPicker({
   existingAccessEmptyLabel,
   onRevokeAccess,
   revokingUserId,
+  searchPlaceholder,
+  selectedLabelPrefix = "@",
 }: {
   title: string;
   friends: WishlistAccessFriendOption[];
@@ -549,6 +638,8 @@ export function WishlistAccessPicker({
   existingAccessEmptyLabel?: string;
   onRevokeAccess?: (userId: string) => void;
   revokingUserId?: string | null;
+  searchPlaceholder?: string;
+  selectedLabelPrefix?: string;
 }) {
   const t = useGT();
   const [query, setQuery] = useState("");
@@ -593,9 +684,12 @@ export function WishlistAccessPicker({
         className={styles.accessSearch}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder={t("Search friends", {
-          $id: "wishlist.modal.access.search",
-        })}
+        placeholder={
+          searchPlaceholder ??
+          t("Search friends", {
+            $id: "wishlist.modal.access.search",
+          })
+        }
       />
 
       <div className={styles.accessFriendList}>
@@ -626,7 +720,8 @@ export function WishlistAccessPicker({
                   {friend.nickname[0]?.toUpperCase() ?? "?"}
                 </span>
                 <span className={styles.accessFriendName}>
-                  @{friend.nickname}
+                  {selectedLabelPrefix}
+                  {friend.nickname}
                 </span>
                 {active && <Check size={15} />}
               </button>
@@ -652,7 +747,8 @@ export function WishlistAccessPicker({
                     {user.nickname[0]?.toUpperCase() ?? "?"}
                   </span>
                   <span className={styles.accessFriendName}>
-                    @{user.nickname}
+                    {selectedLabelPrefix}
+                    {user.nickname}
                   </span>
                   {onRevokeAccess && (
                     <button
@@ -661,7 +757,7 @@ export function WishlistAccessPicker({
                       onClick={() => onRevokeAccess(user.id)}
                       disabled={revokingUserId === user.id}
                       aria-label={t("Remove access for {handle}", {
-                        handle: `@${user.nickname}`,
+                        handle: `${selectedLabelPrefix}${user.nickname}`,
                         $id: "wishlist.modal.access.removeAria",
                       })}
                     >

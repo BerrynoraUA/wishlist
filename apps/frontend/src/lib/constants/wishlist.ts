@@ -17,6 +17,7 @@ export type WishlistColorOption =
   | "blue"
   | "lavender"
   | "mint";
+export const SELECTED_GROUPS_ACCESS_TYPE = 2;
 export const SELECTED_FRIENDS_ACCESS_TYPE = 3;
 
 type TranslateFn = (
@@ -75,7 +76,8 @@ export function getWishlistDisplayVisibility(wishlist: {
 }): WishlistVisibility {
   if (
     wishlist.visibility_type === WishlistVisibility.SelectedFriends ||
-    wishlist.access_type === SELECTED_FRIENDS_ACCESS_TYPE
+    wishlist.access_type === SELECTED_FRIENDS_ACCESS_TYPE ||
+    wishlist.access_type === SELECTED_GROUPS_ACCESS_TYPE
   ) {
     return WishlistVisibility.SelectedFriends;
   }

@@ -4,11 +4,12 @@ import { useMemo } from "react";
 import { useGT } from "gt-next";
 import { Tabs, type TabItem } from "@/components/ui/Tabs/Tabs";
 
-type TabValue = "friends" | "requests" | "sent";
+type TabValue = "friends" | "groups" | "requests" | "sent";
 
 type Props = {
   active: TabValue;
   friendsCount: number;
+  groupsCount: number;
   requestsCount: number;
   sentCount?: number;
   onChange: (v: TabValue) => void;
@@ -17,6 +18,7 @@ type Props = {
 export function FriendsTabs({
   active,
   friendsCount,
+  groupsCount,
   requestsCount,
   sentCount = 0,
   onChange,
@@ -29,6 +31,14 @@ export function FriendsTabs({
         label: (
           <>
             {t("Friends", { $id: "friends.tabs.friends" })} {friendsCount}
+          </>
+        ),
+      },
+      {
+        value: "groups",
+        label: (
+          <>
+            {t("Groups", { $id: "friends.tabs.groups" })} {groupsCount}
           </>
         ),
       },
@@ -46,7 +56,7 @@ export function FriendsTabs({
         ),
       },
     ],
-    [t, friendsCount, requestsCount, sentCount],
+    [t, friendsCount, groupsCount, requestsCount, sentCount],
   );
 
   return <Tabs items={items} active={active} onChange={onChange} />;

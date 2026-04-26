@@ -18,7 +18,7 @@ export const FRIENDS_GRID_STYLE = {
   gap: 16,
 } as const;
 
-export type FriendsTab = "friends" | "requests" | "sent";
+export type FriendsTab = "friends" | "groups" | "requests" | "sent";
 
 export const DEFAULT_FRIENDS_TAB: FriendsTab = "friends";
 

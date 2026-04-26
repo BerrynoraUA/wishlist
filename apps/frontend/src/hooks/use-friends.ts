@@ -13,8 +13,19 @@ import {
   searchProfilesByNickname,
   getFriendsWithoutWishlistAccess,
   getWishlistAccessList,
+  getFriendGroups,
+  getFriendGroupMembers,
+  createFriendGroup,
+  updateFriendGroup,
+  deleteFriendGroup,
+  getFriendGroupsWithoutWishlistAccess,
+  grantWishlistGroupAccess,
+  revokeWishlistGroupAccess,
 } from "@/api/friends";
-import { GetFriendsWithoutWishlistAccessParams } from "@/api/types/friends";
+import {
+  FriendGroupPayload,
+  GetFriendsWithoutWishlistAccessParams,
+} from "@/api/types/friends";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
 
 // Query Keys
@@ -23,11 +34,18 @@ export const friendKeys = {
   lists: () => [...friendKeys.all, "list"] as const,
   list: (params?: PaginationParams) => [...friendKeys.lists(), params] as const,
   requests: () => [...friendKeys.all, "requests"] as const,
-  incoming: (params?: PaginationParams) => [...friendKeys.requests(), "incoming", params] as const,
-  outgoing: (params?: PaginationParams) => [...friendKeys.requests(), "outgoing", params] as const,
+  incoming: (params?: PaginationParams) =>
+    [...friendKeys.requests(), "incoming", params] as const,
+  outgoing: (params?: PaginationParams) =>
+    [...friendKeys.requests(), "outgoing", params] as const,
   check: (userId: string) => [...friendKeys.all, "check", userId] as const,
   search: (query: string, params?: PaginationParams) =>
     [...friendKeys.all, "search", query, params] as const,
+  groups: () => [...friendKeys.all, "groups"] as const,
+  groupList: (params?: PaginationParams) =>
+    [...friendKeys.groups(), params] as const,
+  groupMembers: (groupId?: string) =>
+    [...friendKeys.groups(), "members", groupId] as const,
 };
 
 // ============= QUERIES =============
@@ -68,7 +86,10 @@ export function useCheckFriendship(userId: string) {
   });
 }
 
-export function useSearchProfilesByNickname(query: string, params?: PaginationParams) {
+export function useSearchProfilesByNickname(
+  query: string,
+  params?: PaginationParams,
+) {
   const trimmed = normalizeSearchQuery(query);
 
   return useQuery({
@@ -81,6 +102,28 @@ export function useSearchProfilesByNickname(query: string, params?: PaginationPa
       }),
     enabled: !!trimmed,
     staleTime: 30_000,
+  });
+}
+
+export function useFriendGroups(params?: PaginationParams) {
+  const normalizedParams = params
+    ? {
+        ...params,
+        search: normalizeSearchQuery(params.search) || undefined,
+      }
+    : undefined;
+
+  return useQuery({
+    queryKey: friendKeys.groupList(normalizedParams),
+    queryFn: () => getFriendGroups(normalizedParams),
+  });
+}
+
+export function useFriendGroupMembers(groupId?: string) {
+  return useQuery({
+    queryKey: friendKeys.groupMembers(groupId),
+    queryFn: () => getFriendGroupMembers(groupId!),
+    enabled: Boolean(groupId),
   });
 }
 
@@ -164,12 +207,75 @@ export function useRemoveFriend() {
   });
 }
 
-export function useFriendsWithoutWishlistAccess(params: GetFriendsWithoutWishlistAccessParams) {
+export function useCreateFriendGroup() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: FriendGroupPayload) => createFriendGroup(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: friendKeys.groups() });
+      toast.success("Group created");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to create group");
+    },
+  });
+}
+
+export function useUpdateFriendGroup() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      groupId,
+      payload,
+    }: {
+      groupId: string;
+      payload: FriendGroupPayload;
+    }) => updateFriendGroup(groupId, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: friendKeys.groups() });
+      queryClient.invalidateQueries({
+        queryKey: friendKeys.groupMembers(variables.groupId),
+      });
+      toast.success("Group updated");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update group");
+    },
+  });
+}
+
+export function useDeleteFriendGroup() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (groupId: string) => deleteFriendGroup(groupId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: friendKeys.groups() });
+      queryClient.invalidateQueries({ queryKey: ["wishlist-access-list"] });
+      toast.success("Group deleted");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to delete group");
+    },
+  });
+}
+
+export function useFriendsWithoutWishlistAccess(
+  params: GetFriendsWithoutWishlistAccessParams,
+) {
   const { wishlistId, search, skip = 0, take = 20 } = params;
   const normalizedSearch = normalizeSearchQuery(search) || undefined;
 
   return useQuery({
-    queryKey: ["friends-without-wishlist-access", wishlistId, normalizedSearch ?? "", skip, take],
+    queryKey: [
+      "friends-without-wishlist-access",
+      wishlistId,
+      normalizedSearch ?? "",
+      skip,
+      take,
+    ],
     queryFn: () =>
       getFriendsWithoutWishlistAccess({
         wishlistId,
@@ -186,5 +292,70 @@ export function useWishlistAccessList(wishlistId?: string) {
     queryKey: ["wishlist-access-list", wishlistId],
     queryFn: () => getWishlistAccessList(wishlistId!),
     enabled: !!wishlistId,
+  });
+}
+
+export function useFriendGroupsWithoutWishlistAccess(
+  params: GetFriendsWithoutWishlistAccessParams,
+) {
+  const { wishlistId, search, skip = 0, take = 20 } = params;
+  const normalizedSearch = normalizeSearchQuery(search) || undefined;
+
+  return useQuery({
+    queryKey: [
+      "friend-groups-without-wishlist-access",
+      wishlistId,
+      normalizedSearch ?? "",
+      skip,
+      take,
+    ],
+    queryFn: () =>
+      getFriendGroupsWithoutWishlistAccess({
+        wishlistId,
+        search: normalizedSearch,
+        skip,
+        take,
+      }),
+    enabled: Boolean(wishlistId),
+  });
+}
+
+export function useGrantWishlistGroupAccess() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      wishlistId,
+      groupId,
+    }: {
+      wishlistId: string;
+      groupId: string;
+    }) => grantWishlistGroupAccess(wishlistId, groupId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wishlist-access-list"] });
+      queryClient.invalidateQueries({
+        queryKey: ["friend-groups-without-wishlist-access"],
+      });
+    },
+  });
+}
+
+export function useRevokeWishlistGroupAccess() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      wishlistId,
+      groupId,
+    }: {
+      wishlistId: string;
+      groupId: string;
+    }) => revokeWishlistGroupAccess(wishlistId, groupId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wishlist-access-list"] });
+      queryClient.invalidateQueries({
+        queryKey: ["friend-groups-without-wishlist-access"],
+      });
+    },
   });
 }
