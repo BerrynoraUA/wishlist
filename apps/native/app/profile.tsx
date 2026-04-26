@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import {
@@ -9,8 +10,9 @@ import {
   type NativeThemeMode,
 } from "@/lib/theme";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/providers/auth-provider";
 import { Stack } from "expo-router";
-import { CheckIcon, MoonIcon, SunIcon } from "lucide-react-native";
+import { CheckIcon, LogOut, MoonIcon, SunIcon } from "lucide-react-native";
 import * as React from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
@@ -33,8 +35,9 @@ const MODE_OPTIONS = [
   icon: typeof SunIcon;
 }[];
 
-export default function SettingsScreen() {
+export default function ProfileScreen() {
   const { theme } = useUniwind();
+  const { signOut } = useAuth();
   const activeMode = getThemeMode(theme);
   const activeAccent = getThemeAccent(theme);
 
@@ -48,58 +51,71 @@ export default function SettingsScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: "Settings" }} />
-      <ScrollView
-        className="flex-1 bg-bg"
-        contentContainerClassName="gap-5 px-4 pb-safe-offset-6 pt-6"
-      >
-        <SettingsSection title="Theme">
-          <View className="flex-row gap-3">
-            {MODE_OPTIONS.map((option) => (
-              <ThemeModeButton
-                key={option.mode}
-                option={option}
-                isActive={activeMode === option.mode}
-                onPress={() => setMode(option.mode)}
-              />
-            ))}
-          </View>
-        </SettingsSection>
+      <Stack.Screen options={{ title: "Profile" }} />
+      <View className="flex-1 bg-bg">
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="gap-5 px-4 pb-2 pt-6"
+        >
+          <SettingsSection title="Theme">
+            <View className="flex-row gap-3">
+              {MODE_OPTIONS.map((option) => (
+                <ThemeModeButton
+                  key={option.mode}
+                  option={option}
+                  isActive={activeMode === option.mode}
+                  onPress={() => setMode(option.mode)}
+                />
+              ))}
+            </View>
+          </SettingsSection>
 
-        <SettingsSection title="Accent">
-          <View className="flex-row flex-wrap justify-around gap-x-4 gap-y-5 px-1">
-            {NATIVE_ACCENTS.map((accent) => {
-              const isActive = activeAccent === accent.name;
+          <SettingsSection title="Accent">
+            <View className="flex-row flex-wrap justify-around gap-x-4 gap-y-5 px-1">
+              {NATIVE_ACCENTS.map((accent) => {
+                const isActive = activeAccent === accent.name;
 
-              return (
-                <Pressable
-                  key={accent.name}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: isActive }}
-                  accessibilityLabel={`Use ${accent.label} accent`}
-                  onPress={() => setAccent(accent.name)}
-                  className="items-center gap-2"
-                >
-                  <View
-                    className={cn(
-                      "size-12 items-center justify-center rounded-full border-2 border-transparent",
-                      accent.swatchClassName,
-                      isActive && "border-brand shadow-brand",
-                    )}
+                return (
+                  <Pressable
+                    key={accent.name}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: isActive }}
+                    accessibilityLabel={`Use ${accent.label} accent`}
+                    onPress={() => setAccent(accent.name)}
+                    className="items-center gap-2"
                   >
-                    {isActive ? <Icon as={CheckIcon} className="size-5 text-text" /> : null}
-                  </View>
-                  <Text
-                    className={cn("text-body font-semibold text-text", isActive && "text-brand")}
-                  >
-                    {accent.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </SettingsSection>
-      </ScrollView>
+                    <View
+                      className={cn(
+                        "size-12 items-center justify-center rounded-full border-2 border-transparent",
+                        accent.swatchClassName,
+                        isActive && "border-brand shadow-brand",
+                      )}
+                    >
+                      {isActive ? <Icon as={CheckIcon} className="size-5 text-text" /> : null}
+                    </View>
+                    <Text
+                      className={cn("text-body font-semibold text-text", isActive && "text-brand")}
+                    >
+                      {accent.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </SettingsSection>
+        </ScrollView>
+
+        <View className="border-t border-border-subtle bg-bg px-4 pb-safe-offset-4 pt-3">
+          <Button
+            variant="outline"
+            className="h-12 w-full border-destructive/50 active:bg-destructive/5"
+            onPress={() => void signOut()}
+          >
+            <Icon as={LogOut} className="size-4 text-destructive" />
+            <Text className="text-sm font-semibold text-destructive">Log out</Text>
+          </Button>
+        </View>
+      </View>
     </>
   );
 }

@@ -115,9 +115,9 @@ function AuthGate({
         <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
         <NativeTabs.Trigger.Label>Wishlists</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="settings">
-        <NativeTabs.Trigger.Icon sf="gearshape.fill" md="settings" />
-        <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="profile">
+        <NativeTabs.Trigger.Icon sf="person.crop.circle" md="account_circle" />
+        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
