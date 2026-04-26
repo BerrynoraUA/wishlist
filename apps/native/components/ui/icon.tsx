@@ -43,7 +43,7 @@ const StyledIcon = withUniwind(IconImpl, {
  */
 function Icon({ as: IconComponent, className, ...props }: IconProps) {
   return (
-    <StyledIcon as={IconComponent} className={cn("text-foreground size-5", className)} {...props} />
+    <StyledIcon as={IconComponent} className={cn("text-text size-5", className)} {...props} />
   );
 }
 

@@ -1,6 +1,6 @@
 import "@/global.css";
 
-import { NAV_THEME } from "@/lib/theme";
+import { getNavigationTheme, getThemeMode } from "@/lib/theme";
 import { AuthProvider } from "@/providers/auth-provider";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
@@ -49,8 +49,8 @@ export default function RootLayout() {
       >
         <AuthProvider>
           <PostHogScreenTracker />
-          <ThemeProvider value={NAV_THEME[theme ?? "light"]}>
-            <StatusBar style={theme === "dark" ? "light" : "dark"} />
+          <ThemeProvider value={getNavigationTheme(theme)}>
+            <StatusBar style={getThemeMode(theme) === "dark" ? "light" : "dark"} />
             <Stack />
             <PortalHost />
           </ThemeProvider>
