@@ -53,31 +53,45 @@ function DialogOverlay({
 }
 function DialogContent({
   className,
+  contentContainerClassName,
+  contentEntering,
+  contentExiting,
+  overlayClassName,
   portalHost,
   children,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
+  contentContainerClassName?: string;
+  contentEntering?: React.ComponentProps<typeof NativeOnlyAnimatedView>["entering"];
+  contentExiting?: React.ComponentProps<typeof NativeOnlyAnimatedView>["exiting"];
+  overlayClassName?: string;
   portalHost?: string;
 }) {
   return (
     <DialogPortal hostName={portalHost}>
-      <DialogOverlay>
-        <DialogPrimitive.Content
-          className={cn(
-            "bg-background border-border z-50 mx-auto flex w-full flex-col gap-4 rounded-lg border p-6 shadow-lg shadow-black/5 sm:max-w-lg",
-            className,
-          )}
-          {...props}
+      <DialogOverlay className={overlayClassName}>
+        <NativeOnlyAnimatedView
+          className={contentContainerClassName}
+          entering={contentEntering}
+          exiting={contentExiting}
         >
-          <>{children}</>
-          <DialogPrimitive.Close
-            className="absolute right-4 top-4 rounded opacity-70 active:opacity-100"
-            hitSlop={12}
+          <DialogPrimitive.Content
+            className={cn(
+              "bg-background border-border z-50 mx-auto flex w-full flex-col gap-4 rounded-lg border p-6 shadow-lg shadow-black/5 sm:max-w-lg",
+              className,
+            )}
+            {...props}
           >
-            <Icon as={X} className="text-accent-foreground size-4 shrink-0" />
-            <Text className="sr-only">Close</Text>
-          </DialogPrimitive.Close>
-        </DialogPrimitive.Content>
+            <>{children}</>
+            <DialogPrimitive.Close
+              className="absolute right-4 top-4 rounded opacity-70 active:opacity-100"
+              hitSlop={12}
+            >
+              <Icon as={X} className="text-accent-foreground size-4 shrink-0" />
+              <Text className="sr-only">Close</Text>
+            </DialogPrimitive.Close>
+          </DialogPrimitive.Content>
+        </NativeOnlyAnimatedView>
       </DialogOverlay>
     </DialogPortal>
   );

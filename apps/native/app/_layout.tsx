@@ -6,11 +6,12 @@ import { SignInScreen } from "@/screens/sign-in-screen";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { PostHogEventProperties } from "@posthog/core";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useGlobalSearchParams, usePathname } from "expo-router";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { StatusBar } from "expo-status-bar";
 import { GTProvider } from "gt-react-native";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { ActivityIndicator, Appearance, View } from "react-native";
 import { useUniwind } from "uniwind";
@@ -30,6 +31,7 @@ const posthogHost = (process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posth
 const posthogEnabled = Boolean(posthogApiKey);
 
 export default function RootLayout() {
+  const [queryClient] = useState(() => new QueryClient());
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
   const navigationTheme = getNavigationTheme(theme);
@@ -60,19 +62,21 @@ export default function RootLayout() {
           method: "skeleton",
         }}
       >
-        <AuthProvider>
-          <PostHogScreenTracker />
-          <ThemeProvider value={navigationTheme}>
-            <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
-            <AuthGate
-              selectedTabBackground={selectedTabBackground}
-              tabBackgroundColor={navigationTheme.colors.card}
-              tabBlurEffect={themeMode === "dark" ? "systemMaterialDark" : "systemMaterialLight"}
-              tabTintColor={navigationTheme.colors.primary}
-            />
-            <PortalHost />
-          </ThemeProvider>
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <PostHogScreenTracker />
+            <ThemeProvider value={navigationTheme}>
+              <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
+              <AuthGate
+                selectedTabBackground={selectedTabBackground}
+                tabBackgroundColor={navigationTheme.colors.card}
+                tabBlurEffect={themeMode === "dark" ? "systemMaterialDark" : "systemMaterialLight"}
+                tabTintColor={navigationTheme.colors.primary}
+              />
+              <PortalHost />
+            </ThemeProvider>
+          </AuthProvider>
+        </QueryClientProvider>
       </GTProvider>
     </PostHogProvider>
   );
