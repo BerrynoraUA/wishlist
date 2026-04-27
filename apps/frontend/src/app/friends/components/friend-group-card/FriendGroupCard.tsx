@@ -1,8 +1,12 @@
 "use client";
 
 import { useGT } from "gt-next";
-import { Edit2, Gift, Heart, Star, Trash2, Users } from "lucide-react";
+import { Gift, Heart, MoreHorizontal, Star, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+} from "@/components/ui/DropdownMenu/DropdownMenu";
 import type { FriendGroup } from "@/api/types/friends";
 import styles from "./FriendGroupCard.module.scss";
 
@@ -36,36 +40,54 @@ export function FriendGroupCard({ group, onEdit, onDelete }: Props) {
           {group.description && (
             <p className={styles.description}>{group.description}</p>
           )}
-          <div className={styles.meta}>
-            {t("{count} members", {
-              count: group.member_count,
-              $id: "friends.groups.memberCount",
-            })}
+
+          <div className={styles.metaRow}>
+            <div className={styles.meta}>
+              {t("{count} members", {
+                count: group.member_count,
+                $id: "friends.groups.memberCount",
+              })}
+            </div>
+
+            <div
+              className={styles.menuWrap}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <DropdownMenu
+                trigger={({ toggle, open }) => (
+                  <button
+                    type="button"
+                    className={`${styles.menuButton} iconTooltipTrigger`}
+                    aria-label={t("Group actions", {
+                      $id: "friends.groups.menuAria",
+                    })}
+                    data-tooltip={t("More options", {
+                      $id: "itemCard.moreOptions",
+                    })}
+                    aria-expanded={open}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggle();
+                    }}
+                  >
+                    <MoreHorizontal size={16} />
+                  </button>
+                )}
+                className={styles.menuDropdown}
+              >
+                <DropdownMenuItem variant="edit" onClick={() => onEdit(group)}>
+                  <span>{t("Edit", { $id: "common.edit" })}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant="danger"
+                  onClick={() => onDelete(group)}
+                >
+                  <span>{t("Delete", { $id: "common.delete" })}</span>
+                </DropdownMenuItem>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className={styles.actions}>
-        <button
-          type="button"
-          className={`${styles.iconButton} iconTooltipTrigger`}
-          onClick={() => onEdit(group)}
-          aria-label={t("Edit group", { $id: "friends.groups.editAria" })}
-          data-tooltip={t("Edit group", { $id: "friends.groups.editTooltip" })}
-        >
-          <Edit2 size={14} />
-        </button>
-        <button
-          type="button"
-          className={`${styles.iconButton} ${styles.danger} iconTooltipTrigger`}
-          onClick={() => onDelete(group)}
-          aria-label={t("Delete group", { $id: "friends.groups.deleteAria" })}
-          data-tooltip={t("Delete group", {
-            $id: "friends.groups.deleteTooltip",
-          })}
-        >
-          <Trash2 size={14} />
-        </button>
       </div>
     </article>
   );
