@@ -3,10 +3,7 @@
 import { useGT } from "gt-next";
 import { Gift, Heart, MoreHorizontal, Star, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-} from "@/components/ui/DropdownMenu/DropdownMenu";
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
 import type { FriendGroup } from "@/api/types/friends";
 import styles from "./FriendGroupCard.module.scss";
 
@@ -37,9 +34,7 @@ export function FriendGroupCard({ group, onEdit, onDelete }: Props) {
 
         <div className={styles.info}>
           <strong>{group.name}</strong>
-          {group.description && (
-            <p className={styles.description}>{group.description}</p>
-          )}
+          {group.description && <p className={styles.description}>{group.description}</p>}
 
           <div className={styles.metaRow}>
             <div className={styles.meta}>
@@ -49,10 +44,7 @@ export function FriendGroupCard({ group, onEdit, onDelete }: Props) {
               })}
             </div>
 
-            <div
-              className={styles.menuWrap}
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className={styles.menuWrap} onClick={(e) => e.stopPropagation()}>
               <DropdownMenu
                 trigger={({ toggle, open }) => (
                   <button
@@ -78,10 +70,7 @@ export function FriendGroupCard({ group, onEdit, onDelete }: Props) {
                 <DropdownMenuItem variant="edit" onClick={() => onEdit(group)}>
                   <span>{t("Edit", { $id: "common.edit" })}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  variant="danger"
-                  onClick={() => onDelete(group)}
-                >
+                <DropdownMenuItem variant="danger" onClick={() => onDelete(group)}>
                   <span>{t("Delete", { $id: "common.delete" })}</span>
                 </DropdownMenuItem>
               </DropdownMenu>

@@ -3,10 +3,7 @@
 import { useMemo } from "react";
 import { useFriends } from "@/hooks/use-friends";
 import { useProfilesByIds } from "@/hooks/use-settings";
-import {
-  useToggleItemBought,
-  useToggleItemReservation,
-} from "@/hooks/use-items";
+import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
 import { useDiscoverFilters } from "./use-discover-filters";
 import { useDiscoverTabData, type DiscoverTab } from "./use-discover-tab-data";
 import { WISHLIST_SECTION_TABS } from "../constants";
@@ -54,9 +51,7 @@ export function useDiscoverPage() {
     return map;
   }, [sectionProfiles]);
 
-  const isSectionTab = (
-    WISHLIST_SECTION_TABS as readonly DiscoverTab[]
-  ).includes(filters.filter);
+  const isSectionTab = (WISHLIST_SECTION_TABS as readonly DiscoverTab[]).includes(filters.filter);
 
   const hasNoData =
     !tabData.isLoading &&

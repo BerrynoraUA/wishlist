@@ -23,9 +23,7 @@ export function useHomeModals() {
   const [deleteWishlist, setDeleteWishlist] = useState<Wishlist | null>(null);
 
   const [inviteUserId] = useState(() => getInitialInvite(searchParams));
-  const [inviteOpen, setInviteOpen] = useState(
-    () => !!getInitialInvite(searchParams),
-  );
+  const [inviteOpen, setInviteOpen] = useState(() => !!getInitialInvite(searchParams));
 
   const [friendRequestSentOpen, setFriendRequestSentOpen] = useState(() =>
     getInitialFriendRequestSent(searchParams, FRIEND_REQUEST_SENT_FLAG),

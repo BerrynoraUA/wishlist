@@ -63,11 +63,7 @@ export function DiscoverFilterBar() {
           maxPlaceholder={t("To", { $id: "discover.filter.price.to" })}
         />
         <FilterSortActions className={styles.actions}>
-          <SortSelect
-            options={sortOptions}
-            value={discoverSort}
-            onChange={handleSortChange}
-          />
+          <SortSelect options={sortOptions} value={discoverSort} onChange={handleSortChange} />
         </FilterSortActions>
       </FilterSortRow>
     </FilterSortBar>

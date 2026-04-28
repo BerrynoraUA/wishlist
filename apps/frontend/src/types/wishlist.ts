@@ -1,7 +1,4 @@
-import {
-  WishlistColorOption,
-  WishlistPrivacyOption,
-} from "@/lib/constants/wishlist";
+import { WishlistColorOption, WishlistPrivacyOption } from "@/lib/constants/wishlist";
 import type { ItemLink } from "@/types/item";
 
 export enum WishlistVisibility {

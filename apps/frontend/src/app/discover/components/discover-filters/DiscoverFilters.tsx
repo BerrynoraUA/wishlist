@@ -14,9 +14,7 @@ type Props = {
 export function DiscoverFilters({ active, onChange }: Props) {
   const t = useGT();
 
-  const items = useMemo<
-    TabItem<"wishlists" | "available" | "reserved" | "purchased">[]
-  >(
+  const items = useMemo<TabItem<"wishlists" | "available" | "reserved" | "purchased">[]>(
     () => [
       {
         value: "wishlists",

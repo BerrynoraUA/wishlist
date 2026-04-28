@@ -97,11 +97,7 @@ export function WishlistItemFilters({ wishlistId }: Props) {
               <RotateCcw size={14} />
             </button>
           )}
-          <SortSelect
-            options={sortOptions}
-            value={itemSort}
-            onChange={handleSortChange}
-          />
+          <SortSelect options={sortOptions} value={itemSort} onChange={handleSortChange} />
         </FilterSortActions>
       </FilterSortRow>
       <ActiveFilters

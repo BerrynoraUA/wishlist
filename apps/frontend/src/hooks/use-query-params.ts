@@ -12,9 +12,7 @@ export function useQueryParams(basePath: string) {
   const router = useRouter();
   const routeSearchParams = useSearchParams();
   const routeSearchParamsString = routeSearchParams.toString();
-  const [optimisticParamsString, setOptimisticParamsString] = useState(
-    routeSearchParamsString,
-  );
+  const [optimisticParamsString, setOptimisticParamsString] = useState(routeSearchParamsString);
 
   useEffect(() => {
     setOptimisticParamsString(routeSearchParamsString);

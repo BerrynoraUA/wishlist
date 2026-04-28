@@ -7,12 +7,7 @@ import type { LucideIcon } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { Heading, Text } from "@/components/ui/Typography";
-import type {
-  FriendGroup,
-  FriendGroupMember,
-  FriendGroupPayload,
-  FriendWithDetails,
-} from "@/api/types/friends";
+import type { FriendGroup, FriendGroupPayload, FriendWithDetails } from "@/api/types/friends";
 import { useFriendGroupMembers } from "@/hooks/use-friends";
 import styles from "./FriendGroupModal.module.scss";
 
@@ -33,18 +28,10 @@ type Props = {
   onSubmit: (payload: FriendGroupPayload) => Promise<void>;
 };
 
-export function FriendGroupModal({
-  open,
-  group,
-  friends,
-  isSaving,
-  onClose,
-  onSubmit,
-}: Props) {
+export function FriendGroupModal({ open, group, friends, isSaving, onClose, onSubmit }: Props) {
   const t = useGT();
   const editing = Boolean(group);
-  const { data: members = [], isLoading: membersLoading } =
-    useFriendGroupMembers(group?.id);
+  const { data: members = [], isLoading: membersLoading } = useFriendGroupMembers(group?.id);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [color, setColor] = useState<(typeof COLOR_OPTIONS)[number]>("pink");
@@ -73,10 +60,7 @@ export function FriendGroupModal({
     return friends.filter((friend) => {
       const nickname = friend.nickname?.toLowerCase() ?? "";
       const displayName = friend.display_name?.toLowerCase() ?? "";
-      return (
-        nickname.includes(normalizedQuery) ||
-        displayName.includes(normalizedQuery)
-      );
+      return nickname.includes(normalizedQuery) || displayName.includes(normalizedQuery);
     });
   }, [friends, query]);
 
@@ -127,9 +111,7 @@ export function FriendGroupModal({
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Description", { $id: "friends.groups.modal.description" })}
-          </label>
+          <label>{t("Description", { $id: "friends.groups.modal.description" })}</label>
           <textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
@@ -178,9 +160,7 @@ export function FriendGroupModal({
 
         <div className={styles.membersPanel}>
           <div className={styles.membersHeader}>
-            <strong>
-              {t("Members", { $id: "friends.groups.modal.members" })}
-            </strong>
+            <strong>{t("Members", { $id: "friends.groups.modal.members" })}</strong>
             <span>
               {t("{count} selected", {
                 count: selectedIds.size,
@@ -214,9 +194,7 @@ export function FriendGroupModal({
             {!membersLoading &&
               friendOptions.map((friend) => {
                 const active = selectedIds.has(friend.friend_id);
-                const label = friend.nickname
-                  ? `@${friend.nickname}`
-                  : friend.display_name;
+                const label = friend.nickname ? `@${friend.nickname}` : friend.display_name;
                 return (
                   <button
                     key={friend.friend_id}
@@ -225,9 +203,7 @@ export function FriendGroupModal({
                     onClick={() => toggleMember(friend.friend_id)}
                   >
                     <span className={styles.avatar}>
-                      {(friend.nickname ??
-                        friend.display_name ??
-                        "?")[0]?.toUpperCase() ?? "?"}
+                      {(friend.nickname ?? friend.display_name ?? "?")[0]?.toUpperCase() ?? "?"}
                     </span>
                     <span className={styles.memberName}>{label}</span>
                     {active && <Check size={15} />}
