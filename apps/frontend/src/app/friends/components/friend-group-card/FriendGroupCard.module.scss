@@ -4,9 +4,8 @@
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: $radius-lg;
-  padding: 16px;
+  padding: 10px;
   display: grid;
-  gap: 12px;
   transition: all 0.3s $ease-out;
 
   &:hover {
@@ -18,8 +17,8 @@
 
 .header {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
 }
 
 .icon {
@@ -56,6 +55,8 @@
 .info {
   min-width: 0;
   flex: 1;
+  display: grid;
+  gap: 1px;
 
   strong {
     display: block;
@@ -66,7 +67,7 @@
 }
 
 .description {
-  margin: 3px 0 0;
+  margin: 0;
   color: var(--color-text-muted);
   font-size: var(--fs-caption);
   line-height: 1.35;
@@ -79,43 +80,67 @@
 .meta {
   font-size: var(--fs-caption);
   color: var(--color-text-light);
-  margin-top: 4px;
 }
 
-.actions {
+.metaRow {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  width: 100%;
+  margin-top: -1px;
 }
 
-.iconButton {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1.5px solid var(--color-border-light);
-  background: var(--card-bg);
-  color: var(--color-text-light);
+.menuWrap {
+  margin-left: auto;
+  flex-shrink: 0;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+
+  @media (min-width: 768px) {
+    opacity: 0;
+
+    .card:hover &,
+    .card:focus-within &,
+    &:focus-within {
+      opacity: 1;
+    }
+  }
+}
+
+.menuDropdown {
+  z-index: 5;
+}
+
+.menuButton {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-subtle);
   display: grid;
   place-items: center;
+  background: var(--card-bg);
+  color: var(--color-text);
   cursor: pointer;
-  transition: all 0.3s $ease-out;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
 
   &:hover {
-    border-color: var(--brand-alpha-20);
+    transform: translateY(-1px);
+    border-color: $brand;
     color: $brand;
-    transform: scale(1.08);
-    background: var(--brand-alpha-06);
   }
 
   &:active {
-    transform: scale(0.94);
+    transform: translateY(0) scale(0.98);
   }
-}
 
-.danger:hover {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
-  background: var(--color-danger-bg);
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--input-focus-ring);
+    border-color: var(--input-focus-border);
+  }
 }
 
 @media (max-width: 768px) {

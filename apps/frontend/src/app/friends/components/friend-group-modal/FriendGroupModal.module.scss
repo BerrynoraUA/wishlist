@@ -3,22 +3,27 @@
 
 .container {
   display: grid;
-  gap: 18px;
-  padding: 12px 10px 4px;
+  gap: 14px;
+  padding: 8px 4px 4px;
+}
+
+.header {
+  display: grid;
+  gap: 10px;
 }
 
 .header h2 {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
 }
 
 .header p {
-  margin: 0;
+  margin: 0 0 2px;
   color: var(--color-text-muted);
 }
 
 .field {
   display: grid;
-  gap: 6px;
+  gap: 4px;
 
   label {
     @include t-label;
@@ -29,10 +34,11 @@
     width: 100%;
     border: 1.5px solid var(--input-border);
     border-radius: $radius-md;
-    padding: 10px 12px;
+    padding: 8px 12px;
     color: var(--color-text);
     background: var(--input-bg);
     font: inherit;
+    font-size: var(--fs-body);
     outline: none;
     transition:
       border-color 0.3s $ease-out,
