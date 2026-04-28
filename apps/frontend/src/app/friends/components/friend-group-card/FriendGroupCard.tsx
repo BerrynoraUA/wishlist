@@ -33,9 +33,7 @@ export function FriendGroupCard({ group, onEdit, onDelete }: Props) {
 
         <div className={styles.info}>
           <strong>{group.name}</strong>
-          {group.description && (
-            <p className={styles.description}>{group.description}</p>
-          )}
+          {group.description && <p className={styles.description}>{group.description}</p>}
           <div className={styles.meta}>
             {t("{count} members", {
               count: group.member_count,

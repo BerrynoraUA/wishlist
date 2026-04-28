@@ -26,9 +26,7 @@ export function NumberRangeFilter({
   compact = false,
 }: Props) {
   return (
-    <div
-      className={`${styles.wrapper} ${compact ? styles.compact : ""} ${className ?? ""}`}
-    >
+    <div className={`${styles.wrapper} ${compact ? styles.compact : ""} ${className ?? ""}`}>
       {label && <span className={styles.label}>{label}</span>}
       <div className={styles.range}>
         <input

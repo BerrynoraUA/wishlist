@@ -53,10 +53,7 @@ export default function ProfileScreen() {
     <>
       <Stack.Screen options={{ title: "Profile" }} />
       <View className="flex-1 bg-bg">
-        <ScrollView
-          className="flex-1"
-          contentContainerClassName="gap-5 px-4 pb-2 pt-6"
-        >
+        <ScrollView className="flex-1" contentContainerClassName="gap-5 px-4 pb-2 pt-6">
           <SettingsSection title="Theme">
             <View className="flex-row gap-3">
               {MODE_OPTIONS.map((option) => (

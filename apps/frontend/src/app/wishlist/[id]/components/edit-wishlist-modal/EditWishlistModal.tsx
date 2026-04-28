@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGT } from "gt-next";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -24,10 +18,7 @@ import {
 } from "@/hooks/use-friends";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useSessionDraft } from "@/hooks/use-session-draft";
-import {
-  useRevokeWishlistAccess,
-  useUpdateWishlist,
-} from "@/hooks/use-wishlists";
+import { useRevokeWishlistAccess, useUpdateWishlist } from "@/hooks/use-wishlists";
 import { Check } from "lucide-react";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
@@ -102,9 +93,7 @@ function EditWishlistForm({
     getWishlistColorByAccent(wishlist.accent_type),
   );
   const [eventDate, setEventDate] = useState(() => {
-    const raw =
-      wishlist.event_date ??
-      (wishlist as Wishlist & { event_date?: string }).event_date;
+    const raw = wishlist.event_date ?? (wishlist as Wishlist & { event_date?: string }).event_date;
     return raw ? String(raw).split("T")[0] : "";
   });
   const [imagePreview, setImagePreview] = useState(wishlist.image_url ?? "");
@@ -112,17 +101,18 @@ function EditWishlistForm({
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
   const [localImageNeedsReupload, setLocalImageNeedsReupload] = useState(false);
-  const [selectedAccessFriends, setSelectedAccessFriends] = useState<
-    WishlistAccessFriendOption[]
-  >([]);
-  const [selectedAccessGroups, setSelectedAccessGroups] = useState<
-    WishlistAccessFriendOption[]
-  >([]);
+  const [selectedAccessFriends, setSelectedAccessFriends] = useState<WishlistAccessFriendOption[]>(
+    [],
+  );
+  const [selectedAccessGroups, setSelectedAccessGroups] = useState<WishlistAccessFriendOption[]>(
+    [],
+  );
   const [accessTab, setAccessTab] = useState<"friends" | "groups">("friends");
   const [accessError, setAccessError] = useState<string | null>(null);
   const [isGrantingAccess, setIsGrantingAccess] = useState(false);
-  const [restoredFields, setRestoredFields] =
-    useState<RestoredEditWishlistFields>(EMPTY_RESTORED_EDIT_WISHLIST_FIELDS);
+  const [restoredFields, setRestoredFields] = useState<RestoredEditWishlistFields>(
+    EMPTY_RESTORED_EDIT_WISHLIST_FIELDS,
+  );
   const availableColors = useMemo(() => {
     if (!isColorGated) {
       return WISHLIST_COLOR_OPTIONS;
@@ -165,14 +155,13 @@ function EditWishlistForm({
       })),
     [groupsWithoutAccess],
   );
-  const { data: accessList = [], isLoading: accessListLoading } =
-    useWishlistAccessList(wishlist.id);
+  const { data: accessList = [], isLoading: accessListLoading } = useWishlistAccessList(
+    wishlist.id,
+  );
   const specificAccessList = useMemo(
     () =>
       accessList.filter(
-        (user) =>
-          user.access_type === SELECTED_FRIENDS_ACCESS_TYPE &&
-          user.target_type !== "group",
+        (user) => user.access_type === SELECTED_FRIENDS_ACCESS_TYPE && user.target_type !== "group",
       ),
     [accessList],
   );
@@ -180,8 +169,7 @@ function EditWishlistForm({
     () =>
       accessList.filter(
         (target) =>
-          target.access_type === SELECTED_GROUPS_ACCESS_TYPE ||
-          target.target_type === "group",
+          target.access_type === SELECTED_GROUPS_ACCESS_TYPE || target.target_type === "group",
       ),
     [accessList],
   );
@@ -196,15 +184,10 @@ function EditWishlistForm({
     }
 
     return WISHLIST_PRIVACY_BY_VISIBILITY[wishlist.visibility_type] ?? "Public";
-  }, [
-    groupAccessList.length,
-    specificAccessList.length,
-    wishlist.visibility_type,
-  ]);
+  }, [groupAccessList.length, specificAccessList.length, wishlist.visibility_type]);
   const initialDraft = useMemo<WishlistDraft>(() => {
     const rawEventDate =
-      wishlist.event_date ??
-      (wishlist as Wishlist & { event_date?: string }).event_date;
+      wishlist.event_date ?? (wishlist as Wishlist & { event_date?: string }).event_date;
 
     return {
       name: wishlist.title ?? "",
@@ -257,8 +240,7 @@ function EditWishlistForm({
       privacy: draft.privacy !== initialDraft.privacy,
       color: draft.color !== initialDraft.color,
       eventDate: draft.eventDate !== initialDraft.eventDate,
-      image:
-        draft.imagePreview !== initialDraft.imagePreview || draft.hadLocalImage,
+      image: draft.imagePreview !== initialDraft.imagePreview || draft.hadLocalImage,
     }),
     [initialDraft],
   );
@@ -293,13 +275,11 @@ function EditWishlistForm({
   const hasChanges = useMemo(() => {
     const initialTitle = wishlist.title?.trim() ?? "";
     const initialDescription = wishlist.description?.trim() ?? "";
-    const initialPrivacy =
-      WISHLIST_PRIVACY_BY_VISIBILITY[wishlist.visibility_type] ?? "Public";
+    const initialPrivacy = WISHLIST_PRIVACY_BY_VISIBILITY[wishlist.visibility_type] ?? "Public";
     const initialColor = getWishlistColorByAccent(wishlist.accent_type);
     const initialEventDate = (() => {
       const raw =
-        wishlist.event_date ??
-        (wishlist as Wishlist & { event_date?: string }).event_date;
+        wishlist.event_date ?? (wishlist as Wishlist & { event_date?: string }).event_date;
       return raw ? String(raw).split("T")[0] : "";
     })();
     const initialImage = wishlist.image_url ?? "";
@@ -313,16 +293,7 @@ function EditWishlistForm({
       Boolean(imageFile) ||
       imagePreview !== initialImage
     );
-  }, [
-    color,
-    description,
-    eventDate,
-    imageFile,
-    imagePreview,
-    name,
-    privacy,
-    wishlist,
-  ]);
+  }, [color, description, eventDate, imageFile, imagePreview, name, privacy, wishlist]);
   const hasAccessChanges =
     canManageSelectedFriendsAccess &&
     privacy === "SelectedFriends" &&
@@ -405,13 +376,7 @@ function EditWishlistForm({
   }
 
   async function handleSubmit() {
-    if (
-      !name.trim() ||
-      isPending ||
-      isGrantingAccess ||
-      (!hasChanges && !hasAccessChanges)
-    )
-      return;
+    if (!name.trim() || isPending || isGrantingAccess || (!hasChanges && !hasAccessChanges)) return;
 
     const nextImageError = validateImageUploadFile(imageFile);
     if (nextImageError) {
@@ -464,11 +429,7 @@ function EditWishlistForm({
         setIsGrantingAccess(true);
         await Promise.all([
           ...selectedAccessFriends.map((friend) =>
-            grantWishlistAccess(
-              wishlist.id,
-              friend.id,
-              SELECTED_FRIENDS_ACCESS_TYPE,
-            ),
+            grantWishlistAccess(wishlist.id, friend.id, SELECTED_FRIENDS_ACCESS_TYPE),
           ),
           ...selectedAccessGroups.map((group) =>
             grantGroupAccess.mutateAsync({
@@ -549,9 +510,7 @@ function EditWishlistForm({
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
-            <Heading>
-              {t("Edit Wishlist", { $id: "wishlist.modal.edit.title" })}
-            </Heading>
+            <Heading>{t("Edit Wishlist", { $id: "wishlist.modal.edit.title" })}</Heading>
             <Text variant="caption" tone="muted">
               {t("Update your wishlist details and customize its appearance.", {
                 $id: "wishlist.modal.edit.subtitle",
@@ -572,11 +531,7 @@ function EditWishlistForm({
                       })}
                 </span>
               </div>
-              <button
-                type="button"
-                className={styles.draftAction}
-                onClick={handleDiscardDraft}
-              >
+              <button type="button" className={styles.draftAction} onClick={handleDiscardDraft}>
                 {t("Discard", { $id: "draft.discard" })}
               </button>
             </div>
@@ -593,9 +548,7 @@ function EditWishlistForm({
         <div
           className={`${styles.field} ${isDraftRestored && restoredFields.name ? styles.draftField : ""}`.trim()}
         >
-          <label>
-            {t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}
-          </label>
+          <label>{t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}</label>
           <input
             placeholder={t("e.g. Birthday Wishes, Home Office Setup", {
               $id: "wishlist.modal.namePlaceholder",
@@ -626,9 +579,7 @@ function EditWishlistForm({
           className={`${styles.field} ${isDraftRestored && restoredFields.image ? styles.draftField : ""}`.trim()}
         >
           <div className={styles.labelRow}>
-            <label>
-              {t("Cover Image", { $id: "wishlist.modal.coverLabel" })}
-            </label>
+            <label>{t("Cover Image", { $id: "wishlist.modal.coverLabel" })}</label>
             <FileSizeBadge />
           </div>
           <div className={styles.upload}>
@@ -673,9 +624,7 @@ function EditWishlistForm({
             value={eventDate}
             onChange={setEventDate}
             triggerClassName={
-              isDraftRestored && restoredFields.eventDate
-                ? styles.draftDateTrigger
-                : undefined
+              isDraftRestored && restoredFields.eventDate ? styles.draftDateTrigger : undefined
             }
           />
         </div>
@@ -727,12 +676,9 @@ function EditWishlistForm({
                             }}
                             isLoading={friendsWithoutAccessLoading}
                             isError={friendsWithoutAccessError}
-                            emptyLabel={t(
-                              "All available friends already have access.",
-                              {
-                                $id: "wishlist.modal.access.emptyFriendsWithoutAccess",
-                              },
-                            )}
+                            emptyLabel={t("All available friends already have access.", {
+                              $id: "wishlist.modal.access.emptyFriendsWithoutAccess",
+                            })}
                             errorLabel={t("Could not load friends right now.", {
                               $id: "wishlist.modal.access.loadError",
                             })}
@@ -750,9 +696,7 @@ function EditWishlistForm({
                                   })
                             }
                             onRevokeAccess={handleRevokeSpecificAccess}
-                            revokingUserId={
-                              revokeAccess.variables?.targetUserId ?? null
-                            }
+                            revokingUserId={revokeAccess.variables?.targetUserId ?? null}
                           />
                         ) : (
                           <WishlistAccessPicker
@@ -767,12 +711,9 @@ function EditWishlistForm({
                             }}
                             isLoading={groupsWithoutAccessLoading}
                             isError={groupsWithoutAccessError}
-                            emptyLabel={t(
-                              "All available groups already have access.",
-                              {
-                                $id: "wishlist.modal.access.emptyGroupsWithoutAccess",
-                              },
-                            )}
+                            emptyLabel={t("All available groups already have access.", {
+                              $id: "wishlist.modal.access.emptyGroupsWithoutAccess",
+                            })}
                             errorLabel={t("Could not load groups right now.", {
                               $id: "wishlist.modal.access.groupsLoadError",
                             })}
@@ -790,9 +731,7 @@ function EditWishlistForm({
                                   })
                             }
                             onRevokeAccess={handleRevokeGroupAccess}
-                            revokingUserId={
-                              revokeGroupAccess.variables?.groupId ?? null
-                            }
+                            revokingUserId={revokeGroupAccess.variables?.groupId ?? null}
                             searchPlaceholder={t("Search groups", {
                               $id: "wishlist.modal.access.searchGroups",
                             })}
@@ -808,9 +747,7 @@ function EditWishlistForm({
                     subtitle={option.subtitle}
                     selected={privacy === option.value}
                     draftHighlighted={
-                      isDraftRestored &&
-                      restoredFields.privacy &&
-                      privacy === option.value
+                      isDraftRestored && restoredFields.privacy && privacy === option.value
                     }
                     onClick={() => setPrivacy(option.value)}
                   />
@@ -827,9 +764,7 @@ function EditWishlistForm({
         <div
           className={`${styles.section} ${isDraftRestored && restoredFields.color ? styles.draftSection : ""}`.trim()}
         >
-          <label>
-            {t("Cover Color", { $id: "wishlist.modal.coverColor" })}
-          </label>
+          <label>{t("Cover Color", { $id: "wishlist.modal.coverColor" })}</label>
           <div className={styles.colors}>
             {availableColors.map((c) => (
               <div

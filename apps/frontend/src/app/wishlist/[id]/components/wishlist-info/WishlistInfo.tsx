@@ -34,16 +34,12 @@ export function WishlistInfo({ wishlist, onAddItem }: Props) {
   const visibility = visibilityLabels[displayVisibility];
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[displayVisibility];
   const itemsCount =
-    wishlist.items_count ??
-    (wishlist as Wishlist & { itemsCount?: number }).itemsCount ??
-    0;
+    wishlist.items_count ?? (wishlist as Wishlist & { itemsCount?: number }).itemsCount ?? 0;
   const description = wishlist.description ?? "";
   const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
   const canAddItem = Boolean(onAddItem);
   const atItemLimit =
-    SUBSCRIPTIONS_UI_ENABLED &&
-    !isPro &&
-    itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
+    SUBSCRIPTIONS_UI_ENABLED && !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
 
   function handleAddItem() {
     if (atItemLimit) {
@@ -85,9 +81,7 @@ export function WishlistInfo({ wishlist, onAddItem }: Props) {
               ) : (
                 <>
                   <Plus size={14} />
-                  <span>
-                    {t("Add Item", { $id: "wishlist.header.addItem" })}
-                  </span>
+                  <span>{t("Add Item", { $id: "wishlist.header.addItem" })}</span>
                 </>
               )}
             </Button>

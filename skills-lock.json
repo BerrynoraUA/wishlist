@@ -26,6 +26,11 @@
       "sourceType": "github",
       "computedHash": "8e41c7417894e6f394614ee7ca3ee5322b1e58d890255d441f42dea98732597f"
     },
+    "truesheet-usage": {
+      "source": "lodev09/react-native-true-sheet",
+      "sourceType": "github",
+      "computedHash": "71ab1d34425bd6991e7746db59dc41e762943dd178b7bd15c456ad7c06300c23"
+    },
     "ui-ux-pro-max": {
       "source": "nextlevelbuilder/ui-ux-pro-max-skill",
       "sourceType": "github",

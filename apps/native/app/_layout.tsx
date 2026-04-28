@@ -5,10 +5,11 @@ import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { SignInScreen } from "@/screens/sign-in-screen";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
+import { createTrueSheetNavigator } from "@lodev09/react-native-true-sheet/navigation";
+import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
 import { PostHogEventProperties } from "@posthog/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useGlobalSearchParams, usePathname } from "expo-router";
-import { NativeTabs } from "expo-router/unstable-native-tabs";
+import { useGlobalSearchParams, usePathname, withLayoutContext } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GTProvider } from "gt-react-native";
 import { useEffect, useState } from "react";
@@ -29,16 +30,14 @@ const posthogHost = (process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posth
   "",
 );
 const posthogEnabled = Boolean(posthogApiKey);
+const { Navigator } = createTrueSheetNavigator();
+const TrueSheetNavigator = withLayoutContext(Navigator);
 
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
   const navigationTheme = getNavigationTheme(theme);
-  const selectedTabBackground =
-    themeMode === "dark"
-      ? `${navigationTheme.colors.primary}24`
-      : `${navigationTheme.colors.primary}18`;
 
   useEffect(() => {
     Appearance.setColorScheme(themeMode);
@@ -66,14 +65,11 @@ export default function RootLayout() {
           <AuthProvider>
             <PostHogScreenTracker />
             <ThemeProvider value={navigationTheme}>
-              <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
-              <AuthGate
-                selectedTabBackground={selectedTabBackground}
-                tabBackgroundColor={navigationTheme.colors.card}
-                tabBlurEffect={themeMode === "dark" ? "systemMaterialDark" : "systemMaterialLight"}
-                tabTintColor={navigationTheme.colors.primary}
-              />
-              <PortalHost />
+              <ReanimatedTrueSheetProvider>
+                <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
+                <AuthGate />
+                <PortalHost />
+              </ReanimatedTrueSheetProvider>
             </ThemeProvider>
           </AuthProvider>
         </QueryClientProvider>
@@ -82,17 +78,7 @@ export default function RootLayout() {
   );
 }
 
-function AuthGate({
-  selectedTabBackground,
-  tabBackgroundColor,
-  tabBlurEffect,
-  tabTintColor,
-}: {
-  selectedTabBackground: string;
-  tabBackgroundColor: string;
-  tabBlurEffect: "systemMaterialDark" | "systemMaterialLight";
-  tabTintColor: string;
-}) {
+function AuthGate() {
   const { isLoading, session } = useAuth();
 
   if (isLoading) {
@@ -108,22 +94,9 @@ function AuthGate({
   }
 
   return (
-    <NativeTabs
-      backgroundColor={tabBackgroundColor}
-      blurEffect={tabBlurEffect}
-      disableTransparentOnScrollEdge
-      indicatorColor={selectedTabBackground}
-      tintColor={tabTintColor}
-    >
-      <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
-        <NativeTabs.Trigger.Label>Wishlists</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="profile">
-        <NativeTabs.Trigger.Icon sf="person.crop.circle" md="account_circle" />
-        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-    </NativeTabs>
+    <TrueSheetNavigator initialRouteName="(tabs)">
+      <TrueSheetNavigator.Screen name="(tabs)" />
+    </TrueSheetNavigator>
   );
 }
 
