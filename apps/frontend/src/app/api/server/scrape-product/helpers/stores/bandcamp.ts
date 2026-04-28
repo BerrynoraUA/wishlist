@@ -7,7 +7,7 @@ import { extractNumericPrice } from "../utils";
  * Rich JSON-LD (MusicAlbum) with pricing, description, and artwork.
  * OG tags have minimal data; prefer LD+JSON.
  */
-export function scrapeBandcamp(html: string, url: string): ProductData {
+export function scrapeBandcamp(html: string, _url: string): ProductData {
   const $ = cheerio.load(html);
 
   let title: string | null = null;

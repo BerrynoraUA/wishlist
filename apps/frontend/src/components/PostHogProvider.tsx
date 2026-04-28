@@ -1,6 +1,6 @@
 "use client";
 
-import type { User } from "@supabase/supabase-js";
+import type { SupabaseUser } from "@wishlist/backend/supabase";
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
 import { Suspense, useEffect } from "react";
@@ -15,7 +15,7 @@ function PostHogIdentity() {
   useEffect(() => {
     if (!phog) return;
 
-    const syncUser = (user: User | null) => {
+    const syncUser = (user: SupabaseUser | null) => {
       if (user) {
         phog.identify(user.id, posthogPersonPropsFromSupabaseUser(user));
       } else {

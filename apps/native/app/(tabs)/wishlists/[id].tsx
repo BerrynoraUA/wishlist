@@ -33,7 +33,7 @@ import {
   parseOptionalNumber,
 } from "@/lib/items";
 import { paginationFlags } from "@/lib/wishlists";
-import type { Item } from "@/types/item";
+import type { Item } from "@wishlist/backend/types/item";
 import { Redirect, Stack, useLocalSearchParams } from "expo-router";
 import { Plus } from "lucide-react-native";
 import * as React from "react";

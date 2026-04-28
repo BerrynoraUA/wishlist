@@ -6,7 +6,7 @@ import { extractNumericPrice, extractDescription } from "../utils";
  * n11.com — турецький маркетплейс.
  * Проблеми: SVG placeholder зображення, невірна валюта (CAD), назва категорії замість товару.
  */
-export function scrapeN11(html: string, url: string): ProductData {
+export function scrapeN11(html: string, _url: string): ProductData {
   const $ = cheerio.load(html);
 
   // --- title ---

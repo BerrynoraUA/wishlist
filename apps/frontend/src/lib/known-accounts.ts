@@ -4,7 +4,7 @@ import {
   KNOWN_ACCOUNTS_STORAGE_KEY,
   type KnownAccount,
   type KnownAccountProvider,
-} from "../types/known-accounts";
+} from "@/types/known-accounts";
 
 function getStorage(): Storage | null {
   if (typeof window === "undefined") {

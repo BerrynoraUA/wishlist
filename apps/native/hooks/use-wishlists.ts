@@ -14,7 +14,7 @@ import type {
   WishlistFormValues,
   WishlistQueryParams,
   WishlistUpdateValues,
-} from "@/types/wishlist";
+} from "@wishlist/backend/types/wishlist";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const wishlistKeys = {

@@ -17,7 +17,7 @@ import {
   toItemFormValues,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
-import type { Item, ItemFormValues } from "@/types/item";
+import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
 import { Image as ExpoImage } from "expo-image";
 import { Plus, X } from "lucide-react-native";
 import * as React from "react";

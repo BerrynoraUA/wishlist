@@ -1,7 +1,7 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { WishlistSupabaseClient } from "@wishlist/backend/supabase";
 import type { Notification } from "@/types";
 
-async function getSupabaseBrowser(): Promise<import("@supabase/supabase-js").SupabaseClient> {
+async function getSupabaseBrowser(): Promise<WishlistSupabaseClient> {
   const mod = await import("@/lib/supabase-browser");
   return mod.supabaseBrowser;
 }
@@ -21,7 +21,7 @@ type SaleAlertItem = {
 };
 
 export type CreateSaleAlertNotificationsParams = {
-  supabase: SupabaseClient;
+  supabase: WishlistSupabaseClient;
   ownerId: string;
   item: SaleAlertItem;
 };

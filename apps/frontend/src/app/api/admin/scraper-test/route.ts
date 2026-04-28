@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient } from "@wishlist/backend/supabase/server";
 import { scrapeProduct } from "@/app/api/server/scrape-product/route";
 
 export const maxDuration = 300;
@@ -13,31 +13,19 @@ async function isAuthorized(request: NextRequest): Promise<boolean> {
     return true;
   }
 
-  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL) as
-    | string
-    | undefined;
-  const supabaseAnonKey = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string | undefined;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return false;
-  }
-
   const cookieStore = await cookies();
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          try {
-            cookieStore.set(name, value, options);
-          } catch {
-            // ignore when cookies cannot be mutated in this context
-          }
-        });
-      },
+  const supabase = createServerClient({
+    getAll() {
+      return cookieStore.getAll();
+    },
+    setAll(cookiesToSet) {
+      cookiesToSet.forEach(({ name, value, options }) => {
+        try {
+          cookieStore.set(name, value, options);
+        } catch {
+          // ignore when cookies cannot be mutated in this context
+        }
+      });
     },
   });
 

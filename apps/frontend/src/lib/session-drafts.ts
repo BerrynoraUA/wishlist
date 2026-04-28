@@ -4,7 +4,7 @@ import {
   SESSION_DRAFT_CHANGE_EVENT,
   GLOBAL_SCOPE,
   STORAGE_PREFIX,
-} from "../types/session-storage";
+} from "@/types/session-storage";
 
 function getStorage(): Storage | null {
   if (typeof window === "undefined") {

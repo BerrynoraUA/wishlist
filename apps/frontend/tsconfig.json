@@ -1,25 +1,19 @@
 {
+  "extends": "../../packages/backend/tsconfig/next.json",
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "baseUrl": ".",
     "jsx": "react-jsx",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/lib/currencies": ["../../packages/backend/lib/currencies.ts"],
+      "@/lib/filter-helpers": ["../../packages/backend/lib/filter-helpers.ts"],
+      "@/lib/posthog-person-from-supabase": [
+        "../../packages/backend/lib/posthog-person-from-supabase.ts"
+      ],
+      "@/lib/supabase-admin": ["../../packages/backend/supabase/admin.ts"],
+      "@/lib/supabase-browser": ["../../packages/backend/supabase/browser.ts"],
+      "@/types": ["../../packages/backend/types/index.ts"],
+      "@/types/*": ["../../packages/backend/types/*"]
     }
   },
   "include": [

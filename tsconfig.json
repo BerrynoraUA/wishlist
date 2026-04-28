@@ -1,4 +1,8 @@
 {
   "files": [],
-  "references": [{ "path": "apps/frontend" }, { "path": "apps/native" }, { "path": "apps/mobile" }]
+  "references": [
+    { "path": "packages/backend" },
+    { "path": "apps/frontend" },
+    { "path": "apps/native" }
+  ]
 }
