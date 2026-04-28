@@ -5,6 +5,7 @@ import type {
   Wishlist,
   WishlistFormValues,
   WishlistQueryParams,
+  WishlistUpdateValues,
 } from "@/types/wishlist";
 
 type WishlistFeedRow = Wishlist & {
@@ -115,8 +116,78 @@ export async function updateWishlist(
   return normalizeWishlist(data as WishlistFeedRow);
 }
 
+export async function patchWishlist(
+  wishlistId: string,
+  values: WishlistUpdateValues,
+): Promise<Wishlist> {
+  const updates: Record<string, unknown> = {};
+
+  if (values.title !== undefined) updates.title = values.title.trim();
+  if (values.description !== undefined) {
+    updates.description = values.description?.trim() || null;
+  }
+  if (values.visibility !== undefined) updates.visibility_type = values.visibility;
+  if (values.accent !== undefined) updates.accent_type = values.accent;
+  if (values.eventDate !== undefined) {
+    updates.event_date = values.eventDate ? parseEventDate(values.eventDate) : null;
+  }
+  if (values.imageUrl !== undefined) {
+    updates.image_url = values.imageUrl?.trim() || null;
+  }
+
+  const { data, error } = await supabase
+    .from("wishlist")
+    .update(updates)
+    .eq("id", wishlistId)
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  return normalizeWishlist(data as WishlistFeedRow);
+}
+
 export async function deleteWishlist(wishlistId: string): Promise<void> {
   const { error } = await supabase.from("wishlist").delete().eq("id", wishlistId);
 
   if (error) throw error;
+}
+
+export async function getWishlistById(wishlistId: string): Promise<Wishlist> {
+  const { data, error } = await supabase.rpc("get_wishlist_by_id", {
+    p_wishlist_id: wishlistId,
+  });
+
+  if (error) throw error;
+
+  return normalizeWishlist(data as WishlistFeedRow);
+}
+
+export async function grantWishlistAccess(
+  wishlistId: string,
+  grantedToUserId: string,
+  accessType: 0 | 1 | 2 | 3,
+) {
+  const { data, error } = await supabase.rpc("grant_wishlist_access", {
+    p_wishlist_id: wishlistId,
+    p_granted_to_user_id: grantedToUserId,
+    p_access_type: accessType,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function revokeWishlistAccess(wishlistId: string, targetUserId: string) {
+  if (!targetUserId) {
+    throw new Error("Missing target user id for revoke access");
+  }
+
+  const { data, error } = await supabase.rpc("revoke_wishlist_access", {
+    p_wishlist_id: wishlistId,
+    p_target_user_id: targetUserId,
+  });
+
+  if (error) throw error;
+  return data;
 }

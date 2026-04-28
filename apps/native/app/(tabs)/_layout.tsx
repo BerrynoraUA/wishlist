@@ -19,7 +19,7 @@ export default function TabsLayout() {
       indicatorColor={selectedTabBackground}
       tintColor={navigationTheme.colors.primary}
     >
-      <NativeTabs.Trigger name="index">
+      <NativeTabs.Trigger name="wishlists">
         <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
         <NativeTabs.Trigger.Label>Wishlists</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>

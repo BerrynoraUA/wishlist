@@ -99,9 +99,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
       }
     }, [footer]);
 
-    const bodyMarginBottom = footer
-      ? footerHeight + (calculatedFooterPadding ?? 0)
-      : 0;
+    const bodyMarginBottom = footer ? footerHeight + (calculatedFooterPadding ?? 0) : 0;
 
     const handleFooterLayout = (event: LayoutChangeEvent) => {
       setFooterHeight(event.nativeEvent.layout.height);
@@ -122,8 +120,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
 
     useImperativeHandle(ref, () => sheetRef.current as BottomSheetRef);
 
-    const libraryPresentsOnMount =
-      initialDetentIndex !== undefined && initialDetentIndex >= 0;
+    const libraryPresentsOnMount = initialDetentIndex !== undefined && initialDetentIndex >= 0;
 
     useEffect(() => {
       if (!autoPresent) {

@@ -2,6 +2,7 @@ export enum WishlistVisibility {
   Public = 0,
   FriendsOnly = 1,
   Private = 2,
+  SelectedFriends = 3,
 }
 
 export enum WishlistAccent {
@@ -36,6 +37,15 @@ export type WishlistFormValues = {
   accent: WishlistAccent;
   eventDate: string;
   imageUrl: string;
+};
+
+export type WishlistUpdateValues = {
+  title?: string;
+  description?: string | null;
+  visibility?: WishlistVisibility;
+  accent?: WishlistAccent;
+  eventDate?: string | null;
+  imageUrl?: string | null;
 };
 
 export type WishlistQueryParams = {

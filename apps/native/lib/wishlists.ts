@@ -1,4 +1,4 @@
-import { Globe, Lock, Users, type LucideIcon } from "lucide-react-native";
+import { Globe, Lock, UserCheck, Users, type LucideIcon } from "lucide-react-native";
 import { WishlistAccent, WishlistVisibility, type WishlistFormValues } from "@/types/wishlist";
 
 export const WISHLIST_PAGE_SIZE = 8;
@@ -11,6 +11,12 @@ export const WISHLIST_VISIBILITY_OPTIONS = [
     label: "Friends only",
     icon: Users,
     visibility: WishlistVisibility.FriendsOnly,
+  },
+  {
+    value: "selected-friends",
+    label: "Selected friends",
+    icon: UserCheck,
+    visibility: WishlistVisibility.SelectedFriends,
   },
   { value: "private", label: "Private", icon: Lock, visibility: WishlistVisibility.Private },
 ] as const;
@@ -27,6 +33,7 @@ export const WISHLIST_SORT_OPTIONS = [
 export const WISHLIST_VISIBILITY_MAP: Record<string, WishlistVisibility> = {
   public: WishlistVisibility.Public,
   friends: WishlistVisibility.FriendsOnly,
+  "selected-friends": WishlistVisibility.SelectedFriends,
   private: WishlistVisibility.Private,
 };
 
@@ -34,12 +41,14 @@ export const WISHLIST_VISIBILITY_LABELS: Record<WishlistVisibility, string> = {
   [WishlistVisibility.Public]: "Public",
   [WishlistVisibility.FriendsOnly]: "Friends only",
   [WishlistVisibility.Private]: "Private",
+  [WishlistVisibility.SelectedFriends]: "Selected friends",
 };
 
 export const WISHLIST_VISIBILITY_ICONS: Record<WishlistVisibility, LucideIcon> = {
   [WishlistVisibility.Public]: Globe,
   [WishlistVisibility.FriendsOnly]: Users,
   [WishlistVisibility.Private]: Lock,
+  [WishlistVisibility.SelectedFriends]: UserCheck,
 };
 
 export const WISHLIST_ACCENT_OPTIONS = [
