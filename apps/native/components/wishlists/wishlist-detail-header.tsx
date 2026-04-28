@@ -150,7 +150,7 @@ export function WishlistDetailHeader({
   }
 
   return (
-    <View className="border-b border-border-subtle bg-gradient-header">
+    <View className="w-full self-stretch border-b border-border-subtle bg-gradient-header">
       <View className="overflow-visible px-4 py-4">
         <View className="gap-3">
           <View className="flex-row items-center gap-3">

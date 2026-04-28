@@ -16,15 +16,12 @@ import {
   getWishlistAccentClass,
   toWishlistFormValues,
 } from "@/lib/wishlists";
-import { motionSpring, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { SlidingOptionSelector, type SlidingOptionRenderProps } from "@/components/ui/sliding-option-selector";
 import type { Wishlist, WishlistFormValues } from "@/types/wishlist";
-import { CalendarDays, X, type LucideIcon } from "lucide-react-native";
+import { CalendarDays, X } from "lucide-react-native";
 import * as React from "react";
-import { ActivityIndicator, Platform, View, type LayoutChangeEvent } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
-
-const SLIDING_SELECTOR_GAP = 8;
+import { ActivityIndicator, Platform, View } from "react-native";
 
 const dateLabelFormatter = new Intl.DateTimeFormat(undefined, {
   month: "short",
@@ -200,146 +197,6 @@ export function WishlistFormSheet({
   );
 }
 
-type SlidingSelectorOption<T extends number | string> = {
-  value: T;
-  label: string;
-  accessibilityLabel?: string;
-  icon?: LucideIcon;
-  colorClassName?: string;
-};
-
-function SlidingOptionSelector<T extends number | string>({
-  rows,
-  value,
-  onChange,
-  optionHeight,
-  optionHeightClassName,
-  optionClassName,
-  selectedOptionClassName,
-  indicatorClassName,
-  textClassName,
-  selectedTextClassName = "text-brand",
-  iconClassName,
-  selectedIconClassName = "text-brand",
-}: {
-  rows: SlidingSelectorOption<T>[][];
-  value: T;
-  onChange: (value: T) => void;
-  optionHeight: number;
-  optionHeightClassName: string;
-  optionClassName: string;
-  selectedOptionClassName?: string;
-  indicatorClassName: string;
-  textClassName: string;
-  selectedTextClassName?: string;
-  iconClassName?: string;
-  selectedIconClassName?: string;
-}) {
-  const reduceMotion = useReducedMotion();
-  const [rowWidth, setRowWidth] = React.useState(0);
-  const selectedPosition = React.useMemo(() => {
-    for (let rowIndex = 0; rowIndex < rows.length; rowIndex += 1) {
-      const columnIndex = rows[rowIndex].findIndex((option) => option.value === value);
-
-      if (columnIndex >= 0) {
-        return { rowIndex, columnIndex };
-      }
-    }
-
-    return { rowIndex: 0, columnIndex: 0 };
-  }, [rows, value]);
-  const selectedRowLength = rows[selectedPosition.rowIndex]?.length ?? 1;
-  const selectedOptionWidth =
-    rowWidth > 0
-      ? (rowWidth - SLIDING_SELECTOR_GAP * (selectedRowLength - 1)) / selectedRowLength
-      : 0;
-  const indicatorX = useSharedValue(0);
-  const indicatorY = useSharedValue(0);
-  const indicatorWidth = useSharedValue(0);
-
-  React.useEffect(() => {
-    const targetX = selectedPosition.columnIndex * (selectedOptionWidth + SLIDING_SELECTOR_GAP);
-    const targetY = selectedPosition.rowIndex * (optionHeight + SLIDING_SELECTOR_GAP);
-
-    indicatorX.value = reduceMotion ? targetX : withSpring(targetX, motionSpring.navPill);
-    indicatorY.value = reduceMotion ? targetY : withSpring(targetY, motionSpring.navPill);
-    indicatorWidth.value = reduceMotion
-      ? selectedOptionWidth
-      : withSpring(selectedOptionWidth, motionSpring.navPill);
-  }, [
-    indicatorWidth,
-    indicatorX,
-    indicatorY,
-    optionHeight,
-    reduceMotion,
-    selectedOptionWidth,
-    selectedPosition.columnIndex,
-    selectedPosition.rowIndex,
-  ]);
-
-  const indicatorStyle = useAnimatedStyle(() => ({
-    width: indicatorWidth.value,
-    transform: [{ translateX: indicatorX.value }, { translateY: indicatorY.value }],
-  }));
-
-  function handleLayout(event: LayoutChangeEvent) {
-    const nextWidth = event.nativeEvent.layout.width;
-    setRowWidth((current) => (current === nextWidth ? current : nextWidth));
-  }
-
-  return (
-    <View className="relative gap-2" onLayout={handleLayout}>
-      {selectedOptionWidth > 0 ? (
-        <Animated.View
-          pointerEvents="none"
-          className={cn("absolute left-0 top-0", indicatorClassName)}
-          style={[{ height: optionHeight }, indicatorStyle]}
-        />
-      ) : null}
-
-      {rows.map((row, rowIndex) => (
-        <View key={rowIndex} className="flex-row gap-2">
-          {row.map((option) => {
-            const selected = value === option.value;
-
-            return (
-              <AnimatedPressable
-                key={String(option.value)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                accessibilityLabel={option.accessibilityLabel}
-                onPress={() => onChange(option.value)}
-                className={cn(
-                  "z-10 flex-1 flex-row items-center justify-center border border-border-subtle bg-bg-subtle",
-                  optionHeightClassName,
-                  optionClassName,
-                  selected && "border-transparent bg-transparent",
-                  selected && selectedOptionClassName,
-                )}
-              >
-                {option.icon ? (
-                  <Icon
-                    as={option.icon}
-                    className={cn(iconClassName, selected && selectedIconClassName)}
-                  />
-                ) : (
-                  <View className={cn("size-4 rounded-full", option.colorClassName)} />
-                )}
-                <Text
-                  className={cn(textClassName, selected && selectedTextClassName)}
-                  numberOfLines={1}
-                >
-                  {option.label}
-                </Text>
-              </AnimatedPressable>
-            );
-          })}
-        </View>
-      ))}
-    </View>
-  );
-}
-
 function VisibilitySelector({
   value,
   onChange,
@@ -351,8 +208,17 @@ function VisibilitySelector({
     () => [
       WISHLIST_VISIBILITY_OPTIONS.map((option) => ({
         value: option.visibility,
-        label: option.label,
-        icon: option.icon,
+        children: ({ selected }: SlidingOptionRenderProps) => (
+          <>
+            <Icon
+              as={option.icon}
+              className={cn("size-3.5 text-text-muted", selected && "text-brand")}
+            />
+            <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
+              {option.label}
+            </Text>
+          </>
+        ),
       })),
     ],
     [],
@@ -367,8 +233,6 @@ function VisibilitySelector({
       optionHeightClassName="h-11"
       optionClassName="gap-1.5 rounded-lg px-2"
       indicatorClassName="rounded-lg border border-brand bg-brand-lighter"
-      textClassName="text-xs font-semibold text-text"
-      iconClassName="size-3.5 text-text-muted"
     />
   );
 }
@@ -383,9 +247,18 @@ function AccentSelector({
   const rows = React.useMemo(() => {
     const options = WISHLIST_ACCENT_OPTIONS.map((option) => ({
       value: option.value,
-      label: option.label,
       accessibilityLabel: `Use ${option.label} accent`,
-      colorClassName: getWishlistAccentClass(option.value),
+      children: ({ selected }: SlidingOptionRenderProps) => (
+        <>
+          <View className={cn("size-4 rounded-full", getWishlistAccentClass(option.value))} />
+          <Text
+            className={cn("text-sm font-semibold text-text-muted", selected && "text-brand")}
+            numberOfLines={1}
+          >
+            {option.label}
+          </Text>
+        </>
+      ),
     }));
 
     return [options.slice(0, 3), options.slice(3)];
@@ -400,7 +273,6 @@ function AccentSelector({
       optionHeightClassName="h-10"
       optionClassName="gap-2 rounded-full px-3"
       indicatorClassName="rounded-full border border-brand bg-brand-lighter"
-      textClassName="text-sm font-semibold text-text-muted"
     />
   );
 }

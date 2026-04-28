@@ -1,3 +1,4 @@
+import { scrapeProductLink } from "@/api/scrape-product";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -5,16 +6,22 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
 import {
+  SlidingOptionSelector,
+  type SlidingOption,
+  type SlidingOptionRenderProps,
+} from "@/components/ui/sliding-option-selector";
+import {
   EMPTY_ITEM_FORM,
   ITEM_PRIORITY_OPTIONS,
   cleanAdditionalLinks,
   toItemFormValues,
 } from "@/lib/items";
+import { cn } from "@/lib/utils";
 import type { Item, ItemFormValues } from "@/types/item";
 import { Image as ExpoImage } from "expo-image";
 import { Plus, X } from "lucide-react-native";
 import * as React from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import { withUniwind } from "uniwind";
 
 const Image = withUniwind(ExpoImage);
@@ -38,9 +45,14 @@ export function WishlistItemFormSheet({
   const isPending = createMutation.isPending || updateMutation.isPending;
   const error = createMutation.error ?? updateMutation.error;
   const [values, setValues] = React.useState<ItemFormValues>(EMPTY_ITEM_FORM);
+  const [isScraping, setIsScraping] = React.useState(false);
+  const [scrapeError, setScrapeError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    if (open) setValues(mode === "edit" ? toItemFormValues(item ?? undefined) : EMPTY_ITEM_FORM);
+    if (open) {
+      setValues(mode === "edit" ? toItemFormValues(item ?? undefined) : EMPTY_ITEM_FORM);
+      setScrapeError(null);
+    }
   }, [item, mode, open]);
 
   if (!open) return null;
@@ -51,6 +63,39 @@ export function WishlistItemFormSheet({
 
   function handleClose() {
     void sheetRef.current?.dismiss();
+  }
+
+  async function handleScrape() {
+    const url = values.url.trim();
+    if (!url || isScraping) return;
+
+    setIsScraping(true);
+    setScrapeError(null);
+
+    try {
+      const product = await scrapeProductLink(url);
+      const isEmpty = !product.title && !product.description && !product.image && !product.price;
+
+      if (isEmpty) {
+        setScrapeError("Could not fetch product data");
+        return;
+      }
+
+      patchValues({
+        ...(product.title ? { name: product.title } : {}),
+        ...(product.description ? { description: product.description } : {}),
+        ...(product.image ? { imageUrl: product.image } : {}),
+        ...(product.price ? { price: product.price } : {}),
+        ...(product.currency ? { currency: product.currency } : {}),
+        discountPrice: product.discount_price ?? "",
+        hasDiscount: product.has_discount,
+        discountEndDate: product.discount_end_date ?? "",
+      });
+    } catch (error) {
+      setScrapeError(error instanceof Error ? error.message : "Could not fetch product data");
+    } finally {
+      setIsScraping(false);
+    }
   }
 
   function handleSubmit() {
@@ -95,8 +140,9 @@ export function WishlistItemFormSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={[0.86, 1]}
+      detents={[1]}
       scrollable
+      scrollableOptions={{ scrollingExpandsSheet: false }}
       dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}
       header={
@@ -125,15 +171,41 @@ export function WishlistItemFormSheet({
         </View>
       }
     >
-      <View className="gap-5 px-5 pt-5">
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="gap-5 px-5 pb-6 pt-5"
+      >
         <Field label="Product link">
-          <Input
-            value={values.url}
-            onChangeText={(url) => patchValues({ url })}
-            placeholder="Paste a product URL"
-            autoCapitalize="none"
-            keyboardType="url"
-          />
+          <View className="gap-2">
+            <View className="flex-row gap-2">
+              <Input
+                value={values.url}
+                onChangeText={(url) => {
+                  patchValues({ url });
+                  if (scrapeError) setScrapeError(null);
+                }}
+                placeholder="Paste a product URL"
+                autoCapitalize="none"
+                keyboardType="url"
+                returnKeyType="search"
+                onSubmitEditing={handleScrape}
+                className="min-w-0 flex-1"
+              />
+              <Button
+                variant="secondary"
+                disabled={!values.url.trim() || isScraping}
+                onPress={handleScrape}
+                className="px-4"
+              >
+                {isScraping ? <ActivityIndicator colorClassName="accent-secondary-foreground" /> : null}
+                <Text>{isScraping ? "Searching" : "Search"}</Text>
+              </Button>
+            </View>
+            {scrapeError ? (
+              <Text className="text-sm font-semibold text-destructive">{scrapeError}</Text>
+            ) : null}
+          </View>
         </Field>
 
         <Field label="Image URL">
@@ -196,21 +268,10 @@ export function WishlistItemFormSheet({
         </View>
 
         <Field label="Priority">
-          <View className="flex-row gap-2">
-            <PriorityButton
-              label="None"
-              selected={values.priority == null}
-              onPress={() => patchValues({ priority: null })}
-            />
-            {ITEM_PRIORITY_OPTIONS.map((option) => (
-              <PriorityButton
-                key={option.value}
-                label={option.label}
-                selected={values.priority === option.priority}
-                onPress={() => patchValues({ priority: option.priority })}
-              />
-            ))}
-          </View>
+          <PrioritySelector
+            value={values.priority}
+            onChange={(priority) => patchValues({ priority })}
+          />
         </Field>
 
         <Field label="Discount">
@@ -287,7 +348,7 @@ export function WishlistItemFormSheet({
         {error ? (
           <Text className="text-sm font-semibold text-destructive">{error.message}</Text>
         ) : null}
-      </View>
+      </ScrollView>
     </BottomSheet>
   );
 }
@@ -309,22 +370,44 @@ function Field({
   );
 }
 
-function PriorityButton({
-  label,
-  selected,
-  onPress,
+function PrioritySelector({
+  value,
+  onChange,
 }: {
-  label: string;
-  selected: boolean;
-  onPress: () => void;
+  value: ItemFormValues["priority"];
+  onChange: (priority: ItemFormValues["priority"]) => void;
 }) {
+  const rows = React.useMemo((): SlidingOption<number | null>[][] => [
+    [
+      {
+        value: null,
+        accessibilityLabel: "No priority",
+        children: ({ selected }: SlidingOptionRenderProps) => (
+          <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
+            None
+          </Text>
+        ),
+      },
+      ...ITEM_PRIORITY_OPTIONS.map((option) => ({
+        value: option.priority,
+        children: ({ selected }: SlidingOptionRenderProps) => (
+          <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
+            {option.label}
+          </Text>
+        ),
+      })),
+    ],
+  ], []);
+
   return (
-    <Button
-      variant={selected ? "default" : "outline"}
-      onPress={onPress}
-      className="min-w-0 flex-1 px-2"
-    >
-      <Text>{label}</Text>
-    </Button>
+    <SlidingOptionSelector<number | null>
+      rows={rows}
+      value={value}
+      onChange={onChange}
+      optionHeight={44}
+      optionHeightClassName="h-11"
+      optionClassName="gap-1.5 rounded-lg px-2"
+      indicatorClassName="rounded-lg border border-brand bg-brand-lighter"
+    />
   );
 }

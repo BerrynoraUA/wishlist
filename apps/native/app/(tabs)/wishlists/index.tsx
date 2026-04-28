@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DeleteWishlistSheet } from "@/components/wishlists/delete-wishlist-sheet";
 import { WishlistFormSheet } from "@/components/wishlists/wishlist-form-sheet";
+import { WishlistItemFormSheet } from "@/components/wishlists/wishlist-item-form-sheet";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -30,7 +31,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Wishlist, WishlistVisibility } from "@/types/wishlist";
 import { Image as ExpoImage } from "expo-image";
-import { Link, Stack, useRouter } from "expo-router";
+import { Link, Stack } from "expo-router";
 import {
   ChevronLeft,
   ChevronRight,
@@ -44,8 +45,9 @@ import {
   SlidersHorizontal,
 } from "lucide-react-native";
 import * as React from "react";
+import { wishlistCardFadeIn, wishlistGridLinearTransition } from "@/components/wishlists/wishlist-screen-animations";
 import { ScrollView, View, useWindowDimensions } from "react-native";
-import Animated, { FadeIn, LinearTransition } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 import { withUniwind } from "uniwind";
 
 const Image = withUniwind(ExpoImage);
@@ -53,6 +55,7 @@ const Image = withUniwind(ExpoImage);
 type SheetState =
   | { type: "create" }
   | { type: "edit"; wishlist: Wishlist }
+  | { type: "addItem"; wishlist: Wishlist }
   | { type: "delete"; wishlist: Wishlist }
   | null;
 
@@ -149,7 +152,7 @@ export default function WishlistsScreen() {
               ) : (
                 <Animated.View
                   className="flex-row flex-wrap"
-                  layout={LinearTransition}
+                  layout={wishlistGridLinearTransition}
                   style={{ gap: gridGap, opacity: query.isFetching ? 0.6 : 1 }}
                 >
                   {query.isError ? (
@@ -168,6 +171,11 @@ export default function WishlistsScreen() {
                       onEdit={
                         wishlist.is_owner || wishlist.can_edit
                           ? () => setSheet({ type: "edit", wishlist })
+                          : undefined
+                      }
+                      onAddItem={
+                        wishlist.is_owner || wishlist.can_edit
+                          ? () => setSheet({ type: "addItem", wishlist })
                           : undefined
                       }
                       onDelete={
@@ -208,6 +216,14 @@ export default function WishlistsScreen() {
         />
         <DeleteWishlistSheet
           wishlist={sheet?.type === "delete" ? sheet.wishlist : null}
+          onOpenChange={(open) => {
+            if (!open) setSheet(null);
+          }}
+        />
+        <WishlistItemFormSheet
+          mode="create"
+          wishlistId={sheet?.type === "addItem" ? sheet.wishlist.id : ""}
+          open={sheet?.type === "addItem"}
           onOpenChange={(open) => {
             if (!open) setSheet(null);
           }}
@@ -451,23 +467,25 @@ function WishlistCard({
   wishlist,
   width,
   onEdit,
+  onAddItem,
   onDelete,
 }: {
   wishlist: Wishlist;
   width: number;
   onEdit?: () => void;
+  onAddItem?: () => void;
   onDelete?: () => void;
 }) {
   const visibility = wishlist.visibility_type;
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[visibility];
   const itemsCount = wishlist.items_count ?? 0;
-  const showMenu = Boolean(onEdit || onDelete);
+  const showMenu = Boolean(onAddItem || onEdit || onDelete);
   const isShared = wishlist.is_owner === false;
   const ownerNickname = wishlist.owner_nickname?.trim();
   const sharedLabel = ownerNickname ? `Shared by @${ownerNickname}` : "Shared wishlist";
 
   return (
-    <Animated.View entering={FadeIn.duration(180)} style={{ width }}>
+    <Animated.View entering={wishlistCardFadeIn} style={{ width }}>
       <Link href={{ pathname: "/wishlists/[id]", params: { id: wishlist.id } }} asChild>
         <AnimatedPressable
           accessibilityRole="button"
@@ -522,6 +540,11 @@ function WishlistCard({
                     </AnimatedPressable>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="min-w-36">
+                    {onAddItem ? (
+                      <DropdownMenuItem onPress={onAddItem}>
+                        <Text>Add item</Text>
+                      </DropdownMenuItem>
+                    ) : null}
                     {onEdit ? (
                       <DropdownMenuItem onPress={onEdit}>
                         <Text>Edit</Text>

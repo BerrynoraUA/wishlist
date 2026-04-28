@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import {
+  SlidingOptionSelector,
+  type SlidingOption,
+  type SlidingOptionRenderProps,
+} from "@/components/ui/sliding-option-selector";
 import { Text } from "@/components/ui/text";
 import {
   getNativeThemeName,
@@ -14,32 +19,91 @@ import { useAuth } from "@/providers/auth-provider";
 import { Stack } from "expo-router";
 import { CheckIcon, LogOut, MoonIcon, SunIcon } from "lucide-react-native";
 import * as React from "react";
-import { Pressable, ScrollView, View } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { ScrollView, View } from "react-native";
 import { Uniwind, useUniwind } from "uniwind";
 
-const MODE_OPTIONS = [
-  {
-    mode: "light",
-    label: "Light",
-    icon: SunIcon,
-  },
-  {
-    mode: "dark",
-    label: "Dark",
-    icon: MoonIcon,
-  },
-] as const satisfies readonly {
-  mode: NativeThemeMode;
-  label: string;
-  icon: typeof SunIcon;
-}[];
+const THEME_ROW_HEIGHT = 112;
+
+const THEME_MODE_ROWS = [
+  [
+    {
+      value: "light" as const,
+      accessibilityLabel: "Light theme",
+      children: ({ selected }: SlidingOptionRenderProps) => (
+        <>
+          <View
+            className={cn(
+              "size-11 items-center justify-center rounded-full bg-bg-muted",
+              selected && "bg-gradient-brand-subtle",
+            )}
+          >
+            <Icon as={SunIcon} className={cn("size-5 text-text", selected && "text-brand")} />
+          </View>
+          <Text className="text-body font-bold text-text">Light</Text>
+          {selected ? <ActiveCheck /> : null}
+        </>
+      ),
+    },
+    {
+      value: "dark" as const,
+      accessibilityLabel: "Dark theme",
+      children: ({ selected }: SlidingOptionRenderProps) => (
+        <>
+          <View
+            className={cn(
+              "size-11 items-center justify-center rounded-full bg-bg-muted",
+              selected && "bg-gradient-brand-subtle",
+            )}
+          >
+            <Icon as={MoonIcon} className={cn("size-5 text-text", selected && "text-brand")} />
+          </View>
+          <Text className="text-body font-bold text-text">Dark</Text>
+          {selected ? <ActiveCheck /> : null}
+        </>
+      ),
+    },
+  ],
+] satisfies SlidingOption<NativeThemeMode>[][];
+
+/** Swatch + gap + label + vertical padding; matches SlidingOptionSelector indicator height */
+const ACCENT_CELL_HEIGHT_PX = 76;
+const ACCENT_CELL_HEIGHT_CLASS = "h-[76px]";
 
 export default function ProfileScreen() {
   const { theme } = useUniwind();
   const { signOut } = useAuth();
   const activeMode = getThemeMode(theme);
   const activeAccent = getThemeAccent(theme);
+
+  const accentRows = React.useMemo((): SlidingOption<NativeAccentName>[][] => {
+    const options = NATIVE_ACCENTS.map((accent) => ({
+      value: accent.name,
+      accessibilityLabel: `Use ${accent.label} accent`,
+      children: ({ selected }: SlidingOptionRenderProps) => (
+        <View className="w-full items-center gap-1 py-1.5">
+          <View
+            className={cn(
+              "size-11 items-center justify-center rounded-full border-2 border-transparent",
+              accent.swatchClassName,
+            )}
+          >
+            {selected ? <Icon as={CheckIcon} className="size-4 text-text" /> : null}
+          </View>
+          <Text
+            className={cn(
+              "text-center text-[11px] font-semibold leading-tight text-text",
+              selected && "text-brand",
+            )}
+            numberOfLines={1}
+          >
+            {accent.label}
+          </Text>
+        </View>
+      ),
+    }));
+
+    return [options];
+  }, []);
 
   function setMode(mode: NativeThemeMode) {
     Uniwind.setTheme(getNativeThemeName(mode, activeAccent));
@@ -55,50 +119,29 @@ export default function ProfileScreen() {
       <View className="flex-1 bg-bg">
         <ScrollView className="flex-1" contentContainerClassName="gap-5 px-4 pb-2 pt-6">
           <SettingsSection title="Theme">
-            <View className="flex-row gap-3">
-              {MODE_OPTIONS.map((option) => (
-                <ThemeModeButton
-                  key={option.mode}
-                  option={option}
-                  isActive={activeMode === option.mode}
-                  onPress={() => setMode(option.mode)}
-                />
-              ))}
-            </View>
+            <SlidingOptionSelector
+              rows={THEME_MODE_ROWS}
+              value={activeMode}
+              onChange={setMode}
+              optionHeight={THEME_ROW_HEIGHT}
+              optionHeightClassName="min-h-28"
+              rowClassName="gap-3"
+              optionClassName="relative flex-col gap-2 rounded-lg border border-border-light bg-bg-subtle p-4 active:opacity-[0.99]"
+              indicatorClassName="rounded-lg border border-brand bg-brand-lighter shadow-brand"
+            />
           </SettingsSection>
 
           <SettingsSection title="Accent">
-            <View className="flex-row flex-wrap justify-around gap-x-4 gap-y-5 px-1">
-              {NATIVE_ACCENTS.map((accent) => {
-                const isActive = activeAccent === accent.name;
-
-                return (
-                  <Pressable
-                    key={accent.name}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: isActive }}
-                    accessibilityLabel={`Use ${accent.label} accent`}
-                    onPress={() => setAccent(accent.name)}
-                    className="items-center gap-2"
-                  >
-                    <View
-                      className={cn(
-                        "size-12 items-center justify-center rounded-full border-2 border-transparent",
-                        accent.swatchClassName,
-                        isActive && "border-brand shadow-brand",
-                      )}
-                    >
-                      {isActive ? <Icon as={CheckIcon} className="size-5 text-text" /> : null}
-                    </View>
-                    <Text
-                      className={cn("text-body font-semibold text-text", isActive && "text-brand")}
-                    >
-                      {accent.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            <SlidingOptionSelector
+              rows={accentRows}
+              value={activeAccent}
+              onChange={setAccent}
+              optionHeight={ACCENT_CELL_HEIGHT_PX}
+              optionHeightClassName={ACCENT_CELL_HEIGHT_CLASS}
+              rowClassName="gap-1"
+              optionClassName="flex-col items-center justify-center border-0 bg-transparent px-0.5 py-0 shadow-none"
+              indicatorClassName="rounded-xl border border-brand bg-brand-lighter/35 shadow-sm shadow-brand/20"
+            />
           </SettingsSection>
         </ScrollView>
 
@@ -117,49 +160,11 @@ export default function ProfileScreen() {
   );
 }
 
-function ThemeModeButton({
-  option,
-  isActive,
-  onPress,
-}: {
-  option: (typeof MODE_OPTIONS)[number];
-  isActive: boolean;
-  onPress: () => void;
-}) {
-  const selectedProgress = useSharedValue(isActive ? 1 : 0);
-
-  React.useEffect(() => {
-    selectedProgress.value = withTiming(isActive ? 1 : 0, { duration: 220 });
-  }, [isActive, selectedProgress]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.9 + selectedProgress.value * 0.1,
-    transform: [{ scale: 0.98 + selectedProgress.value * 0.02 }],
-  }));
-
+function ActiveCheck() {
   return (
-    <Animated.View className="flex-1" style={animatedStyle}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityState={{ selected: isActive }}
-        onPress={onPress}
-        className={cn(
-          "relative min-h-28 flex-1 items-center justify-center gap-2 rounded-lg border border-border-light bg-bg-subtle p-4 active:scale-[0.99]",
-          isActive && "border-brand bg-brand-lighter shadow-brand",
-        )}
-      >
-        <View
-          className={cn(
-            "size-11 items-center justify-center rounded-full bg-bg-muted",
-            isActive && "bg-gradient-brand-subtle",
-          )}
-        >
-          <Icon as={option.icon} className={cn("size-5 text-text", isActive && "text-brand")} />
-        </View>
-        <Text className="text-body font-bold text-text">{option.label}</Text>
-        {isActive ? <ActiveCheck /> : null}
-      </Pressable>
-    </Animated.View>
+    <View className="absolute right-3 top-3 size-6 items-center justify-center rounded-full bg-brand">
+      <Icon as={CheckIcon} className="size-3.5 text-white" />
+    </View>
   );
 }
 
@@ -168,14 +173,6 @@ function SettingsSection({ title, children }: { title: string; children: React.R
     <View className="gap-4 rounded-xl border border-border-subtle bg-card-bg p-5 shadow-sm">
       <Text className="text-title font-bold text-text">{title}</Text>
       {children}
-    </View>
-  );
-}
-
-function ActiveCheck() {
-  return (
-    <View className="absolute right-3 top-3 size-6 items-center justify-center rounded-full bg-brand">
-      <Icon as={CheckIcon} className="size-3.5 text-white" />
     </View>
   );
 }
