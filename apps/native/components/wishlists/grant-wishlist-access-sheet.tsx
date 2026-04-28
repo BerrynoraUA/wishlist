@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useFriendsWithoutWishlistAccess, useWishlistAccessList } from "@/hooks/use-friends";
 import { useGrantWishlistAccess, useRevokeWishlistAccess } from "@/hooks/use-wishlists";
-import type { ProfileSearchResult } from "@/types/friends";
+import type { ProfileSearchResult } from "@wishlist/backend/types/friends";
 import { Check, Search, Shield, SquarePen, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";

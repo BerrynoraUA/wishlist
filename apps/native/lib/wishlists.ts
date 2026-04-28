@@ -1,5 +1,9 @@
 import { Globe, Lock, UserCheck, Users, type LucideIcon } from "lucide-react-native";
-import { WishlistAccent, WishlistVisibility, type WishlistFormValues } from "@/types/wishlist";
+import {
+  WishlistAccent,
+  WishlistVisibility,
+  type WishlistFormValues,
+} from "@wishlist/backend/types/wishlist";
 
 export const WISHLIST_PAGE_SIZE = 8;
 export const DEFAULT_WISHLIST_SORT = "newest";

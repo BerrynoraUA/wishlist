@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@wishlist/backend/supabase/native";
 import { normalizeSearchQuery, parseEventDate } from "@/lib/wishlists";
 import type {
   UserStatistics,
@@ -6,7 +6,7 @@ import type {
   WishlistFormValues,
   WishlistQueryParams,
   WishlistUpdateValues,
-} from "@/types/wishlist";
+} from "@wishlist/backend/types/wishlist";
 
 type WishlistFeedRow = Wishlist & {
   items_count?: number | null;

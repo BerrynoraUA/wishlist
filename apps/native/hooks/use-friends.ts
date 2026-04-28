@@ -5,7 +5,7 @@ import {
   getWishlistAccessList,
 } from "@/api/friends";
 import { normalizeSearchQuery } from "@/lib/wishlists";
-import type { GetFriendsWithoutWishlistAccessParams } from "@/types/friends";
+import type { GetFriendsWithoutWishlistAccessParams } from "@wishlist/backend/types/friends";
 import { useQuery } from "@tanstack/react-query";
 
 export const friendKeys = {

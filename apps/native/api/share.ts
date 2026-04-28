@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@wishlist/backend/supabase/native";
 
 export async function createWishlistShareToken(wishlistId: string): Promise<string> {
   const { data, error } = await supabase.rpc("create_wishlist_share_token", {

@@ -1,0 +1,38 @@
+{
+  "name": "@wishlist/backend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./db-types": "./db-types/index.ts",
+    "./lib": "./lib/index.ts",
+    "./lib/currencies": "./lib/currencies.ts",
+    "./lib/filter-helpers": "./lib/filter-helpers.ts",
+    "./lib/posthog-person-from-supabase": "./lib/posthog-person-from-supabase.ts",
+    "./supabase": "./supabase/index.ts",
+    "./supabase/admin": "./supabase/admin.ts",
+    "./supabase/browser": "./supabase/browser.ts",
+    "./supabase/native": "./supabase/native.ts",
+    "./supabase/server": "./supabase/server.ts",
+    "./types": "./types/index.ts",
+    "./types/discover": "./types/discover.ts",
+    "./types/friends": "./types/friends.ts",
+    "./types/item": "./types/item.ts",
+    "./types/known-accounts": "./types/known-accounts.ts",
+    "./types/paddle": "./types/paddle.ts",
+    "./types/session-storage": "./types/session-storage.ts",
+    "./types/settings": "./types/settings.ts",
+    "./types/subscription": "./types/subscription.ts",
+    "./types/wishlist": "./types/wishlist.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.103.0",
+    "expo-secure-store": "~55.0.13",
+    "react-native-url-polyfill": "^3.0.0"
+  }
+}

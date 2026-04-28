@@ -1,4 +1,4 @@
-import type { User } from "@supabase/supabase-js";
+import type { SupabaseUser } from "@wishlist/backend/supabase";
 import { PostHog } from "posthog-node";
 import { posthogPersonPropsFromSupabaseUser } from "@/lib/posthog-person-from-supabase";
 
@@ -11,7 +11,7 @@ export function getPostHogClient(): PostHog {
 }
 
 /** Align server-relayed analytics with the same distinct id and person props as the browser SDK. */
-export function identifyServerUser(ph: PostHog, user: User): void {
+export function identifyServerUser(ph: PostHog, user: SupabaseUser): void {
   ph.identify({
     distinctId: user.id,
     properties: posthogPersonPropsFromSupabaseUser(user),

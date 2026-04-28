@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "check-types": "oxlint .",
-    "lint": "oxlint ."
+    "check-types": "oxlint ."
   },
   "dependencies": {
     "sharp": "^0.34.5"

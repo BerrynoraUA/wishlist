@@ -1,11 +1,11 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@wishlist/backend/supabase/native";
 import { normalizeSearchQuery } from "@/lib/wishlists";
 import type {
   GetFriendsWithoutWishlistAccessParams,
   ProfileSearchResult,
   PublicProfile,
   WishlistAccessUser,
-} from "@/types/friends";
+} from "@wishlist/backend/types/friends";
 
 type FriendAccessRow = {
   id?: string;

@@ -1,4 +1,4 @@
-import type { Item, ItemFormValues, ItemLink } from "@/types/item";
+import type { Item, ItemFormValues, ItemLink } from "@wishlist/backend/types/item";
 
 export const WISHLIST_ITEMS_PAGE_SIZE = 12;
 export const DEFAULT_ITEM_SORT = "newest";
