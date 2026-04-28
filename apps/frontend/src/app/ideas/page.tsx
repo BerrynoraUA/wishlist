@@ -2,15 +2,7 @@
 
 import { useMemo } from "react";
 import { useGT } from "gt-next";
-import {
-  ChevronUp,
-  Info,
-  Lightbulb,
-  Clock,
-  Code,
-  CheckCircle,
-  Sparkles,
-} from "lucide-react";
+import { ChevronUp, Info, Lightbulb, Clock, Code, CheckCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button/Button";
 import { Tabs, type TabItem } from "@/components/ui/Tabs/Tabs";
 import { useToggleFeatureIdeaVote } from "@/hooks/use-feature-ideas";
@@ -55,16 +47,12 @@ export default function IdeasPage() {
               <span className={`${styles.label} ${styles.labelLong}`}>
                 {t("In Development", { $id: "ideas.filter.inDevelopment" })}
               </span>
-              <span className={`${styles.label} ${styles.labelShort}`}>
-                In Dev
-              </span>
+              <span className={`${styles.label} ${styles.labelShort}`}>In Dev</span>
             </>
           ) : (
             <>
               <CheckCircle size={16} className={styles.filterIcon} />
-              <span className={styles.label}>
-                {t("Done", { $id: "ideas.filter.done" })}
-              </span>
+              <span className={styles.label}>{t("Done", { $id: "ideas.filter.done" })}</span>
             </>
           ),
       })),
@@ -159,15 +147,10 @@ export default function IdeasPage() {
               <div className={styles.ideaMeta}>
                 {idea.user_avatar_url && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={idea.user_avatar_url}
-                    alt=""
-                    className={styles.ideaAuthorAvatar}
-                  />
+                  <img src={idea.user_avatar_url} alt="" className={styles.ideaAuthorAvatar} />
                 )}
                 <span>
-                  {idea.user_display_name ??
-                    t("Anonymous", { $id: "ideas.page.anonymous" })}
+                  {idea.user_display_name ?? t("Anonymous", { $id: "ideas.page.anonymous" })}
                 </span>
                 <span>·</span>
                 <span>{new Date(idea.created_at).toLocaleDateString()}</span>

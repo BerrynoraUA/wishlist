@@ -30,19 +30,12 @@ export interface UserSettings {
 export type ThemePreference = "light" | "dark" | "system";
 
 export type UpdateProfilePayload = Partial<
-  Pick<
-    UserProfile,
-    "display_name" | "nickname" | "bio" | "height" | "shoe_size" | "avatar_url"
-  >
+  Pick<UserProfile, "display_name" | "nickname" | "bio" | "height" | "shoe_size" | "avatar_url">
 >;
 
 export type UpdateSettingsPayload = Partial<Omit<UserSettings, "user_id">>;
 
-export type SettingsTab =
-  | "profile"
-  | "account"
-  | "notifications"
-  | "appearance";
+export type SettingsTab = "profile" | "account" | "notifications" | "appearance";
 
 /** Tab order for settings navigation; labels come from `useGT` in the UI. */
 export const SETTINGS_TAB_ORDER: readonly SettingsTab[] = [

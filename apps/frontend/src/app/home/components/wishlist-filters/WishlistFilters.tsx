@@ -9,10 +9,7 @@ import {
   FilterDropdown,
   SortSelect,
 } from "@/components/ui/FilterSortBar";
-import {
-  WISHLIST_VISIBILITY_OPTIONS,
-  WISHLIST_SORT_OPTIONS,
-} from "@/lib/filter-constants";
+import { WISHLIST_VISIBILITY_OPTIONS, WISHLIST_SORT_OPTIONS } from "@/lib/filter-constants";
 import { useHomeWishlistFilters } from "../../hooks/use-home-wishlist-filters";
 import styles from "../wishlist-grid/WishlistGrid.module.scss";
 
@@ -23,14 +20,8 @@ import styles from "../wishlist-grid/WishlistGrid.module.scss";
  */
 export function WishlistFilters() {
   const t = useGT();
-  const {
-    search,
-    visibility,
-    sort,
-    handleSearchChange,
-    handleVisibilityChange,
-    handleSortChange,
-  } = useHomeWishlistFilters();
+  const { search, visibility, sort, handleSearchChange, handleVisibilityChange, handleSortChange } =
+    useHomeWishlistFilters();
 
   return (
     <FilterSortBar className={styles.filterBar}>
@@ -50,11 +41,7 @@ export function WishlistFilters() {
           multiSelect
         />
         <FilterSortActions>
-          <SortSelect
-            options={WISHLIST_SORT_OPTIONS}
-            value={sort}
-            onChange={handleSortChange}
-          />
+          <SortSelect options={WISHLIST_SORT_OPTIONS} value={sort} onChange={handleSortChange} />
         </FilterSortActions>
       </FilterSortRow>
     </FilterSortBar>

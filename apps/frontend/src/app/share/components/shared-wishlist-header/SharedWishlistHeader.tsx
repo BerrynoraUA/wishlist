@@ -37,9 +37,7 @@ export function SharedWishlistHeader({ wishlist }: Props) {
             <div className={styles.heroMain}>
               <div className={styles.titleBlock}>
                 <h1>{wishlist.title}</h1>
-                {description && (
-                  <p className={styles.description}>{description}</p>
-                )}
+                {description && <p className={styles.description}>{description}</p>}
 
                 <div className={styles.badges}>
                   <span className={styles.visibilityBadge}>

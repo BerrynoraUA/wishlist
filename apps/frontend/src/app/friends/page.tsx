@@ -12,17 +12,11 @@ import { OutgoingRequestCard } from "./components/outgoing-request-card/Outgoing
 import { AddFriendModal } from "./components/add-friend-modal/AddFriendModal";
 import { FriendCardSkeleton } from "./components/friends-skeleton/FriendsSkeleton";
 import { useFriendsPage } from "./hooks/use-friends-page";
-import {
-  FRIENDS_GRID_STYLE,
-  FRIENDS_SKELETON_COUNT,
-  REQUESTS_SKELETON_COUNT,
-} from "./constants";
+import { FRIENDS_GRID_STYLE, FRIENDS_SKELETON_COUNT, REQUESTS_SKELETON_COUNT } from "./constants";
 import { Button } from "@/components/ui/Button/Button";
 
 function renderSkeletons(count: number) {
-  return Array.from({ length: count }).map((_, i) => (
-    <FriendCardSkeleton key={i} />
-  ));
+  return Array.from({ length: count }).map((_, i) => <FriendCardSkeleton key={i} />);
 }
 
 function FriendsPageContent() {
@@ -169,9 +163,7 @@ function FriendsPageContent() {
             </p>
           )}
           {!outgoingLoading && !outgoingError && outgoing.length === 0 && (
-            <p>
-              {t("No sent requests.", { $id: "friends.page.noSentRequests" })}
-            </p>
+            <p>{t("No sent requests.", { $id: "friends.page.noSentRequests" })}</p>
           )}
           {outgoing.map((r) => (
             <OutgoingRequestCard

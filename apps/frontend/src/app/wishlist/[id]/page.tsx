@@ -46,8 +46,7 @@ export default function WishlistItemsPage() {
   } = useWishlistItemFilters(id);
 
   const modals = useWishlistPageModals();
-  const { shareFeedback, closeShareFeedback, handleShare } =
-    useWishlistShare(id);
+  const { shareFeedback, closeShareFeedback, handleShare } = useWishlistShare(id);
 
   const { data: wishlist, isError: wishlistError } = useWishlistById(id);
 
@@ -93,28 +92,18 @@ export default function WishlistItemsPage() {
       {wishlist && (
         <WishlistHeader
           wishlist={wishlist}
-          onAddItem={
-            canEditWishlist ? () => modals.setCreateOpen(true) : undefined
-          }
-          onEdit={
-            canEditWishlist ? () => modals.setEditWishlistOpen(true) : undefined
-          }
-          onDelete={
-            isOwner ? () => modals.setDeleteWishlistOpen(true) : undefined
-          }
+          onAddItem={canEditWishlist ? () => modals.setCreateOpen(true) : undefined}
+          onEdit={canEditWishlist ? () => modals.setEditWishlistOpen(true) : undefined}
+          onDelete={isOwner ? () => modals.setDeleteWishlistOpen(true) : undefined}
           onShare={handleShare}
-          onManageAccess={
-            isOwner ? () => modals.setGrantAccessOpen(true) : undefined
-          }
+          onManageAccess={isOwner ? () => modals.setGrantAccessOpen(true) : undefined}
           isOwner={isOwner}
           hasAddItemDraft={hasCreateItemDraft}
           hasEditWishlistDraft={hasEditWishlistDraft}
         />
       )}
 
-      {itemsError && (
-        <p>{t("Failed to load items.", { $id: "wishlist.page.itemsError" })}</p>
-      )}
+      {itemsError && <p>{t("Failed to load items.", { $id: "wishlist.page.itemsError" })}</p>}
       {!itemsError && (
         <section
           className={styles.itemsSection}
@@ -153,19 +142,13 @@ export default function WishlistItemsPage() {
                 onToggleBought={(itemId) => toggleBought.mutate(itemId)}
                 onDelete={(itemId) => modals.setDeleteItemId(itemId)}
                 onEdit={(item) => modals.setEditItem(item)}
-                onAddItem={
-                  canEditWishlist ? () => modals.setCreateOpen(true) : undefined
-                }
+                onAddItem={canEditWishlist ? () => modals.setCreateOpen(true) : undefined}
                 hasAddItemDraft={hasCreateItemDraft}
                 openItemId={openItemId}
                 onOpenItemHandled={handleOpenItemHandled}
               />
               {(hasPrevPage || hasNextPage) && (
-                <Pagination
-                  page={page}
-                  total={totalForPagination}
-                  onChange={setPage}
-                />
+                <Pagination page={page} total={totalForPagination} onChange={setPage} />
               )}
             </>
           )}
@@ -200,12 +183,9 @@ export default function WishlistItemsPage() {
           }
         }}
         title={t("Delete Item", { $id: "wishlist.page.deleteItemTitle" })}
-        description={t(
-          "Are you sure you want to delete this item? This action cannot be undone.",
-          {
-            $id: "wishlist.page.deleteItemDescription",
-          },
-        )}
+        description={t("Are you sure you want to delete this item? This action cannot be undone.", {
+          $id: "wishlist.page.deleteItemDescription",
+        })}
         isPending={deleteItemMutation.isPending}
       />
 

@@ -20,8 +20,11 @@
     "**/build/**",
     "**/.next/**",
     "**/.expo/**",
+    "**/.agents/**",
+    "**/.claude/**",
     "**/out/**",
-    "**/.gt/**"
+    "**/.gt/**",
+    "apps/native/uniwind-types.d.ts"
   ],
   "overrides": [
     {
