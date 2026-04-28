@@ -33,6 +33,7 @@ export function useFriendsPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [groupModalOpen, setGroupModalOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<FriendGroup | null>(null);
+  const [friendToRemoveId, setFriendToRemoveId] = useState<string | null>(null);
 
   const search = useMemo(() => getFriendsSearch(searchParams), [searchParams]);
 
@@ -50,12 +51,15 @@ export function useFriendsPage() {
   const deleteGroup = useDeleteFriendGroup();
 
   function handleRemoveFriend(friendId: string) {
-    const message = t("Are you sure you want to remove this friend?", {
-      $id: "friends.page.confirmRemove",
+    setFriendToRemoveId(friendId);
+  }
+
+  function handleConfirmRemoveFriend() {
+    if (!friendToRemoveId) return;
+
+    removeFriend.mutate(friendToRemoveId, {
+      onSuccess: () => setFriendToRemoveId(null),
     });
-    if (confirmRemoveFriend(message)) {
-      removeFriend.mutate(friendId);
-    }
   }
 
   function handleCreateGroup() {
@@ -98,6 +102,7 @@ export function useFriendsPage() {
     setAddOpen,
     groupModalOpen,
     editingGroup,
+    friendToRemoveId,
     friends: friendsQuery.data ?? [],
     friendsLoading: friendsQuery.isLoading,
     friendsError: friendsQuery.isError,
@@ -113,10 +118,13 @@ export function useFriendsPage() {
     acceptRequest,
     rejectRequest,
     cancelRequest,
+    removeFriend,
     createGroup,
     updateGroup,
     deleteGroup,
     handleRemoveFriend,
+    handleConfirmRemoveFriend,
+    setFriendToRemoveId,
     handleCreateGroup,
     handleEditGroup,
     handleDeleteGroup,

@@ -161,8 +161,11 @@
   border-radius: 8px !important;
   width: 24px !important;
   height: 24px !important;
-  top: 8px !important;
+  top: 50% !important;
   right: 8px !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
   opacity: 0;
   transition:
     opacity 0.2s ease,

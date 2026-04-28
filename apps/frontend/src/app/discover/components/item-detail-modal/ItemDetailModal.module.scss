@@ -3,22 +3,37 @@
 
 @include shared.item-detail-modal-base;
 
-.store {
-  font-size: var(--fs-label);
-  color: $text-muted;
+.titleBlock {
+  padding-top: 2px;
 }
 
-.actions {
+.descriptionFull {
+  font-size: var(--fs-caption);
+  color: $text-muted;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.reservedBadge {
+  background: var(--badge-reserved-bg);
+  color: var(--color-info);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+  padding: 4px 10px;
+  border-radius: $radius-pill;
+}
+
+.footerRight {
   display: flex;
-  align-items: center;
   gap: 8px;
   margin-left: auto;
+  flex-wrap: wrap;
 }
 
-.statusText {
-  width: 100%;
-  font-size: var(--fs-caption);
-  color: var(--color-text-muted);
+.linkBtn:hover {
+  box-shadow: 0 4px 12px var(--brand-alpha-10);
 }
 
 .linksSection {
@@ -49,12 +64,8 @@
   }
 }
 
-.linkBtn:hover {
-  box-shadow: 0 4px 12px var(--brand-alpha-12);
-}
-
 @media (max-width: 640px) {
-  .actions {
+  .footerRight {
     width: 100%;
     margin-left: 0;
   }

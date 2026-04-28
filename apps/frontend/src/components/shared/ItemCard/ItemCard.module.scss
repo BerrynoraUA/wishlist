@@ -6,12 +6,16 @@
   background: var(--card-bg);
   border-radius: $radius-lg;
   border: 1px solid var(--card-border);
-  overflow: hidden;
+  overflow: visible;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   cursor: pointer;
   transition: all 0.3s $ease-out;
 
   &:hover {
+    z-index: 3;
     transform: translateY(-6px);
     box-shadow: var(--card-hover-shadow-lg);
     border-color: transparent;
@@ -86,13 +90,26 @@
   top: 10px;
   left: 10px;
   z-index: 2;
-  background: var(--brand-alpha-15);
-  color: $brand;
-  border: 1px solid var(--brand-alpha-20);
+  max-width: calc(100% - 20px);
+  background: #fde7f3;
+  color: #be185d;
+  border: 1px solid #f9a8d4;
 
   svg {
+    flex: 0 0 auto;
     fill: currentColor;
   }
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.badgeLeftWithRightStack {
+  max-width: calc(100% - 132px);
 }
 
 .badgeLeftCompact {
@@ -101,9 +118,9 @@
 }
 
 .purchasedBadge {
-  background: rgba(22, 163, 74, 0.12);
+  background: #dcfce7;
   color: #166534;
-  border-color: rgba(22, 163, 74, 0.24);
+  border-color: #86efac;
 
   svg {
     fill: none;
@@ -111,9 +128,15 @@
 }
 
 :global([data-theme="dark"]) .purchasedBadge {
-  background: rgba(34, 197, 94, 0.2);
+  background: #16351f;
   color: #86efac;
-  border-color: rgba(34, 197, 94, 0.3);
+  border-color: #2f6d46;
+}
+
+:global([data-theme="dark"]) .badgeLeft {
+  background: #3d1327;
+  color: #f9a8d4;
+  border-color: #7a284f;
 }
 
 .badgeStackRight {
@@ -125,12 +148,14 @@
   flex-direction: column;
   gap: 6px;
   align-items: flex-end;
+  max-width: 116px;
 }
 
 .badgeRight {
   background: var(--card-bg);
   color: var(--color-text-muted);
   border: 1px solid var(--color-border-subtle);
+  max-width: 100%;
 }
 
 .saleBadge {
@@ -145,24 +170,43 @@
   border: 1px solid var(--color-danger);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  max-width: 100%;
 }
 
 .low {
-  background: rgba(59, 130, 246, 0.12);
-  border-color: rgba(59, 130, 246, 0.2);
+  background: #dbeafe;
+  border-color: #93c5fd;
   color: #1d4ed8;
 }
 
 .medium {
-  background: rgba(217, 119, 6, 0.12);
-  border-color: rgba(217, 119, 6, 0.2);
+  background: #fef3c7;
+  border-color: #fcd34d;
   color: #b45309;
 }
 
 .high {
-  background: rgba(220, 38, 38, 0.12);
-  border-color: rgba(220, 38, 38, 0.2);
+  background: #fee2e2;
+  border-color: #fca5a5;
   color: #b91c1c;
+}
+
+:global([data-theme="dark"]) .low {
+  background: #172554;
+  border-color: #2563eb;
+  color: #93c5fd;
+}
+
+:global([data-theme="dark"]) .medium {
+  background: #451a03;
+  border-color: #d97706;
+  color: #fcd34d;
+}
+
+:global([data-theme="dark"]) .high {
+  background: #4c0519;
+  border-color: #e11d48;
+  color: #fda4af;
 }
 
 /* ===== Quick actions ===== */
@@ -228,6 +272,10 @@
 /* ===== Info section ===== */
 
 .info {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
   padding: 14px;
 
   strong {
@@ -289,7 +337,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 8px;
+  margin-top: auto;
+  padding-top: 8px;
 }
 
 .reserveBtn {
@@ -319,20 +368,28 @@
   }
 }
 
+.reserveBtnDiscover {
+  border-color: $brand;
+  background: $brand;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background: $brand-dark;
+    border-color: $brand-dark;
+    color: #fff;
+  }
+
+  &.reserved {
+    background: $brand;
+    color: #fff;
+    border-color: $brand;
+    box-shadow: 0 2px 8px var(--brand-alpha-25);
+  }
+}
+
 .reserveCompact {
   font-size: var(--fs-label);
   gap: 8px;
-}
-
-.reservePurchased {
-  background: rgba(22, 163, 74, 0.08);
-  border-color: rgba(22, 163, 74, 0.24);
-  color: #14532d;
-
-  &:hover:not(:disabled) {
-    background: rgba(22, 163, 74, 0.14);
-    border-color: rgba(22, 163, 74, 0.32);
-  }
 }
 
 .buyBtn {
@@ -365,12 +422,6 @@
   color: #15803d;
   background: rgba(22, 163, 74, 0.12);
   box-shadow: 0 2px 8px rgba(22, 163, 74, 0.15);
-}
-
-.buyBtnPurchased {
-  border-color: rgba(22, 163, 74, 0.24);
-  color: #166534;
-  background: rgba(22, 163, 74, 0.08);
 }
 
 .reserved {
@@ -428,41 +479,7 @@
 
 .discover {
   .reserveBtn {
-    border-color: $brand;
-    background: $brand;
-    color: #fff;
-
-    &:hover:not(:disabled) {
-      background: $brand-dark;
-      border-color: $brand-dark;
-      color: #fff;
-    }
-  }
-
-  .reserved {
-    background: $brand;
-    color: #fff;
-    border-color: $brand;
-    box-shadow: 0 2px 8px var(--brand-alpha-25);
-  }
-}
-
-/* ===== Variant: reserved ===== */
-
-.reservedCard {
-  .actions {
-    gap: 8px;
-  }
-
-  .reserveBtn {
-    height: 34px;
-    border-radius: 10px;
-  }
-
-  .buyBtn {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
+    @extend .reserveBtnDiscover;
   }
 }
 
@@ -494,7 +511,9 @@
   }
 
   .info {
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     gap: 6px;
 
     strong {

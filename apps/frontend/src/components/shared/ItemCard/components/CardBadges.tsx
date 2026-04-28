@@ -16,7 +16,6 @@ type CardBadgesProps = {
 };
 
 export function CardBadges({
-  variant,
   isOwner,
   statusLabel,
   isPurchased,
@@ -25,18 +24,27 @@ export function CardBadges({
   priorityDisplay,
 }: CardBadgesProps) {
   const t = useGT();
+  const hasRightBadges = salePercentOff != null || !!priorityKey;
 
   return (
     <>
-      {variant !== "discover" && !isOwner && statusLabel && (
+      {!isOwner && statusLabel && (
         <div
           className={cn(
             styles.badgeLeft,
+            hasRightBadges && styles.badgeLeftWithRightStack,
+            "iconTooltipTrigger",
             salePercentOff != null && styles.badgeLeftCompact,
             isPurchased && styles.purchasedBadge,
           )}
+          data-tooltip={statusLabel}
+          title={statusLabel}
         >
-          {isPurchased ? <ShoppingCart size={14} /> : <ReservationLockIcon isReserved size={14} />}
+          {isPurchased ? (
+            <ShoppingCart size={14} />
+          ) : (
+            <ReservationLockIcon isReserved size={14} />
+          )}
           {salePercentOff == null && <span>{statusLabel}</span>}
         </div>
       )}
@@ -51,7 +59,9 @@ export function CardBadges({
           </div>
         )}
         {priorityKey && (
-          <div className={`${styles.badgeRight} ${styles[priorityKey]}`}>{priorityDisplay}</div>
+          <div className={`${styles.badgeRight} ${styles[priorityKey]}`}>
+            {priorityDisplay}
+          </div>
         )}
       </div>
     </>

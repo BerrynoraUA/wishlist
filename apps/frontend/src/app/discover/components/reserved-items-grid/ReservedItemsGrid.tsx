@@ -40,14 +40,15 @@ export function ReservedItemsGrid({
           </div>
           <ItemCard
             {...normalizeReservedItem(item)}
-            variant="reserved"
+            variant="wishlist"
             reservedByCurrentUser
             mode={mode}
             showDiscountBadge={showDiscountBadge}
             onToggleReserve={onToggleReserve}
             onToggleBought={onToggleBought}
             renderDetailModal={({ open, onClose }) => {
-              const priorityName = getItemPriorityName(item.priority) ?? undefined;
+              const priorityName =
+                getItemPriorityName(item.priority) ?? undefined;
               return (
                 <ItemDetailModal
                   open={open}

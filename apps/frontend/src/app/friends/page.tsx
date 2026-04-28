@@ -18,6 +18,7 @@ import {
   REQUESTS_SKELETON_COUNT,
 } from "./constants";
 import { Button } from "@/components/ui/Button/Button";
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
 
 function renderSkeletons(count: number) {
   return Array.from({ length: count }).map((_, i) => (
@@ -34,6 +35,7 @@ function FriendsPageContent() {
     setAddOpen,
     groupModalOpen,
     editingGroup,
+    friendToRemoveId,
     friends,
     friendsLoading,
     friendsError,
@@ -51,7 +53,10 @@ function FriendsPageContent() {
     cancelRequest,
     createGroup,
     updateGroup,
+    removeFriend,
     handleRemoveFriend,
+    handleConfirmRemoveFriend,
+    setFriendToRemoveId,
     handleCreateGroup,
     handleEditGroup,
     handleDeleteGroup,
@@ -185,6 +190,20 @@ function FriendsPageContent() {
       )}
 
       <AddFriendModal open={addOpen} onClose={() => setAddOpen(false)} />
+      <DeleteConfirmModal
+        open={!!friendToRemoveId}
+        onClose={() => setFriendToRemoveId(null)}
+        onConfirm={handleConfirmRemoveFriend}
+        title={t("Remove Friend", { $id: "friends.page.removeFriendTitle" })}
+        description={t(
+          "Are you sure you want to remove this friend? You will need to send a new friend request to reconnect.",
+          { $id: "friends.page.removeFriendDescription" },
+        )}
+        confirmLabel={t("Remove Friend", {
+          $id: "friends.page.removeFriendConfirm",
+        })}
+        isPending={removeFriend.isPending}
+      />
       <FriendGroupModal
         open={groupModalOpen}
         group={editingGroup}

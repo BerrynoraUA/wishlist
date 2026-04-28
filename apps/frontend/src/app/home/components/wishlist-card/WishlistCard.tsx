@@ -94,7 +94,9 @@ export function WishlistCard({
             </span>
           </div>
         )}
-        {!hasImage && <Gift size={40} className={styles.icon} />}
+        {!hasImage && (
+          <Gift size={64} strokeWidth={1.85} className={styles.icon} />
+        )}
       </div>
 
       <div className={styles.content}>
