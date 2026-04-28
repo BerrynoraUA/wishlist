@@ -1,5 +1,4 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +30,6 @@ import {
   Gift,
   KeyRound,
   MoreHorizontal,
-  Plus,
   Share2,
   X,
 } from "lucide-react-native";
@@ -62,18 +60,14 @@ function toDateFieldValue(date: Date) {
 
 export function WishlistDetailHeader({
   wishlist,
-  canEdit,
   isOwner,
-  onAddItem,
   onEdit,
   onDelete,
   onShare,
   onManageAccess,
 }: {
   wishlist: Wishlist;
-  canEdit: boolean;
   isOwner: boolean;
-  onAddItem?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
   onShare?: () => void;
@@ -313,17 +307,8 @@ export function WishlistDetailHeader({
             </View>
           ) : null}
 
-          <View className="flex-row items-center justify-between gap-3">
-            {canEdit && onAddItem ? (
-              <Button size="sm" onPress={onAddItem} className="rounded-full px-4">
-                <Icon as={Plus} className="size-4 text-primary-foreground" />
-                <Text>Add Item</Text>
-              </Button>
-            ) : (
-              <View />
-            )}
-
-            <View className="flex-row items-center gap-2">
+          {onShare || (isOwner && onManageAccess) || onEdit || onDelete ? (
+            <View className="flex-row items-center justify-end gap-2">
               {onShare ? (
                 <AnimatedPressable
                   accessibilityRole="button"
@@ -372,7 +357,7 @@ export function WishlistDetailHeader({
                 </DropdownMenu>
               ) : null}
             </View>
-          </View>
+          ) : null}
         </View>
       </View>
     </View>

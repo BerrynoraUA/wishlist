@@ -176,15 +176,14 @@ export default function WishlistDetailScreen() {
           >
             <WishlistDetailHeader
               wishlist={wishlist}
-              canEdit={canEditWishlist}
               isOwner={wishlist.is_owner}
-              onAddItem={canEditWishlist ? () => setSheet({ type: "create" }) : undefined}
             />
             <View className="w-full gap-5 px-4 pt-5" style={{ maxWidth: 1200 }}>
               <WishlistItemToolbar
                 filters={filters}
                 onChange={updateFilters}
                 onReset={resetFilters}
+                onAddItem={canEditWishlist ? () => setSheet({ type: "create" }) : undefined}
               />
 
               {itemsQuery.isLoading ? (
@@ -197,7 +196,6 @@ export default function WishlistDetailScreen() {
                 <EmptyItemsState
                   canAdd={canEditWishlist}
                   filtered={filtersActive && hasAnyItems}
-                  onAddItem={() => setSheet({ type: "create" })}
                 />
               ) : (
                 <Animated.View
@@ -302,11 +300,9 @@ export default function WishlistDetailScreen() {
 function EmptyItemsState({
   canAdd,
   filtered,
-  onAddItem,
 }: {
   canAdd: boolean;
   filtered: boolean;
-  onAddItem: () => void;
 }) {
   return (
     <View className="items-center gap-3 rounded-xl border border-border-subtle bg-card-bg p-8">
@@ -314,10 +310,7 @@ function EmptyItemsState({
         {filtered ? "No items match your filters." : "No items yet."}
       </Text>
       {canAdd && !filtered ? (
-        <Button onPress={onAddItem} className="rounded-full px-4">
-          <Icon as={Plus} className="size-4 text-primary-foreground" />
-          <Text>Add Item</Text>
-        </Button>
+        <Text className="text-center text-sm text-text-muted">Use Add Item above to get started.</Text>
       ) : null}
     </View>
   );

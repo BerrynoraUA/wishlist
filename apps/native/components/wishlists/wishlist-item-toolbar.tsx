@@ -17,7 +17,7 @@ import {
   ITEM_STATUS_OPTIONS,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
-import { ChevronsUpDown, RotateCcw, Search, SlidersHorizontal, X } from "lucide-react-native";
+import { ChevronsUpDown, Plus, Search, SlidersHorizontal, X } from "lucide-react-native";
 import * as React from "react";
 import { View } from "react-native";
 
@@ -45,10 +45,12 @@ export function WishlistItemToolbar({
   filters,
   onChange,
   onReset,
+  onAddItem,
 }: {
   filters: WishlistItemFilterState;
   onChange: (patch: Partial<WishlistItemFilterState>) => void;
   onReset: () => void;
+  onAddItem?: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
   const active = hasWishlistItemFilters(filters);
@@ -96,98 +98,106 @@ export function WishlistItemToolbar({
   ];
 
   return (
-    <View className="gap-3">
+    <View className="gap-4">
       <View className="flex-row items-center justify-between gap-3">
-        <Text className="text-lg font-extrabold text-text">Items</Text>
-        <View className="flex-row items-center gap-2">
+        <View className="min-w-0 flex-1 flex-row items-center gap-2">
+          <Text className="text-xl font-extrabold tracking-tight text-text">Items</Text>
           <Button
             variant="outline"
-            size="icon"
+            size="lg"
             accessibilityLabel="Show item filters"
             accessibilityState={{ expanded: open }}
             onPress={() => setOpen((current) => !current)}
             className={cn(
-              "rounded-full border-border-subtle bg-card-bg",
+              "h-11 w-11 min-w-11 shrink-0 rounded-full border-border-subtle bg-card-bg p-0 sm:h-11 sm:w-11 sm:min-w-11",
               open && "border-brand bg-brand-lighter",
             )}
           >
-            <Icon
-              as={SlidersHorizontal}
-              className={cn("size-4 text-text-muted", open && "text-brand")}
-            />
+            <Icon as={SlidersHorizontal} className={cn("size-4 text-text", open && "text-brand")} />
           </Button>
           {active ? (
             <Button
-              variant="outline"
+              variant="destructive"
               size="icon"
               accessibilityLabel="Clear filters"
               onPress={onReset}
-              className="rounded-full border-border-subtle bg-card-bg"
+              className="h-11 w-11 shrink-0 rounded-full"
             >
-              <Icon as={RotateCcw} className="size-4 text-text-muted" />
+              <Icon as={X} className="size-4 text-white" />
             </Button>
           ) : null}
         </View>
+        {onAddItem ? (
+          <Button
+            size="lg"
+            className="h-11 shrink-0 rounded-full px-4 shadow-brand sm:h-11"
+            onPress={onAddItem}
+          >
+            <Icon as={Plus} className="size-4 text-primary-foreground" />
+            <Text>Add Item</Text>
+          </Button>
+        ) : null}
       </View>
 
       {open ? (
         <View className="gap-3">
-          <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 shadow-sm">
+          <View className="flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
             <Icon as={Search} className="size-4 text-text-muted" />
             <Input
               value={filters.search}
               onChangeText={(search) => onChange({ search })}
               placeholder="Search items..."
               returnKeyType="search"
-              className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none"
+              className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
             />
+            {filters.search.length > 0 ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                accessibilityLabel="Clear search"
+                onPress={() => onChange({ search: "" })}
+                className="size-9 shrink-0 rounded-full"
+              >
+                <Icon as={X} className="size-4 text-text-muted" />
+              </Button>
+            ) : null}
           </View>
 
-          <View className="flex-row flex-wrap items-center gap-2">
-            <MultiSelectMenu
-              label={filters.statuses.length ? `${filters.statuses.length} statuses` : "Status"}
-              values={filters.statuses}
-              options={ITEM_STATUS_OPTIONS.map((option) => ({
-                value: option.value,
-                label: option.label,
-              }))}
-              onToggle={(value) => toggleValue("statuses", value)}
-            />
-            <MultiSelectMenu
-              label={
-                filters.priorities.length ? `${filters.priorities.length} priorities` : "Priority"
-              }
-              values={filters.priorities}
-              options={ITEM_PRIORITY_OPTIONS.map((option) => ({
-                value: option.value,
-                label: option.label,
-              }))}
-              onToggle={(value) => toggleValue("priorities", value)}
-            />
-            <View className="min-w-[150px] flex-1 flex-row gap-2">
-              <Input
-                value={filters.priceMin}
-                onChangeText={(priceMin) => onChange({ priceMin })}
-                placeholder="From"
-                keyboardType="decimal-pad"
-                className="h-10 flex-1 rounded-full"
-              />
-              <Input
-                value={filters.priceMax}
-                onChangeText={(priceMax) => onChange({ priceMax })}
-                placeholder="To"
-                keyboardType="decimal-pad"
-                className="h-10 flex-1 rounded-full"
+          <View className="w-full flex-row items-stretch gap-2">
+            <View className="min-w-0 flex-1">
+              <MultiSelectMenu
+                label={filters.statuses.length ? `${filters.statuses.length} statuses` : "Status"}
+                values={filters.statuses}
+                options={ITEM_STATUS_OPTIONS.map((option) => ({
+                  value: option.value,
+                  label: option.label,
+                }))}
+                onToggle={(value) => toggleValue("statuses", value)}
               />
             </View>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <AnimatedPressable className="h-10 flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
-                  <Text className="text-sm font-semibold text-text">{selectedSort}</Text>
-                  <Icon as={ChevronsUpDown} className="size-3.5 text-text-muted" />
-                </AnimatedPressable>
-              </DropdownMenuTrigger>
+            <View className="min-w-0 flex-1">
+              <MultiSelectMenu
+                label={
+                  filters.priorities.length ? `${filters.priorities.length} priorities` : "Priority"
+                }
+                values={filters.priorities}
+                options={ITEM_PRIORITY_OPTIONS.map((option) => ({
+                  value: option.value,
+                  label: option.label,
+                }))}
+                onToggle={(value) => toggleValue("priorities", value)}
+              />
+            </View>
+            <View className="min-w-0 flex-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <AnimatedPressable className="h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
+                    <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
+                      {selectedSort}
+                    </Text>
+                    <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text-muted" />
+                  </AnimatedPressable>
+                </DropdownMenuTrigger>
               <DropdownMenuContent className="min-w-52">
                 {ITEM_SORT_OPTIONS.map((option) => (
                   <DropdownMenuItem
@@ -198,7 +208,25 @@ export function WishlistItemToolbar({
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
-            </DropdownMenu>
+              </DropdownMenu>
+            </View>
+          </View>
+
+          <View className="w-full flex-row items-center justify-around gap-3">
+            <Input
+              value={filters.priceMin}
+              onChangeText={(priceMin) => onChange({ priceMin })}
+              placeholder="From"
+              keyboardType="decimal-pad"
+              className="h-10 w-[42%] rounded-full"
+            />
+            <Input
+              value={filters.priceMax}
+              onChangeText={(priceMax) => onChange({ priceMax })}
+              placeholder="To"
+              keyboardType="decimal-pad"
+              className="h-10 w-[42%] rounded-full"
+            />
           </View>
         </View>
       ) : null}
@@ -239,21 +267,22 @@ function MultiSelectMenu({
       <DropdownMenuTrigger asChild>
         <AnimatedPressable
           className={cn(
-            "h-10 flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
+            "h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
             values.length > 0 && "border-brand bg-brand-lighter",
           )}
         >
           <Text
             className={cn(
-              "text-sm font-semibold text-text-muted",
+              "shrink text-sm font-semibold text-text-muted",
               values.length > 0 && "text-brand",
             )}
+            numberOfLines={1}
           >
             {label}
           </Text>
           <Icon
             as={ChevronsUpDown}
-            className={cn("size-3.5 text-text-muted", values.length > 0 && "text-brand")}
+            className={cn("size-3.5 shrink-0 text-text-muted", values.length > 0 && "text-brand")}
           />
         </AnimatedPressable>
       </DropdownMenuTrigger>

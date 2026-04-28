@@ -40,9 +40,9 @@ import {
   Link2,
   MoreHorizontal,
   Plus,
-  RotateCcw,
   Search,
   SlidersHorizontal,
+  X,
 } from "lucide-react-native";
 import * as React from "react";
 import { wishlistCardFadeIn, wishlistGridLinearTransition } from "@/components/wishlists/wishlist-screen-animations";
@@ -336,9 +336,20 @@ function WishlistToolbar({
           >
             <Icon
               as={SlidersHorizontal}
-              className={cn("size-4 text-text-muted", filtersOpen && "text-brand")}
+              className={cn("size-4 text-text", filtersOpen && "text-brand")}
             />
           </Button>
+          {canResetFilters ? (
+            <Button
+              variant="destructive"
+              size="icon"
+              accessibilityLabel="Clear filters"
+              onPress={onResetFilters}
+              className="h-11 w-11 shrink-0 rounded-full"
+            >
+              <Icon as={X} className="size-4 text-white" />
+            </Button>
+          ) : null}
         </View>
         <Button
           size="lg"
@@ -351,91 +362,98 @@ function WishlistToolbar({
       </View>
 
       {filtersOpen ? (
-        <View className="gap-3 sm:items-end">
-          <View className="w-full flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 shadow-sm sm:max-w-md">
+        <View className="gap-3">
+          <View className="w-full flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
             <Icon as={Search} className="size-4 text-text-muted" />
             <Input
               value={search}
               onChangeText={onSearchChange}
               placeholder="Search wishlists..."
-              className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none"
+              className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
               returnKeyType="search"
             />
+            {search.length > 0 ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                accessibilityLabel="Clear search"
+                onPress={() => onSearchChange("")}
+                className="size-9 shrink-0 rounded-full"
+              >
+                <Icon as={X} className="size-4 text-text-muted" />
+              </Button>
+            ) : null}
           </View>
 
-          <View className="w-full flex-row flex-wrap items-center justify-around gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <AnimatedPressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Filter by visibility"
-                  className={cn(
-                    "h-10 flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
-                    visibility.length > 0 && "border-brand bg-brand-lighter",
-                  )}
-                >
-                  <Text
+          <View className="w-full flex-row items-stretch gap-2">
+            <View className="min-w-0 flex-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <AnimatedPressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Filter by visibility"
                     className={cn(
-                      "text-sm font-semibold text-text-muted",
-                      visibility.length > 0 && "text-brand",
+                      "h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
+                      visibility.length > 0 && "border-brand bg-brand-lighter",
                     )}
                   >
-                    {selectedVisibilityLabel}
-                  </Text>
-                  <Icon
-                    as={ChevronsUpDown}
-                    className={cn(
-                      "size-3.5 text-text-muted",
-                      visibility.length > 0 && "text-brand",
-                    )}
-                  />
-                </AnimatedPressable>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="min-w-52">
-                {WISHLIST_VISIBILITY_OPTIONS.map((option) => {
-                  const selected = visibility.includes(option.value);
-                  const VisibilityIcon = option.icon;
-
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={option.value}
-                      checked={selected}
-                      closeOnPress={false}
-                      onCheckedChange={() => onVisibilityChange(option.value)}
+                    <Text
+                      className={cn(
+                        "shrink text-sm font-semibold text-text-muted",
+                        visibility.length > 0 && "text-brand",
+                      )}
+                      numberOfLines={1}
                     >
-                      <Icon as={VisibilityIcon} className="size-3.5 text-popover-foreground" />
+                      {selectedVisibilityLabel}
+                    </Text>
+                    <Icon
+                      as={ChevronsUpDown}
+                      className={cn(
+                        "size-3.5 shrink-0 text-text-muted",
+                        visibility.length > 0 && "text-brand",
+                      )}
+                    />
+                  </AnimatedPressable>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="min-w-52">
+                  {WISHLIST_VISIBILITY_OPTIONS.map((option) => {
+                    const selected = visibility.includes(option.value);
+                    const VisibilityIcon = option.icon;
+
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={option.value}
+                        checked={selected}
+                        closeOnPress={false}
+                        onCheckedChange={() => onVisibilityChange(option.value)}
+                      >
+                        <Icon as={VisibilityIcon} className="size-3.5 text-popover-foreground" />
+                        <Text>{option.label}</Text>
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </View>
+            <View className="min-w-0 flex-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <AnimatedPressable className="h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
+                    <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
+                      {selectedSortLabel}
+                    </Text>
+                    <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text-muted" />
+                  </AnimatedPressable>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="min-w-52">
+                  {WISHLIST_SORT_OPTIONS.map((option) => (
+                    <DropdownMenuItem key={option.value} onPress={() => onSortChange(option.value)}>
                       <Text>{option.label}</Text>
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <AnimatedPressable className="h-10 flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
-                  <Text className="text-sm font-semibold text-text">{selectedSortLabel}</Text>
-                  <Icon as={ChevronsUpDown} className="size-3.5 text-text-muted" />
-                </AnimatedPressable>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="min-w-52">
-                {WISHLIST_SORT_OPTIONS.map((option) => (
-                  <DropdownMenuItem key={option.value} onPress={() => onSortChange(option.value)}>
-                    <Text>{option.label}</Text>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Button
-              variant="outline"
-              disabled={!canResetFilters}
-              onPress={onResetFilters}
-              className="h-10 rounded-full border-border-subtle bg-card-bg px-3"
-            >
-              <Icon as={RotateCcw} className="size-3.5 text-text-muted" />
-              <Text>Reset</Text>
-            </Button>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </View>
           </View>
         </View>
       ) : null}
