@@ -52,7 +52,11 @@ export function DiscoverSection({
             >
               {resolvedAvatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={resolvedAvatarUrl} alt="" className={styles.avatarImg} />
+                <img
+                  src={resolvedAvatarUrl}
+                  alt=""
+                  className={styles.avatarImg}
+                />
               ) : (
                 <UserRound size={16} />
               )}
@@ -61,7 +65,10 @@ export function DiscoverSection({
             <div className={styles.title}>
               <div className={styles.titleRow}>
                 {friend_id ? (
-                  <Link href={`/friends/${friend_id}`} className={styles.ownerLink}>
+                  <Link
+                    href={`/friends/${friend_id}`}
+                    className={styles.ownerLink}
+                  >
                     {owner}
                   </Link>
                 ) : (
@@ -70,7 +77,6 @@ export function DiscoverSection({
                 <span className={styles.arrow} aria-hidden="true">
                   &gt;
                 </span>
-                <span className={styles.wishlist}>{wishlist}</span>
               </div>
 
               <span className={styles.subline}>
@@ -81,28 +87,32 @@ export function DiscoverSection({
           </div>
         </div>
 
-        {wishlist_id ? (
-          <Link href={`/wishlist/${wishlist_id}`} className={styles.viewAll}>
-            {t("View all {count}", {
-              count: itemCount,
-              $id: "discover.section.viewAll",
-            })}
-          </Link>
-        ) : friend_id ? (
-          <Link href={`/friends/${friend_id}`} className={styles.viewAll}>
-            {t("View all {count}", {
-              count: itemCount,
-              $id: "discover.section.viewAll",
-            })}
-          </Link>
-        ) : (
-          <span className={styles.viewAll}>
-            {t("View all ({count})", {
-              count: itemCount,
-              $id: "discover.section.viewAllParen",
-            })}
-          </span>
-        )}
+        <div className={styles.headerAside}>
+          <span className={styles.wishlist}>{wishlist}</span>
+
+          {wishlist_id ? (
+            <Link href={`/wishlist/${wishlist_id}`} className={styles.viewAll}>
+              {t("View all {count}", {
+                count: itemCount,
+                $id: "discover.section.viewAll",
+              })}
+            </Link>
+          ) : friend_id ? (
+            <Link href={`/friends/${friend_id}`} className={styles.viewAll}>
+              {t("View all {count}", {
+                count: itemCount,
+                $id: "discover.section.viewAll",
+              })}
+            </Link>
+          ) : (
+            <span className={styles.viewAll}>
+              {t("View all ({count})", {
+                count: itemCount,
+                $id: "discover.section.viewAllParen",
+              })}
+            </span>
+          )}
+        </div>
       </header>
 
       <div className={styles.grid}>

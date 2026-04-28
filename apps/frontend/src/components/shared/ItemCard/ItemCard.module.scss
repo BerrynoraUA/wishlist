@@ -369,14 +369,20 @@
 }
 
 .reserveBtnDiscover {
-  border-color: $brand;
-  background: $brand;
-  color: #fff;
+  border-color: var(--brand-alpha-25);
+  background: var(--gradient-brand-subtle);
+  color: var(--color-brand);
+  box-shadow:
+    inset 0 0 0 1px var(--brand-alpha-10),
+    0 4px 12px var(--brand-alpha-10);
 
   &:hover:not(:disabled) {
-    background: $brand-dark;
-    border-color: $brand-dark;
-    color: #fff;
+    background: var(--gradient-brand-subtle);
+    border-color: $brand;
+    color: var(--color-brand-dark);
+    box-shadow:
+      inset 0 0 0 1px var(--brand-alpha-12),
+      0 8px 18px var(--brand-alpha-12);
   }
 
   &.reserved {
