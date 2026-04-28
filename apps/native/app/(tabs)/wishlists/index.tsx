@@ -45,7 +45,10 @@ import {
   X,
 } from "lucide-react-native";
 import * as React from "react";
-import { wishlistCardFadeIn, wishlistGridLinearTransition } from "@/components/wishlists/wishlist-screen-animations";
+import {
+  wishlistCardFadeIn,
+  wishlistGridLinearTransition,
+} from "@/components/wishlists/wishlist-screen-animations";
 import { ScrollView, View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
 import { withUniwind } from "uniwind";

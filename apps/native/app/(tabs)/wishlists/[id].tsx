@@ -112,16 +112,17 @@ export default function WishlistDetailScreen() {
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
   const reservedByIds = React.useMemo(
-    () => [...new Set(items.map((item) => item.reserved_by).filter((value): value is string => !!value))],
+    () => [
+      ...new Set(items.map((item) => item.reserved_by).filter((value): value is string => !!value)),
+    ],
     [items],
   );
   const profilesQuery = useProfilesByIds(reservedByIds);
   const profileNamesById = React.useMemo(() => {
     const entries =
-      profilesQuery.data?.map((profile) => [
-        profile.id,
-        profile.display_name || profile.nickname || "Someone",
-      ] as const) ?? [];
+      profilesQuery.data?.map(
+        (profile) => [profile.id, profile.display_name || profile.nickname || "Someone"] as const,
+      ) ?? [];
 
     return new Map(entries);
   }, [profilesQuery.data]);
@@ -174,10 +175,7 @@ export default function WishlistDetailScreen() {
             contentInsetAdjustmentBehavior="automatic"
             contentContainerClassName="items-center pb-safe-offset-8"
           >
-            <WishlistDetailHeader
-              wishlist={wishlist}
-              isOwner={wishlist.is_owner}
-            />
+            <WishlistDetailHeader wishlist={wishlist} isOwner={wishlist.is_owner} />
             <View className="w-full gap-5 px-4 pt-5" style={{ maxWidth: 1200 }}>
               <WishlistItemToolbar
                 filters={filters}
@@ -193,10 +191,7 @@ export default function WishlistDetailScreen() {
               ) : itemsQuery.isError ? (
                 <InlineState message="Failed to load items." />
               ) : items.length === 0 ? (
-                <EmptyItemsState
-                  canAdd={canEditWishlist}
-                  filtered={filtersActive && hasAnyItems}
-                />
+                <EmptyItemsState canAdd={canEditWishlist} filtered={filtersActive && hasAnyItems} />
               ) : (
                 <Animated.View
                   className="flex-row flex-wrap"
@@ -210,24 +205,26 @@ export default function WishlistDetailScreen() {
                       style={{ width: cardWidth }}
                     >
                       <WishlistItemCard
-                      item={item}
-                      width={cardWidth}
-                      currentUserId={currentUser.data}
-                      isOwner={canEditWishlist}
-                      showDiscountBadge={showDiscountBadge}
-                      reservedByName={
-                        item.reserved_by ? profileNamesById.get(item.reserved_by) : undefined
-                      }
-                      voteCount={votesQuery.data?.counts[item.id] ?? 0}
-                      hasVoted={votesQuery.data?.userVotes.has(item.id) ?? false}
-                      onPress={() => setSheet({ type: "detail", item })}
-                      onEdit={canEditWishlist ? () => setSheet({ type: "edit", item }) : undefined}
-                      onDelete={
-                        canEditWishlist ? () => setSheet({ type: "delete", item }) : undefined
-                      }
-                      onToggleVote={
-                        canEditWishlist ? undefined : () => toggleVote.mutate(item.id)
-                      }
+                        item={item}
+                        width={cardWidth}
+                        currentUserId={currentUser.data}
+                        isOwner={canEditWishlist}
+                        showDiscountBadge={showDiscountBadge}
+                        reservedByName={
+                          item.reserved_by ? profileNamesById.get(item.reserved_by) : undefined
+                        }
+                        voteCount={votesQuery.data?.counts[item.id] ?? 0}
+                        hasVoted={votesQuery.data?.userVotes.has(item.id) ?? false}
+                        onPress={() => setSheet({ type: "detail", item })}
+                        onEdit={
+                          canEditWishlist ? () => setSheet({ type: "edit", item }) : undefined
+                        }
+                        onDelete={
+                          canEditWishlist ? () => setSheet({ type: "delete", item }) : undefined
+                        }
+                        onToggleVote={
+                          canEditWishlist ? undefined : () => toggleVote.mutate(item.id)
+                        }
                       />
                     </Animated.View>
                   ))}
@@ -297,20 +294,16 @@ export default function WishlistDetailScreen() {
   );
 }
 
-function EmptyItemsState({
-  canAdd,
-  filtered,
-}: {
-  canAdd: boolean;
-  filtered: boolean;
-}) {
+function EmptyItemsState({ canAdd, filtered }: { canAdd: boolean; filtered: boolean }) {
   return (
     <View className="items-center gap-3 rounded-xl border border-border-subtle bg-card-bg p-8">
       <Text className="text-center text-base font-extrabold text-text">
         {filtered ? "No items match your filters." : "No items yet."}
       </Text>
       {canAdd && !filtered ? (
-        <Text className="text-center text-sm text-text-muted">Use Add Item above to get started.</Text>
+        <Text className="text-center text-sm text-text-muted">
+          Use Add Item above to get started.
+        </Text>
       ) : null}
     </View>
   );

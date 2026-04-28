@@ -198,16 +198,16 @@ export function WishlistItemToolbar({
                     <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text-muted" />
                   </AnimatedPressable>
                 </DropdownMenuTrigger>
-              <DropdownMenuContent className="min-w-52">
-                {ITEM_SORT_OPTIONS.map((option) => (
-                  <DropdownMenuItem
-                    key={option.value}
-                    onPress={() => onChange({ sort: option.value })}
-                  >
-                    <Text>{option.label}</Text>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
+                <DropdownMenuContent className="min-w-52">
+                  {ITEM_SORT_OPTIONS.map((option) => (
+                    <DropdownMenuItem
+                      key={option.value}
+                      onPress={() => onChange({ sort: option.value })}
+                    >
+                      <Text>{option.label}</Text>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
               </DropdownMenu>
             </View>
           </View>

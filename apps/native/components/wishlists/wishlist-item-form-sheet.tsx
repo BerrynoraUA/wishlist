@@ -198,7 +198,9 @@ export function WishlistItemFormSheet({
                 onPress={handleScrape}
                 className="px-4"
               >
-                {isScraping ? <ActivityIndicator colorClassName="accent-secondary-foreground" /> : null}
+                {isScraping ? (
+                  <ActivityIndicator colorClassName="accent-secondary-foreground" />
+                ) : null}
                 <Text>{isScraping ? "Searching" : "Search"}</Text>
               </Button>
             </View>
@@ -377,27 +379,30 @@ function PrioritySelector({
   value: ItemFormValues["priority"];
   onChange: (priority: ItemFormValues["priority"]) => void;
 }) {
-  const rows = React.useMemo((): SlidingOption<number | null>[][] => [
-    [
-      {
-        value: null,
-        accessibilityLabel: "No priority",
-        children: ({ selected }: SlidingOptionRenderProps) => (
-          <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
-            None
-          </Text>
-        ),
-      },
-      ...ITEM_PRIORITY_OPTIONS.map((option) => ({
-        value: option.priority,
-        children: ({ selected }: SlidingOptionRenderProps) => (
-          <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
-            {option.label}
-          </Text>
-        ),
-      })),
+  const rows = React.useMemo(
+    (): SlidingOption<number | null>[][] => [
+      [
+        {
+          value: null,
+          accessibilityLabel: "No priority",
+          children: ({ selected }: SlidingOptionRenderProps) => (
+            <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
+              None
+            </Text>
+          ),
+        },
+        ...ITEM_PRIORITY_OPTIONS.map((option) => ({
+          value: option.priority,
+          children: ({ selected }: SlidingOptionRenderProps) => (
+            <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
+              {option.label}
+            </Text>
+          ),
+        })),
+      ],
     ],
-  ], []);
+    [],
+  );
 
   return (
     <SlidingOptionSelector<number | null>
