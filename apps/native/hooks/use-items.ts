@@ -15,7 +15,7 @@ import type {
   ItemQueryParams,
   ItemVotesResult,
   UpdateItemParams,
-} from "@/types/item";
+} from "@wishlist/backend/types/item";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const itemKeys = {

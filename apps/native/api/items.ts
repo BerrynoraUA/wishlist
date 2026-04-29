@@ -1,11 +1,11 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@wishlist/backend/supabase/native";
 import type {
   CreateItemParams,
   Item,
   ItemQueryParams,
   ItemVotesResult,
   UpdateItemParams,
-} from "@/types/item";
+} from "@wishlist/backend/types/item";
 
 export async function getWishlistItems(
   wishlistId: string,

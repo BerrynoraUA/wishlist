@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useDeleteItem } from "@/hooks/use-items";
-import type { Item } from "@/types/item";
+import type { Item } from "@wishlist/backend/types/item";
 import { Trash2 } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";

@@ -1,14 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createNextMiddleware } from "gt-next/middleware";
-import { createServerClient } from "@supabase/ssr";
-
-const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL) as string;
-const SUPABASE_ANON_KEY = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string;
-
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  throw new Error("Missing Supabase public env variables");
-}
+import { createServerClient } from "@wishlist/backend/supabase/server";
 
 const gtLocaleMiddleware = createNextMiddleware({
   localeRouting: false,
@@ -38,17 +30,14 @@ export async function proxy(request: NextRequest) {
 
   let response = gtLocaleMiddleware(request);
 
-  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    cookies: {
-      get(name) {
-        return request.cookies.get(name)?.value;
-      },
-      set(name, value, options) {
+  const supabase = createServerClient({
+    getAll() {
+      return request.cookies.getAll();
+    },
+    setAll(cookiesToSet) {
+      cookiesToSet.forEach(({ name, value, options }) => {
         response.cookies.set({ name, value, ...options });
-      },
-      remove(name, options) {
-        response.cookies.set({ name, value: "", ...options, maxAge: 0 });
-      },
+      });
     },
   });
 

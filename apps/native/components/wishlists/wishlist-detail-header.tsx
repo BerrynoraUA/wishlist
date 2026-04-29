@@ -16,7 +16,7 @@ import {
   getWishlistAccentClass,
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
-import type { Wishlist, WishlistVisibility } from "@/types/wishlist";
+import type { Wishlist, WishlistVisibility } from "@wishlist/backend/types/wishlist";
 import DateTimePicker, {
   DateTimePickerAndroid,
   type DateTimePickerEvent,

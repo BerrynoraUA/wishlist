@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClientWithKey } from "@wishlist/backend/supabase";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
-const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL) as string;
 const SUPABASE_ANON_KEY = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string;
 const RC_API_KEY = (
@@ -70,7 +69,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.slice(7);
-    const supabaseUser = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseUser = createClientWithKey(SUPABASE_ANON_KEY);
     const {
       data: { user },
       error: authError,

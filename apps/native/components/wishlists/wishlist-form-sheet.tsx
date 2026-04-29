@@ -21,7 +21,7 @@ import {
   SlidingOptionSelector,
   type SlidingOptionRenderProps,
 } from "@/components/ui/sliding-option-selector";
-import type { Wishlist, WishlistFormValues } from "@/types/wishlist";
+import type { Wishlist, WishlistFormValues } from "@wishlist/backend/types/wishlist";
 import { CalendarDays, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Platform, View } from "react-native";

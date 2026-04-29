@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig/base.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": ["*.ts", "db-types/**/*.ts", "lib/**/*.ts", "supabase/**/*.ts", "types/**/*.ts"]
+}

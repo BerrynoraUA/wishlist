@@ -173,8 +173,8 @@ export function useRemoveSecretSantaInvite() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ eventId, inviteId }: { eventId: string; inviteId: string }) =>
-      removeSecretSantaInvite(inviteId),
+    mutationFn: (payload: { eventId: string; inviteId: string }) =>
+      removeSecretSantaInvite(payload.inviteId),
     onSuccess: (_data, { eventId }) => {
       queryClient.invalidateQueries({
         queryKey: secretSantaKeys.detail(eventId),

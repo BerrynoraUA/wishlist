@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useDeleteWishlist } from "@/hooks/use-wishlists";
-import type { Wishlist } from "@/types/wishlist";
+import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Trash2 } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";

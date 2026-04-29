@@ -8,7 +8,7 @@ import {
   getItemStoreFromUrl,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
-import type { Item } from "@/types/item";
+import type { Item } from "@wishlist/backend/types/item";
 import { Image as ExpoImage } from "expo-image";
 import { Gift, Heart, PackageCheck, Pencil, Trash2 } from "lucide-react-native";
 import * as React from "react";
