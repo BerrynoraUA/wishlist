@@ -80,9 +80,7 @@ export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete
             </span>
           </div>
         )}
-        {!hasImage && (
-          <Gift size={64} strokeWidth={1.85} className={styles.icon} />
-        )}
+        {!hasImage && <Gift size={64} strokeWidth={1.85} className={styles.icon} />}
       </div>
 
       <div className={styles.content}>

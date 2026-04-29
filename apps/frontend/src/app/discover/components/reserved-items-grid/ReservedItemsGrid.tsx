@@ -47,8 +47,7 @@ export function ReservedItemsGrid({
             onToggleReserve={onToggleReserve}
             onToggleBought={onToggleBought}
             renderDetailModal={({ open, onClose }) => {
-              const priorityName =
-                getItemPriorityName(item.priority) ?? undefined;
+              const priorityName = getItemPriorityName(item.priority) ?? undefined;
               return (
                 <ItemDetailModal
                   open={open}

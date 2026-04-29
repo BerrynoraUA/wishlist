@@ -18,16 +18,9 @@ function FriendWishlistsPageContent() {
   const router = useRouter();
   const friendId = params.id as string;
   const searchParams = useSearchParams();
-  const search = useMemo(
-    () => searchParams.get("search") ?? "",
-    [searchParams],
-  );
+  const search = useMemo(() => searchParams.get("search") ?? "", [searchParams]);
 
-  const {
-    data: wishlists = [],
-    isLoading,
-    isError,
-  } = useFriendWishlists(friendId, { search });
+  const { data: wishlists = [], isLoading, isError } = useFriendWishlists(friendId, { search });
 
   const removeFriend = useRemoveFriend();
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);

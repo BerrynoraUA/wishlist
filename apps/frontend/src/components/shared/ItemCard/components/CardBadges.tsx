@@ -40,11 +40,7 @@ export function CardBadges({
           data-tooltip={statusLabel}
           title={statusLabel}
         >
-          {isPurchased ? (
-            <ShoppingCart size={14} />
-          ) : (
-            <ReservationLockIcon isReserved size={14} />
-          )}
+          {isPurchased ? <ShoppingCart size={14} /> : <ReservationLockIcon isReserved size={14} />}
           {salePercentOff == null && <span>{statusLabel}</span>}
         </div>
       )}
@@ -59,9 +55,7 @@ export function CardBadges({
           </div>
         )}
         {priorityKey && (
-          <div className={`${styles.badgeRight} ${styles[priorityKey]}`}>
-            {priorityDisplay}
-          </div>
+          <div className={`${styles.badgeRight} ${styles[priorityKey]}`}>{priorityDisplay}</div>
         )}
       </div>
     </>
