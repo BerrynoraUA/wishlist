@@ -142,6 +142,22 @@
   transform: translate(40%, -55%) scale(0.92);
 }
 
+.navCountBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-brand);
+  color: #fff;
+  font-size: 10px;
+  font-weight: var(--fw-bold);
+  line-height: 1;
+  box-shadow: 0 2px 8px var(--brand-alpha-20);
+}
+
 .activePill {
   position: absolute;
   inset: 0;

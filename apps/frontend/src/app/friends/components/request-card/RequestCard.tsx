@@ -1,3 +1,4 @@
+import { useGT } from "gt-next";
 import { Button } from "@/components/ui/Button/Button";
 import styles from "./RequestCard.module.scss";
 import type { FriendRequestWithDetails } from "@/api/types/friends";
@@ -17,6 +18,8 @@ export function RequestCard({
   accepting = false,
   rejecting = false,
 }: Props) {
+  const t = useGT();
+
   return (
     <div className={styles.card}>
       <div className={styles.avatar}>👤</div>
@@ -24,7 +27,12 @@ export function RequestCard({
       <div className={styles.info}>
         <strong>{request.display_name}</strong>
         {request.nickname && <span>@{request.nickname}</span>}
-        <div className={styles.meta}>{request.mutual_friends_count} mutual friends</div>
+        <div className={styles.meta}>
+          {t("{mutualCount} mutual friends", {
+            mutualCount: request.mutual_friends_count,
+            $id: "friends.requestCard.meta",
+          })}
+        </div>
       </div>
 
       <div className={styles.actions}>
@@ -34,7 +42,9 @@ export function RequestCard({
           onClick={onAccept}
           disabled={accepting || rejecting}
         >
-          {accepting ? "Accepting..." : "Accept"}
+          {accepting
+            ? t("Accepting...", { $id: "friends.requestCard.accepting" })
+            : t("Accept", { $id: "friends.requestCard.accept" })}
         </Button>
         <Button
           variant="secondary"
@@ -43,7 +53,9 @@ export function RequestCard({
           onClick={onReject}
           disabled={accepting || rejecting}
         >
-          {rejecting ? "Declining..." : "Decline"}
+          {rejecting
+            ? t("Declining...", { $id: "friends.requestCard.declining" })
+            : t("Decline", { $id: "friends.requestCard.decline" })}
         </Button>
       </div>
     </div>

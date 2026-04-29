@@ -311,7 +311,7 @@ export function AddFriendModal({ open, onClose }: Props) {
         <div className={styles.searchRow}>
           <div className={styles.usernameInput} ref={inputWrapperRef}>
             <input
-              placeholder={t("@username", {
+              placeholder={t("username", {
                 $id: "friends.addModal.usernamePlaceholder",
               })}
               value={username}
