@@ -6,24 +6,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
+import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import {
   buildReservationLabel,
   getItemPriorityLabel,
   getItemReservationState,
   getItemStoreFromUrl,
+  getSalePercentOff,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
 import type { Item } from "@wishlist/backend/types/item";
 import type { TriggerRef } from "@rn-primitives/dropdown-menu";
 import * as Clipboard from "expo-clipboard";
-import { Image as ExpoImage } from "expo-image";
 import { Gift, Heart, PackageCheck } from "lucide-react-native";
 import * as React from "react";
 import { View } from "react-native";
-import { withUniwind } from "uniwind";
-
-const Image = withUniwind(ExpoImage);
 
 export function WishlistItemCard({
   item,
@@ -67,6 +65,11 @@ export function WishlistItemCard({
   const itemUrl = item.url?.trim() ?? "";
   const showCopyLink = itemUrl.length > 0;
   const showMenu = Boolean(showCopyLink || (isOwner && (onEdit || onDelete)));
+  const salePercentOff = getSalePercentOff(
+    item.price,
+    item.discount_price,
+    showDiscountBadge && item.has_discount,
+  );
   const menuTriggerRef = React.useRef<TriggerRef>(null);
 
   async function handleCopyLink() {
@@ -87,7 +90,7 @@ export function WishlistItemCard({
         >
           <View className="relative h-[132px] items-center justify-center overflow-hidden bg-bg-muted">
             {item.image_url ? (
-              <Image
+              <StyledImage
                 source={{ uri: item.image_url }}
                 contentFit="cover"
                 className="absolute inset-0 size-full"
@@ -115,9 +118,11 @@ export function WishlistItemCard({
               </View>
             ) : null}
 
-            {showDiscountBadge && item.has_discount && item.discount_price ? (
+            {salePercentOff != null ? (
               <View className="absolute right-2 top-2 rounded-full bg-danger px-2 py-1">
-                <Text className="text-[11px] font-extrabold text-white">Sale</Text>
+                <Text className="text-[11px] font-extrabold text-white">
+                  Sale -{salePercentOff}%
+                </Text>
               </View>
             ) : null}
           </View>
@@ -139,10 +144,26 @@ export function WishlistItemCard({
             <View className="flex-row items-center justify-between gap-2">
               <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-1.5">
                 {item.price ? (
-                  <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
-                    {item.currency ? `${item.currency} ` : ""}
-                    {item.has_discount && item.discount_price ? item.discount_price : item.price}
-                  </Text>
+                  item.has_discount && item.discount_price ? (
+                    <>
+                      <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
+                        {item.currency ? `${item.currency} ` : ""}
+                        {item.discount_price}
+                      </Text>
+                      <Text
+                        className="text-xs font-bold text-text-muted line-through"
+                        numberOfLines={1}
+                      >
+                        {item.currency ? `${item.currency} ` : ""}
+                        {item.price}
+                      </Text>
+                    </>
+                  ) : (
+                    <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
+                      {item.currency ? `${item.currency} ` : ""}
+                      {item.price}
+                    </Text>
+                  )
                 ) : null}
                 {priorityLabel ? (
                   <Text className="rounded-full bg-bg-subtle px-2 py-1 text-[11px] font-bold text-text-muted">

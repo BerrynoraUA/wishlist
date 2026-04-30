@@ -3,6 +3,7 @@ import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
 import {
@@ -19,13 +20,9 @@ import {
 import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
-import { Image as ExpoImage } from "expo-image";
 import { Plus, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
-import { withUniwind } from "uniwind";
-
-const Image = withUniwind(ExpoImage);
 
 export function WishlistItemFormSheet({
   mode,
@@ -259,7 +256,7 @@ export function WishlistItemFormSheet({
           <View className="gap-3">
             {values.imageUrl.trim() && !imageUrlInvalid ? (
               <View className="h-40 overflow-hidden rounded-xl border border-border-subtle bg-bg-muted">
-                <Image
+                <StyledImage
                   source={{ uri: values.imageUrl.trim() }}
                   contentFit="cover"
                   className="size-full"

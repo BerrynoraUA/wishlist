@@ -95,6 +95,43 @@ export function getItemPriorityLabel(priority: number | null | undefined) {
   return null;
 }
 
+export function parseItemPriceToNumber(value: string | number | null | undefined) {
+  if (value == null) return null;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const safe = trimmed.replace(/[^0-9,.-]/g, "");
+  if (!safe) return null;
+
+  const hasComma = safe.includes(",");
+  const hasDot = safe.includes(".");
+  const normalized = hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
+  const parsed = Number.parseFloat(normalized);
+
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+export function getSalePercentOff(
+  basePrice: string | number | null | undefined,
+  discountPrice: string | number | null | undefined,
+  enabled = true,
+) {
+  if (!enabled || discountPrice == null) return null;
+
+  const base = parseItemPriceToNumber(basePrice);
+  const discounted = parseItemPriceToNumber(discountPrice);
+  if (!base || !discounted) return null;
+  if (base <= 0 || discounted >= base) return null;
+
+  const raw = ((base - discounted) / base) * 100;
+  const rounded = Math.round(raw);
+  if (!Number.isFinite(rounded) || rounded <= 0) return null;
+
+  return Math.min(99, rounded);
+}
+
 export function getItemReservationState({
   status,
   reservedBy,

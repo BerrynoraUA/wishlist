@@ -1,4 +1,5 @@
 import { loginWithApple, loginWithEmail, loginWithGoogle } from "@/api/login";
+import { AnimatedShadowButton } from "@/components/ui/buttons/AnimatedShadowButton";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
@@ -188,21 +189,15 @@ export function SignInScreen() {
                   </Text>
                 ) : null}
 
-                <Pressable
-                  accessibilityRole="button"
-                  className={cn(
-                    "mt-2 h-12 items-center justify-center rounded-full bg-[#c0267e] shadow-brand active:scale-[0.98] dark:bg-[#e052a0]",
-                    isBusy && "bg-[#e5e7eb] opacity-60 shadow-none dark:bg-[#27272d]",
-                  )}
-                  disabled={isBusy}
-                  onPress={handleSubmit}
-                >
-                  {loading ? (
-                    <ActivityIndicator colorClassName="accent-white" />
-                  ) : (
-                    <Text className="text-base font-semibold text-white">Sign in</Text>
-                  )}
-                </Pressable>
+                <View className="mt-2">
+                  <AnimatedShadowButton
+                    accessibilityLabel="Sign in"
+                    isDisabled={isBusy}
+                    isLoading={loading}
+                    onPress={handleSubmit}
+                    title="Sign in"
+                  />
+                </View>
               </View>
 
               <View className="mt-7 gap-[18px]">

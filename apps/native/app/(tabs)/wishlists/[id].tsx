@@ -1,8 +1,12 @@
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { AddCard } from "@/components/wishlists/add-card";
 import { DeleteItemSheet } from "@/components/wishlists/delete-item-sheet";
+import { DeleteWishlistSheet } from "@/components/wishlists/delete-wishlist-sheet";
 import { WishlistDetailHeader } from "@/components/wishlists/wishlist-detail-header";
+import { WishlistFormSheet } from "@/components/wishlists/wishlist-form-sheet";
 import { WishlistItemCard } from "@/components/wishlists/wishlist-item-card";
 import { WishlistItemDetailSheet } from "@/components/wishlists/wishlist-item-detail-sheet";
 import { WishlistItemFormSheet } from "@/components/wishlists/wishlist-item-form-sheet";
@@ -34,10 +38,11 @@ import {
 } from "@/lib/items";
 import { paginationFlags } from "@/lib/wishlists";
 import type { Item } from "@wishlist/backend/types/item";
-import { Redirect, Stack, useLocalSearchParams } from "expo-router";
-import { Plus } from "lucide-react-native";
+import type { Wishlist } from "@wishlist/backend/types/wishlist";
+import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { ChevronLeft } from "lucide-react-native";
 import * as React from "react";
-import { ActivityIndicator, ScrollView, View, useWindowDimensions } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
 
 const EMPTY_FILTERS: WishlistItemFilterState = {
@@ -54,9 +59,12 @@ type SheetState =
   | { type: "edit"; item: Item }
   | { type: "detail"; item: Item }
   | { type: "delete"; item: Item }
+  | { type: "editWishlist"; wishlist: Wishlist }
+  | { type: "deleteWishlist"; wishlist: Wishlist }
   | null;
 
 export default function WishlistDetailScreen() {
+  const router = useRouter();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const rawId = Array.isArray(id) ? (id[0] ?? "") : (id ?? "");
@@ -175,7 +183,16 @@ export default function WishlistDetailScreen() {
             contentInsetAdjustmentBehavior="automatic"
             contentContainerClassName="items-center pb-safe-offset-8"
           >
-            <WishlistDetailHeader wishlist={wishlist} isOwner={wishlist.is_owner} />
+            <WishlistDetailHeader
+              wishlist={wishlist}
+              isOwner={wishlist.is_owner}
+              onEdit={
+                canEditWishlist ? () => setSheet({ type: "editWishlist", wishlist }) : undefined
+              }
+              onDelete={
+                wishlist.is_owner ? () => setSheet({ type: "deleteWishlist", wishlist }) : undefined
+              }
+            />
             <View className="w-full gap-5 px-4 pt-5" style={{ maxWidth: 1200 }}>
               <WishlistItemToolbar
                 filters={filters}
@@ -191,7 +208,25 @@ export default function WishlistDetailScreen() {
               ) : itemsQuery.isError ? (
                 <InlineState message="Failed to load items." />
               ) : items.length === 0 ? (
-                <EmptyItemsState canAdd={canEditWishlist} filtered={filtersActive && hasAnyItems} />
+                canEditWishlist ? (
+                  <Animated.View
+                    className="flex-row flex-wrap"
+                    layout={wishlistGridLinearTransition}
+                    style={{ gap: gridGap }}
+                  >
+                    <AddCard
+                      width={cardWidth}
+                      onPress={() => setSheet({ type: "create" })}
+                      accessibilityLabel="Add item"
+                    />
+                  </Animated.View>
+                ) : (
+                  <Text className="text-center text-sm text-text-muted">
+                    {filtersActive && hasAnyItems
+                      ? "No items match your filters."
+                      : "No items yet."}
+                  </Text>
+                )
               ) : (
                 <Animated.View
                   className="flex-row flex-wrap"
@@ -230,7 +265,11 @@ export default function WishlistDetailScreen() {
                   ))}
 
                   {canEditWishlist ? (
-                    <AddItemCard width={cardWidth} onPress={() => setSheet({ type: "create" })} />
+                    <AddCard
+                      width={cardWidth}
+                      onPress={() => setSheet({ type: "create" })}
+                      accessibilityLabel="Add item"
+                    />
                   ) : null}
                 </Animated.View>
               )}
@@ -257,6 +296,15 @@ export default function WishlistDetailScreen() {
             </View>
           </ScrollView>
         )}
+        <AnimatedPressable
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          onPress={() => router.back()}
+          className="absolute bottom-4 left-4 z-20 size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg"
+          style={floatingBackButtonStyles.shadow}
+        >
+          <Icon as={ChevronLeft} className="size-7 text-text" />
+        </AnimatedPressable>
         <WishlistItemFormSheet
           mode={sheet?.type === "edit" ? "edit" : "create"}
           wishlistId={wishlistId}
@@ -265,6 +313,21 @@ export default function WishlistDetailScreen() {
           onOpenChange={(open) => {
             if (!open) setSheet(null);
           }}
+        />
+        <WishlistFormSheet
+          mode="edit"
+          open={sheet?.type === "editWishlist"}
+          wishlist={sheet?.type === "editWishlist" ? sheet.wishlist : undefined}
+          onOpenChange={(open) => {
+            if (!open) setSheet(null);
+          }}
+        />
+        <DeleteWishlistSheet
+          wishlist={sheet?.type === "deleteWishlist" ? sheet.wishlist : null}
+          onOpenChange={(open) => {
+            if (!open) setSheet(null);
+          }}
+          onDeleted={() => router.replace("/wishlists")}
         />
         <WishlistItemDetailSheet
           item={sheet?.type === "detail" ? sheet.item : null}
@@ -294,37 +357,6 @@ export default function WishlistDetailScreen() {
   );
 }
 
-function EmptyItemsState({ canAdd, filtered }: { canAdd: boolean; filtered: boolean }) {
-  return (
-    <View className="items-center gap-3 rounded-xl border border-border-subtle bg-card-bg p-8">
-      <Text className="text-center text-base font-extrabold text-text">
-        {filtered ? "No items match your filters." : "No items yet."}
-      </Text>
-      {canAdd && !filtered ? (
-        <Text className="text-center text-sm text-text-muted">
-          Use Add Item above to get started.
-        </Text>
-      ) : null}
-    </View>
-  );
-}
-
-function AddItemCard({ width, onPress }: { width: number; onPress: () => void }) {
-  return (
-    <Button
-      variant="outline"
-      onPress={onPress}
-      className="h-[216px] flex-col rounded-xl border-dashed border-border-subtle bg-card-bg"
-      style={{ width }}
-    >
-      <View className="size-14 items-center justify-center rounded-full border border-dashed border-brand/50 bg-brand-lighter">
-        <Icon as={Plus} className="size-7 text-brand" />
-      </View>
-      <Text className="font-bold text-text">Add Item</Text>
-    </Button>
-  );
-}
-
 function InlineState({ message }: { message: string }) {
   return (
     <View className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-6">
@@ -332,3 +364,13 @@ function InlineState({ message }: { message: string }) {
     </View>
   );
 }
+
+const floatingBackButtonStyles = StyleSheet.create({
+  shadow: {
+    shadowColor: "rgb(15, 23, 42)",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.22,
+    shadowRadius: 22,
+    elevation: 6,
+  },
+});

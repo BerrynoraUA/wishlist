@@ -1,4 +1,5 @@
 import { Globe, Lock, UserCheck, Users, type LucideIcon } from "lucide-react-native";
+import type { NativeThemeMode } from "@/lib/theme";
 import {
   WishlistAccent,
   WishlistVisibility,
@@ -9,20 +10,40 @@ export const WISHLIST_PAGE_SIZE = 8;
 export const DEFAULT_WISHLIST_SORT = "newest";
 
 export const WISHLIST_VISIBILITY_OPTIONS = [
-  { value: "public", label: "Public", icon: Globe, visibility: WishlistVisibility.Public },
+  {
+    value: "public",
+    label: "Public",
+    icon: Globe,
+    visibility: WishlistVisibility.Public,
+    surfaceClassName: "bg-success-bg",
+    itemClassName:
+      "mb-1 last:mb-0 active:bg-success-bg/85 dark:active:bg-success-bg/90",
+  },
   {
     value: "friends",
     label: "Friends only",
     icon: Users,
     visibility: WishlistVisibility.FriendsOnly,
+    surfaceClassName: "bg-info-bg",
+    itemClassName: "mb-1 last:mb-0 active:bg-info-bg/85 dark:active:bg-info-bg/90",
   },
   {
     value: "selected-friends",
     label: "Selected friends",
     icon: UserCheck,
     visibility: WishlistVisibility.SelectedFriends,
+    surfaceClassName: "bg-brand-alpha-12",
+    itemClassName: "mb-1 last:mb-0 active:bg-brand-alpha-20",
   },
-  { value: "private", label: "Private", icon: Lock, visibility: WishlistVisibility.Private },
+  {
+    value: "private",
+    label: "Private",
+    icon: Lock,
+    visibility: WishlistVisibility.Private,
+    surfaceClassName: "bg-danger-bg",
+    itemClassName:
+      "mb-1 last:mb-0 active:bg-danger-bg/85 dark:active:bg-danger-bg/90",
+  },
 ] as const;
 
 export const WISHLIST_SORT_OPTIONS = [
@@ -106,6 +127,30 @@ export function getWishlistAccentClass(accent: WishlistAccent | null | undefined
     default:
       return "bg-gradient-accent-pink";
   }
+}
+
+export function getWishlistAccentGradientColors(
+  accent: WishlistAccent | null | undefined,
+  mode: NativeThemeMode,
+) {
+  const gradients = {
+    light: {
+      pink: ["#fce7f3", "#f9cfe2", "#f0a6ca"],
+      blue: ["#e0f2fe", "#bfdbfe", "#93c5fd"],
+      peach: ["#fef3c7", "#fde68a", "#fbbf24"],
+      mint: ["#d1fae5", "#a7f3d0", "#6ee7b7"],
+      lavender: ["#ede9fe", "#ddd6fe", "#c4b5fd"],
+    },
+    dark: {
+      pink: ["#2b1323", "#3b1730", "#4a1d35"],
+      blue: ["#132033", "#1d2f4d", "#263f66"],
+      peach: ["#2d2113", "#3b2a16", "#4a341a"],
+      mint: ["#10291f", "#173629", "#1e4434"],
+      lavender: ["#201832", "#2a1f42", "#362854"],
+    },
+  } as const;
+
+  return gradients[mode][getWishlistAccentKey(accent)];
 }
 
 export function toWishlistFormValues(wishlist?: {

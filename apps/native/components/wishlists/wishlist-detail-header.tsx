@@ -7,13 +7,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { usePatchWishlist } from "@/hooks/use-wishlists";
+import { getThemeMode } from "@/lib/theme";
 import {
   WISHLIST_VISIBILITY_ICONS,
   WISHLIST_VISIBILITY_LABELS,
   WISHLIST_VISIBILITY_OPTIONS,
-  getWishlistAccentClass,
+  getWishlistAccentGradientColors,
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
 import type { Wishlist, WishlistVisibility } from "@wishlist/backend/types/wishlist";
@@ -21,23 +23,20 @@ import DateTimePicker, {
   DateTimePickerAndroid,
   type DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { Image as ExpoImage } from "expo-image";
-import { useRouter } from "expo-router";
 import {
   Calendar,
   Camera,
   ChevronDown,
   Gift,
   KeyRound,
-  MoreHorizontal,
   Share2,
+  Trash2,
   X,
 } from "lucide-react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import * as React from "react";
-import { Platform, View } from "react-native";
-import { withUniwind } from "uniwind";
-
-const Image = withUniwind(ExpoImage);
+import { Platform, StyleSheet, View } from "react-native";
+import { useUniwind } from "uniwind";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   month: "short",
@@ -73,7 +72,6 @@ export function WishlistDetailHeader({
   onShare?: () => void;
   onManageAccess?: () => void;
 }) {
-  const router = useRouter();
   const patchWishlist = usePatchWishlist();
   const [titleDraft, setTitleDraft] = React.useState(wishlist.title);
   const [descriptionDraft, setDescriptionDraft] = React.useState(wishlist.description ?? "");
@@ -85,6 +83,9 @@ export function WishlistDetailHeader({
   const itemsCount = wishlist.items_count ?? 0;
   const eventDate = wishlist.event_date;
   const canInlineEdit = isOwner;
+  const { theme } = useUniwind();
+  const mode = getThemeMode(theme);
+  const accentGradientColors = getWishlistAccentGradientColors(wishlist.accent_type, mode);
 
   React.useEffect(() => {
     if (!editingTitle) setTitleDraft(wishlist.title);
@@ -149,25 +150,19 @@ export function WishlistDetailHeader({
         <View className="gap-3">
           <View className="flex-row items-center gap-3">
             <AnimatedPressable
-              accessibilityRole="button"
-              accessibilityLabel="Back"
-              onPress={() => router.back()}
-              className="size-10 items-center justify-center rounded-full border border-glass-border bg-glass-bg"
-            >
-              <Text className="text-xl font-bold text-text">‹</Text>
-            </AnimatedPressable>
-
-            <AnimatedPressable
               accessibilityRole={canInlineEdit ? "button" : "image"}
               accessibilityLabel={canInlineEdit ? "Edit wishlist image" : wishlist.title}
               onPress={canInlineEdit ? onEdit : undefined}
-              className={cn(
-                "relative size-[70px] items-center justify-center overflow-hidden rounded-[20px] border-[3px] border-white/70 shadow-lg",
-                getWishlistAccentClass(wishlist.accent_type),
-              )}
+              className="relative size-[70px] items-center justify-center overflow-hidden rounded-[20px] border-[3px] border-white/70 shadow-lg"
             >
+              <LinearGradient
+                colors={accentGradientColors}
+                end={{ x: 1, y: 1 }}
+                start={{ x: 0, y: 0 }}
+                style={StyleSheet.absoluteFill}
+              />
               {wishlist.image_url ? (
-                <Image
+                <StyledImage
                   source={{ uri: wishlist.image_url }}
                   contentFit="cover"
                   className="absolute inset-0 size-full"
@@ -231,67 +226,94 @@ export function WishlistDetailHeader({
             </View>
           </View>
 
-          <View className="flex-row flex-wrap items-center gap-2">
-            {canInlineEdit ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <AnimatedPressable className="h-8 flex-row items-center gap-1 rounded-full bg-brand-alpha-12 px-3">
-                    <Icon as={VisibilityIcon} className="size-3.5 text-brand" />
-                    <Text className="text-xs font-bold text-brand">
-                      {WISHLIST_VISIBILITY_LABELS[visibility]}
-                    </Text>
-                    <Icon as={ChevronDown} className="size-3 text-brand" />
-                  </AnimatedPressable>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="min-w-48">
-                  {WISHLIST_VISIBILITY_OPTIONS.map((option) => (
-                    <DropdownMenuItem
-                      key={option.value}
-                      onPress={() => updateVisibility(option.visibility)}
-                    >
-                      <Icon as={option.icon} className="size-4 text-popover-foreground" />
-                      <Text>{option.label}</Text>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <View className="h-8 flex-row items-center gap-1 rounded-full bg-brand-alpha-12 px-3">
-                <Icon as={VisibilityIcon} className="size-3.5 text-brand" />
-                <Text className="text-xs font-bold text-brand">
-                  {WISHLIST_VISIBILITY_LABELS[visibility]}
+          <View className="flex-row items-center gap-2">
+            <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-2">
+              {canInlineEdit ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <AnimatedPressable className="h-8 flex-row items-center gap-1 rounded-full bg-brand-alpha-12 px-3">
+                      <Icon as={VisibilityIcon} className="size-3.5 text-brand" />
+                      <Text className="text-xs font-bold text-brand">
+                        {WISHLIST_VISIBILITY_LABELS[visibility]}
+                      </Text>
+                      <Icon as={ChevronDown} className="size-3 text-brand" />
+                    </AnimatedPressable>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="min-w-48">
+                    {WISHLIST_VISIBILITY_OPTIONS.map((option) => (
+                      <DropdownMenuItem
+                        key={option.value}
+                        className={cn(option.surfaceClassName, option.itemClassName)}
+                        onPress={() => updateVisibility(option.visibility)}
+                      >
+                        <Icon as={option.icon} className="size-4 text-popover-foreground" />
+                        <Text>{option.label}</Text>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <View className="h-8 flex-row items-center gap-1 rounded-full bg-brand-alpha-12 px-3">
+                  <Icon as={VisibilityIcon} className="size-3.5 text-brand" />
+                  <Text className="text-xs font-bold text-brand">
+                    {WISHLIST_VISIBILITY_LABELS[visibility]}
+                  </Text>
+                </View>
+              )}
+
+              <View className="h-8 justify-center rounded-full bg-badge-count-bg px-3">
+                <Text className="text-xs font-bold text-text-muted">
+                  {itemsCount === 1 ? "1 item" : `${itemsCount} items`}
                 </Text>
               </View>
-            )}
 
-            <View className="h-8 justify-center rounded-full bg-badge-count-bg px-3">
-              <Text className="text-xs font-bold text-text-muted">
-                {itemsCount === 1 ? "1 item" : `${itemsCount} items`}
-              </Text>
+              {eventDate || canInlineEdit ? (
+                eventDate && canInlineEdit ? (
+                  <View className="flex-row items-center rounded-full bg-info-bg pl-3 pr-1">
+                    <AnimatedPressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Wishlist event date"
+                      onPress={openDatePicker}
+                      className="h-8 flex-row items-center gap-1 pr-2"
+                    >
+                      <Icon as={Calendar} className="size-3.5 text-info" />
+                      <Text className="text-xs font-bold text-info" numberOfLines={1}>
+                        {formatDateLabel(eventDate)}
+                      </Text>
+                    </AnimatedPressable>
+                    <AnimatedPressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Clear date"
+                      onPress={() => updateEventDate(null)}
+                      className="size-8 items-center justify-center rounded-full"
+                    >
+                      <Icon as={X} className="size-3.5 text-text-muted" />
+                    </AnimatedPressable>
+                  </View>
+                ) : (
+                  <AnimatedPressable
+                    accessibilityRole={canInlineEdit ? "button" : "text"}
+                    accessibilityLabel={eventDate ? "Wishlist event date" : "Add date"}
+                    onPress={openDatePicker}
+                    className="h-8 flex-row items-center gap-1 rounded-full bg-info-bg px-3"
+                  >
+                    <Icon as={Calendar} className="size-3.5 text-info" />
+                    <Text className="text-xs font-bold text-info">
+                      {eventDate ? formatDateLabel(eventDate) : "Add date"}
+                    </Text>
+                  </AnimatedPressable>
+                )
+              ) : null}
             </View>
 
-            {eventDate || canInlineEdit ? (
-              <AnimatedPressable
-                accessibilityRole={canInlineEdit ? "button" : "text"}
-                accessibilityLabel={eventDate ? "Wishlist event date" : "Add date"}
-                onPress={openDatePicker}
-                className="h-8 flex-row items-center gap-1 rounded-full bg-info-bg px-3"
-              >
-                <Icon as={Calendar} className="size-3.5 text-info" />
-                <Text className="text-xs font-bold text-info">
-                  {eventDate ? formatDateLabel(eventDate) : "Add date"}
-                </Text>
-              </AnimatedPressable>
-            ) : null}
-
-            {eventDate && canInlineEdit ? (
+            {onDelete ? (
               <AnimatedPressable
                 accessibilityRole="button"
-                accessibilityLabel="Clear date"
-                onPress={() => updateEventDate(null)}
-                className="size-8 items-center justify-center rounded-full bg-glass-bg"
+                accessibilityLabel="Delete wishlist"
+                onPress={onDelete}
+                className="size-8 items-center justify-center rounded-full border border-destructive/25 bg-destructive/10"
               >
-                <Icon as={X} className="size-3.5 text-text-muted" />
+                <Icon as={Trash2} className="size-3.5 text-destructive" />
               </AnimatedPressable>
             ) : null}
           </View>
@@ -307,7 +329,7 @@ export function WishlistDetailHeader({
             </View>
           ) : null}
 
-          {onShare || (isOwner && onManageAccess) || onEdit || onDelete ? (
+          {onShare || (isOwner && onManageAccess) ? (
             <View className="flex-row items-center justify-end gap-2">
               {onShare ? (
                 <AnimatedPressable
@@ -329,32 +351,6 @@ export function WishlistDetailHeader({
                 >
                   <Icon as={KeyRound} className="size-4 text-text" />
                 </AnimatedPressable>
-              ) : null}
-
-              {onEdit || onDelete ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <AnimatedPressable
-                      accessibilityRole="button"
-                      accessibilityLabel="Wishlist actions"
-                      className="size-10 items-center justify-center rounded-full border border-glass-border bg-glass-bg"
-                    >
-                      <Icon as={MoreHorizontal} className="size-4 text-text" />
-                    </AnimatedPressable>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="min-w-36">
-                    {onEdit ? (
-                      <DropdownMenuItem onPress={onEdit}>
-                        <Text>Edit</Text>
-                      </DropdownMenuItem>
-                    ) : null}
-                    {onDelete ? (
-                      <DropdownMenuItem variant="destructive" onPress={onDelete}>
-                        <Text>Delete</Text>
-                      </DropdownMenuItem>
-                    ) : null}
-                  </DropdownMenuContent>
-                </DropdownMenu>
               ) : null}
             </View>
           ) : null}

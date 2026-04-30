@@ -9,29 +9,29 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { useMyStatistics } from "@/hooks/use-wishlists";
+import { getThemeMode } from "@/lib/theme";
 import {
   WISHLIST_VISIBILITY_ICONS,
   WISHLIST_VISIBILITY_LABELS,
-  getWishlistAccentClass,
+  getWishlistAccentGradientColors,
 } from "@/lib/wishlists";
-import { cn } from "@/lib/utils";
+import { AddCard } from "@/components/wishlists/add-card";
 import {
   wishlistCardFadeIn,
   wishlistGridLinearTransition,
 } from "@/components/wishlists/wishlist-screen-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import type { TriggerRef } from "@rn-primitives/dropdown-menu";
-import { Image as ExpoImage } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
 import { ChevronLeft, ChevronRight, Gift, Link2, Plus } from "lucide-react-native";
 import * as React from "react";
-import { View, useWindowDimensions } from "react-native";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
-import { withUniwind } from "uniwind";
-
-const Image = withUniwind(ExpoImage);
+import { useUniwind } from "uniwind";
 
 type SheetState =
   | { type: "create" }
@@ -114,7 +114,11 @@ export function WishlistList({
           ))}
 
           {!query.isError && wishlists.length > 0 ? (
-            <AddWishlistCard width={cardWidth} onPress={onCreateWishlist} />
+            <AddCard
+              width={cardWidth}
+              onPress={onCreateWishlist}
+              accessibilityLabel="Create wishlist"
+            />
           ) : null}
         </Animated.View>
       )}
@@ -226,6 +230,9 @@ function WishlistCard({
   const ownerNickname = wishlist.owner_nickname?.trim();
   const sharedLabel = ownerNickname ? `Shared by @${ownerNickname}` : "Shared wishlist";
   const menuTriggerRef = React.useRef<TriggerRef>(null);
+  const { theme } = useUniwind();
+  const mode = getThemeMode(theme);
+  const accentGradientColors = getWishlistAccentGradientColors(wishlist.accent_type, mode);
 
   return (
     <Animated.View entering={wishlistCardFadeIn} style={{ width }}>
@@ -238,14 +245,15 @@ function WishlistCard({
             className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
             pressedScale={0.98}
           >
-            <View
-              className={cn(
-                "h-[120px] items-center justify-center overflow-hidden",
-                getWishlistAccentClass(wishlist.accent_type),
-              )}
-            >
+            <View className="h-[120px] items-center justify-center overflow-hidden">
+              <LinearGradient
+                colors={accentGradientColors}
+                end={{ x: 1, y: 1 }}
+                start={{ x: 0, y: 0 }}
+                style={StyleSheet.absoluteFill}
+              />
               {wishlist.image_url ? (
-                <Image
+                <StyledImage
                   source={{ uri: wishlist.image_url }}
                   contentFit="cover"
                   className="absolute inset-0 size-full"
@@ -311,11 +319,6 @@ function WishlistCard({
           </DropdownMenuTrigger>
         ) : null}
         <DropdownMenuContent className="min-w-36">
-          {onAddItem ? (
-            <DropdownMenuItem onPress={onAddItem}>
-              <Text>Add item</Text>
-            </DropdownMenuItem>
-          ) : null}
           {onEdit ? (
             <DropdownMenuItem onPress={onEdit}>
               <Text>Edit</Text>
@@ -329,22 +332,6 @@ function WishlistCard({
         </DropdownMenuContent>
       </DropdownMenu>
     </Animated.View>
-  );
-}
-
-function AddWishlistCard({ width, onPress }: { width: number; onPress: () => void }) {
-  return (
-    <AnimatedPressable
-      accessibilityRole="button"
-      accessibilityLabel="Create wishlist"
-      onPress={onPress}
-      className="h-[196px] items-center justify-center rounded-xl border border-dashed border-border-subtle bg-card-bg active:bg-bg-subtle"
-      style={{ width }}
-    >
-      <View className="size-14 items-center justify-center rounded-full border border-dashed border-brand/50 bg-brand-lighter">
-        <Icon as={Plus} className="size-7 text-brand" />
-      </View>
-    </AnimatedPressable>
   );
 }
 

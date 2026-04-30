@@ -219,6 +219,7 @@ function VisibilitySelector({
     ];
     const options = orderedOptions.map((option) => ({
       value: option.visibility,
+      surfaceClassName: option.surfaceClassName,
       children: ({ selected }: SlidingOptionRenderProps) => (
         <>
           <Icon
@@ -259,6 +260,7 @@ function AccentSelector({
     const options = WISHLIST_ACCENT_OPTIONS.map((option) => ({
       value: option.value,
       accessibilityLabel: `Use ${option.label} accent`,
+      surfaceClassName: "bg-transparent",
       children: ({ selected }: SlidingOptionRenderProps) => (
         <>
           <View className={cn("size-4 rounded-full", getWishlistAccentClass(option.value))} />

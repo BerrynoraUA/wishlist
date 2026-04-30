@@ -1,4 +1,5 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { BouncingButton } from "@/components/ui/buttons/BouncingButton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -85,20 +86,17 @@ export function WishlistFilterBar({
             </Button>
           ) : null}
         </View>
-        <Button
-          size="lg"
-          className="h-11 shrink-0 rounded-full px-4 shadow-brand sm:h-11"
+        <BouncingButton
+          accessibilityLabel="Add wishlist"
+          Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
           onPress={onCreateWishlist}
-        >
-          <Icon as={Plus} className="size-4 text-primary-foreground" />
-          <Text>Add Wishlist</Text>
-        </Button>
+          title="Add Wishlist"
+        />
       </View>
 
       {filtersOpen ? (
         <View className="gap-3">
           <WishlistSearch search={search} onSearchChange={onSearchChange} />
-
           <View className="w-full flex-row items-stretch gap-2">
             <View className="min-w-0 flex-1">
               <DropdownMenu>
@@ -135,6 +133,7 @@ export function WishlistFilterBar({
                     return (
                       <DropdownMenuCheckboxItem
                         key={option.value}
+                        className={cn(option.surfaceClassName, option.itemClassName)}
                         checked={visibility.includes(option.value)}
                         closeOnPress={false}
                         onCheckedChange={() => onVisibilityChange(option.value)}

@@ -79,6 +79,7 @@ export default function ProfileScreen() {
     const options = NATIVE_ACCENTS.map((accent) => ({
       value: accent.name,
       accessibilityLabel: `Use ${accent.label} accent`,
+      surfaceClassName: "bg-transparent",
       children: ({ selected }: SlidingOptionRenderProps) => (
         <View className="w-full items-center gap-1 py-1.5">
           <View

@@ -1,22 +1,20 @@
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import {
   buildReservationLabel,
   getItemPriorityLabel,
   getItemReservationState,
   getItemStoreFromUrl,
+  getSalePercentOff,
 } from "@/lib/items";
 import type { Item } from "@wishlist/backend/types/item";
 import * as Clipboard from "expo-clipboard";
-import { Image as ExpoImage } from "expo-image";
 import { Copy, ExternalLink, Gift, Pencil, ShoppingCart, Trash2 } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Alert, Linking, View } from "react-native";
-import { withUniwind } from "uniwind";
-
-const Image = withUniwind(ExpoImage);
 
 export function WishlistItemDetailSheet({
   item,
@@ -60,6 +58,11 @@ export function WishlistItemDetailSheet({
   });
   const priorityLabel = getItemPriorityLabel(selectedItem.priority);
   const store = getItemStoreFromUrl(selectedItem.url);
+  const salePercentOff = getSalePercentOff(
+    selectedItem.price,
+    selectedItem.discount_price,
+    selectedItem.has_discount,
+  );
 
   function handleClose() {
     void sheetRef.current?.dismiss();
@@ -122,7 +125,7 @@ export function WishlistItemDetailSheet({
       <View className="gap-5 px-5 pb-6 pt-5">
         <View className="h-56 overflow-hidden rounded-2xl border border-border-subtle bg-bg-muted">
           {item.image_url ? (
-            <Image source={{ uri: item.image_url }} contentFit="cover" className="size-full" />
+            <StyledImage source={{ uri: item.image_url }} contentFit="cover" className="size-full" />
           ) : (
             <View className="flex-1 items-center justify-center">
               <Icon as={Gift} className="size-12 text-text-light" />
@@ -137,9 +140,27 @@ export function WishlistItemDetailSheet({
 
           <View className="flex-row flex-wrap gap-2">
             {item.price ? (
-              <Text className="rounded-full bg-brand-lighter px-3 py-1.5 text-sm font-extrabold text-brand">
-                {item.currency ? `${item.currency} ` : ""}
-                {item.has_discount && item.discount_price ? item.discount_price : item.price}
+              item.has_discount && item.discount_price ? (
+                <View className="flex-row items-center gap-2 rounded-full bg-brand-lighter px-3 py-1.5">
+                  <Text className="text-sm font-extrabold text-brand">
+                    {item.currency ? `${item.currency} ` : ""}
+                    {item.discount_price}
+                  </Text>
+                  <Text className="text-xs font-bold text-text-muted line-through">
+                    {item.currency ? `${item.currency} ` : ""}
+                    {item.price}
+                  </Text>
+                </View>
+              ) : (
+                <Text className="rounded-full bg-brand-lighter px-3 py-1.5 text-sm font-extrabold text-brand">
+                  {item.currency ? `${item.currency} ` : ""}
+                  {item.price}
+                </Text>
+              )
+            ) : null}
+            {salePercentOff != null ? (
+              <Text className="rounded-full bg-danger px-3 py-1.5 text-sm font-extrabold text-white">
+                Sale -{salePercentOff}%
               </Text>
             ) : null}
             {priorityLabel ? (
