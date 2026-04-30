@@ -9,6 +9,7 @@ type Option<Value extends string = string> = {
   label: ReactNode;
   description?: ReactNode;
   leading?: ReactNode;
+  trailing?: ReactNode | ((active: boolean) => ReactNode);
   disabled?: boolean;
 };
 
@@ -23,6 +24,7 @@ type Props<Value extends string> = {
   triggerClassName?: string;
   dropdownClassName?: string;
   optionClassName?: string;
+  leadingClassName?: string;
   size?: "md" | "sm";
 };
 
@@ -37,6 +39,7 @@ export function Select<Value extends string>({
   triggerClassName,
   dropdownClassName,
   optionClassName,
+  leadingClassName,
   size = "md",
 }: Props<Value>) {
   const [open, setOpen] = useState(false);
@@ -51,7 +54,10 @@ export function Select<Value extends string>({
     if (!open) return;
 
     function handleClickOutside(event: MouseEvent) {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
         setOpen(false);
       }
     }
@@ -61,7 +67,10 @@ export function Select<Value extends string>({
   }, [open]);
 
   return (
-    <div className={`${styles.wrapper} ${className ?? ""}`.trim()} ref={wrapperRef}>
+    <div
+      className={`${styles.wrapper} ${className ?? ""}`.trim()}
+      ref={wrapperRef}
+    >
       <button
         type="button"
         className={`${styles.trigger} ${styles[size]} ${triggerClassName ?? ""}`.trim()}
@@ -74,9 +83,17 @@ export function Select<Value extends string>({
         disabled={disabled}
       >
         <span className={styles.triggerValue}>
-          {selected?.leading != null && <span className={styles.leading}>{selected.leading}</span>}
+          {selected?.leading != null && (
+            <span
+              className={`${styles.leading} ${leadingClassName ?? ""}`.trim()}
+            >
+              {selected.leading}
+            </span>
+          )}
           <span className={styles.copy}>
-            <span className={styles.label}>{selected?.label ?? placeholder}</span>
+            <span className={styles.label}>
+              {selected?.label ?? placeholder}
+            </span>
             {selected?.description != null && (
               <span className={styles.description}>{selected.description}</span>
             )}
@@ -89,9 +106,16 @@ export function Select<Value extends string>({
       </button>
 
       {open && (
-        <div className={`${styles.dropdown} ${dropdownClassName ?? ""}`.trim()} role="listbox">
+        <div
+          className={`${styles.dropdown} ${dropdownClassName ?? ""}`.trim()}
+          role="listbox"
+        >
           {options.map((option) => {
             const isActive = option.value === value;
+            const trailing =
+              typeof option.trailing === "function"
+                ? option.trailing(isActive)
+                : option.trailing;
 
             return (
               <button
@@ -109,16 +133,23 @@ export function Select<Value extends string>({
               >
                 <span className={styles.optionMain}>
                   {option.leading != null && (
-                    <span className={styles.leading}>{option.leading}</span>
+                    <span
+                      className={`${styles.leading} ${leadingClassName ?? ""}`.trim()}
+                    >
+                      {option.leading}
+                    </span>
                   )}
                   <span className={styles.copy}>
                     <span className={styles.label}>{option.label}</span>
                     {option.description != null && (
-                      <span className={styles.description}>{option.description}</span>
+                      <span className={styles.description}>
+                        {option.description}
+                      </span>
                     )}
                   </span>
                 </span>
-                {isActive && <Check size={14} className={styles.check} />}
+                {trailing ??
+                  (isActive && <Check size={14} className={styles.check} />)}
               </button>
             );
           })}
