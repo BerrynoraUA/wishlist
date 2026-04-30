@@ -5,7 +5,7 @@ export interface CreateItemParams {
   name: string;
   description?: string | null;
   price?: string | null;
-  priority?: number | null;
+  priority_id?: string | null;
   image?: File | null;
   image_url?: string | null;
   url?: string | null;
@@ -21,7 +21,7 @@ export interface UpdateItemParams {
   name?: string;
   description?: string | null;
   price?: string | null;
-  priority?: number | null;
+  priority_id?: string | null;
   image_url?: string | null;
   url?: string | null;
   status?: number;

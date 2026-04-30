@@ -1,7 +1,6 @@
 import { useGT } from "gt-next";
 import { ShoppingCart } from "lucide-react";
 import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
-import type { ItemCardPriorityKey } from "@/lib/helpers/item-card";
 import styles from "../ItemCard.module.scss";
 import { cn } from "../utils";
 
@@ -11,7 +10,7 @@ type CardBadgesProps = {
   statusLabel: string | null;
   isPurchased: boolean;
   salePercentOff: number | null;
-  priorityKey: ItemCardPriorityKey | null;
+  priorityColor: string | null;
   priorityDisplay: string | null;
 };
 
@@ -20,11 +19,11 @@ export function CardBadges({
   statusLabel,
   isPurchased,
   salePercentOff,
-  priorityKey,
+  priorityColor,
   priorityDisplay,
 }: CardBadgesProps) {
   const t = useGT();
-  const hasRightBadges = salePercentOff != null || !!priorityKey;
+  const hasRightBadges = salePercentOff != null || !!priorityDisplay;
 
   return (
     <>
@@ -40,7 +39,11 @@ export function CardBadges({
           data-tooltip={statusLabel}
           title={statusLabel}
         >
-          {isPurchased ? <ShoppingCart size={14} /> : <ReservationLockIcon isReserved size={14} />}
+          {isPurchased ? (
+            <ShoppingCart size={14} />
+          ) : (
+            <ReservationLockIcon isReserved size={14} />
+          )}
           {salePercentOff == null && <span>{statusLabel}</span>}
         </div>
       )}
@@ -54,8 +57,17 @@ export function CardBadges({
             })}
           </div>
         )}
-        {priorityKey && (
-          <div className={`${styles.badgeRight} ${styles[priorityKey]}`}>{priorityDisplay}</div>
+        {priorityDisplay && (
+          <div
+            className={styles.badgeRight}
+            style={
+              priorityColor
+                ? { borderColor: priorityColor, color: priorityColor }
+                : undefined
+            }
+          >
+            {priorityDisplay}
+          </div>
         )}
       </div>
     </>

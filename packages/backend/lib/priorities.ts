@@ -1,0 +1,98 @@
+import type { ItemPriority } from "../types/priority";
+
+// Fixed UUIDs match the migration seed — no DB round-trip needed
+export const PRIORITY_IDS = {
+  LOW: "11111111-0000-0000-0000-000000000001",
+  MEDIUM: "11111111-0000-0000-0000-000000000002",
+  HIGH: "11111111-0000-0000-0000-000000000003",
+  URGENT: "11111111-0000-0000-0000-000000000004",
+  CRITICAL: "11111111-0000-0000-0000-000000000005",
+  EPIC: "11111111-0000-0000-0000-000000000006",
+  LEGENDARY: "11111111-0000-0000-0000-000000000007",
+  MYTHIC: "11111111-0000-0000-0000-000000000008",
+  CELESTIAL: "11111111-0000-0000-0000-000000000009",
+  DIVINE: "11111111-0000-0000-0000-000000000010",
+} as const;
+
+export const ALL_PRIORITIES: ItemPriority[] = [
+  {
+    id: PRIORITY_IDS.LOW,
+    name: "Low",
+    color: "#22c55e",
+    emoji: "🟢",
+    sort_order: 1,
+    is_free: true,
+  },
+  {
+    id: PRIORITY_IDS.MEDIUM,
+    name: "Medium",
+    color: "#eab308",
+    emoji: "🟡",
+    sort_order: 2,
+    is_free: true,
+  },
+  {
+    id: PRIORITY_IDS.HIGH,
+    name: "High",
+    color: "#ef4444",
+    emoji: "🔴",
+    sort_order: 3,
+    is_free: true,
+  },
+  {
+    id: PRIORITY_IDS.URGENT,
+    name: "Urgent",
+    color: "#f97316",
+    emoji: "🔥",
+    sort_order: 4,
+    is_free: false,
+  },
+  {
+    id: PRIORITY_IDS.CRITICAL,
+    name: "Critical",
+    color: "#ec4899",
+    emoji: "⚡",
+    sort_order: 5,
+    is_free: false,
+  },
+  {
+    id: PRIORITY_IDS.EPIC,
+    name: "Epic",
+    color: "#8b5cf6",
+    emoji: "💜",
+    sort_order: 6,
+    is_free: false,
+  },
+  {
+    id: PRIORITY_IDS.LEGENDARY,
+    name: "Legendary",
+    color: "#f59e0b",
+    emoji: "👑",
+    sort_order: 7,
+    is_free: false,
+  },
+  {
+    id: PRIORITY_IDS.MYTHIC,
+    name: "Mythic",
+    color: "#06b6d4",
+    emoji: "🌊",
+    sort_order: 8,
+    is_free: false,
+  },
+  {
+    id: PRIORITY_IDS.CELESTIAL,
+    name: "Celestial",
+    color: "#6366f1",
+    emoji: "✨",
+    sort_order: 9,
+    is_free: false,
+  },
+  {
+    id: PRIORITY_IDS.DIVINE,
+    name: "Divine",
+    color: "#e879f9",
+    emoji: "🌟",
+    sort_order: 10,
+    is_free: false,
+  },
+];

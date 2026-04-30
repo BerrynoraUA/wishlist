@@ -20,7 +20,6 @@ import {
   parsePage,
   parseOptionalNumber,
   mapFilterValues,
-  toNumberArray,
   hasActiveFilters,
 } from "@/lib/filter-helpers";
 
@@ -28,20 +27,29 @@ const PAGE_SIZE = 12;
 
 export function useWishlistItemFilters(id: string) {
   const t = useGT();
-  const { searchParams, updateQueryParams, setPage, setSingleValueParam, setMultiValueParam } =
-    useQueryParams(`/wishlist/${id}`);
+  const {
+    searchParams,
+    updateQueryParams,
+    setPage,
+    setSingleValueParam,
+    setMultiValueParam,
+  } = useQueryParams(`/wishlist/${id}`);
 
   const openItemId = searchParams.get("item");
   const page = parsePage(searchParams);
-  const { value: itemSearch, setValue: setItemSearch } = useDebouncedQueryParam({
-    key: "itemSearch",
-  });
-  const { value: itemPriceMin, setValue: setItemPriceMin } = useDebouncedQueryParam({
-    key: "itemPriceMin",
-  });
-  const { value: itemPriceMax, setValue: setItemPriceMax } = useDebouncedQueryParam({
-    key: "itemPriceMax",
-  });
+  const { value: itemSearch, setValue: setItemSearch } = useDebouncedQueryParam(
+    {
+      key: "itemSearch",
+    },
+  );
+  const { value: itemPriceMin, setValue: setItemPriceMin } =
+    useDebouncedQueryParam({
+      key: "itemPriceMin",
+    });
+  const { value: itemPriceMax, setValue: setItemPriceMax } =
+    useDebouncedQueryParam({
+      key: "itemPriceMax",
+    });
   const itemSort = searchParams.get("itemSort") ?? DEFAULT_SORT;
 
   const itemStatuses = useMemo(
@@ -72,8 +80,6 @@ export function useWishlistItemFilters(id: string) {
     () => mapFilterValues(itemStatuses, ITEM_STATUS_MAP),
     [itemStatuses],
   );
-  const priorityNumbers = useMemo(() => toNumberArray(itemPriorities), [itemPriorities]);
-
   const itemsQueryParams = useMemo(
     () => ({
       skip: (page - 1) * PAGE_SIZE,
@@ -81,7 +87,7 @@ export function useWishlistItemFilters(id: string) {
       search: itemSearch.trim() || undefined,
       sort: itemSort,
       statuses: statusNumbers.length ? statusNumbers : undefined,
-      priorities: priorityNumbers.length ? priorityNumbers : undefined,
+      priorities: itemPriorities.length ? itemPriorities : undefined,
       priceMin: normalizedPriceMin,
       priceMax: normalizedPriceMax,
     }),
@@ -91,7 +97,7 @@ export function useWishlistItemFilters(id: string) {
       normalizedPriceMax,
       normalizedPriceMin,
       page,
-      priorityNumbers,
+      itemPriorities,
       statusNumbers,
     ],
   );
@@ -235,14 +241,21 @@ export function useWishlistItemFilters(id: string) {
         return;
       }
 
-      const queryKey = paramKey === "itemStatus" ? "itemStatus" : "itemPriority";
+      const queryKey =
+        paramKey === "itemStatus" ? "itemStatus" : "itemPriority";
       const currentValues = getMultiParamValues(searchParams, queryKey);
       setMultiValueParam(
         queryKey,
         currentValues.filter((current) => current !== value),
       );
     },
-    [searchParams, setItemPriceMax, setItemPriceMin, setMultiValueParam, setPage],
+    [
+      searchParams,
+      setItemPriceMax,
+      setItemPriceMin,
+      setMultiValueParam,
+      setPage,
+    ],
   );
 
   const clearToolbarFilters = useCallback(() => {

@@ -13,7 +13,11 @@ import { WishlistAccent } from "@/types/wishlist";
 import type { ThemePreference, WishlistColorIndex } from "@/types/settings";
 import { useAppTheme } from "@/providers";
 import { CurrencySettings } from "../currency-settings/CurrencySettings";
-import { getWishlistAccentSwatches, getWishlistColorSwatches } from "@/lib/constants/wishlist";
+import {
+  getWishlistAccentSwatches,
+  getWishlistColorSwatches,
+} from "@/lib/constants/wishlist";
+import { ALL_PRIORITIES, PRIORITY_IDS } from "@/lib/priorities";
 
 export function AppearanceSettings() {
   const t = useGT();
@@ -24,6 +28,25 @@ export function AppearanceSettings() {
   const { isPro } = useSubscription();
   const isAccentGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
   const isWishlistColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
+  const isPriorityGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
+
+  const selectedPriorities = settings?.selected_priorities ?? [
+    PRIORITY_IDS.LOW,
+    PRIORITY_IDS.MEDIUM,
+    PRIORITY_IDS.HIGH,
+  ];
+
+  function handlePriorityToggle(id: string, isFree: boolean) {
+    if (isPriorityGated && !isFree) {
+      router.push("/subscription");
+      return;
+    }
+    const next = selectedPriorities.includes(id)
+      ? selectedPriorities.filter((p) => p !== id)
+      : [...selectedPriorities, id];
+    if (next.length === 0) return;
+    updateSettings.mutate({ selected_priorities: next });
+  }
 
   function handleTheme(theme: ThemePreference) {
     setPersistedTheme(theme);
@@ -153,13 +176,18 @@ export function AppearanceSettings() {
                     : a.label
                 }
               >
-                {locked ? <Lock size={14} /> : activeAccent === a.id && <Check size={16} />}
+                {locked ? (
+                  <Lock size={14} />
+                ) : (
+                  activeAccent === a.id && <Check size={16} />
+                )}
               </button>
             );
           })}
         </div>
         <p className={styles.accentLabel}>
-          {accents.find((a) => a.id === activeAccent)?.label ?? defaultColorLabel}
+          {accents.find((a) => a.id === activeAccent)?.label ??
+            defaultColorLabel}
         </p>
       </SettingsSection>
 
@@ -188,14 +216,61 @@ export function AppearanceSettings() {
                     : a.label
                 }
               >
-                {locked ? <Lock size={14} /> : activeWishlistColor === a.id && <Check size={16} />}
+                {locked ? (
+                  <Lock size={14} />
+                ) : (
+                  activeWishlistColor === a.id && <Check size={16} />
+                )}
               </button>
             );
           })}
         </div>
         <p className={styles.accentLabel}>
-          {wishlistColors.find((a) => a.id === activeWishlistColor)?.label ?? defaultColorLabel}
+          {wishlistColors.find((a) => a.id === activeWishlistColor)?.label ??
+            defaultColorLabel}
         </p>
+      </SettingsSection>
+
+      <SettingsSection
+        title={t("Item Priorities", {
+          $id: "settings.appearance.prioritiesSectionTitle",
+        })}
+        description={t(
+          "Choose which priority levels appear when adding or editing items.",
+          { $id: "settings.appearance.prioritiesSectionDescription" },
+        )}
+      >
+        <div className={styles.priorityGrid}>
+          {ALL_PRIORITIES.map((p) => {
+            const locked = isPriorityGated && !p.is_free;
+            const active = selectedPriorities.includes(p.id);
+            return (
+              <button
+                key={p.id}
+                type="button"
+                className={`${styles.priorityPill} ${active ? styles.active : ""} ${locked ? styles.locked : ""}`}
+                onClick={() => handlePriorityToggle(p.id, p.is_free)}
+                style={
+                  active ? { borderColor: p.color, color: p.color } : undefined
+                }
+                title={
+                  locked
+                    ? t("Upgrade to Pro", {
+                        $id: "settings.appearance.priority.upgradeToPro",
+                      })
+                    : p.name
+                }
+              >
+                {locked ? (
+                  <Lock size={12} />
+                ) : (
+                  <span className={styles.priorityEmoji}>{p.emoji}</span>
+                )}
+                <span>{p.name}</span>
+              </button>
+            );
+          })}
+        </div>
       </SettingsSection>
 
       <CurrencySettings />

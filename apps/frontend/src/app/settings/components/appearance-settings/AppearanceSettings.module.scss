@@ -136,3 +136,46 @@
   font-weight: var(--fw-semibold);
   margin: 4px 0 0;
 }
+
+/* ── Priority pills ── */
+.priorityGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.priorityPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background 0.15s;
+
+  &.active {
+    background: color-mix(in srgb, currentColor 10%, transparent);
+  }
+
+  &.locked {
+    opacity: 0.55;
+    cursor: pointer;
+  }
+
+  &:hover:not(.locked) {
+    background: var(--color-surface-hover);
+  }
+}
+
+.priorityEmoji {
+  font-size: 14px;
+  line-height: 1;
+}

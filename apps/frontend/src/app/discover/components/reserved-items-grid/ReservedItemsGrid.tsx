@@ -5,7 +5,6 @@ import styles from "./ReservedItemsGrid.module.scss";
 import { ItemCard, normalizeReservedItem } from "@/components/shared/ItemCard";
 import { ItemDetailModal } from "../item-detail-modal/ItemDetailModal";
 import { ReservedItem } from "@/api/types/wishilst";
-import { getItemPriorityName } from "@/lib/helpers/item-card";
 
 type Props = {
   items: ReservedItem[];
@@ -47,7 +46,7 @@ export function ReservedItemsGrid({
             onToggleReserve={onToggleReserve}
             onToggleBought={onToggleBought}
             renderDetailModal={({ open, onClose }) => {
-              const priorityName = getItemPriorityName(item.priority) ?? undefined;
+              const priorityName = item.priority_name ?? undefined;
               return (
                 <ItemDetailModal
                   open={open}

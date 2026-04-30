@@ -10,6 +10,7 @@
       "@/lib/posthog-person-from-supabase": [
         "../../packages/backend/lib/posthog-person-from-supabase.ts"
       ],
+      "@/lib/priorities": ["../../packages/backend/lib/priorities.ts"],
       "@/lib/supabase-admin": ["../../packages/backend/supabase/admin.ts"],
       "@/lib/supabase-browser": ["../../packages/backend/supabase/browser.ts"],
       "@/types": ["../../packages/backend/types/index.ts"],

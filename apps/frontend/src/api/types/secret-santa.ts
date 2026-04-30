@@ -104,7 +104,8 @@ export type VisibleItem = {
   effective_price: number | null;
   discount_end_date: string | null;
   currency: string | null;
-  priority: number | null;
+  priority_id: string | null;
+  priority_name: string | null;
   url: string | null;
   image_url: string | null;
   status: number | null;

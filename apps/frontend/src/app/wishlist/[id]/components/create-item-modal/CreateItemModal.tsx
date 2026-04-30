@@ -20,9 +20,7 @@ import { validateImageUploadFile } from "@/lib/image-upload";
 import {
   getCompactCurrencyOptions,
   getPriorityOptions,
-  priorityToValue,
   resolveCurrency,
-  type ItemPriorityOption,
 } from "@/lib/helpers/form-select-options";
 import styles from "./CreateItemModal.module.scss";
 
@@ -41,7 +39,7 @@ type CreateItemDraft = {
   name: string;
   description: string;
   price: string;
-  priority: ItemPriorityOption;
+  priority: string | null;
   imagePreview: string;
   discountPrice: string | null;
   hasDiscount: boolean;
@@ -61,7 +59,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [priority, setPriority] = useState<ItemPriorityOption>("None");
+  const [priority, setPriority] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
@@ -76,7 +74,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const preferredCurrency = resolveCurrency(settings?.display_currency);
   const [currency, setCurrency] = useState(preferredCurrency);
   const currencyOptions = getCompactCurrencyOptions();
-  const priorityOptions = getPriorityOptions(t);
+  const priorityOptions = getPriorityOptions(t, settings?.selected_priorities);
 
   const { mutate, isPending } = useCreateItem();
 
@@ -118,7 +116,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       draft.name.trim() ||
       draft.description.trim() ||
       draft.price.trim() ||
-      draft.priority !== "None" ||
+      draft.priority !== null ||
       draft.imagePreview ||
       draft.discountPrice ||
       draft.hasDiscount ||
@@ -179,7 +177,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     setName("");
     setDescription("");
     setPrice("");
-    setPriority("None");
+    setPriority(null);
     setImagePreview("");
     setImageFile(null);
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
@@ -209,14 +207,12 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
     const imageUrlToSave = imageFile ? null : imagePreview || null;
 
-    const priorityValue = priority === "None" ? null : priorityToValue[priority];
-
     const payload: CreateItemParams = {
       wishlist_id: wishlistId,
       name: name.trim(),
       description: description.trim() || null,
       price: price.trim() || null,
-      priority: priorityValue,
+      priority_id: priority || null,
       url: link.trim() || null, // original link user pasted
       additional_links: additionalLinks.filter((l) => l.url.trim()),
       image: imageFile,
@@ -284,7 +280,11 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           currency: data?.currency ?? null,
         };
 
-        const isEmpty = !product.title && !product.description && !product.image && !product.price;
+        const isEmpty =
+          !product.title &&
+          !product.description &&
+          !product.image &&
+          !product.price;
 
         if (isEmpty) {
           setError(
@@ -309,7 +309,10 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           setImagePreview(product.image);
         }
       } else {
-        setError(data?.error || t("Error loading product", { $id: "item.modal.scrapeError" }));
+        setError(
+          data?.error ||
+            t("Error loading product", { $id: "item.modal.scrapeError" }),
+        );
       }
     } catch {
       setError(
@@ -327,7 +330,9 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerCopy}>
-            <Heading>{t("Create Item", { $id: "item.modal.create.title" })}</Heading>
+            <Heading>
+              {t("Create Item", { $id: "item.modal.create.title" })}
+            </Heading>
             <Text variant="caption" tone="muted">
               {t("Add a product to this wishlist.", {
                 $id: "item.modal.create.subtitle",
@@ -348,7 +353,11 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                       })}
                 </span>
               </div>
-              <button type="button" className={styles.draftAction} onClick={handleDiscardDraft}>
+              <button
+                type="button"
+                className={styles.draftAction}
+                onClick={handleDiscardDraft}
+              >
                 {t("Discard", { $id: "draft.discard" })}
               </button>
             </div>
@@ -373,9 +382,16 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               value={link}
               onChange={(e) => setLink(e.target.value)}
             />
-            <Button variant="secondary" onClick={handleScrape} disabled={!link.trim() || loading}>
+            <Button
+              variant="secondary"
+              onClick={handleScrape}
+              disabled={!link.trim() || loading}
+            >
               {loading ? (
-                <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
+                <Loader2
+                  size={16}
+                  style={{ animation: "spin 0.8s linear infinite" }}
+                />
               ) : (
                 t("Search", { $id: "item.modal.searchProduct" })
               )}
@@ -405,7 +421,9 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                     type="button"
                     className={styles.removeLinkBtn}
                     onClick={() => {
-                      setAdditionalLinks(additionalLinks.filter((_, i) => i !== index));
+                      setAdditionalLinks(
+                        additionalLinks.filter((_, i) => i !== index),
+                      );
                     }}
                     aria-label={t("Remove link", {
                       $id: "item.modal.removeLinkAria",
@@ -418,10 +436,14 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               <button
                 type="button"
                 className={styles.addLinkBtn}
-                onClick={() => setAdditionalLinks([...additionalLinks, { url: "" }])}
+                onClick={() =>
+                  setAdditionalLinks([...additionalLinks, { url: "" }])
+                }
               >
                 <Plus size={14} />
-                <span>{t("Add another link", { $id: "item.modal.addAnotherLink" })}</span>
+                <span>
+                  {t("Add another link", { $id: "item.modal.addAnotherLink" })}
+                </span>
               </button>
             </div>
           )}
@@ -508,7 +530,9 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
+          <label>
+            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
+          </label>
           <div className={styles.priceRow}>
             <Select
               value={currency}
@@ -531,8 +555,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           <div className={styles.field}>
             <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
             <Select
-              value={priority}
-              onChange={setPriority}
+              value={priority ?? ""}
+              onChange={(v) => setPriority(v || null)}
               options={priorityOptions}
               ariaLabel={t("Priority", { $id: "item.modal.priorityLabel" })}
               triggerClassName={styles.selectField}

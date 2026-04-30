@@ -43,7 +43,8 @@ export type DiscoverItem = {
   url?: string | null;
   share_url?: string | null;
   description?: string | null;
-  priority?: "Low" | "Medium" | "High" | 1 | 2 | 3;
+  priority?: string | null;
+  priority_id?: string | null;
   status?: number;
   isReserved: boolean;
   reserved_by?: string | null;
@@ -74,7 +75,7 @@ export type ReservedItem = {
   image: string;
   url?: string | null;
   share_url?: string | null;
-  priority: "Low" | "Medium" | "High" | 1 | 2 | 3 | null;
+  priority_name: string | null;
   status: number;
   wishlist_id: string;
   wishlist_title: string;

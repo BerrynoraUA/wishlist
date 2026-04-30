@@ -15,8 +15,17 @@ export enum WishlistAccent {
   Lavender = 4,
 }
 
-export type WishlistPrivacyOption = "Public" | "Friends" | "SelectedFriends" | "Private";
-export type WishlistColorOption = "pink" | "peach" | "blue" | "lavender" | "mint";
+export type WishlistPrivacyOption =
+  | "Public"
+  | "Friends"
+  | "SelectedFriends"
+  | "Private";
+export type WishlistColorOption =
+  | "pink"
+  | "peach"
+  | "blue"
+  | "lavender"
+  | "mint";
 
 export type Wishlist = {
   id: string;
@@ -33,6 +42,7 @@ export type Wishlist = {
   is_owner: boolean;
   access_type: number | null;
   owner_nickname: string | null;
+  is_pinned: boolean;
 };
 
 export interface WishlistItemSummary {
