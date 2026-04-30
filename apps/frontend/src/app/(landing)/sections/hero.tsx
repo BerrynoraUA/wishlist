@@ -2,6 +2,7 @@
 
 import { useGT } from "gt-next";
 import Link from "next/link";
+import { Gift, Headphones, BookOpen, Coffee, Check, Link2 } from "lucide-react";
 import type { MouseEvent, RefObject } from "react";
 import styles from "../landing.module.scss";
 import { MockupItem } from "./shared";
@@ -186,7 +187,9 @@ export function Hero({
                   <div
                     className={styles.mockupCardColor}
                     style={{ background: "linear-gradient(135deg, #f472b6, #c0267e)" }}
-                  />
+                  >
+                    <Gift size={24} />
+                  </div>
                   <div>
                     <h3 className={styles.mockupCardTitle}>
                       {t("Birthday Wishes", { $id: "landing.hero.mockup.title" })}
@@ -205,21 +208,21 @@ export function Hero({
                 </div>
                 <div className={styles.mockupCardItems}>
                   <MockupItem
-                    emoji="Headphones"
+                    icon={<Headphones size={20} color="#c0267e" />}
                     bg="#fde7f3"
                     name={t("Wireless Headphones", { $id: "landing.hero.mockup.item1.name" })}
                     price="$149.99"
                     priority="high"
                   />
                   <MockupItem
-                    emoji="Book"
+                    icon={<BookOpen size={20} color="#0284c7" />}
                     bg="#e0f2fe"
                     name={t("Design Anthology Book", { $id: "landing.hero.mockup.item2.name" })}
                     price="$34.00"
                     priority="med"
                   />
                   <MockupItem
-                    emoji="Coffee"
+                    icon={<Coffee size={20} color="#b45309" />}
                     bg="#fef3c7"
                     name={t("Ceramic Pour-Over Set", { $id: "landing.hero.mockup.item3.name" })}
                     price="$62.00"
@@ -229,7 +232,9 @@ export function Hero({
               </div>
               <div className={`${styles.mockupCardFloat} ${styles.mockupCardFloat1}`}>
                 <div className={styles.mockupFloatInner}>
-                  <span className={styles.mockupFloatIcon}>OK</span>
+                  <span className={styles.mockupFloatIcon}>
+                    <Check size={16} />
+                  </span>
                   <span className={styles.mockupFloatText}>
                     {t("Item reserved!", { $id: "landing.hero.mockup.floatReserved" })}
                   </span>
@@ -237,7 +242,9 @@ export function Hero({
               </div>
               <div className={`${styles.mockupCardFloat} ${styles.mockupCardFloat2}`}>
                 <div className={styles.mockupFloatInner}>
-                  <span className={styles.mockupFloatIcon}>Link</span>
+                  <span className={styles.mockupFloatIcon}>
+                    <Link2 size={16} />
+                  </span>
                   <span className={styles.mockupFloatText}>
                     {t("Link shared", { $id: "landing.hero.mockup.floatShared" })}
                   </span>

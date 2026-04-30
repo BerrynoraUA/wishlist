@@ -3,16 +3,17 @@
 import { useGT } from "gt-next";
 import { useState } from "react";
 import type { ReactNode } from "react";
+import { Headphones, BookOpen } from "lucide-react";
 import styles from "../landing.module.scss";
 
 export function MockupItem({
-  emoji,
+  icon,
   bg,
   name,
   price,
   priority,
 }: {
-  emoji: string;
+  icon: ReactNode;
   bg: string;
   name: string;
   price: string;
@@ -28,7 +29,7 @@ export function MockupItem({
   return (
     <div className={styles.mockupItem}>
       <div className={styles.mockupItemImg} style={{ background: bg }}>
-        {emoji}
+        {icon}
       </div>
       <div className={styles.mockupItemInfo}>
         <span className={styles.mockupItemName}>{name}</span>
@@ -96,11 +97,11 @@ export function FeatureCard({
 }) {
   return (
     <div className={`${styles.featureCard} ${styles.animateIn}`} data-delay={delay}>
-      <div className={styles.featureIcon} style={{ background: iconBg, color: iconColor }}>
+      <div className={styles.featureCardIcon} style={{ background: iconBg, color: iconColor }}>
         {icon}
       </div>
-      <h3 className={styles.featureTitle}>{title}</h3>
-      <p className={styles.featureDesc}>{desc}</p>
+      <h3 className={styles.featureCardTitle}>{title}</h3>
+      <p className={styles.featureCardDesc}>{desc}</p>
     </div>
   );
 }
@@ -194,7 +195,7 @@ export function DemoReserve() {
   return (
     <div className={`${styles.stepDemo} ${styles.stepDemoReserve}`}>
       <DemoReserveItem
-        emoji="Headphones"
+        icon={<Headphones size={20} color="#c0267e" />}
         bg="#fde7f3"
         name={t("Sony WH-1000XM5", {
           $id: "landing.demo.reserve.item1.name",
@@ -203,7 +204,7 @@ export function DemoReserve() {
         active
       />
       <DemoReserveItem
-        emoji="Book"
+        icon={<BookOpen size={20} color="#0284c7" />}
         bg="#e0f2fe"
         name={t("Atomic Habits", {
           $id: "landing.demo.reserve.item2.name",
@@ -215,13 +216,13 @@ export function DemoReserve() {
 }
 
 function DemoReserveItem({
-  emoji,
+  icon,
   bg,
   name,
   price,
   active,
 }: {
-  emoji: string;
+  icon: ReactNode;
   bg: string;
   name: string;
   price: string;
@@ -230,7 +231,7 @@ function DemoReserveItem({
   return (
     <div className={styles.demoReserveItem}>
       <div className={styles.demoReserveItemImg} style={{ background: bg }}>
-        {emoji}
+        {icon}
       </div>
       <div className={styles.demoReserveItemInfo}>
         <span className={styles.demoReserveItemName}>{name}</span>
@@ -247,7 +248,7 @@ function DemoReserveItem({
 
 export function DiscoverCard({
   gradient,
-  emoji,
+  icon,
   store,
   title,
   price,
@@ -255,7 +256,7 @@ export function DiscoverCard({
   delay,
 }: {
   gradient: string;
-  emoji: string;
+  icon: ReactNode;
   store: string;
   title: string;
   price: string;
@@ -279,7 +280,7 @@ export function DiscoverCard({
   return (
     <div className={`${styles.discoverCard} ${styles.animateIn}`} data-delay={delay}>
       <div className={styles.discoverCardImg} style={{ background: gradient }}>
-        <span className={styles.discoverCardEmoji}>{emoji}</span>
+        <span className={styles.discoverCardEmoji}>{icon}</span>
       </div>
       <div className={styles.discoverCardBody}>
         <span className={styles.discoverCardStore}>{store}</span>

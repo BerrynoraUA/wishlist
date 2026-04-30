@@ -10,6 +10,8 @@
     "dev": "turbo run dev --filter=frontend --filter=native",
     "build": "turbo run build --filter=frontend",
     "web": "turbo run dev --filter=frontend",
+    "web:https": "turbo run dev:https --filter=frontend",
+    "dev:https": "turbo run dev:https --filter=frontend",
     "native": "turbo run dev --filter=native",
     "android": "turbo run android --filter=native",
     "ios": "turbo run ios --filter=native",
