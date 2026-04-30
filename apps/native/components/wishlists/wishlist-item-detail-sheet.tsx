@@ -9,8 +9,9 @@ import {
   getItemStoreFromUrl,
 } from "@/lib/items";
 import type { Item } from "@wishlist/backend/types/item";
+import * as Clipboard from "expo-clipboard";
 import { Image as ExpoImage } from "expo-image";
-import { ExternalLink, Gift, Pencil, ShoppingCart, Trash2 } from "lucide-react-native";
+import { Copy, ExternalLink, Gift, Pencil, ShoppingCart, Trash2 } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Alert, Linking, View } from "react-native";
 import { withUniwind } from "uniwind";
@@ -101,6 +102,12 @@ export function WishlistItemDetailSheet({
     void Linking.openURL(url);
   }
 
+  async function copyLink(url: string | null) {
+    const link = url?.trim();
+    if (!link) return;
+    await Clipboard.setStringAsync(link);
+  }
+
   return (
     <BottomSheet
       ref={sheetRef}
@@ -108,7 +115,9 @@ export function WishlistItemDetailSheet({
       scrollable
       dismissOnBack={false}
       onDidDismiss={onClose}
-      header={<Text className="mx-5 mt-5 text-lg font-extrabold text-text">{item.name}</Text>}
+      header={
+        <Text className="mx-5 mt-5 text-2xl font-extrabold leading-7 text-text">{item.name}</Text>
+      }
     >
       <View className="gap-5 px-5 pb-6 pt-5">
         <View className="h-56 overflow-hidden rounded-2xl border border-border-subtle bg-bg-muted">
@@ -122,7 +131,6 @@ export function WishlistItemDetailSheet({
         </View>
 
         <View className="gap-3">
-          <Text className="text-2xl font-extrabold leading-7 text-text">{item.name}</Text>
           {item.description ? (
             <Text className="text-sm leading-6 text-text-muted">{item.description}</Text>
           ) : null}
@@ -150,25 +158,46 @@ export function WishlistItemDetailSheet({
         {item.url || item.additional_links?.length ? (
           <View className="gap-2">
             {item.url ? (
-              <Button
-                variant="outline"
-                onPress={() => openLink(item.url)}
-                className="justify-start"
-              >
-                <Icon as={ExternalLink} className="size-4 text-text" />
-                <Text>{store || "Visit website"}</Text>
-              </Button>
+              <View className="flex-row gap-2">
+                <Button
+                  variant="outline"
+                  onPress={() => openLink(item.url)}
+                  className="min-w-0 flex-1 justify-start"
+                >
+                  <Icon as={ExternalLink} className="size-4 text-text" />
+                  <Text numberOfLines={1}>{store || "Visit website"}</Text>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  accessibilityLabel="Copy link"
+                  onPress={() => void copyLink(item.url)}
+                >
+                  <Icon as={Copy} className="size-4 text-text" />
+                </Button>
+              </View>
             ) : null}
             {item.additional_links?.map((link, index) => (
-              <Button
-                key={`${link.url}-${index}`}
-                variant="outline"
-                onPress={() => openLink(link.url)}
-                className="justify-start"
-              >
-                <Icon as={ExternalLink} className="size-4 text-text" />
-                <Text>{link.title || getItemStoreFromUrl(link.url) || "Link"}</Text>
-              </Button>
+              <View key={`${link.url}-${index}`} className="flex-row gap-2">
+                <Button
+                  variant="outline"
+                  onPress={() => openLink(link.url)}
+                  className="min-w-0 flex-1 justify-start"
+                >
+                  <Icon as={ExternalLink} className="size-4 text-text" />
+                  <Text numberOfLines={1}>
+                    {link.title || getItemStoreFromUrl(link.url) || "Link"}
+                  </Text>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  accessibilityLabel="Copy link"
+                  onPress={() => void copyLink(link.url)}
+                >
+                  <Icon as={Copy} className="size-4 text-text" />
+                </Button>
+              </View>
             ))}
           </View>
         ) : null}

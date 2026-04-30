@@ -17,6 +17,7 @@ import {
   toWishlistFormValues,
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
+import { hasInvalidOptionalUrl } from "@/lib/urls";
 import {
   SlidingOptionSelector,
   type SlidingOptionRenderProps,
@@ -79,6 +80,8 @@ export function WishlistFormSheet({
   const error = createMutation.error ?? updateMutation.error;
   const [values, setValues] = React.useState<WishlistFormValues>(EMPTY_WISHLIST_FORM);
   const title = mode === "edit" ? "Edit Wishlist" : "Create Wishlist";
+  const imageUrlInvalid = hasInvalidOptionalUrl(values.imageUrl);
+  const canSubmit = !isPending && values.title.trim() !== "" && !imageUrlInvalid;
 
   React.useEffect(() => {
     if (open) setValues(toWishlistFormValues(wishlist));
@@ -100,7 +103,7 @@ export function WishlistFormSheet({
   }
 
   function handleSubmit() {
-    if (!values.title.trim()) return;
+    if (!canSubmit) return;
 
     if (mode === "edit" && wishlist) {
       updateMutation.mutate(
@@ -133,11 +136,7 @@ export function WishlistFormSheet({
           >
             <Text>Cancel</Text>
           </Button>
-          <Button
-            className="min-w-0 flex-1"
-            disabled={isPending || !values.title.trim()}
-            onPress={handleSubmit}
-          >
+          <Button className="min-w-0 flex-1" disabled={!canSubmit} onPress={handleSubmit}>
             {isPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
             <Text>{mode === "edit" ? "Save changes" : "Create wishlist"}</Text>
           </Button>
@@ -189,7 +188,11 @@ export function WishlistFormSheet({
             placeholder="https://..."
             autoCapitalize="none"
             keyboardType="url"
+            className={imageUrlInvalid ? "border-destructive" : undefined}
           />
+          {imageUrlInvalid ? (
+            <Text className="text-xs font-semibold text-destructive">Enter valid Url</Text>
+          ) : null}
         </Field>
 
         {error ? (
@@ -207,25 +210,30 @@ function VisibilitySelector({
   value: WishlistFormValues["visibility"];
   onChange: (visibility: WishlistFormValues["visibility"]) => void;
 }) {
-  const rows = React.useMemo(
-    () => [
-      WISHLIST_VISIBILITY_OPTIONS.map((option) => ({
-        value: option.visibility,
-        children: ({ selected }: SlidingOptionRenderProps) => (
-          <>
-            <Icon
-              as={option.icon}
-              className={cn("size-3.5 text-text-muted", selected && "text-brand")}
-            />
-            <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
-              {option.label}
-            </Text>
-          </>
-        ),
-      })),
-    ],
-    [],
-  );
+  const rows = React.useMemo(() => {
+    const orderedOptions = [
+      WISHLIST_VISIBILITY_OPTIONS[3],
+      WISHLIST_VISIBILITY_OPTIONS[2],
+      WISHLIST_VISIBILITY_OPTIONS[1],
+      WISHLIST_VISIBILITY_OPTIONS[0],
+    ];
+    const options = orderedOptions.map((option) => ({
+      value: option.visibility,
+      children: ({ selected }: SlidingOptionRenderProps) => (
+        <>
+          <Icon
+            as={option.icon}
+            className={cn("size-3.5 text-text-muted", selected && "text-brand")}
+          />
+          <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
+            {option.label}
+          </Text>
+        </>
+      ),
+    }));
+
+    return [options.slice(0, 2), options.slice(2)];
+  }, []);
 
   return (
     <SlidingOptionSelector

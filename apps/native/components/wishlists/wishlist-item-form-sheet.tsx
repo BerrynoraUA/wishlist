@@ -17,6 +17,7 @@ import {
   toItemFormValues,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
+import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
 import { Image as ExpoImage } from "expo-image";
 import { Plus, X } from "lucide-react-native";
@@ -47,13 +48,52 @@ export function WishlistItemFormSheet({
   const [values, setValues] = React.useState<ItemFormValues>(EMPTY_ITEM_FORM);
   const [isScraping, setIsScraping] = React.useState(false);
   const [scrapeError, setScrapeError] = React.useState<string | null>(null);
+  const currentUrlRef = React.useRef("");
+  const lastScrapedUrlRef = React.useRef("");
+  const scrapeRequestIdRef = React.useRef(0);
+  const productLinkInvalid = hasInvalidOptionalUrl(values.url);
+  const imageUrlInvalid = hasInvalidOptionalUrl(values.imageUrl);
+  const invalidAdditionalLinkIndexes = React.useMemo(
+    () =>
+      new Set(
+        values.additionalLinks
+          .map((link, index) => (hasInvalidOptionalUrl(link.url) ? index : null))
+          .filter((index): index is number => index !== null),
+      ),
+    [values.additionalLinks],
+  );
+  const hasInvalidAdditionalLinks = invalidAdditionalLinkIndexes.size > 0;
+  const canSubmit =
+    !isPending &&
+    values.name.trim() !== "" &&
+    !productLinkInvalid &&
+    !imageUrlInvalid &&
+    !hasInvalidAdditionalLinks;
 
   React.useEffect(() => {
     if (open) {
-      setValues(mode === "edit" ? toItemFormValues(item ?? undefined) : EMPTY_ITEM_FORM);
+      const nextValues = mode === "edit" ? toItemFormValues(item ?? undefined) : EMPTY_ITEM_FORM;
+      setValues(nextValues);
       setScrapeError(null);
+      currentUrlRef.current = nextValues.url.trim();
+      lastScrapedUrlRef.current = nextValues.url.trim();
     }
   }, [item, mode, open]);
+
+  React.useEffect(() => {
+    currentUrlRef.current = values.url.trim();
+  }, [values.url]);
+
+  React.useEffect(() => {
+    const url = values.url.trim();
+    if (!open || url === "" || !isValidHttpUrl(url) || url === lastScrapedUrlRef.current) return;
+
+    const timeoutId = setTimeout(() => {
+      void handleScrape(url);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [open, values.url]);
 
   if (!open) return null;
 
@@ -65,21 +105,31 @@ export function WishlistItemFormSheet({
     void sheetRef.current?.dismiss();
   }
 
-  async function handleScrape() {
-    const url = values.url.trim();
-    if (!url || isScraping) return;
+  async function handleScrape(url: string) {
+    if (!url) return;
+    if (!isValidHttpUrl(url)) {
+      setScrapeError("Enter valid Url");
+      return;
+    }
 
+    const requestId = scrapeRequestIdRef.current + 1;
+    scrapeRequestIdRef.current = requestId;
     setIsScraping(true);
     setScrapeError(null);
+    lastScrapedUrlRef.current = url;
 
     try {
       const product = await scrapeProductLink(url);
       const isEmpty = !product.title && !product.description && !product.image && !product.price;
 
       if (isEmpty) {
-        setScrapeError("Could not fetch product data");
+        if (requestId === scrapeRequestIdRef.current && currentUrlRef.current === url) {
+          setScrapeError("Could not fetch product data");
+        }
         return;
       }
+
+      if (requestId !== scrapeRequestIdRef.current || currentUrlRef.current !== url) return;
 
       patchValues({
         ...(product.title ? { name: product.title } : {}),
@@ -92,15 +142,19 @@ export function WishlistItemFormSheet({
         discountEndDate: product.discount_end_date ?? "",
       });
     } catch (error) {
-      setScrapeError(error instanceof Error ? error.message : "Could not fetch product data");
+      if (requestId === scrapeRequestIdRef.current && currentUrlRef.current === url) {
+        setScrapeError(error instanceof Error ? error.message : "Could not fetch product data");
+      }
     } finally {
-      setIsScraping(false);
+      if (requestId === scrapeRequestIdRef.current) {
+        setIsScraping(false);
+      }
     }
   }
 
   function handleSubmit() {
     const name = values.name.trim();
-    if (!name || isPending) return;
+    if (!canSubmit) return;
 
     const payload = {
       name,
@@ -160,11 +214,7 @@ export function WishlistItemFormSheet({
           >
             <Text>Cancel</Text>
           </Button>
-          <Button
-            className="min-w-0 flex-1"
-            disabled={isPending || !values.name.trim()}
-            onPress={handleSubmit}
-          >
+          <Button className="min-w-0 flex-1" disabled={!canSubmit} onPress={handleSubmit}>
             {isPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
             <Text>{mode === "edit" ? "Save changes" : "Create item"}</Text>
           </Button>
@@ -178,7 +228,7 @@ export function WishlistItemFormSheet({
       >
         <Field label="Product link">
           <View className="gap-2">
-            <View className="flex-row gap-2">
+            <View className="flex-row items-center gap-2">
               <Input
                 value={values.url}
                 onChangeText={(url) => {
@@ -188,23 +238,18 @@ export function WishlistItemFormSheet({
                 placeholder="Paste a product URL"
                 autoCapitalize="none"
                 keyboardType="url"
-                returnKeyType="search"
-                onSubmitEditing={handleScrape}
-                className="min-w-0 flex-1"
+                returnKeyType="done"
+                className={cn("min-w-0 flex-1", productLinkInvalid && "border-destructive")}
               />
-              <Button
-                variant="secondary"
-                disabled={!values.url.trim() || isScraping}
-                onPress={handleScrape}
-                className="px-4"
-              >
-                {isScraping ? (
-                  <ActivityIndicator colorClassName="accent-secondary-foreground" />
-                ) : null}
-                <Text>{isScraping ? "Searching" : "Search"}</Text>
-              </Button>
+              {isScraping ? (
+                <ActivityIndicator colorClassName="accent-secondary-foreground" />
+              ) : null}
             </View>
-            {scrapeError ? (
+            {productLinkInvalid ? (
+              <Text className="text-sm font-semibold text-destructive">Enter valid Url</Text>
+            ) : isScraping ? (
+              <Text className="text-sm font-semibold text-text-muted">Searching...</Text>
+            ) : scrapeError ? (
               <Text className="text-sm font-semibold text-destructive">{scrapeError}</Text>
             ) : null}
           </View>
@@ -212,7 +257,7 @@ export function WishlistItemFormSheet({
 
         <Field label="Image URL">
           <View className="gap-3">
-            {values.imageUrl.trim() ? (
+            {values.imageUrl.trim() && !imageUrlInvalid ? (
               <View className="h-40 overflow-hidden rounded-xl border border-border-subtle bg-bg-muted">
                 <Image
                   source={{ uri: values.imageUrl.trim() }}
@@ -227,7 +272,11 @@ export function WishlistItemFormSheet({
               placeholder="https://..."
               autoCapitalize="none"
               keyboardType="url"
+              className={imageUrlInvalid ? "border-destructive" : undefined}
             />
+            {imageUrlInvalid ? (
+              <Text className="text-xs font-semibold text-destructive">Enter valid Url</Text>
+            ) : null}
           </View>
         </Field>
 
@@ -307,32 +356,40 @@ export function WishlistItemFormSheet({
         <Field label="Additional links">
           <View className="gap-2">
             {values.additionalLinks.map((link, index) => (
-              <View key={index} className="flex-row gap-2">
-                <Input
-                  value={link.url}
-                  onChangeText={(url) => {
-                    const next = [...values.additionalLinks];
-                    next[index] = { ...next[index], url };
-                    patchValues({ additionalLinks: next });
-                  }}
-                  placeholder="https://..."
-                  autoCapitalize="none"
-                  keyboardType="url"
-                  className="min-w-0 flex-1"
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onPress={() =>
-                    patchValues({
-                      additionalLinks: values.additionalLinks.filter(
-                        (_, itemIndex) => itemIndex !== index,
-                      ),
-                    })
-                  }
-                >
-                  <Icon as={X} className="size-4 text-text-muted" />
-                </Button>
+              <View key={index} className="gap-1">
+                <View className="flex-row gap-2">
+                  <Input
+                    value={link.url}
+                    onChangeText={(url) => {
+                      const next = [...values.additionalLinks];
+                      next[index] = { ...next[index], url };
+                      patchValues({ additionalLinks: next });
+                    }}
+                    placeholder="https://..."
+                    autoCapitalize="none"
+                    keyboardType="url"
+                    className={cn(
+                      "min-w-0 flex-1",
+                      invalidAdditionalLinkIndexes.has(index) && "border-destructive",
+                    )}
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onPress={() =>
+                      patchValues({
+                        additionalLinks: values.additionalLinks.filter(
+                          (_, itemIndex) => itemIndex !== index,
+                        ),
+                      })
+                    }
+                  >
+                    <Icon as={X} className="size-4 text-text-muted" />
+                  </Button>
+                </View>
+                {invalidAdditionalLinkIndexes.has(index) ? (
+                  <Text className="text-xs font-semibold text-destructive">Enter valid Url</Text>
+                ) : null}
               </View>
             ))}
             <Button
@@ -391,7 +448,7 @@ function PrioritySelector({
             </Text>
           ),
         },
-        ...ITEM_PRIORITY_OPTIONS.map((option) => ({
+        ...[...ITEM_PRIORITY_OPTIONS].reverse().map((option) => ({
           value: option.priority,
           children: ({ selected }: SlidingOptionRenderProps) => (
             <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>

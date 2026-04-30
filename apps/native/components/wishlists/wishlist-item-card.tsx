@@ -1,4 +1,10 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import {
@@ -9,8 +15,10 @@ import {
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
 import type { Item } from "@wishlist/backend/types/item";
+import type { TriggerRef } from "@rn-primitives/dropdown-menu";
+import * as Clipboard from "expo-clipboard";
 import { Image as ExpoImage } from "expo-image";
-import { Gift, Heart, PackageCheck, Pencil, Trash2 } from "lucide-react-native";
+import { Gift, Heart, PackageCheck } from "lucide-react-native";
 import * as React from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
@@ -56,142 +64,149 @@ export function WishlistItemCard({
   });
   const priorityLabel = getItemPriorityLabel(item.priority);
   const store = getItemStoreFromUrl(item.url);
+  const itemUrl = item.url?.trim() ?? "";
+  const showCopyLink = itemUrl.length > 0;
+  const showMenu = Boolean(showCopyLink || (isOwner && (onEdit || onDelete)));
+  const menuTriggerRef = React.useRef<TriggerRef>(null);
+
+  async function handleCopyLink() {
+    if (!itemUrl) return;
+    await Clipboard.setStringAsync(itemUrl);
+  }
 
   return (
     <View style={{ width }}>
-      <AnimatedPressable
-        accessibilityRole="button"
-        accessibilityLabel={`Open ${item.name}`}
-        onPress={onPress}
-        pressedScale={0.98}
-        className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
-      >
-        <View className="relative h-[132px] items-center justify-center overflow-hidden bg-bg-muted">
-          {item.image_url ? (
-            <Image
-              source={{ uri: item.image_url }}
-              contentFit="cover"
-              className="absolute inset-0 size-full"
-            />
-          ) : (
-            <Icon as={Gift} className="size-10 text-text-light" />
-          )}
+      <DropdownMenu className="relative">
+        <AnimatedPressable
+          accessibilityRole="button"
+          accessibilityLabel={`Open ${item.name}`}
+          onPress={onPress}
+          onLongPress={showMenu ? () => menuTriggerRef.current?.open() : undefined}
+          pressedScale={0.98}
+          className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
+        >
+          <View className="relative h-[132px] items-center justify-center overflow-hidden bg-bg-muted">
+            {item.image_url ? (
+              <Image
+                source={{ uri: item.image_url }}
+                contentFit="cover"
+                className="absolute inset-0 size-full"
+              />
+            ) : (
+              <Icon as={Gift} className="size-10 text-text-light" />
+            )}
 
-          {reservationLabel ? (
-            <View
-              className={cn(
-                "absolute left-2 top-2 rounded-full px-2 py-1",
-                reservation.isPurchased ? "bg-success-bg" : "bg-card-bg/90",
-              )}
-            >
-              <Text
+            {reservationLabel ? (
+              <View
                 className={cn(
-                  "text-[11px] font-extrabold",
-                  reservation.isPurchased ? "text-success" : "text-text-muted",
+                  "absolute left-2 top-2 rounded-full px-2 py-1",
+                  reservation.isPurchased ? "bg-success-bg" : "bg-card-bg/90",
                 )}
-                numberOfLines={1}
               >
-                {reservationLabel}
-              </Text>
-            </View>
-          ) : null}
-
-          {showDiscountBadge && item.has_discount && item.discount_price ? (
-            <View className="absolute right-2 top-2 rounded-full bg-danger px-2 py-1">
-              <Text className="text-[11px] font-extrabold text-white">Sale</Text>
-            </View>
-          ) : null}
-        </View>
-
-        <View className="gap-2 p-3">
-          <View className="min-h-10 flex-row items-start gap-2">
-            <View className="min-w-0 flex-1">
-              <Text className="text-sm font-extrabold leading-5 text-text" numberOfLines={2}>
-                {item.name}
-              </Text>
-              {store ? (
-                <Text className="mt-0.5 text-xs font-semibold text-text-muted" numberOfLines={1}>
-                  {store}
+                <Text
+                  className={cn(
+                    "text-[11px] font-extrabold",
+                    reservation.isPurchased ? "text-success" : "text-text-muted",
+                  )}
+                  numberOfLines={1}
+                >
+                  {reservationLabel}
                 </Text>
-              ) : null}
-            </View>
+              </View>
+            ) : null}
 
-            {isOwner ? (
-              <View className="flex-row gap-1">
-                {onEdit ? (
-                  <AnimatedPressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Edit item"
-                    onPress={(event) => {
-                      event.stopPropagation();
-                      onEdit();
-                    }}
-                    className="size-8 items-center justify-center rounded-full bg-bg-subtle"
-                  >
-                    <Icon as={Pencil} className="size-3.5 text-text-muted" />
-                  </AnimatedPressable>
-                ) : null}
-                {onDelete ? (
-                  <AnimatedPressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Delete item"
-                    onPress={(event) => {
-                      event.stopPropagation();
-                      onDelete();
-                    }}
-                    className="size-8 items-center justify-center rounded-full bg-danger-bg"
-                  >
-                    <Icon as={Trash2} className="size-3.5 text-danger" />
-                  </AnimatedPressable>
-                ) : null}
+            {showDiscountBadge && item.has_discount && item.discount_price ? (
+              <View className="absolute right-2 top-2 rounded-full bg-danger px-2 py-1">
+                <Text className="text-[11px] font-extrabold text-white">Sale</Text>
               </View>
             ) : null}
           </View>
 
-          <View className="flex-row items-center justify-between gap-2">
-            <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-1.5">
-              {item.price ? (
-                <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
-                  {item.currency ? `${item.currency} ` : ""}
-                  {item.has_discount && item.discount_price ? item.discount_price : item.price}
+          <View className="gap-2 p-3">
+            <View className="min-h-10 flex-row items-start gap-2">
+              <View className="min-w-0 flex-1">
+                <Text className="text-sm font-extrabold leading-5 text-text" numberOfLines={2}>
+                  {item.name}
                 </Text>
-              ) : null}
-              {priorityLabel ? (
-                <Text className="rounded-full bg-bg-subtle px-2 py-1 text-[11px] font-bold text-text-muted">
-                  {priorityLabel}
-                </Text>
-              ) : null}
+                {store ? (
+                  <Text className="mt-0.5 text-xs font-semibold text-text-muted" numberOfLines={1}>
+                    {store}
+                  </Text>
+                ) : null}
+              </View>
             </View>
 
-            {!isOwner && onToggleVote ? (
-              <AnimatedPressable
-                accessibilityRole="button"
-                accessibilityLabel={hasVoted ? "Remove vote" : "Vote for item"}
-                onPress={(event) => {
-                  event.stopPropagation();
-                  onToggleVote();
-                }}
-                className={cn(
-                  "flex-row items-center gap-1 rounded-full px-2 py-1",
-                  hasVoted ? "bg-brand-lighter" : "bg-bg-subtle",
-                )}
-              >
-                <Icon
-                  as={Heart}
-                  className={cn("size-3.5", hasVoted ? "text-brand" : "text-text-muted")}
-                />
-                <Text
-                  className={cn("text-xs font-bold", hasVoted ? "text-brand" : "text-text-muted")}
+            <View className="flex-row items-center justify-between gap-2">
+              <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-1.5">
+                {item.price ? (
+                  <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
+                    {item.currency ? `${item.currency} ` : ""}
+                    {item.has_discount && item.discount_price ? item.discount_price : item.price}
+                  </Text>
+                ) : null}
+                {priorityLabel ? (
+                  <Text className="rounded-full bg-bg-subtle px-2 py-1 text-[11px] font-bold text-text-muted">
+                    {priorityLabel}
+                  </Text>
+                ) : null}
+              </View>
+
+              {!isOwner && onToggleVote ? (
+                <AnimatedPressable
+                  accessibilityRole="button"
+                  accessibilityLabel={hasVoted ? "Remove vote" : "Vote for item"}
+                  onPress={(event) => {
+                    event.stopPropagation();
+                    onToggleVote();
+                  }}
+                  className={cn(
+                    "flex-row items-center gap-1 rounded-full px-2 py-1",
+                    hasVoted ? "bg-brand-lighter" : "bg-bg-subtle",
+                  )}
                 >
-                  {voteCount}
-                </Text>
-              </AnimatedPressable>
-            ) : reservation.isPurchased ? (
-              <Icon as={PackageCheck} className="size-4 text-success" />
-            ) : null}
+                  <Icon
+                    as={Heart}
+                    className={cn("size-3.5", hasVoted ? "text-brand" : "text-text-muted")}
+                  />
+                  <Text
+                    className={cn("text-xs font-bold", hasVoted ? "text-brand" : "text-text-muted")}
+                  >
+                    {voteCount}
+                  </Text>
+                </AnimatedPressable>
+              ) : reservation.isPurchased ? (
+                <Icon as={PackageCheck} className="size-4 text-success" />
+              ) : null}
+            </View>
           </View>
-        </View>
-      </AnimatedPressable>
+        </AnimatedPressable>
+        {showMenu ? (
+          <DropdownMenuTrigger asChild>
+            <AnimatedPressable
+              ref={menuTriggerRef}
+              pointerEvents="none"
+              className="absolute right-3 top-[144px] size-8 opacity-0"
+            />
+          </DropdownMenuTrigger>
+        ) : null}
+        <DropdownMenuContent className="min-w-36">
+          {showCopyLink ? (
+            <DropdownMenuItem onPress={handleCopyLink}>
+              <Text>Copy link</Text>
+            </DropdownMenuItem>
+          ) : null}
+          {onEdit ? (
+            <DropdownMenuItem onPress={onEdit}>
+              <Text>Edit</Text>
+            </DropdownMenuItem>
+          ) : null}
+          {onDelete ? (
+            <DropdownMenuItem variant="destructive" onPress={onDelete}>
+              <Text>Delete</Text>
+            </DropdownMenuItem>
+          ) : null}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </View>
   );
 }

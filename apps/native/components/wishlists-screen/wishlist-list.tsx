@@ -22,9 +22,11 @@ import {
   wishlistGridLinearTransition,
 } from "@/components/wishlists/wishlist-screen-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
+import type { TriggerRef } from "@rn-primitives/dropdown-menu";
 import { Image as ExpoImage } from "expo-image";
 import { Link } from "expo-router";
-import { ChevronLeft, ChevronRight, Gift, Link2, MoreHorizontal, Plus } from "lucide-react-native";
+import { ChevronLeft, ChevronRight, Gift, Link2, Plus } from "lucide-react-native";
+import * as React from "react";
 import { View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
 import { withUniwind } from "uniwind";
@@ -223,95 +225,109 @@ function WishlistCard({
   const isShared = wishlist.is_owner === false;
   const ownerNickname = wishlist.owner_nickname?.trim();
   const sharedLabel = ownerNickname ? `Shared by @${ownerNickname}` : "Shared wishlist";
+  const menuTriggerRef = React.useRef<TriggerRef>(null);
 
   return (
     <Animated.View entering={wishlistCardFadeIn} style={{ width }}>
-      <Link href={{ pathname: "/wishlists/[id]", params: { id: wishlist.id } }} asChild>
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={`Open ${wishlist.title}`}
-          className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
-          pressedScale={0.98}
-        >
-          <View
-            className={cn(
-              "h-[120px] items-center justify-center overflow-hidden",
-              getWishlistAccentClass(wishlist.accent_type),
-            )}
+      <DropdownMenu className="relative">
+        <Link href={{ pathname: "/wishlists/[id]", params: { id: wishlist.id } }} asChild>
+          <AnimatedPressable
+            accessibilityRole="button"
+            accessibilityLabel={`Open ${wishlist.title}`}
+            onLongPress={showMenu ? () => menuTriggerRef.current?.open() : undefined}
+            className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
+            pressedScale={0.98}
           >
-            {wishlist.image_url ? (
-              <Image
-                source={{ uri: wishlist.image_url }}
-                contentFit="cover"
-                className="absolute inset-0 size-full"
-              />
-            ) : (
-              <Icon as={Gift} className="size-10 text-white/85" />
-            )}
-            <View className="absolute inset-0 bg-black/10" />
-            {isShared ? (
-              <Badge
-                variant="secondary"
-                className="absolute left-3 top-3 flex-row border-white/30 bg-white/80"
-                accessibilityLabel={sharedLabel}
-              >
-                <Icon as={Link2} className="size-3 text-text" />
-                <Text className="text-xs font-bold text-text">Shared</Text>
-              </Badge>
-            ) : null}
-          </View>
-
-          <View className="gap-3 px-4 pb-4 pt-3">
-            <View className="min-h-11 flex-row items-start justify-between gap-3">
-              <Text className="flex-1 text-[15px] font-bold leading-5 text-text" numberOfLines={2}>
-                {wishlist.title}
-              </Text>
-
-              {showMenu ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <AnimatedPressable
-                      accessibilityLabel="Wishlist actions"
-                      className="size-10 items-center justify-center rounded-full active:bg-bg-muted"
-                    >
-                      <Icon as={MoreHorizontal} className="size-4 text-text-muted" />
-                    </AnimatedPressable>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="min-w-36">
-                    {onAddItem ? (
-                      <DropdownMenuItem onPress={onAddItem}>
-                        <Text>Add item</Text>
-                      </DropdownMenuItem>
-                    ) : null}
-                    {onEdit ? (
-                      <DropdownMenuItem onPress={onEdit}>
-                        <Text>Edit</Text>
-                      </DropdownMenuItem>
-                    ) : null}
-                    {onDelete ? (
-                      <DropdownMenuItem variant="destructive" onPress={onDelete}>
-                        <Text>Delete</Text>
-                      </DropdownMenuItem>
-                    ) : null}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+            <View
+              className={cn(
+                "h-[120px] items-center justify-center overflow-hidden",
+                getWishlistAccentClass(wishlist.accent_type),
+              )}
+            >
+              {wishlist.image_url ? (
+                <Image
+                  source={{ uri: wishlist.image_url }}
+                  contentFit="cover"
+                  className="absolute inset-0 size-full"
+                />
+              ) : (
+                <Icon as={Gift} className="size-10 text-white/85" />
+              )}
+              <View className="absolute inset-0 bg-black/10" />
+              {isShared ? (
+                <Badge
+                  variant="secondary"
+                  className="absolute left-3 top-3 flex-row border-white/30 bg-white/80"
+                  accessibilityLabel={sharedLabel}
+                >
+                  <Icon as={Link2} className="size-3 text-text" />
+                  <Text className="text-xs font-bold text-text">Shared</Text>
+                </Badge>
               ) : null}
             </View>
 
-            <View className="flex-row items-center justify-between gap-3">
-              <Text className="text-sm font-semibold text-text-muted">
-                {itemsCount === 1 ? "1 item" : `${itemsCount} items`}
-              </Text>
-              <View className="flex-row items-center gap-1.5">
-                <Icon as={VisibilityIcon} className="size-3.5 text-text-muted" />
-                <Text className="text-sm font-semibold text-text-muted">
-                  {WISHLIST_VISIBILITY_LABELS[visibility]}
+            <View className="gap-3 px-4 pb-4 pt-3">
+              <View className="min-h-11 flex-row items-start justify-between gap-3">
+                <Text
+                  className="flex-1 text-[15px] font-bold leading-5 text-text"
+                  numberOfLines={2}
+                >
+                  {wishlist.title}
                 </Text>
+
+                {onAddItem ? (
+                  <AnimatedPressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Add item"
+                    onPress={onAddItem}
+                    className="size-10 items-center justify-center rounded-full bg-brand-lighter active:bg-brand-alpha-12"
+                  >
+                    <Icon as={Plus} className="size-4 text-brand" />
+                  </AnimatedPressable>
+                ) : null}
+              </View>
+
+              <View className="flex-row items-center justify-between gap-3">
+                <Text className="text-sm font-semibold text-text-muted">
+                  {itemsCount === 1 ? "1 item" : `${itemsCount} items`}
+                </Text>
+                <View className="flex-row items-center gap-1.5">
+                  <Icon as={VisibilityIcon} className="size-3.5 text-text-muted" />
+                  <Text className="text-sm font-semibold text-text-muted">
+                    {WISHLIST_VISIBILITY_LABELS[visibility]}
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-        </AnimatedPressable>
-      </Link>
+          </AnimatedPressable>
+        </Link>
+        {showMenu ? (
+          <DropdownMenuTrigger asChild>
+            <AnimatedPressable
+              ref={menuTriggerRef}
+              pointerEvents="none"
+              className="absolute right-4 top-[132px] size-10 opacity-0"
+            />
+          </DropdownMenuTrigger>
+        ) : null}
+        <DropdownMenuContent className="min-w-36">
+          {onAddItem ? (
+            <DropdownMenuItem onPress={onAddItem}>
+              <Text>Add item</Text>
+            </DropdownMenuItem>
+          ) : null}
+          {onEdit ? (
+            <DropdownMenuItem onPress={onEdit}>
+              <Text>Edit</Text>
+            </DropdownMenuItem>
+          ) : null}
+          {onDelete ? (
+            <DropdownMenuItem variant="destructive" onPress={onDelete}>
+              <Text>Delete</Text>
+            </DropdownMenuItem>
+          ) : null}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </Animated.View>
   );
 }
