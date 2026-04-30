@@ -35,14 +35,17 @@
 }
 
 .cardColored {
-  border-color: color-mix(in srgb, var(--card-accent-color) 50%, transparent);
-  box-shadow: 0 8px 24px
-    color-mix(in srgb, var(--card-accent-color) 18%, transparent);
+  border-color: color-mix(
+    in srgb,
+    var(--card-accent-color) 70%,
+    transparent
+  ) !important;
+  box-shadow: 0 16px 36px
+    color-mix(in srgb, var(--card-accent-color) 30%, transparent);
 
   &:hover {
-    border-color: color-mix(in srgb, var(--card-accent-color) 70%, transparent);
     box-shadow: 0 16px 36px
-      color-mix(in srgb, var(--card-accent-color) 30%, transparent);
+      color-mix(in srgb, var(--card-accent-color) 30%, transparent) !important;
   }
 }
 
