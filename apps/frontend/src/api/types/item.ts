@@ -6,6 +6,7 @@ export interface CreateItemParams {
   description?: string | null;
   price?: string | null;
   priority_id?: string | null;
+  color_index?: number | null;
   image?: File | null;
   image_url?: string | null;
   url?: string | null;
@@ -22,6 +23,7 @@ export interface UpdateItemParams {
   description?: string | null;
   price?: string | null;
   priority_id?: string | null;
+  color_index?: number | null;
   image_url?: string | null;
   url?: string | null;
   status?: number;

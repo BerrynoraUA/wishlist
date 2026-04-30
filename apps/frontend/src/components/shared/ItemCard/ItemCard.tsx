@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useGT } from "gt-next";
 import styles from "./ItemCard.module.scss";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
@@ -12,6 +12,9 @@ import {
   getSalePercentOff,
 } from "@/lib/helpers/item-card";
 import { ALL_PRIORITIES } from "@/lib/priorities";
+import { PRIORITY_ICONS } from "@/lib/priority-icons";
+import { ITEM_COLORS } from "@/lib/item-colors";
+import type { LucideIcon } from "lucide-react";
 import type { ItemCardProps } from "./types";
 import { CardImage } from "./components/CardImage";
 import { CardBadges } from "./components/CardBadges";
@@ -41,6 +44,7 @@ export function ItemCard({
   isReserved,
   reservedBy,
   reservedByName,
+  colorIndex,
   variant = "discover",
   showDiscountBadge = false,
   isOwner = false,
@@ -65,6 +69,17 @@ export function ItemCard({
     : null;
   const priorityColor = priorityMeta?.color ?? null;
   const priorityDisplay = priority || null;
+  const PriorityIcon: LucideIcon | null = priorityMeta
+    ? (PRIORITY_ICONS[priorityMeta.id] ?? null)
+    : null;
+
+  const accentColor =
+    colorIndex !== null &&
+    colorIndex !== undefined &&
+    colorIndex >= 0 &&
+    colorIndex < ITEM_COLORS.length
+      ? ITEM_COLORS[colorIndex].color
+      : null;
 
   const formattedPrice = formatPrice(price, currency);
   const salePercentOff = getSalePercentOff(
@@ -150,7 +165,15 @@ export function ItemCard({
               styles.card,
               VARIANT_CLASS[variant],
               isPurchasedMode && styles.cardPurchased,
+              accentColor && styles.cardColored,
             )}
+            style={
+              accentColor
+                ? ({
+                    "--card-accent-color": accentColor,
+                  } as React.CSSProperties)
+                : undefined
+            }
             onClick={openDetail}
           >
             <div className={styles.imageWrapper}>
@@ -164,6 +187,7 @@ export function ItemCard({
                 salePercentOff={salePercentOff}
                 priorityColor={priorityColor}
                 priorityDisplay={priorityDisplay}
+                PriorityIcon={PriorityIcon}
               />
 
               <CardQuickActions

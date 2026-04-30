@@ -1,5 +1,6 @@
 import { useGT } from "gt-next";
 import { ShoppingCart } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
 import styles from "../ItemCard.module.scss";
 import { cn } from "../utils";
@@ -12,6 +13,7 @@ type CardBadgesProps = {
   salePercentOff: number | null;
   priorityColor: string | null;
   priorityDisplay: string | null;
+  PriorityIcon?: LucideIcon | null;
 };
 
 export function CardBadges({
@@ -21,6 +23,7 @@ export function CardBadges({
   salePercentOff,
   priorityColor,
   priorityDisplay,
+  PriorityIcon,
 }: CardBadgesProps) {
   const t = useGT();
   const hasRightBadges = salePercentOff != null || !!priorityDisplay;
@@ -66,6 +69,7 @@ export function CardBadges({
                 : undefined
             }
           >
+            {PriorityIcon && <PriorityIcon size={10} strokeWidth={2.5} />}
             {priorityDisplay}
           </div>
         )}

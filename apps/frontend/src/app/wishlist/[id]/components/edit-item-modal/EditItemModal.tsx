@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useGT } from "gt-next";
 import { Plus, X, Lock } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
@@ -24,6 +24,7 @@ import {
   getPriorityOptions,
   resolveCurrency,
 } from "@/lib/helpers/form-select-options";
+import { ITEM_COLORS } from "@/lib/item-colors";
 import styles from "../create-item-modal/CreateItemModal.module.scss";
 
 type Props = {
@@ -37,6 +38,7 @@ type EditItemDraft = {
   description: string;
   price: string;
   priority: string | null;
+  colorIndex: number | null;
   link: string;
   additionalLinks: ItemLink[];
   imagePreview: string;
@@ -53,6 +55,7 @@ type RestoredEditItemFields = {
   price: boolean;
   currency: boolean;
   priority: boolean;
+  colorIndex: boolean;
 };
 
 const EMPTY_RESTORED_EDIT_ITEM_FIELDS: RestoredEditItemFields = {
@@ -64,6 +67,7 @@ const EMPTY_RESTORED_EDIT_ITEM_FIELDS: RestoredEditItemFields = {
   price: false,
   currency: false,
   priority: false,
+  colorIndex: false,
 };
 
 export function EditItemModal({ open, onClose, item }: Props) {
@@ -95,6 +99,7 @@ function EditItemForm({
       description: item.description ?? "",
       price: item.price ?? "",
       priority: item.priority_id ?? null,
+      colorIndex: item.color_index ?? null,
       link: item.url ?? "",
       additionalLinks: item.additional_links ?? [],
       imagePreview: item.image_url ?? "",
@@ -108,6 +113,9 @@ function EditItemForm({
   const [price, setPrice] = useState(item.price ?? "");
   const [priority, setPriority] = useState<string | null>(
     item.priority_id ?? null,
+  );
+  const [colorIndex, setColorIndex] = useState<number | null>(
+    item.color_index ?? null,
   );
   const [link, setLink] = useState(item.url ?? "");
   const [additionalLinks, setAdditionalLinks] = useState<ItemLink[]>(
@@ -131,6 +139,7 @@ function EditItemForm({
       description,
       price,
       priority,
+      colorIndex,
       link,
       additionalLinks,
       imagePreview: imageFile ? "" : imagePreview,
@@ -140,6 +149,7 @@ function EditItemForm({
     [
       additionalLinks,
       currency,
+      colorIndex,
       description,
       imageFile,
       imagePreview,
@@ -162,6 +172,7 @@ function EditItemForm({
         draft.description.trim() !== initialDraft.description.trim() ||
         draft.price.trim() !== initialDraft.price.trim() ||
         draft.priority !== initialDraft.priority ||
+        draft.colorIndex !== initialDraft.colorIndex ||
         draft.link.trim() !== initialDraft.link.trim() ||
         draft.currency !== initialDraft.currency ||
         draft.imagePreview !== initialDraft.imagePreview ||
@@ -186,6 +197,7 @@ function EditItemForm({
       price: draft.price.trim() !== initialDraft.price.trim(),
       currency: draft.currency !== initialDraft.currency,
       priority: draft.priority !== initialDraft.priority,
+      colorIndex: draft.colorIndex !== initialDraft.colorIndex,
     }),
     [initialDraft],
   );
@@ -196,6 +208,7 @@ function EditItemForm({
       setDescription(draft.description);
       setPrice(draft.price);
       setPriority(draft.priority);
+      setColorIndex(draft.colorIndex);
       setLink(draft.link);
       setAdditionalLinks(draft.additionalLinks);
       if (imageObjectUrl) {
@@ -242,6 +255,7 @@ function EditItemForm({
       price.trim() !== initialPrice ||
       link.trim() !== initialLink ||
       priority !== initialPriority ||
+      colorIndex !== (item.color_index ?? null) ||
       currency !== initialCurrency ||
       Boolean(imageFile) ||
       imagePreview !== initialImage ||
@@ -249,6 +263,7 @@ function EditItemForm({
     );
   }, [
     additionalLinks,
+    colorIndex,
     currency,
     description,
     imageFile,
@@ -292,6 +307,7 @@ function EditItemForm({
     setDescription(initialDraft.description);
     setPrice(initialDraft.price);
     setPriority(initialDraft.priority);
+    setColorIndex(initialDraft.colorIndex);
     setLink(initialDraft.link);
     setAdditionalLinks(initialDraft.additionalLinks);
     if (imageObjectUrl) {
@@ -332,6 +348,7 @@ function EditItemForm({
       url: link.trim() || null,
       additional_links: validAdditionalLinks,
       priority_id: priorityValue,
+      color_index: colorIndex,
       currency,
       ...(imageFile
         ? { image: imageFile }
@@ -573,6 +590,32 @@ function EditItemForm({
             />
           </div>
         )}
+
+        <div className={styles.field}>
+          <label>
+            {t("Card Color (optional)", { $id: "item.modal.colorLabel" })}
+          </label>
+          <div className={styles.colorPicker}>
+            <button
+              type="button"
+              className={`${styles.colorSwatch} ${styles.colorSwatchNone} ${colorIndex === null ? styles.colorSwatchActive : ""}`}
+              onClick={() => setColorIndex(null)}
+              title={t("No color", { $id: "item.modal.colorNone" })}
+            >
+              <X size={11} />
+            </button>
+            {ITEM_COLORS.map((c, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={`${styles.colorSwatch} ${colorIndex === idx ? styles.colorSwatchActive : ""}`}
+                style={{ "--swatch-color": c.color } as React.CSSProperties}
+                onClick={() => setColorIndex(idx)}
+                title={c.label}
+              />
+            ))}
+          </div>
+        </div>
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose}>

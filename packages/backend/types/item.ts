@@ -11,6 +11,7 @@ export interface Item {
   price: string | null;
   priority_id: string | null;
   priority_name: string | null;
+  color_index: number | null;
   image_url: string | null;
   url: string | null;
   created_at: string;
@@ -54,6 +55,7 @@ export interface CreateItemParams {
   description?: string | null;
   price?: string | null;
   priority_id?: string | null;
+  color_index?: number | null;
   image_url?: string | null;
   url?: string | null;
   status?: number;

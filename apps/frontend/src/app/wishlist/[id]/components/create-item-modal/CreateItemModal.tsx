@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useGT } from "gt-next";
 import { Loader2, Plus, X, Lock } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
@@ -22,6 +22,7 @@ import {
   getPriorityOptions,
   resolveCurrency,
 } from "@/lib/helpers/form-select-options";
+import { ITEM_COLORS } from "@/lib/item-colors";
 import styles from "./CreateItemModal.module.scss";
 
 import type { CreateItemParams } from "@/api/types/item";
@@ -40,6 +41,7 @@ type CreateItemDraft = {
   description: string;
   price: string;
   priority: string | null;
+  colorIndex: number | null;
   imagePreview: string;
   discountPrice: string | null;
   hasDiscount: boolean;
@@ -60,6 +62,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [priority, setPriority] = useState<string | null>(null);
+  const [colorIndex, setColorIndex] = useState<number | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
@@ -86,6 +89,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       description,
       price,
       priority,
+      colorIndex,
       imagePreview: imageFile ? "" : imagePreview,
       discountPrice,
       hasDiscount,
@@ -96,6 +100,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     [
       additionalLinks,
       currency,
+      colorIndex,
       description,
       discountEndDate,
       discountPrice,
@@ -117,6 +122,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       draft.description.trim() ||
       draft.price.trim() ||
       draft.priority !== null ||
+      draft.colorIndex !== null ||
       draft.imagePreview ||
       draft.discountPrice ||
       draft.hasDiscount ||
@@ -132,6 +138,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       setDescription(draft.description);
       setPrice(draft.price);
       setPriority(draft.priority);
+      setColorIndex(draft.colorIndex);
       if (imageObjectUrl) {
         URL.revokeObjectURL(imageObjectUrl);
       }
@@ -178,6 +185,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     setDescription("");
     setPrice("");
     setPriority(null);
+    setColorIndex(null);
     setImagePreview("");
     setImageFile(null);
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
@@ -213,6 +221,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       description: description.trim() || null,
       price: price.trim() || null,
       priority_id: priority || null,
+      color_index: colorIndex,
       url: link.trim() || null, // original link user pasted
       additional_links: additionalLinks.filter((l) => l.url.trim()),
       image: imageFile,
@@ -563,6 +572,32 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
             />
           </div>
         )}
+
+        <div className={styles.field}>
+          <label>
+            {t("Card Color (optional)", { $id: "item.modal.colorLabel" })}
+          </label>
+          <div className={styles.colorPicker}>
+            <button
+              type="button"
+              className={`${styles.colorSwatch} ${styles.colorSwatchNone} ${colorIndex === null ? styles.colorSwatchActive : ""}`}
+              onClick={() => setColorIndex(null)}
+              title={t("No color", { $id: "item.modal.colorNone" })}
+            >
+              <X size={11} />
+            </button>
+            {ITEM_COLORS.map((c, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={`${styles.colorSwatch} ${colorIndex === idx ? styles.colorSwatchActive : ""}`}
+                style={{ "--swatch-color": c.color } as React.CSSProperties}
+                onClick={() => setColorIndex(idx)}
+                title={c.label}
+              />
+            ))}
+          </div>
+        </div>
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose}>

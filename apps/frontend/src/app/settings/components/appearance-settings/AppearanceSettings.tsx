@@ -18,6 +18,7 @@ import {
   getWishlistColorSwatches,
 } from "@/lib/constants/wishlist";
 import { ALL_PRIORITIES, PRIORITY_IDS } from "@/lib/priorities";
+import { PRIORITY_ICONS } from "@/lib/priority-icons";
 
 export function AppearanceSettings() {
   const t = useGT();
@@ -240,19 +241,17 @@ export function AppearanceSettings() {
           { $id: "settings.appearance.prioritiesSectionDescription" },
         )}
       >
-        <div className={styles.priorityGrid}>
+        <div className={styles.priorityList}>
           {ALL_PRIORITIES.map((p) => {
             const locked = isPriorityGated && !p.is_free;
             const active = selectedPriorities.includes(p.id);
+            const Icon = PRIORITY_ICONS[p.id];
             return (
               <button
                 key={p.id}
                 type="button"
-                className={`${styles.priorityPill} ${active ? styles.active : ""} ${locked ? styles.locked : ""}`}
+                className={`${styles.priorityRow} ${active ? styles.active : ""} ${locked ? styles.locked : ""}`}
                 onClick={() => handlePriorityToggle(p.id, p.is_free)}
-                style={
-                  active ? { borderColor: p.color, color: p.color } : undefined
-                }
                 title={
                   locked
                     ? t("Upgrade to Pro", {
@@ -261,12 +260,24 @@ export function AppearanceSettings() {
                     : p.name
                 }
               >
-                {locked ? (
-                  <Lock size={12} />
-                ) : (
-                  <span className={styles.priorityEmoji}>{p.emoji}</span>
+                <span
+                  className={styles.priorityRowIcon}
+                  style={{ "--priority-color": p.color } as React.CSSProperties}
+                >
+                  {Icon && <Icon size={14} strokeWidth={2.5} />}
+                </span>
+                <span className={styles.priorityRowName}>{p.name}</span>
+                {!p.is_free && (
+                  <span className={styles.priorityRowPro}>
+                    {locked ? <Lock size={10} /> : null}
+                    Pro
+                  </span>
                 )}
-                <span>{p.name}</span>
+                <span
+                  className={`${styles.priorityRowCheck} ${active ? styles.checked : ""}`}
+                >
+                  {active && <Check size={10} strokeWidth={3} />}
+                </span>
               </button>
             );
           })}

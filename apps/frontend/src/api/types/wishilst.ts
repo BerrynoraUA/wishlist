@@ -45,6 +45,7 @@ export type DiscoverItem = {
   description?: string | null;
   priority?: string | null;
   priority_id?: string | null;
+  color_index?: number | null;
   status?: number;
   isReserved: boolean;
   reserved_by?: string | null;
@@ -76,6 +77,7 @@ export type ReservedItem = {
   url?: string | null;
   share_url?: string | null;
   priority_name: string | null;
+  color_index?: number | null;
   status: number;
   wishlist_id: string;
   wishlist_title: string;

@@ -34,6 +34,18 @@
   }
 }
 
+.cardColored {
+  border-color: color-mix(in srgb, var(--card-accent-color) 50%, transparent);
+  box-shadow: 0 8px 24px
+    color-mix(in srgb, var(--card-accent-color) 18%, transparent);
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--card-accent-color) 70%, transparent);
+    box-shadow: 0 16px 36px
+      color-mix(in srgb, var(--card-accent-color) 30%, transparent);
+  }
+}
+
 /* ===== Image section ===== */
 
 .imageWrapper {
@@ -41,6 +53,7 @@
   height: 180px;
   background: var(--gradient-placeholder);
   overflow: visible;
+  border-radius: $radius-lg $radius-lg 0 0;
 
   img {
     width: 100%;
@@ -58,6 +71,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  border-radius: $radius-lg $radius-lg 0 0;
   background: var(--gradient-placeholder);
 }
 
@@ -277,6 +291,7 @@
   min-height: 0;
   flex-direction: column;
   padding: 14px;
+  padding-bottom: 16px;
 
   strong {
     display: block;
