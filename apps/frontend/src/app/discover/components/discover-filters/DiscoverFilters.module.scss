@@ -1,0 +1,67 @@
+@use "@/styles/variables" as *;
+
+.filters {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.filterTab {
+  gap: 8px;
+  min-width: 0;
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compactLabel {
+  display: none;
+}
+
+.active {
+  background: var(--nav-active-bg);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+  box-shadow: var(--nav-active-shadow);
+}
+
+@media (max-width: 640px) {
+  .filterTab {
+    justify-content: center;
+    gap: 4px;
+    padding: 7px 8px;
+    font-size: var(--fs-eyebrow);
+  }
+
+  .icon {
+    display: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .filterTab {
+    justify-content: center;
+    gap: 5px;
+    padding-inline: 8px;
+  }
+
+  .icon {
+    display: none;
+  }
+
+  .fullLabel {
+    display: none;
+  }
+
+  .compactLabel {
+    display: inline;
+  }
+}

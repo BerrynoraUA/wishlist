@@ -1,0 +1,207 @@
+@use "@/styles/variables" as *;
+@use "@/styles/typography" as *;
+
+.container {
+  display: grid;
+  gap: 14px;
+  padding: 8px 4px 4px;
+}
+
+.header {
+  display: grid;
+  gap: 10px;
+}
+
+.header h2 {
+  margin: 0 0 4px;
+}
+
+.header p {
+  margin: 0 0 2px;
+  color: var(--color-text-muted);
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+
+  label {
+    @include t-label;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    border: 1.5px solid var(--input-border);
+    border-radius: $radius-md;
+    padding: 8px 12px;
+    color: var(--color-text);
+    background: var(--input-bg);
+    font: inherit;
+    font-size: var(--fs-body);
+    outline: none;
+    transition:
+      border-color 0.3s $ease-out,
+      box-shadow 0.3s $ease-out;
+
+    &:focus {
+      border-color: var(--input-focus-border);
+      box-shadow: 0 0 0 4px var(--input-focus-ring);
+    }
+  }
+
+  textarea {
+    min-height: 76px;
+    resize: vertical;
+  }
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.swatch,
+.iconOption {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1.5px solid var(--color-border-light);
+  background: var(--card-bg);
+  color: var(--color-text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.25s $ease-out;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: var(--brand-alpha-20);
+  }
+}
+
+.selected {
+  border-color: $brand;
+  box-shadow: 0 0 0 3px var(--brand-alpha-10);
+}
+
+.pink {
+  background: linear-gradient(135deg, rgba(244, 114, 182, 0.34), rgba(251, 207, 232, 0.7));
+}
+.peach {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.3), rgba(254, 215, 170, 0.66));
+}
+.blue {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.3), rgba(191, 219, 254, 0.66));
+}
+.lavender {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.3), rgba(221, 214, 254, 0.66));
+}
+.mint {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.3), rgba(187, 247, 208, 0.66));
+}
+
+.membersPanel {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border: 1.5px solid var(--color-border-light);
+  border-radius: $radius-md;
+  background: var(--color-bg-subtle);
+}
+
+.membersHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  span {
+    font-size: var(--fs-caption);
+    color: var(--color-text-muted);
+  }
+}
+
+.memberSearch {
+  border: 1.5px solid var(--input-border);
+  border-radius: $radius-md;
+  padding: 9px 11px;
+  background: var(--input-bg);
+  color: var(--color-text);
+  font: inherit;
+  outline: none;
+}
+
+.memberList {
+  display: grid;
+  gap: 6px;
+  max-height: 230px;
+  overflow-y: auto;
+}
+
+.memberButton {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-sm;
+  background: var(--card-bg);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--brand-alpha-20);
+    background: var(--brand-alpha-06);
+  }
+}
+
+.memberSelected {
+  border-color: var(--brand-alpha-20);
+  background: var(--brand-alpha-06);
+}
+
+.avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--gradient-placeholder);
+  color: var(--color-text);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-caption);
+}
+
+.memberName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty {
+  padding: 10px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .footer {
+    flex-direction: column-reverse;
+  }
+}

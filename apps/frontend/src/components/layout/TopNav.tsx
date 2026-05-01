@@ -11,10 +11,13 @@ import { ProfileMenu } from "../profile/ProfileMenu";
 import { NotificationsMenu } from "../notifications/NotificationsMenu";
 import { ThemeToggle } from "./ThemeToggle";
 import { ProBadge } from "../ui/ProBadge/ProBadge";
+import { useIncomingFriendRequests } from "@/hooks/use-friends";
 
 export function TopNav() {
   const t = useGT();
   const pathname = usePathname();
+  const { data: incomingRequests = [] } = useIncomingFriendRequests();
+  const requestsCount = incomingRequests.length;
 
   const navItems = useMemo(
     () => [
@@ -27,6 +30,7 @@ export function TopNav() {
         label: t("Friends", { $id: "nav.friends" }),
         href: "/friends",
         icon: <Users size={16} />,
+        badgeCount: requestsCount,
       },
       {
         label: t("Discover", { $id: "nav.discover" }),
@@ -40,7 +44,7 @@ export function TopNav() {
         isNew: true,
       },
     ],
-    [t],
+    [requestsCount, t],
   );
 
   return (
@@ -88,12 +92,13 @@ export function TopNav() {
 
                 <span className={styles.icon}>{item.icon}</span>
                 <span className={styles.label}>{item.label}</span>
-                {item.isNew ? (
+                {item.badgeCount ? (
                   <span className={styles.navBadgeWrap}>
-                    <ProBadge
-                      size="sm"
-                      label={t("NEW", { $id: "nav.secretSanta.newBadge" })}
-                    />
+                    <span className={styles.navCountBadge}>{item.badgeCount}</span>
+                  </span>
+                ) : item.isNew ? (
+                  <span className={styles.navBadgeWrap}>
+                    <ProBadge size="sm" label={t("NEW", { $id: "nav.secretSanta.newBadge" })} />
                   </span>
                 ) : null}
               </Link>

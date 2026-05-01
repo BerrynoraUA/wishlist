@@ -64,7 +64,7 @@ export function DropdownMenu({
 type ItemProps = {
   children: ReactNode;
   onClick?: (e: React.MouseEvent) => void;
-  variant?: "default" | "edit" | "danger" | "share";
+  variant?: "default" | "edit" | "danger" | "share" | "pin";
   disabled?: boolean;
   className?: string;
 };

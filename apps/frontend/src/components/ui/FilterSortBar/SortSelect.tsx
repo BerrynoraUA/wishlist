@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowDownAZ, ArrowUpAZ, ChevronDown } from "lucide-react";
+import { ArrowDownAZ, ChevronDown } from "lucide-react";
 import styles from "./SortSelect.module.scss";
 import type { SortOption } from "./types";
 
@@ -22,10 +22,7 @@ export function SortSelect({ options, value, onChange, className }: Props) {
     if (!open) return;
 
     function handleClickOutside(event: MouseEvent) {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node)
-      ) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
@@ -45,10 +42,7 @@ export function SortSelect({ options, value, onChange, className }: Props) {
       >
         <ArrowDownAZ size={14} />
         <span className={styles.label}>{selected?.label ?? "Sort"}</span>
-        <ChevronDown
-          size={14}
-          className={`${styles.chevron} ${open ? styles.chevronOpen : ""}`}
-        />
+        <ChevronDown size={14} className={`${styles.chevron} ${open ? styles.chevronOpen : ""}`} />
       </button>
 
       {open && (

@@ -13,18 +13,17 @@ import {
   uploadPublicImage,
 } from "@/lib/helpers/storage-image";
 import { MAX_IMAGE_UPLOAD_BYTES } from "@/lib/image-upload";
+import { getCurrentUser } from "./user";
 import { PublicProfile } from "./types/user";
 
 export async function getProfile(): Promise<UserProfile> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
 
   const { data, error } = await supabaseBrowser
     .from("profiles")
-    .select("id, display_name, nickname, bio, avatar_url, created_at")
+    .select("id, display_name, nickname, bio, height, shoe_size, avatar_url, created_at")
     .eq("id", user.id)
     .single();
 
@@ -33,9 +32,7 @@ export async function getProfile(): Promise<UserProfile> {
 }
 
 export async function updateProfile(payload: UpdateProfilePayload): Promise<UserProfile> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
 
@@ -43,7 +40,7 @@ export async function updateProfile(payload: UpdateProfilePayload): Promise<User
     .from("profiles")
     .update(payload)
     .eq("id", user.id)
-    .select("id, display_name, nickname, bio, avatar_url, created_at")
+    .select("id, display_name, nickname, bio, height, shoe_size, avatar_url, created_at")
     .single();
 
   if (error) throw error;
@@ -51,9 +48,7 @@ export async function updateProfile(payload: UpdateProfilePayload): Promise<User
 }
 
 export async function checkNicknameAvailable(nickname: string): Promise<boolean> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+  const user = await getCurrentUser();
 
   const { data, error } = await supabaseBrowser
     .from("profiles")
@@ -121,9 +116,7 @@ export async function deleteAvatarImage(avatarUrl: string): Promise<void> {
 }
 
 export async function getSettings(): Promise<UserSettings> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
 
@@ -143,9 +136,7 @@ export async function getSettings(): Promise<UserSettings> {
 }
 
 export async function updateSettings(payload: UpdateSettingsPayload): Promise<UserSettings> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
 
@@ -171,9 +162,7 @@ export async function changePassword(newPassword: string): Promise<void> {
 }
 
 export async function getAuthProvider(): Promise<string> {
-  const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) return "email";
 

@@ -9,9 +9,11 @@ import styles from "./DatePickerField.module.scss";
 type Props = {
   value: string;
   onChange: (value: string) => void;
+  className?: string;
+  triggerClassName?: string;
 };
 
-export function DatePickerField({ value, onChange }: Props) {
+export function DatePickerField({ value, onChange, className, triggerClassName }: Props) {
   const t = useGT();
   const locale = useLocale();
   const [expanded, setExpanded] = useState(false);
@@ -25,16 +27,14 @@ export function DatePickerField({ value, onChange }: Props) {
     : "";
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${className ?? ""}`.trim()}>
       <div
-        className={`${styles.trigger} ${expanded ? styles.triggerActive : ""}`}
+        className={`${styles.trigger} ${expanded ? styles.triggerActive : ""} ${triggerClassName ?? ""}`.trim()}
         onClick={() => setExpanded((v) => !v)}
       >
         <CalendarDays size={16} className={styles.icon} />
         <span className={value ? styles.value : styles.placeholder}>
-          {value
-            ? displayValue
-            : t("Select a date", { $id: "datePicker.placeholder" })}
+          {value ? displayValue : t("Select a date", { $id: "datePicker.placeholder" })}
         </span>
         {expanded ? (
           <button

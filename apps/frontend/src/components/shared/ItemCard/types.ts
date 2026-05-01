@@ -11,6 +11,7 @@ export type ItemCardData = {
   shareUrl: string | null;
   description: string | null;
   priority: ItemCardPriority;
+  colorIndex: number | null;
   discountPrice: string | number | null;
   currency: string | null;
   status: number | null;

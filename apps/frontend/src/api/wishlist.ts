@@ -1,6 +1,7 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { Wishlist, WishlistAccent, WishlistVisibility } from "@/types/wishlist";
 import { getWishlists } from "@/api/helpers/wishlist-helper";
+import { getCurrentSession } from "./user";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
 import {
   CreateWishlistParams,
@@ -48,15 +49,14 @@ export async function getMyWishlists({
     ownerNickname: row.owner_nickname,
     canEdit: row.can_edit,
     isOwner: row.is_owner,
+    is_pinned: row.is_pinned ?? false,
   }));
 }
 
 export async function getPublicWishlists(
   params: PaginationParams = {},
 ): Promise<Wishlist[]> {
-  const {
-    data: { session },
-  } = await supabaseBrowser.auth.getSession();
+  const session = await getCurrentSession();
 
   return getWishlists(
     (query) =>
@@ -187,12 +187,7 @@ export async function createWishlist({
   imageUrl,
   accent = WishlistAccent.Pink,
 }: CreateWishlistParams): Promise<Wishlist> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   let finalImageUrl: string | null = null;
@@ -349,6 +344,18 @@ export async function deleteWishlist(wishlistId: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function pinWishlist(
+  wishlistId: string,
+  isPinned: boolean,
+): Promise<void> {
+  const { error } = await supabaseBrowser
+    .from("wishlist")
+    .update({ is_pinned: isPinned })
+    .eq("id", wishlistId);
+
+  if (error) throw error;
+}
+
 export async function getWishlistById(wishlistId: string): Promise<Wishlist> {
   const { data, error } = await supabaseBrowser.rpc("get_wishlist_by_id", {
     p_wishlist_id: wishlistId,
@@ -366,16 +373,26 @@ export async function getFriendWishlists(
   friendUserId: string,
   params: PaginationParams = {},
 ): Promise<Wishlist[]> {
-  return getWishlists(
-    (query) =>
-      query
-        .eq("user_id", friendUserId)
-        .in("visibility_type", [
-          WishlistVisibility.Public,
-          WishlistVisibility.FriendsOnly,
-        ]),
-    params,
-  );
+  const { skip = 0, take = 10, search, sort } = params;
+  const normalizedSearch = normalizeSearchQuery(search);
+
+  const { data, error } = await supabaseBrowser.rpc("get_friend_wishlists", {
+    p_friend_user_id: friendUserId,
+    p_skip: skip,
+    p_take: take,
+    p_search: normalizedSearch || null,
+    p_sort: sort || "newest",
+  });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row: WishlistFeedRow) => ({
+    ...row,
+    itemsCount: row.items_count,
+    ownerNickname: row.owner_nickname,
+    canEdit: row.can_edit,
+    isOwner: row.is_owner,
+  }));
 }
 
 export async function searchWishlists(
@@ -384,9 +401,7 @@ export async function searchWishlists(
 ): Promise<Wishlist[]> {
   const { skip = 0, take = 10 } = params;
 
-  const {
-    data: { session },
-  } = await supabaseBrowser.auth.getSession();
+  const session = await getCurrentSession();
 
   if (!session?.user) throw new Error("Not authenticated");
 
@@ -422,12 +437,7 @@ export async function searchWishlists(
 export async function getFriendsUpcomingWishlists(): Promise<
   FriendUpcomingWishlist[]
 > {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   const { data, error } = await supabaseBrowser.rpc(
@@ -445,7 +455,7 @@ export async function getFriendsUpcomingWishlists(): Promise<
 export async function grantWishlistAccess(
   wishlistId: string,
   grantedToUserId: string,
-  accessType: 0 | 1,
+  accessType: 0 | 1 | 2 | 3,
 ) {
   const { data, error } = await supabaseBrowser.rpc("grant_wishlist_access", {
     p_wishlist_id: wishlistId,

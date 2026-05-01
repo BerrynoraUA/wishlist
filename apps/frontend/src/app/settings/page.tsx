@@ -1,18 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { useGT } from "gt-next";
 import styles from "./settings.module.scss";
-import { SettingsTabs } from "./components/SettingsTabs";
-import { ProfileSettings } from "./components/ProfileSettings";
-import { AccountSettings } from "./components/AccountSettings";
-import { NotificationSettings } from "./components/NotificationSettings";
-import { AppearanceSettings } from "./components/AppearanceSettings";
-import type { SettingsTab } from "@/types/settings";
+import { SettingsTabs } from "./components/settings-tabs/SettingsTabs";
+import { ProfileSettings } from "./components/profile-settings/ProfileSettings";
+import { AccountSettings } from "./components/account-settings/AccountSettings";
+import { NotificationSettings } from "./components/notification-settings/NotificationSettings";
+import { AppearanceSettings } from "./components/appearance-settings/AppearanceSettings";
+import { useSettingsPage } from "./hooks/use-settings-page";
 
 export default function SettingsPage() {
   const t = useGT();
-  const [tab, setTab] = useState<SettingsTab>("profile");
+  const { tab, setTab } = useSettingsPage();
 
   return (
     <div className={styles.page}>

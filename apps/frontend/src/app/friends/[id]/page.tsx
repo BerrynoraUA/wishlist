@@ -1,13 +1,14 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useGT } from "gt-next";
 import Link from "next/link";
 import { useFriendWishlists } from "@/hooks/use-wishlists";
 import { useRemoveFriend } from "@/hooks/use-friends";
-import { WishlistCard } from "@/app/home/components/WishlistCard";
+import { WishlistCard } from "@/app/home/components/wishlist-card/WishlistCard";
 import { Button } from "@/components/ui/Button/Button";
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
 import { ArrowLeft, UserMinus } from "lucide-react";
 import styles from "./FriendWishlists.module.scss";
 
@@ -22,19 +23,10 @@ function FriendWishlistsPageContent() {
   const { data: wishlists = [], isLoading, isError } = useFriendWishlists(friendId, { search });
 
   const removeFriend = useRemoveFriend();
+  const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
 
   function handleRemoveFriend() {
-    if (
-      confirm(
-        t("Are you sure you want to remove this friend?", {
-          $id: "friends.detail.confirmRemove",
-        }),
-      )
-    ) {
-      removeFriend.mutate(friendId, {
-        onSuccess: () => router.push("/friends"),
-      });
-    }
+    setRemoveConfirmOpen(true);
   }
 
   return (
@@ -86,6 +78,25 @@ function FriendWishlistsPageContent() {
           <WishlistCard key={w.id} wishlist={w} showSharedMeta={false} />
         ))}
       </div>
+
+      <DeleteConfirmModal
+        open={removeConfirmOpen}
+        onClose={() => setRemoveConfirmOpen(false)}
+        onConfirm={() => {
+          removeFriend.mutate(friendId, {
+            onSuccess: () => router.push("/friends"),
+          });
+        }}
+        title={t("Remove Friend", { $id: "friends.detail.removeFriendTitle" })}
+        description={t(
+          "Are you sure you want to remove this friend? You will need to send a new friend request to reconnect.",
+          { $id: "friends.detail.removeFriendDescription" },
+        )}
+        confirmLabel={t("Remove Friend", {
+          $id: "friends.detail.removeFriendConfirm",
+        })}
+        isPending={removeFriend.isPending}
+      />
     </main>
   );
 }

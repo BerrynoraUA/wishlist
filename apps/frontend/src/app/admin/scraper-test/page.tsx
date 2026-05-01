@@ -19,170 +19,20 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { TEST_CASES, type TestCase } from "./test-urls";
+import { TEST_CASES } from "./test-urls";
 import { exportScraperResultsExcel, exportScraperResultsJson } from "./export-scraper-results";
 import { Button } from "@/components/ui/Button/Button";
 import styles from "./scraper-test.module.scss";
-
-interface ProductData {
-  title: string | null;
-  description: string | null;
-  image: string | null;
-  price: string | null;
-  discount_price: string | null;
-  has_discount: boolean;
-  discount_end_date: string | null;
-  currency: string | null;
-}
-
-interface FieldValidation {
-  field: string;
-  expected: string | null;
-  actual: string | null;
-  match: boolean | null; // null = not validated (expected is null)
-}
-
-interface ScrapeResult {
-  url: string;
-  status: "success" | "partial" | "failed";
-  data: ProductData | null;
-  error?: string;
-  missingFields?: string[];
-  duration: number;
-  validations: FieldValidation[];
-}
-
-/** Shape of each entry in POST /api/admin/scraper-test `results` (before client-side validation). */
-interface ApiScrapeResultRow {
-  url: string;
-  status: "success" | "partial" | "failed";
-  data: ProductData | null;
-  error?: string;
-  missingFields?: string[];
-  duration: number;
-}
-
-type TestState = "idle" | "running" | "done";
-
-function parseComparablePrice(value: string | null): number | null {
-  if (value === null) {
-    return null;
-  }
-
-  const numericPart = value.replace(/[^\d.,\s]/g, "").trim();
-  if (!numericPart) {
-    return null;
-  }
-
-  const compactValue = numericPart.replace(/\s+/g, "");
-  const lastCommaIndex = compactValue.lastIndexOf(",");
-  const lastDotIndex = compactValue.lastIndexOf(".");
-
-  let normalizedValue = compactValue;
-
-  if (lastCommaIndex !== -1 && lastDotIndex !== -1) {
-    if (lastCommaIndex > lastDotIndex) {
-      normalizedValue = compactValue.replace(/\./g, "").replace(",", ".");
-    } else {
-      normalizedValue = compactValue.replace(/,/g, "");
-    }
-  } else if (lastCommaIndex !== -1) {
-    const fractionalDigits = compactValue.length - lastCommaIndex - 1;
-    normalizedValue =
-      fractionalDigits > 0 && fractionalDigits <= 2
-        ? compactValue.replace(",", ".")
-        : compactValue.replace(/,/g, "");
-  } else if (lastDotIndex !== -1) {
-    const fractionalDigits = compactValue.length - lastDotIndex - 1;
-    normalizedValue =
-      fractionalDigits > 0 && fractionalDigits <= 2
-        ? compactValue
-        : compactValue.replace(/\./g, "");
-  }
-
-  const parsedValue = Number(normalizedValue);
-  return Number.isFinite(parsedValue) ? parsedValue : null;
-}
-
-function isPriceMatch(expected: string | null, actual: string | null): boolean {
-  const expectedPrice = parseComparablePrice(expected);
-  const actualPrice = parseComparablePrice(actual);
-
-  if (expectedPrice === null || actualPrice === null) {
-    return expected === actual;
-  }
-
-  return expectedPrice === actualPrice;
-}
-
-function validateResult(testCase: TestCase, data: ProductData | null): FieldValidation[] {
-  const fields: {
-    field: string;
-    key: keyof TestCase["expected"];
-    dataKey: keyof ProductData;
-  }[] = [
-    { field: "Title", key: "title", dataKey: "title" },
-    { field: "Price", key: "price", dataKey: "price" },
-    { field: "Image", key: "image", dataKey: "image" },
-    { field: "Description", key: "description", dataKey: "description" },
-  ];
-
-  return fields.map(({ field, key, dataKey }) => {
-    const expected = testCase.expected[key];
-    const rawActual = data?.[dataKey];
-    const actual = rawActual == null ? null : String(rawActual);
-
-    if (expected === null) {
-      return { field, expected, actual, match: null };
-    }
-
-    const trimmedExpected = expected?.trim() ?? null;
-    const trimmedActual = actual?.trim() ?? null;
-
-    let match: boolean;
-    if (key === "price") {
-      match = isPriceMatch(trimmedExpected, trimmedActual);
-    } else if (key === "description" && trimmedExpected && trimmedActual) {
-      match =
-        trimmedActual === trimmedExpected ||
-        trimmedActual.startsWith(trimmedExpected.replace(/…$/, "")) ||
-        trimmedExpected.startsWith(trimmedActual.replace(/…$/, ""));
-    } else {
-      match = trimmedExpected === trimmedActual;
-    }
-
-    return {
-      field,
-      expected,
-      actual,
-      match,
-    };
-  });
-}
-
-function computeStatus(
-  scraperStatus: "success" | "partial" | "failed",
-  validations: FieldValidation[],
-): "success" | "partial" | "failed" {
-  if (scraperStatus === "failed") return "failed";
-
-  const checked = validations.filter((v) => v.match !== null);
-  if (checked.length === 0) return scraperStatus; // no expected values set, use scraper status
-  const allMatch = checked.every((v) => v.match);
-  if (allMatch) return "success";
-  const someMatch = checked.some((v) => v.match);
-  return someMatch ? "partial" : "failed";
-}
-
-type SortField = "site" | "status" | "duration";
-type SortDir = "asc" | "desc";
-type StatusFilter = "all" | "success" | "partial" | "failed";
-
-const STATUS_ORDER: Record<string, number> = {
-  success: 0,
-  partial: 1,
-  failed: 2,
-};
+import type {
+  ApiScrapeResultRow,
+  ScrapeResult,
+  SortDir,
+  SortField,
+  StatusFilter,
+  TestState,
+} from "./constants";
+import { STATUS_ORDER } from "./constants";
+import { computeStatus, getDomain, validateResult } from "./helpers";
 
 export default function ScraperTestPage() {
   const [state, setState] = useState<TestState>("idle");
@@ -700,14 +550,6 @@ function ResultRow({
       )}
     </>
   );
-}
-
-function getDomain(url: string): string {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return url;
-  }
 }
 
 function DataRow({

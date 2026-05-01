@@ -1,9 +1,12 @@
+import type { ItemLink } from "@/types/item";
+
 export interface CreateItemParams {
   wishlist_id: string;
   name: string;
   description?: string | null;
   price?: string | null;
-  priority?: number | null;
+  priority_id?: string | null;
+  color_index?: number | null;
   image?: File | null;
   image_url?: string | null;
   url?: string | null;
@@ -12,13 +15,15 @@ export interface CreateItemParams {
   has_discount?: boolean;
   discount_end_date?: string | null;
   currency?: string | null;
+  additional_links?: ItemLink[] | null;
 }
 
 export interface UpdateItemParams {
   name?: string;
   description?: string | null;
   price?: string | null;
-  priority?: number | null;
+  priority_id?: string | null;
+  color_index?: number | null;
   image_url?: string | null;
   url?: string | null;
   status?: number;
@@ -29,4 +34,5 @@ export interface UpdateItemParams {
   has_discount?: boolean;
   discount_end_date?: string | null;
   currency?: string | null;
+  additional_links?: ItemLink[] | null;
 }

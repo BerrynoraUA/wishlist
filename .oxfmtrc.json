@@ -5,8 +5,11 @@
     "**/build/**",
     "**/.next/**",
     "**/.expo/**",
+    "**/.agents/**",
+    "**/.claude/**",
     "**/out/**",
     "**/.gt/**",
-    "pnpm-lock.yaml"
+    "pnpm-lock.yaml",
+    "apps/native/uniwind-types.d.ts"
   ]
 }

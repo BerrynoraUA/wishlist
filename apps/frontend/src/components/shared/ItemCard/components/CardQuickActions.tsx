@@ -1,10 +1,10 @@
 import { useGT } from "gt-next";
 import { ExternalLink, MoreHorizontal } from "lucide-react";
+import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-} from "@/components/ui/DropdownMenu/DropdownMenu";
+import { useSessionDraftPresence } from "@/hooks/use-session-draft";
+import { useCurrentUserId } from "@/hooks/use-user";
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
 import { buildSaveItemData, shareItemLink } from "@/lib/helpers/item-card";
 import type { ItemCardPriority } from "@/lib/helpers/item-card";
 import styles from "../ItemCard.module.scss";
@@ -43,8 +43,14 @@ export function CardQuickActions({
   onDelete,
 }: CardQuickActionsProps) {
   const t = useGT();
+  const { data: currentUserId = "" } = useCurrentUserId();
   const hasProductLink = Boolean(url);
   const hasShareLink = Boolean(shareUrl);
+  const hasEditDraft = useSessionDraftPresence({
+    userId: currentUserId,
+    kind: "edit-item",
+    scopeId: id,
+  });
 
   return (
     <div className={styles.quickActions}>
@@ -91,6 +97,7 @@ export function CardQuickActions({
               data-tooltip={t("More options", { $id: "itemCard.moreOptions" })}
             >
               <MoreHorizontal size={16} />
+              {hasEditDraft && <DraftBadge variant="dot" className={styles.iconButtonDraftDot} />}
             </button>
           )}
         >
@@ -129,10 +136,7 @@ export function CardQuickActions({
             </button>
           )}
         >
-          <DropdownMenuItem
-            variant="share"
-            onClick={() => shareItemLink(shareUrl!)}
-          >
+          <DropdownMenuItem variant="share" onClick={() => shareItemLink(shareUrl!)}>
             <span>{t("Share", { $id: "itemCard.share" })}</span>
           </DropdownMenuItem>
         </DropdownMenu>

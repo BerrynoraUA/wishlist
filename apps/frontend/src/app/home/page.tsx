@@ -1,107 +1,87 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { useGT } from "gt-next";
-import { DashboardHeader } from "./components/DashboardHeader";
-import { StatsRow } from "./components/StatsRow";
-import { WishlistGrid } from "./components/WishlistGrid";
-import { CreateWishlistModal } from "@/app/wishlist/components/CreateWishlistModal";
-import { EditWishlistModal } from "@/app/wishlist/components/EditWishlistModal";
-import { FriendInviteModal } from "@/app/friends/components/FriendInviteModal";
-import { FriendRequestSentModal } from "@/app/share/components/FriendRequestSentModal";
+import { DashboardHeader } from "./components/dashboard-header/DashboardHeader";
+import { StatsRow } from "./components/stats-row/StatsRow";
+import { WishlistGrid } from "./components/wishlist-grid/WishlistGrid";
+import { CreateWishlistModal } from "@/app/wishlist/[id]/components/create-wishlist-modal/CreateWishlistModal";
+import { EditWishlistModal } from "@/app/wishlist/[id]/components/edit-wishlist-modal/EditWishlistModal";
+import { FriendInviteModal } from "@/app/friends/components/friend-invite-modal/FriendInviteModal";
+import { FriendRequestSentModal } from "@/app/share/components/friend-request-sent-modal/FriendRequestSentModal";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
+import { useSessionDraftPresence } from "@/hooks/use-session-draft";
+import { useCurrentUserId } from "@/hooks/use-user";
 import { useDeleteWishlist } from "@/hooks/use-wishlists";
-import { Wishlist } from "@/types/wishlist";
-
-function getInitialInvite(searchParams: URLSearchParams) {
-  return searchParams.get("friendInvite") ?? "";
-}
+import { useHomeModals } from "./hooks/use-home-modals";
+import { useHomeQueryParamCleanup } from "./hooks/use-home-query-param-cleanup";
 
 function HomePageContent() {
   const t = useGT();
-  const [open, setOpen] = useState(false);
-  const [editWishlist, setEditWishlist] = useState<Wishlist | null>(null);
-  const [deleteWishlist, setDeleteWishlist] = useState<Wishlist | null>(null);
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const cleaned = useRef(false);
+  const { data: currentUserId = "" } = useCurrentUserId();
   const deleteWishlistMutation = useDeleteWishlist();
+  const hasCreateWishlistDraft = useSessionDraftPresence({
+    userId: currentUserId,
+    kind: "create-wishlist",
+  });
 
-  const [inviteUserId] = useState(() => getInitialInvite(searchParams));
-  const [inviteOpen, setInviteOpen] = useState(
-    () => !!getInitialInvite(searchParams),
-  );
+  const modals = useHomeModals();
+  useHomeQueryParamCleanup();
 
-  const [friendRequestSent] = useState(
-    () => searchParams.get("friendRequestSent") === "1",
-  );
-  const [friendRequestSentOpen, setFriendRequestSentOpen] = useState(
-    () => searchParams.get("friendRequestSent") === "1",
-  );
-
-  useEffect(() => {
-    if (cleaned.current || (!inviteUserId && !friendRequestSent)) return;
-    cleaned.current = true;
-
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("friendInvite");
-    params.delete("friendRequestSent");
-    const next = params.toString();
-    router.replace(next ? `/home?${next}` : "/home", { scroll: false });
-  }, [inviteUserId, searchParams, router]);
   return (
-    <>
-      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
-        <DashboardHeader onNewWishlist={() => setOpen(true)} />
-        <StatsRow />
-        <WishlistGrid
-          onCreateWishlist={() => setOpen(true)}
-          onEditWishlist={setEditWishlist}
-          onDeleteWishlist={setDeleteWishlist}
-        />
+    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
+      <DashboardHeader
+        onNewWishlist={() => modals.setCreateOpen(true)}
+        hasDraft={hasCreateWishlistDraft}
+      />
+      <StatsRow />
+      <WishlistGrid
+        onCreateWishlist={() => modals.setCreateOpen(true)}
+        onEditWishlist={modals.setEditWishlist}
+        onDeleteWishlist={modals.setDeleteWishlist}
+        hasCreateDraft={hasCreateWishlistDraft}
+      />
 
-        <CreateWishlistModal open={open} onClose={() => setOpen(false)} />
-        {editWishlist && (
-          <EditWishlistModal
-            open={!!editWishlist}
-            onClose={() => setEditWishlist(null)}
-            wishlist={editWishlist}
-          />
+      <CreateWishlistModal open={modals.createOpen} onClose={() => modals.setCreateOpen(false)} />
+      {modals.editWishlist && (
+        <EditWishlistModal
+          open={!!modals.editWishlist}
+          onClose={() => modals.setEditWishlist(null)}
+          wishlist={modals.editWishlist}
+        />
+      )}
+      <DeleteConfirmModal
+        open={!!modals.deleteWishlist}
+        onClose={() => modals.setDeleteWishlist(null)}
+        onConfirm={() => {
+          if (!modals.deleteWishlist) return;
+
+          deleteWishlistMutation.mutate(modals.deleteWishlist.id, {
+            onSuccess: () => modals.setDeleteWishlist(null),
+          });
+        }}
+        title={t("Delete Wishlist", {
+          $id: "wishlist.page.deleteWishlistTitle",
+        })}
+        description={t(
+          "Are you sure you want to delete this entire wishlist and all its items? This action cannot be undone.",
+          { $id: "wishlist.page.deleteWishlistDescription" },
         )}
-        <DeleteConfirmModal
-          open={!!deleteWishlist}
-          onClose={() => setDeleteWishlist(null)}
-          onConfirm={() => {
-            if (!deleteWishlist) return;
-
-            deleteWishlistMutation.mutate(deleteWishlist.id, {
-              onSuccess: () => setDeleteWishlist(null),
-            });
-          }}
-          title={t("Delete Wishlist", {
-            $id: "wishlist.page.deleteWishlistTitle",
-          })}
-          description={t(
-            "Are you sure you want to delete this entire wishlist and all its items? This action cannot be undone.",
-            { $id: "wishlist.page.deleteWishlistDescription" },
-          )}
-          confirmLabel={t("Delete Wishlist", {
-            $id: "wishlist.page.deleteWishlistConfirm",
-          })}
-          isPending={deleteWishlistMutation.isPending}
-        />
-        <FriendInviteModal
-          open={inviteOpen}
-          userId={inviteUserId}
-          onClose={() => setInviteOpen(false)}
-        />
-        <FriendRequestSentModal
-          open={friendRequestSentOpen}
-          onClose={() => setFriendRequestSentOpen(false)}
-        />
-      </main>
-    </>
+        confirmLabel={t("Delete Wishlist", {
+          $id: "wishlist.page.deleteWishlistConfirm",
+        })}
+        isPending={deleteWishlistMutation.isPending}
+      />
+      <FriendInviteModal
+        open={modals.inviteOpen}
+        userId={modals.inviteUserId}
+        onClose={() => modals.setInviteOpen(false)}
+      />
+      <FriendRequestSentModal
+        open={modals.friendRequestSentOpen}
+        onClose={() => modals.setFriendRequestSentOpen(false)}
+      />
+    </main>
   );
 }
 

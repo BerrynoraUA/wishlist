@@ -2,6 +2,7 @@
 
 .wrapper {
   position: relative;
+  min-width: 0;
 }
 
 .trigger {
@@ -19,6 +20,7 @@
   cursor: pointer;
   transition: all 0.25s $ease-out;
   white-space: nowrap;
+  max-width: 100%;
 
   &:hover {
     border-color: var(--color-border);
@@ -29,6 +31,7 @@
 
 .label {
   max-width: 120px;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -37,6 +40,26 @@
   color: inherit;
   flex-shrink: 0;
   transition: transform 0.2s $ease-out;
+}
+
+@media (max-width: 640px) {
+  .wrapper {
+    flex: 1 1 120px;
+  }
+
+  .trigger {
+    width: 100%;
+    justify-content: center;
+    padding-inline: 10px;
+  }
+
+  .label {
+    max-width: 100%;
+  }
+
+  .dropdown {
+    min-width: min(220px, calc(100vw - 32px));
+  }
 }
 
 .chevronOpen {

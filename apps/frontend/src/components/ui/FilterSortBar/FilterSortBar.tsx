@@ -17,7 +17,5 @@ export function FilterSortRow({ children, className }: Props) {
 }
 
 export function FilterSortActions({ children, className }: Props) {
-  return (
-    <div className={`${styles.actions} ${className ?? ""}`}>{children}</div>
-  );
+  return <div className={`${styles.actions} ${className ?? ""}`}>{children}</div>;
 }

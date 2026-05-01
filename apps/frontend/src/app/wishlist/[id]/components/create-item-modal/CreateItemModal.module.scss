@@ -1,0 +1,448 @@
+@use "@/styles/variables" as *;
+@use "@/styles/typography" as *;
+
+.container {
+  display: grid;
+  gap: 20px;
+  padding: 10px 8px 4px;
+}
+
+.header {
+  display: grid;
+  gap: 10px;
+}
+
+.headerCopy {
+  display: grid;
+}
+
+.header h2 {
+  margin: 0 0 6px;
+}
+
+.header p {
+  margin: 0;
+}
+
+.draftBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--brand-alpha-12, rgba(190, 24, 93, 0.12));
+  border-radius: 12px;
+  background: var(--brand-alpha-05, rgba(190, 24, 93, 0.05));
+  flex-wrap: wrap;
+}
+
+.draftBannerMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  @include t-caption;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.draftAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--brand-alpha-20);
+  border-radius: 999px;
+  background: var(--brand-alpha-06);
+  color: var(--color-brand);
+  @include t-caption;
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--brand-alpha-12);
+    border-color: var(--brand-alpha-30);
+    color: var(--color-brand-dark);
+    box-shadow: 0 8px 18px var(--brand-alpha-12);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--input-focus-ring);
+  }
+}
+
+.draftNote {
+  @include t-caption;
+  margin: -2px 0 0;
+  color: var(--color-text-muted);
+}
+
+.draftField {
+  label {
+    color: var(--color-brand);
+  }
+
+  input,
+  textarea {
+    border-color: var(--color-brand);
+    background: var(--brand-alpha-05, rgba(236, 72, 153, 0.05));
+    box-shadow: inset 0 0 0 1px var(--brand-alpha-12, rgba(236, 72, 153, 0.12));
+  }
+}
+
+.draftSelectField {
+  border-color: var(--color-brand) !important;
+  background: var(--brand-alpha-05, rgba(236, 72, 153, 0.05));
+  box-shadow: inset 0 0 0 1px var(--brand-alpha-12, rgba(236, 72, 153, 0.12));
+}
+
+.draftDropArea {
+  border-color: var(--color-brand);
+  background: var(--brand-alpha-05, rgba(236, 72, 153, 0.05));
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+
+  label {
+    @include t-label;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    border: 1.5px solid var(--input-border);
+    border-radius: $radius-md;
+    padding: 12px 14px;
+    font-size: var(--fs-body);
+    color: $text;
+    background: var(--input-bg);
+    outline: none;
+    transition:
+      border-color 0.3s $ease-out,
+      box-shadow 0.3s $ease-out;
+
+    &::placeholder {
+      color: $text-light;
+    }
+
+    &:focus {
+      border-color: var(--input-focus-border);
+      box-shadow: 0 0 0 4px var(--input-focus-ring);
+    }
+  }
+
+  textarea {
+    min-height: 96px;
+    resize: vertical;
+  }
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.urlRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+.priceRow {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+}
+
+.selectWrap {
+  min-width: 112px;
+}
+
+.selectField {
+  width: 100%;
+}
+
+.error {
+  margin: 4px 0 0;
+  color: var(--color-danger);
+  font-size: var(--fs-caption);
+}
+
+.upload {
+  border: 1.5px dashed var(--color-border-light);
+  border-radius: $radius-md;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+  background: var(--elevated-bg);
+}
+
+.dropArea {
+  border: 1.5px solid var(--color-border-subtle);
+  border-radius: 10px;
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  color: var(--color-text-muted);
+  background: var(--card-bg);
+  transition: border-color 0.3s $ease-out;
+
+  &:hover {
+    border-color: var(--input-focus-border);
+  }
+}
+
+.preview {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  max-height: 180px;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Additional links */
+.additionalLinks {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.additionalLinkRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.removeLinkBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-danger-alpha-10, rgba(239, 68, 68, 0.1));
+  color: var(--color-danger);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--color-danger-alpha-20, rgba(239, 68, 68, 0.2));
+  }
+}
+
+.addLinkBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1.5px dashed var(--color-border-light);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-muted);
+  @include t-caption;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  justify-self: start;
+
+  &:hover {
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+    background: var(--brand-alpha-5, rgba(236, 72, 153, 0.05));
+  }
+}
+
+.proLinkHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--brand-alpha-10, rgba(236, 72, 153, 0.1));
+  color: var(--color-brand);
+  @include t-eyebrow;
+  font-weight: var(--fw-semibold);
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  justify-self: start;
+  margin-top: 4px;
+
+  &:hover {
+    background: var(--brand-alpha-15, rgba(236, 72, 153, 0.15));
+  }
+}
+
+/* ===== Priority dropdown ===== */
+
+.prioritySelectDropdown {
+  padding: 0;
+  max-height: 280px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.prioritySelectLeading {
+  min-width: auto;
+  height: auto;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.prioritySelectOption {
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 0;
+  background: var(--color-bg-subtle);
+  transition: background 0.15s $ease-out;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--color-surface-hover);
+  }
+
+  &[aria-selected="true"] {
+    background: var(--color-bg);
+  }
+}
+
+.prioritySelectIcon {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-sm;
+  background: color-mix(
+    in srgb,
+    var(--priority-color, var(--color-border)) 12%,
+    transparent
+  );
+  color: var(--priority-color, var(--color-text-muted));
+  display: grid;
+  place-items: center;
+}
+
+.prioritySelectName {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  color: var(--color-text);
+}
+
+.prioritySelectCheck {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid var(--color-border);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  transition: all 0.15s $ease-out;
+  color: transparent;
+
+  &.checked {
+    background: $brand;
+    border-color: $brand;
+    color: #fff;
+  }
+}
+
+/* ===== Color picker ===== */
+
+.colorPicker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.colorSwatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  background: var(--swatch-color, var(--color-bg-muted));
+  color: transparent;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  flex-shrink: 0;
+  padding: 0;
+
+  &:hover {
+    transform: scale(1.15);
+  }
+
+  &.colorSwatchActive {
+    border-color: var(--swatch-color, var(--color-border));
+    box-shadow: 0 0 0 3px
+      color-mix(
+        in srgb,
+        var(--swatch-color, var(--color-brand)) 30%,
+        transparent
+      );
+    transform: scale(1.1);
+  }
+}
+
+.colorSwatchNone {
+  background: var(--color-bg-muted);
+  color: var(--color-text-muted);
+
+  &.colorSwatchActive {
+    border-color: var(--color-border);
+    box-shadow: none;
+    color: var(--color-brand);
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    gap: 16px;
+    padding: 4px 0 0;
+  }
+
+  .draftBanner {
+    align-items: flex-start;
+  }
+
+  .urlRow {
+    grid-template-columns: 1fr;
+  }
+
+  .footer {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
+  }
+}

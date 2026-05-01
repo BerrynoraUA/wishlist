@@ -1,9 +1,14 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { WishlistSupabaseClient } from "@wishlist/backend/supabase";
 import type { Notification } from "@/types";
 
-async function getSupabaseBrowser(): Promise<import("@supabase/supabase-js").SupabaseClient> {
+async function getSupabaseBrowser(): Promise<WishlistSupabaseClient> {
   const mod = await import("@/lib/supabase-browser");
   return mod.supabaseBrowser;
+}
+
+async function getNotificationSession() {
+  const mod = await import("./user");
+  return mod.getCurrentSession();
 }
 
 type SaleAlertItem = {
@@ -16,7 +21,7 @@ type SaleAlertItem = {
 };
 
 export type CreateSaleAlertNotificationsParams = {
-  supabase: SupabaseClient;
+  supabase: WishlistSupabaseClient;
   ownerId: string;
   item: SaleAlertItem;
 };
@@ -152,12 +157,7 @@ export async function getUserNotifications(
   params: GetNotificationsParams = {},
 ): Promise<Notification[]> {
   const supabaseBrowser = await getSupabaseBrowser();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getNotificationSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   const { limit = 20, offset = 0, unread_only = false } = params;
@@ -186,12 +186,7 @@ export async function markNotificationAsRead(notificationId: string): Promise<vo
 
 export async function markAllNotificationsAsRead(): Promise<void> {
   const supabaseBrowser = await getSupabaseBrowser();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getNotificationSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   const { error } = await supabaseBrowser
@@ -205,12 +200,7 @@ export async function markAllNotificationsAsRead(): Promise<void> {
 
 export async function deleteAllNotifications(): Promise<void> {
   const supabaseBrowser = await getSupabaseBrowser();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getNotificationSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   const { error } = await supabaseBrowser
@@ -230,12 +220,7 @@ export async function deleteNotification(notificationId: string): Promise<void> 
 
 export async function getUnreadNotificationsCount(): Promise<number> {
   const supabaseBrowser = await getSupabaseBrowser();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getNotificationSession();
   if (!session?.user) throw new Error("Not authenticated");
 
   const { data, error } = await supabaseBrowser.rpc("get_unread_notifications_count", {

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@wishlist/backend/supabase/admin";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
 const CRON_SECRET = process.env.CRON_SECRET as string;
 
@@ -51,7 +50,7 @@ export async function GET(request: NextRequest) {
   const daysParam = request.nextUrl.searchParams.get("days");
   const days = Math.max(1, Math.min(30, daysParam ? Number.parseInt(daysParam, 10) : 10));
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  const supabase = createAdminClient(SUPABASE_SERVICE_ROLE_KEY);
 
   const { data: items, error: fetchError } = await supabase
     .from("item")

@@ -11,12 +11,7 @@ type Props = {
   className?: string;
 };
 
-export function SearchFilter({
-  value,
-  onChange,
-  placeholder = "Search...",
-  className,
-}: Props) {
+export function SearchFilter({ value, onChange, placeholder = "Search...", className }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (

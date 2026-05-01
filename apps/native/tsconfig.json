@@ -1,12 +1,10 @@
 {
-  "extends": "expo/tsconfig.base",
+  "extends": "../../packages/backend/tsconfig/react-native.json",
   "compilerOptions": {
-    "strict": true,
-    "jsx": "react-native",
-    "moduleSuffixes": [".ios", ".android", ""],
+    "baseUrl": ".",
+    "jsx": "react-jsx",
     "paths": {
-      "@/*": ["./src/*"],
-      "@/assets/*": ["./assets/*"]
+      "@/*": ["*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]

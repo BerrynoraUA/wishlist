@@ -50,9 +50,7 @@ export function useDebouncedQueryParam({ key, debounceMs = 300 }: Options) {
         }
 
         router.replace(
-          params.toString()
-            ? `${pathnameRef.current}?${params.toString()}`
-            : pathnameRef.current,
+          params.toString() ? `${pathnameRef.current}?${params.toString()}` : pathnameRef.current,
           { scroll: false },
         );
       }, debounceMs);

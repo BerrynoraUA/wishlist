@@ -1,7 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
   "tasks": {
     "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:https": {
       "cache": false,
       "persistent": true
     },
@@ -15,11 +20,13 @@
     },
     "android": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME", "Path"]
     },
     "ios": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["JAVA_HOME", "Path"]
     }
   }
 }

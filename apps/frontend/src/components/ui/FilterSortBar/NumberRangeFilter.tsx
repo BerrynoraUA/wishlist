@@ -11,6 +11,7 @@ type Props = {
   maxPlaceholder?: string;
   label?: string;
   className?: string;
+  compact?: boolean;
 };
 
 export function NumberRangeFilter({
@@ -22,9 +23,10 @@ export function NumberRangeFilter({
   maxPlaceholder = "To",
   label,
   className,
+  compact = false,
 }: Props) {
   return (
-    <div className={`${styles.wrapper} ${className ?? ""}`}>
+    <div className={`${styles.wrapper} ${compact ? styles.compact : ""} ${className ?? ""}`}>
       {label && <span className={styles.label}>{label}</span>}
       <div className={styles.range}>
         <input

@@ -3,23 +3,19 @@
 import styles from "./ProfileMenu.module.scss";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  LogOut,
-  Crown,
-  Settings,
-  Lightbulb,
-  Languages,
-  ChevronDown,
-  Check,
-} from "lucide-react";
+import { LogOut, Crown, Settings, Lightbulb, Languages, ChevronDown, Check, X } from "lucide-react";
 import { useGT, useLocale, useLocales } from "gt-next";
 import { useSetLocale } from "gt-next/client";
-import { supabaseBrowser } from "@/lib/supabase-browser";
 import { logout } from "@/api/login";
 import { useSubscription } from "@/hooks/use-subscription";
 import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 import { useProfile } from "@/hooks/use-settings";
+import { useCurrentUser } from "@/hooks/use-user";
+import { useKnownAccounts } from "@/hooks/use-known-accounts";
+import { upsertKnownAccount } from "@/lib/known-accounts";
+import { switchAccount } from "@/lib/account-switch";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
+import type { KnownAccount } from "@/types/known-accounts";
 
 type Props = {
   onOpen?: () => void;
@@ -38,33 +34,33 @@ export function ProfileMenu({ onOpen }: Props) {
   const setLocale = useSetLocale();
   const { isPro } = useSubscription();
   const { data: profile } = useProfile();
+  const { data: currentUser } = useCurrentUser();
 
   const [open, setOpen] = useState(false);
   const [languageListOpen, setLanguageListOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
-  const [userInitial, setUserInitial] = useState("S");
+  const [switchingUserId, setSwitchingUserId] = useState<string | null>(null);
+
+  const { accounts, removeAccount } = useKnownAccounts();
 
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    supabaseBrowser.auth
-      .getUser()
-      .then(({ data }) => {
-        const email = data.user?.email;
-        if (email) {
-          setUserEmail(email);
-          setUserInitial(email.charAt(0).toUpperCase());
-        }
-      })
-      .catch(() => {
-        setUserEmail("");
-      });
-  }, []);
+  const userEmail = currentUser?.email ?? "";
+  const userId = currentUser?.id ?? null;
+  const userInitial = userEmail ? userEmail.charAt(0).toUpperCase() : "S";
 
   useEffect(() => {
     if (!open) setLanguageListOpen(false);
   }, [open]);
+
+  useEffect(() => {
+    if (!userId || !userEmail) return;
+    upsertKnownAccount({
+      userId,
+      email: userEmail,
+      displayName: profile?.display_name ?? profile?.nickname ?? null,
+      avatarUrl: profile?.avatar_url ?? null,
+    });
+  }, [userId, userEmail, profile?.display_name, profile?.nickname, profile?.avatar_url]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -90,6 +86,26 @@ export function ProfileMenu({ onOpen }: Props) {
     }
   }
 
+  async function handleSwitchAccount(account: KnownAccount) {
+    if (switchingUserId) return;
+    setSwitchingUserId(account.userId);
+    try {
+      await switchAccount(account, {
+        onRedirect: (href) => {
+          setOpen(false);
+          router.push(href);
+        },
+      });
+    } catch {
+      setSwitchingUserId(null);
+    }
+  }
+
+  function handleRemoveAccount(event: React.MouseEvent, accountUserId: string) {
+    event.stopPropagation();
+    removeAccount(accountUserId);
+  }
+
   function toggleOpen() {
     if (!open && onOpen) onOpen();
     setOpen((prev) => !prev);
@@ -109,13 +125,12 @@ export function ProfileMenu({ onOpen }: Props) {
   const activeLocale = locale ?? locales[0] ?? "en";
   const localeOptions = locales?.length ? locales : ["en", "uk"];
 
+  const otherAccounts = accounts.filter((account) => account.userId !== userId);
+  const showAccountsSection = otherAccounts.length > 0;
+
   return (
     <div className={styles.profile} ref={ref}>
-      <button
-        type="button"
-        className={styles.avatarButton}
-        onClick={toggleOpen}
-      >
+      <button type="button" className={styles.avatarButton} onClick={toggleOpen}>
         {avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -166,13 +181,9 @@ export function ProfileMenu({ onOpen }: Props) {
             </div>
             <div className={styles.profileMeta}>
               <span className={styles.profileName}>
-                {profile?.display_name ||
-                  t("Account", { $id: "profile.account" })}
+                {profile?.display_name || t("Account", { $id: "profile.account" })}
               </span>
-              <span
-                className={styles.profileEmail}
-                title={userEmail || undefined}
-              >
+              <span className={styles.profileEmail} title={userEmail || undefined}>
                 {userEmail || t("Signed in", { $id: "profile.signedIn" })}
               </span>
             </div>
@@ -233,9 +244,7 @@ export function ProfileMenu({ onOpen }: Props) {
                           aria-hidden
                           data-selected={selected}
                         >
-                          {selected ? (
-                            <Check size={12} strokeWidth={3} />
-                          ) : null}
+                          {selected ? <Check size={12} strokeWidth={3} /> : null}
                         </span>
                         <span>{LOCALE_LABELS[code] ?? code}</span>
                       </button>
@@ -270,9 +279,7 @@ export function ProfileMenu({ onOpen }: Props) {
             }}
           >
             <Lightbulb size={16} />
-            <span>
-              {t("Request a Feature", { $id: "profile.requestFeature" })}
-            </span>
+            <span>{t("Request a Feature", { $id: "profile.requestFeature" })}</span>
           </button>
 
           <button
@@ -287,11 +294,81 @@ export function ProfileMenu({ onOpen }: Props) {
             <span>{t("Settings", { $id: "profile.settings" })}</span>
           </button>
 
+          {showAccountsSection && (
+            <div className={styles.accountsSection}>
+              <div className={styles.accountsLabel}>
+                {t("Accounts", { $id: "profile.accounts.label" })}
+              </div>
+              <ul className={styles.accountsList}>
+                {otherAccounts.map((account) => {
+                  const label = account.displayName?.trim() || account.email || account.userId;
+                  const initial = (account.displayName?.trim() || account.email || "?")
+                    .charAt(0)
+                    .toUpperCase();
+                  const isSwitching = switchingUserId === account.userId;
+                  return (
+                    <li key={account.userId} className={styles.accountRow}>
+                      <button
+                        type="button"
+                        className={styles.accountButton}
+                        onClick={() => handleSwitchAccount(account)}
+                        disabled={!!switchingUserId}
+                        aria-label={t("Switch to {name}", {
+                          $id: "profile.accounts.switchAria",
+                          name: label,
+                        })}
+                      >
+                        <span className={styles.accountAvatar} aria-hidden>
+                          {account.avatarUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={account.avatarUrl}
+                              alt=""
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).style.display = "none";
+                              }}
+                            />
+                          ) : (
+                            <span className={styles.accountInitial}>{initial}</span>
+                          )}
+                        </span>
+                        <span className={styles.accountMeta}>
+                          <span className={styles.accountName}>{label}</span>
+                          {account.email && account.email !== label && (
+                            <span className={styles.accountEmail}>{account.email}</span>
+                          )}
+                          {isSwitching && (
+                            <span className={styles.accountEmail}>
+                              {t("Switching…", {
+                                $id: "profile.accounts.switching",
+                              })}
+                            </span>
+                          )}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.removeAccountBtn}
+                        onClick={(event) => handleRemoveAccount(event, account.userId)}
+                        disabled={!!switchingUserId}
+                        aria-label={t("Remove saved account", {
+                          $id: "profile.accounts.removeAria",
+                        })}
+                      >
+                        <X size={14} aria-hidden />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
           <button
             type="button"
             className={styles.menuItem}
             onClick={handleLogout}
-            disabled={isLoggingOut}
+            disabled={isLoggingOut || !!switchingUserId}
           >
             <LogOut size={16} />
             <span>

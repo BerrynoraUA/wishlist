@@ -16,9 +16,9 @@
   height: 64px;
 
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 32px;
+  gap: 24px;
 }
 
 /* ===== LOGO ===== */
@@ -85,7 +85,9 @@
   border-radius: 999px;
   padding: 4px;
   width: fit-content;
+  max-width: 100%;
   margin: 0 auto;
+  flex-wrap: nowrap;
 }
 
 .navItem {
@@ -101,6 +103,8 @@
   font-size: var(--fs-body);
   font-weight: var(--fw-medium);
   color: var(--color-text-muted);
+  min-width: 0;
+  white-space: nowrap;
 
   transition: color 0.2s ease;
 
@@ -123,6 +127,10 @@
 .label {
   position: relative;
   z-index: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .navBadgeWrap {
@@ -132,6 +140,22 @@
   z-index: 2;
   pointer-events: none;
   transform: translate(40%, -55%) scale(0.92);
+}
+
+.navCountBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-brand);
+  color: #fff;
+  font-size: 10px;
+  font-weight: var(--fw-bold);
+  line-height: 1;
+  box-shadow: 0 2px 8px var(--brand-alpha-20);
 }
 
 .activePill {
@@ -189,6 +213,37 @@
 }
 
 /* ===== RESPONSIVE ===== */
+
+@media (min-width: 769px) and (max-width: 1040px) {
+  .inner {
+    padding: 0 18px;
+    gap: 14px;
+  }
+
+  .logo {
+    gap: 8px;
+    font-size: 17px;
+  }
+
+  .logoIcon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .navItem {
+    gap: 6px;
+    padding: 8px 11px;
+    font-size: var(--fs-label);
+  }
+
+  .navBadgeWrap {
+    display: none;
+  }
+
+  .right {
+    gap: 8px;
+  }
+}
 
 @media (max-width: 768px) {
   .inner {

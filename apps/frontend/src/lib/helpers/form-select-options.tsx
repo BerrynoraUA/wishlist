@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { SUPPORTED_CURRENCIES, normalizeCurrencyCode } from "@/lib/currencies";
+import { ALL_PRIORITIES } from "@/lib/priorities";
 
 export type FormSelectOption<Value extends string = string> = {
   value: Value;
@@ -10,21 +11,12 @@ export type FormSelectOption<Value extends string = string> = {
 
 type TFn = (message: string, options?: Record<string, unknown>) => string;
 
-export type ItemPriorityOption = "None" | "Low" | "Medium" | "High";
+// Alias kept for places that still use string union — now just a string UUID or null
+export type ItemPrioritySelectValue = string | null;
 
-export const priorityToValue: Record<Exclude<ItemPriorityOption, "None">, number> = {
-  Low: 1,
-  Medium: 2,
-  High: 3,
-};
-
-export const valueToPriority: Record<number, ItemPriorityOption> = {
-  1: "Low",
-  2: "Medium",
-  3: "High",
-};
-
-const supportedCurrencyCodes = new Set(SUPPORTED_CURRENCIES.map((currency) => currency.code));
+const supportedCurrencyCodes = new Set(
+  SUPPORTED_CURRENCIES.map((currency) => currency.code),
+);
 
 export function resolveCurrency(value?: string | null) {
   const normalized = normalizeCurrencyCode(value);
@@ -100,7 +92,10 @@ export function translatedCurrencyLabel(t: TFn, code: string): string {
     case "ZAR":
       return t("South African Rand", { $id: "settings.currency.ZAR" });
     default:
-      return SUPPORTED_CURRENCIES.find((currency) => currency.code === code)?.label ?? code;
+      return (
+        SUPPORTED_CURRENCIES.find((currency) => currency.code === code)
+          ?.label ?? code
+      );
   }
 }
 
@@ -120,23 +115,18 @@ export function getCompactCurrencyOptions(): FormSelectOption<string>[] {
   }));
 }
 
-export function getPriorityOptions(t: TFn): FormSelectOption<ItemPriorityOption>[] {
+export function getPriorityOptions(
+  t: TFn,
+  selectedIds?: string[],
+): FormSelectOption<string>[] {
+  const priorities = selectedIds
+    ? ALL_PRIORITIES.filter((p) => selectedIds.includes(p.id))
+    : ALL_PRIORITIES;
   return [
-    {
-      value: "None",
-      label: t("No priority", { $id: "item.modal.priorityNone" }),
-    },
-    {
-      value: "Low",
-      label: t("Low", { $id: "item.priority.low" }),
-    },
-    {
-      value: "Medium",
-      label: t("Medium", { $id: "item.priority.medium" }),
-    },
-    {
-      value: "High",
-      label: t("High", { $id: "item.priority.high" }),
-    },
+    { value: "", label: t("No priority", { $id: "item.modal.priorityNone" }) },
+    ...priorities.map((p) => ({
+      value: p.id,
+      label: `${p.emoji} ${p.name}`,
+    })),
   ];
 }

@@ -1,6 +1,7 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { Item } from "@/types/item";
 import { CreateItemParams, UpdateItemParams } from "./types/item";
+import { getCurrentSession } from "./user";
 import {
   deletePublicImage,
   uploadPublicImage,
@@ -8,8 +9,8 @@ import {
 
 const ITEM_IMAGE_BUCKET = "items";
 
-async function ensureProForPriority(priority: number | null | undefined) {
-  void priority;
+async function ensureProForPriority(priority_id: string | null | undefined) {
+  void priority_id;
 }
 
 export async function createItem({
@@ -17,7 +18,8 @@ export async function createItem({
   name,
   description,
   price,
-  priority,
+  priority_id,
+  color_index,
   image,
   image_url,
   url,
@@ -26,16 +28,12 @@ export async function createItem({
   has_discount,
   discount_end_date,
   currency,
+  additional_links,
 }: CreateItemParams): Promise<Item> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseBrowser.auth.getSession();
-
-  if (sessionError) throw sessionError;
+  const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
 
-  await ensureProForPriority(priority);
+  await ensureProForPriority(priority_id);
 
   let finalImageUrl: string | null = null;
   let uploadedFile = false;
@@ -54,7 +52,8 @@ export async function createItem({
       name,
       description,
       price,
-      priority,
+      priority_id: priority_id ?? null,
+      color_index: color_index ?? null,
       image_url: finalImageUrl,
       url,
       status,
@@ -62,6 +61,7 @@ export async function createItem({
       has_discount: has_discount ?? false,
       discount_end_date: discount_end_date ?? null,
       currency: currency ?? null,
+      additional_links: additional_links ?? [],
     })
     .select()
     .single();
@@ -114,7 +114,7 @@ export async function updateItem(
 ): Promise<Item> {
   const { image, removeImage, image_url, ...restUpdates } = updates;
 
-  await ensureProForPriority(restUpdates.priority);
+  await ensureProForPriority(restUpdates.priority_id);
 
   if (image || removeImage || image_url !== undefined) {
     const { data: currentItem } = await supabaseBrowser
@@ -276,7 +276,7 @@ export async function getItemVotes(
 ): Promise<ItemVotesResult> {
   if (itemIds.length === 0) return { counts: {}, userVotes: new Set() };
 
-  const session = (await supabaseBrowser.auth.getSession()).data.session;
+  const session = await getCurrentSession();
   const userId = session?.user.id;
 
   const { data: rows, error } = await supabaseBrowser
@@ -300,7 +300,7 @@ export async function getItemVotes(
 }
 
 export async function toggleItemVote(itemId: string): Promise<void> {
-  const session = (await supabaseBrowser.auth.getSession()).data.session;
+  const session = await getCurrentSession();
   if (!session?.user.id) throw new Error("Not authenticated");
 
   const { data: existing } = await supabaseBrowser

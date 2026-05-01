@@ -10,6 +10,7 @@ import { useCreateItem } from "@/hooks/use-items";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
 import styles from "./SaveToWishlistModal.module.scss";
+import type { ItemLink } from "@/types/item";
 
 export type SaveItemData = {
   name: string;
@@ -17,11 +18,12 @@ export type SaveItemData = {
   price?: string | null;
   image_url?: string | null;
   url?: string | null;
-  priority?: number | null;
+  priority_id?: string | null;
   discount_price?: string | null;
   has_discount?: boolean;
   discount_end_date?: string | null;
   currency?: string | null;
+  additional_links?: ItemLink[] | null;
 };
 
 type Props = {
@@ -31,9 +33,9 @@ type Props = {
 };
 
 export function SaveToWishlistModal({ open, onClose, item }: Props) {
-  const [selectedWishlistId, setSelectedWishlistId] = useState<string | null>(
-    null,
-  );
+  const [selectedWishlists, setSelectedWishlists] = useState<
+    Array<{ id: string; title: string }>
+  >([]);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -52,30 +54,28 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
     return () => clearTimeout(handle);
   }, [search]);
 
-  useEffect(() => {
-    if (!selectedWishlistId) return;
-    if (wishlists.some((wishlist) => wishlist.id === selectedWishlistId))
-      return;
-    setSelectedWishlistId(null);
-  }, [wishlists, selectedWishlistId]);
-
   const handleSave = async () => {
-    if (!selectedWishlistId) return;
+    if (selectedWishlists.length === 0) return;
 
     try {
-      await createItem.mutateAsync({
-        wishlist_id: selectedWishlistId,
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        image_url: item.image_url,
-        url: item.url,
-        priority: item.priority,
-        discount_price: item.discount_price,
-        has_discount: item.has_discount,
-        discount_end_date: item.discount_end_date,
-        currency: item.currency,
-      });
+      await Promise.all(
+        selectedWishlists.map((wishlist) =>
+          createItem.mutateAsync({
+            wishlist_id: wishlist.id,
+            name: item.name,
+            description: item.description,
+            price: item.price,
+            image_url: item.image_url,
+            url: item.url,
+            priority_id: item.priority_id,
+            discount_price: item.discount_price,
+            has_discount: item.has_discount,
+            discount_end_date: item.discount_end_date,
+            currency: item.currency,
+            additional_links: item.additional_links,
+          }),
+        ),
+      );
       setShowSuccess(true);
     } catch (err) {
       console.error("Failed to save item to wishlist", err);
@@ -83,7 +83,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
   };
 
   const handleClose = () => {
-    setSelectedWishlistId(null);
+    setSelectedWishlists([]);
     setSearch("");
     setDebouncedSearch("");
     setShowSuccess(false);
@@ -91,7 +91,9 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
   };
 
   if (showSuccess) {
-    const savedTo = wishlists.find((w) => w.id === selectedWishlistId);
+    const savedTo = formatWishlistNames(
+      selectedWishlists.map((wishlist) => wishlist.title),
+    );
 
     return (
       <Modal open={open} onClose={handleClose}>
@@ -102,7 +104,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
           <Heading level={3}>Saved!</Heading>
           <Text variant="subtitle" tone="secondary">
             <strong>{item.name}</strong> has been added to{" "}
-            <strong>{savedTo?.title ?? "your wishlist"}</strong>.
+            <strong>{savedTo}</strong>.
           </Text>
           <Button variant="primary" onClick={handleClose}>
             Done
@@ -126,7 +128,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
               tone="secondary"
               className={styles.subtitle}
             >
-              Choose which wishlist you want to add this item to
+              Choose one or more wishlists you want to add this item to
             </Text>
           </div>
 
@@ -184,14 +186,35 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
             )}
 
             {wishlists.map((wishlist) => {
-              const isSelected = selectedWishlistId === wishlist.id;
+              const isSelected = selectedWishlists.some(
+                (selectedWishlist) => selectedWishlist.id === wishlist.id,
+              );
 
               return (
                 <button
                   key={wishlist.id}
                   type="button"
                   className={`${styles.wishlistOption} ${isSelected ? styles.wishlistOptionSelected : ""}`}
-                  onClick={() => setSelectedWishlistId(wishlist.id)}
+                  onClick={() => {
+                    setSelectedWishlists((current) => {
+                      const alreadySelected = current.some(
+                        (selectedWishlist) =>
+                          selectedWishlist.id === wishlist.id,
+                      );
+
+                      if (alreadySelected) {
+                        return current.filter(
+                          (selectedWishlist) =>
+                            selectedWishlist.id !== wishlist.id,
+                        );
+                      }
+
+                      return [
+                        ...current,
+                        { id: wishlist.id, title: wishlist.title },
+                      ];
+                    });
+                  }}
                 >
                   {wishlist.image_url ? (
                     <img
@@ -227,7 +250,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
           <Button
             variant="primary"
             onClick={handleSave}
-            disabled={!selectedWishlistId || createItem.isPending}
+            disabled={selectedWishlists.length === 0 || createItem.isPending}
           >
             {createItem.isPending ? "Saving..." : "Save"}
           </Button>
@@ -235,4 +258,11 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
       </div>
     </Modal>
   );
+}
+
+function formatWishlistNames(names: string[]) {
+  if (names.length === 0) return "your wishlists";
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
 }

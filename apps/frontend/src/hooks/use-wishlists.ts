@@ -11,6 +11,7 @@ import {
   createWishlist,
   updateWishlist,
   deleteWishlist,
+  pinWishlist,
   getFriendsWishlistsDiscover,
   getWishlistById,
   getFriendsUpcomingWishlists,
@@ -27,6 +28,7 @@ import type {
   UpdateWishlistParams,
 } from "@/api/types/wishilst";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
+import { statisticsKeys } from "./use-user";
 
 // Query Keys
 export const wishlistKeys = {
@@ -158,6 +160,7 @@ export function useCreateWishlist() {
     mutationFn: (params: CreateWishlistParams) => createWishlist(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+      queryClient.invalidateQueries({ queryKey: statisticsKeys.my() });
       toast.success("Wishlist created");
     },
     onError: (err) => {
@@ -194,10 +197,26 @@ export function useDeleteWishlist() {
     mutationFn: (id: string) => deleteWishlist(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+      queryClient.invalidateQueries({ queryKey: statisticsKeys.my() });
       toast.success("Wishlist deleted");
     },
     onError: (err) => {
       toast.error(err.message || "Failed to delete wishlist");
+    },
+  });
+}
+
+export function usePinWishlist() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, isPinned }: { id: string; isPinned: boolean }) =>
+      pinWishlist(id, isPinned),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+    },
+    onError: (err) => {
+      toast.error((err as Error).message || "Failed to update wishlist");
     },
   });
 }
@@ -239,7 +258,7 @@ export function useGrantWishlistAccess() {
     }: {
       wishlistId: string;
       grantedToUserId: string;
-      accessType: 0 | 1;
+      accessType: 0 | 1 | 2 | 3;
     }) => grantWishlistAccess(wishlistId, grantedToUserId, accessType),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });

@@ -35,10 +35,7 @@ export function FilterDropdown({
     if (!open) return;
 
     function handleClickOutside(event: MouseEvent) {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node)
-      ) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
@@ -49,9 +46,7 @@ export function FilterDropdown({
 
   function handleSelect(value: string) {
     if (multiSelect) {
-      const next = active.includes(value)
-        ? active.filter((v) => v !== value)
-        : [...active, value];
+      const next = active.includes(value) ? active.filter((v) => v !== value) : [...active, value];
       onChange(next);
     } else {
       onChange(active.includes(value) ? [] : [value]);
@@ -71,10 +66,7 @@ export function FilterDropdown({
         <Filter size={14} />
         <span>{label}</span>
         {hasActive && <span className={styles.badge}>{active.length}</span>}
-        <ChevronDown
-          size={14}
-          className={`${styles.chevron} ${open ? styles.chevronOpen : ""}`}
-        />
+        <ChevronDown size={14} className={`${styles.chevron} ${open ? styles.chevronOpen : ""}`} />
       </button>
 
       {open && (
@@ -91,9 +83,7 @@ export function FilterDropdown({
                 onClick={() => handleSelect(option.value)}
               >
                 <span className={styles.optionContent}>
-                  {option.icon && (
-                    <span className={styles.optionIcon}>{option.icon}</span>
-                  )}
+                  {option.icon && <span className={styles.optionIcon}>{option.icon}</span>}
                   <span>{option.label}</span>
                 </span>
                 {isActive && <span className={styles.check}>✓</span>}

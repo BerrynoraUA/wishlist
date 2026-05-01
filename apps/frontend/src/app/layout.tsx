@@ -2,6 +2,7 @@ import "./globals.scss";
 import { AppShell } from "@/components/layout/AppShell";
 import { DM_Sans, Playfair_Display } from "next/font/google";
 import type { Viewport } from "next";
+import type { Metadata } from "next";
 import Script from "next/script";
 import { cookies } from "next/headers";
 import {
@@ -24,6 +25,13 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+export const metadata: Metadata = {
+  title: {
+    default: "Wishlane",
+    template: "%s · Wishlane",
+  },
+};
+
 const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -44,6 +52,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     cookieStore.get(RESOLVED_THEME_COOKIE_NAME)?.value,
   );
   const initialAccent = parseAccentCookie(cookieStore.get(ACCENT_COOKIE_NAME)?.value);
+  const initialBannerDismissed = Boolean(cookieStore.get("mobile_banner_dismissed")?.value);
 
   return (
     <html
@@ -58,17 +67,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       }
       lang={await getLocale()}
     >
-      <head>
+      <body suppressHydrationWarning>
         <Script id="theme-init" strategy="beforeInteractive">
           {buildThemeInitScript()}
         </Script>
-      </head>
-      <body suppressHydrationWarning>
         <GTProvider>
           <AppShell
             initialTheme={initialTheme}
             initialResolvedTheme={initialResolvedTheme}
             initialAccent={initialAccent}
+            initialBannerDismissed={initialBannerDismissed}
           >
             {children}
           </AppShell>

@@ -64,6 +64,9 @@
 
 @media (max-width: 640px) {
   .wrapper {
+    order: -1;
+    flex: 0 0 100%;
+    width: 100%;
     max-width: 100%;
   }
 }

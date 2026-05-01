@@ -1,0 +1,149 @@
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { motionSpring, useReducedMotion } from "@/lib/motion";
+import { cn } from "@/lib/utils";
+import * as React from "react";
+import { View, type LayoutChangeEvent } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+
+export const SLIDING_SELECTOR_GAP = 8;
+
+export type SlidingOptionRenderProps = { selected: boolean };
+
+export type SlidingSelectorContent =
+  | React.ReactNode
+  | ((props: SlidingOptionRenderProps) => React.ReactNode);
+
+export type SlidingOption<T> = {
+  value: T;
+  accessibilityLabel?: string;
+  /** Optional stable key when `value` isn't unique among siblings */
+  id?: string;
+  children: SlidingSelectorContent;
+};
+
+type SlidingOptionSelectorProps<T> = {
+  rows: SlidingOption<T>[][];
+  value: T;
+  onChange: (value: T) => void;
+  /** Pixel height of one option row (used for the sliding indicator) */
+  optionHeight: number;
+  optionHeightClassName: string;
+  /** Extra classes on each option trigger (shape, padding) */
+  optionClassName?: string;
+  /** Extra classes on the trigger when selected (e.g. transparent border) */
+  selectedOptionClassName?: string;
+  indicatorClassName: string;
+  /** Classes on outer container */
+  className?: string;
+  /** Classes merged onto each row’s flex-row wrapper (e.g. horizontal gap) */
+  rowClassName?: string;
+};
+
+function renderOptionContent(content: SlidingSelectorContent, selected: boolean) {
+  return typeof content === "function" ? content({ selected }) : content;
+}
+
+export function SlidingOptionSelector<T>({
+  rows,
+  value,
+  onChange,
+  optionHeight,
+  optionHeightClassName,
+  optionClassName,
+  selectedOptionClassName,
+  indicatorClassName,
+  className,
+  rowClassName,
+}: SlidingOptionSelectorProps<T>) {
+  const reduceMotion = useReducedMotion();
+  const [rowWidth, setRowWidth] = React.useState(0);
+  const selectedPosition = React.useMemo(() => {
+    for (let rowIndex = 0; rowIndex < rows.length; rowIndex += 1) {
+      const columnIndex = rows[rowIndex].findIndex((option) => option.value === value);
+
+      if (columnIndex >= 0) {
+        return { rowIndex, columnIndex };
+      }
+    }
+
+    return { rowIndex: 0, columnIndex: 0 };
+  }, [rows, value]);
+  const selectedRowLength = rows[selectedPosition.rowIndex]?.length ?? 1;
+  const selectedOptionWidth =
+    rowWidth > 0
+      ? (rowWidth - SLIDING_SELECTOR_GAP * (selectedRowLength - 1)) / selectedRowLength
+      : 0;
+  const indicatorX = useSharedValue(0);
+  const indicatorY = useSharedValue(0);
+  const indicatorWidth = useSharedValue(0);
+
+  React.useEffect(() => {
+    const targetX = selectedPosition.columnIndex * (selectedOptionWidth + SLIDING_SELECTOR_GAP);
+    const targetY = selectedPosition.rowIndex * (optionHeight + SLIDING_SELECTOR_GAP);
+
+    indicatorX.value = reduceMotion ? targetX : withSpring(targetX, motionSpring.navPill);
+    indicatorY.value = reduceMotion ? targetY : withSpring(targetY, motionSpring.navPill);
+    indicatorWidth.value = reduceMotion
+      ? selectedOptionWidth
+      : withSpring(selectedOptionWidth, motionSpring.navPill);
+  }, [
+    indicatorWidth,
+    indicatorX,
+    indicatorY,
+    optionHeight,
+    reduceMotion,
+    selectedOptionWidth,
+    selectedPosition.columnIndex,
+    selectedPosition.rowIndex,
+  ]);
+
+  const indicatorStyle = useAnimatedStyle(() => ({
+    width: indicatorWidth.value,
+    transform: [{ translateX: indicatorX.value }, { translateY: indicatorY.value }],
+  }));
+
+  function handleLayout(event: LayoutChangeEvent) {
+    const nextWidth = event.nativeEvent.layout.width;
+    setRowWidth((current) => (current === nextWidth ? current : nextWidth));
+  }
+
+  return (
+    <View className={cn("relative gap-2", className)} onLayout={handleLayout}>
+      {selectedOptionWidth > 0 ? (
+        <Animated.View
+          pointerEvents="none"
+          className={cn("absolute left-0 top-0", indicatorClassName)}
+          style={[{ height: optionHeight }, indicatorStyle]}
+        />
+      ) : null}
+
+      {rows.map((row, rowIndex) => (
+        <View key={rowIndex} className={cn("flex-row gap-2", rowClassName)}>
+          {row.map((option, columnIndex) => {
+            const selected = value === option.value;
+            const key = option.id ?? `${rowIndex}-${columnIndex}-${String(option.value)}`;
+
+            return (
+              <AnimatedPressable
+                key={key}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                accessibilityLabel={option.accessibilityLabel}
+                onPress={() => onChange(option.value)}
+                className={cn(
+                  "z-10 flex-1 flex-row items-center justify-center border border-border-subtle bg-bg-subtle",
+                  optionHeightClassName,
+                  optionClassName,
+                  selected && "border-transparent bg-transparent",
+                  selected && selectedOptionClassName,
+                )}
+              >
+                {renderOptionContent(option.children, selected)}
+              </AnimatedPressable>
+            );
+          })}
+        </View>
+      ))}
+    </View>
+  );
+}

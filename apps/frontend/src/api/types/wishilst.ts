@@ -1,4 +1,5 @@
 import { Item, WishlistAccent, WishlistVisibility } from "@/types/wishlist";
+import type { ItemLink } from "@/types/item";
 
 export interface CreateWishlistParams {
   title: string;
@@ -42,7 +43,9 @@ export type DiscoverItem = {
   url?: string | null;
   share_url?: string | null;
   description?: string | null;
-  priority?: "Low" | "Medium" | "High" | 1 | 2 | 3;
+  priority?: string | null;
+  priority_id?: string | null;
+  color_index?: number | null;
   status?: number;
   isReserved: boolean;
   reserved_by?: string | null;
@@ -50,6 +53,7 @@ export type DiscoverItem = {
   reservedByName?: string | null;
   discount_price?: string | number | null;
   currency?: string | null;
+  additional_links?: ItemLink[] | null;
 };
 
 export type DiscoverSection = {
@@ -72,7 +76,8 @@ export type ReservedItem = {
   image: string;
   url?: string | null;
   share_url?: string | null;
-  priority: "Low" | "Medium" | "High" | 1 | 2 | 3 | null;
+  priority_name: string | null;
+  color_index?: number | null;
   status: number;
   wishlist_id: string;
   wishlist_title: string;
@@ -82,6 +87,7 @@ export type ReservedItem = {
   owner_avatar: string;
   discount_price?: string | number | null;
   currency?: string | null;
+  additional_links?: ItemLink[] | null;
 };
 
 export interface FriendUpcomingWishlist {

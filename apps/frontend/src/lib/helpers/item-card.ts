@@ -1,9 +1,9 @@
 import type { ItemActionConfirmType } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
+import type { ItemLink } from "@/types/item";
 
 export type ItemCardPriorityKey = "low" | "medium" | "high";
-export type ItemCardPriority = "Low" | "Medium" | "High" | number | null;
+export type ItemCardPriority = string | null;
 export type ItemCardPriorityInput = ItemCardPriority | undefined;
-export type ItemCardPriorityName = "Low" | "Medium" | "High";
 
 type ReservationStateInput = {
   status?: number | null;
@@ -43,11 +43,12 @@ type SaveItemInput = {
   price?: string | number | null;
   imageUrl?: string | null;
   url?: string | null;
-  priority?: ItemCardPriority;
+  priority_id?: string | null;
   discountPrice?: string | number | null;
   hasDiscount?: boolean;
   discountEndDate?: string | null;
   currency?: string | null;
+  additionalLinks?: ItemLink[] | null;
 };
 
 export function getReservedByValue(value: unknown): string | null {
@@ -136,10 +137,10 @@ export function getItemPriorityKey(
 ): ItemCardPriorityKey | null {
   if (priority == null) return null;
 
-  const normalized = String(priority);
-  if (normalized === "1" || normalized === "Low") return "low";
-  if (normalized === "2" || normalized === "Medium") return "medium";
-  if (normalized === "3" || normalized === "High") return "high";
+  const normalized = String(priority).toLowerCase();
+  if (normalized === "low") return "low";
+  if (normalized === "medium") return "medium";
+  if (normalized === "high") return "high";
 
   return null;
 }
@@ -156,20 +157,17 @@ export function getItemPriorityValue(
 
 export function getItemPriorityName(
   priority: ItemCardPriorityInput,
-): ItemCardPriorityName | null {
-  const priorityKey = getItemPriorityKey(priority);
-  if (priorityKey === "low") return "Low";
-  if (priorityKey === "medium") return "Medium";
-  if (priorityKey === "high") return "High";
-  return null;
+): string | null {
+  if (priority == null) return null;
+  return String(priority);
 }
 
 export function buildItemPriorityLabel(
   priority: ItemCardPriorityInput,
-  labels: PriorityLabelFactory,
+  labels: Record<ItemCardPriorityKey, string>,
 ): string | null {
   const priorityKey = getItemPriorityKey(priority);
-  return priorityKey ? labels[priorityKey] : null;
+  return priorityKey ? labels[priorityKey] : priority ? String(priority) : null;
 }
 
 export function getItemStoreFromUrl(url: string | null | undefined): string {
@@ -257,11 +255,12 @@ export function buildSaveItemData({
   price = null,
   imageUrl = null,
   url = null,
-  priority = null,
+  priority_id = null,
   discountPrice = null,
   hasDiscount = false,
   discountEndDate = null,
   currency = null,
+  additionalLinks = null,
 }: SaveItemInput) {
   return {
     name,
@@ -269,10 +268,11 @@ export function buildSaveItemData({
     price: price != null ? String(price) : null,
     image_url: imageUrl,
     url,
-    priority: getItemPriorityValue(priority),
+    priority_id,
     discount_price: discountPrice != null ? String(discountPrice) : null,
     has_discount: hasDiscount || discountPrice != null,
     discount_end_date: discountEndDate,
     currency,
+    additional_links: additionalLinks,
   };
 }

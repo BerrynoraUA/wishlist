@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 /**
@@ -10,18 +10,30 @@ import { useRouter, useSearchParams } from "next/navigation";
  */
 export function useQueryParams(basePath: string) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const routeSearchParams = useSearchParams();
+  const routeSearchParamsString = routeSearchParams.toString();
+  const [optimisticParamsString, setOptimisticParamsString] = useState(routeSearchParamsString);
+
+  useEffect(() => {
+    setOptimisticParamsString(routeSearchParamsString);
+  }, [routeSearchParamsString]);
+
+  const searchParams = useMemo(
+    () => new URLSearchParams(optimisticParamsString),
+    [optimisticParamsString],
+  );
 
   const updateQueryParams = useCallback(
     (updater: (params: URLSearchParams) => void) => {
-      const nextParams = new URLSearchParams(searchParams.toString());
+      const nextParams = new URLSearchParams(optimisticParamsString);
       updater(nextParams);
       const nextQuery = nextParams.toString();
+      setOptimisticParamsString(nextQuery);
       router.replace(nextQuery ? `${basePath}?${nextQuery}` : basePath, {
         scroll: false,
       });
     },
-    [searchParams, router, basePath],
+    [basePath, optimisticParamsString, router],
   );
 
   const setPage = useCallback(

@@ -1,0 +1,103 @@
+@use "@/styles/variables" as *;
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: $radius-lg;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.3s $ease-out;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--card-hover-shadow);
+    border-color: transparent;
+  }
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--gradient-brand-subtle);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: transform 0.3s $ease-out;
+
+  .card:hover & {
+    transform: scale(1.08);
+  }
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+
+  strong {
+    display: block;
+    font-size: var(--fs-body);
+    font-weight: var(--fw-semibold);
+    letter-spacing: -0.01em;
+    color: var(--color-text);
+  }
+
+  span {
+    font-size: var(--fs-caption);
+    color: var(--color-text-muted);
+  }
+}
+
+.meta {
+  font-size: var(--fs-caption);
+  color: var(--color-text-light);
+  margin-top: 4px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.accept {
+  min-width: 92px;
+}
+
+.decline {
+  min-width: 92px;
+}
+
+@media (max-width: 768px) {
+  .card {
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+@media (max-width: 560px) {
+  .card {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .info {
+    min-width: calc(100% - 52px);
+  }
+
+  .actions {
+    width: 100%;
+    margin-left: 52px;
+  }
+
+  .accept,
+  .decline {
+    flex: 1;
+    min-width: 0;
+  }
+}

@@ -25,8 +25,7 @@ import { normalizeSearchQuery } from "@/lib/helpers/search";
 export const secretSantaKeys = {
   all: ["secret-santa"] as const,
   lists: () => [...secretSantaKeys.all, "list"] as const,
-  list: (params: ListSecretSantaEventsParams = {}) =>
-    [...secretSantaKeys.lists(), params] as const,
+  list: (params: ListSecretSantaEventsParams = {}) => [...secretSantaKeys.lists(), params] as const,
   details: () => [...secretSantaKeys.all, "detail"] as const,
   detail: (eventId: string) => [...secretSantaKeys.details(), eventId] as const,
   giftSuggestions: (userId: string, maxPrice: number) =>
@@ -58,8 +57,7 @@ export function useCreateSecretSantaEvent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: CreateSecretSantaEventInput) =>
-      createSecretSantaEvent(input),
+    mutationFn: (input: CreateSecretSantaEventInput) => createSecretSantaEvent(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
       toast.success("Secret Santa event created");
@@ -90,13 +88,8 @@ export function useUpdateSecretSantaEvent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      eventId,
-      updates,
-    }: {
-      eventId: string;
-      updates: UpdateSecretSantaEventInput;
-    }) => updateSecretSantaEvent(eventId, updates),
+    mutationFn: ({ eventId, updates }: { eventId: string; updates: UpdateSecretSantaEventInput }) =>
+      updateSecretSantaEvent(eventId, updates),
     onSuccess: (_data, { eventId }) => {
       queryClient.invalidateQueries({
         queryKey: secretSantaKeys.detail(eventId),
@@ -180,13 +173,8 @@ export function useRemoveSecretSantaInvite() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      eventId,
-      inviteId,
-    }: {
-      eventId: string;
-      inviteId: string;
-    }) => removeSecretSantaInvite(inviteId),
+    mutationFn: (payload: { eventId: string; inviteId: string }) =>
+      removeSecretSantaInvite(payload.inviteId),
     onSuccess: (_data, { eventId }) => {
       queryClient.invalidateQueries({
         queryKey: secretSantaKeys.detail(eventId),

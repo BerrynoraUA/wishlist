@@ -341,24 +341,17 @@ function getMyWishlistsFeedMock(body = {}) {
     p_visibility_types = null,
   } = body;
 
-  const normalizedSearch =
-    typeof p_search === "string" ? p_search.trim().toLowerCase() : "";
-  const visibilityTypes = Array.isArray(p_visibility_types)
-    ? p_visibility_types
-    : null;
+  const normalizedSearch = typeof p_search === "string" ? p_search.trim().toLowerCase() : "";
+  const visibilityTypes = Array.isArray(p_visibility_types) ? p_visibility_types : null;
 
   let items = [...MOCK_WISHLISTS];
 
   if (normalizedSearch) {
-    items = items.filter((wishlist) =>
-      wishlist.title.toLowerCase().includes(normalizedSearch),
-    );
+    items = items.filter((wishlist) => wishlist.title.toLowerCase().includes(normalizedSearch));
   }
 
   if (visibilityTypes && visibilityTypes.length > 0) {
-    items = items.filter((wishlist) =>
-      visibilityTypes.includes(wishlist.visibility_type),
-    );
+    items = items.filter((wishlist) => visibilityTypes.includes(wishlist.visibility_type));
   }
 
   items = sortMockWishlists(items, p_sort);
@@ -510,15 +503,9 @@ const server = http.createServer(async (req, res) => {
 
   // CORS headers (browser makes cross-origin requests to mock)
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,POST,PUT,PATCH,DELETE,OPTIONS",
-  );
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "*");
-  res.setHeader(
-    "Access-Control-Expose-Headers",
-    "content-range,x-supabase-api-version",
-  );
+  res.setHeader("Access-Control-Expose-Headers", "content-range,x-supabase-api-version");
 
   if (method === "OPTIONS") {
     res.writeHead(204);

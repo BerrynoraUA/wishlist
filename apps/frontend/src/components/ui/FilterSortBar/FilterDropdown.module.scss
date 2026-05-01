@@ -2,6 +2,7 @@
 
 .wrapper {
   position: relative;
+  min-width: 0;
 }
 
 .trigger {
@@ -19,12 +20,19 @@
   cursor: pointer;
   transition: all 0.25s $ease-out;
   white-space: nowrap;
+  max-width: 100%;
 
   &:hover {
     border-color: var(--color-border);
     color: var(--color-text-secondary);
     background: var(--nav-pill-hover);
   }
+}
+
+.trigger > span:first-of-type {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .triggerActive {
@@ -109,12 +117,36 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+}
+
+.optionContent > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .optionIcon {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .wrapper {
+    flex: 1 1 120px;
+  }
+
+  .trigger {
+    width: 100%;
+    justify-content: center;
+    padding-inline: 10px;
+  }
+
+  .dropdown {
+    min-width: min(220px, calc(100vw - 32px));
+  }
 }
 
 .check {

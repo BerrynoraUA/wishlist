@@ -1,10 +1,11 @@
 "use client";
 
-import type { User } from "@supabase/supabase-js";
+import type { SupabaseUser } from "@wishlist/backend/supabase";
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
 import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { getCurrentUser } from "@/api/user";
 import { posthogPersonPropsFromSupabaseUser } from "@/lib/posthog-person-from-supabase";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
@@ -14,7 +15,7 @@ function PostHogIdentity() {
   useEffect(() => {
     if (!phog) return;
 
-    const syncUser = (user: User | null) => {
+    const syncUser = (user: SupabaseUser | null) => {
       if (user) {
         phog.identify(user.id, posthogPersonPropsFromSupabaseUser(user));
       } else {
@@ -24,8 +25,8 @@ function PostHogIdentity() {
 
     let cancelled = false;
 
-    void supabaseBrowser.auth.getUser().then(({ data }) => {
-      if (!cancelled) syncUser(data.user ?? null);
+    void getCurrentUser().then((user) => {
+      if (!cancelled) syncUser(user);
     });
 
     const {

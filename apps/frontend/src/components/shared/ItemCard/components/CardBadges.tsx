@@ -1,7 +1,7 @@
 import { useGT } from "gt-next";
 import { ShoppingCart } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
-import type { ItemCardPriorityKey } from "@/lib/helpers/item-card";
 import styles from "../ItemCard.module.scss";
 import { cn } from "../utils";
 
@@ -11,30 +11,36 @@ type CardBadgesProps = {
   statusLabel: string | null;
   isPurchased: boolean;
   salePercentOff: number | null;
-  priorityKey: ItemCardPriorityKey | null;
+  priorityColor: string | null;
   priorityDisplay: string | null;
+  PriorityIcon?: LucideIcon | null;
 };
 
 export function CardBadges({
-  variant,
   isOwner,
   statusLabel,
   isPurchased,
   salePercentOff,
-  priorityKey,
+  priorityColor,
   priorityDisplay,
+  PriorityIcon,
 }: CardBadgesProps) {
   const t = useGT();
+  const hasRightBadges = salePercentOff != null || !!priorityDisplay;
 
   return (
     <>
-      {variant !== "discover" && !isOwner && statusLabel && (
+      {!isOwner && statusLabel && (
         <div
           className={cn(
             styles.badgeLeft,
+            hasRightBadges && styles.badgeLeftWithRightStack,
+            "iconTooltipTrigger",
             salePercentOff != null && styles.badgeLeftCompact,
             isPurchased && styles.purchasedBadge,
           )}
+          data-tooltip={statusLabel}
+          title={statusLabel}
         >
           {isPurchased ? (
             <ShoppingCart size={14} />
@@ -54,8 +60,16 @@ export function CardBadges({
             })}
           </div>
         )}
-        {priorityKey && (
-          <div className={`${styles.badgeRight} ${styles[priorityKey]}`}>
+        {priorityDisplay && (
+          <div
+            className={styles.badgeRight}
+            style={
+              priorityColor
+                ? { borderColor: priorityColor, color: priorityColor }
+                : undefined
+            }
+          >
+            {PriorityIcon && <PriorityIcon size={10} strokeWidth={2.5} />}
             {priorityDisplay}
           </div>
         )}
