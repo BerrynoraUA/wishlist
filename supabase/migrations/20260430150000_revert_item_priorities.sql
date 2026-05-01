@@ -4,6 +4,30 @@
 -- Removes item_priorities table and selected_priorities column
 -- ============================================================
 
+-- Drop existing overloads of functions whose signatures change in this migration
+do $drop_overloads$
+declare r record;
+begin
+  for r in
+    select oid::regprocedure::text as sig
+    from pg_proc
+    where pronamespace = 'public'::regnamespace
+      and proname = any(array[
+        'get_friends_wishlists_discover',
+        'get_friends_wishlists_discover_all',
+        'get_reserved_wishlists_by_me',
+        'get_reserved_items_by_me',
+        'get_my_bought_items',
+        'get_wishlist_items',
+        'get_wishlist_items_by_share_token',
+        'get_user_visible_items_by_max_price'
+      ])
+  loop
+    execute 'drop function ' || r.sig || ' cascade';
+  end loop;
+end $drop_overloads$;
+
+
 -- 1. Re-add priority smallint column
 ALTER TABLE "public"."item" ADD COLUMN IF NOT EXISTS "priority" smallint;
 

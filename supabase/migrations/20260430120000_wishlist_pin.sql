@@ -2,6 +2,9 @@
 alter table public.wishlist
   add column if not exists is_pinned boolean not null default false;
 
+-- Drop existing function so the return type can change to include is_pinned
+drop function if exists public.get_my_wishlists_feed(integer, integer, text, text, integer[]);
+
 -- Recreate get_my_wishlists_feed to include is_pinned and sort pinned items first
 create or replace function public.get_my_wishlists_feed(
   p_skip integer default 0,
