@@ -12,7 +12,8 @@ import { useLoginPage } from "./hooks/use-login-page";
 function LoginPageContent() {
   const t = useGT();
   const router = useRouter();
-  const { redirectTo, prefillEmail, currentTestimonial, fadeIn } = useLoginPage();
+  const { redirectTo, prefillEmail, registerHref, currentTestimonial, fadeIn } =
+    useLoginPage();
 
   return (
     <main className={styles.page}>
@@ -64,7 +65,10 @@ function LoginPageContent() {
               </div>
               <div className={styles.mockupCardItems}>
                 <div className={styles.mockupItem}>
-                  <div className={styles.mockupItemIcon} style={{ background: "#fde7f3" }}>
+                  <div
+                    className={styles.mockupItemIcon}
+                    style={{ background: "#fde7f3" }}
+                  >
                     🎧
                   </div>
                   <div className={styles.mockupItemInfo}>
@@ -75,7 +79,10 @@ function LoginPageContent() {
                   </div>
                 </div>
                 <div className={styles.mockupItem}>
-                  <div className={styles.mockupItemIcon} style={{ background: "#e0f2fe" }}>
+                  <div
+                    className={styles.mockupItemIcon}
+                    style={{ background: "#e0f2fe" }}
+                  >
                     📚
                   </div>
                   <div className={styles.mockupItemInfo}>
@@ -86,7 +93,10 @@ function LoginPageContent() {
                   </div>
                 </div>
                 <div className={styles.mockupItem}>
-                  <div className={styles.mockupItemIcon} style={{ background: "#fef3c7" }}>
+                  <div
+                    className={styles.mockupItemIcon}
+                    style={{ background: "#fef3c7" }}
+                  >
                     ☕
                   </div>
                   <div className={styles.mockupItemInfo}>
@@ -110,8 +120,12 @@ function LoginPageContent() {
 
           <div className={styles.visualTestimonial}>
             <div className={styles.testimonialStars}>★★★★★</div>
-            <div className={`${styles.testimonialFade} ${fadeIn ? styles.testimonialVisible : ""}`}>
-              <p className={styles.testimonialQuote}>{currentTestimonial.quote}</p>
+            <div
+              className={`${styles.testimonialFade} ${fadeIn ? styles.testimonialVisible : ""}`}
+            >
+              <p className={styles.testimonialQuote}>
+                {currentTestimonial.quote}
+              </p>
               <div className={styles.testimonialAuthor}>
                 <div
                   className={styles.testimonialAvatar}
@@ -122,8 +136,12 @@ function LoginPageContent() {
                 >
                   {currentTestimonial.initial}
                 </div>
-                <span className={styles.testimonialName}>{currentTestimonial.name}</span>
-                <span className={styles.testimonialRole}>{currentTestimonial.role}</span>
+                <span className={styles.testimonialName}>
+                  {currentTestimonial.name}
+                </span>
+                <span className={styles.testimonialRole}>
+                  {currentTestimonial.role}
+                </span>
               </div>
             </div>
           </div>
@@ -156,7 +174,9 @@ function LoginPageContent() {
 
           <p className={styles.formSwitch}>
             {t("Don't have an account?", { $id: "login.switch.text" })}{" "}
-            <Link href="/register">{t("Create one", { $id: "login.switch.link" })}</Link>
+            <Link href={registerHref}>
+              {t("Create one", { $id: "login.switch.link" })}
+            </Link>
           </p>
         </div>
       </div>
