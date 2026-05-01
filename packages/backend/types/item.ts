@@ -9,7 +9,9 @@ export interface Item {
   name: string;
   description: string | null;
   price: string | null;
-  priority: number | null;
+  priority_id: string | null;
+  priority_name: string | null;
+  color_index: number | null;
   image_url: string | null;
   url: string | null;
   created_at: string;
@@ -26,7 +28,7 @@ export interface ItemFormValues {
   name: string;
   description: string;
   price: string;
-  priority: number | null;
+  priority_id: string | null;
   imageUrl: string;
   url: string;
   currency: string;
@@ -42,7 +44,7 @@ export interface ItemQueryParams {
   search?: string;
   sort?: string;
   statuses?: number[];
-  priorities?: number[];
+  priorities?: string[];
   priceMin?: number | null;
   priceMax?: number | null;
 }
@@ -52,7 +54,8 @@ export interface CreateItemParams {
   name: string;
   description?: string | null;
   price?: string | null;
-  priority?: number | null;
+  priority_id?: string | null;
+  color_index?: number | null;
   image_url?: string | null;
   url?: string | null;
   status?: number;

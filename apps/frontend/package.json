@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
+    "dev:https": "JAVA_HOME= next dev --experimental-https",
     "build": "next build",
     "build:translated": "gtx-cli translate && next build",
     "start": "next start",

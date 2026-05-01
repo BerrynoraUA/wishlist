@@ -2,6 +2,7 @@ import "./globals.scss";
 import { AppShell } from "@/components/layout/AppShell";
 import { DM_Sans, Playfair_Display } from "next/font/google";
 import type { Viewport } from "next";
+import type { Metadata } from "next";
 import Script from "next/script";
 import { cookies } from "next/headers";
 import {
@@ -22,6 +23,13 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   viewportFit: "cover",
+};
+
+export const metadata: Metadata = {
+  title: {
+    default: "Wishlane",
+    template: "%s · Wishlane",
+  },
 };
 
 const dmSans = DM_Sans({
@@ -59,12 +67,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       }
       lang={await getLocale()}
     >
-      <head>
+      <body suppressHydrationWarning>
         <Script id="theme-init" strategy="beforeInteractive">
           {buildThemeInitScript()}
         </Script>
-      </head>
-      <body suppressHydrationWarning>
         <GTProvider>
           <AppShell
             initialTheme={initialTheme}

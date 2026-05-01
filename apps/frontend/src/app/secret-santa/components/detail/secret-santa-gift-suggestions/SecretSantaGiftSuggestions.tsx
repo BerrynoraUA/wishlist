@@ -5,7 +5,10 @@ import { useGT } from "gt-next";
 import { Gift, Loader2, ShoppingCart } from "lucide-react";
 import type { VisibleItem } from "@/api/types/secret-santa";
 import { useGiftSuggestions } from "@/hooks/use-secret-santa";
-import { useToggleItemReservationSecret, useToggleItemBoughtSecret } from "@/hooks/use-items";
+import {
+  useToggleItemReservationSecret,
+  useToggleItemBoughtSecret,
+} from "@/hooks/use-items";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { WishlistItemDetailModal } from "@/app/wishlist/[id]/components/wishlist-item-detail-modal/WishlistItemDetailModal";
@@ -26,7 +29,8 @@ function toWishlistItem(item: VisibleItem): Item {
     name: item.name,
     description: item.description,
     price: item.price,
-    priority: item.priority,
+    priority_id: item.priority_id ?? null,
+    priority_name: item.priority_name ?? null,
     image_url: item.image_url,
     url: item.url,
     created_at: item.created_at,
@@ -40,7 +44,11 @@ function toWishlistItem(item: VisibleItem): Item {
   };
 }
 
-export function SecretSantaGiftSuggestions({ budget, currency, receiverId }: Props) {
+export function SecretSantaGiftSuggestions({
+  budget,
+  currency,
+  receiverId,
+}: Props) {
   const t = useGT();
   const { data, isLoading } = useGiftSuggestions(receiverId, budget);
   const toggleReserve = useToggleItemReservationSecret();
@@ -82,7 +90,8 @@ export function SecretSantaGiftSuggestions({ budget, currency, receiverId }: Pro
       ) : (
         <div className={styles.scrollArea}>
           {items.map((item) => {
-            const reservedByMe = !!currentUserId && item.reserved_by === currentUserId;
+            const reservedByMe =
+              !!currentUserId && item.reserved_by === currentUserId;
             const isPurchased = item.status === 2;
             const isReserved = item.status === 1 || !!item.reserved_by;
             const reserveStatusLabel = isPurchased

@@ -27,6 +27,7 @@ export interface Notification {
 export * from "./discover";
 export * from "./friends";
 export * from "./item";
+export * from "./priority";
 export * from "./known-accounts";
 export * from "./paddle";
 export * from "./session-storage";

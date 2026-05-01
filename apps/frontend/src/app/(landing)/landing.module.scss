@@ -51,6 +51,16 @@ $font-serif: "Playfair Display", Georgia, serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  ::selection {
+    background: #b3d4fc;
+    color: #111;
+  }
+
+  [data-theme="dark"] & ::selection {
+    background: #3b82f6;
+    color: #fff;
+  }
+
   * {
     box-sizing: border-box;
   }
@@ -434,6 +444,10 @@ $font-serif: "Playfair Display", Georgia, serif;
   height: 48px;
   border-radius: $radius-md;
   flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: white;
+  box-shadow: 0 4px 14px rgba(192, 38, 126, 0.25);
 }
 
 .mockupCardTitle {

@@ -91,6 +91,18 @@
   }
 }
 
+.pin {
+  background: color-mix(in srgb, var(--color-brand-lighter) 88%, white 12%);
+  border-color: color-mix(in srgb, var(--color-brand) 18%, white 82%);
+  color: var(--color-text-tertiary);
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-brand-lighter) 72%, white 28%);
+    border-color: color-mix(in srgb, var(--color-brand) 28%, white 72%);
+    color: var(--color-text-tertiary-hover);
+  }
+}
+
 .disabled {
   color: var(--color-text-muted);
   cursor: default;
@@ -126,5 +138,15 @@
   &:hover:not(:disabled) {
     background: #2a2d36;
     border-color: #424856;
+  }
+}
+
+:global([data-theme="dark"]) .pin {
+  background: color-mix(in srgb, var(--color-brand) 18%, #1a1a21 82%);
+  border-color: color-mix(in srgb, var(--color-brand) 26%, #1a1a21 74%);
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-brand) 24%, #1a1a21 76%);
+    border-color: color-mix(in srgb, var(--color-brand) 34%, #1a1a21 66%);
   }
 }

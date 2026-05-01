@@ -1,5 +1,13 @@
-import { Clock3, Globe, Lock, PackageCheck, PackageOpen, Users } from "lucide-react";
+import {
+  Clock3,
+  Globe,
+  Lock,
+  PackageCheck,
+  PackageOpen,
+  Users,
+} from "lucide-react";
 import { WishlistVisibility } from "@/types/wishlist";
+import { ALL_PRIORITIES } from "@/lib/priorities";
 
 // ─── Priority Bar Icons ────────────────────────────────────
 function PriorityBars({ count, color }: { count: number; color: string }) {
@@ -59,29 +67,17 @@ export const ITEM_STATUS_LABELS: Record<string, string> = {
 };
 
 // ─── Item Priority ─────────────────────────────────────────
-export const ITEM_PRIORITY_OPTIONS = [
-  {
-    value: "3",
-    label: "High",
-    icon: <PriorityBars count={3} color="#ef4444" />,
-  },
-  {
-    value: "2",
-    label: "Medium",
-    icon: <PriorityBars count={2} color="#eab308" />,
-  },
-  {
-    value: "1",
-    label: "Low",
-    icon: <PriorityBars count={1} color="#22c55e" />,
-  },
-];
+export const ITEM_PRIORITY_OPTIONS = [...ALL_PRIORITIES]
+  .sort((a, b) => b.sort_order - a.sort_order)
+  .map((p) => ({
+    value: p.id,
+    label: `${p.emoji} ${p.name}`,
+    icon: <PriorityBars count={Math.min(p.sort_order, 3)} color={p.color} />,
+  }));
 
-export const ITEM_PRIORITY_LABELS: Record<string, string> = {
-  "1": "Low",
-  "2": "Medium",
-  "3": "High",
-};
+export const ITEM_PRIORITY_LABELS: Record<string, string> = Object.fromEntries(
+  ALL_PRIORITIES.map((p) => [p.id, p.name]),
+);
 
 // ─── Item Sort ─────────────────────────────────────────────
 export const ITEM_SORT_OPTIONS = [

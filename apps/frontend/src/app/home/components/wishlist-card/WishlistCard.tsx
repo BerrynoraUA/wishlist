@@ -6,8 +6,11 @@ import { useGT } from "gt-next";
 import styles from "./WishlistCard.module.scss";
 
 import { Wishlist } from "@/types/wishlist";
-import { Gift, Link2, MoreHorizontal } from "lucide-react";
-import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
+import { Gift, Link2, MoreHorizontal, Pin, PinOff } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+} from "@/components/ui/DropdownMenu/DropdownMenu";
 import {
   WISHLIST_VISIBILITY_ICONS,
   getWishlistDisplayVisibility,
@@ -23,9 +26,16 @@ type Props = {
   showSharedMeta?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
+  onPin?: (isPinned: boolean) => void;
 };
 
-export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete }: Props) {
+export function WishlistCard({
+  wishlist,
+  showSharedMeta = true,
+  onEdit,
+  onDelete,
+  onPin,
+}: Props) {
   const t = useGT();
   const router = useRouter();
   const [menuKey, setMenuKey] = useState(0);
@@ -36,7 +46,9 @@ export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete
   const visibility = getWishlistDisplayVisibility(wishlist);
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[visibility];
   const itemsCount =
-    wishlist.items_count ?? (wishlist as Wishlist & { itemsCount?: number }).itemsCount ?? 0;
+    wishlist.items_count ??
+    (wishlist as Wishlist & { itemsCount?: number }).itemsCount ??
+    0;
 
   const { data: currentUserId = "" } = useCurrentUserId();
 
@@ -47,7 +59,7 @@ export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete
   });
 
   const isShared = showSharedMeta && wishlist.is_owner === false;
-  const showMenu = Boolean(onEdit || onDelete);
+  const showMenu = Boolean(onEdit || onDelete || onPin);
   const ownerNickname = wishlist.owner_nickname?.trim();
   const sharedTooltip = ownerNickname
     ? t("Shared by {name}", {
@@ -72,7 +84,11 @@ export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete
           />
         )}
         {isShared && (
-          <div className={styles.sharedBadge} aria-label={sharedTooltip} title={sharedTooltip}>
+          <div
+            className={styles.sharedBadge}
+            aria-label={sharedTooltip}
+            title={sharedTooltip}
+          >
             <Link2 size={12} />
             <span>{t("Shared", { $id: "wishlistCard.shared" })}</span>
             <span className={styles.sharedTooltip} role="tooltip">
@@ -80,14 +96,24 @@ export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete
             </span>
           </div>
         )}
-        {!hasImage && <Gift size={64} strokeWidth={1.85} className={styles.icon} />}
+        {wishlist.is_pinned && (
+          <div className={styles.pinnedBadge}>
+            <Pin size={11} />
+          </div>
+        )}
+        {!hasImage && (
+          <Gift size={64} strokeWidth={1.85} className={styles.icon} />
+        )}
       </div>
 
       <div className={styles.content}>
         <div className={styles.titleRow}>
           <h3 className={styles.title}>{wishlist.title}</h3>
           {showMenu && (
-            <div className={styles.menuWrap} onClick={(e) => e.stopPropagation()}>
+            <div
+              className={styles.menuWrap}
+              onClick={(e) => e.stopPropagation()}
+            >
               <DropdownMenu
                 key={menuKey}
                 trigger={({ toggle, open }) => (
@@ -108,12 +134,33 @@ export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete
                   >
                     <MoreHorizontal size={16} />
                     {hasEditWishlistDraft && (
-                      <DraftBadge variant="dot" className={styles.menuButtonDraftDot} />
+                      <DraftBadge
+                        variant="dot"
+                        className={styles.menuButtonDraftDot}
+                      />
                     )}
                   </button>
                 )}
                 className={styles.menuDropdown}
               >
+                {onPin && (
+                  <DropdownMenuItem
+                    variant="pin"
+                    onClick={() => onPin(!wishlist.is_pinned)}
+                  >
+                    {wishlist.is_pinned ? (
+                      <>
+                        <PinOff size={14} />
+                        <span>{t("Unpin", { $id: "wishlistCard.unpin" })}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Pin size={14} />
+                        <span>{t("Pin", { $id: "wishlistCard.pin" })}</span>
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                )}
                 {onEdit && (
                   <DropdownMenuItem variant="edit" onClick={() => onEdit()}>
                     <span>{t("Edit", { $id: "common.edit" })}</span>

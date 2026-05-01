@@ -1,18 +1,20 @@
 "use client";
 
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useGT } from "gt-next";
 import styles from "./ItemCard.module.scss";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
 import { ItemCardBase } from "@/components/shared/ItemCardBase/ItemCardBase";
 import {
-  buildItemPriorityLabel,
-  buildPurchaseActionLabel,
   buildReservationActionLabel,
   buildReservationStatusLabel,
-  getItemPriorityKey,
+  buildPurchaseActionLabel,
   getSalePercentOff,
 } from "@/lib/helpers/item-card";
+import { ALL_PRIORITIES } from "@/lib/priorities";
+import { PRIORITY_ICONS } from "@/lib/priority-icons";
+import { ITEM_COLORS } from "@/lib/item-colors";
+import type { LucideIcon } from "lucide-react";
 import type { ItemCardProps } from "./types";
 import { CardImage } from "./components/CardImage";
 import { CardBadges } from "./components/CardBadges";
@@ -42,6 +44,7 @@ export function ItemCard({
   isReserved,
   reservedBy,
   reservedByName,
+  colorIndex,
   variant = "discover",
   showDiscountBadge = false,
   isOwner = false,
@@ -60,20 +63,30 @@ export function ItemCard({
 }: ItemCardProps) {
   const t = useGT();
   const { formatPrice } = useCurrencyFormatter();
-  const priorityLabels = useMemo(
-    () => ({
-      low: t("Low", { $id: "itemCard.priorityLow" }),
-      medium: t("Medium", { $id: "itemCard.priorityMedium" }),
-      high: t("High", { $id: "itemCard.priorityHigh" }),
-    }),
-    [t],
-  );
 
-  const priorityKey = getItemPriorityKey(priority);
-  const priorityDisplay = buildItemPriorityLabel(priority, priorityLabels);
+  const priorityMeta = priority
+    ? ALL_PRIORITIES.find((p) => p.name === priority)
+    : null;
+  const priorityColor = priorityMeta?.color ?? null;
+  const priorityDisplay = priority || null;
+  const PriorityIcon: LucideIcon | null = priorityMeta
+    ? (PRIORITY_ICONS[priorityMeta.id] ?? null)
+    : null;
+
+  const accentColor =
+    colorIndex !== null &&
+    colorIndex !== undefined &&
+    colorIndex >= 0 &&
+    colorIndex < ITEM_COLORS.length
+      ? ITEM_COLORS[colorIndex].color
+      : null;
 
   const formattedPrice = formatPrice(price, currency);
-  const salePercentOff = getSalePercentOff(price, discountPrice, showDiscountBadge);
+  const salePercentOff = getSalePercentOff(
+    price,
+    discountPrice,
+    showDiscountBadge,
+  );
   const isWishlist = variant === "wishlist";
   const isPurchasedMode = mode === "purchased";
 
@@ -106,14 +119,16 @@ export function ItemCard({
           { isPurchased, isReserved: isReservedState, reservedByMe },
           reservedByName,
           {
-            purchasedByYou: () => t("Purchased by you", { $id: "itemCard.purchasedByYou" }),
+            purchasedByYou: () =>
+              t("Purchased by you", { $id: "itemCard.purchasedByYou" }),
             purchased: () => t("Purchased", { $id: "itemCard.purchased" }),
             purchasedByName: (n) =>
               t("Purchased by {name}", {
                 name: n,
                 $id: "itemCard.purchasedByName",
               }),
-            reservedByYou: () => t("Reserved by you", { $id: "itemCard.reservedByYou" }),
+            reservedByYou: () =>
+              t("Reserved by you", { $id: "itemCard.reservedByYou" }),
             reserved: () => t("Reserved", { $id: "itemCard.reserved" }),
             reservedByName: (n) =>
               t("Reserved by {name}", {
@@ -131,13 +146,16 @@ export function ItemCard({
           },
           {
             purchased: () => t("Purchased", { $id: "itemCard.purchasedBtn" }),
-            reservedByYou: () => t("Reserved by you", { $id: "itemCard.reservedByYouBtn" }),
+            reservedByYou: () =>
+              t("Reserved by you", { $id: "itemCard.reservedByYouBtn" }),
             reserved: () => t("Reserved", { $id: "itemCard.reservedBtn" }),
-            available: () => t("Reserve this gift", { $id: "itemCard.reserveGift" }),
+            available: () =>
+              t("Reserve this gift", { $id: "itemCard.reserveGift" }),
           },
         );
         const boughtActionLabel = buildPurchaseActionLabel(isPurchased, {
-          purchased: () => t("Mark as not purchased", { $id: "itemCard.unpurchase" }),
+          purchased: () =>
+            t("Mark as not purchased", { $id: "itemCard.unpurchase" }),
           available: () => t("Mark as purchased", { $id: "itemCard.purchase" }),
         });
 
@@ -147,7 +165,15 @@ export function ItemCard({
               styles.card,
               VARIANT_CLASS[variant],
               isPurchasedMode && styles.cardPurchased,
+              accentColor && styles.cardColored,
             )}
+            style={
+              accentColor
+                ? ({
+                    "--card-accent-color": accentColor,
+                  } as React.CSSProperties)
+                : undefined
+            }
             onClick={openDetail}
           >
             <div className={styles.imageWrapper}>
@@ -159,8 +185,9 @@ export function ItemCard({
                 statusLabel={statusLabel}
                 isPurchased={isPurchased}
                 salePercentOff={salePercentOff}
-                priorityKey={priorityKey}
+                priorityColor={priorityColor}
                 priorityDisplay={priorityDisplay}
+                PriorityIcon={PriorityIcon}
               />
 
               <CardQuickActions

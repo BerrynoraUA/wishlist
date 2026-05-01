@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useGT } from "gt-next";
-import { Loader2, Plus, X, Lock } from "lucide-react";
+import { Check, Loader2, Plus, X, Lock } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
@@ -19,11 +19,11 @@ import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { validateImageUploadFile } from "@/lib/image-upload";
 import {
   getCompactCurrencyOptions,
-  getPriorityOptions,
-  priorityToValue,
   resolveCurrency,
-  type ItemPriorityOption,
 } from "@/lib/helpers/form-select-options";
+import { ALL_PRIORITIES } from "@/lib/priorities";
+import { PRIORITY_ICONS } from "@/lib/priority-icons";
+import { ITEM_COLORS } from "@/lib/item-colors";
 import styles from "./CreateItemModal.module.scss";
 
 import type { CreateItemParams } from "@/api/types/item";
@@ -41,7 +41,8 @@ type CreateItemDraft = {
   name: string;
   description: string;
   price: string;
-  priority: ItemPriorityOption;
+  priority: string | null;
+  colorIndex: number | null;
   imagePreview: string;
   discountPrice: string | null;
   hasDiscount: boolean;
@@ -61,7 +62,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [priority, setPriority] = useState<ItemPriorityOption>("None");
+  const [priority, setPriority] = useState<string | null>(null);
+  const [colorIndex, setColorIndex] = useState<number | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
@@ -76,7 +78,61 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const preferredCurrency = resolveCurrency(settings?.display_currency);
   const [currency, setCurrency] = useState(preferredCurrency);
   const currencyOptions = getCompactCurrencyOptions();
-  const priorityOptions = getPriorityOptions(t);
+  const visiblePriorities = settings?.selected_priorities
+    ? ALL_PRIORITIES.filter((p) => settings.selected_priorities!.includes(p.id))
+    : ALL_PRIORITIES;
+  const priorityOptions = [
+    {
+      value: "",
+      label: (
+        <span className={styles.prioritySelectName}>
+          {t("No priority", { $id: "item.modal.priorityNone" })}
+        </span>
+      ),
+      leading: (
+        <span
+          className={styles.prioritySelectIcon}
+          style={
+            {
+              "--priority-color": "var(--color-text-muted)",
+            } as React.CSSProperties
+          }
+        >
+          <X size={14} strokeWidth={2.5} />
+        </span>
+      ),
+      trailing: (active: boolean) => (
+        <span
+          className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}
+        >
+          {active && <Check size={10} strokeWidth={3} />}
+        </span>
+      ),
+    },
+    ...visiblePriorities.map((p) => {
+      const Icon = PRIORITY_ICONS[p.id];
+
+      return {
+        value: p.id,
+        label: <span className={styles.prioritySelectName}>{p.name}</span>,
+        leading: (
+          <span
+            className={styles.prioritySelectIcon}
+            style={{ "--priority-color": p.color } as React.CSSProperties}
+          >
+            {Icon && <Icon size={14} strokeWidth={2.5} />}
+          </span>
+        ),
+        trailing: (active: boolean) => (
+          <span
+            className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}
+          >
+            {active && <Check size={10} strokeWidth={3} />}
+          </span>
+        ),
+      };
+    }),
+  ];
 
   const { mutate, isPending } = useCreateItem();
 
@@ -88,6 +144,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       description,
       price,
       priority,
+      colorIndex,
       imagePreview: imageFile ? "" : imagePreview,
       discountPrice,
       hasDiscount,
@@ -98,6 +155,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     [
       additionalLinks,
       currency,
+      colorIndex,
       description,
       discountEndDate,
       discountPrice,
@@ -118,7 +176,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       draft.name.trim() ||
       draft.description.trim() ||
       draft.price.trim() ||
-      draft.priority !== "None" ||
+      draft.priority !== null ||
+      draft.colorIndex !== null ||
       draft.imagePreview ||
       draft.discountPrice ||
       draft.hasDiscount ||
@@ -134,6 +193,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       setDescription(draft.description);
       setPrice(draft.price);
       setPriority(draft.priority);
+      setColorIndex(draft.colorIndex);
       if (imageObjectUrl) {
         URL.revokeObjectURL(imageObjectUrl);
       }
@@ -179,7 +239,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     setName("");
     setDescription("");
     setPrice("");
-    setPriority("None");
+    setPriority(null);
+    setColorIndex(null);
     setImagePreview("");
     setImageFile(null);
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
@@ -209,14 +270,13 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
 
     const imageUrlToSave = imageFile ? null : imagePreview || null;
 
-    const priorityValue = priority === "None" ? null : priorityToValue[priority];
-
     const payload: CreateItemParams = {
       wishlist_id: wishlistId,
       name: name.trim(),
       description: description.trim() || null,
       price: price.trim() || null,
-      priority: priorityValue,
+      priority_id: priority || null,
+      color_index: colorIndex,
       url: link.trim() || null, // original link user pasted
       additional_links: additionalLinks.filter((l) => l.url.trim()),
       image: imageFile,
@@ -284,7 +344,11 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           currency: data?.currency ?? null,
         };
 
-        const isEmpty = !product.title && !product.description && !product.image && !product.price;
+        const isEmpty =
+          !product.title &&
+          !product.description &&
+          !product.image &&
+          !product.price;
 
         if (isEmpty) {
           setError(
@@ -309,7 +373,10 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           setImagePreview(product.image);
         }
       } else {
-        setError(data?.error || t("Error loading product", { $id: "item.modal.scrapeError" }));
+        setError(
+          data?.error ||
+            t("Error loading product", { $id: "item.modal.scrapeError" }),
+        );
       }
     } catch {
       setError(
@@ -327,7 +394,9 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerCopy}>
-            <Heading>{t("Create Item", { $id: "item.modal.create.title" })}</Heading>
+            <Heading>
+              {t("Create Item", { $id: "item.modal.create.title" })}
+            </Heading>
             <Text variant="caption" tone="muted">
               {t("Add a product to this wishlist.", {
                 $id: "item.modal.create.subtitle",
@@ -348,7 +417,11 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                       })}
                 </span>
               </div>
-              <button type="button" className={styles.draftAction} onClick={handleDiscardDraft}>
+              <button
+                type="button"
+                className={styles.draftAction}
+                onClick={handleDiscardDraft}
+              >
                 {t("Discard", { $id: "draft.discard" })}
               </button>
             </div>
@@ -373,9 +446,16 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               value={link}
               onChange={(e) => setLink(e.target.value)}
             />
-            <Button variant="secondary" onClick={handleScrape} disabled={!link.trim() || loading}>
+            <Button
+              variant="secondary"
+              onClick={handleScrape}
+              disabled={!link.trim() || loading}
+            >
               {loading ? (
-                <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
+                <Loader2
+                  size={16}
+                  style={{ animation: "spin 0.8s linear infinite" }}
+                />
               ) : (
                 t("Search", { $id: "item.modal.searchProduct" })
               )}
@@ -405,7 +485,9 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                     type="button"
                     className={styles.removeLinkBtn}
                     onClick={() => {
-                      setAdditionalLinks(additionalLinks.filter((_, i) => i !== index));
+                      setAdditionalLinks(
+                        additionalLinks.filter((_, i) => i !== index),
+                      );
                     }}
                     aria-label={t("Remove link", {
                       $id: "item.modal.removeLinkAria",
@@ -418,10 +500,14 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               <button
                 type="button"
                 className={styles.addLinkBtn}
-                onClick={() => setAdditionalLinks([...additionalLinks, { url: "" }])}
+                onClick={() =>
+                  setAdditionalLinks([...additionalLinks, { url: "" }])
+                }
               >
                 <Plus size={14} />
-                <span>{t("Add another link", { $id: "item.modal.addAnotherLink" })}</span>
+                <span>
+                  {t("Add another link", { $id: "item.modal.addAnotherLink" })}
+                </span>
               </button>
             </div>
           )}
@@ -508,7 +594,9 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
+          <label>
+            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
+          </label>
           <div className={styles.priceRow}>
             <Select
               value={currency}
@@ -531,14 +619,43 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           <div className={styles.field}>
             <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
             <Select
-              value={priority}
-              onChange={setPriority}
+              value={priority ?? ""}
+              onChange={(v) => setPriority(v || null)}
               options={priorityOptions}
               ariaLabel={t("Priority", { $id: "item.modal.priorityLabel" })}
               triggerClassName={styles.selectField}
+              dropdownClassName={styles.prioritySelectDropdown}
+              optionClassName={styles.prioritySelectOption}
+              leadingClassName={styles.prioritySelectLeading}
             />
           </div>
         )}
+
+        <div className={styles.field}>
+          <label>
+            {t("Card Color (optional)", { $id: "item.modal.colorLabel" })}
+          </label>
+          <div className={styles.colorPicker}>
+            <button
+              type="button"
+              className={`${styles.colorSwatch} ${styles.colorSwatchNone} ${colorIndex === null ? styles.colorSwatchActive : ""}`}
+              onClick={() => setColorIndex(null)}
+              title={t("No color", { $id: "item.modal.colorNone" })}
+            >
+              <X size={11} />
+            </button>
+            {ITEM_COLORS.map((c, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={`${styles.colorSwatch} ${colorIndex === idx ? styles.colorSwatchActive : ""}`}
+                style={{ "--swatch-color": c.color } as React.CSSProperties}
+                onClick={() => setColorIndex(idx)}
+                title={c.label}
+              />
+            ))}
+          </div>
+        </div>
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose}>

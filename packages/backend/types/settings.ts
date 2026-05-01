@@ -1,4 +1,5 @@
 import { SUPPORTED_CURRENCIES } from "../lib/currencies";
+import { PRIORITY_IDS } from "../lib/priorities";
 import { WishlistAccent } from "./wishlist";
 
 export { SUPPORTED_CURRENCIES };
@@ -26,17 +27,25 @@ export interface UserSettings {
   default_accent: WishlistAccent;
   default_wishlist_color: WishlistColorIndex;
   display_currency: string;
+  selected_priorities: string[];
 }
 
 export type ThemePreference = "light" | "dark" | "system";
 
 export type UpdateProfilePayload = Partial<
-  Pick<UserProfile, "display_name" | "nickname" | "bio" | "height" | "shoe_size" | "avatar_url">
+  Pick<
+    UserProfile,
+    "display_name" | "nickname" | "bio" | "height" | "shoe_size" | "avatar_url"
+  >
 >;
 
 export type UpdateSettingsPayload = Partial<Omit<UserSettings, "user_id">>;
 
-export type SettingsTab = "profile" | "account" | "notifications" | "appearance";
+export type SettingsTab =
+  | "profile"
+  | "account"
+  | "notifications"
+  | "appearance";
 
 export const SETTINGS_TAB_ORDER: readonly SettingsTab[] = [
   "profile",
@@ -54,4 +63,9 @@ export const DEFAULT_SETTINGS: Omit<UserSettings, "user_id"> = {
   default_accent: WishlistAccent.Pink,
   default_wishlist_color: 0,
   display_currency: "USD",
+  selected_priorities: [
+    PRIORITY_IDS.LOW,
+    PRIORITY_IDS.MEDIUM,
+    PRIORITY_IDS.HIGH,
+  ],
 };
