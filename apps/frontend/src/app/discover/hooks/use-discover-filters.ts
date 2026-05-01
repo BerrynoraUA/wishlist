@@ -48,7 +48,7 @@ export function useDiscoverFilters() {
     () => ({
       search: discoverSearch || undefined,
       sort: discoverSort !== DEFAULT_SORT ? discoverSort : undefined,
-      priorities: priorityFilter.length ? priorityFilter.map(Number) : undefined,
+      priorities: priorityFilter.length ? priorityFilter : undefined,
       priceMin: priceMin ? Number(priceMin) : undefined,
       priceMax: priceMax ? Number(priceMax) : undefined,
       displayCurrency,

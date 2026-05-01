@@ -62,7 +62,7 @@ export function CardQuickActions({
             price,
             imageUrl: image,
             url,
-            priority,
+            priority_id: priority,
             discountPrice,
             currency,
           })}
