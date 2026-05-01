@@ -106,6 +106,7 @@ export type VisibleItem = {
   currency: string | null;
   priority_id: string | null;
   priority_name: string | null;
+  color_index: number | null;
   url: string | null;
   image_url: string | null;
   status: number | null;
