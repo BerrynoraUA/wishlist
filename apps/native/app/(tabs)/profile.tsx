@@ -1,179 +1,49 @@
-import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
-import {
-  SlidingOptionSelector,
-  type SlidingOption,
-  type SlidingOptionRenderProps,
-} from "@/components/ui/sliding-option-selector";
-import { Text } from "@/components/ui/text";
-import {
-  getNativeThemeName,
-  getThemeAccent,
-  getThemeMode,
-  NATIVE_ACCENTS,
-  type NativeAccentName,
-  type NativeThemeMode,
-} from "@/lib/theme";
-import { cn } from "@/lib/utils";
+import { AccountSettings } from "@/components/settings/account-settings";
+import { AppearanceSettings } from "@/components/settings/appearance-settings";
+import { CurrencySettings } from "@/components/settings/currency-settings";
+import { NotificationSettings } from "@/components/settings/notification-settings";
+import { ProfileSettings } from "@/components/settings/profile-settings";
 import { useAuth } from "@/providers/auth-provider";
+import { useSettings, useProfile, useUpdateSettings } from "@/hooks/use-settings";
+import { WishlistAccent } from "@wishlist/backend/types/wishlist";
+import type { ThemePreference } from "@wishlist/backend/types/settings";
 import { Stack } from "expo-router";
-import { CheckIcon, LogOut, MoonIcon, SunIcon } from "lucide-react-native";
-import * as React from "react";
-import { ScrollView, View } from "react-native";
-import { Uniwind, useUniwind } from "uniwind";
-
-const THEME_ROW_HEIGHT = 112;
-
-const THEME_MODE_ROWS = [
-  [
-    {
-      value: "light" as const,
-      accessibilityLabel: "Light theme",
-      children: ({ selected }: SlidingOptionRenderProps) => (
-        <>
-          <View
-            className={cn(
-              "size-11 items-center justify-center rounded-full bg-bg-muted",
-              selected && "bg-gradient-brand-subtle",
-            )}
-          >
-            <Icon as={SunIcon} className={cn("size-5 text-text", selected && "text-brand")} />
-          </View>
-          <Text className="text-body font-bold text-text">Light</Text>
-          {selected ? <ActiveCheck /> : null}
-        </>
-      ),
-    },
-    {
-      value: "dark" as const,
-      accessibilityLabel: "Dark theme",
-      children: ({ selected }: SlidingOptionRenderProps) => (
-        <>
-          <View
-            className={cn(
-              "size-11 items-center justify-center rounded-full bg-bg-muted",
-              selected && "bg-gradient-brand-subtle",
-            )}
-          >
-            <Icon as={MoonIcon} className={cn("size-5 text-text", selected && "text-brand")} />
-          </View>
-          <Text className="text-body font-bold text-text">Dark</Text>
-          {selected ? <ActiveCheck /> : null}
-        </>
-      ),
-    },
-  ],
-] satisfies SlidingOption<NativeThemeMode>[][];
-
-/** Swatch + gap + label + vertical padding; matches SlidingOptionSelector indicator height */
-const ACCENT_CELL_HEIGHT_PX = 76;
-const ACCENT_CELL_HEIGHT_CLASS = "h-[76px]";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 
 export default function ProfileScreen() {
-  const { theme } = useUniwind();
-  const { signOut } = useAuth();
-  const activeMode = getThemeMode(theme);
-  const activeAccent = getThemeAccent(theme);
+  const { signOut, user } = useAuth();
+  const { data: settings, isLoading: settingsLoading } = useSettings();
+  const { data: profile, isLoading: profileLoading } = useProfile();
+  const updateSettings = useUpdateSettings();
 
-  const accentRows = React.useMemo((): SlidingOption<NativeAccentName>[][] => {
-    const options = NATIVE_ACCENTS.map((accent) => ({
-      value: accent.name,
-      accessibilityLabel: `Use ${accent.label} accent`,
-      surfaceClassName: "bg-transparent",
-      children: ({ selected }: SlidingOptionRenderProps) => (
-        <View className="w-full items-center gap-1 py-1.5">
-          <View
-            className={cn(
-              "size-11 items-center justify-center rounded-full border-2 border-transparent",
-              accent.swatchClassName,
-            )}
-          >
-            {selected ? <Icon as={CheckIcon} className="size-4 text-text" /> : null}
-          </View>
-          <Text
-            className={cn(
-              "text-center text-[11px] font-semibold leading-tight text-text",
-              selected && "text-brand",
-            )}
-            numberOfLines={1}
-          >
-            {accent.label}
-          </Text>
-        </View>
-      ),
-    }));
-
-    return [options];
-  }, []);
-
-  function setMode(mode: NativeThemeMode) {
-    Uniwind.setTheme(getNativeThemeName(mode, activeAccent));
-  }
-
-  function setAccent(accent: NativeAccentName) {
-    Uniwind.setTheme(getNativeThemeName(activeMode, accent));
+  function setThemePreference(value: ThemePreference) {
+    updateSettings.mutate({ theme: value });
   }
 
   return (
     <>
-      <Stack.Screen options={{ title: "Profile" }} />
+      <Stack.Screen options={{ title: "Settings" }} />
       <View className="flex-1 bg-bg">
-        <ScrollView className="flex-1" contentContainerClassName="gap-5 px-4 pb-2 pt-6">
-          <SettingsSection title="Theme">
-            <SlidingOptionSelector
-              rows={THEME_MODE_ROWS}
-              value={activeMode}
-              onChange={setMode}
-              optionHeight={THEME_ROW_HEIGHT}
-              optionHeightClassName="min-h-28"
-              rowClassName="gap-3"
-              optionClassName="relative flex-col gap-2 rounded-lg border border-border-light bg-bg-subtle p-4 active:opacity-[0.99]"
-              indicatorClassName="rounded-lg border border-brand bg-brand-lighter shadow-brand"
-            />
-          </SettingsSection>
+        <ScrollView className="flex-1" contentContainerClassName="gap-4 px-4 pb-6 pt-6">
+          {(settingsLoading || profileLoading) && (
+            <View className="items-center justify-center py-6">
+              <ActivityIndicator colorClassName="accent-brand" />
+            </View>
+          )}
 
-          <SettingsSection title="Accent">
-            <SlidingOptionSelector
-              rows={accentRows}
-              value={activeAccent}
-              onChange={setAccent}
-              optionHeight={ACCENT_CELL_HEIGHT_PX}
-              optionHeightClassName={ACCENT_CELL_HEIGHT_CLASS}
-              rowClassName="gap-1"
-              optionClassName="flex-col items-center justify-center border-0 bg-transparent px-0.5 py-0 shadow-none"
-              indicatorClassName="rounded-xl border border-brand bg-brand-lighter/35 shadow-sm shadow-brand/20"
-            />
-          </SettingsSection>
+          <AccountSettings email={user?.email ?? ""} signOut={signOut} />
+          <ProfileSettings profile={profile} />
+          <NotificationSettings settings={settings} />
+          <AppearanceSettings
+            selectedTheme={settings?.theme ?? "system"}
+            selectedAccent={settings?.default_accent ?? WishlistAccent.Pink}
+            selectedWishlistColor={settings?.default_wishlist_color ?? 0}
+            selectedPriorities={settings?.selected_priorities}
+            setThemePreference={setThemePreference}
+          />
+          <CurrencySettings selectedCurrency={settings?.display_currency ?? "USD"} />
         </ScrollView>
-
-        <View className="border-t border-border-subtle bg-bg px-4 pb-safe-offset-4 pt-3">
-          <Button
-            variant="outline"
-            className="h-12 w-full border-destructive/50 active:bg-destructive/5"
-            onPress={() => void signOut()}
-          >
-            <Icon as={LogOut} className="size-4 text-destructive" />
-            <Text className="text-sm font-semibold text-destructive">Log out</Text>
-          </Button>
-        </View>
       </View>
     </>
-  );
-}
-
-function ActiveCheck() {
-  return (
-    <View className="absolute right-3 top-3 size-6 items-center justify-center rounded-full bg-brand">
-      <Icon as={CheckIcon} className="size-3.5 text-white" />
-    </View>
-  );
-}
-
-function SettingsSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <View className="gap-4 rounded-xl border border-border-subtle bg-card-bg p-5 shadow-sm">
-      <Text className="text-title font-bold text-text">{title}</Text>
-      {children}
-    </View>
   );
 }

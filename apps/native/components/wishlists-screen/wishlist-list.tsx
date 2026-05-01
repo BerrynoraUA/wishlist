@@ -27,7 +27,17 @@ import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import type { TriggerRef } from "@rn-primitives/dropdown-menu";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
-import { ChevronLeft, ChevronRight, Gift, Link2, Plus } from "lucide-react-native";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Gift,
+  Link2,
+  ListChecks,
+  LockKeyhole,
+  Package,
+  Plus,
+  ShoppingBag,
+} from "lucide-react-native";
 import * as React from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
@@ -142,10 +152,10 @@ export function StatsRow() {
   const gap = 12;
   const cardWidth = (Math.min(width - 32, 1200) - gap) / 2;
   const stats = [
-    { label: "Wishlists", value: data?.wishlists_count ?? 0 },
-    { label: "Total Items", value: data?.total_items_count ?? 0 },
-    { label: "Reserved", value: data?.reserved_items_count ?? 0 },
-    { label: "Purchased", value: data?.purchased_items_count ?? 0 },
+    { label: "Wishlists", value: data?.wishlists_count ?? 0, icon: ListChecks },
+    { label: "Total Items", value: data?.total_items_count ?? 0, icon: Package },
+    { label: "Reserved", value: data?.reserved_items_count ?? 0, icon: LockKeyhole },
+    { label: "Purchased", value: data?.purchased_items_count ?? 0, icon: ShoppingBag },
   ];
 
   if (isLoading) {
@@ -175,7 +185,7 @@ export function StatsRow() {
           style={{ width: cardWidth }}
         >
           <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
-            <Icon as={Gift} className="size-4 text-brand" />
+            <Icon as={stat.icon} className="size-4 text-brand" />
           </View>
           <View className="min-w-0 flex-1">
             <Text className="text-2xl font-extrabold text-text">{stat.value}</Text>

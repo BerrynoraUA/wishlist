@@ -1,0 +1,134 @@
+import {
+  changePassword,
+  checkNicknameAvailable,
+  deleteAccount,
+  getAuthProvider,
+  getExchangeRates,
+  getProfile,
+  getProfilesByIds,
+  getSettings,
+  updateProfile,
+  updateSettings,
+} from "@/api/settings";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type {
+  UpdateProfilePayload,
+  UpdateSettingsPayload,
+  UserSettings,
+} from "@wishlist/backend/types/settings";
+
+export const settingsKeys = {
+  all: ["settings"] as const,
+  profile: () => [...settingsKeys.all, "profile"] as const,
+  preferences: () => [...settingsKeys.all, "preferences"] as const,
+  provider: () => [...settingsKeys.all, "provider"] as const,
+  exchangeRates: () => [...settingsKeys.all, "exchange-rates"] as const,
+  profilesByIds: (idsKey: string) => [...settingsKeys.all, "profiles-by-ids", idsKey] as const,
+};
+
+export function useProfile() {
+  return useQuery({
+    queryKey: settingsKeys.profile(),
+    queryFn: getProfile,
+  });
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: UpdateProfilePayload) => updateProfile(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: settingsKeys.profile() });
+    },
+  });
+}
+
+export function useCheckNickname() {
+  return useMutation({
+    mutationFn: (nickname: string) => checkNicknameAvailable(nickname),
+  });
+}
+
+export function useProfilesByIds(userIds: string[]) {
+  const idsKey = userIds.length ? [...userIds].sort().join("|") : "";
+
+  return useQuery({
+    queryKey: settingsKeys.profilesByIds(idsKey),
+    queryFn: () => getProfilesByIds(userIds),
+    enabled: userIds.length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useSettings() {
+  return useQuery({
+    queryKey: settingsKeys.preferences(),
+    queryFn: getSettings,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useUpdateSettings() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: UpdateSettingsPayload) => updateSettings(payload),
+    onMutate: async (payload) => {
+      await queryClient.cancelQueries({ queryKey: settingsKeys.preferences() });
+
+      const previousSettings = queryClient.getQueryData<UserSettings>(settingsKeys.preferences());
+
+      if (previousSettings) {
+        queryClient.setQueryData<UserSettings>(settingsKeys.preferences(), {
+          ...previousSettings,
+          ...payload,
+        });
+      }
+
+      return { previousSettings };
+    },
+    onError: (_error, _payload, context) => {
+      if (context?.previousSettings) {
+        queryClient.setQueryData(settingsKeys.preferences(), context.previousSettings);
+      }
+    },
+    onSuccess: (settings) => {
+      queryClient.setQueryData(settingsKeys.preferences(), settings);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: settingsKeys.preferences(),
+        refetchType: "active",
+      });
+    },
+  });
+}
+
+export function useAuthProvider() {
+  return useQuery({
+    queryKey: settingsKeys.provider(),
+    queryFn: getAuthProvider,
+    staleTime: Infinity,
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (newPassword: string) => changePassword(newPassword),
+  });
+}
+
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: () => deleteAccount(),
+  });
+}
+
+export function useExchangeRates() {
+  return useQuery({
+    queryKey: settingsKeys.exchangeRates(),
+    queryFn: getExchangeRates,
+    staleTime: 60 * 60 * 1000,
+  });
+}

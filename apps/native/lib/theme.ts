@@ -1,4 +1,6 @@
 import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
+import type { ThemePreference } from "@wishlist/backend/types/settings";
+import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 
 export const NATIVE_THEME_NAMES = [
   "light",
@@ -152,6 +154,24 @@ export function getThemeAccent(theme: string | null | undefined): NativeAccentNa
   return isNativeAccentName(accent) ? accent : "pink";
 }
 
+export function getNativeAccentForWishlistAccent(
+  accent: WishlistAccent | null | undefined,
+): NativeAccentName {
+  switch (accent) {
+    case WishlistAccent.Blue:
+      return "blue";
+    case WishlistAccent.Peach:
+      return "peach";
+    case WishlistAccent.Mint:
+      return "mint";
+    case WishlistAccent.Lavender:
+      return "lavender";
+    case WishlistAccent.Pink:
+    default:
+      return "pink";
+  }
+}
+
 export function getNativeThemeName(
   mode: NativeThemeMode,
   accent: NativeAccentName,
@@ -161,6 +181,17 @@ export function getNativeThemeName(
   }
 
   return mode === "dark" ? `${accent}-dark` : accent;
+}
+
+export function getNativeThemeNameForPreference(
+  preference: ThemePreference,
+  accent: WishlistAccent | null | undefined,
+  systemColorScheme: string | null | undefined,
+): NativeThemeName {
+  const mode =
+    preference === "system" ? (systemColorScheme === "dark" ? "dark" : "light") : preference;
+
+  return getNativeThemeName(mode, getNativeAccentForWishlistAccent(accent));
 }
 
 export function getNavigationTheme(theme: string | null | undefined): Theme {
