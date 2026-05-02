@@ -25,10 +25,10 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import {
   Calendar,
-  Camera,
   ChevronDown,
   Gift,
   KeyRound,
+  Pencil,
   Share2,
   Trash2,
   X,
@@ -170,58 +170,81 @@ export function WishlistDetailHeader({
               ) : (
                 <Icon as={Gift} className="size-7 text-white" />
               )}
-              {canInlineEdit ? (
-                <View className="absolute inset-0 items-center justify-center bg-black/35">
-                  <Icon as={Camera} className="size-4 text-white" />
-                </View>
-              ) : null}
             </AnimatedPressable>
 
-            <View className="min-w-0 flex-1">
-              {editingTitle ? (
-                <Input
-                  autoFocus
-                  value={titleDraft}
-                  onChangeText={setTitleDraft}
-                  onBlur={saveTitle}
-                  returnKeyType="done"
-                  onSubmitEditing={saveTitle}
-                  className="h-11 rounded-xl border-input-focus-border bg-card-bg text-xl font-extrabold"
-                />
-              ) : (
-                <AnimatedPressable
-                  disabled={!canInlineEdit}
-                  accessibilityRole={canInlineEdit ? "button" : "text"}
-                  accessibilityLabel={canInlineEdit ? "Edit wishlist title" : wishlist.title}
-                  onPress={() => setEditingTitle(true)}
-                >
-                  <Text className="text-xl font-extrabold leading-6 text-text" numberOfLines={2}>
-                    {wishlist.title}
-                  </Text>
-                </AnimatedPressable>
-              )}
+            <View className="min-w-0 flex-1 flex-row items-center gap-2">
+              <View className="min-w-0 flex-1">
+                {editingTitle ? (
+                  <Input
+                    autoFocus
+                    value={titleDraft}
+                    onChangeText={setTitleDraft}
+                    onBlur={saveTitle}
+                    returnKeyType="done"
+                    onSubmitEditing={saveTitle}
+                    className="h-11 rounded-xl border-input-focus-border bg-card-bg text-xl font-extrabold"
+                  />
+                ) : (
+                  <AnimatedPressable
+                    disabled={!canInlineEdit}
+                    accessibilityRole={canInlineEdit ? "button" : "text"}
+                    accessibilityLabel={canInlineEdit ? "Edit wishlist title" : wishlist.title}
+                    onPress={() => setEditingTitle(true)}
+                  >
+                    <Text className="text-xl font-extrabold leading-6 text-text" numberOfLines={2}>
+                      {wishlist.title}
+                    </Text>
+                  </AnimatedPressable>
+                )}
 
-              {editingDescription ? (
-                <Input
-                  autoFocus
-                  value={descriptionDraft}
-                  onChangeText={setDescriptionDraft}
-                  onBlur={saveDescription}
-                  multiline
-                  className="mt-2 h-20 rounded-xl border-input-focus-border bg-card-bg text-sm"
-                  textAlignVertical="top"
-                />
-              ) : wishlist.description || canInlineEdit ? (
-                <AnimatedPressable
-                  disabled={!canInlineEdit}
-                  accessibilityRole={canInlineEdit ? "button" : "text"}
-                  accessibilityLabel="Edit wishlist description"
-                  onPress={() => setEditingDescription(true)}
-                >
-                  <Text className="mt-2 text-sm leading-5 text-text-muted" numberOfLines={3}>
-                    {wishlist.description || "Add a short description"}
-                  </Text>
-                </AnimatedPressable>
+                {editingDescription ? (
+                  <Input
+                    autoFocus
+                    value={descriptionDraft}
+                    onChangeText={setDescriptionDraft}
+                    onBlur={saveDescription}
+                    multiline
+                    className="mt-2 h-20 rounded-xl border-input-focus-border bg-card-bg text-sm"
+                    textAlignVertical="top"
+                  />
+                ) : wishlist.description || canInlineEdit ? (
+                  <AnimatedPressable
+                    disabled={!canInlineEdit}
+                    accessibilityRole={canInlineEdit ? "button" : "text"}
+                    accessibilityLabel="Edit wishlist description"
+                    onPress={() => setEditingDescription(true)}
+                  >
+                    <Text className="mt-2 text-sm leading-5 text-text-muted" numberOfLines={3}>
+                      {wishlist.description || "Add a short description"}
+                    </Text>
+                  </AnimatedPressable>
+                ) : null}
+              </View>
+
+              {onEdit || onDelete ? (
+                <View className="items-center gap-2">
+                  {onEdit ? (
+                    <AnimatedPressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Edit wishlist"
+                      onPress={onEdit}
+                      className="size-8 items-center justify-center rounded-full border border-glass-border bg-glass-bg"
+                    >
+                      <Icon as={Pencil} className="size-3.5 text-text" />
+                    </AnimatedPressable>
+                  ) : null}
+
+                  {onDelete ? (
+                    <AnimatedPressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Delete wishlist"
+                      onPress={onDelete}
+                      className="size-8 items-center justify-center rounded-full border border-destructive/25 bg-destructive/10"
+                    >
+                      <Icon as={Trash2} className="size-3.5 text-destructive" />
+                    </AnimatedPressable>
+                  ) : null}
+                </View>
               ) : null}
             </View>
           </View>
@@ -305,17 +328,6 @@ export function WishlistDetailHeader({
                 )
               ) : null}
             </View>
-
-            {onDelete ? (
-              <AnimatedPressable
-                accessibilityRole="button"
-                accessibilityLabel="Delete wishlist"
-                onPress={onDelete}
-                className="size-8 items-center justify-center rounded-full border border-destructive/25 bg-destructive/10"
-              >
-                <Icon as={Trash2} className="size-3.5 text-destructive" />
-              </AnimatedPressable>
-            ) : null}
           </View>
 
           {Platform.OS === "ios" && iosDateOpen ? (
