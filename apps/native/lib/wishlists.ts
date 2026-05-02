@@ -16,8 +16,7 @@ export const WISHLIST_VISIBILITY_OPTIONS = [
     icon: Globe,
     visibility: WishlistVisibility.Public,
     surfaceClassName: "bg-success-bg",
-    itemClassName:
-      "mb-1 last:mb-0 active:bg-success-bg/85 dark:active:bg-success-bg/90",
+    itemClassName: "mb-1 last:mb-0 active:bg-success-bg/85 dark:active:bg-success-bg/90",
   },
   {
     value: "friends",
@@ -41,8 +40,7 @@ export const WISHLIST_VISIBILITY_OPTIONS = [
     icon: Lock,
     visibility: WishlistVisibility.Private,
     surfaceClassName: "bg-danger-bg",
-    itemClassName:
-      "mb-1 last:mb-0 active:bg-danger-bg/85 dark:active:bg-danger-bg/90",
+    itemClassName: "mb-1 last:mb-0 active:bg-danger-bg/85 dark:active:bg-danger-bg/90",
   },
 ] as const;
 

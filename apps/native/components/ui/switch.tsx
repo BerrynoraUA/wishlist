@@ -15,9 +15,7 @@ function Switch({ className, ...props }: React.ComponentProps<typeof SwitchPrimi
       <SwitchPrimitives.Thumb
         className={cn(
           "size-6 rounded-full bg-primary-foreground shadow-sm shadow-black/20 transition-transform",
-          props.checked
-            ? "translate-x-5"
-            : "translate-x-0",
+          props.checked ? "translate-x-5" : "translate-x-0",
         )}
       />
     </SwitchPrimitives.Root>

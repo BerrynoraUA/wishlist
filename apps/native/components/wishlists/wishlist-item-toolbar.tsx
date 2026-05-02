@@ -1,5 +1,5 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
-import { BouncingButton } from "@/components/ui/buttons/BouncingButton";
+import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -129,7 +129,7 @@ export function WishlistItemToolbar({
           ) : null}
         </View>
         {onAddItem ? (
-          <BouncingButton
+          <AnimatedGradientBackgroundButton
             accessibilityLabel="Add item"
             Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
             onPress={onAddItem}

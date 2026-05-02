@@ -1,16 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { MessageBottomSheet, type SheetMessage } from "@/components/ui/action-bottom-sheet";
+import { StyledImage } from "@/components/ui/styled-image";
+import { StyledPressable } from "@/components/ui/styled-pressable";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { LabeledInput } from "@/components/settings/settings-controls";
 import { SettingsSection } from "@/components/settings/settings-section";
-import { useCheckNickname, useProfile, useUpdateProfile } from "@/hooks/use-settings";
+import {
+  useCheckNickname,
+  useProfile,
+  useUpdateProfile,
+  useUploadProfileAvatar,
+} from "@/hooks/use-settings";
+import * as ImagePicker from "expo-image-picker";
 import * as React from "react";
 import { UserRound } from "lucide-react-native";
 import { View } from "react-native";
 
+const MAX_AVATAR_UPLOAD_BYTES = 5 * 1024 * 1024;
+
 export function ProfileSettings({ profile }: { profile: ReturnType<typeof useProfile>["data"] }) {
   const updateProfile = useUpdateProfile();
+  const uploadAvatar = useUploadProfileAvatar();
   const checkNickname = useCheckNickname();
   const [displayName, setDisplayName] = React.useState("");
   const [nickname, setNickname] = React.useState("");
@@ -86,22 +97,99 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
     );
   }
 
+  async function handlePickAvatar() {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permission.granted) {
+      setMessage({
+        title: "Permission required",
+        message: "Allow photo library access to choose a profile image.",
+      });
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.85,
+    });
+
+    if (result.canceled) return;
+
+    const asset = result.assets[0];
+
+    if (!asset) return;
+
+    if (asset.fileSize && asset.fileSize > MAX_AVATAR_UPLOAD_BYTES) {
+      setMessage({ title: "Image too large", message: "Choose an image that is 5 MB or less." });
+      return;
+    }
+
+    uploadAvatar.mutate(
+      {
+        uri: asset.uri,
+        mimeType: asset.mimeType,
+        fileName: asset.fileName,
+      },
+      {
+        onSuccess: () => setMessage({ title: "Saved", message: "Profile image updated." }),
+        onError: (error) => setMessage({ title: "Image upload failed", message: error.message }),
+      },
+    );
+  }
+
   return (
     <>
       <SettingsSection title="Profile" icon={UserRound} defaultOpen>
         <View className="flex-row items-center gap-3">
-          <View className="size-14 items-center justify-center rounded-full bg-brand">
-            <Text className="text-xl font-bold text-white">
-              {(profile?.display_name ?? profile?.nickname ?? "U").charAt(0).toUpperCase()}
-            </Text>
-          </View>
-          <View className="flex-1">
-            <Text className="font-semibold text-text">
-              {profile?.display_name ?? "Your profile"}
-            </Text>
-            <Text className="text-sm text-text-muted">
-              {profile?.nickname ? `@${profile.nickname}` : "Choose a nickname"}
-            </Text>
+          <StyledPressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              uploadAvatar.isPending ? "Uploading profile photo" : "Change profile photo"
+            }
+            disabled={uploadAvatar.isPending}
+            onPress={handlePickAvatar}
+            className="size-14 overflow-hidden rounded-full active:opacity-80"
+          >
+            {profile?.avatar_url ? (
+              <StyledImage
+                accessible={false}
+                importantForAccessibility="no-hide-descendants"
+                source={{ uri: profile.avatar_url }}
+                contentFit="cover"
+                className="size-14 rounded-full bg-muted"
+              />
+            ) : (
+              <View
+                accessible={false}
+                importantForAccessibility="no-hide-descendants"
+                className="size-14 items-center justify-center rounded-full bg-brand"
+              >
+                <Text className="text-xl font-bold text-white">
+                  {(profile?.display_name ?? profile?.nickname ?? "U").charAt(0).toUpperCase()}
+                </Text>
+              </View>
+            )}
+          </StyledPressable>
+          <View className="flex-1 gap-2">
+            <View>
+              <Text className="font-semibold text-text">
+                {profile?.display_name ?? "Your profile"}
+              </Text>
+              <Text className="text-sm text-text-muted">
+                {profile?.nickname ? `@${profile.nickname}` : "Choose a nickname"}
+              </Text>
+            </View>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={uploadAvatar.isPending}
+              onPress={handlePickAvatar}
+              className="self-start"
+            >
+              <Text>{uploadAvatar.isPending ? "Uploading..." : "Change photo"}</Text>
+            </Button>
           </View>
         </View>
 
@@ -149,7 +237,10 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
           />
         </View>
         <View className="gap-2">
-          <Text className="text-sm font-semibold text-text">Bio</Text>
+          <View className="flex-row items-center justify-between gap-2">
+            <Text className="text-sm font-semibold text-text">Bio</Text>
+            <Text className="text-xs text-text-muted">{bio.length}/160</Text>
+          </View>
           <Textarea
             value={bio}
             onChangeText={setBio}
@@ -158,7 +249,6 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
             placeholder="Tell your friends a little about yourself..."
             className="text-text"
           />
-          <Text className="text-right text-xs text-text-muted">{bio.length}/160</Text>
         </View>
         <Button disabled={updateProfile.isPending} onPress={handleSave}>
           <Text>{updateProfile.isPending ? "Saving..." : "Save Changes"}</Text>

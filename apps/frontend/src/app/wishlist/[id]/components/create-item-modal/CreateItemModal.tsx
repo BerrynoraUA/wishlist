@@ -17,10 +17,7 @@ import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { validateImageUploadFile } from "@/lib/image-upload";
-import {
-  getCompactCurrencyOptions,
-  resolveCurrency,
-} from "@/lib/helpers/form-select-options";
+import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import { ALL_PRIORITIES } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
 import { ITEM_COLORS } from "@/lib/item-colors";
@@ -102,9 +99,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </span>
       ),
       trailing: (active: boolean) => (
-        <span
-          className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}
-        >
+        <span className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}>
           {active && <Check size={10} strokeWidth={3} />}
         </span>
       ),
@@ -124,9 +119,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           </span>
         ),
         trailing: (active: boolean) => (
-          <span
-            className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}
-          >
+          <span className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}>
             {active && <Check size={10} strokeWidth={3} />}
           </span>
         ),
@@ -344,11 +337,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           currency: data?.currency ?? null,
         };
 
-        const isEmpty =
-          !product.title &&
-          !product.description &&
-          !product.image &&
-          !product.price;
+        const isEmpty = !product.title && !product.description && !product.image && !product.price;
 
         if (isEmpty) {
           setError(
@@ -373,10 +362,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           setImagePreview(product.image);
         }
       } else {
-        setError(
-          data?.error ||
-            t("Error loading product", { $id: "item.modal.scrapeError" }),
-        );
+        setError(data?.error || t("Error loading product", { $id: "item.modal.scrapeError" }));
       }
     } catch {
       setError(
@@ -394,9 +380,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerCopy}>
-            <Heading>
-              {t("Create Item", { $id: "item.modal.create.title" })}
-            </Heading>
+            <Heading>{t("Create Item", { $id: "item.modal.create.title" })}</Heading>
             <Text variant="caption" tone="muted">
               {t("Add a product to this wishlist.", {
                 $id: "item.modal.create.subtitle",
@@ -417,11 +401,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                       })}
                 </span>
               </div>
-              <button
-                type="button"
-                className={styles.draftAction}
-                onClick={handleDiscardDraft}
-              >
+              <button type="button" className={styles.draftAction} onClick={handleDiscardDraft}>
                 {t("Discard", { $id: "draft.discard" })}
               </button>
             </div>
@@ -446,16 +426,9 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               value={link}
               onChange={(e) => setLink(e.target.value)}
             />
-            <Button
-              variant="secondary"
-              onClick={handleScrape}
-              disabled={!link.trim() || loading}
-            >
+            <Button variant="secondary" onClick={handleScrape} disabled={!link.trim() || loading}>
               {loading ? (
-                <Loader2
-                  size={16}
-                  style={{ animation: "spin 0.8s linear infinite" }}
-                />
+                <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
               ) : (
                 t("Search", { $id: "item.modal.searchProduct" })
               )}
@@ -485,9 +458,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                     type="button"
                     className={styles.removeLinkBtn}
                     onClick={() => {
-                      setAdditionalLinks(
-                        additionalLinks.filter((_, i) => i !== index),
-                      );
+                      setAdditionalLinks(additionalLinks.filter((_, i) => i !== index));
                     }}
                     aria-label={t("Remove link", {
                       $id: "item.modal.removeLinkAria",
@@ -500,14 +471,10 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               <button
                 type="button"
                 className={styles.addLinkBtn}
-                onClick={() =>
-                  setAdditionalLinks([...additionalLinks, { url: "" }])
-                }
+                onClick={() => setAdditionalLinks([...additionalLinks, { url: "" }])}
               >
                 <Plus size={14} />
-                <span>
-                  {t("Add another link", { $id: "item.modal.addAnotherLink" })}
-                </span>
+                <span>{t("Add another link", { $id: "item.modal.addAnotherLink" })}</span>
               </button>
             </div>
           )}
@@ -594,9 +561,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
-          </label>
+          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
           <div className={styles.priceRow}>
             <Select
               value={currency}
@@ -632,9 +597,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         )}
 
         <div className={styles.field}>
-          <label>
-            {t("Card Color (optional)", { $id: "item.modal.colorLabel" })}
-          </label>
+          <label>{t("Card Color (optional)", { $id: "item.modal.colorLabel" })}</label>
           <div className={styles.colorPicker}>
             <button
               type="button"

@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { ReactElement, useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, View } from "react-native";
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { ActivityIndicator, View } from "react-native";
 import Animated, {
   cancelAnimation,
   Easing,
@@ -9,11 +10,16 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
   withRepeat,
-  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import { cn } from "@/lib/utils";
 import { Text } from "@/components/ui/text";
+import {
+  animatedButtonDisabledClassName,
+  animatedButtonTextClassName,
+} from "@/components/ui/buttons/button-styles";
+import { getPrimaryGradientColors } from "@/lib/theme";
+import { useUniwind } from "uniwind";
 
 export interface AnimatedGradientBackgroundButtonProps {
   accessibilityHint?: string;
@@ -25,7 +31,7 @@ export interface AnimatedGradientBackgroundButtonProps {
   title: string;
 }
 
-const HEIGHT = 42;
+const HEIGHT = 40;
 
 export const AnimatedGradientBackgroundButton = ({
   accessibilityHint,
@@ -38,14 +44,14 @@ export const AnimatedGradientBackgroundButton = ({
 }: AnimatedGradientBackgroundButtonProps) => {
   const transition = useSharedValue(0);
   const [outerContainerWidth, setOuterContainerWidth] = useState(0);
+  const { theme } = useUniwind();
+  const gradientColors = getPrimaryGradientColors(theme);
 
   useEffect(() => {
     transition.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 2000, easing: Easing.linear }),
-        withTiming(0, { duration: 0 }),
-      ),
+      withTiming(1, { duration: 2000, easing: Easing.linear }),
       -1,
+      true,
     );
 
     return () => {
@@ -64,9 +70,10 @@ export const AnimatedGradientBackgroundButton = ({
       },
     ],
   }));
+  const buttonWidth = Math.max(96, title.length * 8 + (Icon ? 52 : 32));
 
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityHint={accessibilityHint}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
@@ -77,19 +84,20 @@ export const AnimatedGradientBackgroundButton = ({
       disabled={isDisabled || isLoading}
       hitSlop={16}
       onPress={onPress}
+      style={{ flexShrink: 0, width: buttonWidth }}
     >
       {({ pressed }) => (
         <View
           onLayout={({ nativeEvent }) => setOuterContainerWidth(nativeEvent.layout.width)}
-          className="rounded-lg overflow-hidden w-full"
+          style={{ width: buttonWidth }}
+          className={cn(
+            "h-10 overflow-hidden rounded-md bg-primary shadow-sm shadow-black/5 sm:h-9",
+            isDisabled && animatedButtonDisabledClassName,
+          )}
         >
           <Animated.View style={animatedGradientContainerStyle}>
             <LinearGradient
-              colors={[
-                "hsl(257.9412, 100%, 60%)",
-                "hsl(257.9412, 100%, 48%)",
-                "hsl(257.9412, 100%, 60%)",
-              ]}
+              colors={gradientColors}
               end={{ x: 1, y: 1 }}
               start={{ x: 0, y: 1 }}
               style={{
@@ -100,19 +108,16 @@ export const AnimatedGradientBackgroundButton = ({
           </Animated.View>
           <View
             className={cn(
-              "flex-row items-center justify-center gap-2 h-[42px] px-3 py-2 absolute w-full",
+              "absolute h-10 w-full flex-row items-center justify-center gap-2 rounded-md px-4 py-2 sm:h-9",
               pressed && "bg-primary/20",
             )}
           >
             {isLoading ? (
-              <ActivityIndicator color="hsl(0, 0%, 100%)" size={18} />
+              <ActivityIndicator colorClassName="accent-primary-foreground" size="small" />
             ) : (
               <>
                 {Icon}
-                <Text
-                  numberOfLines={1}
-                  className="text-primary-foreground text-lg font-semibold flex-shrink"
-                >
+                <Text numberOfLines={1} className={animatedButtonTextClassName}>
                   {title}
                 </Text>
               </>
@@ -120,6 +125,6 @@ export const AnimatedGradientBackgroundButton = ({
           </View>
         </View>
       )}
-    </Pressable>
+    </AnimatedPressable>
   );
 };

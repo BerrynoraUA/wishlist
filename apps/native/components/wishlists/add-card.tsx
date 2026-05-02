@@ -10,20 +10,12 @@ import { useUniwind } from "uniwind";
 const ADD_CARD_GRADIENTS = {
   light: {
     base: ["#fde7f3", "#f6dce8"] as const,
-    sheen: [
-      "rgba(255,255,255,0.82)",
-      "rgba(255,255,255,0.64)",
-      "rgba(255,255,255,0.4)",
-    ] as const,
+    sheen: ["rgba(255,255,255,0.82)", "rgba(255,255,255,0.64)", "rgba(255,255,255,0.4)"] as const,
     tint: ["rgba(192,38,126,0)", "rgba(192,38,126,0.16)"] as const,
   },
   dark: {
     base: ["#201521", "#17131a"] as const,
-    sheen: [
-      "rgba(255,255,255,0.08)",
-      "rgba(255,255,255,0.04)",
-      "rgba(255,255,255,0)",
-    ] as const,
+    sheen: ["rgba(255,255,255,0.08)", "rgba(255,255,255,0.04)", "rgba(255,255,255,0)"] as const,
     tint: ["rgba(224,82,160,0)", "rgba(224,82,160,0.18)"] as const,
   },
 };

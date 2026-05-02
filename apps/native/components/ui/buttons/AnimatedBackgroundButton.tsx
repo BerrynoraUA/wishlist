@@ -1,13 +1,19 @@
 import { ReactElement } from "react";
-import { ActivityIndicator, Pressable } from "react-native";
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { ActivityIndicator, View } from "react-native";
 import Animated, {
-  interpolateColor,
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 import { cn } from "@/lib/utils";
 import { Text } from "@/components/ui/text";
+import {
+  animatedButtonClassName,
+  animatedButtonDisabledClassName,
+  animatedButtonTextClassName,
+} from "@/components/ui/buttons/button-styles";
 
 export interface AnimatedBackgroundButtonProps {
   accessibilityHint?: string;
@@ -34,15 +40,11 @@ export const AnimatedBackgroundButton = ({
   const isActive = useSharedValue(false);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      transition.value,
-      [0, 1],
-      ["hsl(257.9412, 100%, 60%)", "hsl(257.9412, 100%, 54%)"],
-    ),
+    opacity: interpolate(transition.value, [0, 1], [1, 0.9]),
   }));
 
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityHint={accessibilityHint}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
@@ -70,27 +72,31 @@ export const AnimatedBackgroundButton = ({
         isActive.value = false;
       }}
     >
-      <Animated.View
-        className={cn(
-          "flex-row items-center justify-center gap-2 h-[42px] px-3 py-2 rounded-lg",
-          isDisabled && "opacity-50",
-        )}
-        style={animatedStyle}
-      >
-        {isLoading ? (
-          <ActivityIndicator color="hsl(0, 0%, 100%)" size={18} />
-        ) : (
-          <>
-            {Icon}
-            <Text
-              numberOfLines={1}
-              className="text-primary-foreground text-lg font-semibold flex-shrink"
-            >
-              {title}
-            </Text>
-          </>
-        )}
-      </Animated.View>
-    </Pressable>
+      {({ pressed }) => (
+        <Animated.View
+          className={cn(
+            animatedButtonClassName,
+            "relative overflow-hidden",
+            isDisabled && animatedButtonDisabledClassName,
+          )}
+          style={animatedStyle}
+        >
+          {isLoading ? (
+            <ActivityIndicator colorClassName="accent-primary-foreground" size="small" />
+          ) : (
+            <>
+              {Icon}
+              <Text numberOfLines={1} className={animatedButtonTextClassName}>
+                {title}
+              </Text>
+            </>
+          )}
+          <View
+            pointerEvents="none"
+            className={cn("absolute inset-0 rounded-md", pressed && "bg-primary/20")}
+          />
+        </Animated.View>
+      )}
+    </AnimatedPressable>
   );
 };

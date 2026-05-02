@@ -35,6 +35,13 @@ export function CurrencySettings() {
           $id: "settings.currency.sectionTitle",
         })}
         className={styles.selector}
+        searchable
+        searchPlaceholder={t("Search currencies", {
+          $id: "settings.currency.searchPlaceholder",
+        })}
+        noResultsText={t("No currencies found", {
+          $id: "settings.currency.noResults",
+        })}
       />
     </SettingsSection>
   );

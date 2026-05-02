@@ -1,10 +1,10 @@
 import { ReactElement, useEffect } from "react";
-import { ActivityIndicator, Pressable } from "react-native";
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { ActivityIndicator } from "react-native";
 import Animated, {
   cancelAnimation,
   Easing,
   interpolate,
-  interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -14,6 +14,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { cn } from "@/lib/utils";
 import { Text } from "@/components/ui/text";
+import {
+  animatedButtonClassName,
+  animatedButtonDisabledClassName,
+  animatedButtonTextClassName,
+} from "@/components/ui/buttons/button-styles";
 
 export interface PulsingButtonProps {
   accessibilityHint?: string;
@@ -52,9 +57,7 @@ const Pulse = ({ index, isDisabled, isLoading }: PulseProps) => {
         withDelay(
           PULSE_DELAY * index,
           withTiming(1, {
-            duration:
-              PULSE_TRANSITION_DURATION +
-              PULSE_DELAY * (NUMBER_OF_PULSES - index - 1),
+            duration: PULSE_TRANSITION_DURATION + PULSE_DELAY * (NUMBER_OF_PULSES - index - 1),
             easing: Easing.out(Easing.ease),
           }),
         ),
@@ -79,7 +82,7 @@ const Pulse = ({ index, isDisabled, isLoading }: PulseProps) => {
 
   return (
     <Animated.View
-      className="bg-primary rounded-lg h-[42px] absolute w-full"
+      className="absolute h-10 w-full rounded-md bg-primary sm:h-9"
       style={animatedStyle}
     />
   );
@@ -98,15 +101,11 @@ export const PulsingButton = ({
   const isActive = useSharedValue(false);
 
   const animatedContainerStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      backgroundTransition.value,
-      [0, 1],
-      ["hsl(257.9412, 100%, 60%)", "hsl(257.9412, 100%, 54%)"],
-    ),
+    opacity: interpolate(backgroundTransition.value, [0, 1], [1, 0.9]),
   }));
 
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityHint={accessibilityHint}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
@@ -140,35 +139,36 @@ export const PulsingButton = ({
         isActive.value = false;
       }}
     >
-      {Array.from({ length: NUMBER_OF_PULSES }).map((_, index) => (
-        <Pulse
-          key={index}
-          index={index}
-          isDisabled={isDisabled}
-          isLoading={isLoading}
-        />
-      ))}
-      <Animated.View
-        className={cn(
-          "flex-row items-center justify-center gap-2 h-[42px] px-3 py-2 rounded-lg",
-          isDisabled && "opacity-50",
-        )}
-        style={animatedContainerStyle}
-      >
-        {isLoading ? (
-          <ActivityIndicator color="hsl(0, 0%, 100%)" size={18} />
-        ) : (
-          <>
-            {Icon}
-            <Text
-              numberOfLines={1}
-              className="text-primary-foreground text-lg font-semibold flex-shrink"
-            >
-              {title}
-            </Text>
-          </>
-        )}
-      </Animated.View>
-    </Pressable>
+      {({ pressed }) => (
+        <>
+          {Array.from({ length: NUMBER_OF_PULSES }).map((_, index) => (
+            <Pulse key={index} index={index} isDisabled={isDisabled} isLoading={isLoading} />
+          ))}
+          <Animated.View
+            className={cn(
+              animatedButtonClassName,
+              "relative overflow-hidden",
+              isDisabled && animatedButtonDisabledClassName,
+            )}
+            style={animatedContainerStyle}
+          >
+            {isLoading ? (
+              <ActivityIndicator colorClassName="accent-primary-foreground" size="small" />
+            ) : (
+              <>
+                {Icon}
+                <Text numberOfLines={1} className={animatedButtonTextClassName}>
+                  {title}
+                </Text>
+              </>
+            )}
+            <Animated.View
+              pointerEvents="none"
+              className={cn("absolute inset-0 rounded-md", pressed && "bg-primary/20")}
+            />
+          </Animated.View>
+        </>
+      )}
+    </AnimatedPressable>
   );
 };

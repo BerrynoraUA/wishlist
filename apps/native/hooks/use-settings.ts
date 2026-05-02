@@ -9,6 +9,7 @@ import {
   getSettings,
   updateProfile,
   updateSettings,
+  uploadProfileAvatar,
 } from "@/api/settings";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
@@ -39,6 +40,20 @@ export function useUpdateProfile() {
   return useMutation({
     mutationFn: (payload: UpdateProfilePayload) => updateProfile(payload),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: settingsKeys.profile() });
+    },
+  });
+}
+
+export function useUploadProfileAvatar() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: uploadProfileAvatar,
+    onSuccess: (profile) => {
+      queryClient.setQueryData(settingsKeys.profile(), profile);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.profile() });
     },
   });

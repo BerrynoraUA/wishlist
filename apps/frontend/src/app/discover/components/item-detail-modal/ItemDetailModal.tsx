@@ -42,14 +42,8 @@ type Props = {
   item: DiscoverItem;
   onToggleReserve?: (id: string) => void;
   onToggleBought?: (id: string) => void;
-  onReserveAction?: (
-    action: ReserveActionType,
-    context: ItemActionHandlerContext,
-  ) => void;
-  onBoughtAction?: (
-    action: BoughtActionType,
-    context: ItemActionHandlerContext,
-  ) => void;
+  onReserveAction?: (action: ReserveActionType, context: ItemActionHandlerContext) => void;
+  onBoughtAction?: (action: BoughtActionType, context: ItemActionHandlerContext) => void;
 };
 
 export function ItemDetailModal({
@@ -64,11 +58,8 @@ export function ItemDetailModal({
   const t = useGT();
   const { data: currentUserId = "" } = useCurrentUserId();
   const { formatPrice } = useCurrencyFormatter();
-  const [confirmAction, setConfirmAction] =
-    useState<ItemActionConfirmType | null>(null);
-  const reservedByValue = getReservedByValue(
-    item.reservedBy ?? item.reserved_by ?? null,
-  );
+  const [confirmAction, setConfirmAction] = useState<ItemActionConfirmType | null>(null);
+  const reservedByValue = getReservedByValue(item.reservedBy ?? item.reserved_by ?? null);
   const reservationState = getItemReservationState({
     status: item.status,
     isReserved: item.isReserved,
@@ -84,50 +75,37 @@ export function ItemDetailModal({
   });
   const canShowBoughtAction = Boolean(onToggleBought || onBoughtAction);
 
-  const reserveStatusLabel = buildReservationStatusLabel(
-    reservationState,
-    item.reservedByName,
-    {
-      purchasedByYou: () =>
-        t("Purchased by you", {
-          $id: "discover.detail.purchasedByYouStatus",
-        }),
-      purchased: () =>
-        t("Purchased", { $id: "discover.detail.purchasedStatus" }),
-      purchasedByName: (name) =>
-        t("Purchased by {name}", {
-          name,
-          $id: "discover.detail.purchasedByNameStatus",
-        }),
-      reservedByYou: () =>
-        t("Reserved by you", {
-          $id: "discover.detail.reservedByYouStatus",
-        }),
-      reserved: () => t("Reserved", { $id: "discover.detail.reservedStatus" }),
-      reservedByName: (name) =>
-        t("Reserved by {name}", {
-          name,
-          $id: "discover.detail.reservedByNameStatus",
-        }),
-    },
-  );
+  const reserveStatusLabel = buildReservationStatusLabel(reservationState, item.reservedByName, {
+    purchasedByYou: () =>
+      t("Purchased by you", {
+        $id: "discover.detail.purchasedByYouStatus",
+      }),
+    purchased: () => t("Purchased", { $id: "discover.detail.purchasedStatus" }),
+    purchasedByName: (name) =>
+      t("Purchased by {name}", {
+        name,
+        $id: "discover.detail.purchasedByNameStatus",
+      }),
+    reservedByYou: () =>
+      t("Reserved by you", {
+        $id: "discover.detail.reservedByYouStatus",
+      }),
+    reserved: () => t("Reserved", { $id: "discover.detail.reservedStatus" }),
+    reservedByName: (name) =>
+      t("Reserved by {name}", {
+        name,
+        $id: "discover.detail.reservedByNameStatus",
+      }),
+  });
 
   const handleReserveClick = () => {
-    if (
-      !reservationState.canToggleReservation ||
-      (!onToggleReserve && !onReserveAction)
-    )
-      return;
-    setConfirmAction(
-      getNextConfirmAction("reserve", reservationState.isReserved),
-    );
+    if (!reservationState.canToggleReservation || (!onToggleReserve && !onReserveAction)) return;
+    setConfirmAction(getNextConfirmAction("reserve", reservationState.isReserved));
   };
 
   const handleBoughtClick = () => {
     if (!reservationState.canToggleBought || !canShowBoughtAction) return;
-    setConfirmAction(
-      getNextConfirmAction("purchase", reservationState.isPurchased),
-    );
+    setConfirmAction(getNextConfirmAction("purchase", reservationState.isPurchased));
   };
 
   const handleConfirmAction = () => {
@@ -201,26 +179,18 @@ export function ItemDetailModal({
 
             <div className={styles.meta}>
               {item.price != null && (
-                <span className={styles.price}>
-                  {formatPrice(item.price, item.currency)}
-                </span>
+                <span className={styles.price}>{formatPrice(item.price, item.currency)}</span>
               )}
               {priorityKey && priorityLabel && (
-                <span className={`${styles.priority} ${styles[priorityKey]}`}>
-                  {priorityLabel}
-                </span>
+                <span className={`${styles.priority} ${styles[priorityKey]}`}>{priorityLabel}</span>
               )}
               {reserveStatusLabel && (
-                <span className={styles.reservedBadge}>
-                  {reserveStatusLabel}
-                </span>
+                <span className={styles.reservedBadge}>{reserveStatusLabel}</span>
               )}
             </div>
 
             <div className={styles.footer}>
-              {(item.url ||
-                (item.additional_links &&
-                  item.additional_links.length > 0)) && (
+              {(item.url || (item.additional_links && item.additional_links.length > 0)) && (
                 <div className={styles.linksSection}>
                   {item.url && (
                     <a
@@ -275,9 +245,7 @@ export function ItemDetailModal({
 
               <div className={styles.footerRight}>
                 <Button
-                  variant={
-                    reservationState.isReserved ? "secondary" : "primary"
-                  }
+                  variant={reservationState.isReserved ? "secondary" : "primary"}
                   onClick={handleReserveClick}
                   disabled={!reservationState.canToggleReservation}
                 >
@@ -289,14 +257,12 @@ export function ItemDetailModal({
                     />
                   </span>
                   {buildReservationActionLabel(reservationState, {
-                    purchased: () =>
-                      t("Purchased", { $id: "item.status.purchased" }),
+                    purchased: () => t("Purchased", { $id: "item.status.purchased" }),
                     reservedByYou: () =>
                       t("Release reservation", {
                         $id: "item.detail.releaseReservation",
                       }),
-                    reserved: () =>
-                      t("Reserved", { $id: "item.status.reserved" }),
+                    reserved: () => t("Reserved", { $id: "item.status.reserved" }),
                     available: () =>
                       t("Reserve this gift", {
                         $id: "item.detail.reserveThisGift",
@@ -306,19 +272,15 @@ export function ItemDetailModal({
 
                 {canShowBoughtAction && (
                   <Button
-                    variant={
-                      reservationState.isPurchased ? "secondary" : "primary"
-                    }
+                    variant={reservationState.isPurchased ? "secondary" : "primary"}
                     size="sm"
                     onClick={handleBoughtClick}
                     disabled={!reservationState.canToggleBought}
                   >
                     <ShoppingCart size={14} style={{ marginRight: 6 }} />
                     {buildPurchaseActionLabel(reservationState.isPurchased, {
-                      purchased: () =>
-                        t("Purchased", { $id: "item.status.purchased" }),
-                      available: () =>
-                        t("Bought", { $id: "item.detail.bought" }),
+                      purchased: () => t("Purchased", { $id: "item.status.purchased" }),
+                      available: () => t("Bought", { $id: "item.detail.bought" }),
                     })}
                   </Button>
                 )}

@@ -10,10 +10,7 @@ import {
   FriendUpcomingWishlist,
   ReservedItem,
 } from "./types/wishilst";
-import {
-  deletePublicImage,
-  uploadPublicImage,
-} from "@/lib/helpers/storage-image";
+import { deletePublicImage, uploadPublicImage } from "@/lib/helpers/storage-image";
 
 const WISHLIST_IMAGE_BUCKET = "items";
 
@@ -53,16 +50,12 @@ export async function getMyWishlists({
   }));
 }
 
-export async function getPublicWishlists(
-  params: PaginationParams = {},
-): Promise<Wishlist[]> {
+export async function getPublicWishlists(params: PaginationParams = {}): Promise<Wishlist[]> {
   const session = await getCurrentSession();
 
   return getWishlists(
     (query) =>
-      query
-        .neq("user_id", session?.user?.id)
-        .eq("visibility_type", WishlistVisibility.Public),
+      query.neq("user_id", session?.user?.id).eq("visibility_type", WishlistVisibility.Public),
     params,
   );
 }
@@ -82,19 +75,16 @@ export async function getFriendsWishlistsDiscover(
   } = params;
   const normalizedSearch = normalizeSearchQuery(search);
 
-  const { data, error } = await supabaseBrowser.rpc(
-    "get_friends_wishlists_discover",
-    {
-      p_skip: skip,
-      p_take: take,
-      p_search: normalizedSearch || null,
-      p_sort: sort || "default",
-      p_priorities: priorities?.length ? priorities : null,
-      p_price_min: priceMin ?? null,
-      p_price_max: priceMax ?? null,
-      p_display_currency: displayCurrency || "USD",
-    },
-  );
+  const { data, error } = await supabaseBrowser.rpc("get_friends_wishlists_discover", {
+    p_skip: skip,
+    p_take: take,
+    p_search: normalizedSearch || null,
+    p_sort: sort || "default",
+    p_priorities: priorities?.length ? priorities : null,
+    p_price_min: priceMin ?? null,
+    p_price_max: priceMax ?? null,
+    p_display_currency: displayCurrency || "USD",
+  });
 
   if (error) {
     console.error("Error fetching friends wishlists:", error);
@@ -119,19 +109,16 @@ export async function getFriendsWishlistsDiscoverAll(
   } = params;
   const normalizedSearch = normalizeSearchQuery(search);
 
-  const { data, error } = await supabaseBrowser.rpc(
-    "get_friends_wishlists_discover_all",
-    {
-      p_skip: skip,
-      p_take: take,
-      p_search: normalizedSearch || null,
-      p_sort: sort || "default",
-      p_priorities: priorities?.length ? priorities : null,
-      p_price_min: priceMin ?? null,
-      p_price_max: priceMax ?? null,
-      p_display_currency: displayCurrency || "USD",
-    },
-  );
+  const { data, error } = await supabaseBrowser.rpc("get_friends_wishlists_discover_all", {
+    p_skip: skip,
+    p_take: take,
+    p_search: normalizedSearch || null,
+    p_sort: sort || "default",
+    p_priorities: priorities?.length ? priorities : null,
+    p_price_min: priceMin ?? null,
+    p_price_max: priceMax ?? null,
+    p_display_currency: displayCurrency || "USD",
+  });
 
   if (error) {
     console.error("Error fetching friends wishlists:", error);
@@ -156,19 +143,16 @@ export async function getFriendsWishlistsReservedByMe(
   } = params;
   const normalizedSearch = normalizeSearchQuery(search);
 
-  const { data, error } = await supabaseBrowser.rpc(
-    "get_reserved_items_by_me",
-    {
-      p_skip: skip,
-      p_take: take,
-      p_search: normalizedSearch || null,
-      p_sort: sort || "default",
-      p_priorities: priorities?.length ? priorities : null,
-      p_price_min: priceMin ?? null,
-      p_price_max: priceMax ?? null,
-      p_display_currency: displayCurrency || "USD",
-    },
-  );
+  const { data, error } = await supabaseBrowser.rpc("get_reserved_items_by_me", {
+    p_skip: skip,
+    p_take: take,
+    p_search: normalizedSearch || null,
+    p_sort: sort || "default",
+    p_priorities: priorities?.length ? priorities : null,
+    p_price_min: priceMin ?? null,
+    p_price_max: priceMax ?? null,
+    p_display_currency: displayCurrency || "USD",
+  });
 
   if (error) {
     console.error("Error fetching reserved wishlists by me:", error);
@@ -222,17 +206,11 @@ export async function createWishlist({
     throw error;
   }
 
-  if (
-    visibility === WishlistVisibility.Public ||
-    visibility === WishlistVisibility.FriendsOnly
-  ) {
+  if (visibility === WishlistVisibility.Public || visibility === WishlistVisibility.FriendsOnly) {
     // Викликаємо SQL функцію для створення нотифікацій
-    const { error: notifyError } = await supabaseBrowser.rpc(
-      "notify_friends_about_new_wishlist",
-      {
-        p_wishlist_id: data.id,
-      },
-    );
+    const { error: notifyError } = await supabaseBrowser.rpc("notify_friends_about_new_wishlist", {
+      p_wishlist_id: data.id,
+    });
 
     if (notifyError) {
       console.error("Failed to notify friends:", notifyError);
@@ -249,16 +227,11 @@ export async function updateWishlist(
   const dbUpdates: Partial<Wishlist> = {};
 
   if (restUpdates.title !== undefined) dbUpdates.title = restUpdates.title;
-  if (restUpdates.description !== undefined)
-    dbUpdates.description = restUpdates.description;
-  if (restUpdates.visibility !== undefined)
-    dbUpdates.visibility_type = restUpdates.visibility;
-  if (restUpdates.accent !== undefined)
-    dbUpdates.accent_type = restUpdates.accent;
+  if (restUpdates.description !== undefined) dbUpdates.description = restUpdates.description;
+  if (restUpdates.visibility !== undefined) dbUpdates.visibility_type = restUpdates.visibility;
+  if (restUpdates.accent !== undefined) dbUpdates.accent_type = restUpdates.accent;
   if (restUpdates.event_date !== undefined)
-    dbUpdates.event_date = restUpdates.event_date
-      ? restUpdates.event_date.toISOString()
-      : null;
+    dbUpdates.event_date = restUpdates.event_date ? restUpdates.event_date.toISOString() : null;
 
   if (image || removeImage || imageUrl !== undefined) {
     const { data: currentWishlist } = await supabaseBrowser
@@ -300,11 +273,7 @@ export async function updateWishlist(
     .single();
 
   if (error) {
-    if (
-      image &&
-      dbUpdates.image_url &&
-      typeof dbUpdates.image_url === "string"
-    ) {
+    if (image && dbUpdates.image_url && typeof dbUpdates.image_url === "string") {
       await deleteWishlistImage(dbUpdates.image_url).catch(console.error);
     }
 
@@ -336,18 +305,12 @@ export async function deleteWishlistImage(imageUrl: string): Promise<void> {
 }
 
 export async function deleteWishlist(wishlistId: string): Promise<void> {
-  const { error } = await supabaseBrowser
-    .from("wishlist")
-    .delete()
-    .eq("id", wishlistId);
+  const { error } = await supabaseBrowser.from("wishlist").delete().eq("id", wishlistId);
 
   if (error) throw error;
 }
 
-export async function pinWishlist(
-  wishlistId: string,
-  isPinned: boolean,
-): Promise<void> {
+export async function pinWishlist(wishlistId: string, isPinned: boolean): Promise<void> {
   const { error } = await supabaseBrowser
     .from("wishlist")
     .update({ is_pinned: isPinned })
@@ -434,18 +397,13 @@ export async function searchWishlists(
   });
 }
 
-export async function getFriendsUpcomingWishlists(): Promise<
-  FriendUpcomingWishlist[]
-> {
+export async function getFriendsUpcomingWishlists(): Promise<FriendUpcomingWishlist[]> {
   const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
 
-  const { data, error } = await supabaseBrowser.rpc(
-    "get_friends_upcoming_wishlists",
-    {
-      p_user_id: session.user.id,
-    },
-  );
+  const { data, error } = await supabaseBrowser.rpc("get_friends_upcoming_wishlists", {
+    p_user_id: session.user.id,
+  });
 
   if (error) throw error;
 
@@ -467,10 +425,7 @@ export async function grantWishlistAccess(
   return data;
 }
 
-export async function revokeWishlistAccess(
-  wishlistId: string,
-  targetUserId: string,
-) {
+export async function revokeWishlistAccess(wishlistId: string, targetUserId: string) {
   if (!targetUserId) {
     throw new Error("Missing target user id for revoke access");
   }

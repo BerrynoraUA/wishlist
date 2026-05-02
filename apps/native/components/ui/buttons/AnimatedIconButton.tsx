@@ -1,5 +1,6 @@
 import { ReactElement, useState } from "react";
-import { Pressable, View } from "react-native";
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { View } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -8,6 +9,11 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { cn } from "@/lib/utils";
+import {
+  animatedButtonClassName,
+  animatedButtonDisabledClassName,
+  animatedButtonTextClassName,
+} from "@/components/ui/buttons/button-styles";
 
 export interface AnimatedIconButtonProps {
   accessibilityHint?: string;
@@ -46,11 +52,7 @@ export const AnimatedIconButton = ({
   const animatedIconContainerStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        translateX: interpolate(
-          transition.value,
-          [0, 1],
-          [0, containerWidth / 2 - iconX],
-        ),
+        translateX: interpolate(transition.value, [0, 1], [0, containerWidth / 2 - iconX]),
       },
       { scaleX: isIconMovingBack.value ? -1 : 1 },
     ],
@@ -61,7 +63,7 @@ export const AnimatedIconButton = ({
   }));
 
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityHint={accessibilityHint}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
@@ -89,29 +91,34 @@ export const AnimatedIconButton = ({
         isActive.value = false;
       }}
     >
-      <View
-        onLayout={({ nativeEvent }) =>
-          setContainerWidth(nativeEvent.layout.width)
-        }
-        className={cn(
-          "bg-primary flex-row items-center justify-center gap-2 h-[42px] px-3 py-2 rounded-lg",
-          isDisabled && "opacity-50",
-        )}
-      >
-        <Animated.View
-          onLayout={({ nativeEvent }) => setIconX(nativeEvent.layout.x)}
-          style={animatedIconContainerStyle}
+      {({ pressed }) => (
+        <View
+          onLayout={({ nativeEvent }) => setContainerWidth(nativeEvent.layout.width)}
+          className={cn(
+            animatedButtonClassName,
+            "relative overflow-hidden",
+            isDisabled && animatedButtonDisabledClassName,
+          )}
         >
-          {Icon}
-        </Animated.View>
-        <Animated.Text
-          numberOfLines={1}
-          className="text-primary-foreground text-lg font-semibold flex-shrink"
-          style={animatedTitleStyle}
-        >
-          {title}
-        </Animated.Text>
-      </View>
-    </Pressable>
+          <Animated.View
+            onLayout={({ nativeEvent }) => setIconX(nativeEvent.layout.x)}
+            style={animatedIconContainerStyle}
+          >
+            {Icon}
+          </Animated.View>
+          <Animated.Text
+            numberOfLines={1}
+            className={animatedButtonTextClassName}
+            style={animatedTitleStyle}
+          >
+            {title}
+          </Animated.Text>
+          <View
+            pointerEvents="none"
+            className={cn("absolute inset-0 rounded-md", pressed && "bg-primary/20")}
+          />
+        </View>
+      )}
+    </AnimatedPressable>
   );
 };

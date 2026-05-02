@@ -1,9 +1,9 @@
 import { ReactElement, useEffect } from "react";
-import { ActivityIndicator, Pressable } from "react-native";
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { ActivityIndicator, View } from "react-native";
 import Animated, {
   cancelAnimation,
   interpolate,
-  interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -13,6 +13,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { cn } from "@/lib/utils";
 import { Text } from "@/components/ui/text";
+import {
+  animatedButtonClassName,
+  animatedButtonDisabledClassName,
+  animatedButtonTextClassName,
+} from "@/components/ui/buttons/button-styles";
 
 export interface BouncingButtonProps {
   accessibilityHint?: string;
@@ -38,8 +43,7 @@ export const BouncingButton = ({
   title,
 }: BouncingButtonProps) => {
   const bounceTransition = useSharedValue(0);
-  const backgroundTransition = useSharedValue(0);
-  const isActive = useSharedValue(false);
+  const pressTransition = useSharedValue(0);
 
   useEffect(() => {
     if (isDisabled || isLoading) {
@@ -67,11 +71,7 @@ export const BouncingButton = ({
   }, [bounceTransition, isDisabled, isLoading]);
 
   const animatedContainerStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      backgroundTransition.value,
-      [0, 1],
-      ["hsl(257.9412, 100%, 60%)", "hsl(257.9412, 100%, 54%)"],
-    ),
+    opacity: interpolate(pressTransition.value, [0, 1], [1, 0.9]),
     transform: [
       {
         scale: interpolate(bounceTransition.value, [0, 1], [1, 1.1]),
@@ -80,7 +80,7 @@ export const BouncingButton = ({
   }));
 
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityHint={accessibilityHint}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
@@ -92,49 +92,37 @@ export const BouncingButton = ({
       hitSlop={16}
       onPress={onPress}
       onPressIn={() => {
-        isActive.value = true;
-        backgroundTransition.value = withTiming(
-          1,
-          { duration: BACKGROUND_TRANSITION_DURATION },
-          () => {
-            if (!isActive.value) {
-              backgroundTransition.value = withTiming(0, {
-                duration: BACKGROUND_TRANSITION_DURATION,
-              });
-            }
-          },
-        );
+        pressTransition.value = withTiming(1, { duration: BACKGROUND_TRANSITION_DURATION });
       }}
       onPressOut={() => {
-        if (backgroundTransition.value === 1) {
-          backgroundTransition.value = withTiming(0, {
-            duration: BACKGROUND_TRANSITION_DURATION,
-          });
-        }
-        isActive.value = false;
+        pressTransition.value = withTiming(0, { duration: BACKGROUND_TRANSITION_DURATION });
       }}
     >
-      <Animated.View
-        className={cn(
-          "flex-row items-center justify-center gap-2 h-[42px] px-3 py-2 rounded-lg",
-          isDisabled && "opacity-50",
-        )}
-        style={animatedContainerStyle}
-      >
-        {isLoading ? (
-          <ActivityIndicator color="hsl(0, 0%, 100%)" size={18} />
-        ) : (
-          <>
-            {Icon}
-            <Text
-              numberOfLines={1}
-              className="text-primary-foreground text-lg font-semibold flex-shrink"
-            >
-              {title}
-            </Text>
-          </>
-        )}
-      </Animated.View>
-    </Pressable>
+      {({ pressed }) => (
+        <Animated.View
+          className={cn(
+            animatedButtonClassName,
+            "relative overflow-hidden",
+            isDisabled && animatedButtonDisabledClassName,
+          )}
+          style={animatedContainerStyle}
+        >
+          {isLoading ? (
+            <ActivityIndicator colorClassName="accent-primary-foreground" size="small" />
+          ) : (
+            <>
+              {Icon}
+              <Text numberOfLines={1} className={animatedButtonTextClassName}>
+                {title}
+              </Text>
+            </>
+          )}
+          <View
+            pointerEvents="none"
+            className={cn("absolute inset-0 rounded-md", pressed && "bg-primary/20")}
+          />
+        </Animated.View>
+      )}
+    </AnimatedPressable>
   );
 };

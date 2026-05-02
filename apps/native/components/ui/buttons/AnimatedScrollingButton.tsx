@@ -1,15 +1,20 @@
 import { ReactElement, useEffect } from "react";
-import { Pressable, View } from "react-native";
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { View } from "react-native";
 import Animated, {
   cancelAnimation,
   interpolate,
-  interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 import { cn } from "@/lib/utils";
 import { Text } from "@/components/ui/text";
+import {
+  animatedButtonClassName,
+  animatedButtonDisabledClassName,
+  animatedButtonTextClassName,
+} from "@/components/ui/buttons/button-styles";
 
 export interface AnimatedScrollingButtonProps {
   accessibilityHint?: string;
@@ -25,7 +30,7 @@ export interface AnimatedScrollingButtonProps {
 }
 
 const BACKGROUND_TRANSITION_DURATION = 300;
-const HEIGHT = 42;
+const HEIGHT = 40;
 const SCROLL_TRANSITION_DURATION = 300;
 
 export const AnimatedScrollingButton = ({
@@ -52,11 +57,7 @@ export const AnimatedScrollingButton = ({
   }, [currentStep, scrollTransition.value, scrollTransition]);
 
   const animatedScrollingContainerStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      backgroundTransition.value,
-      [0, 1],
-      ["hsl(257.9412, 100%, 60%)", "hsl(257.9412, 100%, 54%)"],
-    ),
+    opacity: interpolate(backgroundTransition.value, [0, 1], [1, 0.9]),
     transform: [
       {
         translateY: interpolate(
@@ -69,7 +70,7 @@ export const AnimatedScrollingButton = ({
   }));
 
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityHint={accessibilityHint}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
@@ -103,29 +104,29 @@ export const AnimatedScrollingButton = ({
         isActive.value = false;
       }}
     >
-      <View
-        className={cn(
-          "bg-primary rounded-lg h-[42px] overflow-hidden",
-          isDisabled && "opacity-50",
-        )}
-      >
-        <Animated.View style={animatedScrollingContainerStyle}>
-          {steps.reverse().map((step) => (
-            <View
-              key={step.title}
-              className="flex-row items-center justify-center gap-2 h-[42px] px-3 py-2"
-            >
-              {step.Icon}
-              <Text
-                numberOfLines={1}
-                className="text-primary-foreground text-lg font-semibold flex-shrink"
-              >
-                {step.title}
-              </Text>
-            </View>
-          ))}
-        </Animated.View>
-      </View>
-    </Pressable>
+      {({ pressed }) => (
+        <View
+          className={cn(
+            "relative h-10 overflow-hidden rounded-md bg-primary shadow-sm shadow-black/5 sm:h-9",
+            isDisabled && animatedButtonDisabledClassName,
+          )}
+        >
+          <Animated.View style={animatedScrollingContainerStyle}>
+            {steps.reverse().map((step) => (
+              <View key={step.title} className={animatedButtonClassName}>
+                {step.Icon}
+                <Text numberOfLines={1} className={animatedButtonTextClassName}>
+                  {step.title}
+                </Text>
+              </View>
+            ))}
+          </Animated.View>
+          <View
+            pointerEvents="none"
+            className={cn("absolute inset-0 rounded-md", pressed && "bg-primary/20")}
+          />
+        </View>
+      )}
+    </AnimatedPressable>
   );
 };

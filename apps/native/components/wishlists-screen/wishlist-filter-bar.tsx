@@ -1,5 +1,5 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
-import { BouncingButton } from "@/components/ui/buttons/BouncingButton";
+import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -86,7 +86,7 @@ export function WishlistFilterBar({
             </Button>
           ) : null}
         </View>
-        <BouncingButton
+        <AnimatedGradientBackgroundButton
           accessibilityLabel="Add wishlist"
           Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
           onPress={onCreateWishlist}

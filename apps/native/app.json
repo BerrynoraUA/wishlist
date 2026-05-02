@@ -33,6 +33,12 @@
     "plugins": [
       "expo-router",
       "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Wishlane to choose a profile image from your library."
+        }
+      ],
       "expo-secure-store",
       [
         "expo-splash-screen",
