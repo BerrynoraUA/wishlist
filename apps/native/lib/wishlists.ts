@@ -8,6 +8,8 @@ import {
 
 export const WISHLIST_PAGE_SIZE = 8;
 export const DEFAULT_WISHLIST_SORT = "newest";
+export const SELECTED_GROUPS_ACCESS_TYPE = 2;
+export const SELECTED_FRIENDS_ACCESS_TYPE = 3;
 
 export const WISHLIST_VISIBILITY_OPTIONS = [
   {
@@ -73,6 +75,21 @@ export const WISHLIST_VISIBILITY_ICONS: Record<WishlistVisibility, LucideIcon> =
   [WishlistVisibility.Private]: Lock,
   [WishlistVisibility.SelectedFriends]: UserCheck,
 };
+
+export function getWishlistDisplayVisibility(wishlist: {
+  visibility_type: WishlistVisibility;
+  access_type?: number | null;
+}): WishlistVisibility {
+  if (
+    wishlist.visibility_type === WishlistVisibility.SelectedFriends ||
+    wishlist.access_type === SELECTED_FRIENDS_ACCESS_TYPE ||
+    wishlist.access_type === SELECTED_GROUPS_ACCESS_TYPE
+  ) {
+    return WishlistVisibility.SelectedFriends;
+  }
+
+  return wishlist.visibility_type;
+}
 
 export const WISHLIST_ACCENT_OPTIONS = [
   { value: WishlistAccent.Pink, label: "Pink", key: "pink" },

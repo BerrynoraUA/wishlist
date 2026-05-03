@@ -126,9 +126,11 @@ export function useGrantWishlistAccess() {
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({
         queryKey: ["friends-without-wishlist-access", variables.wishlistId],
+        exact: false,
       });
       await queryClient.invalidateQueries({
         queryKey: ["wishlist-access-list", variables.wishlistId],
+        exact: false,
       });
     },
   });
@@ -143,9 +145,11 @@ export function useRevokeWishlistAccess() {
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
         queryKey: ["friends-without-wishlist-access", variables.wishlistId],
+        exact: false,
       });
       await queryClient.invalidateQueries({
         queryKey: ["wishlist-access-list", variables.wishlistId],
+        exact: false,
       });
     },
   });

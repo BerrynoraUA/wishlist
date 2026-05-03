@@ -1,11 +1,12 @@
 import { supabase } from "@wishlist/backend/supabase/native";
 import { normalizeSearchQuery, parseEventDate } from "@/lib/wishlists";
-import type {
-  UserStatistics,
-  Wishlist,
-  WishlistFormValues,
-  WishlistQueryParams,
-  WishlistUpdateValues,
+import {
+  WishlistVisibility,
+  type UserStatistics,
+  type Wishlist,
+  type WishlistFormValues,
+  type WishlistQueryParams,
+  type WishlistUpdateValues,
 } from "@wishlist/backend/types/wishlist";
 
 type WishlistFeedRow = Wishlist & {
@@ -84,7 +85,10 @@ export async function createWishlist(values: WishlistFormValues): Promise<Wishli
 
   if (error) throw error;
 
-  if (values.visibility !== 2) {
+  if (
+    values.visibility === WishlistVisibility.Public ||
+    values.visibility === WishlistVisibility.FriendsOnly
+  ) {
     await supabase.rpc("notify_friends_about_new_wishlist", {
       p_wishlist_id: data.id,
     });
