@@ -19,12 +19,10 @@ import {
   getWishlistAccentGradientColors,
 } from "@/lib/wishlists";
 import { AddCard } from "@/components/wishlists/add-card";
-import {
-  wishlistCardFadeIn,
-  wishlistGridLinearTransition,
-} from "@/components/wishlists/wishlist-grid-animations";
+import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import type { TriggerRef } from "@rn-primitives/dropdown-menu";
+import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
 import {
@@ -41,6 +39,7 @@ import {
 import * as React from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUniwind } from "uniwind";
 
 type SheetState =
@@ -50,15 +49,21 @@ type SheetState =
   | { type: "delete"; wishlist: Wishlist }
   | null;
 
+type WishlistListEntry = Wishlist | { id: "create"; type: "create" };
+type WishlistListRow = WishlistListEntry[] | { id: "filters"; type: "filters" };
+
 export function WishlistList({
   query,
   wishlists,
   filtersActive,
   cardWidth,
   contentWidth,
+  columns,
   gridGap,
   pagination,
   page,
+  ListHeaderComponent,
+  StickyHeaderComponent,
   onPageChange,
   onCreateWishlist,
   onOpenSheet,
@@ -72,6 +77,7 @@ export function WishlistList({
   filtersActive: boolean;
   cardWidth: number;
   contentWidth: number;
+  columns: number;
   gridGap: number;
   pagination: {
     hasNextPage: boolean;
@@ -80,69 +86,140 @@ export function WishlistList({
     totalForPagination: number;
   };
   page: number;
+  ListHeaderComponent: React.ReactElement;
+  StickyHeaderComponent: React.ReactElement;
   onPageChange: (page: number) => void;
   onCreateWishlist: () => void;
   onOpenSheet: (sheet: Exclude<SheetState, null>) => void;
 }) {
-  return (
-    <View className="gap-5">
-      {query.isLoading ? (
-        <WishlistGridSkeleton cardWidth={cardWidth} gridGap={gridGap} />
-      ) : (
-        <Animated.View
-          className="flex-row flex-wrap"
-          layout={wishlistGridLinearTransition}
-          style={{ gap: gridGap, opacity: query.isFetching ? 0.6 : 1 }}
+  const insets = useSafeAreaInsets();
+  const entries = React.useMemo<WishlistListEntry[]>(
+    () =>
+      !query.isError && wishlists.length > 0
+        ? [...wishlists, { id: "create", type: "create" }]
+        : wishlists,
+    [query.isError, wishlists],
+  );
+  const rows = React.useMemo(() => chunkRows(entries, columns), [columns, entries]);
+  const data = React.useMemo<WishlistListRow[]>(
+    () => [{ id: "filters", type: "filters" }, ...(query.isLoading ? [] : rows)],
+    [query.isLoading, rows],
+  );
+  const renderRow = React.useCallback(
+    ({ item, target }: { item: WishlistListRow; target: string }) =>
+      "type" in item ? (
+        <View
+          className={target === "StickyHeader" ? "bg-bg" : "bg-transparent"}
+          style={[wishlistListStyles.stickyHeader, { paddingTop: insets.top + 16 }]}
         >
+          <View style={[wishlistListStyles.stickyHeaderContent, { width: contentWidth }]}>
+            {StickyHeaderComponent}
+          </View>
+        </View>
+      ) : (
+        <View
+          className="flex-row"
+          style={{
+            alignSelf: "center",
+            gap: gridGap,
+            opacity: query.isFetching ? 0.6 : 1,
+            width: contentWidth,
+          }}
+        >
+          {item.map((entry) =>
+            "type" in entry ? (
+              <AddCard
+                key={entry.id}
+                width={cardWidth}
+                onPress={onCreateWishlist}
+                accessibilityLabel="Create wishlist"
+              />
+            ) : (
+              <WishlistCard
+                key={entry.id}
+                wishlist={entry}
+                width={cardWidth}
+                onEdit={
+                  entry.is_owner || entry.can_edit
+                    ? () => onOpenSheet({ type: "edit", wishlist: entry })
+                    : undefined
+                }
+                onAddItem={
+                  entry.is_owner || entry.can_edit
+                    ? () => onOpenSheet({ type: "addItem", wishlist: entry })
+                    : undefined
+                }
+                onDelete={
+                  entry.is_owner
+                    ? () => onOpenSheet({ type: "delete", wishlist: entry })
+                    : undefined
+                }
+              />
+            ),
+          )}
+        </View>
+      ),
+    [
+      cardWidth,
+      contentWidth,
+      gridGap,
+      insets.top,
+      onCreateWishlist,
+      onOpenSheet,
+      query.isFetching,
+      StickyHeaderComponent,
+    ],
+  );
+
+  return (
+    <FlashList
+      data={data}
+      renderItem={renderRow}
+      keyExtractor={(row) => ("type" in row ? row.id : row.map((entry) => entry.id).join(":"))}
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={[
+        wishlistListStyles.content,
+        { paddingTop: insets.top + wishlistListStyles.content.paddingTop },
+      ]}
+      ItemSeparatorComponent={RowSeparator}
+      ListHeaderComponent={
+        <View style={[wishlistListStyles.header, { width: contentWidth }]}>
+          {ListHeaderComponent}
+        </View>
+      }
+      ListFooterComponent={
+        <View className="gap-5" style={{ alignSelf: "center", width: contentWidth }}>
+          {query.isLoading ? (
+            <WishlistGridSkeleton cardWidth={cardWidth} gridGap={gridGap} />
+          ) : null}
           {query.isError ? (
             <InlineState width={contentWidth} message="Failed to load wishlists." />
           ) : null}
-
-          {!query.isError && wishlists.length === 0 && filtersActive ? (
+          {!query.isLoading && !query.isError && wishlists.length === 0 && filtersActive ? (
             <InlineState width={contentWidth} message="No wishlists match your filters." />
           ) : null}
-
-          {wishlists.map((wishlist) => (
-            <WishlistCard
-              key={wishlist.id}
-              wishlist={wishlist}
-              width={cardWidth}
-              onEdit={
-                wishlist.is_owner || wishlist.can_edit
-                  ? () => onOpenSheet({ type: "edit", wishlist })
-                  : undefined
-              }
-              onAddItem={
-                wishlist.is_owner || wishlist.can_edit
-                  ? () => onOpenSheet({ type: "addItem", wishlist })
-                  : undefined
-              }
-              onDelete={
-                wishlist.is_owner ? () => onOpenSheet({ type: "delete", wishlist }) : undefined
-              }
-            />
-          ))}
-
-          {!query.isError && wishlists.length > 0 ? (
-            <AddCard
-              width={cardWidth}
-              onPress={onCreateWishlist}
-              accessibilityLabel="Create wishlist"
+          {pagination.showPagination ? (
+            <PaginationControls
+              page={page}
+              total={pagination.totalForPagination}
+              hasPrevPage={pagination.hasPrevPage}
+              hasNextPage={pagination.hasNextPage}
+              onChange={onPageChange}
             />
           ) : null}
-        </Animated.View>
-      )}
-
-      {pagination.showPagination ? (
-        <PaginationControls
-          page={page}
-          total={pagination.totalForPagination}
-          hasPrevPage={pagination.hasPrevPage}
-          hasNextPage={pagination.hasNextPage}
-          onChange={onPageChange}
-        />
-      ) : null}
-    </View>
+        </View>
+      }
+      extraData={{
+        cardWidth,
+        contentWidth,
+        gridGap,
+        isFetching: query.isFetching,
+        safeAreaTop: insets.top,
+        StickyHeaderComponent,
+      }}
+      stickyHeaderIndices={[0]}
+      style={wishlistListStyles.list}
+    />
   );
 }
 
@@ -217,6 +294,22 @@ function WishlistGridSkeleton({ cardWidth, gridGap }: { cardWidth: number; gridG
       ))}
     </View>
   );
+}
+
+function RowSeparator({ leadingItem }: { leadingItem?: WishlistListRow }) {
+  if (leadingItem && "type" in leadingItem) {
+    return null;
+  }
+
+  return <View style={wishlistListStyles.rowSeparator} />;
+}
+
+function chunkRows<T>(items: T[], columns: number) {
+  const rows: T[][] = [];
+  for (let index = 0; index < items.length; index += columns) {
+    rows.push(items.slice(index, index + columns));
+  }
+  return rows;
 }
 
 function WishlistCard({
@@ -400,3 +493,30 @@ function PaginationControls({
     </View>
   );
 }
+
+const wishlistListStyles = StyleSheet.create({
+  list: {
+    flex: 1,
+  },
+  content: {
+    paddingBottom: 32,
+    paddingTop: 24,
+  },
+  header: {
+    alignSelf: "center",
+    maxWidth: 1200,
+    marginBottom: 0,
+    width: "100%",
+  },
+  stickyHeader: {
+    paddingBottom: 16,
+    zIndex: 2,
+  },
+  stickyHeaderContent: {
+    alignSelf: "center",
+    maxWidth: 1200,
+  },
+  rowSeparator: {
+    height: 16,
+  },
+});

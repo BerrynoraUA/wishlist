@@ -13,10 +13,7 @@ import {
   type WishlistItemFilterState,
 } from "@/components/wishlist-details/wishlist-item-filter-bar";
 import { AddCard } from "@/components/wishlists/add-card";
-import {
-  wishlistCardFadeIn,
-  wishlistGridLinearTransition,
-} from "@/components/wishlists/wishlist-grid-animations";
+import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
 import { WishlistDeleteSheet } from "@/components/wishlists/sheets/wishlist-delete-sheet";
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import { useCheckFriendship, useProfilesByIds } from "@/hooks/use-friends";
@@ -39,11 +36,13 @@ import {
 import { paginationFlags } from "@/lib/wishlists";
 import type { Item } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
+import { FlashList } from "@shopify/flash-list";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import * as React from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
+import { ActivityIndicator, StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const EMPTY_FILTERS: WishlistItemFilterState = {
   search: "",
@@ -63,8 +62,15 @@ type SheetState =
   | { type: "deleteWishlist"; wishlist: Wishlist }
   | null;
 
+type WishlistItemListEntry = Item | { id: "create"; type: "create" };
+type WishlistItemListRow =
+  | WishlistItemListEntry[]
+  | { id: "header"; type: "header" }
+  | { id: "filters"; type: "filters" };
+
 export default function WishlistDetailScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const rawId = Array.isArray(id) ? (id[0] ?? "") : (id ?? "");
@@ -74,6 +80,7 @@ export default function WishlistDetailScreen() {
   const currentUser = useCurrentUserId();
   const [page, setPage] = React.useState(1);
   const [filters, setFilters] = React.useState<WishlistItemFilterState>(EMPTY_FILTERS);
+  const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const canEditWishlist = Boolean(wishlist?.is_owner || wishlist?.can_edit);
@@ -144,6 +151,23 @@ export default function WishlistDetailScreen() {
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
   const showDiscountBadge = !canEditWishlist && Boolean(friendshipQuery.data);
+  const itemListEntries = React.useMemo<WishlistItemListEntry[]>(
+    () =>
+      canEditWishlist && !itemsQuery.isError ? [...items, { id: "create", type: "create" }] : items,
+    [canEditWishlist, items, itemsQuery.isError],
+  );
+  const itemRows = React.useMemo(
+    () => chunkRows(itemListEntries, columns),
+    [columns, itemListEntries],
+  );
+  const itemListData = React.useMemo<WishlistItemListRow[]>(
+    () => [
+      { id: "header", type: "header" },
+      { id: "filters", type: "filters" },
+      ...(itemsQuery.isLoading ? [] : itemRows),
+    ],
+    [itemRows, itemsQuery.isLoading],
+  );
 
   function updateFilters(patch: Partial<WishlistItemFilterState>) {
     setFilters((current) => ({ ...current, ...patch }));
@@ -155,6 +179,106 @@ export default function WishlistDetailScreen() {
     setDebouncedSearch("");
     setPage(1);
   }
+
+  const renderItemRow = React.useCallback(
+    ({ item, target }: { item: WishlistItemListRow; target: string }) =>
+      "type" in item && item.type === "header" ? (
+        wishlist ? (
+          <View style={{ marginBottom: -insets.top }}>
+            <WishlistItemHeader
+              wishlist={wishlist}
+              isOwner={wishlist.is_owner}
+              onEdit={
+                canEditWishlist ? () => setSheet({ type: "editWishlist", wishlist }) : undefined
+              }
+              onDelete={
+                wishlist.is_owner ? () => setSheet({ type: "deleteWishlist", wishlist }) : undefined
+              }
+            />
+          </View>
+        ) : null
+      ) : "type" in item ? (
+        <View
+          className={target === "StickyHeader" ? "bg-bg" : "bg-transparent"}
+          style={[wishlistDetailStyles.stickyHeader, { paddingTop: insets.top + 16 }]}
+        >
+          <View style={[wishlistDetailStyles.stickyHeaderContent, { width: contentWidth }]}>
+            <WishlistItemFilterBar
+              filters={filters}
+              onChange={updateFilters}
+              onReset={resetFilters}
+              onAddItem={canEditWishlist ? () => setSheet({ type: "create" }) : undefined}
+              open={filtersOpen}
+              onOpenChange={setFiltersOpen}
+            />
+          </View>
+        </View>
+      ) : (
+        <View
+          className="flex-row"
+          style={{
+            alignSelf: "center",
+            gap: gridGap,
+            opacity: itemsQuery.isFetching ? 0.6 : 1,
+            width: contentWidth,
+          }}
+        >
+          {item.map((entry) =>
+            "type" in entry ? (
+              <AddCard
+                key={entry.id}
+                width={cardWidth}
+                onPress={() => setSheet({ type: "create" })}
+                accessibilityLabel="Add item"
+              />
+            ) : (
+              <Animated.View
+                key={entry.id}
+                entering={wishlistCardFadeIn}
+                style={{ width: cardWidth }}
+              >
+                <WishlistItemCard
+                  item={entry}
+                  width={cardWidth}
+                  currentUserId={currentUser.data}
+                  isOwner={canEditWishlist}
+                  showDiscountBadge={showDiscountBadge}
+                  reservedByName={
+                    entry.reserved_by ? profileNamesById.get(entry.reserved_by) : undefined
+                  }
+                  voteCount={votesQuery.data?.counts[entry.id] ?? 0}
+                  hasVoted={votesQuery.data?.userVotes.has(entry.id) ?? false}
+                  onPress={() => setSheet({ type: "detail", item: entry })}
+                  onEdit={
+                    canEditWishlist ? () => setSheet({ type: "edit", item: entry }) : undefined
+                  }
+                  onDelete={
+                    canEditWishlist ? () => setSheet({ type: "delete", item: entry }) : undefined
+                  }
+                  onToggleVote={canEditWishlist ? undefined : () => toggleVote.mutate(entry.id)}
+                />
+              </Animated.View>
+            ),
+          )}
+        </View>
+      ),
+    [
+      canEditWishlist,
+      cardWidth,
+      contentWidth,
+      currentUser.data,
+      filters,
+      filtersOpen,
+      gridGap,
+      insets.top,
+      itemsQuery.isFetching,
+      profileNamesById,
+      showDiscountBadge,
+      toggleVote,
+      votesQuery.data,
+      wishlist,
+    ],
+  );
 
   if (rawId === "index") {
     return (
@@ -180,123 +304,79 @@ export default function WishlistDetailScreen() {
             </Text>
           </View>
         ) : (
-          <ScrollView
-            className="flex-1"
+          <FlashList
+            data={
+              itemsQuery.isError
+                ? [
+                    { id: "header", type: "header" },
+                    { id: "filters", type: "filters" },
+                  ]
+                : itemListData
+            }
+            renderItem={renderItemRow}
+            keyExtractor={(row) =>
+              "type" in row ? row.id : row.map((entry) => entry.id).join(":")
+            }
             contentInsetAdjustmentBehavior="automatic"
-            contentContainerClassName="items-center pb-safe-offset-8"
-          >
-            <WishlistItemHeader
-              wishlist={wishlist}
-              isOwner={wishlist.is_owner}
-              onEdit={
-                canEditWishlist ? () => setSheet({ type: "editWishlist", wishlist }) : undefined
-              }
-              onDelete={
-                wishlist.is_owner ? () => setSheet({ type: "deleteWishlist", wishlist }) : undefined
-              }
-            />
-            <View className="w-full gap-5 px-4 pt-5" style={{ maxWidth: 1200 }}>
-              <WishlistItemFilterBar
-                filters={filters}
-                onChange={updateFilters}
-                onReset={resetFilters}
-                onAddItem={canEditWishlist ? () => setSheet({ type: "create" }) : undefined}
-              />
-
-              {itemsQuery.isLoading ? (
-                <View className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-8">
-                  <ActivityIndicator />
-                </View>
-              ) : itemsQuery.isError ? (
-                <InlineState message="Failed to load items." />
-              ) : items.length === 0 ? (
-                canEditWishlist ? (
-                  <Animated.View
-                    className="flex-row flex-wrap"
-                    layout={wishlistGridLinearTransition}
-                    style={{ gap: gridGap }}
-                  >
-                    <AddCard
-                      width={cardWidth}
-                      onPress={() => setSheet({ type: "create" })}
-                      accessibilityLabel="Add item"
-                    />
-                  </Animated.View>
-                ) : (
+            contentContainerStyle={[
+              wishlistDetailStyles.content,
+              { paddingTop: insets.top + wishlistDetailStyles.content.paddingTop },
+            ]}
+            ItemSeparatorComponent={ItemRowSeparator}
+            ListFooterComponent={
+              <View
+                className="gap-5"
+                style={{ alignSelf: "center", maxWidth: 1200, width: contentWidth }}
+              >
+                {itemsQuery.isLoading ? (
+                  <View className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-8">
+                    <ActivityIndicator />
+                  </View>
+                ) : null}
+                {itemsQuery.isError ? <InlineState message="Failed to load items." /> : null}
+                {!itemsQuery.isLoading &&
+                !itemsQuery.isError &&
+                items.length === 0 &&
+                !canEditWishlist ? (
                   <Text className="text-center text-sm text-text-muted">
                     {filtersActive && hasAnyItems
                       ? "No items match your filters."
                       : "No items yet."}
                   </Text>
-                )
-              ) : (
-                <Animated.View
-                  className="flex-row flex-wrap"
-                  layout={wishlistGridLinearTransition}
-                  style={{ gap: gridGap, opacity: itemsQuery.isFetching ? 0.6 : 1 }}
-                >
-                  {items.map((item) => (
-                    <Animated.View
-                      key={item.id}
-                      entering={wishlistCardFadeIn}
-                      style={{ width: cardWidth }}
+                ) : null}
+                {pagination.showPagination ? (
+                  <View className="flex-row items-center justify-center gap-2 pt-1">
+                    <Button
+                      variant="outline"
+                      disabled={!pagination.hasPrevPage}
+                      onPress={() => setPage((current) => Math.max(1, current - 1))}
                     >
-                      <WishlistItemCard
-                        item={item}
-                        width={cardWidth}
-                        currentUserId={currentUser.data}
-                        isOwner={canEditWishlist}
-                        showDiscountBadge={showDiscountBadge}
-                        reservedByName={
-                          item.reserved_by ? profileNamesById.get(item.reserved_by) : undefined
-                        }
-                        voteCount={votesQuery.data?.counts[item.id] ?? 0}
-                        hasVoted={votesQuery.data?.userVotes.has(item.id) ?? false}
-                        onPress={() => setSheet({ type: "detail", item })}
-                        onEdit={
-                          canEditWishlist ? () => setSheet({ type: "edit", item }) : undefined
-                        }
-                        onDelete={
-                          canEditWishlist ? () => setSheet({ type: "delete", item }) : undefined
-                        }
-                        onToggleVote={
-                          canEditWishlist ? undefined : () => toggleVote.mutate(item.id)
-                        }
-                      />
-                    </Animated.View>
-                  ))}
-
-                  {canEditWishlist ? (
-                    <AddCard
-                      width={cardWidth}
-                      onPress={() => setSheet({ type: "create" })}
-                      accessibilityLabel="Add item"
-                    />
-                  ) : null}
-                </Animated.View>
-              )}
-
-              {pagination.showPagination ? (
-                <View className="flex-row items-center justify-center gap-2 pt-1">
-                  <Button
-                    variant="outline"
-                    disabled={!pagination.hasPrevPage}
-                    onPress={() => setPage((current) => Math.max(1, current - 1))}
-                  >
-                    <Text>Previous</Text>
-                  </Button>
-                  <Text className="px-2 text-sm font-bold text-text-muted">{page}</Text>
-                  <Button
-                    variant="outline"
-                    disabled={!pagination.hasNextPage}
-                    onPress={() => setPage((current) => current + 1)}
-                  >
-                    <Text>Next</Text>
-                  </Button>
-                </View>
-              ) : null}
-            </View>
-          </ScrollView>
+                      <Text>Previous</Text>
+                    </Button>
+                    <Text className="px-2 text-sm font-bold text-text-muted">{page}</Text>
+                    <Button
+                      variant="outline"
+                      disabled={!pagination.hasNextPage}
+                      onPress={() => setPage((current) => current + 1)}
+                    >
+                      <Text>Next</Text>
+                    </Button>
+                  </View>
+                ) : null}
+              </View>
+            }
+            extraData={{
+              cardWidth,
+              contentWidth,
+              filters,
+              filtersOpen,
+              gridGap,
+              isFetching: itemsQuery.isFetching,
+              safeAreaTop: insets.top,
+            }}
+            stickyHeaderIndices={[1]}
+            style={wishlistDetailStyles.list}
+          />
         )}
         <AnimatedPressable
           accessibilityRole="button"
@@ -366,6 +446,49 @@ function InlineState({ message }: { message: string }) {
     </View>
   );
 }
+
+function ItemRowSeparator({ leadingItem }: { leadingItem?: WishlistItemListRow }) {
+  if (leadingItem && "type" in leadingItem) {
+    return null;
+  }
+
+  return <View style={wishlistDetailStyles.rowSeparator} />;
+}
+
+function chunkRows<T>(items: T[], columns: number) {
+  const rows: T[][] = [];
+  for (let index = 0; index < items.length; index += columns) {
+    rows.push(items.slice(index, index + columns));
+  }
+  return rows;
+}
+
+const wishlistDetailStyles = StyleSheet.create({
+  list: {
+    flex: 1,
+  },
+  content: {
+    paddingBottom: 32,
+    paddingTop: 0,
+  },
+  header: {
+    alignItems: "center",
+    alignSelf: "center",
+    marginBottom: 0,
+    width: "100%",
+  },
+  stickyHeader: {
+    paddingBottom: 16,
+    zIndex: 2,
+  },
+  stickyHeaderContent: {
+    alignSelf: "center",
+    maxWidth: 1200,
+  },
+  rowSeparator: {
+    height: 16,
+  },
+});
 
 const floatingBackButtonStyles = StyleSheet.create({
   shadow: {

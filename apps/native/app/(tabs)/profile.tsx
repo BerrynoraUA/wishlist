@@ -7,8 +7,19 @@ import { useAuth } from "@/providers/auth-provider";
 import { useSettings, useProfile, useUpdateSettings } from "@/hooks/use-settings";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 import type { ThemePreference } from "@wishlist/backend/types/settings";
+import { FlashList } from "@shopify/flash-list";
 import { Stack } from "expo-router";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+
+const SETTINGS_SECTIONS = [
+  "account",
+  "profile",
+  "notifications",
+  "appearance",
+  "currency",
+] as const;
+
+type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 
 export default function ProfileScreen() {
   const { signOut, user } = useAuth();
@@ -20,20 +31,16 @@ export default function ProfileScreen() {
     updateSettings.mutate({ theme: value });
   }
 
-  return (
-    <>
-      <Stack.Screen options={{ title: "Settings" }} />
-      <View className="flex-1 bg-bg">
-        <ScrollView className="flex-1" contentContainerClassName="gap-4 px-4 pb-6 pt-6">
-          {(settingsLoading || profileLoading) && (
-            <View className="items-center justify-center py-6">
-              <ActivityIndicator colorClassName="accent-brand" />
-            </View>
-          )}
-
-          <AccountSettings email={user?.email ?? ""} signOut={signOut} />
-          <ProfileSettings profile={profile} />
-          <NotificationSettings settings={settings} />
+  function renderSection({ item }: { item: SettingsSection }) {
+    switch (item) {
+      case "account":
+        return <AccountSettings email={user?.email ?? ""} signOut={signOut} />;
+      case "profile":
+        return <ProfileSettings profile={profile} />;
+      case "notifications":
+        return <NotificationSettings settings={settings} />;
+      case "appearance":
+        return (
           <AppearanceSettings
             selectedTheme={settings?.theme ?? "system"}
             selectedAccent={settings?.default_accent ?? WishlistAccent.Pink}
@@ -41,9 +48,50 @@ export default function ProfileScreen() {
             selectedPriorities={settings?.selected_priorities}
             setThemePreference={setThemePreference}
           />
-          <CurrencySettings selectedCurrency={settings?.display_currency ?? "USD"} />
-        </ScrollView>
+        );
+      case "currency":
+        return <CurrencySettings selectedCurrency={settings?.display_currency ?? "USD"} />;
+    }
+  }
+
+  return (
+    <>
+      <Stack.Screen options={{ title: "Settings" }} />
+      <View className="flex-1 bg-bg">
+        <FlashList
+          data={SETTINGS_SECTIONS}
+          renderItem={renderSection}
+          keyExtractor={(item) => item}
+          contentContainerStyle={profileStyles.content}
+          ItemSeparatorComponent={SettingsSectionSeparator}
+          ListHeaderComponent={
+            settingsLoading || profileLoading ? (
+              <View className="items-center justify-center py-6">
+                <ActivityIndicator colorClassName="accent-brand" />
+              </View>
+            ) : null
+          }
+          style={profileStyles.list}
+        />
       </View>
     </>
   );
 }
+
+function SettingsSectionSeparator() {
+  return <View style={profileStyles.separator} />;
+}
+
+const profileStyles = StyleSheet.create({
+  list: {
+    flex: 1,
+  },
+  content: {
+    paddingBottom: 24,
+    paddingHorizontal: 16,
+    paddingTop: 24,
+  },
+  separator: {
+    height: 16,
+  },
+});

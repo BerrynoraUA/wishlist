@@ -21,6 +21,7 @@ import { GTProvider } from "gt-react-native";
 import { useEffect, useState } from "react";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { ActivityIndicator, Appearance, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Uniwind, useUniwind } from "uniwind";
 import { DEFAULT_SETTINGS } from "@wishlist/backend/types/settings";
 import gtConfig from "../gt.config.json";
@@ -68,11 +69,13 @@ export default function RootLayout() {
           <AuthProvider>
             <PostHogScreenTracker />
             <ThemeProvider value={navigationTheme}>
-              <ReanimatedTrueSheetProvider>
-                <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
-                <AuthGate />
-                <PortalHost />
-              </ReanimatedTrueSheetProvider>
+              <SafeAreaProvider>
+                <ReanimatedTrueSheetProvider>
+                  <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
+                  <AuthGate />
+                  <PortalHost />
+                </ReanimatedTrueSheetProvider>
+              </SafeAreaProvider>
             </ThemeProvider>
           </AuthProvider>
         </QueryClientProvider>

@@ -30,6 +30,8 @@ export function WishlistFilterBar({
   onSortChange,
   onResetFilters,
   onCreateWishlist,
+  filtersOpen,
+  onFiltersOpenChange,
 }: {
   search: string;
   visibility: string[];
@@ -39,8 +41,9 @@ export function WishlistFilterBar({
   onSortChange: (value: string) => void;
   onResetFilters: () => void;
   onCreateWishlist: () => void;
+  filtersOpen: boolean;
+  onFiltersOpenChange: (open: boolean) => void;
 }) {
-  const [filtersOpen, setFiltersOpen] = React.useState(false);
   const selectedSortLabel =
     WISHLIST_SORT_OPTIONS.find((option) => option.value === sort)?.label ?? "Newest first";
   const selectedVisibilityLabel =
@@ -63,7 +66,7 @@ export function WishlistFilterBar({
             size="lg"
             accessibilityLabel="Show filters"
             accessibilityState={{ expanded: filtersOpen }}
-            onPress={() => setFiltersOpen((open) => !open)}
+            onPress={() => onFiltersOpenChange(!filtersOpen)}
             className={cn(
               "h-11 w-11 min-w-11 shrink-0 rounded-full border-border-subtle bg-card-bg p-0 sm:h-11 sm:w-11 sm:min-w-11",
               filtersOpen && "border-brand bg-brand-lighter",
