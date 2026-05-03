@@ -1,4 +1,7 @@
 {
   "css.customData": [".vscode/css_custom_data.json"],
-  "playwright.configs": ["apps/frontend/playwright.config.ts"]
+  "playwright.configs": ["apps/frontend/playwright.config.ts"],
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file" 
 }

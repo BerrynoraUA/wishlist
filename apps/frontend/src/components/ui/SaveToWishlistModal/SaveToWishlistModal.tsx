@@ -33,9 +33,9 @@ type Props = {
 };
 
 export function SaveToWishlistModal({ open, onClose, item }: Props) {
-  const [selectedWishlists, setSelectedWishlists] = useState<
-    Array<{ id: string; title: string }>
-  >([]);
+  const [selectedWishlists, setSelectedWishlists] = useState<Array<{ id: string; title: string }>>(
+    [],
+  );
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -91,9 +91,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
   };
 
   if (showSuccess) {
-    const savedTo = formatWishlistNames(
-      selectedWishlists.map((wishlist) => wishlist.title),
-    );
+    const savedTo = formatWishlistNames(selectedWishlists.map((wishlist) => wishlist.title));
 
     return (
       <Modal open={open} onClose={handleClose}>
@@ -103,8 +101,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
           </div>
           <Heading level={3}>Saved!</Heading>
           <Text variant="subtitle" tone="secondary">
-            <strong>{item.name}</strong> has been added to{" "}
-            <strong>{savedTo}</strong>.
+            <strong>{item.name}</strong> has been added to <strong>{savedTo}</strong>.
           </Text>
           <Button variant="primary" onClick={handleClose}>
             Done
@@ -123,22 +120,14 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
               <Bookmark size={24} />
             </div>
             <Heading level={3}>Save to wishlist</Heading>
-            <Text
-              variant="subtitle"
-              tone="secondary"
-              className={styles.subtitle}
-            >
+            <Text variant="subtitle" tone="secondary" className={styles.subtitle}>
               Choose one or more wishlists you want to add this item to
             </Text>
           </div>
 
           <div className={styles.itemPreview}>
             {item.image_url ? (
-              <img
-                className={styles.itemImage}
-                src={item.image_url}
-                alt={item.name}
-              />
+              <img className={styles.itemImage} src={item.image_url} alt={item.name} />
             ) : (
               <div className={styles.itemImagePlaceholder}>
                 <ShoppingBag size={20} />
@@ -166,12 +155,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
               <div className={styles.emptyState}>
                 <div style={{ display: "grid", gap: 8, width: "100%" }}>
                   {[0, 1, 2].map((i) => (
-                    <Skeleton
-                      key={i}
-                      width="100%"
-                      height={44}
-                      borderRadius={12}
-                    />
+                    <Skeleton key={i} width="100%" height={44} borderRadius={12} />
                   ))}
                 </div>
               </div>
@@ -179,9 +163,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
 
             {!isLoading && wishlists.length === 0 && (
               <div className={styles.emptyState}>
-                {debouncedSearch
-                  ? "No wishlists found"
-                  : "You don't have any wishlists yet"}
+                {debouncedSearch ? "No wishlists found" : "You don't have any wishlists yet"}
               </div>
             )}
 
@@ -198,21 +180,16 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
                   onClick={() => {
                     setSelectedWishlists((current) => {
                       const alreadySelected = current.some(
-                        (selectedWishlist) =>
-                          selectedWishlist.id === wishlist.id,
+                        (selectedWishlist) => selectedWishlist.id === wishlist.id,
                       );
 
                       if (alreadySelected) {
                         return current.filter(
-                          (selectedWishlist) =>
-                            selectedWishlist.id !== wishlist.id,
+                          (selectedWishlist) => selectedWishlist.id !== wishlist.id,
                         );
                       }
 
-                      return [
-                        ...current,
-                        { id: wishlist.id, title: wishlist.title },
-                      ];
+                      return [...current, { id: wishlist.id, title: wishlist.title }];
                     });
                   }}
                 >
@@ -230,13 +207,10 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
                   <div className={styles.wishlistMeta}>
                     <div className={styles.wishlistTitle}>{wishlist.title}</div>
                     <div className={styles.wishlistCount}>
-                      {wishlist.items_count}{" "}
-                      {wishlist.items_count === 1 ? "item" : "items"}
+                      {wishlist.items_count} {wishlist.items_count === 1 ? "item" : "items"}
                     </div>
                   </div>
-                  {isSelected && (
-                    <Check size={18} className={styles.selectedCheck} />
-                  )}
+                  {isSelected && <Check size={18} className={styles.selectedCheck} />}
                 </button>
               );
             })}

@@ -18,6 +18,8 @@ export type SlidingOption<T> = {
   accessibilityLabel?: string;
   /** Optional stable key when `value` isn't unique among siblings */
   id?: string;
+  /** Replaces default `bg-bg-subtle` when the option is not selected */
+  surfaceClassName?: string;
   children: SlidingSelectorContent;
 };
 
@@ -131,10 +133,12 @@ export function SlidingOptionSelector<T>({
                 accessibilityLabel={option.accessibilityLabel}
                 onPress={() => onChange(option.value)}
                 className={cn(
-                  "z-10 flex-1 flex-row items-center justify-center border border-border-subtle bg-bg-subtle",
+                  "z-10 flex-1 flex-row items-center justify-center border border-border-subtle",
                   optionHeightClassName,
                   optionClassName,
-                  selected && "border-transparent bg-transparent",
+                  selected
+                    ? "border-transparent bg-transparent"
+                    : cn("bg-bg-subtle", option.surfaceClassName),
                   selected && selectedOptionClassName,
                 )}
               >

@@ -28,8 +28,8 @@ function SelectValue({
     <SelectPrimitive.Value
       ref={ref}
       className={cn(
-        "text-foreground line-clamp-1 flex flex-row items-center gap-2 text-sm",
-        !value && "text-muted-foreground",
+        "line-clamp-1 flex flex-row items-center gap-2 text-sm text-text",
+        !value && "text-text-muted",
         className,
       )}
       {...props}
@@ -80,7 +80,7 @@ function SelectContent({
     <SelectPrimitive.Portal hostName={portalHost}>
       <FullWindowOverlay>
         <SelectPrimitive.Overlay style={StyleSheet.absoluteFill}>
-          <TextClassContext.Provider value="text-popover-foreground">
+          <TextClassContext.Provider value="text-text">
             <NativeOnlyAnimatedView
               className="z-50"
               entering={FadeIn.duration(motionDuration.normal)}
@@ -134,7 +134,7 @@ function SelectItem({
           <Icon as={Check} className="text-muted-foreground size-4 shrink-0" />
         </SelectPrimitive.ItemIndicator>
       </View>
-      <SelectPrimitive.ItemText className="text-foreground group-active:text-accent-foreground select-none text-sm" />
+      <SelectPrimitive.ItemText className="select-none text-sm text-text group-active:text-accent-foreground" />
     </SelectPrimitive.Item>
   );
 }

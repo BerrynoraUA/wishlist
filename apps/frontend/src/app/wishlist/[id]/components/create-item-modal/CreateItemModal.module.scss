@@ -336,11 +336,7 @@
   width: 28px;
   height: 28px;
   border-radius: $radius-sm;
-  background: color-mix(
-    in srgb,
-    var(--priority-color, var(--color-border)) 12%,
-    transparent
-  );
+  background: color-mix(in srgb, var(--priority-color, var(--color-border)) 12%, transparent);
   color: var(--priority-color, var(--color-text-muted));
   display: grid;
   place-items: center;
@@ -404,11 +400,7 @@
   &.colorSwatchActive {
     border-color: var(--swatch-color, var(--color-border));
     box-shadow: 0 0 0 3px
-      color-mix(
-        in srgb,
-        var(--swatch-color, var(--color-brand)) 30%,
-        transparent
-      );
+      color-mix(in srgb, var(--swatch-color, var(--color-brand)) 30%, transparent);
     transform: scale(1.1);
   }
 }

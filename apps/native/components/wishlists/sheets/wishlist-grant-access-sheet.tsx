@@ -7,10 +7,18 @@ import { useFriendsWithoutWishlistAccess, useWishlistAccessList } from "@/hooks/
 import { useGrantWishlistAccess, useRevokeWishlistAccess } from "@/hooks/use-wishlists";
 import type { ProfileSearchResult } from "@wishlist/backend/types/friends";
 import { Check, Search, Shield, SquarePen, X } from "lucide-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, View } from "react-native";
 
-export function GrantWishlistAccessSheet({
+type GrantAccessFormValues = {
+  query: string;
+  selectedFriend: ProfileSearchResult | null;
+  accessType: 0 | 1;
+};
+
+export function WishlistGrantAccessSheet({
   open,
   wishlistId,
   wishlistTitle,
@@ -21,13 +29,19 @@ export function GrantWishlistAccessSheet({
   wishlistTitle: string;
   onOpenChange: (open: boolean) => void;
 }) {
+  const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
-  const [query, setQuery] = React.useState("");
-  const [selectedFriend, setSelectedFriend] = React.useState<ProfileSearchResult | null>(null);
-  const [accessType, setAccessType] = React.useState<0 | 1>(0);
+  const { control, handleSubmit, reset, setValue } = useForm<GrantAccessFormValues>({
+    defaultValues: {
+      query: "",
+      selectedFriend: null,
+      accessType: 0,
+    },
+  });
+  const values = useWatch({ control }) as GrantAccessFormValues;
   const friendsQuery = useFriendsWithoutWishlistAccess({
     wishlistId,
-    search: query,
+    search: values.query,
     skip: 0,
     take: 100,
   });
@@ -37,11 +51,9 @@ export function GrantWishlistAccessSheet({
 
   React.useEffect(() => {
     if (!open) {
-      setQuery("");
-      setSelectedFriend(null);
-      setAccessType(0);
+      reset();
     }
-  }, [open]);
+  }, [open, reset]);
 
   if (!open) return null;
 
@@ -52,14 +64,14 @@ export function GrantWishlistAccessSheet({
     void sheetRef.current?.dismiss();
   }
 
-  function handleGrant() {
-    if (!selectedFriend) return;
+  function submitForm(formValues: GrantAccessFormValues) {
+    if (!formValues.selectedFriend) return;
 
     grantAccess.mutate(
       {
         wishlistId,
-        grantedToUserId: selectedFriend.id,
-        accessType,
+        grantedToUserId: formValues.selectedFriend.id,
+        accessType: formValues.accessType,
       },
       {
         onSuccess: handleClose,
@@ -74,52 +86,58 @@ export function GrantWishlistAccessSheet({
       scrollable
       dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}
-      header={<Text className="mx-5 mt-5 text-lg font-extrabold text-text">Grant access</Text>}
+      header={<Text className="mx-5 mt-5 text-lg font-extrabold text-text">{t("Grant access")}</Text>}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button className="min-w-0 flex-1" variant="outline" onPress={handleClose}>
-            <Text>Cancel</Text>
+            <Text>{t("Cancel")}</Text>
           </Button>
           <Button
             className="min-w-0 flex-1"
-            disabled={!selectedFriend || grantAccess.isPending}
-            onPress={handleGrant}
+            disabled={!values.selectedFriend || grantAccess.isPending}
+            onPress={handleSubmit(submitForm)}
           >
             {grantAccess.isPending ? (
               <ActivityIndicator colorClassName="accent-primary-foreground" />
             ) : null}
-            <Text>Confirm access</Text>
+            <Text>{t("Confirm access")}</Text>
           </Button>
         </View>
       }
     >
       <View className="gap-5 px-5 pt-5">
         <View className="gap-2 rounded-xl border border-border-subtle bg-bg-subtle p-3">
-          <Text className="text-xs font-bold uppercase text-text-muted">Wishlist</Text>
+          <Text className="text-xs font-bold uppercase text-text-muted">{t("Wishlist")}</Text>
           <Text className="text-base font-extrabold text-text">{wishlistTitle}</Text>
         </View>
 
         <View className="gap-3">
-          <Text className="text-sm font-bold text-text">Choose a friend</Text>
-          {selectedFriend ? (
+          <Text className="text-sm font-bold text-text">{t("Choose a friend")}</Text>
+          {values.selectedFriend ? (
             <View className="flex-row items-center justify-between rounded-xl border border-brand bg-brand-lighter p-3">
               <View>
-                <Text className="font-extrabold text-text">@{selectedFriend.nickname}</Text>
-                <Text className="text-xs font-semibold text-text-muted">Ready to grant access</Text>
+                <Text className="font-extrabold text-text">@{values.selectedFriend.nickname}</Text>
+                <Text className="text-xs font-semibold text-text-muted">{t("Ready to grant access")}</Text>
               </View>
-              <Button variant="outline" size="sm" onPress={() => setSelectedFriend(null)}>
-                <Text>Change</Text>
+              <Button variant="outline" size="sm" onPress={() => setValue("selectedFriend", null)}>
+                <Text>{t("Change")}</Text>
               </Button>
             </View>
           ) : (
             <>
               <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
                 <Icon as={Search} className="size-4 text-text-muted" />
-                <Input
-                  value={query}
-                  onChangeText={setQuery}
-                  placeholder="Search among your friends"
-                  className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none"
+                <Controller
+                  control={control}
+                  name="query"
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder={t("Search among your friends")}
+                      className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none"
+                    />
+                  )}
                 />
               </View>
               <View className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg">
@@ -129,7 +147,7 @@ export function GrantWishlistAccessSheet({
                   </View>
                 ) : friends.length === 0 ? (
                   <Text className="p-4 text-sm font-semibold text-text-muted">
-                    No matching friends found.
+                    {t("No matching friends found.")}
                   </Text>
                 ) : (
                   friends.map((friend) => (
@@ -137,7 +155,7 @@ export function GrantWishlistAccessSheet({
                       key={friend.id}
                       variant="ghost"
                       className="justify-start rounded-none border-b border-border-subtle px-4"
-                      onPress={() => setSelectedFriend(friend)}
+                      onPress={() => setValue("selectedFriend", friend)}
                     >
                       <Text>@{friend.nickname}</Text>
                     </Button>
@@ -149,36 +167,34 @@ export function GrantWishlistAccessSheet({
         </View>
 
         <View className="gap-3">
-          <Text className="text-sm font-bold text-text">Access level</Text>
+          <Text className="text-sm font-bold text-text">{t("Access level")}</Text>
           <View className="gap-2">
             <AccessButton
-              title="View access"
-              description="Can open and follow updates."
-              active={accessType === 0}
+              title={t("View access")}
+              description={t("Can open and follow updates.")}
+              active={values.accessType === 0}
               icon={Shield}
-              onPress={() => setAccessType(0)}
+              onPress={() => setValue("accessType", 0)}
             />
             <AccessButton
-              title="Edit access"
-              description="Can add and manage items."
-              active={accessType === 1}
+              title={t("Edit access")}
+              description={t("Can add and manage items.")}
+              active={values.accessType === 1}
               icon={SquarePen}
-              onPress={() => setAccessType(1)}
+              onPress={() => setValue("accessType", 1)}
             />
           </View>
         </View>
 
         <View className="gap-3">
-          <Text className="text-sm font-bold text-text">People with access</Text>
+          <Text className="text-sm font-bold text-text">{t("People with access")}</Text>
           <View className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg">
             {accessListQuery.isLoading ? (
               <View className="items-center p-4">
                 <ActivityIndicator colorClassName="accent-brand" />
               </View>
             ) : accessList.length === 0 ? (
-              <Text className="p-4 text-sm font-semibold text-text-muted">
-                No one has access yet.
-              </Text>
+              <Text className="p-4 text-sm font-semibold text-text-muted">{t("No one has access yet.")}</Text>
             ) : (
               accessList.map((user) => (
                 <View
@@ -190,7 +206,7 @@ export function GrantWishlistAccessSheet({
                       @{user.nickname}
                     </Text>
                     <Text className="text-xs font-semibold text-text-muted">
-                      {user.access_role === "editor" ? "Editor" : "Viewer"}
+                      {user.access_role === "editor" ? t("Editor") : t("Viewer")}
                     </Text>
                   </View>
                   <Button

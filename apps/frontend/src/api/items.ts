@@ -3,10 +3,7 @@ import { Item } from "@/types/item";
 import type { ItemQueryParams } from "@wishlist/backend/types";
 import { CreateItemParams, UpdateItemParams } from "./types/item";
 import { getCurrentSession } from "./user";
-import {
-  deletePublicImage,
-  uploadPublicImage,
-} from "@/lib/helpers/storage-image";
+import { deletePublicImage, uploadPublicImage } from "@/lib/helpers/storage-image";
 
 const ITEM_IMAGE_BUCKET = "items";
 
@@ -109,10 +106,7 @@ export async function getWishlistItems(
   return (data as Item[]) || [];
 }
 
-export async function updateItem(
-  itemId: string,
-  updates: UpdateItemParams,
-): Promise<Item> {
+export async function updateItem(itemId: string, updates: UpdateItemParams): Promise<Item> {
   const { image, removeImage, image_url, ...restUpdates } = updates;
 
   await ensureProForPriority(restUpdates.priority_id);
@@ -178,10 +172,7 @@ export async function updateItem(
 }
 
 export async function deleteItem(itemId: string): Promise<void> {
-  const { error } = await supabaseBrowser
-    .from("item")
-    .delete()
-    .eq("id", itemId);
+  const { error } = await supabaseBrowser.from("item").delete().eq("id", itemId);
 
   if (error) throw error;
 }
@@ -212,15 +203,10 @@ export async function toggleItemBought(itemId: string): Promise<Item> {
   return data as Item;
 }
 
-export async function toggleItemReservationSecret(
-  itemId: string,
-): Promise<Item> {
-  const { data, error } = await supabaseBrowser.rpc(
-    "toggle_item_reservation_secret",
-    {
-      p_item_id: itemId,
-    },
-  );
+export async function toggleItemReservationSecret(itemId: string): Promise<Item> {
+  const { data, error } = await supabaseBrowser.rpc("toggle_item_reservation_secret", {
+    p_item_id: itemId,
+  });
 
   if (error) {
     console.error("Error toggling secret item reservation:", error);
@@ -231,18 +217,13 @@ export async function toggleItemReservationSecret(
 }
 
 export async function toggleItemBoughtSecret(itemId: string): Promise<Item> {
-  const { data, error } = await supabaseBrowser.rpc(
-    "toggle_item_bought_secret",
-    {
-      p_item_id: itemId,
-    },
-  );
+  const { data, error } = await supabaseBrowser.rpc("toggle_item_bought_secret", {
+    p_item_id: itemId,
+  });
 
   if (error) {
     console.error("Error toggling secret item bought status:", error);
-    throw new Error(
-      error.message || "Failed to toggle secret item bought status",
-    );
+    throw new Error(error.message || "Failed to toggle secret item bought status");
   }
 
   return data as Item;
@@ -272,9 +253,7 @@ export interface ItemVotesResult {
   userVotes: Set<string>;
 }
 
-export async function getItemVotes(
-  itemIds: string[],
-): Promise<ItemVotesResult> {
+export async function getItemVotes(itemIds: string[]): Promise<ItemVotesResult> {
   if (itemIds.length === 0) return { counts: {}, userVotes: new Set() };
 
   const session = await getCurrentSession();
@@ -312,10 +291,7 @@ export async function toggleItemVote(itemId: string): Promise<void> {
     .maybeSingle();
 
   if (existing) {
-    const { error } = await supabaseBrowser
-      .from("item_vote")
-      .delete()
-      .eq("id", existing.id);
+    const { error } = await supabaseBrowser.from("item_vote").delete().eq("id", existing.id);
     if (error) throw error;
   } else {
     const { error } = await supabaseBrowser

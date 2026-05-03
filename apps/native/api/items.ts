@@ -44,7 +44,7 @@ export async function createItem({
   name,
   description,
   price,
-  priority,
+  priority_id,
   image_url,
   url,
   status = 0,
@@ -61,7 +61,7 @@ export async function createItem({
       name,
       description: description ?? null,
       price: price ?? null,
-      priority: priority ?? null,
+      priority_id: priority_id ?? null,
       image_url: image_url ?? null,
       url: url ?? null,
       status,
@@ -85,7 +85,7 @@ export async function updateItem(itemId: string, updates: UpdateItemParams): Pro
   if (updates.name !== undefined) payload.name = updates.name;
   if (updates.description !== undefined) payload.description = updates.description;
   if (updates.price !== undefined) payload.price = updates.price;
-  if (updates.priority !== undefined) payload.priority = updates.priority;
+  if (updates.priority_id !== undefined) payload.priority_id = updates.priority_id;
   if (updates.image_url !== undefined) payload.image_url = updates.image_url;
   if (updates.url !== undefined) payload.url = updates.url;
   if (updates.status !== undefined) payload.status = updates.status;

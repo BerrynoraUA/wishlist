@@ -10,6 +10,45 @@ export interface ProfileSearchResult {
   nickname: string;
 }
 
+export interface FriendWithDetails {
+  id: string;
+  user_f: string;
+  user_s: string;
+  created_at: string;
+  friend_id: string;
+  display_name: string;
+  nickname: string | null;
+  avatar_url: string | null;
+  wishlists_count: number;
+  mutual_friends_count: number;
+}
+
+export interface FriendGroup {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string;
+  icon: string;
+  created_at?: string;
+  updated_at?: string;
+  member_count: number;
+}
+
+export interface FriendGroupMember {
+  id: string;
+  nickname: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+}
+
+export type FriendGroupPayload = {
+  name: string;
+  description?: string | null;
+  color: string;
+  icon: string;
+  memberIds: string[];
+};
+
 export type GetFriendsWithoutWishlistAccessParams = {
   wishlistId: string;
   search?: string;
