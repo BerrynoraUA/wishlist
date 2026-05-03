@@ -7,10 +7,7 @@ import styles from "./WishlistCard.module.scss";
 
 import { Wishlist } from "@/types/wishlist";
 import { Gift, Link2, MoreHorizontal, Pin, PinOff } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-} from "@/components/ui/DropdownMenu/DropdownMenu";
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
 import {
   WISHLIST_VISIBILITY_ICONS,
   getWishlistDisplayVisibility,
@@ -29,13 +26,7 @@ type Props = {
   onPin?: (isPinned: boolean) => void;
 };
 
-export function WishlistCard({
-  wishlist,
-  showSharedMeta = true,
-  onEdit,
-  onDelete,
-  onPin,
-}: Props) {
+export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete, onPin }: Props) {
   const t = useGT();
   const router = useRouter();
   const [menuKey, setMenuKey] = useState(0);
@@ -46,9 +37,7 @@ export function WishlistCard({
   const visibility = getWishlistDisplayVisibility(wishlist);
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[visibility];
   const itemsCount =
-    wishlist.items_count ??
-    (wishlist as Wishlist & { itemsCount?: number }).itemsCount ??
-    0;
+    wishlist.items_count ?? (wishlist as Wishlist & { itemsCount?: number }).itemsCount ?? 0;
 
   const { data: currentUserId = "" } = useCurrentUserId();
 
@@ -84,11 +73,7 @@ export function WishlistCard({
           />
         )}
         {isShared && (
-          <div
-            className={styles.sharedBadge}
-            aria-label={sharedTooltip}
-            title={sharedTooltip}
-          >
+          <div className={styles.sharedBadge} aria-label={sharedTooltip} title={sharedTooltip}>
             <Link2 size={12} />
             <span>{t("Shared", { $id: "wishlistCard.shared" })}</span>
             <span className={styles.sharedTooltip} role="tooltip">
@@ -101,19 +86,14 @@ export function WishlistCard({
             <Pin size={11} />
           </div>
         )}
-        {!hasImage && (
-          <Gift size={64} strokeWidth={1.85} className={styles.icon} />
-        )}
+        {!hasImage && <Gift size={64} strokeWidth={1.85} className={styles.icon} />}
       </div>
 
       <div className={styles.content}>
         <div className={styles.titleRow}>
           <h3 className={styles.title}>{wishlist.title}</h3>
           {showMenu && (
-            <div
-              className={styles.menuWrap}
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className={styles.menuWrap} onClick={(e) => e.stopPropagation()}>
               <DropdownMenu
                 key={menuKey}
                 trigger={({ toggle, open }) => (
@@ -134,20 +114,14 @@ export function WishlistCard({
                   >
                     <MoreHorizontal size={16} />
                     {hasEditWishlistDraft && (
-                      <DraftBadge
-                        variant="dot"
-                        className={styles.menuButtonDraftDot}
-                      />
+                      <DraftBadge variant="dot" className={styles.menuButtonDraftDot} />
                     )}
                   </button>
                 )}
                 className={styles.menuDropdown}
               >
                 {onPin && (
-                  <DropdownMenuItem
-                    variant="pin"
-                    onClick={() => onPin(!wishlist.is_pinned)}
-                  >
+                  <DropdownMenuItem variant="pin" onClick={() => onPin(!wishlist.is_pinned)}>
                     {wishlist.is_pinned ? (
                       <>
                         <PinOff size={14} />

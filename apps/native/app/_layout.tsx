@@ -1,6 +1,13 @@
+import "@/polyfills/gtIntlPolyfills";
 import "@/global.css";
 
-import { getNavigationTheme, getThemeMode } from "@/lib/theme";
+import { useSettings } from "@/hooks/use-settings";
+import {
+  getNativeAccentForWishlistAccent,
+  getNativeThemeNameForPreference,
+  getNavigationTheme,
+  getThemeMode,
+} from "@/lib/theme";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { SignInScreen } from "@/screens/sign-in-screen";
 import { ThemeProvider } from "@react-navigation/native";
@@ -15,7 +22,9 @@ import { GTProvider } from "gt-react-native";
 import { useEffect, useState } from "react";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { ActivityIndicator, Appearance, View } from "react-native";
-import { useUniwind } from "uniwind";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Uniwind, useUniwind } from "uniwind";
+import { DEFAULT_SETTINGS } from "@wishlist/backend/types/settings";
 import gtConfig from "../gt.config.json";
 import { loadTranslations } from "../loadTranslations";
 
@@ -39,10 +48,6 @@ export default function RootLayout() {
   const themeMode = getThemeMode(theme);
   const navigationTheme = getNavigationTheme(theme);
 
-  useEffect(() => {
-    Appearance.setColorScheme(themeMode);
-  }, [themeMode]);
-
   return (
     <PostHogProvider
       apiKey={posthogEnabled ? posthogApiKey : "__POSTHOG_DISABLED__"}
@@ -65,11 +70,13 @@ export default function RootLayout() {
           <AuthProvider>
             <PostHogScreenTracker />
             <ThemeProvider value={navigationTheme}>
-              <ReanimatedTrueSheetProvider>
-                <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
-                <AuthGate />
-                <PortalHost />
-              </ReanimatedTrueSheetProvider>
+              <SafeAreaProvider>
+                <ReanimatedTrueSheetProvider>
+                  <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
+                  <AuthGate />
+                  <PortalHost />
+                </ReanimatedTrueSheetProvider>
+              </SafeAreaProvider>
             </ThemeProvider>
           </AuthProvider>
         </QueryClientProvider>
@@ -94,10 +101,60 @@ function AuthGate() {
   }
 
   return (
-    <TrueSheetNavigator initialRouteName="(tabs)">
-      <TrueSheetNavigator.Screen name="(tabs)" />
-    </TrueSheetNavigator>
+    <>
+      <NativeThemeSync />
+      <TrueSheetNavigator initialRouteName="(tabs)">
+        <TrueSheetNavigator.Screen name="(tabs)" />
+      </TrueSheetNavigator>
+    </>
   );
+}
+
+function NativeThemeSync() {
+  const { data: settings } = useSettings();
+  const themePreference = settings?.theme ?? DEFAULT_SETTINGS.theme;
+  const defaultAccent = settings?.default_accent ?? DEFAULT_SETTINGS.default_accent;
+
+  useEffect(() => {
+    const nativeAccent = getNativeAccentForWishlistAccent(defaultAccent);
+
+    function applyTheme(systemColorScheme: string | null | undefined) {
+      if (themePreference === "system" && nativeAccent === "pink") {
+        Uniwind.setTheme("system");
+        return;
+      }
+
+      Uniwind.setTheme(
+        getNativeThemeNameForPreference(themePreference, defaultAccent, systemColorScheme),
+      );
+    }
+
+    if (themePreference !== "system") {
+      Uniwind.setTheme(getNativeThemeNameForPreference(themePreference, defaultAccent, null));
+      Appearance.setColorScheme(themePreference);
+      return;
+    }
+
+    Appearance.setColorScheme("unspecified");
+    applyTheme(Appearance.getColorScheme());
+
+    const timeout = setTimeout(() => {
+      applyTheme(Appearance.getColorScheme());
+    }, 0);
+
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      if (colorScheme === "light" || colorScheme === "dark") {
+        applyTheme(colorScheme);
+      }
+    });
+
+    return () => {
+      clearTimeout(timeout);
+      subscription.remove();
+    };
+  }, [defaultAccent, themePreference]);
+
+  return null;
 }
 
 function PostHogScreenTracker() {

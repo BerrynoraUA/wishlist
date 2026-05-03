@@ -9,7 +9,7 @@ module.exports = function (api) {
       [
         gtPlugin,
         {
-          locales: [gtConfig.defaultLocale, ...gtConfig.locales],
+          locales: Array.from(new Set([gtConfig.defaultLocale, ...gtConfig.locales])),
           entryPointFilePath: require.resolve("expo-router/entry"),
         },
       ],

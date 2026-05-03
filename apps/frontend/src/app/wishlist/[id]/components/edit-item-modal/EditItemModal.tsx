@@ -19,10 +19,7 @@ import { Item, ItemLink } from "@/types/item";
 import type { UpdateItemParams } from "@/api/types/item";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { validateImageUploadFile } from "@/lib/image-upload";
-import {
-  getCompactCurrencyOptions,
-  resolveCurrency,
-} from "@/lib/helpers/form-select-options";
+import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import { ALL_PRIORITIES } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
 import {
@@ -81,15 +78,7 @@ export function EditItemModal({ open, onClose, item }: Props) {
   return <EditItemForm open={open} item={item} onClose={onClose} />;
 }
 
-function EditItemForm({
-  open,
-  item,
-  onClose,
-}: {
-  open: boolean;
-  item: Item;
-  onClose: () => void;
-}) {
+function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onClose: () => void }) {
   const t = useGT();
   const { data: currentUserId = "" } = useCurrentUserId();
   const { isPro } = useSubscription();
@@ -110,7 +99,7 @@ function EditItemForm({
       ),
       leading: (
         <span
-          className={styles.prioritySelectIcon}
+          className={`${styles.prioritySelectIcon} ${styles.prioritySelectIconNone}`}
           style={
             {
               "--priority-color": "var(--color-text-muted)",
@@ -121,9 +110,7 @@ function EditItemForm({
         </span>
       ),
       trailing: (active: boolean) => (
-        <span
-          className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}
-        >
+        <span className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}>
           {active && <Check size={10} strokeWidth={3} />}
         </span>
       ),
@@ -143,9 +130,7 @@ function EditItemForm({
           </span>
         ),
         trailing: (active: boolean) => (
-          <span
-            className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}
-          >
+          <span className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}>
             {active && <Check size={10} strokeWidth={3} />}
           </span>
         ),
@@ -178,9 +163,7 @@ function EditItemForm({
   );
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [link, setLink] = useState(item.url ?? "");
-  const [additionalLinks, setAdditionalLinks] = useState<ItemLink[]>(
-    item.additional_links ?? [],
-  );
+  const [additionalLinks, setAdditionalLinks] = useState<ItemLink[]>(item.additional_links ?? []);
   const [imagePreview, setImagePreview] = useState(item.image_url ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
@@ -228,9 +211,8 @@ function EditItemForm({
   const isMeaningfulDraft = useCallback(
     (draft: EditItemDraft) => {
       const additionalLinksChanged =
-        JSON.stringify(
-          draft.additionalLinks.filter((itemLink) => itemLink.url.trim()),
-        ) !== JSON.stringify(initialDraft.additionalLinks);
+        JSON.stringify(draft.additionalLinks.filter((itemLink) => itemLink.url.trim())) !==
+        JSON.stringify(initialDraft.additionalLinks);
 
       return (
         draft.name.trim() !== initialDraft.name.trim() ||
@@ -252,11 +234,9 @@ function EditItemForm({
     (draft: EditItemDraft): RestoredEditItemFields => ({
       link: draft.link.trim() !== initialDraft.link.trim(),
       additionalLinks:
-        JSON.stringify(
-          draft.additionalLinks.filter((itemLink) => itemLink.url.trim()),
-        ) !== JSON.stringify(initialDraft.additionalLinks),
-      image:
-        draft.imagePreview !== initialDraft.imagePreview || draft.hadLocalImage,
+        JSON.stringify(draft.additionalLinks.filter((itemLink) => itemLink.url.trim())) !==
+        JSON.stringify(initialDraft.additionalLinks),
+      image: draft.imagePreview !== initialDraft.imagePreview || draft.hadLocalImage,
       name: draft.name.trim() !== initialDraft.name.trim(),
       description: draft.description.trim() !== initialDraft.description.trim(),
       price: draft.price.trim() !== initialDraft.price.trim(),
@@ -425,9 +405,7 @@ function EditItemForm({
       priority_id: priorityValue,
       color_index: colorIndex,
       currency,
-      ...(imageFile
-        ? { image: imageFile }
-        : { image_url: imagePreview || null }),
+      ...(imageFile ? { image: imageFile } : { image_url: imagePreview || null }),
     };
 
     mutate(
@@ -550,9 +528,7 @@ function EditItemForm({
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerCopy}>
-            <Heading>
-              {t("Edit Item", { $id: "item.modal.edit.title" })}
-            </Heading>
+            <Heading>{t("Edit Item", { $id: "item.modal.edit.title" })}</Heading>
           </div>
           {isDraftRestored && (
             <div className={styles.draftBanner}>
@@ -568,11 +544,7 @@ function EditItemForm({
                       })}
                 </span>
               </div>
-              <button
-                type="button"
-                className={styles.draftAction}
-                onClick={handleDiscardDraft}
-              >
+              <button type="button" className={styles.draftAction} onClick={handleDiscardDraft}>
                 {t("Discard", { $id: "draft.discard" })}
               </button>
             </div>
@@ -639,9 +611,7 @@ function EditItemForm({
                     type="button"
                     className={styles.removeLinkBtn}
                     onClick={() => {
-                      setAdditionalLinks(
-                        additionalLinks.filter((_, i) => i !== index),
-                      );
+                      setAdditionalLinks(additionalLinks.filter((_, i) => i !== index));
                     }}
                     aria-label={t("Remove link", {
                       $id: "item.modal.removeLinkAria",
@@ -654,14 +624,10 @@ function EditItemForm({
               <button
                 type="button"
                 className={styles.addLinkBtn}
-                onClick={() =>
-                  setAdditionalLinks([...additionalLinks, { url: "" }])
-                }
+                onClick={() => setAdditionalLinks([...additionalLinks, { url: "" }])}
               >
                 <Plus size={14} />
-                <span>
-                  {t("Add another link", { $id: "item.modal.addAnotherLink" })}
-                </span>
+                <span>{t("Add another link", { $id: "item.modal.addAnotherLink" })}</span>
               </button>
             </div>
           )}
@@ -752,9 +718,7 @@ function EditItemForm({
         <div
           className={`${styles.field} ${isDraftRestored && (restoredFields.price || restoredFields.currency) ? styles.draftField : ""}`.trim()}
         >
-          <label>
-            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
-          </label>
+          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
           <div className={styles.priceRow}>
             <Select
               value={currency}
@@ -880,9 +844,7 @@ function EditItemForm({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={
-              !name.trim() || !hasChanges || isPending || Boolean(imageError)
-            }
+            disabled={!name.trim() || !hasChanges || isPending || Boolean(imageError)}
           >
             {isPending
               ? t("Saving...", { $id: "common.saving" })

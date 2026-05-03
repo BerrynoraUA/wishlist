@@ -13,10 +13,7 @@ import { WishlistAccent } from "@/types/wishlist";
 import type { ThemePreference, WishlistColorIndex } from "@/types/settings";
 import { useAppTheme } from "@/providers";
 import { CurrencySettings } from "../currency-settings/CurrencySettings";
-import {
-  getWishlistAccentSwatches,
-  getWishlistColorSwatches,
-} from "@/lib/constants/wishlist";
+import { getWishlistAccentSwatches, getWishlistColorSwatches } from "@/lib/constants/wishlist";
 import { ALL_PRIORITIES, PRIORITY_IDS } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
 
@@ -229,18 +226,13 @@ export function AppearanceSettings() {
                     : a.label
                 }
               >
-                {locked ? (
-                  <Lock size={14} />
-                ) : (
-                  activeAccent === a.id && <Check size={16} />
-                )}
+                {locked ? <Lock size={14} /> : activeAccent === a.id && <Check size={16} />}
               </button>
             );
           })}
         </div>
         <p className={styles.accentLabel}>
-          {accents.find((a) => a.id === activeAccent)?.label ??
-            defaultColorLabel}
+          {accents.find((a) => a.id === activeAccent)?.label ?? defaultColorLabel}
         </p>
       </SettingsSection>
 
@@ -269,18 +261,13 @@ export function AppearanceSettings() {
                     : a.label
                 }
               >
-                {locked ? (
-                  <Lock size={14} />
-                ) : (
-                  activeWishlistColor === a.id && <Check size={16} />
-                )}
+                {locked ? <Lock size={14} /> : activeWishlistColor === a.id && <Check size={16} />}
               </button>
             );
           })}
         </div>
         <p className={styles.accentLabel}>
-          {wishlistColors.find((a) => a.id === activeWishlistColor)?.label ??
-            defaultColorLabel}
+          {wishlistColors.find((a) => a.id === activeWishlistColor)?.label ?? defaultColorLabel}
         </p>
       </SettingsSection>
 
@@ -288,10 +275,9 @@ export function AppearanceSettings() {
         title={t("Item Priorities", {
           $id: "settings.appearance.prioritiesSectionTitle",
         })}
-        description={t(
-          "Choose which priority levels appear when adding or editing items.",
-          { $id: "settings.appearance.prioritiesSectionDescription" },
-        )}
+        description={t("Choose which priority levels appear when adding or editing items.", {
+          $id: "settings.appearance.prioritiesSectionDescription",
+        })}
       >
         <div className={styles.priorityList}>
           {basePriorities.map(renderPriorityRow)}

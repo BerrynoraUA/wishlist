@@ -17,10 +17,7 @@ import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { validateImageUploadFile } from "@/lib/image-upload";
-import {
-  getCompactCurrencyOptions,
-  resolveCurrency,
-} from "@/lib/helpers/form-select-options";
+import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import { ALL_PRIORITIES } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
 import {
@@ -96,7 +93,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       ),
       leading: (
         <span
-          className={styles.prioritySelectIcon}
+          className={`${styles.prioritySelectIcon} ${styles.prioritySelectIconNone}`}
           style={
             {
               "--priority-color": "var(--color-text-muted)",
@@ -107,9 +104,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </span>
       ),
       trailing: (active: boolean) => (
-        <span
-          className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}
-        >
+        <span className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}>
           {active && <Check size={10} strokeWidth={3} />}
         </span>
       ),
@@ -129,9 +124,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           </span>
         ),
         trailing: (active: boolean) => (
-          <span
-            className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}
-          >
+          <span className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}>
             {active && <Check size={10} strokeWidth={3} />}
           </span>
         ),
@@ -447,9 +440,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerCopy}>
-            <Heading>
-              {t("Create Item", { $id: "item.modal.create.title" })}
-            </Heading>
+            <Heading>{t("Create Item", { $id: "item.modal.create.title" })}</Heading>
             <Text variant="caption" tone="muted">
               {t("Add a product to this wishlist.", {
                 $id: "item.modal.create.subtitle",
@@ -470,11 +461,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                       })}
                 </span>
               </div>
-              <button
-                type="button"
-                className={styles.draftAction}
-                onClick={handleDiscardDraft}
-              >
+              <button type="button" className={styles.draftAction} onClick={handleDiscardDraft}>
                 {t("Discard", { $id: "draft.discard" })}
               </button>
             </div>
@@ -505,10 +492,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               disabled={!link.trim() && !loading}
             >
               {loading ? (
-                <Loader2
-                  size={16}
-                  style={{ animation: "spin 0.8s linear infinite" }}
-                />
+                <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
               ) : (
                 t("Clear", { $id: "common.clear" })
               )}
@@ -538,9 +522,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                     type="button"
                     className={styles.removeLinkBtn}
                     onClick={() => {
-                      setAdditionalLinks(
-                        additionalLinks.filter((_, i) => i !== index),
-                      );
+                      setAdditionalLinks(additionalLinks.filter((_, i) => i !== index));
                     }}
                     aria-label={t("Remove link", {
                       $id: "item.modal.removeLinkAria",
@@ -553,14 +535,10 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               <button
                 type="button"
                 className={styles.addLinkBtn}
-                onClick={() =>
-                  setAdditionalLinks([...additionalLinks, { url: "" }])
-                }
+                onClick={() => setAdditionalLinks([...additionalLinks, { url: "" }])}
               >
                 <Plus size={14} />
-                <span>
-                  {t("Add another link", { $id: "item.modal.addAnotherLink" })}
-                </span>
+                <span>{t("Add another link", { $id: "item.modal.addAnotherLink" })}</span>
               </button>
             </div>
           )}
@@ -647,9 +625,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>
-            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
-          </label>
+          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
           <div className={styles.priceRow}>
             <Select
               value={currency}

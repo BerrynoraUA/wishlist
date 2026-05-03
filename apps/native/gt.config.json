@@ -1,11 +1,14 @@
 {
   "$schema": "https://assets.gtx.dev/config-schema.json",
   "defaultLocale": "en",
-  "locales": ["uk"],
+  "locales": [
+    "en",
+    "uk"
+  ],
   "files": {
     "gt": {
       "output": "content/[locale].json"
     }
   },
-  "_versionId": "6d4129b821d8378a07285c8578c4192bcecdbe33ff3a36d43cc60dba1ce94d39"
+  "_versionId": "e22503b22d044f8ac682b01f879aab8618fd1bb1348f05052c8e55f3b411c39c"
 }

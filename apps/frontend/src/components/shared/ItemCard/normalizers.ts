@@ -19,8 +19,7 @@ export function normalizeDiscoverItem(item: DiscoverItem): ItemCardData {
     currency: item.currency ?? null,
     status: item.status ?? null,
     isReserved: item.isReserved,
-    reservedBy:
-      (item.reservedBy ?? item.reserved_by ?? null)?.toString() ?? null,
+    reservedBy: (item.reservedBy ?? item.reserved_by ?? null)?.toString() ?? null,
     reservedByName: item.reservedByName ?? null,
     colorIndex: item.color_index ?? null,
   };
@@ -47,10 +46,7 @@ export function normalizeReservedItem(item: ReservedItem): ItemCardData {
   };
 }
 
-export function normalizeWishlistItem(
-  item: Item,
-  reservedByName?: string | null,
-): ItemCardData {
+export function normalizeWishlistItem(item: Item, reservedByName?: string | null): ItemCardData {
   return {
     id: item.id,
     name: item.name,

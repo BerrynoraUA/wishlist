@@ -2,32 +2,46 @@ import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
-import { useDeleteItem } from "@/hooks/use-items";
-import type { Item } from "@wishlist/backend/types/item";
+import { useDeleteWishlist } from "@/hooks/use-wishlists";
+import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Trash2 } from "lucide-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
 
-export function DeleteItemSheet({
-  item,
+export function WishlistDeleteSheet({
+  wishlist,
   onOpenChange,
+  onDeleted,
 }: {
-  item: Item | null;
+  wishlist: Wishlist | null;
   onOpenChange: (open: boolean) => void;
+  onDeleted?: () => void;
 }) {
+  const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
-  const mutation = useDeleteItem();
+  const mutation = useDeleteWishlist();
+  const open = Boolean(wishlist);
 
-  if (!item) return null;
-  const selectedItem = item;
+  if (!open) return null;
 
   function handleClose() {
-    void sheetRef.current?.dismiss();
+    if (!sheetRef.current) {
+      onOpenChange(false);
+      return;
+    }
+
+    void sheetRef.current.dismiss();
   }
 
   function handleDelete() {
-    mutation.mutate(selectedItem.id, {
-      onSuccess: handleClose,
+    if (!wishlist) return;
+
+    mutation.mutate(wishlist.id, {
+      onSuccess: () => {
+        handleClose();
+        onDeleted?.();
+      },
     });
   }
 
@@ -40,9 +54,11 @@ export function DeleteItemSheet({
     >
       <View className="gap-4 px-5 pb-5 pt-5">
         <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">Delete Item</Text>
+          <Text className="text-lg font-extrabold text-text">{t("Delete Wishlist")}</Text>
           <Text className="text-sm text-text-muted">
-            Are you sure you want to delete this item? This action cannot be undone.
+            {t(
+              "Are you sure you want to delete this entire wishlist and all its items? This action cannot be undone.",
+            )}
           </Text>
         </View>
 
@@ -52,12 +68,12 @@ export function DeleteItemSheet({
 
         <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="outline" disabled={mutation.isPending} onPress={handleClose}>
-            <Text>Cancel</Text>
+            <Text>{t("Cancel")}</Text>
           </Button>
           <Button variant="destructive" disabled={mutation.isPending} onPress={handleDelete}>
             {mutation.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
             <Icon as={Trash2} className="size-4 text-white" />
-            <Text>Delete Item</Text>
+            <Text>{t("Delete Wishlist")}</Text>
           </Button>
         </View>
       </View>

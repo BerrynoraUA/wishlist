@@ -1,4 +1,6 @@
 import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
+import type { ThemePreference } from "@wishlist/backend/types/settings";
+import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 
 export const NATIVE_THEME_NAMES = [
   "light",
@@ -18,6 +20,7 @@ export const NATIVE_THEME_NAMES = [
 export type NativeThemeName = (typeof NATIVE_THEME_NAMES)[number];
 export type NativeThemeMode = "light" | "dark";
 export type NativeAccentName = "pink" | "blue" | "peach" | "mint" | "lavender";
+export type NativeGradientColors = readonly [string, string, string];
 
 export const NATIVE_ACCENTS = [
   {
@@ -113,6 +116,26 @@ const THEME_PALETTES: Record<NativeThemeName, ThemePalette> = {
   "lavender-dark": { mode: "dark", ...DARK_BASE, primary: "#a78bfa" },
 };
 
+const PRIMARY_GRADIENT_COLORS: Record<
+  NativeThemeMode,
+  Record<NativeAccentName, NativeGradientColors>
+> = {
+  light: {
+    pink: ["#ec4899", "#c0267e", "#f472b6"],
+    blue: ["#60a5fa", "#2563eb", "#93c5fd"],
+    peach: ["#f59e0b", "#d97706", "#fbbf24"],
+    mint: ["#10b981", "#059669", "#34d399"],
+    lavender: ["#8b5cf6", "#7c3aed", "#a78bfa"],
+  },
+  dark: {
+    pink: ["#f472b6", "#e052a0", "#f9a8d4"],
+    blue: ["#93c5fd", "#60a5fa", "#bfdbfe"],
+    peach: ["#fde68a", "#fbbf24", "#fef3c7"],
+    mint: ["#6ee7b7", "#34d399", "#a7f3d0"],
+    lavender: ["#c4b5fd", "#a78bfa", "#ddd6fe"],
+  },
+};
+
 function createNavigationTheme(palette: ThemePalette): Theme {
   const baseTheme = palette.mode === "dark" ? DarkTheme : DefaultTheme;
 
@@ -152,6 +175,28 @@ export function getThemeAccent(theme: string | null | undefined): NativeAccentNa
   return isNativeAccentName(accent) ? accent : "pink";
 }
 
+export function getPrimaryGradientColors(theme: string | null | undefined): NativeGradientColors {
+  return PRIMARY_GRADIENT_COLORS[getThemeMode(theme)][getThemeAccent(theme)];
+}
+
+export function getNativeAccentForWishlistAccent(
+  accent: WishlistAccent | null | undefined,
+): NativeAccentName {
+  switch (accent) {
+    case WishlistAccent.Blue:
+      return "blue";
+    case WishlistAccent.Peach:
+      return "peach";
+    case WishlistAccent.Mint:
+      return "mint";
+    case WishlistAccent.Lavender:
+      return "lavender";
+    case WishlistAccent.Pink:
+    default:
+      return "pink";
+  }
+}
+
 export function getNativeThemeName(
   mode: NativeThemeMode,
   accent: NativeAccentName,
@@ -161,6 +206,17 @@ export function getNativeThemeName(
   }
 
   return mode === "dark" ? `${accent}-dark` : accent;
+}
+
+export function getNativeThemeNameForPreference(
+  preference: ThemePreference,
+  accent: WishlistAccent | null | undefined,
+  systemColorScheme: string | null | undefined,
+): NativeThemeName {
+  const mode =
+    preference === "system" ? (systemColorScheme === "dark" ? "dark" : "light") : preference;
+
+  return getNativeThemeName(mode, getNativeAccentForWishlistAccent(accent));
 }
 
 export function getNavigationTheme(theme: string | null | undefined): Theme {

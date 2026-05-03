@@ -1,6 +1,7 @@
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
 
@@ -18,6 +19,7 @@ export function ShareFeedbackSheet({
   feedback: ShareFeedback;
   onOpenChange: (open: boolean) => void;
 }) {
+  const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
 
   if (!feedback) return null;
@@ -56,7 +58,7 @@ export function ShareFeedbackSheet({
         ) : null}
 
         <Button onPress={handleClose}>
-          <Text>Done</Text>
+          <Text>{t("Done")}</Text>
         </Button>
       </View>
     </BottomSheet>

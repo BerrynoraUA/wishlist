@@ -8,6 +8,7 @@ import * as React from "react";
 import { Platform, Text, View, type ViewProps } from "react-native";
 import { FadeIn, FadeOut } from "react-native-reanimated";
 import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
+import { useGT } from "gt-react-native";
 
 const Dialog = DialogPrimitive.Root;
 
@@ -67,6 +68,8 @@ function DialogContent({
   overlayClassName?: string;
   portalHost?: string;
 }) {
+  const t = useGT();
+
   return (
     <DialogPortal hostName={portalHost}>
       <DialogOverlay className={overlayClassName}>
@@ -88,7 +91,7 @@ function DialogContent({
               hitSlop={12}
             >
               <Icon as={X} className="text-accent-foreground size-4 shrink-0" />
-              <Text className="sr-only">Close</Text>
+              <Text className="sr-only">{t("Close")}</Text>
             </DialogPrimitive.Close>
           </DialogPrimitive.Content>
         </NativeOnlyAnimatedView>

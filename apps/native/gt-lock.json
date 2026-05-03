@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "branchId": "",
+  "entries": [
+    {
+      "fileId": "879f3a5f954ee8b75bf1e91f4ea9916b41c933e5beba7eb6362647a637c9c66d",
+      "versionId": "e22503b22d044f8ac682b01f879aab8618fd1bb1348f05052c8e55f3b411c39c",
+      "translations": {
+        "uk": {
+          "updatedAt": "2026-05-03T13:00:46.682Z",
+          "fileName": "C:\\Users\\roman\\source\\repos\\wishlist\\apps\\native\\content\\uk.json",
+          "postProcessHash": "a9ff370d08a25085e140cb062a77b531753abea275d4e005c1009799bb26573a"
+        }
+      },
+      "fileName": "__INTERNAL_GT_TEMPLATE_NAME__",
+      "staged": false
+    }
+  ]
+}
