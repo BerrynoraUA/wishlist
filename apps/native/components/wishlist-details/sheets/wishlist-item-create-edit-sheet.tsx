@@ -107,6 +107,35 @@ export function WishlistItemCreateEditSheet({
     }
   }
 
+  function clearProductLinkAndScraperFields() {
+    scrapeRequestIdRef.current += 1;
+    setIsScraping(false);
+    setScrapeError(null);
+    lastScrapedUrlRef.current = "";
+    patchValues({
+      url: "",
+      name: "",
+      description: "",
+      imageUrl: "",
+      price: "",
+      currency: EMPTY_ITEM_FORM.currency,
+      discountPrice: EMPTY_ITEM_FORM.discountPrice,
+      hasDiscount: EMPTY_ITEM_FORM.hasDiscount,
+      discountEndDate: EMPTY_ITEM_FORM.discountEndDate,
+    });
+  }
+
+  const canClearScrapedFields =
+    mode === "create" &&
+    (values.url.trim() !== "" ||
+      values.name.trim() !== "" ||
+      values.description.trim() !== "" ||
+      values.imageUrl.trim() !== "" ||
+      values.price.trim() !== "" ||
+      values.discountPrice.trim() !== "" ||
+      values.discountEndDate.trim() !== "" ||
+      values.hasDiscount);
+
   function handleClose() {
     void sheetRef.current?.dismiss();
   }
@@ -257,8 +286,16 @@ export function WishlistItemCreateEditSheet({
                   />
                 )}
               />
-              {isScraping ? (
-                <ActivityIndicator colorClassName="accent-secondary-foreground" />
+              {canClearScrapedFields ? (
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  disabled={isScraping || isPending}
+                  onPress={clearProductLinkAndScraperFields}
+                  accessibilityLabel={t("Clear product link and autofill")}
+                >
+                  <Icon as={X} className="size-4 text-white" />
+                </Button>
               ) : null}
             </View>
             {productLinkInvalid ? (
