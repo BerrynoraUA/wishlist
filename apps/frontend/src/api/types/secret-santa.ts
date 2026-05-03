@@ -99,6 +99,7 @@ export type VisibleItem = {
   name: string;
   description: string | null;
   price: string | null;
+  color_index: number | null;
   discount_price: string | null;
   has_discount: boolean | null;
   effective_price: number | null;

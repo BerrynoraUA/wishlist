@@ -1,5 +1,6 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { Item } from "@/types/item";
+import type { ItemQueryParams } from "@wishlist/backend/types";
 import { CreateItemParams, UpdateItemParams } from "./types/item";
 import { getCurrentSession } from "./user";
 import { deletePublicImage, uploadPublicImage } from "@/lib/helpers/storage-image";
@@ -75,7 +76,7 @@ export async function createItem({
 
 export async function getWishlistItems(
   wishlistId: string,
-  params: PaginationParams = {},
+  params: ItemQueryParams = {},
 ): Promise<Item[]> {
   const {
     skip = 0,

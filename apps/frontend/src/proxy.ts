@@ -55,6 +55,8 @@ export async function proxy(request: NextRequest) {
   }
 
   const isAuthPage = pathname === "/login" || pathname === "/register";
+  const isAddAccountFlow =
+    request.nextUrl.searchParams.get("account_mode") === "add";
 
   if (!user && !isAuthPage) {
     const redirectUrl = new URL("/login", request.url);
@@ -66,7 +68,7 @@ export async function proxy(request: NextRequest) {
     return redirect;
   }
 
-  if (user && isAuthPage) {
+  if (user && isAuthPage && !isAddAccountFlow) {
     const redirectParam = request.nextUrl.searchParams.get("redirect_to");
     const target = redirectParam || "/home";
     const redirect = NextResponse.redirect(new URL(target, request.url));

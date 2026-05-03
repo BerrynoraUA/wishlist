@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useGT } from "gt-next";
-import { TESTIMONIAL_FADE_MS, TESTIMONIAL_ROTATION_MS } from "../../login/constants";
+import {
+  TESTIMONIAL_FADE_MS,
+  TESTIMONIAL_ROTATION_MS,
+} from "../../login/constants";
 import { getRegisterTestimonials } from "../helpers";
 
 /**
@@ -14,7 +17,18 @@ export function useRegisterPage() {
   const t = useGT();
   const searchParams = useSearchParams();
 
-  const redirectTo = useMemo(() => searchParams.get("redirect_to") || "/home", [searchParams]);
+  const redirectTo = useMemo(
+    () => searchParams.get("redirect_to") || "/home",
+    [searchParams],
+  );
+  const loginHref = useMemo(() => {
+    const params = new URLSearchParams();
+    const accountMode = searchParams.get("account_mode");
+    if (redirectTo) params.set("redirect_to", redirectTo);
+    if (accountMode) params.set("account_mode", accountMode);
+    const query = params.toString();
+    return query ? `/login?${query}` : "/login";
+  }, [redirectTo, searchParams]);
 
   const testimonials = useMemo(() => getRegisterTestimonials(t), [t]);
 
@@ -34,6 +48,7 @@ export function useRegisterPage() {
 
   return {
     redirectTo,
+    loginHref,
     currentTestimonial: testimonials[testimonialIdx],
     fadeIn,
   };
