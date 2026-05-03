@@ -22,7 +22,7 @@ import { AddCard } from "@/components/wishlists/add-card";
 import {
   wishlistCardFadeIn,
   wishlistGridLinearTransition,
-} from "@/components/wishlists/wishlist-screen-animations";
+} from "@/components/wishlists/wishlist-grid-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import type { TriggerRef } from "@rn-primitives/dropdown-menu";
 import { LinearGradient } from "expo-linear-gradient";
@@ -146,7 +146,7 @@ export function WishlistList({
   );
 }
 
-export function StatsRow() {
+export function WishlistListStatsRow() {
   const { width } = useWindowDimensions();
   const { data, isError, isLoading } = useMyStatistics();
   const gap = 12;

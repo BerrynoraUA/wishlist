@@ -10,7 +10,7 @@ import { Check, Search, Shield, SquarePen, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
 
-export function GrantWishlistAccessSheet({
+export function WishlistGrantAccessSheet({
   open,
   wishlistId,
   wishlistTitle,

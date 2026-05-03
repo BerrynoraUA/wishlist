@@ -31,7 +31,7 @@ export type WishlistItemFilterState = {
   sort: string;
 };
 
-export function hasWishlistItemFilters(filters: WishlistItemFilterState) {
+export function wishlistItemFilterBarHasActiveFilters(filters: WishlistItemFilterState) {
   return (
     filters.search.trim() !== "" ||
     filters.statuses.length > 0 ||
@@ -42,7 +42,7 @@ export function hasWishlistItemFilters(filters: WishlistItemFilterState) {
   );
 }
 
-export function WishlistItemToolbar({
+export function WishlistItemFilterBar({
   filters,
   onChange,
   onReset,
@@ -54,7 +54,7 @@ export function WishlistItemToolbar({
   onAddItem?: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
-  const active = hasWishlistItemFilters(filters);
+  const active = wishlistItemFilterBarHasActiveFilters(filters);
   const selectedSort =
     ITEM_SORT_OPTIONS.find((option) => option.value === filters.sort)?.label ?? "Newest first";
 

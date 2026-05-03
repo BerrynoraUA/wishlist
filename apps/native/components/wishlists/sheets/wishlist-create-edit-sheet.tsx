@@ -106,7 +106,7 @@ function formatDateFieldLabel(value: string) {
   return date ? dateLabelFormatter.format(date) : "Select a date";
 }
 
-export function WishlistFormSheet({
+export function WishlistCreateEditSheet({
   mode,
   open,
   wishlist,
@@ -156,10 +156,7 @@ export function WishlistFormSheet({
     values.visibility === WishlistVisibility.SelectedFriends && canManageSelectedAccess;
   const accessPanelAnimatedStyle = useAnimatedStyle(() => ({
     opacity: accessPanelOpacity.value,
-    transform: [
-      { translateY: accessPanelTranslateY.value },
-      { scaleY: accessPanelScaleY.value },
-    ],
+    transform: [{ translateY: accessPanelTranslateY.value }, { scaleY: accessPanelScaleY.value }],
   }));
 
   const {
@@ -458,7 +455,7 @@ export function WishlistFormSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={[0.70, 1]}
+      detents={[0.7, 1]}
       scrollable
       dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}

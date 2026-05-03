@@ -57,7 +57,7 @@ function toDateFieldValue(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-export function WishlistDetailHeader({
+export function WishlistItemHeader({
   wishlist,
   isOwner,
   onEdit,

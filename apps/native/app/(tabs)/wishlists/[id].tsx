@@ -2,23 +2,23 @@ import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
+import { WishlistItemDetailSheet } from "@/components/wishlist-details/sheets/wishlist-item-detail-sheet";
+import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheets/wishlist-item-create-edit-sheet";
+import { WishlistItemHeader } from "@/components/wishlist-details/wishlist-item-header";
+import { WishlistItemCard } from "@/components/wishlist-details/wishlist-item-card";
+import {
+  wishlistItemFilterBarHasActiveFilters,
+  WishlistItemFilterBar,
+  type WishlistItemFilterState,
+} from "@/components/wishlist-details/wishlist-item-filter-bar";
 import { AddCard } from "@/components/wishlists/add-card";
-import { DeleteItemSheet } from "@/components/wishlists/delete-item-sheet";
-import { DeleteWishlistSheet } from "@/components/wishlists/delete-wishlist-sheet";
-import { WishlistDetailHeader } from "@/components/wishlists/wishlist-detail-header";
-import { WishlistFormSheet } from "@/components/wishlists/wishlist-form-sheet";
-import { WishlistItemCard } from "@/components/wishlists/wishlist-item-card";
-import { WishlistItemDetailSheet } from "@/components/wishlists/wishlist-item-detail-sheet";
-import { WishlistItemFormSheet } from "@/components/wishlists/wishlist-item-form-sheet";
 import {
   wishlistCardFadeIn,
   wishlistGridLinearTransition,
-} from "@/components/wishlists/wishlist-screen-animations";
-import {
-  hasWishlistItemFilters,
-  WishlistItemToolbar,
-  type WishlistItemFilterState,
-} from "@/components/wishlists/wishlist-item-toolbar";
+} from "@/components/wishlists/wishlist-grid-animations";
+import { WishlistDeleteSheet } from "@/components/wishlists/sheets/wishlist-delete-sheet";
+import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import { useCheckFriendship, useProfilesByIds } from "@/hooks/use-friends";
 import {
   useItemVotes,
@@ -134,7 +134,7 @@ export default function WishlistDetailScreen() {
 
     return new Map(entries);
   }, [profilesQuery.data]);
-  const filtersActive = hasWishlistItemFilters(filters);
+  const filtersActive = wishlistItemFilterBarHasActiveFilters(filters);
   const hasAnyItems = (allItemsQuery.data?.length ?? 0) > 0;
   const pagination = paginationFlags(page, items.length, WISHLIST_ITEMS_PAGE_SIZE);
   const contentWidth = Math.min(width - 32, 1200);
@@ -183,7 +183,7 @@ export default function WishlistDetailScreen() {
             contentInsetAdjustmentBehavior="automatic"
             contentContainerClassName="items-center pb-safe-offset-8"
           >
-            <WishlistDetailHeader
+            <WishlistItemHeader
               wishlist={wishlist}
               isOwner={wishlist.is_owner}
               onEdit={
@@ -194,7 +194,7 @@ export default function WishlistDetailScreen() {
               }
             />
             <View className="w-full gap-5 px-4 pt-5" style={{ maxWidth: 1200 }}>
-              <WishlistItemToolbar
+              <WishlistItemFilterBar
                 filters={filters}
                 onChange={updateFilters}
                 onReset={resetFilters}
@@ -305,7 +305,7 @@ export default function WishlistDetailScreen() {
         >
           <Icon as={ChevronLeft} className="size-7 text-text" />
         </AnimatedPressable>
-        <WishlistItemFormSheet
+        <WishlistItemCreateEditSheet
           mode={sheet?.type === "edit" ? "edit" : "create"}
           wishlistId={wishlistId}
           item={sheet?.type === "edit" ? sheet.item : undefined}
@@ -314,7 +314,7 @@ export default function WishlistDetailScreen() {
             if (!open) setSheet(null);
           }}
         />
-        <WishlistFormSheet
+        <WishlistCreateEditSheet
           mode="edit"
           open={sheet?.type === "editWishlist"}
           wishlist={sheet?.type === "editWishlist" ? sheet.wishlist : undefined}
@@ -322,7 +322,7 @@ export default function WishlistDetailScreen() {
             if (!open) setSheet(null);
           }}
         />
-        <DeleteWishlistSheet
+        <WishlistDeleteSheet
           wishlist={sheet?.type === "deleteWishlist" ? sheet.wishlist : null}
           onOpenChange={(open) => {
             if (!open) setSheet(null);
@@ -346,7 +346,7 @@ export default function WishlistDetailScreen() {
           onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
           onToggleBought={(itemId) => toggleBought.mutate(itemId)}
         />
-        <DeleteItemSheet
+        <WishlistItemDeleteSheet
           item={sheet?.type === "delete" ? sheet.item : null}
           onOpenChange={(open) => {
             if (!open) setSheet(null);

@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { MessageBottomSheet, type SheetMessage } from "@/components/ui/action-bottom-sheet";
+import {
+  ActionBottomSheetMessage,
+  type ActionBottomSheetMessagePayload,
+} from "@/components/ui/action-bottom-sheet";
 import { StyledImage } from "@/components/ui/styled-image";
 import { StyledPressable } from "@/components/ui/styled-pressable";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
-import { LabeledInput } from "@/components/settings/settings-controls";
+import { SettingsControlsLabeledInput } from "@/components/settings/settings-controls";
 import { SettingsSection } from "@/components/settings/settings-section";
 import {
   useCheckNickname,
@@ -28,7 +31,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
   const [height, setHeight] = React.useState("");
   const [shoeSize, setShoeSize] = React.useState("");
   const [bio, setBio] = React.useState("");
-  const [message, setMessage] = React.useState<SheetMessage | null>(null);
+  const [message, setMessage] = React.useState<ActionBottomSheetMessagePayload | null>(null);
   const [nicknameStatus, setNicknameStatus] = React.useState<
     "idle" | "checking" | "available" | "taken"
   >("idle");
@@ -193,7 +196,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
           </View>
         </View>
 
-        <LabeledInput
+        <SettingsControlsLabeledInput
           label="Display Name"
           value={displayName}
           onChangeText={setDisplayName}
@@ -201,7 +204,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
           placeholder="Your name"
           error={displayNameError}
         />
-        <LabeledInput
+        <SettingsControlsLabeledInput
           label="Nickname"
           value={nickname}
           onChangeText={(value) => setNickname(value.toLowerCase().replace(/[^a-z0-9._-]/g, ""))}
@@ -217,7 +220,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
           }
         />
         <View className="flex-row gap-3">
-          <LabeledInput
+          <SettingsControlsLabeledInput
             className="flex-1"
             label="Height"
             value={height}
@@ -226,7 +229,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
             placeholder="175"
             hint="cm"
           />
-          <LabeledInput
+          <SettingsControlsLabeledInput
             className="flex-1"
             label="Shoe size"
             value={shoeSize}
@@ -254,7 +257,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
           <Text>{updateProfile.isPending ? "Saving..." : "Save Changes"}</Text>
         </Button>
       </SettingsSection>
-      <MessageBottomSheet message={message} onClose={() => setMessage(null)} />
+      <ActionBottomSheetMessage message={message} onClose={() => setMessage(null)} />
     </>
   );
 }

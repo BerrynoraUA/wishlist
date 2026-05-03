@@ -24,7 +24,7 @@ import { Plus, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 
-export function WishlistItemFormSheet({
+export function WishlistItemCreateEditSheet({
   mode,
   wishlistId,
   item,

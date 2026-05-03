@@ -1,4 +1,4 @@
-import { ToggleRow } from "@/components/settings/settings-controls";
+import { SettingsControlsToggleRow } from "@/components/settings/settings-controls";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { Bell, Gift, Mail, UserPlus } from "lucide-react-native";
@@ -12,25 +12,25 @@ export function NotificationSettings({
 
   return (
     <SettingsSection title="Push Notifications" icon={Bell}>
-      <ToggleRow
+      <SettingsControlsToggleRow
         icon={UserPlus}
         title="Friend Requests"
         checked={settings?.notify_friend_requests ?? true}
         onCheckedChange={(value) => updateSettings.mutate({ notify_friend_requests: value })}
       />
-      <ToggleRow
+      <SettingsControlsToggleRow
         icon={Gift}
         title="Item Reservations"
         checked={settings?.notify_reservations ?? true}
         onCheckedChange={(value) => updateSettings.mutate({ notify_reservations: value })}
       />
-      <ToggleRow
+      <SettingsControlsToggleRow
         icon={Bell}
         title="Sale Alerts"
         checked={settings?.notify_sale_alerts ?? true}
         onCheckedChange={(value) => updateSettings.mutate({ notify_sale_alerts: value })}
       />
-      <ToggleRow
+      <SettingsControlsToggleRow
         icon={Mail}
         title="Email Digest"
         checked={settings?.email_digest ?? false}

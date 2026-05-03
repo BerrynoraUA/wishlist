@@ -1,6 +1,6 @@
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
-import { ConfirmBottomSheet } from "@/components/ui/action-bottom-sheet";
+import { ActionBottomSheetConfirm } from "@/components/ui/action-bottom-sheet";
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
@@ -303,7 +303,7 @@ export function WishlistItemDetailSheet({
           </View>
         </View>
       </BottomSheet>
-      <ConfirmBottomSheet
+      <ActionBottomSheetConfirm
         open={Boolean(confirmation)}
         title={confirmation?.title ?? ""}
         message={confirmation?.message ?? ""}

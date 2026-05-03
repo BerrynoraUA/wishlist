@@ -1,11 +1,14 @@
 import {
-  ConfirmBottomSheet,
-  MessageBottomSheet,
-  type SheetMessage,
+  ActionBottomSheetConfirm,
+  ActionBottomSheetMessage,
+  type ActionBottomSheetMessagePayload,
 } from "@/components/ui/action-bottom-sheet";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
-import { InfoRow, LabeledInput } from "@/components/settings/settings-controls";
+import {
+  SettingsControlsInfoRow,
+  SettingsControlsLabeledInput,
+} from "@/components/settings/settings-controls";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { Button } from "@/components/ui/button";
 import { useAuthProvider, useChangePassword, useDeleteAccount } from "@/hooks/use-settings";
@@ -25,7 +28,7 @@ export function AccountSettings({
   const deleteAccount = useDeleteAccount();
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [message, setMessage] = React.useState<SheetMessage | null>(null);
+  const [message, setMessage] = React.useState<ActionBottomSheetMessagePayload | null>(null);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const isOAuth = provider !== "email";
 
@@ -80,19 +83,19 @@ export function AccountSettings({
           </Button>
         }
       >
-        <InfoRow icon={Mail} title={email || "Email unavailable"} />
-        <InfoRow icon={Shield} title={isOAuth ? "Google Account" : "Email Account"} />
+        <SettingsControlsInfoRow icon={Mail} title={email || "Email unavailable"} />
+        <SettingsControlsInfoRow icon={Shield} title={isOAuth ? "Google Account" : "Email Account"} />
 
         {!isOAuth && (
           <View className="gap-3">
-            <LabeledInput
+            <SettingsControlsLabeledInput
               label="New Password"
               value={newPassword}
               onChangeText={setNewPassword}
               secureTextEntry
               placeholder="Enter new password"
             />
-            <LabeledInput
+            <SettingsControlsLabeledInput
               label="Confirm Password"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
@@ -124,8 +127,8 @@ export function AccountSettings({
           </Button>
         </View>
       </SettingsSection>
-      <MessageBottomSheet message={message} onClose={() => setMessage(null)} />
-      <ConfirmBottomSheet
+      <ActionBottomSheetMessage message={message} onClose={() => setMessage(null)} />
+      <ActionBottomSheetConfirm
         open={deleteOpen}
         title="Delete Account"
         message="This will permanently delete your profile, wishlists, items, friend connections, notifications, and subscription. This action cannot be undone."

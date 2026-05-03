@@ -4,16 +4,16 @@ import { Text } from "@/components/ui/text";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
 
-export type SheetMessage = {
+export type ActionBottomSheetMessagePayload = {
   title: string;
   message?: string;
 };
 
-export function MessageBottomSheet({
+export function ActionBottomSheetMessage({
   message,
   onClose,
 }: {
-  message: SheetMessage | null;
+  message: ActionBottomSheetMessagePayload | null;
   onClose: () => void;
 }) {
   const sheetRef = React.useRef<BottomSheetRef>(null);
@@ -41,7 +41,7 @@ export function MessageBottomSheet({
   );
 }
 
-export function ConfirmBottomSheet({
+export function ActionBottomSheetConfirm({
   open,
   title,
   message,

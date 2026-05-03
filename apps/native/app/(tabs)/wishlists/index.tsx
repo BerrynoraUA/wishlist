@@ -1,12 +1,12 @@
-import { DeleteWishlistSheet } from "@/components/wishlists/delete-wishlist-sheet";
-import { WishlistFormSheet } from "@/components/wishlists/wishlist-form-sheet";
-import { WishlistItemFormSheet } from "@/components/wishlists/wishlist-item-form-sheet";
+import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheets/wishlist-item-create-edit-sheet";
+import { WishlistDeleteSheet } from "@/components/wishlists/sheets/wishlist-delete-sheet";
+import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Stack } from "expo-router";
 import * as React from "react";
 import { ScrollView, View, useWindowDimensions } from "react-native";
-import { WishlistFilterBar } from "@/components/wishlists-screen/wishlist-filter-bar";
-import { StatsRow, WishlistList } from "@/components/wishlists-screen/wishlist-list";
+import { WishlistFilterBar } from "@/components/wishlists/wishlist-filter-bar";
+import { WishlistListStatsRow, WishlistList } from "@/components/wishlists/wishlist-list";
 import { useWishlistFeed } from "@/hooks/use-wishlist-feed";
 
 type SheetState =
@@ -31,7 +31,7 @@ export default function WishlistsScreen() {
           contentContainerClassName="items-center gap-6 px-4 pb-safe-offset-8 pt-6"
         >
           <View className="w-full gap-6" style={{ maxWidth: 1200 }}>
-            <StatsRow />
+            <WishlistListStatsRow />
             <WishlistFilterBar
               search={feed.search}
               visibility={feed.visibility}
@@ -58,7 +58,7 @@ export default function WishlistsScreen() {
           </View>
         </ScrollView>
 
-        <WishlistFormSheet
+        <WishlistCreateEditSheet
           mode={sheet?.type === "edit" ? "edit" : "create"}
           open={sheet?.type === "create" || sheet?.type === "edit"}
           wishlist={sheet?.type === "edit" ? sheet.wishlist : undefined}
@@ -66,13 +66,13 @@ export default function WishlistsScreen() {
             if (!open) setSheet(null);
           }}
         />
-        <DeleteWishlistSheet
+        <WishlistDeleteSheet
           wishlist={sheet?.type === "delete" ? sheet.wishlist : null}
           onOpenChange={(open) => {
             if (!open) setSheet(null);
           }}
         />
-        <WishlistItemFormSheet
+        <WishlistItemCreateEditSheet
           mode="create"
           wishlistId={sheet?.type === "addItem" ? sheet.wishlist.id : ""}
           open={sheet?.type === "addItem"}

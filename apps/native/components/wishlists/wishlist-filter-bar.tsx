@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
+import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import {
   DEFAULT_WISHLIST_SORT,
@@ -16,10 +17,9 @@ import {
   WISHLIST_VISIBILITY_OPTIONS,
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
-import { ChevronsUpDown, Plus, SlidersHorizontal, X } from "lucide-react-native";
+import { ChevronsUpDown, Plus, Search, SlidersHorizontal, X } from "lucide-react-native";
 import * as React from "react";
 import { View } from "react-native";
-import { WishlistSearch } from "@/components/wishlists-screen/wishlist-search";
 
 export function WishlistFilterBar({
   search,
@@ -96,7 +96,27 @@ export function WishlistFilterBar({
 
       {filtersOpen ? (
         <View className="gap-3">
-          <WishlistSearch search={search} onSearchChange={onSearchChange} />
+          <View className="w-full flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
+            <Icon as={Search} className="size-4 text-text-muted" />
+            <Input
+              value={search}
+              onChangeText={onSearchChange}
+              placeholder="Search wishlists..."
+              className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
+              returnKeyType="search"
+            />
+            {search.length > 0 ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                accessibilityLabel="Clear search"
+                onPress={() => onSearchChange("")}
+                className="size-9 shrink-0 rounded-full"
+              >
+                <Icon as={X} className="size-4 text-text-muted" />
+              </Button>
+            ) : null}
+          </View>
           <View className="w-full flex-row items-stretch gap-2">
             <View className="min-w-0 flex-1">
               <DropdownMenu>

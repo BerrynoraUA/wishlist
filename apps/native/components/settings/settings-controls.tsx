@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react-native";
 import { View } from "react-native";
 
-export function LabeledInput({
+export function SettingsControlsLabeledInput({
   label,
   hint,
   error,
@@ -31,7 +31,7 @@ export function LabeledInput({
   );
 }
 
-export function InfoRow({
+export function SettingsControlsInfoRow({
   icon,
   title,
   subtitle,
@@ -53,7 +53,7 @@ export function InfoRow({
   );
 }
 
-export function ToggleRow({
+export function SettingsControlsToggleRow({
   icon,
   title,
   checked,
@@ -77,7 +77,7 @@ export function ToggleRow({
   );
 }
 
-export function SettingsButton({
+export function SettingsControlsButton({
   children,
   className,
   ...props

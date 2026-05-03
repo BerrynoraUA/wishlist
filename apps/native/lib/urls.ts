@@ -1,7 +1,7 @@
 export function isValidHttpUrl(value: string) {
   try {
     const url = new URL(value.trim());
-    return url.protocol === "http:" || url.protocol === "https:";
+    return url.href.startsWith("http://") || url.href.startsWith("https://");
   } catch {
     return false;
   }
