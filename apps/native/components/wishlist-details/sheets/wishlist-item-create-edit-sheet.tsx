@@ -22,6 +22,7 @@ import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
 import { Plus, X } from "lucide-react-native";
 import * as React from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 
 export function WishlistItemCreateEditSheet({
@@ -42,7 +43,10 @@ export function WishlistItemCreateEditSheet({
   const updateMutation = useUpdateItem();
   const isPending = createMutation.isPending || updateMutation.isPending;
   const error = createMutation.error ?? updateMutation.error;
-  const [values, setValues] = React.useState<ItemFormValues>(EMPTY_ITEM_FORM);
+  const { control, handleSubmit, reset, setValue } = useForm<ItemFormValues>({
+    defaultValues: EMPTY_ITEM_FORM,
+  });
+  const values = useWatch({ control }) as ItemFormValues;
   const [isScraping, setIsScraping] = React.useState(false);
   const [scrapeError, setScrapeError] = React.useState<string | null>(null);
   const currentUrlRef = React.useRef("");
@@ -70,12 +74,12 @@ export function WishlistItemCreateEditSheet({
   React.useEffect(() => {
     if (open) {
       const nextValues = mode === "edit" ? toItemFormValues(item ?? undefined) : EMPTY_ITEM_FORM;
-      setValues(nextValues);
+      reset(nextValues);
       setScrapeError(null);
       currentUrlRef.current = nextValues.url.trim();
       lastScrapedUrlRef.current = nextValues.url.trim();
     }
-  }, [item, mode, open]);
+  }, [item, mode, open, reset]);
 
   React.useEffect(() => {
     currentUrlRef.current = values.url.trim();
@@ -95,7 +99,9 @@ export function WishlistItemCreateEditSheet({
   if (!open) return null;
 
   function patchValues(patch: Partial<ItemFormValues>) {
-    setValues((current) => ({ ...current, ...patch }));
+    for (const [key, value] of Object.entries(patch)) {
+      setValue(key as keyof ItemFormValues, value as never);
+    }
   }
 
   function handleClose() {
@@ -149,22 +155,22 @@ export function WishlistItemCreateEditSheet({
     }
   }
 
-  function handleSubmit() {
-    const name = values.name.trim();
+  function submitForm(formValues: ItemFormValues) {
+    const name = formValues.name.trim();
     if (!canSubmit) return;
 
     const payload = {
       name,
-      description: values.description.trim() || null,
-      price: values.price.trim() || null,
-      priority: values.priority,
-      image_url: values.imageUrl.trim() || null,
-      url: values.url.trim() || null,
-      currency: values.currency.trim() || null,
-      discount_price: values.discountPrice.trim() || null,
-      has_discount: values.hasDiscount,
-      discount_end_date: values.discountEndDate.trim() || null,
-      additional_links: cleanAdditionalLinks(values.additionalLinks),
+      description: formValues.description.trim() || null,
+      price: formValues.price.trim() || null,
+      priority_id: formValues.priority_id,
+      image_url: formValues.imageUrl.trim() || null,
+      url: formValues.url.trim() || null,
+      currency: formValues.currency.trim() || null,
+      discount_price: formValues.discountPrice.trim() || null,
+      has_discount: formValues.hasDiscount,
+      discount_end_date: formValues.discountEndDate.trim() || null,
+      additional_links: cleanAdditionalLinks(formValues.additionalLinks),
     };
 
     if (mode === "edit" && item) {
@@ -211,7 +217,11 @@ export function WishlistItemCreateEditSheet({
           >
             <Text>Cancel</Text>
           </Button>
-          <Button className="min-w-0 flex-1" disabled={!canSubmit} onPress={handleSubmit}>
+          <Button
+            className="min-w-0 flex-1"
+            disabled={!canSubmit}
+            onPress={handleSubmit(submitForm)}
+          >
             {isPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
             <Text>{mode === "edit" ? "Save changes" : "Create item"}</Text>
           </Button>
@@ -226,17 +236,23 @@ export function WishlistItemCreateEditSheet({
         <Field label="Product link">
           <View className="gap-2">
             <View className="flex-row items-center gap-2">
-              <Input
-                value={values.url}
-                onChangeText={(url) => {
-                  patchValues({ url });
-                  if (scrapeError) setScrapeError(null);
-                }}
-                placeholder="Paste a product URL"
-                autoCapitalize="none"
-                keyboardType="url"
-                returnKeyType="done"
-                className={cn("min-w-0 flex-1", productLinkInvalid && "border-destructive")}
+              <Controller
+                control={control}
+                name="url"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={(url) => {
+                      onChange(url);
+                      if (scrapeError) setScrapeError(null);
+                    }}
+                    placeholder="Paste a product URL"
+                    autoCapitalize="none"
+                    keyboardType="url"
+                    returnKeyType="done"
+                    className={cn("min-w-0 flex-1", productLinkInvalid && "border-destructive")}
+                  />
+                )}
               />
               {isScraping ? (
                 <ActivityIndicator colorClassName="accent-secondary-foreground" />
@@ -263,13 +279,19 @@ export function WishlistItemCreateEditSheet({
                 />
               </View>
             ) : null}
-            <Input
-              value={values.imageUrl}
-              onChangeText={(imageUrl) => patchValues({ imageUrl })}
-              placeholder="https://..."
-              autoCapitalize="none"
-              keyboardType="url"
-              className={imageUrlInvalid ? "border-destructive" : undefined}
+            <Controller
+              control={control}
+              name="imageUrl"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="https://..."
+                  autoCapitalize="none"
+                  keyboardType="url"
+                  className={imageUrlInvalid ? "border-destructive" : undefined}
+                />
+              )}
             />
             {imageUrlInvalid ? (
               <Text className="text-xs font-semibold text-destructive">Enter valid Url</Text>
@@ -278,47 +300,74 @@ export function WishlistItemCreateEditSheet({
         </Field>
 
         <Field label="Name">
-          <Input
-            value={values.name}
-            onChangeText={(name) => patchValues({ name })}
-            placeholder="e.g. Noise-cancelling headphones"
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                value={value}
+                onChangeText={onChange}
+                placeholder="e.g. Noise-cancelling headphones"
+              />
+            )}
           />
         </Field>
 
         <Field label="Description">
-          <Input
-            value={values.description}
-            onChangeText={(description) => patchValues({ description })}
-            placeholder="Add details, size, color..."
-            multiline
-            className="h-24 items-start py-3"
-            textAlignVertical="top"
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                value={value}
+                onChangeText={onChange}
+                placeholder="Add details, size, color..."
+                multiline
+                className="h-24 items-start py-3"
+                textAlignVertical="top"
+              />
+            )}
           />
         </Field>
 
         <View className="flex-row gap-2">
           <Field label="Currency" className="w-24">
-            <Input
-              value={values.currency}
-              onChangeText={(currency) => patchValues({ currency })}
-              placeholder="USD"
-              autoCapitalize="characters"
+            <Controller
+              control={control}
+              name="currency"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="USD"
+                  autoCapitalize="characters"
+                />
+              )}
             />
           </Field>
           <Field label="Price" className="min-w-0 flex-1">
-            <Input
-              value={values.price}
-              onChangeText={(price) => patchValues({ price })}
-              placeholder="199"
-              keyboardType="decimal-pad"
+            <Controller
+              control={control}
+              name="price"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="199"
+                  keyboardType="decimal-pad"
+                />
+              )}
             />
           </Field>
         </View>
 
         <Field label="Priority">
-          <PrioritySelector
-            value={values.priority}
-            onChange={(priority) => patchValues({ priority })}
+          <Controller
+            control={control}
+            name="priority_id"
+            render={({ field: { onChange, value } }) => (
+              <PrioritySelector value={value} onChange={onChange} />
+            )}
           />
         </Field>
 
@@ -332,18 +381,30 @@ export function WishlistItemCreateEditSheet({
             </Button>
             {values.hasDiscount ? (
               <View className="flex-row gap-2">
-                <Input
-                  value={values.discountPrice}
-                  onChangeText={(discountPrice) => patchValues({ discountPrice })}
-                  placeholder="Sale price"
-                  keyboardType="decimal-pad"
-                  className="min-w-0 flex-1"
+                <Controller
+                  control={control}
+                  name="discountPrice"
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Sale price"
+                      keyboardType="decimal-pad"
+                      className="min-w-0 flex-1"
+                    />
+                  )}
                 />
-                <Input
-                  value={values.discountEndDate}
-                  onChangeText={(discountEndDate) => patchValues({ discountEndDate })}
-                  placeholder="YYYY-MM-DD"
-                  className="min-w-0 flex-1"
+                <Controller
+                  control={control}
+                  name="discountEndDate"
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="YYYY-MM-DD"
+                      className="min-w-0 flex-1"
+                    />
+                  )}
                 />
               </View>
             ) : null}
@@ -355,19 +416,21 @@ export function WishlistItemCreateEditSheet({
             {values.additionalLinks.map((link, index) => (
               <View key={index} className="gap-1">
                 <View className="flex-row gap-2">
-                  <Input
-                    value={link.url}
-                    onChangeText={(url) => {
-                      const next = [...values.additionalLinks];
-                      next[index] = { ...next[index], url };
-                      patchValues({ additionalLinks: next });
-                    }}
-                    placeholder="https://..."
-                    autoCapitalize="none"
-                    keyboardType="url"
-                    className={cn(
-                      "min-w-0 flex-1",
-                      invalidAdditionalLinkIndexes.has(index) && "border-destructive",
+                  <Controller
+                    control={control}
+                    name={`additionalLinks.${index}.url`}
+                    render={({ field: { onChange, value } }) => (
+                      <Input
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder="https://..."
+                        autoCapitalize="none"
+                        keyboardType="url"
+                        className={cn(
+                          "min-w-0 flex-1",
+                          invalidAdditionalLinkIndexes.has(index) && "border-destructive",
+                        )}
+                      />
                     )}
                   />
                   <Button
@@ -430,11 +493,11 @@ function PrioritySelector({
   value,
   onChange,
 }: {
-  value: ItemFormValues["priority"];
-  onChange: (priority: ItemFormValues["priority"]) => void;
+  value: ItemFormValues["priority_id"];
+  onChange: (priority: ItemFormValues["priority_id"]) => void;
 }) {
   const rows = React.useMemo(
-    (): SlidingOption<number | null>[][] => [
+    (): SlidingOption<string | null>[][] => [
       [
         {
           value: null,
@@ -446,7 +509,7 @@ function PrioritySelector({
           ),
         },
         ...[...ITEM_PRIORITY_OPTIONS].reverse().map((option) => ({
-          value: option.priority,
+          value: option.priority_id,
           children: ({ selected }: SlidingOptionRenderProps) => (
             <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
               {option.label}
@@ -459,7 +522,7 @@ function PrioritySelector({
   );
 
   return (
-    <SlidingOptionSelector<number | null>
+    <SlidingOptionSelector<string | null>
       rows={rows}
       value={value}
       onChange={onChange}

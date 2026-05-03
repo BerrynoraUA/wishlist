@@ -35,6 +35,7 @@ import {
 } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import * as React from "react";
+import { Controller, useForm } from "react-hook-form";
 import { Platform, StyleSheet, View } from "react-native";
 import { useUniwind } from "uniwind";
 
@@ -43,6 +44,11 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
   day: "numeric",
   year: "numeric",
 });
+
+type HeaderInlineFormValues = {
+  title: string;
+  description: string;
+};
 
 function formatDateLabel(value: string | null) {
   if (!value) return "";
@@ -73,8 +79,12 @@ export function WishlistItemHeader({
   onManageAccess?: () => void;
 }) {
   const patchWishlist = usePatchWishlist();
-  const [titleDraft, setTitleDraft] = React.useState(wishlist.title);
-  const [descriptionDraft, setDescriptionDraft] = React.useState(wishlist.description ?? "");
+  const { control, getValues, setValue } = useForm<HeaderInlineFormValues>({
+    defaultValues: {
+      title: wishlist.title,
+      description: wishlist.description ?? "",
+    },
+  });
   const [editingTitle, setEditingTitle] = React.useState(false);
   const [editingDescription, setEditingDescription] = React.useState(false);
   const [iosDateOpen, setIosDateOpen] = React.useState(false);
@@ -88,22 +98,22 @@ export function WishlistItemHeader({
   const accentGradientColors = getWishlistAccentGradientColors(wishlist.accent_type, mode);
 
   React.useEffect(() => {
-    if (!editingTitle) setTitleDraft(wishlist.title);
-  }, [editingTitle, wishlist.title]);
+    if (!editingTitle) setValue("title", wishlist.title);
+  }, [editingTitle, setValue, wishlist.title]);
 
   React.useEffect(() => {
-    if (!editingDescription) setDescriptionDraft(wishlist.description ?? "");
-  }, [editingDescription, wishlist.description]);
+    if (!editingDescription) setValue("description", wishlist.description ?? "");
+  }, [editingDescription, setValue, wishlist.description]);
 
   function saveTitle() {
-    const nextTitle = titleDraft.trim();
+    const nextTitle = getValues("title").trim();
     setEditingTitle(false);
     if (!nextTitle || nextTitle === wishlist.title || patchWishlist.isPending) return;
     patchWishlist.mutate({ id: wishlist.id, values: { title: nextTitle } });
   }
 
   function saveDescription() {
-    const nextDescription = descriptionDraft.trim();
+    const nextDescription = getValues("description").trim();
     setEditingDescription(false);
     if (nextDescription === (wishlist.description ?? "") || patchWishlist.isPending) return;
     patchWishlist.mutate({ id: wishlist.id, values: { description: nextDescription } });
@@ -175,14 +185,20 @@ export function WishlistItemHeader({
             <View className="min-w-0 flex-1 flex-row items-center gap-2">
               <View className="min-w-0 flex-1">
                 {editingTitle ? (
-                  <Input
-                    autoFocus
-                    value={titleDraft}
-                    onChangeText={setTitleDraft}
-                    onBlur={saveTitle}
-                    returnKeyType="done"
-                    onSubmitEditing={saveTitle}
-                    className="h-11 rounded-xl border-input-focus-border bg-card-bg text-xl font-extrabold"
+                  <Controller
+                    control={control}
+                    name="title"
+                    render={({ field: { onChange, value } }) => (
+                      <Input
+                        autoFocus
+                        value={value}
+                        onChangeText={onChange}
+                        onBlur={saveTitle}
+                        returnKeyType="done"
+                        onSubmitEditing={saveTitle}
+                        className="h-11 rounded-xl border-input-focus-border bg-card-bg text-xl font-extrabold"
+                      />
+                    )}
                   />
                 ) : (
                   <AnimatedPressable
@@ -198,14 +214,20 @@ export function WishlistItemHeader({
                 )}
 
                 {editingDescription ? (
-                  <Input
-                    autoFocus
-                    value={descriptionDraft}
-                    onChangeText={setDescriptionDraft}
-                    onBlur={saveDescription}
-                    multiline
-                    className="mt-2 h-20 rounded-xl border-input-focus-border bg-card-bg text-sm"
-                    textAlignVertical="top"
+                  <Controller
+                    control={control}
+                    name="description"
+                    render={({ field: { onChange, value } }) => (
+                      <Input
+                        autoFocus
+                        value={value}
+                        onChangeText={onChange}
+                        onBlur={saveDescription}
+                        multiline
+                        className="mt-2 h-20 rounded-xl border-input-focus-border bg-card-bg text-sm"
+                        textAlignVertical="top"
+                      />
+                    )}
                   />
                 ) : wishlist.description || canInlineEdit ? (
                   <AnimatedPressable

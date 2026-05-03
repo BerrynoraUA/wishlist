@@ -93,10 +93,12 @@ export default function WishlistDetailScreen() {
       if (status !== undefined) statuses.push(status);
     }
 
-    const priorities: number[] = [];
+    const priorities: string[] = [];
     for (const value of filters.priorities) {
-      const priority = ITEM_PRIORITY_OPTIONS.find((option) => option.value === value)?.priority;
-      if (priority !== undefined) priorities.push(priority);
+      const priorityId = ITEM_PRIORITY_OPTIONS.find(
+        (option) => option.value === value,
+      )?.priority_id;
+      if (priorityId !== undefined) priorities.push(priorityId);
     }
 
     return {

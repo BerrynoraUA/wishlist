@@ -294,6 +294,9 @@ importers:
       react:
         specifier: 19.2.0
         version: 19.2.0
+      react-hook-form:
+        specifier: 7.71.1
+        version: 7.71.1(react@19.2.0)
       react-native:
         specifier: 0.83.6
         version: 0.83.6(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0)
@@ -5686,6 +5689,12 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       react: '>=17.0.0'
+
+  react-hook-form@7.71.1:
+    resolution: {integrity: sha512-9SUJKCGKo8HUSsCO+y0CtqkqI5nNuaDqTxyqPsZPqIwudpj4rCrAz/jZV+jn57bx5gtZKOh3neQu94DXMc+w5w==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
 
   react-hook-form@7.72.1:
     resolution: {integrity: sha512-RhwBoy2ygeVZje+C+bwJ8g0NjTdBmDlJvAUHTxRjTmSUKPYsKfMphkS2sgEMotsY03bP358yEYlnUeZy//D9Ig==}
@@ -12515,6 +12524,10 @@ snapshots:
   react-fast-compare@3.2.2: {}
 
   react-freeze@1.0.4(react@19.2.0):
+    dependencies:
+      react: 19.2.0
+
+  react-hook-form@7.71.1(react@19.2.0):
     dependencies:
       react: 19.2.0
 

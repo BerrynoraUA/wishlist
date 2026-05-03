@@ -14,7 +14,13 @@ import { Button } from "@/components/ui/button";
 import { useAuthProvider, useChangePassword, useDeleteAccount } from "@/hooks/use-settings";
 import { Key, LogOut, Mail, Shield, Trash2, UserCog } from "lucide-react-native";
 import * as React from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
+
+type PasswordFormValues = {
+  newPassword: string;
+  confirmPassword: string;
+};
 
 export function AccountSettings({
   email,
@@ -26,27 +32,31 @@ export function AccountSettings({
   const { data: provider } = useAuthProvider();
   const changePassword = useChangePassword();
   const deleteAccount = useDeleteAccount();
-  const [newPassword, setNewPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const { control, handleSubmit, reset } = useForm<PasswordFormValues>({
+    defaultValues: {
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+  const values = useWatch({ control }) as PasswordFormValues;
   const [message, setMessage] = React.useState<ActionBottomSheetMessagePayload | null>(null);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const isOAuth = provider !== "email";
 
-  function handleChangePassword() {
-    if (newPassword.length < 6) {
+  function submitPassword(formValues: PasswordFormValues) {
+    if (formValues.newPassword.length < 6) {
       setMessage({ title: "Password", message: "Password must be at least 6 characters." });
       return;
     }
 
-    if (newPassword !== confirmPassword) {
+    if (formValues.newPassword !== formValues.confirmPassword) {
       setMessage({ title: "Password", message: "Passwords do not match." });
       return;
     }
 
-    changePassword.mutate(newPassword, {
+    changePassword.mutate(formValues.newPassword, {
       onSuccess: () => {
-        setNewPassword("");
-        setConfirmPassword("");
+        reset();
         setMessage({ title: "Password updated" });
       },
       onError: (error) => setMessage({ title: "Password update failed", message: error.message }),
@@ -84,27 +94,42 @@ export function AccountSettings({
         }
       >
         <SettingsControlsInfoRow icon={Mail} title={email || "Email unavailable"} />
-        <SettingsControlsInfoRow icon={Shield} title={isOAuth ? "Google Account" : "Email Account"} />
+        <SettingsControlsInfoRow
+          icon={Shield}
+          title={isOAuth ? "Google Account" : "Email Account"}
+        />
 
         {!isOAuth && (
           <View className="gap-3">
-            <SettingsControlsLabeledInput
-              label="New Password"
-              value={newPassword}
-              onChangeText={setNewPassword}
-              secureTextEntry
-              placeholder="Enter new password"
+            <Controller
+              control={control}
+              name="newPassword"
+              render={({ field: { onChange, value } }) => (
+                <SettingsControlsLabeledInput
+                  label="New Password"
+                  value={value}
+                  onChangeText={onChange}
+                  secureTextEntry
+                  placeholder="Enter new password"
+                />
+              )}
             />
-            <SettingsControlsLabeledInput
-              label="Confirm Password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-              placeholder="Confirm new password"
+            <Controller
+              control={control}
+              name="confirmPassword"
+              render={({ field: { onChange, value } }) => (
+                <SettingsControlsLabeledInput
+                  label="Confirm Password"
+                  value={value}
+                  onChangeText={onChange}
+                  secureTextEntry
+                  placeholder="Confirm new password"
+                />
+              )}
             />
             <Button
-              disabled={changePassword.isPending || !newPassword || !confirmPassword}
-              onPress={handleChangePassword}
+              disabled={changePassword.isPending || !values.newPassword || !values.confirmPassword}
+              onPress={handleSubmit(submitPassword)}
             >
               <Icon as={Key} className="size-4 text-primary-foreground" />
               <Text>{changePassword.isPending ? "Updating..." : "Update Password"}</Text>

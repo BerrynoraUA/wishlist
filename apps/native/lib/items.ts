@@ -1,4 +1,5 @@
 import type { Item, ItemFormValues, ItemLink } from "@wishlist/backend/types/item";
+import { ALL_PRIORITIES, PRIORITY_IDS } from "@wishlist/backend/lib";
 
 export const WISHLIST_ITEMS_PAGE_SIZE = 12;
 export const DEFAULT_ITEM_SORT = "newest";
@@ -10,9 +11,9 @@ export const ITEM_STATUS_OPTIONS = [
 ] as const;
 
 export const ITEM_PRIORITY_OPTIONS = [
-  { value: "3", label: "High", priority: 3 },
-  { value: "2", label: "Medium", priority: 2 },
-  { value: "1", label: "Low", priority: 1 },
+  { value: PRIORITY_IDS.HIGH, label: "High", priority_id: PRIORITY_IDS.HIGH },
+  { value: PRIORITY_IDS.MEDIUM, label: "Medium", priority_id: PRIORITY_IDS.MEDIUM },
+  { value: PRIORITY_IDS.LOW, label: "Low", priority_id: PRIORITY_IDS.LOW },
 ] as const;
 
 export const ITEM_SORT_OPTIONS = [
@@ -30,7 +31,7 @@ export const EMPTY_ITEM_FORM: ItemFormValues = {
   name: "",
   description: "",
   price: "",
-  priority: null,
+  priority_id: null,
   imageUrl: "",
   url: "",
   currency: "USD",
@@ -58,7 +59,7 @@ export function toItemFormValues(item?: Item): ItemFormValues {
     name: item.name,
     description: item.description ?? "",
     price: item.price ?? "",
-    priority: item.priority,
+    priority_id: item.priority_id,
     imageUrl: item.image_url ?? "",
     url: item.url ?? "",
     currency: item.currency ?? "USD",
@@ -88,11 +89,8 @@ export function getItemStoreFromUrl(url: string | null | undefined) {
   }
 }
 
-export function getItemPriorityLabel(priority: number | null | undefined) {
-  if (priority === 3) return "High";
-  if (priority === 2) return "Medium";
-  if (priority === 1) return "Low";
-  return null;
+export function getItemPriorityLabel(priorityId: string | null | undefined) {
+  return ALL_PRIORITIES.find((priority) => priority.id === priorityId)?.name ?? null;
 }
 
 export function parseItemPriceToNumber(value: string | number | null | undefined) {

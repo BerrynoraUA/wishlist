@@ -5,6 +5,7 @@ import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import { EyeIcon, EyeOffIcon, GiftIcon } from "lucide-react-native";
 import * as React from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -17,6 +18,11 @@ import {
 import Svg, { Path } from "react-native-svg";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type SignInFormValues = {
+  email: string;
+  password: string;
+};
 
 const testimonials = [
   {
@@ -43,8 +49,12 @@ const testimonials = [
 ] as const;
 
 export function SignInScreen() {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const { control, handleSubmit } = useForm<SignInFormValues>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
   const [showPassword, setShowPassword] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [socialLoading, setSocialLoading] = React.useState<"apple" | "google" | null>(null);
@@ -63,11 +73,11 @@ export function SignInScreen() {
   const isBusy = loading || socialLoading !== null;
   const showAppleSignIn = Platform.OS === "ios";
 
-  async function handleSubmit() {
+  async function submitForm(values: SignInFormValues) {
     setError(null);
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail || !password) {
+    const trimmedEmail = values.email.trim();
+    if (!trimmedEmail || !values.password) {
       setError("Email and password are required.");
       return;
     }
@@ -77,14 +87,14 @@ export function SignInScreen() {
       return;
     }
 
-    if (password.length < 6) {
+    if (values.password.length < 6) {
       setError("Password must be at least 6 characters.");
       return;
     }
 
     setLoading(true);
     try {
-      await loginWithEmail(trimmedEmail, password);
+      await loginWithEmail(trimmedEmail, values.password);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -149,26 +159,38 @@ export function SignInScreen() {
             <View className="gap-0 rounded-[24px] border border-[#f3e8ee]/70 bg-white/75 p-5 shadow-lg dark:border-[#27272d]/70 dark:bg-[#161619]/75 sm:p-7">
               <View className="gap-3">
                 <FieldLabel>Email</FieldLabel>
-                <AuthInput
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  keyboardType="email-address"
-                  onChangeText={setEmail}
-                  placeholder="you@email.com"
-                  textContentType="emailAddress"
-                  value={email}
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field: { onChange, value } }) => (
+                    <AuthInput
+                      autoCapitalize="none"
+                      autoComplete="email"
+                      keyboardType="email-address"
+                      onChangeText={onChange}
+                      placeholder="you@email.com"
+                      textContentType="emailAddress"
+                      value={value}
+                    />
+                  )}
                 />
 
                 <FieldLabel>Password</FieldLabel>
                 <View className="relative">
-                  <AuthInput
-                    autoComplete="current-password"
-                    onChangeText={setPassword}
-                    placeholder="Password"
-                    secureTextEntry={!showPassword}
-                    textContentType="password"
-                    value={password}
-                    className="pr-12"
+                  <Controller
+                    control={control}
+                    name="password"
+                    render={({ field: { onChange, value } }) => (
+                      <AuthInput
+                        autoComplete="current-password"
+                        onChangeText={onChange}
+                        placeholder="Password"
+                        secureTextEntry={!showPassword}
+                        textContentType="password"
+                        value={value}
+                        className="pr-12"
+                      />
+                    )}
                   />
                   <Pressable
                     accessibilityLabel={showPassword ? "Hide password" : "Show password"}
@@ -194,7 +216,7 @@ export function SignInScreen() {
                     accessibilityLabel="Sign in"
                     isDisabled={isBusy}
                     isLoading={loading}
-                    onPress={handleSubmit}
+                    onPress={handleSubmit(submitForm)}
                     title="Sign in"
                   />
                 </View>

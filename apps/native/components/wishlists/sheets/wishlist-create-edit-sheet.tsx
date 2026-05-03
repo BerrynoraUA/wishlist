@@ -49,6 +49,7 @@ import {
 } from "@wishlist/backend/types/wishlist";
 import { CalendarDays, Check, X } from "lucide-react-native";
 import * as React from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, Platform, ScrollView, View } from "react-native";
 import Animated, {
   LinearTransition,
@@ -133,7 +134,10 @@ export function WishlistCreateEditSheet({
     grantGroupAccess.isPending ||
     revokeGroupAccess.isPending;
   const error = createMutation.error ?? updateMutation.error;
-  const [values, setValues] = React.useState<WishlistFormValues>(EMPTY_WISHLIST_FORM);
+  const { control, handleSubmit, reset, setValue } = useForm<WishlistFormValues>({
+    defaultValues: EMPTY_WISHLIST_FORM,
+  });
+  const values = useWatch({ control }) as WishlistFormValues;
   const [selectedAccessFriends, setSelectedAccessFriends] = React.useState<WishlistAccessOption[]>(
     [],
   );
@@ -242,7 +246,7 @@ export function WishlistCreateEditSheet({
   React.useEffect(() => {
     if (!open) return;
 
-    setValues(toWishlistFormValues(wishlist));
+    reset(toWishlistFormValues(wishlist));
     setSelectedAccessFriends([]);
     setSelectedAccessGroups([]);
     setAccessTab("friends");
@@ -259,14 +263,21 @@ export function WishlistCreateEditSheet({
       return;
     }
 
-    setValues((current) => {
-      if (current.visibility !== wishlist.visibility_type) return current;
-      return { ...current, visibility: WishlistVisibility.SelectedFriends };
-    });
+    if (values.visibility === wishlist.visibility_type) {
+      setValue("visibility", WishlistVisibility.SelectedFriends);
+    }
     if (groupAccessList.length > 0 && specificAccessList.length === 0) {
       setAccessTab("groups");
     }
-  }, [groupAccessList.length, mode, open, specificAccessList.length, wishlist]);
+  }, [
+    groupAccessList.length,
+    mode,
+    open,
+    setValue,
+    specificAccessList.length,
+    values.visibility,
+    wishlist,
+  ]);
 
   React.useEffect(() => {
     if (values.visibility !== WishlistVisibility.SelectedFriends) {
@@ -311,7 +322,9 @@ export function WishlistCreateEditSheet({
   }
 
   function patchValues(patch: Partial<WishlistFormValues>) {
-    setValues((current) => ({ ...current, ...patch }));
+    for (const [key, value] of Object.entries(patch)) {
+      setValue(key as keyof WishlistFormValues, value as never);
+    }
   }
 
   function handleVisibilityChange(
@@ -384,7 +397,7 @@ export function WishlistCreateEditSheet({
     await invalidateAccessQueries(id);
   }
 
-  async function handleSubmit() {
+  async function submitForm(formValues: WishlistFormValues) {
     if (!canSubmit) return;
 
     setAccessError(null);
@@ -392,9 +405,12 @@ export function WishlistCreateEditSheet({
 
     try {
       if (mode === "edit" && wishlist) {
-        await updateMutation.mutateAsync({ id: wishlist.id, values });
+        await updateMutation.mutateAsync({ id: wishlist.id, values: formValues });
 
-        if (canManageSelectedAccess && values.visibility !== WishlistVisibility.SelectedFriends) {
+        if (
+          canManageSelectedAccess &&
+          formValues.visibility !== WishlistVisibility.SelectedFriends
+        ) {
           await revokeExistingSelectedAccess(wishlist.id);
         }
 
@@ -406,7 +422,7 @@ export function WishlistCreateEditSheet({
         return;
       }
 
-      const createdWishlist = await createMutation.mutateAsync(values);
+      const createdWishlist = await createMutation.mutateAsync(formValues);
       await grantSelectedAccess(createdWishlist.id);
       handleClose();
     } catch (submitError) {
@@ -470,7 +486,11 @@ export function WishlistCreateEditSheet({
           >
             <Text>Cancel</Text>
           </Button>
-          <Button className="min-w-0 flex-1" disabled={!canSubmit} onPress={handleSubmit}>
+          <Button
+            className="min-w-0 flex-1"
+            disabled={!canSubmit}
+            onPress={handleSubmit(submitForm)}
+          >
             {isPending || isSavingAccess ? (
               <ActivityIndicator colorClassName="accent-primary-foreground" />
             ) : null}
@@ -485,21 +505,29 @@ export function WishlistCreateEditSheet({
         contentContainerClassName="gap-5 px-5 pb-6 pt-5"
       >
         <Field label="Name">
-          <Input
-            value={values.title}
-            onChangeText={(title) => patchValues({ title })}
-            placeholder="Birthday gifts"
+          <Controller
+            control={control}
+            name="title"
+            render={({ field: { onChange, value } }) => (
+              <Input value={value} onChangeText={onChange} placeholder="Birthday gifts" />
+            )}
           />
         </Field>
 
         <Field label="Description">
-          <Input
-            value={values.description}
-            onChangeText={(description) => patchValues({ description })}
-            placeholder="A short note about this wishlist"
-            multiline
-            className="h-24 items-start py-3"
-            textAlignVertical="top"
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                value={value}
+                onChangeText={onChange}
+                placeholder="A short note about this wishlist"
+                multiline
+                className="h-24 items-start py-3"
+                textAlignVertical="top"
+              />
+            )}
           />
         </Field>
 
@@ -572,24 +600,39 @@ export function WishlistCreateEditSheet({
         </Field>
 
         <Field label="Accent">
-          <AccentSelector value={values.accent} onChange={(accent) => patchValues({ accent })} />
+          <Controller
+            control={control}
+            name="accent"
+            render={({ field: { onChange, value } }) => (
+              <AccentSelector value={value} onChange={onChange} />
+            )}
+          />
         </Field>
 
         <Field label="Event date (optional)">
-          <EventDatePicker
-            value={values.eventDate}
-            onChange={(eventDate) => patchValues({ eventDate })}
+          <Controller
+            control={control}
+            name="eventDate"
+            render={({ field: { onChange, value } }) => (
+              <EventDatePicker value={value} onChange={onChange} />
+            )}
           />
         </Field>
 
         <Field label="Image URL">
-          <Input
-            value={values.imageUrl}
-            onChangeText={(imageUrl) => patchValues({ imageUrl })}
-            placeholder="https://..."
-            autoCapitalize="none"
-            keyboardType="url"
-            className={imageUrlInvalid ? "border-destructive" : undefined}
+          <Controller
+            control={control}
+            name="imageUrl"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                value={value}
+                onChangeText={onChange}
+                placeholder="https://..."
+                autoCapitalize="none"
+                keyboardType="url"
+                className={imageUrlInvalid ? "border-destructive" : undefined}
+              />
+            )}
           />
           {imageUrlInvalid ? (
             <Text className="text-xs font-semibold text-destructive">Enter valid Url</Text>

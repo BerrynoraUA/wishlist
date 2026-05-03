@@ -18,19 +18,33 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import * as React from "react";
 import { UserRound } from "lucide-react-native";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
 
 const MAX_AVATAR_UPLOAD_BYTES = 5 * 1024 * 1024;
+
+type ProfileFormValues = {
+  displayName: string;
+  nickname: string;
+  height: string;
+  shoeSize: string;
+  bio: string;
+};
 
 export function ProfileSettings({ profile }: { profile: ReturnType<typeof useProfile>["data"] }) {
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadProfileAvatar();
   const checkNickname = useCheckNickname();
-  const [displayName, setDisplayName] = React.useState("");
-  const [nickname, setNickname] = React.useState("");
-  const [height, setHeight] = React.useState("");
-  const [shoeSize, setShoeSize] = React.useState("");
-  const [bio, setBio] = React.useState("");
+  const { control, handleSubmit, reset, setValue } = useForm<ProfileFormValues>({
+    defaultValues: {
+      displayName: "",
+      nickname: "",
+      height: "",
+      shoeSize: "",
+      bio: "",
+    },
+  });
+  const values = useWatch({ control }) as ProfileFormValues;
   const [message, setMessage] = React.useState<ActionBottomSheetMessagePayload | null>(null);
   const [nicknameStatus, setNicknameStatus] = React.useState<
     "idle" | "checking" | "available" | "taken"
@@ -39,15 +53,17 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
   React.useEffect(() => {
     if (!profile) return;
 
-    setDisplayName(profile.display_name ?? "");
-    setNickname(profile.nickname ?? "");
-    setHeight(formatProfileNumber(profile.height));
-    setShoeSize(formatProfileNumber(profile.shoe_size));
-    setBio(profile.bio ?? "");
-  }, [profile]);
+    reset({
+      displayName: profile.display_name ?? "",
+      nickname: profile.nickname ?? "",
+      height: formatProfileNumber(profile.height),
+      shoeSize: formatProfileNumber(profile.shoe_size),
+      bio: profile.bio ?? "",
+    });
+  }, [profile, reset]);
 
   React.useEffect(() => {
-    const trimmedNickname = nickname.trim();
+    const trimmedNickname = values.nickname.trim();
 
     if (!trimmedNickname || trimmedNickname.length < 3 || trimmedNickname === profile?.nickname) {
       setNicknameStatus("idle");
@@ -63,10 +79,10 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [checkNickname, nickname, profile?.nickname]);
+  }, [checkNickname, values.nickname, profile?.nickname]);
 
-  const trimmedDisplayName = displayName.trim();
-  const trimmedNickname = nickname.trim();
+  const trimmedDisplayName = values.displayName.trim();
+  const trimmedNickname = values.nickname.trim();
   const displayNameError =
     trimmedDisplayName.length === 0
       ? "Display name is required"
@@ -82,16 +98,16 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
           ? "This nickname is already taken"
           : null;
 
-  function handleSave() {
+  function submitForm(formValues: ProfileFormValues) {
     if (displayNameError || nicknameError) return;
 
     updateProfile.mutate(
       {
-        display_name: trimmedDisplayName,
-        nickname: trimmedNickname,
-        height: parseProfileNumber(height.trim()),
-        shoe_size: parseProfileNumber(shoeSize.trim()),
-        bio: bio.trim() || null,
+        display_name: formValues.displayName.trim(),
+        nickname: formValues.nickname.trim(),
+        height: parseProfileNumber(formValues.height.trim()),
+        shoe_size: parseProfileNumber(formValues.shoeSize.trim()),
+        bio: formValues.bio.trim() || null,
       },
       {
         onSuccess: () => setMessage({ title: "Saved", message: "Profile updated." }),
@@ -196,64 +212,96 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
           </View>
         </View>
 
-        <SettingsControlsLabeledInput
-          label="Display Name"
-          value={displayName}
-          onChangeText={setDisplayName}
-          maxLength={50}
-          placeholder="Your name"
-          error={displayNameError}
+        <Controller
+          control={control}
+          name="displayName"
+          render={({ field: { onChange, value } }) => (
+            <SettingsControlsLabeledInput
+              label="Display Name"
+              value={value}
+              onChangeText={onChange}
+              maxLength={50}
+              placeholder="Your name"
+              error={displayNameError}
+            />
+          )}
         />
-        <SettingsControlsLabeledInput
-          label="Nickname"
-          value={nickname}
-          onChangeText={(value) => setNickname(value.toLowerCase().replace(/[^a-z0-9._-]/g, ""))}
-          maxLength={30}
-          placeholder="your-nickname"
-          error={nicknameError}
-          hint={
-            nicknameStatus === "checking"
-              ? "Checking..."
-              : nicknameStatus === "available"
-                ? "Available"
-                : undefined
-          }
+        <Controller
+          control={control}
+          name="nickname"
+          render={({ field: { value } }) => (
+            <SettingsControlsLabeledInput
+              label="Nickname"
+              value={value}
+              onChangeText={(nextValue) =>
+                setValue("nickname", nextValue.toLowerCase().replace(/[^a-z0-9._-]/g, ""))
+              }
+              maxLength={30}
+              placeholder="your-nickname"
+              error={nicknameError}
+              hint={
+                nicknameStatus === "checking"
+                  ? "Checking..."
+                  : nicknameStatus === "available"
+                    ? "Available"
+                    : undefined
+              }
+            />
+          )}
         />
         <View className="flex-row gap-3">
-          <SettingsControlsLabeledInput
-            className="flex-1"
-            label="Height"
-            value={height}
-            onChangeText={setHeight}
-            keyboardType="decimal-pad"
-            placeholder="175"
-            hint="cm"
+          <Controller
+            control={control}
+            name="height"
+            render={({ field: { onChange, value } }) => (
+              <SettingsControlsLabeledInput
+                className="flex-1"
+                label="Height"
+                value={value}
+                onChangeText={onChange}
+                keyboardType="decimal-pad"
+                placeholder="175"
+                hint="cm"
+              />
+            )}
           />
-          <SettingsControlsLabeledInput
-            className="flex-1"
-            label="Shoe size"
-            value={shoeSize}
-            onChangeText={setShoeSize}
-            keyboardType="decimal-pad"
-            placeholder="42"
-            hint="EU"
+          <Controller
+            control={control}
+            name="shoeSize"
+            render={({ field: { onChange, value } }) => (
+              <SettingsControlsLabeledInput
+                className="flex-1"
+                label="Shoe size"
+                value={value}
+                onChangeText={onChange}
+                keyboardType="decimal-pad"
+                placeholder="42"
+                hint="EU"
+              />
+            )}
           />
         </View>
         <View className="gap-2">
           <View className="flex-row items-center justify-between gap-2">
             <Text className="text-sm font-semibold text-text">Bio</Text>
-            <Text className="text-xs text-text-muted">{bio.length}/160</Text>
+            <Text className="text-xs text-text-muted">{values.bio.length}/160</Text>
           </View>
-          <Textarea
-            value={bio}
-            onChangeText={setBio}
-            maxLength={160}
-            numberOfLines={4}
-            placeholder="Tell your friends a little about yourself..."
-            className="text-text"
+          <Controller
+            control={control}
+            name="bio"
+            render={({ field: { onChange, value } }) => (
+              <Textarea
+                value={value}
+                onChangeText={onChange}
+                maxLength={160}
+                numberOfLines={4}
+                placeholder="Tell your friends a little about yourself..."
+                className="text-text"
+              />
+            )}
           />
         </View>
-        <Button disabled={updateProfile.isPending} onPress={handleSave}>
+        <Button disabled={updateProfile.isPending} onPress={handleSubmit(submitForm)}>
           <Text>{updateProfile.isPending ? "Saving..." : "Save Changes"}</Text>
         </Button>
       </SettingsSection>

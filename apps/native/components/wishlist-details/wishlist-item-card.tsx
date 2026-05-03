@@ -60,7 +60,7 @@ export function WishlistItemCard({
     ...reservation,
     reservedByName,
   });
-  const priorityLabel = getItemPriorityLabel(item.priority);
+  const priorityLabel = getItemPriorityLabel(item.priority_id);
   const store = getItemStoreFromUrl(item.url);
   const itemUrl = item.url?.trim() ?? "";
   const showCopyLink = itemUrl.length > 0;

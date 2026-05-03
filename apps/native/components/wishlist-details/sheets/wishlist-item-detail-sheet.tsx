@@ -66,7 +66,7 @@ export function WishlistItemDetailSheet({
     ...reservation,
     reservedByName,
   });
-  const priorityLabel = getItemPriorityLabel(selectedItem.priority);
+  const priorityLabel = getItemPriorityLabel(selectedItem.priority_id);
   const store = getItemStoreFromUrl(selectedItem.url);
   const salePercentOff = getSalePercentOff(
     selectedItem.price,
