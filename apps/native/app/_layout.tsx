@@ -1,3 +1,4 @@
+import "@/polyfills/gtIntlPolyfills";
 import "@/global.css";
 
 import { useSettings } from "@/hooks/use-settings";

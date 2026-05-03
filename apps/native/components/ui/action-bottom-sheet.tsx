@@ -1,6 +1,7 @@
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
 
@@ -16,6 +17,7 @@ export function ActionBottomSheetMessage({
   message: ActionBottomSheetMessagePayload | null;
   onClose: () => void;
 }) {
+  const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
 
   if (!message) return null;
@@ -34,7 +36,7 @@ export function ActionBottomSheetMessage({
           ) : null}
         </View>
         <Button onPress={handleClose}>
-          <Text>OK</Text>
+          <Text>{t("OK")}</Text>
         </Button>
       </View>
     </BottomSheet>
@@ -60,6 +62,7 @@ export function ActionBottomSheetConfirm({
   onClose: () => void;
   onConfirm: () => void;
 }) {
+  const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
 
   if (!open) return null;
@@ -77,7 +80,7 @@ export function ActionBottomSheetConfirm({
         </View>
         <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="outline" disabled={isPending} onPress={handleClose}>
-            <Text>Cancel</Text>
+            <Text>{t("Cancel")}</Text>
           </Button>
           <Button
             variant={destructive ? "destructive" : "default"}

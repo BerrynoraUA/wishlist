@@ -16,6 +16,7 @@ import {
   View,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
+import { useGT } from "gt-react-native";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -24,31 +25,43 @@ type SignInFormValues = {
   password: string;
 };
 
-const testimonials = [
-  {
-    quote: '"Wishlane made birthday planning with our whole family effortless."',
-    name: "Maya",
-    role: "Gift organizer",
-    initial: "M",
-    avatarClassName: "bg-[#fde7f3] text-[#c0267e]",
-  },
-  {
-    quote: '"I always know what friends actually want now. No more guessing."',
-    name: "Noah",
-    role: "Friend group hero",
-    initial: "N",
-    avatarClassName: "bg-[#e0f2fe] text-[#2563eb]",
-  },
-  {
-    quote: '"Shared wishlists turned our holidays from chaotic to calm."',
-    name: "Ava",
-    role: "Holiday planner",
-    initial: "A",
-    avatarClassName: "bg-[#fef3c7] text-[#d97706]",
-  },
-] as const;
+type SignInTestimonial = {
+  readonly quote: string;
+  readonly name: string;
+  readonly role: string;
+  readonly initial: string;
+  readonly avatarClassName: string;
+};
 
 export function SignInScreen() {
+  const t = useGT();
+
+  const testimonials = React.useMemo((): readonly SignInTestimonial[] => {
+    return [
+      {
+        quote: t('"Wishlane made birthday planning with our whole family effortless."'),
+        name: "Maya",
+        role: t("Gift organizer"),
+        initial: "M",
+        avatarClassName: "bg-[#fde7f3] text-[#c0267e]",
+      },
+      {
+        quote: t('"I always know what friends actually want now. No more guessing."'),
+        name: "Noah",
+        role: t("Friend group hero"),
+        initial: "N",
+        avatarClassName: "bg-[#e0f2fe] text-[#2563eb]",
+      },
+      {
+        quote: t('"Shared wishlists turned our holidays from chaotic to calm."'),
+        name: "Ava",
+        role: t("Holiday planner"),
+        initial: "A",
+        avatarClassName: "bg-[#fef3c7] text-[#d97706]",
+      },
+    ];
+  }, [t]);
+
   const { control, handleSubmit } = useForm<SignInFormValues>({
     defaultValues: {
       email: "",
@@ -78,17 +91,17 @@ export function SignInScreen() {
 
     const trimmedEmail = values.email.trim();
     if (!trimmedEmail || !values.password) {
-      setError("Email and password are required.");
+      setError(t("Email and password are required."));
       return;
     }
 
     if (!emailRegex.test(trimmedEmail)) {
-      setError("Please enter a valid email address.");
+      setError(t("Please enter a valid email address."));
       return;
     }
 
     if (values.password.length < 6) {
-      setError("Password must be at least 6 characters.");
+      setError(t("Password must be at least 6 characters."));
       return;
     }
 
@@ -96,7 +109,7 @@ export function SignInScreen() {
     try {
       await loginWithEmail(trimmedEmail, values.password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(err instanceof Error ? err.message : t("Something went wrong"));
     } finally {
       setLoading(false);
     }
@@ -109,7 +122,7 @@ export function SignInScreen() {
     try {
       await loginWithGoogle();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Social login failed");
+      setError(err instanceof Error ? err.message : t("Social login failed"));
     } finally {
       setSocialLoading(null);
     }
@@ -122,7 +135,7 @@ export function SignInScreen() {
     try {
       await loginWithApple();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Apple login failed");
+      setError(err instanceof Error ? err.message : t("Apple login failed"));
     } finally {
       setSocialLoading(null);
     }
@@ -145,20 +158,20 @@ export function SignInScreen() {
             <View className="mb-7 gap-2">
               <View className="self-start rounded-full bg-[#fde7f3] px-3.5 py-1.5 dark:bg-[#e052a0]/15">
                 <Text className="text-[13px] font-semibold text-[#c0267e] dark:text-[#e052a0]">
-                  Welcome back
+                  {t("Welcome back")}
                 </Text>
               </View>
               <Text className="text-[32px] font-extrabold leading-9 tracking-[-1px] text-[#111827] dark:text-[#f0f0f2]">
-                Sign in to your account
+                {t("Sign in to your account")}
               </Text>
               <Text className="text-[15px] leading-6 text-[#6b7280] dark:text-[#9ca3af]">
-                Enter your credentials to continue where you left off.
+                {t("Enter your credentials to continue where you left off.")}
               </Text>
             </View>
 
             <View className="gap-0 rounded-[24px] border border-[#f3e8ee]/70 bg-white/75 p-5 shadow-lg dark:border-[#27272d]/70 dark:bg-[#161619]/75 sm:p-7">
               <View className="gap-3">
-                <FieldLabel>Email</FieldLabel>
+                <FieldLabel>{t("Email")}</FieldLabel>
                 <Controller
                   control={control}
                   name="email"
@@ -168,14 +181,14 @@ export function SignInScreen() {
                       autoComplete="email"
                       keyboardType="email-address"
                       onChangeText={onChange}
-                      placeholder="you@email.com"
+                      placeholder={t("you@email.com")}
                       textContentType="emailAddress"
                       value={value}
                     />
                   )}
                 />
 
-                <FieldLabel>Password</FieldLabel>
+                <FieldLabel>{t("Password")}</FieldLabel>
                 <View className="relative">
                   <Controller
                     control={control}
@@ -184,7 +197,7 @@ export function SignInScreen() {
                       <AuthInput
                         autoComplete="current-password"
                         onChangeText={onChange}
-                        placeholder="Password"
+                        placeholder={t("Password")}
                         secureTextEntry={!showPassword}
                         textContentType="password"
                         value={value}
@@ -193,7 +206,7 @@ export function SignInScreen() {
                     )}
                   />
                   <Pressable
-                    accessibilityLabel={showPassword ? "Hide password" : "Show password"}
+                    accessibilityLabel={showPassword ? t("Hide password") : t("Show password")}
                     accessibilityRole="button"
                     className="absolute right-3 top-0 h-12 items-center justify-center px-1"
                     onPress={() => setShowPassword((visible) => !visible)}
@@ -213,11 +226,11 @@ export function SignInScreen() {
 
                 <View className="mt-2">
                   <AnimatedShadowButton
-                    accessibilityLabel="Sign in"
+                    accessibilityLabel={t("Sign in")}
                     isDisabled={isBusy}
                     isLoading={loading}
                     onPress={handleSubmit(submitForm)}
-                    title="Sign in"
+                    title={t("Sign in")}
                   />
                 </View>
               </View>
@@ -226,14 +239,14 @@ export function SignInScreen() {
                 <View className="flex-row items-center gap-3">
                   <View className="h-px flex-1 bg-[#e5e7eb] dark:bg-[#374151]" />
                   <Text className="text-xs uppercase tracking-[1px] text-[#9ca3af] dark:text-[#6b7280]">
-                    or
+                    {t("or")}
                   </Text>
                   <View className="h-px flex-1 bg-[#e5e7eb] dark:bg-[#374151]" />
                 </View>
 
                 <View className="flex-row justify-center gap-5">
                   <SocialIconButton
-                    accessibilityLabel="Continue with Google"
+                    accessibilityLabel={t("Continue with Google")}
                     disabled={isBusy}
                     onPress={handleGoogleSignIn}
                   >
@@ -245,7 +258,7 @@ export function SignInScreen() {
                   </SocialIconButton>
                   {showAppleSignIn ? (
                     <SocialIconButton
-                      accessibilityLabel="Continue with Apple"
+                      accessibilityLabel={t("Continue with Apple")}
                       buttonClassName="border-black bg-black dark:border-white dark:bg-white"
                       disabled={isBusy}
                       onPress={handleAppleSignIn}
@@ -263,10 +276,10 @@ export function SignInScreen() {
 
             <View className="mt-6 flex-row flex-wrap justify-center gap-1">
               <Text className="text-sm text-[#6b7280] dark:text-[#9ca3af]">
-                Don't have an account?
+                {t("Don't have an account?")}
               </Text>
               <Text className="text-sm font-semibold text-[#c0267e] dark:text-[#e052a0]">
-                Create one
+                {t("Create one")}
               </Text>
             </View>
           </View>
@@ -303,7 +316,9 @@ function AuthInput({
   );
 }
 
-function VisualPanel({ testimonial }: { testimonial: (typeof testimonials)[number] }) {
+function VisualPanel({ testimonial }: { testimonial: SignInTestimonial }) {
+  const t = useGT();
+
   return (
     <View className="relative hidden flex-1 items-center justify-center overflow-hidden bg-gradient-to-br from-[#fffafa] via-[#fdf2f8] to-[#fde7f3] px-10 py-10 dark:from-[#18141a] dark:via-[#1c1320] dark:to-[#201527] md:flex">
       <View className="absolute -right-24 -top-28 size-[500px] rounded-full bg-[#fde7f3] opacity-50 dark:bg-[#e052a0]/15" />
@@ -317,15 +332,17 @@ function VisualPanel({ testimonial }: { testimonial: (typeof testimonials)[numbe
         </View>
 
         <Text className="text-center text-[40px] font-extrabold leading-[46px] tracking-[-1px] text-[#111827] dark:text-[#f0f0f2]">
-          Welcome back to{"\n"}
+          <Text className="text-[40px] font-extrabold">{t("Welcome back to")}</Text>
+          {"\n"}
           <Text className="text-[40px] font-extrabold italic text-[#c0267e] dark:text-[#e052a0]">
             Wishlane
           </Text>
         </Text>
 
         <Text className="mb-8 mt-3 text-center text-base leading-7 text-[#6b7280] dark:text-[#9ca3af]">
-          Sign in to manage your wishlists, see what friends are wishing for, and never miss the
-          perfect gift.
+          {t(
+            "Sign in to manage your wishlists, see what friends are wishing for, and never miss the perfect gift.",
+          )}
         </Text>
 
         <View className="relative w-full max-w-[340px]">
@@ -336,10 +353,10 @@ function VisualPanel({ testimonial }: { testimonial: (typeof testimonials)[numbe
               </View>
               <View>
                 <Text className="text-[15px] font-bold text-[#111827] dark:text-[#f0f0f2]">
-                  Birthday Wishes
+                  {t("Birthday Wishes")}
                 </Text>
                 <Text className="text-[11px] text-[#6b7280] dark:text-[#9ca3af]">
-                  8 items - March 15
+                  {t("8 items - March 15")}
                 </Text>
               </View>
             </View>
@@ -348,26 +365,26 @@ function VisualPanel({ testimonial }: { testimonial: (typeof testimonials)[numbe
               <MockupItem
                 icon="HP"
                 iconClassName="bg-[#fde7f3]"
-                name="Wireless Headphones"
+                name={t("Wireless Headphones")}
                 price="$149.99"
               />
               <MockupItem
                 icon="BK"
                 iconClassName="bg-[#e0f2fe]"
-                name="Design Anthology"
+                name={t("Design Anthology")}
                 price="$34.00"
               />
               <MockupItem
                 icon="CF"
                 iconClassName="bg-[#fef3c7]"
-                name="Ceramic Pour-Over"
+                name={t("Ceramic Pour-Over")}
                 price="$62.00"
               />
             </View>
           </View>
 
-          <FloatingBadge className="-right-3.5 -top-2.5" icon="♡" label="Item reserved!" />
-          <FloatingBadge className="-left-5 bottom-3.5" icon="↗" label="Link shared" />
+          <FloatingBadge className="-right-3.5 -top-2.5" icon="♡" label={t("Item reserved!")} />
+          <FloatingBadge className="-left-5 bottom-3.5" icon="↗" label={t("Link shared")} />
         </View>
 
         <View className="mt-7 items-center">

@@ -28,8 +28,8 @@ import { useCurrentUserId } from "@/hooks/use-user";
 import { useWishlistById } from "@/hooks/use-wishlists";
 import {
   DEFAULT_ITEM_SORT,
-  ITEM_PRIORITY_OPTIONS,
-  ITEM_STATUS_OPTIONS,
+  ITEM_PRIORITY_LOOKUP,
+  ITEM_STATUS_LOOKUP,
   WISHLIST_ITEMS_PAGE_SIZE,
   parseOptionalNumber,
 } from "@/lib/items";
@@ -39,6 +39,7 @@ import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { FlashList } from "@shopify/flash-list";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
@@ -69,6 +70,7 @@ type WishlistItemListRow =
   | { id: "filters"; type: "filters" };
 
 export default function WishlistDetailScreen() {
+  const t = useGT();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -96,15 +98,14 @@ export default function WishlistDetailScreen() {
   const itemQueryParams = React.useMemo(() => {
     const statuses: number[] = [];
     for (const value of filters.statuses) {
-      const status = ITEM_STATUS_OPTIONS.find((option) => option.value === value)?.status;
+      const status = ITEM_STATUS_LOOKUP.find((option) => option.value === value)?.status;
       if (status !== undefined) statuses.push(status);
     }
 
     const priorities: string[] = [];
     for (const value of filters.priorities) {
-      const priorityId = ITEM_PRIORITY_OPTIONS.find(
-        (option) => option.value === value,
-      )?.priority_id;
+      const priorityId = ITEM_PRIORITY_LOOKUP.find((option) => option.value === value)
+        ?.priority_id;
       if (priorityId !== undefined) priorities.push(priorityId);
     }
 
@@ -138,11 +139,11 @@ export default function WishlistDetailScreen() {
   const profileNamesById = React.useMemo(() => {
     const entries =
       profilesQuery.data?.map(
-        (profile) => [profile.id, profile.display_name || profile.nickname || "Someone"] as const,
+        (profile) => [profile.id, profile.display_name || profile.nickname || t("Someone")] as const,
       ) ?? [];
 
     return new Map(entries);
-  }, [profilesQuery.data]);
+  }, [profilesQuery.data, t]);
   const filtersActive = wishlistItemFilterBarHasActiveFilters(filters);
   const hasAnyItems = (allItemsQuery.data?.length ?? 0) > 0;
   const pagination = paginationFlags(page, items.length, WISHLIST_ITEMS_PAGE_SIZE);
@@ -229,7 +230,7 @@ export default function WishlistDetailScreen() {
                 key={entry.id}
                 width={cardWidth}
                 onPress={() => setSheet({ type: "create" })}
-                accessibilityLabel="Add item"
+                accessibilityLabel={t("Add item")}
               />
             ) : (
               <Animated.View
@@ -277,13 +278,14 @@ export default function WishlistDetailScreen() {
       toggleVote,
       votesQuery.data,
       wishlist,
+      t,
     ],
   );
 
   if (rawId === "index") {
     return (
       <>
-        <Stack.Screen options={{ title: "Wishlists" }} />
+        <Stack.Screen options={{ title: t("Wishlists") }} />
         <Redirect href="/wishlists" />
       </>
     );
@@ -291,7 +293,7 @@ export default function WishlistDetailScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: wishlist?.title ?? "Wishlist" }} />
+      <Stack.Screen options={{ title: wishlist?.title ?? t("Wishlist") }} />
       <View className="flex-1 bg-bg">
         {wishlistQuery.isLoading ? (
           <View className="flex-1 items-center justify-center">
@@ -300,7 +302,7 @@ export default function WishlistDetailScreen() {
         ) : wishlistQuery.isError || !wishlist ? (
           <View className="flex-1 items-center justify-center px-6">
             <Text className="text-center text-sm font-semibold text-text-muted">
-              Failed to load wishlist.
+              {t("Failed to load wishlist.")}
             </Text>
           </View>
         ) : (
@@ -333,15 +335,17 @@ export default function WishlistDetailScreen() {
                     <ActivityIndicator />
                   </View>
                 ) : null}
-                {itemsQuery.isError ? <InlineState message="Failed to load items." /> : null}
+                {itemsQuery.isError ? (
+                  <InlineState message={t("Failed to load items.")} />
+                ) : null}
                 {!itemsQuery.isLoading &&
                 !itemsQuery.isError &&
                 items.length === 0 &&
                 !canEditWishlist ? (
                   <Text className="text-center text-sm text-text-muted">
                     {filtersActive && hasAnyItems
-                      ? "No items match your filters."
-                      : "No items yet."}
+                      ? t("No items match your filters.")
+                      : t("No items yet.")}
                   </Text>
                 ) : null}
                 {pagination.showPagination ? (
@@ -351,7 +355,7 @@ export default function WishlistDetailScreen() {
                       disabled={!pagination.hasPrevPage}
                       onPress={() => setPage((current) => Math.max(1, current - 1))}
                     >
-                      <Text>Previous</Text>
+                      <Text>{t("Previous")}</Text>
                     </Button>
                     <Text className="px-2 text-sm font-bold text-text-muted">{page}</Text>
                     <Button
@@ -359,7 +363,7 @@ export default function WishlistDetailScreen() {
                       disabled={!pagination.hasNextPage}
                       onPress={() => setPage((current) => current + 1)}
                     >
-                      <Text>Next</Text>
+                      <Text>{t("Next")}</Text>
                     </Button>
                   </View>
                 ) : null}
@@ -380,7 +384,7 @@ export default function WishlistDetailScreen() {
         )}
         <AnimatedPressable
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel={t("Back")}
           onPress={() => router.back()}
           className="absolute bottom-4 left-4 z-20 size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg"
           style={floatingBackButtonStyles.shadow}

@@ -13,11 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import {
   DEFAULT_WISHLIST_SORT,
-  WISHLIST_SORT_OPTIONS,
-  WISHLIST_VISIBILITY_OPTIONS,
+  getWishlistSortOptions,
+  getWishlistVisibilityOptions,
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
 import { ChevronsUpDown, Plus, Search, SlidersHorizontal, X } from "lucide-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
 
@@ -44,15 +45,19 @@ export function WishlistFilterBar({
   filtersOpen: boolean;
   onFiltersOpenChange: (open: boolean) => void;
 }) {
+  const t = useGT();
+  const sortOptions = React.useMemo(() => getWishlistSortOptions(t), [t]);
+  const visibilityOptions = React.useMemo(() => getWishlistVisibilityOptions(t), [t]);
+
   const selectedSortLabel =
-    WISHLIST_SORT_OPTIONS.find((option) => option.value === sort)?.label ?? "Newest first";
+    sortOptions.find((option) => option.value === sort)?.label ?? t("Newest first");
   const selectedVisibilityLabel =
     visibility.length === 0
-      ? "Visibility"
+      ? t("Visibility")
       : visibility.length === 1
-        ? (WISHLIST_VISIBILITY_OPTIONS.find((option) => option.value === visibility[0])?.label ??
-          "Visibility")
-        : `${visibility.length} selected`;
+        ? (visibilityOptions.find((option) => option.value === visibility[0])?.label ??
+          t("Visibility"))
+        : t("{count} selected", { count: visibility.length });
   const canResetFilters =
     search.trim() !== "" || visibility.length > 0 || sort !== DEFAULT_WISHLIST_SORT;
 
@@ -60,11 +65,11 @@ export function WishlistFilterBar({
     <View className="gap-4">
       <View className="flex-row items-center justify-between gap-3">
         <View className="min-w-0 flex-1 flex-row items-center gap-2">
-          <Text className="text-xl font-extrabold tracking-tight text-text">Wishlists</Text>
+          <Text className="text-xl font-extrabold tracking-tight text-text">{t("Wishlists")}</Text>
           <Button
             variant="outline"
             size="lg"
-            accessibilityLabel="Show filters"
+            accessibilityLabel={t("Show filters")}
             accessibilityState={{ expanded: filtersOpen }}
             onPress={() => onFiltersOpenChange(!filtersOpen)}
             className={cn(
@@ -81,7 +86,7 @@ export function WishlistFilterBar({
             <Button
               variant="destructive"
               size="icon"
-              accessibilityLabel="Clear filters"
+              accessibilityLabel={t("Clear filters")}
               onPress={onResetFilters}
               className="h-11 w-11 shrink-0 rounded-full"
             >
@@ -90,10 +95,10 @@ export function WishlistFilterBar({
           ) : null}
         </View>
         <AnimatedGradientBackgroundButton
-          accessibilityLabel="Add wishlist"
+          accessibilityLabel={t("Add wishlist")}
           Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
           onPress={onCreateWishlist}
-          title="Add Wishlist"
+          title={t("Add Wishlist")}
         />
       </View>
 
@@ -104,7 +109,7 @@ export function WishlistFilterBar({
             <Input
               value={search}
               onChangeText={onSearchChange}
-              placeholder="Search wishlists..."
+              placeholder={t("Search wishlists...")}
               className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
               returnKeyType="search"
             />
@@ -112,7 +117,7 @@ export function WishlistFilterBar({
               <Button
                 variant="ghost"
                 size="icon"
-                accessibilityLabel="Clear search"
+                accessibilityLabel={t("Clear search")}
                 onPress={() => onSearchChange("")}
                 className="size-9 shrink-0 rounded-full"
               >
@@ -126,7 +131,7 @@ export function WishlistFilterBar({
                 <DropdownMenuTrigger asChild>
                   <AnimatedPressable
                     accessibilityRole="button"
-                    accessibilityLabel="Filter by visibility"
+                    accessibilityLabel={t("Filter by visibility")}
                     className={cn(
                       "h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
                       visibility.length > 0 && "border-brand bg-brand-lighter",
@@ -151,7 +156,7 @@ export function WishlistFilterBar({
                   </AnimatedPressable>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="min-w-52">
-                  {WISHLIST_VISIBILITY_OPTIONS.map((option) => {
+                  {visibilityOptions.map((option) => {
                     const VisibilityIcon = option.icon;
                     return (
                       <DropdownMenuCheckboxItem
@@ -180,7 +185,7 @@ export function WishlistFilterBar({
                   </AnimatedPressable>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="min-w-52">
-                  {WISHLIST_SORT_OPTIONS.map((option) => (
+                  {sortOptions.map((option) => (
                     <DropdownMenuItem key={option.value} onPress={() => onSortChange(option.value)}>
                       <Text>{option.label}</Text>
                     </DropdownMenuItem>

@@ -28,11 +28,13 @@ import {
   EMPTY_WISHLIST_FORM,
   SELECTED_FRIENDS_ACCESS_TYPE,
   SELECTED_GROUPS_ACCESS_TYPE,
-  WISHLIST_ACCENT_OPTIONS,
-  WISHLIST_VISIBILITY_OPTIONS,
+  getWishlistAccentOptions,
+  getWishlistVisibilityOptions,
   getWishlistAccentClass,
   toWishlistFormValues,
+  type WishlistVisibilityOption,
 } from "@/lib/wishlists";
+import type { TranslateFn } from "@/lib/translate-fn";
 import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl } from "@/lib/urls";
 import {
@@ -48,6 +50,7 @@ import {
   type WishlistFormValues,
 } from "@wishlist/backend/types/wishlist";
 import { CalendarDays, Check, X } from "lucide-react-native";
+import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, Platform, ScrollView, View } from "react-native";
@@ -57,12 +60,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-
-const dateLabelFormatter = new Intl.DateTimeFormat(undefined, {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-});
 
 type WishlistAccessOption = {
   id: string;
@@ -102,9 +99,13 @@ function formatDateFieldValue(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-function formatDateFieldLabel(value: string) {
+function formatDateFieldLabel(
+  value: string,
+  formatter: Intl.DateTimeFormat,
+  emptyLabel: string,
+) {
   const date = parseDateFieldValue(value);
-  return date ? dateLabelFormatter.format(date) : "Select a date";
+  return date ? formatter.format(date) : emptyLabel;
 }
 
 export function WishlistCreateEditSheet({
@@ -119,6 +120,9 @@ export function WishlistCreateEditSheet({
   onOpenChange: (open: boolean) => void;
 }) {
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const t = useGT();
+  const visibilityOptions = React.useMemo(() => getWishlistVisibilityOptions(t), [t]);
+  const accentOptions = React.useMemo(() => getWishlistAccentOptions(t), [t]);
   const queryClient = useQueryClient();
   const createMutation = useCreateWishlist();
   const updateMutation = useUpdateWishlist();
@@ -151,7 +155,7 @@ export function WishlistCreateEditSheet({
   const accessPanelOpacity = useSharedValue(0);
   const accessPanelTranslateY = useSharedValue(-14);
   const accessPanelScaleY = useSharedValue(0.94);
-  const title = mode === "edit" ? "Edit Wishlist" : "Create Wishlist";
+  const title = mode === "edit" ? t("Edit Wishlist") : t("Create Wishlist");
   const imageUrlInvalid = hasInvalidOptionalUrl(values.imageUrl);
   const canManageSelectedAccess = mode === "create" || Boolean(wishlist?.is_owner);
   const wishlistId = wishlist?.id ?? "";
@@ -210,10 +214,10 @@ export function WishlistCreateEditSheet({
     return friends
       .map((friend) => ({
         id: friend.friend_id,
-        nickname: friend.nickname ?? friend.display_name ?? "friend",
+        nickname: friend.nickname ?? friend.display_name ?? t("friend"),
       }))
       .filter((friend) => Boolean(friend.id));
-  }, [friends, friendsWithoutAccess, mode]);
+  }, [friends, friendsWithoutAccess, mode, t]);
 
   const groupOptions = React.useMemo<WishlistAccessOption[]>(() => {
     const source = mode === "edit" ? groupsWithoutAccess : groups;
@@ -427,7 +431,7 @@ export function WishlistCreateEditSheet({
       handleClose();
     } catch (submitError) {
       setAccessError(
-        submitError instanceof Error ? submitError.message : "Could not save selected access.",
+        submitError instanceof Error ? submitError.message : t("Could not save selected access."),
       );
     } finally {
       setIsSavingAccess(false);
@@ -446,7 +450,7 @@ export function WishlistCreateEditSheet({
       });
     } catch (revokeError) {
       setAccessError(
-        revokeError instanceof Error ? revokeError.message : "Could not remove access.",
+        revokeError instanceof Error ? revokeError.message : t("Could not remove access."),
       );
     }
   }
@@ -463,7 +467,7 @@ export function WishlistCreateEditSheet({
       });
     } catch (revokeError) {
       setAccessError(
-        revokeError instanceof Error ? revokeError.message : "Could not remove access.",
+        revokeError instanceof Error ? revokeError.message : t("Could not remove access."),
       );
     }
   }
@@ -484,7 +488,7 @@ export function WishlistCreateEditSheet({
             disabled={isPending}
             onPress={handleClose}
           >
-            <Text>Cancel</Text>
+            <Text>{t("Cancel")}</Text>
           </Button>
           <Button
             className="min-w-0 flex-1"
@@ -494,7 +498,7 @@ export function WishlistCreateEditSheet({
             {isPending || isSavingAccess ? (
               <ActivityIndicator colorClassName="accent-primary-foreground" />
             ) : null}
-            <Text>{mode === "edit" ? "Save changes" : "Create wishlist"}</Text>
+            <Text>{mode === "edit" ? t("Save changes") : t("Create wishlist")}</Text>
           </Button>
         </View>
       }
@@ -504,17 +508,17 @@ export function WishlistCreateEditSheet({
         showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-5 px-5 pb-6 pt-5"
       >
-        <Field label="Name">
+        <Field label={t("Name")}>
           <Controller
             control={control}
             name="title"
             render={({ field: { onChange, value } }) => (
-              <Input value={value} onChangeText={onChange} placeholder="Birthday gifts" />
+              <Input value={value} onChangeText={onChange} placeholder={t("Birthday gifts")} />
             )}
           />
         </Field>
 
-        <Field label="Description">
+        <Field label={t("Description")}>
           <Controller
             control={control}
             name="description"
@@ -522,7 +526,7 @@ export function WishlistCreateEditSheet({
               <Input
                 value={value}
                 onChangeText={onChange}
-                placeholder="A short note about this wishlist"
+                placeholder={t("A short note about this wishlist")}
                 multiline
                 className="h-24 items-start py-3"
                 textAlignVertical="top"
@@ -531,8 +535,10 @@ export function WishlistCreateEditSheet({
           />
         </Field>
 
-        <Field label="Visibility">
+        <Field label={t("Visibility")}>
           <VisibilitySelector
+            t={t}
+            visibilityOptions={visibilityOptions}
             value={values.visibility}
             selectedAccessTarget={accessTab}
             onChange={handleVisibilityChange}
@@ -545,7 +551,7 @@ export function WishlistCreateEditSheet({
             >
               {accessTab === "friends" ? (
                 <WishlistAccessPicker
-                  title="Selected friends"
+                  title={t("Selected friends")}
                   options={friendOptions}
                   selected={selectedAccessFriends}
                   onChange={(nextSelected) => {
@@ -556,21 +562,24 @@ export function WishlistCreateEditSheet({
                   isError={mode === "edit" ? friendsWithoutAccessError : friendsError}
                   emptyLabel={
                     mode === "edit"
-                      ? "All available friends already have access."
-                      : "No friends found yet."
+                      ? t("All available friends already have access.")
+                      : t("No friends found yet.")
                   }
-                  errorLabel="Could not load friends right now."
+                  errorLabel={t("Could not load friends right now.")}
+                  searchPlaceholder={t("Search friends")}
                   existingAccess={mode === "edit" ? specificAccessList : []}
-                  existingAccessTitle={mode === "edit" ? "Already selected" : undefined}
+                  existingAccessTitle={mode === "edit" ? t("Already selected") : undefined}
                   existingAccessEmptyLabel={
-                    accessListLoading ? "Loading current access..." : "No selected friends yet."
+                    accessListLoading
+                      ? t("Loading current access...")
+                      : t("No selected friends yet.")
                   }
                   onRevokeAccess={mode === "edit" ? handleRevokeSpecificAccess : undefined}
                   revokingTargetId={revokeAccess.variables?.targetUserId ?? null}
                 />
               ) : (
                 <WishlistAccessPicker
-                  title="Selected groups"
+                  title={t("Selected groups")}
                   options={groupOptions}
                   selected={selectedAccessGroups}
                   onChange={(nextSelected) => {
@@ -581,15 +590,17 @@ export function WishlistCreateEditSheet({
                   isError={mode === "edit" ? groupsWithoutAccessError : groupsError}
                   emptyLabel={
                     mode === "edit"
-                      ? "All available groups already have access."
-                      : "No groups found yet."
+                      ? t("All available groups already have access.")
+                      : t("No groups found yet.")
                   }
-                  errorLabel="Could not load groups right now."
-                  searchPlaceholder="Search groups"
+                  errorLabel={t("Could not load groups right now.")}
+                  searchPlaceholder={t("Search groups")}
                   existingAccess={mode === "edit" ? groupAccessList : []}
-                  existingAccessTitle={mode === "edit" ? "Already selected" : undefined}
+                  existingAccessTitle={mode === "edit" ? t("Already selected") : undefined}
                   existingAccessEmptyLabel={
-                    accessListLoading ? "Loading current access..." : "No selected groups yet."
+                    accessListLoading
+                      ? t("Loading current access...")
+                      : t("No selected groups yet.")
                   }
                   onRevokeAccess={mode === "edit" ? handleRevokeGroupAccess : undefined}
                   revokingTargetId={revokeGroupAccess.variables?.groupId ?? null}
@@ -599,17 +610,17 @@ export function WishlistCreateEditSheet({
           ) : null}
         </Field>
 
-        <Field label="Accent">
+        <Field label={t("Accent")}>
           <Controller
             control={control}
             name="accent"
             render={({ field: { onChange, value } }) => (
-              <AccentSelector value={value} onChange={onChange} />
+              <AccentSelector accentOptions={accentOptions} value={value} onChange={onChange} />
             )}
           />
         </Field>
 
-        <Field label="Event date (optional)">
+        <Field label={t("Event date (optional)")}>
           <Controller
             control={control}
             name="eventDate"
@@ -619,7 +630,7 @@ export function WishlistCreateEditSheet({
           />
         </Field>
 
-        <Field label="Image URL">
+        <Field label={t("Image URL")}>
           <Controller
             control={control}
             name="imageUrl"
@@ -627,7 +638,7 @@ export function WishlistCreateEditSheet({
               <Input
                 value={value}
                 onChangeText={onChange}
-                placeholder="https://..."
+                placeholder={t("https://...")}
                 autoCapitalize="none"
                 keyboardType="url"
                 className={imageUrlInvalid ? "border-destructive" : undefined}
@@ -635,7 +646,7 @@ export function WishlistCreateEditSheet({
             )}
           />
           {imageUrlInvalid ? (
-            <Text className="text-xs font-semibold text-destructive">Enter valid Url</Text>
+            <Text className="text-xs font-semibold text-destructive">{t("Enter valid Url")}</Text>
           ) : null}
         </Field>
 
@@ -651,10 +662,14 @@ export function WishlistCreateEditSheet({
 }
 
 function VisibilitySelector({
+  t,
+  visibilityOptions,
   value,
   selectedAccessTarget,
   onChange,
 }: {
+  t: TranslateFn;
+  visibilityOptions: WishlistVisibilityOption[];
   value: WishlistFormValues["visibility"];
   selectedAccessTarget: SelectedAccessTarget;
   onChange: (
@@ -667,19 +682,18 @@ function VisibilitySelector({
       ? selectedAccessTarget === "groups"
         ? "selected-groups"
         : "selected-friends"
-      : (WISHLIST_VISIBILITY_OPTIONS.find((option) => option.visibility === value)?.value ??
-        "friends");
+      : (visibilityOptions.find((option) => option.visibility === value)?.value ?? "friends");
 
   const rows = React.useMemo(() => {
-    const privateOption = WISHLIST_VISIBILITY_OPTIONS[3];
-    const selectedFriendsOption = WISHLIST_VISIBILITY_OPTIONS[2];
-    const friendsOption = WISHLIST_VISIBILITY_OPTIONS[1];
-    const publicOption = WISHLIST_VISIBILITY_OPTIONS[0];
+    const privateOption = visibilityOptions[3];
+    const selectedFriendsOption = visibilityOptions[2];
+    const friendsOption = visibilityOptions[1];
+    const publicOption = visibilityOptions[0];
 
     const orderedOptions: {
       value: VisibilitySelectorValue;
       label: string;
-      icon: (typeof WISHLIST_VISIBILITY_OPTIONS)[number]["icon"];
+      icon: WishlistVisibilityOption["icon"];
       visibility: WishlistFormValues["visibility"];
       selectedAccessTarget?: SelectedAccessTarget;
       surfaceClassName: string;
@@ -701,7 +715,7 @@ function VisibilitySelector({
       },
       {
         value: "selected-groups",
-        label: "Selected groups",
+        label: t("Selected groups"),
         icon: friendsOption.icon,
         visibility: WishlistVisibility.SelectedFriends,
         selectedAccessTarget: "groups",
@@ -747,7 +761,7 @@ function VisibilitySelector({
     }));
 
     return [options.slice(0, 3), options.slice(3)];
-  }, []);
+  }, [t, visibilityOptions]);
 
   return (
     <SlidingOptionSelector
@@ -770,16 +784,19 @@ function VisibilitySelector({
 }
 
 function AccentSelector({
+  accentOptions,
   value,
   onChange,
 }: {
+  accentOptions: ReturnType<typeof getWishlistAccentOptions>;
   value: WishlistFormValues["accent"];
   onChange: (accent: WishlistFormValues["accent"]) => void;
 }) {
+  const t = useGT();
   const rows = React.useMemo(() => {
-    const options = WISHLIST_ACCENT_OPTIONS.map((option) => ({
+    const options = accentOptions.map((option) => ({
       value: option.value,
-      accessibilityLabel: `Use ${option.label} accent`,
+      accessibilityLabel: t('Use "{label}" accent', { label: option.label }),
       surfaceClassName: "bg-transparent",
       children: ({ selected }: SlidingOptionRenderProps) => (
         <>
@@ -795,7 +812,7 @@ function AccentSelector({
     }));
 
     return [options.slice(0, 3), options.slice(3)];
-  }, []);
+  }, [accentOptions, t]);
 
   return (
     <SlidingOptionSelector
@@ -817,6 +834,17 @@ function EventDatePicker({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const t = useGT();
+  const locale = useLocale();
+  const dateLabelFormatter = React.useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale ?? "en", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
+    [locale],
+  );
   const [iosPickerOpen, setIosPickerOpen] = React.useState(false);
   const date = React.useMemo(() => parseDateFieldValue(value) ?? new Date(), [value]);
 
@@ -844,21 +872,21 @@ function EventDatePicker({
     <View className="gap-2">
       <AnimatedPressable
         accessibilityRole="button"
-        accessibilityLabel="Select event date"
+        accessibilityLabel={t("Select event date")}
         onPress={handleOpenPicker}
         className="min-h-12 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-bg-subtle px-3"
       >
         <Icon as={CalendarDays} className="size-4 text-text-muted" />
         <View className="min-w-0 flex-1">
           <Text className={cn("font-semibold", value ? "text-text" : "text-text-muted")}>
-            {formatDateFieldLabel(value)}
+            {formatDateFieldLabel(value, dateLabelFormatter, t("Select a date"))}
           </Text>
           {value ? <Text className="text-xs font-semibold text-text-muted">{value}</Text> : null}
         </View>
         {value ? (
           <AnimatedPressable
             accessibilityRole="button"
-            accessibilityLabel="Clear event date"
+            accessibilityLabel={t("Clear event date")}
             onPress={(event) => {
               event.stopPropagation();
               onChange("");
@@ -899,7 +927,7 @@ function WishlistAccessPicker({
   existingAccessEmptyLabel,
   onRevokeAccess,
   revokingTargetId,
-  searchPlaceholder = "Search friends",
+  searchPlaceholder,
 }: {
   title: string;
   options: WishlistAccessOption[];
@@ -914,8 +942,9 @@ function WishlistAccessPicker({
   existingAccessEmptyLabel?: string;
   onRevokeAccess?: (targetId: string) => void;
   revokingTargetId?: string | null;
-  searchPlaceholder?: string;
+  searchPlaceholder: string;
 }) {
+  const t = useGT();
   const [query, setQuery] = React.useState("");
   const selectedIds = React.useMemo(() => new Set(selected.map((item) => item.id)), [selected]);
   const filteredOptions = React.useMemo(() => {
@@ -939,7 +968,9 @@ function WishlistAccessPicker({
         <Text className="text-sm font-bold text-text">{title}</Text>
         {selected.length > 0 ? (
           <View className="rounded-full bg-brand-lighter px-2 py-1">
-            <Text className="text-xs font-bold text-brand">{selected.length} selected</Text>
+            <Text className="text-xs font-bold text-brand">
+              {t("{count} selected", { count: selected.length })}
+            </Text>
           </View>
         ) : null}
       </View>
@@ -954,7 +985,7 @@ function WishlistAccessPicker({
       <View className="gap-2">
         {isLoading ? (
           <Text className="rounded-lg bg-bg-muted p-3 text-sm font-semibold text-text-muted">
-            Loading...
+            {t("Loading...")}
           </Text>
         ) : null}
         {!isLoading && isError ? (
@@ -1036,7 +1067,9 @@ function WishlistAccessPicker({
                         size="icon"
                         className="size-8 rounded-full"
                         disabled={revoking}
-                        accessibilityLabel={`Remove access for ${target.nickname}`}
+                        accessibilityLabel={t("Remove access for {name}", {
+                          name: target.nickname,
+                        })}
                         onPress={() => onRevokeAccess(revokeTargetId)}
                       >
                         {revoking ? (

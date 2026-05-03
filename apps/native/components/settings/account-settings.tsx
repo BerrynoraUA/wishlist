@@ -16,6 +16,7 @@ import { Key, LogOut, Mail, Shield, Trash2, UserCog } from "lucide-react-native"
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
+import { useGT } from "gt-react-native";
 
 type PasswordFormValues = {
   newPassword: string;
@@ -29,6 +30,7 @@ export function AccountSettings({
   email: string;
   signOut: () => Promise<void>;
 }) {
+  const t = useGT();
   const { data: provider } = useAuthProvider();
   const changePassword = useChangePassword();
   const deleteAccount = useDeleteAccount();
@@ -45,21 +47,22 @@ export function AccountSettings({
 
   function submitPassword(formValues: PasswordFormValues) {
     if (formValues.newPassword.length < 6) {
-      setMessage({ title: "Password", message: "Password must be at least 6 characters." });
+      setMessage({ title: t("Password"), message: t("Password must be at least 6 characters.") });
       return;
     }
 
     if (formValues.newPassword !== formValues.confirmPassword) {
-      setMessage({ title: "Password", message: "Passwords do not match." });
+      setMessage({ title: t("Password"), message: t("Passwords do not match.") });
       return;
     }
 
     changePassword.mutate(formValues.newPassword, {
       onSuccess: () => {
         reset();
-        setMessage({ title: "Password updated" });
+        setMessage({ title: t("Password updated") });
       },
-      onError: (error) => setMessage({ title: "Password update failed", message: error.message }),
+      onError: (error) =>
+        setMessage({ title: t("Password update failed"), message: error.message }),
     });
   }
 
@@ -67,15 +70,17 @@ export function AccountSettings({
     deleteAccount.mutate(undefined, {
       onError: (error) => {
         setDeleteOpen(false);
-        setMessage({ title: "Delete account failed", message: error.message });
+        setMessage({ title: t("Delete account failed"), message: error.message });
       },
     });
   }
 
+  const emailUnavailable = t("Email unavailable");
+
   return (
     <>
       <SettingsSection
-        title="Account"
+        title={t("Account")}
         icon={UserCog}
         headerAction={
           <Button
@@ -89,14 +94,14 @@ export function AccountSettings({
             onPressIn={(event) => event.stopPropagation()}
           >
             <Icon as={LogOut} className="size-4 text-white" />
-            <Text>Log out</Text>
+            <Text>{t("Log out")}</Text>
           </Button>
         }
       >
-        <SettingsControlsInfoRow icon={Mail} title={email || "Email unavailable"} />
+        <SettingsControlsInfoRow icon={Mail} title={email || emailUnavailable} />
         <SettingsControlsInfoRow
           icon={Shield}
-          title={isOAuth ? "Google Account" : "Email Account"}
+          title={isOAuth ? t("Google Account") : t("Email Account")}
         />
 
         {!isOAuth && (
@@ -106,11 +111,11 @@ export function AccountSettings({
               name="newPassword"
               render={({ field: { onChange, value } }) => (
                 <SettingsControlsLabeledInput
-                  label="New Password"
+                  label={t("New Password")}
                   value={value}
                   onChangeText={onChange}
                   secureTextEntry
-                  placeholder="Enter new password"
+                  placeholder={t("Enter new password")}
                 />
               )}
             />
@@ -119,11 +124,11 @@ export function AccountSettings({
               name="confirmPassword"
               render={({ field: { onChange, value } }) => (
                 <SettingsControlsLabeledInput
-                  label="Confirm Password"
+                  label={t("Confirm Password")}
                   value={value}
                   onChangeText={onChange}
                   secureTextEntry
-                  placeholder="Confirm new password"
+                  placeholder={t("Confirm new password")}
                 />
               )}
             />
@@ -132,15 +137,19 @@ export function AccountSettings({
               onPress={handleSubmit(submitPassword)}
             >
               <Icon as={Key} className="size-4 text-primary-foreground" />
-              <Text>{changePassword.isPending ? "Updating..." : "Update Password"}</Text>
+              <Text>
+                {changePassword.isPending ? t("Updating...") : t("Update Password")}
+              </Text>
             </Button>
           </View>
         )}
 
         <View className="gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
-          <Text className="font-bold text-destructive">Danger Zone</Text>
+          <Text className="font-bold text-destructive">{t("Danger Zone")}</Text>
           <Text className="text-sm leading-5 text-text-muted">
-            This action permanently deletes your account and all associated data.
+            {t(
+              "This action permanently deletes your account and all associated data.",
+            )}
           </Text>
           <Button
             variant="destructive"
@@ -148,16 +157,18 @@ export function AccountSettings({
             onPress={() => setDeleteOpen(true)}
           >
             <Icon as={Trash2} className="size-4 text-white" />
-            <Text>{deleteAccount.isPending ? "Deleting..." : "Delete Account"}</Text>
+            <Text>{deleteAccount.isPending ? t("Deleting...") : t("Delete Account")}</Text>
           </Button>
         </View>
       </SettingsSection>
       <ActionBottomSheetMessage message={message} onClose={() => setMessage(null)} />
       <ActionBottomSheetConfirm
         open={deleteOpen}
-        title="Delete Account"
-        message="This will permanently delete your profile, wishlists, items, friend connections, notifications, and subscription. This action cannot be undone."
-        confirmLabel="Delete My Account"
+        title={t("Delete Account")}
+        message={t(
+          "This will permanently delete your profile, wishlists, items, friend connections, notifications, and subscription. This action cannot be undone.",
+        )}
+        confirmLabel={t("Delete My Account")}
         destructive
         isPending={deleteAccount.isPending}
         onClose={() => setDeleteOpen(false)}

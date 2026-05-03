@@ -20,6 +20,7 @@ import * as React from "react";
 import { UserRound } from "lucide-react-native";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
+import { useGT } from "gt-react-native";
 
 const MAX_AVATAR_UPLOAD_BYTES = 5 * 1024 * 1024;
 
@@ -32,6 +33,7 @@ type ProfileFormValues = {
 };
 
 export function ProfileSettings({ profile }: { profile: ReturnType<typeof useProfile>["data"] }) {
+  const t = useGT();
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadProfileAvatar();
   const checkNickname = useCheckNickname();
@@ -83,20 +85,18 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
 
   const trimmedDisplayName = values.displayName.trim();
   const trimmedNickname = values.nickname.trim();
-  const displayNameError =
-    trimmedDisplayName.length === 0
-      ? "Display name is required"
-      : trimmedDisplayName.length < 3
-        ? "Display name must be at least 3 characters"
-        : null;
-  const nicknameError =
-    trimmedNickname.length === 0
-      ? "Nickname is required"
-      : trimmedNickname.length < 3
-        ? "Nickname must be at least 3 characters"
-        : nicknameStatus === "taken"
-          ? "This nickname is already taken"
-          : null;
+  const displayNameError = React.useMemo(() => {
+    if (trimmedDisplayName.length === 0) return t("Display name is required");
+    if (trimmedDisplayName.length < 3) return t("Display name must be at least 3 characters");
+    return null;
+  }, [trimmedDisplayName, t]);
+
+  const nicknameError = React.useMemo(() => {
+    if (trimmedNickname.length === 0) return t("Nickname is required");
+    if (trimmedNickname.length < 3) return t("Nickname must be at least 3 characters");
+    if (nicknameStatus === "taken") return t("This nickname is already taken");
+    return null;
+  }, [trimmedNickname, nicknameStatus, t]);
 
   function submitForm(formValues: ProfileFormValues) {
     if (displayNameError || nicknameError) return;
@@ -110,8 +110,9 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
         bio: formValues.bio.trim() || null,
       },
       {
-        onSuccess: () => setMessage({ title: "Saved", message: "Profile updated." }),
-        onError: (error) => setMessage({ title: "Profile update failed", message: error.message }),
+        onSuccess: () => setMessage({ title: t("Saved"), message: t("Profile updated.") }),
+        onError: (error) =>
+          setMessage({ title: t("Profile update failed"), message: error.message }),
       },
     );
   }
@@ -121,8 +122,8 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
 
     if (!permission.granted) {
       setMessage({
-        title: "Permission required",
-        message: "Allow photo library access to choose a profile image.",
+        title: t("Permission required"),
+        message: t("Allow photo library access to choose a profile image."),
       });
       return;
     }
@@ -141,7 +142,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
     if (!asset) return;
 
     if (asset.fileSize && asset.fileSize > MAX_AVATAR_UPLOAD_BYTES) {
-      setMessage({ title: "Image too large", message: "Choose an image that is 5 MB or less." });
+      setMessage({ title: t("Image too large"), message: t("Choose an image that is 5 MB or less.") });
       return;
     }
 
@@ -152,20 +153,21 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
         fileName: asset.fileName,
       },
       {
-        onSuccess: () => setMessage({ title: "Saved", message: "Profile image updated." }),
-        onError: (error) => setMessage({ title: "Image upload failed", message: error.message }),
+        onSuccess: () => setMessage({ title: t("Saved"), message: t("Profile image updated.") }),
+        onError: (error) =>
+          setMessage({ title: t("Image upload failed"), message: error.message }),
       },
     );
   }
 
   return (
     <>
-      <SettingsSection title="Profile" icon={UserRound} defaultOpen>
+      <SettingsSection title={t("Profile")} icon={UserRound} defaultOpen>
         <View className="flex-row items-center gap-3">
           <StyledPressable
             accessibilityRole="button"
             accessibilityLabel={
-              uploadAvatar.isPending ? "Uploading profile photo" : "Change profile photo"
+              uploadAvatar.isPending ? t("Uploading profile photo") : t("Change profile photo")
             }
             disabled={uploadAvatar.isPending}
             onPress={handlePickAvatar}
@@ -194,10 +196,10 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
           <View className="flex-1 gap-2">
             <View>
               <Text className="font-semibold text-text">
-                {profile?.display_name ?? "Your profile"}
+                {profile?.display_name ?? t("Your profile")}
               </Text>
               <Text className="text-sm text-text-muted">
-                {profile?.nickname ? `@${profile.nickname}` : "Choose a nickname"}
+                {profile?.nickname ? `@${profile.nickname}` : t("Choose a nickname")}
               </Text>
             </View>
             <Button
@@ -207,7 +209,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
               onPress={handlePickAvatar}
               className="self-start"
             >
-              <Text>{uploadAvatar.isPending ? "Uploading..." : "Change photo"}</Text>
+              <Text>{uploadAvatar.isPending ? t("Uploading...") : t("Change photo")}</Text>
             </Button>
           </View>
         </View>
@@ -217,11 +219,11 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
           name="displayName"
           render={({ field: { onChange, value } }) => (
             <SettingsControlsLabeledInput
-              label="Display Name"
+              label={t("Display Name")}
               value={value}
               onChangeText={onChange}
               maxLength={50}
-              placeholder="Your name"
+              placeholder={t("Your name")}
               error={displayNameError}
             />
           )}
@@ -231,19 +233,19 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
           name="nickname"
           render={({ field: { value } }) => (
             <SettingsControlsLabeledInput
-              label="Nickname"
+              label={t("Nickname")}
               value={value}
               onChangeText={(nextValue) =>
                 setValue("nickname", nextValue.toLowerCase().replace(/[^a-z0-9._-]/g, ""))
               }
               maxLength={30}
-              placeholder="your-nickname"
+              placeholder={t("your-nickname")}
               error={nicknameError}
               hint={
                 nicknameStatus === "checking"
-                  ? "Checking..."
+                  ? t("Checking...")
                   : nicknameStatus === "available"
-                    ? "Available"
+                    ? t("Available")
                     : undefined
               }
             />
@@ -256,12 +258,12 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
             render={({ field: { onChange, value } }) => (
               <SettingsControlsLabeledInput
                 className="flex-1"
-                label="Height"
+                label={t("Height")}
                 value={value}
                 onChangeText={onChange}
                 keyboardType="decimal-pad"
                 placeholder="175"
-                hint="cm"
+                hint={t("cm")}
               />
             )}
           />
@@ -271,19 +273,19 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
             render={({ field: { onChange, value } }) => (
               <SettingsControlsLabeledInput
                 className="flex-1"
-                label="Shoe size"
+                label={t("Shoe size")}
                 value={value}
                 onChangeText={onChange}
                 keyboardType="decimal-pad"
                 placeholder="42"
-                hint="EU"
+                hint={t("EU")}
               />
             )}
           />
         </View>
         <View className="gap-2">
           <View className="flex-row items-center justify-between gap-2">
-            <Text className="text-sm font-semibold text-text">Bio</Text>
+            <Text className="text-sm font-semibold text-text">{t("Bio")}</Text>
             <Text className="text-xs text-text-muted">{values.bio.length}/160</Text>
           </View>
           <Controller
@@ -295,14 +297,14 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
                 onChangeText={onChange}
                 maxLength={160}
                 numberOfLines={4}
-                placeholder="Tell your friends a little about yourself..."
+                placeholder={t("Tell your friends a little about yourself...")}
                 className="text-text"
               />
             )}
           />
         </View>
         <Button disabled={updateProfile.isPending} onPress={handleSubmit(submitForm)}>
-          <Text>{updateProfile.isPending ? "Saving..." : "Save Changes"}</Text>
+          <Text>{updateProfile.isPending ? t("Saving...") : t("Save Changes")}</Text>
         </Button>
       </SettingsSection>
       <ActionBottomSheetMessage message={message} onClose={() => setMessage(null)} />

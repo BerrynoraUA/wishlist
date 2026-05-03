@@ -1,4 +1,5 @@
 import { Globe, Lock, UserCheck, Users, type LucideIcon } from "lucide-react-native";
+import type { TranslateFn } from "@/lib/translate-fn";
 import type { NativeThemeMode } from "@/lib/theme";
 import {
   WishlistAccent,
@@ -11,49 +12,75 @@ export const DEFAULT_WISHLIST_SORT = "newest";
 export const SELECTED_GROUPS_ACCESS_TYPE = 2;
 export const SELECTED_FRIENDS_ACCESS_TYPE = 3;
 
-export const WISHLIST_VISIBILITY_OPTIONS = [
-  {
-    value: "public",
-    label: "Public",
-    icon: Globe,
-    visibility: WishlistVisibility.Public,
-    surfaceClassName: "bg-success-bg",
-    itemClassName: "mb-1 last:mb-0 active:bg-success-bg/85 dark:active:bg-success-bg/90",
-  },
-  {
-    value: "friends",
-    label: "Friends only",
-    icon: Users,
-    visibility: WishlistVisibility.FriendsOnly,
-    surfaceClassName: "bg-info-bg",
-    itemClassName: "mb-1 last:mb-0 active:bg-info-bg/85 dark:active:bg-info-bg/90",
-  },
-  {
-    value: "selected-friends",
-    label: "Selected friends",
-    icon: UserCheck,
-    visibility: WishlistVisibility.SelectedFriends,
-    surfaceClassName: "bg-brand-alpha-12",
-    itemClassName: "mb-1 last:mb-0 active:bg-brand-alpha-20",
-  },
-  {
-    value: "private",
-    label: "Private",
-    icon: Lock,
-    visibility: WishlistVisibility.Private,
-    surfaceClassName: "bg-danger-bg",
-    itemClassName: "mb-1 last:mb-0 active:bg-danger-bg/85 dark:active:bg-danger-bg/90",
-  },
+const WISHLIST_ACCENT_KEYS = [
+  { value: WishlistAccent.Pink, key: "pink" },
+  { value: WishlistAccent.Blue, key: "blue" },
+  { value: WishlistAccent.Peach, key: "peach" },
+  { value: WishlistAccent.Mint, key: "mint" },
+  { value: WishlistAccent.Lavender, key: "lavender" },
 ] as const;
 
-export const WISHLIST_SORT_OPTIONS = [
-  { value: "newest", label: "Newest first" },
-  { value: "oldest", label: "Oldest first" },
-  { value: "name-asc", label: "Name A to Z" },
-  { value: "name-desc", label: "Name Z to A" },
-  { value: "items-most", label: "Most items" },
-  { value: "items-least", label: "Fewest items" },
-] as const;
+export type WishlistVisibilityOption = {
+  value: "public" | "friends" | "selected-friends" | "private";
+  label: string;
+  icon: LucideIcon;
+  visibility: WishlistVisibility;
+  surfaceClassName: string;
+  itemClassName: string;
+};
+
+export function getWishlistVisibilityOptions(t: TranslateFn): WishlistVisibilityOption[] {
+  return [
+    {
+      value: "public",
+      label: t("Public"),
+      icon: Globe,
+      visibility: WishlistVisibility.Public,
+      surfaceClassName: "bg-success-bg",
+      itemClassName: "mb-1 last:mb-0 active:bg-success-bg/85 dark:active:bg-success-bg/90",
+    },
+    {
+      value: "friends",
+      label: t("Friends only"),
+      icon: Users,
+      visibility: WishlistVisibility.FriendsOnly,
+      surfaceClassName: "bg-info-bg",
+      itemClassName: "mb-1 last:mb-0 active:bg-info-bg/85 dark:active:bg-info-bg/90",
+    },
+    {
+      value: "selected-friends",
+      label: t("Selected friends"),
+      icon: UserCheck,
+      visibility: WishlistVisibility.SelectedFriends,
+      surfaceClassName: "bg-brand-alpha-12",
+      itemClassName: "mb-1 last:mb-0 active:bg-brand-alpha-20",
+    },
+    {
+      value: "private",
+      label: t("Private"),
+      icon: Lock,
+      visibility: WishlistVisibility.Private,
+      surfaceClassName: "bg-danger-bg",
+      itemClassName: "mb-1 last:mb-0 active:bg-danger-bg/85 dark:active:bg-danger-bg/90",
+    },
+  ];
+}
+
+export type WishlistSortOption = {
+  value: string;
+  label: string;
+};
+
+export function getWishlistSortOptions(t: TranslateFn): WishlistSortOption[] {
+  return [
+    { value: "newest", label: t("Newest first") },
+    { value: "oldest", label: t("Oldest first") },
+    { value: "name-asc", label: t("Name A to Z") },
+    { value: "name-desc", label: t("Name Z to A") },
+    { value: "items-most", label: t("Most items") },
+    { value: "items-least", label: t("Fewest items") },
+  ];
+}
 
 export const WISHLIST_VISIBILITY_MAP: Record<string, WishlistVisibility> = {
   public: WishlistVisibility.Public,
@@ -62,12 +89,14 @@ export const WISHLIST_VISIBILITY_MAP: Record<string, WishlistVisibility> = {
   private: WishlistVisibility.Private,
 };
 
-export const WISHLIST_VISIBILITY_LABELS: Record<WishlistVisibility, string> = {
-  [WishlistVisibility.Public]: "Public",
-  [WishlistVisibility.FriendsOnly]: "Friends only",
-  [WishlistVisibility.Private]: "Private",
-  [WishlistVisibility.SelectedFriends]: "Selected friends",
-};
+export function getWishlistVisibilityLabels(t: TranslateFn): Record<WishlistVisibility, string> {
+  return {
+    [WishlistVisibility.Public]: t("Public"),
+    [WishlistVisibility.FriendsOnly]: t("Friends only"),
+    [WishlistVisibility.Private]: t("Private"),
+    [WishlistVisibility.SelectedFriends]: t("Selected friends"),
+  };
+}
 
 export const WISHLIST_VISIBILITY_ICONS: Record<WishlistVisibility, LucideIcon> = {
   [WishlistVisibility.Public]: Globe,
@@ -91,13 +120,21 @@ export function getWishlistDisplayVisibility(wishlist: {
   return wishlist.visibility_type;
 }
 
-export const WISHLIST_ACCENT_OPTIONS = [
-  { value: WishlistAccent.Pink, label: "Pink", key: "pink" },
-  { value: WishlistAccent.Blue, label: "Blue", key: "blue" },
-  { value: WishlistAccent.Peach, label: "Peach", key: "peach" },
-  { value: WishlistAccent.Mint, label: "Mint", key: "mint" },
-  { value: WishlistAccent.Lavender, label: "Lavender", key: "lavender" },
-] as const;
+export type WishlistAccentOption = {
+  value: WishlistAccent;
+  label: string;
+  key: string;
+};
+
+export function getWishlistAccentOptions(t: TranslateFn): WishlistAccentOption[] {
+  return [
+    { value: WishlistAccent.Pink, label: t("Pink"), key: "pink" },
+    { value: WishlistAccent.Blue, label: t("Blue"), key: "blue" },
+    { value: WishlistAccent.Peach, label: t("Peach"), key: "peach" },
+    { value: WishlistAccent.Mint, label: t("Mint"), key: "mint" },
+    { value: WishlistAccent.Lavender, label: t("Lavender"), key: "lavender" },
+  ];
+}
 
 export const EMPTY_WISHLIST_FORM: WishlistFormValues = {
   title: "",
@@ -126,7 +163,7 @@ export function hasActiveFilters(search: string, visibility: string[]) {
 }
 
 export function getWishlistAccentKey(accent: WishlistAccent | null | undefined) {
-  return WISHLIST_ACCENT_OPTIONS.find((option) => option.value === Number(accent))?.key ?? "pink";
+  return WISHLIST_ACCENT_KEYS.find((option) => option.value === Number(accent))?.key ?? "pink";
 }
 
 export function getWishlistAccentClass(accent: WishlistAccent | null | undefined) {

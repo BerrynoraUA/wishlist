@@ -13,12 +13,13 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import {
   DEFAULT_ITEM_SORT,
-  ITEM_PRIORITY_OPTIONS,
-  ITEM_SORT_OPTIONS,
-  ITEM_STATUS_OPTIONS,
+  getItemPriorityOptions,
+  getItemSortOptions,
+  getItemStatusOptions,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
 import { ChevronsUpDown, Plus, Search, SlidersHorizontal, X } from "lucide-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
 
@@ -57,9 +58,13 @@ export function WishlistItemFilterBar({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const t = useGT();
+  const itemSortOptions = React.useMemo(() => getItemSortOptions(t), [t]);
+  const itemStatusOptions = React.useMemo(() => getItemStatusOptions(t), [t]);
+  const itemPriorityOptions = React.useMemo(() => getItemPriorityOptions(t), [t]);
   const active = wishlistItemFilterBarHasActiveFilters(filters);
   const selectedSort =
-    ITEM_SORT_OPTIONS.find((option) => option.value === filters.sort)?.label ?? "Newest first";
+    itemSortOptions.find((option) => option.value === filters.sort)?.label ?? t("Newest first");
 
   function toggleValue(key: "statuses" | "priorities", value: string) {
     const current = filters[key];
@@ -73,19 +78,19 @@ export function WishlistItemFilterBar({
   const chips = [
     ...filters.statuses.map((value) => ({
       key: `status:${value}`,
-      label: ITEM_STATUS_OPTIONS.find((option) => option.value === value)?.label ?? value,
+      label: itemStatusOptions.find((option) => option.value === value)?.label ?? value,
       onRemove: () => toggleValue("statuses", value),
     })),
     ...filters.priorities.map((value) => ({
       key: `priority:${value}`,
-      label: ITEM_PRIORITY_OPTIONS.find((option) => option.value === value)?.label ?? value,
+      label: itemPriorityOptions.find((option) => option.value === value)?.label ?? value,
       onRemove: () => toggleValue("priorities", value),
     })),
     ...(filters.priceMin.trim()
       ? [
           {
             key: "priceMin",
-            label: `From ${filters.priceMin.trim()}`,
+            label: t("From {price}", { price: filters.priceMin.trim() }),
             onRemove: () => onChange({ priceMin: "" }),
           },
         ]
@@ -94,7 +99,7 @@ export function WishlistItemFilterBar({
       ? [
           {
             key: "priceMax",
-            label: `To ${filters.priceMax.trim()}`,
+            label: t("To {price}", { price: filters.priceMax.trim() }),
             onRemove: () => onChange({ priceMax: "" }),
           },
         ]
@@ -105,11 +110,11 @@ export function WishlistItemFilterBar({
     <View className="gap-4">
       <View className="flex-row items-center justify-between gap-3">
         <View className="min-w-0 flex-1 flex-row items-center gap-2">
-          <Text className="text-xl font-extrabold tracking-tight text-text">Items</Text>
+          <Text className="text-xl font-extrabold tracking-tight text-text">{t("Items")}</Text>
           <Button
             variant="outline"
             size="lg"
-            accessibilityLabel="Show item filters"
+            accessibilityLabel={t("Show item filters")}
             accessibilityState={{ expanded: open }}
             onPress={() => onOpenChange(!open)}
             className={cn(
@@ -123,7 +128,7 @@ export function WishlistItemFilterBar({
             <Button
               variant="destructive"
               size="icon"
-              accessibilityLabel="Clear filters"
+              accessibilityLabel={t("Clear filters")}
               onPress={onReset}
               className="h-11 w-11 shrink-0 rounded-full"
             >
@@ -133,10 +138,10 @@ export function WishlistItemFilterBar({
         </View>
         {onAddItem ? (
           <AnimatedGradientBackgroundButton
-            accessibilityLabel="Add item"
+            accessibilityLabel={t("Add item")}
             Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
             onPress={onAddItem}
-            title="Add Item"
+            title={t("Add Item")}
           />
         ) : null}
       </View>
@@ -148,7 +153,7 @@ export function WishlistItemFilterBar({
             <Input
               value={filters.search}
               onChangeText={(search) => onChange({ search })}
-              placeholder="Search items..."
+              placeholder={t("Search items...")}
               returnKeyType="search"
               className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
             />
@@ -156,7 +161,7 @@ export function WishlistItemFilterBar({
               <Button
                 variant="ghost"
                 size="icon"
-                accessibilityLabel="Clear search"
+                accessibilityLabel={t("Clear search")}
                 onPress={() => onChange({ search: "" })}
                 className="size-9 shrink-0 rounded-full"
               >
@@ -168,9 +173,13 @@ export function WishlistItemFilterBar({
           <View className="w-full flex-row items-stretch gap-2">
             <View className="min-w-0 flex-1">
               <MultiSelectMenu
-                label={filters.statuses.length ? `${filters.statuses.length} statuses` : "Status"}
+                label={
+                  filters.statuses.length
+                    ? t("{count} statuses", { count: filters.statuses.length })
+                    : t("Status")
+                }
                 values={filters.statuses}
-                options={ITEM_STATUS_OPTIONS.map((option) => ({
+                options={itemStatusOptions.map((option) => ({
                   value: option.value,
                   label: option.label,
                 }))}
@@ -180,10 +189,12 @@ export function WishlistItemFilterBar({
             <View className="min-w-0 flex-1">
               <MultiSelectMenu
                 label={
-                  filters.priorities.length ? `${filters.priorities.length} priorities` : "Priority"
+                  filters.priorities.length
+                    ? t("{count} priorities", { count: filters.priorities.length })
+                    : t("Priority")
                 }
                 values={filters.priorities}
-                options={ITEM_PRIORITY_OPTIONS.map((option) => ({
+                options={itemPriorityOptions.map((option) => ({
                   value: option.value,
                   label: option.label,
                 }))}
@@ -201,7 +212,7 @@ export function WishlistItemFilterBar({
                   </AnimatedPressable>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="min-w-52">
-                  {ITEM_SORT_OPTIONS.map((option) => (
+                  {itemSortOptions.map((option) => (
                     <DropdownMenuItem
                       key={option.value}
                       onPress={() => onChange({ sort: option.value })}
@@ -218,14 +229,14 @@ export function WishlistItemFilterBar({
             <Input
               value={filters.priceMin}
               onChangeText={(priceMin) => onChange({ priceMin })}
-              placeholder="From"
+              placeholder={t("From")}
               keyboardType="decimal-pad"
               className="h-10 w-[42%] rounded-full"
             />
             <Input
               value={filters.priceMax}
               onChangeText={(priceMax) => onChange({ priceMax })}
-              placeholder="To"
+              placeholder={t("To")}
               keyboardType="decimal-pad"
               className="h-10 w-[42%] rounded-full"
             />
@@ -239,7 +250,7 @@ export function WishlistItemFilterBar({
             <AnimatedPressable
               key={chip.key}
               accessibilityRole="button"
-              accessibilityLabel={`Remove ${chip.label} filter`}
+              accessibilityLabel={t('Remove "{label}" filter', { label: chip.label })}
               onPress={chip.onRemove}
               className="flex-row items-center gap-1 rounded-full bg-brand-lighter px-3 py-1.5"
             >

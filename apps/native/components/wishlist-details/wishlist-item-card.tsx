@@ -10,16 +10,17 @@ import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import {
   buildReservationLabel,
-  getItemPriorityLabel,
   getItemReservationState,
   getItemStoreFromUrl,
   getSalePercentOff,
+  getTranslatedItemPriorityLabel,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
 import type { Item } from "@wishlist/backend/types/item";
 import type { TriggerRef } from "@rn-primitives/dropdown-menu";
 import * as Clipboard from "expo-clipboard";
 import { Gift, Heart, PackageCheck } from "lucide-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
 
@@ -50,17 +51,21 @@ export function WishlistItemCard({
   onDelete?: () => void;
   onToggleVote?: () => void;
 }) {
+  const t = useGT();
   const reservation = getItemReservationState({
     status: item.status,
     reservedBy: item.reserved_by,
     currentUserId,
     isOwner,
   });
-  const reservationLabel = buildReservationLabel({
-    ...reservation,
-    reservedByName,
-  });
-  const priorityLabel = getItemPriorityLabel(item.priority_id);
+  const reservationLabel = buildReservationLabel(
+    {
+      ...reservation,
+      reservedByName,
+    },
+    t,
+  );
+  const priorityLabel = getTranslatedItemPriorityLabel(t, item.priority_id);
   const store = getItemStoreFromUrl(item.url);
   const itemUrl = item.url?.trim() ?? "";
   const showCopyLink = itemUrl.length > 0;
@@ -82,7 +87,7 @@ export function WishlistItemCard({
       <DropdownMenu className="relative">
         <AnimatedPressable
           accessibilityRole="button"
-          accessibilityLabel={`Open ${item.name}`}
+          accessibilityLabel={t('Open "{name}"', { name: item.name })}
           onPress={onPress}
           onLongPress={showMenu ? () => menuTriggerRef.current?.open() : undefined}
           pressedScale={0.98}
@@ -121,7 +126,7 @@ export function WishlistItemCard({
             {salePercentOff != null ? (
               <View className="absolute right-2 top-2 rounded-full bg-danger px-2 py-1">
                 <Text className="text-[11px] font-extrabold text-white">
-                  Sale -{salePercentOff}%
+                  {t("Sale -{percent}%", { percent: salePercentOff })}
                 </Text>
               </View>
             ) : null}
@@ -175,7 +180,7 @@ export function WishlistItemCard({
               {!isOwner && onToggleVote ? (
                 <AnimatedPressable
                   accessibilityRole="button"
-                  accessibilityLabel={hasVoted ? "Remove vote" : "Vote for item"}
+                  accessibilityLabel={hasVoted ? t("Remove vote") : t("Vote for item")}
                   onPress={(event) => {
                     event.stopPropagation();
                     onToggleVote();
@@ -213,17 +218,17 @@ export function WishlistItemCard({
         <DropdownMenuContent className="min-w-36">
           {showCopyLink ? (
             <DropdownMenuItem onPress={handleCopyLink}>
-              <Text>Copy link</Text>
+              <Text>{t("Copy link")}</Text>
             </DropdownMenuItem>
           ) : null}
           {onEdit ? (
             <DropdownMenuItem onPress={onEdit}>
-              <Text>Edit</Text>
+              <Text>{t("Edit")}</Text>
             </DropdownMenuItem>
           ) : null}
           {onDelete ? (
             <DropdownMenuItem variant="destructive" onPress={onDelete}>
-              <Text>Delete</Text>
+              <Text>{t("Delete")}</Text>
             </DropdownMenuItem>
           ) : null}
         </DropdownMenuContent>

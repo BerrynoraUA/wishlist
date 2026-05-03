@@ -6,14 +6,15 @@ import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import {
   buildReservationLabel,
-  getItemPriorityLabel,
   getItemReservationState,
   getItemStoreFromUrl,
   getSalePercentOff,
+  getTranslatedItemPriorityLabel,
 } from "@/lib/items";
 import type { Item } from "@wishlist/backend/types/item";
 import * as Clipboard from "expo-clipboard";
 import { Copy, ExternalLink, Gift, Pencil, ShoppingCart, Trash2 } from "lucide-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, Linking, View } from "react-native";
 
@@ -50,6 +51,7 @@ export function WishlistItemDetailSheet({
   onToggleReserve?: (itemId: string) => void;
   onToggleBought?: (itemId: string) => void;
 }) {
+  const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const [confirmation, setConfirmation] = React.useState<Confirmation | null>(null);
 
@@ -62,11 +64,14 @@ export function WishlistItemDetailSheet({
     currentUserId,
     isOwner,
   });
-  const reservationLabel = buildReservationLabel({
-    ...reservation,
-    reservedByName,
-  });
-  const priorityLabel = getItemPriorityLabel(selectedItem.priority_id);
+  const reservationLabel = buildReservationLabel(
+    {
+      ...reservation,
+      reservedByName,
+    },
+    t,
+  );
+  const priorityLabel = getTranslatedItemPriorityLabel(t, selectedItem.priority_id);
   const store = getItemStoreFromUrl(selectedItem.url);
   const salePercentOff = getSalePercentOff(
     selectedItem.price,
@@ -82,9 +87,9 @@ export function WishlistItemDetailSheet({
     if (!reservation.canToggleReservation || !onToggleReserve) return;
 
     setConfirmation({
-      title: reservation.isReserved ? "Release reservation?" : "Reserve this gift?",
+      title: reservation.isReserved ? t("Release reservation?") : t("Reserve this gift?"),
       message: selectedItem.name,
-      confirmLabel: reservation.isReserved ? "Release" : "Reserve",
+      confirmLabel: reservation.isReserved ? t("Release") : t("Reserve"),
       isPending: reservePending,
       onConfirm: () => {
         setConfirmation(null);
@@ -97,9 +102,9 @@ export function WishlistItemDetailSheet({
     if (!reservation.canToggleBought || !onToggleBought) return;
 
     setConfirmation({
-      title: reservation.isPurchased ? "Mark as not purchased?" : "Mark as purchased?",
+      title: reservation.isPurchased ? t("Mark as not purchased?") : t("Mark as purchased?"),
       message: selectedItem.name,
-      confirmLabel: reservation.isPurchased ? "Undo" : "Bought",
+      confirmLabel: reservation.isPurchased ? t("Undo") : t("Bought"),
       isPending: boughtPending,
       onConfirm: () => {
         setConfirmation(null);
@@ -173,7 +178,7 @@ export function WishlistItemDetailSheet({
               ) : null}
               {salePercentOff != null ? (
                 <Text className="rounded-full bg-danger px-3 py-1.5 text-sm font-extrabold text-white">
-                  Sale -{salePercentOff}%
+                  {t("Sale -{percent}%", { percent: salePercentOff })}
                 </Text>
               ) : null}
               {priorityLabel ? (
@@ -199,12 +204,12 @@ export function WishlistItemDetailSheet({
                     className="min-w-0 flex-1 justify-start"
                   >
                     <Icon as={ExternalLink} className="size-4 text-text" />
-                    <Text numberOfLines={1}>{store || "Visit website"}</Text>
+                    <Text numberOfLines={1}>{store || t("Visit website")}</Text>
                   </Button>
                   <Button
                     variant="outline"
                     size="icon"
-                    accessibilityLabel="Copy link"
+                    accessibilityLabel={t("Copy link")}
                     onPress={() => void copyLink(item.url)}
                   >
                     <Icon as={Copy} className="size-4 text-text" />
@@ -220,13 +225,13 @@ export function WishlistItemDetailSheet({
                   >
                     <Icon as={ExternalLink} className="size-4 text-text" />
                     <Text numberOfLines={1}>
-                      {link.title || getItemStoreFromUrl(link.url) || "Link"}
+                      {link.title || getItemStoreFromUrl(link.url) || t("Link")}
                     </Text>
                   </Button>
                   <Button
                     variant="outline"
                     size="icon"
-                    accessibilityLabel="Copy link"
+                    accessibilityLabel={t("Copy link")}
                     onPress={() => void copyLink(link.url)}
                   >
                     <Icon as={Copy} className="size-4 text-text" />
@@ -248,7 +253,7 @@ export function WishlistItemDetailSheet({
                     }}
                   >
                     <Icon as={Pencil} className="size-4 text-primary-foreground" />
-                    <Text>Edit</Text>
+                    <Text>{t("Edit")}</Text>
                   </Button>
                 ) : null}
                 {onDelete ? (
@@ -261,7 +266,7 @@ export function WishlistItemDetailSheet({
                     }}
                   >
                     <Icon as={Trash2} className="size-4 text-white" />
-                    <Text>Delete</Text>
+                    <Text>{t("Delete")}</Text>
                   </Button>
                 ) : null}
               </View>
@@ -278,10 +283,10 @@ export function WishlistItemDetailSheet({
                     ) : null}
                     <Text>
                       {!reservation.isReserved
-                        ? "Reserve this gift"
+                        ? t("Reserve this gift")
                         : reservation.reservedByMe
-                          ? "Release reservation"
-                          : "Reserved"}
+                          ? t("Release reservation")
+                          : t("Reserved")}
                     </Text>
                   </Button>
                 ) : null}
@@ -295,7 +300,7 @@ export function WishlistItemDetailSheet({
                       <ActivityIndicator colorClassName="accent-primary-foreground" />
                     ) : null}
                     <Icon as={ShoppingCart} className="size-4 text-primary-foreground" />
-                    <Text>{reservation.isPurchased ? "Purchased" : "Bought"}</Text>
+                    <Text>{reservation.isPurchased ? t("Purchased") : t("Bought")}</Text>
                   </Button>
                 ) : null}
               </View>

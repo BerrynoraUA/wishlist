@@ -1,31 +1,67 @@
+import type { TranslateFn } from "@/lib/translate-fn";
 import type { Item, ItemFormValues, ItemLink } from "@wishlist/backend/types/item";
-import { ALL_PRIORITIES, PRIORITY_IDS } from "@wishlist/backend/lib";
+import { PRIORITY_IDS } from "@wishlist/backend/lib";
 
 export const WISHLIST_ITEMS_PAGE_SIZE = 12;
 export const DEFAULT_ITEM_SORT = "newest";
 
-export const ITEM_STATUS_OPTIONS = [
-  { value: "available", label: "Available", status: 0 },
-  { value: "reserved", label: "Reserved", status: 1 },
-  { value: "purchased", label: "Purchased", status: 2 },
+/** For API/filter mapping — value and status without translated label. */
+export const ITEM_STATUS_LOOKUP = [
+  { value: "available" as const, status: 0 },
+  { value: "reserved" as const, status: 1 },
+  { value: "purchased" as const, status: 2 },
 ] as const;
 
-export const ITEM_PRIORITY_OPTIONS = [
-  { value: PRIORITY_IDS.HIGH, label: "High", priority_id: PRIORITY_IDS.HIGH },
-  { value: PRIORITY_IDS.MEDIUM, label: "Medium", priority_id: PRIORITY_IDS.MEDIUM },
-  { value: PRIORITY_IDS.LOW, label: "Low", priority_id: PRIORITY_IDS.LOW },
+export const ITEM_PRIORITY_LOOKUP = [
+  { value: PRIORITY_IDS.HIGH, priority_id: PRIORITY_IDS.HIGH },
+  { value: PRIORITY_IDS.MEDIUM, priority_id: PRIORITY_IDS.MEDIUM },
+  { value: PRIORITY_IDS.LOW, priority_id: PRIORITY_IDS.LOW },
 ] as const;
 
-export const ITEM_SORT_OPTIONS = [
-  { value: "newest", label: "Newest first" },
-  { value: "oldest", label: "Oldest first" },
-  { value: "name-asc", label: "Name A to Z" },
-  { value: "name-desc", label: "Name Z to A" },
-  { value: "price-high", label: "Highest price" },
-  { value: "price-low", label: "Lowest price" },
-  { value: "priority-high", label: "Highest priority" },
-  { value: "priority-low", label: "Lowest priority" },
-] as const;
+export function getItemStatusOptions(t: TranslateFn) {
+  return [
+    { value: "available" as const, label: t("Available"), status: 0 },
+    { value: "reserved" as const, label: t("Reserved"), status: 1 },
+    { value: "purchased" as const, label: t("Purchased"), status: 2 },
+  ];
+}
+
+export function getItemPriorityOptions(t: TranslateFn) {
+  return [
+    { value: PRIORITY_IDS.HIGH, label: t("High"), priority_id: PRIORITY_IDS.HIGH },
+    { value: PRIORITY_IDS.MEDIUM, label: t("Medium"), priority_id: PRIORITY_IDS.MEDIUM },
+    { value: PRIORITY_IDS.LOW, label: t("Low"), priority_id: PRIORITY_IDS.LOW },
+  ];
+}
+
+export function getItemSortOptions(t: TranslateFn) {
+  return [
+    { value: "newest", label: t("Newest first") },
+    { value: "oldest", label: t("Oldest first") },
+    { value: "name-asc", label: t("Name A to Z") },
+    { value: "name-desc", label: t("Name Z to A") },
+    { value: "price-high", label: t("Highest price") },
+    { value: "price-low", label: t("Lowest price") },
+    { value: "priority-high", label: t("Highest priority") },
+    { value: "priority-low", label: t("Lowest priority") },
+  ];
+}
+
+export function getTranslatedItemPriorityLabel(
+  t: TranslateFn,
+  priorityId: string | null | undefined,
+): string | null {
+  switch (priorityId) {
+    case PRIORITY_IDS.HIGH:
+      return t("High");
+    case PRIORITY_IDS.MEDIUM:
+      return t("Medium");
+    case PRIORITY_IDS.LOW:
+      return t("Low");
+    default:
+      return null;
+  }
+}
 
 export const EMPTY_ITEM_FORM: ItemFormValues = {
   name: "",
@@ -80,17 +116,11 @@ export function cleanAdditionalLinks(links: ItemLink[]) {
 }
 
 export function getItemStoreFromUrl(url: string | null | undefined) {
-  if (!url) return "";
-
   try {
-    return new URL(url).hostname.replace(/^www\./, "");
+    return url ? new URL(url).hostname.replace(/^www\./, "") : "";
   } catch {
     return "";
   }
-}
-
-export function getItemPriorityLabel(priorityId: string | null | undefined) {
-  return ALL_PRIORITIES.find((priority) => priority.id === priorityId)?.name ?? null;
 }
 
 export function parseItemPriceToNumber(value: string | number | null | undefined) {
@@ -156,23 +186,25 @@ export function getItemReservationState({
   };
 }
 
-export function buildReservationLabel({
-  isPurchased,
-  isReserved,
-  reservedByMe,
-  reservedByName,
-}: {
-  isPurchased: boolean;
-  isReserved: boolean;
-  reservedByMe: boolean;
-  reservedByName?: string | null;
-}) {
+export function buildReservationLabel(
+  args: {
+    isPurchased: boolean;
+    isReserved: boolean;
+    reservedByMe: boolean;
+    reservedByName?: string | null;
+  },
+  t: TranslateFn,
+) {
+  const { isPurchased, isReserved, reservedByMe, reservedByName } = args;
+
   if (isPurchased) {
-    if (reservedByMe) return "Purchased by you";
-    return reservedByName ? `Purchased by ${reservedByName}` : "Purchased";
+    if (reservedByMe) return t("Purchased by you");
+    if (reservedByName) return t("Purchased by {name}", { name: reservedByName });
+    return t("Purchased");
   }
 
   if (!isReserved) return null;
-  if (reservedByMe) return "Reserved by you";
-  return reservedByName ? `Reserved by ${reservedByName}` : "Reserved";
+  if (reservedByMe) return t("Reserved by you");
+  if (reservedByName) return t("Reserved by {name}", { name: reservedByName });
+  return t("Reserved");
 }

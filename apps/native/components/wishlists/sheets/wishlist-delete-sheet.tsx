@@ -5,6 +5,7 @@ import { Text } from "@/components/ui/text";
 import { useDeleteWishlist } from "@/hooks/use-wishlists";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Trash2 } from "lucide-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
 
@@ -17,6 +18,7 @@ export function WishlistDeleteSheet({
   onOpenChange: (open: boolean) => void;
   onDeleted?: () => void;
 }) {
+  const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const mutation = useDeleteWishlist();
   const open = Boolean(wishlist);
@@ -52,10 +54,11 @@ export function WishlistDeleteSheet({
     >
       <View className="gap-4 px-5 pb-5 pt-5">
         <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">Delete Wishlist</Text>
+          <Text className="text-lg font-extrabold text-text">{t("Delete Wishlist")}</Text>
           <Text className="text-sm text-text-muted">
-            Are you sure you want to delete this entire wishlist and all its items? This action
-            cannot be undone.
+            {t(
+              "Are you sure you want to delete this entire wishlist and all its items? This action cannot be undone.",
+            )}
           </Text>
         </View>
 
@@ -65,12 +68,12 @@ export function WishlistDeleteSheet({
 
         <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="outline" disabled={mutation.isPending} onPress={handleClose}>
-            <Text>Cancel</Text>
+            <Text>{t("Cancel")}</Text>
           </Button>
           <Button variant="destructive" disabled={mutation.isPending} onPress={handleDelete}>
             {mutation.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
             <Icon as={Trash2} className="size-4 text-white" />
-            <Text>Delete Wishlist</Text>
+            <Text>{t("Delete Wishlist")}</Text>
           </Button>
         </View>
       </View>

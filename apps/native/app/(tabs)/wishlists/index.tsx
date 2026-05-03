@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WishlistFilterBar } from "@/components/wishlists/wishlist-filter-bar";
 import { WishlistListStatsRow, WishlistList } from "@/components/wishlists/wishlist-list";
 import { useWishlistFeed } from "@/hooks/use-wishlist-feed";
+import { useGT } from "gt-react-native";
 
 type SheetState =
   | { type: "create" }
@@ -18,6 +19,7 @@ type SheetState =
   | null;
 
 export default function WishlistsScreen() {
+  const t = useGT();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const feed = useWishlistFeed(width);
@@ -26,7 +28,7 @@ export default function WishlistsScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: "Wishlists" }} />
+      <Stack.Screen options={{ title: t("Wishlists") }} />
       <View className="flex-1 bg-bg">
         <WishlistList
           query={feed.query}

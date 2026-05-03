@@ -5,6 +5,7 @@ import { Text } from "@/components/ui/text";
 import { useDeleteItem } from "@/hooks/use-items";
 import type { Item } from "@wishlist/backend/types/item";
 import { Trash2 } from "lucide-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
 
@@ -15,6 +16,7 @@ export function WishlistItemDeleteSheet({
   item: Item | null;
   onOpenChange: (open: boolean) => void;
 }) {
+  const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const mutation = useDeleteItem();
 
@@ -40,9 +42,9 @@ export function WishlistItemDeleteSheet({
     >
       <View className="gap-4 px-5 pb-5 pt-5">
         <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">Delete Item</Text>
+          <Text className="text-lg font-extrabold text-text">{t("Delete Item")}</Text>
           <Text className="text-sm text-text-muted">
-            Are you sure you want to delete this item? This action cannot be undone.
+            {t("Are you sure you want to delete this item? This action cannot be undone.")}
           </Text>
         </View>
 
@@ -52,12 +54,12 @@ export function WishlistItemDeleteSheet({
 
         <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="outline" disabled={mutation.isPending} onPress={handleClose}>
-            <Text>Cancel</Text>
+            <Text>{t("Cancel")}</Text>
           </Button>
           <Button variant="destructive" disabled={mutation.isPending} onPress={handleDelete}>
             {mutation.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
             <Icon as={Trash2} className="size-4 text-white" />
-            <Text>Delete Item</Text>
+            <Text>{t("Delete Item")}</Text>
           </Button>
         </View>
       </View>

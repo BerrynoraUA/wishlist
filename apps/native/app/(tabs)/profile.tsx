@@ -9,6 +9,7 @@ import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 import type { ThemePreference } from "@wishlist/backend/types/settings";
 import { FlashList } from "@shopify/flash-list";
 import { Stack } from "expo-router";
+import { useGT } from "gt-react-native";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 const SETTINGS_SECTIONS = [
@@ -22,6 +23,7 @@ const SETTINGS_SECTIONS = [
 type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 
 export default function ProfileScreen() {
+  const t = useGT();
   const { signOut, user } = useAuth();
   const { data: settings, isLoading: settingsLoading } = useSettings();
   const { data: profile, isLoading: profileLoading } = useProfile();
@@ -56,7 +58,7 @@ export default function ProfileScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: "Settings" }} />
+      <Stack.Screen options={{ title: t("Settings") }} />
       <View className="flex-1 bg-bg">
         <FlashList
           data={SETTINGS_SECTIONS}

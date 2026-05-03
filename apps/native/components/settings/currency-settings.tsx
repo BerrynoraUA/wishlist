@@ -11,8 +11,10 @@ import { useUpdateSettings } from "@/hooks/use-settings";
 import { SUPPORTED_CURRENCIES } from "@wishlist/backend/lib/currencies";
 import { CircleDollarSign } from "lucide-react-native";
 import * as React from "react";
+import { useGT } from "gt-react-native";
 
 export function CurrencySettings({ selectedCurrency }: { selectedCurrency: string }) {
+  const t = useGT();
   const updateSettings = useUpdateSettings();
   const selectedOption = React.useMemo(
     () => currencyOptionForCode(selectedCurrency),
@@ -26,10 +28,10 @@ export function CurrencySettings({ selectedCurrency }: { selectedCurrency: strin
   }
 
   return (
-    <SettingsSection title="Display Currency" icon={CircleDollarSign}>
+    <SettingsSection title={t("Display Currency")} icon={CircleDollarSign}>
       <Select value={selectedOption} onValueChange={handleCurrencyChange}>
         <SelectTrigger>
-          <SelectValue placeholder="Select currency" />
+          <SelectValue placeholder={t("Select currency")} />
         </SelectTrigger>
         <SelectContent className="max-h-80 w-full">
           {SUPPORTED_CURRENCIES.map((currency) => (

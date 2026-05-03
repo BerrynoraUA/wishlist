@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sliding-option-selector";
 import {
   EMPTY_ITEM_FORM,
-  ITEM_PRIORITY_OPTIONS,
+  getItemPriorityOptions,
   cleanAdditionalLinks,
   toItemFormValues,
 } from "@/lib/items";
@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
 import { Plus, X } from "lucide-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, ScrollView, View } from "react-native";
@@ -38,6 +39,8 @@ export function WishlistItemCreateEditSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const t = useGT();
+  const priorityOptions = React.useMemo(() => getItemPriorityOptions(t), [t]);
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const createMutation = useCreateItem();
   const updateMutation = useUpdateItem();
@@ -111,7 +114,7 @@ export function WishlistItemCreateEditSheet({
   async function handleScrape(url: string) {
     if (!url) return;
     if (!isValidHttpUrl(url)) {
-      setScrapeError("Enter valid Url");
+      setScrapeError(t("Enter valid Url"));
       return;
     }
 
@@ -127,7 +130,7 @@ export function WishlistItemCreateEditSheet({
 
       if (isEmpty) {
         if (requestId === scrapeRequestIdRef.current && currentUrlRef.current === url) {
-          setScrapeError("Could not fetch product data");
+          setScrapeError(t("Could not fetch product data"));
         }
         return;
       }
@@ -146,7 +149,7 @@ export function WishlistItemCreateEditSheet({
       });
     } catch (error) {
       if (requestId === scrapeRequestIdRef.current && currentUrlRef.current === url) {
-        setScrapeError(error instanceof Error ? error.message : "Could not fetch product data");
+        setScrapeError(error instanceof Error ? error.message : t("Could not fetch product data"));
       }
     } finally {
       if (requestId === scrapeRequestIdRef.current) {
@@ -204,7 +207,7 @@ export function WishlistItemCreateEditSheet({
       onDidDismiss={() => onOpenChange(false)}
       header={
         <Text className="mx-5 mt-5 text-lg font-extrabold text-text">
-          {mode === "edit" ? "Edit Item" : "Create Item"}
+          {mode === "edit" ? t("Edit Item") : t("Create Item")}
         </Text>
       }
       footer={
@@ -215,7 +218,7 @@ export function WishlistItemCreateEditSheet({
             disabled={isPending}
             onPress={handleClose}
           >
-            <Text>Cancel</Text>
+            <Text>{t("Cancel")}</Text>
           </Button>
           <Button
             className="min-w-0 flex-1"
@@ -223,7 +226,7 @@ export function WishlistItemCreateEditSheet({
             onPress={handleSubmit(submitForm)}
           >
             {isPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
-            <Text>{mode === "edit" ? "Save changes" : "Create item"}</Text>
+            <Text>{mode === "edit" ? t("Save changes") : t("Create item")}</Text>
           </Button>
         </View>
       }
@@ -233,7 +236,7 @@ export function WishlistItemCreateEditSheet({
         showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-5 px-5 pb-6 pt-5"
       >
-        <Field label="Product link">
+        <Field label={t("Product link")}>
           <View className="gap-2">
             <View className="flex-row items-center gap-2">
               <Controller
@@ -246,7 +249,7 @@ export function WishlistItemCreateEditSheet({
                       onChange(url);
                       if (scrapeError) setScrapeError(null);
                     }}
-                    placeholder="Paste a product URL"
+                    placeholder={t("Paste a product URL")}
                     autoCapitalize="none"
                     keyboardType="url"
                     returnKeyType="done"
@@ -259,16 +262,16 @@ export function WishlistItemCreateEditSheet({
               ) : null}
             </View>
             {productLinkInvalid ? (
-              <Text className="text-sm font-semibold text-destructive">Enter valid Url</Text>
+              <Text className="text-sm font-semibold text-destructive">{t("Enter valid Url")}</Text>
             ) : isScraping ? (
-              <Text className="text-sm font-semibold text-text-muted">Searching...</Text>
+              <Text className="text-sm font-semibold text-text-muted">{t("Searching...")}</Text>
             ) : scrapeError ? (
               <Text className="text-sm font-semibold text-destructive">{scrapeError}</Text>
             ) : null}
           </View>
         </Field>
 
-        <Field label="Image URL">
+        <Field label={t("Image URL")}>
           <View className="gap-3">
             {values.imageUrl.trim() && !imageUrlInvalid ? (
               <View className="h-40 overflow-hidden rounded-xl border border-border-subtle bg-bg-muted">
@@ -286,7 +289,7 @@ export function WishlistItemCreateEditSheet({
                 <Input
                   value={value}
                   onChangeText={onChange}
-                  placeholder="https://..."
+                  placeholder={t("https://...")}
                   autoCapitalize="none"
                   keyboardType="url"
                   className={imageUrlInvalid ? "border-destructive" : undefined}
@@ -294,12 +297,12 @@ export function WishlistItemCreateEditSheet({
               )}
             />
             {imageUrlInvalid ? (
-              <Text className="text-xs font-semibold text-destructive">Enter valid Url</Text>
+              <Text className="text-xs font-semibold text-destructive">{t("Enter valid Url")}</Text>
             ) : null}
           </View>
         </Field>
 
-        <Field label="Name">
+        <Field label={t("Name")}>
           <Controller
             control={control}
             name="name"
@@ -307,13 +310,13 @@ export function WishlistItemCreateEditSheet({
               <Input
                 value={value}
                 onChangeText={onChange}
-                placeholder="e.g. Noise-cancelling headphones"
+                placeholder={t("e.g. Noise-cancelling headphones")}
               />
             )}
           />
         </Field>
 
-        <Field label="Description">
+        <Field label={t("Description")}>
           <Controller
             control={control}
             name="description"
@@ -321,7 +324,7 @@ export function WishlistItemCreateEditSheet({
               <Input
                 value={value}
                 onChangeText={onChange}
-                placeholder="Add details, size, color..."
+                placeholder={t("Add details, size, color...")}
                 multiline
                 className="h-24 items-start py-3"
                 textAlignVertical="top"
@@ -331,7 +334,7 @@ export function WishlistItemCreateEditSheet({
         </Field>
 
         <View className="flex-row gap-2">
-          <Field label="Currency" className="w-24">
+          <Field label={t("Currency")} className="w-24">
             <Controller
               control={control}
               name="currency"
@@ -339,13 +342,13 @@ export function WishlistItemCreateEditSheet({
                 <Input
                   value={value}
                   onChangeText={onChange}
-                  placeholder="USD"
+                  placeholder={t("USD")}
                   autoCapitalize="characters"
                 />
               )}
             />
           </Field>
-          <Field label="Price" className="min-w-0 flex-1">
+          <Field label={t("Price")} className="min-w-0 flex-1">
             <Controller
               control={control}
               name="price"
@@ -353,7 +356,7 @@ export function WishlistItemCreateEditSheet({
                 <Input
                   value={value}
                   onChangeText={onChange}
-                  placeholder="199"
+                  placeholder={t("199")}
                   keyboardType="decimal-pad"
                 />
               )}
@@ -361,23 +364,23 @@ export function WishlistItemCreateEditSheet({
           </Field>
         </View>
 
-        <Field label="Priority">
+        <Field label={t("Priority")}>
           <Controller
             control={control}
             name="priority_id"
             render={({ field: { onChange, value } }) => (
-              <PrioritySelector value={value} onChange={onChange} />
+              <PrioritySelector priorityOptions={priorityOptions} value={value} onChange={onChange} />
             )}
           />
         </Field>
 
-        <Field label="Discount">
+        <Field label={t("Discount")}>
           <View className="gap-2">
             <Button
               variant={values.hasDiscount ? "default" : "outline"}
               onPress={() => patchValues({ hasDiscount: !values.hasDiscount })}
             >
-              <Text>{values.hasDiscount ? "Discount enabled" : "Enable discount"}</Text>
+              <Text>{values.hasDiscount ? t("Discount enabled") : t("Enable discount")}</Text>
             </Button>
             {values.hasDiscount ? (
               <View className="flex-row gap-2">
@@ -388,7 +391,7 @@ export function WishlistItemCreateEditSheet({
                     <Input
                       value={value}
                       onChangeText={onChange}
-                      placeholder="Sale price"
+                      placeholder={t("Sale price")}
                       keyboardType="decimal-pad"
                       className="min-w-0 flex-1"
                     />
@@ -401,7 +404,7 @@ export function WishlistItemCreateEditSheet({
                     <Input
                       value={value}
                       onChangeText={onChange}
-                      placeholder="YYYY-MM-DD"
+                      placeholder={t("YYYY-MM-DD")}
                       className="min-w-0 flex-1"
                     />
                   )}
@@ -411,7 +414,7 @@ export function WishlistItemCreateEditSheet({
           </View>
         </Field>
 
-        <Field label="Additional links">
+        <Field label={t("Additional links")}>
           <View className="gap-2">
             {values.additionalLinks.map((link, index) => (
               <View key={index} className="gap-1">
@@ -423,7 +426,7 @@ export function WishlistItemCreateEditSheet({
                       <Input
                         value={value}
                         onChangeText={onChange}
-                        placeholder="https://..."
+                        placeholder={t("https://...")}
                         autoCapitalize="none"
                         keyboardType="url"
                         className={cn(
@@ -448,7 +451,7 @@ export function WishlistItemCreateEditSheet({
                   </Button>
                 </View>
                 {invalidAdditionalLinkIndexes.has(index) ? (
-                  <Text className="text-xs font-semibold text-destructive">Enter valid Url</Text>
+                  <Text className="text-xs font-semibold text-destructive">{t("Enter valid Url")}</Text>
                 ) : null}
               </View>
             ))}
@@ -459,7 +462,7 @@ export function WishlistItemCreateEditSheet({
               }
             >
               <Icon as={Plus} className="size-4 text-text" />
-              <Text>Add another link</Text>
+              <Text>{t("Add another link")}</Text>
             </Button>
           </View>
         </Field>
@@ -490,25 +493,28 @@ function Field({
 }
 
 function PrioritySelector({
+  priorityOptions,
   value,
   onChange,
 }: {
+  priorityOptions: ReturnType<typeof getItemPriorityOptions>;
   value: ItemFormValues["priority_id"];
   onChange: (priority: ItemFormValues["priority_id"]) => void;
 }) {
+  const t = useGT();
   const rows = React.useMemo(
     (): SlidingOption<string | null>[][] => [
       [
         {
           value: null,
-          accessibilityLabel: "No priority",
+          accessibilityLabel: t("No priority"),
           children: ({ selected }: SlidingOptionRenderProps) => (
             <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
-              None
+              {t("None")}
             </Text>
           ),
         },
-        ...[...ITEM_PRIORITY_OPTIONS].reverse().map((option) => ({
+        ...[...priorityOptions].reverse().map((option) => ({
           value: option.priority_id,
           children: ({ selected }: SlidingOptionRenderProps) => (
             <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
@@ -518,7 +524,7 @@ function PrioritySelector({
         })),
       ],
     ],
-    [],
+    [priorityOptions, t],
   );
 
   return (

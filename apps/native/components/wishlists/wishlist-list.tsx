@@ -15,8 +15,8 @@ import { useMyStatistics } from "@/hooks/use-wishlists";
 import { getThemeMode } from "@/lib/theme";
 import {
   WISHLIST_VISIBILITY_ICONS,
-  WISHLIST_VISIBILITY_LABELS,
   getWishlistAccentGradientColors,
+  getWishlistVisibilityLabels,
 } from "@/lib/wishlists";
 import { AddCard } from "@/components/wishlists/add-card";
 import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
@@ -36,6 +36,7 @@ import {
   Plus,
   ShoppingBag,
 } from "lucide-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
@@ -92,6 +93,7 @@ export function WishlistList({
   onCreateWishlist: () => void;
   onOpenSheet: (sheet: Exclude<SheetState, null>) => void;
 }) {
+  const t = useGT();
   const insets = useSafeAreaInsets();
   const entries = React.useMemo<WishlistListEntry[]>(
     () =>
@@ -132,7 +134,7 @@ export function WishlistList({
                 key={entry.id}
                 width={cardWidth}
                 onPress={onCreateWishlist}
-                accessibilityLabel="Create wishlist"
+                accessibilityLabel={t("Create wishlist")}
               />
             ) : (
               <WishlistCard
@@ -168,6 +170,7 @@ export function WishlistList({
       onOpenSheet,
       query.isFetching,
       StickyHeaderComponent,
+      t,
     ],
   );
 
@@ -193,10 +196,13 @@ export function WishlistList({
             <WishlistGridSkeleton cardWidth={cardWidth} gridGap={gridGap} />
           ) : null}
           {query.isError ? (
-            <InlineState width={contentWidth} message="Failed to load wishlists." />
+            <InlineState width={contentWidth} message={t("Failed to load wishlists.")} />
           ) : null}
           {!query.isLoading && !query.isError && wishlists.length === 0 && filtersActive ? (
-            <InlineState width={contentWidth} message="No wishlists match your filters." />
+            <InlineState
+              width={contentWidth}
+              message={t("No wishlists match your filters.")}
+            />
           ) : null}
           {pagination.showPagination ? (
             <PaginationControls
@@ -226,13 +232,14 @@ export function WishlistList({
 export function WishlistListStatsRow() {
   const { width } = useWindowDimensions();
   const { data, isError, isLoading } = useMyStatistics();
+  const t = useGT();
   const gap = 12;
   const cardWidth = (Math.min(width - 32, 1200) - gap) / 2;
   const stats = [
-    { label: "Wishlists", value: data?.wishlists_count ?? 0, icon: ListChecks },
-    { label: "Total Items", value: data?.total_items_count ?? 0, icon: Package },
-    { label: "Reserved", value: data?.reserved_items_count ?? 0, icon: LockKeyhole },
-    { label: "Purchased", value: data?.purchased_items_count ?? 0, icon: ShoppingBag },
+    { label: t("Wishlists"), value: data?.wishlists_count ?? 0, icon: ListChecks },
+    { label: t("Total Items"), value: data?.total_items_count ?? 0, icon: Package },
+    { label: t("Reserved"), value: data?.reserved_items_count ?? 0, icon: LockKeyhole },
+    { label: t("Purchased"), value: data?.purchased_items_count ?? 0, icon: ShoppingBag },
   ];
 
   if (isLoading) {
@@ -248,7 +255,7 @@ export function WishlistListStatsRow() {
   if (isError || !data) {
     return (
       <View className="rounded-xl border border-border-subtle bg-card-bg p-4">
-        <Text className="text-sm text-destructive">Failed to load stats.</Text>
+        <Text className="text-sm text-destructive">{t("Failed to load stats.")}</Text>
       </View>
     );
   }
@@ -325,13 +332,17 @@ function WishlistCard({
   onAddItem?: () => void;
   onDelete?: () => void;
 }) {
+  const t = useGT();
+  const visibilityLabels = React.useMemo(() => getWishlistVisibilityLabels(t), [t]);
   const visibility = wishlist.visibility_type;
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[visibility];
   const itemsCount = wishlist.items_count ?? 0;
   const showMenu = Boolean(onAddItem || onEdit || onDelete);
   const isShared = wishlist.is_owner === false;
   const ownerNickname = wishlist.owner_nickname?.trim();
-  const sharedLabel = ownerNickname ? `Shared by @${ownerNickname}` : "Shared wishlist";
+  const sharedLabel = ownerNickname
+    ? t("Shared by @{nickname}", { nickname: ownerNickname })
+    : t("Shared wishlist");
   const menuTriggerRef = React.useRef<TriggerRef>(null);
   const { theme } = useUniwind();
   const mode = getThemeMode(theme);
@@ -343,7 +354,9 @@ function WishlistCard({
         <Link href={{ pathname: "/wishlists/[id]", params: { id: wishlist.id } }} asChild>
           <AnimatedPressable
             accessibilityRole="button"
-            accessibilityLabel={`Open ${wishlist.title}`}
+            accessibilityLabel={t('Open "{title}"', {
+              title: wishlist.title,
+            })}
             onLongPress={showMenu ? () => menuTriggerRef.current?.open() : undefined}
             className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
             pressedScale={0.98}
@@ -372,7 +385,7 @@ function WishlistCard({
                   accessibilityLabel={sharedLabel}
                 >
                   <Icon as={Link2} className="size-3 text-text" />
-                  <Text className="text-xs font-bold text-text">Shared</Text>
+                  <Text className="text-xs font-bold text-text">{t("Shared")}</Text>
                 </Badge>
               ) : null}
             </View>
@@ -389,7 +402,7 @@ function WishlistCard({
                 {onAddItem ? (
                   <AnimatedPressable
                     accessibilityRole="button"
-                    accessibilityLabel="Add item"
+                    accessibilityLabel={t("Add item")}
                     onPress={onAddItem}
                     className="size-10 items-center justify-center rounded-full bg-brand-lighter active:bg-brand-alpha-12"
                   >
@@ -400,12 +413,12 @@ function WishlistCard({
 
               <View className="flex-row items-center justify-between gap-3">
                 <Text className="text-sm font-semibold text-text-muted">
-                  {itemsCount === 1 ? "1 item" : `${itemsCount} items`}
+                  {itemsCount === 1 ? t("1 item") : t("{count} items", { count: itemsCount })}
                 </Text>
                 <View className="flex-row items-center gap-1.5">
                   <Icon as={VisibilityIcon} className="size-3.5 text-text-muted" />
                   <Text className="text-sm font-semibold text-text-muted">
-                    {WISHLIST_VISIBILITY_LABELS[visibility]}
+                    {visibilityLabels[visibility]}
                   </Text>
                 </View>
               </View>
@@ -424,12 +437,12 @@ function WishlistCard({
         <DropdownMenuContent className="min-w-36">
           {onEdit ? (
             <DropdownMenuItem onPress={onEdit}>
-              <Text>Edit</Text>
+              <Text>{t("Edit")}</Text>
             </DropdownMenuItem>
           ) : null}
           {onDelete ? (
             <DropdownMenuItem variant="destructive" onPress={onDelete}>
-              <Text>Delete</Text>
+              <Text>{t("Delete")}</Text>
             </DropdownMenuItem>
           ) : null}
         </DropdownMenuContent>

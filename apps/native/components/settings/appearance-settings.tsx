@@ -3,6 +3,8 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
@@ -15,6 +17,8 @@ import { Text } from "@/components/ui/text";
 import { SettingsSection } from "@/components/settings/settings-section";
 import type { NativeAccentName } from "@/lib/theme";
 import { cn } from "@/lib/utils";
+import { getWishlistAccentOptions } from "@/lib/wishlists";
+import type { TranslateFn } from "@/lib/translate-fn";
 import { useUpdateSettings } from "@/hooks/use-settings";
 import { ALL_PRIORITIES } from "@wishlist/backend/lib";
 import type { ThemePreference, WishlistColorIndex } from "@wishlist/backend/types/settings";
@@ -22,6 +26,7 @@ import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 import {
   ChevronDown,
   Gift,
+  Languages,
   ListFilter,
   MonitorIcon,
   MoonIcon,
@@ -30,73 +35,62 @@ import {
   SunIcon,
   type LucideIcon,
 } from "lucide-react-native";
+import {
+  useGT,
+  useLocale,
+  useLocales,
+  useSetLocale,
+} from "gt-react-native";
+import * as React from "react";
 import { View } from "react-native";
 
 const THEME_OPTION_HEIGHT = 96;
 const SWATCH_OPTION_HEIGHT = 76;
 
-const THEME_PREFERENCES = [
-  {
-    value: "light" as const,
-    label: "Light",
-    icon: SunIcon,
-  },
-  {
-    value: "dark" as const,
-    label: "Dark",
-    icon: MoonIcon,
-  },
-  {
-    value: "system" as const,
-    label: "System",
-    icon: MonitorIcon,
-  },
-] as const satisfies readonly {
-  value: ThemePreference;
-  label: string;
-  icon: LucideIcon;
-}[];
+const THEME_DEFINITIONS = [
+  { value: "light" as const, icon: SunIcon },
+  { value: "dark" as const, icon: MoonIcon },
+  { value: "system" as const, icon: MonitorIcon },
+];
 
-const WISHLIST_ACCENTS = [
+const LOCALIZED_LOCALE_LABELS: Record<string, string> = {
+  en: "English",
+  uk: "Українська",
+};
+const SWATCH_META = [
   {
     value: WishlistAccent.Pink,
     nativeAccent: "pink",
-    label: "Pink",
     className: "bg-gradient-accent-pink",
     selectedBorderClassName: "border-chart-1",
   },
   {
     value: WishlistAccent.Blue,
     nativeAccent: "blue",
-    label: "Blue",
     className: "bg-gradient-accent-blue",
     selectedBorderClassName: "border-chart-2",
   },
   {
     value: WishlistAccent.Peach,
     nativeAccent: "peach",
-    label: "Peach",
     className: "bg-gradient-accent-peach",
     selectedBorderClassName: "border-chart-3",
   },
   {
     value: WishlistAccent.Mint,
     nativeAccent: "mint",
-    label: "Mint",
     className: "bg-gradient-accent-mint",
     selectedBorderClassName: "border-chart-4",
   },
   {
     value: WishlistAccent.Lavender,
     nativeAccent: "lavender",
-    label: "Lavender",
     className: "bg-gradient-accent-lavender",
     selectedBorderClassName: "border-chart-5",
   },
 ] as const satisfies readonly {
   value: WishlistAccent;
   nativeAccent: NativeAccentName;
-  label: string;
   className: string;
   selectedBorderClassName: string;
 }[];
@@ -114,11 +108,65 @@ export function AppearanceSettings({
   selectedPriorities?: string[];
   setThemePreference: (value: ThemePreference) => void;
 }) {
+  const t = useGT();
+  const activeLocale = useLocale();
+  const locales = useLocales();
+  const setLocale = useSetLocale();
   const updateSettings = useUpdateSettings();
   const priorities =
     selectedPriorities ??
     ALL_PRIORITIES.filter((priority) => priority.is_free).map((priority) => priority.id);
-  const themeRows = useThemeRows();
+
+  const accentOptions = React.useMemo(() => getWishlistAccentOptions(t), [t]);
+  const accentsWithLabels = React.useMemo(
+    (): SwatchRow[] =>
+      SWATCH_META.map((meta, index) => ({
+        ...meta,
+        label: accentOptions[index]?.label ?? "",
+      })),
+    [accentOptions],
+  );
+
+  const themeRows = React.useMemo(
+    () => [
+      THEME_DEFINITIONS.map((themeDef) => {
+        const label =
+          themeDef.value === "light"
+            ? t("Light")
+            : themeDef.value === "dark"
+              ? t("Dark")
+              : t("System");
+        const IconComponent = themeDef.icon;
+
+        return {
+          value: themeDef.value,
+          accessibilityLabel: t('{mode} theme', { mode: label }),
+          children: ({ selected }: SlidingOptionRenderProps) => (
+            <>
+              <View
+                className={cn(
+                  "size-10 items-center justify-center rounded-full bg-bg-muted",
+                  selected && "bg-gradient-brand-subtle",
+                )}
+              >
+                <Icon
+                  as={IconComponent}
+                  className={cn("size-5 text-text", selected && "text-brand")}
+                />
+              </View>
+              <Text className={cn("text-sm font-bold text-text", selected && "text-brand")}>
+                {label}
+              </Text>
+            </>
+          ),
+        };
+      }),
+    ],
+    [t],
+  );
+
+  const localeCode = activeLocale ?? locales[0] ?? "en";
+  const activeLocaleDisplay = LOCALIZED_LOCALE_LABELS[localeCode] ?? localeCode;
 
   function setDefaultAccent(value: WishlistAccent) {
     updateSettings.mutate({ default_accent: value });
@@ -134,11 +182,37 @@ export function AppearanceSettings({
   }
 
   return (
-    <SettingsSection title="Appearance" icon={Palette}>
+    <SettingsSection title={t("Appearance")} icon={Palette}>
+      <View className="gap-2">
+        <View className="flex-row items-center gap-2">
+          <Icon as={Languages} className="size-4 text-brand" />
+          <Text className="text-sm font-semibold text-text">{t("Language")}</Text>
+        </View>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="h-11 justify-between px-3">
+              <Text className="font-semibold text-text">{activeLocaleDisplay}</Text>
+              <Icon as={ChevronDown} className="size-4 text-text-muted" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-72">
+            <DropdownMenuRadioGroup value={localeCode} onValueChange={(v) => setLocale(v)}>
+              {locales.map((code) => (
+                <DropdownMenuRadioItem key={code} value={code}>
+                  <Text className="text-sm font-semibold text-popover-foreground">
+                    {LOCALIZED_LOCALE_LABELS[code] ?? code}
+                  </Text>
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </View>
+
       <View className="gap-2">
         <View className="flex-row items-center gap-2">
           <Icon as={SunMoon} className="size-4 text-brand" />
-          <Text className="text-sm font-semibold text-text">Theme</Text>
+          <Text className="text-sm font-semibold text-text">{t("Theme")}</Text>
         </View>
         <SlidingOptionSelector
           rows={themeRows}
@@ -154,14 +228,16 @@ export function AppearanceSettings({
 
       <SwatchPicker
         icon={Palette}
-        title="Default Accent Color"
+        accents={accentsWithLabels}
+        title={t("Default Accent Color")}
         value={selectedAccent}
         onChange={setDefaultAccent}
       />
 
       <SwatchPicker
         icon={Gift}
-        title="Default Wishlist Color"
+        accents={accentsWithLabels}
+        title={t("Default Wishlist Color")}
         value={selectedWishlistColor}
         onChange={(value) => updateSettings.mutate({ default_wishlist_color: value })}
       />
@@ -169,12 +245,12 @@ export function AppearanceSettings({
       <View className="gap-2">
         <View className="flex-row items-center gap-2">
           <Icon as={ListFilter} className="size-4 text-brand" />
-          <Text className="text-sm font-semibold text-text">Item Priorities</Text>
+          <Text className="text-sm font-semibold text-text">{t("Item Priorities")}</Text>
         </View>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="h-11 justify-between px-3">
-              <Text className="font-semibold text-text">{getPrioritySummary(priorities)}</Text>
+              <Text className="font-semibold text-text">{getPrioritySummary(priorities, t)}</Text>
               <Icon as={ChevronDown} className="size-4 text-text-muted" />
             </Button>
           </DropdownMenuTrigger>
@@ -195,7 +271,9 @@ export function AppearanceSettings({
                   <Text className="text-sm font-semibold text-popover-foreground">
                     {priority.name}
                   </Text>
-                  {!priority.is_free && <Text className="text-xs font-bold text-brand">Pro</Text>}
+                  {!priority.is_free && (
+                    <Text className="text-xs font-bold text-brand">{t("Pro")}</Text>
+                  )}
                 </View>
               </DropdownMenuCheckboxItem>
             ))}
@@ -206,7 +284,7 @@ export function AppearanceSettings({
   );
 }
 
-function getPrioritySummary(priorityIds: string[]) {
+function getPrioritySummary(priorityIds: string[], translate: TranslateFn) {
   const selectedNames = ALL_PRIORITIES.filter((priority) => priorityIds.includes(priority.id)).map(
     (priority) => priority.name,
   );
@@ -215,53 +293,26 @@ function getPrioritySummary(priorityIds: string[]) {
     return selectedNames.join(", ");
   }
 
-  return `${selectedNames.length} priorities selected`;
+  return translate("{count} priorities selected", { count: selectedNames.length });
 }
 
-function useThemeRows(): SlidingOption<ThemePreference>[][] {
-  return [
-    THEME_PREFERENCES.map((theme) => {
-      const IconComponent = theme.icon;
-
-      return {
-        value: theme.value,
-        accessibilityLabel: `${theme.label} theme`,
-        children: ({ selected }: SlidingOptionRenderProps) => (
-          <>
-            <View
-              className={cn(
-                "size-10 items-center justify-center rounded-full bg-bg-muted",
-                selected && "bg-gradient-brand-subtle",
-              )}
-            >
-              <Icon
-                as={IconComponent}
-                className={cn("size-5 text-text", selected && "text-brand")}
-              />
-            </View>
-            <Text className={cn("text-sm font-bold text-text", selected && "text-brand")}>
-              {theme.label}
-            </Text>
-          </>
-        ),
-      };
-    }),
-  ];
-}
+type SwatchRow = (typeof SWATCH_META)[number] & { label: string };
 
 function SwatchPicker<T extends WishlistAccent | WishlistColorIndex>({
   icon,
   title,
+  accents,
   value,
   onChange,
 }: {
   icon: LucideIcon;
   title: string;
+  accents: SwatchRow[];
   value: T;
   onChange: (value: T) => void;
 }) {
   const selectedAccent =
-    WISHLIST_ACCENTS.find((accent) => accent.value === value) ?? WISHLIST_ACCENTS[0];
+    accents.find((accent) => accent.value === value) ?? accents[0];
 
   return (
     <View className="gap-2">
@@ -270,7 +321,7 @@ function SwatchPicker<T extends WishlistAccent | WishlistColorIndex>({
         <Text className="text-sm font-semibold text-text">{title}</Text>
       </View>
       <SlidingOptionSelector
-        rows={[WISHLIST_ACCENTS.map((accent) => createSwatchOption<T>(accent))]}
+        rows={[accents.map((accent) => createSwatchOption<T>(accent))]}
         value={value}
         onChange={onChange}
         optionHeight={SWATCH_OPTION_HEIGHT}
@@ -287,7 +338,7 @@ function SwatchPicker<T extends WishlistAccent | WishlistColorIndex>({
 }
 
 function createSwatchOption<T extends WishlistAccent | WishlistColorIndex>(
-  accent: (typeof WISHLIST_ACCENTS)[number],
+  accent: SwatchRow,
 ): SlidingOption<T> {
   return {
     value: accent.value as T,
