@@ -35,6 +35,10 @@ export function CurrencySettings() {
           $id: "settings.currency.sectionTitle",
         })}
         className={styles.selector}
+        triggerClassName={styles.currencyTrigger}
+        dropdownClassName={styles.currencyDropdown}
+        optionClassName={styles.currencyOption}
+        leadingClassName={styles.currencySymbol}
       />
     </SettingsSection>
   );

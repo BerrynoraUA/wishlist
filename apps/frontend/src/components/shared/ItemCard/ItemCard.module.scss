@@ -49,6 +49,36 @@
   }
 }
 
+.cardStarAccent {
+  border: 2px solid var(--color-brand) !important;
+  box-shadow: 0 16px 36px var(--brand-alpha-18);
+
+  &::after {
+    content: "★";
+    position: absolute;
+    left: 50%;
+    bottom: -15px;
+    z-index: 2;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    transform: translateX(-50%);
+    background: var(--card-bg);
+    color: var(--color-brand);
+    border: 2.5px solid var(--color-brand);
+    font-size: 18px;
+    line-height: 1;
+    box-shadow: 0 4px 12px var(--brand-alpha-18);
+  }
+
+  &:hover {
+    border-color: var(--color-brand) !important;
+    box-shadow: 0 16px 36px var(--brand-alpha-22) !important;
+  }
+}
+
 /* ===== Image section ===== */
 
 .imageWrapper {

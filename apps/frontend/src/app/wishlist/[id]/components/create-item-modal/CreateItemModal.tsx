@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGT } from "gt-next";
-import { Check, Loader2, Plus, X, Lock } from "lucide-react";
+import { Check, Loader2, Plus, X, Lock, Star } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
@@ -23,7 +23,11 @@ import {
 } from "@/lib/helpers/form-select-options";
 import { ALL_PRIORITIES } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
-import { ITEM_COLORS } from "@/lib/item-colors";
+import {
+  isStarCardColorIndex,
+  ITEM_COLORS,
+  STAR_CARD_COLOR_INDEX,
+} from "@/lib/item-colors";
 import styles from "./CreateItemModal.module.scss";
 
 import type { CreateItemParams } from "@/api/types/item";
@@ -64,6 +68,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [price, setPrice] = useState("");
   const [priority, setPriority] = useState<string | null>(null);
   const [colorIndex, setColorIndex] = useState<number | null>(null);
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
@@ -77,7 +82,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const { data: settings } = useSettings();
   const preferredCurrency = resolveCurrency(settings?.display_currency);
   const [currency, setCurrency] = useState(preferredCurrency);
-  const currencyOptions = getCompactCurrencyOptions();
+  const currencyOptions = getCompactCurrencyOptions("code");
   const visiblePriorities = settings?.selected_priorities
     ? ALL_PRIORITIES.filter((p) => settings.selected_priorities!.includes(p.id))
     : ALL_PRIORITIES;
@@ -135,6 +140,9 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   ];
 
   const { mutate, isPending } = useCreateItem();
+  const lastScrapedLinkRef = useRef("");
+  const scrapeRequestIdRef = useRef(0);
+  const imageObjectUrlRef = useRef<string | null>(null);
 
   const draftValue = useMemo<CreateItemDraft>(
     () => ({
@@ -233,7 +241,13 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     };
   }, [imageObjectUrl]);
 
+  useEffect(() => {
+    imageObjectUrlRef.current = imageObjectUrl;
+  }, [imageObjectUrl]);
+
   function resetForm(nextCurrency = preferredCurrency) {
+    scrapeRequestIdRef.current += 1;
+    lastScrapedLinkRef.current = "";
     setLink("");
     setAdditionalLinks([]);
     setName("");
@@ -241,6 +255,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     setPrice("");
     setPriority(null);
     setColorIndex(null);
+    setColorPickerOpen(false);
     setImagePreview("");
     setImageFile(null);
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
@@ -317,76 +332,114 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     setLocalImageNeedsReupload(false);
   }
 
-  async function handleScrape() {
-    if (!link.trim()) return;
+  const handleScrape = useCallback(
+    async (urlToScrape = link) => {
+      const trimmedLink = urlToScrape.trim();
+      if (!trimmedLink) return;
 
-    setLoading(true);
-    setError(null);
+      const requestId = scrapeRequestIdRef.current + 1;
+      scrapeRequestIdRef.current = requestId;
 
-    try {
-      const response = await fetch("/api/server/scrape-product", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: link.trim() }),
-      });
+      setLoading(true);
+      setError(null);
 
-      const data = await response.json();
+      try {
+        const response = await fetch("/api/server/scrape-product", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: trimmedLink }),
+        });
 
-      if (response.ok) {
-        const product = {
-          title: data?.title ?? null,
-          description: data?.description ?? null,
-          image: data?.image ?? null,
-          price: data?.price ?? null,
-          discount_price: data?.discount_price ?? null,
-          has_discount: data?.has_discount ?? false,
-          discount_end_date: data?.discount_end_date ?? null,
-          currency: data?.currency ?? null,
-        };
+        const data = await response.json();
+        if (requestId !== scrapeRequestIdRef.current) return;
 
-        const isEmpty =
-          !product.title &&
-          !product.description &&
-          !product.image &&
-          !product.price;
+        if (response.ok) {
+          const product = {
+            title: data?.title ?? null,
+            description: data?.description ?? null,
+            image: data?.image ?? null,
+            price: data?.price ?? null,
+            discount_price: data?.discount_price ?? null,
+            has_discount: data?.has_discount ?? false,
+            discount_end_date: data?.discount_end_date ?? null,
+            currency: data?.currency ?? null,
+          };
 
-        if (isEmpty) {
+          const isEmpty =
+            !product.title &&
+            !product.description &&
+            !product.image &&
+            !product.price;
+
+          if (isEmpty) {
+            setError(
+              t("Could not fetch product data", {
+                $id: "item.modal.scrapeEmpty",
+              }),
+            );
+            return;
+          }
+
+          if (product.title) setName(product.title);
+          if (product.description) setDescription(product.description);
+          if (product.price) setPrice(product.price);
+          if (product.currency) setCurrency(resolveCurrency(product.currency));
+          setDiscountPrice(product.discount_price);
+          setHasDiscount(product.has_discount);
+          setDiscountEndDate(product.discount_end_date);
+          if (product.image) {
+            if (imageObjectUrlRef.current) {
+              URL.revokeObjectURL(imageObjectUrlRef.current);
+            }
+            setImageObjectUrl(null);
+            setImageFile(null);
+            setImagePreview(product.image);
+          }
+        } else {
+          setError(
+            data?.error ||
+              t("Error loading product", { $id: "item.modal.scrapeError" }),
+          );
+        }
+      } catch {
+        if (requestId === scrapeRequestIdRef.current) {
           setError(
             t("Could not fetch product data", {
               $id: "item.modal.scrapeEmpty",
             }),
           );
-          return;
         }
-
-        if (product.title) setName(product.title);
-        if (product.description) setDescription(product.description);
-        if (product.price) setPrice(product.price);
-        if (product.currency) setCurrency(resolveCurrency(product.currency));
-        setDiscountPrice(product.discount_price);
-        setHasDiscount(product.has_discount);
-        setDiscountEndDate(product.discount_end_date);
-        if (product.image) {
-          if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
-          setImageObjectUrl(null);
-          setImageFile(null);
-          setImagePreview(product.image);
+      } finally {
+        if (requestId === scrapeRequestIdRef.current) {
+          setLoading(false);
         }
-      } else {
-        setError(
-          data?.error ||
-            t("Error loading product", { $id: "item.modal.scrapeError" }),
-        );
       }
-    } catch {
-      setError(
-        t("Could not fetch product data", {
-          $id: "item.modal.scrapeEmpty",
-        }),
-      );
-    } finally {
-      setLoading(false);
+    },
+    [link, t],
+  );
+
+  useEffect(() => {
+    const trimmedLink = link.trim();
+    if (!open || !trimmedLink) {
+      if (!trimmedLink) lastScrapedLinkRef.current = "";
+      return;
     }
+
+    const timeoutId = window.setTimeout(() => {
+      if (lastScrapedLinkRef.current === trimmedLink) return;
+      lastScrapedLinkRef.current = trimmedLink;
+      void handleScrape(trimmedLink);
+    }, 200);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [handleScrape, link, open]);
+
+  function handleClearLink() {
+    scrapeRequestIdRef.current += 1;
+    lastScrapedLinkRef.current = "";
+    setLink("");
+    setError(null);
+    setLoading(false);
   }
 
   return (
@@ -448,8 +501,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
             />
             <Button
               variant="secondary"
-              onClick={handleScrape}
-              disabled={!link.trim() || loading}
+              onClick={handleClearLink}
+              disabled={!link.trim() && !loading}
             >
               {loading ? (
                 <Loader2
@@ -457,7 +510,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                   style={{ animation: "spin 0.8s linear infinite" }}
                 />
               ) : (
-                t("Search", { $id: "item.modal.searchProduct" })
+                t("Clear", { $id: "common.clear" })
               )}
             </Button>
           </div>
@@ -615,45 +668,102 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           </div>
         </div>
 
-        {canUsePriority && (
-          <div className={styles.field}>
-            <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
-            <Select
-              value={priority ?? ""}
-              onChange={(v) => setPriority(v || null)}
-              options={priorityOptions}
-              ariaLabel={t("Priority", { $id: "item.modal.priorityLabel" })}
-              triggerClassName={styles.selectField}
-              dropdownClassName={styles.prioritySelectDropdown}
-              optionClassName={styles.prioritySelectOption}
-              leadingClassName={styles.prioritySelectLeading}
-            />
-          </div>
-        )}
+        <div className={styles.priorityColorRow}>
+          {canUsePriority && (
+            <div className={styles.field}>
+              <label>
+                {t("Priority", { $id: "item.modal.priorityLabel" })}
+              </label>
+              <Select
+                value={priority ?? ""}
+                onChange={(v) => setPriority(v || null)}
+                options={priorityOptions}
+                ariaLabel={t("Priority", { $id: "item.modal.priorityLabel" })}
+                triggerClassName={styles.selectField}
+                dropdownClassName={styles.prioritySelectDropdown}
+                optionClassName={styles.prioritySelectOption}
+                leadingClassName={styles.prioritySelectLeading}
+              />
+            </div>
+          )}
 
-        <div className={styles.field}>
-          <label>
-            {t("Card Color (optional)", { $id: "item.modal.colorLabel" })}
-          </label>
-          <div className={styles.colorPicker}>
+          <div
+            className={`${styles.field} ${styles.compactColorField}`}
+            onBlur={(event) => {
+              if (
+                !event.currentTarget.contains(event.relatedTarget as Node | null)
+              ) {
+                setColorPickerOpen(false);
+              }
+            }}
+          >
+            <label>
+              {t("Card Color", { $id: "item.modal.colorLabelShort" })}
+            </label>
             <button
               type="button"
-              className={`${styles.colorSwatch} ${styles.colorSwatchNone} ${colorIndex === null ? styles.colorSwatchActive : ""}`}
-              onClick={() => setColorIndex(null)}
-              title={t("No color", { $id: "item.modal.colorNone" })}
+              className={styles.colorTrigger}
+              style={
+                {
+                  "--selected-color":
+                    colorIndex === null
+                      ? "var(--color-border-light)"
+                      : isStarCardColorIndex(colorIndex)
+                        ? "var(--color-brand)"
+                      : ITEM_COLORS[colorIndex]?.color,
+                } as React.CSSProperties
+              }
+              onClick={() => setColorPickerOpen((value) => !value)}
+              aria-expanded={colorPickerOpen}
+              aria-haspopup="grid"
+              aria-label={t("Card Color", {
+                $id: "item.modal.colorLabelShort",
+              })}
             >
-              <X size={11} />
+              <span className={styles.colorTriggerSwatch}>
+                {isStarCardColorIndex(colorIndex) && (
+                  <Star size={12} fill="currentColor" />
+                )}
+              </span>
             </button>
-            {ITEM_COLORS.map((c, idx) => (
-              <button
-                key={idx}
-                type="button"
-                className={`${styles.colorSwatch} ${colorIndex === idx ? styles.colorSwatchActive : ""}`}
-                style={{ "--swatch-color": c.color } as React.CSSProperties}
-                onClick={() => setColorIndex(idx)}
-                title={c.label}
-              />
-            ))}
+
+            {colorPickerOpen && (
+              <div className={styles.colorPopover}>
+                <button
+                  type="button"
+                  className={`${styles.colorSwatch} ${styles.colorSwatchNone} ${colorIndex === null ? styles.colorSwatchActive : ""}`}
+                  onClick={() => {
+                    setColorIndex(null);
+                    setColorPickerOpen(false);
+                  }}
+                  title={t("No color", { $id: "item.modal.colorNone" })}
+                />
+                <button
+                  type="button"
+                  className={`${styles.colorSwatch} ${styles.colorSwatchStar} ${isStarCardColorIndex(colorIndex) ? styles.colorSwatchActive : ""}`}
+                  onClick={() => {
+                    setColorIndex(STAR_CARD_COLOR_INDEX);
+                    setColorPickerOpen(false);
+                  }}
+                  title={t("Star", { $id: "item.modal.colorStar" })}
+                >
+                  <Star size={13} fill="currentColor" />
+                </button>
+                {ITEM_COLORS.map((c, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className={`${styles.colorSwatch} ${colorIndex === idx ? styles.colorSwatchActive : ""}`}
+                    style={{ "--swatch-color": c.color } as React.CSSProperties}
+                    onClick={() => {
+                      setColorIndex(idx);
+                      setColorPickerOpen(false);
+                    }}
+                    title={c.label}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

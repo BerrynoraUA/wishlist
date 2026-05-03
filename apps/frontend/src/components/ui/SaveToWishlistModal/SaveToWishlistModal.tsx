@@ -8,6 +8,7 @@ import { Heading, Text } from "@/components/ui/Typography";
 import { useMyWishlists } from "@/hooks/use-wishlists";
 import { useCreateItem } from "@/hooks/use-items";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
+import { resolveItemPriorityId } from "@/lib/helpers/item-card";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
 import styles from "./SaveToWishlistModal.module.scss";
 import type { ItemLink } from "@/types/item";
@@ -67,7 +68,7 @@ export function SaveToWishlistModal({ open, onClose, item }: Props) {
             price: item.price,
             image_url: item.image_url,
             url: item.url,
-            priority_id: item.priority_id,
+            priority_id: resolveItemPriorityId(item.priority_id),
             discount_price: item.discount_price,
             has_discount: item.has_discount,
             discount_end_date: item.discount_end_date,
