@@ -11,7 +11,6 @@ import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   TextInput,
@@ -87,7 +86,7 @@ export default function SignInScreen() {
 
   const testimonial = testimonials[testimonialIndex];
   const isBusy = loading || socialLoading !== null;
-  const showAppleSignIn = Platform.OS === "ios";
+  const showAppleSignIn = process.env.EXPO_OS === "ios";
 
   if (session) {
     return <Redirect href="/wishlists" />;

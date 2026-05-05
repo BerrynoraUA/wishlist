@@ -1,15 +1,18 @@
-import { Stack } from "expo-router";
+import { Stack } from "expo-router/stack";
 
 export default function WishlistsStackLayout() {
   return (
-    <Stack
-      initialRouteName="index"
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="index" />
-      <Stack.Screen name="[id]" options={{ animation: "fade" }} />
+    <Stack initialRouteName="index">
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="[id]"
+        options={{
+          animation: "fade",
+          headerLargeTitle: false,
+          headerShadowVisible: false,
+          headerTransparent: true,
+        }}
+      />
     </Stack>
   );
 }

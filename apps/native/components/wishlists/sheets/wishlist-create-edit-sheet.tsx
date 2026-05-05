@@ -53,7 +53,7 @@ import { CalendarDays, Check, X } from "lucide-react-native";
 import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { ActivityIndicator, Platform, ScrollView, View } from "react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import Animated, {
   LinearTransition,
   useAnimatedStyle,
@@ -851,7 +851,7 @@ function EventDatePicker({
   }
 
   function handleOpenPicker() {
-    if (Platform.OS === "android") {
+    if (process.env.EXPO_OS === "android") {
       DateTimePickerAndroid.open({
         value: date,
         mode: "date",
@@ -894,7 +894,7 @@ function EventDatePicker({
         ) : null}
       </AnimatedPressable>
 
-      {Platform.OS === "ios" && iosPickerOpen ? (
+      {process.env.EXPO_OS === "ios" && iosPickerOpen ? (
         <View className="overflow-hidden rounded-xl border border-border-subtle bg-bg-subtle">
           <DateTimePicker
             value={date}

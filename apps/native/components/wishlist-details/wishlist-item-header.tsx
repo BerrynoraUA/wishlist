@@ -37,7 +37,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Platform, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useUniwind } from "uniwind";
 
 type HeaderInlineFormValues = {
@@ -149,7 +149,7 @@ export function WishlistItemHeader({
     if (!canInlineEdit) return;
     const date = eventDate ? new Date(eventDate) : new Date();
 
-    if (Platform.OS === "android") {
+    if (process.env.EXPO_OS === "android") {
       DateTimePickerAndroid.open({
         value: Number.isNaN(date.getTime()) ? new Date() : date,
         mode: "date",
@@ -360,7 +360,7 @@ export function WishlistItemHeader({
             </View>
           </View>
 
-          {Platform.OS === "ios" && iosDateOpen ? (
+          {process.env.EXPO_OS === "ios" && iosDateOpen ? (
             <View className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg">
               <DateTimePicker
                 value={eventDate ? new Date(eventDate) : new Date()}

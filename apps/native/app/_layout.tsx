@@ -37,7 +37,19 @@ const { Navigator } = createTrueSheetNavigator();
 const TrueSheetNavigator = withLayoutContext(Navigator);
 
 export default function RootLayout() {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 1000 * 60,
+            retry: 2,
+            refetchOnReconnect: true,
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+  );
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
   const navigationTheme = getNavigationTheme(theme);
