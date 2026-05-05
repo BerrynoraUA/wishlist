@@ -1,4 +1,5 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { InlineState } from "@/components/shared/inline-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { useMyStatistics } from "@/hooks/use-wishlists";
+import { chunkRows } from "@/lib/layout";
 import { getThemeMode } from "@/lib/theme";
 import {
   WISHLIST_VISIBILITY_ICONS,
@@ -199,10 +201,7 @@ export function WishlistList({
             <InlineState width={contentWidth} message={t("Failed to load wishlists.")} />
           ) : null}
           {!query.isLoading && !query.isError && wishlists.length === 0 && filtersActive ? (
-            <InlineState
-              width={contentWidth}
-              message={t("No wishlists match your filters.")}
-            />
+            <InlineState width={contentWidth} message={t("No wishlists match your filters.")} />
           ) : null}
           {pagination.showPagination ? (
             <PaginationControls
@@ -309,14 +308,6 @@ function RowSeparator({ leadingItem }: { leadingItem?: WishlistListRow }) {
   }
 
   return <View style={wishlistListStyles.rowSeparator} />;
-}
-
-function chunkRows<T>(items: T[], columns: number) {
-  const rows: T[][] = [];
-  for (let index = 0; index < items.length; index += columns) {
-    rows.push(items.slice(index, index + columns));
-  }
-  return rows;
 }
 
 function WishlistCard({
@@ -448,17 +439,6 @@ function WishlistCard({
         </DropdownMenuContent>
       </DropdownMenu>
     </Animated.View>
-  );
-}
-
-function InlineState({ width, message }: { width: number; message: string }) {
-  return (
-    <View
-      className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-6"
-      style={{ width }}
-    >
-      <Text className="text-center text-sm font-semibold text-text-muted">{message}</Text>
-    </View>
   );
 }
 

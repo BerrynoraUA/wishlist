@@ -35,12 +35,7 @@ import {
   SunIcon,
   type LucideIcon,
 } from "lucide-react-native";
-import {
-  useGT,
-  useLocale,
-  useLocales,
-  useSetLocale,
-} from "gt-react-native";
+import { useGT, useLocale, useLocales, useSetLocale } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
 
@@ -140,7 +135,7 @@ export function AppearanceSettings({
 
         return {
           value: themeDef.value,
-          accessibilityLabel: t('{mode} theme', { mode: label }),
+          accessibilityLabel: t("{mode} theme", { mode: label }),
           children: ({ selected }: SlidingOptionRenderProps) => (
             <>
               <View
@@ -311,8 +306,7 @@ function SwatchPicker<T extends WishlistAccent | WishlistColorIndex>({
   value: T;
   onChange: (value: T) => void;
 }) {
-  const selectedAccent =
-    accents.find((accent) => accent.value === value) ?? accents[0];
+  const selectedAccent = accents.find((accent) => accent.value === value) ?? accents[0];
 
   return (
     <View className="gap-2">

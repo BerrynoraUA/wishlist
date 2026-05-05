@@ -142,7 +142,10 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
     if (!asset) return;
 
     if (asset.fileSize && asset.fileSize > MAX_AVATAR_UPLOAD_BYTES) {
-      setMessage({ title: t("Image too large"), message: t("Choose an image that is 5 MB or less.") });
+      setMessage({
+        title: t("Image too large"),
+        message: t("Choose an image that is 5 MB or less."),
+      });
       return;
     }
 
@@ -154,8 +157,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
       },
       {
         onSuccess: () => setMessage({ title: t("Saved"), message: t("Profile image updated.") }),
-        onError: (error) =>
-          setMessage({ title: t("Image upload failed"), message: error.message }),
+        onError: (error) => setMessage({ title: t("Image upload failed"), message: error.message }),
       },
     );
   }

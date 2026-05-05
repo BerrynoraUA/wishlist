@@ -8,7 +8,7 @@ import { useSettings, useProfile, useUpdateSettings } from "@/hooks/use-settings
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 import type { ThemePreference } from "@wishlist/backend/types/settings";
 import { FlashList } from "@shopify/flash-list";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
@@ -24,6 +24,7 @@ type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 
 export default function ProfileScreen() {
   const t = useGT();
+  const router = useRouter();
   const { signOut, user } = useAuth();
   const { data: settings, isLoading: settingsLoading } = useSettings();
   const { data: profile, isLoading: profileLoading } = useProfile();
@@ -33,10 +34,15 @@ export default function ProfileScreen() {
     updateSettings.mutate({ theme: value });
   }
 
+  async function handleSignOut() {
+    await signOut();
+    router.replace("/sign-in" as never);
+  }
+
   function renderSection({ item }: { item: SettingsSection }) {
     switch (item) {
       case "account":
-        return <AccountSettings email={user?.email ?? ""} signOut={signOut} />;
+        return <AccountSettings email={user?.email ?? ""} signOut={handleSignOut} />;
       case "profile":
         return <ProfileSettings profile={profile} />;
       case "notifications":

@@ -99,11 +99,7 @@ function formatDateFieldValue(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-function formatDateFieldLabel(
-  value: string,
-  formatter: Intl.DateTimeFormat,
-  emptyLabel: string,
-) {
+function formatDateFieldLabel(value: string, formatter: Intl.DateTimeFormat, emptyLabel: string) {
   const date = parseDateFieldValue(value);
   return date ? formatter.format(date) : emptyLabel;
 }

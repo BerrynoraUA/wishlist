@@ -1,4 +1,5 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { InlineState } from "@/components/shared/inline-state";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -33,6 +34,7 @@ import {
   WISHLIST_ITEMS_PAGE_SIZE,
   parseOptionalNumber,
 } from "@/lib/items";
+import { chunkRows } from "@/lib/layout";
 import { paginationFlags } from "@/lib/wishlists";
 import type { Item } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
@@ -104,8 +106,7 @@ export default function WishlistDetailScreen() {
 
     const priorities: string[] = [];
     for (const value of filters.priorities) {
-      const priorityId = ITEM_PRIORITY_LOOKUP.find((option) => option.value === value)
-        ?.priority_id;
+      const priorityId = ITEM_PRIORITY_LOOKUP.find((option) => option.value === value)?.priority_id;
       if (priorityId !== undefined) priorities.push(priorityId);
     }
 
@@ -139,7 +140,8 @@ export default function WishlistDetailScreen() {
   const profileNamesById = React.useMemo(() => {
     const entries =
       profilesQuery.data?.map(
-        (profile) => [profile.id, profile.display_name || profile.nickname || t("Someone")] as const,
+        (profile) =>
+          [profile.id, profile.display_name || profile.nickname || t("Someone")] as const,
       ) ?? [];
 
     return new Map(entries);
@@ -335,9 +337,7 @@ export default function WishlistDetailScreen() {
                     <ActivityIndicator />
                   </View>
                 ) : null}
-                {itemsQuery.isError ? (
-                  <InlineState message={t("Failed to load items.")} />
-                ) : null}
+                {itemsQuery.isError ? <InlineState message={t("Failed to load items.")} /> : null}
                 {!itemsQuery.isLoading &&
                 !itemsQuery.isError &&
                 items.length === 0 &&
@@ -443,28 +443,12 @@ export default function WishlistDetailScreen() {
   );
 }
 
-function InlineState({ message }: { message: string }) {
-  return (
-    <View className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-6">
-      <Text className="text-center text-sm font-semibold text-text-muted">{message}</Text>
-    </View>
-  );
-}
-
 function ItemRowSeparator({ leadingItem }: { leadingItem?: WishlistItemListRow }) {
   if (leadingItem && "type" in leadingItem) {
     return null;
   }
 
   return <View style={wishlistDetailStyles.rowSeparator} />;
-}
-
-function chunkRows<T>(items: T[], columns: number) {
-  const rows: T[][] = [];
-  for (let index = 0; index < items.length; index += columns) {
-    rows.push(items.slice(index, index + columns));
-  }
-  return rows;
 }
 
 const wishlistDetailStyles = StyleSheet.create({
@@ -474,12 +458,6 @@ const wishlistDetailStyles = StyleSheet.create({
   content: {
     paddingBottom: 32,
     paddingTop: 0,
-  },
-  header: {
-    alignItems: "center",
-    alignSelf: "center",
-    marginBottom: 0,
-    width: "100%",
   },
   stickyHeader: {
     paddingBottom: 16,

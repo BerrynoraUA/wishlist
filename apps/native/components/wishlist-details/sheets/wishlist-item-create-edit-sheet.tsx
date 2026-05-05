@@ -406,7 +406,11 @@ export function WishlistItemCreateEditSheet({
             control={control}
             name="priority_id"
             render={({ field: { onChange, value } }) => (
-              <PrioritySelector priorityOptions={priorityOptions} value={value} onChange={onChange} />
+              <PrioritySelector
+                priorityOptions={priorityOptions}
+                value={value}
+                onChange={onChange}
+              />
             )}
           />
         </Field>
@@ -488,7 +492,9 @@ export function WishlistItemCreateEditSheet({
                   </Button>
                 </View>
                 {invalidAdditionalLinkIndexes.has(index) ? (
-                  <Text className="text-xs font-semibold text-destructive">{t("Enter valid Url")}</Text>
+                  <Text className="text-xs font-semibold text-destructive">
+                    {t("Enter valid Url")}
+                  </Text>
                 ) : null}
               </View>
             ))}

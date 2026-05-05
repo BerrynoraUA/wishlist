@@ -352,9 +352,7 @@ export function WishlistItemHeader({
                   >
                     <Icon as={Calendar} className="size-3.5 text-info" />
                     <Text className="text-xs font-bold text-info">
-                      {eventDate
-                        ? formatEventDateLabel(eventDate, dateFormatter)
-                        : t("Add date")}
+                      {eventDate ? formatEventDateLabel(eventDate, dateFormatter) : t("Add date")}
                     </Text>
                   </AnimatedPressable>
                 )

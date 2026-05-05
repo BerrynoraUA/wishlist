@@ -5,7 +5,6 @@
 
 @source "./app/**/*.{ts,tsx}";
 @source "./components/**/*.{ts,tsx}";
-@source "./screens/**/*.{ts,tsx}";
 @source "./providers/**/*.{ts,tsx}";
 
 @theme {
@@ -146,95 +145,95 @@
     --theme-light-shadow-nav-active: 0 1px 4px oklch(0 0 0 / 0.06);
     --theme-light-shadow-pro-glow: 0 0 40px oklch(0.5473 0.2022 351.459 / 0.15);
     --theme-light-gradient-hero: linear-gradient(
-        135deg,
-        oklch(0.9889 0.0053 17.247),
-        oklch(0.9714 0.0141 343.198),
-        oklch(0.9482 0.0276 342.258)
-      );
+      135deg,
+      oklch(0.9889 0.0053 17.247),
+      oklch(0.9714 0.0141 343.198),
+      oklch(0.9482 0.0276 342.258)
+    );
     --theme-light-gradient-brand-subtle: linear-gradient(
-        135deg,
-        oklch(0.949 0.0285 343.569),
-        oklch(0.9192 0.0326 348.121)
-      );
+      135deg,
+      oklch(0.949 0.0285 343.569),
+      oklch(0.9192 0.0326 348.121)
+    );
     --theme-light-gradient-header: linear-gradient(
-        135deg,
-        oklch(0.9889 0.0053 17.247) 0%,
-        oklch(0.9714 0.0141 343.198) 50%,
-        oklch(0.9482 0.0276 342.258) 100%
-      );
+      135deg,
+      oklch(0.9889 0.0053 17.247) 0%,
+      oklch(0.9714 0.0141 343.198) 50%,
+      oklch(0.9482 0.0276 342.258) 100%
+    );
     --theme-light-gradient-placeholder: linear-gradient(
-        135deg,
-        oklch(0.9846 0.0017 247.839),
-        oklch(0.967 0.0029 264.542)
-      );
+      135deg,
+      oklch(0.9846 0.0017 247.839),
+      oklch(0.967 0.0029 264.542)
+    );
     --theme-light-gradient-badge-priority: linear-gradient(
-        135deg,
-        oklch(0.9482 0.0276 342.258),
-        oklch(0.8994 0.0589 343.231)
-      );
+      135deg,
+      oklch(0.9482 0.0276 342.258),
+      oklch(0.8994 0.0589 343.231)
+    );
     --theme-light-gradient-badge-visibility: linear-gradient(
-        135deg,
-        oklch(0.9714 0.0141 343.198),
-        oklch(0.9482 0.0276 342.258)
-      );
+      135deg,
+      oklch(0.9714 0.0141 343.198),
+      oklch(0.9482 0.0276 342.258)
+    );
     --theme-light-gradient-badge-date: linear-gradient(
-        135deg,
-        oklch(0.9705 0.0142 254.604),
-        oklch(0.9319 0.0316 255.585)
-      );
+      135deg,
+      oklch(0.9705 0.0142 254.604),
+      oklch(0.9319 0.0316 255.585)
+    );
     --theme-light-gradient-badge-reserved: linear-gradient(
-        135deg,
-        oklch(0.9319 0.0316 255.585),
-        oklch(0.8823 0.0571 254.128)
-      );
+      135deg,
+      oklch(0.9319 0.0316 255.585),
+      oklch(0.8823 0.0571 254.128)
+    );
     --theme-light-gradient-pro: linear-gradient(
-        135deg,
-        oklch(0.5473 0.2022 351.459),
-        oklch(0.6504 0.1928 349.803),
-        oklch(0.7253 0.1752 349.761)
-      );
+      135deg,
+      oklch(0.5473 0.2022 351.459),
+      oklch(0.6504 0.1928 349.803),
+      oklch(0.7253 0.1752 349.761)
+    );
     --theme-light-gradient-pro-bg: linear-gradient(
-        135deg,
-        oklch(0.9714 0.0141 343.198) 0%,
-        oklch(0.9482 0.0276 342.258) 50%,
-        oklch(0.8994 0.0589 343.231) 100%
-      );
+      135deg,
+      oklch(0.9714 0.0141 343.198) 0%,
+      oklch(0.9482 0.0276 342.258) 50%,
+      oklch(0.8994 0.0589 343.231) 100%
+    );
     --theme-light-gradient-pro-card-bg: linear-gradient(
-        160deg,
-        oklch(0.9889 0.0053 17.247),
-        oklch(0.9714 0.0141 343.198) 40%,
-        oklch(0.9482 0.0276 342.258) 100%
-      );
+      160deg,
+      oklch(0.9889 0.0053 17.247),
+      oklch(0.9714 0.0141 343.198) 40%,
+      oklch(0.9482 0.0276 342.258) 100%
+    );
     --theme-light-gradient-accent-pink: linear-gradient(
-        135deg,
-        oklch(0.949 0.0285 343.569) 0%,
-        oklch(0.8994 0.0589 343.231) 50%,
-        oklch(0.8228 0.1095 346.018) 100%
-      );
+      135deg,
+      oklch(0.949 0.0285 343.569) 0%,
+      oklch(0.8994 0.0589 343.231) 50%,
+      oklch(0.8228 0.1095 346.018) 100%
+    );
     --theme-light-gradient-accent-blue: linear-gradient(
-        135deg,
-        oklch(0.9514 0.025 236.824) 0%,
-        oklch(0.9014 0.0555 230.902) 50%,
-        oklch(0.8276 0.1013 230.318) 100%
-      );
+      135deg,
+      oklch(0.9514 0.025 236.824) 0%,
+      oklch(0.9014 0.0555 230.902) 50%,
+      oklch(0.8276 0.1013 230.318) 100%
+    );
     --theme-light-gradient-accent-peach: linear-gradient(
-        135deg,
-        oklch(0.9619 0.058 95.617) 0%,
-        oklch(0.9243 0.1151 95.746) 50%,
-        oklch(0.879 0.1534 91.605) 100%
-      );
+      135deg,
+      oklch(0.9619 0.058 95.617) 0%,
+      oklch(0.9243 0.1151 95.746) 50%,
+      oklch(0.879 0.1534 91.605) 100%
+    );
     --theme-light-gradient-accent-mint: linear-gradient(
-        135deg,
-        oklch(0.9505 0.0507 163.051) 0%,
-        oklch(0.9049 0.0895 164.15) 50%,
-        oklch(0.8452 0.1299 164.978) 100%
-      );
+      135deg,
+      oklch(0.9505 0.0507 163.051) 0%,
+      oklch(0.9049 0.0895 164.15) 50%,
+      oklch(0.8452 0.1299 164.978) 100%
+    );
     --theme-light-gradient-accent-lavender: linear-gradient(
-        135deg,
-        oklch(0.9433 0.0284 294.588) 0%,
-        oklch(0.8943 0.0549 293.283) 50%,
-        oklch(0.8112 0.1013 293.571) 100%
-      );
+      135deg,
+      oklch(0.9433 0.0284 294.588) 0%,
+      oklch(0.8943 0.0549 293.283) 50%,
+      oklch(0.8112 0.1013 293.571) 100%
+    );
     --theme-dark-color-bg: oklch(0.1558 0.0063 285.642);
     --theme-dark-color-bg-elevated: oklch(0.2015 0.0059 285.856);
     --theme-dark-color-bg-warm: oklch(0.179 0.0061 285.767);
@@ -349,95 +348,95 @@
     --theme-dark-shadow-nav-active: 0 1px 4px oklch(0 0 0 / 0.3);
     --theme-dark-shadow-pro-glow: 0 0 40px oklch(0.6504 0.1928 349.803 / 0.12);
     --theme-dark-gradient-hero: linear-gradient(
-        135deg,
-        oklch(0.179 0.0061 285.767),
-        oklch(0.1994 0.0298 309.973),
-        oklch(0.2255 0.0412 310.944)
-      );
+      135deg,
+      oklch(0.179 0.0061 285.767),
+      oklch(0.1994 0.0298 309.973),
+      oklch(0.2255 0.0412 310.944)
+    );
     --theme-dark-gradient-brand-subtle: linear-gradient(
-        135deg,
-        oklch(0.2762 0.0618 346.54),
-        oklch(0.2234 0.0453 345.399)
-      );
+      135deg,
+      oklch(0.2762 0.0618 346.54),
+      oklch(0.2234 0.0453 345.399)
+    );
     --theme-dark-gradient-header: linear-gradient(
-        135deg,
-        oklch(0.179 0.0061 285.767) 0%,
-        oklch(0.1994 0.0298 309.973) 50%,
-        oklch(0.2255 0.0412 310.944) 100%
-      );
+      135deg,
+      oklch(0.179 0.0061 285.767) 0%,
+      oklch(0.1994 0.0298 309.973) 50%,
+      oklch(0.2255 0.0412 310.944) 100%
+    );
     --theme-dark-gradient-placeholder: linear-gradient(
-        135deg,
-        oklch(0.2195 0.0077 285.745),
-        oklch(0.2536 0.0075 285.856)
-      );
+      135deg,
+      oklch(0.2195 0.0077 285.745),
+      oklch(0.2536 0.0075 285.856)
+    );
     --theme-dark-gradient-badge-priority: linear-gradient(
-        135deg,
-        oklch(0.2762 0.0618 346.54),
-        oklch(0.2234 0.0453 345.399)
-      );
+      135deg,
+      oklch(0.2762 0.0618 346.54),
+      oklch(0.2234 0.0453 345.399)
+    );
     --theme-dark-gradient-badge-visibility: linear-gradient(
-        135deg,
-        oklch(0.2234 0.0453 345.399),
-        oklch(0.2762 0.0618 346.54)
-      );
+      135deg,
+      oklch(0.2234 0.0453 345.399),
+      oklch(0.2762 0.0618 346.54)
+    );
     --theme-dark-gradient-badge-date: linear-gradient(
-        135deg,
-        oklch(0.2319 0.0352 264.526),
-        oklch(0.269 0.0529 266.154)
-      );
+      135deg,
+      oklch(0.2319 0.0352 264.526),
+      oklch(0.269 0.0529 266.154)
+    );
     --theme-dark-gradient-badge-reserved: linear-gradient(
-        135deg,
-        oklch(0.2319 0.0352 264.526),
-        oklch(0.269 0.0529 266.154)
-      );
+      135deg,
+      oklch(0.2319 0.0352 264.526),
+      oklch(0.269 0.0529 266.154)
+    );
     --theme-dark-gradient-pro: linear-gradient(
-        135deg,
-        oklch(0.6504 0.1928 349.803),
-        oklch(0.7253 0.1752 349.761),
-        oklch(0.8228 0.1095 346.018)
-      );
+      135deg,
+      oklch(0.6504 0.1928 349.803),
+      oklch(0.7253 0.1752 349.761),
+      oklch(0.8228 0.1095 346.018)
+    );
     --theme-dark-gradient-pro-bg: linear-gradient(
-        135deg,
-        oklch(0.2234 0.0453 345.399) 0%,
-        oklch(0.2762 0.0618 346.54) 50%,
-        oklch(0.2977 0.0838 348.7) 100%
-      );
+      135deg,
+      oklch(0.2234 0.0453 345.399) 0%,
+      oklch(0.2762 0.0618 346.54) 50%,
+      oklch(0.2977 0.0838 348.7) 100%
+    );
     --theme-dark-gradient-pro-card-bg: linear-gradient(
-        160deg,
-        oklch(0.1994 0.0298 309.973),
-        oklch(0.229 0.0334 312.333) 40%,
-        oklch(0.2383 0.0571 318.432) 100%
-      );
+      160deg,
+      oklch(0.1994 0.0298 309.973),
+      oklch(0.229 0.0334 312.333) 40%,
+      oklch(0.2383 0.0571 318.432) 100%
+    );
     --theme-dark-gradient-accent-pink: linear-gradient(
-        135deg,
-        oklch(0.2762 0.0618 346.54) 0%,
-        oklch(0.2977 0.0838 348.7) 50%,
-        oklch(0.3191 0.1069 343.667) 100%
-      );
+      135deg,
+      oklch(0.2762 0.0618 346.54) 0%,
+      oklch(0.2977 0.0838 348.7) 50%,
+      oklch(0.3191 0.1069 343.667) 100%
+    );
     --theme-dark-gradient-accent-blue: linear-gradient(
-        135deg,
-        oklch(0.2407 0.0353 255.879) 0%,
-        oklch(0.2934 0.0507 254.886) 50%,
-        oklch(0.3429 0.062 253.1) 100%
-      );
+      135deg,
+      oklch(0.2407 0.0353 255.879) 0%,
+      oklch(0.2934 0.0507 254.886) 50%,
+      oklch(0.3429 0.062 253.1) 100%
+    );
     --theme-dark-gradient-accent-peach: linear-gradient(
-        135deg,
-        oklch(0.2679 0.0362 89.032) 0%,
-        oklch(0.3132 0.0442 89.418) 50%,
-        oklch(0.3522 0.0504 90.719) 100%
-      );
+      135deg,
+      oklch(0.2679 0.0362 89.032) 0%,
+      oklch(0.3132 0.0442 89.418) 50%,
+      oklch(0.3522 0.0504 90.719) 100%
+    );
     --theme-dark-gradient-accent-mint: linear-gradient(
-        135deg,
-        oklch(0.2584 0.0451 155.42) 0%,
-        oklch(0.2974 0.0547 153.54) 50%,
-        oklch(0.3361 0.061 153.793) 100%
-      );
+      135deg,
+      oklch(0.2584 0.0451 155.42) 0%,
+      oklch(0.2974 0.0547 153.54) 50%,
+      oklch(0.3361 0.061 153.793) 100%
+    );
     --theme-dark-gradient-accent-lavender: linear-gradient(
-        135deg,
-        oklch(0.234 0.0419 291.155) 0%,
-        oklch(0.2665 0.0584 288.974) 50%,
-        oklch(0.3048 0.0705 288.376) 100%
-      );
+      135deg,
+      oklch(0.234 0.0419 291.155) 0%,
+      oklch(0.2665 0.0584 288.974) 50%,
+      oklch(0.3048 0.0705 288.376) 100%
+    );
 
     @variant light {
       --color-bg: var(--theme-light-color-bg);

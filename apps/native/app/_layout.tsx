@@ -2,13 +2,8 @@ import "@/polyfills/gtIntlPolyfills";
 import "@/global.css";
 
 import { useSettings } from "@/hooks/use-settings";
-import {
-  getNativeThemeNameForPreference,
-  getNavigationTheme,
-  getThemeMode,
-} from "@/lib/theme";
+import { getNativeThemeNameForPreference, getNavigationTheme, getThemeMode } from "@/lib/theme";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
-import { SignInScreen } from "@/screens/sign-in-screen";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { createTrueSheetNavigator } from "@lodev09/react-native-true-sheet/navigation";
@@ -95,14 +90,11 @@ function AuthGate() {
     );
   }
 
-  if (!session) {
-    return <SignInScreen />;
-  }
-
   return (
     <>
-      <NativeThemeSync />
-      <TrueSheetNavigator initialRouteName="(tabs)">
+      {session ? <NativeThemeSync /> : null}
+      <TrueSheetNavigator initialRouteName={session ? "(tabs)" : "sign-in"}>
+        <TrueSheetNavigator.Screen name="sign-in" />
         <TrueSheetNavigator.Screen name="(tabs)" />
       </TrueSheetNavigator>
     </>
