@@ -3,7 +3,6 @@ import "@/global.css";
 
 import { useSettings } from "@/hooks/use-settings";
 import {
-  getNativeAccentForWishlistAccent,
   getNativeThemeNameForPreference,
   getNavigationTheme,
   getThemeMode,
@@ -116,14 +115,7 @@ function NativeThemeSync() {
   const defaultAccent = settings?.default_accent ?? DEFAULT_SETTINGS.default_accent;
 
   useEffect(() => {
-    const nativeAccent = getNativeAccentForWishlistAccent(defaultAccent);
-
     function applyTheme(systemColorScheme: string | null | undefined) {
-      if (themePreference === "system" && nativeAccent === "pink") {
-        Uniwind.setTheme("system");
-        return;
-      }
-
       Uniwind.setTheme(
         getNativeThemeNameForPreference(themePreference, defaultAccent, systemColorScheme),
       );
