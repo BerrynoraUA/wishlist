@@ -9,12 +9,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
+import { LinearGradient } from "@/components/ui/linear-gradient";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { useMyStatistics } from "@/hooks/use-wishlists";
 import { chunkRows } from "@/lib/layout";
 import { getThemeMode } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 import {
   WISHLIST_VISIBILITY_ICONS,
   getWishlistAccentGradientColors,
@@ -24,8 +27,6 @@ import { AddCard } from "@/components/wishlists/add-card";
 import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import type { TriggerRef } from "@rn-primitives/dropdown-menu";
-import { FlashList } from "@shopify/flash-list";
-import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
 import {
   ChevronLeft,
@@ -40,7 +41,7 @@ import {
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { StyleSheet, View, useWindowDimensions } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUniwind } from "uniwind";
@@ -113,10 +114,13 @@ export function WishlistList({
     ({ item, target }: { item: WishlistListRow; target: string }) =>
       "type" in item ? (
         <View
-          className={target === "StickyHeader" ? "bg-bg" : "bg-transparent"}
-          style={[wishlistListStyles.stickyHeader, { paddingTop: insets.top + 16 }]}
+          className={cn(
+            "z-[2] pb-4",
+            target === "StickyHeader" ? "bg-bg" : "bg-transparent",
+          )}
+          style={{ paddingTop: insets.top + 16 }}
         >
-          <View style={[wishlistListStyles.stickyHeaderContent, { width: contentWidth }]}>
+          <View className="max-w-[1200px] self-center" style={{ width: contentWidth }}>
             {StickyHeaderComponent}
           </View>
         </View>
@@ -177,18 +181,17 @@ export function WishlistList({
   );
 
   return (
-    <FlashList
+    <StyledFlashList
       data={data}
       renderItem={renderRow}
       keyExtractor={(row) => ("type" in row ? row.id : row.map((entry) => entry.id).join(":"))}
       contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={[
-        wishlistListStyles.content,
-        { paddingTop: insets.top + wishlistListStyles.content.paddingTop },
-      ]}
+      className="flex-1"
+      contentContainerClassName="pb-8"
+      contentContainerStyle={{ paddingTop: insets.top + 24 }}
       ItemSeparatorComponent={RowSeparator}
       ListHeaderComponent={
-        <View style={[wishlistListStyles.header, { width: contentWidth }]}>
+        <View className="mb-0 max-w-[1200px] self-center" style={{ width: contentWidth }}>
           {ListHeaderComponent}
         </View>
       }
@@ -223,7 +226,6 @@ export function WishlistList({
         StickyHeaderComponent,
       }}
       stickyHeaderIndices={[0]}
-      style={wishlistListStyles.list}
     />
   );
 }
@@ -307,7 +309,7 @@ function RowSeparator({ leadingItem }: { leadingItem?: WishlistListRow }) {
     return null;
   }
 
-  return <View style={wishlistListStyles.rowSeparator} />;
+  return <View className="h-4" />;
 }
 
 function WishlistCard({
@@ -357,7 +359,7 @@ function WishlistCard({
                 colors={accentGradientColors}
                 end={{ x: 1, y: 1 }}
                 start={{ x: 0, y: 0 }}
-                style={StyleSheet.absoluteFill}
+                className="absolute inset-0"
               />
               {wishlist.image_url ? (
                 <StyledImage
@@ -486,30 +488,3 @@ function PaginationControls({
     </View>
   );
 }
-
-const wishlistListStyles = StyleSheet.create({
-  list: {
-    flex: 1,
-  },
-  content: {
-    paddingBottom: 32,
-    paddingTop: 24,
-  },
-  header: {
-    alignSelf: "center",
-    maxWidth: 1200,
-    marginBottom: 0,
-    width: "100%",
-  },
-  stickyHeader: {
-    paddingBottom: 16,
-    zIndex: 2,
-  },
-  stickyHeaderContent: {
-    alignSelf: "center",
-    maxWidth: 1200,
-  },
-  rowSeparator: {
-    height: 16,
-  },
-});

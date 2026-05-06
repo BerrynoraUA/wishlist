@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import * as SelectPrimitive from "@rn-primitives/select";
 import { Check, ChevronDown } from "lucide-react-native";
 import * as React from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { Platform, View } from "react-native";
 import { FadeIn, FadeOut } from "react-native-reanimated";
 import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
@@ -79,7 +79,7 @@ function SelectContent({
   return (
     <SelectPrimitive.Portal hostName={portalHost}>
       <FullWindowOverlay>
-        <SelectPrimitive.Overlay style={StyleSheet.absoluteFill}>
+        <SelectPrimitive.Overlay className="absolute inset-0">
           <TextClassContext.Provider value="text-text">
             <NativeOnlyAnimatedView
               className="z-50"

@@ -11,7 +11,6 @@ import {
   Platform,
   Pressable,
   type StyleProp,
-  StyleSheet,
   Text,
   View,
   type ViewStyle,
@@ -52,7 +51,7 @@ function Menubar({
     <>
       {value || valueProp ? (
         <Portal name={`menubar-overlay-${id}`}>
-          <Pressable onPress={closeMenu} style={StyleSheet.absoluteFill} />
+          <Pressable onPress={closeMenu} className="absolute inset-0" />
         </Portal>
       ) : null}
       <MenubarPrimitive.Root
@@ -166,7 +165,7 @@ function MenubarContent({
       <FullWindowOverlay>
         <NativeOnlyAnimatedView
           entering={FadeIn.duration(motionDuration.normal)}
-          style={StyleSheet.absoluteFill}
+          className="absolute inset-0"
           pointerEvents="box-none"
         >
           <TextClassContext.Provider value="text-popover-foreground">

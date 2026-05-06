@@ -18,6 +18,7 @@ import {
   getWishlistAccentGradientColors,
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
+import { LinearGradient } from "@/components/ui/linear-gradient";
 import type { Wishlist, WishlistVisibility } from "@wishlist/backend/types/wishlist";
 import DateTimePicker, {
   DateTimePickerAndroid,
@@ -33,11 +34,10 @@ import {
   Trash2,
   X,
 } from "lucide-react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import { useUniwind } from "uniwind";
 
 type HeaderInlineFormValues = {
@@ -177,7 +177,7 @@ export function WishlistItemHeader({
                 colors={accentGradientColors}
                 end={{ x: 1, y: 1 }}
                 start={{ x: 0, y: 0 }}
-                style={StyleSheet.absoluteFill}
+                className="absolute inset-0"
               />
               {wishlist.image_url ? (
                 <StyledImage

@@ -1,6 +1,6 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { ReactElement, useEffect, useState } from "react";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { LinearGradient } from "@/components/ui/linear-gradient";
 import { ActivityIndicator, View } from "react-native";
 import Animated, {
   cancelAnimation,

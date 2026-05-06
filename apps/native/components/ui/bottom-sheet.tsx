@@ -14,7 +14,6 @@ import {
 import {
   Keyboard,
   Platform,
-  StyleSheet,
   View,
   type ColorValue,
   type GestureResponderEvent,
@@ -161,10 +160,10 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         cornerRadius={cornerRadius}
         header={header}
         footer={footerWithMeasure}
-        footerStyle={StyleSheet.flatten([
+        footerStyle={[
           footerStyle,
           calculatedFooterPadding !== undefined && { paddingBottom: calculatedFooterPadding },
-        ])}
+        ]}
         backgroundColor={backgroundColor ?? sheetBackground}
         grabberOptions={{
           color: grabberColor,

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import * as DropdownMenuPrimitive from "@rn-primitives/dropdown-menu";
 import { Check, ChevronDown, ChevronUp } from "lucide-react-native";
 import * as React from "react";
-import { Platform, type StyleProp, StyleSheet, Text, View, type ViewStyle } from "react-native";
+import { Platform, type StyleProp, Text, View, type ViewStyle } from "react-native";
 import { FadeIn } from "react-native-reanimated";
 import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
@@ -92,15 +92,8 @@ function DropdownMenuContent({
     <DropdownMenuPrimitive.Portal hostName={portalHost}>
       <FullWindowOverlay>
         <DropdownMenuPrimitive.Overlay
-          style={
-            overlayStyle
-              ? StyleSheet.flatten([
-                  StyleSheet.absoluteFill,
-                  overlayStyle as typeof StyleSheet.absoluteFill,
-                ])
-              : StyleSheet.absoluteFill
-          }
-          className={overlayClassName}
+          className={cn("absolute inset-0", overlayClassName)}
+          style={overlayStyle}
         >
           <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
             <TextClassContext.Provider value="text-popover-foreground">

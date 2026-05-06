@@ -4,7 +4,7 @@ import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as TooltipPrimitive from "@rn-primitives/tooltip";
 import * as React from "react";
-import { Platform, StyleSheet } from "react-native";
+import { Platform } from "react-native";
 import { FadeInDown, FadeInUp, FadeOut } from "react-native-reanimated";
 import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
@@ -26,7 +26,7 @@ function TooltipContent({
   return (
     <TooltipPrimitive.Portal hostName={portalHost}>
       <FullWindowOverlay>
-        <TooltipPrimitive.Overlay style={StyleSheet.absoluteFill}>
+        <TooltipPrimitive.Overlay className="absolute inset-0">
           <NativeOnlyAnimatedView
             entering={
               side === "top"
