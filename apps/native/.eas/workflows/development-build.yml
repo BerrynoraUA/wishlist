@@ -1,0 +1,49 @@
+name: Native Development Build
+
+on:
+  push:
+    branches:
+      - dev
+
+concurrency:
+  cancel_in_progress: true
+  group: ${{ workflow.filename }}-${{ github.ref }}
+
+jobs:
+  build_android:
+    name: Build Android Development
+    type: build
+    environment: development
+    params:
+      platform: android
+      profile: development
+      message: Development build from ${{ github.ref_name }}
+
+  # build_ios:
+  #   name: Build iOS Development
+  #   type: build
+  #   environment: development
+  #   params:
+  #     platform: ios
+  #     profile: development
+  #     message: Development build from ${{ github.ref_name }}
+
+  publish_android_update:
+    name: Publish Android Development Update
+    needs: [build_android]
+    type: update
+    environment: development
+    params:
+      platform: android
+      channel: development
+      message: Development update from ${{ github.ref_name }}
+
+  # publish_ios_update:
+  #   name: Publish iOS Development Update
+  #   needs: [build_ios]
+  #   type: update
+  #   environment: development
+  #   params:
+  #     platform: ios
+  #     channel: development
+  #     message: Development update from ${{ github.ref_name }}
