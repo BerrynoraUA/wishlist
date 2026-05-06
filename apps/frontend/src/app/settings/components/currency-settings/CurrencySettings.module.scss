@@ -16,10 +16,8 @@
   &:hover:not(:disabled) {
     border-color: var(--brand-alpha-25);
     background:
-      linear-gradient(var(--color-bg-elevated), var(--color-bg-elevated))
-        padding-box,
-      linear-gradient(135deg, var(--brand-alpha-25), transparent 55%)
-        border-box;
+      linear-gradient(var(--color-bg-elevated), var(--color-bg-elevated)) padding-box,
+      linear-gradient(135deg, var(--brand-alpha-25), transparent 55%) border-box;
   }
 }
 

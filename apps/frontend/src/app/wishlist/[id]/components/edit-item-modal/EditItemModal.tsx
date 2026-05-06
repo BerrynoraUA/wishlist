@@ -22,11 +22,7 @@ import { validateImageUploadFile } from "@/lib/image-upload";
 import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import { ALL_PRIORITIES } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
-import {
-  isStarCardColorIndex,
-  ITEM_COLORS,
-  STAR_CARD_COLOR_INDEX,
-} from "@/lib/item-colors";
+import { isStarCardColorIndex, ITEM_COLORS, STAR_CARD_COLOR_INDEX } from "@/lib/item-colors";
 import styles from "../create-item-modal/CreateItemModal.module.scss";
 
 type Props = {
@@ -155,12 +151,8 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
   const [name, setName] = useState(item.name ?? "");
   const [description, setDescription] = useState(item.description ?? "");
   const [price, setPrice] = useState(item.price ?? "");
-  const [priority, setPriority] = useState<string | null>(
-    item.priority_id ?? null,
-  );
-  const [colorIndex, setColorIndex] = useState<number | null>(
-    item.color_index ?? null,
-  );
+  const [priority, setPriority] = useState<string | null>(item.priority_id ?? null);
+  const [colorIndex, setColorIndex] = useState<number | null>(item.color_index ?? null);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [link, setLink] = useState(item.url ?? "");
   const [additionalLinks, setAdditionalLinks] = useState<ItemLink[]>(item.additional_links ?? []);
@@ -450,10 +442,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
           };
 
           const isEmpty =
-            !product.title &&
-            !product.description &&
-            !product.image &&
-            !product.price;
+            !product.title && !product.description && !product.image && !product.price;
 
           if (isEmpty) {
             setError(
@@ -477,10 +466,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
             setImagePreview(product.image);
           }
         } else {
-          setError(
-            data?.error ||
-              t("Error loading product", { $id: "item.modal.scrapeError" }),
-          );
+          setError(data?.error || t("Error loading product", { $id: "item.modal.scrapeError" }));
         }
       } catch {
         if (requestId === scrapeRequestIdRef.current) {
@@ -577,10 +563,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
               disabled={!link.trim() && !loading}
             >
               {loading ? (
-                <Loader2
-                  size={16}
-                  style={{ animation: "spin 0.8s linear infinite" }}
-                />
+                <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
               ) : (
                 t("Clear", { $id: "common.clear" })
               )}
@@ -742,9 +725,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
             <div
               className={`${styles.field} ${isDraftRestored && restoredFields.priority ? styles.draftField : ""}`.trim()}
             >
-              <label>
-                {t("Priority", { $id: "item.modal.priorityLabel" })}
-              </label>
+              <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
               <Select
                 value={priority ?? ""}
                 onChange={(v) => setPriority(v || null)}
@@ -761,16 +742,12 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
           <div
             className={`${styles.field} ${styles.compactColorField}`}
             onBlur={(event) => {
-              if (
-                !event.currentTarget.contains(event.relatedTarget as Node | null)
-              ) {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
                 setColorPickerOpen(false);
               }
             }}
           >
-            <label>
-              {t("Card Color", { $id: "item.modal.colorLabelShort" })}
-            </label>
+            <label>{t("Card Color", { $id: "item.modal.colorLabelShort" })}</label>
             <button
               type="button"
               className={styles.colorTrigger}
@@ -781,7 +758,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
                       ? "var(--color-border-light)"
                       : isStarCardColorIndex(colorIndex)
                         ? "var(--color-brand)"
-                      : ITEM_COLORS[colorIndex]?.color,
+                        : ITEM_COLORS[colorIndex]?.color,
                 } as React.CSSProperties
               }
               onClick={() => setColorPickerOpen((value) => !value)}
@@ -792,9 +769,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
               })}
             >
               <span className={styles.colorTriggerSwatch}>
-                {isStarCardColorIndex(colorIndex) && (
-                  <Star size={12} fill="currentColor" />
-                )}
+                {isStarCardColorIndex(colorIndex) && <Star size={12} fill="currentColor" />}
               </span>
             </button>
 

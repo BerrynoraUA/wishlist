@@ -1,6 +1,6 @@
 import { InlineState } from "@/components/shared/inline-state";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
+
 import { Text } from "@/components/ui/text";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
 import { WishlistItemDetailSheet } from "@/components/wishlist-details/sheets/wishlist-item-detail-sheet";

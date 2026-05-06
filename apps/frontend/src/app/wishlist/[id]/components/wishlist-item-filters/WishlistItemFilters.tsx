@@ -62,9 +62,7 @@ export function WishlistItemFilters({ wishlistId }: Props) {
 
         return {
           ...option,
-          label: (
-            <span className={styles.priorityFilterName}>{priority.name}</span>
-          ),
+          label: <span className={styles.priorityFilterName}>{priority.name}</span>,
           icon: (
             <span
               className={styles.priorityFilterIcon}

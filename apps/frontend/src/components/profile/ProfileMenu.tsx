@@ -63,8 +63,7 @@ export function ProfileMenu({ onOpen }: Props) {
   const [languageListOpen, setLanguageListOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [switchingUserId, setSwitchingUserId] = useState<string | null>(null);
-  const [accountPendingRemoval, setAccountPendingRemoval] =
-    useState<KnownAccount | null>(null);
+  const [accountPendingRemoval, setAccountPendingRemoval] = useState<KnownAccount | null>(null);
 
   const { accounts, removeAccount } = useKnownAccounts();
 
@@ -88,13 +87,7 @@ export function ProfileMenu({ onOpen }: Props) {
       displayName: profile?.display_name ?? profile?.nickname ?? null,
       avatarUrl: profile?.avatar_url ?? null,
     });
-  }, [
-    userId,
-    userEmail,
-    profile?.display_name,
-    profile?.nickname,
-    profile?.avatar_url,
-  ]);
+  }, [userId, userEmail, profile?.display_name, profile?.nickname, profile?.avatar_url]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -183,11 +176,7 @@ export function ProfileMenu({ onOpen }: Props) {
 
   return (
     <div className={styles.profile} ref={ref}>
-      <button
-        type="button"
-        className={styles.avatarButton}
-        onClick={toggleOpen}
-      >
+      <button type="button" className={styles.avatarButton} onClick={toggleOpen}>
         {avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -238,13 +227,9 @@ export function ProfileMenu({ onOpen }: Props) {
             </div>
             <div className={styles.profileMeta}>
               <span className={styles.profileName}>
-                {profile?.display_name ||
-                  t("Account", { $id: "profile.account" })}
+                {profile?.display_name || t("Account", { $id: "profile.account" })}
               </span>
-              <span
-                className={styles.profileEmail}
-                title={userEmail || undefined}
-              >
+              <span className={styles.profileEmail} title={userEmail || undefined}>
                 {userEmail || t("Signed in", { $id: "profile.signedIn" })}
               </span>
             </div>
@@ -305,9 +290,7 @@ export function ProfileMenu({ onOpen }: Props) {
                           aria-hidden
                           data-selected={selected}
                         >
-                          {selected ? (
-                            <Check size={12} strokeWidth={3} />
-                          ) : null}
+                          {selected ? <Check size={12} strokeWidth={3} /> : null}
                         </span>
                         <span>{LOCALE_LABELS[code] ?? code}</span>
                       </button>
@@ -342,9 +325,7 @@ export function ProfileMenu({ onOpen }: Props) {
             }}
           >
             <Lightbulb size={16} />
-            <span>
-              {t("Request a Feature", { $id: "profile.requestFeature" })}
-            </span>
+            <span>{t("Request a Feature", { $id: "profile.requestFeature" })}</span>
           </button>
 
           <button
@@ -365,15 +346,8 @@ export function ProfileMenu({ onOpen }: Props) {
             </div>
             <ul className={styles.accountsList}>
               {otherAccounts.map((account) => {
-                const label =
-                  account.displayName?.trim() ||
-                  account.email ||
-                  account.userId;
-                const initial = (
-                  account.displayName?.trim() ||
-                  account.email ||
-                  "?"
-                )
+                const label = account.displayName?.trim() || account.email || account.userId;
+                const initial = (account.displayName?.trim() || account.email || "?")
                   .charAt(0)
                   .toUpperCase();
                 const isSwitching = switchingUserId === account.userId;
@@ -396,23 +370,17 @@ export function ProfileMenu({ onOpen }: Props) {
                             src={account.avatarUrl}
                             alt=""
                             onError={(e) => {
-                              (
-                                e.currentTarget as HTMLImageElement
-                              ).style.display = "none";
+                              (e.currentTarget as HTMLImageElement).style.display = "none";
                             }}
                           />
                         ) : (
-                          <span className={styles.accountInitial}>
-                            {initial}
-                          </span>
+                          <span className={styles.accountInitial}>{initial}</span>
                         )}
                       </span>
                       <span className={styles.accountMeta}>
                         <span className={styles.accountName}>{label}</span>
                         {account.email && account.email !== label && (
-                          <span className={styles.accountEmail}>
-                            {account.email}
-                          </span>
+                          <span className={styles.accountEmail}>{account.email}</span>
                         )}
                         {isSwitching && (
                           <span className={styles.accountEmail}>
