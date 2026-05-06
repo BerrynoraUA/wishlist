@@ -1,5 +1,6 @@
 import type { ItemActionConfirmType } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
 import type { ItemLink } from "@/types/item";
+import { ALL_PRIORITIES } from "@/lib/priorities";
 
 export type ItemCardPriorityKey = "low" | "medium" | "high";
 export type ItemCardPriority = string | null;
@@ -50,6 +51,23 @@ type SaveItemInput = {
   currency?: string | null;
   additionalLinks?: ItemLink[] | null;
 };
+
+export function resolveItemPriorityId(
+  priority: string | null | undefined,
+): string | null {
+  if (priority == null) return null;
+
+  const normalized = priority.trim();
+  if (!normalized) return null;
+
+  const priorityMeta = ALL_PRIORITIES.find(
+    (item) =>
+      item.id === normalized ||
+      item.name.toLowerCase() === normalized.toLowerCase(),
+  );
+
+  return priorityMeta?.id ?? normalized;
+}
 
 export function getReservedByValue(value: unknown): string | null {
   if (value == null) return null;
@@ -255,7 +273,7 @@ export function buildSaveItemData({
     price: price != null ? String(price) : null,
     image_url: imageUrl,
     url,
-    priority_id,
+    priority_id: resolveItemPriorityId(priority_id),
     discount_price: discountPrice != null ? String(discountPrice) : null,
     has_discount: hasDiscount || discountPrice != null,
     discount_end_date: discountEndDate,

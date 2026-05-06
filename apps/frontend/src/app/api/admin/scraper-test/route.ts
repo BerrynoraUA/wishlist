@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@wishlist/backend/supabase/server";
-import { scrapeProduct } from "@/app/api/server/scrape-product/route";
+import { scrapeProduct } from "@/app/api/server/scrape-product/scraper";
 
 export const maxDuration = 300;
 

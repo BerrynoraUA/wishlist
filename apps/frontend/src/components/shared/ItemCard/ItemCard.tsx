@@ -13,7 +13,7 @@ import {
 } from "@/lib/helpers/item-card";
 import { ALL_PRIORITIES } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
-import { ITEM_COLORS } from "@/lib/item-colors";
+import { isStarCardColorIndex, ITEM_COLORS } from "@/lib/item-colors";
 import type { LucideIcon } from "lucide-react";
 import type { ItemCardProps } from "./types";
 import { CardImage } from "./components/CardImage";
@@ -78,6 +78,7 @@ export function ItemCard({
     colorIndex < ITEM_COLORS.length
       ? ITEM_COLORS[colorIndex].color
       : null;
+  const hasStarAccent = isStarCardColorIndex(colorIndex);
 
   const formattedPrice = formatPrice(price, currency);
   const salePercentOff = getSalePercentOff(price, discountPrice, showDiscountBadge);
@@ -155,6 +156,7 @@ export function ItemCard({
               VARIANT_CLASS[variant],
               isPurchasedMode && styles.cardPurchased,
               accentColor && styles.cardColored,
+              hasStarAccent && styles.cardStarAccent,
             )}
             style={
               accentColor

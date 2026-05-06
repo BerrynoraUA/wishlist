@@ -108,10 +108,13 @@ export function getDetailedCurrencyOptions(t: TFn): FormSelectOption<string>[] {
   });
 }
 
-export function getCompactCurrencyOptions(): FormSelectOption<string>[] {
+export function getCompactCurrencyOptions(
+  display: "symbol-code" | "code" = "symbol-code",
+): FormSelectOption<string>[] {
   return SUPPORTED_CURRENCIES.map((currency) => ({
     value: currency.code,
-    label: `${currency.symbol} ${currency.code}`,
+    label:
+      display === "code" ? currency.code : `${currency.symbol} ${currency.code}`,
   }));
 }
 
