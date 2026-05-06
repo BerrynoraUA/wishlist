@@ -9,7 +9,6 @@ import {
   Crown,
   DollarSign,
   MoreHorizontal,
-  Pencil,
   TreePine,
   Upload,
   Users,
@@ -22,6 +21,7 @@ import { Button } from "@/components/ui/Button/Button";
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
 import { useUpdateSecretSantaEvent } from "@/hooks/use-secret-santa";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
+import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 
 type Props = {
   event: SecretSantaDetails;
@@ -47,7 +47,9 @@ export function SecretSantaDetailHero({
   const t = useGT();
   const locale = useLocale();
   const [isInlineEditing, setIsInlineEditing] = useState(false);
+  const [isBudgetEditing, setIsBudgetEditing] = useState(false);
   const [titleDraft, setTitleDraft] = useState(event.name);
+  const [budgetDraft, setBudgetDraft] = useState(String(event.budget));
   const [imagePreview, setImagePreview] = useState(event.image_url ?? "");
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
@@ -61,6 +63,12 @@ export function SecretSantaDetailHero({
       setTitleDraft(event.name);
     }
   }, [event.name, isInlineEditing]);
+
+  useEffect(() => {
+    if (!isBudgetEditing) {
+      setBudgetDraft(String(event.budget));
+    }
+  }, [event.budget, isBudgetEditing]);
 
   useEffect(() => {
     if (!imageObjectUrl) {
@@ -101,6 +109,31 @@ export function SecretSantaDetailHero({
     );
   }
 
+  function cancelBudgetEditing() {
+    setIsBudgetEditing(false);
+    setBudgetDraft(String(event.budget));
+  }
+
+  function saveInlineBudget() {
+    const nextBudget = Number(budgetDraft.trim());
+    if (!Number.isFinite(nextBudget) || nextBudget < 0 || updateEvent.isPending) return;
+
+    if (nextBudget === event.budget) {
+      setIsBudgetEditing(false);
+      return;
+    }
+
+    updateEvent.mutate(
+      {
+        eventId: event.id,
+        updates: { budget: nextBudget },
+      },
+      {
+        onSuccess: () => setIsBudgetEditing(false),
+      },
+    );
+  }
+
   function handleTitleKeyDown(eventKey: React.KeyboardEvent<HTMLInputElement>) {
     if (eventKey.key === "Enter") {
       eventKey.preventDefault();
@@ -110,6 +143,18 @@ export function SecretSantaDetailHero({
     if (eventKey.key === "Escape") {
       eventKey.preventDefault();
       cancelInlineEditing();
+    }
+  }
+
+  function handleBudgetKeyDown(eventKey: React.KeyboardEvent<HTMLInputElement>) {
+    if (eventKey.key === "Enter") {
+      eventKey.preventDefault();
+      saveInlineBudget();
+    }
+
+    if (eventKey.key === "Escape") {
+      eventKey.preventDefault();
+      cancelBudgetEditing();
     }
   }
 
@@ -154,6 +199,15 @@ export function SecretSantaDetailHero({
     handleImageSelection(eventDrop.dataTransfer.files?.[0] ?? null);
   }
 
+  function handleDateChange(nextDate: string) {
+    if (!nextDate || nextDate === event.event_date || updateEvent.isPending) return;
+
+    updateEvent.mutate({
+      eventId: event.id,
+      updates: { event_date: nextDate },
+    });
+  }
+
   return (
     <section className={styles.hero}>
       {isOwner && (
@@ -174,14 +228,20 @@ export function SecretSantaDetailHero({
             }
             title={
               copied
-                ? t("Copied", { $id: "secretSanta.hero.title.copied" })
+                ? t("Invite link copied", {
+                    $id: "secretSanta.hero.title.linkCopied",
+                  })
                 : t("Copy invite link", {
                     $id: "secretSanta.hero.title.copyLink",
                   })
             }
           >
             {copied ? <Check size={15} /> : <UserPlus size={15} />}
-            <span>{copied ? "Copied" : "Invite Friends"}</span>
+            <span>
+              {copied
+                ? t("Copied", { $id: "secretSanta.hero.copied" })
+                : t("Invite Friends", { $id: "secretSanta.hero.inviteFriends" })}
+            </span>
           </Button>
 
           {showMenu && (
@@ -243,7 +303,6 @@ export function SecretSantaDetailHero({
             <span className={styles.heroUploadTitle}>
               {updateEvent.isPending ? "Uploading cover..." : "Upload cover"}
             </span>
-            <span className={styles.heroUploadHint}>Drag and drop or click to choose an image</span>
           </label>
         ) : (
           <TreePine size={52} className={styles.heroIcon} />
@@ -253,17 +312,84 @@ export function SecretSantaDetailHero({
 
       <div className={styles.heroContent}>
         <div className={styles.badges}>
-          <span className={styles.badge}>
-            <CalendarDays size={14} />
-            {formatEventDate(event.event_date, locale ?? "en")}
-          </span>
-          <span className={styles.badge}>
-            <DollarSign size={14} />
-            {t("Budget {amount}", {
-              amount: formatPrice(event.budget, event.currency),
-              $id: "secretSanta.hero.budgetBadge",
-            })}
-          </span>
+          {isOwner ? (
+            <DatePickerField
+              value={event.event_date}
+              onChange={handleDateChange}
+              allowClear={false}
+              disabled={updateEvent.isPending}
+              showCloseButton={false}
+              className={styles.datePickerBadgeWrap}
+              triggerClassName={styles.datePickerBadge}
+              calendarClassName={styles.datePickerCalendar}
+            />
+          ) : (
+            <span className={styles.badge}>
+              <CalendarDays size={14} />
+              {formatEventDate(event.event_date, locale ?? "en")}
+            </span>
+          )}
+          {isOwner && isBudgetEditing ? (
+            <div className={styles.inlineBudgetBadge}>
+              <DollarSign size={14} />
+              <input
+                className={styles.inlineBudgetInput}
+                value={budgetDraft}
+                onChange={(eventBudget) => setBudgetDraft(eventBudget.target.value)}
+                onKeyDown={handleBudgetKeyDown}
+                inputMode="decimal"
+                autoFocus
+                disabled={updateEvent.isPending}
+                aria-label={t("Budget", { $id: "secretSanta.hero.budgetInputAria" })}
+              />
+              {event.currency ? <span className={styles.inlineBudgetCurrency}>{event.currency}</span> : null}
+              <button
+                type="button"
+                className={`${styles.inlineActionButton} ${styles.inlineCancelButton} ${styles.inlineBudgetAction}`}
+                onClick={cancelBudgetEditing}
+                disabled={updateEvent.isPending}
+                aria-label={t("Cancel budget editing", {
+                  $id: "secretSanta.hero.cancelBudgetEditing",
+                })}
+              >
+                <X size={12} />
+              </button>
+              <button
+                type="button"
+                className={`${styles.inlineActionButton} ${styles.inlineSaveButton} ${styles.inlineBudgetAction}`}
+                onClick={saveInlineBudget}
+                disabled={!budgetDraft.trim() || updateEvent.isPending}
+                aria-label={t("Save budget", {
+                  $id: "secretSanta.hero.saveBudget",
+                })}
+              >
+                <Check size={12} />
+              </button>
+            </div>
+          ) : (
+            <div className={styles.tooltipTrigger}>
+              <span
+                className={`${styles.badge} ${isOwner ? styles.inlineBudgetTrigger : ""}`}
+                onDoubleClick={isOwner ? () => setIsBudgetEditing(true) : undefined}
+              >
+                <DollarSign size={14} />
+                {t("Budget {amount}", {
+                  amount: formatPrice(event.budget, event.currency),
+                  $id: "secretSanta.hero.budgetBadge",
+                })}
+              </span>
+              {isOwner ? (
+                <div className={styles.textTooltip} role="tooltip">
+                  <div className={styles.textTooltipArrow} />
+                  <span>
+                    {t("Double-click to edit", {
+                      $id: "secretSanta.hero.budget.doubleClickEdit",
+                    })}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+          )}
           <span className={styles.badge}>
             <Users size={14} />
             {t("{count} people", {
@@ -309,18 +435,19 @@ export function SecretSantaDetailHero({
               </div>
             ) : (
               <>
-                <h1>{event.name}</h1>
-                {isOwner && (
-                  <button
-                    type="button"
-                    className={styles.inlineEditTrigger}
-                    onClick={() => setIsInlineEditing(true)}
-                    aria-label="Inline edit event title"
-                    title="Edit title"
-                  >
-                    <Pencil size={14} />
-                  </button>
-                )}
+                <h1
+                  className={isOwner ? styles.inlineTitleHeading : undefined}
+                  onDoubleClick={isOwner ? () => setIsInlineEditing(true) : undefined}
+                  title={
+                    isOwner
+                      ? t("Double-click to edit", {
+                          $id: "secretSanta.hero.title.doubleClickEdit",
+                        })
+                      : undefined
+                  }
+                >
+                  {event.name}
+                </h1>
               </>
             )}
             {isOwner && (
@@ -332,17 +459,6 @@ export function SecretSantaDetailHero({
               </span>
             )}
           </div>
-          <p>
-            {isOwner
-              ? t(
-                  "Track accepted participants, monitor pending invites, and get this exchange ready to launch.",
-                  { $id: "secretSanta.hero.descriptionOwner" },
-                )
-              : t(
-                  "See who joined the event, check the budget and date, and watch for your assigned receiver.",
-                  { $id: "secretSanta.hero.descriptionGuest" },
-                )}
-          </p>
         </div>
 
         <div className={styles.summaryGrid}>

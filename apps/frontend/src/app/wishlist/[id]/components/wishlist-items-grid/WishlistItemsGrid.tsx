@@ -6,7 +6,6 @@ import { WishlistItemDetailModal } from "../wishlist-item-detail-modal/WishlistI
 import { Item } from "@/types/item";
 import { useProfilesByIds } from "@/hooks/use-settings";
 import { useCurrentUserId } from "@/hooks/use-user";
-import { useItemVotes, useToggleItemVote } from "@/hooks/use-items";
 import { AddCard } from "@/components/ui/AddCard/AddCard";
 import { LayoutGrid, LayoutList } from "lucide-react";
 
@@ -75,10 +74,6 @@ export function WishlistItemsGrid({
     return map;
   }, [reservedProfiles, t]);
 
-  const itemIds = useMemo(() => items.map((i) => i.id), [items]);
-  const { data: votesData } = useItemVotes(itemIds);
-  const toggleVote = useToggleItemVote(itemIds);
-
   return (
     <div className={styles.wrapper}>
       {isMobile && (
@@ -122,9 +117,6 @@ export function WishlistItemsGrid({
             onEdit={onEdit ? () => onEdit(item) : undefined}
             autoOpen={openItemId === item.id}
             onAutoOpenHandled={onOpenItemHandled}
-            voteCount={votesData?.counts[item.id] ?? 0}
-            hasVoted={votesData?.userVotes.has(item.id) ?? false}
-            onToggleVote={!isOwner ? (id) => toggleVote.mutate(id) : undefined}
             renderDetailModal={({ open, onClose }) => (
               <WishlistItemDetailModal
                 open={open}

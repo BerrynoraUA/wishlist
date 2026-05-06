@@ -52,7 +52,7 @@ export function useCreateItem() {
           queryKey[2] === data.wishlist_id,
       });
       queryClient.invalidateQueries({
-        queryKey: wishlistKeys.my(),
+        queryKey: wishlistKeys.myAll,
       });
       queryClient.invalidateQueries({
         queryKey: wishlistKeys.detail(data.wishlist_id),
@@ -88,7 +88,7 @@ export function useDeleteItem() {
     mutationFn: (id: string) => deleteItem(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
-      queryClient.invalidateQueries({ queryKey: wishlistKeys.my() });
+      queryClient.invalidateQueries({ queryKey: wishlistKeys.myAll });
       toast.success("Item deleted");
     },
     onError: (err) => {

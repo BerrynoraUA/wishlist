@@ -14,6 +14,7 @@ export type CreateSecretSantaEventInput = {
 
 export type UpdateSecretSantaEventInput = {
   name?: string;
+  event_date?: string;
   budget?: number;
   currency?: string;
   image?: File | null;

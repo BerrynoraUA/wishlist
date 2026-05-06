@@ -22,21 +22,24 @@ import type { CreateWishlistParams, UpdateWishlistParams } from "@/api/types/wis
 import { normalizeSearchQuery } from "@/lib/helpers/search";
 import { statisticsKeys } from "./use-user";
 
+const wishlistRootKey = ["wishlists"] as const;
+
 // Query Keys
 export const wishlistKeys = {
-  all: ["wishlists"] as const,
-  my: (params?: PaginationParams) => [...wishlistKeys.all, "my", params] as const,
-  friends: (params?: PaginationParams) => [...wishlistKeys.all, "friends", params] as const,
+  all: wishlistRootKey,
+  myAll: [...wishlistRootKey, "my"] as const,
+  my: (params?: PaginationParams) => [...wishlistRootKey, "my", params] as const,
+  friends: (params?: PaginationParams) => [...wishlistRootKey, "friends", params] as const,
   friendsAll: (params?: PaginationParams) =>
-    [...wishlistKeys.all, "friends", "all", params] as const,
+    [...wishlistRootKey, "friends", "all", params] as const,
   friendsReserved: (params?: PaginationParams) =>
-    [...wishlistKeys.all, "friends", "reserved", params] as const,
+    [...wishlistRootKey, "friends", "reserved", params] as const,
   friendsPurchased: (params?: PaginationParams) =>
-    [...wishlistKeys.all, "friends", "purchased", params] as const,
+    [...wishlistRootKey, "friends", "purchased", params] as const,
   friend: (userId: string, params?: PaginationParams) =>
-    [...wishlistKeys.all, "friend", userId, params] as const,
-  detail: (id: string) => [...wishlistKeys.all, "detail", id] as const,
-  friendsUpcoming: ["wishlists", "friends", "upcoming"] as const,
+    [...wishlistRootKey, "friend", userId, params] as const,
+  detail: (id: string) => [...wishlistRootKey, "detail", id] as const,
+  friendsUpcoming: [...wishlistRootKey, "friends", "upcoming"] as const,
 };
 
 export function useFriendsUpcomingWishlists() {

@@ -1,4 +1,5 @@
-import { ShoppingCart, ThumbsUp } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ShoppingCart } from "lucide-react";
 import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
 import styles from "../ItemCard.module.scss";
 import { cn } from "../utils";
@@ -22,10 +23,41 @@ type CardInfoProps = {
   handleBoughtClick: () => void;
   onToggleBought?: (id: string) => void;
   boughtActionLabel: string;
-  voteCount: number;
-  hasVoted: boolean;
-  onToggleVote?: (id: string) => void;
 };
+
+function useOverflowTooltip<T extends HTMLElement>(value: string | null | undefined) {
+  const ref = useRef<T | null>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const measure = () => {
+      setIsOverflowing(
+        element.scrollHeight > element.clientHeight + 1 || element.scrollWidth > element.clientWidth,
+      );
+    };
+
+    measure();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measure);
+      return () => window.removeEventListener("resize", measure);
+    }
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    window.addEventListener("resize", measure);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [value]);
+
+  return { ref, isOverflowing };
+}
 
 export function CardInfo({
   id,
@@ -46,19 +78,42 @@ export function CardInfo({
   handleBoughtClick,
   onToggleBought,
   boughtActionLabel,
-  voteCount,
-  hasVoted,
-  onToggleVote,
 }: CardInfoProps) {
   const isWishlist = variant === "wishlist";
   const useDiscoverReserveStyles = variant === "discover" || (isWishlist && !isOwner);
+  const titleTooltip = useOverflowTooltip<HTMLElement>(name);
+  const descriptionTooltip = useOverflowTooltip<HTMLParagraphElement>(description);
   void isPurchasedMode;
 
   return (
     <div className={styles.info}>
-      <strong title={name}>{name}</strong>
+      <div className={styles.tooltipTrigger}>
+        <div className={styles.titleBlock}>
+          <strong ref={titleTooltip.ref}>{name}</strong>
+        </div>
+        {titleTooltip.isOverflowing ? (
+          <div className={styles.textTooltip} role="tooltip">
+            <div className={styles.textTooltipArrow} />
+            <strong>{name}</strong>
+          </div>
+        ) : null}
+      </div>
 
-      {isWishlist && description && <p className={styles.description}>{description}</p>}
+      {isWishlist && (
+        <div className={styles.tooltipTrigger}>
+          <div className={styles.descriptionBlock}>
+            <p ref={descriptionTooltip.ref} className={styles.description}>
+              {description ?? ""}
+            </p>
+          </div>
+          {description && descriptionTooltip.isOverflowing ? (
+            <div className={styles.textTooltip} role="tooltip">
+              <div className={styles.textTooltipArrow} />
+              <span>{description}</span>
+            </div>
+          ) : null}
+        </div>
+      )}
 
       <div className={styles.metaRow}>
         {formattedPrice && <span className={styles.price}>{formattedPrice}</span>}
@@ -68,19 +123,6 @@ export function CardInfo({
           </span>
         )}
       </div>
-
-      {isWishlist && !isOwner && onToggleVote && (
-        <button
-          className={`${styles.voteBtn} ${hasVoted ? styles.voted : ""}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleVote(id);
-          }}
-        >
-          <ThumbsUp size={14} />
-          {voteCount > 0 && <span className={styles.voteCount}>{voteCount}</span>}
-        </button>
-      )}
 
       {!isOwner && (
         <div className={styles.actions}>

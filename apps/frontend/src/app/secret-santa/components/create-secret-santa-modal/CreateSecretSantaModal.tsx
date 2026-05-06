@@ -463,7 +463,6 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
               !name.trim() ||
               !eventDate ||
               !budget ||
-              participants.length === 0 ||
               isPending ||
               Boolean(imageError)
             }

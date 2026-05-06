@@ -56,9 +56,6 @@ export function ItemCard({
   onEdit,
   autoOpen,
   onAutoOpenHandled,
-  voteCount = 0,
-  hasVoted = false,
-  onToggleVote,
   renderDetailModal,
 }: ItemCardProps) {
   const t = useGT();
@@ -218,9 +215,6 @@ export function ItemCard({
               handleBoughtClick={handleBoughtClick}
               onToggleBought={onToggleBought}
               boughtActionLabel={boughtActionLabel}
-              voteCount={voteCount}
-              hasVoted={hasVoted}
-              onToggleVote={onToggleVote}
             />
           </div>
         );

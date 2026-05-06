@@ -141,7 +141,6 @@
 .priorityList {
   display: flex;
   flex-direction: column;
-  gap: 2px;
   border: 1.5px solid var(--color-border-light);
   border-radius: $radius-md;
   overflow: hidden;
@@ -150,6 +149,8 @@
 .priorityExtras {
   display: grid;
   grid-template-rows: 0fr;
+  min-height: 0;
+  overflow: hidden;
   opacity: 0;
   transition:
     grid-template-rows 0.28s $ease-out,

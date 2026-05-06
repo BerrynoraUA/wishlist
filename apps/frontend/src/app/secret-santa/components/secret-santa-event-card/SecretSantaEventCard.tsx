@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useGT, useLocale } from "gt-next";
 import { useRouter } from "next/navigation";
 import styles from "./SecretSantaEventCard.module.scss";
@@ -34,6 +35,31 @@ function formatEventDate(dateStr: string, locale: string): string {
   }
 }
 
+function useOverflowTooltip<T extends HTMLElement>(value: string) {
+  const ref = useRef<T | null>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const updateOverflow = () => {
+      setIsOverflowing(
+        element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth,
+      );
+    };
+
+    updateOverflow();
+
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(updateOverflow);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [value]);
+
+  return { ref, isOverflowing };
+}
+
 export function SecretSantaEventCard({ event }: Props) {
   const t = useGT();
   const locale = useLocale();
@@ -41,6 +67,7 @@ export function SecretSantaEventCard({ event }: Props) {
   const { formatPrice } = useCurrencyFormatter();
   const accent = getAccentFromId(event.id);
   const hasImage = Boolean(event.image_url);
+  const titleTooltip = useOverflowTooltip<HTMLHeadingElement>(event.name);
 
   return (
     <div
@@ -62,7 +89,17 @@ export function SecretSantaEventCard({ event }: Props) {
       </div>
 
       <div className={styles.content}>
-        <h3 className={styles.title}>{event.name}</h3>
+        <div className={styles.tooltipTrigger}>
+          <h3 ref={titleTooltip.ref} className={styles.title}>
+            {event.name}
+          </h3>
+          {titleTooltip.isOverflowing ? (
+            <div className={styles.textTooltip} role="tooltip">
+              <div className={styles.textTooltipArrow} />
+              <strong>{event.name}</strong>
+            </div>
+          ) : null}
+        </div>
 
         <div className={styles.meta}>
           <span className={styles.metaItem}>
