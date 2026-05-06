@@ -93,11 +93,12 @@ export function WishlistItemCard({
           pressedScale={0.98}
           className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
         >
-          <View className="relative h-[132px] items-center justify-center overflow-hidden bg-bg-muted">
+          <View className="relative aspect-square w-full min-h-0 items-center justify-center overflow-hidden bg-bg-muted">
             {item.image_url ? (
               <StyledImage
                 source={{ uri: item.image_url }}
                 contentFit="cover"
+                contentPosition="center"
                 className="absolute inset-0 size-full"
               />
             ) : (

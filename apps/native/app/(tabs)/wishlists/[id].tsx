@@ -1,6 +1,7 @@
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { InlineState } from "@/components/shared/inline-state";
 import { Button } from "@/components/ui/button";
-
+import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
 import { WishlistItemDetailSheet } from "@/components/wishlist-details/sheets/wishlist-item-detail-sheet";
@@ -39,6 +40,7 @@ import type { Item } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { FlashList } from "@shopify/flash-list";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { ChevronLeft } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, StyleSheet, View, useWindowDimensions } from "react-native";
@@ -380,6 +382,15 @@ export default function WishlistDetailScreen() {
             style={wishlistDetailStyles.list}
           />
         )}
+        <AnimatedPressable
+          accessibilityRole="button"
+          accessibilityLabel={t("Back")}
+          onPress={() => router.back()}
+          className="absolute bottom-3 left-3 z-20 size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg"
+          style={floatingBackButtonStyles.shadow}
+        >
+          <Icon as={ChevronLeft} className="size-7 text-text" />
+        </AnimatedPressable>
         <WishlistItemCreateEditSheet
           mode={sheet?.type === "edit" ? "edit" : "create"}
           wishlistId={wishlistId}
@@ -458,5 +469,15 @@ const wishlistDetailStyles = StyleSheet.create({
   },
   rowSeparator: {
     height: 16,
+  },
+});
+
+const floatingBackButtonStyles = StyleSheet.create({
+  shadow: {
+    shadowColor: "rgb(15, 23, 42)",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.22,
+    shadowRadius: 22,
+    elevation: 6,
   },
 });
