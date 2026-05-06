@@ -60,7 +60,6 @@ export default function WishlistsScreen() {
             />
           }
           onPageChange={feed.setPage}
-          onCreateWishlist={() => setSheet({ type: "create" })}
           onOpenSheet={setSheet}
         />
 
