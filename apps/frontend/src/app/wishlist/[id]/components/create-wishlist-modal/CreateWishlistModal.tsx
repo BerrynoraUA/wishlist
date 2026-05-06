@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGT } from "gt-next";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,7 @@ import { useCreateWishlist } from "@/hooks/use-wishlists";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useSessionDraft } from "@/hooks/use-session-draft";
 import { useSettings } from "@/hooks/use-settings";
-import { Check, Lock, X } from "lucide-react";
+import { Check, ChevronDown, Lock, Search, X } from "lucide-react";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
@@ -442,7 +442,7 @@ function CreateWishlistForm({
               return (
                 <div key={option.value}>
                   {option.value === "Private" && privacy === "SelectedFriends" && (
-                    <div>
+                    <div className={styles.accessSelectorShell}>
                       <div className={styles.accessTabs}>
                         <button
                           type="button"
@@ -608,13 +608,32 @@ export function WishlistAccessPicker({
   selectedLabelPrefix?: string;
 }) {
   const t = useGT();
+  const pickerRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const selectedIds = useMemo(() => new Set(selected.map((friend) => friend.id)), [selected]);
   const filteredFriends = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     if (normalizedQuery.length < 3) return friends;
     return friends.filter((friend) => friend.nickname.toLowerCase().includes(normalizedQuery));
   }, [friends, query]);
+  const availableFriends = useMemo(
+    () => filteredFriends.filter((friend) => !selectedIds.has(friend.id)),
+    [filteredFriends, selectedIds],
+  );
+
+  useEffect(() => {
+    if (!dropdownOpen) return;
+
+    function handlePointerDown(event: PointerEvent) {
+      if (!pickerRef.current?.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [dropdownOpen]);
 
   function toggleFriend(friend: WishlistAccessFriendOption) {
     if (selectedIds.has(friend.id)) {
@@ -622,6 +641,8 @@ export function WishlistAccessPicker({
       return;
     }
 
+    setQuery("");
+    setDropdownOpen(false);
     onChange([...selected, friend]);
   }
 
@@ -641,52 +662,91 @@ export function WishlistAccessPicker({
         )}
       </div>
 
-      <input
-        className={styles.accessSearch}
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder={
-          searchPlaceholder ??
-          t("Search friends", {
-            $id: "wishlist.modal.access.search",
-          })
-        }
-      />
+      <div ref={pickerRef} className={styles.accessSelector}>
+        <div className={styles.accessSearchField}>
+          <Search size={16} />
+          <input
+            value={query}
+            onFocus={() => setDropdownOpen(true)}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setDropdownOpen(true);
+            }}
+            placeholder={
+              searchPlaceholder ??
+              t("Search friends", {
+                $id: "wishlist.modal.access.search",
+              })
+            }
+          />
+          <button
+            type="button"
+            onClick={() => setDropdownOpen((open) => !open)}
+            aria-label={t("Open access selector", {
+              $id: "wishlist.modal.access.openSelector",
+            })}
+          >
+            <ChevronDown size={16} />
+          </button>
+        </div>
 
-      <div className={styles.accessFriendList}>
-        {isLoading && (
-          <div className={styles.accessEmpty}>
-            {t("Loading friends...", { $id: "wishlist.modal.access.loading" })}
+        {dropdownOpen && (
+          <div className={styles.accessDropdown}>
+            <div className={styles.accessDropdownList}>
+              {isLoading && (
+                <div className={styles.accessEmpty}>
+                  {t("Loading friends...", { $id: "wishlist.modal.access.loading" })}
+                </div>
+              )}
+              {!isLoading && isError && <div className={styles.accessEmpty}>{errorLabel}</div>}
+              {!isLoading && !isError && availableFriends.length === 0 && (
+                <div className={styles.accessEmpty}>{emptyLabel}</div>
+              )}
+              {!isLoading &&
+                !isError &&
+                availableFriends.map((friend) => (
+                  <button
+                    key={friend.id}
+                    type="button"
+                    className={styles.accessFriend}
+                    onClick={() => toggleFriend(friend)}
+                  >
+                    <span className={styles.accessAvatar}>
+                      {friend.nickname[0]?.toUpperCase() ?? "?"}
+                    </span>
+                    <span className={styles.accessFriendName}>
+                      {selectedLabelPrefix}
+                      {friend.nickname}
+                    </span>
+                  </button>
+                ))}
+            </div>
           </div>
         )}
-        {!isLoading && isError && <div className={styles.accessEmpty}>{errorLabel}</div>}
-        {!isLoading && !isError && filteredFriends.length === 0 && (
-          <div className={styles.accessEmpty}>{emptyLabel}</div>
-        )}
-        {!isLoading &&
-          !isError &&
-          filteredFriends.map((friend) => {
-            const active = selectedIds.has(friend.id);
-
-            return (
-              <button
-                key={friend.id}
-                type="button"
-                className={`${styles.accessFriend} ${active ? styles.accessFriendSelected : ""}`}
-                onClick={() => toggleFriend(friend)}
-              >
-                <span className={styles.accessAvatar}>
-                  {friend.nickname[0]?.toUpperCase() ?? "?"}
-                </span>
-                <span className={styles.accessFriendName}>
-                  {selectedLabelPrefix}
-                  {friend.nickname}
-                </span>
-                {active && <Check size={15} />}
-              </button>
-            );
-          })}
       </div>
+
+      {selected.length > 0 && (
+        <div className={styles.accessSelectedList}>
+          {selected.map((friend) => (
+            <span key={friend.id} className={styles.accessSelectedChip}>
+              <span>
+                {selectedLabelPrefix}
+                {friend.nickname}
+              </span>
+              <button
+                type="button"
+                onClick={() => toggleFriend(friend)}
+                aria-label={t("Remove access for {handle}", {
+                  handle: `${selectedLabelPrefix}${friend.nickname}`,
+                  $id: "wishlist.modal.access.removeAria",
+                })}
+              >
+                <X size={13} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
 
       {existingAccessTitle && (
         <div className={styles.currentAccessBlock}>
@@ -700,9 +760,6 @@ export function WishlistAccessPicker({
             <div className={styles.currentAccessList}>
               {existingAccess.map((user) => (
                 <div key={user.id} className={styles.currentAccessRow}>
-                  <span className={styles.accessAvatar}>
-                    {user.nickname[0]?.toUpperCase() ?? "?"}
-                  </span>
                   <span className={styles.accessFriendName}>
                     {selectedLabelPrefix}
                     {user.nickname}

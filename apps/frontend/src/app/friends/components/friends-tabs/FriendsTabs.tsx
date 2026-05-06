@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useGT } from "gt-next";
 import { Tabs, type TabItem } from "@/components/ui/Tabs/Tabs";
+import styles from "./FriendsTabs.module.scss";
 
 type TabValue = "friends" | "groups" | "requests" | "sent";
 
@@ -12,6 +13,7 @@ type Props = {
   groupsCount: number;
   requestsCount: number;
   sentCount?: number;
+  action?: ReactNode;
   onChange: (v: TabValue) => void;
 };
 
@@ -21,6 +23,7 @@ export function FriendsTabs({
   groupsCount,
   requestsCount,
   sentCount = 0,
+  action,
   onChange,
 }: Props) {
   const t = useGT();
@@ -59,5 +62,10 @@ export function FriendsTabs({
     [t, friendsCount, groupsCount, requestsCount, sentCount],
   );
 
-  return <Tabs items={items} active={active} onChange={onChange} />;
+  return (
+    <div className={styles.tabsRow}>
+      <Tabs items={items} active={active} onChange={onChange} className={styles.tabs} />
+      {action ? <div className={styles.action}>{action}</div> : null}
+    </div>
+  );
 }

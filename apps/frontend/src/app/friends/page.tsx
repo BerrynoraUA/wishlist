@@ -68,6 +68,13 @@ function FriendsPageContent() {
         groupsCount={groups.length}
         requestsCount={requests.length}
         sentCount={outgoing.length}
+        action={
+          tab === "groups" ? (
+            <Button size="sm" onClick={handleCreateGroup}>
+              {t("Create group", { $id: "friends.groups.create" })}
+            </Button>
+          ) : null
+        }
         onChange={setTab}
       />
 
@@ -91,40 +98,27 @@ function FriendsPageContent() {
       )}
 
       {tab === "groups" && (
-        <>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: 16,
-            }}
-          >
-            <Button size="sm" onClick={handleCreateGroup}>
-              {t("Create group", { $id: "friends.groups.create" })}
-            </Button>
-          </div>
-          <div style={FRIENDS_GRID_STYLE}>
-            {groupsLoading && renderSkeletons(FRIENDS_SKELETON_COUNT)}
-            {groupsError && (
-              <p>
-                {t("Failed to load groups.", {
-                  $id: "friends.groups.loadError",
-                })}
-              </p>
-            )}
-            {!groupsLoading && !groupsError && groups.length === 0 && (
-              <p>{t("No groups yet.", { $id: "friends.groups.empty" })}</p>
-            )}
-            {groups.map((group) => (
-              <FriendGroupCard
-                key={group.id}
-                group={group}
-                onEdit={handleEditGroup}
-                onDelete={handleDeleteGroup}
-              />
-            ))}
-          </div>
-        </>
+        <div style={FRIENDS_GRID_STYLE}>
+          {groupsLoading && renderSkeletons(FRIENDS_SKELETON_COUNT)}
+          {groupsError && (
+            <p>
+              {t("Failed to load groups.", {
+                $id: "friends.groups.loadError",
+              })}
+            </p>
+          )}
+          {!groupsLoading && !groupsError && groups.length === 0 && (
+            <p>{t("No groups yet.", { $id: "friends.groups.empty" })}</p>
+          )}
+          {groups.map((group) => (
+            <FriendGroupCard
+              key={group.id}
+              group={group}
+              onEdit={handleEditGroup}
+              onDelete={handleDeleteGroup}
+            />
+          ))}
+        </div>
       )}
 
       {tab === "requests" && (
