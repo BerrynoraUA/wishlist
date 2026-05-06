@@ -1169,7 +1169,7 @@
       --color-popover: var(--theme-dark-color-popover);
       --color-popover-foreground: var(--theme-dark-color-popover-foreground);
       --color-primary: oklch(0.7137 0.1434 254.624);
-      --color-primary-foreground: oklch(0.2077 0.0398 265.755);
+      --color-primary-foreground: var(--theme-dark-color-primary-foreground);
       --color-secondary: var(--theme-dark-color-secondary);
       --color-secondary-foreground: var(--theme-dark-color-secondary-foreground);
       --color-muted: var(--theme-dark-color-muted);
@@ -1223,7 +1223,7 @@
       --color-sidebar: var(--theme-dark-color-sidebar);
       --color-sidebar-foreground: var(--theme-dark-color-sidebar-foreground);
       --color-sidebar-primary: oklch(0.7137 0.1434 254.624);
-      --color-sidebar-primary-foreground: oklch(0.2077 0.0398 265.755);
+      --color-sidebar-primary-foreground: var(--theme-dark-color-sidebar-primary-foreground);
       --color-sidebar-accent: oklch(0.2795 0.0368 260.031);
       --color-sidebar-accent-foreground: oklch(0.8823 0.0571 254.128);
       --color-sidebar-border: var(--theme-dark-color-sidebar-border);
@@ -1507,7 +1507,7 @@
       --color-popover: var(--theme-dark-color-popover);
       --color-popover-foreground: var(--theme-dark-color-popover-foreground);
       --color-primary: oklch(0.8369 0.1644 84.429);
-      --color-primary-foreground: oklch(0.1976 0.0409 80.167);
+      --color-primary-foreground: var(--theme-dark-color-primary-foreground);
       --color-secondary: var(--theme-dark-color-secondary);
       --color-secondary-foreground: var(--theme-dark-color-secondary-foreground);
       --color-muted: var(--theme-dark-color-muted);
@@ -1561,7 +1561,7 @@
       --color-sidebar: var(--theme-dark-color-sidebar);
       --color-sidebar-foreground: var(--theme-dark-color-sidebar-foreground);
       --color-sidebar-primary: oklch(0.8369 0.1644 84.429);
-      --color-sidebar-primary-foreground: oklch(0.1976 0.0409 80.167);
+      --color-sidebar-primary-foreground: var(--theme-dark-color-sidebar-primary-foreground);
       --color-sidebar-accent: oklch(0.2508 0.0311 78.363);
       --color-sidebar-accent-foreground: oklch(0.9243 0.1151 95.746);
       --color-sidebar-border: var(--theme-dark-color-sidebar-border);
@@ -1845,7 +1845,7 @@
       --color-popover: var(--theme-dark-color-popover);
       --color-popover-foreground: var(--theme-dark-color-popover-foreground);
       --color-primary: oklch(0.7729 0.1535 163.223);
-      --color-primary-foreground: oklch(0.2679 0.0559 159.604);
+      --color-primary-foreground: var(--theme-dark-color-primary-foreground);
       --color-secondary: var(--theme-dark-color-secondary);
       --color-secondary-foreground: var(--theme-dark-color-secondary-foreground);
       --color-muted: var(--theme-dark-color-muted);
@@ -1899,7 +1899,7 @@
       --color-sidebar: var(--theme-dark-color-sidebar);
       --color-sidebar-foreground: var(--theme-dark-color-sidebar-foreground);
       --color-sidebar-primary: oklch(0.7729 0.1535 163.223);
-      --color-sidebar-primary-foreground: oklch(0.2679 0.0559 159.604);
+      --color-sidebar-primary-foreground: var(--theme-dark-color-sidebar-primary-foreground);
       --color-sidebar-accent: oklch(0.2624 0.0351 164.039);
       --color-sidebar-accent-foreground: oklch(0.9049 0.0895 164.15);
       --color-sidebar-border: var(--theme-dark-color-sidebar-border);
@@ -2183,7 +2183,7 @@
       --color-popover: var(--theme-dark-color-popover);
       --color-popover-foreground: var(--theme-dark-color-popover-foreground);
       --color-primary: oklch(0.709 0.1592 293.541);
-      --color-primary-foreground: oklch(0.2437 0.086 286.785);
+      --color-primary-foreground: var(--theme-dark-color-primary-foreground);
       --color-secondary: var(--theme-dark-color-secondary);
       --color-secondary-foreground: var(--theme-dark-color-secondary-foreground);
       --color-muted: var(--theme-dark-color-muted);
@@ -2237,7 +2237,7 @@
       --color-sidebar: var(--theme-dark-color-sidebar);
       --color-sidebar-foreground: var(--theme-dark-color-sidebar-foreground);
       --color-sidebar-primary: oklch(0.709 0.1592 293.541);
-      --color-sidebar-primary-foreground: oklch(0.2437 0.086 286.785);
+      --color-sidebar-primary-foreground: var(--theme-dark-color-sidebar-primary-foreground);
       --color-sidebar-accent: oklch(0.2544 0.0539 293.297);
       --color-sidebar-accent-foreground: oklch(0.8943 0.0549 293.283);
       --color-sidebar-border: var(--theme-dark-color-sidebar-border);
