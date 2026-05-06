@@ -1,6 +1,8 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { InlineState } from "@/components/shared/inline-state";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
 import { WishlistItemDetailSheet } from "@/components/wishlist-details/sheets/wishlist-item-detail-sheet";
@@ -33,15 +35,16 @@ import {
   WISHLIST_ITEMS_PAGE_SIZE,
   parseOptionalNumber,
 } from "@/lib/items";
+import { chunkRows } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 import { paginationFlags } from "@/lib/wishlists";
 import type { Item } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
-import { FlashList } from "@shopify/flash-list";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, StyleSheet, View, useWindowDimensions } from "react-native";
+import { ActivityIndicator, View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -104,8 +107,7 @@ export default function WishlistDetailScreen() {
 
     const priorities: string[] = [];
     for (const value of filters.priorities) {
-      const priorityId = ITEM_PRIORITY_LOOKUP.find((option) => option.value === value)
-        ?.priority_id;
+      const priorityId = ITEM_PRIORITY_LOOKUP.find((option) => option.value === value)?.priority_id;
       if (priorityId !== undefined) priorities.push(priorityId);
     }
 
@@ -139,7 +141,8 @@ export default function WishlistDetailScreen() {
   const profileNamesById = React.useMemo(() => {
     const entries =
       profilesQuery.data?.map(
-        (profile) => [profile.id, profile.display_name || profile.nickname || t("Someone")] as const,
+        (profile) =>
+          [profile.id, profile.display_name || profile.nickname || t("Someone")] as const,
       ) ?? [];
 
     return new Map(entries);
@@ -200,10 +203,13 @@ export default function WishlistDetailScreen() {
         ) : null
       ) : "type" in item ? (
         <View
-          className={target === "StickyHeader" ? "bg-bg" : "bg-transparent"}
-          style={[wishlistDetailStyles.stickyHeader, { paddingTop: insets.top + 16 }]}
+          className={cn(
+            "z-[2] pb-4",
+            target === "StickyHeader" ? "bg-bg" : "bg-transparent",
+          )}
+          style={{ paddingTop: insets.top + 16 }}
         >
-          <View style={[wishlistDetailStyles.stickyHeaderContent, { width: contentWidth }]}>
+          <View className="max-w-[1200px] self-center" style={{ width: contentWidth }}>
             <WishlistItemFilterBar
               filters={filters}
               onChange={updateFilters}
@@ -306,7 +312,7 @@ export default function WishlistDetailScreen() {
             </Text>
           </View>
         ) : (
-          <FlashList
+          <StyledFlashList
             data={
               itemsQuery.isError
                 ? [
@@ -320,10 +326,9 @@ export default function WishlistDetailScreen() {
               "type" in row ? row.id : row.map((entry) => entry.id).join(":")
             }
             contentInsetAdjustmentBehavior="automatic"
-            contentContainerStyle={[
-              wishlistDetailStyles.content,
-              { paddingTop: insets.top + wishlistDetailStyles.content.paddingTop },
-            ]}
+            className="flex-1"
+            contentContainerClassName="pb-8"
+            contentContainerStyle={{ paddingTop: insets.top }}
             ItemSeparatorComponent={ItemRowSeparator}
             ListFooterComponent={
               <View
@@ -335,9 +340,7 @@ export default function WishlistDetailScreen() {
                     <ActivityIndicator />
                   </View>
                 ) : null}
-                {itemsQuery.isError ? (
-                  <InlineState message={t("Failed to load items.")} />
-                ) : null}
+                {itemsQuery.isError ? <InlineState message={t("Failed to load items.")} /> : null}
                 {!itemsQuery.isLoading &&
                 !itemsQuery.isError &&
                 items.length === 0 &&
@@ -379,15 +382,13 @@ export default function WishlistDetailScreen() {
               safeAreaTop: insets.top,
             }}
             stickyHeaderIndices={[1]}
-            style={wishlistDetailStyles.list}
           />
         )}
         <AnimatedPressable
           accessibilityRole="button"
           accessibilityLabel={t("Back")}
           onPress={() => router.back()}
-          className="absolute bottom-4 left-4 z-20 size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg"
-          style={floatingBackButtonStyles.shadow}
+          className="absolute bottom-3 left-3 z-20 size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
         >
           <Icon as={ChevronLeft} className="size-7 text-text" />
         </AnimatedPressable>
@@ -443,63 +444,10 @@ export default function WishlistDetailScreen() {
   );
 }
 
-function InlineState({ message }: { message: string }) {
-  return (
-    <View className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-6">
-      <Text className="text-center text-sm font-semibold text-text-muted">{message}</Text>
-    </View>
-  );
-}
-
 function ItemRowSeparator({ leadingItem }: { leadingItem?: WishlistItemListRow }) {
   if (leadingItem && "type" in leadingItem) {
     return null;
   }
 
-  return <View style={wishlistDetailStyles.rowSeparator} />;
+  return <View className="h-4" />;
 }
-
-function chunkRows<T>(items: T[], columns: number) {
-  const rows: T[][] = [];
-  for (let index = 0; index < items.length; index += columns) {
-    rows.push(items.slice(index, index + columns));
-  }
-  return rows;
-}
-
-const wishlistDetailStyles = StyleSheet.create({
-  list: {
-    flex: 1,
-  },
-  content: {
-    paddingBottom: 32,
-    paddingTop: 0,
-  },
-  header: {
-    alignItems: "center",
-    alignSelf: "center",
-    marginBottom: 0,
-    width: "100%",
-  },
-  stickyHeader: {
-    paddingBottom: 16,
-    zIndex: 2,
-  },
-  stickyHeaderContent: {
-    alignSelf: "center",
-    maxWidth: 1200,
-  },
-  rowSeparator: {
-    height: 16,
-  },
-});
-
-const floatingBackButtonStyles = StyleSheet.create({
-  shadow: {
-    shadowColor: "rgb(15, 23, 42)",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.22,
-    shadowRadius: 22,
-    elevation: 6,
-  },
-});

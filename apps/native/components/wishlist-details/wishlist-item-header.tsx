@@ -18,6 +18,7 @@ import {
   getWishlistAccentGradientColors,
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
+import { LinearGradient } from "@/components/ui/linear-gradient";
 import type { Wishlist, WishlistVisibility } from "@wishlist/backend/types/wishlist";
 import DateTimePicker, {
   DateTimePickerAndroid,
@@ -33,11 +34,10 @@ import {
   Trash2,
   X,
 } from "lucide-react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Platform, StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import { useUniwind } from "uniwind";
 
 type HeaderInlineFormValues = {
@@ -149,7 +149,7 @@ export function WishlistItemHeader({
     if (!canInlineEdit) return;
     const date = eventDate ? new Date(eventDate) : new Date();
 
-    if (Platform.OS === "android") {
+    if (process.env.EXPO_OS === "android") {
       DateTimePickerAndroid.open({
         value: Number.isNaN(date.getTime()) ? new Date() : date,
         mode: "date",
@@ -177,7 +177,7 @@ export function WishlistItemHeader({
                 colors={accentGradientColors}
                 end={{ x: 1, y: 1 }}
                 start={{ x: 0, y: 0 }}
-                style={StyleSheet.absoluteFill}
+                className="absolute inset-0"
               />
               {wishlist.image_url ? (
                 <StyledImage
@@ -352,9 +352,7 @@ export function WishlistItemHeader({
                   >
                     <Icon as={Calendar} className="size-3.5 text-info" />
                     <Text className="text-xs font-bold text-info">
-                      {eventDate
-                        ? formatEventDateLabel(eventDate, dateFormatter)
-                        : t("Add date")}
+                      {eventDate ? formatEventDateLabel(eventDate, dateFormatter) : t("Add date")}
                     </Text>
                   </AnimatedPressable>
                 )
@@ -362,7 +360,7 @@ export function WishlistItemHeader({
             </View>
           </View>
 
-          {Platform.OS === "ios" && iosDateOpen ? (
+          {process.env.EXPO_OS === "ios" && iosDateOpen ? (
             <View className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg">
               <DateTimePicker
                 value={eventDate ? new Date(eventDate) : new Date()}

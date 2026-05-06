@@ -2,14 +2,8 @@ import "@/polyfills/gtIntlPolyfills";
 import "@/global.css";
 
 import { useSettings } from "@/hooks/use-settings";
-import {
-  getNativeAccentForWishlistAccent,
-  getNativeThemeNameForPreference,
-  getNavigationTheme,
-  getThemeMode,
-} from "@/lib/theme";
+import { getNativeThemeNameForPreference, getNavigationTheme, getThemeMode } from "@/lib/theme";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
-import { SignInScreen } from "@/screens/sign-in-screen";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { createTrueSheetNavigator } from "@lodev09/react-native-true-sheet/navigation";
@@ -43,7 +37,19 @@ const { Navigator } = createTrueSheetNavigator();
 const TrueSheetNavigator = withLayoutContext(Navigator);
 
 export default function RootLayout() {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 1000 * 60,
+            retry: 2,
+            refetchOnReconnect: true,
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+  );
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
   const navigationTheme = getNavigationTheme(theme);
@@ -96,14 +102,11 @@ function AuthGate() {
     );
   }
 
-  if (!session) {
-    return <SignInScreen />;
-  }
-
   return (
     <>
-      <NativeThemeSync />
-      <TrueSheetNavigator initialRouteName="(tabs)">
+      {session ? <NativeThemeSync /> : null}
+      <TrueSheetNavigator initialRouteName={session ? "(tabs)" : "sign-in"}>
+        <TrueSheetNavigator.Screen name="sign-in" />
         <TrueSheetNavigator.Screen name="(tabs)" />
       </TrueSheetNavigator>
     </>
@@ -116,14 +119,7 @@ function NativeThemeSync() {
   const defaultAccent = settings?.default_accent ?? DEFAULT_SETTINGS.default_accent;
 
   useEffect(() => {
-    const nativeAccent = getNativeAccentForWishlistAccent(defaultAccent);
-
     function applyTheme(systemColorScheme: string | null | undefined) {
-      if (themePreference === "system" && nativeAccent === "pink") {
-        Uniwind.setTheme("system");
-        return;
-      }
-
       Uniwind.setTheme(
         getNativeThemeNameForPreference(themePreference, defaultAccent, systemColorScheme),
       );

@@ -113,17 +113,9 @@ export function AppearanceSettings() {
   const defaultColorLabel = t("Pink", {
     $id: "settings.appearance.wishlistColor.pink",
   });
-  const basePriorityIds: string[] = [
-    PRIORITY_IDS.LOW,
-    PRIORITY_IDS.MEDIUM,
-    PRIORITY_IDS.HIGH,
-  ];
-  const basePriorities = ALL_PRIORITIES.filter((p) =>
-    basePriorityIds.includes(p.id),
-  );
-  const extraPriorities = ALL_PRIORITIES.filter(
-    (p) => !basePriorityIds.includes(p.id),
-  );
+  const basePriorityIds: string[] = [PRIORITY_IDS.LOW, PRIORITY_IDS.MEDIUM, PRIORITY_IDS.HIGH];
+  const basePriorities = ALL_PRIORITIES.filter((p) => basePriorityIds.includes(p.id));
+  const extraPriorities = ALL_PRIORITIES.filter((p) => !basePriorityIds.includes(p.id));
 
   function renderPriorityRow(p: (typeof ALL_PRIORITIES)[number]) {
     const locked = isPriorityGated && !p.is_free;
@@ -156,9 +148,7 @@ export function AppearanceSettings() {
             Pro
           </span>
         )}
-        <span
-          className={`${styles.priorityRowCheck} ${active ? styles.checked : ""}`}
-        >
+        <span className={`${styles.priorityRowCheck} ${active ? styles.checked : ""}`}>
           {active && <Check size={10} strokeWidth={3} />}
         </span>
       </button>
@@ -281,9 +271,7 @@ export function AppearanceSettings() {
       >
         <div className={styles.priorityList}>
           {basePriorities.map(renderPriorityRow)}
-          <div
-            className={`${styles.priorityExtras} ${prioritiesExpanded ? styles.expanded : ""}`}
-          >
+          <div className={`${styles.priorityExtras} ${prioritiesExpanded ? styles.expanded : ""}`}>
             <div className={styles.priorityExtrasInner}>
               {extraPriorities.map(renderPriorityRow)}
             </div>

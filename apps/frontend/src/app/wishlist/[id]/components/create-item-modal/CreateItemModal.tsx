@@ -20,11 +20,7 @@ import { validateImageUploadFile } from "@/lib/image-upload";
 import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import { ALL_PRIORITIES } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
-import {
-  isStarCardColorIndex,
-  ITEM_COLORS,
-  STAR_CARD_COLOR_INDEX,
-} from "@/lib/item-colors";
+import { isStarCardColorIndex, ITEM_COLORS, STAR_CARD_COLOR_INDEX } from "@/lib/item-colors";
 import styles from "./CreateItemModal.module.scss";
 
 import type { CreateItemParams } from "@/api/types/item";
@@ -359,10 +355,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           };
 
           const isEmpty =
-            !product.title &&
-            !product.description &&
-            !product.image &&
-            !product.price;
+            !product.title && !product.description && !product.image && !product.price;
 
           if (isEmpty) {
             setError(
@@ -389,10 +382,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
             setImagePreview(product.image);
           }
         } else {
-          setError(
-            data?.error ||
-              t("Error loading product", { $id: "item.modal.scrapeError" }),
-          );
+          setError(data?.error || t("Error loading product", { $id: "item.modal.scrapeError" }));
         }
       } catch {
         if (requestId === scrapeRequestIdRef.current) {
@@ -647,9 +637,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         <div className={styles.priorityColorRow}>
           {canUsePriority && (
             <div className={styles.field}>
-              <label>
-                {t("Priority", { $id: "item.modal.priorityLabel" })}
-              </label>
+              <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
               <Select
                 value={priority ?? ""}
                 onChange={(v) => setPriority(v || null)}
@@ -666,16 +654,12 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           <div
             className={`${styles.field} ${styles.compactColorField}`}
             onBlur={(event) => {
-              if (
-                !event.currentTarget.contains(event.relatedTarget as Node | null)
-              ) {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
                 setColorPickerOpen(false);
               }
             }}
           >
-            <label>
-              {t("Card Color", { $id: "item.modal.colorLabelShort" })}
-            </label>
+            <label>{t("Card Color", { $id: "item.modal.colorLabelShort" })}</label>
             <button
               type="button"
               className={styles.colorTrigger}
@@ -686,7 +670,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
                       ? "var(--color-border-light)"
                       : isStarCardColorIndex(colorIndex)
                         ? "var(--color-brand)"
-                      : ITEM_COLORS[colorIndex]?.color,
+                        : ITEM_COLORS[colorIndex]?.color,
                 } as React.CSSProperties
               }
               onClick={() => setColorPickerOpen((value) => !value)}
@@ -697,9 +681,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               })}
             >
               <span className={styles.colorTriggerSwatch}>
-                {isStarCardColorIndex(colorIndex) && (
-                  <Star size={12} fill="currentColor" />
-                )}
+                {isStarCardColorIndex(colorIndex) && <Star size={12} fill="currentColor" />}
               </span>
             </button>
 

@@ -113,8 +113,7 @@ export function getCompactCurrencyOptions(
 ): FormSelectOption<string>[] {
   return SUPPORTED_CURRENCIES.map((currency) => ({
     value: currency.code,
-    label:
-      display === "code" ? currency.code : `${currency.symbol} ${currency.code}`,
+    label: display === "code" ? currency.code : `${currency.symbol} ${currency.code}`,
   }));
 }
 

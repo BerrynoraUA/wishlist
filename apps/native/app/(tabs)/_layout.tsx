@@ -1,10 +1,13 @@
 import { getNavigationTheme, getThemeMode } from "@/lib/theme";
+import { useAuth } from "@/providers/auth-provider";
+import { Redirect } from "expo-router";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useGT } from "gt-react-native";
 import { useUniwind } from "uniwind";
 
 export default function TabsLayout() {
   const t = useGT();
+  const { session } = useAuth();
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
   const navigationTheme = getNavigationTheme(theme);
@@ -12,6 +15,10 @@ export default function TabsLayout() {
     themeMode === "dark"
       ? `${navigationTheme.colors.primary}24`
       : `${navigationTheme.colors.primary}18`;
+
+  if (!session) {
+    return <Redirect href={"/sign-in" as never} />;
+  }
 
   return (
     <NativeTabs

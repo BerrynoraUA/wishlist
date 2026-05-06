@@ -52,18 +52,14 @@ type SaveItemInput = {
   additionalLinks?: ItemLink[] | null;
 };
 
-export function resolveItemPriorityId(
-  priority: string | null | undefined,
-): string | null {
+export function resolveItemPriorityId(priority: string | null | undefined): string | null {
   if (priority == null) return null;
 
   const normalized = priority.trim();
   if (!normalized) return null;
 
   const priorityMeta = ALL_PRIORITIES.find(
-    (item) =>
-      item.id === normalized ||
-      item.name.toLowerCase() === normalized.toLowerCase(),
+    (item) => item.id === normalized || item.name.toLowerCase() === normalized.toLowerCase(),
   );
 
   return priorityMeta?.id ?? normalized;

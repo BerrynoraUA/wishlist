@@ -3,13 +3,14 @@ import { AnimatedShadowButton } from "@/components/ui/buttons/AnimatedShadowButt
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/providers/auth-provider";
+import { Redirect } from "expo-router";
 import { EyeIcon, EyeOffIcon, GiftIcon } from "lucide-react-native";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   TextInput,
@@ -33,8 +34,9 @@ type SignInTestimonial = {
   readonly avatarClassName: string;
 };
 
-export function SignInScreen() {
+export default function SignInScreen() {
   const t = useGT();
+  const { session } = useAuth();
 
   const testimonials = React.useMemo((): readonly SignInTestimonial[] => {
     return [
@@ -84,7 +86,11 @@ export function SignInScreen() {
 
   const testimonial = testimonials[testimonialIndex];
   const isBusy = loading || socialLoading !== null;
-  const showAppleSignIn = Platform.OS === "ios";
+  const showAppleSignIn = process.env.EXPO_OS === "ios";
+
+  if (session) {
+    return <Redirect href="/wishlists" />;
+  }
 
   async function submitForm(values: SignInFormValues) {
     setError(null);

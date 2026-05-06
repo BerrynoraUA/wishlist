@@ -86,7 +86,9 @@ export function WishlistGrantAccessSheet({
       scrollable
       dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}
-      header={<Text className="mx-5 mt-5 text-lg font-extrabold text-text">{t("Grant access")}</Text>}
+      header={
+        <Text className="mx-5 mt-5 text-lg font-extrabold text-text">{t("Grant access")}</Text>
+      }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button className="min-w-0 flex-1" variant="outline" onPress={handleClose}>
@@ -117,7 +119,9 @@ export function WishlistGrantAccessSheet({
             <View className="flex-row items-center justify-between rounded-xl border border-brand bg-brand-lighter p-3">
               <View>
                 <Text className="font-extrabold text-text">@{values.selectedFriend.nickname}</Text>
-                <Text className="text-xs font-semibold text-text-muted">{t("Ready to grant access")}</Text>
+                <Text className="text-xs font-semibold text-text-muted">
+                  {t("Ready to grant access")}
+                </Text>
               </View>
               <Button variant="outline" size="sm" onPress={() => setValue("selectedFriend", null)}>
                 <Text>{t("Change")}</Text>
@@ -194,7 +198,9 @@ export function WishlistGrantAccessSheet({
                 <ActivityIndicator colorClassName="accent-brand" />
               </View>
             ) : accessList.length === 0 ? (
-              <Text className="p-4 text-sm font-semibold text-text-muted">{t("No one has access yet.")}</Text>
+              <Text className="p-4 text-sm font-semibold text-text-muted">
+                {t("No one has access yet.")}
+              </Text>
             ) : (
               accessList.map((user) => (
                 <View

@@ -14,14 +14,8 @@ export function useLoginPage() {
   const t = useGT();
   const searchParams = useSearchParams();
 
-  const redirectTo = useMemo(
-    () => searchParams.get("redirect_to") || "/home",
-    [searchParams],
-  );
-  const prefillEmail = useMemo(
-    () => searchParams.get("email") || "",
-    [searchParams],
-  );
+  const redirectTo = useMemo(() => searchParams.get("redirect_to") || "/home", [searchParams]);
+  const prefillEmail = useMemo(() => searchParams.get("email") || "", [searchParams]);
   const registerHref = useMemo(() => {
     const params = new URLSearchParams();
     const accountMode = searchParams.get("account_mode");

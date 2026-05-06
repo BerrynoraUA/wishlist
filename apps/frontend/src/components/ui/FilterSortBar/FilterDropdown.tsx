@@ -43,24 +43,18 @@ export function FilterDropdown({
     if (!open) return;
 
     function handleClickOutside(event: MouseEvent) {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node)
-      ) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
   function handleSelect(value: string) {
     if (multiSelect) {
-      const next = active.includes(value)
-        ? active.filter((v) => v !== value)
-        : [...active, value];
+      const next = active.includes(value) ? active.filter((v) => v !== value) : [...active, value];
       onChange(next);
     } else {
       onChange(active.includes(value) ? [] : [value]);
@@ -80,17 +74,11 @@ export function FilterDropdown({
         <Filter size={14} />
         <span>{label}</span>
         {hasActive && <span className={styles.badge}>{active.length}</span>}
-        <ChevronDown
-          size={14}
-          className={`${styles.chevron} ${open ? styles.chevronOpen : ""}`}
-        />
+        <ChevronDown size={14} className={`${styles.chevron} ${open ? styles.chevronOpen : ""}`} />
       </button>
 
       {open && (
-        <div
-          className={`${styles.dropdown} ${dropdownClassName ?? ""}`.trim()}
-          role="listbox"
-        >
+        <div className={`${styles.dropdown} ${dropdownClassName ?? ""}`.trim()} role="listbox">
           {options.map((option) => {
             const isActive = active.includes(option.value);
 
@@ -105,20 +93,14 @@ export function FilterDropdown({
               >
                 <span className={styles.optionContent}>
                   {option.icon && (
-                    <span
-                      className={`${styles.optionIcon} ${optionIconClassName ?? ""}`.trim()}
-                    >
+                    <span className={`${styles.optionIcon} ${optionIconClassName ?? ""}`.trim()}>
                       {option.icon}
                     </span>
                   )}
                   <span>{option.label}</span>
                 </span>
                 {isActive && (
-                  <span
-                    className={`${styles.check} ${checkClassName ?? ""}`.trim()}
-                  >
-                    ✓
-                  </span>
+                  <span className={`${styles.check} ${checkClassName ?? ""}`.trim()}>✓</span>
                 )}
               </button>
             );

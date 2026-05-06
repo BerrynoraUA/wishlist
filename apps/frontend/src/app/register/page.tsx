@@ -12,8 +12,7 @@ import { useRegisterPage } from "./hooks/use-register-page";
 function RegisterPageContent() {
   const t = useGT();
   const router = useRouter();
-  const { redirectTo, loginHref, currentTestimonial, fadeIn } =
-    useRegisterPage();
+  const { redirectTo, loginHref, currentTestimonial, fadeIn } = useRegisterPage();
 
   return (
     <main className={styles.page}>
@@ -33,9 +32,7 @@ function RegisterPageContent() {
           <h2 className={styles.visualTitle}>
             {t("Start your", { $id: "register.visual.titleLine1" })}
             <br />
-            <em>
-              {t("gifting journey", { $id: "register.visual.titleEmphasis" })}
-            </em>
+            <em>{t("gifting journey", { $id: "register.visual.titleEmphasis" })}</em>
           </h2>
           <p className={styles.visualSubtitle}>
             {t(
@@ -67,10 +64,7 @@ function RegisterPageContent() {
               </div>
               <div className={styles.mockupCardItems}>
                 <div className={styles.mockupItem}>
-                  <div
-                    className={styles.mockupItemIcon}
-                    style={{ background: "#fde7f3" }}
-                  >
+                  <div className={styles.mockupItemIcon} style={{ background: "#fde7f3" }}>
                     🎁
                   </div>
                   <div className={styles.mockupItemInfo}>
@@ -81,10 +75,7 @@ function RegisterPageContent() {
                   </div>
                 </div>
                 <div className={styles.mockupItem}>
-                  <div
-                    className={styles.mockupItemIcon}
-                    style={{ background: "#e0f2fe" }}
-                  >
+                  <div className={styles.mockupItemIcon} style={{ background: "#e0f2fe" }}>
                     📱
                   </div>
                   <div className={styles.mockupItemInfo}>
@@ -95,10 +86,7 @@ function RegisterPageContent() {
                   </div>
                 </div>
                 <div className={styles.mockupItem}>
-                  <div
-                    className={styles.mockupItemIcon}
-                    style={{ background: "#f0fdf4" }}
-                  >
+                  <div className={styles.mockupItemIcon} style={{ background: "#f0fdf4" }}>
                     🌱
                   </div>
                   <div className={styles.mockupItemInfo}>
@@ -112,26 +100,18 @@ function RegisterPageContent() {
             </div>
             <div className={`${styles.mockupFloat} ${styles.mockupFloat1}`}>
               <span>🎉</span>
-              <span>
-                {t("Wishlist created!", { $id: "register.mockup.float1" })}
-              </span>
+              <span>{t("Wishlist created!", { $id: "register.mockup.float1" })}</span>
             </div>
             <div className={`${styles.mockupFloat} ${styles.mockupFloat2}`}>
               <span>👥</span>
-              <span>
-                {t("3 friends joined", { $id: "register.mockup.float2" })}
-              </span>
+              <span>{t("3 friends joined", { $id: "register.mockup.float2" })}</span>
             </div>
           </div>
 
           <div className={styles.visualTestimonial}>
             <div className={styles.testimonialStars}>★★★★★</div>
-            <div
-              className={`${styles.testimonialFade} ${fadeIn ? styles.testimonialVisible : ""}`}
-            >
-              <p className={styles.testimonialQuote}>
-                {currentTestimonial.quote}
-              </p>
+            <div className={`${styles.testimonialFade} ${fadeIn ? styles.testimonialVisible : ""}`}>
+              <p className={styles.testimonialQuote}>{currentTestimonial.quote}</p>
               <div className={styles.testimonialAuthor}>
                 <div
                   className={styles.testimonialAvatar}
@@ -142,12 +122,8 @@ function RegisterPageContent() {
                 >
                   {currentTestimonial.initial}
                 </div>
-                <span className={styles.testimonialName}>
-                  {currentTestimonial.name}
-                </span>
-                <span className={styles.testimonialRole}>
-                  {currentTestimonial.role}
-                </span>
+                <span className={styles.testimonialName}>{currentTestimonial.name}</span>
+                <span className={styles.testimonialRole}>{currentTestimonial.role}</span>
               </div>
             </div>
           </div>
@@ -165,12 +141,9 @@ function RegisterPageContent() {
               {t("Create your account", { $id: "register.form.title" })}
             </h1>
             <p className={styles.formSubtitle}>
-              {t(
-                "Join thousands of happy gift-givers. Free forever, no credit card required.",
-                {
-                  $id: "register.form.subtitle",
-                },
-              )}
+              {t("Join thousands of happy gift-givers. Free forever, no credit card required.", {
+                $id: "register.form.subtitle",
+              })}
             </p>
           </div>
 
@@ -182,9 +155,7 @@ function RegisterPageContent() {
 
           <p className={styles.formSwitch}>
             {t("Already have an account?", { $id: "register.switch.text" })}{" "}
-            <Link href={loginHref}>
-              {t("Sign in", { $id: "register.switch.link" })}
-            </Link>
+            <Link href={loginHref}>{t("Sign in", { $id: "register.switch.link" })}</Link>
           </p>
         </div>
       </div>

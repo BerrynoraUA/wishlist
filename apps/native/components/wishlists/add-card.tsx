@@ -1,10 +1,10 @@
 import { Icon } from "@/components/ui/icon";
+import { LinearGradient } from "@/components/ui/linear-gradient";
 import { StyledPressable } from "@/components/ui/styled-pressable";
 import { getThemeMode } from "@/lib/theme";
 import { cn } from "@/lib/utils";
-import { LinearGradient } from "expo-linear-gradient";
 import { Plus } from "lucide-react-native";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import { useUniwind } from "uniwind";
 
 const ADD_CARD_GRADIENTS = {
@@ -51,19 +51,19 @@ export function AddCard({
           colors={gradients.base}
           end={{ x: 1, y: 1 }}
           start={{ x: 0, y: 0 }}
-          style={StyleSheet.absoluteFill}
+          className="absolute inset-0"
         />
         <LinearGradient
           colors={gradients.sheen}
           end={{ x: 1, y: 1 }}
           start={{ x: 0, y: 0 }}
-          style={StyleSheet.absoluteFill}
+          className="absolute inset-0"
         />
         <LinearGradient
           colors={gradients.tint}
           end={{ x: 0.5, y: 1 }}
           start={{ x: 0.5, y: 0 }}
-          style={StyleSheet.absoluteFill}
+          className="absolute inset-0"
         />
       </View>
       <Icon

@@ -4,7 +4,7 @@ import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as HoverCardPrimitive from "@rn-primitives/hover-card";
 import * as React from "react";
-import { Platform, StyleSheet } from "react-native";
+import { Platform } from "react-native";
 import { FadeIn, FadeOut } from "react-native-reanimated";
 import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
@@ -23,7 +23,7 @@ function HoverCardContent({
   return (
     <HoverCardPrimitive.Portal>
       <FullWindowOverlay>
-        <HoverCardPrimitive.Overlay style={StyleSheet.absoluteFill}>
+        <HoverCardPrimitive.Overlay className="absolute inset-0">
           <NativeOnlyAnimatedView
             entering={FadeIn.duration(motionDuration.normal)}
             exiting={FadeOut.duration(motionDuration.fast)}

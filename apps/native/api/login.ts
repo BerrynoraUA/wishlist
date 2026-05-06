@@ -2,7 +2,6 @@ import { supabase } from "@wishlist/backend/supabase/native";
 import * as AppleAuthentication from "expo-apple-authentication";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
-import { Platform } from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -106,7 +105,7 @@ export async function loginWithGoogle(): Promise<void> {
 }
 
 export async function loginWithApple(): Promise<void> {
-  if (Platform.OS !== "ios") {
+  if (process.env.EXPO_OS !== "ios") {
     throw new Error("Apple sign-in is only available on iOS.");
   }
 

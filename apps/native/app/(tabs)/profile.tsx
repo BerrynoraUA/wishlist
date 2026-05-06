@@ -7,10 +7,10 @@ import { useAuth } from "@/providers/auth-provider";
 import { useSettings, useProfile, useUpdateSettings } from "@/hooks/use-settings";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 import type { ThemePreference } from "@wishlist/backend/types/settings";
-import { FlashList } from "@shopify/flash-list";
-import { Stack } from "expo-router";
+import { StyledFlashList } from "@/components/ui/styled-flash-list";
+import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
 const SETTINGS_SECTIONS = [
   "account",
@@ -24,6 +24,7 @@ type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 
 export default function ProfileScreen() {
   const t = useGT();
+  const router = useRouter();
   const { signOut, user } = useAuth();
   const { data: settings, isLoading: settingsLoading } = useSettings();
   const { data: profile, isLoading: profileLoading } = useProfile();
@@ -33,10 +34,15 @@ export default function ProfileScreen() {
     updateSettings.mutate({ theme: value });
   }
 
+  async function handleSignOut() {
+    await signOut();
+    router.replace("/sign-in" as never);
+  }
+
   function renderSection({ item }: { item: SettingsSection }) {
     switch (item) {
       case "account":
-        return <AccountSettings email={user?.email ?? ""} signOut={signOut} />;
+        return <AccountSettings email={user?.email ?? ""} signOut={handleSignOut} />;
       case "profile":
         return <ProfileSettings profile={profile} />;
       case "notifications":
@@ -60,11 +66,12 @@ export default function ProfileScreen() {
     <>
       <Stack.Screen options={{ title: t("Settings") }} />
       <View className="flex-1 bg-bg">
-        <FlashList
+        <StyledFlashList
           data={SETTINGS_SECTIONS}
           renderItem={renderSection}
           keyExtractor={(item) => item}
-          contentContainerStyle={profileStyles.content}
+          className="flex-1"
+          contentContainerClassName="px-4 pb-6 pt-6"
           ItemSeparatorComponent={SettingsSectionSeparator}
           ListHeaderComponent={
             settingsLoading || profileLoading ? (
@@ -73,7 +80,6 @@ export default function ProfileScreen() {
               </View>
             ) : null
           }
-          style={profileStyles.list}
         />
       </View>
     </>
@@ -81,19 +87,5 @@ export default function ProfileScreen() {
 }
 
 function SettingsSectionSeparator() {
-  return <View style={profileStyles.separator} />;
+  return <View className="h-4" />;
 }
-
-const profileStyles = StyleSheet.create({
-  list: {
-    flex: 1,
-  },
-  content: {
-    paddingBottom: 24,
-    paddingHorizontal: 16,
-    paddingTop: 24,
-  },
-  separator: {
-    height: 16,
-  },
-});

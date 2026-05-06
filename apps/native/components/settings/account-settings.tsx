@@ -137,9 +137,7 @@ export function AccountSettings({
               onPress={handleSubmit(submitPassword)}
             >
               <Icon as={Key} className="size-4 text-primary-foreground" />
-              <Text>
-                {changePassword.isPending ? t("Updating...") : t("Update Password")}
-              </Text>
+              <Text>{changePassword.isPending ? t("Updating...") : t("Update Password")}</Text>
             </Button>
           </View>
         )}
@@ -147,9 +145,7 @@ export function AccountSettings({
         <View className="gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
           <Text className="font-bold text-destructive">{t("Danger Zone")}</Text>
           <Text className="text-sm leading-5 text-text-muted">
-            {t(
-              "This action permanently deletes your account and all associated data.",
-            )}
+            {t("This action permanently deletes your account and all associated data.")}
           </Text>
           <Button
             variant="destructive"
