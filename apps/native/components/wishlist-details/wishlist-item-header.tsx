@@ -5,6 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { StyledImage } from "@/components/ui/styled-image";
@@ -20,10 +21,6 @@ import {
 import { cn } from "@/lib/utils";
 import { LinearGradient } from "@/components/ui/linear-gradient";
 import type { Wishlist, WishlistVisibility } from "@wishlist/backend/types/wishlist";
-import DateTimePicker, {
-  DateTimePickerAndroid,
-  type DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
 import {
   Calendar,
   ChevronDown,
@@ -34,7 +31,7 @@ import {
   Trash2,
   X,
 } from "lucide-react-native";
-import { useGT, useLocale } from "gt-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
@@ -44,19 +41,6 @@ type HeaderInlineFormValues = {
   title: string;
   description: string;
 };
-
-function formatEventDateLabel(value: string | null, formatter: Intl.DateTimeFormat) {
-  if (!value) return "";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : formatter.format(date);
-}
-
-function toDateFieldValue(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
 
 export function WishlistItemHeader({
   wishlist,
@@ -74,16 +58,6 @@ export function WishlistItemHeader({
   onManageAccess?: () => void;
 }) {
   const t = useGT();
-  const locale = useLocale();
-  const dateFormatter = React.useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale ?? "en", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-    [locale],
-  );
   const visibilityLabels = React.useMemo(() => getWishlistVisibilityLabels(t), [t]);
   const visibilityOptions = React.useMemo(() => getWishlistVisibilityOptions(t), [t]);
   const patchWishlist = usePatchWishlist();
@@ -95,7 +69,6 @@ export function WishlistItemHeader({
   });
   const [editingTitle, setEditingTitle] = React.useState(false);
   const [editingDescription, setEditingDescription] = React.useState(false);
-  const [iosDateOpen, setIosDateOpen] = React.useState(false);
   const visibility = wishlist.visibility_type;
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[visibility];
   const itemsCount = wishlist.items_count ?? 0;
@@ -132,34 +105,12 @@ export function WishlistItemHeader({
     patchWishlist.mutate({ id: wishlist.id, values: { visibility: nextVisibility } });
   }
 
-  function updateEventDate(date: Date | null) {
+  function updateEventDate(date: string | null) {
     if (patchWishlist.isPending) return;
     patchWishlist.mutate({
       id: wishlist.id,
-      values: { eventDate: date ? toDateFieldValue(date) : null },
+      values: { eventDate: date },
     });
-  }
-
-  function handleDateChange(event: DateTimePickerEvent, selectedDate?: Date) {
-    if (event.type === "dismissed" || !selectedDate) return;
-    updateEventDate(selectedDate);
-  }
-
-  function openDatePicker() {
-    if (!canInlineEdit) return;
-    const date = eventDate ? new Date(eventDate) : new Date();
-
-    if (process.env.EXPO_OS === "android") {
-      DateTimePickerAndroid.open({
-        value: Number.isNaN(date.getTime()) ? new Date() : date,
-        mode: "date",
-        display: "calendar",
-        onChange: handleDateChange,
-      });
-      return;
-    }
-
-    setIosDateOpen((open) => !open);
   }
 
   return (
@@ -279,97 +230,104 @@ export function WishlistItemHeader({
             </View>
           </View>
 
-          <View className="flex-row items-center gap-2">
-            <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-2">
-              {canInlineEdit ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <AnimatedPressable className="h-8 flex-row items-center gap-1 rounded-full bg-brand-alpha-12 px-3">
+          <DatePicker
+            value={eventDate}
+            onChange={updateEventDate}
+            iosContainerClassName="overflow-hidden rounded-xl border border-border-subtle bg-card-bg"
+          >
+            {({ displayValue, openPicker }) => (
+              <View className="flex-row items-center gap-2">
+                <View className="min-w-0 flex-1 flex-row flex-wrap items-center justify-around gap-2">
+                  {canInlineEdit ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <AnimatedPressable className="h-8 flex-row items-center gap-1 rounded-full bg-brand-alpha-12 px-3">
+                          <Icon as={VisibilityIcon} className="size-3.5 text-brand" />
+                          <Text className="text-xs font-bold text-brand">
+                            {visibilityLabels[visibility]}
+                          </Text>
+                          <Icon as={ChevronDown} className="size-3 text-brand" />
+                        </AnimatedPressable>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="min-w-48">
+                        {visibilityOptions.map((option) => (
+                          <DropdownMenuItem
+                            key={option.value}
+                            className={cn(option.surfaceClassName, option.itemClassName)}
+                            onPress={() => updateVisibility(option.visibility)}
+                          >
+                            <Icon as={option.icon} className="size-4 text-popover-foreground" />
+                            <Text>{option.label}</Text>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <View className="h-8 flex-row items-center gap-1 rounded-full bg-brand-alpha-12 px-3">
                       <Icon as={VisibilityIcon} className="size-3.5 text-brand" />
                       <Text className="text-xs font-bold text-brand">
                         {visibilityLabels[visibility]}
                       </Text>
-                      <Icon as={ChevronDown} className="size-3 text-brand" />
-                    </AnimatedPressable>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="min-w-48">
-                    {visibilityOptions.map((option) => (
-                      <DropdownMenuItem
-                        key={option.value}
-                        className={cn(option.surfaceClassName, option.itemClassName)}
-                        onPress={() => updateVisibility(option.visibility)}
-                      >
-                        <Icon as={option.icon} className="size-4 text-popover-foreground" />
-                        <Text>{option.label}</Text>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <View className="h-8 flex-row items-center gap-1 rounded-full bg-brand-alpha-12 px-3">
-                  <Icon as={VisibilityIcon} className="size-3.5 text-brand" />
-                  <Text className="text-xs font-bold text-brand">
-                    {visibilityLabels[visibility]}
-                  </Text>
-                </View>
-              )}
+                    </View>
+                  )}
 
-              <View className="h-8 justify-center rounded-full bg-badge-count-bg px-3">
-                <Text className="text-xs font-bold text-text-muted">
-                  {itemsCount === 1 ? t("1 item") : t("{count} items", { count: itemsCount })}
-                </Text>
-              </View>
-
-              {eventDate || canInlineEdit ? (
-                eventDate && canInlineEdit ? (
-                  <View className="flex-row items-center rounded-full bg-info-bg pl-3 pr-1">
-                    <AnimatedPressable
-                      accessibilityRole="button"
-                      accessibilityLabel={t("Wishlist event date")}
-                      onPress={openDatePicker}
-                      className="h-8 flex-row items-center gap-1 pr-2"
-                    >
-                      <Icon as={Calendar} className="size-3.5 text-info" />
-                      <Text className="text-xs font-bold text-info" numberOfLines={1}>
-                        {formatEventDateLabel(eventDate, dateFormatter)}
-                      </Text>
-                    </AnimatedPressable>
-                    <AnimatedPressable
-                      accessibilityRole="button"
-                      accessibilityLabel={t("Clear date")}
-                      onPress={() => updateEventDate(null)}
-                      className="size-8 items-center justify-center rounded-full"
-                    >
-                      <Icon as={X} className="size-3.5 text-text-muted" />
-                    </AnimatedPressable>
-                  </View>
-                ) : (
-                  <AnimatedPressable
-                    accessibilityRole={canInlineEdit ? "button" : "text"}
-                    accessibilityLabel={eventDate ? t("Wishlist event date") : t("Add date")}
-                    onPress={openDatePicker}
-                    className="h-8 flex-row items-center gap-1 rounded-full bg-info-bg px-3"
-                  >
-                    <Icon as={Calendar} className="size-3.5 text-info" />
-                    <Text className="text-xs font-bold text-info">
-                      {eventDate ? formatEventDateLabel(eventDate, dateFormatter) : t("Add date")}
+                  <View className="h-8 justify-center rounded-full bg-badge-count-bg px-3">
+                    <Text className="text-xs font-bold text-text-muted">
+                      {itemsCount === 1 ? t("1 item") : t("{count} items", { count: itemsCount })}
                     </Text>
-                  </AnimatedPressable>
-                )
-              ) : null}
-            </View>
-          </View>
+                  </View>
 
-          {process.env.EXPO_OS === "ios" && iosDateOpen ? (
-            <View className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg">
-              <DateTimePicker
-                value={eventDate ? new Date(eventDate) : new Date()}
-                mode="date"
-                display="inline"
-                onChange={handleDateChange}
-              />
-            </View>
-          ) : null}
+                  {eventDate || canInlineEdit ? (
+                    eventDate && canInlineEdit ? (
+                      <View
+                        className={cn(
+                          "flex-row items-center rounded-full bg-info-bg",
+                          process.env.EXPO_OS === "android" ? "px-3" : "pl-3 pr-1",
+                        )}
+                      >
+                        <AnimatedPressable
+                          accessibilityRole="button"
+                          accessibilityLabel={t("Wishlist event date")}
+                          onPress={openPicker}
+                          className={cn(
+                            "h-8 flex-row items-center gap-1",
+                            process.env.EXPO_OS !== "android" && "pr-2",
+                          )}
+                        >
+                          <Icon as={Calendar} className="size-3.5 text-info" />
+                          <Text className="text-xs font-bold text-info" numberOfLines={1}>
+                            {displayValue}
+                          </Text>
+                        </AnimatedPressable>
+                        {process.env.EXPO_OS !== "android" ? (
+                          <AnimatedPressable
+                            accessibilityRole="button"
+                            accessibilityLabel={t("Clear date")}
+                            onPress={() => updateEventDate(null)}
+                            className="size-8 items-center justify-center rounded-full"
+                          >
+                            <Icon as={X} className="size-3.5 text-text-muted" />
+                          </AnimatedPressable>
+                        ) : null}
+                      </View>
+                    ) : (
+                      <AnimatedPressable
+                        accessibilityRole={canInlineEdit ? "button" : "text"}
+                        accessibilityLabel={eventDate ? t("Wishlist event date") : t("Add date")}
+                        onPress={canInlineEdit ? openPicker : undefined}
+                        className="h-8 flex-row items-center gap-1 rounded-full bg-info-bg px-3"
+                      >
+                        <Icon as={Calendar} className="size-3.5 text-info" />
+                        <Text className="text-xs font-bold text-info">
+                          {eventDate ? displayValue : t("Add date")}
+                        </Text>
+                      </AnimatedPressable>
+                    )
+                  ) : null}
+                </View>
+              </View>
+            )}
+          </DatePicker>
 
           {onShare || (isOwner && onManageAccess) ? (
             <View className="flex-row items-center justify-end gap-2">

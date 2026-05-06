@@ -114,10 +114,7 @@ export function WishlistList({
     ({ item, target }: { item: WishlistListRow; target: string }) =>
       "type" in item ? (
         <View
-          className={cn(
-            "z-[2] pb-4",
-            target === "StickyHeader" ? "bg-bg" : "bg-transparent",
-          )}
+          className={cn("z-[2] pb-4", target === "StickyHeader" ? "bg-bg" : "bg-transparent")}
           style={{ paddingTop: insets.top + 16 }}
         >
           <View className="max-w-[1200px] self-center" style={{ width: contentWidth }}>

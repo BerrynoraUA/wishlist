@@ -1,6 +1,7 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -20,10 +21,6 @@ import {
   useUpdateWishlist,
   wishlistKeys,
 } from "@/hooks/use-wishlists";
-import DateTimePicker, {
-  DateTimePickerAndroid,
-  type DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
 import {
   EMPTY_WISHLIST_FORM,
   SELECTED_FRIENDS_ACCESS_TYPE,
@@ -50,7 +47,7 @@ import {
   type WishlistFormValues,
 } from "@wishlist/backend/types/wishlist";
 import { CalendarDays, Check, X } from "lucide-react-native";
-import { useGT, useLocale } from "gt-react-native";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, ScrollView, View } from "react-native";
@@ -74,35 +71,6 @@ type VisibilitySelectorValue =
   | "selected-groups"
   | "friends"
   | "public";
-
-function parseDateFieldValue(value: string) {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) return null;
-
-  const year = Number(match[1]);
-  const month = Number(match[2]) - 1;
-  const day = Number(match[3]);
-  const date = new Date(year, month, day);
-
-  if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
-    return null;
-  }
-
-  return date;
-}
-
-function formatDateFieldValue(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function formatDateFieldLabel(value: string, formatter: Intl.DateTimeFormat, emptyLabel: string) {
-  const date = parseDateFieldValue(value);
-  return date ? formatter.format(date) : emptyLabel;
-}
 
 export function WishlistCreateEditSheet({
   mode,
@@ -831,81 +799,47 @@ function EventDatePicker({
   onChange: (value: string) => void;
 }) {
   const t = useGT();
-  const locale = useLocale();
-  const dateLabelFormatter = React.useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale ?? "en", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-    [locale],
-  );
-  const [iosPickerOpen, setIosPickerOpen] = React.useState(false);
-  const date = React.useMemo(() => parseDateFieldValue(value) ?? new Date(), [value]);
-
-  function handleDateChange(event: DateTimePickerEvent, selectedDate?: Date) {
-    if (event.type === "dismissed" || !selectedDate) return;
-
-    onChange(formatDateFieldValue(selectedDate));
-  }
-
-  function handleOpenPicker() {
-    if (process.env.EXPO_OS === "android") {
-      DateTimePickerAndroid.open({
-        value: date,
-        mode: "date",
-        display: "calendar",
-        onChange: handleDateChange,
-      });
-      return;
-    }
-
-    setIosPickerOpen((open) => !open);
-  }
 
   return (
-    <View className="gap-2">
-      <AnimatedPressable
-        accessibilityRole="button"
-        accessibilityLabel={t("Select event date")}
-        onPress={handleOpenPicker}
-        className="min-h-12 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-bg-subtle px-3"
-      >
-        <Icon as={CalendarDays} className="size-4 text-text-muted" />
-        <View className="min-w-0 flex-1">
-          <Text className={cn("font-semibold", value ? "text-text" : "text-text-muted")}>
-            {formatDateFieldLabel(value, dateLabelFormatter, t("Select a date"))}
-          </Text>
-          {value ? <Text className="text-xs font-semibold text-text-muted">{value}</Text> : null}
-        </View>
-        {value ? (
+    <DatePicker
+      value={value || null}
+      onChange={(nextValue) => onChange(nextValue ?? "")}
+      iosContainerClassName="mt-2 overflow-hidden rounded-xl border border-border-subtle bg-bg-subtle"
+    >
+      {({ displayValue, openPicker }) => (
+        <View className="gap-2">
           <AnimatedPressable
             accessibilityRole="button"
-            accessibilityLabel={t("Clear event date")}
-            onPress={(event) => {
-              event.stopPropagation();
-              onChange("");
-            }}
-            className="size-8 items-center justify-center rounded-full bg-bg-muted"
+            accessibilityLabel={t("Select event date")}
+            onPress={openPicker}
+            className="min-h-12 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-bg-subtle px-3"
           >
-            <Icon as={X} className="size-3.5 text-text-muted" />
+            <Icon as={CalendarDays} className="size-4 text-text-muted" />
+            <View className="min-w-0 flex-1">
+              <Text className={cn("font-semibold", value ? "text-text" : "text-text-muted")}>
+                {value ? displayValue : t("Select a date")}
+              </Text>
+              {value ? (
+                <Text className="text-xs font-semibold text-text-muted">{value}</Text>
+              ) : null}
+            </View>
+            {process.env.EXPO_OS !== "android" && value ? (
+              <AnimatedPressable
+                accessibilityRole="button"
+                accessibilityLabel={t("Clear event date")}
+                onPress={(event) => {
+                  event.stopPropagation();
+                  onChange("");
+                }}
+                className="size-8 items-center justify-center rounded-full bg-bg-muted"
+              >
+                <Icon as={X} className="size-3.5 text-text-muted" />
+              </AnimatedPressable>
+            ) : null}
           </AnimatedPressable>
-        ) : null}
-      </AnimatedPressable>
-
-      {process.env.EXPO_OS === "ios" && iosPickerOpen ? (
-        <View className="overflow-hidden rounded-xl border border-border-subtle bg-bg-subtle">
-          <DateTimePicker
-            value={date}
-            mode="date"
-            display="inline"
-            onChange={handleDateChange}
-            style={{ alignSelf: "stretch" }}
-          />
         </View>
-      ) : null}
-    </View>
+      )}
+    </DatePicker>
   );
 }
 
