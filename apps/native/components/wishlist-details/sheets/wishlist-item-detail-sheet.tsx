@@ -128,8 +128,7 @@ export function WishlistItemDetailSheet({
     <>
       <BottomSheet
         ref={sheetRef}
-        detents={[0.72, 1]}
-        scrollable
+        detents={["auto"]}
         dismissOnBack={false}
         onDidDismiss={onClose}
         header={
