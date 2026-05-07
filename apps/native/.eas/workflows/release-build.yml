@@ -1,0 +1,49 @@
+name: Native Release Build
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  cancel_in_progress: true
+  group: ${{ workflow.filename }}-${{ github.ref }}
+
+jobs:
+  build_android:
+    name: Build Android Release
+    type: build
+    environment: production
+    params:
+      platform: android
+      profile: production
+      message: Release build from ${{ github.ref_name }}
+
+  # build_ios:
+  #   name: Build iOS Release
+  #   type: build
+  #   environment: production
+  #   params:
+  #     platform: ios
+  #     profile: production
+  #     message: Release build from ${{ github.ref_name }}
+
+  publish_android_update:
+    name: Publish Android Production Update
+    needs: [build_android]
+    type: update
+    environment: production
+    params:
+      platform: android
+      channel: production
+      message: Production update from ${{ github.ref_name }}
+
+  # publish_ios_update:
+  #   name: Publish iOS Production Update
+  #   needs: [build_ios]
+  #   type: update
+  #   environment: production
+  #   params:
+  #     platform: ios
+  #     channel: production
+  #     message: Production update from ${{ github.ref_name }}

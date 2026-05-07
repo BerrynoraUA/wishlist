@@ -23,7 +23,6 @@ import {
   getWishlistAccentGradientColors,
   getWishlistVisibilityLabels,
 } from "@/lib/wishlists";
-import { AddCard } from "@/components/wishlists/add-card";
 import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import type { TriggerRef } from "@rn-primitives/dropdown-menu";
@@ -53,8 +52,7 @@ type SheetState =
   | { type: "delete"; wishlist: Wishlist }
   | null;
 
-type WishlistListEntry = Wishlist | { id: "create"; type: "create" };
-type WishlistListRow = WishlistListEntry[] | { id: "filters"; type: "filters" };
+type WishlistListRow = Wishlist[] | { id: "filters"; type: "filters" };
 
 export function WishlistList({
   query,
@@ -69,7 +67,6 @@ export function WishlistList({
   ListHeaderComponent,
   StickyHeaderComponent,
   onPageChange,
-  onCreateWishlist,
   onOpenSheet,
 }: {
   query: {
@@ -93,19 +90,11 @@ export function WishlistList({
   ListHeaderComponent: React.ReactElement;
   StickyHeaderComponent: React.ReactElement;
   onPageChange: (page: number) => void;
-  onCreateWishlist: () => void;
   onOpenSheet: (sheet: Exclude<SheetState, null>) => void;
 }) {
   const t = useGT();
   const insets = useSafeAreaInsets();
-  const entries = React.useMemo<WishlistListEntry[]>(
-    () =>
-      !query.isError && wishlists.length > 0
-        ? [...wishlists, { id: "create", type: "create" }]
-        : wishlists,
-    [query.isError, wishlists],
-  );
-  const rows = React.useMemo(() => chunkRows(entries, columns), [columns, entries]);
+  const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
   const data = React.useMemo<WishlistListRow[]>(
     () => [{ id: "filters", type: "filters" }, ...(query.isLoading ? [] : rows)],
     [query.isLoading, rows],
@@ -114,10 +103,7 @@ export function WishlistList({
     ({ item, target }: { item: WishlistListRow; target: string }) =>
       "type" in item ? (
         <View
-          className={cn(
-            "z-[2] pb-4",
-            target === "StickyHeader" ? "bg-bg" : "bg-transparent",
-          )}
+          className={cn("z-[2] pb-4", target === "StickyHeader" ? "bg-bg" : "bg-transparent")}
           style={{ paddingTop: insets.top + 16 }}
         >
           <View className="max-w-[1200px] self-center" style={{ width: contentWidth }}>
@@ -134,37 +120,26 @@ export function WishlistList({
             width: contentWidth,
           }}
         >
-          {item.map((entry) =>
-            "type" in entry ? (
-              <AddCard
-                key={entry.id}
-                width={cardWidth}
-                onPress={onCreateWishlist}
-                accessibilityLabel={t("Create wishlist")}
-              />
-            ) : (
-              <WishlistCard
-                key={entry.id}
-                wishlist={entry}
-                width={cardWidth}
-                onEdit={
-                  entry.is_owner || entry.can_edit
-                    ? () => onOpenSheet({ type: "edit", wishlist: entry })
-                    : undefined
-                }
-                onAddItem={
-                  entry.is_owner || entry.can_edit
-                    ? () => onOpenSheet({ type: "addItem", wishlist: entry })
-                    : undefined
-                }
-                onDelete={
-                  entry.is_owner
-                    ? () => onOpenSheet({ type: "delete", wishlist: entry })
-                    : undefined
-                }
-              />
-            ),
-          )}
+          {item.map((entry) => (
+            <WishlistCard
+              key={entry.id}
+              wishlist={entry}
+              width={cardWidth}
+              onEdit={
+                entry.is_owner || entry.can_edit
+                  ? () => onOpenSheet({ type: "edit", wishlist: entry })
+                  : undefined
+              }
+              onAddItem={
+                entry.is_owner || entry.can_edit
+                  ? () => onOpenSheet({ type: "addItem", wishlist: entry })
+                  : undefined
+              }
+              onDelete={
+                entry.is_owner ? () => onOpenSheet({ type: "delete", wishlist: entry }) : undefined
+              }
+            />
+          ))}
         </View>
       ),
     [
@@ -172,11 +147,9 @@ export function WishlistList({
       contentWidth,
       gridGap,
       insets.top,
-      onCreateWishlist,
       onOpenSheet,
       query.isFetching,
       StickyHeaderComponent,
-      t,
     ],
   );
 

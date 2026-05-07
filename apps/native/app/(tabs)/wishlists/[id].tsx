@@ -14,7 +14,6 @@ import {
   WishlistItemFilterBar,
   type WishlistItemFilterState,
 } from "@/components/wishlist-details/wishlist-item-filter-bar";
-import { AddCard } from "@/components/wishlists/add-card";
 import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
 import { WishlistDeleteSheet } from "@/components/wishlists/sheets/wishlist-delete-sheet";
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
@@ -66,9 +65,8 @@ type SheetState =
   | { type: "deleteWishlist"; wishlist: Wishlist }
   | null;
 
-type WishlistItemListEntry = Item | { id: "create"; type: "create" };
 type WishlistItemListRow =
-  | WishlistItemListEntry[]
+  | Item[]
   | { id: "header"; type: "header" }
   | { id: "filters"; type: "filters" };
 
@@ -155,15 +153,7 @@ export default function WishlistDetailScreen() {
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
   const showDiscountBadge = !canEditWishlist && Boolean(friendshipQuery.data);
-  const itemListEntries = React.useMemo<WishlistItemListEntry[]>(
-    () =>
-      canEditWishlist && !itemsQuery.isError ? [...items, { id: "create", type: "create" }] : items,
-    [canEditWishlist, items, itemsQuery.isError],
-  );
-  const itemRows = React.useMemo(
-    () => chunkRows(itemListEntries, columns),
-    [columns, itemListEntries],
-  );
+  const itemRows = React.useMemo(() => chunkRows(items, columns), [columns, items]);
   const itemListData = React.useMemo<WishlistItemListRow[]>(
     () => [
       { id: "header", type: "header" },
@@ -203,10 +193,7 @@ export default function WishlistDetailScreen() {
         ) : null
       ) : "type" in item ? (
         <View
-          className={cn(
-            "z-[2] pb-4",
-            target === "StickyHeader" ? "bg-bg" : "bg-transparent",
-          )}
+          className={cn("z-[2] pb-4", target === "StickyHeader" ? "bg-bg" : "bg-transparent")}
           style={{ paddingTop: insets.top + 16 }}
         >
           <View className="max-w-[1200px] self-center" style={{ width: contentWidth }}>
@@ -230,43 +217,32 @@ export default function WishlistDetailScreen() {
             width: contentWidth,
           }}
         >
-          {item.map((entry) =>
-            "type" in entry ? (
-              <AddCard
-                key={entry.id}
+          {item.map((entry) => (
+            <Animated.View
+              key={entry.id}
+              entering={wishlistCardFadeIn}
+              style={{ width: cardWidth }}
+            >
+              <WishlistItemCard
+                item={entry}
                 width={cardWidth}
-                onPress={() => setSheet({ type: "create" })}
-                accessibilityLabel={t("Add item")}
+                currentUserId={currentUser.data}
+                isOwner={canEditWishlist}
+                showDiscountBadge={showDiscountBadge}
+                reservedByName={
+                  entry.reserved_by ? profileNamesById.get(entry.reserved_by) : undefined
+                }
+                voteCount={votesQuery.data?.counts[entry.id] ?? 0}
+                hasVoted={votesQuery.data?.userVotes.has(entry.id) ?? false}
+                onPress={() => setSheet({ type: "detail", item: entry })}
+                onEdit={canEditWishlist ? () => setSheet({ type: "edit", item: entry }) : undefined}
+                onDelete={
+                  canEditWishlist ? () => setSheet({ type: "delete", item: entry }) : undefined
+                }
+                onToggleVote={canEditWishlist ? undefined : () => toggleVote.mutate(entry.id)}
               />
-            ) : (
-              <Animated.View
-                key={entry.id}
-                entering={wishlistCardFadeIn}
-                style={{ width: cardWidth }}
-              >
-                <WishlistItemCard
-                  item={entry}
-                  width={cardWidth}
-                  currentUserId={currentUser.data}
-                  isOwner={canEditWishlist}
-                  showDiscountBadge={showDiscountBadge}
-                  reservedByName={
-                    entry.reserved_by ? profileNamesById.get(entry.reserved_by) : undefined
-                  }
-                  voteCount={votesQuery.data?.counts[entry.id] ?? 0}
-                  hasVoted={votesQuery.data?.userVotes.has(entry.id) ?? false}
-                  onPress={() => setSheet({ type: "detail", item: entry })}
-                  onEdit={
-                    canEditWishlist ? () => setSheet({ type: "edit", item: entry }) : undefined
-                  }
-                  onDelete={
-                    canEditWishlist ? () => setSheet({ type: "delete", item: entry }) : undefined
-                  }
-                  onToggleVote={canEditWishlist ? undefined : () => toggleVote.mutate(entry.id)}
-                />
-              </Animated.View>
-            ),
-          )}
+            </Animated.View>
+          ))}
         </View>
       ),
     [
