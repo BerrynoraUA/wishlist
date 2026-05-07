@@ -1,6 +1,7 @@
 import { Globe, Lock, UserCheck, Users, type LucideIcon } from "lucide-react-native";
 import type { TranslateFn } from "@/lib/translate-fn";
 import type { NativeThemeMode } from "@/lib/theme";
+import { ACCENT_GRADIENT_COLORS } from "@/lib/theme-gradients";
 import {
   WishlistAccent,
   WishlistVisibility,
@@ -185,24 +186,7 @@ export function getWishlistAccentGradientColors(
   accent: WishlistAccent | null | undefined,
   mode: NativeThemeMode,
 ) {
-  const gradients = {
-    light: {
-      pink: ["#fce7f3", "#f9cfe2", "#f0a6ca"],
-      blue: ["#e0f2fe", "#bfdbfe", "#93c5fd"],
-      peach: ["#fef3c7", "#fde68a", "#fbbf24"],
-      mint: ["#d1fae5", "#a7f3d0", "#6ee7b7"],
-      lavender: ["#ede9fe", "#ddd6fe", "#c4b5fd"],
-    },
-    dark: {
-      pink: ["#2b1323", "#3b1730", "#4a1d35"],
-      blue: ["#132033", "#1d2f4d", "#263f66"],
-      peach: ["#2d2113", "#3b2a16", "#4a341a"],
-      mint: ["#10291f", "#173629", "#1e4434"],
-      lavender: ["#201832", "#2a1f42", "#362854"],
-    },
-  } as const;
-
-  return gradients[mode][getWishlistAccentKey(accent)];
+  return ACCENT_GRADIENT_COLORS[mode][getWishlistAccentKey(accent)];
 }
 
 export function toWishlistFormValues(wishlist?: {

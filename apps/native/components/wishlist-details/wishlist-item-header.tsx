@@ -114,7 +114,14 @@ export function WishlistItemHeader({
   }
 
   return (
-    <View className="w-full self-stretch border-b border-border-subtle bg-gradient-header">
+    <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
+      <LinearGradient
+        colors={accentGradientColors}
+        end={{ x: 1, y: 1 }}
+        start={{ x: 0, y: 0 }}
+        className="absolute inset-0"
+      />
+      <View className="absolute inset-0 bg-black/10" />
       <View className="overflow-visible px-4 py-4">
         <View className="gap-3">
           <View className="flex-row items-center gap-3">
