@@ -1,17 +1,9 @@
 import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
 import type { ThemePreference } from "@wishlist/backend/types/settings";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
-import {
-  PRIMARY_GRADIENT_COLORS,
-  type NativeAccentName,
-  type NativeGradientColors,
-  type NativeThemeMode,
-} from "@/lib/theme-gradients";
-export type {
-  NativeAccentName,
-  NativeGradientColors,
-  NativeThemeMode,
-} from "@/lib/theme-gradients";
+
+export type NativeThemeMode = "light" | "dark";
+export type NativeAccentName = "pink" | "blue" | "peach" | "mint" | "lavender";
 
 export const NATIVE_THEME_NAMES = [
   "light",
@@ -34,27 +26,27 @@ export const NATIVE_ACCENTS = [
   {
     name: "pink",
     label: "Pink",
-    swatchClassName: "bg-gradient-accent-pink",
+    swatchClassName: "bg-linear-135 from-pink-300 via-pink-400 to-pink-600",
   },
   {
     name: "blue",
     label: "Blue",
-    swatchClassName: "bg-gradient-accent-blue",
+    swatchClassName: "bg-linear-135 from-sky-300 via-blue-400 to-blue-600",
   },
   {
     name: "peach",
     label: "Peach",
-    swatchClassName: "bg-gradient-accent-peach",
+    swatchClassName: "bg-linear-135 from-amber-200 via-orange-300 to-amber-500",
   },
   {
     name: "mint",
     label: "Mint",
-    swatchClassName: "bg-gradient-accent-mint",
+    swatchClassName: "bg-linear-135 from-emerald-200 via-teal-300 to-emerald-500",
   },
   {
     name: "lavender",
     label: "Lavender",
-    swatchClassName: "bg-gradient-accent-lavender",
+    swatchClassName: "bg-linear-135 from-violet-200 via-purple-300 to-violet-500",
   },
 ] as const satisfies readonly {
   name: NativeAccentName;
@@ -161,10 +153,6 @@ export function getThemeAccent(theme: string | null | undefined): NativeAccentNa
 
   const accent = theme.replace(/-(light|dark)$/, "");
   return isNativeAccentName(accent) ? accent : "pink";
-}
-
-export function getPrimaryGradientColors(theme: string | null | undefined): NativeGradientColors {
-  return PRIMARY_GRADIENT_COLORS[getThemeMode(theme)][getThemeAccent(theme)];
 }
 
 export function getNativeAccentForWishlistAccent(

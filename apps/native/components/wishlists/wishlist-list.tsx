@@ -9,18 +9,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
-import { LinearGradient } from "@/components/ui/linear-gradient";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { useMyStatistics } from "@/hooks/use-wishlists";
 import { chunkRows } from "@/lib/layout";
-import { getThemeMode } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import {
   WISHLIST_VISIBILITY_ICONS,
-  getWishlistAccentGradientColors,
+  getWishlistAccentClass,
   getWishlistVisibilityLabels,
 } from "@/lib/wishlists";
 import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
@@ -43,7 +41,6 @@ import * as React from "react";
 import { View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useUniwind } from "uniwind";
 
 type SheetState =
   | { type: "create" }
@@ -310,10 +307,6 @@ function WishlistCard({
     ? t("Shared by @{nickname}", { nickname: ownerNickname })
     : t("Shared wishlist");
   const menuTriggerRef = React.useRef<TriggerRef>(null);
-  const { theme } = useUniwind();
-  const mode = getThemeMode(theme);
-  const accentGradientColors = getWishlistAccentGradientColors(wishlist.accent_type, mode);
-
   return (
     <Animated.View entering={wishlistCardFadeIn} style={{ width }}>
       <DropdownMenu className="relative">
@@ -328,11 +321,8 @@ function WishlistCard({
             pressedScale={0.98}
           >
             <View className="h-[120px] items-center justify-center overflow-hidden">
-              <LinearGradient
-                colors={accentGradientColors}
-                end={{ x: 1, y: 1 }}
-                start={{ x: 0, y: 0 }}
-                className="absolute inset-0"
+              <View
+                className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))}
               />
               {wishlist.image_url ? (
                 <StyledImage

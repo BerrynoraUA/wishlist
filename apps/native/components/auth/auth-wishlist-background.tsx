@@ -1,5 +1,4 @@
 import { Icon } from "@/components/ui/icon";
-import { LinearGradient } from "@/components/ui/linear-gradient";
 import { GiftIcon } from "lucide-react-native";
 import { View } from "react-native";
 
@@ -28,13 +27,7 @@ export function AuthWishlistBackground({
 }) {
   return (
     <View pointerEvents="none" className="absolute inset-0">
-      <LinearGradient
-        className="absolute inset-0"
-        colors={["#16111f", "#2a1630", "#6f1f54", "#c0267e"]}
-        end={{ x: 1, y: 1 }}
-        locations={[0, 0.42, 0.74, 1]}
-        start={{ x: 0, y: 0 }}
-      />
+      <View className="absolute inset-0 bg-linear-[135deg,#16111f_0%,#2a1630_42%,#6f1f54_74%,#c0267e_100%]" />
       {SKELETONS[variant].map((skeleton) => (
         <WishlistSkeleton
           key={skeleton.className}
@@ -43,20 +36,8 @@ export function AuthWishlistBackground({
           variant={variant}
         />
       ))}
-      <LinearGradient
-        className="absolute inset-x-0 top-0 h-[56%]"
-        colors={["rgba(255,255,255,0.18)", "rgba(255,255,255,0.05)", "rgba(255,255,255,0)"]}
-        end={{ x: 0.5, y: 1 }}
-        locations={[0, 0.48, 1]}
-        start={{ x: 0.5, y: 0 }}
-      />
-      <LinearGradient
-        className="absolute inset-x-0 bottom-0 h-[72%]"
-        colors={["rgba(22,17,31,0)", "rgba(22,17,31,0.56)", "rgba(22,17,31,0.9)"]}
-        end={{ x: 0.5, y: 1 }}
-        locations={[0, 0.56, 1]}
-        start={{ x: 0.5, y: 0 }}
-      />
+      <View className="absolute inset-x-0 top-0 h-[56%] bg-linear-[180deg,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.05)_48%,rgba(255,255,255,0)_100%]" />
+      <View className="absolute inset-x-0 bottom-0 h-[72%] bg-linear-[180deg,rgba(22,17,31,0)_0%,rgba(22,17,31,0.56)_56%,rgba(22,17,31,0.9)_100%]" />
     </View>
   );
 }
