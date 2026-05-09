@@ -1,3 +1,11 @@
+# Project Guidelines
+
+## General
+- Do not ever start a dev server as a part of your job
+
+## Task Completion Requirements
+- pnpm ref and pnpm check-types must pass before considering tasks completed.
+
 # Karpathy Guidelines
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
