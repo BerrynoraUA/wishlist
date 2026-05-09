@@ -1,6 +1,17 @@
 import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
 import type { ThemePreference } from "@wishlist/backend/types/settings";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
+import {
+  PRIMARY_GRADIENT_COLORS,
+  type NativeAccentName,
+  type NativeGradientColors,
+  type NativeThemeMode,
+} from "@/lib/theme-gradients";
+export type {
+  NativeAccentName,
+  NativeGradientColors,
+  NativeThemeMode,
+} from "@/lib/theme-gradients";
 
 export const NATIVE_THEME_NAMES = [
   "light",
@@ -18,9 +29,6 @@ export const NATIVE_THEME_NAMES = [
 ] as const;
 
 export type NativeThemeName = (typeof NATIVE_THEME_NAMES)[number];
-export type NativeThemeMode = "light" | "dark";
-export type NativeAccentName = "pink" | "blue" | "peach" | "mint" | "lavender";
-export type NativeGradientColors = readonly [string, string, string];
 
 export const NATIVE_ACCENTS = [
   {
@@ -114,26 +122,6 @@ const THEME_PALETTES: Record<NativeThemeName, ThemePalette> = {
   "mint-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#34d399" },
   "lavender-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#7c3aed" },
   "lavender-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#a78bfa" },
-};
-
-const PRIMARY_GRADIENT_COLORS: Record<
-  NativeThemeMode,
-  Record<NativeAccentName, NativeGradientColors>
-> = {
-  light: {
-    pink: ["#ec4899", "#c0267e", "#f472b6"],
-    blue: ["#60a5fa", "#2563eb", "#93c5fd"],
-    peach: ["#f59e0b", "#d97706", "#fbbf24"],
-    mint: ["#10b981", "#059669", "#34d399"],
-    lavender: ["#8b5cf6", "#7c3aed", "#a78bfa"],
-  },
-  dark: {
-    pink: ["#f472b6", "#e052a0", "#f9a8d4"],
-    blue: ["#93c5fd", "#60a5fa", "#bfdbfe"],
-    peach: ["#fde68a", "#fbbf24", "#fef3c7"],
-    mint: ["#6ee7b7", "#34d399", "#a7f3d0"],
-    lavender: ["#c4b5fd", "#a78bfa", "#ddd6fe"],
-  },
 };
 
 function createNavigationTheme(palette: ThemePalette): Theme {
