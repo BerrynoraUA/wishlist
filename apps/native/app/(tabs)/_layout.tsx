@@ -1,4 +1,4 @@
-import { getNavigationTheme, getThemeMode } from "@/lib/theme";
+import { getThemeMode, useNavigationTheme } from "@/lib/theme";
 import { useAuth } from "@/providers/auth-provider";
 import { Redirect } from "expo-router";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
@@ -10,7 +10,7 @@ export default function TabsLayout() {
   const { session } = useAuth();
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
-  const navigationTheme = getNavigationTheme(theme);
+  const navigationTheme = useNavigationTheme(theme);
   const selectedTabBackground =
     themeMode === "dark"
       ? `${navigationTheme.colors.primary}24`
