@@ -71,11 +71,20 @@ function SelectContent({
   children,
   position = "popper",
   portalHost,
+  style,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content> & {
   className?: string;
   portalHost?: string;
 }) {
+  const { triggerPosition } = SelectPrimitive.useRootContext();
+  const contentStyle =
+    triggerPosition?.width != null
+      ? ([style, { minWidth: triggerPosition.width }] as unknown as React.ComponentProps<
+          typeof SelectPrimitive.Content
+        >["style"])
+      : (style ?? undefined);
+
   return (
     <SelectPrimitive.Portal hostName={portalHost}>
       <FullWindowOverlay>
@@ -93,6 +102,7 @@ function SelectContent({
                   className,
                 )}
                 position={position}
+                style={contentStyle}
                 {...props}
               >
                 <SelectPrimitive.Viewport className={cn("p-1", position === "popper" && "w-full")}>
