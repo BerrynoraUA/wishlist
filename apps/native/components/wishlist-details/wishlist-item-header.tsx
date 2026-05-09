@@ -153,7 +153,7 @@ export function WishlistItemHeader({
                         onBlur={saveTitle}
                         returnKeyType="done"
                         onSubmitEditing={saveTitle}
-                        className="h-11 rounded-xl border-white/50 bg-white/90 text-xl font-extrabold text-text"
+                        className="h-11 text-xl font-extrabold"
                       />
                     )}
                   />
@@ -184,7 +184,7 @@ export function WishlistItemHeader({
                         onChangeText={onChange}
                         onBlur={saveDescription}
                         multiline
-                        className="mt-2 h-20 rounded-xl border-white/50 bg-white/90 text-sm text-text"
+                        className="mt-2 h-20 items-start py-3 text-sm"
                         textAlignVertical="top"
                       />
                     )}
