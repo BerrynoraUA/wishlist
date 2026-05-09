@@ -8,8 +8,6 @@ export type NativeAccentName = "pink" | "blue" | "peach" | "mint" | "lavender";
 export const NATIVE_THEME_NAMES = [
   "light",
   "dark",
-  "pink-light",
-  "pink-dark",
   "blue-light",
   "blue-dark",
   "peach-light",
@@ -104,8 +102,6 @@ export const DARK_BASE_THEME_VARIABLES = {
 const THEME_PALETTES: Record<NativeThemeName, ThemePalette> = {
   light: { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#c0267e" },
   dark: { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#e052a0" },
-  "pink-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#c0267e" },
-  "pink-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#e052a0" },
   "blue-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#2563eb" },
   "blue-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#60a5fa" },
   "peach-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#d97706" },
@@ -177,6 +173,10 @@ export function getNativeThemeName(
   mode: NativeThemeMode,
   accent: NativeAccentName,
 ): NativeThemeName {
+  if (accent === "pink") {
+    return mode;
+  }
+
   return `${accent}-${mode}`;
 }
 
