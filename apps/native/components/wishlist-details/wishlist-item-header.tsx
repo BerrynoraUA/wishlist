@@ -11,15 +11,13 @@ import { Input } from "@/components/ui/input";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { usePatchWishlist } from "@/hooks/use-wishlists";
-import { getThemeMode } from "@/lib/theme";
 import {
   WISHLIST_VISIBILITY_ICONS,
+  getWishlistAccentClass,
   getWishlistVisibilityLabels,
   getWishlistVisibilityOptions,
-  getWishlistAccentGradientColors,
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
-import { LinearGradient } from "@/components/ui/linear-gradient";
 import type { Wishlist, WishlistVisibility } from "@wishlist/backend/types/wishlist";
 import {
   Calendar,
@@ -35,7 +33,6 @@ import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
-import { useUniwind } from "uniwind";
 
 type HeaderInlineFormValues = {
   title: string;
@@ -74,10 +71,6 @@ export function WishlistItemHeader({
   const itemsCount = wishlist.items_count ?? 0;
   const eventDate = wishlist.event_date;
   const canInlineEdit = isOwner;
-  const { theme } = useUniwind();
-  const mode = getThemeMode(theme);
-  const accentGradientColors = getWishlistAccentGradientColors(wishlist.accent_type, mode);
-
   React.useEffect(() => {
     if (!editingTitle) setValue("title", wishlist.title);
   }, [editingTitle, setValue, wishlist.title]);
@@ -115,11 +108,8 @@ export function WishlistItemHeader({
 
   return (
     <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
-      <LinearGradient
-        colors={accentGradientColors}
-        end={{ x: 1, y: 1 }}
-        start={{ x: 0, y: 0 }}
-        className="absolute inset-0"
+      <View
+        className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))}
       />
       <View className="absolute inset-0 bg-black/10" />
       <View className="overflow-visible px-4 py-4">
@@ -131,11 +121,8 @@ export function WishlistItemHeader({
               onPress={canInlineEdit ? onEdit : undefined}
               className="relative size-[70px] items-center justify-center overflow-hidden rounded-[20px] border-[3px] border-white/70 shadow-lg"
             >
-              <LinearGradient
-                colors={accentGradientColors}
-                end={{ x: 1, y: 1 }}
-                start={{ x: 0, y: 0 }}
-                className="absolute inset-0"
+              <View
+                className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))}
               />
               {wishlist.image_url ? (
                 <StyledImage

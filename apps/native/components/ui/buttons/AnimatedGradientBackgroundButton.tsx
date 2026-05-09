@@ -1,6 +1,5 @@
 import { ReactElement, useEffect, useState } from "react";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
-import { LinearGradient } from "@/components/ui/linear-gradient";
 import { ActivityIndicator, View } from "react-native";
 import Animated, {
   cancelAnimation,
@@ -18,8 +17,6 @@ import {
   animatedButtonDisabledClassName,
   animatedButtonTextClassName,
 } from "@/components/ui/buttons/button-styles";
-import { getPrimaryGradientColors } from "@/lib/theme";
-import { useUniwind } from "uniwind";
 
 export interface AnimatedGradientBackgroundButtonProps {
   accessibilityHint?: string;
@@ -44,8 +41,6 @@ export const AnimatedGradientBackgroundButton = ({
 }: AnimatedGradientBackgroundButtonProps) => {
   const transition = useSharedValue(0);
   const [outerContainerWidth, setOuterContainerWidth] = useState(0);
-  const { theme } = useUniwind();
-  const gradientColors = getPrimaryGradientColors(theme);
 
   useEffect(() => {
     transition.value = withRepeat(
@@ -95,17 +90,16 @@ export const AnimatedGradientBackgroundButton = ({
             isDisabled && animatedButtonDisabledClassName,
           )}
         >
-          <Animated.View style={animatedGradientContainerStyle}>
-            <LinearGradient
-              colors={gradientColors}
-              end={{ x: 1, y: 1 }}
-              start={{ x: 0, y: 1 }}
-              style={{
+          <Animated.View
+            className="bg-linear-135 from-primary via-accent-foreground to-brand"
+            style={[
+              animatedGradientContainerStyle,
+              {
                 height: HEIGHT,
                 width: outerContainerWidth * 3,
-              }}
-            />
-          </Animated.View>
+              },
+            ]}
+          />
           <View
             className={cn(
               "absolute h-10 w-full flex-row items-center justify-center gap-2 rounded-md px-4 py-2 sm:h-9",
