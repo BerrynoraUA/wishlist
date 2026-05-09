@@ -1,14 +1,10 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  type Option,
-} from "@/components/ui/select";
 import { SettingsSection } from "@/components/settings/settings-section";
+import {
+  AutocompleteDropdown,
+  type AutocompleteDropdownOption,
+} from "@/components/ui/autocomplete-dropdown";
 import { useUpdateSettings } from "@/hooks/use-settings";
-import { SUPPORTED_CURRENCIES } from "@wishlist/backend/lib/currencies";
+import { SUPPORTED_CURRENCIES, type SupportedCurrency } from "@wishlist/backend/lib/currencies";
 import { CircleDollarSign } from "lucide-react-native";
 import * as React from "react";
 import { useGT } from "gt-react-native";
@@ -16,45 +12,46 @@ import { useGT } from "gt-react-native";
 export function CurrencySettings({ selectedCurrency }: { selectedCurrency: string }) {
   const t = useGT();
   const updateSettings = useUpdateSettings();
+  const currencyOptions = React.useMemo(() => SUPPORTED_CURRENCIES.map(currencyToOption), []);
   const selectedOption = React.useMemo(
-    () => currencyOptionForCode(selectedCurrency),
+    () => currencyToOption(currencyForCode(selectedCurrency)),
     [selectedCurrency],
   );
 
-  function handleCurrencyChange(option: Option) {
-    if (!option?.value) return;
-
+  function handleCurrencyChange(option: AutocompleteDropdownOption) {
     updateSettings.mutate({ display_currency: option.value });
   }
 
   return (
     <SettingsSection title={t("Display Currency")} icon={CircleDollarSign}>
-      <Select value={selectedOption} onValueChange={handleCurrencyChange}>
-        <SelectTrigger>
-          <SelectValue placeholder={t("Select currency")} />
-        </SelectTrigger>
-        <SelectContent className="max-h-80 w-full">
-          {SUPPORTED_CURRENCIES.map((currency) => (
-            <SelectItem
-              key={currency.code}
-              label={`${currency.code} - ${currency.label} (${currency.symbol})`}
-              value={currency.code}
-            />
-          ))}
-        </SelectContent>
-      </Select>
+      <AutocompleteDropdown
+        value={selectedOption}
+        onValueChange={handleCurrencyChange}
+        options={currencyOptions}
+        placeholder={t("Search currency")}
+        emptyText={t("No currencies found")}
+        inputProps={{ autoCapitalize: "characters" }}
+      />
     </SettingsSection>
   );
 }
 
-function currencyOptionForCode(code: string): Option {
-  const currency =
-    SUPPORTED_CURRENCIES.find((item) => item.code === code) ?? SUPPORTED_CURRENCIES[0];
+function currencyForCode(code: string): SupportedCurrency {
+  const currency = findCurrencyByCode(code) ?? SUPPORTED_CURRENCIES[0];
 
-  if (!currency) return undefined;
+  return currency;
+}
 
+function findCurrencyByCode(code: string) {
+  return SUPPORTED_CURRENCIES.find((item) => item.code === code.trim().toUpperCase());
+}
+
+function currencyToOption(currency: SupportedCurrency): AutocompleteDropdownOption {
   return {
     value: currency.code,
-    label: `${currency.code} - ${currency.label} (${currency.symbol})`,
+    label: currency.code,
+    displayValue: `${currency.code} - ${currency.label} (${currency.symbol})`,
+    description: currency.label,
+    trailing: currency.symbol,
   };
 }
