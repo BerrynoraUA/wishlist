@@ -46,7 +46,6 @@ export interface BottomSheetProps extends Omit<
   dismissOnBack?: boolean;
   header?: ReanimatedBottomSheetProps["header"];
   footer?: ReanimatedBottomSheetProps["footer"];
-  /** Safe-area + manual padding; applied to the native footer container. */
   footerStyle?: ReanimatedBottomSheetProps["footerStyle"];
   footerPaddingBottom?: number;
   backgroundColor?: ColorValue;
@@ -98,7 +97,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
       }
     }, [footer]);
 
-    const bodyMarginBottom = footer ? footerHeight + (calculatedFooterPadding ?? 0) : 0;
+    const bodyMarginBottom = footer ? footerHeight : 0;
 
     const handleFooterLayout = (event: LayoutChangeEvent) => {
       setFooterHeight(event.nativeEvent.layout.height);
@@ -112,7 +111,15 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
           : createElement(footer as ComponentType<object>);
 
     const footerWithMeasure = footerChild ? (
-      <View className="w-full" collapsable={false} onLayout={handleFooterLayout}>
+      <View
+        className="w-full"
+        collapsable={false}
+        onLayout={handleFooterLayout}
+        style={[
+          { backgroundColor: backgroundColor ?? sheetBackground },
+          calculatedFooterPadding !== undefined && { paddingBottom: calculatedFooterPadding },
+        ]}
+      >
         {footerChild}
       </View>
     ) : undefined;
@@ -160,10 +167,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         cornerRadius={cornerRadius}
         header={header}
         footer={footerWithMeasure}
-        footerStyle={[
-          footerStyle,
-          calculatedFooterPadding !== undefined && { paddingBottom: calculatedFooterPadding },
-        ]}
+        footerStyle={footerStyle}
         backgroundColor={backgroundColor ?? sheetBackground}
         grabberOptions={{
           color: grabberColor,
