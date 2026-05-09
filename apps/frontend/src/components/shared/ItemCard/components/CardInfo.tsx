@@ -35,7 +35,8 @@ function useOverflowTooltip<T extends HTMLElement>(value: string | null | undefi
 
     const measure = () => {
       setIsOverflowing(
-        element.scrollHeight > element.clientHeight + 1 || element.scrollWidth > element.clientWidth,
+        element.scrollHeight > element.clientHeight + 1 ||
+          element.scrollWidth > element.clientWidth,
       );
     };
 
