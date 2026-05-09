@@ -153,7 +153,9 @@ export function WishlistItemHeader({
                         onBlur={saveTitle}
                         returnKeyType="done"
                         onSubmitEditing={saveTitle}
-                        className="h-11 text-xl font-extrabold"
+                        multiline
+                        className="h-20 items-start py-3 text-xl font-extrabold"
+                        textAlignVertical="top"
                       />
                     )}
                   />
