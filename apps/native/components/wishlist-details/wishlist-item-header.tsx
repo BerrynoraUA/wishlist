@@ -8,7 +8,6 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
-import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { usePatchWishlist } from "@/hooks/use-wishlists";
 import {
@@ -22,8 +21,8 @@ import type { Wishlist, WishlistVisibility } from "@wishlist/backend/types/wishl
 import {
   Calendar,
   ChevronDown,
-  Gift,
   KeyRound,
+  MoreHorizontal,
   Pencil,
   Share2,
   Trash2,
@@ -46,6 +45,7 @@ export function WishlistItemHeader({
   onDelete,
   onShare,
   onManageAccess,
+  topInset = 0,
 }: {
   wishlist: Wishlist;
   isOwner: boolean;
@@ -53,6 +53,7 @@ export function WishlistItemHeader({
   onDelete?: () => void;
   onShare?: () => void;
   onManageAccess?: () => void;
+  topInset?: number;
 }) {
   const t = useGT();
   const visibilityLabels = React.useMemo(() => getWishlistVisibilityLabels(t), [t]);
@@ -68,7 +69,6 @@ export function WishlistItemHeader({
   const [editingDescription, setEditingDescription] = React.useState(false);
   const visibility = wishlist.visibility_type;
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[visibility];
-  const itemsCount = wishlist.items_count ?? 0;
   const eventDate = wishlist.event_date;
   const canInlineEdit = isOwner;
   React.useEffect(() => {
@@ -108,35 +108,39 @@ export function WishlistItemHeader({
 
   return (
     <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
-      <View
-        className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))}
-      />
-      <View className="absolute inset-0 bg-black/10" />
-      <View className="overflow-visible px-4 py-4">
-        <View className="gap-3">
-          <View className="flex-row items-center gap-3">
-            <AnimatedPressable
-              accessibilityRole={canInlineEdit ? "button" : "image"}
-              accessibilityLabel={canInlineEdit ? t("Edit wishlist image") : wishlist.title}
-              onPress={canInlineEdit ? onEdit : undefined}
-              className="relative size-[70px] items-center justify-center overflow-hidden rounded-[20px] border-[3px] border-white/70 shadow-lg"
-            >
-              <View
-                className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))}
-              />
-              {wishlist.image_url ? (
-                <StyledImage
-                  source={{ uri: wishlist.image_url }}
-                  contentFit="cover"
-                  className="absolute inset-0 size-full"
-                />
-              ) : (
-                <Icon as={Gift} className="size-7 text-white" />
-              )}
-            </AnimatedPressable>
+      <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
+      <View className="absolute inset-0 bg-black/20" />
+      <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
+        <View className="gap-4">
+          <View className="flex-row items-start gap-3">
+            <View className="min-w-0 flex-1 gap-2">
+              {onShare || (isOwner && onManageAccess) ? (
+                <View className="flex-row items-center justify-end gap-2">
+                  {onShare ? (
+                    <AnimatedPressable
+                      accessibilityRole="button"
+                      accessibilityLabel={t("Share wishlist")}
+                      onPress={onShare}
+                      className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+                    >
+                      <Icon as={Share2} className="size-4 text-white" />
+                    </AnimatedPressable>
+                  ) : null}
 
-            <View className="min-w-0 flex-1 flex-row items-center gap-2">
-              <View className="min-w-0 flex-1">
+                  {isOwner && onManageAccess ? (
+                    <AnimatedPressable
+                      accessibilityRole="button"
+                      accessibilityLabel={t("Manage wishlist access")}
+                      onPress={onManageAccess}
+                      className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+                    >
+                      <Icon as={KeyRound} className="size-4 text-white" />
+                    </AnimatedPressable>
+                  ) : null}
+                </View>
+              ) : null}
+
+              <View className="min-w-0">
                 {editingTitle ? (
                   <Controller
                     control={control}
@@ -149,7 +153,7 @@ export function WishlistItemHeader({
                         onBlur={saveTitle}
                         returnKeyType="done"
                         onSubmitEditing={saveTitle}
-                        className="h-11 rounded-xl border-input-focus-border bg-card-bg text-xl font-extrabold"
+                        className="h-11 rounded-xl border-white/50 bg-white/90 text-xl font-extrabold text-text"
                       />
                     )}
                   />
@@ -160,7 +164,10 @@ export function WishlistItemHeader({
                     accessibilityLabel={canInlineEdit ? t("Edit wishlist title") : wishlist.title}
                     onPress={() => setEditingTitle(true)}
                   >
-                    <Text className="text-xl font-extrabold leading-6 text-text" numberOfLines={2}>
+                    <Text
+                      className="text-[21px] font-extrabold leading-6 text-white"
+                      numberOfLines={2}
+                    >
                       {wishlist.title}
                     </Text>
                   </AnimatedPressable>
@@ -177,7 +184,7 @@ export function WishlistItemHeader({
                         onChangeText={onChange}
                         onBlur={saveDescription}
                         multiline
-                        className="mt-2 h-20 rounded-xl border-input-focus-border bg-card-bg text-sm"
+                        className="mt-2 h-20 rounded-xl border-white/50 bg-white/90 text-sm text-text"
                         textAlignVertical="top"
                       />
                     )}
@@ -189,38 +196,12 @@ export function WishlistItemHeader({
                     accessibilityLabel={t("Edit wishlist description")}
                     onPress={() => setEditingDescription(true)}
                   >
-                    <Text className="mt-2 text-sm leading-5 text-text-muted" numberOfLines={3}>
+                    <Text className="mt-2 text-sm leading-5 text-white/80" numberOfLines={3}>
                       {wishlist.description || t("Add a short description")}
                     </Text>
                   </AnimatedPressable>
                 ) : null}
               </View>
-
-              {onEdit || onDelete ? (
-                <View className="items-center gap-2">
-                  {onEdit ? (
-                    <AnimatedPressable
-                      accessibilityRole="button"
-                      accessibilityLabel={t("Edit wishlist")}
-                      onPress={onEdit}
-                      className="size-8 items-center justify-center rounded-full border border-glass-border bg-glass-bg"
-                    >
-                      <Icon as={Pencil} className="size-3.5 text-text" />
-                    </AnimatedPressable>
-                  ) : null}
-
-                  {onDelete ? (
-                    <AnimatedPressable
-                      accessibilityRole="button"
-                      accessibilityLabel={t("Delete wishlist")}
-                      onPress={onDelete}
-                      className="size-8 items-center justify-center rounded-full border border-destructive/25 bg-destructive/10"
-                    >
-                      <Icon as={Trash2} className="size-3.5 text-destructive" />
-                    </AnimatedPressable>
-                  ) : null}
-                </View>
-              ) : null}
             </View>
           </View>
 
@@ -230,17 +211,17 @@ export function WishlistItemHeader({
             iosContainerClassName="overflow-hidden rounded-xl border border-border-subtle bg-card-bg"
           >
             {({ displayValue, openPicker }) => (
-              <View className="flex-row items-center gap-2">
-                <View className="min-w-0 flex-1 flex-row flex-wrap items-center justify-around gap-2">
+              <View className="flex-row items-center justify-between gap-2">
+                <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-2">
                   {canInlineEdit ? (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <AnimatedPressable className="h-8 flex-row items-center gap-1 rounded-full bg-brand-alpha-12 px-3">
-                          <Icon as={VisibilityIcon} className="size-3.5 text-brand" />
-                          <Text className="text-xs font-bold text-brand">
+                        <AnimatedPressable className="h-9 flex-row items-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
+                          <Icon as={VisibilityIcon} className="size-3.5 text-white" />
+                          <Text className="text-xs font-bold text-white">
                             {visibilityLabels[visibility]}
                           </Text>
-                          <Icon as={ChevronDown} className="size-3 text-brand" />
+                          <Icon as={ChevronDown} className="size-3 text-white/80" />
                         </AnimatedPressable>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="min-w-48">
@@ -257,25 +238,19 @@ export function WishlistItemHeader({
                       </DropdownMenuContent>
                     </DropdownMenu>
                   ) : (
-                    <View className="h-8 flex-row items-center gap-1 rounded-full bg-brand-alpha-12 px-3">
-                      <Icon as={VisibilityIcon} className="size-3.5 text-brand" />
-                      <Text className="text-xs font-bold text-brand">
+                    <View className="h-9 flex-row items-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
+                      <Icon as={VisibilityIcon} className="size-3.5 text-white" />
+                      <Text className="text-xs font-bold text-white">
                         {visibilityLabels[visibility]}
                       </Text>
                     </View>
                   )}
 
-                  <View className="h-8 justify-center rounded-full bg-badge-count-bg px-3">
-                    <Text className="text-xs font-bold text-text-muted">
-                      {itemsCount === 1 ? t("1 item") : t("{count} items", { count: itemsCount })}
-                    </Text>
-                  </View>
-
                   {eventDate || canInlineEdit ? (
                     eventDate && canInlineEdit ? (
                       <View
                         className={cn(
-                          "flex-row items-center rounded-full bg-info-bg",
+                          "flex-row items-center rounded-full border border-white/35 bg-white/25",
                           process.env.EXPO_OS === "android" ? "px-3" : "pl-3 pr-1",
                         )}
                       >
@@ -284,12 +259,12 @@ export function WishlistItemHeader({
                           accessibilityLabel={t("Wishlist event date")}
                           onPress={openPicker}
                           className={cn(
-                            "h-8 flex-row items-center gap-1",
+                            "h-9 flex-row items-center gap-1.5",
                             process.env.EXPO_OS !== "android" && "pr-2",
                           )}
                         >
-                          <Icon as={Calendar} className="size-3.5 text-info" />
-                          <Text className="text-xs font-bold text-info" numberOfLines={1}>
+                          <Icon as={Calendar} className="size-3.5 text-white" />
+                          <Text className="text-xs font-bold text-white" numberOfLines={1}>
                             {displayValue}
                           </Text>
                         </AnimatedPressable>
@@ -300,7 +275,7 @@ export function WishlistItemHeader({
                             onPress={() => updateEventDate(null)}
                             className="size-8 items-center justify-center rounded-full"
                           >
-                            <Icon as={X} className="size-3.5 text-text-muted" />
+                            <Icon as={X} className="size-3.5 text-white/75" />
                           </AnimatedPressable>
                         ) : null}
                       </View>
@@ -309,45 +284,51 @@ export function WishlistItemHeader({
                         accessibilityRole={canInlineEdit ? "button" : "text"}
                         accessibilityLabel={eventDate ? t("Wishlist event date") : t("Add date")}
                         onPress={canInlineEdit ? openPicker : undefined}
-                        className="h-8 flex-row items-center gap-1 rounded-full bg-info-bg px-3"
+                        className="h-9 flex-row items-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3"
                       >
-                        <Icon as={Calendar} className="size-3.5 text-info" />
-                        <Text className="text-xs font-bold text-info">
+                        <Icon as={Calendar} className="size-3.5 text-white" />
+                        <Text className="text-xs font-bold text-white">
                           {eventDate ? displayValue : t("Add date")}
                         </Text>
                       </AnimatedPressable>
                     )
                   ) : null}
                 </View>
+                {onEdit || onDelete ? (
+                  <View className="shrink-0 flex-row items-center justify-end gap-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <AnimatedPressable
+                          accessibilityRole="button"
+                          accessibilityLabel={t("Wishlist actions")}
+                          className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+                        >
+                          <Icon as={MoreHorizontal} className="size-4 text-white" />
+                        </AnimatedPressable>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="min-w-44">
+                        {onEdit ? (
+                          <DropdownMenuItem onPress={onEdit}>
+                            <Icon as={Pencil} className="size-4 text-popover-foreground" />
+                            <Text>{t("Edit")}</Text>
+                          </DropdownMenuItem>
+                        ) : null}
+                        {onDelete ? (
+                          <DropdownMenuItem
+                            onPress={onDelete}
+                            className="active:bg-danger-bg dark:active:bg-danger-bg/90"
+                          >
+                            <Icon as={Trash2} className="size-4 text-destructive" />
+                            <Text className="text-destructive">{t("Delete")}</Text>
+                          </DropdownMenuItem>
+                        ) : null}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </View>
+                ) : null}
               </View>
             )}
           </DatePicker>
-
-          {onShare || (isOwner && onManageAccess) ? (
-            <View className="flex-row items-center justify-end gap-2">
-              {onShare ? (
-                <AnimatedPressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t("Share wishlist")}
-                  onPress={onShare}
-                  className="size-10 items-center justify-center rounded-full border border-glass-border bg-glass-bg"
-                >
-                  <Icon as={Share2} className="size-4 text-text" />
-                </AnimatedPressable>
-              ) : null}
-
-              {isOwner && onManageAccess ? (
-                <AnimatedPressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t("Manage wishlist access")}
-                  onPress={onManageAccess}
-                  className="size-10 items-center justify-center rounded-full border border-glass-border bg-glass-bg"
-                >
-                  <Icon as={KeyRound} className="size-4 text-text" />
-                </AnimatedPressable>
-              ) : null}
-            </View>
-          ) : null}
         </View>
       </View>
     </View>

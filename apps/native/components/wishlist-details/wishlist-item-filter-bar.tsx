@@ -45,6 +45,7 @@ export function wishlistItemFilterBarHasActiveFilters(filters: WishlistItemFilte
 
 export function WishlistItemFilterBar({
   filters,
+  itemsCount,
   onChange,
   onReset,
   onAddItem,
@@ -52,6 +53,7 @@ export function WishlistItemFilterBar({
   onOpenChange,
 }: {
   filters: WishlistItemFilterState;
+  itemsCount: number;
   onChange: (patch: Partial<WishlistItemFilterState>) => void;
   onReset: () => void;
   onAddItem?: () => void;
@@ -109,8 +111,10 @@ export function WishlistItemFilterBar({
   return (
     <View className="gap-4">
       <View className="flex-row items-center justify-between gap-3">
-        <View className="min-w-0 flex-1 flex-row items-center gap-2">
-          <Text className="text-xl font-extrabold tracking-tight text-text">{t("Items")}</Text>
+        <View className="min-w-0 flex-1 flex-row items-center gap-3">
+          <Text className="text-xl font-extrabold tracking-tight text-text">
+            {itemsCount === 1 ? t("1 Item") : t("{count} Items", { count: itemsCount })}
+          </Text>
           <Button
             variant="outline"
             size="lg"
@@ -118,7 +122,7 @@ export function WishlistItemFilterBar({
             accessibilityState={{ expanded: open }}
             onPress={() => onOpenChange(!open)}
             className={cn(
-              "h-11 w-11 min-w-11 shrink-0 rounded-full border-border-subtle bg-card-bg p-0 sm:h-11 sm:w-11 sm:min-w-11",
+              "h-10 w-10 min-w-10 shrink-0 rounded-full border-border-subtle bg-card-bg p-0 sm:h-10 sm:w-10 sm:min-w-10",
               open && "border-brand bg-brand-lighter",
             )}
           >
