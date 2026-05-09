@@ -63,6 +63,19 @@ export async function loginWithEmail(email: string, password: string): Promise<v
   if (error) throw error;
 }
 
+export async function registerWithEmail(email: string, password: string): Promise<void> {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) throw error;
+
+  if (!data.session) {
+    await loginWithEmail(email, password);
+  }
+}
+
 export async function loginWithGoogle(): Promise<void> {
   const redirectTo = Linking.createURL("google-auth");
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -94,6 +107,44 @@ export async function loginWithGoogle(): Promise<void> {
 
   if (!accessToken || !refreshToken) {
     throw new Error("Google sign-in did not return a Supabase session.");
+  }
+
+  const { error: sessionError } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+
+  if (sessionError) throw sessionError;
+}
+
+export async function loginWithFacebook(): Promise<void> {
+  const redirectTo = Linking.createURL("facebook-auth");
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "facebook",
+    options: {
+      redirectTo,
+      skipBrowserRedirect: true,
+    },
+  });
+
+  if (error) throw error;
+
+  if (!data.url) {
+    throw new Error("Facebook sign-in did not return an authorization URL.");
+  }
+
+  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo, {
+    showInRecents: true,
+  });
+
+  if (result.type !== "success") {
+    throw new Error("Facebook sign-in was cancelled.");
+  }
+
+  const { accessToken, refreshToken } = extractSessionParamsFromUrl(result.url);
+
+  if (!accessToken || !refreshToken) {
+    throw new Error("Facebook sign-in did not return a Supabase session.");
   }
 
   const { error: sessionError } = await supabase.auth.setSession({

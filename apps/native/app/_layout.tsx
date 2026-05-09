@@ -6,11 +6,10 @@ import { getNativeThemeNameForPreference, getNavigationTheme, getThemeMode } fro
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
-import { createTrueSheetNavigator } from "@lodev09/react-native-true-sheet/navigation";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
 import { PostHogEventProperties } from "@posthog/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useGlobalSearchParams, usePathname, withLayoutContext } from "expo-router";
+import { Stack, useGlobalSearchParams, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GTProvider } from "gt-react-native";
 import { useEffect, useState } from "react";
@@ -33,8 +32,6 @@ const posthogHost = (process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posth
   "",
 );
 const posthogEnabled = Boolean(posthogApiKey);
-const { Navigator } = createTrueSheetNavigator();
-const TrueSheetNavigator = withLayoutContext(Navigator);
 
 export default function RootLayout() {
   const [queryClient] = useState(
@@ -105,10 +102,13 @@ function AuthGate() {
   return (
     <>
       {session ? <NativeThemeSync /> : null}
-      <TrueSheetNavigator initialRouteName={session ? "(tabs)" : "sign-in"}>
-        <TrueSheetNavigator.Screen name="sign-in" />
-        <TrueSheetNavigator.Screen name="(tabs)" />
-      </TrueSheetNavigator>
+      <Stack
+        initialRouteName={session ? "(tabs)" : "(auth)"}
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+      </Stack>
     </>
   );
 }
