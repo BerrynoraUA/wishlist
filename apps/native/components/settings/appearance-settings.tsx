@@ -56,31 +56,31 @@ const SWATCH_META = [
   {
     value: WishlistAccent.Pink,
     nativeAccent: "pink",
-    className: "bg-gradient-accent-pink",
+    className: "bg-linear-135 from-pink-300 via-pink-400 to-pink-600",
     selectedBorderClassName: "border-chart-1",
   },
   {
     value: WishlistAccent.Blue,
     nativeAccent: "blue",
-    className: "bg-gradient-accent-blue",
+    className: "bg-linear-135 from-sky-300 via-blue-400 to-blue-600",
     selectedBorderClassName: "border-chart-2",
   },
   {
     value: WishlistAccent.Peach,
     nativeAccent: "peach",
-    className: "bg-gradient-accent-peach",
+    className: "bg-linear-135 from-amber-200 via-orange-300 to-amber-500",
     selectedBorderClassName: "border-chart-3",
   },
   {
     value: WishlistAccent.Mint,
     nativeAccent: "mint",
-    className: "bg-gradient-accent-mint",
+    className: "bg-linear-135 from-emerald-200 via-teal-300 to-emerald-500",
     selectedBorderClassName: "border-chart-4",
   },
   {
     value: WishlistAccent.Lavender,
     nativeAccent: "lavender",
-    className: "bg-gradient-accent-lavender",
+    className: "bg-linear-135 from-violet-200 via-purple-300 to-violet-500",
     selectedBorderClassName: "border-chart-5",
   },
 ] as const satisfies readonly {
@@ -141,7 +141,7 @@ export function AppearanceSettings({
               <View
                 className={cn(
                   "size-10 items-center justify-center rounded-full bg-bg-muted",
-                  selected && "bg-gradient-brand-subtle",
+                  selected && "bg-linear-135 from-brand-lighter via-accent to-secondary",
                 )}
               >
                 <Icon

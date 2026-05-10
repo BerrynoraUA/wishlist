@@ -82,12 +82,21 @@ function DropdownMenuContent({
   overlayClassName,
   overlayStyle,
   portalHost,
+  style,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content> & {
   overlayStyle?: StyleProp<ViewStyle>;
   overlayClassName?: string;
   portalHost?: string;
 }) {
+  const { triggerPosition } = DropdownMenuPrimitive.useRootContext();
+  const contentStyle =
+    triggerPosition?.width != null
+      ? ([style, { minWidth: triggerPosition.width }] as unknown as React.ComponentProps<
+          typeof DropdownMenuPrimitive.Content
+        >["style"])
+      : (style ?? undefined);
+
   return (
     <DropdownMenuPrimitive.Portal hostName={portalHost}>
       <FullWindowOverlay>
@@ -102,6 +111,7 @@ function DropdownMenuContent({
                   "bg-popover border-border min-w-[8rem] overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
                   className,
                 )}
+                style={contentStyle}
                 {...props}
               />
             </TextClassContext.Provider>

@@ -178,7 +178,7 @@ export default function WishlistDetailScreen() {
     ({ item, target }: { item: WishlistItemListRow; target: string }) =>
       "type" in item && item.type === "header" ? (
         wishlist ? (
-          <View style={{ marginBottom: -insets.top }}>
+          <View style={{ marginBottom: -insets.top, marginTop: -insets.top }}>
             <WishlistItemHeader
               wishlist={wishlist}
               isOwner={wishlist.is_owner}
@@ -188,6 +188,7 @@ export default function WishlistDetailScreen() {
               onDelete={
                 wishlist.is_owner ? () => setSheet({ type: "deleteWishlist", wishlist }) : undefined
               }
+              topInset={insets.top}
             />
           </View>
         ) : null
@@ -199,6 +200,7 @@ export default function WishlistDetailScreen() {
           <View className="max-w-[1200px] self-center" style={{ width: contentWidth }}>
             <WishlistItemFilterBar
               filters={filters}
+              itemsCount={wishlist?.items_count ?? 0}
               onChange={updateFilters}
               onReset={resetFilters}
               onAddItem={canEditWishlist ? () => setSheet({ type: "create" }) : undefined}
