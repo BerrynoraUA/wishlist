@@ -5,11 +5,20 @@ import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { Heading, Text, Eyebrow } from "@/components/ui/Typography";
-import { useSendFriendRequest } from "@/hooks/use-friends";
+import { useCheckFriendship, useSendFriendRequest } from "@/hooks/use-friends";
 import { useCurrentUserId } from "@/hooks/use-user";
 import styles from "./FriendInviteModal.module.scss";
 
-type Status = "idle" | "missing" | "self" | "sent" | "error" | "unauth";
+type Status =
+  | "checking"
+  | "ready"
+  | "missing"
+  | "self"
+  | "friends"
+  | "sent"
+  | "error"
+  | "check_error"
+  | "unauth";
 
 type StatusInfo = {
   title: string;
@@ -25,9 +34,11 @@ type Props = {
 
 export function FriendInviteModal({ open, userId, onClose }: Props) {
   const t = useGT();
-  const [status, setStatus] = useState<Status>("idle");
+  const [status, setStatus] = useState<Status>("checking");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { data: selfUserId = "", isLoading: isCurrentUserLoading } = useCurrentUserId();
+  const canCheckFriendship = open && !!userId && !!selfUserId && userId !== selfUserId;
+  const friendship = useCheckFriendship(canCheckFriendship ? userId : "");
 
   const sendRequest = useSendFriendRequest();
 
@@ -52,17 +63,23 @@ export function FriendInviteModal({ open, userId, onClose }: Props) {
 
   useEffect(() => {
     if (!open) return;
-
-    let cancelled = false;
-    setStatus("idle");
-    setErrorMessage("");
+    if (
+      status === "sent" ||
+      status === "error" ||
+      status === "check_error" ||
+      sendRequest.isPending
+    )
+      return;
 
     if (!userId) {
       setStatus("missing");
       return;
     }
 
-    if (isCurrentUserLoading) return;
+    if (isCurrentUserLoading) {
+      setStatus("checking");
+      return;
+    }
 
     if (!selfUserId) {
       setStatus("unauth");
@@ -74,37 +91,54 @@ export function FriendInviteModal({ open, userId, onClose }: Props) {
       return;
     }
 
-    sendRequest.mutate(userId, {
-      onSuccess: () => {
-        if (!cancelled) setStatus("sent");
-      },
-      onError: (err) => {
-        if (cancelled) return;
-        const message =
-          err instanceof Error
-            ? err.message
-            : t("Could not send request.", {
-                $id: "friends.inviteModal.sendErrorFallback",
-              });
-        setErrorMessage(message);
-        setStatus("error");
-      },
-    });
+    if (friendship.isLoading) {
+      setStatus("checking");
+      return;
+    }
 
-    return () => {
-      cancelled = true;
-    };
-  }, [isCurrentUserLoading, open, selfUserId, sendRequest, t, userId]);
+    if (friendship.isError) {
+      setStatus("check_error");
+      setErrorMessage(
+        t("Could not check friendship status.", {
+          $id: "friends.inviteModal.checkErrorFallback",
+        }),
+      );
+      return;
+    }
+
+    setErrorMessage("");
+    setStatus(friendship.data ? "friends" : "ready");
+  }, [
+    friendship.data,
+    friendship.isError,
+    friendship.isLoading,
+    isCurrentUserLoading,
+    open,
+    selfUserId,
+    sendRequest.isPending,
+    status,
+    t,
+    userId,
+  ]);
 
   const statusInfo: Record<Status, StatusInfo> = useMemo(
     () => ({
-      idle: {
-        title: t("Sending request...", {
-          $id: "friends.inviteModal.idleTitle",
+      checking: {
+        title: t("Checking invite...", {
+          $id: "friends.inviteModal.checkingTitle",
         }),
         description: t("This may take a few seconds.", {
-          $id: "friends.inviteModal.idleDesc",
+          $id: "friends.inviteModal.checkingDesc",
         }),
+      },
+      ready: {
+        title: t("Send friend request?", {
+          $id: "friends.inviteModal.readyTitle",
+        }),
+        description: t("Send a friend request to connect with this person.", {
+          $id: "friends.inviteModal.readyDesc",
+        }),
+        action: t("Send request", { $id: "friends.inviteModal.sendRequest" }),
       },
       missing: {
         title: t("Missing userId", { $id: "friends.inviteModal.missingTitle" }),
@@ -124,6 +158,15 @@ export function FriendInviteModal({ open, userId, onClose }: Props) {
           $id: "friends.inviteModal.backToFriends",
         }),
       },
+      friends: {
+        title: t("You're already friends!", {
+          $id: "friends.inviteModal.friendsTitle",
+        }),
+        description: t("This person is already in your friends list.", {
+          $id: "friends.inviteModal.friendsDesc",
+        }),
+        action: t("Close", { $id: "friends.inviteModal.close" }),
+      },
       sent: {
         title: t("Request sent", { $id: "friends.inviteModal.sentTitle" }),
         description: t("We'll notify you when they accept your invite.", {
@@ -141,6 +184,17 @@ export function FriendInviteModal({ open, userId, onClose }: Props) {
             $id: "friends.inviteModal.errorFallbackDesc",
           }),
         action: t("Try again", { $id: "friends.inviteModal.tryAgain" }),
+      },
+      check_error: {
+        title: t("Couldn't check invite", {
+          $id: "friends.inviteModal.checkErrorTitle",
+        }),
+        description:
+          errorMessage ||
+          t("Could not check friendship status.", {
+            $id: "friends.inviteModal.checkErrorFallback",
+          }),
+        action: t("Close", { $id: "friends.inviteModal.close" }),
       },
       unauth: {
         title: t("Sign in required", {
@@ -166,10 +220,18 @@ export function FriendInviteModal({ open, userId, onClose }: Props) {
           {statusInfo[status].description}
         </Text>
 
-        {status === "idle" && sendRequest.isPending && (
+        {(status === "checking" || sendRequest.isPending) && (
           <Text variant="caption" tone="muted" className={styles.loading}>
-            {t("Sending...", { $id: "friends.inviteModal.sending" })}
+            {sendRequest.isPending
+              ? t("Sending...", { $id: "friends.inviteModal.sending" })
+              : t("Checking...", { $id: "friends.inviteModal.checking" })}
           </Text>
+        )}
+
+        {status === "ready" && (
+          <Button onClick={sendInvite} disabled={sendRequest.isPending}>
+            {statusInfo[status].action}
+          </Button>
         )}
 
         {status === "error" && (
@@ -178,11 +240,17 @@ export function FriendInviteModal({ open, userId, onClose }: Props) {
           </Button>
         )}
 
+        {status === "check_error" && (
+          <Button onClick={onClose}>{statusInfo[status].action}</Button>
+        )}
+
         {status === "sent" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
 
         {status === "missing" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
 
         {status === "self" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
+
+        {status === "friends" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
 
         {status === "unauth" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
       </div>
