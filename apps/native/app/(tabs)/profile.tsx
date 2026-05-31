@@ -4,12 +4,14 @@ import { CurrencySettings } from "@/components/settings/currency-settings";
 import { NotificationSettings } from "@/components/settings/notification-settings";
 import { ProfileSettings } from "@/components/settings/profile-settings";
 import { useAuth } from "@/providers/auth-provider";
+import { useKnownAccounts } from "@/hooks/use-known-accounts";
 import { useSettings, useProfile, useUpdateSettings } from "@/hooks/use-settings";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 import type { ThemePreference } from "@wishlist/backend/types/settings";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
+import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
 
 const SETTINGS_SECTIONS = [
@@ -25,7 +27,8 @@ type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 export default function ProfileScreen() {
   const t = useGT();
   const router = useRouter();
-  const { signOut, user } = useAuth();
+  const { session, signOut, user } = useAuth();
+  const { rememberAccount } = useKnownAccounts();
   const { data: settings, isLoading: settingsLoading } = useSettings();
   const { data: profile, isLoading: profileLoading } = useProfile();
   const updateSettings = useUpdateSettings();
@@ -33,6 +36,40 @@ export default function ProfileScreen() {
   function setThemePreference(value: ThemePreference) {
     updateSettings.mutate({ theme: value });
   }
+
+  React.useEffect(() => {
+    if (!session?.user.id || !session.user.email) return;
+
+    const provider = String(session.user.app_metadata?.provider ?? "email");
+    const supportedProvider = provider === "google" ? "google" : "email";
+    const profileForSession = profile?.id === session.user.id ? profile : null;
+    const settingsForSession = settings?.user_id === session.user.id ? settings : null;
+
+    void rememberAccount({
+      userId: session.user.id,
+      email: session.user.email,
+      displayName: profileForSession?.display_name ?? profileForSession?.nickname ?? null,
+      avatarUrl: profileForSession?.avatar_url ?? null,
+      provider: supportedProvider,
+      providers: [supportedProvider],
+      accessToken: session.access_token,
+      refreshToken: session.refresh_token,
+      expiresAt: session.expires_at ?? null,
+      defaultAccent: settingsForSession?.default_accent ?? null,
+      lastUsedAt: Date.now(),
+    });
+  }, [
+    profile?.avatar_url,
+    profile?.display_name,
+    profile?.nickname,
+    rememberAccount,
+    session?.access_token,
+    session?.expires_at,
+    session?.refresh_token,
+    session?.user.email,
+    session?.user.id,
+    settings?.default_accent,
+  ]);
 
   async function handleSignOut() {
     await signOut();
@@ -42,7 +79,13 @@ export default function ProfileScreen() {
   function renderSection({ item }: { item: SettingsSection }) {
     switch (item) {
       case "account":
-        return <AccountSettings email={user?.email ?? ""} signOut={handleSignOut} />;
+        return (
+          <AccountSettings
+            email={user?.email ?? ""}
+            userId={user?.id ?? ""}
+            signOut={handleSignOut}
+          />
+        );
       case "profile":
         return <ProfileSettings profile={profile} />;
       case "notifications":

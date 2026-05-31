@@ -10,22 +10,28 @@ import {
 } from "@/api/items";
 import { statisticsKeys, wishlistKeys } from "@/hooks/use-wishlists";
 import { normalizeItemSearch } from "@/lib/items";
+import { useAuth } from "@/providers/auth-provider";
 import type {
   CreateItemParams,
   ItemQueryParams,
   ItemVotesResult,
   UpdateItemParams,
 } from "@wishlist/backend/types/item";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const itemKeys = {
   all: ["items"] as const,
-  wishlist: (wishlistId: string, params?: ItemQueryParams) =>
-    [...itemKeys.all, "wishlist", wishlistId, params] as const,
-  votes: (itemIds: string[]) => [...itemKeys.all, "votes", ...itemIds.sort()] as const,
+  wishlist: (
+    authUserId: string | null | undefined,
+    wishlistId: string,
+    params?: ItemQueryParams,
+  ) => [...itemKeys.all, "wishlist", authUserId ?? "anonymous", wishlistId, params] as const,
+  votes: (authUserId: string | null | undefined, itemIds: string[]) =>
+    [...itemKeys.all, "votes", authUserId ?? "anonymous", ...itemIds.sort()] as const,
 };
 
 export function useWishlistItems(wishlistId: string, params?: ItemQueryParams) {
+  const { user } = useAuth();
   const normalizedParams = params
     ? {
         ...params,
@@ -34,10 +40,9 @@ export function useWishlistItems(wishlistId: string, params?: ItemQueryParams) {
     : undefined;
 
   return useQuery({
-    queryKey: itemKeys.wishlist(wishlistId, normalizedParams),
+    queryKey: itemKeys.wishlist(user?.id, wishlistId, normalizedParams),
     queryFn: () => getWishlistItems(wishlistId, normalizedParams),
-    enabled: Boolean(wishlistId),
-    placeholderData: keepPreviousData,
+    enabled: Boolean(user?.id && wishlistId),
   });
 }
 
@@ -48,7 +53,7 @@ function invalidateWishlistItems(
   void queryClient.invalidateQueries({ queryKey: itemKeys.all });
   void queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
   if (wishlistId) {
-    void queryClient.invalidateQueries({ queryKey: wishlistKeys.detail(wishlistId) });
+    void queryClient.invalidateQueries({ queryKey: wishlistKeys.detailRoot(wishlistId) });
   }
   void queryClient.invalidateQueries({ queryKey: statisticsKeys.all });
 }
@@ -100,16 +105,19 @@ export function useToggleItemBought() {
 }
 
 export function useItemVotes(itemIds: string[]) {
+  const { user } = useAuth();
+
   return useQuery({
-    queryKey: itemKeys.votes(itemIds),
+    queryKey: itemKeys.votes(user?.id, itemIds),
     queryFn: () => getItemVotes(itemIds),
-    enabled: itemIds.length > 0,
+    enabled: Boolean(user?.id) && itemIds.length > 0,
   });
 }
 
 export function useToggleItemVote(itemIds: string[]) {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
-  const votesKey = itemKeys.votes(itemIds);
+  const votesKey = itemKeys.votes(user?.id, itemIds);
 
   return useMutation({
     mutationFn: (itemId: string) => toggleItemVote(itemId),

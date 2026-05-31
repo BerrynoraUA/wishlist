@@ -11,6 +11,7 @@ import {
   updateSettings,
   uploadProfileAvatar,
 } from "@/api/settings";
+import { useAuth } from "@/providers/auth-provider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   UpdateProfilePayload,
@@ -20,41 +21,49 @@ import type {
 
 export const settingsKeys = {
   all: ["settings"] as const,
-  profile: () => [...settingsKeys.all, "profile"] as const,
-  preferences: () => [...settingsKeys.all, "preferences"] as const,
-  provider: () => [...settingsKeys.all, "provider"] as const,
+  profile: (userId: string | null | undefined) =>
+    [...settingsKeys.all, "profile", userId ?? "anonymous"] as const,
+  preferences: (userId: string | null | undefined) =>
+    [...settingsKeys.all, "preferences", userId ?? "anonymous"] as const,
+  provider: (userId: string | null | undefined) =>
+    [...settingsKeys.all, "provider", userId ?? "anonymous"] as const,
   exchangeRates: () => [...settingsKeys.all, "exchange-rates"] as const,
   profilesByIds: (idsKey: string) => [...settingsKeys.all, "profiles-by-ids", idsKey] as const,
 };
 
 export function useProfile() {
+  const { user } = useAuth();
+
   return useQuery({
-    queryKey: settingsKeys.profile(),
+    queryKey: settingsKeys.profile(user?.id),
     queryFn: getProfile,
+    enabled: Boolean(user?.id),
   });
 }
 
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: (payload: UpdateProfilePayload) => updateProfile(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: settingsKeys.profile() });
+      queryClient.invalidateQueries({ queryKey: settingsKeys.profile(user?.id) });
     },
   });
 }
 
 export function useUploadProfileAvatar() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: uploadProfileAvatar,
     onSuccess: (profile) => {
-      queryClient.setQueryData(settingsKeys.profile(), profile);
+      queryClient.setQueryData(settingsKeys.profile(user?.id), profile);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: settingsKeys.profile() });
+      queryClient.invalidateQueries({ queryKey: settingsKeys.profile(user?.id) });
     },
   });
 }
@@ -77,25 +86,31 @@ export function useProfilesByIds(userIds: string[]) {
 }
 
 export function useSettings() {
+  const { user } = useAuth();
+
   return useQuery({
-    queryKey: settingsKeys.preferences(),
+    queryKey: settingsKeys.preferences(user?.id),
     queryFn: getSettings,
+    enabled: Boolean(user?.id),
     staleTime: 5 * 60 * 1000,
   });
 }
 
 export function useUpdateSettings() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: (payload: UpdateSettingsPayload) => updateSettings(payload),
     onMutate: async (payload) => {
-      await queryClient.cancelQueries({ queryKey: settingsKeys.preferences() });
+      await queryClient.cancelQueries({ queryKey: settingsKeys.preferences(user?.id) });
 
-      const previousSettings = queryClient.getQueryData<UserSettings>(settingsKeys.preferences());
+      const previousSettings = queryClient.getQueryData<UserSettings>(
+        settingsKeys.preferences(user?.id),
+      );
 
       if (previousSettings) {
-        queryClient.setQueryData<UserSettings>(settingsKeys.preferences(), {
+        queryClient.setQueryData<UserSettings>(settingsKeys.preferences(user?.id), {
           ...previousSettings,
           ...payload,
         });
@@ -105,15 +120,15 @@ export function useUpdateSettings() {
     },
     onError: (_error, _payload, context) => {
       if (context?.previousSettings) {
-        queryClient.setQueryData(settingsKeys.preferences(), context.previousSettings);
+        queryClient.setQueryData(settingsKeys.preferences(user?.id), context.previousSettings);
       }
     },
     onSuccess: (settings) => {
-      queryClient.setQueryData(settingsKeys.preferences(), settings);
+      queryClient.setQueryData(settingsKeys.preferences(user?.id), settings);
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: settingsKeys.preferences(),
+        queryKey: settingsKeys.preferences(user?.id),
         refetchType: "active",
       });
     },
@@ -121,9 +136,12 @@ export function useUpdateSettings() {
 }
 
 export function useAuthProvider() {
+  const { user } = useAuth();
+
   return useQuery({
-    queryKey: settingsKeys.provider(),
+    queryKey: settingsKeys.provider(user?.id),
     queryFn: getAuthProvider,
+    enabled: Boolean(user?.id),
     staleTime: Infinity,
   });
 }

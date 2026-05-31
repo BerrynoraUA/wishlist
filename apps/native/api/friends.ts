@@ -1,6 +1,10 @@
 import { supabase } from "@wishlist/backend/supabase/native";
 import { normalizeSearchQuery } from "@/lib/wishlists";
 import type {
+  FriendGroupMember,
+  FriendGroupPayload,
+  FriendRequest,
+  FriendRequestWithDetails,
   FriendGroup,
   FriendWithDetails,
   GetFriendsWithoutWishlistAccessParams,
@@ -34,6 +38,9 @@ type FriendAccessRow = {
   avatar_url?: string | null;
   wishlists_count?: number | string | null;
   mutual_friends_count?: number | string | null;
+  sender_id?: string;
+  receiver_id?: string;
+  status?: number;
 };
 
 type PaginationParams = {
@@ -41,6 +48,117 @@ type PaginationParams = {
   take?: number;
   search?: string;
 };
+
+function normalizeFriendRequest(row: FriendAccessRow): FriendRequestWithDetails {
+  return {
+    id: row.id ?? "",
+    sender_id: row.sender_id ?? "",
+    receiver_id: row.receiver_id ?? "",
+    status: row.status ?? 0,
+    created_at: row.created_at ?? "",
+    display_name: row.display_name ?? "",
+    nickname: row.nickname ?? null,
+    avatar_url: row.avatar_url ?? null,
+    mutual_friends_count: Number(row.mutual_friends_count ?? 0),
+  };
+}
+
+export async function getIncomingFriendRequests({
+  skip = 0,
+  take = 10,
+}: PaginationParams = {}): Promise<FriendRequestWithDetails[]> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const { data, error } = await supabase.rpc("get_incoming_friend_requests_with_details", {
+    p_user_id: user.id,
+    p_skip: skip,
+    p_take: take,
+  });
+
+  if (error) throw error;
+
+  return ((data ?? []) as FriendAccessRow[]).map(normalizeFriendRequest);
+}
+
+export async function getOutgoingFriendRequests({
+  skip = 0,
+  take = 10,
+}: PaginationParams = {}): Promise<FriendRequestWithDetails[]> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const { data, error } = await supabase.rpc("get_outgoing_friend_requests_with_details", {
+    p_user_id: user.id,
+    p_skip: skip,
+    p_take: take,
+  });
+
+  if (error) throw error;
+
+  return ((data ?? []) as FriendAccessRow[]).map(normalizeFriendRequest);
+}
+
+export async function sendFriendRequest(receiverId: string): Promise<FriendRequest> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Not authenticated");
+  if (user.id === receiverId) throw new Error("Cannot send friend request to yourself");
+
+  const { data, error } = await supabase
+    .from("friend_requests")
+    .insert({
+      sender_id: user.id,
+      receiver_id: receiverId,
+      status: 0,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  return data as FriendRequest;
+}
+
+export async function acceptFriendRequest(requestId: string): Promise<void> {
+  const { error } = await supabase.rpc("accept_friend_request", {
+    p_request_id: requestId,
+  });
+
+  if (error) throw error;
+}
+
+export async function rejectFriendRequest(requestId: string): Promise<void> {
+  const { error } = await supabase.rpc("reject_friend_request", {
+    p_request_id: requestId,
+  });
+
+  if (error) throw error;
+}
+
+export async function cancelFriendRequest(requestId: string): Promise<void> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const { error } = await supabase
+    .from("friend_requests")
+    .delete()
+    .eq("id", requestId)
+    .eq("sender_id", user.id);
+
+  if (error) throw error;
+}
 
 export async function checkFriendship(userId: string): Promise<boolean> {
   const {
@@ -76,6 +194,38 @@ export async function getProfilesByIds(userIds: string[]): Promise<PublicProfile
   return (data ?? []) as PublicProfile[];
 }
 
+export async function searchProfilesByNickname({
+  query,
+  skip = 0,
+  take = 20,
+}: {
+  query: string;
+  skip?: number;
+  take?: number;
+}): Promise<ProfileSearchResult[]> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const normalizedSearch = normalizeSearchQuery(query);
+  if (!normalizedSearch) return [];
+
+  const { data, error } = await supabase.rpc("search_profiles_by_nickname", {
+    p_query: normalizedSearch,
+    p_skip: skip,
+    p_take: take,
+  });
+
+  if (error) throw error;
+
+  return ((data ?? []) as FriendAccessRow[]).map((row) => ({
+    id: row.id ?? "",
+    nickname: row.nickname ?? "unknown",
+  }));
+}
+
 export async function getFriends({ skip = 0, take = 20, search }: PaginationParams = {}): Promise<
   FriendWithDetails[]
 > {
@@ -103,6 +253,23 @@ export async function getFriends({ skip = 0, take = 20, search }: PaginationPara
   }));
 }
 
+export async function removeFriend(userId: string): Promise<void> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const { error } = await supabase
+    .from("friends")
+    .delete()
+    .or(
+      `and(user_f.eq.${user.id},user_s.eq.${userId}),and(user_f.eq.${userId},user_s.eq.${user.id})`,
+    );
+
+  if (error) throw error;
+}
+
 export async function getFriendGroups({
   skip = 0,
   take = 20,
@@ -128,6 +295,57 @@ export async function getFriendGroups({
     updated_at: row.updated_at ?? undefined,
     member_count: Number(row.member_count ?? 0),
   }));
+}
+
+export async function getFriendGroupMembers(groupId: string): Promise<FriendGroupMember[]> {
+  const { data, error } = await supabase.rpc("get_friend_group_members", {
+    p_group_id: groupId,
+  });
+
+  if (error) throw error;
+
+  return ((data ?? []) as FriendAccessRow[]).map((row) => ({
+    id: row.id ?? "",
+    nickname: row.nickname ?? null,
+    display_name: row.display_name ?? null,
+    avatar_url: row.avatar_url ?? null,
+  }));
+}
+
+export async function createFriendGroup(payload: FriendGroupPayload) {
+  const { data, error } = await supabase.rpc("create_friend_group", {
+    p_name: payload.name,
+    p_description: payload.description ?? null,
+    p_color: payload.color,
+    p_icon: payload.icon,
+    p_member_ids: payload.memberIds,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateFriendGroup(groupId: string, payload: FriendGroupPayload) {
+  const { data, error } = await supabase.rpc("update_friend_group", {
+    p_group_id: groupId,
+    p_name: payload.name,
+    p_description: payload.description ?? null,
+    p_color: payload.color,
+    p_icon: payload.icon,
+    p_member_ids: payload.memberIds,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteFriendGroup(groupId: string) {
+  const { data, error } = await supabase.rpc("delete_friend_group", {
+    p_group_id: groupId,
+  });
+
+  if (error) throw error;
+  return data;
 }
 
 export async function getFriendsWithoutWishlistAccess({

@@ -308,15 +308,15 @@ export function WishlistCreateEditSheet({
   async function invalidateAccessQueries(id: string) {
     await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
     await queryClient.invalidateQueries({
-      queryKey: ["friends-without-wishlist-access", id],
+      queryKey: ["friends-without-wishlist-access"],
       exact: false,
     });
     await queryClient.invalidateQueries({
-      queryKey: ["friend-groups-without-wishlist-access", id],
+      queryKey: ["friend-groups-without-wishlist-access"],
       exact: false,
     });
     await queryClient.invalidateQueries({
-      queryKey: ["wishlist-access-list", id],
+      queryKey: ["wishlist-access-list"],
       exact: false,
     });
   }

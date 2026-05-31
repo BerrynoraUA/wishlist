@@ -140,9 +140,21 @@ export function WishlistGrantAccessSheet({
                       onChangeText={onChange}
                       placeholder={t("Search among your friends")}
                       className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none"
+                      returnKeyType="search"
                     />
                   )}
                 />
+                {values.query.length > 0 ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    accessibilityLabel={t("Clear search")}
+                    onPress={() => setValue("query", "")}
+                    className="size-9 shrink-0 rounded-full"
+                  >
+                    <Icon as={X} className="size-4 text-text-muted" />
+                  </Button>
+                ) : null}
               </View>
               <View className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg">
                 {friendsQuery.isLoading ? (

@@ -3,6 +3,7 @@ import "@/global.css";
 
 import { useSettings } from "@/hooks/use-settings";
 import { getNativeThemeNameForPreference, getNavigationTheme, getThemeMode } from "@/lib/theme";
+import { upsertKnownAccount } from "@/lib/known-accounts";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
@@ -114,9 +115,18 @@ function AuthGate() {
 }
 
 function NativeThemeSync() {
+  const { session } = useAuth();
   const { data: settings } = useSettings();
   const themePreference = settings?.theme ?? DEFAULT_SETTINGS.theme;
   const defaultAccent = settings?.default_accent ?? DEFAULT_SETTINGS.default_accent;
+
+  useEffect(() => {
+    if (!session?.user.id || settings?.default_accent == null) return;
+    void upsertKnownAccount({
+      userId: session.user.id,
+      defaultAccent: settings.default_accent,
+    }).catch(() => {});
+  }, [session?.user.id, settings?.default_accent]);
 
   useEffect(() => {
     function applyTheme(systemColorScheme: string | null | undefined) {

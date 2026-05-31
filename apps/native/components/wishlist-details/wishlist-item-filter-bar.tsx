@@ -11,6 +11,7 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { useSettings } from "@/hooks/use-settings";
 import {
   DEFAULT_ITEM_SORT,
   getItemPriorityOptions,
@@ -61,9 +62,13 @@ export function WishlistItemFilterBar({
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useGT();
+  const { data: settings } = useSettings();
   const itemSortOptions = React.useMemo(() => getItemSortOptions(t), [t]);
   const itemStatusOptions = React.useMemo(() => getItemStatusOptions(t), [t]);
-  const itemPriorityOptions = React.useMemo(() => getItemPriorityOptions(t), [t]);
+  const itemPriorityOptions = React.useMemo(
+    () => getItemPriorityOptions(t, settings?.selected_priorities),
+    [settings?.selected_priorities, t],
+  );
   const active = wishlistItemFilterBarHasActiveFilters(filters);
   const selectedSort =
     itemSortOptions.find((option) => option.value === filters.sort)?.label ?? t("Newest first");
@@ -201,6 +206,7 @@ export function WishlistItemFilterBar({
                 options={itemPriorityOptions.map((option) => ({
                   value: option.value,
                   label: option.label,
+                  color: option.color,
                 }))}
                 onToggle={(value) => toggleValue("priorities", value)}
               />
@@ -276,7 +282,7 @@ function MultiSelectMenu({
 }: {
   label: string;
   values: string[];
-  options: { value: string; label: string }[];
+  options: { value: string; label: string; color?: string }[];
   onToggle: (value: string) => void;
 }) {
   return (
@@ -309,6 +315,11 @@ function MultiSelectMenu({
             key={option.value}
             checked={values.includes(option.value)}
             closeOnPress={false}
+            leading={
+              option.color ? (
+                <View className="size-3 rounded-full" style={{ backgroundColor: option.color }} />
+              ) : undefined
+            }
             onCheckedChange={() => onToggle(option.value)}
           >
             <Text>{option.label}</Text>

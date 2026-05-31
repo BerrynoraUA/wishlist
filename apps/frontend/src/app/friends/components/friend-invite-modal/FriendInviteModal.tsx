@@ -240,9 +240,7 @@ export function FriendInviteModal({ open, userId, onClose }: Props) {
           </Button>
         )}
 
-        {status === "check_error" && (
-          <Button onClick={onClose}>{statusInfo[status].action}</Button>
-        )}
+        {status === "check_error" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
 
         {status === "sent" && <Button onClick={onClose}>{statusInfo[status].action}</Button>}
 
