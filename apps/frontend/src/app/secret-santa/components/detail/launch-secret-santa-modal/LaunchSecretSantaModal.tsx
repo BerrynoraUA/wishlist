@@ -12,14 +12,7 @@ import { useLaunchSecretSanta } from "@/hooks/use-secret-santa";
 import { useSubscription } from "@/hooks/use-subscription";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { SecretSantaPersonAvatar } from "../secret-santa-person-avatar/SecretSantaPersonAvatar";
-import {
-  Ban,
-  Sparkles,
-  ChevronDown,
-  ChevronUp,
-  AlertTriangle,
-  Users,
-} from "lucide-react";
+import { Ban, Sparkles, ChevronDown, ChevronUp, AlertTriangle, Users } from "lucide-react";
 import styles from "./LaunchSecretSantaModal.module.scss";
 
 type Props = {
@@ -196,9 +189,11 @@ export function LaunchSecretSantaModal({ open, onClose, eventId, participants }:
         ) : (
           <div className={styles.upgradeCard}>
             <span className={styles.upgradeBadge}>{t("PRO", { $id: "common.proBadge" })}</span>
-            <p>{t("Custom exclusions are available on Pro.", {
-              $id: "secretSanta.launchModal.upgradeCopyShort",
-            })}</p>
+            <p>
+              {t("Custom exclusions are available on Pro.", {
+                $id: "secretSanta.launchModal.upgradeCopyShort",
+              })}
+            </p>
             <Button variant="secondary" onClick={() => router.push("/subscription")}>
               <Sparkles size={16} />
               <span>

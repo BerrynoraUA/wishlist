@@ -342,7 +342,9 @@ export function SecretSantaDetailHero({
                 disabled={updateEvent.isPending}
                 aria-label={t("Budget", { $id: "secretSanta.hero.budgetInputAria" })}
               />
-              {event.currency ? <span className={styles.inlineBudgetCurrency}>{event.currency}</span> : null}
+              {event.currency ? (
+                <span className={styles.inlineBudgetCurrency}>{event.currency}</span>
+              ) : null}
               <button
                 type="button"
                 className={`${styles.inlineActionButton} ${styles.inlineCancelButton} ${styles.inlineBudgetAction}`}

@@ -6,10 +6,14 @@ import type { Database } from "../db-types";
 import type { WishlistSupabaseClient } from "./types";
 import { getSupabasePublicEnv } from "./shared";
 
+function toSecureStoreKey(key: string) {
+  return key.replace(/[^A-Za-z0-9._-]/g, "_");
+}
+
 const ExpoSecureStoreAdapter = {
-  getItem: (key: string) => SecureStore.getItemAsync(key),
-  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
-  removeItem: (key: string) => SecureStore.deleteItemAsync(key),
+  getItem: (key: string) => SecureStore.getItemAsync(toSecureStoreKey(key)),
+  setItem: (key: string, value: string) => SecureStore.setItemAsync(toSecureStoreKey(key), value),
+  removeItem: (key: string) => SecureStore.deleteItemAsync(toSecureStoreKey(key)),
 };
 
 export function createNativeClient(): WishlistSupabaseClient {

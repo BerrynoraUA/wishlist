@@ -1,6 +1,12 @@
 import { supabase } from "@wishlist/backend/supabase/native";
 import { normalizeSearchQuery, parseEventDate } from "@/lib/wishlists";
 import {
+  type DiscoverQueryParams,
+  type DiscoverSection,
+  type FriendUpcomingWishlist,
+  type ReservedItem,
+} from "@wishlist/backend/types/discover";
+import {
   WishlistVisibility,
   type UserStatistics,
   type Wishlist,
@@ -46,6 +52,113 @@ export async function getMyWishlists({
   if (error) throw error;
 
   return ((data ?? []) as WishlistFeedRow[]).map(normalizeWishlist);
+}
+
+export async function getFriendWishlists(
+  friendUserId: string,
+  { skip = 0, take = 10, search, sort }: WishlistQueryParams = {},
+): Promise<Wishlist[]> {
+  const normalizedSearch = normalizeSearchQuery(search);
+
+  const { data, error } = await supabase.rpc("get_friend_wishlists", {
+    p_friend_user_id: friendUserId,
+    p_skip: skip,
+    p_take: take,
+    p_search: normalizedSearch || null,
+    p_sort: sort || "newest",
+  });
+
+  if (error) throw error;
+
+  return ((data ?? []) as WishlistFeedRow[]).map(normalizeWishlist);
+}
+
+function toDiscoverRpcParams({
+  skip = 0,
+  take = 10,
+  search,
+  sort,
+  priorities,
+  priceMin,
+  priceMax,
+  displayCurrency,
+}: DiscoverQueryParams = {}) {
+  const normalizedSearch = normalizeSearchQuery(search);
+
+  return {
+    p_skip: skip,
+    p_take: take,
+    p_search: normalizedSearch || null,
+    p_sort: sort || "default",
+    p_priorities: priorities?.length ? priorities : null,
+    p_price_min: priceMin ?? null,
+    p_price_max: priceMax ?? null,
+    p_display_currency: displayCurrency || "USD",
+  };
+}
+
+export async function getFriendsWishlistsDiscover(
+  params: DiscoverQueryParams = {},
+): Promise<DiscoverSection[]> {
+  const { data, error } = await supabase.rpc(
+    "get_friends_wishlists_discover",
+    toDiscoverRpcParams(params),
+  );
+
+  if (error) throw error;
+
+  return (data ?? []) as DiscoverSection[];
+}
+
+export async function getFriendsWishlistsDiscoverAll(
+  params: DiscoverQueryParams = {},
+): Promise<DiscoverSection[]> {
+  const { data, error } = await supabase.rpc(
+    "get_friends_wishlists_discover_all",
+    toDiscoverRpcParams(params),
+  );
+
+  if (error) throw error;
+
+  return (data ?? []) as DiscoverSection[];
+}
+
+export async function getFriendsWishlistsReservedByMe(
+  params: DiscoverQueryParams = {},
+): Promise<ReservedItem[]> {
+  const { data, error } = await supabase.rpc(
+    "get_reserved_items_by_me",
+    toDiscoverRpcParams(params),
+  );
+
+  if (error) throw error;
+
+  return (data ?? []) as ReservedItem[];
+}
+
+export async function getFriendsWishlistsPurchasedByMe(
+  params: DiscoverQueryParams = {},
+): Promise<ReservedItem[]> {
+  const { data, error } = await supabase.rpc("get_my_bought_items", toDiscoverRpcParams(params));
+
+  if (error) throw error;
+
+  return (data ?? []) as ReservedItem[];
+}
+
+export async function getFriendsUpcomingWishlists(): Promise<FriendUpcomingWishlist[]> {
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError) throw userError;
+  if (!userData.user) throw new Error("Not authenticated");
+
+  const { data, error } = await supabase.rpc("get_friends_upcoming_wishlists", {
+    p_user_id: userData.user.id,
+  });
+
+  if (error) throw error;
+
+  return (data ?? []) as FriendUpcomingWishlist[];
 }
 
 export async function getMyStatistics(): Promise<UserStatistics> {

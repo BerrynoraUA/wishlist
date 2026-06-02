@@ -26,11 +26,20 @@ export default function TabsLayout() {
       blurEffect={themeMode === "dark" ? "systemMaterialDark" : "systemMaterialLight"}
       disableTransparentOnScrollEdge
       indicatorColor={selectedTabBackground}
+      labelVisibilityMode="labeled"
       tintColor={navigationTheme.colors.primary}
     >
       <NativeTabs.Trigger name="wishlists">
         <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
         <NativeTabs.Trigger.Label>{t("Wishlists")}</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="discover">
+        <NativeTabs.Trigger.Icon sf="sparkles" md="explore" />
+        <NativeTabs.Trigger.Label>{t("Discover")}</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="friends">
+        <NativeTabs.Trigger.Icon sf="person.2.fill" md="group" />
+        <NativeTabs.Trigger.Label>{t("Friends")}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="profile">
         <NativeTabs.Trigger.Icon sf="person.crop.circle" md="account_circle" />

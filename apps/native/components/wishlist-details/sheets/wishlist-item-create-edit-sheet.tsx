@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
+import { useSettings } from "@/hooks/use-settings";
 import {
   SlidingOptionSelector,
   type SlidingOption,
@@ -40,7 +41,11 @@ export function WishlistItemCreateEditSheet({
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useGT();
-  const priorityOptions = React.useMemo(() => getItemPriorityOptions(t), [t]);
+  const { data: settings } = useSettings();
+  const priorityOptions = React.useMemo(
+    () => getItemPriorityOptions(t, settings?.selected_priorities),
+    [settings?.selected_priorities, t],
+  );
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const createMutation = useCreateItem();
   const updateMutation = useUpdateItem();

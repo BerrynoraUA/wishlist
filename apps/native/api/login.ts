@@ -83,7 +83,7 @@ export async function loginWithGoogle(): Promise<void> {
     options: {
       redirectTo,
       queryParams: {
-        prompt: "consent",
+        prompt: "select_account consent",
       },
       skipBrowserRedirect: true,
     },

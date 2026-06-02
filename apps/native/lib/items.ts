@@ -1,6 +1,6 @@
 import type { TranslateFn } from "@/lib/translate-fn";
 import type { Item, ItemFormValues, ItemLink } from "@wishlist/backend/types/item";
-import { PRIORITY_IDS } from "@wishlist/backend/lib";
+import { ALL_PRIORITIES, PRIORITY_IDS } from "@wishlist/backend/lib";
 
 export const WISHLIST_ITEMS_PAGE_SIZE = 12;
 export const DEFAULT_ITEM_SORT = "newest";
@@ -13,9 +13,16 @@ export const ITEM_STATUS_LOOKUP = [
 ] as const;
 
 export const ITEM_PRIORITY_LOOKUP = [
-  { value: PRIORITY_IDS.HIGH, priority_id: PRIORITY_IDS.HIGH },
-  { value: PRIORITY_IDS.MEDIUM, priority_id: PRIORITY_IDS.MEDIUM },
   { value: PRIORITY_IDS.LOW, priority_id: PRIORITY_IDS.LOW },
+  { value: PRIORITY_IDS.MEDIUM, priority_id: PRIORITY_IDS.MEDIUM },
+  { value: PRIORITY_IDS.HIGH, priority_id: PRIORITY_IDS.HIGH },
+  { value: PRIORITY_IDS.URGENT, priority_id: PRIORITY_IDS.URGENT },
+  { value: PRIORITY_IDS.CRITICAL, priority_id: PRIORITY_IDS.CRITICAL },
+  { value: PRIORITY_IDS.EPIC, priority_id: PRIORITY_IDS.EPIC },
+  { value: PRIORITY_IDS.LEGENDARY, priority_id: PRIORITY_IDS.LEGENDARY },
+  { value: PRIORITY_IDS.MYTHIC, priority_id: PRIORITY_IDS.MYTHIC },
+  { value: PRIORITY_IDS.CELESTIAL, priority_id: PRIORITY_IDS.CELESTIAL },
+  { value: PRIORITY_IDS.DIVINE, priority_id: PRIORITY_IDS.DIVINE },
 ] as const;
 
 export function getItemStatusOptions(t: TranslateFn) {
@@ -26,12 +33,21 @@ export function getItemStatusOptions(t: TranslateFn) {
   ];
 }
 
-export function getItemPriorityOptions(t: TranslateFn) {
-  return [
-    { value: PRIORITY_IDS.HIGH, label: t("High"), priority_id: PRIORITY_IDS.HIGH },
-    { value: PRIORITY_IDS.MEDIUM, label: t("Medium"), priority_id: PRIORITY_IDS.MEDIUM },
-    { value: PRIORITY_IDS.LOW, label: t("Low"), priority_id: PRIORITY_IDS.LOW },
-  ];
+export function getItemPriorityOptions(t: TranslateFn, selectedPriorityIds?: string[]) {
+  const selectedIds =
+    selectedPriorityIds && selectedPriorityIds.length > 0
+      ? selectedPriorityIds
+      : ALL_PRIORITIES.filter((priority) => priority.is_free).map((priority) => priority.id);
+
+  return ALL_PRIORITIES.filter((priority) => selectedIds.includes(priority.id))
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((priority) => ({
+      value: priority.id,
+      label: t(priority.name),
+      priority_id: priority.id,
+      color: priority.color,
+      is_free: priority.is_free,
+    }));
 }
 
 export function getItemSortOptions(t: TranslateFn) {
@@ -51,16 +67,8 @@ export function getTranslatedItemPriorityLabel(
   t: TranslateFn,
   priorityId: string | null | undefined,
 ): string | null {
-  switch (priorityId) {
-    case PRIORITY_IDS.HIGH:
-      return t("High");
-    case PRIORITY_IDS.MEDIUM:
-      return t("Medium");
-    case PRIORITY_IDS.LOW:
-      return t("Low");
-    default:
-      return null;
-  }
+  const priority = ALL_PRIORITIES.find((item) => item.id === priorityId);
+  return priority ? t(priority.name) : null;
 }
 
 export const EMPTY_ITEM_FORM: ItemFormValues = {
