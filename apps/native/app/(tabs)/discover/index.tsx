@@ -1,5 +1,6 @@
 import {
-  DiscoverFilterBar,
+  DiscoverFilterActions,
+  DiscoverFilterHeader,
   DiscoverFiltersPanel,
 } from "@/components/discover/discover-filter-bar";
 import { DiscoverSection } from "@/components/discover/discover-section";
@@ -22,8 +23,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type DiscoverRow =
   | DiscoverSectionType
-  | { id: "discover-intro"; type: "discover-intro" }
   | { id: "discover-header"; type: "discover-header" }
+  | { id: "discover-intro"; type: "discover-intro" }
   | { id: "reserved-grid"; type: "reserved-grid" };
 
 export default function DiscoverScreen() {
@@ -68,34 +69,62 @@ export default function DiscoverScreen() {
     [feed.activeSections, feed.sectionTab, filtersOpen],
   );
 
+  function renderFilterActions() {
+    return (
+      <DiscoverFilterActions
+        filtersOpen={filtersOpen}
+        filtersActive={feed.filtersActive}
+        onFiltersOpenChange={setFiltersOpen}
+        onResetFilters={feed.resetFilters}
+      />
+    );
+  }
+
+  function renderFiltersPanel() {
+    if (!filtersOpen) return null;
+
+    return (
+      <DiscoverFiltersPanel
+        search={feed.search}
+        priorityIds={feed.priorityIds}
+        priceMin={feed.priceMin}
+        priceMax={feed.priceMax}
+        sort={feed.sort}
+        onSearchChange={feed.setSearch}
+        onPriorityToggle={feed.togglePriority}
+        onPriceMinChange={feed.setPriceMin}
+        onPriceMaxChange={feed.setPriceMax}
+        onSortChange={feed.setSort}
+      />
+    );
+  }
+
   function renderRow({ item, target }: { item: DiscoverRow; target: string }) {
     if ("type" in item && item.type === "discover-header") {
+      const sticky = target === "StickyHeader";
+
       return (
         <View
-          className={target === "StickyHeader" ? "bg-bg pb-4" : "bg-transparent pb-4"}
-          style={{ paddingTop: target === "StickyHeader" ? insets.top + 8 : 0 }}
+          className={sticky ? "bg-bg pb-4" : "bg-transparent pb-4"}
+          style={{ paddingTop: sticky ? insets.top + 8 : 0 }}
         >
           <View className="gap-4 self-center" style={{ width: contentWidth }}>
-            <DiscoverFilterBar
-              filtersOpen={filtersOpen}
-              filtersActive={feed.filtersActive}
-              onFiltersOpenChange={setFiltersOpen}
-              onResetFilters={feed.resetFilters}
+            <DiscoverTabs
+              value={feed.tab}
+              onChange={(value) => {
+                feed.setTab(value);
+                setSelectedItem(null);
+              }}
             />
-            {filtersOpen ? (
-              <DiscoverFiltersPanel
-                search={feed.search}
-                priorityIds={feed.priorityIds}
-                priceMin={feed.priceMin}
-                priceMax={feed.priceMax}
-                sort={feed.sort}
-                onSearchChange={feed.setSearch}
-                onPriorityToggle={feed.togglePriority}
-                onPriceMinChange={feed.setPriceMin}
-                onPriceMaxChange={feed.setPriceMax}
-                onSortChange={feed.setSort}
+            {sticky ? (
+              <DiscoverFilterHeader
+                filtersOpen={filtersOpen}
+                filtersActive={feed.filtersActive}
+                onFiltersOpenChange={setFiltersOpen}
+                onResetFilters={feed.resetFilters}
               />
             ) : null}
+            {renderFiltersPanel()}
           </View>
         </View>
       );
@@ -103,14 +132,7 @@ export default function DiscoverScreen() {
 
     if ("type" in item && item.type === "discover-intro") {
       return (
-        <View className="gap-4 pb-4" style={{ alignSelf: "center", width: contentWidth }}>
-          <DiscoverTabs
-            value={feed.tab}
-            onChange={(value) => {
-              feed.setTab(value);
-              setSelectedItem(null);
-            }}
-          />
+        <View className="pb-4" style={{ alignSelf: "center", width: contentWidth }}>
           <UpcomingEventsCard
             events={feed.upcomingQuery.data ?? []}
             isLoading={feed.upcomingQuery.isLoading}
@@ -130,6 +152,7 @@ export default function DiscoverScreen() {
             gridGap={gridGap}
             currentUserId={user?.id}
             purchased={feed.tab === "purchased"}
+            headerAccessory={renderFilterActions()}
             onOpenItem={setSelectedItem}
           />
         </View>
@@ -148,6 +171,7 @@ export default function DiscoverScreen() {
               ? avatarByKey.get(item.friend_id)
               : avatarByKey.get(item.username)
           }
+          headerAccessory={item.id === feed.activeSections[0]?.id ? renderFilterActions() : null}
           onOpenItem={setSelectedItem}
         />
       </View>

@@ -1,15 +1,14 @@
-import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import {
+  SlidingOptionSelector,
+  type SlidingOption,
+  type SlidingOptionRenderProps,
+} from "@/components/ui/sliding-option-selector";
 import { Text } from "@/components/ui/text";
 import type { DiscoverTab } from "@/lib/discover";
 import { cn } from "@/lib/utils";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
-
-type DiscoverTabOption = {
-  value: DiscoverTab;
-  label: string;
-};
 
 export function DiscoverTabs({
   value,
@@ -19,52 +18,49 @@ export function DiscoverTabs({
   onChange: (value: DiscoverTab) => void;
 }) {
   const t = useGT();
-  const rows = React.useMemo<DiscoverTabOption[][]>(
+  const rows = React.useMemo<SlidingOption<DiscoverTab>[][]>(
     () => [
       [
-        { value: "wishlists", label: t("Wishlists") },
-        { value: "available", label: t("Available") },
+        createTabOption("wishlists", t("Wishlists")),
+        createTabOption("available", t("Available")),
       ],
       [
-        { value: "reserved", label: t("Reserved") },
-        { value: "purchased", label: t("Purchased") },
+        createTabOption("reserved", t("Reserved")),
+        createTabOption("purchased", t("Purchased")),
       ],
     ],
     [t],
   );
 
   return (
-    <View className="gap-2 rounded-[28px] border border-border-subtle bg-card-bg p-2 shadow-sm">
-      {rows.map((row, rowIndex) => (
-        <View key={rowIndex} className="flex-row gap-2">
-          {row.map((option) => {
-            const selected = value === option.value;
-
-            return (
-              <AnimatedPressable
-                key={option.value}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                onPress={() => onChange(option.value)}
-                className={cn(
-                  "h-11 flex-1 items-center justify-center rounded-full border border-border-subtle bg-bg-subtle px-3",
-                  selected && "border-brand bg-brand",
-                )}
-              >
-                <Text
-                  className={cn(
-                    "text-sm font-bold",
-                    selected ? "text-primary-foreground" : "text-text",
-                  )}
-                  numberOfLines={1}
-                >
-                  {option.label}
-                </Text>
-              </AnimatedPressable>
-            );
-          })}
-        </View>
-      ))}
+    <View className="rounded-[28px] border border-border-subtle bg-card-bg p-2 shadow-sm">
+      <SlidingOptionSelector
+        rows={rows}
+        value={value}
+        onChange={onChange}
+        optionHeight={44}
+        optionHeightClassName="h-11"
+        optionClassName="rounded-full px-3"
+        indicatorClassName="rounded-full border border-brand bg-brand"
+      />
     </View>
   );
+}
+
+function createTabOption(value: DiscoverTab, label: string): SlidingOption<DiscoverTab> {
+  return {
+    value,
+    accessibilityLabel: label,
+    children: ({ selected }: SlidingOptionRenderProps) => (
+      <Text
+        className={cn(
+          "text-sm font-bold",
+          selected ? "text-primary-foreground" : "text-text",
+        )}
+        numberOfLines={1}
+      >
+        {label}
+      </Text>
+    ),
+  };
 }

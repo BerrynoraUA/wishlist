@@ -193,9 +193,6 @@ export default function FriendsScreen() {
               <View className="flex-row items-start justify-between gap-3">
                 <View className="min-w-0 flex-1 gap-1">
                   <Text className="text-2xl font-extrabold text-text">{t("Friends")}</Text>
-                  <Text className="text-sm font-semibold text-text-muted">
-                    {t("Connect with friends and discover their wishlists.")}
-                  </Text>
                 </View>
                 <Button onPress={() => setSheet({ type: "add" })} className="rounded-full">
                   <Icon as={UserPlus} className="size-4 text-primary-foreground" />

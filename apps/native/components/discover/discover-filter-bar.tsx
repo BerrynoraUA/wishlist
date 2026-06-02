@@ -26,7 +26,7 @@ const SORT_OPTIONS = [
   { value: "priority-low", labelKey: "Lowest priority" },
 ] as const;
 
-export function DiscoverFilterBar({
+export function DiscoverFilterActions({
   filtersOpen,
   filtersActive,
   onFiltersOpenChange,
@@ -40,39 +40,47 @@ export function DiscoverFilterBar({
   const t = useGT();
 
   return (
+    <View className="flex-row items-center gap-2">
+      {filtersActive ? (
+        <Button
+          variant="destructive"
+          size="icon"
+          accessibilityLabel={t("Clear filters")}
+          onPress={onResetFilters}
+          className="h-10 w-10 shrink-0 rounded-full"
+        >
+          <Icon as={X} className="size-4 text-white" />
+        </Button>
+      ) : null}
+      <Button
+        variant="outline"
+        size="lg"
+        accessibilityLabel={t("Show filters")}
+        accessibilityState={{ expanded: filtersOpen }}
+        onPress={() => onFiltersOpenChange(!filtersOpen)}
+        className={cn(
+          "h-10 w-10 min-w-10 shrink-0 rounded-full border-border-subtle bg-card-bg p-0",
+          filtersOpen && "border-brand bg-brand-lighter",
+        )}
+      >
+        <Icon
+          as={SlidersHorizontal}
+          className={cn("size-4 text-text", filtersOpen && "text-brand")}
+        />
+      </Button>
+    </View>
+  );
+}
+
+export function DiscoverFilterHeader(props: React.ComponentProps<typeof DiscoverFilterActions>) {
+  const t = useGT();
+
+  return (
     <View className="flex-row items-center justify-between gap-3">
       <Text className="min-w-0 flex-1 text-xl font-extrabold tracking-tight text-text">
         {t("Discover")}
       </Text>
-      <View className="flex-row items-center gap-2">
-        {filtersActive ? (
-          <Button
-            variant="destructive"
-            size="icon"
-            accessibilityLabel={t("Clear filters")}
-            onPress={onResetFilters}
-            className="h-11 w-11 shrink-0 rounded-full"
-          >
-            <Icon as={X} className="size-4 text-white" />
-          </Button>
-        ) : null}
-        <Button
-          variant="outline"
-          size="lg"
-          accessibilityLabel={t("Show filters")}
-          accessibilityState={{ expanded: filtersOpen }}
-          onPress={() => onFiltersOpenChange(!filtersOpen)}
-          className={cn(
-            "h-11 w-11 min-w-11 shrink-0 rounded-full border-border-subtle bg-card-bg p-0 sm:h-11 sm:w-11 sm:min-w-11",
-            filtersOpen && "border-brand bg-brand-lighter",
-          )}
-        >
-          <Icon
-            as={SlidersHorizontal}
-            className={cn("size-4 text-text", filtersOpen && "text-brand")}
-          />
-        </Button>
-      </View>
+      <DiscoverFilterActions {...props} />
     </View>
   );
 }

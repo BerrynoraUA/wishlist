@@ -78,16 +78,23 @@ export function SlidingOptionSelector<T>({
   const indicatorX = useSharedValue(0);
   const indicatorY = useSharedValue(0);
   const indicatorWidth = useSharedValue(0);
+  const didPositionIndicator = React.useRef(false);
 
   React.useEffect(() => {
     const targetX = selectedPosition.columnIndex * (selectedOptionWidth + SLIDING_SELECTOR_GAP);
     const targetY = selectedPosition.rowIndex * (optionHeight + SLIDING_SELECTOR_GAP);
 
-    indicatorX.value = reduceMotion ? targetX : withSpring(targetX, motionSpring.navPill);
-    indicatorY.value = reduceMotion ? targetY : withSpring(targetY, motionSpring.navPill);
-    indicatorWidth.value = reduceMotion
-      ? selectedOptionWidth
-      : withSpring(selectedOptionWidth, motionSpring.navPill);
+    if (!didPositionIndicator.current || selectedOptionWidth === 0 || reduceMotion) {
+      indicatorX.value = targetX;
+      indicatorY.value = targetY;
+      indicatorWidth.value = selectedOptionWidth;
+      didPositionIndicator.current = selectedOptionWidth > 0;
+      return;
+    }
+
+    indicatorX.value = withSpring(targetX, motionSpring.navPill);
+    indicatorY.value = withSpring(targetY, motionSpring.navPill);
+    indicatorWidth.value = withSpring(selectedOptionWidth, motionSpring.navPill);
   }, [
     indicatorWidth,
     indicatorX,
@@ -106,6 +113,21 @@ export function SlidingOptionSelector<T>({
 
   function handleLayout(event: LayoutChangeEvent) {
     const nextWidth = event.nativeEvent.layout.width;
+    const nextSelectedRowLength = rows[selectedPosition.rowIndex]?.length ?? 1;
+    const nextSelectedOptionWidth =
+      nextWidth > 0
+        ? (nextWidth - SLIDING_SELECTOR_GAP * (nextSelectedRowLength - 1)) /
+          nextSelectedRowLength
+        : 0;
+
+    if (!didPositionIndicator.current && nextSelectedOptionWidth > 0) {
+      indicatorX.value =
+        selectedPosition.columnIndex * (nextSelectedOptionWidth + SLIDING_SELECTOR_GAP);
+      indicatorY.value = selectedPosition.rowIndex * (optionHeight + SLIDING_SELECTOR_GAP);
+      indicatorWidth.value = nextSelectedOptionWidth;
+      didPositionIndicator.current = true;
+    }
+
     setRowWidth((current) => (current === nextWidth ? current : nextWidth));
   }
 
@@ -137,7 +159,9 @@ export function SlidingOptionSelector<T>({
                   optionHeightClassName,
                   optionClassName,
                   selected
-                    ? "border-transparent bg-transparent"
+                    ? selectedOptionWidth > 0
+                      ? "border-transparent bg-transparent"
+                      : "border-brand bg-brand"
                     : cn("bg-bg-subtle", option.surfaceClassName),
                   selected && selectedOptionClassName,
                 )}

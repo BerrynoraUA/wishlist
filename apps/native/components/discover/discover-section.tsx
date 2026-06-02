@@ -16,6 +16,7 @@ export function DiscoverSection({
   gridGap,
   currentUserId,
   avatarUrl,
+  headerAccessory,
   onOpenItem,
 }: {
   section: DiscoverSectionType;
@@ -23,6 +24,7 @@ export function DiscoverSection({
   gridGap: number;
   currentUserId?: string | null;
   avatarUrl?: string | null;
+  headerAccessory?: React.ReactNode;
   onOpenItem: (item: Item) => void;
 }) {
   const t = useGT();
@@ -55,6 +57,7 @@ export function DiscoverSection({
             <Text className="text-xs font-extrabold text-brand">{visibleDate}</Text>
           </View>
         ) : null}
+        {headerAccessory}
       </View>
 
       {items.length > 0 ? (

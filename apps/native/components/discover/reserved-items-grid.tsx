@@ -15,6 +15,7 @@ export function ReservedItemsGrid({
   gridGap,
   currentUserId,
   purchased,
+  headerAccessory,
   onOpenItem,
 }: {
   items: ReservedItem[];
@@ -23,6 +24,7 @@ export function ReservedItemsGrid({
   gridGap: number;
   currentUserId?: string | null;
   purchased?: boolean;
+  headerAccessory?: React.ReactNode;
   onOpenItem: (item: Item) => void;
 }) {
   const t = useGT();
@@ -38,11 +40,14 @@ export function ReservedItemsGrid({
         <View key={row.map((entry) => entry.item.id).join(":")} className="flex-row" style={{ gap: gridGap }}>
           {row.map(({ source, item }) => (
             <View key={item.id} className="gap-2" style={{ width: cardWidth }}>
-              <Text className="text-xs font-bold text-text-muted" numberOfLines={1}>
-                {purchased
-                  ? t("Purchased for {name}", { name: source.owner_name })
-                  : t("For {name}", { name: source.owner_name })}
-              </Text>
+              <View className="min-h-10 flex-row items-center justify-between gap-2">
+                <Text className="min-w-0 flex-1 text-xs font-bold text-text-muted" numberOfLines={1}>
+                  {purchased
+                    ? t("Purchased for {name}", { name: source.owner_name })
+                    : t("For {name}", { name: source.owner_name })}
+                </Text>
+                {row[0]?.item.id === item.id ? headerAccessory : null}
+              </View>
               <DiscoverItemCard
                 item={item}
                 width={cardWidth}
