@@ -116,8 +116,7 @@ export function SlidingOptionSelector<T>({
     const nextSelectedRowLength = rows[selectedPosition.rowIndex]?.length ?? 1;
     const nextSelectedOptionWidth =
       nextWidth > 0
-        ? (nextWidth - SLIDING_SELECTOR_GAP * (nextSelectedRowLength - 1)) /
-          nextSelectedRowLength
+        ? (nextWidth - SLIDING_SELECTOR_GAP * (nextSelectedRowLength - 1)) / nextSelectedRowLength
         : 0;
 
     if (!didPositionIndicator.current && nextSelectedOptionWidth > 0) {

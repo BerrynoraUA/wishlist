@@ -180,7 +180,10 @@ export function DiscoverFiltersPanel({
                   checked={priorityIds.includes(option.value)}
                   closeOnPress={false}
                   leading={
-                    <View className="size-3 rounded-full" style={{ backgroundColor: option.color }} />
+                    <View
+                      className="size-3 rounded-full"
+                      style={{ backgroundColor: option.color }}
+                    />
                   }
                   onCheckedChange={() => onPriorityToggle(option.value)}
                 >
