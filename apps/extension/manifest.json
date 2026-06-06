@@ -19,7 +19,7 @@
     },
     "default_title": "Add to Wishlane"
   },
-  "permissions": ["activeTab", "storage", "scripting", "identity"],
+  "permissions": ["activeTab", "storage", "identity"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background/service-worker.js"
