@@ -34,11 +34,8 @@ export const wishlistKeys = {
   all: ["wishlists"] as const,
   my: (authUserId: string | null | undefined, params?: WishlistQueryParams) =>
     [...wishlistKeys.all, "my", authUserId ?? "anonymous", params] as const,
-  friend: (
-    authUserId: string | null | undefined,
-    userId: string,
-    params?: WishlistQueryParams,
-  ) => [...wishlistKeys.all, "friend", authUserId ?? "anonymous", userId, params] as const,
+  friend: (authUserId: string | null | undefined, userId: string, params?: WishlistQueryParams) =>
+    [...wishlistKeys.all, "friend", authUserId ?? "anonymous", userId, params] as const,
   discoverAll: (authUserId: string | null | undefined, params?: DiscoverQueryParams) =>
     [...wishlistKeys.all, "discover", "all", authUserId ?? "anonymous", params] as const,
   discoverAvailable: (authUserId: string | null | undefined, params?: DiscoverQueryParams) =>

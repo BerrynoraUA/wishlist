@@ -5,11 +5,7 @@ import {
   useFriendsWishlistsPurchasedByMe,
   useFriendsWishlistsReservedByMe,
 } from "@/hooks/use-wishlists";
-import {
-  DISCOVER_PAGE_SIZE,
-  type DiscoverTab,
-  isDiscoverSectionTab,
-} from "@/lib/discover";
+import { DISCOVER_PAGE_SIZE, type DiscoverTab, isDiscoverSectionTab } from "@/lib/discover";
 import { parseOptionalNumber } from "@/lib/items";
 import { normalizeSearchQuery } from "@/lib/wishlists";
 import type { DiscoverQueryParams } from "@wishlist/backend/types/discover";
@@ -51,7 +47,8 @@ export function useDiscoverFeed() {
 
   const sectionTab = isDiscoverSectionTab(tab);
   const activeSections = tab === "available" ? (availableQuery.data ?? []) : (allQuery.data ?? []);
-  const activeItems = tab === "purchased" ? (purchasedQuery.data ?? []) : (reservedQuery.data ?? []);
+  const activeItems =
+    tab === "purchased" ? (purchasedQuery.data ?? []) : (reservedQuery.data ?? []);
   const activeQuery =
     tab === "available"
       ? availableQuery

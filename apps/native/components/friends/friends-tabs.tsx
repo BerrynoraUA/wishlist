@@ -62,10 +62,7 @@ function createTabOption(value: FriendsTab, label: string): SlidingOption<Friend
     accessibilityLabel: label,
     children: ({ selected }: SlidingOptionRenderProps) => (
       <Text
-        className={cn(
-          "text-sm font-bold",
-          selected ? "text-primary-foreground" : "text-text",
-        )}
+        className={cn("text-sm font-bold", selected ? "text-primary-foreground" : "text-text")}
         numberOfLines={1}
       >
         {label}

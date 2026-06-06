@@ -72,7 +72,11 @@ export function DiscoverItemDetailSheet({
       <View className="gap-5 px-5 pb-6 pt-5">
         <View className="h-56 overflow-hidden rounded-2xl border border-border-subtle bg-bg-muted">
           {item.image_url ? (
-            <StyledImage source={{ uri: item.image_url }} contentFit="cover" className="size-full" />
+            <StyledImage
+              source={{ uri: item.image_url }}
+              contentFit="cover"
+              className="size-full"
+            />
           ) : (
             <View className="flex-1 items-center justify-center">
               <Icon as={Gift} className="size-12 text-text-light" />
@@ -167,7 +171,9 @@ export function DiscoverItemDetailSheet({
             disabled={!reservation.canToggleReservation || reservePending}
             onPress={() => onToggleReserve(item.id)}
           >
-            {reservePending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
+            {reservePending ? (
+              <ActivityIndicator colorClassName="accent-primary-foreground" />
+            ) : null}
             <Text>
               {!reservation.isReserved
                 ? t("Reserve this gift")
@@ -181,7 +187,9 @@ export function DiscoverItemDetailSheet({
             disabled={!reservation.canToggleBought || boughtPending}
             onPress={() => onToggleBought(item.id)}
           >
-            {boughtPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
+            {boughtPending ? (
+              <ActivityIndicator colorClassName="accent-primary-foreground" />
+            ) : null}
             <Icon as={ShoppingCart} className="size-4 text-primary-foreground" />
             <Text>{reservation.isPurchased ? t("Purchased") : t("Bought")}</Text>
           </Button>

@@ -1,8 +1,4 @@
-import {
-  listKnownAccounts,
-  removeKnownAccount,
-  upsertKnownAccount,
-} from "@/lib/known-accounts";
+import { listKnownAccounts, removeKnownAccount, upsertKnownAccount } from "@/lib/known-accounts";
 import { useAuth } from "@/providers/auth-provider";
 import type { KnownAccount } from "@wishlist/backend/types/known-accounts";
 import * as React from "react";

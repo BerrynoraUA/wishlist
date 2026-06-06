@@ -137,10 +137,19 @@ export function FriendGroupSheet({
       }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
-          <Button className="min-w-0 flex-1" variant="outline" disabled={isSaving} onPress={handleClose}>
+          <Button
+            className="min-w-0 flex-1"
+            variant="outline"
+            disabled={isSaving}
+            onPress={handleClose}
+          >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <Button className="min-w-0 flex-1" disabled={!name.trim() || isSaving} onPress={handleSubmit}>
+          <Button
+            className="min-w-0 flex-1"
+            disabled={!name.trim() || isSaving}
+            onPress={handleSubmit}
+          >
             {isSaving ? <ActivityIndicator colorClassName="accent-white" /> : null}
             <Text>{isSaving ? t("Saving...") : t("Save")}</Text>
           </Button>
@@ -155,7 +164,12 @@ export function FriendGroupSheet({
       >
         <View className="gap-1.5">
           <Text className="text-sm font-bold text-text">{t("Group name")}</Text>
-          <Input className="h-10" value={name} onChangeText={setName} placeholder={t("Family, coworkers")} />
+          <Input
+            className="h-10"
+            value={name}
+            onChangeText={setName}
+            placeholder={t("Family, coworkers")}
+          />
         </View>
 
         <View className="gap-1.5">
@@ -272,7 +286,6 @@ export function FriendGroupSheet({
         </View>
 
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
-
       </ScrollView>
     </BottomSheet>
   );

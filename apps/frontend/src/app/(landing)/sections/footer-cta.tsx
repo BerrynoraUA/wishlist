@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useGT } from "gt-next";
 import type { MouseEvent } from "react";
 import styles from "../landing.module.scss";
@@ -47,6 +48,20 @@ export function FooterCta({ onSmoothScroll }: { onSmoothScroll: SmoothScroll }) 
             >
               {t("Discover", { $id: "landing.footer.link.discover" })}
             </a>
+          </div>
+          <div className={styles.footerCol}>
+            <h4 className={styles.footerColTitle}>
+              {t("Legal", { $id: "landing.footer.col.legal" })}
+            </h4>
+            <Link href="/terms-of-service" className={styles.footerLink}>
+              {t("Terms of Service", { $id: "landing.footer.link.terms" })}
+            </Link>
+            <Link href="/privacy-policy" className={styles.footerLink}>
+              {t("Privacy Policy", { $id: "landing.footer.link.privacy" })}
+            </Link>
+            <Link href="/refund-policy" className={styles.footerLink}>
+              {t("Refund Policy", { $id: "landing.footer.link.refund" })}
+            </Link>
           </div>
         </div>
         <div className={styles.footerBottom}>
