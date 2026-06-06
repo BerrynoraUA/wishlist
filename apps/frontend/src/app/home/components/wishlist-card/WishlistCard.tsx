@@ -23,10 +23,18 @@ type Props = {
   showSharedMeta?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
+  onOpen?: (wishlist: Wishlist) => void;
   onPin?: (isPinned: boolean) => void;
 };
 
-export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete, onPin }: Props) {
+export function WishlistCard({
+  wishlist,
+  showSharedMeta = true,
+  onEdit,
+  onDelete,
+  onOpen,
+  onPin,
+}: Props) {
   const t = useGT();
   const router = useRouter();
   const [menuKey, setMenuKey] = useState(0);
@@ -60,7 +68,11 @@ export function WishlistCard({ wishlist, showSharedMeta = true, onEdit, onDelete
   return (
     <div
       className={styles.card}
-      onClick={() => router.push(`/wishlist/${wishlist.id}`)}
+      data-guide-target="home-wishlist-card"
+      onClick={() => {
+        onOpen?.(wishlist);
+        router.push(`/wishlist/${wishlist.id}`);
+      }}
       onMouseLeave={() => setMenuKey((k) => k + 1)}
       style={{ cursor: "pointer" }}
     >

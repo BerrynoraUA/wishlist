@@ -20,14 +20,8 @@ export function DiscoverTabs({
   const t = useGT();
   const rows = React.useMemo<SlidingOption<DiscoverTab>[][]>(
     () => [
-      [
-        createTabOption("wishlists", t("Wishlists")),
-        createTabOption("available", t("Available")),
-      ],
-      [
-        createTabOption("reserved", t("Reserved")),
-        createTabOption("purchased", t("Purchased")),
-      ],
+      [createTabOption("wishlists", t("Wishlists")), createTabOption("available", t("Available"))],
+      [createTabOption("reserved", t("Reserved")), createTabOption("purchased", t("Purchased"))],
     ],
     [t],
   );
@@ -53,10 +47,7 @@ function createTabOption(value: DiscoverTab, label: string): SlidingOption<Disco
     accessibilityLabel: label,
     children: ({ selected }: SlidingOptionRenderProps) => (
       <Text
-        className={cn(
-          "text-sm font-bold",
-          selected ? "text-primary-foreground" : "text-text",
-        )}
+        className={cn("text-sm font-bold", selected ? "text-primary-foreground" : "text-text")}
         numberOfLines={1}
       >
         {label}

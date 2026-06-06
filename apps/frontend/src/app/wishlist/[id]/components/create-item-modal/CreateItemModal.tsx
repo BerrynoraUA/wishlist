@@ -15,6 +15,7 @@ import { useSessionDraft } from "@/hooks/use-session-draft";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
+import { useUserGuideStepCompletion } from "@/components/user-guide/UserGuideProvider";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { validateImageUploadFile } from "@/lib/image-upload";
 import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
@@ -52,6 +53,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const t = useGT();
   const { data: currentUserId = "" } = useCurrentUserId();
   const { isPro } = useSubscription();
+  const completeOpenItemStep = useUserGuideStepCompletion(5);
+  const completeCreateItemStep = useUserGuideStepCompletion(6);
   const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
   const canUseMultipleLinks = !SUBSCRIPTIONS_UI_ENABLED || isPro;
   const [link, setLink] = useState("");
@@ -219,6 +222,10 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   });
 
   useEffect(() => {
+    if (open) completeOpenItemStep();
+  }, [completeOpenItemStep, open]);
+
+  useEffect(() => {
     if (open && !link && !name && !description && !price && !imagePreview) {
       setCurrency(preferredCurrency);
     }
@@ -295,6 +302,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       onSuccess: () => {
         clearDraft();
         resetForm();
+        completeCreateItemStep();
         onClose();
       },
     });
@@ -732,6 +740,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           <Button
             onClick={handleSubmit}
             disabled={!name.trim() || isPending || Boolean(imageError)}
+            data-guide-target="create-item-submit"
           >
             {isPending
               ? t("Creating...", { $id: "item.modal.creating" })

@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ButtonHTMLAttributes,
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode,
+} from "react";
 import styles from "./DropdownMenu.module.scss";
 
 const DropdownMenuContext = createContext<{ close: () => void }>({
@@ -44,11 +53,11 @@ export function DropdownMenu({ trigger, children, align = "right", className }: 
 
 type ItemProps = {
   children: ReactNode;
-  onClick?: (e: React.MouseEvent) => void;
+  onClick?: (e: ReactMouseEvent) => void;
   variant?: "default" | "edit" | "danger" | "share" | "pin";
   disabled?: boolean;
   className?: string;
-};
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className" | "disabled" | "onClick">;
 
 export function DropdownMenuItem({
   children,
@@ -56,6 +65,7 @@ export function DropdownMenuItem({
   variant = "default",
   disabled = false,
   className,
+  ...props
 }: ItemProps) {
   const { close } = useContext(DropdownMenuContext);
   return (
@@ -70,6 +80,7 @@ export function DropdownMenuItem({
         }
       }}
       disabled={disabled}
+      {...props}
     >
       {children}
     </button>

@@ -54,20 +54,17 @@ export default function DiscoverScreen() {
     return map;
   }, [friends]);
 
-  const rows = React.useMemo<DiscoverRow[]>(
-    () => {
-      const contentRows: DiscoverRow[] = feed.sectionTab
-        ? feed.activeSections
-        : [{ id: "reserved-grid", type: "reserved-grid" }];
+  const rows = React.useMemo<DiscoverRow[]>(() => {
+    const contentRows: DiscoverRow[] = feed.sectionTab
+      ? feed.activeSections
+      : [{ id: "reserved-grid", type: "reserved-grid" }];
 
-      return [
-        { id: "discover-header", type: "discover-header" },
-        { id: "discover-intro", type: "discover-intro" },
-        ...contentRows,
-      ];
-    },
-    [feed.activeSections, feed.sectionTab, filtersOpen],
-  );
+    return [
+      { id: "discover-header", type: "discover-header" },
+      { id: "discover-intro", type: "discover-intro" },
+      ...contentRows,
+    ];
+  }, [feed.activeSections, feed.sectionTab, filtersOpen]);
 
   function renderFilterActions() {
     return (
@@ -167,9 +164,7 @@ export default function DiscoverScreen() {
           gridGap={gridGap}
           currentUserId={user?.id}
           avatarUrl={
-            item.friend_id
-              ? avatarByKey.get(item.friend_id)
-              : avatarByKey.get(item.username)
+            item.friend_id ? avatarByKey.get(item.friend_id) : avatarByKey.get(item.username)
           }
           headerAccessory={item.id === feed.activeSections[0]?.id ? renderFilterActions() : null}
           onOpenItem={setSelectedItem}

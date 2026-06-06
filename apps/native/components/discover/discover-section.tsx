@@ -3,7 +3,10 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { DiscoverItemCard } from "@/components/discover/discover-item-card";
 import { formatDiscoverDate, normalizeDiscoverItem } from "@/lib/discover";
-import type { DiscoverItem, DiscoverSection as DiscoverSectionType } from "@wishlist/backend/types/discover";
+import type {
+  DiscoverItem,
+  DiscoverSection as DiscoverSectionType,
+} from "@wishlist/backend/types/discover";
 import type { Item } from "@wishlist/backend/types/item";
 import { CalendarDays, Gift } from "lucide-react-native";
 import { useGT } from "gt-react-native";

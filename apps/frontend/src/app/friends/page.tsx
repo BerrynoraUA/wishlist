@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useGT } from "gt-next";
 import { FriendsHeader } from "./components/friends-header/FriendsHeader";
 import { FriendsTabs } from "./components/friends-tabs/FriendsTabs";
@@ -15,6 +15,7 @@ import { useFriendsPage } from "./hooks/use-friends-page";
 import { FRIENDS_GRID_STYLE, FRIENDS_SKELETON_COUNT, REQUESTS_SKELETON_COUNT } from "./constants";
 import { Button } from "@/components/ui/Button/Button";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
+import { useUserGuideStepCompletion } from "@/components/user-guide/UserGuideProvider";
 
 function renderSkeletons(count: number) {
   return Array.from({ length: count }).map((_, i) => <FriendCardSkeleton key={i} />);
@@ -57,10 +58,50 @@ function FriendsPageContent() {
     handleCloseGroupModal,
     handleSubmitGroup,
   } = useFriendsPage();
+  const [pendingGuideModalStep, setPendingGuideModalStep] = useState<number | null>(null);
+  const completeAddFriendStep = useUserGuideStepCompletion(13);
+  const completeRequestsStep = useUserGuideStepCompletion(14);
+  const completeSentStep = useUserGuideStepCompletion(15);
+  const completeGroupsStep = useUserGuideStepCompletion(16);
+  const completeCreateGroupStep = useUserGuideStepCompletion(17);
+
+  function completePendingGuideModal(step: number, completeStep: () => void) {
+    if (pendingGuideModalStep === step) {
+      completeStep();
+      setPendingGuideModalStep(null);
+    }
+  }
+
+  function closeAddFriendModal() {
+    setAddOpen(false);
+    completePendingGuideModal(13, completeAddFriendStep);
+  }
+
+  function closeGroupModal() {
+    handleCloseGroupModal();
+    completePendingGuideModal(17, completeCreateGroupStep);
+  }
+
+  async function submitGroup(payload: Parameters<typeof handleSubmitGroup>[0]) {
+    await handleSubmitGroup(payload);
+    completePendingGuideModal(17, completeCreateGroupStep);
+  }
+
+  function handleGuideTabChange(nextTab: typeof tab) {
+    if (nextTab === "requests") completeRequestsStep();
+    if (nextTab === "sent") completeSentStep();
+    if (nextTab === "groups") completeGroupsStep();
+    setTab(nextTab);
+  }
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px" }}>
-      <FriendsHeader onInvite={() => setAddOpen(true)} />
+      <FriendsHeader
+        onInvite={() => {
+          setPendingGuideModalStep(13);
+          setAddOpen(true);
+        }}
+      />
 
       <FriendsTabs
         active={tab}
@@ -70,12 +111,19 @@ function FriendsPageContent() {
         sentCount={outgoing.length}
         action={
           tab === "groups" ? (
-            <Button size="sm" onClick={handleCreateGroup}>
+            <Button
+              size="sm"
+              onClick={() => {
+                setPendingGuideModalStep(17);
+                handleCreateGroup();
+              }}
+              data-guide-target="friends-create-group"
+            >
               {t("Create group", { $id: "friends.groups.create" })}
             </Button>
           ) : null
         }
-        onChange={setTab}
+        onChange={handleGuideTabChange}
       />
 
       {tab === "friends" && (
@@ -175,7 +223,7 @@ function FriendsPageContent() {
         </div>
       )}
 
-      <AddFriendModal open={addOpen} onClose={() => setAddOpen(false)} />
+      <AddFriendModal open={addOpen} onClose={closeAddFriendModal} />
       <DeleteConfirmModal
         open={!!friendToRemoveId}
         onClose={() => setFriendToRemoveId(null)}
@@ -195,8 +243,8 @@ function FriendsPageContent() {
         group={editingGroup}
         friends={friends}
         isSaving={createGroup.isPending || updateGroup.isPending}
-        onClose={handleCloseGroupModal}
-        onSubmit={handleSubmitGroup}
+        onClose={closeGroupModal}
+        onSubmit={submitGroup}
       />
     </main>
   );

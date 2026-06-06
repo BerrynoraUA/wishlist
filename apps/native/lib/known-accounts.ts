@@ -6,10 +6,7 @@ import {
 } from "@wishlist/backend/types/known-accounts";
 import * as SecureStore from "expo-secure-store";
 
-const KNOWN_ACCOUNTS_SECURE_STORE_KEY = KNOWN_ACCOUNTS_STORAGE_KEY.replace(
-  /[^A-Za-z0-9._-]/g,
-  "_",
-);
+const KNOWN_ACCOUNTS_SECURE_STORE_KEY = KNOWN_ACCOUNTS_STORAGE_KEY.replace(/[^A-Za-z0-9._-]/g, "_");
 let storageQueue = Promise.resolve();
 
 function enqueueStorageOperation<T>(operation: () => Promise<T>): Promise<T> {
@@ -108,8 +105,11 @@ export async function upsertKnownAccount(
       accessToken:
         account.accessToken !== undefined ? account.accessToken : (existing?.accessToken ?? null),
       refreshToken:
-        account.refreshToken !== undefined ? account.refreshToken : (existing?.refreshToken ?? null),
-      expiresAt: account.expiresAt !== undefined ? account.expiresAt : (existing?.expiresAt ?? null),
+        account.refreshToken !== undefined
+          ? account.refreshToken
+          : (existing?.refreshToken ?? null),
+      expiresAt:
+        account.expiresAt !== undefined ? account.expiresAt : (existing?.expiresAt ?? null),
       defaultAccent:
         account.defaultAccent !== undefined
           ? account.defaultAccent

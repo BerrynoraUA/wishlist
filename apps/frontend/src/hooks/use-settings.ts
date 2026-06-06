@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import {
   getProfile,
   updateProfile,
+  updateUserGuideStep,
   uploadAvatar,
   getSettings,
   updateSettings,
@@ -13,7 +14,12 @@ import {
   getProfilesByIds,
   getExchangeRates,
 } from "@/api/settings";
-import type { UpdateProfilePayload, UpdateSettingsPayload, UserSettings } from "@/types/settings";
+import type {
+  UpdateProfilePayload,
+  UpdateSettingsPayload,
+  UserProfile,
+  UserSettings,
+} from "@/types/settings";
 
 /* ── Query keys ── */
 export const settingsKeys = {
@@ -27,10 +33,11 @@ export const settingsKeys = {
 
 /* ── Profile ── */
 
-export function useProfile() {
+export function useProfile(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: settingsKeys.profile(),
     queryFn: getProfile,
+    enabled: options?.enabled ?? true,
   });
 }
 
@@ -45,6 +52,43 @@ export function useUpdateProfile() {
     },
     onError: (err) => {
       toast.error(err.message || "Failed to update profile");
+    },
+  });
+}
+
+export function useUpdateUserGuideStep() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (step: number) => updateUserGuideStep(step),
+    onMutate: async (step) => {
+      await queryClient.cancelQueries({ queryKey: settingsKeys.profile() });
+
+      const previousProfile = queryClient.getQueryData<UserProfile>(settingsKeys.profile());
+
+      if (previousProfile) {
+        queryClient.setQueryData<UserProfile>(settingsKeys.profile(), {
+          ...previousProfile,
+          userGuideStep: Math.max(previousProfile.userGuideStep ?? 0, step),
+        });
+      }
+
+      return { previousProfile };
+    },
+    onError: (_error, _step, context) => {
+      if (context?.previousProfile) {
+        queryClient.setQueryData(settingsKeys.profile(), context.previousProfile);
+      }
+      toast.error(_error.message || "Failed to update guide progress");
+    },
+    onSuccess: (profile) => {
+      queryClient.setQueryData(settingsKeys.profile(), profile);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: settingsKeys.profile(),
+        refetchType: "active",
+      });
     },
   });
 }

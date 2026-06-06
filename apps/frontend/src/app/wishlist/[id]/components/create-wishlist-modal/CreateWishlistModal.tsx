@@ -22,6 +22,7 @@ import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { validateImageUploadFile } from "@/lib/image-upload";
+import { useUserGuideStepCompletion } from "@/components/user-guide/UserGuideProvider";
 import { WishlistDraft } from "@/types/wishlist";
 import type { WishlistAccessUser } from "@/api/types/friends";
 import {
@@ -73,6 +74,8 @@ function CreateWishlistForm({
   const router = useRouter();
   const { data: currentUserId = "" } = useCurrentUserId();
   const { isPro } = useSubscription();
+  const completeOpenWishlistStep = useUserGuideStepCompletion(2);
+  const completeCreateWishlistStep = useUserGuideStepCompletion(3);
   const privacyOptions = getWishlistPrivacyOptions(t);
   const isColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
   const initialColor = isColorGated ? "pink" : defaultColor;
@@ -185,6 +188,10 @@ function CreateWishlistForm({
   });
 
   useEffect(() => {
+    completeOpenWishlistStep();
+  }, [completeOpenWishlistStep]);
+
+  useEffect(() => {
     return () => {
       if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     };
@@ -289,6 +296,7 @@ function CreateWishlistForm({
 
       clearDraft();
       resetForm();
+      completeCreateWishlistStep();
       onClose();
     } catch (error) {
       setAccessError(
@@ -563,6 +571,7 @@ function CreateWishlistForm({
           <Button
             onClick={handleSubmit}
             disabled={!name.trim() || isPending || isGrantingAccess || Boolean(imageError)}
+            data-guide-target="create-wishlist-submit"
           >
             {isPending || isGrantingAccess
               ? t("Creating...", { $id: "wishlist.modal.creating" })

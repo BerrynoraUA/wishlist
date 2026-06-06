@@ -478,7 +478,7 @@ export function WishlistHeader({
                       })}
                     </span>
                   )}
-                  <Button size="sm" onClick={handleAddItem}>
+                  <Button size="sm" onClick={handleAddItem} data-guide-target="wishlist-add-item">
                     {atItemLimit ? (
                       <>
                         <Sparkles size={14} />
@@ -506,6 +506,7 @@ export function WishlistHeader({
                       type="button"
                       className={`${styles.menuButton} iconTooltipTrigger`}
                       onClick={onShare}
+                      data-guide-target="wishlist-share"
                       aria-label={t("Share wishlist", {
                         $id: "wishlist.header.shareAria",
                       })}
@@ -521,6 +522,7 @@ export function WishlistHeader({
                       type="button"
                       className={`${styles.menuButton} iconTooltipTrigger`}
                       onClick={onManageAccess}
+                      data-guide-target="wishlist-manage-access"
                       aria-label={t("Manage wishlist access", {
                         $id: "wishlist.header.manageAccessAria",
                       })}
@@ -538,6 +540,7 @@ export function WishlistHeader({
                           type="button"
                           className={`${styles.menuButton} iconTooltipTrigger`}
                           onClick={toggle}
+                          data-guide-target="wishlist-more-options"
                           aria-label={t("Wishlist actions", {
                             $id: "wishlist.header.moreAria",
                           })}
@@ -553,12 +556,20 @@ export function WishlistHeader({
                       )}
                     >
                       {onEdit && (
-                        <DropdownMenuItem variant="edit" onClick={() => onEdit()}>
+                        <DropdownMenuItem
+                          variant="edit"
+                          onClick={() => onEdit()}
+                          data-guide-target="wishlist-edit-action"
+                        >
                           <span>{t("Edit", { $id: "common.edit" })}</span>
                         </DropdownMenuItem>
                       )}
                       {onDelete && (
-                        <DropdownMenuItem variant="danger" onClick={() => onDelete()}>
+                        <DropdownMenuItem
+                          variant="danger"
+                          onClick={() => onDelete()}
+                          data-guide-target="wishlist-delete-action"
+                        >
                           <span>{t("Delete", { $id: "common.delete" })}</span>
                         </DropdownMenuItem>
                       )}

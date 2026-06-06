@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useGT } from "gt-next";
 import { WishlistHeader } from "./components/wishlist-header/WishlistHeader";
@@ -18,6 +19,7 @@ import { GrantWishlistAccessModal } from "./components/grant-wishlist-access-mod
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
 import { Pagination } from "@/components/ui/Pagination/Pagination";
 import { ShareFeedbackModal } from "@/components/ui/ShareFeedbackModal/ShareFeedbackModal";
+import { useUserGuideStepCompletion } from "@/components/user-guide/UserGuideProvider";
 import styles from "./WishlistPage.module.scss";
 import { useCheckFriendship } from "@/hooks/use-friends";
 import { useWishlistItemFilters } from "./hooks/use-wishlist-item-filters";
@@ -47,6 +49,11 @@ export default function WishlistItemsPage() {
 
   const modals = useWishlistPageModals();
   const { shareFeedback, closeShareFeedback, handleShare } = useWishlistShare(id);
+  const [pendingGuideModalStep, setPendingGuideModalStep] = useState<number | null>(null);
+  const completeShareStep = useUserGuideStepCompletion(7);
+  const completeManageAccessStep = useUserGuideStepCompletion(8);
+  const completeEditWishlistStep = useUserGuideStepCompletion(9);
+  const completeDeleteWishlistStep = useUserGuideStepCompletion(10);
 
   const { data: wishlist, isError: wishlistError } = useWishlistById(id);
 
@@ -80,6 +87,18 @@ export default function WishlistItemsPage() {
     WISHLIST_ITEMS_PAGE_SIZE,
   );
 
+  async function handleGuideShare() {
+    const shared = await handleShare();
+    if (shared) setPendingGuideModalStep(7);
+  }
+
+  function completePendingGuideModal(step: number, completeStep: () => void) {
+    if (pendingGuideModalStep === step) {
+      completeStep();
+      setPendingGuideModalStep(null);
+    }
+  }
+
   return (
     <main className={styles.page}>
       {wishlistError && (
@@ -93,10 +112,31 @@ export default function WishlistItemsPage() {
         <WishlistHeader
           wishlist={wishlist}
           onAddItem={canEditWishlist ? () => modals.setCreateOpen(true) : undefined}
-          onEdit={canEditWishlist ? () => modals.setEditWishlistOpen(true) : undefined}
-          onDelete={isOwner ? () => modals.setDeleteWishlistOpen(true) : undefined}
-          onShare={handleShare}
-          onManageAccess={isOwner ? () => modals.setGrantAccessOpen(true) : undefined}
+          onEdit={
+            canEditWishlist
+              ? () => {
+                  setPendingGuideModalStep(9);
+                  modals.setEditWishlistOpen(true);
+                }
+              : undefined
+          }
+          onDelete={
+            isOwner
+              ? () => {
+                  setPendingGuideModalStep(10);
+                  modals.setDeleteWishlistOpen(true);
+                }
+              : undefined
+          }
+          onShare={handleGuideShare}
+          onManageAccess={
+            isOwner
+              ? () => {
+                  setPendingGuideModalStep(8);
+                  modals.setGrantAccessOpen(true);
+                }
+              : undefined
+          }
           isOwner={isOwner}
           hasAddItemDraft={hasCreateItemDraft}
           hasEditWishlistDraft={hasEditWishlistDraft}
@@ -193,7 +233,10 @@ export default function WishlistItemsPage() {
       {wishlist && (
         <EditWishlistModal
           open={modals.editWishlistOpen}
-          onClose={() => modals.setEditWishlistOpen(false)}
+          onClose={() => {
+            modals.setEditWishlistOpen(false);
+            completePendingGuideModal(9, completeEditWishlistStep);
+          }}
           wishlist={wishlist}
         />
       )}
@@ -201,7 +244,10 @@ export default function WishlistItemsPage() {
       {wishlist && (
         <GrantWishlistAccessModal
           open={modals.grantAccessOpen}
-          onClose={() => modals.setGrantAccessOpen(false)}
+          onClose={() => {
+            modals.setGrantAccessOpen(false);
+            completePendingGuideModal(8, completeManageAccessStep);
+          }}
           wishlistId={wishlist.id}
           wishlistTitle={wishlist.title}
         />
@@ -210,8 +256,12 @@ export default function WishlistItemsPage() {
       {/* Delete Wishlist */}
       <DeleteConfirmModal
         open={modals.deleteWishlistOpen}
-        onClose={() => modals.setDeleteWishlistOpen(false)}
+        onClose={() => {
+          modals.setDeleteWishlistOpen(false);
+          completePendingGuideModal(10, completeDeleteWishlistStep);
+        }}
         onConfirm={() => {
+          completePendingGuideModal(10, completeDeleteWishlistStep);
           deleteWishlistMutation.mutate(id, {
             onSuccess: () => router.push("/home"),
           });
@@ -231,7 +281,10 @@ export default function WishlistItemsPage() {
 
       <ShareFeedbackModal
         open={shareFeedback.open}
-        onClose={closeShareFeedback}
+        onClose={() => {
+          closeShareFeedback();
+          completePendingGuideModal(7, completeShareStep);
+        }}
         variant={shareFeedback.variant}
         title={shareFeedback.title}
         description={shareFeedback.description}

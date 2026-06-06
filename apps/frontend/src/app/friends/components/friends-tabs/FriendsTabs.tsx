@@ -39,6 +39,7 @@ export function FriendsTabs({
       },
       {
         value: "groups",
+        guideTarget: "friends-tab-groups",
         label: (
           <>
             {t("Groups", { $id: "friends.tabs.groups" })} {groupsCount}
@@ -47,11 +48,13 @@ export function FriendsTabs({
       },
       {
         value: "requests",
+        guideTarget: "friends-tab-requests",
         label: t("Requests", { $id: "friends.tabs.requests" }),
         badge: requestsCount,
       },
       {
         value: "sent",
+        guideTarget: "friends-tab-sent",
         label: (
           <>
             {t("Sent", { $id: "friends.tabs.sent" })} {sentCount}
