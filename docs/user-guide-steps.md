@@ -9,28 +9,24 @@
 
 ## Core Onboarding Flow
 
-| Step | Page             | Step name       | What should be on screen                                                        | Description                                                                         |
-| ---- | ---------------- | --------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| 1    | `/home`          | Main menu       | TopNav with My Wishlists, Friends, Discover, and Secret Santa visible.          | Ask the user to hover each main nav item in order.                                  |
-| 2    | `/home`          | Start wishlist  | `Add Wishlist` button visible in the dashboard header.                          | Ask the user to click `Add Wishlist` to start creating their first wishlist.        |
-| 3    | `/home`          | Create wishlist | `Create Wishlist` button visible in the modal footer.                           | Ask the user to create the wishlist and return to the home grid.                    |
-| 4    | `/home`          | Open details    | Wishlist grid visible with the newly created wishlist card.                     | Ask the user to click the wishlist card to open its detail page.                    |
-| 5    | `/wishlist/[id]` | Add item        | `Add Item` button visible in the wishlist header.                               | Ask the user to click `Add Item` to add a gift idea.                                |
-| 6    | `/wishlist/[id]` | Create item     | `Create Item` button visible in the modal footer.                               | Ask the user to create the item and return to the wishlist item grid.               |
-| 7    | `/wishlist/[id]` | Share           | Share button visible in the wishlist header.                                    | Explain that sharing creates a link friends can open to view and reserve items.     |
-| 8    | `/wishlist/[id]` | Manage access   | Manage access button visible in the wishlist header for owners.                 | Explain that owners can grant or revoke access for specific friends and groups.     |
-| 9    | `/wishlist/[id]` | Edit wishlist   | More options menu open in the wishlist header with the `Edit` action visible.   | Explain that the owner can open the edit modal to update wishlist details.          |
-| 10   | `/wishlist/[id]` | Delete wishlist | More options menu open in the wishlist header with the `Delete` action visible. | Explain that deleting opens a confirmation modal before anything is removed.        |
-| 11   | `/home`          | Open card       | Wishlist grid visible with at least one wishlist card.                          | Explain that clicking a wishlist card opens its detail page.                        |
-| 12   | `/home`          | Open Friends    | Top navigation visible with the Friends tab.                                    | Ask the user to click Friends in the top navigation.                                |
-| 13   | `/friends`       | Add friend      | Friends header invite/add action visible.                                       | Ask the user to open the add friend modal.                                          |
-| 14   | `/friends`       | Requests        | `Requests` tab visible.                                                         | Explain that incoming requests can be accepted or rejected.                         |
-| 15   | `/friends`       | Sent            | `Sent` tab visible.                                                             | Explain that outgoing requests can be tracked or canceled.                          |
-| 16   | `/friends`       | Groups          | `Groups` tab and `Create group` action visible.                                 | Explain that groups make it easier to share wishlists with several friends at once. |
-| 17   | `/friends`       | Create group    | `Groups` tab visible with `Create group` action.                                | Ask the user to open the create group modal.                                        |
-| 18   | `/friends`       | Open Discover   | Top navigation visible with the Discover tab.                                   | Ask the user to click Discover in the top navigation.                               |
-| 19   | `/discover`      | Discover tabs   | Tabs visible: All Wishlists, Available, Reserved, Purchased.                    | Ask the user to hover each Discover tab in order.                                   |
-| 20   | `/discover`      | Reserve gift    | Available friend item card visible with reserve action.                         | Ask the user to reserve an item so others know it is being handled.                 |
+| Step | Page             | Step name       | What should be on screen                                                        | Description                                                                     |
+| ---- | ---------------- | --------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| 1    | `/home`          | Main menu       | TopNav with My Wishlists, Friends, Discover, and Secret Santa visible.          | Ask the user to click `Next` in each tooltip to move through the nav sequence.  |
+| 2    | `/home`          | Start wishlist  | `Add Wishlist` button visible in the dashboard header.                          | Ask the user to click `Add Wishlist` to start creating their first wishlist.    |
+| 3    | `/home`          | Create wishlist | `Create Wishlist` button visible in the modal footer.                           | Ask the user to create the wishlist and return to the home grid.                |
+| 4    | `/home`          | Open details    | Wishlist grid visible with the newly created wishlist card.                     | Ask the user to click the wishlist card to open its detail page.                |
+| 5    | `/wishlist/[id]` | Add item        | `Add Item` button visible in the wishlist header.                               | Ask the user to click `Add Item` to add a gift idea.                            |
+| 6    | `/wishlist/[id]` | Create item     | `Create Item` button visible in the modal footer.                               | Ask the user to create the item and return to the wishlist item grid.           |
+| 7    | `/wishlist/[id]` | Share           | Share button visible in the wishlist header.                                    | Explain that sharing creates a link friends can open to view and reserve items. |
+| 8    | `/wishlist/[id]` | Manage access   | Manage access button visible in the wishlist header for owners.                 | Explain that owners can grant or revoke access for specific friends and groups. |
+| 9    | `/wishlist/[id]` | Edit wishlist   | More options menu open in the wishlist header with the `Edit` action visible.   | Explain that the owner can open the edit modal to update wishlist details.      |
+| 10   | `/wishlist/[id]` | Delete wishlist | More options menu open in the wishlist header with the `Delete` action visible. | Explain that deleting opens a confirmation modal before anything is removed.    |
+| 11   | `/wishlist/[id]` | Open Friends    | Top navigation visible with the Friends tab.                                    | Ask the user to click Friends directly from the wishlist detail page.           |
+| 12   | `/friends`       | Add friend      | Friends header invite/add action visible.                                       | Ask the user to open the add friend modal.                                      |
+| 13   | `/friends`       | Friends tabs    | `Requests`, `Sent`, and `Groups` tabs visible.                                  | Ask the user to click `Next` in each tooltip to move through the tab sequence.  |
+| 14   | `/friends`       | Create group    | `Groups` tab visible with `Create group` action.                                | Ask the user to open the create group modal.                                    |
+| 15   | `/friends`       | Open Discover   | Top navigation visible with the Discover tab.                                   | Ask the user to click Discover in the top navigation.                           |
+| 16   | `/discover`      | Discover tabs   | Tabs visible: All Wishlists, Available, Reserved, Purchased.                    | Ask the user to click `Next` in each tooltip to move through the tab sequence.  |
 
 ## Optional Contextual Flows
 
@@ -58,7 +54,7 @@
 | Requirement     | Description                                                                                                 |
 | --------------- | ----------------------------------------------------------------------------------------------------------- |
 | Placement       | Show the progress bar inside the guide card/modal header, above the step title.                             |
-| Label           | Show compact text like `Step 6 of 20` for core onboarding and `Optional step 2 of 16` for contextual flows. |
+| Label           | Show compact text like `Step 6 of 16` for core onboarding and `Optional step 2 of 16` for contextual flows. |
 | Shape           | Use a horizontal 4-6px progress track with full pill radius.                                                |
 | Fill            | Use the active brand/accent color from the current theme.                                                   |
 | Track           | Use a muted surface or border token with enough contrast in light and dark mode.                            |

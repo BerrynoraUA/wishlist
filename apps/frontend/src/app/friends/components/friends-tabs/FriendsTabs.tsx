@@ -31,6 +31,7 @@ export function FriendsTabs({
     () => [
       {
         value: "friends",
+        guideTarget: "friends-tab-friends",
         label: (
           <>
             {t("Friends", { $id: "friends.tabs.friends" })} {friendsCount}

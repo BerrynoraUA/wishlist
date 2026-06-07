@@ -139,7 +139,6 @@ export function CardInfo({
               handleReserveClick();
             }}
             disabled={!canToggleReservation}
-            data-guide-target="discover-reserve-action"
           >
             <ReservationLockIcon isReserved={isReservedState} size={16} animateOnReserve />
             <span>{reserveBtnLabel}</span>

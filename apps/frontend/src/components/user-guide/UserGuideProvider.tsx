@@ -102,12 +102,17 @@ function getGuideTargetById(targetId: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(`[data-guide-target="${targetId}"]`);
 }
 
+function getTopModalContent(): HTMLElement | null {
+  const modals = document.querySelectorAll<HTMLElement>("[data-ui-modal-content]");
+  return modals[modals.length - 1] ?? null;
+}
+
 function getHighlightBox(element: HTMLElement): GuideHighlightBox {
   const rect = element.getBoundingClientRect();
   const padding = 6;
   const gap = 10;
   const tooltipWidth = 220;
-  const tooltipHeight = 44;
+  const tooltipHeight = 74;
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   const top = Math.max(8, rect.top - padding);
@@ -135,19 +140,46 @@ function getHighlightBox(element: HTMLElement): GuideHighlightBox {
   };
 }
 
-function isElementVisibleInViewport(element: HTMLElement): boolean {
+function isElementVisibleForGuide(element: HTMLElement): boolean {
+  const topModalContent = getTopModalContent();
+  if (topModalContent && !topModalContent.contains(element)) return false;
+
   const rect = element.getBoundingClientRect();
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
 
-  return (
+  const isInViewport =
     rect.width > 0 &&
     rect.height > 0 &&
     rect.top >= 0 &&
     rect.left >= 0 &&
     rect.bottom <= viewportHeight &&
-    rect.right <= viewportWidth
-  );
+    rect.right <= viewportWidth;
+
+  if (!isInViewport) return false;
+
+  let parent = element.parentElement;
+  while (parent && parent !== document.body) {
+    const style = window.getComputedStyle(parent);
+    const clipsContent = /(auto|scroll|hidden|clip)/.test(
+      `${style.overflow}${style.overflowX}${style.overflowY}`,
+    );
+
+    if (clipsContent) {
+      const parentRect = parent.getBoundingClientRect();
+      const isInsideParent =
+        rect.top >= parentRect.top &&
+        rect.left >= parentRect.left &&
+        rect.bottom <= parentRect.bottom &&
+        rect.right <= parentRect.right;
+
+      if (!isInsideParent) return false;
+    }
+
+    parent = parent.parentElement;
+  }
+
+  return true;
 }
 
 function boxesEqual(a: GuideHighlightBox | null, b: GuideHighlightBox | null): boolean {
@@ -173,9 +205,11 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
   const updateGuideStep = useUpdateUserGuideStep();
   const [confirmCloseOpen, setConfirmCloseOpen] = useState(false);
   const [highlightBox, setHighlightBox] = useState<GuideHighlightBox | null>(null);
+  const [highlightInstant, setHighlightInstant] = useState(false);
   const [sequenceIndex, setSequenceIndex] = useState(0);
   const currentStepRef = useRef<UserGuideStep | null>(null);
   const highlightFrameRef = useRef<number | null>(null);
+  const highlightScrollTimerRef = useRef<number | null>(null);
 
   const completedStep = normalizeCompletedStep(profile?.userGuideStep);
   const active = Boolean(profile) && completedStep < USER_GUIDE_COMPLETE_STEP;
@@ -236,30 +270,21 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
     setSequenceIndex(0);
   }, [currentStep?.id]);
 
-  useEffect(() => {
-    if (!active || !currentStep?.sequenceTargets?.length) return;
+  const advanceSequence = useCallback(() => {
+    if (!currentStep?.sequenceTargets?.length) return;
 
-    function handlePointerOver(event: PointerEvent) {
-      const targetStep = currentStepRef.current;
-      if (!targetStep?.sequenceTargets?.length) return;
-
-      const expectedTarget = targetStep.sequenceTargets[sequenceIndex];
-      if (!expectedTarget) return;
-
-      const element = getGuideTargetById(expectedTarget.targetId);
-      if (!element?.contains(event.target as Node)) return;
-
-      if (sequenceIndex >= targetStep.sequenceTargets.length - 1) {
-        completeStep(targetStep.id);
-        return;
-      }
-
-      setSequenceIndex((value) => Math.min(value + 1, targetStep.sequenceTargets!.length - 1));
+    const sequenceTarget = currentStep.sequenceTargets[sequenceIndex];
+    if (sequenceTarget?.activateOnNext) {
+      getGuideTargetById(sequenceTarget.targetId)?.click();
     }
 
-    document.addEventListener("pointerover", handlePointerOver);
-    return () => document.removeEventListener("pointerover", handlePointerOver);
-  }, [active, completeStep, currentStep, sequenceIndex]);
+    if (sequenceIndex >= currentStep.sequenceTargets.length - 1) {
+      completeStep(currentStep.id);
+      return;
+    }
+
+    setSequenceIndex((value) => Math.min(value + 1, currentStep.sequenceTargets!.length - 1));
+  }, [completeStep, currentStep, sequenceIndex]);
 
   const canNavigateTo = useCallback(
     (href: string) => {
@@ -321,9 +346,7 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
       const target = sequenceTarget
         ? getGuideTargetById(sequenceTarget.targetId)
         : getGuideTarget(step);
-      commitHighlight(
-        target && isElementVisibleInViewport(target) ? getHighlightBox(target) : null,
-      );
+      commitHighlight(target && isElementVisibleForGuide(target) ? getHighlightBox(target) : null);
     }
 
     function updateHighlight() {
@@ -332,6 +355,25 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
         highlightFrameRef.current = null;
         updateHighlightNow();
       });
+    }
+
+    function updateHighlightAfterScroll() {
+      if (highlightFrameRef.current !== null) {
+        window.cancelAnimationFrame(highlightFrameRef.current);
+        highlightFrameRef.current = null;
+      }
+
+      setHighlightInstant(true);
+      updateHighlightNow();
+
+      if (highlightScrollTimerRef.current !== null) {
+        window.clearTimeout(highlightScrollTimerRef.current);
+      }
+
+      highlightScrollTimerRef.current = window.setTimeout(() => {
+        highlightScrollTimerRef.current = null;
+        setHighlightInstant(false);
+      }, 120);
     }
 
     updateHighlightNow();
@@ -345,16 +387,20 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
     });
 
     window.addEventListener("resize", updateHighlight);
-    window.addEventListener("scroll", updateHighlight, true);
+    document.addEventListener("scroll", updateHighlightAfterScroll, true);
 
     return () => {
       if (highlightFrameRef.current !== null) {
         window.cancelAnimationFrame(highlightFrameRef.current);
         highlightFrameRef.current = null;
       }
+      if (highlightScrollTimerRef.current !== null) {
+        window.clearTimeout(highlightScrollTimerRef.current);
+        highlightScrollTimerRef.current = null;
+      }
       observer.disconnect();
       window.removeEventListener("resize", updateHighlight);
-      window.removeEventListener("scroll", updateHighlight, true);
+      document.removeEventListener("scroll", updateHighlightAfterScroll, true);
     };
   }, [active, currentSegment, currentStep, routeMatchesCurrentSegment, sequenceIndex]);
 
@@ -387,7 +433,7 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
           {highlightBox && (
             <>
               <div
-                className={styles.highlight}
+                className={`${styles.highlight} ${highlightInstant ? styles.instant : ""}`}
                 style={{
                   top: highlightBox.top,
                   left: highlightBox.left,
@@ -397,14 +443,24 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
                 aria-hidden="true"
               />
               <div
-                className={`${styles.tooltip} ${styles[highlightBox.tooltipPlacement]}`}
+                className={`${styles.tooltip} ${styles[highlightBox.tooltipPlacement]} ${highlightInstant ? styles.instant : ""}`}
                 style={{
                   top: highlightBox.tooltipTop,
                   left: highlightBox.tooltipLeft,
                 }}
                 role="tooltip"
               >
-                {activeSequenceTarget?.tooltip ?? currentStep.tooltip}
+                <span>{activeSequenceTarget?.tooltip ?? currentStep.tooltip}</span>
+                {currentStep.sequenceTargets && (
+                  <button
+                    type="button"
+                    className={styles.tooltipButton}
+                    onClick={advanceSequence}
+                    disabled={updateGuideStep.isPending}
+                  >
+                    {sequenceIndex >= currentStep.sequenceTargets.length - 1 ? "Done" : "Next"}
+                  </button>
+                )}
               </div>
             </>
           )}
@@ -471,7 +527,7 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
                   }
                 >
                   {currentStep.actionRequired || currentStep.sequenceTargets
-                    ? "Complete highlighted action"
+                    ? "Use highlighted control"
                     : "Next"}
                 </Button>
               </div>

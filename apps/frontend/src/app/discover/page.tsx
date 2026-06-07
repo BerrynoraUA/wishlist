@@ -15,7 +15,6 @@ import {
   ReservedGridSkeleton,
 } from "./components/discover-skeleton/DiscoverSkeleton";
 import { DISCOVER_SECTION_SKELETON_COUNT } from "./constants";
-import { useUserGuideStepCompletion } from "@/components/user-guide/UserGuideProvider";
 
 function DiscoverPageContent() {
   const t = useGT();
@@ -29,12 +28,8 @@ function DiscoverPageContent() {
     isSectionTab,
     hasNoData,
   } = useDiscoverPage();
-  const completeReserveStep = useUserGuideStepCompletion(20);
-
   const handleToggleReserve = (itemId: string) => {
-    toggleReservation.mutate(itemId, {
-      onSuccess: () => completeReserveStep(),
-    });
+    toggleReservation.mutate(itemId);
   };
   const handleToggleBought = (itemId: string) => {
     toggleBought.mutate(itemId);

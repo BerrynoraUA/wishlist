@@ -59,11 +59,8 @@ function FriendsPageContent() {
     handleSubmitGroup,
   } = useFriendsPage();
   const [pendingGuideModalStep, setPendingGuideModalStep] = useState<number | null>(null);
-  const completeAddFriendStep = useUserGuideStepCompletion(13);
-  const completeRequestsStep = useUserGuideStepCompletion(14);
-  const completeSentStep = useUserGuideStepCompletion(15);
-  const completeGroupsStep = useUserGuideStepCompletion(16);
-  const completeCreateGroupStep = useUserGuideStepCompletion(17);
+  const completeAddFriendStep = useUserGuideStepCompletion(12);
+  const completeCreateGroupStep = useUserGuideStepCompletion(14);
 
   function completePendingGuideModal(step: number, completeStep: () => void) {
     if (pendingGuideModalStep === step) {
@@ -74,31 +71,24 @@ function FriendsPageContent() {
 
   function closeAddFriendModal() {
     setAddOpen(false);
-    completePendingGuideModal(13, completeAddFriendStep);
+    completePendingGuideModal(12, completeAddFriendStep);
   }
 
   function closeGroupModal() {
     handleCloseGroupModal();
-    completePendingGuideModal(17, completeCreateGroupStep);
+    completePendingGuideModal(14, completeCreateGroupStep);
   }
 
   async function submitGroup(payload: Parameters<typeof handleSubmitGroup>[0]) {
     await handleSubmitGroup(payload);
-    completePendingGuideModal(17, completeCreateGroupStep);
-  }
-
-  function handleGuideTabChange(nextTab: typeof tab) {
-    if (nextTab === "requests") completeRequestsStep();
-    if (nextTab === "sent") completeSentStep();
-    if (nextTab === "groups") completeGroupsStep();
-    setTab(nextTab);
+    completePendingGuideModal(14, completeCreateGroupStep);
   }
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px" }}>
       <FriendsHeader
         onInvite={() => {
-          setPendingGuideModalStep(13);
+          setPendingGuideModalStep(12);
           setAddOpen(true);
         }}
       />
@@ -114,7 +104,7 @@ function FriendsPageContent() {
             <Button
               size="sm"
               onClick={() => {
-                setPendingGuideModalStep(17);
+                setPendingGuideModalStep(14);
                 handleCreateGroup();
               }}
               data-guide-target="friends-create-group"
@@ -123,7 +113,7 @@ function FriendsPageContent() {
             </Button>
           ) : null
         }
-        onChange={handleGuideTabChange}
+        onChange={setTab}
       />
 
       {tab === "friends" && (

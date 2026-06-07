@@ -39,7 +39,6 @@ export function WishlistGrid({
   const { mutate: pinMutate } = usePinWishlist();
   const { currentStep } = useUserGuide();
   const completeOpenDetailStep = useUserGuideStepCompletion(4);
-  const completeOpenCardStep = useUserGuideStepCompletion(11);
 
   const wishlists = data ?? [];
 
@@ -101,7 +100,6 @@ export function WishlistGrid({
                 `/wishlist/${wishlist.id}`,
               );
               if (currentStep?.id === 4) completeOpenDetailStep();
-              if (currentStep?.id === 11) completeOpenCardStep();
             }}
             onEdit={
               w.is_owner || w.can_edit

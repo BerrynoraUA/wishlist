@@ -17,17 +17,18 @@ export type UserGuideStep = {
 export type UserGuideStepTarget = {
   targetId: string;
   tooltip: string;
+  activateOnNext?: boolean;
 };
 
 export type UserGuideSegment = {
-  id: "home-create" | "wishlist-detail" | "home-cards" | "friends" | "discover";
+  id: "home-create" | "wishlist-detail" | "friends" | "discover";
   route: UserGuideRoute;
   title: string;
   stepIds: readonly number[];
   fallbackPath: string;
 };
 
-export const USER_GUIDE_COMPLETE_STEP = 20;
+export const USER_GUIDE_COMPLETE_STEP = 17;
 export const USER_GUIDE_LAST_WISHLIST_PATH_KEY = "wishlane:user-guide:last-wishlist-path";
 
 export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
@@ -41,19 +42,19 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     sequenceTargets: [
       {
         targetId: "nav-home",
-        tooltip: "Hover My Wishlists.",
+        tooltip: "My Wishlists is where your own lists live.",
       },
       {
         targetId: "nav-friends",
-        tooltip: "Now hover Friends.",
+        tooltip: "Friends is where invites, requests, and groups live.",
       },
       {
         targetId: "nav-discover",
-        tooltip: "Now hover Discover.",
+        tooltip: "Discover is where you can find friends' gifts.",
       },
       {
         targetId: "nav-secret-santa",
-        tooltip: "Finally hover Secret Santa.",
+        tooltip: "Secret Santa is for group exchanges.",
       },
     ],
     screenDescription:
@@ -166,28 +167,17 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
   },
   {
     id: 11,
-    route: "/home",
-    title: "Open a wishlist card",
-    listTitle: "Open card",
-    tooltip: "Click a wishlist card to open it.",
-    targetId: "home-wishlist-card",
-    screenDescription: "Wishlist grid visible with at least one wishlist card.",
-    description: "Clicking a wishlist card opens its detail page.",
-    actionRequired: true,
-  },
-  {
-    id: 12,
-    route: "/home",
+    route: "/wishlist/[id]",
     title: "Open Friends",
     listTitle: "Open Friends",
     tooltip: "Click Friends in the top navigation.",
     targetId: "nav-friends",
     screenDescription: "Top navigation visible with the Friends tab.",
-    description: "Open Friends from the main navigation.",
+    description: "Open Friends directly from the wishlist detail page.",
     actionRequired: true,
   },
   {
-    id: 13,
+    id: 12,
     route: "/friends",
     title: "Invite a friend",
     listTitle: "Add friend",
@@ -198,37 +188,29 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     actionRequired: true,
   },
   {
-    id: 14,
-    route: "/friends",
-    title: "Review friend requests",
-    listTitle: "Requests",
-    tooltip: "Open Requests to review incoming friend requests.",
-    targetId: "friends-tab-requests",
-    screenDescription: "`Requests` tab visible.",
-    description: "Incoming requests can be accepted or rejected.",
-  },
-  {
-    id: 15,
-    route: "/friends",
-    title: "Check sent requests",
-    listTitle: "Sent",
-    tooltip: "Open Sent to track outgoing requests.",
-    targetId: "friends-tab-sent",
-    screenDescription: "`Sent` tab visible.",
-    description: "Outgoing requests can be tracked or canceled.",
-  },
-  {
-    id: 16,
+    id: 13,
     route: "/friends",
     title: "Open friend groups",
-    listTitle: "Groups",
-    tooltip: "Open Groups to manage friend groups.",
-    targetId: "friends-tab-groups",
+    listTitle: "Friends and groups",
+    tooltip: "Start with Friends.",
+    targetId: "friends-tab-friends",
+    sequenceTargets: [
+      {
+        targetId: "friends-tab-friends",
+        tooltip: "Friends shows everyone already connected with you.",
+        activateOnNext: true,
+      },
+      {
+        targetId: "friends-tab-groups",
+        tooltip: "Groups helps you organize friends for sharing.",
+        activateOnNext: true,
+      },
+    ],
     screenDescription: "`Groups` tab and `Create group` action visible.",
-    description: "Groups make it easier to share wishlists with several friends at once.",
+    description: "Move from the friends list to the groups tab.",
   },
   {
-    id: 17,
+    id: 14,
     route: "/friends",
     title: "Create a group",
     listTitle: "Create group",
@@ -239,7 +221,29 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     actionRequired: true,
   },
   {
-    id: 18,
+    id: 15,
+    route: "/friends",
+    title: "Review friend requests",
+    listTitle: "Requests and sent",
+    tooltip: "Start with Requests.",
+    targetId: "friends-tab-requests",
+    sequenceTargets: [
+      {
+        targetId: "friends-tab-requests",
+        tooltip: "Requests shows people who want to connect with you.",
+        activateOnNext: true,
+      },
+      {
+        targetId: "friends-tab-sent",
+        tooltip: "Sent shows invitations you already sent.",
+        activateOnNext: true,
+      },
+    ],
+    screenDescription: "`Requests` and `Sent` tabs visible.",
+    description: "Learn where incoming and outgoing friend requests live.",
+  },
+  {
+    id: 16,
     route: "/friends",
     title: "Open Discover",
     listTitle: "Open Discover",
@@ -250,7 +254,7 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     actionRequired: true,
   },
   {
-    id: 19,
+    id: 17,
     route: "/discover",
     title: "Explore Discover tabs",
     listTitle: "Discover tabs",
@@ -259,34 +263,27 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     sequenceTargets: [
       {
         targetId: "discover-tab-wishlists",
-        tooltip: "Hover All Wishlists.",
+        tooltip: "All Wishlists shows every shared wishlist.",
+        activateOnNext: true,
       },
       {
         targetId: "discover-tab-available",
-        tooltip: "Now hover Available.",
+        tooltip: "Available shows gifts that can still be reserved.",
+        activateOnNext: true,
       },
       {
         targetId: "discover-tab-reserved",
-        tooltip: "Now hover Reserved.",
+        tooltip: "Reserved shows gifts already claimed.",
+        activateOnNext: true,
       },
       {
         targetId: "discover-tab-purchased",
-        tooltip: "Finally hover Purchased.",
+        tooltip: "Purchased shows gifts marked as bought.",
+        activateOnNext: true,
       },
     ],
     screenDescription: "Tabs visible: All Wishlists, Available, Reserved, Purchased.",
     description: "Learn what each Discover tab means and how it helps avoid duplicate gifts.",
-  },
-  {
-    id: 20,
-    route: "/discover",
-    title: "Reserve a gift",
-    listTitle: "Reserve gift",
-    tooltip: "Click Reserve this gift on an available item.",
-    targetId: "discover-reserve-action",
-    screenDescription: "Available friend item card visible with reserve action.",
-    description: "Reserve an item so others know it is being handled.",
-    actionRequired: true,
   },
 ] as const;
 
@@ -302,28 +299,21 @@ export const USER_GUIDE_SEGMENTS: readonly UserGuideSegment[] = [
     id: "wishlist-detail",
     route: "/wishlist/[id]",
     title: "Wishlist",
-    stepIds: [5, 6, 7, 8, 9, 10],
-    fallbackPath: "/home",
-  },
-  {
-    id: "home-cards",
-    route: "/home",
-    title: "Wishlists",
-    stepIds: [11, 12],
+    stepIds: [5, 6, 7, 8, 9, 10, 11],
     fallbackPath: "/home",
   },
   {
     id: "friends",
     route: "/friends",
     title: "Friends",
-    stepIds: [13, 14, 15, 16, 17, 18],
+    stepIds: [12, 13, 14, 15, 16],
     fallbackPath: "/friends",
   },
   {
     id: "discover",
     route: "/discover",
     title: "Discover",
-    stepIds: [19, 20],
+    stepIds: [17],
     fallbackPath: "/discover",
   },
 ] as const;
