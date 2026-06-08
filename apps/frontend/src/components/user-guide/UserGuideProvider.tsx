@@ -323,13 +323,6 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
     };
   }, [currentSegment, currentStep]);
 
-  const pageSteps = useMemo(() => {
-    if (!currentSegment) return [];
-    return currentSegment.stepIds
-      .map((stepId) => getUserGuideStep(stepId))
-      .filter((step): step is UserGuideStep => Boolean(step));
-  }, [currentSegment]);
-
   useEffect(() => {
     function commitHighlight(nextBox: GuideHighlightBox | null) {
       setHighlightBox((currentBox) => (boxesEqual(currentBox, nextBox) ? currentBox : nextBox));
@@ -485,52 +478,15 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
               <div className={styles.fill} style={{ width: `${pageProgress.percent}%` }} />
             </div>
 
-            <ol className={styles.stepList} aria-label="Current page guide steps">
-              {pageSteps.map((step, index) => {
-                const isCompleted = completedStep >= step.id;
-                const isCurrent = currentStep.id === step.id;
-
-                return (
-                  <li
-                    key={step.id}
-                    className={`${styles.stepItem} ${isCompleted ? styles.completed : ""} ${isCurrent ? styles.current : ""}`}
-                  >
-                    <span className={styles.stepNumber} aria-hidden="true">
-                      {index + 1}
-                    </span>
-                    <span>{step.listTitle}</span>
-                  </li>
-                );
-              })}
-            </ol>
-
             <div className={styles.footer}>
-              <span className={styles.globalStep}>
-                Global step {currentStep.id} of {USER_GUIDE_COMPLETE_STEP}
-              </span>
-              <div className={styles.footerActions}>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={skipCurrentStep}
-                  disabled={updateGuideStep.isPending}
-                >
-                  Skip
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={completeCurrentStep}
-                  disabled={
-                    currentStep.actionRequired ||
-                    Boolean(currentStep.sequenceTargets) ||
-                    updateGuideStep.isPending
-                  }
-                >
-                  {currentStep.actionRequired || currentStep.sequenceTargets
-                    ? "Use highlighted control"
-                    : "Next"}
-                </Button>
-              </div>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={skipCurrentStep}
+                disabled={updateGuideStep.isPending}
+              >
+                Skip
+              </Button>
             </div>
           </aside>
         </>

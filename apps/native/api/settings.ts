@@ -12,8 +12,7 @@ import { File } from "expo-file-system";
 
 const AVATAR_BUCKET = "avatars";
 const MAX_AVATAR_UPLOAD_BYTES = 5 * 1024 * 1024;
-const PROFILE_SELECT =
-  "id, display_name, nickname, bio, height, shoe_size, avatar_url, userGuideStep, created_at";
+const PROFILE_SELECT = "id, display_name, nickname, bio, height, shoe_size, avatar_url, created_at";
 
 async function getCurrentUser() {
   const {
@@ -54,10 +53,6 @@ export async function updateProfile(payload: UpdateProfilePayload): Promise<User
 
   if (error) throw error;
   return data as UserProfile;
-}
-
-export async function updateUserGuideStep(step: number): Promise<UserProfile> {
-  return updateProfile({ userGuideStep: step });
 }
 
 export async function uploadProfileAvatar({

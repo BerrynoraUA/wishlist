@@ -125,6 +125,7 @@ export function WishlistGrid({
               $id: "home.wishlistGrid.createCardLabel",
             })}
             hasDraft={hasCreateDraft}
+            guideTarget="home-add-wishlist"
           />
         )}
       </div>

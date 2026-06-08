@@ -555,18 +555,12 @@ export function WishlistHeader({
                       )}
                     >
                       {onEdit && (
-                        <DropdownMenuItem
-                          variant="edit"
-                          onClick={() => onEdit()}
-                        >
+                        <DropdownMenuItem variant="edit" onClick={() => onEdit()}>
                           <span>{t("Edit", { $id: "common.edit" })}</span>
                         </DropdownMenuItem>
                       )}
                       {onDelete && (
-                        <DropdownMenuItem
-                          variant="danger"
-                          onClick={() => onDelete()}
-                        >
+                        <DropdownMenuItem variant="danger" onClick={() => onDelete()}>
                           <span>{t("Delete", { $id: "common.delete" })}</span>
                         </DropdownMenuItem>
                       )}

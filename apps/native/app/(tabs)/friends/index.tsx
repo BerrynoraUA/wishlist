@@ -13,10 +13,6 @@ import { Input } from "@/components/ui/input";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import {
-  UserGuideTarget,
-  useUserGuideStepCompletion,
-} from "@/components/user-guide/user-guide-provider";
-import {
   useAcceptFriendRequest,
   useCancelFriendRequest,
   useCreateFriendGroup,
@@ -61,9 +57,6 @@ export default function FriendsScreen() {
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sheet, setSheet] = React.useState<SheetState>(null);
-  const [pendingGuideModalStep, setPendingGuideModalStep] = React.useState<number | null>(null);
-  const completeAddFriendStep = useUserGuideStepCompletion(10);
-  const completeCreateGroupStep = useUserGuideStepCompletion(12);
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
@@ -133,19 +126,8 @@ export default function FriendsScreen() {
     }
 
     return createGroup.mutateAsync(payload).then((result) => {
-      if (pendingGuideModalStep === 12) {
-        completeCreateGroupStep();
-        setPendingGuideModalStep(null);
-      }
       return result;
     });
-  }
-
-  function completePendingGuideModal(step: number, completeStep: () => void) {
-    if (pendingGuideModalStep === step) {
-      completeStep();
-      setPendingGuideModalStep(null);
-    }
   }
 
   function renderRow({ item }: { item: FriendsRow }) {
@@ -214,18 +196,10 @@ export default function FriendsScreen() {
                 <View className="min-w-0 flex-1 gap-1">
                   <Text className="text-2xl font-extrabold text-text">{t("Friends")}</Text>
                 </View>
-                <UserGuideTarget targetId="friends-invite">
-                  <Button
-                    onPress={() => {
-                      setPendingGuideModalStep(10);
-                      setSheet({ type: "add" });
-                    }}
-                    className="rounded-full"
-                  >
-                    <Icon as={UserPlus} className="size-4 text-primary-foreground" />
-                    <Text>{t("Invite")}</Text>
-                  </Button>
-                </UserGuideTarget>
+                <Button onPress={() => setSheet({ type: "add" })} className="rounded-full">
+                  <Icon as={UserPlus} className="size-4 text-primary-foreground" />
+                  <Text>{t("Invite")}</Text>
+                </Button>
               </View>
 
               <FriendsTabs
@@ -269,18 +243,13 @@ export default function FriendsScreen() {
                   </View>
                 ) : null}
                 {tab === "groups" ? (
-                  <UserGuideTarget targetId="friends-create-group">
-                    <Button
-                      onPress={() => {
-                        setPendingGuideModalStep(12);
-                        setSheet({ type: "group", group: null });
-                      }}
-                      className="rounded-full"
-                    >
-                      <Icon as={Plus} className="size-4 text-primary-foreground" />
-                      <Text>{t("Create")}</Text>
-                    </Button>
-                  </UserGuideTarget>
+                  <Button
+                    onPress={() => setSheet({ type: "group", group: null })}
+                    className="rounded-full"
+                  >
+                    <Icon as={Plus} className="size-4 text-primary-foreground" />
+                    <Text>{t("Create")}</Text>
+                  </Button>
                 ) : null}
               </View>
             </View>
@@ -325,7 +294,6 @@ export default function FriendsScreen() {
             onOpenChange={(open) => {
               if (!open) {
                 setSheet(null);
-                completePendingGuideModal(10, completeAddFriendStep);
               }
             }}
           />
@@ -339,7 +307,6 @@ export default function FriendsScreen() {
             onOpenChange={(open) => {
               if (!open) {
                 setSheet(null);
-                completePendingGuideModal(12, completeCreateGroupStep);
               }
             }}
             onSubmit={handleSubmitGroup}

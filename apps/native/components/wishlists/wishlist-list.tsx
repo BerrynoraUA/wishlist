@@ -13,11 +13,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
-import {
-  UserGuideTarget,
-  useUserGuide,
-  useUserGuideStepCompletion,
-} from "@/components/user-guide/user-guide-provider";
 import { useMyStatistics } from "@/hooks/use-wishlists";
 import { chunkRows } from "@/lib/layout";
 import { cn } from "@/lib/utils";
@@ -312,8 +307,6 @@ function WishlistCard({
     ? t("Shared by @{nickname}", { nickname: ownerNickname })
     : t("Shared wishlist");
   const menuTriggerRef = React.useRef<TriggerRef>(null);
-  const { currentStep } = useUserGuide();
-  const completeOpenDetailStep = useUserGuideStepCompletion(4);
   return (
     <Animated.View entering={wishlistCardFadeIn} style={{ width }}>
       <DropdownMenu className="relative">
@@ -323,9 +316,6 @@ function WishlistCard({
             accessibilityLabel={t('Open "{title}"', {
               title: wishlist.title,
             })}
-            onPress={() => {
-              if (currentStep?.id === 4) completeOpenDetailStep();
-            }}
             onLongPress={showMenu ? () => menuTriggerRef.current?.open() : undefined}
             className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
             pressedScale={0.98}
@@ -413,15 +403,6 @@ function WishlistCard({
           ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
-      {currentStep?.id === 4 ? (
-        <UserGuideTarget
-          targetId="wishlists-card"
-          pointerEvents="none"
-          style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}
-        >
-          <View style={{ flex: 1 }} />
-        </UserGuideTarget>
-      ) : null}
     </Animated.View>
   );
 }

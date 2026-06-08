@@ -6,10 +6,6 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import {
-  UserGuideTarget,
-  useUserGuideStepCompletion,
-} from "@/components/user-guide/user-guide-provider";
-import {
   useFriendGroups,
   useFriendGroupsWithoutWishlistAccess,
   useFriends,
@@ -124,8 +120,6 @@ export function WishlistCreateEditSheet({
   const accessPanelTranslateY = useSharedValue(-14);
   const accessPanelScaleY = useSharedValue(0.94);
   const title = mode === "edit" ? t("Edit Wishlist") : t("Create Wishlist");
-  const completeOpenWishlistStep = useUserGuideStepCompletion(2);
-  const completeCreateWishlistStep = useUserGuideStepCompletion(3);
   const imageUrlInvalid = hasInvalidOptionalUrl(values.imageUrl);
   const canManageSelectedAccess = mode === "create" || Boolean(wishlist?.is_owner);
   const wishlistId = wishlist?.id ?? "";
@@ -225,8 +219,7 @@ export function WishlistCreateEditSheet({
     setSelectedAccessGroups([]);
     setAccessTab("friends");
     setAccessError(null);
-    if (mode === "create") completeOpenWishlistStep();
-  }, [completeOpenWishlistStep, mode, open, reset, wishlist]);
+  }, [mode, open, reset, wishlist]);
 
   React.useEffect(() => {
     if (!open || mode !== "edit" || !wishlist) return;
@@ -399,7 +392,6 @@ export function WishlistCreateEditSheet({
 
       const createdWishlist = await createMutation.mutateAsync(formValues);
       await grantSelectedAccess(createdWishlist.id);
-      completeCreateWishlistStep();
       handleClose();
     } catch (submitError) {
       setAccessError(
@@ -462,18 +454,16 @@ export function WishlistCreateEditSheet({
           >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <UserGuideTarget targetId="create-wishlist-submit" style={{ flex: 1 }}>
-            <Button
-              className="min-w-0 flex-1"
-              disabled={!canSubmit}
-              onPress={handleSubmit(submitForm)}
-            >
-              {isPending || isSavingAccess ? (
-                <ActivityIndicator colorClassName="accent-primary-foreground" />
-              ) : null}
-              <Text>{mode === "edit" ? t("Save changes") : t("Create wishlist")}</Text>
-            </Button>
-          </UserGuideTarget>
+          <Button
+            className="min-w-0 flex-1"
+            disabled={!canSubmit}
+            onPress={handleSubmit(submitForm)}
+          >
+            {isPending || isSavingAccess ? (
+              <ActivityIndicator colorClassName="accent-primary-foreground" />
+            ) : null}
+            <Text>{mode === "edit" ? t("Save changes") : t("Create wishlist")}</Text>
+          </Button>
         </View>
       }
     >

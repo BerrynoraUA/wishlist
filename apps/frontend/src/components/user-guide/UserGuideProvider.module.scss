@@ -20,8 +20,7 @@
 }
 
 .section,
-.progressLabel,
-.globalStep {
+.progressLabel {
   display: block;
   font-size: 12px;
   line-height: 1.4;
@@ -32,8 +31,7 @@
   color: var(--color-text);
 }
 
-.progressLabel,
-.globalStep {
+.progressLabel {
   color: var(--color-text-muted);
 }
 
@@ -67,67 +65,8 @@
 .footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 16px;
-}
-
-.footerActions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.stepList {
-  display: grid;
-  gap: 8px;
-  margin: 14px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.stepItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 22px;
-  color: var(--color-text-muted);
-  font-size: 13px;
-  line-height: 1.35;
-}
-
-.stepNumber {
-  display: grid;
-  place-items: center;
-  width: 18px;
-  height: 18px;
-  flex: 0 0 auto;
-  border-radius: 999px;
-  background: var(--color-border);
-  color: var(--color-text-muted);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.completed {
-  color: var(--color-text);
-}
-
-.completed .stepNumber {
-  background: var(--color-brand);
-  color: var(--color-bg);
-}
-
-.current {
-  color: var(--color-text);
-  font-weight: 700;
-}
-
-.current .stepNumber {
-  background: var(--color-brand);
-  color: var(--color-bg);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-brand) 16%, transparent);
+  justify-content: flex-end;
+  margin-top: 12px;
 }
 
 .highlight {
@@ -270,7 +209,6 @@
   }
 
   .footer,
-  .footerActions,
   .confirmActions {
     align-items: stretch;
     flex-direction: column;
