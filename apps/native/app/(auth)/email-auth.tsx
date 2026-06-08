@@ -131,7 +131,7 @@ export default function EmailAuthScreen() {
                           return;
                         }
 
-                        router.replace("/sign-in");
+                        router.replace("/sign-in" as never);
                       }}
                     >
                       <Icon as={ChevronLeftIcon} className="size-6 text-white" />

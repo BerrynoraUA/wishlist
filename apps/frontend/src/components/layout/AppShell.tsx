@@ -16,6 +16,8 @@ type Props = {
   initialBannerDismissed: boolean;
 };
 
+const PUBLIC_DOCUMENT_PATHS = ["/privacy-policy", "/refund-policy", "/terms-of-service"];
+
 export function AppShell({
   children,
   initialTheme,
@@ -25,7 +27,11 @@ export function AppShell({
 }: Props) {
   const pathname = usePathname();
   const hideTopNav =
-    pathname === "/" || pathname === "/login" || pathname === "/register" || pathname === "/share";
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/share" ||
+    PUBLIC_DOCUMENT_PATHS.includes(pathname);
 
   return (
     <Providers
