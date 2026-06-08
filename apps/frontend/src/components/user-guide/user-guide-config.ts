@@ -28,7 +28,7 @@ export type UserGuideSegment = {
   fallbackPath: string;
 };
 
-export const USER_GUIDE_COMPLETE_STEP = 17;
+export const USER_GUIDE_COMPLETE_STEP = 15;
 export const USER_GUIDE_LAST_WISHLIST_PATH_KEY = "wishlane:user-guide:last-wishlist-path";
 
 export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
@@ -142,32 +142,6 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
   {
     id: 9,
     route: "/wishlist/[id]",
-    title: "Edit wishlist",
-    listTitle: "Edit wishlist",
-    tooltip: "Open More options, then choose Edit.",
-    targetId: "wishlist-more-options",
-    menuTargetId: "wishlist-edit-action",
-    screenDescription:
-      "More options menu open in the wishlist header with the `Edit` action visible.",
-    description: "Open the edit modal to update wishlist details.",
-    actionRequired: true,
-  },
-  {
-    id: 10,
-    route: "/wishlist/[id]",
-    title: "Delete wishlist",
-    listTitle: "Delete wishlist",
-    tooltip: "Open More options, then choose Delete.",
-    targetId: "wishlist-more-options",
-    menuTargetId: "wishlist-delete-action",
-    screenDescription:
-      "More options menu open in the wishlist header with the `Delete` action visible.",
-    description: "Open the delete confirmation flow for the wishlist.",
-    actionRequired: true,
-  },
-  {
-    id: 11,
-    route: "/wishlist/[id]",
     title: "Open Friends",
     listTitle: "Open Friends",
     tooltip: "Click Friends in the top navigation.",
@@ -177,7 +151,7 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     actionRequired: true,
   },
   {
-    id: 12,
+    id: 10,
     route: "/friends",
     title: "Invite a friend",
     listTitle: "Add friend",
@@ -188,7 +162,7 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     actionRequired: true,
   },
   {
-    id: 13,
+    id: 11,
     route: "/friends",
     title: "Open friend groups",
     listTitle: "Friends and groups",
@@ -210,7 +184,7 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     description: "Move from the friends list to the groups tab.",
   },
   {
-    id: 14,
+    id: 12,
     route: "/friends",
     title: "Create a group",
     listTitle: "Create group",
@@ -221,7 +195,7 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     actionRequired: true,
   },
   {
-    id: 15,
+    id: 13,
     route: "/friends",
     title: "Review friend requests",
     listTitle: "Requests and sent",
@@ -243,7 +217,7 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     description: "Learn where incoming and outgoing friend requests live.",
   },
   {
-    id: 16,
+    id: 14,
     route: "/friends",
     title: "Open Discover",
     listTitle: "Open Discover",
@@ -254,7 +228,7 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     actionRequired: true,
   },
   {
-    id: 17,
+    id: 15,
     route: "/discover",
     title: "Explore Discover tabs",
     listTitle: "Discover tabs",
@@ -299,21 +273,21 @@ export const USER_GUIDE_SEGMENTS: readonly UserGuideSegment[] = [
     id: "wishlist-detail",
     route: "/wishlist/[id]",
     title: "Wishlist",
-    stepIds: [5, 6, 7, 8, 9, 10, 11],
+    stepIds: [5, 6, 7, 8, 9],
     fallbackPath: "/home",
   },
   {
     id: "friends",
     route: "/friends",
     title: "Friends",
-    stepIds: [12, 13, 14, 15, 16],
+    stepIds: [10, 11, 12, 13, 14],
     fallbackPath: "/friends",
   },
   {
     id: "discover",
     route: "/discover",
     title: "Discover",
-    stepIds: [17],
+    stepIds: [15],
     fallbackPath: "/discover",
   },
 ] as const;

@@ -540,7 +540,6 @@ export function WishlistHeader({
                           type="button"
                           className={`${styles.menuButton} iconTooltipTrigger`}
                           onClick={toggle}
-                          data-guide-target="wishlist-more-options"
                           aria-label={t("Wishlist actions", {
                             $id: "wishlist.header.moreAria",
                           })}
@@ -559,7 +558,6 @@ export function WishlistHeader({
                         <DropdownMenuItem
                           variant="edit"
                           onClick={() => onEdit()}
-                          data-guide-target="wishlist-edit-action"
                         >
                           <span>{t("Edit", { $id: "common.edit" })}</span>
                         </DropdownMenuItem>
@@ -568,7 +566,6 @@ export function WishlistHeader({
                         <DropdownMenuItem
                           variant="danger"
                           onClick={() => onDelete()}
-                          data-guide-target="wishlist-delete-action"
                         >
                           <span>{t("Delete", { $id: "common.delete" })}</span>
                         </DropdownMenuItem>

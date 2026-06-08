@@ -738,6 +738,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
             {t("Cancel", { $id: "common.cancel" })}
           </Button>
           <Button
+            className={styles.submitButton}
             onClick={handleSubmit}
             disabled={!name.trim() || isPending || Boolean(imageError)}
             data-guide-target="create-item-submit"

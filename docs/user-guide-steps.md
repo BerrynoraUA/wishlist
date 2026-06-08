@@ -19,14 +19,13 @@
 | 6    | `/wishlist/[id]` | Create item     | `Create Item` button visible in the modal footer.                               | Ask the user to create the item and return to the wishlist item grid.           |
 | 7    | `/wishlist/[id]` | Share           | Share button visible in the wishlist header.                                    | Explain that sharing creates a link friends can open to view and reserve items. |
 | 8    | `/wishlist/[id]` | Manage access   | Manage access button visible in the wishlist header for owners.                 | Explain that owners can grant or revoke access for specific friends and groups. |
-| 9    | `/wishlist/[id]` | Edit wishlist   | More options menu open in the wishlist header with the `Edit` action visible.   | Explain that the owner can open the edit modal to update wishlist details.      |
-| 10   | `/wishlist/[id]` | Delete wishlist | More options menu open in the wishlist header with the `Delete` action visible. | Explain that deleting opens a confirmation modal before anything is removed.    |
-| 11   | `/wishlist/[id]` | Open Friends    | Top navigation visible with the Friends tab.                                    | Ask the user to click Friends directly from the wishlist detail page.           |
-| 12   | `/friends`       | Add friend      | Friends header invite/add action visible.                                       | Ask the user to open the add friend modal.                                      |
-| 13   | `/friends`       | Friends tabs    | `Requests`, `Sent`, and `Groups` tabs visible.                                  | Ask the user to click `Next` in each tooltip to move through the tab sequence.  |
-| 14   | `/friends`       | Create group    | `Groups` tab visible with `Create group` action.                                | Ask the user to open the create group modal.                                    |
-| 15   | `/friends`       | Open Discover   | Top navigation visible with the Discover tab.                                   | Ask the user to click Discover in the top navigation.                           |
-| 16   | `/discover`      | Discover tabs   | Tabs visible: All Wishlists, Available, Reserved, Purchased.                    | Ask the user to click `Next` in each tooltip to move through the tab sequence.  |
+| 9    | `/wishlist/[id]` | Open Friends    | Top navigation visible with the Friends tab.                                    | Ask the user to click Friends directly from the wishlist detail page.           |
+| 10   | `/friends`       | Add friend      | Friends header invite/add action visible.                                       | Ask the user to open the add friend modal.                                      |
+| 11   | `/friends`       | Friends/groups  | `Friends` and `Groups` tabs visible.                                            | Ask the user to click `Next` in each tooltip to move from Friends to Groups.    |
+| 12   | `/friends`       | Create group    | `Groups` tab visible with `Create group` action.                                | Ask the user to open the create group modal.                                    |
+| 13   | `/friends`       | Requests/sent   | `Requests` and `Sent` tabs visible.                                             | Ask the user to click `Next` in each tooltip to move from Requests to Sent.     |
+| 14   | `/friends`       | Open Discover   | Top navigation visible with the Discover tab.                                   | Ask the user to click Discover in the top navigation.                           |
+| 15   | `/discover`      | Discover tabs   | Tabs visible: All Wishlists, Available, Reserved, Purchased.                    | Ask the user to click `Next` in each tooltip in that order.                     |
 
 ## Optional Contextual Flows
 
@@ -54,7 +53,7 @@
 | Requirement     | Description                                                                                                 |
 | --------------- | ----------------------------------------------------------------------------------------------------------- |
 | Placement       | Show the progress bar inside the guide card/modal header, above the step title.                             |
-| Label           | Show compact text like `Step 6 of 16` for core onboarding and `Optional step 2 of 16` for contextual flows. |
+| Label           | Show compact text like `Step 6 of 15` for core onboarding and `Optional step 2 of 16` for contextual flows. |
 | Shape           | Use a horizontal 4-6px progress track with full pill radius.                                                |
 | Fill            | Use the active brand/accent color from the current theme.                                                   |
 | Track           | Use a muted surface or border token with enough contrast in light and dark mode.                            |

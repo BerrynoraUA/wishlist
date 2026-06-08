@@ -59,8 +59,8 @@ function FriendsPageContent() {
     handleSubmitGroup,
   } = useFriendsPage();
   const [pendingGuideModalStep, setPendingGuideModalStep] = useState<number | null>(null);
-  const completeAddFriendStep = useUserGuideStepCompletion(12);
-  const completeCreateGroupStep = useUserGuideStepCompletion(14);
+  const completeAddFriendStep = useUserGuideStepCompletion(10);
+  const completeCreateGroupStep = useUserGuideStepCompletion(12);
 
   function completePendingGuideModal(step: number, completeStep: () => void) {
     if (pendingGuideModalStep === step) {
@@ -71,24 +71,24 @@ function FriendsPageContent() {
 
   function closeAddFriendModal() {
     setAddOpen(false);
-    completePendingGuideModal(12, completeAddFriendStep);
+    completePendingGuideModal(10, completeAddFriendStep);
   }
 
   function closeGroupModal() {
     handleCloseGroupModal();
-    completePendingGuideModal(14, completeCreateGroupStep);
+    completePendingGuideModal(12, completeCreateGroupStep);
   }
 
   async function submitGroup(payload: Parameters<typeof handleSubmitGroup>[0]) {
     await handleSubmitGroup(payload);
-    completePendingGuideModal(14, completeCreateGroupStep);
+    completePendingGuideModal(12, completeCreateGroupStep);
   }
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px" }}>
       <FriendsHeader
         onInvite={() => {
-          setPendingGuideModalStep(12);
+          setPendingGuideModalStep(10);
           setAddOpen(true);
         }}
       />
@@ -104,7 +104,7 @@ function FriendsPageContent() {
             <Button
               size="sm"
               onClick={() => {
-                setPendingGuideModalStep(14);
+                setPendingGuideModalStep(12);
                 handleCreateGroup();
               }}
               data-guide-target="friends-create-group"

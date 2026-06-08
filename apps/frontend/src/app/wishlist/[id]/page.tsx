@@ -52,8 +52,6 @@ export default function WishlistItemsPage() {
   const [pendingGuideModalStep, setPendingGuideModalStep] = useState<number | null>(null);
   const completeShareStep = useUserGuideStepCompletion(7);
   const completeManageAccessStep = useUserGuideStepCompletion(8);
-  const completeEditWishlistStep = useUserGuideStepCompletion(9);
-  const completeDeleteWishlistStep = useUserGuideStepCompletion(10);
 
   const { data: wishlist, isError: wishlistError } = useWishlistById(id);
 
@@ -115,7 +113,6 @@ export default function WishlistItemsPage() {
           onEdit={
             canEditWishlist
               ? () => {
-                  setPendingGuideModalStep(9);
                   modals.setEditWishlistOpen(true);
                 }
               : undefined
@@ -123,7 +120,6 @@ export default function WishlistItemsPage() {
           onDelete={
             isOwner
               ? () => {
-                  setPendingGuideModalStep(10);
                   modals.setDeleteWishlistOpen(true);
                 }
               : undefined
@@ -235,7 +231,6 @@ export default function WishlistItemsPage() {
           open={modals.editWishlistOpen}
           onClose={() => {
             modals.setEditWishlistOpen(false);
-            completePendingGuideModal(9, completeEditWishlistStep);
           }}
           wishlist={wishlist}
         />
@@ -258,10 +253,8 @@ export default function WishlistItemsPage() {
         open={modals.deleteWishlistOpen}
         onClose={() => {
           modals.setDeleteWishlistOpen(false);
-          completePendingGuideModal(10, completeDeleteWishlistStep);
         }}
         onConfirm={() => {
-          completePendingGuideModal(10, completeDeleteWishlistStep);
           deleteWishlistMutation.mutate(id, {
             onSuccess: () => router.push("/home"),
           });

@@ -569,6 +569,7 @@ function CreateWishlistForm({
             {t("Cancel", { $id: "common.cancel" })}
           </Button>
           <Button
+            className={styles.submitButton}
             onClick={handleSubmit}
             disabled={!name.trim() || isPending || isGrantingAccess || Boolean(imageError)}
             data-guide-target="create-wishlist-submit"
