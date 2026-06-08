@@ -1,4 +1,5 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { UserGuideTarget } from "@/components/user-guide/user-guide-provider";
 import { motionSpring, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as React from "react";
@@ -16,6 +17,7 @@ export type SlidingSelectorContent =
 export type SlidingOption<T> = {
   value: T;
   accessibilityLabel?: string;
+  guideTarget?: string;
   /** Optional stable key when `value` isn't unique among siblings */
   id?: string;
   /** Replaces default `bg-bg-subtle` when the option is not selected */
@@ -146,9 +148,8 @@ export function SlidingOptionSelector<T>({
             const selected = value === option.value;
             const key = option.id ?? `${rowIndex}-${columnIndex}-${String(option.value)}`;
 
-            return (
+            const trigger = (
               <AnimatedPressable
-                key={key}
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
                 accessibilityLabel={option.accessibilityLabel}
@@ -168,6 +169,20 @@ export function SlidingOptionSelector<T>({
                 {renderOptionContent(option.children, selected)}
               </AnimatedPressable>
             );
+
+            if (option.guideTarget) {
+              return (
+                <UserGuideTarget
+                  key={key}
+                  targetId={option.guideTarget}
+                  onGuideActivate={() => onChange(option.value)}
+                >
+                  {trigger}
+                </UserGuideTarget>
+              );
+            }
+
+            return <React.Fragment key={key}>{trigger}</React.Fragment>;
           })}
         </View>
       ))}

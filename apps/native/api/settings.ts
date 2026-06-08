@@ -56,6 +56,10 @@ export async function updateProfile(payload: UpdateProfilePayload): Promise<User
   return data as UserProfile;
 }
 
+export async function updateUserGuideStep(step: number): Promise<UserProfile> {
+  return updateProfile({ userGuideStep: step });
+}
+
 export async function uploadProfileAvatar({
   uri,
   mimeType,

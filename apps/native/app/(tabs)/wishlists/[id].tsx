@@ -17,6 +17,10 @@ import {
 import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
 import { WishlistDeleteSheet } from "@/components/wishlists/sheets/wishlist-delete-sheet";
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
+import { ShareFeedbackSheet, type ShareFeedback } from "@/components/wishlists/sheets/share-feedback-sheet";
+import { WishlistGrantAccessSheet } from "@/components/wishlists/sheets/wishlist-grant-access-sheet";
+import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
+import { createWishlistShareToken } from "@/api/share";
 import { useCheckFriendship, useProfilesByIds } from "@/hooks/use-friends";
 import {
   useItemVotes,
@@ -44,6 +48,7 @@ import { ChevronLeft } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View, useWindowDimensions } from "react-native";
+import * as Clipboard from "expo-clipboard";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -63,6 +68,7 @@ type SheetState =
   | { type: "delete"; item: Item }
   | { type: "editWishlist"; wishlist: Wishlist }
   | { type: "deleteWishlist"; wishlist: Wishlist }
+  | { type: "grantAccess"; wishlist: Wishlist }
   | null;
 
 type WishlistItemListRow =
@@ -86,6 +92,10 @@ export default function WishlistDetailScreen() {
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sheet, setSheet] = React.useState<SheetState>(null);
+  const [shareFeedback, setShareFeedback] = React.useState<ShareFeedback>(null);
+  const [pendingGuideModalStep, setPendingGuideModalStep] = React.useState<number | null>(null);
+  const completeShareStep = useUserGuideStepCompletion(7);
+  const completeManageAccessStep = useUserGuideStepCompletion(8);
   const canEditWishlist = Boolean(wishlist?.is_owner || wishlist?.can_edit);
   const friendshipCheckUserId =
     !canEditWishlist && currentUser.data && wishlist?.user_id ? wishlist.user_id : "";
@@ -174,6 +184,36 @@ export default function WishlistDetailScreen() {
     setPage(1);
   }
 
+  function completePendingGuideModal(step: number, completeStep: () => void) {
+    if (pendingGuideModalStep === step) {
+      completeStep();
+      setPendingGuideModalStep(null);
+    }
+  }
+
+  async function handleShareWishlist() {
+    if (!wishlist) return;
+    try {
+      const token = await createWishlistShareToken(wishlist.id);
+      const baseUrl = (process.env.EXPO_PUBLIC_WEB_URL ?? "https://wishlane.net").replace(/\/$/, "");
+      const link = `${baseUrl}/share?token=${encodeURIComponent(token)}`;
+      await Clipboard.setStringAsync(link);
+      setPendingGuideModalStep(7);
+      setShareFeedback({
+        variant: "success",
+        title: t("Link copied"),
+        description: t("Wishlist share link is ready to send."),
+        link,
+      });
+    } catch (error) {
+      setShareFeedback({
+        variant: "error",
+        title: t("Share failed"),
+        description: error instanceof Error ? error.message : t("Could not create share link."),
+      });
+    }
+  }
+
   const renderItemRow = React.useCallback(
     ({ item, target }: { item: WishlistItemListRow; target: string }) =>
       "type" in item && item.type === "header" ? (
@@ -187,6 +227,15 @@ export default function WishlistDetailScreen() {
               }
               onDelete={
                 wishlist.is_owner ? () => setSheet({ type: "deleteWishlist", wishlist }) : undefined
+              }
+              onShare={handleShareWishlist}
+              onManageAccess={
+                wishlist.is_owner
+                  ? () => {
+                      setPendingGuideModalStep(8);
+                      setSheet({ type: "grantAccess", wishlist });
+                    }
+                  : undefined
               }
               topInset={insets.top}
             />
@@ -393,6 +442,26 @@ export default function WishlistDetailScreen() {
             if (!open) setSheet(null);
           }}
           onDeleted={() => router.replace("/wishlists")}
+        />
+        <WishlistGrantAccessSheet
+          open={sheet?.type === "grantAccess"}
+          wishlistId={sheet?.type === "grantAccess" ? sheet.wishlist.id : ""}
+          wishlistTitle={sheet?.type === "grantAccess" ? sheet.wishlist.title : ""}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSheet(null);
+              completePendingGuideModal(8, completeManageAccessStep);
+            }
+          }}
+        />
+        <ShareFeedbackSheet
+          feedback={shareFeedback}
+          onOpenChange={(open) => {
+            if (!open) {
+              setShareFeedback(null);
+              completePendingGuideModal(7, completeShareStep);
+            }
+          }}
         />
         <WishlistItemDetailSheet
           item={sheet?.type === "detail" ? sheet.item : null}

@@ -5,6 +5,10 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
+import {
+  UserGuideTarget,
+  useUserGuideStepCompletion,
+} from "@/components/user-guide/user-guide-provider";
 import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
 import { useSettings } from "@/hooks/use-settings";
 import {
@@ -50,6 +54,8 @@ export function WishlistItemCreateEditSheet({
   const createMutation = useCreateItem();
   const updateMutation = useUpdateItem();
   const isPending = createMutation.isPending || updateMutation.isPending;
+  const completeOpenItemStep = useUserGuideStepCompletion(5);
+  const completeCreateItemStep = useUserGuideStepCompletion(6);
   const error = createMutation.error ?? updateMutation.error;
   const { control, handleSubmit, reset, setValue } = useForm<ItemFormValues>({
     defaultValues: EMPTY_ITEM_FORM,
@@ -86,8 +92,9 @@ export function WishlistItemCreateEditSheet({
       setScrapeError(null);
       currentUrlRef.current = nextValues.url.trim();
       lastScrapedUrlRef.current = nextValues.url.trim();
+      if (mode === "create") completeOpenItemStep();
     }
-  }, [item, mode, open, reset]);
+  }, [completeOpenItemStep, item, mode, open, reset]);
 
   React.useEffect(() => {
     currentUrlRef.current = values.url.trim();
@@ -226,7 +233,10 @@ export function WishlistItemCreateEditSheet({
         ...payload,
       },
       {
-        onSuccess: handleClose,
+        onSuccess: () => {
+          completeCreateItemStep();
+          handleClose();
+        },
       },
     );
   }
@@ -254,14 +264,16 @@ export function WishlistItemCreateEditSheet({
           >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <Button
-            className="min-w-0 flex-1"
-            disabled={!canSubmit}
-            onPress={handleSubmit(submitForm)}
-          >
-            {isPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
-            <Text>{mode === "edit" ? t("Save changes") : t("Create item")}</Text>
-          </Button>
+          <UserGuideTarget targetId="create-item-submit" style={{ flex: 1 }}>
+            <Button
+              className="min-w-0 flex-1"
+              disabled={!canSubmit}
+              onPress={handleSubmit(submitForm)}
+            >
+              {isPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
+              <Text>{mode === "edit" ? t("Save changes") : t("Create item")}</Text>
+            </Button>
+          </UserGuideTarget>
         </View>
       }
     >

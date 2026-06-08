@@ -45,6 +45,7 @@ function createTabOption(value: DiscoverTab, label: string): SlidingOption<Disco
   return {
     value,
     accessibilityLabel: label,
+    guideTarget: `discover-tab-${value}`,
     children: ({ selected }: SlidingOptionRenderProps) => (
       <Text
         className={cn("text-sm font-bold", selected ? "text-primary-foreground" : "text-text")}

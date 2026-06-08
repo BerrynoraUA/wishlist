@@ -13,6 +13,10 @@ import { Input } from "@/components/ui/input";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import {
+  UserGuideTarget,
+  useUserGuideStepCompletion,
+} from "@/components/user-guide/user-guide-provider";
+import {
   useAcceptFriendRequest,
   useCancelFriendRequest,
   useCreateFriendGroup,
@@ -57,6 +61,9 @@ export default function FriendsScreen() {
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sheet, setSheet] = React.useState<SheetState>(null);
+  const [pendingGuideModalStep, setPendingGuideModalStep] = React.useState<number | null>(null);
+  const completeAddFriendStep = useUserGuideStepCompletion(10);
+  const completeCreateGroupStep = useUserGuideStepCompletion(12);
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
@@ -125,7 +132,20 @@ export default function FriendsScreen() {
       return updateGroup.mutateAsync({ groupId: sheet.group.id, payload });
     }
 
-    return createGroup.mutateAsync(payload);
+    return createGroup.mutateAsync(payload).then((result) => {
+      if (pendingGuideModalStep === 12) {
+        completeCreateGroupStep();
+        setPendingGuideModalStep(null);
+      }
+      return result;
+    });
+  }
+
+  function completePendingGuideModal(step: number, completeStep: () => void) {
+    if (pendingGuideModalStep === step) {
+      completeStep();
+      setPendingGuideModalStep(null);
+    }
   }
 
   function renderRow({ item }: { item: FriendsRow }) {
@@ -194,10 +214,18 @@ export default function FriendsScreen() {
                 <View className="min-w-0 flex-1 gap-1">
                   <Text className="text-2xl font-extrabold text-text">{t("Friends")}</Text>
                 </View>
-                <Button onPress={() => setSheet({ type: "add" })} className="rounded-full">
-                  <Icon as={UserPlus} className="size-4 text-primary-foreground" />
-                  <Text>{t("Invite")}</Text>
-                </Button>
+                <UserGuideTarget targetId="friends-invite">
+                  <Button
+                    onPress={() => {
+                      setPendingGuideModalStep(10);
+                      setSheet({ type: "add" });
+                    }}
+                    className="rounded-full"
+                  >
+                    <Icon as={UserPlus} className="size-4 text-primary-foreground" />
+                    <Text>{t("Invite")}</Text>
+                  </Button>
+                </UserGuideTarget>
               </View>
 
               <FriendsTabs
@@ -241,13 +269,18 @@ export default function FriendsScreen() {
                   </View>
                 ) : null}
                 {tab === "groups" ? (
-                  <Button
-                    onPress={() => setSheet({ type: "group", group: null })}
-                    className="rounded-full"
-                  >
-                    <Icon as={Plus} className="size-4 text-primary-foreground" />
-                    <Text>{t("Create")}</Text>
-                  </Button>
+                  <UserGuideTarget targetId="friends-create-group">
+                    <Button
+                      onPress={() => {
+                        setPendingGuideModalStep(12);
+                        setSheet({ type: "group", group: null });
+                      }}
+                      className="rounded-full"
+                    >
+                      <Icon as={Plus} className="size-4 text-primary-foreground" />
+                      <Text>{t("Create")}</Text>
+                    </Button>
+                  </UserGuideTarget>
                 ) : null}
               </View>
             </View>
@@ -290,7 +323,10 @@ export default function FriendsScreen() {
           <AddFriendSheet
             open
             onOpenChange={(open) => {
-              if (!open) setSheet(null);
+              if (!open) {
+                setSheet(null);
+                completePendingGuideModal(10, completeAddFriendStep);
+              }
             }}
           />
         ) : null}
@@ -301,7 +337,10 @@ export default function FriendsScreen() {
             friends={friends}
             isSaving={createGroup.isPending || updateGroup.isPending}
             onOpenChange={(open) => {
-              if (!open) setSheet(null);
+              if (!open) {
+                setSheet(null);
+                completePendingGuideModal(12, completeCreateGroupStep);
+              }
             }}
             onSubmit={handleSubmitGroup}
           />

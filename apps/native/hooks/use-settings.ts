@@ -8,6 +8,7 @@ import {
   getProfilesByIds,
   getSettings,
   updateProfile,
+  updateUserGuideStep,
   updateSettings,
   uploadProfileAvatar,
 } from "@/api/settings";
@@ -16,6 +17,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   UpdateProfilePayload,
   UpdateSettingsPayload,
+  UserProfile,
   UserSettings,
 } from "@wishlist/backend/types/settings";
 
@@ -49,6 +51,42 @@ export function useUpdateProfile() {
     mutationFn: (payload: UpdateProfilePayload) => updateProfile(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.profile(user?.id) });
+    },
+  });
+}
+
+export function useUpdateUserGuideStep() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: (step: number) => updateUserGuideStep(step),
+    onMutate: async (step) => {
+      await queryClient.cancelQueries({ queryKey: settingsKeys.profile(user?.id) });
+      const previousProfile = queryClient.getQueryData<UserProfile>(settingsKeys.profile(user?.id));
+
+      if (previousProfile) {
+        queryClient.setQueryData<UserProfile>(settingsKeys.profile(user?.id), {
+          ...previousProfile,
+          userGuideStep: Math.max(previousProfile.userGuideStep ?? 0, step),
+        });
+      }
+
+      return { previousProfile };
+    },
+    onError: (_error, _step, context) => {
+      if (context?.previousProfile) {
+        queryClient.setQueryData(settingsKeys.profile(user?.id), context.previousProfile);
+      }
+    },
+    onSuccess: (profile) => {
+      queryClient.setQueryData(settingsKeys.profile(user?.id), profile);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: settingsKeys.profile(user?.id),
+        refetchType: "active",
+      });
     },
   });
 }

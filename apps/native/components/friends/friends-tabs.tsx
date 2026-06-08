@@ -60,6 +60,7 @@ function createTabOption(value: FriendsTab, label: string): SlidingOption<Friend
   return {
     value,
     accessibilityLabel: label,
+    guideTarget: `friends-tab-${value}`,
     children: ({ selected }: SlidingOptionRenderProps) => (
       <Text
         className={cn("text-sm font-bold", selected ? "text-primary-foreground" : "text-text")}
