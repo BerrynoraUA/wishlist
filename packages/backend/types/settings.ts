@@ -14,6 +14,7 @@ export interface UserProfile {
   height: number | null;
   shoe_size: number | null;
   avatar_url: string | null;
+  userGuideStep: number | null;
   created_at: string;
 }
 
@@ -33,7 +34,10 @@ export interface UserSettings {
 export type ThemePreference = "light" | "dark" | "system";
 
 export type UpdateProfilePayload = Partial<
-  Pick<UserProfile, "display_name" | "nickname" | "bio" | "height" | "shoe_size" | "avatar_url">
+  Pick<
+    UserProfile,
+    "display_name" | "nickname" | "bio" | "height" | "shoe_size" | "avatar_url" | "userGuideStep"
+  >
 >;
 
 export type UpdateSettingsPayload = Partial<Omit<UserSettings, "user_id">>;

@@ -13,6 +13,11 @@ import { Wishlist } from "@/types/wishlist";
 import { paginationFlags } from "@/lib/filter-helpers";
 import { WISHLIST_PAGE_SIZE } from "../../constants";
 import { useHomeWishlistFilters } from "../../hooks/use-home-wishlist-filters";
+import {
+  useUserGuide,
+  useUserGuideStepCompletion,
+} from "@/components/user-guide/UserGuideProvider";
+import { USER_GUIDE_LAST_WISHLIST_PATH_KEY } from "@/components/user-guide/user-guide-config";
 
 type Props = {
   onCreateWishlist: () => void;
@@ -32,6 +37,8 @@ export function WishlistGrid({
 
   const { data, isLoading, isFetching, isError } = useMyWishlists(queryParams);
   const { mutate: pinMutate } = usePinWishlist();
+  const { currentStep } = useUserGuide();
+  const completeOpenDetailStep = useUserGuideStepCompletion(4);
 
   const wishlists = data ?? [];
 
@@ -87,8 +94,27 @@ export function WishlistGrid({
           <WishlistCard
             key={w.id}
             wishlist={w}
-            onEdit={w.is_owner || w.can_edit ? () => onEditWishlist(w) : undefined}
-            onDelete={w.is_owner ? () => onDeleteWishlist(w) : undefined}
+            onOpen={(wishlist) => {
+              window.sessionStorage.setItem(
+                USER_GUIDE_LAST_WISHLIST_PATH_KEY,
+                `/wishlist/${wishlist.id}`,
+              );
+              if (currentStep?.id === 4) completeOpenDetailStep();
+            }}
+            onEdit={
+              w.is_owner || w.can_edit
+                ? () => {
+                    onEditWishlist(w);
+                  }
+                : undefined
+            }
+            onDelete={
+              w.is_owner
+                ? () => {
+                    onDeleteWishlist(w);
+                  }
+                : undefined
+            }
             onPin={w.is_owner ? (isPinned) => pinMutate({ id: w.id, isPinned }) : undefined}
           />
         ))}
@@ -99,6 +125,7 @@ export function WishlistGrid({
               $id: "home.wishlistGrid.createCardLabel",
             })}
             hasDraft={hasCreateDraft}
+            guideTarget="home-add-wishlist"
           />
         )}
       </div>

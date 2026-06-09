@@ -113,6 +113,11 @@
   }
 }
 
+.disabledLink {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
 .icon {
   position: relative;
   z-index: 1;

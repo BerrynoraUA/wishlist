@@ -42,6 +42,7 @@ export const MOCK_PROFILE = {
   nickname: "testuser",
   bio: "E2E test account",
   avatar_url: null,
+  userGuideStep: 15,
   created_at: "2025-01-01T00:00:00Z",
 };
 

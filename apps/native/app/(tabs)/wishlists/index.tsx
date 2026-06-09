@@ -8,6 +8,7 @@ import { View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WishlistFilterBar } from "@/components/wishlists/wishlist-filter-bar";
 import { WishlistListStatsRow, WishlistList } from "@/components/wishlists/wishlist-list";
+import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
 import { useWishlistFeed } from "@/hooks/use-wishlist-feed";
 import { useGT } from "gt-react-native";
 
@@ -23,6 +24,7 @@ export default function WishlistsScreen() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const feed = useWishlistFeed(width);
+  const completeStartWishlistStep = useUserGuideStepCompletion(2);
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const [filtersOpen, setFiltersOpen] = React.useState(false);
 
@@ -54,7 +56,10 @@ export default function WishlistsScreen() {
               onVisibilityChange={feed.handleVisibilityChange}
               onSortChange={feed.handleSortChange}
               onResetFilters={feed.handleResetFilters}
-              onCreateWishlist={() => setSheet({ type: "create" })}
+              onCreateWishlist={() => {
+                completeStartWishlistStep();
+                setSheet({ type: "create" });
+              }}
               filtersOpen={filtersOpen}
               onFiltersOpenChange={setFiltersOpen}
             />

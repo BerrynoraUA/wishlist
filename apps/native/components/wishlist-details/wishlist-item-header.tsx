@@ -9,6 +9,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { GuideTarget } from "@/components/user-guide/guide-target";
 import { usePatchWishlist } from "@/hooks/use-wishlists";
 import {
   WISHLIST_VISIBILITY_ICONS,
@@ -117,25 +118,29 @@ export function WishlistItemHeader({
               {onShare || (isOwner && onManageAccess) ? (
                 <View className="flex-row items-center justify-end gap-2">
                   {onShare ? (
-                    <AnimatedPressable
-                      accessibilityRole="button"
-                      accessibilityLabel={t("Share wishlist")}
-                      onPress={onShare}
-                      className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-                    >
-                      <Icon as={Share2} className="size-4 text-white" />
-                    </AnimatedPressable>
+                    <GuideTarget id="wishlist-share">
+                      <AnimatedPressable
+                        accessibilityRole="button"
+                        accessibilityLabel={t("Share wishlist")}
+                        onPress={onShare}
+                        className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+                      >
+                        <Icon as={Share2} className="size-4 text-white" />
+                      </AnimatedPressable>
+                    </GuideTarget>
                   ) : null}
 
                   {isOwner && onManageAccess ? (
-                    <AnimatedPressable
-                      accessibilityRole="button"
-                      accessibilityLabel={t("Manage wishlist access")}
-                      onPress={onManageAccess}
-                      className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-                    >
-                      <Icon as={KeyRound} className="size-4 text-white" />
-                    </AnimatedPressable>
+                    <GuideTarget id="wishlist-manage-access">
+                      <AnimatedPressable
+                        accessibilityRole="button"
+                        accessibilityLabel={t("Manage wishlist access")}
+                        onPress={onManageAccess}
+                        className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+                      >
+                        <Icon as={KeyRound} className="size-4 text-white" />
+                      </AnimatedPressable>
+                    </GuideTarget>
                   ) : null}
                 </View>
               ) : null}

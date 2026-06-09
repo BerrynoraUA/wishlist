@@ -16,6 +16,9 @@ import { MAX_IMAGE_UPLOAD_BYTES } from "@/lib/image-upload";
 import { getCurrentUser } from "./user";
 import { PublicProfile } from "./types/user";
 
+const PROFILE_SELECT =
+  "id, display_name, nickname, bio, height, shoe_size, avatar_url, userGuideStep, created_at";
+
 export async function getProfile(): Promise<UserProfile> {
   const user = await getCurrentUser();
 
@@ -23,7 +26,7 @@ export async function getProfile(): Promise<UserProfile> {
 
   const { data, error } = await supabaseBrowser
     .from("profiles")
-    .select("id, display_name, nickname, bio, height, shoe_size, avatar_url, created_at")
+    .select(PROFILE_SELECT)
     .eq("id", user.id)
     .single();
 
@@ -40,11 +43,15 @@ export async function updateProfile(payload: UpdateProfilePayload): Promise<User
     .from("profiles")
     .update(payload)
     .eq("id", user.id)
-    .select("id, display_name, nickname, bio, height, shoe_size, avatar_url, created_at")
+    .select(PROFILE_SELECT)
     .single();
 
   if (error) throw error;
   return data;
+}
+
+export async function updateUserGuideStep(step: number): Promise<UserProfile> {
+  return updateProfile({ userGuideStep: step });
 }
 
 export async function checkNicknameAvailable(nickname: string): Promise<boolean> {

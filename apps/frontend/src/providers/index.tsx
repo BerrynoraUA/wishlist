@@ -5,6 +5,7 @@ import type { ResolvedTheme } from "@/lib/theme";
 import type { ThemePreference } from "@/types/settings";
 import { AlertTriangle, CircleCheck, CircleX, Info } from "lucide-react";
 import { Toaster } from "sonner";
+import { UserGuideProvider } from "@/components/user-guide/UserGuideProvider";
 import { AuthProvider } from "./auth-provider";
 import { SdkProvider } from "./sdk-provider";
 import { ThemeProvider, useAppTheme } from "./theme-provider";
@@ -30,7 +31,9 @@ export function Providers({
           initialResolvedTheme={initialResolvedTheme}
           initialAccent={initialAccent}
         >
-          <SdkProvider>{children}</SdkProvider>
+          <SdkProvider>
+            <UserGuideProvider>{children}</UserGuideProvider>
+          </SdkProvider>
           <Toaster
             position="bottom-right"
             closeButton
