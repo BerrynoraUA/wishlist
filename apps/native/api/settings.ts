@@ -12,7 +12,8 @@ import { File } from "expo-file-system";
 
 const AVATAR_BUCKET = "avatars";
 const MAX_AVATAR_UPLOAD_BYTES = 5 * 1024 * 1024;
-const PROFILE_SELECT = "id, display_name, nickname, bio, height, shoe_size, avatar_url, created_at";
+const PROFILE_SELECT =
+  "id, display_name, nickname, bio, height, shoe_size, avatar_url, userGuideStep, created_at";
 
 async function getCurrentUser() {
   const {

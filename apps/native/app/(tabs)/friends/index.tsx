@@ -12,6 +12,11 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
+import { GuideTarget } from "@/components/user-guide/guide-target";
+import {
+  useUserGuideStepCompletion,
+  useUserGuideTargetRegistration,
+} from "@/components/user-guide/user-guide-provider";
 import {
   useAcceptFriendRequest,
   useCancelFriendRequest,
@@ -57,6 +62,9 @@ export default function FriendsScreen() {
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sheet, setSheet] = React.useState<SheetState>(null);
+  const completeAddFriendStep = useUserGuideStepCompletion(10);
+  const completeCreateGroupStep = useUserGuideStepCompletion(12);
+  const { requestMeasure } = useUserGuideTargetRegistration();
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
@@ -189,17 +197,33 @@ export default function FriendsScreen() {
           contentInsetAdjustmentBehavior="automatic"
           contentContainerClassName="pb-8"
           contentContainerStyle={{ paddingTop: insets.top + 24 }}
+          onScroll={requestMeasure}
+          scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View className="h-4" />}
           ListHeaderComponent={
-            <View className="gap-5 self-center pb-5" style={{ width: contentWidth }}>
+            <View className="gap-5 self-center pb-8" style={{ width: contentWidth }}>
               <View className="flex-row items-start justify-between gap-3">
                 <View className="min-w-0 flex-1 gap-1">
                   <Text className="text-2xl font-extrabold text-text">{t("Friends")}</Text>
                 </View>
-                <Button onPress={() => setSheet({ type: "add" })} className="rounded-full">
-                  <Icon as={UserPlus} className="size-4 text-primary-foreground" />
-                  <Text>{t("Invite")}</Text>
-                </Button>
+                <GuideTarget
+                  attachedTooltip={false}
+                  id="friends-invite"
+                  tooltipHorizontalOffset={-72}
+                  tooltipPlacementOverride="bottom"
+                  tooltipVerticalOffset={0}
+                >
+                  <Button
+                    onPress={() => {
+                      completeAddFriendStep();
+                      setSheet({ type: "add" });
+                    }}
+                    className="rounded-full"
+                  >
+                    <Icon as={UserPlus} className="size-4 text-primary-foreground" />
+                    <Text>{t("Invite")}</Text>
+                  </Button>
+                </GuideTarget>
               </View>
 
               <FriendsTabs
@@ -243,13 +267,18 @@ export default function FriendsScreen() {
                   </View>
                 ) : null}
                 {tab === "groups" ? (
-                  <Button
-                    onPress={() => setSheet({ type: "group", group: null })}
-                    className="rounded-full"
-                  >
-                    <Icon as={Plus} className="size-4 text-primary-foreground" />
-                    <Text>{t("Create")}</Text>
-                  </Button>
+                  <GuideTarget id="friends-create-group">
+                    <Button
+                      onPress={() => {
+                        completeCreateGroupStep();
+                        setSheet({ type: "group", group: null });
+                      }}
+                      className="rounded-full"
+                    >
+                      <Icon as={Plus} className="size-4 text-primary-foreground" />
+                      <Text>{t("Create")}</Text>
+                    </Button>
+                  </GuideTarget>
                 ) : null}
               </View>
             </View>

@@ -10,6 +10,7 @@ import { DiscoverItemDetailSheet } from "@/components/discover/sheets/discover-i
 import { UpcomingEventsCard } from "@/components/discover/upcoming-events-card";
 import { InlineState } from "@/components/shared/inline-state";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
+import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import { useDiscoverFeed } from "@/hooks/use-discover-feed";
 import { useFriends } from "@/hooks/use-friends";
 import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
@@ -38,6 +39,7 @@ export default function DiscoverScreen() {
   const toggleBought = useToggleItemBought();
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState<Item | null>(null);
+  const { requestMeasure } = useUserGuideTargetRegistration();
 
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
@@ -183,6 +185,8 @@ export default function DiscoverScreen() {
         contentInsetAdjustmentBehavior="never"
         contentContainerClassName="pb-8"
         contentContainerStyle={{ paddingTop: insets.top + 8 }}
+        onScroll={requestMeasure}
+        scrollEventThrottle={16}
         ItemSeparatorComponent={RowSeparator}
         ListFooterComponent={
           <View className="gap-4 self-center" style={{ width: contentWidth }}>

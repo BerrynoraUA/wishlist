@@ -30,12 +30,12 @@ export function FriendsTabs({
   const rows = React.useMemo<SlidingOption<FriendsTab>[][]>(
     () => [
       [
-        createTabOption("friends", `${t("Friends")} ${friendsCount}`),
-        createTabOption("groups", `${t("Groups")} ${groupsCount}`),
+        createTabOption("friends", `${t("Friends")} ${friendsCount}`, "friends-tab-friends"),
+        createTabOption("groups", `${t("Groups")} ${groupsCount}`, "friends-tab-groups"),
       ],
       [
-        createTabOption("requests", `${t("Requests")} ${requestsCount}`),
-        createTabOption("sent", `${t("Sent")} ${sentCount}`),
+        createTabOption("requests", `${t("Requests")} ${requestsCount}`, "friends-tab-requests"),
+        createTabOption("sent", `${t("Sent")} ${sentCount}`, "friends-tab-sent"),
       ],
     ],
     [friendsCount, groupsCount, requestsCount, sentCount, t],
@@ -56,10 +56,15 @@ export function FriendsTabs({
   );
 }
 
-function createTabOption(value: FriendsTab, label: string): SlidingOption<FriendsTab> {
+function createTabOption(
+  value: FriendsTab,
+  label: string,
+  guideTargetId: string,
+): SlidingOption<FriendsTab> {
   return {
     value,
     accessibilityLabel: label,
+    guideTargetId,
     children: ({ selected }: SlidingOptionRenderProps) => (
       <Text
         className={cn("text-sm font-bold", selected ? "text-primary-foreground" : "text-text")}
