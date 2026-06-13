@@ -1,4 +1,4 @@
-import { getNavigationTheme, getThemeMode } from "@/lib/theme";
+import { getThemeMode, useNavigationTheme } from "@/lib/theme";
 import { useAuth } from "@/providers/auth-provider";
 import { useUserGuide } from "@/components/user-guide/user-guide-provider";
 import { Redirect } from "expo-router";
@@ -12,7 +12,7 @@ export default function TabsLayout() {
   const { handleTabPress } = useUserGuide();
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
-  const navigationTheme = getNavigationTheme(theme);
+  const navigationTheme = useNavigationTheme(theme);
   const selectedTabBackground =
     themeMode === "dark"
       ? `${navigationTheme.colors.primary}24`

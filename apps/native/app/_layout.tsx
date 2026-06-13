@@ -2,7 +2,7 @@ import "@/polyfills/gtIntlPolyfills";
 import "@/global.css";
 
 import { useSettings } from "@/hooks/use-settings";
-import { getNativeThemeNameForPreference, getNavigationTheme, getThemeMode } from "@/lib/theme";
+import { getNativeThemeNameForPreference, getThemeMode, useNavigationTheme } from "@/lib/theme";
 import { upsertKnownAccount } from "@/lib/known-accounts";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { SubscriptionProvider } from "@/providers/subscription-provider";
@@ -52,7 +52,7 @@ export default function RootLayout() {
   );
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
-  const navigationTheme = getNavigationTheme(theme);
+  const navigationTheme = useNavigationTheme(theme);
 
   return (
     <PostHogProvider
