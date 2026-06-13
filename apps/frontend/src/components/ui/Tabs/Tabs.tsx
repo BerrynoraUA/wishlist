@@ -7,6 +7,7 @@ export type TabItem<T extends string = string> = {
   value: T;
   label: ReactNode;
   badge?: ReactNode;
+  guideTarget?: string;
 };
 
 type Props<T extends string> = {
@@ -43,6 +44,7 @@ export function Tabs<T extends string>({
           type="button"
           className={`${styles.tab} ${tabClassName ?? ""} ${active === item.value ? `${styles.active} ${activeTabClassName ?? ""}` : ""}`}
           onClick={() => onChange(item.value)}
+          data-guide-target={item.guideTarget}
         >
           {item.label}
           {item.badge !== undefined && <span className={styles.badge}>{item.badge}</span>}

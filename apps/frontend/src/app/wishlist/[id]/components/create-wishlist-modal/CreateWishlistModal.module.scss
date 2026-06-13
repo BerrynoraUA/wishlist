@@ -696,6 +696,10 @@
   gap: 8px;
 }
 
+.submitButton {
+  min-width: 150px;
+}
+
 @media (max-width: 640px) {
   .container {
     gap: 12px;

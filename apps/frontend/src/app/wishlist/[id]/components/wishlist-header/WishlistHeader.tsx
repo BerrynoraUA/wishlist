@@ -478,7 +478,7 @@ export function WishlistHeader({
                       })}
                     </span>
                   )}
-                  <Button size="sm" onClick={handleAddItem}>
+                  <Button size="sm" onClick={handleAddItem} data-guide-target="wishlist-add-item">
                     {atItemLimit ? (
                       <>
                         <Sparkles size={14} />
@@ -506,6 +506,7 @@ export function WishlistHeader({
                       type="button"
                       className={`${styles.menuButton} iconTooltipTrigger`}
                       onClick={onShare}
+                      data-guide-target="wishlist-share"
                       aria-label={t("Share wishlist", {
                         $id: "wishlist.header.shareAria",
                       })}
@@ -521,6 +522,7 @@ export function WishlistHeader({
                       type="button"
                       className={`${styles.menuButton} iconTooltipTrigger`}
                       onClick={onManageAccess}
+                      data-guide-target="wishlist-manage-access"
                       aria-label={t("Manage wishlist access", {
                         $id: "wishlist.header.manageAccessAria",
                       })}

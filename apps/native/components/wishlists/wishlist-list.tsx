@@ -13,6 +13,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
+import { GuideTarget } from "@/components/user-guide/guide-target";
+import {
+  useUserGuideStepCompletion,
+  useUserGuideTargetRegistration,
+} from "@/components/user-guide/user-guide-provider";
 import { useMyStatistics } from "@/hooks/use-wishlists";
 import { chunkRows } from "@/lib/layout";
 import { cn } from "@/lib/utils";
@@ -90,6 +95,8 @@ export function WishlistList({
   onOpenSheet: (sheet: Exclude<SheetState, null>) => void;
 }) {
   const t = useGT();
+  const completeOpenDetailStep = useUserGuideStepCompletion(4);
+  const { requestMeasure } = useUserGuideTargetRegistration();
   const insets = useSafeAreaInsets();
   const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
   const data = React.useMemo<WishlistListRow[]>(
@@ -97,7 +104,7 @@ export function WishlistList({
     [query.isLoading, rows],
   );
   const renderRow = React.useCallback(
-    ({ item, target }: { item: WishlistListRow; target: string }) =>
+    ({ item, target, index }: { item: WishlistListRow; target: string; index: number }) =>
       "type" in item ? (
         <View
           className={cn("z-[2] pb-4", target === "StickyHeader" ? "bg-bg" : "bg-transparent")}
@@ -117,26 +124,47 @@ export function WishlistList({
             width: contentWidth,
           }}
         >
-          {item.map((entry) => (
-            <WishlistCard
-              key={entry.id}
-              wishlist={entry}
-              width={cardWidth}
-              onEdit={
-                entry.is_owner || entry.can_edit
-                  ? () => onOpenSheet({ type: "edit", wishlist: entry })
-                  : undefined
-              }
-              onAddItem={
-                entry.is_owner || entry.can_edit
-                  ? () => onOpenSheet({ type: "addItem", wishlist: entry })
-                  : undefined
-              }
-              onDelete={
-                entry.is_owner ? () => onOpenSheet({ type: "delete", wishlist: entry }) : undefined
-              }
-            />
-          ))}
+          {item.map((entry, entryIndex) => {
+            const isFirstWishlistCard = index === 1 && entryIndex === 0;
+            const card = (
+              <WishlistCard
+                key={entry.id}
+                wishlist={entry}
+                width={cardWidth}
+                onOpen={isFirstWishlistCard ? completeOpenDetailStep : undefined}
+                onEdit={
+                  entry.is_owner || entry.can_edit
+                    ? () => onOpenSheet({ type: "edit", wishlist: entry })
+                    : undefined
+                }
+                onAddItem={
+                  entry.is_owner || entry.can_edit
+                    ? () => onOpenSheet({ type: "addItem", wishlist: entry })
+                    : undefined
+                }
+                onDelete={
+                  entry.is_owner
+                    ? () => onOpenSheet({ type: "delete", wishlist: entry })
+                    : undefined
+                }
+              />
+            );
+
+            return isFirstWishlistCard ? (
+              <GuideTarget
+                attachedTooltip={false}
+                key={entry.id}
+                id="home-wishlist-card"
+                style={{ width: cardWidth }}
+                tooltipHorizontalOffset={-24}
+                tooltipPlacementOverride="top"
+              >
+                {card}
+              </GuideTarget>
+            ) : (
+              card
+            );
+          })}
         </View>
       ),
     [
@@ -145,6 +173,7 @@ export function WishlistList({
       gridGap,
       insets.top,
       onOpenSheet,
+      completeOpenDetailStep,
       query.isFetching,
       StickyHeaderComponent,
     ],
@@ -160,6 +189,8 @@ export function WishlistList({
       contentContainerClassName="pb-8"
       contentContainerStyle={{ paddingTop: insets.top + 24 }}
       ItemSeparatorComponent={RowSeparator}
+      onScroll={requestMeasure}
+      scrollEventThrottle={16}
       ListHeaderComponent={
         <View className="mb-0 max-w-[1200px] self-center" style={{ width: contentWidth }}>
           {ListHeaderComponent}
@@ -288,12 +319,14 @@ function WishlistCard({
   onEdit,
   onAddItem,
   onDelete,
+  onOpen,
 }: {
   wishlist: Wishlist;
   width: number;
   onEdit?: () => void;
   onAddItem?: () => void;
   onDelete?: () => void;
+  onOpen?: () => void;
 }) {
   const t = useGT();
   const visibilityLabels = React.useMemo(() => getWishlistVisibilityLabels(t), [t]);
@@ -317,6 +350,7 @@ function WishlistCard({
               title: wishlist.title,
             })}
             onLongPress={showMenu ? () => menuTriggerRef.current?.open() : undefined}
+            onPress={onOpen}
             className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
             pressedScale={0.98}
           >

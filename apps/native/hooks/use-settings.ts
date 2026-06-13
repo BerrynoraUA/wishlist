@@ -16,6 +16,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   UpdateProfilePayload,
   UpdateSettingsPayload,
+  UserProfile,
   UserSettings,
 } from "@wishlist/backend/types/settings";
 
@@ -49,6 +50,55 @@ export function useUpdateProfile() {
     mutationFn: (payload: UpdateProfilePayload) => updateProfile(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.profile(user?.id) });
+    },
+  });
+}
+
+export function useUpdateUserGuideStep() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const profileKey = settingsKeys.profile(user?.id);
+
+  return useMutation({
+    mutationFn: (step: number) => updateProfile({ userGuideStep: step }),
+    onMutate: async (step) => {
+      await queryClient.cancelQueries({ queryKey: profileKey });
+
+      const previousProfile = queryClient.getQueryData<UserProfile>(profileKey);
+
+      if (previousProfile) {
+        queryClient.setQueryData<UserProfile>(profileKey, {
+          ...previousProfile,
+          userGuideStep: Math.max(previousProfile.userGuideStep ?? 0, step),
+        });
+      }
+
+      return { previousProfile };
+    },
+    onError: (_error, _step, context) => {
+      const currentProfile = queryClient.getQueryData<UserProfile>(profileKey);
+      const currentStep = currentProfile?.userGuideStep ?? 0;
+      const previousStep = context?.previousProfile?.userGuideStep ?? 0;
+
+      if (context?.previousProfile && currentStep <= previousStep) {
+        queryClient.setQueryData(profileKey, context.previousProfile);
+      }
+    },
+    onSuccess: (profile) => {
+      const currentProfile = queryClient.getQueryData<UserProfile>(profileKey);
+      const currentStep = currentProfile?.userGuideStep ?? 0;
+      const nextStep = profile.userGuideStep ?? 0;
+
+      queryClient.setQueryData<UserProfile>(profileKey, {
+        ...profile,
+        userGuideStep: Math.max(currentStep, nextStep),
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: profileKey,
+        refetchType: "active",
+      });
     },
   });
 }

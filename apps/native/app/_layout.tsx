@@ -6,6 +6,7 @@ import { getNativeThemeNameForPreference, getNavigationTheme, getThemeMode } fro
 import { upsertKnownAccount } from "@/lib/known-accounts";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { SubscriptionProvider } from "@/providers/subscription-provider";
+import { UserGuideProvider } from "@/components/user-guide/user-guide-provider";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
@@ -79,9 +80,11 @@ export default function RootLayout() {
                 <SafeAreaProvider>
                   <ReanimatedTrueSheetProvider>
                     <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
+                    <UserGuideProvider>
                     <AuthGate />
-                    <PortalHost />
-                  </ReanimatedTrueSheetProvider>
+                      <PortalHost />
+                    </UserGuideProvider>
+                </ReanimatedTrueSheetProvider>
                 </SafeAreaProvider>
               </ThemeProvider>
             </SubscriptionProvider>

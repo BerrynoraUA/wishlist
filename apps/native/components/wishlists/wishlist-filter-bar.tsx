@@ -11,6 +11,7 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { GuideTarget } from "@/components/user-guide/guide-target";
 import {
   DEFAULT_WISHLIST_SORT,
   getWishlistSortOptions,
@@ -94,12 +95,14 @@ export function WishlistFilterBar({
             </Button>
           ) : null}
         </View>
-        <AnimatedGradientBackgroundButton
-          accessibilityLabel={t("Add wishlist")}
-          Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
-          onPress={onCreateWishlist}
-          title={t("Add Wishlist")}
-        />
+        <GuideTarget id="home-add-wishlist">
+          <AnimatedGradientBackgroundButton
+            accessibilityLabel={t("Add wishlist")}
+            Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
+            onPress={onCreateWishlist}
+            title={t("Add Wishlist")}
+          />
+        </GuideTarget>
       </View>
 
       {filtersOpen ? (

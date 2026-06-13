@@ -83,7 +83,7 @@ export function DashboardHeader({ onNewWishlist, hasDraft = false }: Props) {
             })}
           </span>
         )}
-        <Button size="sm" onClick={handleNewWishlist}>
+        <Button size="sm" onClick={handleNewWishlist} data-guide-target="home-add-wishlist">
           {atLimit ? (
             <>
               <Sparkles size={18} />

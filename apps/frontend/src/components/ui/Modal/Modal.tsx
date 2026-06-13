@@ -35,9 +35,9 @@ export function Modal({ open, onClose, children, title }: Props) {
   if (!open || !mounted) return null;
 
   return createPortal(
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.content}>
+    <div className={styles.overlay} onClick={onClose} data-ui-modal-overlay>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()} data-ui-modal>
+        <div className={styles.content} data-ui-modal-content>
           {title && (
             <Heading level={3} className={styles.title}>
               {title}

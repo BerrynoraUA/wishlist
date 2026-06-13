@@ -1,4 +1,5 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { GuideTarget } from "@/components/user-guide/guide-target";
 import { motionSpring, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as React from "react";
@@ -16,8 +17,10 @@ export type SlidingSelectorContent =
 export type SlidingOption<T> = {
   value: T;
   accessibilityLabel?: string;
+  guideTargetId?: string;
   /** Optional stable key when `value` isn't unique among siblings */
   id?: string;
+  guideTooltipPlacement?: "top" | "bottom";
   /** Replaces default `bg-bg-subtle` when the option is not selected */
   surfaceClassName?: string;
   children: SlidingSelectorContent;
@@ -146,9 +149,8 @@ export function SlidingOptionSelector<T>({
             const selected = value === option.value;
             const key = option.id ?? `${rowIndex}-${columnIndex}-${String(option.value)}`;
 
-            return (
+            const trigger = (
               <AnimatedPressable
-                key={key}
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
                 accessibilityLabel={option.accessibilityLabel}
@@ -167,6 +169,23 @@ export function SlidingOptionSelector<T>({
               >
                 {renderOptionContent(option.children, selected)}
               </AnimatedPressable>
+            );
+
+            return option.guideTargetId ? (
+              <GuideTarget
+                attachedTooltip={false}
+                key={key}
+                id={option.guideTargetId}
+                onGuideActivate={() => onChange(option.value)}
+                style={{ flex: 1 }}
+                tooltipPlacementOverride={
+                  option.guideTooltipPlacement ?? (rowIndex === 0 ? "top" : "bottom")
+                }
+              >
+                {trigger}
+              </GuideTarget>
+            ) : (
+              <React.Fragment key={key}>{trigger}</React.Fragment>
             );
           })}
         </View>

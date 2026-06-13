@@ -58,6 +58,14 @@ test.describe("Auth redirects — unauthenticated user", () => {
     await expect(page.getByText("Invalid share link.")).toBeVisible({ timeout: 10_000 });
   });
 
+  test("legal policy routes are accessible without auth", async ({ page }) => {
+    for (const path of ["/terms-of-service", "/privacy-policy", "/refund-policy"]) {
+      await page.goto(path);
+      await page.waitForLoadState("domcontentloaded");
+      expect(page.url()).not.toContain("/login");
+    }
+  });
+
   test("/login is accessible without auth", async ({ page }) => {
     await page.goto("/login");
     await page.waitForLoadState("domcontentloaded");

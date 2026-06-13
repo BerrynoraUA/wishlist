@@ -33,7 +33,7 @@ export function useWishlistShare(wishlistId: string) {
     setShareFeedback((current) => ({ ...current, open: false }));
   }, []);
 
-  const handleShare = useCallback(async () => {
+  const handleShare = useCallback(async (): Promise<boolean> => {
     try {
       const shareBaseUrl = getShareBaseUrl();
       const { shareUrl } = await createWishlistShareToken(wishlistId, {
@@ -50,7 +50,7 @@ export function useWishlistShare(wishlistId: string) {
           }),
           link: shareUrl,
         });
-        return;
+        return true;
       }
 
       setShareFeedback({
@@ -64,6 +64,7 @@ export function useWishlistShare(wishlistId: string) {
         }),
         link: null,
       });
+      return false;
     } catch {
       setShareFeedback({
         open: true,
@@ -74,6 +75,7 @@ export function useWishlistShare(wishlistId: string) {
         }),
         link: null,
       });
+      return false;
     }
   }, [wishlistId, t]);
 

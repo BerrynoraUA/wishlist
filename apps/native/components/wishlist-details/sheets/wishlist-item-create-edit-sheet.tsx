@@ -1,6 +1,8 @@
 import { scrapeProductLink } from "@/api/scrape-product";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { GuideTarget } from "@/components/user-guide/guide-target";
+import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { StyledImage } from "@/components/ui/styled-image";
@@ -41,6 +43,7 @@ export function WishlistItemCreateEditSheet({
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useGT();
+  const completeCreateItemStep = useUserGuideStepCompletion(6);
   const { data: settings } = useSettings();
   const priorityOptions = React.useMemo(
     () => getItemPriorityOptions(t, settings?.selected_priorities),
@@ -226,7 +229,10 @@ export function WishlistItemCreateEditSheet({
         ...payload,
       },
       {
-        onSuccess: handleClose,
+        onSuccess: () => {
+          completeCreateItemStep();
+          handleClose();
+        },
       },
     );
   }
@@ -254,14 +260,16 @@ export function WishlistItemCreateEditSheet({
           >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <Button
-            className="min-w-0 flex-1"
-            disabled={!canSubmit}
-            onPress={handleSubmit(submitForm)}
-          >
-            {isPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
-            <Text>{mode === "edit" ? t("Save changes") : t("Create item")}</Text>
-          </Button>
+          <GuideTarget id="create-item-submit" portalTooltipAnchor="footer" style={{ flex: 1 }}>
+            <Button
+              className="min-w-0 flex-1"
+              disabled={!canSubmit}
+              onPress={handleSubmit(submitForm)}
+            >
+              {isPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
+              <Text>{mode === "edit" ? t("Save changes") : t("Create item")}</Text>
+            </Button>
+          </GuideTarget>
         </View>
       }
     >
