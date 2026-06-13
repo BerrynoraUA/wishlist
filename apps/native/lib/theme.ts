@@ -1,49 +1,52 @@
 import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
+import type { ThemePreference } from "@wishlist/backend/types/settings";
+import { WishlistAccent } from "@wishlist/backend/types/wishlist";
+
+export type NativeThemeMode = "light" | "dark";
+export type NativeAccentName = "pink" | "blue" | "peach" | "mint" | "lavender";
 
 export const NATIVE_THEME_NAMES = [
   "light",
   "dark",
-  "pink",
+  "pink-light",
   "pink-dark",
-  "blue",
+  "blue-light",
   "blue-dark",
-  "peach",
+  "peach-light",
   "peach-dark",
-  "mint",
+  "mint-light",
   "mint-dark",
-  "lavender",
+  "lavender-light",
   "lavender-dark",
 ] as const;
 
 export type NativeThemeName = (typeof NATIVE_THEME_NAMES)[number];
-export type NativeThemeMode = "light" | "dark";
-export type NativeAccentName = "pink" | "blue" | "peach" | "mint" | "lavender";
 
 export const NATIVE_ACCENTS = [
   {
     name: "pink",
     label: "Pink",
-    swatchClassName: "bg-gradient-accent-pink",
+    swatchClassName: "bg-linear-135 from-pink-300 via-pink-400 to-pink-600",
   },
   {
     name: "blue",
     label: "Blue",
-    swatchClassName: "bg-gradient-accent-blue",
+    swatchClassName: "bg-linear-135 from-sky-300 via-blue-400 to-blue-600",
   },
   {
     name: "peach",
     label: "Peach",
-    swatchClassName: "bg-gradient-accent-peach",
+    swatchClassName: "bg-linear-135 from-amber-200 via-orange-300 to-amber-500",
   },
   {
     name: "mint",
     label: "Mint",
-    swatchClassName: "bg-gradient-accent-mint",
+    swatchClassName: "bg-linear-135 from-emerald-200 via-teal-300 to-emerald-500",
   },
   {
     name: "lavender",
     label: "Lavender",
-    swatchClassName: "bg-gradient-accent-lavender",
+    swatchClassName: "bg-linear-135 from-violet-200 via-purple-300 to-violet-500",
   },
 ] as const satisfies readonly {
   name: NativeAccentName;
@@ -68,7 +71,7 @@ type ThemePalette = {
   radius: string;
 };
 
-const LIGHT_BASE = {
+export const LIGHT_BASE_THEME_VARIABLES = {
   background: "#faf7f8",
   foreground: "#111827",
   card: "#ffffff",
@@ -83,7 +86,7 @@ const LIGHT_BASE = {
   radius: "0.625rem",
 };
 
-const DARK_BASE = {
+export const DARK_BASE_THEME_VARIABLES = {
   background: "#0c0c0f",
   foreground: "#f0f0f2",
   card: "#161619",
@@ -99,18 +102,18 @@ const DARK_BASE = {
 };
 
 const THEME_PALETTES: Record<NativeThemeName, ThemePalette> = {
-  light: { mode: "light", ...LIGHT_BASE, primary: "#c0267e" },
-  dark: { mode: "dark", ...DARK_BASE, primary: "#e052a0" },
-  pink: { mode: "light", ...LIGHT_BASE, primary: "#c0267e" },
-  "pink-dark": { mode: "dark", ...DARK_BASE, primary: "#e052a0" },
-  blue: { mode: "light", ...LIGHT_BASE, primary: "#2563eb" },
-  "blue-dark": { mode: "dark", ...DARK_BASE, primary: "#60a5fa" },
-  peach: { mode: "light", ...LIGHT_BASE, primary: "#d97706" },
-  "peach-dark": { mode: "dark", ...DARK_BASE, primary: "#fbbf24" },
-  mint: { mode: "light", ...LIGHT_BASE, primary: "#059669" },
-  "mint-dark": { mode: "dark", ...DARK_BASE, primary: "#34d399" },
-  lavender: { mode: "light", ...LIGHT_BASE, primary: "#7c3aed" },
-  "lavender-dark": { mode: "dark", ...DARK_BASE, primary: "#a78bfa" },
+  light: { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#c0267e" },
+  dark: { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#e052a0" },
+  "pink-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#c0267e" },
+  "pink-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#e052a0" },
+  "blue-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#2563eb" },
+  "blue-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#60a5fa" },
+  "peach-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#d97706" },
+  "peach-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#fbbf24" },
+  "mint-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#059669" },
+  "mint-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#34d399" },
+  "lavender-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#7c3aed" },
+  "lavender-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#a78bfa" },
 };
 
 function createNavigationTheme(palette: ThemePalette): Theme {
@@ -148,19 +151,44 @@ export function getThemeAccent(theme: string | null | undefined): NativeAccentNa
     return "pink";
   }
 
-  const accent = theme.replace("-dark", "");
+  const accent = theme.replace(/-(light|dark)$/, "");
   return isNativeAccentName(accent) ? accent : "pink";
+}
+
+export function getNativeAccentForWishlistAccent(
+  accent: WishlistAccent | null | undefined,
+): NativeAccentName {
+  switch (accent) {
+    case WishlistAccent.Blue:
+      return "blue";
+    case WishlistAccent.Peach:
+      return "peach";
+    case WishlistAccent.Mint:
+      return "mint";
+    case WishlistAccent.Lavender:
+      return "lavender";
+    case WishlistAccent.Pink:
+    default:
+      return "pink";
+  }
 }
 
 export function getNativeThemeName(
   mode: NativeThemeMode,
   accent: NativeAccentName,
 ): NativeThemeName {
-  if (accent === "pink") {
-    return mode === "dark" ? "dark" : "light";
-  }
+  return `${accent}-${mode}`;
+}
 
-  return mode === "dark" ? `${accent}-dark` : accent;
+export function getNativeThemeNameForPreference(
+  preference: ThemePreference,
+  accent: WishlistAccent | null | undefined,
+  systemColorScheme: string | null | undefined,
+): NativeThemeName {
+  const mode =
+    preference === "system" ? (systemColorScheme === "dark" ? "dark" : "light") : preference;
+
+  return getNativeThemeName(mode, getNativeAccentForWishlistAccent(accent));
 }
 
 export function getNavigationTheme(theme: string | null | undefined): Theme {

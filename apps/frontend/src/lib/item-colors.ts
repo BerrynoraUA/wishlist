@@ -16,3 +16,9 @@ export const ITEM_COLORS: ItemColor[] = [
   { color: "#f97316", label: "Orange" },
   { color: "#8b5cf6", label: "Violet" },
 ];
+
+export const STAR_CARD_COLOR_INDEX = ITEM_COLORS.length;
+
+export function isStarCardColorIndex(colorIndex: number | null | undefined) {
+  return colorIndex === STAR_CARD_COLOR_INDEX;
+}

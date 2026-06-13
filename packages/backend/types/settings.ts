@@ -14,6 +14,7 @@ export interface UserProfile {
   height: number | null;
   shoe_size: number | null;
   avatar_url: string | null;
+  userGuideStep: number | null;
   created_at: string;
 }
 
@@ -35,17 +36,13 @@ export type ThemePreference = "light" | "dark" | "system";
 export type UpdateProfilePayload = Partial<
   Pick<
     UserProfile,
-    "display_name" | "nickname" | "bio" | "height" | "shoe_size" | "avatar_url"
+    "display_name" | "nickname" | "bio" | "height" | "shoe_size" | "avatar_url" | "userGuideStep"
   >
 >;
 
 export type UpdateSettingsPayload = Partial<Omit<UserSettings, "user_id">>;
 
-export type SettingsTab =
-  | "profile"
-  | "account"
-  | "notifications"
-  | "appearance";
+export type SettingsTab = "profile" | "account" | "notifications" | "appearance";
 
 export const SETTINGS_TAB_ORDER: readonly SettingsTab[] = [
   "profile",
@@ -63,9 +60,5 @@ export const DEFAULT_SETTINGS: Omit<UserSettings, "user_id"> = {
   default_accent: WishlistAccent.Pink,
   default_wishlist_color: 0,
   display_currency: "USD",
-  selected_priorities: [
-    PRIORITY_IDS.LOW,
-    PRIORITY_IDS.MEDIUM,
-    PRIORITY_IDS.HIGH,
-  ],
+  selected_priorities: [PRIORITY_IDS.LOW, PRIORITY_IDS.MEDIUM, PRIORITY_IDS.HIGH],
 };

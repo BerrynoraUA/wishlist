@@ -12,7 +12,7 @@ import { useLoginPage } from "./hooks/use-login-page";
 function LoginPageContent() {
   const t = useGT();
   const router = useRouter();
-  const { redirectTo, prefillEmail, currentTestimonial, fadeIn } = useLoginPage();
+  const { redirectTo, prefillEmail, registerHref, currentTestimonial, fadeIn } = useLoginPage();
 
   return (
     <main className={styles.page}>
@@ -156,7 +156,7 @@ function LoginPageContent() {
 
           <p className={styles.formSwitch}>
             {t("Don't have an account?", { $id: "login.switch.text" })}{" "}
-            <Link href="/register">{t("Create one", { $id: "login.switch.link" })}</Link>
+            <Link href={registerHref}>{t("Create one", { $id: "login.switch.link" })}</Link>
           </p>
         </div>
       </div>

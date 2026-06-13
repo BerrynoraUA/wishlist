@@ -119,6 +119,31 @@
   animation: dropdownIn 0.15s $ease-out;
 }
 
+.searchWrap {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 4px 4px 8px;
+  background: var(--color-bg-elevated);
+}
+
+.searchInput {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 12px;
+  border: 1.5px solid var(--input-border);
+  border-radius: calc($radius-md - 4px);
+  background: var(--input-bg);
+  color: var(--color-text);
+  font: inherit;
+
+  &:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 4px var(--input-focus-ring);
+    outline: none;
+  }
+}
+
 .option {
   width: 100%;
   display: flex;
@@ -159,6 +184,13 @@
 .check {
   flex-shrink: 0;
   color: var(--color-brand);
+}
+
+.empty {
+  padding: 12px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-body);
+  text-align: center;
 }
 
 @keyframes dropdownIn {

@@ -71,6 +71,88 @@
   }
 }
 
+.priorityFilterDropdown {
+  padding: 0;
+  min-width: 220px;
+  max-height: 280px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.priorityFilterOption {
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 0;
+  background: var(--color-bg-subtle);
+  color: var(--color-text);
+  font-weight: var(--fw-medium);
+  transition: background 0.15s $ease-out;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--color-surface-hover);
+  }
+
+  &[aria-selected="true"] {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-weight: var(--fw-medium);
+  }
+}
+
+.priorityFilterOption.priorityFilterOption {
+  color: var(--color-text);
+  font-weight: var(--fw-medium);
+}
+
+.priorityFilterOptionIcon {
+  min-width: auto;
+}
+
+.priorityFilterIcon {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-sm;
+  background: color-mix(in srgb, var(--priority-color, var(--color-border)) 12%, transparent);
+  color: var(--priority-color, var(--color-text-muted));
+  display: grid;
+  place-items: center;
+}
+
+.priorityFilterName {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  color: var(--color-text);
+}
+
+.priorityFilterOption[aria-selected="true"] .priorityFilterName {
+  color: var(--color-text);
+}
+
+.priorityFilterCheck {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid var(--color-border);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  color: transparent;
+  font-size: 10px;
+  font-weight: var(--fw-bold);
+}
+
+.priorityFilterOption[aria-selected="true"] .priorityFilterCheck {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: #fff;
+}
+
 @media (max-width: 768px) {
   .page {
     > p {
@@ -107,6 +189,10 @@
 
   .filterRow .itemFilterControl button {
     padding-inline: 8px;
+  }
+
+  .priorityFilterDropdown {
+    min-width: min(220px, calc(100vw - 32px));
   }
 
   .filterRow .itemFilterControl button > svg:first-child {

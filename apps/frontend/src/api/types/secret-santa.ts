@@ -14,6 +14,7 @@ export type CreateSecretSantaEventInput = {
 
 export type UpdateSecretSantaEventInput = {
   name?: string;
+  event_date?: string;
   budget?: number;
   currency?: string;
   image?: File | null;
@@ -99,6 +100,7 @@ export type VisibleItem = {
   name: string;
   description: string | null;
   price: string | null;
+  color_index: number | null;
   discount_price: string | null;
   has_discount: boolean | null;
   effective_price: number | null;
@@ -106,7 +108,6 @@ export type VisibleItem = {
   currency: string | null;
   priority_id: string | null;
   priority_name: string | null;
-  color_index: number | null;
   url: string | null;
   image_url: string | null;
   status: number | null;

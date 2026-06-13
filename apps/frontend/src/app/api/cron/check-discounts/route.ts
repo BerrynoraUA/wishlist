@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { scrapeProduct, type ProductData } from "@/app/api/server/scrape-product/route";
+import { scrapeProduct, type ProductData } from "@/app/api/server/scrape-product/scraper";
 import { createSaleAlertNotificationsForFriends } from "@/api/notification";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 

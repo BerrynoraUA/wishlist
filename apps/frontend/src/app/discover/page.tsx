@@ -28,9 +28,12 @@ function DiscoverPageContent() {
     isSectionTab,
     hasNoData,
   } = useDiscoverPage();
-
-  const handleToggleReserve = (itemId: string) => toggleReservation.mutate(itemId);
-  const handleToggleBought = (itemId: string) => toggleBought.mutate(itemId);
+  const handleToggleReserve = (itemId: string) => {
+    toggleReservation.mutate(itemId);
+  };
+  const handleToggleBought = (itemId: string) => {
+    toggleBought.mutate(itemId);
+  };
 
   const renderContent = () => {
     if (isError) {

@@ -85,6 +85,7 @@ export function useWishlistFeed(width: number) {
     pagination,
     cardWidth,
     contentWidth,
+    columns,
     gridGap,
     setPage,
     handleSearchChange,

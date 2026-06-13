@@ -12,7 +12,7 @@ import { useRegisterPage } from "./hooks/use-register-page";
 function RegisterPageContent() {
   const t = useGT();
   const router = useRouter();
-  const { redirectTo, currentTestimonial, fadeIn } = useRegisterPage();
+  const { redirectTo, loginHref, currentTestimonial, fadeIn } = useRegisterPage();
 
   return (
     <main className={styles.page}>
@@ -155,7 +155,7 @@ function RegisterPageContent() {
 
           <p className={styles.formSwitch}>
             {t("Already have an account?", { $id: "register.switch.text" })}{" "}
-            <Link href="/login">{t("Sign in", { $id: "register.switch.link" })}</Link>
+            <Link href={loginHref}>{t("Sign in", { $id: "register.switch.link" })}</Link>
           </p>
         </div>
       </div>

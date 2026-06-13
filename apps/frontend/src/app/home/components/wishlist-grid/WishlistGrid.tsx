@@ -7,15 +7,17 @@ import { WishlistFilters } from "../wishlist-filters/WishlistFilters";
 import styles from "./WishlistGrid.module.scss";
 import { useMyWishlists } from "@/hooks/use-wishlists";
 import { usePinWishlist } from "@/hooks/use-wishlists";
-import {
-  WishlistCardSkeleton,
-  WishlistGridToolbarSkeleton,
-} from "../home-skeleton/HomeSkeleton";
+import { WishlistCardSkeleton, WishlistGridToolbarSkeleton } from "../home-skeleton/HomeSkeleton";
 import { Pagination } from "@/components/ui/Pagination/Pagination";
 import { Wishlist } from "@/types/wishlist";
 import { paginationFlags } from "@/lib/filter-helpers";
 import { WISHLIST_PAGE_SIZE } from "../../constants";
 import { useHomeWishlistFilters } from "../../hooks/use-home-wishlist-filters";
+import {
+  useUserGuide,
+  useUserGuideStepCompletion,
+} from "@/components/user-guide/UserGuideProvider";
+import { USER_GUIDE_LAST_WISHLIST_PATH_KEY } from "@/components/user-guide/user-guide-config";
 
 type Props = {
   onCreateWishlist: () => void;
@@ -31,11 +33,12 @@ export function WishlistGrid({
   hasCreateDraft = false,
 }: Props) {
   const t = useGT();
-  const { page, setPage, queryParams, isFiltersActive } =
-    useHomeWishlistFilters();
+  const { page, setPage, queryParams, isFiltersActive } = useHomeWishlistFilters();
 
   const { data, isLoading, isFetching, isError } = useMyWishlists(queryParams);
   const { mutate: pinMutate } = usePinWishlist();
+  const { currentStep } = useUserGuide();
+  const completeOpenDetailStep = useUserGuideStepCompletion(4);
 
   const wishlists = data ?? [];
 
@@ -61,9 +64,7 @@ export function WishlistGrid({
   return (
     <div>
       <div className={styles.toolbar}>
-        <h2 className={styles.title}>
-          {t("Wishlists", { $id: "home.wishlistGrid.title" })}
-        </h2>
+        <h2 className={styles.title}>{t("Wishlists", { $id: "home.wishlistGrid.title" })}</h2>
 
         <WishlistFilters />
       </div>
@@ -93,15 +94,28 @@ export function WishlistGrid({
           <WishlistCard
             key={w.id}
             wishlist={w}
+            onOpen={(wishlist) => {
+              window.sessionStorage.setItem(
+                USER_GUIDE_LAST_WISHLIST_PATH_KEY,
+                `/wishlist/${wishlist.id}`,
+              );
+              if (currentStep?.id === 4) completeOpenDetailStep();
+            }}
             onEdit={
-              w.is_owner || w.can_edit ? () => onEditWishlist(w) : undefined
-            }
-            onDelete={w.is_owner ? () => onDeleteWishlist(w) : undefined}
-            onPin={
-              w.is_owner
-                ? (isPinned) => pinMutate({ id: w.id, isPinned })
+              w.is_owner || w.can_edit
+                ? () => {
+                    onEditWishlist(w);
+                  }
                 : undefined
             }
+            onDelete={
+              w.is_owner
+                ? () => {
+                    onDeleteWishlist(w);
+                  }
+                : undefined
+            }
+            onPin={w.is_owner ? (isPinned) => pinMutate({ id: w.id, isPinned }) : undefined}
           />
         ))}
         {!isError && wishlists.length > 0 && (
@@ -111,13 +125,12 @@ export function WishlistGrid({
               $id: "home.wishlistGrid.createCardLabel",
             })}
             hasDraft={hasCreateDraft}
+            guideTarget="home-add-wishlist"
           />
         )}
       </div>
 
-      {showPagination && (
-        <Pagination page={page} total={totalForPagination} onChange={setPage} />
-      )}
+      {showPagination && <Pagination page={page} total={totalForPagination} onChange={setPage} />}
     </div>
   );
 }

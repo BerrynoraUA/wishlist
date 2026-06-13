@@ -459,14 +459,7 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={
-              !name.trim() ||
-              !eventDate ||
-              !budget ||
-              participants.length === 0 ||
-              isPending ||
-              Boolean(imageError)
-            }
+            disabled={!name.trim() || !eventDate || !budget || isPending || Boolean(imageError)}
           >
             {isPending
               ? t("Creating...", { $id: "secretSanta.create.creating" })

@@ -94,6 +94,7 @@ export async function updateSecretSantaEvent(
   const currentFields = await getSecretSantaImageField(eventId);
 
   if (restUpdates.name !== undefined) dbUpdates.name = restUpdates.name.trim();
+  if (restUpdates.event_date !== undefined) dbUpdates.event_date = restUpdates.event_date;
   if (restUpdates.budget !== undefined) dbUpdates.budget = restUpdates.budget;
   if (restUpdates.currency !== undefined) dbUpdates.currency = restUpdates.currency;
 

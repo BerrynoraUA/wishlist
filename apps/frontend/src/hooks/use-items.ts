@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { toast } from "sonner";
+import type { ItemQueryParams } from "@wishlist/backend/types";
 import {
   getWishlistItems,
   createItem,
@@ -21,13 +22,13 @@ import { statisticsKeys } from "./use-user";
 // Query Keys
 export const itemKeys = {
   all: ["items"] as const,
-  wishlist: (wishlistId: string, params?: PaginationParams) =>
+  wishlist: (wishlistId: string, params?: ItemQueryParams) =>
     [...itemKeys.all, "wishlist", wishlistId, params] as const,
   votes: (itemIds: string[]) => [...itemKeys.all, "votes", ...itemIds.sort()] as const,
 };
 
 // Queries
-export function useWishlistItems(wishlistId: string, params?: PaginationParams) {
+export function useWishlistItems(wishlistId: string, params?: ItemQueryParams) {
   return useQuery({
     queryKey: itemKeys.wishlist(wishlistId, params),
     queryFn: () => getWishlistItems(wishlistId, params),
@@ -51,7 +52,7 @@ export function useCreateItem() {
           queryKey[2] === data.wishlist_id,
       });
       queryClient.invalidateQueries({
-        queryKey: wishlistKeys.my(),
+        queryKey: wishlistKeys.myAll,
       });
       queryClient.invalidateQueries({
         queryKey: wishlistKeys.detail(data.wishlist_id),
@@ -87,7 +88,7 @@ export function useDeleteItem() {
     mutationFn: (id: string) => deleteItem(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
-      queryClient.invalidateQueries({ queryKey: wishlistKeys.my() });
+      queryClient.invalidateQueries({ queryKey: wishlistKeys.myAll });
       toast.success("Item deleted");
     },
     onError: (err) => {

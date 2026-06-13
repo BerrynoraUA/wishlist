@@ -1,16 +1,35 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { Item } from "@/types/item";
+import type { ItemQueryParams } from "@wishlist/backend/types";
 import { CreateItemParams, UpdateItemParams } from "./types/item";
 import { getCurrentSession } from "./user";
-import {
-  deletePublicImage,
-  uploadPublicImage,
-} from "@/lib/helpers/storage-image";
+import { deletePublicImage, uploadPublicImage } from "@/lib/helpers/storage-image";
+import { isStarCardColorIndex, STAR_CARD_COLOR_INDEX } from "@/lib/item-colors";
 
 const ITEM_IMAGE_BUCKET = "items";
+const MAX_STAR_ITEMS_PER_WISHLIST = 3;
 
 async function ensureProForPriority(priority_id: string | null | undefined) {
   void priority_id;
+}
+
+async function ensureStarColorLimit(wishlistId: string, excludeItemId?: string) {
+  let query = supabaseBrowser
+    .from("item")
+    .select("id", { count: "exact", head: true })
+    .eq("wishlist_id", wishlistId)
+    .eq("color_index", STAR_CARD_COLOR_INDEX);
+
+  if (excludeItemId) {
+    query = query.neq("id", excludeItemId);
+  }
+
+  const { count, error } = await query;
+  if (error) throw error;
+
+  if ((count ?? 0) >= MAX_STAR_ITEMS_PER_WISHLIST) {
+    throw new Error("You can have up to 3 starred items in one wishlist.");
+  }
 }
 
 export async function createItem({
@@ -34,6 +53,10 @@ export async function createItem({
   if (!session?.user) throw new Error("Not authenticated");
 
   await ensureProForPriority(priority_id);
+
+  if (isStarCardColorIndex(color_index)) {
+    await ensureStarColorLimit(wishlist_id);
+  }
 
   let finalImageUrl: string | null = null;
   let uploadedFile = false;
@@ -78,7 +101,7 @@ export async function createItem({
 
 export async function getWishlistItems(
   wishlistId: string,
-  params: PaginationParams = {},
+  params: ItemQueryParams = {},
 ): Promise<Item[]> {
   const {
     skip = 0,
@@ -108,13 +131,27 @@ export async function getWishlistItems(
   return (data as Item[]) || [];
 }
 
-export async function updateItem(
-  itemId: string,
-  updates: UpdateItemParams,
-): Promise<Item> {
+export async function updateItem(itemId: string, updates: UpdateItemParams): Promise<Item> {
   const { image, removeImage, image_url, ...restUpdates } = updates;
 
   await ensureProForPriority(restUpdates.priority_id);
+
+  let currentItemForStarLimit: { wishlist_id: string; color_index: number | null } | null = null;
+
+  if (isStarCardColorIndex(restUpdates.color_index)) {
+    const { data: currentItem, error: currentItemError } = await supabaseBrowser
+      .from("item")
+      .select("wishlist_id,color_index")
+      .eq("id", itemId)
+      .single();
+
+    if (currentItemError) throw currentItemError;
+    currentItemForStarLimit = currentItem;
+
+    if (!isStarCardColorIndex(currentItemForStarLimit.color_index)) {
+      await ensureStarColorLimit(currentItemForStarLimit.wishlist_id, itemId);
+    }
+  }
 
   if (image || removeImage || image_url !== undefined) {
     const { data: currentItem } = await supabaseBrowser
@@ -177,10 +214,7 @@ export async function updateItem(
 }
 
 export async function deleteItem(itemId: string): Promise<void> {
-  const { error } = await supabaseBrowser
-    .from("item")
-    .delete()
-    .eq("id", itemId);
+  const { error } = await supabaseBrowser.from("item").delete().eq("id", itemId);
 
   if (error) throw error;
 }
@@ -211,15 +245,10 @@ export async function toggleItemBought(itemId: string): Promise<Item> {
   return data as Item;
 }
 
-export async function toggleItemReservationSecret(
-  itemId: string,
-): Promise<Item> {
-  const { data, error } = await supabaseBrowser.rpc(
-    "toggle_item_reservation_secret",
-    {
-      p_item_id: itemId,
-    },
-  );
+export async function toggleItemReservationSecret(itemId: string): Promise<Item> {
+  const { data, error } = await supabaseBrowser.rpc("toggle_item_reservation_secret", {
+    p_item_id: itemId,
+  });
 
   if (error) {
     console.error("Error toggling secret item reservation:", error);
@@ -230,18 +259,13 @@ export async function toggleItemReservationSecret(
 }
 
 export async function toggleItemBoughtSecret(itemId: string): Promise<Item> {
-  const { data, error } = await supabaseBrowser.rpc(
-    "toggle_item_bought_secret",
-    {
-      p_item_id: itemId,
-    },
-  );
+  const { data, error } = await supabaseBrowser.rpc("toggle_item_bought_secret", {
+    p_item_id: itemId,
+  });
 
   if (error) {
     console.error("Error toggling secret item bought status:", error);
-    throw new Error(
-      error.message || "Failed to toggle secret item bought status",
-    );
+    throw new Error(error.message || "Failed to toggle secret item bought status");
   }
 
   return data as Item;
@@ -271,9 +295,7 @@ export interface ItemVotesResult {
   userVotes: Set<string>;
 }
 
-export async function getItemVotes(
-  itemIds: string[],
-): Promise<ItemVotesResult> {
+export async function getItemVotes(itemIds: string[]): Promise<ItemVotesResult> {
   if (itemIds.length === 0) return { counts: {}, userVotes: new Set() };
 
   const session = await getCurrentSession();
@@ -311,10 +333,7 @@ export async function toggleItemVote(itemId: string): Promise<void> {
     .maybeSingle();
 
   if (existing) {
-    const { error } = await supabaseBrowser
-      .from("item_vote")
-      .delete()
-      .eq("id", existing.id);
+    const { error } = await supabaseBrowser.from("item_vote").delete().eq("id", existing.id);
     if (error) throw error;
   } else {
     const { error } = await supabaseBrowser

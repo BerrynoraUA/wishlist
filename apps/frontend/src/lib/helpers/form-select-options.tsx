@@ -7,6 +7,7 @@ export type FormSelectOption<Value extends string = string> = {
   label: ReactNode;
   description?: ReactNode;
   leading?: ReactNode;
+  searchText?: string;
 };
 
 type TFn = (message: string, options?: Record<string, unknown>) => string;
@@ -14,9 +15,7 @@ type TFn = (message: string, options?: Record<string, unknown>) => string;
 // Alias kept for places that still use string union — now just a string UUID or null
 export type ItemPrioritySelectValue = string | null;
 
-const supportedCurrencyCodes = new Set(
-  SUPPORTED_CURRENCIES.map((currency) => currency.code),
-);
+const supportedCurrencyCodes = new Set(SUPPORTED_CURRENCIES.map((currency) => currency.code));
 
 export function resolveCurrency(value?: string | null) {
   const normalized = normalizeCurrencyCode(value);
@@ -92,33 +91,33 @@ export function translatedCurrencyLabel(t: TFn, code: string): string {
     case "ZAR":
       return t("South African Rand", { $id: "settings.currency.ZAR" });
     default:
-      return (
-        SUPPORTED_CURRENCIES.find((currency) => currency.code === code)
-          ?.label ?? code
-      );
+      return SUPPORTED_CURRENCIES.find((currency) => currency.code === code)?.label ?? code;
   }
 }
 
 export function getDetailedCurrencyOptions(t: TFn): FormSelectOption<string>[] {
-  return SUPPORTED_CURRENCIES.map((currency) => ({
-    value: currency.code,
-    label: currency.code,
-    description: translatedCurrencyLabel(t, currency.code),
-    leading: currency.symbol,
-  }));
+  return SUPPORTED_CURRENCIES.map((currency) => {
+    const label = translatedCurrencyLabel(t, currency.code);
+    return {
+      value: currency.code,
+      label: currency.code,
+      description: label,
+      leading: currency.symbol,
+      searchText: `${currency.code} ${label} ${currency.label} ${currency.symbol}`,
+    };
+  });
 }
 
-export function getCompactCurrencyOptions(): FormSelectOption<string>[] {
-  return SUPPORTED_CURRENCIES.map((currency) => ({
-    value: currency.code,
-    label: `${currency.symbol} ${currency.code}`,
-  }));
-}
-
-export function getPriorityOptions(
-  t: TFn,
-  selectedIds?: string[],
+export function getCompactCurrencyOptions(
+  display: "symbol-code" | "code" = "symbol-code",
 ): FormSelectOption<string>[] {
+  return SUPPORTED_CURRENCIES.map((currency) => ({
+    value: currency.code,
+    label: display === "code" ? currency.code : `${currency.symbol} ${currency.code}`,
+  }));
+}
+
+export function getPriorityOptions(t: TFn, selectedIds?: string[]): FormSelectOption<string>[] {
   const priorities = selectedIds
     ? ALL_PRIORITIES.filter((p) => selectedIds.includes(p.id))
     : ALL_PRIORITIES;

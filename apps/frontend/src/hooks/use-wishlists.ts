@@ -1,9 +1,4 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  keepPreviousData,
-} from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   getMyWishlists,
@@ -23,30 +18,28 @@ import {
   revokeWishlistAccess,
   getFriendsWishlistsDiscoverAll,
 } from "@/api/wishlist";
-import type {
-  CreateWishlistParams,
-  UpdateWishlistParams,
-} from "@/api/types/wishilst";
+import type { CreateWishlistParams, UpdateWishlistParams } from "@/api/types/wishilst";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
 import { statisticsKeys } from "./use-user";
 
+const wishlistRootKey = ["wishlists"] as const;
+
 // Query Keys
 export const wishlistKeys = {
-  all: ["wishlists"] as const,
-  my: (params?: PaginationParams) =>
-    [...wishlistKeys.all, "my", params] as const,
-  friends: (params?: PaginationParams) =>
-    [...wishlistKeys.all, "friends", params] as const,
+  all: wishlistRootKey,
+  myAll: [...wishlistRootKey, "my"] as const,
+  my: (params?: PaginationParams) => [...wishlistRootKey, "my", params] as const,
+  friends: (params?: PaginationParams) => [...wishlistRootKey, "friends", params] as const,
   friendsAll: (params?: PaginationParams) =>
-    [...wishlistKeys.all, "friends", "all", params] as const,
+    [...wishlistRootKey, "friends", "all", params] as const,
   friendsReserved: (params?: PaginationParams) =>
-    [...wishlistKeys.all, "friends", "reserved", params] as const,
+    [...wishlistRootKey, "friends", "reserved", params] as const,
   friendsPurchased: (params?: PaginationParams) =>
-    [...wishlistKeys.all, "friends", "purchased", params] as const,
+    [...wishlistRootKey, "friends", "purchased", params] as const,
   friend: (userId: string, params?: PaginationParams) =>
-    [...wishlistKeys.all, "friend", userId, params] as const,
-  detail: (id: string) => [...wishlistKeys.all, "detail", id] as const,
-  friendsUpcoming: ["wishlists", "friends", "upcoming"] as const,
+    [...wishlistRootKey, "friend", userId, params] as const,
+  detail: (id: string) => [...wishlistRootKey, "detail", id] as const,
+  friendsUpcoming: [...wishlistRootKey, "friends", "upcoming"] as const,
 };
 
 export function useFriendsUpcomingWishlists() {
@@ -78,10 +71,7 @@ export function usePublicWishlists(params?: PaginationParams) {
   });
 }
 
-export function useFriendsWishlistsDiscover(
-  params?: PaginationParams,
-  enabled = true,
-) {
+export function useFriendsWishlistsDiscover(params?: PaginationParams, enabled = true) {
   const normalizedParams = params
     ? {
         ...params,
@@ -97,10 +87,7 @@ export function useFriendsWishlistsDiscover(
   });
 }
 
-export function useFriendsWishlistsDiscoverAll(
-  params?: PaginationParams,
-  enabled = true,
-) {
+export function useFriendsWishlistsDiscoverAll(params?: PaginationParams, enabled = true) {
   const normalizedParams = params
     ? {
         ...params,
@@ -115,10 +102,7 @@ export function useFriendsWishlistsDiscoverAll(
     placeholderData: keepPreviousData,
   });
 }
-export function useFriendsWishlistsReservedByMe(
-  params?: PaginationParams,
-  enabled = true,
-) {
+export function useFriendsWishlistsReservedByMe(params?: PaginationParams, enabled = true) {
   const normalizedParams = params
     ? {
         ...params,
@@ -134,10 +118,7 @@ export function useFriendsWishlistsReservedByMe(
   });
 }
 
-export function useFriendsWishlistsPurchasedByMe(
-  params?: PaginationParams,
-  enabled = true,
-) {
+export function useFriendsWishlistsPurchasedByMe(params?: PaginationParams, enabled = true) {
   const normalizedParams = params
     ? {
         ...params,
@@ -173,13 +154,8 @@ export function useUpdateWishlist() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      updates,
-    }: {
-      id: string;
-      updates: UpdateWishlistParams;
-    }) => updateWishlist(id, updates),
+    mutationFn: ({ id, updates }: { id: string; updates: UpdateWishlistParams }) =>
+      updateWishlist(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       toast.success("Wishlist updated");
@@ -210,8 +186,7 @@ export function usePinWishlist() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, isPinned }: { id: string; isPinned: boolean }) =>
-      pinWishlist(id, isPinned),
+    mutationFn: ({ id, isPinned }: { id: string; isPinned: boolean }) => pinWishlist(id, isPinned),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
     },
@@ -280,13 +255,8 @@ export function useRevokeWishlistAccess() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      wishlistId,
-      targetUserId,
-    }: {
-      wishlistId: string;
-      targetUserId: string;
-    }) => revokeWishlistAccess(wishlistId, targetUserId),
+    mutationFn: ({ wishlistId, targetUserId }: { wishlistId: string; targetUserId: string }) =>
+      revokeWishlistAccess(wishlistId, targetUserId),
 
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({

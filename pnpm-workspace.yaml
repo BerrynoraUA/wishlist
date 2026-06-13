@@ -7,3 +7,8 @@ onlyBuiltDependencies:
   - esbuild
   - sharp
   - supabase
+  - tree-sitter-python
+
+ignoredBuiltDependencies:
+  - core-js
+  - protobufjs

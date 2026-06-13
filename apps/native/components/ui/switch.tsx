@@ -5,7 +5,7 @@ function Switch({ className, ...props }: React.ComponentProps<typeof SwitchPrimi
   return (
     <SwitchPrimitives.Root
       className={cn(
-        "flex h-[1.15rem] w-8 shrink-0 flex-row items-center rounded-full border border-transparent shadow-sm shadow-black/5",
+        "flex h-7 w-12 shrink-0 flex-row items-center rounded-full p-0.5 shadow-inner shadow-black/5",
         props.checked ? "bg-primary" : "bg-input dark:bg-input/80",
         props.disabled && "opacity-50",
         className,
@@ -14,10 +14,9 @@ function Switch({ className, ...props }: React.ComponentProps<typeof SwitchPrimi
     >
       <SwitchPrimitives.Thumb
         className={cn(
-          "bg-background size-4 rounded-full transition-transform",
-          props.checked
-            ? "dark:bg-primary-foreground translate-x-3.5"
-            : "dark:bg-foreground translate-x-0",
+          "size-6 rounded-full shadow-sm shadow-black/20 transition-transform",
+          props.checked ? "bg-primary-foreground" : "bg-brand",
+          props.checked ? "translate-x-5" : "translate-x-0",
         )}
       />
     </SwitchPrimitives.Root>

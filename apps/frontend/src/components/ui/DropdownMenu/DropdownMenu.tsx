@@ -6,6 +6,8 @@ import {
   useEffect,
   useRef,
   useState,
+  type ButtonHTMLAttributes,
+  type MouseEvent as ReactMouseEvent,
   type ReactNode,
 } from "react";
 import styles from "./DropdownMenu.module.scss";
@@ -21,12 +23,7 @@ type Props = {
   className?: string;
 };
 
-export function DropdownMenu({
-  trigger,
-  children,
-  align = "right",
-  className,
-}: Props) {
+export function DropdownMenu({ trigger, children, align = "right", className }: Props) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const close = () => setOpen(false);
@@ -35,10 +32,7 @@ export function DropdownMenu({
     if (!open) return;
 
     function handleClickOutside(e: MouseEvent) {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(e.target as Node)
-      ) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
@@ -51,11 +45,7 @@ export function DropdownMenu({
     <DropdownMenuContext.Provider value={{ close }}>
       <div className={`${styles.wrapper} ${className ?? ""}`} ref={wrapperRef}>
         {trigger({ open, toggle: () => setOpen((p) => !p) })}
-        {open && (
-          <div className={`${styles.dropdown} ${styles[align]}`}>
-            {children}
-          </div>
-        )}
+        {open && <div className={`${styles.dropdown} ${styles[align]}`}>{children}</div>}
       </div>
     </DropdownMenuContext.Provider>
   );
@@ -63,11 +53,11 @@ export function DropdownMenu({
 
 type ItemProps = {
   children: ReactNode;
-  onClick?: (e: React.MouseEvent) => void;
+  onClick?: (e: ReactMouseEvent) => void;
   variant?: "default" | "edit" | "danger" | "share" | "pin";
   disabled?: boolean;
   className?: string;
-};
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className" | "disabled" | "onClick">;
 
 export function DropdownMenuItem({
   children,
@@ -75,6 +65,7 @@ export function DropdownMenuItem({
   variant = "default",
   disabled = false,
   className,
+  ...props
 }: ItemProps) {
   const { close } = useContext(DropdownMenuContext);
   return (
@@ -89,6 +80,7 @@ export function DropdownMenuItem({
         }
       }}
       disabled={disabled}
+      {...props}
     >
       {children}
     </button>

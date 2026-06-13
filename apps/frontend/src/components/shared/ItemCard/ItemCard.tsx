@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useGT } from "gt-next";
 import styles from "./ItemCard.module.scss";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
@@ -13,7 +13,7 @@ import {
 } from "@/lib/helpers/item-card";
 import { ALL_PRIORITIES } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
-import { ITEM_COLORS } from "@/lib/item-colors";
+import { isStarCardColorIndex, ITEM_COLORS } from "@/lib/item-colors";
 import type { LucideIcon } from "lucide-react";
 import type { ItemCardProps } from "./types";
 import { CardImage } from "./components/CardImage";
@@ -56,17 +56,12 @@ export function ItemCard({
   onEdit,
   autoOpen,
   onAutoOpenHandled,
-  voteCount = 0,
-  hasVoted = false,
-  onToggleVote,
   renderDetailModal,
 }: ItemCardProps) {
   const t = useGT();
   const { formatPrice } = useCurrencyFormatter();
 
-  const priorityMeta = priority
-    ? ALL_PRIORITIES.find((p) => p.name === priority)
-    : null;
+  const priorityMeta = priority ? ALL_PRIORITIES.find((p) => p.name === priority) : null;
   const priorityColor = priorityMeta?.color ?? null;
   const priorityDisplay = priority || null;
   const PriorityIcon: LucideIcon | null = priorityMeta
@@ -80,13 +75,10 @@ export function ItemCard({
     colorIndex < ITEM_COLORS.length
       ? ITEM_COLORS[colorIndex].color
       : null;
+  const hasStarAccent = isStarCardColorIndex(colorIndex);
 
   const formattedPrice = formatPrice(price, currency);
-  const salePercentOff = getSalePercentOff(
-    price,
-    discountPrice,
-    showDiscountBadge,
-  );
+  const salePercentOff = getSalePercentOff(price, discountPrice, showDiscountBadge);
   const isWishlist = variant === "wishlist";
   const isPurchasedMode = mode === "purchased";
 
@@ -119,16 +111,14 @@ export function ItemCard({
           { isPurchased, isReserved: isReservedState, reservedByMe },
           reservedByName,
           {
-            purchasedByYou: () =>
-              t("Purchased by you", { $id: "itemCard.purchasedByYou" }),
+            purchasedByYou: () => t("Purchased by you", { $id: "itemCard.purchasedByYou" }),
             purchased: () => t("Purchased", { $id: "itemCard.purchased" }),
             purchasedByName: (n) =>
               t("Purchased by {name}", {
                 name: n,
                 $id: "itemCard.purchasedByName",
               }),
-            reservedByYou: () =>
-              t("Reserved by you", { $id: "itemCard.reservedByYou" }),
+            reservedByYou: () => t("Reserved by you", { $id: "itemCard.reservedByYou" }),
             reserved: () => t("Reserved", { $id: "itemCard.reserved" }),
             reservedByName: (n) =>
               t("Reserved by {name}", {
@@ -146,16 +136,13 @@ export function ItemCard({
           },
           {
             purchased: () => t("Purchased", { $id: "itemCard.purchasedBtn" }),
-            reservedByYou: () =>
-              t("Reserved by you", { $id: "itemCard.reservedByYouBtn" }),
+            reservedByYou: () => t("Reserved by you", { $id: "itemCard.reservedByYouBtn" }),
             reserved: () => t("Reserved", { $id: "itemCard.reservedBtn" }),
-            available: () =>
-              t("Reserve this gift", { $id: "itemCard.reserveGift" }),
+            available: () => t("Reserve this gift", { $id: "itemCard.reserveGift" }),
           },
         );
         const boughtActionLabel = buildPurchaseActionLabel(isPurchased, {
-          purchased: () =>
-            t("Mark as not purchased", { $id: "itemCard.unpurchase" }),
+          purchased: () => t("Mark as not purchased", { $id: "itemCard.unpurchase" }),
           available: () => t("Mark as purchased", { $id: "itemCard.purchase" }),
         });
 
@@ -166,6 +153,7 @@ export function ItemCard({
               VARIANT_CLASS[variant],
               isPurchasedMode && styles.cardPurchased,
               accentColor && styles.cardColored,
+              hasStarAccent && styles.cardStarAccent,
             )}
             style={
               accentColor
@@ -227,9 +215,6 @@ export function ItemCard({
               handleBoughtClick={handleBoughtClick}
               onToggleBought={onToggleBought}
               boughtActionLabel={boughtActionLabel}
-              voteCount={voteCount}
-              hasVoted={hasVoted}
-              onToggleVote={onToggleVote}
             />
           </div>
         );

@@ -642,7 +642,7 @@ function EditWishlistForm({
                   {option.value === "Private" &&
                     privacy === "SelectedFriends" &&
                     canManageSelectedFriendsAccess && (
-                      <div>
+                      <div className={styles.accessSelectorShell}>
                         <div className={styles.accessTabs}>
                           <button
                             type="button"

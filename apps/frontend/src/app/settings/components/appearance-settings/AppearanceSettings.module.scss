@@ -141,10 +141,33 @@
 .priorityList {
   display: flex;
   flex-direction: column;
-  gap: 2px;
   border: 1.5px solid var(--color-border-light);
   border-radius: $radius-md;
   overflow: hidden;
+}
+
+.priorityExtras {
+  display: grid;
+  grid-template-rows: 0fr;
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.28s $ease-out,
+    opacity 0.22s $ease-out;
+
+  &.expanded {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+.priorityExtrasInner {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .priorityRow {
@@ -234,4 +257,34 @@
     border-color: $brand;
     color: #fff;
   }
+}
+
+.priorityShowMore {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  border: none;
+  background: transparent;
+  color: $brand;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s $ease-out;
+
+  &:hover {
+    color: var(--color-brand-dark);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--input-focus-ring);
+    border-radius: 8px;
+  }
+}
+
+.priorityShowMoreIconOpen {
+  transform: rotate(180deg);
 }

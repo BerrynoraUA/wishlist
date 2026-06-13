@@ -7,15 +7,7 @@ import * as MenubarPrimitive from "@rn-primitives/menubar";
 import { Portal } from "@rn-primitives/portal";
 import { Check, ChevronDown, ChevronUp } from "lucide-react-native";
 import * as React from "react";
-import {
-  Platform,
-  Pressable,
-  type StyleProp,
-  StyleSheet,
-  Text,
-  View,
-  type ViewStyle,
-} from "react-native";
+import { Platform, Pressable, type StyleProp, Text, View, type ViewStyle } from "react-native";
 import { FadeIn } from "react-native-reanimated";
 import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
@@ -52,7 +44,7 @@ function Menubar({
     <>
       {value || valueProp ? (
         <Portal name={`menubar-overlay-${id}`}>
-          <Pressable onPress={closeMenu} style={StyleSheet.absoluteFill} />
+          <Pressable onPress={closeMenu} className="absolute inset-0" />
         </Portal>
       ) : null}
       <MenubarPrimitive.Root
@@ -166,7 +158,7 @@ function MenubarContent({
       <FullWindowOverlay>
         <NativeOnlyAnimatedView
           entering={FadeIn.duration(motionDuration.normal)}
-          style={StyleSheet.absoluteFill}
+          className="absolute inset-0"
           pointerEvents="box-none"
         >
           <TextClassContext.Provider value="text-popover-foreground">
@@ -237,7 +229,10 @@ function MenubarCheckboxItem({
       >
         <View className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
           <MenubarPrimitive.ItemIndicator>
-            <Icon as={Check} className="text-foreground size-4" />
+            <Icon
+              as={Check}
+              className="size-4 text-foreground dark:text-white pink-dark:text-white blue-dark:text-white peach-dark:text-white mint-dark:text-white lavender-dark:text-white"
+            />
           </MenubarPrimitive.ItemIndicator>
         </View>
         <>{children}</>

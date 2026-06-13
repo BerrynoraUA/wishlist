@@ -2,7 +2,6 @@ import { supabase } from "@wishlist/backend/supabase/native";
 import * as AppleAuthentication from "expo-apple-authentication";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
-import { Platform } from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -64,6 +63,19 @@ export async function loginWithEmail(email: string, password: string): Promise<v
   if (error) throw error;
 }
 
+export async function registerWithEmail(email: string, password: string): Promise<void> {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) throw error;
+
+  if (!data.session) {
+    await loginWithEmail(email, password);
+  }
+}
+
 export async function loginWithGoogle(): Promise<void> {
   const redirectTo = Linking.createURL("google-auth");
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -71,7 +83,7 @@ export async function loginWithGoogle(): Promise<void> {
     options: {
       redirectTo,
       queryParams: {
-        prompt: "consent",
+        prompt: "select_account consent",
       },
       skipBrowserRedirect: true,
     },
@@ -105,8 +117,46 @@ export async function loginWithGoogle(): Promise<void> {
   if (sessionError) throw sessionError;
 }
 
+export async function loginWithFacebook(): Promise<void> {
+  const redirectTo = Linking.createURL("facebook-auth");
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "facebook",
+    options: {
+      redirectTo,
+      skipBrowserRedirect: true,
+    },
+  });
+
+  if (error) throw error;
+
+  if (!data.url) {
+    throw new Error("Facebook sign-in did not return an authorization URL.");
+  }
+
+  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo, {
+    showInRecents: true,
+  });
+
+  if (result.type !== "success") {
+    throw new Error("Facebook sign-in was cancelled.");
+  }
+
+  const { accessToken, refreshToken } = extractSessionParamsFromUrl(result.url);
+
+  if (!accessToken || !refreshToken) {
+    throw new Error("Facebook sign-in did not return a Supabase session.");
+  }
+
+  const { error: sessionError } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+
+  if (sessionError) throw sessionError;
+}
+
 export async function loginWithApple(): Promise<void> {
-  if (Platform.OS !== "ios") {
+  if (process.env.EXPO_OS !== "ios") {
     throw new Error("Apple sign-in is only available on iOS.");
   }
 

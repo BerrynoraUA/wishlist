@@ -17,6 +17,10 @@ type Props = {
   onChange: (values: string[]) => void;
   multiSelect?: boolean;
   className?: string;
+  dropdownClassName?: string;
+  optionClassName?: string;
+  optionIconClassName?: string;
+  checkClassName?: string;
 };
 
 export function FilterDropdown({
@@ -26,6 +30,10 @@ export function FilterDropdown({
   onChange,
   multiSelect = false,
   className,
+  dropdownClassName,
+  optionClassName,
+  optionIconClassName,
+  checkClassName,
 }: Props) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -70,23 +78,30 @@ export function FilterDropdown({
       </button>
 
       {open && (
-        <div className={styles.dropdown} role="listbox">
+        <div className={`${styles.dropdown} ${dropdownClassName ?? ""}`.trim()} role="listbox">
           {options.map((option) => {
             const isActive = active.includes(option.value);
+
             return (
               <button
                 key={option.value}
                 type="button"
                 role="option"
                 aria-selected={isActive}
-                className={`${styles.option} ${isActive ? styles.optionActive : ""}`}
+                className={`${styles.option} ${isActive ? styles.optionActive : ""} ${optionClassName ?? ""}`.trim()}
                 onClick={() => handleSelect(option.value)}
               >
                 <span className={styles.optionContent}>
-                  {option.icon && <span className={styles.optionIcon}>{option.icon}</span>}
+                  {option.icon && (
+                    <span className={`${styles.optionIcon} ${optionIconClassName ?? ""}`.trim()}>
+                      {option.icon}
+                    </span>
+                  )}
                   <span>{option.label}</span>
                 </span>
-                {isActive && <span className={styles.check}>✓</span>}
+                {isActive && (
+                  <span className={`${styles.check} ${checkClassName ?? ""}`.trim()}>✓</span>
+                )}
               </button>
             );
           })}

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import * as DropdownMenuPrimitive from "@rn-primitives/dropdown-menu";
 import { Check, ChevronDown, ChevronUp } from "lucide-react-native";
 import * as React from "react";
-import { Platform, type StyleProp, StyleSheet, Text, View, type ViewStyle } from "react-native";
+import { Platform, type StyleProp, Text, View, type ViewStyle } from "react-native";
 import { FadeIn } from "react-native-reanimated";
 import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
@@ -82,25 +82,27 @@ function DropdownMenuContent({
   overlayClassName,
   overlayStyle,
   portalHost,
+  style,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content> & {
   overlayStyle?: StyleProp<ViewStyle>;
   overlayClassName?: string;
   portalHost?: string;
 }) {
+  const { triggerPosition } = DropdownMenuPrimitive.useRootContext();
+  const contentStyle =
+    triggerPosition?.width != null
+      ? ([style, { minWidth: triggerPosition.width }] as unknown as React.ComponentProps<
+          typeof DropdownMenuPrimitive.Content
+        >["style"])
+      : (style ?? undefined);
+
   return (
     <DropdownMenuPrimitive.Portal hostName={portalHost}>
       <FullWindowOverlay>
         <DropdownMenuPrimitive.Overlay
-          style={
-            overlayStyle
-              ? StyleSheet.flatten([
-                  StyleSheet.absoluteFill,
-                  overlayStyle as typeof StyleSheet.absoluteFill,
-                ])
-              : StyleSheet.absoluteFill
-          }
-          className={overlayClassName}
+          className={cn("absolute inset-0", overlayClassName)}
+          style={overlayStyle}
         >
           <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
             <TextClassContext.Provider value="text-popover-foreground">
@@ -109,6 +111,7 @@ function DropdownMenuContent({
                   "bg-popover border-border min-w-[8rem] overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
                   className,
                 )}
+                style={contentStyle}
                 {...props}
               />
             </TextClassContext.Provider>
@@ -153,9 +156,11 @@ function DropdownMenuItem({
 function DropdownMenuCheckboxItem({
   className,
   children,
+  leading,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem> & {
   children?: React.ReactNode;
+  leading?: React.ReactNode;
 }) {
   return (
     <TextClassContext.Provider value="text-sm text-popover-foreground select-none group-active:text-accent-foreground">
@@ -168,9 +173,14 @@ function DropdownMenuCheckboxItem({
         {...props}
       >
         <View className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-          <DropdownMenuPrimitive.ItemIndicator>
-            <Icon as={Check} className="text-foreground size-4" />
-          </DropdownMenuPrimitive.ItemIndicator>
+          {leading ?? (
+            <DropdownMenuPrimitive.ItemIndicator>
+              <Icon
+                as={Check}
+                className="size-4 text-foreground dark:text-white pink-dark:text-white blue-dark:text-white peach-dark:text-white mint-dark:text-white lavender-dark:text-white"
+              />
+            </DropdownMenuPrimitive.ItemIndicator>
+          )}
         </View>
         <>{children}</>
       </DropdownMenuPrimitive.CheckboxItem>

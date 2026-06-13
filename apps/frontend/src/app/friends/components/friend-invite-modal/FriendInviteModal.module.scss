@@ -1,11 +1,6 @@
 @use "@/styles/variables" as *;
 
 .card {
-  border: 1px solid var(--card-border);
-  border-radius: $radius-xl;
-  padding: 24px;
-  background: var(--card-bg);
-  box-shadow: var(--shadow-lg);
   display: grid;
   gap: 12px;
 }

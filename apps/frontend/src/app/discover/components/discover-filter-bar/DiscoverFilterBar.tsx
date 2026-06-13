@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, type CSSProperties } from "react";
 import { useGT } from "gt-next";
 import {
   FilterSortBar,
@@ -10,6 +11,8 @@ import {
   NumberRangeFilter,
   SortSelect,
 } from "@/components/ui/FilterSortBar";
+import { PRIORITY_ICONS } from "@/lib/priority-icons";
+import { ALL_PRIORITIES } from "@/lib/priorities";
 import { useDiscoverFilters } from "../../hooks/use-discover-filters";
 import styles from "./DiscoverFilterBar.module.scss";
 
@@ -35,6 +38,30 @@ export function DiscoverFilterBar() {
     handlePriceMaxChange,
   } = useDiscoverFilters();
 
+  const priorityFilterOptions = useMemo(
+    () =>
+      priorityOptions.map((option) => {
+        const priority = ALL_PRIORITIES.find((entry) => entry.id === option.value);
+        const Icon = priority ? PRIORITY_ICONS[priority.id] : null;
+
+        if (!priority) return option;
+
+        return {
+          ...option,
+          label: <span className={styles.priorityFilterName}>{priority.name}</span>,
+          icon: (
+            <span
+              className={styles.priorityFilterIcon}
+              style={{ "--priority-color": priority.color } as CSSProperties}
+            >
+              {Icon && <Icon size={14} strokeWidth={2.5} />}
+            </span>
+          ),
+        };
+      }),
+    [priorityOptions],
+  );
+
   return (
     <FilterSortBar>
       <FilterSortRow className={styles.row}>
@@ -46,10 +73,14 @@ export function DiscoverFilterBar() {
         <FilterDropdown
           className={styles.priorityFilter}
           label={t("Priority", { $id: "discover.filter.priority" })}
-          options={priorityOptions}
+          options={priorityFilterOptions}
           active={priorityFilter}
           onChange={handlePrioritiesChange}
           multiSelect
+          dropdownClassName={styles.priorityFilterDropdown}
+          optionClassName={styles.priorityFilterOption}
+          optionIconClassName={styles.priorityFilterOptionIcon}
+          checkClassName={styles.priorityFilterCheck}
         />
         <NumberRangeFilter
           className={styles.priceFilter}

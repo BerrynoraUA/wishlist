@@ -7,6 +7,16 @@ const gtLocaleMiddleware = createNextMiddleware({
   ignoreSourceMaps: true,
 });
 
+const PUBLIC_ROUTES = new Set([
+  "/",
+  "/login",
+  "/privacy-policy",
+  "/refund-policy",
+  "/register",
+  "/share",
+  "/terms-of-service",
+]);
+
 function copyCookies(from: NextResponse, to: NextResponse) {
   from.cookies.getAll().forEach((cookie) => {
     to.cookies.set(cookie);
@@ -24,7 +34,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (pathname === "/share") {
+  if (pathname !== "/" && PUBLIC_ROUTES.has(pathname)) {
     return gtLocaleMiddleware(request);
   }
 
@@ -55,8 +65,9 @@ export async function proxy(request: NextRequest) {
   }
 
   const isAuthPage = pathname === "/login" || pathname === "/register";
+  const isAddAccountFlow = request.nextUrl.searchParams.get("account_mode") === "add";
 
-  if (!user && !isAuthPage) {
+  if (!user && !PUBLIC_ROUTES.has(pathname)) {
     const redirectUrl = new URL("/login", request.url);
     const returnTo = `${pathname}${search}`;
     redirectUrl.searchParams.set("redirect_to", returnTo);
@@ -66,7 +77,7 @@ export async function proxy(request: NextRequest) {
     return redirect;
   }
 
-  if (user && isAuthPage) {
+  if (user && isAuthPage && !isAddAccountFlow) {
     const redirectParam = request.nextUrl.searchParams.get("redirect_to");
     const target = redirectParam || "/home";
     const redirect = NextResponse.redirect(new URL(target, request.url));

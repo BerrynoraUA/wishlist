@@ -40,13 +40,13 @@ export default function SecretSantaDetailPage() {
     canLaunch,
     isOwner,
     isStarted,
-    copied,
     launchOpen,
     setLaunchOpen,
     editOpen,
     setEditOpen,
     deleteOpen,
     setDeleteOpen,
+    copied,
     handleCopyLink,
   } = useSecretSantaDetailPage(eventId);
 

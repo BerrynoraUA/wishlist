@@ -21,7 +21,9 @@ export function FriendsHeader({ onInvite }: Props) {
         </p>
       </div>
 
-      <Button onClick={onInvite}>{t("Invite Friends", { $id: "friends.header.invite" })}</Button>
+      <Button onClick={onInvite} data-guide-target="friends-invite">
+        {t("Invite Friends", { $id: "friends.header.invite" })}
+      </Button>
     </div>
   );
 }

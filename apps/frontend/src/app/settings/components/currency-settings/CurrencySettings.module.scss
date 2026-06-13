@@ -2,5 +2,55 @@
 
 .selector {
   width: 100%;
-  max-width: 360px;
+  max-width: 280px;
+}
+
+.currencyTrigger {
+  min-height: 52px;
+  border-color: var(--color-border-subtle);
+  background:
+    linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+    linear-gradient(135deg, var(--brand-alpha-20), transparent 55%) border-box;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+
+  &:hover:not(:disabled) {
+    border-color: var(--brand-alpha-25);
+    background:
+      linear-gradient(var(--color-bg-elevated), var(--color-bg-elevated)) padding-box,
+      linear-gradient(135deg, var(--brand-alpha-25), transparent 55%) border-box;
+  }
+}
+
+.currencyDropdown {
+  max-height: 340px;
+  padding: 6px;
+  border-color: var(--color-border-subtle);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.14);
+}
+
+.currencyOption {
+  min-height: 54px;
+  padding: 10px;
+  border-radius: 10px;
+
+  &[aria-selected="true"] {
+    background: var(--gradient-brand-subtle);
+  }
+}
+
+.currencySymbol {
+  min-width: 42px;
+  height: 34px;
+  border-radius: 10px;
+  border-color: var(--brand-alpha-15);
+  background: var(--brand-alpha-06);
+  color: var(--color-brand);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .selector {
+    max-width: none;
+  }
 }

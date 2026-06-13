@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, type CSSProperties } from "react";
 import { useGT } from "gt-next";
 import { RotateCcw } from "lucide-react";
 import {
@@ -12,6 +13,8 @@ import {
   SearchFilter,
   SortSelect,
 } from "@/components/ui/FilterSortBar";
+import { PRIORITY_ICONS } from "@/lib/priority-icons";
+import { ALL_PRIORITIES } from "@/lib/priorities";
 import { useWishlistItemFilters } from "../../hooks/use-wishlist-item-filters";
 import styles from "../../WishlistPage.module.scss";
 
@@ -49,6 +52,30 @@ export function WishlistItemFilters({ wishlistId }: Props) {
     clearActiveFilters,
   } = useWishlistItemFilters(wishlistId);
 
+  const priorityFilterOptions = useMemo(
+    () =>
+      priorityOptions.map((option) => {
+        const priority = ALL_PRIORITIES.find((entry) => entry.id === option.value);
+        const Icon = priority ? PRIORITY_ICONS[priority.id] : null;
+
+        if (!priority) return option;
+
+        return {
+          ...option,
+          label: <span className={styles.priorityFilterName}>{priority.name}</span>,
+          icon: (
+            <span
+              className={styles.priorityFilterIcon}
+              style={{ "--priority-color": priority.color } as CSSProperties}
+            >
+              {Icon && <Icon size={14} strokeWidth={2.5} />}
+            </span>
+          ),
+        };
+      }),
+    [priorityOptions],
+  );
+
   return (
     <FilterSortBar className={styles.filterBar}>
       <FilterSortRow className={styles.filterRow}>
@@ -70,10 +97,14 @@ export function WishlistItemFilters({ wishlistId }: Props) {
         <FilterDropdown
           className={styles.itemFilterControl}
           label={t("Priority", { $id: "wishlist.items.filter.priority" })}
-          options={priorityOptions}
+          options={priorityFilterOptions}
           active={itemPriorities}
           onChange={handlePriorityChange}
           multiSelect
+          dropdownClassName={styles.priorityFilterDropdown}
+          optionClassName={styles.priorityFilterOption}
+          optionIconClassName={styles.priorityFilterOptionIcon}
+          checkClassName={styles.priorityFilterCheck}
         />
         <NumberRangeFilter
           className={styles.itemPriceFilter}

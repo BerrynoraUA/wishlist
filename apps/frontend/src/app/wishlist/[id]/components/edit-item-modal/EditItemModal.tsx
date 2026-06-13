@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGT } from "gt-next";
-import { Check, Plus, X, Lock } from "lucide-react";
+import { Check, Loader2, Plus, X, Lock, Star } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
@@ -19,13 +19,10 @@ import { Item, ItemLink } from "@/types/item";
 import type { UpdateItemParams } from "@/api/types/item";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { validateImageUploadFile } from "@/lib/image-upload";
-import {
-  getCompactCurrencyOptions,
-  resolveCurrency,
-} from "@/lib/helpers/form-select-options";
+import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import { ALL_PRIORITIES } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
-import { ITEM_COLORS } from "@/lib/item-colors";
+import { isStarCardColorIndex, ITEM_COLORS, STAR_CARD_COLOR_INDEX } from "@/lib/item-colors";
 import styles from "../create-item-modal/CreateItemModal.module.scss";
 
 type Props = {
@@ -77,22 +74,14 @@ export function EditItemModal({ open, onClose, item }: Props) {
   return <EditItemForm open={open} item={item} onClose={onClose} />;
 }
 
-function EditItemForm({
-  open,
-  item,
-  onClose,
-}: {
-  open: boolean;
-  item: Item;
-  onClose: () => void;
-}) {
+function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onClose: () => void }) {
   const t = useGT();
   const { data: currentUserId = "" } = useCurrentUserId();
   const { isPro } = useSubscription();
   const { data: settings } = useSettings();
   const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
   const canUseMultipleLinks = !SUBSCRIPTIONS_UI_ENABLED || isPro;
-  const currencyOptions = getCompactCurrencyOptions();
+  const currencyOptions = getCompactCurrencyOptions("code");
   const visiblePriorities = settings?.selected_priorities
     ? ALL_PRIORITIES.filter((p) => settings.selected_priorities!.includes(p.id))
     : ALL_PRIORITIES;
@@ -106,7 +95,7 @@ function EditItemForm({
       ),
       leading: (
         <span
-          className={styles.prioritySelectIcon}
+          className={`${styles.prioritySelectIcon} ${styles.prioritySelectIconNone}`}
           style={
             {
               "--priority-color": "var(--color-text-muted)",
@@ -117,9 +106,7 @@ function EditItemForm({
         </span>
       ),
       trailing: (active: boolean) => (
-        <span
-          className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}
-        >
+        <span className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}>
           {active && <Check size={10} strokeWidth={3} />}
         </span>
       ),
@@ -139,9 +126,7 @@ function EditItemForm({
           </span>
         ),
         trailing: (active: boolean) => (
-          <span
-            className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}
-          >
+          <span className={`${styles.prioritySelectCheck} ${active ? styles.checked : ""}`}>
             {active && <Check size={10} strokeWidth={3} />}
           </span>
         ),
@@ -166,20 +151,17 @@ function EditItemForm({
   const [name, setName] = useState(item.name ?? "");
   const [description, setDescription] = useState(item.description ?? "");
   const [price, setPrice] = useState(item.price ?? "");
-  const [priority, setPriority] = useState<string | null>(
-    item.priority_id ?? null,
-  );
-  const [colorIndex, setColorIndex] = useState<number | null>(
-    item.color_index ?? null,
-  );
+  const [priority, setPriority] = useState<string | null>(item.priority_id ?? null);
+  const [colorIndex, setColorIndex] = useState<number | null>(item.color_index ?? null);
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [link, setLink] = useState(item.url ?? "");
-  const [additionalLinks, setAdditionalLinks] = useState<ItemLink[]>(
-    item.additional_links ?? [],
-  );
+  const [additionalLinks, setAdditionalLinks] = useState<ItemLink[]>(item.additional_links ?? []);
   const [imagePreview, setImagePreview] = useState(item.image_url ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
   const [currency, setCurrency] = useState(resolveCurrency(item.currency));
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
   const [localImageNeedsReupload, setLocalImageNeedsReupload] = useState(false);
   const [restoredFields, setRestoredFields] = useState<RestoredEditItemFields>(
@@ -187,6 +169,9 @@ function EditItemForm({
   );
 
   const { mutate, isPending } = useUpdateItem();
+  const lastScrapedLinkRef = useRef(item.url?.trim() ?? "");
+  const scrapeRequestIdRef = useRef(0);
+  const imageObjectUrlRef = useRef<string | null>(null);
 
   const draftValue = useMemo<EditItemDraft>(
     () => ({
@@ -218,9 +203,8 @@ function EditItemForm({
   const isMeaningfulDraft = useCallback(
     (draft: EditItemDraft) => {
       const additionalLinksChanged =
-        JSON.stringify(
-          draft.additionalLinks.filter((itemLink) => itemLink.url.trim()),
-        ) !== JSON.stringify(initialDraft.additionalLinks);
+        JSON.stringify(draft.additionalLinks.filter((itemLink) => itemLink.url.trim())) !==
+        JSON.stringify(initialDraft.additionalLinks);
 
       return (
         draft.name.trim() !== initialDraft.name.trim() ||
@@ -242,11 +226,9 @@ function EditItemForm({
     (draft: EditItemDraft): RestoredEditItemFields => ({
       link: draft.link.trim() !== initialDraft.link.trim(),
       additionalLinks:
-        JSON.stringify(
-          draft.additionalLinks.filter((itemLink) => itemLink.url.trim()),
-        ) !== JSON.stringify(initialDraft.additionalLinks),
-      image:
-        draft.imagePreview !== initialDraft.imagePreview || draft.hadLocalImage,
+        JSON.stringify(draft.additionalLinks.filter((itemLink) => itemLink.url.trim())) !==
+        JSON.stringify(initialDraft.additionalLinks),
+      image: draft.imagePreview !== initialDraft.imagePreview || draft.hadLocalImage,
       name: draft.name.trim() !== initialDraft.name.trim(),
       description: draft.description.trim() !== initialDraft.description.trim(),
       price: draft.price.trim() !== initialDraft.price.trim(),
@@ -264,6 +246,7 @@ function EditItemForm({
       setPrice(draft.price);
       setPriority(draft.priority);
       setColorIndex(draft.colorIndex);
+      setColorPickerOpen(false);
       setLink(draft.link);
       setAdditionalLinks(draft.additionalLinks);
       if (imageObjectUrl) {
@@ -336,6 +319,10 @@ function EditItemForm({
     };
   }, [imageObjectUrl]);
 
+  useEffect(() => {
+    imageObjectUrlRef.current = imageObjectUrl;
+  }, [imageObjectUrl]);
+
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -358,11 +345,14 @@ function EditItemForm({
   }
 
   function restoreInitialState() {
+    scrapeRequestIdRef.current += 1;
+    lastScrapedLinkRef.current = initialDraft.link.trim();
     setName(initialDraft.name);
     setDescription(initialDraft.description);
     setPrice(initialDraft.price);
     setPriority(initialDraft.priority);
     setColorIndex(initialDraft.colorIndex);
+    setColorPickerOpen(false);
     setLink(initialDraft.link);
     setAdditionalLinks(initialDraft.additionalLinks);
     if (imageObjectUrl) {
@@ -372,6 +362,8 @@ function EditItemForm({
     setImageFile(null);
     setImagePreview(initialDraft.imagePreview);
     setCurrency(initialDraft.currency);
+    setError(null);
+    setLoading(false);
     setImageError(null);
     setLocalImageNeedsReupload(false);
     setRestoredFields(EMPTY_RESTORED_EDIT_ITEM_FIELDS);
@@ -405,9 +397,7 @@ function EditItemForm({
       priority_id: priorityValue,
       color_index: colorIndex,
       currency,
-      ...(imageFile
-        ? { image: imageFile }
-        : { image_url: imagePreview || null }),
+      ...(imageFile ? { image: imageFile } : { image_url: imagePreview || null }),
     };
 
     mutate(
@@ -421,14 +411,110 @@ function EditItemForm({
     );
   }
 
+  const handleScrape = useCallback(
+    async (urlToScrape = link) => {
+      const trimmedLink = urlToScrape.trim();
+      if (!trimmedLink) return;
+
+      const requestId = scrapeRequestIdRef.current + 1;
+      scrapeRequestIdRef.current = requestId;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch("/api/server/scrape-product", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: trimmedLink }),
+        });
+
+        const data = await response.json();
+        if (requestId !== scrapeRequestIdRef.current) return;
+
+        if (response.ok) {
+          const product = {
+            title: data?.title ?? null,
+            description: data?.description ?? null,
+            image: data?.image ?? null,
+            price: data?.price ?? null,
+            currency: data?.currency ?? null,
+          };
+
+          const isEmpty =
+            !product.title && !product.description && !product.image && !product.price;
+
+          if (isEmpty) {
+            setError(
+              t("Could not fetch product data", {
+                $id: "item.modal.scrapeEmpty",
+              }),
+            );
+            return;
+          }
+
+          if (product.title) setName(product.title);
+          if (product.description) setDescription(product.description);
+          if (product.price) setPrice(product.price);
+          if (product.currency) setCurrency(resolveCurrency(product.currency));
+          if (product.image) {
+            if (imageObjectUrlRef.current) {
+              URL.revokeObjectURL(imageObjectUrlRef.current);
+            }
+            setImageObjectUrl(null);
+            setImageFile(null);
+            setImagePreview(product.image);
+          }
+        } else {
+          setError(data?.error || t("Error loading product", { $id: "item.modal.scrapeError" }));
+        }
+      } catch {
+        if (requestId === scrapeRequestIdRef.current) {
+          setError(
+            t("Could not fetch product data", {
+              $id: "item.modal.scrapeEmpty",
+            }),
+          );
+        }
+      } finally {
+        if (requestId === scrapeRequestIdRef.current) {
+          setLoading(false);
+        }
+      }
+    },
+    [link, t],
+  );
+
+  useEffect(() => {
+    const trimmedLink = link.trim();
+    if (!open || !trimmedLink) {
+      if (!trimmedLink) lastScrapedLinkRef.current = "";
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      if (lastScrapedLinkRef.current === trimmedLink) return;
+      lastScrapedLinkRef.current = trimmedLink;
+      void handleScrape(trimmedLink);
+    }, 200);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [handleScrape, link, open]);
+
+  function handleClearLink() {
+    scrapeRequestIdRef.current += 1;
+    lastScrapedLinkRef.current = "";
+    setLink("");
+    setError(null);
+    setLoading(false);
+  }
+
   return (
     <Modal open={open} onClose={onClose}>
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerCopy}>
-            <Heading>
-              {t("Edit Item", { $id: "item.modal.edit.title" })}
-            </Heading>
+            <Heading>{t("Edit Item", { $id: "item.modal.edit.title" })}</Heading>
           </div>
           {isDraftRestored && (
             <div className={styles.draftBanner}>
@@ -444,11 +530,7 @@ function EditItemForm({
                       })}
                 </span>
               </div>
-              <button
-                type="button"
-                className={styles.draftAction}
-                onClick={handleDiscardDraft}
-              >
+              <button type="button" className={styles.draftAction} onClick={handleDiscardDraft}>
                 {t("Discard", { $id: "draft.discard" })}
               </button>
             </div>
@@ -466,14 +548,27 @@ function EditItemForm({
           className={`${styles.field} ${isDraftRestored && (restoredFields.link || restoredFields.additionalLinks) ? styles.draftField : ""}`.trim()}
         >
           <label>{t("Product link", { $id: "item.modal.productLink" })}</label>
-          <input
-            type="url"
-            placeholder={t("Paste a product URL", {
-              $id: "item.modal.productUrlPlaceholder",
-            })}
-            value={link}
-            onChange={(e) => setLink(e.target.value)}
-          />
+          <div className={styles.urlRow}>
+            <input
+              type="url"
+              placeholder={t("Paste a product URL", {
+                $id: "item.modal.productUrlPlaceholder",
+              })}
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+            />
+            <Button
+              variant="secondary"
+              onClick={handleClearLink}
+              disabled={!link.trim() && !loading}
+            >
+              {loading ? (
+                <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
+              ) : (
+                t("Clear", { $id: "common.clear" })
+              )}
+            </Button>
+          </div>
 
           {/* Additional links - Pro feature */}
           {canUseMultipleLinks && (
@@ -499,9 +594,7 @@ function EditItemForm({
                     type="button"
                     className={styles.removeLinkBtn}
                     onClick={() => {
-                      setAdditionalLinks(
-                        additionalLinks.filter((_, i) => i !== index),
-                      );
+                      setAdditionalLinks(additionalLinks.filter((_, i) => i !== index));
                     }}
                     aria-label={t("Remove link", {
                       $id: "item.modal.removeLinkAria",
@@ -514,14 +607,10 @@ function EditItemForm({
               <button
                 type="button"
                 className={styles.addLinkBtn}
-                onClick={() =>
-                  setAdditionalLinks([...additionalLinks, { url: "" }])
-                }
+                onClick={() => setAdditionalLinks([...additionalLinks, { url: "" }])}
               >
                 <Plus size={14} />
-                <span>
-                  {t("Add another link", { $id: "item.modal.addAnotherLink" })}
-                </span>
+                <span>{t("Add another link", { $id: "item.modal.addAnotherLink" })}</span>
               </button>
             </div>
           )}
@@ -540,6 +629,8 @@ function EditItemForm({
               </span>
             </button>
           )}
+
+          {error && <p className={styles.error}>{error}</p>}
         </div>
 
         <div
@@ -610,9 +701,7 @@ function EditItemForm({
         <div
           className={`${styles.field} ${isDraftRestored && (restoredFields.price || restoredFields.currency) ? styles.draftField : ""}`.trim()}
         >
-          <label>
-            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
-          </label>
+          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
           <div className={styles.priceRow}>
             <Select
               value={currency}
@@ -631,47 +720,96 @@ function EditItemForm({
           </div>
         </div>
 
-        {canUsePriority && (
-          <div
-            className={`${styles.field} ${isDraftRestored && restoredFields.priority ? styles.draftField : ""}`.trim()}
-          >
-            <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
-            <Select
-              value={priority ?? ""}
-              onChange={(v) => setPriority(v || null)}
-              options={priorityOptions}
-              ariaLabel={t("Priority", { $id: "item.modal.priorityLabel" })}
-              triggerClassName={`${styles.selectField} ${isDraftRestored && restoredFields.priority ? styles.draftSelectField : ""}`.trim()}
-              dropdownClassName={styles.prioritySelectDropdown}
-              optionClassName={styles.prioritySelectOption}
-              leadingClassName={styles.prioritySelectLeading}
-            />
-          </div>
-        )}
+        <div className={styles.priorityColorRow}>
+          {canUsePriority && (
+            <div
+              className={`${styles.field} ${isDraftRestored && restoredFields.priority ? styles.draftField : ""}`.trim()}
+            >
+              <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
+              <Select
+                value={priority ?? ""}
+                onChange={(v) => setPriority(v || null)}
+                options={priorityOptions}
+                ariaLabel={t("Priority", { $id: "item.modal.priorityLabel" })}
+                triggerClassName={`${styles.selectField} ${isDraftRestored && restoredFields.priority ? styles.draftSelectField : ""}`.trim()}
+                dropdownClassName={styles.prioritySelectDropdown}
+                optionClassName={styles.prioritySelectOption}
+                leadingClassName={styles.prioritySelectLeading}
+              />
+            </div>
+          )}
 
-        <div className={styles.field}>
-          <label>
-            {t("Card Color (optional)", { $id: "item.modal.colorLabel" })}
-          </label>
-          <div className={styles.colorPicker}>
+          <div
+            className={`${styles.field} ${styles.compactColorField}`}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                setColorPickerOpen(false);
+              }
+            }}
+          >
+            <label>{t("Card Color", { $id: "item.modal.colorLabelShort" })}</label>
             <button
               type="button"
-              className={`${styles.colorSwatch} ${styles.colorSwatchNone} ${colorIndex === null ? styles.colorSwatchActive : ""}`}
-              onClick={() => setColorIndex(null)}
-              title={t("No color", { $id: "item.modal.colorNone" })}
+              className={styles.colorTrigger}
+              style={
+                {
+                  "--selected-color":
+                    colorIndex === null
+                      ? "var(--color-border-light)"
+                      : isStarCardColorIndex(colorIndex)
+                        ? "var(--color-brand)"
+                        : ITEM_COLORS[colorIndex]?.color,
+                } as React.CSSProperties
+              }
+              onClick={() => setColorPickerOpen((value) => !value)}
+              aria-expanded={colorPickerOpen}
+              aria-haspopup="grid"
+              aria-label={t("Card Color", {
+                $id: "item.modal.colorLabelShort",
+              })}
             >
-              <X size={11} />
+              <span className={styles.colorTriggerSwatch}>
+                {isStarCardColorIndex(colorIndex) && <Star size={12} fill="currentColor" />}
+              </span>
             </button>
-            {ITEM_COLORS.map((c, idx) => (
-              <button
-                key={idx}
-                type="button"
-                className={`${styles.colorSwatch} ${colorIndex === idx ? styles.colorSwatchActive : ""}`}
-                style={{ "--swatch-color": c.color } as React.CSSProperties}
-                onClick={() => setColorIndex(idx)}
-                title={c.label}
-              />
-            ))}
+
+            {colorPickerOpen && (
+              <div className={styles.colorPopover}>
+                <button
+                  type="button"
+                  className={`${styles.colorSwatch} ${styles.colorSwatchNone} ${colorIndex === null ? styles.colorSwatchActive : ""}`}
+                  onClick={() => {
+                    setColorIndex(null);
+                    setColorPickerOpen(false);
+                  }}
+                  title={t("No color", { $id: "item.modal.colorNone" })}
+                />
+                <button
+                  type="button"
+                  className={`${styles.colorSwatch} ${styles.colorSwatchStar} ${isStarCardColorIndex(colorIndex) ? styles.colorSwatchActive : ""}`}
+                  onClick={() => {
+                    setColorIndex(STAR_CARD_COLOR_INDEX);
+                    setColorPickerOpen(false);
+                  }}
+                  title={t("Star", { $id: "item.modal.colorStar" })}
+                >
+                  <Star size={13} fill="currentColor" />
+                </button>
+                {ITEM_COLORS.map((c, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className={`${styles.colorSwatch} ${colorIndex === idx ? styles.colorSwatchActive : ""}`}
+                    style={{ "--swatch-color": c.color } as React.CSSProperties}
+                    onClick={() => {
+                      setColorIndex(idx);
+                      setColorPickerOpen(false);
+                    }}
+                    title={c.label}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -681,9 +819,7 @@ function EditItemForm({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={
-              !name.trim() || !hasChanges || isPending || Boolean(imageError)
-            }
+            disabled={!name.trim() || !hasChanges || isPending || Boolean(imageError)}
           >
             {isPending
               ? t("Saving...", { $id: "common.saving" })

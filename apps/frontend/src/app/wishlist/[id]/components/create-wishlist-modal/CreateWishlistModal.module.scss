@@ -213,16 +213,25 @@
 .privacyOptions {
   display: grid;
   gap: 8px;
+  overflow: visible;
+}
+
+.accessSelectorShell {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 8px;
+  overflow: visible;
 }
 
 .accessPanel {
   display: grid;
-  gap: 9px;
-  margin-bottom: 6px;
-  padding: 10px;
-  border: 1.5px solid var(--color-border-light);
-  border-radius: $radius-md;
-  background: linear-gradient(180deg, var(--color-bg-subtle), transparent);
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--color-border-light);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--modal-bg) 94%, var(--color-bg-subtle) 6%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
+  overflow: visible;
 }
 
 .accessPanelHeader {
@@ -255,97 +264,150 @@
 }
 
 .accessTabs {
-  display: flex;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 14px;
+  background: var(--color-bg-subtle);
 }
 
 .accessTab {
-  border: 1px solid var(--color-border-light);
-  border-radius: 999px;
-  padding: 5px 10px;
-  background: var(--card-bg);
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  padding: 6px 10px;
+  background: transparent;
   color: var(--color-text-muted);
   font-size: var(--fs-caption);
   font-weight: var(--fw-semibold);
   cursor: pointer;
-  transition: all 0.2s $ease-out;
+  transition:
+    background 0.2s $ease-out,
+    border-color 0.2s $ease-out,
+    color 0.2s $ease-out,
+    box-shadow 0.2s $ease-out;
 
   &:hover {
-    border-color: var(--brand-alpha-20);
-    background: var(--brand-alpha-06);
+    background: var(--card-bg);
     color: var(--color-text);
   }
 }
 
 .accessTabActive {
-  border-color: $brand;
-  background: var(--brand-alpha-10);
+  border-color: var(--brand-alpha-20);
+  background: var(--card-bg);
   color: $brand;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
 }
 
-.accessSearch {
-  width: 100%;
+.accessSelector {
+  position: relative;
+  z-index: 2;
+}
+
+.accessSearchField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   border: 1.5px solid var(--input-border);
   border-radius: $radius-md;
-  padding: 8px 12px;
+  padding: 8px 10px;
   background: var(--input-bg);
   color: $text;
-  font-family: var(--font-sans);
-  font-size: var(--fs-label);
-  outline: none;
   transition:
     border-color 0.2s $ease-out,
     box-shadow 0.2s $ease-out;
 
-  &::placeholder {
-    color: $text-light;
-  }
-
-  &:focus {
+  &:focus-within {
     border-color: var(--input-focus-border);
     box-shadow: 0 0 0 4px var(--input-focus-ring);
   }
+
+  svg {
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+  }
+
+  input {
+    min-width: 0;
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: $text;
+    font-family: var(--font-sans);
+    font-size: var(--fs-label);
+
+    &::placeholder {
+      color: $text-light;
+    }
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition:
+      background 0.2s $ease-out,
+      color 0.2s $ease-out;
+
+    &:hover {
+      background: var(--nav-pill-hover);
+      color: var(--color-text);
+    }
+  }
 }
 
-.accessFriendList {
+.accessDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 35;
+  border: 1px solid var(--glass-border, var(--color-border-light));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--modal-bg) 96%, white 4%);
+  box-shadow:
+    0 24px 56px rgba(15, 23, 42, 0.18),
+    0 8px 20px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.accessDropdownList {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
-  max-height: 176px;
+  max-height: 220px;
   overflow-y: auto;
+  background: inherit;
 }
 
 .accessFriend {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
   min-width: 0;
-  padding: 8px 9px;
-  border: 1px solid var(--color-border-light);
-  border-radius: 12px;
-  background: var(--card-bg);
+  padding: 9px 10px;
+  border: none;
+  background: transparent;
   color: var(--color-text);
   cursor: pointer;
+  text-align: left;
   transition:
-    border-color 0.2s $ease-out,
     background 0.2s $ease-out,
     color 0.2s $ease-out;
 
   &:hover {
-    border-color: var(--brand-alpha-20);
-    background: var(--brand-alpha-06);
+    background: var(--nav-pill-hover);
   }
-
-  svg {
-    flex-shrink: 0;
-    color: $brand;
-    margin-left: auto;
-  }
-}
-
-.accessFriendSelected {
-  border-color: $brand;
-  background: var(--brand-alpha-06);
 }
 
 .accessAvatar {
@@ -358,6 +420,54 @@
   background: var(--gradient-placeholder);
   font-size: var(--fs-caption);
   font-weight: var(--fw-bold);
+}
+
+.accessSelectedList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: $radius-sm;
+  background: var(--color-bg-subtle);
+}
+
+.accessSelectedChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  background: var(--badge-visibility-bg);
+  color: $brand;
+  padding: 5px 9px;
+  border-radius: $radius-pill;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-caption);
+  max-width: 100%;
+  overflow: visible;
+
+  span {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: $text;
+    font-size: var(--fs-caption);
+    line-height: 1;
+
+    &:hover {
+      color: $brand;
+    }
+  }
 }
 
 .accessFriendName {
@@ -407,18 +517,35 @@
 
 .currentAccessList {
   display: grid;
-  gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: $radius-sm;
+  background: var(--color-bg-subtle);
 }
 
 .currentAccessRow {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
   min-width: 0;
-  padding: 7px 8px;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 12px;
-  background: var(--card-bg);
+  background: var(--badge-visibility-bg);
+  color: $brand;
+  padding: 5px 9px;
+  border-radius: $radius-pill;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-caption);
+  max-width: 100%;
+  overflow: visible;
+
+  .accessFriendName {
+    flex: 1;
+    font-size: inherit;
+    font-weight: inherit;
+  }
 }
 
 .accessLevelBadge {
@@ -433,26 +560,15 @@
 }
 
 .accessRemoveButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: 1px solid var(--color-border-light);
-  border-radius: 999px;
+  border: none;
   background: transparent;
-  color: var(--color-text-muted);
+  color: $text;
   cursor: pointer;
-  flex-shrink: 0;
-  transition:
-    border-color 0.2s $ease-out,
-    background 0.2s $ease-out,
-    color 0.2s $ease-out;
+  font-size: var(--fs-caption);
+  line-height: 1;
 
   &:hover:not(:disabled) {
-    border-color: var(--color-danger);
-    background: var(--color-danger-bg);
-    color: var(--color-danger);
+    color: $brand;
   }
 
   &:disabled {
@@ -580,6 +696,10 @@
   gap: 8px;
 }
 
+.submitButton {
+  min-width: 150px;
+}
+
 @media (max-width: 640px) {
   .container {
     gap: 12px;
@@ -594,7 +714,8 @@
     flex-direction: column;
   }
 
-  .accessFriendList {
+  .accessSelectedList,
+  .currentAccessList {
     grid-template-columns: 1fr;
   }
 

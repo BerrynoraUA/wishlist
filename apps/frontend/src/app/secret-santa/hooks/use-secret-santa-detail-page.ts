@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useGT } from "gt-next";
+import { toast } from "sonner";
 import { useSecretSantaDetails } from "@/hooks/use-secret-santa";
 import { useCurrentUserId } from "@/hooks/use-user";
 import type { SecretSantaPendingInvite } from "@/api/types/secret-santa";
@@ -18,10 +19,10 @@ export function useSecretSantaDetailPage(eventId: string) {
   const { data: currentUserId = "" } = useCurrentUserId();
   const detailsQuery = useSecretSantaDetails(eventId);
 
-  const [copied, setCopied] = useState(false);
   const [launchOpen, setLaunchOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const data = detailsQuery.data;
 
@@ -55,11 +56,27 @@ export function useSecretSantaDetailPage(eventId: string) {
   const handleCopyLink = useCallback(() => {
     const url = buildSecretSantaJoinUrl(eventId);
     if (!url) return;
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION_MS);
-    });
-  }, [eventId]);
+    navigator.clipboard.writeText(url).then(
+      () => {
+        setCopied(true);
+        window.setTimeout(() => {
+          setCopied(false);
+        }, COPY_FEEDBACK_DURATION_MS);
+        toast.success(
+          t("Link copied", {
+            $id: "secretSanta.detail.linkCopied",
+          }),
+        );
+      },
+      () => {
+        toast.error(
+          t("Failed to copy invite link", {
+            $id: "secretSanta.detail.copyFailed",
+          }),
+        );
+      },
+    );
+  }, [eventId, t]);
 
   const isOwner = !!currentUserId && currentUserId === data?.owner_id;
   const isStarted = !!data?.is_started;
@@ -81,13 +98,13 @@ export function useSecretSantaDetailPage(eventId: string) {
     canLaunch,
     isOwner,
     isStarted,
-    copied,
     launchOpen,
     setLaunchOpen,
     editOpen,
     setEditOpen,
     deleteOpen,
     setDeleteOpen,
+    copied,
     handleCopyLink,
   };
 }

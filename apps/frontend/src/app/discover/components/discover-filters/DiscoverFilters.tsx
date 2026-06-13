@@ -18,6 +18,7 @@ export function DiscoverFilters({ active, onChange }: Props) {
     () => [
       {
         value: "wishlists",
+        guideTarget: "discover-tab-wishlists",
         label: (
           <>
             <Sparkles size={16} className={styles.icon} />
@@ -32,6 +33,7 @@ export function DiscoverFilters({ active, onChange }: Props) {
       },
       {
         value: "available",
+        guideTarget: "discover-tab-available",
         label: (
           <>
             <Sparkles size={16} className={styles.icon} />
@@ -41,6 +43,7 @@ export function DiscoverFilters({ active, onChange }: Props) {
       },
       {
         value: "reserved",
+        guideTarget: "discover-tab-reserved",
         label: (
           <>
             <Heart size={16} className={styles.icon} />
@@ -52,6 +55,7 @@ export function DiscoverFilters({ active, onChange }: Props) {
       },
       {
         value: "purchased",
+        guideTarget: "discover-tab-purchased",
         label: (
           <>
             <ShoppingCart size={16} className={styles.icon} />
@@ -66,13 +70,15 @@ export function DiscoverFilters({ active, onChange }: Props) {
   );
 
   return (
-    <Tabs
-      items={items}
-      active={active}
-      onChange={onChange}
-      className={styles.filters}
-      tabClassName={styles.filterTab}
-      activeTabClassName={styles.active}
-    />
+    <div data-guide-target="discover-tabs">
+      <Tabs
+        items={items}
+        active={active}
+        onChange={onChange}
+        className={styles.filters}
+        tabClassName={styles.filterTab}
+        activeTabClassName={styles.active}
+      />
+    </div>
   );
 }

@@ -3,16 +3,17 @@
     "name": "wishlane",
     "slug": "wishlane",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "wishlane",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "assetBundlePatterns": ["**/*"],
+    "updates": {
+      "url": "https://u.expo.dev/50371ce7-ec58-411c-ab43-d42fce223c68"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.berrynora.wishlane",
@@ -33,6 +34,12 @@
     "plugins": [
       "expo-router",
       "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Wishlane to choose a profile image from your library."
+        }
+      ],
       "expo-secure-store",
       [
         "expo-splash-screen",

@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--glass-bg);
+  background: var(--color-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--glass-border);
@@ -111,6 +111,11 @@
   &:hover {
     color: var(--color-text);
   }
+}
+
+.disabledLink {
+  cursor: not-allowed;
+  opacity: 0.48;
 }
 
 .icon {

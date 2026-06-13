@@ -10,15 +10,15 @@ module.exports = withUniwindConfig(config, {
   // defaults to project's root
   dtsFile: "./uniwind-types.d.ts",
   extraThemes: [
-    "pink",
+    "pink-light",
     "pink-dark",
-    "blue",
+    "blue-light",
     "blue-dark",
-    "peach",
+    "peach-light",
     "peach-dark",
-    "mint",
+    "mint-light",
     "mint-dark",
-    "lavender",
+    "lavender-light",
     "lavender-dark",
   ],
 });

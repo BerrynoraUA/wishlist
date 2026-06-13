@@ -12,7 +12,7 @@ import { useLaunchSecretSanta } from "@/hooks/use-secret-santa";
 import { useSubscription } from "@/hooks/use-subscription";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { SecretSantaPersonAvatar } from "../secret-santa-person-avatar/SecretSantaPersonAvatar";
-import { Ban, Sparkles, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
+import { Ban, Sparkles, ChevronDown, ChevronUp, AlertTriangle, Users } from "lucide-react";
 import styles from "./LaunchSecretSantaModal.module.scss";
 
 type Props = {
@@ -112,15 +112,27 @@ export function LaunchSecretSantaModal({ open, onClose, eventId, participants }:
       })}
     >
       <div className={styles.container}>
-        <p className={styles.subtitle}>
-          {canUseExclusions
-            ? t("Optionally choose who should not be matched together, then launch the event.", {
-                $id: "secretSanta.launchModal.subtitleWithExclusions",
-              })
-            : t("Launch the event now. Custom who-should-not-match rules are available on Pro.", {
-                $id: "secretSanta.launchModal.subtitleFreePlan",
-              })}
-        </p>
+        <div className={styles.hero}>
+          <div className={styles.heroCopy}>
+            <div className={styles.heroTitleRow}>
+              <span className={styles.metaBadge}>
+                <Users size={12} />
+                {t("{count} people", {
+                  count: participants.length,
+                  $id: "secretSanta.launchModal.peopleCount",
+                })}
+              </span>
+              {canUseExclusions ? (
+                <span className={styles.metaBadge}>
+                  <Ban size={12} />
+                  {t("Optional exclusions", {
+                    $id: "secretSanta.launchModal.optionalExclusions",
+                  })}
+                </span>
+              ) : null}
+            </div>
+          </div>
+        </div>
 
         {canUseExclusions ? (
           <div className={styles.participantList}>
@@ -178,12 +190,9 @@ export function LaunchSecretSantaModal({ open, onClose, eventId, participants }:
           <div className={styles.upgradeCard}>
             <span className={styles.upgradeBadge}>{t("PRO", { $id: "common.proBadge" })}</span>
             <p>
-              {t(
-                "Custom assignment exclusions are available only on Pro. Free plan launches the draw with default matching.",
-                {
-                  $id: "secretSanta.launchModal.upgradeCopy",
-                },
-              )}
+              {t("Custom exclusions are available on Pro.", {
+                $id: "secretSanta.launchModal.upgradeCopyShort",
+              })}
             </p>
             <Button variant="secondary" onClick={() => router.push("/subscription")}>
               <Sparkles size={16} />

@@ -29,6 +29,7 @@ export function ProfileSettings() {
   const [height, setHeight] = useState("");
   const [shoeSize, setShoeSize] = useState("");
   const [bio, setBio] = useState("");
+  const [hasInitializedForm, setHasInitializedForm] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [nicknameStatus, setNicknameStatus] = useState<"idle" | "checking" | "available" | "taken">(
     "idle",
@@ -45,6 +46,7 @@ export function ProfileSettings() {
       setHeight(formatProfileNumber(profile.height));
       setShoeSize(formatProfileNumber(profile.shoe_size));
       setBio(profile.bio ?? "");
+      setHasInitializedForm(true);
     }
   }, [profile]);
 
@@ -84,8 +86,9 @@ export function ProfileSettings() {
   const initialHeight = formatProfileNumber(profile?.height ?? null);
   const initialShoeSize = formatProfileNumber(profile?.shoe_size ?? null);
   const initialBio = profile?.bio?.trim() ?? "";
-  const displayNameError =
-    trimmedDisplayName.length === 0
+  const displayNameError = !hasInitializedForm
+    ? null
+    : trimmedDisplayName.length === 0
       ? t("Display name is required", {
           $id: "settings.profile.displayNameRequired",
         })
@@ -94,8 +97,9 @@ export function ProfileSettings() {
             $id: "settings.profile.displayNameMinLength",
           })
         : null;
-  const nicknameError =
-    trimmedNickname.length === 0
+  const nicknameError = !hasInitializedForm
+    ? null
+    : trimmedNickname.length === 0
       ? t("Nickname is required", {
           $id: "settings.profile.nicknameRequired",
         })

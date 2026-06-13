@@ -1,178 +1,134 @@
-import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
-import {
-  SlidingOptionSelector,
-  type SlidingOption,
-  type SlidingOptionRenderProps,
-} from "@/components/ui/sliding-option-selector";
-import { Text } from "@/components/ui/text";
-import {
-  getNativeThemeName,
-  getThemeAccent,
-  getThemeMode,
-  NATIVE_ACCENTS,
-  type NativeAccentName,
-  type NativeThemeMode,
-} from "@/lib/theme";
-import { cn } from "@/lib/utils";
+import { AccountSettings } from "@/components/settings/account-settings";
+import { AppearanceSettings } from "@/components/settings/appearance-settings";
+import { CurrencySettings } from "@/components/settings/currency-settings";
+import { NotificationSettings } from "@/components/settings/notification-settings";
+import { ProfileSettings } from "@/components/settings/profile-settings";
 import { useAuth } from "@/providers/auth-provider";
-import { Stack } from "expo-router";
-import { CheckIcon, LogOut, MoonIcon, SunIcon } from "lucide-react-native";
+import { useKnownAccounts } from "@/hooks/use-known-accounts";
+import { useSettings, useProfile, useUpdateSettings } from "@/hooks/use-settings";
+import { WishlistAccent } from "@wishlist/backend/types/wishlist";
+import type { ThemePreference } from "@wishlist/backend/types/settings";
+import { StyledFlashList } from "@/components/ui/styled-flash-list";
+import { Stack, useRouter } from "expo-router";
+import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ScrollView, View } from "react-native";
-import { Uniwind, useUniwind } from "uniwind";
+import { ActivityIndicator, View } from "react-native";
 
-const THEME_ROW_HEIGHT = 112;
+const SETTINGS_SECTIONS = [
+  "account",
+  "profile",
+  "notifications",
+  "appearance",
+  "currency",
+] as const;
 
-const THEME_MODE_ROWS = [
-  [
-    {
-      value: "light" as const,
-      accessibilityLabel: "Light theme",
-      children: ({ selected }: SlidingOptionRenderProps) => (
-        <>
-          <View
-            className={cn(
-              "size-11 items-center justify-center rounded-full bg-bg-muted",
-              selected && "bg-gradient-brand-subtle",
-            )}
-          >
-            <Icon as={SunIcon} className={cn("size-5 text-text", selected && "text-brand")} />
-          </View>
-          <Text className="text-body font-bold text-text">Light</Text>
-          {selected ? <ActiveCheck /> : null}
-        </>
-      ),
-    },
-    {
-      value: "dark" as const,
-      accessibilityLabel: "Dark theme",
-      children: ({ selected }: SlidingOptionRenderProps) => (
-        <>
-          <View
-            className={cn(
-              "size-11 items-center justify-center rounded-full bg-bg-muted",
-              selected && "bg-gradient-brand-subtle",
-            )}
-          >
-            <Icon as={MoonIcon} className={cn("size-5 text-text", selected && "text-brand")} />
-          </View>
-          <Text className="text-body font-bold text-text">Dark</Text>
-          {selected ? <ActiveCheck /> : null}
-        </>
-      ),
-    },
-  ],
-] satisfies SlidingOption<NativeThemeMode>[][];
-
-/** Swatch + gap + label + vertical padding; matches SlidingOptionSelector indicator height */
-const ACCENT_CELL_HEIGHT_PX = 76;
-const ACCENT_CELL_HEIGHT_CLASS = "h-[76px]";
+type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 
 export default function ProfileScreen() {
-  const { theme } = useUniwind();
-  const { signOut } = useAuth();
-  const activeMode = getThemeMode(theme);
-  const activeAccent = getThemeAccent(theme);
+  const t = useGT();
+  const router = useRouter();
+  const { session, signOut, user } = useAuth();
+  const { rememberAccount } = useKnownAccounts();
+  const { data: settings, isLoading: settingsLoading } = useSettings();
+  const { data: profile, isLoading: profileLoading } = useProfile();
+  const updateSettings = useUpdateSettings();
 
-  const accentRows = React.useMemo((): SlidingOption<NativeAccentName>[][] => {
-    const options = NATIVE_ACCENTS.map((accent) => ({
-      value: accent.name,
-      accessibilityLabel: `Use ${accent.label} accent`,
-      children: ({ selected }: SlidingOptionRenderProps) => (
-        <View className="w-full items-center gap-1 py-1.5">
-          <View
-            className={cn(
-              "size-11 items-center justify-center rounded-full border-2 border-transparent",
-              accent.swatchClassName,
-            )}
-          >
-            {selected ? <Icon as={CheckIcon} className="size-4 text-text" /> : null}
-          </View>
-          <Text
-            className={cn(
-              "text-center text-[11px] font-semibold leading-tight text-text",
-              selected && "text-brand",
-            )}
-            numberOfLines={1}
-          >
-            {accent.label}
-          </Text>
-        </View>
-      ),
-    }));
-
-    return [options];
-  }, []);
-
-  function setMode(mode: NativeThemeMode) {
-    Uniwind.setTheme(getNativeThemeName(mode, activeAccent));
+  function setThemePreference(value: ThemePreference) {
+    updateSettings.mutate({ theme: value });
   }
 
-  function setAccent(accent: NativeAccentName) {
-    Uniwind.setTheme(getNativeThemeName(activeMode, accent));
+  React.useEffect(() => {
+    if (!session?.user.id || !session.user.email) return;
+
+    const provider = String(session.user.app_metadata?.provider ?? "email");
+    const supportedProvider = provider === "google" ? "google" : "email";
+    const profileForSession = profile?.id === session.user.id ? profile : null;
+    const settingsForSession = settings?.user_id === session.user.id ? settings : null;
+
+    void rememberAccount({
+      userId: session.user.id,
+      email: session.user.email,
+      displayName: profileForSession?.display_name ?? profileForSession?.nickname ?? null,
+      avatarUrl: profileForSession?.avatar_url ?? null,
+      provider: supportedProvider,
+      providers: [supportedProvider],
+      accessToken: session.access_token,
+      refreshToken: session.refresh_token,
+      expiresAt: session.expires_at ?? null,
+      defaultAccent: settingsForSession?.default_accent ?? null,
+      lastUsedAt: Date.now(),
+    });
+  }, [
+    profile?.avatar_url,
+    profile?.display_name,
+    profile?.nickname,
+    rememberAccount,
+    session?.access_token,
+    session?.expires_at,
+    session?.refresh_token,
+    session?.user.email,
+    session?.user.id,
+    settings?.default_accent,
+  ]);
+
+  async function handleSignOut() {
+    await signOut();
+    router.replace("/sign-in" as never);
+  }
+
+  function renderSection({ item }: { item: SettingsSection }) {
+    switch (item) {
+      case "account":
+        return (
+          <AccountSettings
+            email={user?.email ?? ""}
+            userId={user?.id ?? ""}
+            signOut={handleSignOut}
+          />
+        );
+      case "profile":
+        return <ProfileSettings profile={profile} />;
+      case "notifications":
+        return <NotificationSettings settings={settings} />;
+      case "appearance":
+        return (
+          <AppearanceSettings
+            selectedTheme={settings?.theme ?? "system"}
+            selectedAccent={settings?.default_accent ?? WishlistAccent.Pink}
+            selectedWishlistColor={settings?.default_wishlist_color ?? 0}
+            selectedPriorities={settings?.selected_priorities}
+            setThemePreference={setThemePreference}
+          />
+        );
+      case "currency":
+        return <CurrencySettings selectedCurrency={settings?.display_currency ?? "USD"} />;
+    }
   }
 
   return (
     <>
-      <Stack.Screen options={{ title: "Profile" }} />
+      <Stack.Screen options={{ title: t("Settings") }} />
       <View className="flex-1 bg-bg">
-        <ScrollView className="flex-1" contentContainerClassName="gap-5 px-4 pb-2 pt-6">
-          <SettingsSection title="Theme">
-            <SlidingOptionSelector
-              rows={THEME_MODE_ROWS}
-              value={activeMode}
-              onChange={setMode}
-              optionHeight={THEME_ROW_HEIGHT}
-              optionHeightClassName="min-h-28"
-              rowClassName="gap-3"
-              optionClassName="relative flex-col gap-2 rounded-lg border border-border-light bg-bg-subtle p-4 active:opacity-[0.99]"
-              indicatorClassName="rounded-lg border border-brand bg-brand-lighter shadow-brand"
-            />
-          </SettingsSection>
-
-          <SettingsSection title="Accent">
-            <SlidingOptionSelector
-              rows={accentRows}
-              value={activeAccent}
-              onChange={setAccent}
-              optionHeight={ACCENT_CELL_HEIGHT_PX}
-              optionHeightClassName={ACCENT_CELL_HEIGHT_CLASS}
-              rowClassName="gap-1"
-              optionClassName="flex-col items-center justify-center border-0 bg-transparent px-0.5 py-0 shadow-none"
-              indicatorClassName="rounded-xl border border-brand bg-brand-lighter/35 shadow-sm shadow-brand/20"
-            />
-          </SettingsSection>
-        </ScrollView>
-
-        <View className="border-t border-border-subtle bg-bg px-4 pb-safe-offset-4 pt-3">
-          <Button
-            variant="outline"
-            className="h-12 w-full border-destructive/50 active:bg-destructive/5"
-            onPress={() => void signOut()}
-          >
-            <Icon as={LogOut} className="size-4 text-destructive" />
-            <Text className="text-sm font-semibold text-destructive">Log out</Text>
-          </Button>
-        </View>
+        <StyledFlashList
+          data={SETTINGS_SECTIONS}
+          renderItem={renderSection}
+          keyExtractor={(item) => item}
+          className="flex-1"
+          contentContainerClassName="px-4 pb-6 pt-6"
+          ItemSeparatorComponent={SettingsSectionSeparator}
+          ListHeaderComponent={
+            settingsLoading || profileLoading ? (
+              <View className="items-center justify-center py-6">
+                <ActivityIndicator colorClassName="accent-brand" />
+              </View>
+            ) : null
+          }
+        />
       </View>
     </>
   );
 }
 
-function ActiveCheck() {
-  return (
-    <View className="absolute right-3 top-3 size-6 items-center justify-center rounded-full bg-brand">
-      <Icon as={CheckIcon} className="size-3.5 text-white" />
-    </View>
-  );
-}
-
-function SettingsSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <View className="gap-4 rounded-xl border border-border-subtle bg-card-bg p-5 shadow-sm">
-      <Text className="text-title font-bold text-text">{title}</Text>
-      {children}
-    </View>
-  );
+function SettingsSectionSeparator() {
+  return <View className="h-4" />;
 }

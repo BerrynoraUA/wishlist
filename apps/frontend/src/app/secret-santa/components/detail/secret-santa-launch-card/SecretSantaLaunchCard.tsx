@@ -22,12 +22,6 @@ export function SecretSantaLaunchCard({ canLaunch, onLaunch }: Props) {
         <span>{t("Launch event", { $id: "secretSanta.launchCard.title" })}</span>
       </div>
 
-      <p>
-        {t("Generate receivers for every accepted participant.", {
-          $id: "secretSanta.launchCard.description",
-        })}
-      </p>
-
       <Button disabled={!canLaunch} onClick={onLaunch}>
         <Sparkles size={16} />
         <span>

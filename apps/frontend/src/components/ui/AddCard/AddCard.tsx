@@ -8,9 +8,10 @@ type Props = {
   onClick: () => void;
   label: string;
   hasDraft?: boolean;
+  guideTarget?: string;
 };
 
-export function AddCard({ onClick, label, hasDraft = false }: Props) {
+export function AddCard({ onClick, label, hasDraft = false, guideTarget }: Props) {
   return (
     <button
       type="button"
@@ -18,6 +19,7 @@ export function AddCard({ onClick, label, hasDraft = false }: Props) {
       onClick={onClick}
       aria-label={label}
       title={label}
+      data-guide-target={guideTarget}
     >
       {hasDraft && <DraftBadge variant="dot" className={styles.draftDot} />}
       <span className={styles.plus} aria-hidden="true">
