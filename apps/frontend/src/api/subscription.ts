@@ -17,12 +17,13 @@ export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
       isActive: false,
       expiresAt: null,
       revenuecatCustomerId: null,
+      paddleSubscriptionId: null,
     };
   }
 
   const { data, error } = await supabaseBrowser
     .from("user_subscriptions")
-    .select("plan, is_active, expires_at, revenuecat_customer_id")
+    .select("plan, is_active, expires_at, revenuecat_customer_id, paddle_subscription_id")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -34,6 +35,7 @@ export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
       isActive: false,
       expiresAt: null,
       revenuecatCustomerId: null,
+      paddleSubscriptionId: null,
     };
   }
 
@@ -42,6 +44,7 @@ export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
     isActive: data.is_active ?? false,
     expiresAt: data.expires_at ?? null,
     revenuecatCustomerId: data.revenuecat_customer_id ?? null,
+    paddleSubscriptionId: data.paddle_subscription_id ?? null,
   };
 }
 

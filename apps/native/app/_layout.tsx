@@ -5,6 +5,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { getNativeThemeNameForPreference, getNavigationTheme, getThemeMode } from "@/lib/theme";
 import { upsertKnownAccount } from "@/lib/known-accounts";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
+import { SubscriptionProvider } from "@/providers/subscription-provider";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
@@ -72,16 +73,18 @@ export default function RootLayout() {
       >
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <PostHogScreenTracker />
-            <ThemeProvider value={navigationTheme}>
-              <SafeAreaProvider>
-                <ReanimatedTrueSheetProvider>
-                  <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
-                  <AuthGate />
-                  <PortalHost />
-                </ReanimatedTrueSheetProvider>
-              </SafeAreaProvider>
-            </ThemeProvider>
+            <SubscriptionProvider>
+              <PostHogScreenTracker />
+              <ThemeProvider value={navigationTheme}>
+                <SafeAreaProvider>
+                  <ReanimatedTrueSheetProvider>
+                    <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
+                    <AuthGate />
+                    <PortalHost />
+                  </ReanimatedTrueSheetProvider>
+                </SafeAreaProvider>
+              </ThemeProvider>
+            </SubscriptionProvider>
           </AuthProvider>
         </QueryClientProvider>
       </GTProvider>
@@ -109,6 +112,7 @@ function AuthGate() {
       >
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="subscription" />
       </Stack>
     </>
   );

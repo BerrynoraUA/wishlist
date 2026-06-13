@@ -13,6 +13,7 @@ export interface SubscriptionStatus {
   isActive: boolean;
   expiresAt: string | null;
   revenuecatCustomerId: string | null;
+  paddleSubscriptionId: string | null;
 }
 
 export interface PricingTier {

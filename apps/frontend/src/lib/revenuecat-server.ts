@@ -1,8 +1,6 @@
 import "server-only";
 
-const RC_API_KEY = (
-  process.env.REVENUECAT_SECRET_API_KEY || process.env.REVENUECAT_API_KEY
-)?.trim();
+const RC_API_KEY = process.env.REVENUECAT_SECRET_API_KEY?.trim();
 
 const RC_PRO_ENTITLEMENT_ID = "Berrynora Pro";
 const RC_API_BASE = "https://api.revenuecat.com/v1";

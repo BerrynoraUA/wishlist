@@ -4,9 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const SUPABASE_ANON_KEY = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string;
-const RC_API_KEY = (
-  process.env.REVENUECAT_SECRET_API_KEY || process.env.REVENUECAT_API_KEY
-)?.trim();
+const RC_API_KEY = process.env.REVENUECAT_SECRET_API_KEY?.trim();
 const RC_PRO_ENTITLEMENT_ID = "Berrynora Pro";
 
 type RevenueCatAccessRecord = {
@@ -57,7 +55,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Missing RevenueCat server API key. Set REVENUECAT_SECRET_API_KEY or REVENUECAT_API_KEY. NEXT_PUBLIC_REVENUECAT_API_KEY is only for the client SDK.",
+            "Missing RevenueCat server API key. Set REVENUECAT_SECRET_API_KEY. NEXT_PUBLIC_REVENUECAT_API_KEY is only for the client SDK.",
         },
         { status: 500 },
       );
@@ -98,6 +96,7 @@ export async function POST(request: NextRequest) {
             plan: "free",
             is_active: false,
             expires_at: null,
+            paddle_subscription_id: null,
             updated_at: new Date().toISOString(),
           },
           { onConflict: "user_id" },
@@ -108,6 +107,7 @@ export async function POST(request: NextRequest) {
           isActive: false,
           expiresAt: null,
           revenuecatCustomerId: null,
+          paddleSubscriptionId: null,
         });
       }
 
@@ -132,6 +132,7 @@ export async function POST(request: NextRequest) {
         plan,
         is_active: isActive,
         expires_at: expiresAt,
+        paddle_subscription_id: null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" },
@@ -149,6 +150,7 @@ export async function POST(request: NextRequest) {
       isActive,
       expiresAt,
       revenuecatCustomerId: rcCustomerId,
+      paddleSubscriptionId: null,
     });
   } catch (err) {
     console.error("[Subscription Sync] Unexpected error:", err);
