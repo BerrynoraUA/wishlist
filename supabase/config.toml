@@ -303,9 +303,13 @@ max_frequency = "5s"
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
 [auth.external.apple]
-enabled = false
-client_id = ""
-# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
+enabled = true
+# Comma-separated allowed client IDs:
+#   - com.berrynora.wishlane     -> App ID (bundle id), used by the native iOS signInWithIdToken flow
+#   - com.wishlane.app.staging   -> Services ID, used by the web signInWithOAuth flow
+client_id = "com.berrynora.wishlane,com.wishlane.app.staging"
+# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead.
+# The value is the Apple client secret JWT (rotate every 6 months); see supabase/.env.
 secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
 # Overrides the default auth redirectUrl.
 redirect_uri = ""

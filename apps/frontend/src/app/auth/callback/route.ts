@@ -41,6 +41,9 @@ export async function GET(request: NextRequest) {
   });
 
   if (!code) {
+    console.error("[auth/callback] no code param", {
+      params: Object.fromEntries(requestUrl.searchParams.entries()),
+    });
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -58,6 +61,14 @@ export async function GET(request: NextRequest) {
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
+    console.error("[auth/callback] exchangeCodeForSession failed", {
+      message: error.message,
+      status: (error as { status?: number }).status,
+      code: (error as { code?: string }).code,
+      hasCodeVerifierCookie: request.cookies
+        .getAll()
+        .some((c) => c.name.includes("code-verifier") || c.name.includes("auth-token")),
+    });
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
