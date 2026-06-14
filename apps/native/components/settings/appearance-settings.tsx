@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -25,6 +24,7 @@ import type { ThemePreference, WishlistColorIndex } from "@wishlist/backend/type
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 import {
   ChevronDown,
+  Check,
   Gift,
   Languages,
   ListFilter,
@@ -37,7 +37,7 @@ import {
 } from "lucide-react-native";
 import { useGT, useLocale, useLocales, useSetLocale } from "gt-react-native";
 import * as React from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 
 const THEME_OPTION_HEIGHT = 96;
 const SWATCH_OPTION_HEIGHT = 76;
@@ -108,6 +108,7 @@ export function AppearanceSettings({
   const locales = useLocales();
   const setLocale = useSetLocale();
   const updateSettings = useUpdateSettings();
+  const [prioritiesExpanded, setPrioritiesExpanded] = React.useState(false);
   const priorities =
     selectedPriorities ??
     ALL_PRIORITIES.filter((priority) => priority.is_free).map((priority) => priority.id);
@@ -242,38 +243,60 @@ export function AppearanceSettings({
           <Icon as={ListFilter} className="size-4 text-brand" />
           <Text className="text-sm font-semibold text-text">{t("Item Priorities")}</Text>
         </View>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-11 justify-between px-3">
-              <Text className="font-semibold text-text">{getPrioritySummary(priorities, t)}</Text>
-              <Icon as={ChevronDown} className="size-4 text-text-muted" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-72">
-            {ALL_PRIORITIES.map((priority) => (
-              <DropdownMenuCheckboxItem
-                key={priority.id}
-                checked={priorities.includes(priority.id)}
-                closeOnPress={false}
-                disabled={priorities.length === 1 && priorities.includes(priority.id)}
-                onCheckedChange={() => togglePriority(priority.id)}
-              >
-                <View className="flex-row items-center gap-2">
+        <View className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ expanded: prioritiesExpanded }}
+            accessibilityLabel={t("Toggle item priorities")}
+            onPress={() => setPrioritiesExpanded((current) => !current)}
+            className="min-h-12 flex-row items-center justify-between gap-3 px-3 py-3 active:bg-bg-subtle"
+          >
+            <Text className="min-w-0 flex-1 font-semibold text-text" numberOfLines={2}>
+              {getPrioritySummary(priorities, t)}
+            </Text>
+            <Icon
+              as={ChevronDown}
+              className={cn("size-4 shrink-0 text-text-muted", prioritiesExpanded && "rotate-180")}
+            />
+          </Pressable>
+
+          {prioritiesExpanded ? (
+            <View className="gap-1 border-t border-border-subtle p-2">
+              {ALL_PRIORITIES.map((priority) => (
+                <Pressable
+                  key={priority.id}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{
+                    checked: priorities.includes(priority.id),
+                    disabled: priorities.length === 1 && priorities.includes(priority.id),
+                  }}
+                  disabled={priorities.length === 1 && priorities.includes(priority.id)}
+                  onPress={() => togglePriority(priority.id)}
+                  className="min-h-11 flex-row items-center gap-3 rounded-lg px-2 py-2 active:bg-bg-subtle disabled:opacity-50"
+                >
+                  <View className="size-5 items-center justify-center">
+                    {priorities.includes(priority.id) ? (
+                      <Icon as={Check} className="size-4 text-text" />
+                    ) : null}
+                  </View>
                   <View
                     className="size-3 rounded-full"
                     style={{ backgroundColor: priority.color }}
                   />
-                  <Text className="text-sm font-semibold text-popover-foreground">
-                    {priority.name}
+                  <Text
+                    className="min-w-0 flex-1 text-sm font-semibold text-text"
+                    numberOfLines={1}
+                  >
+                    {t(priority.name)}
                   </Text>
-                  {!priority.is_free && (
+                  {!priority.is_free ? (
                     <Text className="text-xs font-bold text-brand">{t("Pro")}</Text>
-                  )}
-                </View>
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                  ) : null}
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
+        </View>
       </View>
     </SettingsSection>
   );

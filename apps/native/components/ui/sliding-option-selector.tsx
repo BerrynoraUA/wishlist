@@ -71,11 +71,12 @@ export function SlidingOptionSelector<T>({
       }
     }
 
-    return { rowIndex: 0, columnIndex: 0 };
+    return null;
   }, [rows, value]);
-  const selectedRowLength = rows[selectedPosition.rowIndex]?.length ?? 1;
+  const selectedRowLength =
+    selectedPosition === null ? 1 : (rows[selectedPosition.rowIndex]?.length ?? 1);
   const selectedOptionWidth =
-    rowWidth > 0
+    rowWidth > 0 && selectedPosition !== null
       ? (rowWidth - SLIDING_SELECTOR_GAP * (selectedRowLength - 1)) / selectedRowLength
       : 0;
   const indicatorX = useSharedValue(0);
@@ -84,6 +85,12 @@ export function SlidingOptionSelector<T>({
   const didPositionIndicator = React.useRef(false);
 
   React.useEffect(() => {
+    if (selectedPosition === null) {
+      indicatorWidth.value = 0;
+      didPositionIndicator.current = false;
+      return;
+    }
+
     const targetX = selectedPosition.columnIndex * (selectedOptionWidth + SLIDING_SELECTOR_GAP);
     const targetY = selectedPosition.rowIndex * (optionHeight + SLIDING_SELECTOR_GAP);
 
@@ -105,8 +112,7 @@ export function SlidingOptionSelector<T>({
     optionHeight,
     reduceMotion,
     selectedOptionWidth,
-    selectedPosition.columnIndex,
-    selectedPosition.rowIndex,
+    selectedPosition,
   ]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
@@ -116,6 +122,13 @@ export function SlidingOptionSelector<T>({
 
   function handleLayout(event: LayoutChangeEvent) {
     const nextWidth = event.nativeEvent.layout.width;
+    if (selectedPosition === null) {
+      indicatorWidth.value = 0;
+      didPositionIndicator.current = false;
+      setRowWidth((current) => (current === nextWidth ? current : nextWidth));
+      return;
+    }
+
     const nextSelectedRowLength = rows[selectedPosition.rowIndex]?.length ?? 1;
     const nextSelectedOptionWidth =
       nextWidth > 0

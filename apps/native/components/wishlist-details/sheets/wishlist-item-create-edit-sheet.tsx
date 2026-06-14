@@ -557,40 +557,38 @@ function PrioritySelector({
   value: ItemFormValues["priority_id"];
   onChange: (priority: ItemFormValues["priority_id"]) => void;
 }) {
-  const t = useGT();
-  const rows = React.useMemo(
-    (): SlidingOption<string | null>[][] => [
-      [
-        {
-          value: null,
-          accessibilityLabel: t("No priority"),
-          children: ({ selected }: SlidingOptionRenderProps) => (
-            <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
-              {t("None")}
-            </Text>
-          ),
-        },
-        ...[...priorityOptions].reverse().map((option) => ({
-          value: option.priority_id,
-          children: ({ selected }: SlidingOptionRenderProps) => (
-            <Text className={cn("text-xs font-semibold text-text", selected && "text-brand")}>
-              {option.label}
-            </Text>
-          ),
-        })),
-      ],
-    ],
-    [priorityOptions, t],
-  );
+  const rows = React.useMemo((): SlidingOption<string | null>[][] => {
+    const options: SlidingOption<string | null>[] = priorityOptions.map((option) => ({
+      value: option.priority_id,
+      children: ({ selected }: SlidingOptionRenderProps) => (
+        <View className="w-full min-w-0 flex-row items-center justify-start gap-2 px-2">
+          <View className="size-2.5 rounded-full" style={{ backgroundColor: option.color }} />
+          <Text
+            className={cn("min-w-0 text-sm font-bold text-text", selected && "text-brand")}
+            numberOfLines={1}
+          >
+            {option.label}
+          </Text>
+        </View>
+      ),
+    }));
+
+    const nextRows: SlidingOption<string | null>[][] = [];
+    for (let index = 0; index < options.length; index += 2) {
+      nextRows.push(options.slice(index, index + 2));
+    }
+
+    return nextRows;
+  }, [priorityOptions]);
 
   return (
     <SlidingOptionSelector<string | null>
       rows={rows}
       value={value}
-      onChange={onChange}
-      optionHeight={44}
-      optionHeightClassName="h-11"
-      optionClassName="gap-1.5 rounded-lg px-2"
+      onChange={(nextValue) => onChange(nextValue === value ? null : nextValue)}
+      optionHeight={46}
+      optionHeightClassName="h-[46px]"
+      optionClassName="rounded-xl px-3"
       indicatorClassName="rounded-lg border border-brand bg-brand-lighter"
     />
   );

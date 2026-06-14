@@ -5,7 +5,7 @@ import { useGT, useLocale } from "gt-next";
 import { useRouter } from "next/navigation";
 import styles from "./SecretSantaEventCard.module.scss";
 import { TreePine, CalendarDays, Users } from "lucide-react";
-import type { SecretSantaListItem } from "@/api/types/secret-santa";
+import type { SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
 
 type Props = {

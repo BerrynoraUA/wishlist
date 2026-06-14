@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useGT, useLocale } from "gt-next";
-import type { SecretSantaDetails } from "@/api/types/secret-santa";
+import type { SecretSantaDetails } from "@wishlist/backend/types/secret-santa";
 import {
   CalendarDays,
   Check,

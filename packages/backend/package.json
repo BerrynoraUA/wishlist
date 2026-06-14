@@ -23,6 +23,7 @@
     "./types/paddle": "./types/paddle.ts",
     "./types/session-storage": "./types/session-storage.ts",
     "./types/settings": "./types/settings.ts",
+    "./types/secret-santa": "./types/secret-santa.ts",
     "./types/subscription": "./types/subscription.ts",
     "./types/wishlist": "./types/wishlist.ts"
   },

@@ -32,6 +32,7 @@ export * from "./known-accounts";
 export * from "./paddle";
 export * from "./session-storage";
 export * from "./settings";
+export * from "./secret-santa";
 export * from "./subscription";
 export {
   WishlistAccent,

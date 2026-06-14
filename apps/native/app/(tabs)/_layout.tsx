@@ -50,6 +50,15 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Label>{t("Discover")}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
+        name="secret-santa"
+        listeners={{
+          tabPress: () => handleTabPress("secret-santa"),
+        }}
+      >
+        <NativeTabs.Trigger.Icon sf="party.popper.fill" md="card_giftcard" />
+        <NativeTabs.Trigger.Label>{t("Secret Santa")}</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger
         name="friends"
         listeners={{
           tabPress: () => handleTabPress("friends"),
