@@ -1,6 +1,6 @@
-import { configureRevenueCat } from "@/lib/revenuecat";
 import { syncSubscription } from "@/api/subscription";
 import { subscriptionKeys, useSubscriptionStatus } from "@/hooks/use-subscription";
+import { configureRevenueCat } from "@/lib/revenuecat";
 import { useAuth } from "@/providers/auth-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import Purchases, {
