@@ -1,66 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClientWithKey } from "@wishlist/backend/supabase";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import {
+  RevenueCatConfigError,
+  RevenueCatFetchError,
+  syncRevenueCatSubscriber,
+} from "@/lib/subscription-sync-server";
 
 const SUPABASE_ANON_KEY = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string;
-const RC_API_KEY = process.env.REVENUECAT_SECRET_API_KEY?.trim();
-const RC_PRO_ENTITLEMENT_ID = "Berrynora Pro";
-
-type RevenueCatAccessRecord = {
-  expires_date?: string | null;
-};
-
-type RevenueCatSubscriber = {
-  original_app_user_id?: string | null;
-  entitlements?: Record<string, RevenueCatAccessRecord>;
-  subscriptions?: Record<string, RevenueCatAccessRecord>;
-};
-
-function isFutureDate(value?: string | null) {
-  return Boolean(value && new Date(value) > new Date());
-}
-
-function getActiveSubscription(subscriber: RevenueCatSubscriber) {
-  const entitlement = subscriber.entitlements?.[RC_PRO_ENTITLEMENT_ID];
-  if (isFutureDate(entitlement?.expires_date)) {
-    return { isActive: true, expiresAt: entitlement?.expires_date ?? null };
-  }
-
-  const activeEntitlement = Object.values(subscriber.entitlements ?? {}).find((item) =>
-    isFutureDate(item?.expires_date),
-  );
-  if (activeEntitlement) {
-    return {
-      isActive: true,
-      expiresAt: activeEntitlement.expires_date ?? null,
-    };
-  }
-
-  const activeSubscription = Object.values(subscriber.subscriptions ?? {}).find((item) =>
-    isFutureDate(item?.expires_date),
-  );
-
-  return {
-    isActive: Boolean(activeSubscription),
-    expiresAt: activeSubscription?.expires_date ?? null,
-  };
-}
 
 export async function POST(request: NextRequest) {
   try {
-    const supabaseAdmin = getSupabaseAdmin();
-
-    if (!RC_API_KEY) {
-      return NextResponse.json(
-        {
-          error:
-            "Missing RevenueCat server API key. Set REVENUECAT_SECRET_API_KEY. NEXT_PUBLIC_REVENUECAT_API_KEY is only for the client SDK.",
-        },
-        { status: 500 },
-      );
-    }
-
     const authHeader = request.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -77,82 +27,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const rcResponse = await fetch(
-      `https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(user.id)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${RC_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-      },
+    const status = await syncRevenueCatSubscriber(user.id);
+
+    console.log(
+      `[Subscription Sync] User ${user.id} -> plan=${status.plan}, active=${status.isActive}`,
     );
-
-    if (!rcResponse.ok) {
-      if (rcResponse.status === 404) {
-        await supabaseAdmin.from("user_subscriptions").upsert(
-          {
-            user_id: user.id,
-            revenuecat_customer_id: user.id,
-            plan: "free",
-            is_active: false,
-            expires_at: null,
-            paddle_subscription_id: null,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "user_id" },
-        );
-
-        return NextResponse.json({
-          plan: "free",
-          isActive: false,
-          expiresAt: null,
-          revenuecatCustomerId: null,
-          paddleSubscriptionId: null,
-        });
-      }
-
-      const upstreamBody = await rcResponse.text();
-
-      console.error("[Subscription Sync] RevenueCat API error:", rcResponse.status, upstreamBody);
-
-      return NextResponse.json({ error: "Failed to fetch subscription data" }, { status: 502 });
-    }
-
-    const rcData = await rcResponse.json();
-    const subscriber = (rcData.subscriber ?? {}) as RevenueCatSubscriber;
-    const { isActive, expiresAt } = getActiveSubscription(subscriber);
-    const isPro = isActive;
-    const plan = isPro ? "pro" : "free";
-    const rcCustomerId = subscriber?.original_app_user_id ?? user.id;
-
-    const { error: dbError } = await supabaseAdmin.from("user_subscriptions").upsert(
-      {
-        user_id: user.id,
-        revenuecat_customer_id: rcCustomerId,
-        plan,
-        is_active: isActive,
-        expires_at: expiresAt,
-        paddle_subscription_id: null,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id" },
-    );
-
-    if (dbError) {
-      console.error("[Subscription Sync] Supabase upsert error:", dbError);
-      return NextResponse.json({ error: "Database error" }, { status: 500 });
-    }
-
-    console.log(`[Subscription Sync] User ${user.id} → plan=${plan}, active=${isActive}`);
 
     return NextResponse.json({
-      plan,
-      isActive,
-      expiresAt,
-      revenuecatCustomerId: rcCustomerId,
-      paddleSubscriptionId: null,
+      plan: status.plan,
+      isActive: status.isActive,
+      expiresAt: status.expiresAt,
+      revenuecatCustomerId: status.revenuecatCustomerId,
+      paddleSubscriptionId: status.paddleSubscriptionId,
     });
   } catch (err) {
+    if (err instanceof RevenueCatConfigError) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+
+    if (err instanceof RevenueCatFetchError) {
+      console.error("[Subscription Sync] RevenueCat API error:", err.status, err.body);
+      return NextResponse.json({ error: err.message }, { status: 502 });
+    }
+
     console.error("[Subscription Sync] Unexpected error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

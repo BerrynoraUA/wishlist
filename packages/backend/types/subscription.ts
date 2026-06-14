@@ -38,11 +38,6 @@ export const FREE_LIMITS = {
   maxSecretSantaEvents: 1,
 } as const;
 
-export const PADDLE_PRICE_IDS = {
-  proMonthly: process.env.NEXT_PUBLIC_PADDLE_MONTHLY_PRICE_ID ?? "",
-  proYearly: process.env.NEXT_PUBLIC_PADDLE_YEARLY_PRICE_ID ?? "",
-} as const;
-
 export const PRICING = {
   monthly: 0.99,
   yearly: 1,

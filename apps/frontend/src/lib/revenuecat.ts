@@ -1,6 +1,7 @@
 import { Purchases } from "@revenuecat/purchases-js";
 
 const RC_API_KEY = process.env.NEXT_PUBLIC_REVENUECAT_API_KEY as string;
+export const RC_PRO_ENTITLEMENT_ID = "pro_access";
 
 let instance: Purchases | null = null;
 let currentUserId: string | null = null;
@@ -21,7 +22,7 @@ export function initRevenueCat(userId: string): Purchases {
     return null as unknown as Purchases;
   }
 
-  instance = Purchases.configure(RC_API_KEY, userId);
+  instance = Purchases.configure({ apiKey: RC_API_KEY, appUserId: userId });
   currentUserId = userId;
   return instance;
 }

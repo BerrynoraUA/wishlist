@@ -24,7 +24,6 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@paddle/paddle-js": "^1.6.2",
     "@revenuecat/purchases-js": "^1.28.0",
     "@tanstack/react-query": "^5.90.20",
     "@wishlist/backend": "workspace:*",
