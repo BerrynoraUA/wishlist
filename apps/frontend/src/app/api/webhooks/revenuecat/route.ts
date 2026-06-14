@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import {
+  RevenueCatConfigError,
+  RevenueCatFetchError,
+  syncRevenueCatSubscriber,
+} from "@/lib/subscription-sync-server";
 
 const RC_WEBHOOK_AUTH_KEY = process.env.REVENUECAT_WEBHOOK_AUTH_KEY as string;
 
@@ -10,7 +14,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const supabaseAdmin = getSupabaseAdmin();
     const body = await request.json();
     const event = body?.event;
     if (!event) {
@@ -19,49 +22,28 @@ export async function POST(request: NextRequest) {
 
     const eventType: string = event.type;
     const appUserId: string | undefined = event.app_user_id;
-    const expirationAtMs: number | undefined = event.expiration_at_ms;
-    const productId: string | undefined = event.product_id;
 
     if (!appUserId) {
       return NextResponse.json({ error: "Missing app_user_id" }, { status: 400 });
     }
 
-    const isPro = ["INITIAL_PURCHASE", "RENEWAL", "PRODUCT_CHANGE", "UNCANCELLATION"].includes(
-      eventType,
-    );
-
-    const isExpired = ["EXPIRATION", "BILLING_ISSUE"].includes(eventType);
-
-    const isCancelled = eventType === "CANCELLATION";
-
-    const plan = isPro ? "pro" : "free";
-    const isActive = isPro || (isCancelled && !isExpired);
-    const expiresAt = expirationAtMs ? new Date(expirationAtMs).toISOString() : null;
-
-    const { error } = await supabaseAdmin.from("user_subscriptions").upsert(
-      {
-        user_id: appUserId,
-        revenuecat_customer_id: event.original_app_user_id ?? appUserId,
-        plan: isExpired ? "free" : plan,
-        is_active: isActive,
-        expires_at: expiresAt,
-        product_id: productId ?? null,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id" },
-    );
-
-    if (error) {
-      console.error("[RevenueCat Webhook] Supabase upsert error:", error);
-      return NextResponse.json({ error: "Database error" }, { status: 500 });
-    }
+    const status = await syncRevenueCatSubscriber(appUserId);
 
     console.log(
-      `[RevenueCat Webhook] ${eventType} for user ${appUserId} → plan=${plan}, active=${isActive}, product=${productId ?? "n/a"}`,
+      `[RevenueCat Webhook] ${eventType} for user ${appUserId} -> plan=${status.plan}, active=${status.isActive}`,
     );
 
     return NextResponse.json({ success: true });
   } catch (err) {
+    if (err instanceof RevenueCatConfigError) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+
+    if (err instanceof RevenueCatFetchError) {
+      console.error("[RevenueCat Webhook] RevenueCat API error:", err.status, err.body);
+      return NextResponse.json({ error: err.message }, { status: 502 });
+    }
+
     console.error("[RevenueCat Webhook] Unexpected error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

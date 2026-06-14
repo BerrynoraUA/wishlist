@@ -2,9 +2,10 @@ import "@/polyfills/gtIntlPolyfills";
 import "@/global.css";
 
 import { useSettings } from "@/hooks/use-settings";
-import { getNativeThemeNameForPreference, getNavigationTheme, getThemeMode } from "@/lib/theme";
+import { getNativeThemeNameForPreference, getThemeMode, useNavigationTheme } from "@/lib/theme";
 import { upsertKnownAccount } from "@/lib/known-accounts";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
+import { SubscriptionProvider } from "@/providers/subscription-provider";
 import { UserGuideProvider } from "@/components/user-guide/user-guide-provider";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
@@ -51,7 +52,7 @@ export default function RootLayout() {
   );
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
-  const navigationTheme = getNavigationTheme(theme);
+  const navigationTheme = useNavigationTheme(theme);
 
   return (
     <PostHogProvider
@@ -73,18 +74,20 @@ export default function RootLayout() {
       >
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <PostHogScreenTracker />
-            <ThemeProvider value={navigationTheme}>
-              <SafeAreaProvider>
-                <ReanimatedTrueSheetProvider>
-                  <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
-                  <UserGuideProvider>
+            <SubscriptionProvider>
+              <PostHogScreenTracker />
+              <ThemeProvider value={navigationTheme}>
+                <SafeAreaProvider>
+                  <ReanimatedTrueSheetProvider>
+                    <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
+                    <UserGuideProvider>
                     <AuthGate />
-                    <PortalHost />
-                  </UserGuideProvider>
+                      <PortalHost />
+                    </UserGuideProvider>
                 </ReanimatedTrueSheetProvider>
-              </SafeAreaProvider>
-            </ThemeProvider>
+                </SafeAreaProvider>
+              </ThemeProvider>
+            </SubscriptionProvider>
           </AuthProvider>
         </QueryClientProvider>
       </GTProvider>
@@ -112,6 +115,7 @@ function AuthGate() {
       >
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="subscription" />
       </Stack>
     </>
   );
