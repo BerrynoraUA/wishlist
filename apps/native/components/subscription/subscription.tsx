@@ -149,7 +149,8 @@ export function Subscription({
     isLoading,
     isPro,
     expiresAt,
-    paddleSubscriptionId,
+    hasExternalSubscription,
+    hasManageableSubscription,
     state,
     error,
     selectPackage,
@@ -162,9 +163,7 @@ export function Subscription({
   const isPurchasing = state === "purchasing";
   const isRestoring = state === "restoring";
   const isBusy = isPurchasing || isRestoring;
-  const isWebSubscription = isPro && Boolean(paddleSubscriptionId);
   const hasMobileSubscription = Boolean(activeProductId);
-  const hasExternalSubscription = isWebSubscription;
   const isCurrentSelection =
     Boolean(activeProductId) && activeProductId === selectedPackage?.product.identifier;
   const isPurchaseDisabled =
@@ -301,6 +300,17 @@ export function Subscription({
                       )
                     : t("Your subscription is active. Manage it where you subscribed.")}
                 </Text>
+                {hasManageableSubscription ? (
+                  <Pressable
+                    className="pt-2"
+                    disabled={isBusy}
+                    onPress={() => void openManagement()}
+                  >
+                    <Text className="text-sm font-semibold text-white">
+                      {t("Manage subscription")}
+                    </Text>
+                  </Pressable>
+                ) : null}
               </View>
             ) : null}
 
@@ -329,10 +339,10 @@ export function Subscription({
                 </Text>
               </Button>
 
-              {hasMobileSubscription ? (
+              {hasMobileSubscription || (isPro && hasManageableSubscription) ? (
                 <Pressable className="py-2" disabled={isBusy} onPress={() => void openManagement()}>
                   <Text className="text-center text-sm font-medium text-red-300">
-                    {t("Cancel subscription")}
+                    {t("Manage subscription")}
                   </Text>
                 </Pressable>
               ) : null}

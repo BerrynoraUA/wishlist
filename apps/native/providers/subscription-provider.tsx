@@ -17,6 +17,9 @@ import { Linking, Platform } from "react-native";
 
 type PurchaseState = "idle" | "loading" | "purchasing" | "restoring";
 
+const RC_PRO_ENTITLEMENT_ID = "pro_access";
+const ANDROID_SUBSCRIPTION_STORES = new Set(["PLAY_STORE", "TEST_STORE"]);
+
 interface SubscriptionContextValue {
   customerInfo: CustomerInfo | null;
   offering: PurchasesOffering | null;
@@ -24,10 +27,12 @@ interface SubscriptionContextValue {
   selectedPackage: PurchasesPackage | null;
   selectedPackageId: string | null;
   activeProductId: string | null;
+  activeEntitlementStore: string | null;
+  hasExternalSubscription: boolean;
+  hasManageableSubscription: boolean;
   isConfigured: boolean;
   isPro: boolean;
   expiresAt: string | null;
-  paddleSubscriptionId: string | null;
   isLoading: boolean;
   state: PurchaseState;
   error: string | null;
@@ -75,17 +80,27 @@ function getProductId(subscription: string) {
   return subscription.split(":")[0];
 }
 
+function getSubscriptionStore(customerInfo: CustomerInfo, subscription: string) {
+  return customerInfo.subscriptionsByProductIdentifier[getProductId(subscription)]?.store ?? null;
+}
+
+function isAndroidSubscriptionStore(store?: string | null) {
+  return Boolean(store && ANDROID_SUBSCRIPTION_STORES.has(store));
+}
+
+function getActiveAndroidSubscription(customerInfo: CustomerInfo) {
+  return customerInfo.activeSubscriptions.find((subscription) =>
+    isAndroidSubscriptionStore(getSubscriptionStore(customerInfo, subscription)),
+  );
+}
+
 async function getProductChangeInfo(
   selectedPackage: PurchasesPackage,
 ): Promise<StoreProductChangeInfo | null> {
   if (Platform.OS !== "android") return null;
 
   const customerInfo = await Purchases.getCustomerInfo();
-  const activeSubscription = customerInfo.activeSubscriptions.find(
-    (subscription) =>
-      customerInfo.subscriptionsByProductIdentifier[getProductId(subscription)]?.store ===
-      "PLAY_STORE",
-  );
+  const activeSubscription = getActiveAndroidSubscription(customerInfo);
 
   if (
     !activeSubscription ||
@@ -107,7 +122,6 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     expiresAt,
     isLoading: isSubscriptionLoading,
     isPro,
-    paddleSubscriptionId,
     refetch: refetchSubscriptionStatus,
   } = subscriptionStatus;
   const queryClient = useQueryClient();
@@ -127,9 +141,18 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     return packages.find((item) => item.identifier === selectedPackageId) ?? packages[0] ?? null;
   }, [packages, selectedPackageId]);
   const activeProductId = useMemo(() => {
-    const activeSubscription = customerInfo?.activeSubscriptions[0];
+    if (!customerInfo) return null;
+
+    const activeSubscription = getActiveAndroidSubscription(customerInfo);
     return activeSubscription ? getProductId(activeSubscription) : null;
-  }, [customerInfo?.activeSubscriptions]);
+  }, [customerInfo]);
+  const activeEntitlementStore = useMemo(() => {
+    const proEntitlement = customerInfo?.entitlements.active[RC_PRO_ENTITLEMENT_ID];
+    return proEntitlement?.store ?? null;
+  }, [customerInfo]);
+  const hasManageableSubscription = Boolean(customerInfo?.managementURL);
+  const hasExternalSubscription =
+    isPro && Boolean(activeEntitlementStore) && !isAndroidSubscriptionStore(activeEntitlementStore);
 
   const updateCustomerInfo = React.useCallback((info: CustomerInfo) => {
     setCustomerInfo(info);
@@ -157,6 +180,9 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
         setError("RevenueCat is not configured for this build.");
         return;
       }
+
+      const info = await Purchases.getCustomerInfo();
+      updateCustomerInfo(info);
 
       const offerings = await Purchases.getOfferings();
       const currentOffering = offerings.current ?? Object.values(offerings.all)[0] ?? null;
@@ -259,10 +285,12 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       selectedPackage,
       selectedPackageId,
       activeProductId,
+      activeEntitlementStore,
+      hasExternalSubscription,
+      hasManageableSubscription,
       isConfigured,
       isPro,
       expiresAt,
-      paddleSubscriptionId,
       isLoading: state === "loading" || isSubscriptionLoading,
       state,
       error,
@@ -283,10 +311,12 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       selectedPackageId,
       state,
       activeProductId,
+      activeEntitlementStore,
       expiresAt,
+      hasExternalSubscription,
+      hasManageableSubscription,
       isPro,
       isSubscriptionLoading,
-      paddleSubscriptionId,
     ],
   );
 
