@@ -1,7 +1,7 @@
 "use client";
 
 import { useGT } from "gt-next";
-import type { SecretSantaPerson } from "@/api/types/secret-santa";
+import type { SecretSantaPerson } from "@wishlist/backend/types/secret-santa";
 import { X } from "lucide-react";
 import { SecretSantaPersonAvatar } from "../secret-santa-person-avatar/SecretSantaPersonAvatar";
 import styles from "./SecretSantaPeopleSection.module.scss";

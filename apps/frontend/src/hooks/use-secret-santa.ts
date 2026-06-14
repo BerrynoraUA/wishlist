@@ -19,7 +19,7 @@ import type {
   LaunchSecretSantaInput,
   ListSecretSantaEventsParams,
   UpdateSecretSantaEventInput,
-} from "@/api/types/secret-santa";
+} from "@wishlist/backend/types/secret-santa";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
 
 export const secretSantaKeys = {

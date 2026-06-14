@@ -8,7 +8,7 @@ import { Select } from "@/components/ui/Select/Select";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { useUpdateSecretSantaEvent } from "@/hooks/use-secret-santa";
-import type { SecretSantaDetails } from "@/api/types/secret-santa";
+import type { SecretSantaDetails } from "@wishlist/backend/types/secret-santa";
 import { validateImageUploadFile } from "@/lib/image-upload";
 import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import styles from "../create-secret-santa-modal/CreateSecretSantaModal.module.scss";

@@ -1,0 +1,137 @@
+import type { ItemLink } from "./item";
+
+export type UUID = string;
+
+export type SecretSantaImageInput =
+  | {
+      uri: string;
+      mimeType?: string | null;
+      fileName?: string | null;
+    }
+  | {
+      name: string;
+      type: string;
+      size: number;
+      arrayBuffer: () => Promise<ArrayBuffer>;
+    };
+
+export type CreateSecretSantaEventInput = {
+  name: string;
+  event_date: string;
+  budget: number;
+  currency: string;
+  image?: SecretSantaImageInput | null;
+  imageUrl?: string | null;
+  invited_user_ids: UUID[];
+};
+
+export type UpdateSecretSantaEventInput = {
+  name?: string;
+  event_date?: string;
+  budget?: number;
+  currency?: string;
+  image?: SecretSantaImageInput | null;
+  imageUrl?: string | null;
+  removeImage?: boolean;
+};
+
+export type SecretSantaEvent = {
+  id: UUID;
+  name: string;
+  event_date: string;
+  budget: number;
+  currency: string | null;
+  image_url: string | null;
+  owner_id: UUID | null;
+};
+
+export type SecretSantaPerson = {
+  id: string;
+  nickname: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+};
+
+export type SecretSantaPendingInvite = SecretSantaPerson & {
+  invite_id: string;
+};
+
+export type SecretSantaDetails = {
+  id: string;
+  name: string;
+  event_date: string;
+  budget: number;
+  currency: string | null;
+  image_url: string | null;
+  owner_id: string | null;
+  is_started: boolean;
+  participants: SecretSantaPerson[];
+  pending_invites: SecretSantaPendingInvite[];
+  my_receiver: SecretSantaPerson | null;
+};
+
+export type SecretSantaListItem = {
+  id: string;
+  name: string;
+  event_date: string;
+  budget: number;
+  currency: string | null;
+  image_url: string | null;
+  owner_id: string | null;
+  is_owner: boolean;
+  participants_count: number;
+};
+
+export type SecretSantaListResponse = {
+  items: SecretSantaListItem[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export type ListSecretSantaEventsParams = {
+  search?: string;
+  limit?: number;
+  offset?: number;
+};
+
+export type SecretSantaExclusion = {
+  user_id: string;
+  excluded_ids: string[];
+};
+
+export type LaunchSecretSantaInput = {
+  event_id: string;
+  exclusions: SecretSantaExclusion[];
+};
+
+export type VisibleItem = {
+  id: string;
+  wishlist_id: string;
+  wishlist_title: string;
+  wishlist_image_url: string | null;
+  name: string;
+  description: string | null;
+  price: string | null;
+  color_index: number | null;
+  discount_price: string | null;
+  has_discount: boolean | null;
+  effective_price: number | null;
+  discount_end_date: string | null;
+  currency: string | null;
+  priority_id: string | null;
+  priority_name: string | null;
+  url: string | null;
+  image_url: string | null;
+  status: number | null;
+  reserved_by: string | null;
+  created_at: string;
+  additional_links?: ItemLink[] | null;
+};
+
+export type VisibleItemsResponse = {
+  items: VisibleItem[];
+  total: number;
+  limit: number;
+  offset: number;
+};

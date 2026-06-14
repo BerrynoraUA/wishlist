@@ -5,7 +5,7 @@ import { useGT } from "gt-next";
 import { toast } from "sonner";
 import { useSecretSantaDetails } from "@/hooks/use-secret-santa";
 import { useCurrentUserId } from "@/hooks/use-user";
-import type { SecretSantaPendingInvite } from "@/api/types/secret-santa";
+import type { SecretSantaPendingInvite } from "@wishlist/backend/types/secret-santa";
 import { buildSecretSantaJoinUrl } from "../helpers";
 import { COPY_FEEDBACK_DURATION_MS, MIN_PARTICIPANTS_TO_LAUNCH } from "../constants";
 

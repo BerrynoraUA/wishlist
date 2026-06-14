@@ -138,13 +138,14 @@ export default function FriendsScreen() {
     });
   }
 
-  function renderRow({ item }: { item: FriendsRow }) {
+  function renderRow({ item, index }: { item: FriendsRow; index: number }) {
     return (
       <View
         className="flex-row"
         style={{
           alignSelf: "center",
           gap: gridGap,
+          paddingTop: index === 0 ? 8 : 0,
           width: contentWidth,
         }}
       >

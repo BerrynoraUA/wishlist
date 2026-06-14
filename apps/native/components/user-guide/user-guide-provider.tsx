@@ -97,7 +97,13 @@ const UserGuideTargetRegistrationContext = React.createContext<UserGuideTargetRe
   requestMeasure: () => {},
 });
 
-const NAV_TARGETS = ["nav-wishlists", "nav-discover", "nav-friends", "nav-profile"] as const;
+const NAV_TARGETS = [
+  "nav-wishlists",
+  "nav-discover",
+  "nav-secret-santa",
+  "nav-friends",
+  "nav-profile",
+] as const;
 const GUIDE_TOOLTIP_WIDTH = 230;
 const GUIDE_TOOLTIP_HEIGHT = 78;
 const GUIDE_TOOLTIP_COMPACT_HEIGHT = 44;
