@@ -140,6 +140,7 @@ export default function SecretSantaDetailScreen() {
                     <SecretSantaPeopleSection
                       title={t("Participants")}
                       emptyText={t("No participants have accepted yet.")}
+                      emptyMascot="sad-alone"
                       people={participants}
                     />
                     <SecretSantaGiftSuggestions
@@ -159,6 +160,7 @@ export default function SecretSantaDetailScreen() {
                     <SecretSantaPeopleSection
                       title={t("Participants")}
                       emptyText={t("No participants have accepted yet.")}
+                      emptyMascot="sad-alone"
                       people={participants}
                       onRemove={(userId) => {
                         removeParticipant.mutate(
@@ -195,6 +197,7 @@ export default function SecretSantaDetailScreen() {
                   <SecretSantaPeopleSection
                     title={t("Participants")}
                     emptyText={t("No participants have accepted yet.")}
+                    emptyMascot="sad-alone"
                     people={participants}
                   />
                 )}

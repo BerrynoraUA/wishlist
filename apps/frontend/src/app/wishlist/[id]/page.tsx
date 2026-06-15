@@ -28,6 +28,7 @@ import { useWishlistPageModals } from "./hooks/use-wishlist-page-modals";
 import { useWishlistShare } from "./hooks/use-wishlist-share";
 import { paginationFlags } from "@/lib/filter-helpers";
 import { WISHLIST_ITEMS_PAGE_SIZE } from "./constants";
+import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 
 export default function WishlistItemsPage() {
   const t = useGT();
@@ -157,15 +158,19 @@ export default function WishlistItemsPage() {
           </div>
 
           {!itemsLoading && !hasAnyItems && !isFiltersActive && (
-            <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>
+            <MascotEmptyState
+              variant={canEditWishlist ? "gift-in-hands" : "empty-hands-shrug"}
+              message={t("No items yet.", { $id: "wishlist.page.noItems" })}
+            />
           )}
 
           {!itemsLoading && items.length === 0 && isFiltersActive && (
-            <p>
-              {t("No items match your filters.", {
+            <MascotEmptyState
+              variant="magnifying-glass"
+              message={t("No items match your filters.", {
                 $id: "wishlist.page.noFilteredItems",
               })}
-            </p>
+            />
           )}
 
           {!itemsLoading && items.length > 0 && (

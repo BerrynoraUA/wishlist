@@ -205,7 +205,11 @@ export function WishlistList({
             <InlineState width={contentWidth} message={t("Failed to load wishlists.")} />
           ) : null}
           {!query.isLoading && !query.isError && wishlists.length === 0 && filtersActive ? (
-            <InlineState width={contentWidth} message={t("No wishlists match your filters.")} />
+            <InlineState
+              width={contentWidth}
+              mascot="magnifying-glass"
+              message={t("No wishlists match your filters.")}
+            />
           ) : null}
           {pagination.showPagination ? (
             <PaginationControls

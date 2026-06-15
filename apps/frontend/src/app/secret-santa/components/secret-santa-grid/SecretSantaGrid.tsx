@@ -7,6 +7,7 @@ import styles from "./SecretSantaGrid.module.scss";
 import { useSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { Pagination } from "@/components/ui/Pagination/Pagination";
 import { SkeletonCard, Skeleton } from "@/components/ui/Skeleton/Skeleton";
+import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 
 const PAGE_SIZE = 8;
 
@@ -45,11 +46,13 @@ export function SecretSantaGrid() {
           </p>
         )}
         {!isLoading && !isError && events.length === 0 && (
-          <p className={styles.empty}>
-            {t("No Secret Santa events yet. Create one to get started!", {
+          <MascotEmptyState
+            className={styles.empty}
+            variant="santa-sack"
+            message={t("No Secret Santa events yet. Create one to get started!", {
               $id: "secretSanta.grid.empty",
             })}
-          </p>
+          />
         )}
         {events.map((event) => (
           <SecretSantaEventCard key={event.id} event={event} />

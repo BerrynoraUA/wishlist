@@ -10,6 +10,7 @@ import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { SecretSantaPersonAvatar } from "@/components/secret-santa/secret-santa-person-avatar";
+import { MascotEmptyState, type MascotVariant } from "@/components/shared/mascot-empty-state";
 import { useGiftSuggestions } from "@/hooks/use-secret-santa";
 import {
   formatSecretSantaBudget,
@@ -151,12 +152,14 @@ export function SecretSantaPeopleSection({
   emptyText,
   people,
   onRemove,
+  emptyMascot,
 }: {
   title: string;
   description?: string;
   emptyText: string;
   people: Array<SecretSantaPerson | SecretSantaPendingInvite>;
   onRemove?: (id: string) => void;
+  emptyMascot?: MascotVariant;
 }) {
   const t = useGT();
 
@@ -170,7 +173,11 @@ export function SecretSantaPeopleSection({
       </View>
 
       {people.length === 0 ? (
-        <Text className="rounded-xl bg-bg-subtle p-3 text-sm text-text-muted">{emptyText}</Text>
+        emptyMascot ? (
+          <MascotEmptyState compact variant={emptyMascot} message={emptyText} />
+        ) : (
+          <Text className="rounded-xl bg-bg-subtle p-3 text-sm text-text-muted">{emptyText}</Text>
+        )
       ) : (
         <View className="gap-2">
           {people.map((person) => {

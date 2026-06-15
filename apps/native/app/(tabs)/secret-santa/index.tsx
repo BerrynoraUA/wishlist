@@ -11,7 +11,7 @@ import { SECRET_SANTA_PAGE_SIZE } from "@/lib/secret-santa";
 import { chunkRows } from "@/lib/layout";
 import type { SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
 import { Stack, useRouter } from "expo-router";
-import { Gift, Plus, Search, X } from "lucide-react-native";
+import { Plus, Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View, useWindowDimensions } from "react-native";
@@ -124,16 +124,14 @@ export default function SecretSantaScreen() {
                 <InlineState message={t("Failed to load Secret Santa events.")} />
               ) : null}
               {!query.isLoading && !query.isError && events.length === 0 ? (
-                <View className="items-center gap-3 rounded-xl border border-border-subtle bg-card-bg p-8">
-                  <Icon as={Gift} className="size-9 text-brand" />
-                  <InlineState
-                    message={
-                      debouncedSearch
-                        ? t("No Secret Santa events match your search.")
-                        : t("No Secret Santa events yet. Create one to get started!")
-                    }
-                  />
-                </View>
+                <InlineState
+                  mascot={debouncedSearch ? "magnifying-glass" : "santa-sack"}
+                  message={
+                    debouncedSearch
+                      ? t("No Secret Santa events match your search.")
+                      : t("No Secret Santa events yet. Create one to get started!")
+                  }
+                />
               ) : null}
             </View>
           }

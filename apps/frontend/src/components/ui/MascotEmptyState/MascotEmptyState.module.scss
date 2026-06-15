@@ -1,0 +1,36 @@
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 28px 16px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.compact {
+  gap: 6px;
+  padding: 14px;
+}
+
+.image {
+  width: var(--mascot-size, 176px);
+  height: var(--mascot-size, 176px);
+  object-fit: contain;
+}
+
+.compact .image {
+  --mascot-size: 88px;
+}
+
+.message {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1.45;
+}
+
+.compact .message {
+  font-size: var(--fs-caption);
+}

@@ -18,6 +18,7 @@ import {
   useUserGuideStepCompletion,
 } from "@/components/user-guide/UserGuideProvider";
 import { USER_GUIDE_LAST_WISHLIST_PATH_KEY } from "@/components/user-guide/user-guide-config";
+import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 
 type Props = {
   onCreateWishlist: () => void;
@@ -84,11 +85,13 @@ export function WishlistGrid({
           </p>
         )}
         {!isError && wishlists.length === 0 && isFiltersActive && (
-          <p className={styles.noResults}>
-            {t("No wishlists match your filters.", {
+          <MascotEmptyState
+            className={styles.noResults}
+            variant="magnifying-glass"
+            message={t("No wishlists match your filters.", {
               $id: "filter.noResults",
             })}
-          </p>
+          />
         )}
         {wishlists.map((w) => (
           <WishlistCard

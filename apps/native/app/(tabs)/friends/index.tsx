@@ -294,6 +294,7 @@ export default function FriendsScreen() {
               {isError ? <InlineState message={t("Failed to load friends.")} /> : null}
               {!isLoading && !isError && activeItems.length === 0 ? (
                 <InlineState
+                  mascot={debouncedSearch ? "magnifying-glass" : "sad-alone"}
                   message={
                     tab === "groups"
                       ? t("No groups yet.")

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { MascotEmptyState } from "@/components/shared/mascot-empty-state";
 import { useFriendsWithoutWishlistAccess, useWishlistAccessList } from "@/hooks/use-friends";
 import { useGrantWishlistAccess, useRevokeWishlistAccess } from "@/hooks/use-wishlists";
 import type { ProfileSearchResult } from "@wishlist/backend/types/friends";
@@ -210,9 +211,11 @@ export function WishlistGrantAccessSheet({
                 <ActivityIndicator colorClassName="accent-brand" />
               </View>
             ) : accessList.length === 0 ? (
-              <Text className="p-4 text-sm font-semibold text-text-muted">
-                {t("No one has access yet.")}
-              </Text>
+              <MascotEmptyState
+                compact
+                variant="holding-key"
+                message={t("No one has access yet.")}
+              />
             ) : (
               accessList.map((user) => (
                 <View
