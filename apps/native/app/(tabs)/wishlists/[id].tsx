@@ -385,15 +385,21 @@ export default function WishlistDetailScreen() {
                   </View>
                 ) : null}
                 {itemsQuery.isError ? <InlineState message={t("Failed to load items.")} /> : null}
-                {!itemsQuery.isLoading &&
-                !itemsQuery.isError &&
-                items.length === 0 &&
-                !canEditWishlist ? (
-                  <Text className="text-center text-sm text-text-muted">
-                    {filtersActive && hasAnyItems
-                      ? t("No items match your filters.")
-                      : t("No items yet.")}
-                  </Text>
+                {!itemsQuery.isLoading && !itemsQuery.isError && items.length === 0 ? (
+                  <InlineState
+                    mascot={
+                      filtersActive && hasAnyItems
+                        ? "magnifying-glass"
+                        : canEditWishlist
+                          ? "gift-in-hands"
+                          : "empty-hands-shrug"
+                    }
+                    message={
+                      filtersActive && hasAnyItems
+                        ? t("No items match your filters.")
+                        : t("No items yet.")
+                    }
+                  />
                 ) : null}
                 {pagination.showPagination ? (
                   <View className="flex-row items-center justify-center gap-2 pt-1">

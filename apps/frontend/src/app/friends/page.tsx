@@ -16,6 +16,7 @@ import { FRIENDS_GRID_STYLE, FRIENDS_SKELETON_COUNT, REQUESTS_SKELETON_COUNT } f
 import { Button } from "@/components/ui/Button/Button";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
 import { useUserGuideStepCompletion } from "@/components/user-guide/UserGuideProvider";
+import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 
 function renderSkeletons(count: number) {
   return Array.from({ length: count }).map((_, i) => <FriendCardSkeleton key={i} />);
@@ -127,7 +128,10 @@ function FriendsPageContent() {
             </p>
           )}
           {!friendsLoading && !friendsError && friends.length === 0 && (
-            <p>{t("No friends yet.", { $id: "friends.page.noFriends" })}</p>
+            <MascotEmptyState
+              variant="sad-alone"
+              message={t("No friends yet.", { $id: "friends.page.noFriends" })}
+            />
           )}
           {friends.map((f) => (
             <FriendCard key={f.id} friend={f} onRemove={handleRemoveFriend} />

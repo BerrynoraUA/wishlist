@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { Notification } from "@/types";
 import { useAcceptSecretSantaInvite, useDeclineSecretSantaInvite } from "@/hooks/use-secret-santa";
 import { useDeleteNotification } from "@/hooks/use-notifications";
+import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 
 // Notification type: 0 = Secret Santa, 1 = Item (reservation/bought), 2 = Friends
 function getNotificationHref(n: Notification): string | null {
@@ -127,7 +128,12 @@ export function NotificationsPanel({
           ))}
         </div>
       ) : notifications.length === 0 ? (
-        <div className={styles.empty}>{t("No notifications", { $id: "notifications.empty" })}</div>
+        <MascotEmptyState
+          compact
+          className={styles.empty}
+          variant="sleeping-bell"
+          message={t("No notifications", { $id: "notifications.empty" })}
+        />
       ) : (
         <div className={styles.listWrap}>
           <ul className={styles.list}>

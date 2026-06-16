@@ -16,6 +16,7 @@ import {
   SELECTED_GROUPS_ACCESS_TYPE,
 } from "@/lib/constants/wishlist";
 import type { ProfileSearchResult } from "@/api/types/friends";
+import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 import styles from "./GrantWishlistAccessModal.module.scss";
 
 type AccessType = 0 | 1;
@@ -403,11 +404,13 @@ export function GrantWishlistAccessModal({ open, onClose, wishlistId, wishlistTi
             )}
 
             {!accessListLoading && !accessListError && visibleAccessList.length === 0 && (
-              <div className={styles.emptyState}>
-                {t("No one has access yet.", {
+              <MascotEmptyState
+                compact
+                variant="holding-key"
+                message={t("No one has access yet.", {
                   $id: "wishlist.grantAccess.noOneHasAccess",
                 })}
-              </div>
+              />
             )}
 
             {!accessListLoading && !accessListError && visibleAccessList.length > 0 && (

@@ -79,6 +79,7 @@ export default function SecretSantaDetailPage() {
       emptyText={t("No participants have accepted yet.", {
         $id: "secretSanta.detail.participantsEmpty",
       })}
+      emptyMascot="sad-alone"
       people={peopleParticipants}
       onRemove={
         isOwner && !isStarted
