@@ -203,30 +203,6 @@ export default function FriendsScreen() {
           ItemSeparatorComponent={() => <View className="h-4" />}
           ListHeaderComponent={
             <View className="gap-5 self-center pb-8" style={{ width: contentWidth }}>
-              <View className="flex-row items-start justify-between gap-3">
-                <View className="min-w-0 flex-1 gap-1">
-                  <Text className="text-2xl font-extrabold text-text">{t("Friends")}</Text>
-                </View>
-                <GuideTarget
-                  attachedTooltip={false}
-                  id="friends-invite"
-                  tooltipHorizontalOffset={-72}
-                  tooltipPlacementOverride="bottom"
-                  tooltipVerticalOffset={0}
-                >
-                  <Button
-                    onPress={() => {
-                      completeAddFriendStep();
-                      setSheet({ type: "add" });
-                    }}
-                    className="rounded-full"
-                  >
-                    <Icon as={UserPlus} className="size-4 text-primary-foreground" />
-                    <Text>{t("Invite")}</Text>
-                  </Button>
-                </GuideTarget>
-              </View>
-
               <FriendsTabs
                 value={tab}
                 friendsCount={friends.length}
@@ -280,7 +256,26 @@ export default function FriendsScreen() {
                       <Text>{t("Create")}</Text>
                     </Button>
                   </GuideTarget>
-                ) : null}
+                ) : (
+                  <GuideTarget
+                    attachedTooltip={false}
+                    id="friends-invite"
+                    tooltipHorizontalOffset={-72}
+                    tooltipPlacementOverride="bottom"
+                    tooltipVerticalOffset={0}
+                  >
+                    <Button
+                      onPress={() => {
+                        completeAddFriendStep();
+                        setSheet({ type: "add" });
+                      }}
+                      className="rounded-full"
+                    >
+                      <Icon as={UserPlus} className="size-4 text-primary-foreground" />
+                      <Text>{t("Invite")}</Text>
+                    </Button>
+                  </GuideTarget>
+                )}
               </View>
             </View>
           }

@@ -300,17 +300,6 @@ export function Subscription({
                       )
                     : t("Your subscription is active. Manage it where you subscribed.")}
                 </Text>
-                {hasManageableSubscription ? (
-                  <Pressable
-                    className="pt-2"
-                    disabled={isBusy}
-                    onPress={() => void openManagement()}
-                  >
-                    <Text className="text-sm font-semibold text-white">
-                      {t("Manage subscription")}
-                    </Text>
-                  </Pressable>
-                ) : null}
               </View>
             ) : null}
 

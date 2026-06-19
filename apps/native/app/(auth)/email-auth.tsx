@@ -57,7 +57,7 @@ export default function EmailAuthScreen() {
   const isLogin = mode === "login";
 
   if (session) {
-    return <Redirect href="/wishlists" />;
+    return <Redirect href={"/(tabs)/wishlists" as never} />;
   }
 
   async function submitForm(values: EmailAuthFormValues) {
@@ -131,7 +131,7 @@ export default function EmailAuthScreen() {
                           return;
                         }
 
-                        router.replace("/sign-in" as never);
+                        router.replace("/(auth)/sign-in" as never);
                       }}
                     >
                       <Icon as={ChevronLeftIcon} className="size-6 text-white" />

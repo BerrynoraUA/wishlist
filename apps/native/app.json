@@ -21,6 +21,7 @@
     },
     "android": {
       "package": "com.berrynora.wishlane",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -58,6 +59,13 @@
         }
       ],
       "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "color": "#208AEF",
+          "defaultChannel": "default"
+        }
+      ],
       "expo-apple-authentication",
       [
         "expo-web-browser",

@@ -22,7 +22,7 @@ export default function SignInScreen() {
   const showAppleSignIn = process.env.EXPO_OS === "ios";
 
   if (session) {
-    return <Redirect href="/wishlists" />;
+    return <Redirect href={"/(tabs)/wishlists" as never} />;
   }
 
   async function handleSocialSignIn(provider: SocialProvider) {

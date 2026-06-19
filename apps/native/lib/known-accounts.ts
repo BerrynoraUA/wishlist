@@ -114,6 +114,10 @@ export async function upsertKnownAccount(
         account.defaultAccent !== undefined
           ? account.defaultAccent
           : (existing?.defaultAccent ?? null),
+      themePreference:
+        account.themePreference !== undefined
+          ? account.themePreference
+          : (existing?.themePreference ?? null),
     };
 
     const withoutExisting = accounts.filter((item) => item.userId !== account.userId);
