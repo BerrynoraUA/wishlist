@@ -19,7 +19,7 @@ export default function TabsLayout() {
       : `${navigationTheme.colors.primary}18`;
 
   if (!session) {
-    return <Redirect href={"/sign-in" as never} />;
+    return <Redirect href={"/(auth)/sign-in" as never} />;
   }
 
   return (

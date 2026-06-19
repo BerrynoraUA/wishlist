@@ -1,20 +1,22 @@
-import { Link, Stack } from "expo-router";
-import { useGT } from "gt-react-native";
-import { View } from "react-native";
-import { Text } from "@/components/ui/text";
+import { useAuth } from "@/providers/auth-provider";
+import { Redirect, Stack } from "expo-router";
+import { ActivityIndicator, View } from "react-native";
 
 export default function NotFoundScreen() {
-  const t = useGT();
-  return (
-    <>
-      <Stack.Screen options={{ title: t("Oops!") }} />
-      <View>
-        <Text>{t("This screen doesn't exist.")}</Text>
+  const { isLoading, session } = useAuth();
 
-        <Link href="/">
-          <Text>{t("Go to home screen!")}</Text>
-        </Link>
-      </View>
-    </>
+  if (isLoading) {
+    return (
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <View className="flex-1 items-center justify-center bg-bg">
+          <ActivityIndicator colorClassName="accent-brand" />
+        </View>
+      </>
+    );
+  }
+
+  return (
+    <Redirect href={session ? ("/(tabs)/wishlists" as never) : ("/(auth)/sign-in" as never)} />
   );
 }

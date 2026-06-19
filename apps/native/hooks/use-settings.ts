@@ -11,13 +11,19 @@ import {
   updateSettings,
   uploadProfileAvatar,
 } from "@/api/settings";
+import {
+  applyNativeThemeSettings,
+  writeCachedNativeThemeSettings,
+  type CachedNativeThemeSettings,
+} from "@/lib/theme";
 import { useAuth } from "@/providers/auth-provider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type {
-  UpdateProfilePayload,
-  UpdateSettingsPayload,
-  UserProfile,
-  UserSettings,
+import {
+  DEFAULT_SETTINGS,
+  type UpdateProfilePayload,
+  type UpdateSettingsPayload,
+  type UserProfile,
+  type UserSettings,
 } from "@wishlist/backend/types/settings";
 
 export const settingsKeys = {
@@ -149,36 +155,64 @@ export function useSettings() {
 export function useUpdateSettings() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const preferencesKey = settingsKeys.preferences(user?.id);
+
+  function persistNativeThemeSettings(settings: UserSettings) {
+    if (!user?.id) return;
+
+    const themeSettings: CachedNativeThemeSettings = {
+      theme: settings.theme,
+      default_accent: settings.default_accent,
+    };
+
+    applyNativeThemeSettings(themeSettings);
+    void writeCachedNativeThemeSettings(user.id, themeSettings).catch(() => {});
+  }
 
   return useMutation({
     mutationFn: (payload: UpdateSettingsPayload) => updateSettings(payload),
     onMutate: async (payload) => {
-      await queryClient.cancelQueries({ queryKey: settingsKeys.preferences(user?.id) });
+      await queryClient.cancelQueries({ queryKey: preferencesKey });
 
-      const previousSettings = queryClient.getQueryData<UserSettings>(
-        settingsKeys.preferences(user?.id),
-      );
+      const previousSettings = queryClient.getQueryData<UserSettings>(preferencesKey);
 
-      if (previousSettings) {
-        queryClient.setQueryData<UserSettings>(settingsKeys.preferences(user?.id), {
-          ...previousSettings,
+      if (user?.id) {
+        const baseSettings =
+          previousSettings ??
+          ({
+            user_id: user.id,
+            ...DEFAULT_SETTINGS,
+          } satisfies UserSettings);
+        const optimisticSettings = {
+          ...baseSettings,
           ...payload,
-        });
+        };
+
+        queryClient.setQueryData<UserSettings>(preferencesKey, optimisticSettings);
+
+        if ("theme" in payload || "default_accent" in payload) {
+          persistNativeThemeSettings(optimisticSettings);
+        }
       }
 
       return { previousSettings };
     },
-    onError: (_error, _payload, context) => {
+    onError: (_error, payload, context) => {
       if (context?.previousSettings) {
-        queryClient.setQueryData(settingsKeys.preferences(user?.id), context.previousSettings);
+        queryClient.setQueryData(preferencesKey, context.previousSettings);
+
+        if ("theme" in payload || "default_accent" in payload) {
+          persistNativeThemeSettings(context.previousSettings);
+        }
       }
     },
     onSuccess: (settings) => {
-      queryClient.setQueryData(settingsKeys.preferences(user?.id), settings);
+      queryClient.setQueryData(preferencesKey, settings);
+      persistNativeThemeSettings(settings);
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: settingsKeys.preferences(user?.id),
+        queryKey: preferencesKey,
         refetchType: "active",
       });
     },

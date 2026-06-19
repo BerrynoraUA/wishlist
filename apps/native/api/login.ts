@@ -25,6 +25,21 @@ function extractSessionParamsFromUrl(url: string) {
   };
 }
 
+export async function completeOAuthSessionFromUrl(url: string): Promise<void> {
+  const { accessToken, refreshToken } = extractSessionParamsFromUrl(url);
+
+  if (!accessToken || !refreshToken) {
+    throw new Error("OAuth callback did not return a Supabase session.");
+  }
+
+  const { error } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+
+  if (error) throw error;
+}
+
 function getAppleFullName(fullName: AppleAuthentication.AppleAuthenticationFullName | null) {
   if (!fullName) {
     return null;
@@ -103,18 +118,7 @@ export async function loginWithGoogle(): Promise<void> {
     throw new Error("Google sign-in was cancelled.");
   }
 
-  const { accessToken, refreshToken } = extractSessionParamsFromUrl(result.url);
-
-  if (!accessToken || !refreshToken) {
-    throw new Error("Google sign-in did not return a Supabase session.");
-  }
-
-  const { error: sessionError } = await supabase.auth.setSession({
-    access_token: accessToken,
-    refresh_token: refreshToken,
-  });
-
-  if (sessionError) throw sessionError;
+  await completeOAuthSessionFromUrl(result.url);
 }
 
 export async function loginWithFacebook(): Promise<void> {
@@ -141,18 +145,7 @@ export async function loginWithFacebook(): Promise<void> {
     throw new Error("Facebook sign-in was cancelled.");
   }
 
-  const { accessToken, refreshToken } = extractSessionParamsFromUrl(result.url);
-
-  if (!accessToken || !refreshToken) {
-    throw new Error("Facebook sign-in did not return a Supabase session.");
-  }
-
-  const { error: sessionError } = await supabase.auth.setSession({
-    access_token: accessToken,
-    refresh_token: refreshToken,
-  });
-
-  if (sessionError) throw sessionError;
+  await completeOAuthSessionFromUrl(result.url);
 }
 
 export async function loginWithApple(): Promise<void> {

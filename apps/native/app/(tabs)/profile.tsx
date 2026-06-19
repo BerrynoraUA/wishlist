@@ -58,6 +58,7 @@ export default function ProfileScreen() {
       refreshToken: session.refresh_token,
       expiresAt: session.expires_at ?? null,
       defaultAccent: settingsForSession?.default_accent ?? null,
+      themePreference: settingsForSession?.theme ?? null,
       lastUsedAt: Date.now(),
     });
   }, [
@@ -71,11 +72,12 @@ export default function ProfileScreen() {
     session?.user.email,
     session?.user.id,
     settings?.default_accent,
+    settings?.theme,
   ]);
 
   async function handleSignOut() {
     await signOut();
-    router.replace("/sign-in" as never);
+    router.replace("/(auth)/sign-in" as never);
   }
 
   function renderSection({ item }: { item: SettingsSection }) {

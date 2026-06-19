@@ -12,6 +12,7 @@ import {
   removeSecretSantaParticipant,
   updateSecretSantaEvent,
 } from "@/api/secret-santa";
+import { notificationKeys } from "@/hooks/use-notifications";
 import { normalizeSearchQuery } from "@/lib/wishlists";
 import { useAuth } from "@/providers/auth-provider";
 import type {
@@ -106,6 +107,7 @@ export function useAcceptSecretSantaInvite() {
     mutationFn: (inviteId: string) => acceptSecretSantaInvite(inviteId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
+      await queryClient.invalidateQueries({ queryKey: notificationKeys.all });
     },
   });
 }
@@ -117,6 +119,7 @@ export function useDeclineSecretSantaInvite() {
     mutationFn: (inviteId: string) => declineSecretSantaInvite(inviteId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
+      await queryClient.invalidateQueries({ queryKey: notificationKeys.all });
     },
   });
 }

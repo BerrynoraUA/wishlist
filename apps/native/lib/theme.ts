@@ -1,8 +1,10 @@
 import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
-import type { ThemePreference } from "@wishlist/backend/types/settings";
+import type { ThemePreference, UserSettings } from "@wishlist/backend/types/settings";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
+import * as SecureStore from "expo-secure-store";
 import { useMemo } from "react";
-import { useCSSVariable } from "uniwind";
+import { Appearance } from "react-native";
+import { Uniwind, useCSSVariable } from "uniwind";
 
 export type NativeThemeMode = "light" | "dark";
 
@@ -35,6 +37,7 @@ export const NATIVE_ACCENTS = [
 ] as const satisfies readonly { name: string; label: string; swatchClassName: string }[];
 
 export type NativeAccentName = (typeof NATIVE_ACCENTS)[number]["name"];
+export type CachedNativeThemeSettings = Pick<UserSettings, "theme" | "default_accent">;
 
 export const NATIVE_THEME_NAMES = [
   "light",
@@ -60,6 +63,15 @@ const WISHLIST_TO_NATIVE_ACCENT: Record<WishlistAccent, NativeAccentName> = {
 };
 
 const NATIVE_ACCENT_SET = new Set<string>(NATIVE_ACCENTS.map((a) => a.name));
+const THEME_SETTINGS_STORE_KEY_PREFIX = "wishlist.native.theme-settings.v1.";
+const THEME_PREFERENCE_SET = new Set<ThemePreference>(["light", "dark", "system"]);
+const WISHLIST_ACCENT_SET = new Set<WishlistAccent>(
+  Object.values(WishlistAccent).filter(
+    (value): value is WishlistAccent => typeof value === "number",
+  ),
+);
+let activeThemeSettingsSnapshot: { userId: string; settings: CachedNativeThemeSettings } | null =
+  null;
 
 function isNativeAccentName(accent: string): accent is NativeAccentName {
   return NATIVE_ACCENT_SET.has(accent);
@@ -131,6 +143,70 @@ export function getNativeThemeNameForPreference(
     preference === "system" ? (systemColorScheme === "dark" ? "dark" : "light") : preference;
 
   return getNativeThemeName(mode, getNativeAccentForWishlistAccent(accent));
+}
+
+function getCachedThemeSettingsKey(userId: string) {
+  return `${THEME_SETTINGS_STORE_KEY_PREFIX}${userId}`;
+}
+
+function isCachedNativeThemeSettings(value: unknown): value is CachedNativeThemeSettings {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<CachedNativeThemeSettings>;
+
+  return (
+    typeof candidate.theme === "string" &&
+    THEME_PREFERENCE_SET.has(candidate.theme as ThemePreference) &&
+    typeof candidate.default_accent === "number" &&
+    WISHLIST_ACCENT_SET.has(candidate.default_accent)
+  );
+}
+
+export async function readCachedNativeThemeSettings(
+  userId: string,
+): Promise<CachedNativeThemeSettings | null> {
+  const raw = await SecureStore.getItemAsync(getCachedThemeSettingsKey(userId));
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    return isCachedNativeThemeSettings(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function writeCachedNativeThemeSettings(
+  userId: string,
+  settings: CachedNativeThemeSettings,
+) {
+  activeThemeSettingsSnapshot = { userId, settings };
+  await SecureStore.setItemAsync(getCachedThemeSettingsKey(userId), JSON.stringify(settings));
+}
+
+export function getActiveNativeThemeSettingsSnapshot(userId: string) {
+  return activeThemeSettingsSnapshot?.userId === userId
+    ? activeThemeSettingsSnapshot.settings
+    : null;
+}
+
+export function setActiveNativeThemeSettingsSnapshot(
+  userId: string,
+  settings: CachedNativeThemeSettings,
+) {
+  activeThemeSettingsSnapshot = { userId, settings };
+}
+
+export function applyNativeThemeSettings(settings: CachedNativeThemeSettings) {
+  if (settings.theme !== "system") {
+    Uniwind.setTheme(getNativeThemeNameForPreference(settings.theme, settings.default_accent, null));
+    Appearance.setColorScheme(settings.theme);
+    return;
+  }
+
+  Appearance.setColorScheme("unspecified");
+  Uniwind.setTheme(
+    getNativeThemeNameForPreference("system", settings.default_accent, Appearance.getColorScheme()),
+  );
 }
 
 /** React Navigation colors from Uniwind / `global.css` tokens. */

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "695615012388",
+    "project_id": "berrynora",
+    "storage_bucket": "berrynora.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:695615012388:android:0b4af45b9afc430b06e2b1",
+        "android_client_info": {
+          "package_name": "com.berrynora.wishlane"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMW2lGK1X2b4VAfsgNBvilJ6CaD_ZwFCc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

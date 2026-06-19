@@ -12,6 +12,7 @@ export type KnownAccount = {
   refreshToken?: string | null;
   expiresAt?: number | null;
   defaultAccent?: number | null;
+  themePreference?: "light" | "dark" | "system" | null;
 };
 
 export const KNOWN_ACCOUNTS_STORAGE_KEY = "wishlist:known-accounts:v1";
