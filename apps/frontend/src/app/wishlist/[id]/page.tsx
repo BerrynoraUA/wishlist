@@ -71,6 +71,7 @@ export default function WishlistItemsPage() {
   const deleteWishlistMutation = useDeleteWishlist();
 
   const items = itemsData ?? [];
+  const visibleItems = items.slice(0, WISHLIST_ITEMS_PAGE_SIZE);
   const hasAnyItems = (allItemsData?.length ?? 0) > 0;
   const isOwner = Boolean(wishlist?.is_owner);
   const canEditWishlist = Boolean(wishlist?.can_edit || wishlist?.is_owner);
@@ -164,7 +165,7 @@ export default function WishlistItemsPage() {
             />
           )}
 
-          {!itemsLoading && items.length === 0 && isFiltersActive && (
+          {!itemsLoading && visibleItems.length === 0 && isFiltersActive && (
             <MascotEmptyState
               variant="magnifying-glass"
               message={t("No items match your filters.", {
@@ -173,17 +174,19 @@ export default function WishlistItemsPage() {
             />
           )}
 
-          {!itemsLoading && items.length > 0 && (
+          {!itemsLoading && visibleItems.length > 0 && (
             <>
               <WishlistItemsGrid
-                items={items}
+                items={visibleItems}
                 isOwner={canEditWishlist}
                 showDiscountBadge={showDiscountBadge}
                 onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
                 onToggleBought={(itemId) => toggleBought.mutate(itemId)}
                 onDelete={(itemId) => modals.setDeleteItemId(itemId)}
                 onEdit={(item) => modals.setEditItem(item)}
-                onAddItem={canEditWishlist ? () => modals.setCreateOpen(true) : undefined}
+                onAddItem={
+                  canEditWishlist && !hasNextPage ? () => modals.setCreateOpen(true) : undefined
+                }
                 hasAddItemDraft={hasCreateItemDraft}
                 openItemId={openItemId}
                 onOpenItemHandled={handleOpenItemHandled}

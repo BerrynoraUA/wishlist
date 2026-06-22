@@ -22,8 +22,7 @@ import {
   mapFilterValues,
   hasActiveFilters,
 } from "@/lib/filter-helpers";
-
-const PAGE_SIZE = 12;
+import { WISHLIST_ITEMS_PAGE_SIZE } from "../constants";
 
 export function useWishlistItemFilters(id: string) {
   const t = useGT();
@@ -73,8 +72,8 @@ export function useWishlistItemFilters(id: string) {
   );
   const itemsQueryParams = useMemo(
     () => ({
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
+      skip: (page - 1) * WISHLIST_ITEMS_PAGE_SIZE,
+      take: WISHLIST_ITEMS_PAGE_SIZE + 1,
       search: itemSearch.trim() || undefined,
       sort: itemSort,
       statuses: statusNumbers.length ? statusNumbers : undefined,

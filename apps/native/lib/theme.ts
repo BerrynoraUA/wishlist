@@ -198,7 +198,9 @@ export function setActiveNativeThemeSettingsSnapshot(
 
 export function applyNativeThemeSettings(settings: CachedNativeThemeSettings) {
   if (settings.theme !== "system") {
-    Uniwind.setTheme(getNativeThemeNameForPreference(settings.theme, settings.default_accent, null));
+    Uniwind.setTheme(
+      getNativeThemeNameForPreference(settings.theme, settings.default_accent, null),
+    );
     Appearance.setColorScheme(settings.theme);
     return;
   }

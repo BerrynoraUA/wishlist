@@ -42,12 +42,14 @@ export function WishlistGrid({
   const completeOpenDetailStep = useUserGuideStepCompletion(4);
 
   const wishlists = data ?? [];
+  const visibleWishlists = wishlists.slice(0, WISHLIST_PAGE_SIZE);
 
-  const { showPagination, totalForPagination } = paginationFlags(
+  const { hasNextPage, showPagination, totalForPagination } = paginationFlags(
     page,
     wishlists.length,
     WISHLIST_PAGE_SIZE,
   );
+  const showCreateCard = !isError && visibleWishlists.length > 0 && !hasNextPage;
 
   if (isLoading) {
     return (
@@ -84,7 +86,7 @@ export function WishlistGrid({
             })}
           </p>
         )}
-        {!isError && wishlists.length === 0 && isFiltersActive && (
+        {!isError && visibleWishlists.length === 0 && isFiltersActive && (
           <MascotEmptyState
             className={styles.noResults}
             variant="magnifying-glass"
@@ -93,7 +95,7 @@ export function WishlistGrid({
             })}
           />
         )}
-        {wishlists.map((w) => (
+        {visibleWishlists.map((w) => (
           <WishlistCard
             key={w.id}
             wishlist={w}
@@ -121,7 +123,7 @@ export function WishlistGrid({
             onPin={w.is_owner ? (isPinned) => pinMutate({ id: w.id, isPinned }) : undefined}
           />
         ))}
-        {!isError && wishlists.length > 0 && (
+        {showCreateCard && (
           <AddCard
             onClick={onCreateWishlist}
             label={t("Create wishlist", {
