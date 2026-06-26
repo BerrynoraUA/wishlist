@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useGT } from "gt-next";
 import styles from "./WishlistItemsGrid.module.scss";
 import { ItemCard, normalizeWishlistItem } from "@/components/shared/ItemCard";
@@ -41,14 +41,43 @@ export function WishlistItemsGrid({
 
   const [isMobile, setIsMobile] = useState(false);
   const [cols, setCols] = useState<1 | 2>(2);
+  const userSelectedLayoutRef = useRef(false);
+  const wasSingleColumnViewportRef = useRef(false);
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 480px)");
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    const mobileMq = window.matchMedia("(max-width: 480px)");
+    const singleColumnMq = window.matchMedia("(max-width: 400px)");
+
+    const syncLayout = () => {
+      const isSingleColumnViewport = singleColumnMq.matches;
+
+      setIsMobile(mobileMq.matches);
+
+      if (isSingleColumnViewport && !wasSingleColumnViewportRef.current) {
+        userSelectedLayoutRef.current = false;
+        setCols(1);
+      } else if (!isSingleColumnViewport && !userSelectedLayoutRef.current) {
+        setCols(2);
+      }
+
+      wasSingleColumnViewportRef.current = isSingleColumnViewport;
+    };
+
+    syncLayout();
+
+    mobileMq.addEventListener("change", syncLayout);
+    singleColumnMq.addEventListener("change", syncLayout);
+
+    return () => {
+      mobileMq.removeEventListener("change", syncLayout);
+      singleColumnMq.removeEventListener("change", syncLayout);
+    };
   }, []);
+
+  const selectCols = (nextCols: 1 | 2) => {
+    userSelectedLayoutRef.current = true;
+    setCols(nextCols);
+  };
 
   const reservedByIds = useMemo(
     () =>
@@ -81,7 +110,7 @@ export function WishlistItemsGrid({
           <button
             type="button"
             className={`${styles.toggleBtn} ${cols === 2 ? styles.toggleActive : ""}`}
-            onClick={() => setCols(2)}
+            onClick={() => selectCols(2)}
             aria-label={t("2 per row", {
               $id: "wishlist.grid.layoutTwoPerRow",
             })}
@@ -91,7 +120,7 @@ export function WishlistItemsGrid({
           <button
             type="button"
             className={`${styles.toggleBtn} ${cols === 1 ? styles.toggleActive : ""}`}
-            onClick={() => setCols(1)}
+            onClick={() => selectCols(1)}
             aria-label={t("1 per row", {
               $id: "wishlist.grid.layoutOnePerRow",
             })}

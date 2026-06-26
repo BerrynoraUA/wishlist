@@ -157,6 +157,7 @@
 }
 
 .titleBlock {
+  flex: 1 1 auto;
   min-width: 0;
 
   h1 {
@@ -547,6 +548,14 @@
   margin-top: 14px;
 }
 
+.ownerBadges {
+  min-width: 0;
+}
+
+.inlineShareButton {
+  margin-left: auto;
+}
+
 .visibilityBadge,
 .countBadge,
 .dateBadge {
@@ -557,6 +566,7 @@
   padding: 5px 10px;
   border-radius: $radius-pill;
   font-weight: var(--fw-semibold);
+  white-space: nowrap;
 }
 
 .visibilityBadge {
@@ -786,6 +796,16 @@
     justify-content: flex-end;
     flex-wrap: nowrap;
   }
+
+  .ownerBadges {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }
 
 @media (max-width: 600px) {
@@ -902,6 +922,16 @@
     margin-top: 12px;
   }
 
+  .ownerBadges {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   .visibilityBadge,
   .countBadge,
   .dateBadge {
@@ -910,7 +940,7 @@
   }
 }
 
-@media (max-width: 510px) {
+@media (max-width: 550px) {
   .heroAside {
     width: 100%;
     justify-content: flex-start;

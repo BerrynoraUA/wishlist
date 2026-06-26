@@ -3,32 +3,40 @@
 }
 
 .priorityFilterDropdown {
-  padding: 0;
+  padding: 6px;
   min-width: 220px;
   max-height: 280px;
   overflow-x: hidden;
   overflow-y: auto;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 82%, transparent);
+  background:
+    radial-gradient(circle at top left, var(--brand-alpha-08), transparent 36%),
+    color-mix(in srgb, var(--card-bg) 96%, white 4%);
+  box-shadow:
+    0 18px 42px rgba(15, 23, 42, 0.14),
+    0 2px 8px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34);
 }
 
 .priorityFilterOption {
   gap: 10px;
-  padding: 10px 14px;
-  border-radius: 0;
-  background: var(--color-bg-subtle);
+  padding: 10px;
+  border-radius: 12px;
+  background: transparent;
   color: var(--color-text);
   font-weight: var(--fw-medium);
-  transition: background 0.15s ease;
-
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--color-border-light);
-  }
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
 
   &:hover:not(:disabled) {
-    background: var(--color-surface-hover);
+    background: color-mix(in srgb, var(--color-brand) 8%, transparent);
+    transform: translateY(-1px);
   }
 
   &[aria-selected="true"] {
-    background: var(--color-bg);
+    background: color-mix(in srgb, var(--color-brand) 10%, var(--card-bg));
     color: var(--color-text);
     font-weight: var(--fw-medium);
   }
@@ -68,9 +76,9 @@
   flex: 0 0 auto;
   width: 18px;
   height: 18px;
-  border-radius: 4px;
-  border: 1.5px solid var(--color-border);
-  background: transparent;
+  border-radius: 6px;
+  border: 1.5px solid color-mix(in srgb, var(--color-brand) 24%, var(--color-border));
+  background: color-mix(in srgb, var(--card-bg) 88%, transparent);
   display: grid;
   place-items: center;
   color: transparent;
@@ -79,9 +87,10 @@
 }
 
 .priorityFilterOption[aria-selected="true"] .priorityFilterCheck {
-  background: var(--color-brand);
+  background: linear-gradient(135deg, var(--color-brand), color-mix(in srgb, var(--color-brand) 78%, #fff));
   border-color: var(--color-brand);
   color: #fff;
+  box-shadow: 0 6px 14px var(--brand-alpha-20);
 }
 
 @media (max-width: 640px) {
@@ -110,5 +119,60 @@
     order: 3;
     flex: 1 1 100%;
     min-width: 0;
+  }
+}
+
+@media (min-width: 421px) and (max-width: 640px) {
+  .row {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    grid-template-areas:
+      "search search search search search search price price price price"
+      "priority priority priority priority priority actions actions actions actions actions";
+    gap: 8px;
+  }
+
+  .searchFilter {
+    grid-area: search;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .priceFilter {
+    grid-area: price;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .priorityFilter {
+    grid-area: priority;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .actions {
+    grid-area: actions;
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-end;
+  }
+
+  .priorityFilter button,
+  .actions button,
+  .actions > :last-child {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .priceFilter > :last-child {
+    display: flex;
+    width: 100%;
+  }
+
+  .priceFilter input {
+    flex: 1 1 0;
+    width: 0;
   }
 }

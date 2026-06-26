@@ -237,19 +237,22 @@
 
 @media (max-width: 768px) {
   .section header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    align-items: center;
+    gap: 10px;
   }
 
   .headerAside {
-    width: 100%;
-    align-items: flex-start;
+    flex: 0 1 auto;
+    min-width: 0;
+    align-items: flex-end;
   }
 
   .wishlist {
-    text-align: left;
-    max-width: none;
+    max-width: min(42vw, 220px);
+    overflow: hidden;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .grid {
