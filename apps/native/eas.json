@@ -6,7 +6,6 @@
   "build": {
     "base": {
       "node": "22.11.0",
-      "corepack": true,
       "pnpm": "11.9.0"
     },
     "development": {

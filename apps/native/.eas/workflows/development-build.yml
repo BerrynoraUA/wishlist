@@ -12,12 +12,6 @@ on:
       - dev
     paths:
       - apps/native/**
-      - packages/**
-      - package.json
-      - pnpm-lock.yaml
-      - pnpm-workspace.yaml
-      - turbo.json
-      - tsconfig.json
       - "!**/*.md"
 
 concurrency:

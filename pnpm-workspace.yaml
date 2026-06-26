@@ -14,7 +14,7 @@ ignoredBuiltDependencies:
   - protobufjs
 
 allowBuilds:
-  '@parcel/watcher': true
+  "@parcel/watcher": true
   core-js: true
   esbuild: true
   protobufjs: true

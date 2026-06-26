@@ -11,20 +11,7 @@ on:
     branches:
       - main
     paths:
-      - apps/native/api/**
-      - apps/native/app/**
-      - apps/native/assets/**
-      - apps/native/components/**
-      - apps/native/content/**
-      - apps/native/global.css
-      - apps/native/gt-lock.json
-      - apps/native/hooks/**
-      - apps/native/lib/**
-      - apps/native/loadTranslations.ts
-      - apps/native/polyfills/**
-      - apps/native/providers/**
-      - packages/**
-      - tsconfig.json
+      - apps/native/**
       - "!**/*.md"
 
 concurrency:

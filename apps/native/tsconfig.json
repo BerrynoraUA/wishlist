@@ -1,5 +1,5 @@
 {
-  "extends": "../../packages/backend/tsconfig/react-native.json",
+  "extends": ["expo/tsconfig.base", "../../packages/backend/tsconfig/react-native.json"],
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react-jsx",

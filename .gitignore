@@ -21,3 +21,5 @@ pnpm-debug.log
 apps/native/credentials.json
 
 apps/native/*firebase-adminsdk*.json
+.pnpm-store/
+.pnpm-debug.log*
