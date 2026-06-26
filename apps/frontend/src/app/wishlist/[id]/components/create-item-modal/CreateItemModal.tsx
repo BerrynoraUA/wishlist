@@ -434,7 +434,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   }
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={onClose} mobileFullscreen>
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerCopy}>

@@ -153,6 +153,102 @@
   color: #fff;
 }
 
+@media (min-width: 641px) and (max-width: 900px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-inline: 16px;
+  }
+
+  .sectionTitle {
+    display: block;
+  }
+
+  .filterBar {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .filterRow {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    grid-template-areas:
+      "search search search search search search price price price price"
+      "status status status priority priority priority actions actions actions actions";
+    align-items: center;
+    gap: 10px;
+  }
+
+  .filterRow .itemSearchFilter {
+    grid-area: search;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .filterRow .itemFilterControl {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .filterRow .itemStatusFilter {
+    grid-area: status;
+  }
+
+  .filterRow .itemPriorityFilter {
+    grid-area: priority;
+  }
+
+  .filterRow .itemPriceFilter {
+    grid-area: price;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .filterRow .itemFilterActions {
+    grid-area: actions;
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+
+  .filterRow .itemFilterControl button,
+  .filterRow .itemFilterActions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filterRow .itemPriceFilter > :last-child {
+    display: flex;
+    width: 100%;
+  }
+
+  .filterRow .itemPriceFilter input {
+    flex: 1 1 0;
+    width: 0;
+  }
+
+  .filterRow .itemFilterActions > :last-child {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .filterRow .itemFilterActions button.clearFiltersBtn {
+    flex: 0 0 32px;
+    width: 32px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 720px) {
+  .filterRow .itemFilterControl button,
+  .filterRow .itemFilterActions button {
+    padding-inline: 10px;
+  }
+}
+
 @media (max-width: 768px) {
   .page {
     > p {

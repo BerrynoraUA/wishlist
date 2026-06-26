@@ -444,15 +444,8 @@
   flex-wrap: wrap;
 }
 
-.limitCounter {
-  font-size: var(--fs-label);
-  font-weight: var(--fw-semibold);
-  color: var(--color-text-muted);
-  padding: 6px 12px;
-  border-radius: $radius-pill;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  white-space: nowrap;
+.addItemButton {
+  position: relative;
 }
 
 /* Accent banner colors */
@@ -538,12 +531,6 @@
 
 :global([data-theme="dark"]) .descriptionPlaceholder {
   color: rgba(209, 213, 219, 0.46);
-}
-
-:global([data-theme="dark"]) .limitCounter {
-  background: rgba(18, 18, 24, 0.72);
-  border-color: rgba(255, 255, 255, 0.06);
-  color: rgba(209, 213, 219, 0.78);
 }
 
 :global([data-theme="dark"]) .titleInput,
@@ -783,7 +770,8 @@
     width: auto;
     flex-direction: column;
     align-items: flex-end;
-    justify-content: center;
+    align-self: end;
+    justify-content: flex-end;
     gap: 12px;
   }
 
@@ -798,11 +786,6 @@
     justify-content: flex-end;
     flex-wrap: nowrap;
   }
-
-  .limitCounter {
-    font-size: var(--fs-eyebrow);
-    padding: 5px 10px;
-  }
 }
 
 @media (max-width: 600px) {
@@ -811,14 +794,74 @@
     min-height: 0;
   }
 
+  .heroLayout {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
   .heroMain {
+    flex: 1 1 280px;
     gap: 12px;
+  }
+
+  .heroAside {
+    width: auto;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: nowrap;
+    margin-left: auto;
+    padding-left: 0;
+  }
+
+  .addItemArea {
+    flex: 0 0 auto;
+    gap: 6px;
+    flex-wrap: nowrap;
+    order: 1;
+  }
+
+  .bannerActions {
+    gap: 6px;
+    flex-wrap: nowrap;
+    order: 2;
+    justify-content: flex-end;
+    margin-left: 0;
   }
 
   .back,
   .menuButton {
     width: 40px;
     height: 40px;
+  }
+
+  .addItemButton {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    flex: 0 0 44px;
+  }
+
+  .addItemButton svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .addItemButtonLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .bannerIcon {
@@ -864,5 +907,14 @@
   .dateBadge {
     font-size: var(--fs-eyebrow);
     padding: 5px 10px;
+  }
+}
+
+@media (max-width: 510px) {
+  .heroAside {
+    width: 100%;
+    justify-content: flex-start;
+    margin-left: 0;
+    padding-left: 52px;
   }
 }

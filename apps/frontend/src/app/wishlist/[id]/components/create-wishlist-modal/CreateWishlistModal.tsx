@@ -325,7 +325,7 @@ function CreateWishlistForm({
   }
 
   return (
-    <Modal open onClose={handleClose}>
+    <Modal open onClose={handleClose} mobileFullscreen>
       <div className={styles.container}>
         <div className={styles.header}>
           <div>

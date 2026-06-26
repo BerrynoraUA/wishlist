@@ -79,6 +79,22 @@ export function WishlistHeader({
   const canAddItem = Boolean(onAddItem);
   const atItemLimit =
     SUBSCRIPTIONS_UI_ENABLED && !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
+  const itemsBadgeLabel =
+    SUBSCRIPTIONS_UI_ENABLED && !isPro
+      ? t("{current}/{max} items", {
+          current: itemsCount,
+          max: FREE_LIMITS.maxItemsPerWishlist,
+          $id: "wishlist.header.limitCounter",
+        })
+      : itemsCount === 1
+        ? t("{n} item", {
+            n: itemsCount,
+            $id: "wishlist.itemCount.one",
+          })
+        : t("{n} items", {
+            n: itemsCount,
+            $id: "wishlist.itemCount.other",
+          });
   const canInlineEdit = isOwner;
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
@@ -377,17 +393,6 @@ export function WishlistHeader({
                       </div>
                     )}
                   </div>
-                  <span className={styles.countBadge}>
-                    {itemsCount === 1
-                      ? t("{n} item", {
-                          n: itemsCount,
-                          $id: "wishlist.itemCount.one",
-                        })
-                      : t("{n} items", {
-                          n: itemsCount,
-                          $id: "wishlist.itemCount.other",
-                        })}
-                  </span>
                   <div className={styles.badgeWrapper} ref={datePopoverRef}>
                     {eventDate ? (
                       <span
@@ -429,6 +434,9 @@ export function WishlistHeader({
                       </div>
                     )}
                   </div>
+                  <span className={styles.countBadge}>
+                    {itemsBadgeLabel}
+                  </span>
                 </div>
               </div>
             </div>
@@ -469,20 +477,30 @@ export function WishlistHeader({
             <div className={styles.heroAside}>
               {canAddItem && (
                 <div className={styles.addItemArea}>
-                  {SUBSCRIPTIONS_UI_ENABLED && !isPro && (
-                    <span className={styles.limitCounter}>
-                      {t("{current}/{max} items", {
-                        current: itemsCount,
-                        max: FREE_LIMITS.maxItemsPerWishlist,
-                        $id: "wishlist.header.limitCounter",
-                      })}
-                    </span>
-                  )}
-                  <Button size="sm" onClick={handleAddItem} data-guide-target="wishlist-add-item">
+                  <Button
+                    size="sm"
+                    className={styles.addItemButton}
+                    onClick={handleAddItem}
+                    data-guide-target="wishlist-add-item"
+                    aria-label={
+                      atItemLimit
+                        ? t("Upgrade to Add", {
+                            $id: "wishlist.header.upgradeToAdd",
+                          })
+                        : t("Add Item", { $id: "wishlist.header.addItem" })
+                    }
+                    title={
+                      atItemLimit
+                        ? t("Upgrade to Add", {
+                            $id: "wishlist.header.upgradeToAdd",
+                          })
+                        : t("Add Item", { $id: "wishlist.header.addItem" })
+                    }
+                  >
                     {atItemLimit ? (
                       <>
                         <Sparkles size={14} />
-                        <span>
+                        <span className={styles.addItemButtonLabel}>
                           {t("Upgrade to Add", {
                             $id: "wishlist.header.upgradeToAdd",
                           })}
@@ -491,7 +509,9 @@ export function WishlistHeader({
                     ) : (
                       <>
                         <Plus size={14} />
-                        <span>{t("Add Item", { $id: "wishlist.header.addItem" })}</span>
+                        <span className={styles.addItemButtonLabel}>
+                          {t("Add Item", { $id: "wishlist.header.addItem" })}
+                        </span>
                         {hasAddItemDraft && <DraftBadge variant="dot" />}
                       </>
                     )}

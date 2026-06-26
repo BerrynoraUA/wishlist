@@ -10,9 +10,10 @@ type Props = {
   onClose: () => void;
   children: ReactNode;
   title?: string;
+  mobileFullscreen?: boolean;
 };
 
-export function Modal({ open, onClose, children, title }: Props) {
+export function Modal({ open, onClose, children, title, mobileFullscreen = false }: Props) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -35,8 +36,16 @@ export function Modal({ open, onClose, children, title }: Props) {
   if (!open || !mounted) return null;
 
   return createPortal(
-    <div className={styles.overlay} onClick={onClose} data-ui-modal-overlay>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()} data-ui-modal>
+    <div
+      className={`${styles.overlay} ${mobileFullscreen ? styles.mobileFullscreenOverlay : ""}`}
+      onClick={onClose}
+      data-ui-modal-overlay
+    >
+      <div
+        className={`${styles.modal} ${mobileFullscreen ? styles.mobileFullscreenModal : ""}`}
+        onClick={(e) => e.stopPropagation()}
+        data-ui-modal
+      >
         <div className={styles.content} data-ui-modal-content>
           {title && (
             <Heading level={3} className={styles.title}>
