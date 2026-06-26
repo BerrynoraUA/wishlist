@@ -156,7 +156,11 @@
 }
 
 .priorityFilterOption[aria-selected="true"] .priorityFilterCheck {
-  background: linear-gradient(135deg, var(--color-brand), color-mix(in srgb, var(--color-brand) 78%, #fff));
+  background: linear-gradient(
+    135deg,
+    var(--color-brand),
+    color-mix(in srgb, var(--color-brand) 78%, #fff)
+  );
   border-color: var(--color-brand);
   color: #fff;
   box-shadow: 0 6px 14px var(--brand-alpha-20);

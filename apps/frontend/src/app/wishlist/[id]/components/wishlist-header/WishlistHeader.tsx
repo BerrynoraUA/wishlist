@@ -436,9 +436,7 @@ export function WishlistHeader({
                       </div>
                     )}
                   </div>
-                  <span className={styles.countBadge}>
-                    {itemsBadgeLabel}
-                  </span>
+                  <span className={styles.countBadge}>{itemsBadgeLabel}</span>
                   {showFriendInlineShare && (
                     <button
                       type="button"

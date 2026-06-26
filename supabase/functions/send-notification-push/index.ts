@@ -55,6 +55,9 @@ function chunkArray<T>(items: T[], chunkSize: number): T[][] {
 function getNotificationUrl(record: NotificationRecord) {
   switch (record.type) {
     case 1:
+    case 3:
+    case 4:
+    case 5:
       return record.entity_id ? `/wishlists/${record.entity_id}` : null;
     case 2:
       return "/friends";

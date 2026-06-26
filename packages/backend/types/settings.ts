@@ -22,7 +22,9 @@ export interface UserSettings {
   user_id: string;
   notify_friend_requests: boolean;
   notify_reservations: boolean;
-  notify_sale_alerts: boolean;
+  notify_secret_santa: boolean;
+  notify_new_wishlists: boolean;
+  notify_upcoming_events: boolean;
   email_digest: boolean;
   theme: ThemePreference;
   default_accent: WishlistAccent;
@@ -54,7 +56,9 @@ export const SETTINGS_TAB_ORDER: readonly SettingsTab[] = [
 export const DEFAULT_SETTINGS: Omit<UserSettings, "user_id"> = {
   notify_friend_requests: true,
   notify_reservations: true,
-  notify_sale_alerts: true,
+  notify_secret_santa: true,
+  notify_new_wishlists: true,
+  notify_upcoming_events: true,
   email_digest: false,
   theme: "system",
   default_accent: WishlistAccent.Pink,

@@ -1,493 +1,1047 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Wishlane — Release Roadmap</title>
-<style>
-  :root {
-    --brand: #208AEF;
-    --brand-dark: #1769c4;
-    --bg: #0f1420;
-    --panel: #171d2b;
-    --panel-2: #1d2433;
-    --line: #2a3346;
-    --text: #e7ecf5;
-    --muted: #94a3b8;
-    --green: #34d399;
-    --amber: #fbbf24;
-    --red: #f87171;
-    --violet: #a78bfa;
-    --radius: 14px;
-  }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    margin: 0;
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: radial-gradient(1200px 600px at 80% -10%, rgba(32,138,239,.18), transparent 60%), var(--bg);
-    color: var(--text);
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-  }
-  header.hero {
-    padding: 56px 24px 36px;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-  .eyebrow {
-    text-transform: uppercase;
-    letter-spacing: .14em;
-    font-size: 12px;
-    color: var(--brand);
-    font-weight: 700;
-  }
-  h1 { font-size: clamp(30px, 5vw, 46px); margin: 8px 0 12px; letter-spacing: -.02em; }
-  .sub { color: var(--muted); max-width: 720px; font-size: 16px; }
-  .meta { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
-  .meta span { background: var(--panel); border: 1px solid var(--line); padding: 6px 12px; border-radius: 999px; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wishlane — Release Roadmap</title>
+    <style>
+      :root {
+        --brand: #208aef;
+        --brand-dark: #1769c4;
+        --bg: #0f1420;
+        --panel: #171d2b;
+        --panel-2: #1d2433;
+        --line: #2a3346;
+        --text: #e7ecf5;
+        --muted: #94a3b8;
+        --green: #34d399;
+        --amber: #fbbf24;
+        --red: #f87171;
+        --violet: #a78bfa;
+        --radius: 14px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        background:
+          radial-gradient(1200px 600px at 80% -10%, rgba(32, 138, 239, 0.18), transparent 60%),
+          var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+      header.hero {
+        padding: 56px 24px 36px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 12px;
+        color: var(--brand);
+        font-weight: 700;
+      }
+      h1 {
+        font-size: clamp(30px, 5vw, 46px);
+        margin: 8px 0 12px;
+        letter-spacing: -0.02em;
+      }
+      .sub {
+        color: var(--muted);
+        max-width: 720px;
+        font-size: 16px;
+      }
+      .meta {
+        margin-top: 18px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+      .meta span {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        padding: 6px 12px;
+        border-radius: 999px;
+      }
 
-  main { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 24px 80px;
+      }
 
-  /* progress overview */
-  .overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin: 8px 0 40px; }
-  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
-  .stat .num { font-size: 26px; font-weight: 800; }
-  .stat .lbl { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
-  .bar { height: 7px; border-radius: 999px; background: var(--panel-2); overflow: hidden; margin-top: 12px; }
-  .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), #5db4ff); border-radius: 999px; }
+      /* progress overview */
+      .overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 14px;
+        margin: 8px 0 40px;
+      }
+      .stat {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 16px 18px;
+      }
+      .stat .num {
+        font-size: 26px;
+        font-weight: 800;
+      }
+      .stat .lbl {
+        color: var(--muted);
+        font-size: 12.5px;
+        margin-top: 2px;
+      }
+      .bar {
+        height: 7px;
+        border-radius: 999px;
+        background: var(--panel-2);
+        overflow: hidden;
+        margin-top: 12px;
+      }
+      .bar > i {
+        display: block;
+        height: 100%;
+        background: linear-gradient(90deg, var(--brand), #5db4ff);
+        border-radius: 999px;
+      }
 
-  /* phase legend */
-  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 34px; font-size: 13px; color: var(--muted); }
-  .legend b { color: var(--text); }
-  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
-  .dot.p0 { background: var(--red); }
-  .dot.p1 { background: var(--amber); }
-  .dot.p2 { background: var(--violet); }
-  .dot.done { background: var(--green); }
+      /* phase legend */
+      .legend {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        margin-bottom: 34px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .legend b {
+        color: var(--text);
+      }
+      .dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 7px;
+        vertical-align: middle;
+      }
+      .dot.p0 {
+        background: var(--red);
+      }
+      .dot.p1 {
+        background: var(--amber);
+      }
+      .dot.p2 {
+        background: var(--violet);
+      }
+      .dot.done {
+        background: var(--green);
+      }
 
-  section.phase { margin-bottom: 40px; }
-  .phase-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-  .phase-head h2 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
-  .pill { font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: .06em; }
-  .pill.p0 { background: rgba(248,113,113,.15); color: var(--red); border: 1px solid rgba(248,113,113,.35); }
-  .pill.p1 { background: rgba(251,191,36,.13); color: var(--amber); border: 1px solid rgba(251,191,36,.32); }
-  .pill.p2 { background: rgba(167,139,250,.14); color: var(--violet); border: 1px solid rgba(167,139,250,.34); }
-  .phase-sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+      section.phase {
+        margin-bottom: 40px;
+      }
+      .phase-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 6px;
+      }
+      .phase-head h2 {
+        font-size: 22px;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      .pill {
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .pill.p0 {
+        background: rgba(248, 113, 113, 0.15);
+        color: var(--red);
+        border: 1px solid rgba(248, 113, 113, 0.35);
+      }
+      .pill.p1 {
+        background: rgba(251, 191, 36, 0.13);
+        color: var(--amber);
+        border: 1px solid rgba(251, 191, 36, 0.32);
+      }
+      .pill.p2 {
+        background: rgba(167, 139, 250, 0.14);
+        color: var(--violet);
+        border: 1px solid rgba(167, 139, 250, 0.34);
+      }
+      .phase-sub {
+        color: var(--muted);
+        font-size: 14px;
+        margin: 0 0 18px;
+      }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-  .card {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 18px 18px 8px;
-  }
-  .card h3 { margin: 0 0 4px; font-size: 15.5px; display: flex; align-items: center; gap: 8px; }
-  .card .tag { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
-  ul.tasks { list-style: none; margin: 12px 0 6px; padding: 0; }
-  ul.tasks li { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-top: 1px dashed var(--line); }
-  ul.tasks li:first-child { border-top: none; }
-  ul.tasks input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--brand); flex: none; cursor: pointer; }
-  ul.tasks label { font-size: 14px; cursor: pointer; }
-  ul.tasks label small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 1px; }
-  li.checked label { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 16px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 18px 18px 8px;
+      }
+      .card h3 {
+        margin: 0 0 4px;
+        font-size: 15.5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card .tag {
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      ul.tasks {
+        list-style: none;
+        margin: 12px 0 6px;
+        padding: 0;
+      }
+      ul.tasks li {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 7px 0;
+        border-top: 1px dashed var(--line);
+      }
+      ul.tasks li:first-child {
+        border-top: none;
+      }
+      ul.tasks input {
+        margin-top: 3px;
+        width: 16px;
+        height: 16px;
+        accent-color: var(--brand);
+        flex: none;
+        cursor: pointer;
+      }
+      ul.tasks label {
+        font-size: 14px;
+        cursor: pointer;
+      }
+      ul.tasks label small {
+        display: block;
+        color: var(--muted);
+        font-size: 12.5px;
+        margin-top: 1px;
+      }
+      li.checked label {
+        color: var(--muted);
+        text-decoration: line-through;
+        text-decoration-color: var(--line);
+      }
 
-  .surface-tag { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); }
-  .s-web { color: #7dd3fc; border-color: rgba(125,211,252,.3); }
-  .s-native { color: #86efac; border-color: rgba(134,239,172,.3); }
-  .s-ext { color: #fdba74; border-color: rgba(253,186,116,.3); }
-  .s-be { color: #c4b5fd; border-color: rgba(196,181,253,.3); }
-  .s-ops { color: #f9a8d4; border-color: rgba(249,168,212,.3); }
-  .s-all { color: var(--brand); border-color: rgba(32,138,239,.4); }
+      .surface-tag {
+        font-size: 10.5px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        color: var(--muted);
+      }
+      .s-web {
+        color: #7dd3fc;
+        border-color: rgba(125, 211, 252, 0.3);
+      }
+      .s-native {
+        color: #86efac;
+        border-color: rgba(134, 239, 172, 0.3);
+      }
+      .s-ext {
+        color: #fdba74;
+        border-color: rgba(253, 186, 116, 0.3);
+      }
+      .s-be {
+        color: #c4b5fd;
+        border-color: rgba(196, 181, 253, 0.3);
+      }
+      .s-ops {
+        color: #f9a8d4;
+        border-color: rgba(249, 168, 212, 0.3);
+      }
+      .s-all {
+        color: var(--brand);
+        border-color: rgba(32, 138, 239, 0.4);
+      }
 
-  .built { margin: 0 0 44px; }
-  .built .grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
-  .built .card { padding: 16px 18px; }
-  .built ul { margin: 8px 0 0; padding-left: 18px; }
-  .built li { font-size: 13.5px; color: var(--muted); padding: 3px 0; }
-  .built li b { color: var(--text); font-weight: 600; }
+      .built {
+        margin: 0 0 44px;
+      }
+      .built .grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      }
+      .built .card {
+        padding: 16px 18px;
+      }
+      .built ul {
+        margin: 8px 0 0;
+        padding-left: 18px;
+      }
+      .built li {
+        font-size: 13.5px;
+        color: var(--muted);
+        padding: 3px 0;
+      }
+      .built li b {
+        color: var(--text);
+        font-weight: 600;
+      }
 
-  .controls { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin: 0 0 22px; }
-  .controls .reset { background: var(--panel); color: var(--muted); border: 1px solid var(--line); padding: 8px 14px; border-radius: 9px; font-size: 13px; cursor: pointer; }
-  .controls .reset:hover { color: var(--text); border-color: var(--brand); }
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin: 0 0 22px;
+      }
+      .controls .reset {
+        background: var(--panel);
+        color: var(--muted);
+        border: 1px solid var(--line);
+        padding: 8px 14px;
+        border-radius: 9px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .controls .reset:hover {
+        color: var(--text);
+        border-color: var(--brand);
+      }
 
-  footer { max-width: 1100px; margin: 0 auto; padding: 30px 24px 60px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
-  a { color: var(--brand); }
-  .note { background: var(--panel-2); border: 1px solid var(--line); border-left: 3px solid var(--brand); border-radius: 10px; padding: 14px 16px; color: var(--muted); font-size: 13.5px; margin: 0 0 34px; }
-</style>
-</head>
-<body>
-<header class="hero">
-  <div class="eyebrow">Product Roadmap</div>
-  <h1>Wishlane — Path to Release</h1>
-  <p class="sub">A cross-platform gift-wishlist product (Web · iOS/Android · Browser Extension) on a Supabase backend. The core product is largely built; this roadmap covers what remains to ship a public, paid, store-listed v1.0.</p>
-  <div class="meta">
-    <span>Surfaces: Web · Native · Extension · Backend</span>
-    <span>Payments: RevenueCat (unified)</span>
-    <span>Generated from codebase audit · 2026-06-24</span>
-  </div>
-</header>
-
-<main>
-
-  <!-- OVERVIEW -->
-  <div class="overview">
-    <div class="stat">
-      <div class="num" style="color:var(--green)">~80%</div>
-      <div class="lbl">Core product built</div>
-      <div class="bar"><i style="width:80%"></i></div>
-    </div>
-    <div class="stat">
-      <div class="num" style="color:var(--brand)">4</div>
-      <div class="lbl">Shippable surfaces</div>
-    </div>
-    <div class="stat">
-      <div class="num" style="color:var(--red)">P0</div>
-      <div class="lbl">Release blockers below</div>
-    </div>
-    <div class="stat">
-      <div class="num" id="progressNum" style="color:var(--amber)">0%</div>
-      <div class="lbl">Checklist done (this view)</div>
-      <div class="bar"><i id="progressBar" style="width:0%"></i></div>
-    </div>
-  </div>
-
-  <div class="note">
-    <b>How to read this:</b> the roadmap is grouped into three phases by urgency. <b>Phase 1 (P0)</b> are hard blockers to a public launch. <b>Phase 2 (P1)</b> are strongly recommended before/at launch. <b>Phase 3 (P2)</b> are fast-follow / post-launch. Checkboxes persist in your browser (localStorage) so the team can track progress — they are not saved to the repo.
-  </div>
-
-  <!-- ALREADY BUILT -->
-  <section class="built">
-    <div class="phase-head"><h2>✅ Already in place</h2></div>
-    <p class="phase-sub">Snapshot of what the audit found shipped, so the roadmap stays focused on the gaps.</p>
-    <div class="grid">
-      <div class="card">
-        <h3>Web app <span class="surface-tag s-web">WEB</span></h3>
-        <ul>
-          <li><b>Next.js 16 / React 19</b></li>
-          <li>Wishlists, items, friends, groups</li>
-          <li>Discover, Secret Santa, share / shared links</li>
-          <li>Settings, subscription, ideas, admin</li>
-          <li>Landing page + legal pages</li>
-          <li>Playwright e2e across major flows</li>
-          <li>i18n (GT) + PostHog analytics</li>
-        </ul>
+      footer {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 30px 24px 60px;
+        color: var(--muted);
+        font-size: 13px;
+        border-top: 1px solid var(--line);
+      }
+      a {
+        color: var(--brand);
+      }
+      .note {
+        background: var(--panel-2);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--brand);
+        border-radius: 10px;
+        padding: 14px 16px;
+        color: var(--muted);
+        font-size: 13.5px;
+        margin: 0 0 34px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="eyebrow">Product Roadmap</div>
+      <h1>Wishlane — Path to Release</h1>
+      <p class="sub">
+        A cross-platform gift-wishlist product (Web · iOS/Android · Browser Extension) on a Supabase
+        backend. The core product is largely built; this roadmap covers what remains to ship a
+        public, paid, store-listed v1.0.
+      </p>
+      <div class="meta">
+        <span>Surfaces: Web · Native · Extension · Backend</span>
+        <span>Payments: RevenueCat (unified)</span>
+        <span>Generated from codebase audit · 2026-06-24</span>
       </div>
-      <div class="card">
-        <h3>Native app <span class="surface-tag s-native">NATIVE</span></h3>
-        <ul>
-          <li><b>Expo SDK 55</b> · 24 screens · 98 components</li>
-          <li>Email + Google + Apple + Facebook auth</li>
-          <li>RevenueCat subscriptions</li>
-          <li>Push notifications</li>
-          <li>EAS build profiles configured</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>Extension <span class="surface-tag s-ext">EXT</span></h3>
-        <ul>
-          <li>Chrome MV3, ~30 store scrapers + fallback</li>
-          <li>One-click add to wishlist</li>
-          <li>Store-listing copy + privacy policy drafted</li>
-          <li>Packaged <b>.zip</b> built</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>Backend &amp; platform <span class="surface-tag s-be">BACKEND</span></h3>
-        <ul>
-          <li>Supabase: migrations, RLS, storage buckets</li>
-          <li>Push-notification edge function</li>
-          <li>Shared logic package (currencies, filters)</li>
-          <li>Cron: discount checks, FX rates</li>
-          <li>DB migrate workflows (staging + prod)</li>
-        </ul>
-      </div>
-    </div>
-  </section>
+    </header>
 
-  <div class="legend">
-    <span><i class="dot p0"></i><b>Phase 1 — P0</b> Release blockers</span>
-    <span><i class="dot p1"></i><b>Phase 2 — P1</b> Launch-quality</span>
-    <span><i class="dot p2"></i><b>Phase 3 — P2</b> Fast-follow</span>
-  </div>
-
-  <div class="controls">
-    <div style="color:var(--muted);font-size:13px">Tick items as you complete them — progress saves locally.</div>
-    <button class="reset" onclick="resetAll()">Reset checklist</button>
-  </div>
-
-  <!-- PHASE 1 -->
-  <section class="phase">
-    <div class="phase-head"><span class="pill p0">Phase 1</span><h2>Release blockers (P0)</h2></div>
-    <p class="phase-sub">Must be done to put the apps in front of real, paying users without unacceptable risk.</p>
-    <div class="grid">
-
-      <div class="card">
-        <h3>📱 App-store submission — Native <span class="surface-tag s-native">NATIVE</span></h3>
-        <span class="tag">Largest single launch lift</span>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Add EAS <b>submit</b> profiles (iOS + Android)<small>eas.json only has build profiles today</small></label></li>
-          <li><input type="checkbox"><label>App Store Connect app record + Apple Developer account<small>bundle: com.berrynora.wishlane</small></label></li>
-          <li><input type="checkbox"><label>Google Play Console app record + signing<small>package: com.berrynora.wishlane</small></label></li>
-          <li><input type="checkbox"><label>Store assets: icon, screenshots, feature graphic, descriptions</label></li>
-          <li><input type="checkbox"><label>Apple Privacy "nutrition labels" + Play Data Safety form</label></li>
-          <li><input type="checkbox"><label>App Tracking Transparency / consent for PostHog</label></li>
-          <li><input type="checkbox"><label>In-app purchase products created in App Store + Play, linked to RevenueCat</label></li>
-          <li><input type="checkbox"><label>First production build via EAS + TestFlight / internal testing pass</label></li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>💳 Payments — verify live <span class="surface-tag s-all">ALL</span></h3>
-        <span class="tag">Revenue-critical</span>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Confirm single source of truth: RevenueCat for web + mobile<small>web .env still carries Paddle keys — confirm/remove if unused</small></label></li>
-          <li><input type="checkbox"><label>RevenueCat webhook verified end-to-end (entitlement → DB sync)</label></li>
-          <li><input type="checkbox"><label>Real purchase + restore + cancel tested on iOS, Android, web</label></li>
-          <li><input type="checkbox"><label>Free-tier limits enforced server-side (not just UI gating)</label></li>
-          <li><input type="checkbox"><label>Refund flow matches refund-policy page</label></li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>🛡️ Error monitoring &amp; observability <span class="surface-tag s-all">ALL</span></h3>
-        <span class="tag">Currently none found</span>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Add Sentry (or equiv) to web<small>no error tracking detected anywhere</small></label></li>
-          <li><input type="checkbox"><label>Add Sentry to native (incl. native crash reporting)</label></li>
-          <li><input type="checkbox"><label>Error reporting on edge functions + scraper API routes</label></li>
-          <li><input type="checkbox"><label>Uptime monitoring + alerting on web + Supabase</label></li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>🔒 Security &amp; abuse hardening <span class="surface-tag s-be">BACKEND</span></h3>
-        <span class="tag">Pre-public</span>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>RLS audit on every table (esp. friends/groups visibility)</label></li>
-          <li><input type="checkbox"><label>Lock down / remove <b>/admin/scraper-test</b> in production</label></li>
-          <li><input type="checkbox"><label>Rate-limit scrape-product + auth + share endpoints<small>scraper fetches arbitrary URLs — SSRF/abuse surface</small></label></li>
-          <li><input type="checkbox"><label>Validate/secure cron routes (secret header on Vercel cron)</label></li>
-          <li><input type="checkbox"><label>Run <b>/security-review</b> on the branch before launch</label></li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>🌐 Domain, env &amp; config <span class="surface-tag s-ops">OPS</span></h3>
-        <span class="tag">Consistency</span>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Resolve domain mismatch: <b>wishlane.net</b> vs <b>wishlane.app</b><small>native .env uses .net; extension docs use .app</small></label></li>
-          <li><input type="checkbox"><label>Production env vars set in Vercel + EAS + Supabase</label></li>
-          <li><input type="checkbox"><label>Deep links / universal links verified (share + secret-santa join)</label></li>
-          <li><input type="checkbox"><label>OAuth redirect URIs (Google/Apple/Facebook) point to prod</label></li>
-          <li><input type="checkbox"><label>Production Supabase project provisioned + migrations applied</label></li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>⚖️ Legal &amp; compliance <span class="surface-tag s-all">ALL</span></h3>
-        <span class="tag">Pages exist — finalize</span>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Legal review of privacy / terms / refund pages</label></li>
-          <li><input type="checkbox"><label>Account &amp; data deletion flow (GDPR + Apple requirement)</label></li>
-          <li><input type="checkbox"><label>Cookie / analytics consent banner (web)</label></li>
-          <li><input type="checkbox"><label>Host extension privacy policy at a public URL</label></li>
-        </ul>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- PHASE 2 -->
-  <section class="phase">
-    <div class="phase-head"><span class="pill p1">Phase 2</span><h2>Launch quality (P1)</h2></div>
-    <p class="phase-sub">Strongly recommended for a credible v1 — prevents regressions and first-week fire drills.</p>
-    <div class="grid">
-
-      <div class="card">
-        <h3>⚙️ CI / CD <span class="surface-tag s-ops">OPS</span></h3>
-        <span class="tag">Only DB workflows exist today</span>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>CI: lint (oxlint) + format + check-types on every PR</label></li>
-          <li><input type="checkbox"><label>CI: run Playwright e2e on PRs</label></li>
-          <li><input type="checkbox"><label>Web build check / preview deploys (Vercel)</label></li>
-          <li><input type="checkbox"><label>EAS build + OTA update pipeline for native</label></li>
-          <li><input type="checkbox"><label>Block merge on red CI</label></li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>🧩 Extension submission <span class="surface-tag s-ext">EXT</span></h3>
-        <span class="tag">Copy ready — not submitted</span>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Capture the 3–5 store screenshots called out in STORE_LISTING.md</label></li>
-          <li><input type="checkbox"><label>Chrome Web Store developer account + submission</label></li>
-          <li><input type="checkbox"><label>Decide on Firefox / Edge ports (or defer)</label></li>
-          <li><input type="checkbox"><label>Verify scraper coverage on top target stores before listing claims</label></li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>🧪 Test coverage <span class="surface-tag s-all">ALL</span></h3>
-        <span class="tag">Web e2e only</span>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Smoke/e2e for native critical flows (auth, add item, purchase)</label></li>
-          <li><input type="checkbox"><label>Unit tests for scraper helpers (high regression risk)</label></li>
-          <li><input type="checkbox"><label>Tests for shared backend logic (currencies, filters, priorities)</label></li>
-          <li><input type="checkbox"><label>RLS / policy tests against a seeded DB</label></li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>🧭 Onboarding &amp; first-run <span class="surface-tag s-all">ALL</span></h3>
-        <span class="tag">Spec in docs/user-guide-steps.md</span>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Finish interactive user guide (web) per spec + progress bar</label></li>
-          <li><input type="checkbox"><label>Native onboarding parity</label></li>
-          <li><input type="checkbox"><label>Empty states for every primary screen</label></li>
-          <li><input type="checkbox"><label>Seed "Discover" / demo content so new accounts aren't empty</label></li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>🔔 Notifications &amp; lifecycle <span class="surface-tag s-be">BACKEND</span></h3>
-        <span class="tag">Push wired — round out</span>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Transactional email (verify, reset, invites, reservations)</label></li>
-          <li><input type="checkbox"><label>Notification preferences honored across channels</label></li>
-          <li><input type="checkbox"><label>Discount-drop notifications validated end-to-end</label></li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>🚀 Performance &amp; QA <span class="surface-tag s-all">ALL</span></h3>
-        <span class="tag">Pre-scale</span>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Lighthouse / Core Web Vitals pass on landing + app</label></li>
-          <li><input type="checkbox"><label>Image optimization + CDN on user uploads</label></li>
-          <li><input type="checkbox"><label>DB indexes reviewed for hot queries (discover, friends feed)</label></li>
-          <li><input type="checkbox"><label>Cross-device / cross-browser QA pass</label></li>
-          <li><input type="checkbox"><label>Accessibility pass (keyboard, SR labels, contrast)</label></li>
-        </ul>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- PHASE 3 -->
-  <section class="phase">
-    <div class="phase-head"><span class="pill p2">Phase 3</span><h2>Fast-follow &amp; polish (P2)</h2></div>
-    <p class="phase-sub">Can land in the first weeks after launch — cleanup, growth, and resilience.</p>
-    <div class="grid">
-
-      <div class="card">
-        <h3>🧹 Repo hygiene <span class="surface-tag s-ops">OPS</span></h3>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Remove dead <b>apps/mobile</b> (only node_modules remain)</label></li>
-          <li><input type="checkbox"><label>Replace boilerplate READMEs (web + native are templates)</label></li>
-          <li><input type="checkbox"><label>Remove Paddle env/keys if RevenueCat is the only processor</label></li>
-          <li><input type="checkbox"><label>Document env vars + local setup in root README</label></li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>📈 Growth &amp; analytics <span class="surface-tag s-all">ALL</span></h3>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Define + instrument activation/funnel events in PostHog</label></li>
-          <li><input type="checkbox"><label>SEO: metadata, sitemap, OG images for share pages</label></li>
-          <li><input type="checkbox"><label>Referral / invite loop (gift apps are inherently viral)</label></li>
-          <li><input type="checkbox"><label>App Store Optimization keywords + listing experiments</label></li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>🛟 Resilience &amp; support <span class="surface-tag s-ops">OPS</span></h3>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>DB backup + restore drill documented</label></li>
-          <li><input type="checkbox"><label>Scraper health dashboard + per-store failure alerts</label></li>
-          <li><input type="checkbox"><label>Support inbox / in-app feedback triage (Ideas page exists)</label></li>
-          <li><input type="checkbox"><label>Status page</label></li>
-        </ul>
+    <main>
+      <!-- OVERVIEW -->
+      <div class="overview">
+        <div class="stat">
+          <div class="num" style="color: var(--green)">~80%</div>
+          <div class="lbl">Core product built</div>
+          <div class="bar"><i style="width: 80%"></i></div>
+        </div>
+        <div class="stat">
+          <div class="num" style="color: var(--brand)">4</div>
+          <div class="lbl">Shippable surfaces</div>
+        </div>
+        <div class="stat">
+          <div class="num" style="color: var(--red)">P0</div>
+          <div class="lbl">Release blockers below</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="progressNum" style="color: var(--amber)">0%</div>
+          <div class="lbl">Checklist done (this view)</div>
+          <div class="bar"><i id="progressBar" style="width: 0%"></i></div>
+        </div>
       </div>
 
-      <div class="card">
-        <h3>✨ Product polish <span class="surface-tag s-all">ALL</span></h3>
-        <ul class="tasks" data-group="g">
-          <li><input type="checkbox"><label>Localization QA for shipped languages (GT)</label></li>
-          <li><input type="checkbox"><label>Dark/light theme audit across all screens</label></li>
-          <li><input type="checkbox"><label>Web app installable PWA (optional)</label></li>
-          <li><input type="checkbox"><label>Expand scraper store coverage based on real usage</label></li>
-        </ul>
+      <div class="note">
+        <b>How to read this:</b> the roadmap is grouped into three phases by urgency.
+        <b>Phase 1 (P0)</b> are hard blockers to a public launch. <b>Phase 2 (P1)</b> are strongly
+        recommended before/at launch. <b>Phase 3 (P2)</b> are fast-follow / post-launch. Checkboxes
+        persist in your browser (localStorage) so the team can track progress — they are not saved
+        to the repo.
       </div>
 
-    </div>
-  </section>
+      <!-- ALREADY BUILT -->
+      <section class="built">
+        <div class="phase-head"><h2>✅ Already in place</h2></div>
+        <p class="phase-sub">
+          Snapshot of what the audit found shipped, so the roadmap stays focused on the gaps.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <h3>Web app <span class="surface-tag s-web">WEB</span></h3>
+            <ul>
+              <li><b>Next.js 16 / React 19</b></li>
+              <li>Wishlists, items, friends, groups</li>
+              <li>Discover, Secret Santa, share / shared links</li>
+              <li>Settings, subscription, ideas, admin</li>
+              <li>Landing page + legal pages</li>
+              <li>Playwright e2e across major flows</li>
+              <li>i18n (GT) + PostHog analytics</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Native app <span class="surface-tag s-native">NATIVE</span></h3>
+            <ul>
+              <li><b>Expo SDK 55</b> · 24 screens · 98 components</li>
+              <li>Email + Google + Apple + Facebook auth</li>
+              <li>RevenueCat subscriptions</li>
+              <li>Push notifications</li>
+              <li>EAS build profiles configured</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Extension <span class="surface-tag s-ext">EXT</span></h3>
+            <ul>
+              <li>Chrome MV3, ~30 store scrapers + fallback</li>
+              <li>One-click add to wishlist</li>
+              <li>Store-listing copy + privacy policy drafted</li>
+              <li>Packaged <b>.zip</b> built</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Backend &amp; platform <span class="surface-tag s-be">BACKEND</span></h3>
+            <ul>
+              <li>Supabase: migrations, RLS, storage buckets</li>
+              <li>Push-notification edge function</li>
+              <li>Shared logic package (currencies, filters)</li>
+              <li>Cron: discount checks, FX rates</li>
+              <li>DB migrate workflows (staging + prod)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
 
-  <!-- SUGGESTED SEQUENCE -->
-  <section class="phase">
-    <div class="phase-head"><h2>📅 Suggested sequencing</h2></div>
-    <div class="grid">
-      <div class="card">
-        <h3>Sprint A — Safety net</h3>
-        <ul><li class="" style="list-style:none;color:var(--muted);font-size:13.5px">CI pipeline · Sentry on all surfaces · security/RLS review · lock down admin + cron · rate limiting.</li></ul>
+      <div class="legend">
+        <span><i class="dot p0"></i><b>Phase 1 — P0</b> Release blockers</span>
+        <span><i class="dot p1"></i><b>Phase 2 — P1</b> Launch-quality</span>
+        <span><i class="dot p2"></i><b>Phase 3 — P2</b> Fast-follow</span>
       </div>
-      <div class="card">
-        <h3>Sprint B — Money &amp; stores</h3>
-        <ul><li style="list-style:none;color:var(--muted);font-size:13.5px">Verify RevenueCat live on all 3 surfaces · EAS submit profiles · store records + assets · first TestFlight/internal builds.</li></ul>
+
+      <div class="controls">
+        <div style="color: var(--muted); font-size: 13px">
+          Tick items as you complete them — progress saves locally.
+        </div>
+        <button class="reset" onclick="resetAll()">Reset checklist</button>
       </div>
-      <div class="card">
-        <h3>Sprint C — Launch readiness</h3>
-        <ul><li style="list-style:none;color:var(--muted);font-size:13.5px">Domain/env finalize · data deletion + consent · onboarding finish · extension submission · QA + a11y pass.</li></ul>
-      </div>
-      <div class="card">
-        <h3>Sprint D — Ship &amp; iterate</h3>
-        <ul><li style="list-style:none;color:var(--muted);font-size:13.5px">Public launch · monitor dashboards · repo hygiene · growth instrumentation · fast-follow polish.</li></ul>
-      </div>
-    </div>
-  </section>
 
-</main>
+      <!-- PHASE 1 -->
+      <section class="phase">
+        <div class="phase-head">
+          <span class="pill p0">Phase 1</span>
+          <h2>Release blockers (P0)</h2>
+        </div>
+        <p class="phase-sub">
+          Must be done to put the apps in front of real, paying users without unacceptable risk.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <h3>
+              📱 App-store submission — Native <span class="surface-tag s-native">NATIVE</span>
+            </h3>
+            <span class="tag">Largest single launch lift</span>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >Add EAS <b>submit</b> profiles (iOS + Android)<small
+                    >eas.json only has build profiles today</small
+                  ></label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >App Store Connect app record + Apple Developer account<small
+                    >bundle: com.berrynora.wishlane</small
+                  ></label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Google Play Console app record + signing<small
+                    >package: com.berrynora.wishlane</small
+                  ></label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Store assets: icon, screenshots, feature graphic, descriptions</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Apple Privacy "nutrition labels" + Play Data Safety form</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >App Tracking Transparency / consent for PostHog</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >In-app purchase products created in App Store + Play, linked to RevenueCat</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >First production build via EAS + TestFlight / internal testing pass</label
+                >
+              </li>
+            </ul>
+          </div>
 
-<footer>
-  Built from a static audit of the repository structure (not a running instance), so treat status as directional — verify live wiring (payments, deep links, RLS) before relying on it. Checklist state is stored only in your browser.
-  <br>Wishlane release roadmap · accent <span style="color:var(--brand)">#208AEF</span>.
-</footer>
+          <div class="card">
+            <h3>💳 Payments — verify live <span class="surface-tag s-all">ALL</span></h3>
+            <span class="tag">Revenue-critical</span>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >Confirm single source of truth: RevenueCat for web + mobile<small
+                    >web .env still carries Paddle keys — confirm/remove if unused</small
+                  ></label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >RevenueCat webhook verified end-to-end (entitlement → DB sync)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Real purchase + restore + cancel tested on iOS, Android, web</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Free-tier limits enforced server-side (not just UI gating)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label>Refund flow matches refund-policy page</label>
+              </li>
+            </ul>
+          </div>
 
-<script>
-  const KEY = "wishlane-roadmap-v1";
-  const boxes = Array.from(document.querySelectorAll('ul.tasks input[type=checkbox]'));
-  boxes.forEach((b, i) => b.dataset.idx = i);
+          <div class="card">
+            <h3>
+              🛡️ Error monitoring &amp; observability <span class="surface-tag s-all">ALL</span>
+            </h3>
+            <span class="tag">Currently none found</span>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >Add Sentry (or equiv) to web<small
+                    >no error tracking detected anywhere</small
+                  ></label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Add Sentry to native (incl. native crash reporting)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Error reporting on edge functions + scraper API routes</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Uptime monitoring + alerting on web + Supabase</label
+                >
+              </li>
+            </ul>
+          </div>
 
-  function load() {
-    let saved = {};
-    try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
-    boxes.forEach(b => {
-      b.checked = !!saved[b.dataset.idx];
-      b.closest('li').classList.toggle('checked', b.checked);
-    });
-    updateProgress();
-  }
-  function save() {
-    const out = {};
-    boxes.forEach(b => { if (b.checked) out[b.dataset.idx] = 1; });
-    localStorage.setItem(KEY, JSON.stringify(out));
-  }
-  function updateProgress() {
-    const done = boxes.filter(b => b.checked).length;
-    const pct = boxes.length ? Math.round(done / boxes.length * 100) : 0;
-    document.getElementById('progressNum').textContent = pct + '%';
-    document.getElementById('progressBar').style.width = pct + '%';
-  }
-  boxes.forEach(b => b.addEventListener('change', () => {
-    b.closest('li').classList.toggle('checked', b.checked);
-    save(); updateProgress();
-  }));
-  function resetAll() {
-    localStorage.removeItem(KEY);
-    boxes.forEach(b => { b.checked = false; b.closest('li').classList.remove('checked'); });
-    updateProgress();
-  }
-  load();
-</script>
-</body>
+          <div class="card">
+            <h3>🔒 Security &amp; abuse hardening <span class="surface-tag s-be">BACKEND</span></h3>
+            <span class="tag">Pre-public</span>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >RLS audit on every table (esp. friends/groups visibility)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Lock down / remove <b>/admin/scraper-test</b> in production</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Rate-limit scrape-product + auth + share endpoints<small
+                    >scraper fetches arbitrary URLs — SSRF/abuse surface</small
+                  ></label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Validate/secure cron routes (secret header on Vercel cron)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Run <b>/security-review</b> on the branch before launch</label
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>🌐 Domain, env &amp; config <span class="surface-tag s-ops">OPS</span></h3>
+            <span class="tag">Consistency</span>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >Resolve domain mismatch: <b>wishlane.net</b> vs <b>wishlane.app</b
+                  ><small>native .env uses .net; extension docs use .app</small></label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Production env vars set in Vercel + EAS + Supabase</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Deep links / universal links verified (share + secret-santa join)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >OAuth redirect URIs (Google/Apple/Facebook) point to prod</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Production Supabase project provisioned + migrations applied</label
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>⚖️ Legal &amp; compliance <span class="surface-tag s-all">ALL</span></h3>
+            <span class="tag">Pages exist — finalize</span>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >Legal review of privacy / terms / refund pages</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Account &amp; data deletion flow (GDPR + Apple requirement)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label>Cookie / analytics consent banner (web)</label>
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Host extension privacy policy at a public URL</label
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- PHASE 2 -->
+      <section class="phase">
+        <div class="phase-head">
+          <span class="pill p1">Phase 2</span>
+          <h2>Launch quality (P1)</h2>
+        </div>
+        <p class="phase-sub">
+          Strongly recommended for a credible v1 — prevents regressions and first-week fire drills.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <h3>⚙️ CI / CD <span class="surface-tag s-ops">OPS</span></h3>
+            <span class="tag">Only DB workflows exist today</span>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >CI: lint (oxlint) + format + check-types on every PR</label
+                >
+              </li>
+              <li><input type="checkbox" /><label>CI: run Playwright e2e on PRs</label></li>
+              <li>
+                <input type="checkbox" /><label>Web build check / preview deploys (Vercel)</label>
+              </li>
+              <li>
+                <input type="checkbox" /><label>EAS build + OTA update pipeline for native</label>
+              </li>
+              <li><input type="checkbox" /><label>Block merge on red CI</label></li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>🧩 Extension submission <span class="surface-tag s-ext">EXT</span></h3>
+            <span class="tag">Copy ready — not submitted</span>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >Capture the 3–5 store screenshots called out in STORE_LISTING.md</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Chrome Web Store developer account + submission</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label>Decide on Firefox / Edge ports (or defer)</label>
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Verify scraper coverage on top target stores before listing claims</label
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>🧪 Test coverage <span class="surface-tag s-all">ALL</span></h3>
+            <span class="tag">Web e2e only</span>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >Smoke/e2e for native critical flows (auth, add item, purchase)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Unit tests for scraper helpers (high regression risk)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Tests for shared backend logic (currencies, filters, priorities)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label>RLS / policy tests against a seeded DB</label>
+              </li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>🧭 Onboarding &amp; first-run <span class="surface-tag s-all">ALL</span></h3>
+            <span class="tag">Spec in docs/user-guide-steps.md</span>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >Finish interactive user guide (web) per spec + progress bar</label
+                >
+              </li>
+              <li><input type="checkbox" /><label>Native onboarding parity</label></li>
+              <li><input type="checkbox" /><label>Empty states for every primary screen</label></li>
+              <li>
+                <input type="checkbox" /><label
+                  >Seed "Discover" / demo content so new accounts aren't empty</label
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>🔔 Notifications &amp; lifecycle <span class="surface-tag s-be">BACKEND</span></h3>
+            <span class="tag">Push wired — round out</span>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >Transactional email (verify, reset, invites, reservations)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Notification preferences honored across channels</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Discount-drop notifications validated end-to-end</label
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>🚀 Performance &amp; QA <span class="surface-tag s-all">ALL</span></h3>
+            <span class="tag">Pre-scale</span>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >Lighthouse / Core Web Vitals pass on landing + app</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label>Image optimization + CDN on user uploads</label>
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >DB indexes reviewed for hot queries (discover, friends feed)</label
+                >
+              </li>
+              <li><input type="checkbox" /><label>Cross-device / cross-browser QA pass</label></li>
+              <li>
+                <input type="checkbox" /><label
+                  >Accessibility pass (keyboard, SR labels, contrast)</label
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- PHASE 3 -->
+      <section class="phase">
+        <div class="phase-head">
+          <span class="pill p2">Phase 3</span>
+          <h2>Fast-follow &amp; polish (P2)</h2>
+        </div>
+        <p class="phase-sub">
+          Can land in the first weeks after launch — cleanup, growth, and resilience.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <h3>🧹 Repo hygiene <span class="surface-tag s-ops">OPS</span></h3>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >Remove dead <b>apps/mobile</b> (only node_modules remain)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Replace boilerplate READMEs (web + native are templates)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Remove Paddle env/keys if RevenueCat is the only processor</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Document env vars + local setup in root README</label
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>📈 Growth &amp; analytics <span class="surface-tag s-all">ALL</span></h3>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label
+                  >Define + instrument activation/funnel events in PostHog</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >SEO: metadata, sitemap, OG images for share pages</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Referral / invite loop (gift apps are inherently viral)</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >App Store Optimization keywords + listing experiments</label
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>🛟 Resilience &amp; support <span class="surface-tag s-ops">OPS</span></h3>
+            <ul class="tasks" data-group="g">
+              <li><input type="checkbox" /><label>DB backup + restore drill documented</label></li>
+              <li>
+                <input type="checkbox" /><label
+                  >Scraper health dashboard + per-store failure alerts</label
+                >
+              </li>
+              <li>
+                <input type="checkbox" /><label
+                  >Support inbox / in-app feedback triage (Ideas page exists)</label
+                >
+              </li>
+              <li><input type="checkbox" /><label>Status page</label></li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>✨ Product polish <span class="surface-tag s-all">ALL</span></h3>
+            <ul class="tasks" data-group="g">
+              <li>
+                <input type="checkbox" /><label>Localization QA for shipped languages (GT)</label>
+              </li>
+              <li>
+                <input type="checkbox" /><label>Dark/light theme audit across all screens</label>
+              </li>
+              <li><input type="checkbox" /><label>Web app installable PWA (optional)</label></li>
+              <li>
+                <input type="checkbox" /><label
+                  >Expand scraper store coverage based on real usage</label
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SUGGESTED SEQUENCE -->
+      <section class="phase">
+        <div class="phase-head"><h2>📅 Suggested sequencing</h2></div>
+        <div class="grid">
+          <div class="card">
+            <h3>Sprint A — Safety net</h3>
+            <ul>
+              <li class="" style="list-style: none; color: var(--muted); font-size: 13.5px">
+                CI pipeline · Sentry on all surfaces · security/RLS review · lock down admin + cron
+                · rate limiting.
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Sprint B — Money &amp; stores</h3>
+            <ul>
+              <li style="list-style: none; color: var(--muted); font-size: 13.5px">
+                Verify RevenueCat live on all 3 surfaces · EAS submit profiles · store records +
+                assets · first TestFlight/internal builds.
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Sprint C — Launch readiness</h3>
+            <ul>
+              <li style="list-style: none; color: var(--muted); font-size: 13.5px">
+                Domain/env finalize · data deletion + consent · onboarding finish · extension
+                submission · QA + a11y pass.
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Sprint D — Ship &amp; iterate</h3>
+            <ul>
+              <li style="list-style: none; color: var(--muted); font-size: 13.5px">
+                Public launch · monitor dashboards · repo hygiene · growth instrumentation ·
+                fast-follow polish.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Built from a static audit of the repository structure (not a running instance), so treat
+      status as directional — verify live wiring (payments, deep links, RLS) before relying on it.
+      Checklist state is stored only in your browser.
+      <br />Wishlane release roadmap · accent <span style="color: var(--brand)">#208AEF</span>.
+    </footer>
+
+    <script>
+      const KEY = "wishlane-roadmap-v1";
+      const boxes = Array.from(document.querySelectorAll("ul.tasks input[type=checkbox]"));
+      boxes.forEach((b, i) => (b.dataset.idx = i));
+
+      function load() {
+        let saved = {};
+        try {
+          saved = JSON.parse(localStorage.getItem(KEY)) || {};
+        } catch (e) {}
+        boxes.forEach((b) => {
+          b.checked = !!saved[b.dataset.idx];
+          b.closest("li").classList.toggle("checked", b.checked);
+        });
+        updateProgress();
+      }
+      function save() {
+        const out = {};
+        boxes.forEach((b) => {
+          if (b.checked) out[b.dataset.idx] = 1;
+        });
+        localStorage.setItem(KEY, JSON.stringify(out));
+      }
+      function updateProgress() {
+        const done = boxes.filter((b) => b.checked).length;
+        const pct = boxes.length ? Math.round((done / boxes.length) * 100) : 0;
+        document.getElementById("progressNum").textContent = pct + "%";
+        document.getElementById("progressBar").style.width = pct + "%";
+      }
+      boxes.forEach((b) =>
+        b.addEventListener("change", () => {
+          b.closest("li").classList.toggle("checked", b.checked);
+          save();
+          updateProgress();
+        }),
+      );
+      function resetAll() {
+        localStorage.removeItem(KEY);
+        boxes.forEach((b) => {
+          b.checked = false;
+          b.closest("li").classList.remove("checked");
+        });
+        updateProgress();
+      }
+      load();
+    </script>
+  </body>
 </html>

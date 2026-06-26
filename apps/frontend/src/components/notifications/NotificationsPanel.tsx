@@ -11,10 +11,13 @@ import { useAcceptSecretSantaInvite, useDeclineSecretSantaInvite } from "@/hooks
 import { useDeleteNotification } from "@/hooks/use-notifications";
 import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 
-// Notification type: 0 = Secret Santa, 1 = Item (reservation/bought), 2 = Friends
+// Notification type: 0 = Secret Santa, 1/3/4/5 = wishlist-related, 2 = Friends
 function getNotificationHref(n: Notification): string | null {
   switch (n.type) {
     case 1:
+    case 3:
+    case 4:
+    case 5:
       return n.entity_id ? `/wishlist/${n.entity_id}` : null;
     case 2:
       return "/friends";
