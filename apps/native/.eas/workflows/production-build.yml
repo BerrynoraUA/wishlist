@@ -1,0 +1,61 @@
+name: Native Production Build
+
+defaults:
+  tools:
+    node: 22.11.0
+    corepack: true
+    pnpm: 11.9.0
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/native/api/**
+      - apps/native/app/**
+      - apps/native/assets/**
+      - apps/native/components/**
+      - apps/native/content/**
+      - apps/native/global.css
+      - apps/native/gt-lock.json
+      - apps/native/hooks/**
+      - apps/native/lib/**
+      - apps/native/loadTranslations.ts
+      - apps/native/polyfills/**
+      - apps/native/providers/**
+      - packages/**
+      - tsconfig.json
+      - "!**/*.md"
+
+concurrency:
+  cancel_in_progress: true
+  group: ${{ workflow.filename }}-${{ github.ref }}
+
+jobs:
+  validate:
+    name: Validate Workspace
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Check types
+        run: pnpm --dir ../.. check-types
+
+  build_android:
+    name: Build Android Production
+    needs: [validate]
+    type: build
+    environment: production
+    params:
+      platform: android
+      profile: production
+      message: Production build from ${{ github.ref_name }}
+
+  build_ios:
+    name: Build iOS Production
+    needs: [validate]
+    type: build
+    environment: production
+    params:
+      platform: ios
+      profile: production
+      message: Production build from ${{ github.ref_name }}

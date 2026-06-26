@@ -1,17 +1,32 @@
 name: Native Release Build
 
+defaults:
+  tools:
+    node: 22.11.0
+    corepack: true
+    pnpm: 11.9.0
+
 on:
   push:
-    branches:
-      - main
+    tags:
+      - native-v*
 
 concurrency:
   cancel_in_progress: true
   group: ${{ workflow.filename }}-${{ github.ref }}
 
 jobs:
+  validate:
+    name: Validate Workspace
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Check types
+        run: pnpm --dir ../.. check-types
+
   build_android:
     name: Build Android Release
+    needs: [validate]
     type: build
     environment: production
     params:
@@ -19,31 +34,35 @@ jobs:
       profile: production
       message: Release build from ${{ github.ref_name }}
 
-  # build_ios:
-  #   name: Build iOS Release
-  #   type: build
-  #   environment: production
-  #   params:
-  #     platform: ios
-  #     profile: production
-  #     message: Release build from ${{ github.ref_name }}
-
-  publish_android_update:
-    name: Publish Android Production Update
-    needs: [build_android]
-    type: update
+  build_ios:
+    name: Build iOS Release
+    needs: [validate]
+    type: build
     environment: production
     params:
-      platform: android
-      channel: production
-      message: Production update from ${{ github.ref_name }}
+      platform: ios
+      profile: production
+      message: Release build from ${{ github.ref_name }}
 
-  # publish_ios_update:
-  #   name: Publish iOS Production Update
-  #   needs: [build_ios]
-  #   type: update
-  #   environment: production
-  #   params:
-  #     platform: ios
-  #     channel: production
-  #     message: Production update from ${{ github.ref_name }}
+  approve_store_submission:
+    name: Approve Store Submission
+    needs: [build_android, build_ios]
+    type: require-approval
+
+  submit_android:
+    name: Submit Android Release
+    needs: [build_android, approve_store_submission]
+    type: submit
+    environment: production
+    params:
+      build_id: ${{ needs.build_android.outputs.build_id }}
+      profile: production
+
+  submit_ios:
+    name: Submit iOS Release
+    needs: [build_ios, approve_store_submission]
+    type: submit
+    environment: production
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}
+      profile: production

@@ -12,3 +12,12 @@ onlyBuiltDependencies:
 ignoredBuiltDependencies:
   - core-js
   - protobufjs
+
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: true
+  esbuild: true
+  protobufjs: true
+  sharp: true
+  supabase: true
+  tree-sitter-python: true
