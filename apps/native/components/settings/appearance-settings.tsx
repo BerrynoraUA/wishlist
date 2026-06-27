@@ -13,7 +13,9 @@ import {
   type SlidingOptionRenderProps,
 } from "@/components/ui/sliding-option-selector";
 import { Text } from "@/components/ui/text";
+import { SettingsControlsToggleRow } from "@/components/settings/settings-controls";
 import { SettingsSection } from "@/components/settings/settings-section";
+import { useHideBackButton } from "@/hooks/use-hide-back-button";
 import type { NativeAccentName } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { getWishlistAccentOptions } from "@/lib/wishlists";
@@ -24,6 +26,7 @@ import type { ThemePreference, WishlistColorIndex } from "@wishlist/backend/type
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 import {
   ChevronDown,
+  ChevronLeft,
   Check,
   Gift,
   Languages,
@@ -37,7 +40,7 @@ import {
 } from "lucide-react-native";
 import { useGT, useLocale, useLocales, useSetLocale } from "gt-react-native";
 import * as React from "react";
-import { Pressable, View } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 
 const THEME_OPTION_HEIGHT = 96;
 const SWATCH_OPTION_HEIGHT = 76;
@@ -108,7 +111,13 @@ export function AppearanceSettings({
   const locales = useLocales();
   const setLocale = useSetLocale();
   const updateSettings = useUpdateSettings();
+  const [hideBackButton, setHideBackButton] = useHideBackButton();
   const [prioritiesExpanded, setPrioritiesExpanded] = React.useState(false);
+
+  const hideBackButtonDescription =
+    Platform.OS === "ios"
+      ? t("With the button hidden, slide left from the edge of the screen to go back.")
+      : t("With the button hidden, use the universal back gesture to go back.");
   const priorities =
     selectedPriorities ??
     ALL_PRIORITIES.filter((priority) => priority.is_free).map((priority) => priority.id);
@@ -298,6 +307,14 @@ export function AppearanceSettings({
           ) : null}
         </View>
       </View>
+
+      <SettingsControlsToggleRow
+        icon={ChevronLeft}
+        title={t("Hide back button")}
+        subtitle={hideBackButtonDescription}
+        checked={hideBackButton}
+        onCheckedChange={setHideBackButton}
+      />
     </SettingsSection>
   );
 }
