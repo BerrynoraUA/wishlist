@@ -23,7 +23,7 @@ export function CurrencySettings({ selectedCurrency }: { selectedCurrency: strin
   }
 
   return (
-    <SettingsSection title={t("Display Currency")} icon={CircleDollarSign}>
+    <SettingsSection id="currency" title={t("Display Currency")} icon={CircleDollarSign}>
       <AutocompleteDropdown
         value={selectedOption}
         onValueChange={handleCurrencyChange}

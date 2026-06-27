@@ -187,7 +187,7 @@ export function AppearanceSettings({
   }
 
   return (
-    <SettingsSection title={t("Appearance")} icon={Palette}>
+    <SettingsSection id="appearance" title={t("Appearance")} icon={Palette}>
       <View className="gap-2">
         <View className="flex-row items-center gap-2">
           <Icon as={Languages} className="size-4 text-brand" />

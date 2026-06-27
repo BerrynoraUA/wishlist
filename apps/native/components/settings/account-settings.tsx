@@ -138,6 +138,7 @@ export function AccountSettings({
   return (
     <>
       <SettingsSection
+        id="account"
         title={t("Account")}
         icon={UserCog}
         headerAction={

@@ -13,7 +13,7 @@ export function NotificationSettings({
   const updateSettings = useUpdateSettings();
 
   return (
-    <SettingsSection title={t("Push Notifications")} icon={Bell}>
+    <SettingsSection id="notifications" title={t("Push Notifications")} icon={Bell}>
       <SettingsControlsToggleRow
         icon={UserPlus}
         title={t("Friend Requests")}

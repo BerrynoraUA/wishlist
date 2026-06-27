@@ -27,6 +27,7 @@ export function SubscriptionSettings() {
 
   return (
     <SettingsSection
+      id="subscription"
       title={t("Subscription")}
       icon={Crown}
       headerAction={
