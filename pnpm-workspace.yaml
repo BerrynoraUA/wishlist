@@ -5,17 +5,6 @@ packages:
 # Required for 250 character limit in local android builds
 nodeLinker: hoisted
 
-onlyBuiltDependencies:
-  - "@parcel/watcher"
-  - esbuild
-  - sharp
-  - supabase
-  - tree-sitter-python
-
-ignoredBuiltDependencies:
-  - core-js
-  - protobufjs
-
 allowBuilds:
   "@parcel/watcher": true
   core-js: true
