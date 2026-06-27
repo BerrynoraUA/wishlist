@@ -20,7 +20,7 @@ import { upsertKnownAccount } from "@/lib/known-accounts";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { SubscriptionProvider } from "@/providers/subscription-provider";
 import { UserGuideProvider } from "@/components/user-guide/user-guide-provider";
-import { ThemeProvider } from "@react-navigation/native";
+import { ThemeProvider } from "expo-router/react-navigation";
 import { PortalHost } from "@rn-primitives/portal";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
 import { PostHogEventProperties } from "@posthog/core";

@@ -13,10 +13,9 @@ export default function TabsLayout() {
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
   const navigationTheme = useNavigationTheme(theme);
-  const selectedTabBackground =
-    themeMode === "dark"
-      ? `${navigationTheme.colors.primary}24`
-      : `${navigationTheme.colors.primary}18`;
+  const primaryColor =
+    typeof navigationTheme.colors.primary === "string" ? navigationTheme.colors.primary : "#208aef";
+  const selectedTabBackground = themeMode === "dark" ? `${primaryColor}24` : `${primaryColor}18`;
 
   if (!session) {
     return <Redirect href={"/(auth)/sign-in" as never} />;

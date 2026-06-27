@@ -1,4 +1,4 @@
-import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
+import { DarkTheme, DefaultTheme, type Theme } from "expo-router/react-navigation";
 import type { ThemePreference, UserSettings } from "@wishlist/backend/types/settings";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 import * as SecureStore from "expo-secure-store";
@@ -91,19 +91,23 @@ function navigationThemeFromResolved(
   const base = mode === "dark" ? DarkTheme : DefaultTheme;
   const { colors: c } = base;
 
-  const str = (v: unknown, fallback: string) => (typeof v === "string" ? v : fallback);
+  const str = (v: unknown, fallback: unknown, fallbackString: string) => {
+    if (typeof v === "string") return v;
+    if (typeof fallback === "string") return fallback;
+    return fallbackString;
+  };
 
   return {
     ...base,
     dark: mode === "dark",
     colors: {
       ...c,
-      background: str(css.bg, c.background),
-      text: str(css.text, c.text),
-      card: str(css.card, c.card),
-      border: str(css.border, c.border),
-      primary: str(css.primary, c.primary),
-      notification: str(css.destructive, c.notification),
+      background: str(css.bg, c.background, mode === "dark" ? "#000000" : "#ffffff"),
+      text: str(css.text, c.text, mode === "dark" ? "#ffffff" : "#000000"),
+      card: str(css.card, c.card, mode === "dark" ? "#000000" : "#ffffff"),
+      border: str(css.border, c.border, mode === "dark" ? "#272729" : "#d6d6d8"),
+      primary: str(css.primary, c.primary, "#208aef"),
+      notification: str(css.destructive, c.notification, "#ef4444"),
     },
   };
 }

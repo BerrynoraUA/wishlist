@@ -2,6 +2,9 @@ packages:
   - "apps/*"
   - "packages/*"
 
+# Required for 250 character limit in local android builds
+nodeLinker: hoisted
+
 onlyBuiltDependencies:
   - "@parcel/watcher"
   - esbuild
