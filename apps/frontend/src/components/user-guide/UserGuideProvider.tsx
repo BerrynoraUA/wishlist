@@ -49,6 +49,7 @@ type GuideHighlightBox = {
 };
 
 // Temporarily disabled on web. Flip to true to re-enable the user guide.
+
 const USER_GUIDE_ENABLED = false;
 
 const UserGuideContext = createContext<UserGuideContextValue>({
