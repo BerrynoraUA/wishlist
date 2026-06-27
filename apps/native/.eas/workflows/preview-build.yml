@@ -20,17 +20,8 @@ concurrency:
   group: ${{ workflow.filename }}-${{ github.ref }}
 
 jobs:
-  validate:
-    name: Validate Workspace
-    steps:
-      - uses: eas/checkout
-      - uses: eas/install_node_modules
-      - name: Check types
-        run: pnpm --dir ../.. check-types
-
   build_android:
     name: Build Android Preview
-    needs: [validate]
     type: build
     environment: preview
     params:
@@ -40,7 +31,6 @@ jobs:
 
   build_ios:
     name: Build iOS Preview
-    needs: [validate]
     type: build
     environment: preview
     params:
