@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "expo/tsconfig.base",
+  "extends": "./base.json",
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
@@ -12,6 +12,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "lib": ["ES2022"]
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   }
 }

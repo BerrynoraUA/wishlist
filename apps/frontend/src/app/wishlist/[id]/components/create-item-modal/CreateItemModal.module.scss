@@ -518,7 +518,8 @@
 @media (max-width: 640px) {
   .container {
     gap: 16px;
-    padding: 4px 0 0;
+    min-height: calc(100dvh - 36px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    padding: 0;
   }
 
   .draftBanner {
@@ -547,7 +548,13 @@
   }
 
   .footer {
+    position: sticky;
+    bottom: calc(-18px - env(safe-area-inset-bottom));
+    margin: 4px -16px calc(-18px - env(safe-area-inset-bottom));
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
     flex-direction: column-reverse;
+    background: var(--modal-bg);
+    border-top: 1px solid var(--color-border-subtle);
 
     button {
       width: 100%;

@@ -141,9 +141,18 @@
 .priorityList {
   display: flex;
   flex-direction: column;
-  border: 1.5px solid var(--color-border-light);
-  border-radius: $radius-md;
-  overflow: hidden;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 82%, transparent);
+  border-radius: 16px;
+  overflow: visible;
+  background:
+    radial-gradient(circle at top left, var(--brand-alpha-08), transparent 36%),
+    color-mix(in srgb, var(--card-bg) 96%, white 4%);
+  box-shadow:
+    0 18px 42px rgba(15, 23, 42, 0.14),
+    0 2px 8px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34);
 }
 
 .priorityExtras {
@@ -167,31 +176,28 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
 }
 
 .priorityRow {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
-  background: var(--color-bg-subtle);
+  padding: 10px;
+  border-radius: 12px;
+  background: transparent;
   border: none;
   cursor: pointer;
   transition: background 0.15s $ease-out;
   text-align: left;
   width: 100%;
 
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--color-border-light);
-  }
-
   &:hover:not(.locked) {
-    background: var(--color-surface-hover);
+    background: color-mix(in srgb, var(--color-brand) 8%, transparent);
   }
 
   &.active {
-    background: var(--color-bg);
+    background: transparent;
   }
 
   &.locked {
@@ -220,7 +226,7 @@
   flex: 1;
   font-size: var(--fs-body);
   font-weight: var(--fw-medium);
-  color: $text;
+  color: var(--color-text);
 
   .locked & {
     color: $text-muted;
@@ -244,18 +250,23 @@
   flex: 0 0 auto;
   width: 18px;
   height: 18px;
-  border-radius: 4px;
-  border: 1.5px solid var(--color-border);
-  background: transparent;
+  border-radius: 6px;
+  border: 1.5px solid color-mix(in srgb, var(--color-brand) 24%, var(--color-border));
+  background: color-mix(in srgb, var(--card-bg) 88%, transparent);
   display: grid;
   place-items: center;
   transition: all 0.15s $ease-out;
   color: transparent;
 
   &.checked {
-    background: $brand;
+    background: linear-gradient(
+      135deg,
+      var(--color-brand),
+      color-mix(in srgb, var(--color-brand) 78%, #fff)
+    );
     border-color: $brand;
     color: #fff;
+    box-shadow: 0 6px 14px var(--brand-alpha-20);
   }
 }
 

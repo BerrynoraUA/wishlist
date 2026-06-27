@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scrapeProduct, type ProductData } from "@/app/api/server/scrape-product/scraper";
-import { createSaleAlertNotificationsForFriends } from "@/api/notification";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const CRON_SECRET = process.env.CRON_SECRET as string;
@@ -33,12 +32,6 @@ type CronStats = {
     skipped_no_price: number;
     insert_failed: number;
   };
-  sale_alerts: {
-    triggered: number;
-    inserted: number;
-    failed: number;
-    skipped_no_owner: number;
-  };
   errors?: { id: string; error: string }[];
 };
 
@@ -56,13 +49,6 @@ function isDuplicateKeyError(error: { code?: string; message?: string }) {
   return (
     error.code === "23505" || /duplicate key value|unique constraint/i.test(error.message || "")
   );
-}
-
-function shouldNotifySaleAlert(item: ItemRow, product: ProductData): boolean {
-  if (!product.has_discount) return false;
-  const prevDiscount = item.discount_price ?? null;
-  const nextDiscount = (product.discount_price ?? null) as string | null;
-  return item.has_discount !== true || prevDiscount !== nextDiscount;
 }
 
 function normalizeWishlist(wishlist: ItemQueryRow["wishlist"]): ItemRow["wishlist"] {
@@ -120,30 +106,6 @@ async function insertPriceSnapshot(
   return "failed";
 }
 
-async function sendSaleAlerts(
-  item: ItemRow,
-  product: ProductData,
-): Promise<{ inserted: number; skippedNoOwner: boolean }> {
-  const supabaseAdmin = getSupabaseAdmin();
-  const ownerId = item.wishlist?.user_id ?? null;
-  if (!ownerId) return { inserted: 0, skippedNoOwner: true };
-
-  const res = await createSaleAlertNotificationsForFriends({
-    supabase: supabaseAdmin,
-    ownerId,
-    item: {
-      id: item.id,
-      name: item.name,
-      url: item.url,
-      price: product.price ?? item.price ?? null,
-      discount_price: (product.discount_price ?? null) as string | null,
-      wishlist_title: item.wishlist?.title ?? null,
-    },
-  });
-
-  return { inserted: res.inserted, skippedNoOwner: false };
-}
-
 async function processItem(item: ItemRow, stats: CronStats): Promise<void> {
   const product = await scrapeProduct(item.url!);
   if (!product) {
@@ -152,17 +114,6 @@ async function processItem(item: ItemRow, stats: CronStats): Promise<void> {
   }
 
   await updateItemFromProduct(item.id, product);
-
-  if (shouldNotifySaleAlert(item, product)) {
-    stats.sale_alerts.triggered++;
-    try {
-      const res = await sendSaleAlerts(item, product);
-      stats.sale_alerts.inserted += res.inserted;
-      if (res.skippedNoOwner) stats.sale_alerts.skipped_no_owner++;
-    } catch {
-      stats.sale_alerts.failed++;
-    }
-  }
 
   const effectivePrice = getEffectivePrice(product);
   if (!effectivePrice) {
@@ -202,12 +153,6 @@ export async function GET(request: NextRequest) {
       skipped_no_product: 0,
       skipped_no_price: 0,
       insert_failed: 0,
-    },
-    sale_alerts: {
-      triggered: 0,
-      inserted: 0,
-      failed: 0,
-      skipped_no_owner: 0,
     },
   };
 

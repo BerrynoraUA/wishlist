@@ -1,12 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { getSubscriptionStatus, syncSubscription, openPaddleCheckout } from "@/api/subscription";
+import {
+  getSubscriptionPackages,
+  getSubscriptionStatus,
+  openSubscriptionManagement,
+  PurchaseCancelledError,
+  purchaseSubscription,
+  syncSubscription,
+} from "@/api/subscription";
 import { SubscriptionPlan, BillingInterval } from "@/types/subscription";
 
 // Query Keys
 export const subscriptionKeys = {
   all: ["subscription"] as const,
   status: () => [...subscriptionKeys.all, "status"] as const,
+  packages: () => [...subscriptionKeys.all, "packages"] as const,
 };
 
 // Queries
@@ -25,13 +33,44 @@ export function useSubscription() {
   };
 }
 
+export function useSubscriptionPackages() {
+  return useQuery({
+    queryKey: subscriptionKeys.packages(),
+    queryFn: getSubscriptionPackages,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 // Mutations
 export function useCheckout() {
-  return {
-    checkout: (interval: BillingInterval) => {
-      openPaddleCheckout(interval).catch(console.error);
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: purchaseSubscription,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: subscriptionKeys.status(),
+      });
+      toast.success("Subscription activated");
     },
+    onError: (err) => {
+      if (err instanceof PurchaseCancelledError) return;
+      toast.error(err.message || "Failed to start checkout");
+    },
+  });
+
+  return {
+    ...mutation,
+    checkout: (interval: BillingInterval) => mutation.mutate(interval),
   };
+}
+
+export function useManageSubscription() {
+  return useMutation({
+    mutationFn: openSubscriptionManagement,
+    onError: (err) => {
+      toast.error(err.message || "Could not open subscription management");
+    },
+  });
 }
 
 export function useSyncSubscription() {

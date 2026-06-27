@@ -13,6 +13,7 @@ export interface SubscriptionStatus {
   isActive: boolean;
   expiresAt: string | null;
   revenuecatCustomerId: string | null;
+  paddleSubscriptionId: string | null;
 }
 
 export interface PricingTier {
@@ -35,11 +36,6 @@ export const FREE_LIMITS = {
   maxWishlists: 5,
   maxItemsPerWishlist: 10,
   maxSecretSantaEvents: 1,
-} as const;
-
-export const PADDLE_PRICE_IDS = {
-  proMonthly: process.env.NEXT_PUBLIC_PADDLE_MONTHLY_PRICE_ID ?? "",
-  proYearly: process.env.NEXT_PUBLIC_PADDLE_YEARLY_PRICE_ID ?? "",
 } as const;
 
 export const PRICING = {

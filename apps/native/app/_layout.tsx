@@ -1,24 +1,38 @@
 import "@/polyfills/gtIntlPolyfills";
 import "@/global.css";
 
+import {
+  useNotificationResponseObserver,
+  useRegisterPushNotifications,
+} from "@/hooks/use-notifications";
 import { useSettings } from "@/hooks/use-settings";
-import { getNativeThemeNameForPreference, getNavigationTheme, getThemeMode } from "@/lib/theme";
+import {
+  applyNativeThemeSettings,
+  type CachedNativeThemeSettings,
+  getActiveNativeThemeSettingsSnapshot,
+  getThemeMode,
+  readCachedNativeThemeSettings,
+  setActiveNativeThemeSettingsSnapshot,
+  useNavigationTheme,
+  writeCachedNativeThemeSettings,
+} from "@/lib/theme";
 import { upsertKnownAccount } from "@/lib/known-accounts";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
+import { SubscriptionProvider } from "@/providers/subscription-provider";
 import { UserGuideProvider } from "@/components/user-guide/user-guide-provider";
-import { ThemeProvider } from "@react-navigation/native";
+import { ThemeProvider } from "expo-router/react-navigation";
 import { PortalHost } from "@rn-primitives/portal";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
 import { PostHogEventProperties } from "@posthog/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack, useGlobalSearchParams, usePathname } from "expo-router";
+import { Stack, useGlobalSearchParams, usePathname, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GTProvider } from "gt-react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { ActivityIndicator, Appearance, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Uniwind, useUniwind } from "uniwind";
+import { useUniwind } from "uniwind";
 import { DEFAULT_SETTINGS } from "@wishlist/backend/types/settings";
 import gtConfig from "../gt.config.json";
 import { loadTranslations } from "../loadTranslations";
@@ -51,7 +65,7 @@ export default function RootLayout() {
   );
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
-  const navigationTheme = getNavigationTheme(theme);
+  const navigationTheme = useNavigationTheme(theme);
 
   return (
     <PostHogProvider
@@ -73,18 +87,20 @@ export default function RootLayout() {
       >
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <PostHogScreenTracker />
-            <ThemeProvider value={navigationTheme}>
-              <SafeAreaProvider>
-                <ReanimatedTrueSheetProvider>
-                  <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
-                  <UserGuideProvider>
-                    <AuthGate />
-                    <PortalHost />
-                  </UserGuideProvider>
-                </ReanimatedTrueSheetProvider>
-              </SafeAreaProvider>
-            </ThemeProvider>
+            <SubscriptionProvider>
+              <PostHogScreenTracker />
+              <ThemeProvider value={navigationTheme}>
+                <SafeAreaProvider>
+                  <ReanimatedTrueSheetProvider>
+                    <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
+                    <UserGuideProvider>
+                      <AuthGate />
+                      <PortalHost />
+                    </UserGuideProvider>
+                  </ReanimatedTrueSheetProvider>
+                </SafeAreaProvider>
+              </ThemeProvider>
+            </SubscriptionProvider>
           </AuthProvider>
         </QueryClientProvider>
       </GTProvider>
@@ -103,57 +119,125 @@ function AuthGate() {
     );
   }
 
+  if (session) {
+    return (
+      <AuthenticatedThemeGate key={session.user.id}>
+        <AuthRedirector />
+        <NotificationPushBootstrap />
+        <RootStack initialRouteName="(tabs)" />
+      </AuthenticatedThemeGate>
+    );
+  }
+
   return (
     <>
-      {session ? <NativeThemeSync /> : null}
-      <Stack
-        initialRouteName={session ? "(tabs)" : "(auth)"}
-        screenOptions={{ headerShown: false }}
-      >
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-      </Stack>
+      <AuthRedirector />
+      <RootStack initialRouteName="(auth)" />
     </>
   );
 }
 
-function NativeThemeSync() {
+function RootStack({ initialRouteName }: { initialRouteName: "(auth)" | "(tabs)" }) {
+  return (
+    <Stack initialRouteName={initialRouteName} screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="subscription" />
+    </Stack>
+  );
+}
+
+function AuthRedirector() {
   const { session } = useAuth();
-  const { data: settings } = useSettings();
-  const themePreference = settings?.theme ?? DEFAULT_SETTINGS.theme;
-  const defaultAccent = settings?.default_accent ?? DEFAULT_SETTINGS.default_accent;
+  const router = useRouter();
+  const segments = useSegments();
+  const rootSegment = segments[0];
 
   useEffect(() => {
-    if (!session?.user.id || settings?.default_accent == null) return;
-    void upsertKnownAccount({
-      userId: session.user.id,
-      defaultAccent: settings.default_accent,
-    }).catch(() => {});
-  }, [session?.user.id, settings?.default_accent]);
+    const isAuthenticatedRoute = rootSegment === "(tabs)" || rootSegment === "subscription";
 
-  useEffect(() => {
-    function applyTheme(systemColorScheme: string | null | undefined) {
-      Uniwind.setTheme(
-        getNativeThemeNameForPreference(themePreference, defaultAccent, systemColorScheme),
-      );
-    }
-
-    if (themePreference !== "system") {
-      Uniwind.setTheme(getNativeThemeNameForPreference(themePreference, defaultAccent, null));
-      Appearance.setColorScheme(themePreference);
+    if (session && !isAuthenticatedRoute) {
+      router.replace("/(tabs)/wishlists" as never);
       return;
     }
 
-    Appearance.setColorScheme("unspecified");
-    applyTheme(Appearance.getColorScheme());
+    if (!session && rootSegment === "(tabs)") {
+      router.replace("/(auth)/sign-in" as never);
+    }
+  }, [rootSegment, router, session]);
 
+  return null;
+}
+
+function NotificationPushBootstrap() {
+  useRegisterPushNotifications();
+  useNotificationResponseObserver();
+
+  return null;
+}
+
+function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
+  const { session } = useAuth();
+  const userId = session?.user.id;
+  const initialSnapshot = userId ? getActiveNativeThemeSettingsSnapshot(userId) : null;
+  const { data: settings, error: settingsError } = useSettings();
+  const [cachedSettings, setCachedSettings] = useState<CachedNativeThemeSettings | null>(
+    () => initialSnapshot,
+  );
+  const [themeApplied, setThemeApplied] = useState(false);
+  const themeSettings = settings ?? cachedSettings ?? DEFAULT_SETTINGS;
+  const ready = Boolean(settings || cachedSettings || settingsError);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    let active = true;
+
+    setCachedSettings(getActiveNativeThemeSettingsSnapshot(userId));
+    void readCachedNativeThemeSettings(userId)
+      .then((nextSettings) => {
+        if (active) setCachedSettings(nextSettings);
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId || !settings) return;
+
+    const nextSettings = {
+      theme: settings.theme,
+      default_accent: settings.default_accent,
+    };
+
+    setActiveNativeThemeSettingsSnapshot(userId, nextSettings);
+    void writeCachedNativeThemeSettings(userId, nextSettings).catch(() => {});
+
+    void upsertKnownAccount({
+      userId,
+      defaultAccent: settings.default_accent,
+      themePreference: settings.theme,
+    }).catch(() => {});
+  }, [userId, settings]);
+
+  useLayoutEffect(() => {
+    if (!ready) return;
+    applyNativeThemeSettings(themeSettings);
+    setThemeApplied(true);
+  }, [ready, themeSettings]);
+
+  useEffect(() => {
+    if (!ready || themeSettings.theme !== "system") return;
     const timeout = setTimeout(() => {
-      applyTheme(Appearance.getColorScheme());
+      applyNativeThemeSettings(themeSettings);
     }, 0);
 
     const subscription = Appearance.addChangeListener(({ colorScheme }) => {
       if (colorScheme === "light" || colorScheme === "dark") {
-        applyTheme(colorScheme);
+        applyNativeThemeSettings(themeSettings);
       }
     });
 
@@ -161,9 +245,17 @@ function NativeThemeSync() {
       clearTimeout(timeout);
       subscription.remove();
     };
-  }, [defaultAccent, themePreference]);
+  }, [ready, themeSettings]);
 
-  return null;
+  if (!ready || !themeApplied) {
+    return (
+      <View className="flex-1 items-center justify-center bg-bg">
+        <ActivityIndicator colorClassName="accent-brand" />
+      </View>
+    );
+  }
+
+  return <>{children}</>;
 }
 
 function PostHogScreenTracker() {

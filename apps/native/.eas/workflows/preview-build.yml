@@ -1,0 +1,39 @@
+name: Native Preview Build
+
+defaults:
+  tools:
+    node: 22.11.0
+    corepack: true
+    pnpm: 11.9.0
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+    paths:
+      - apps/native/**
+      - "!**/*.md"
+
+concurrency:
+  cancel_in_progress: true
+  group: ${{ workflow.filename }}-${{ github.ref }}
+
+jobs:
+  build_android:
+    name: Build Android Preview
+    type: build
+    environment: preview
+    params:
+      platform: android
+      profile: preview
+      message: Preview build from ${{ github.ref_name }}
+
+  build_ios:
+    name: Build iOS Preview
+    type: build
+    environment: preview
+    params:
+      platform: ios
+      profile: preview
+      message: Preview build from ${{ github.ref_name }}

@@ -24,6 +24,19 @@ export interface Notification {
   created_at: string;
 }
 
+export interface NotificationPushToken {
+  id: string;
+  user_id: string;
+  expo_push_token: string;
+  platform: string | null;
+  device_id: string | null;
+  app_version: string | null;
+  enabled: boolean;
+  last_seen_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export * from "./discover";
 export * from "./friends";
 export * from "./item";
@@ -32,6 +45,7 @@ export * from "./known-accounts";
 export * from "./paddle";
 export * from "./session-storage";
 export * from "./settings";
+export * from "./secret-santa";
 export * from "./subscription";
 export {
   WishlistAccent,

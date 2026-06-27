@@ -1,26 +1,12 @@
-import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
-import type { ThemePreference } from "@wishlist/backend/types/settings";
+import { DarkTheme, DefaultTheme, type Theme } from "expo-router/react-navigation";
+import type { ThemePreference, UserSettings } from "@wishlist/backend/types/settings";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
+import * as SecureStore from "expo-secure-store";
+import { useMemo } from "react";
+import { Appearance } from "react-native";
+import { Uniwind, useCSSVariable } from "uniwind";
 
 export type NativeThemeMode = "light" | "dark";
-export type NativeAccentName = "pink" | "blue" | "peach" | "mint" | "lavender";
-
-export const NATIVE_THEME_NAMES = [
-  "light",
-  "dark",
-  "pink-light",
-  "pink-dark",
-  "blue-light",
-  "blue-dark",
-  "peach-light",
-  "peach-dark",
-  "mint-light",
-  "mint-dark",
-  "lavender-light",
-  "lavender-dark",
-] as const;
-
-export type NativeThemeName = (typeof NATIVE_THEME_NAMES)[number];
 
 export const NATIVE_ACCENTS = [
   {
@@ -48,98 +34,82 @@ export const NATIVE_ACCENTS = [
     label: "Lavender",
     swatchClassName: "bg-linear-135 from-violet-200 via-purple-300 to-violet-500",
   },
-] as const satisfies readonly {
-  name: NativeAccentName;
-  label: string;
-  swatchClassName: string;
-}[];
+] as const satisfies readonly { name: string; label: string; swatchClassName: string }[];
 
-type ThemePalette = {
-  mode: NativeThemeMode;
-  background: string;
-  foreground: string;
-  card: string;
-  popover: string;
-  primary: string;
-  secondary: string;
-  muted: string;
-  accent: string;
-  destructive: string;
-  border: string;
-  input: string;
-  ring: string;
-  radius: string;
+export type NativeAccentName = (typeof NATIVE_ACCENTS)[number]["name"];
+export type CachedNativeThemeSettings = Pick<UserSettings, "theme" | "default_accent">;
+
+export const NATIVE_THEME_NAMES = [
+  "light",
+  "dark",
+  "blue-light",
+  "blue-dark",
+  "peach-light",
+  "peach-dark",
+  "mint-light",
+  "mint-dark",
+  "lavender-light",
+  "lavender-dark",
+] as const;
+
+export type NativeThemeName = (typeof NATIVE_THEME_NAMES)[number];
+
+const WISHLIST_TO_NATIVE_ACCENT: Record<WishlistAccent, NativeAccentName> = {
+  [WishlistAccent.Pink]: "pink",
+  [WishlistAccent.Blue]: "blue",
+  [WishlistAccent.Peach]: "peach",
+  [WishlistAccent.Mint]: "mint",
+  [WishlistAccent.Lavender]: "lavender",
 };
 
-export const LIGHT_BASE_THEME_VARIABLES = {
-  background: "#faf7f8",
-  foreground: "#111827",
-  card: "#ffffff",
-  popover: "#ffffff",
-  secondary: "#fdf2f8",
-  muted: "#f4f4f5",
-  accent: "#fce7f3",
-  destructive: "#b91c1c",
-  border: "#f3e8ee",
-  input: "#f3e8ee",
-  ring: "#c0267e",
-  radius: "0.625rem",
-};
-
-export const DARK_BASE_THEME_VARIABLES = {
-  background: "#0c0c0f",
-  foreground: "#f0f0f2",
-  card: "#161619",
-  popover: "#161619",
-  secondary: "#27272d",
-  muted: "#27272d",
-  accent: "#4a1d35",
-  destructive: "#ef4444",
-  border: "#27272d",
-  input: "#27272d",
-  ring: "#e052a0",
-  radius: "0.625rem",
-};
-
-const THEME_PALETTES: Record<NativeThemeName, ThemePalette> = {
-  light: { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#c0267e" },
-  dark: { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#e052a0" },
-  "pink-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#c0267e" },
-  "pink-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#e052a0" },
-  "blue-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#2563eb" },
-  "blue-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#60a5fa" },
-  "peach-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#d97706" },
-  "peach-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#fbbf24" },
-  "mint-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#059669" },
-  "mint-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#34d399" },
-  "lavender-light": { mode: "light", ...LIGHT_BASE_THEME_VARIABLES, primary: "#7c3aed" },
-  "lavender-dark": { mode: "dark", ...DARK_BASE_THEME_VARIABLES, primary: "#a78bfa" },
-};
-
-function createNavigationTheme(palette: ThemePalette): Theme {
-  const baseTheme = palette.mode === "dark" ? DarkTheme : DefaultTheme;
-
-  return {
-    ...baseTheme,
-    dark: palette.mode === "dark",
-    colors: {
-      ...baseTheme.colors,
-      background: palette.background,
-      border: palette.border,
-      card: palette.card,
-      notification: palette.destructive,
-      primary: palette.primary,
-      text: palette.foreground,
-    },
-  };
-}
-
-function isNativeThemeName(theme: string | null | undefined): theme is NativeThemeName {
-  return NATIVE_THEME_NAMES.includes(theme as NativeThemeName);
-}
+const NATIVE_ACCENT_SET = new Set<string>(NATIVE_ACCENTS.map((a) => a.name));
+const THEME_SETTINGS_STORE_KEY_PREFIX = "wishlist.native.theme-settings.v1.";
+const THEME_PREFERENCE_SET = new Set<ThemePreference>(["light", "dark", "system"]);
+const WISHLIST_ACCENT_SET = new Set<WishlistAccent>(
+  Object.values(WishlistAccent).filter(
+    (value): value is WishlistAccent => typeof value === "number",
+  ),
+);
+let activeThemeSettingsSnapshot: { userId: string; settings: CachedNativeThemeSettings } | null =
+  null;
 
 function isNativeAccentName(accent: string): accent is NativeAccentName {
-  return NATIVE_ACCENTS.some((nativeAccent) => nativeAccent.name === accent);
+  return NATIVE_ACCENT_SET.has(accent);
+}
+
+function navigationThemeFromResolved(
+  mode: NativeThemeMode,
+  css: {
+    bg: unknown;
+    text: unknown;
+    card: unknown;
+    border: unknown;
+    primary: unknown;
+    destructive: unknown;
+  },
+): Theme {
+  const base = mode === "dark" ? DarkTheme : DefaultTheme;
+  const { colors: c } = base;
+
+  const str = (v: unknown, fallback: unknown, fallbackString: string) => {
+    if (typeof v === "string") return v;
+    if (typeof fallback === "string") return fallback;
+    return fallbackString;
+  };
+
+  return {
+    ...base,
+    dark: mode === "dark",
+    colors: {
+      ...c,
+      background: str(css.bg, c.background, mode === "dark" ? "#000000" : "#ffffff"),
+      text: str(css.text, c.text, mode === "dark" ? "#ffffff" : "#000000"),
+      card: str(css.card, c.card, mode === "dark" ? "#000000" : "#ffffff"),
+      border: str(css.border, c.border, mode === "dark" ? "#272729" : "#d6d6d8"),
+      primary: str(css.primary, c.primary, "#208aef"),
+      notification: str(css.destructive, c.notification, "#ef4444"),
+    },
+  };
 }
 
 export function getThemeMode(theme: string | null | undefined): NativeThemeMode {
@@ -158,26 +128,14 @@ export function getThemeAccent(theme: string | null | undefined): NativeAccentNa
 export function getNativeAccentForWishlistAccent(
   accent: WishlistAccent | null | undefined,
 ): NativeAccentName {
-  switch (accent) {
-    case WishlistAccent.Blue:
-      return "blue";
-    case WishlistAccent.Peach:
-      return "peach";
-    case WishlistAccent.Mint:
-      return "mint";
-    case WishlistAccent.Lavender:
-      return "lavender";
-    case WishlistAccent.Pink:
-    default:
-      return "pink";
-  }
+  return WISHLIST_TO_NATIVE_ACCENT[accent ?? WishlistAccent.Pink];
 }
 
 export function getNativeThemeName(
   mode: NativeThemeMode,
   accent: NativeAccentName,
 ): NativeThemeName {
-  return `${accent}-${mode}`;
+  return accent === "pink" ? mode : (`${accent}-${mode}` as NativeThemeName);
 }
 
 export function getNativeThemeNameForPreference(
@@ -191,10 +149,93 @@ export function getNativeThemeNameForPreference(
   return getNativeThemeName(mode, getNativeAccentForWishlistAccent(accent));
 }
 
-export function getNavigationTheme(theme: string | null | undefined): Theme {
-  return NAV_THEME[isNativeThemeName(theme) ? theme : "light"];
+function getCachedThemeSettingsKey(userId: string) {
+  return `${THEME_SETTINGS_STORE_KEY_PREFIX}${userId}`;
 }
 
-export const NAV_THEME: Record<NativeThemeName, Theme> = Object.fromEntries(
-  NATIVE_THEME_NAMES.map((theme) => [theme, createNavigationTheme(THEME_PALETTES[theme])]),
-) as Record<NativeThemeName, Theme>;
+function isCachedNativeThemeSettings(value: unknown): value is CachedNativeThemeSettings {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<CachedNativeThemeSettings>;
+
+  return (
+    typeof candidate.theme === "string" &&
+    THEME_PREFERENCE_SET.has(candidate.theme as ThemePreference) &&
+    typeof candidate.default_accent === "number" &&
+    WISHLIST_ACCENT_SET.has(candidate.default_accent)
+  );
+}
+
+export async function readCachedNativeThemeSettings(
+  userId: string,
+): Promise<CachedNativeThemeSettings | null> {
+  const raw = await SecureStore.getItemAsync(getCachedThemeSettingsKey(userId));
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    return isCachedNativeThemeSettings(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function writeCachedNativeThemeSettings(
+  userId: string,
+  settings: CachedNativeThemeSettings,
+) {
+  activeThemeSettingsSnapshot = { userId, settings };
+  await SecureStore.setItemAsync(getCachedThemeSettingsKey(userId), JSON.stringify(settings));
+}
+
+export function getActiveNativeThemeSettingsSnapshot(userId: string) {
+  return activeThemeSettingsSnapshot?.userId === userId
+    ? activeThemeSettingsSnapshot.settings
+    : null;
+}
+
+export function setActiveNativeThemeSettingsSnapshot(
+  userId: string,
+  settings: CachedNativeThemeSettings,
+) {
+  activeThemeSettingsSnapshot = { userId, settings };
+}
+
+export function applyNativeThemeSettings(settings: CachedNativeThemeSettings) {
+  if (settings.theme !== "system") {
+    Uniwind.setTheme(
+      getNativeThemeNameForPreference(settings.theme, settings.default_accent, null),
+    );
+    Appearance.setColorScheme(settings.theme);
+    return;
+  }
+
+  Appearance.setColorScheme("unspecified");
+  Uniwind.setTheme(
+    getNativeThemeNameForPreference("system", settings.default_accent, Appearance.getColorScheme()),
+  );
+}
+
+/** React Navigation colors from Uniwind / `global.css` tokens. */
+export function useNavigationTheme(theme: string | null | undefined): Theme {
+  const mode = getThemeMode(theme);
+
+  const bg = useCSSVariable("--color-bg");
+  const text = useCSSVariable("--color-text");
+  const card = useCSSVariable("--color-card");
+  const border = useCSSVariable("--color-border");
+  const primary = useCSSVariable("--color-primary");
+  const destructive = useCSSVariable("--color-destructive");
+
+  return useMemo(
+    () =>
+      navigationThemeFromResolved(mode, {
+        bg,
+        text,
+        card,
+        border,
+        primary,
+        destructive,
+      }),
+    [mode, bg, text, card, border, primary, destructive],
+  );
+}

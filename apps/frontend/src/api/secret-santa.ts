@@ -9,7 +9,7 @@ import {
   ListSecretSantaEventsParams,
   UpdateSecretSantaEventInput,
   VisibleItemsResponse,
-} from "./types/secret-santa";
+} from "@wishlist/backend/types/secret-santa";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
 import { deletePublicImage, uploadPublicImage } from "@/lib/helpers/storage-image";
 
@@ -59,7 +59,7 @@ export async function createSecretSantaEvent(
   let uploadedFile = false;
 
   if (image) {
-    finalImageUrl = await uploadSecretSantaImage(image);
+    finalImageUrl = await uploadSecretSantaImage(image as File);
     uploadedFile = true;
   } else if (imageUrl) {
     finalImageUrl = imageUrl;
@@ -110,7 +110,7 @@ export async function updateSecretSantaEvent(
       finalImageUrl = null;
       shouldDeleteOldImage = true;
     } else if (image) {
-      uploadedImageUrl = await uploadSecretSantaImage(image);
+      uploadedImageUrl = await uploadSecretSantaImage(image as File);
       finalImageUrl = uploadedImageUrl;
       shouldDeleteOldImage = currentImageUrl !== uploadedImageUrl;
     } else if (imageUrl !== undefined) {

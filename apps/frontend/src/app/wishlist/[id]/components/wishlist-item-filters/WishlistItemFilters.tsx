@@ -80,6 +80,7 @@ export function WishlistItemFilters({ wishlistId }: Props) {
     <FilterSortBar className={styles.filterBar}>
       <FilterSortRow className={styles.filterRow}>
         <SearchFilter
+          className={styles.itemSearchFilter}
           value={itemSearch}
           onChange={handleSearchChange}
           placeholder={t("Search items...", {
@@ -87,7 +88,7 @@ export function WishlistItemFilters({ wishlistId }: Props) {
           })}
         />
         <FilterDropdown
-          className={styles.itemFilterControl}
+          className={`${styles.itemFilterControl} ${styles.itemStatusFilter}`}
           label={t("Status", { $id: "wishlist.items.filter.status" })}
           options={statusOptions}
           active={itemStatuses}
@@ -95,7 +96,7 @@ export function WishlistItemFilters({ wishlistId }: Props) {
           multiSelect
         />
         <FilterDropdown
-          className={styles.itemFilterControl}
+          className={`${styles.itemFilterControl} ${styles.itemPriorityFilter}`}
           label={t("Priority", { $id: "wishlist.items.filter.priority" })}
           options={priorityFilterOptions}
           active={itemPriorities}

@@ -1,9 +1,8 @@
 "use client";
 
 import { useGT } from "gt-next";
+import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 import type { DiscoverTab } from "../../hooks/use-discover-tab-data";
-
-const STYLE = { color: "#6b7280", textAlign: "center" as const, marginTop: 32 };
 
 /**
  * Renders the tab-specific "nothing to show" message for the Discover feed.
@@ -27,5 +26,5 @@ export function DiscoverEmptyState({ filter }: { filter: DiscoverTab }) {
     }),
   };
 
-  return <p style={STYLE}>{messages[filter]}</p>;
+  return <MascotEmptyState variant="explorer-map" message={messages[filter]} />;
 }

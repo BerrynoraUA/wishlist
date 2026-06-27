@@ -50,7 +50,16 @@ export function FriendsTabs({
       {
         value: "requests",
         guideTarget: "friends-tab-requests",
-        label: t("Requests", { $id: "friends.tabs.requests" }),
+        label: (
+          <>
+            <span className={styles.fullLabel}>
+              {t("Requests", { $id: "friends.tabs.requests" })}
+            </span>
+            <span className={styles.compactLabel}>
+              {t("Req.", { $id: "friends.tabs.requestsShort" })}
+            </span>
+          </>
+        ),
         badge: requestsCount,
       },
       {

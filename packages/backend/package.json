@@ -23,6 +23,7 @@
     "./types/paddle": "./types/paddle.ts",
     "./types/session-storage": "./types/session-storage.ts",
     "./types/settings": "./types/settings.ts",
+    "./types/secret-santa": "./types/secret-santa.ts",
     "./types/subscription": "./types/subscription.ts",
     "./types/wishlist": "./types/wishlist.ts"
   },
@@ -32,7 +33,11 @@
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.103.0",
-    "expo-secure-store": "~55.0.13",
-    "react-native-url-polyfill": "^3.0.0"
+    "expo-secure-store": "~56.0.4",
+    "react-native-url-polyfill": "^3.0.0",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.39"
   }
 }

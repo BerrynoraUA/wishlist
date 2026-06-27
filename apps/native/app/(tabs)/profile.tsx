@@ -3,6 +3,7 @@ import { AppearanceSettings } from "@/components/settings/appearance-settings";
 import { CurrencySettings } from "@/components/settings/currency-settings";
 import { NotificationSettings } from "@/components/settings/notification-settings";
 import { ProfileSettings } from "@/components/settings/profile-settings";
+import { SubscriptionSettings } from "@/components/settings/subscription-settings";
 import { useAuth } from "@/providers/auth-provider";
 import { useKnownAccounts } from "@/hooks/use-known-accounts";
 import { useSettings, useProfile, useUpdateSettings } from "@/hooks/use-settings";
@@ -16,6 +17,7 @@ import { ActivityIndicator, View } from "react-native";
 
 const SETTINGS_SECTIONS = [
   "account",
+  "subscription",
   "profile",
   "notifications",
   "appearance",
@@ -56,6 +58,7 @@ export default function ProfileScreen() {
       refreshToken: session.refresh_token,
       expiresAt: session.expires_at ?? null,
       defaultAccent: settingsForSession?.default_accent ?? null,
+      themePreference: settingsForSession?.theme ?? null,
       lastUsedAt: Date.now(),
     });
   }, [
@@ -69,11 +72,12 @@ export default function ProfileScreen() {
     session?.user.email,
     session?.user.id,
     settings?.default_accent,
+    settings?.theme,
   ]);
 
   async function handleSignOut() {
     await signOut();
-    router.replace("/sign-in" as never);
+    router.replace("/(auth)/sign-in" as never);
   }
 
   function renderSection({ item }: { item: SettingsSection }) {
@@ -86,6 +90,8 @@ export default function ProfileScreen() {
             signOut={handleSignOut}
           />
         );
+      case "subscription":
+        return <SubscriptionSettings />;
       case "profile":
         return <ProfileSettings profile={profile} />;
       case "notifications":

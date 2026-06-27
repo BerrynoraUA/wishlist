@@ -4,24 +4,42 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "base": {
+      "node": "22.14.0",
+      "pnpm": "11.9.0"
+    },
     "development": {
+      "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
       "channel": "development",
+      "environment": "development",
       "android": {
         "buildType": "apk"
       }
     },
     "preview": {
+      "extends": "base",
       "distribution": "internal",
       "channel": "preview",
+      "environment": "preview",
       "android": {
         "buildType": "apk"
       }
     },
     "production": {
+      "extends": "base",
       "channel": "production",
+      "environment": "production",
       "autoIncrement": true
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "track": "internal"
+      },
+      "ios": {}
     }
   }
 }

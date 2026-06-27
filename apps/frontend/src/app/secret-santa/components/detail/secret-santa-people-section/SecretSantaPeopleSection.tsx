@@ -1,10 +1,14 @@
 "use client";
 
 import { useGT } from "gt-next";
-import type { SecretSantaPerson } from "@/api/types/secret-santa";
+import type { SecretSantaPerson } from "@wishlist/backend/types/secret-santa";
 import { X } from "lucide-react";
 import { SecretSantaPersonAvatar } from "../secret-santa-person-avatar/SecretSantaPersonAvatar";
 import styles from "./SecretSantaPeopleSection.module.scss";
+import {
+  MascotEmptyState,
+  type MascotVariant,
+} from "@/components/ui/MascotEmptyState/MascotEmptyState";
 
 type PersonItem = SecretSantaPerson & {
   key: string;
@@ -19,6 +23,7 @@ type Props = {
   people: PersonItem[];
   onRemove?: (itemId: string) => void;
   removeLabel?: string;
+  emptyMascot?: MascotVariant;
 };
 
 export function SecretSantaPeopleSection({
@@ -28,6 +33,7 @@ export function SecretSantaPeopleSection({
   people,
   onRemove,
   removeLabel,
+  emptyMascot,
 }: Props) {
   const t = useGT();
   const userFallback = t("User", { $id: "secretSanta.peopleSection.userFallback" });
@@ -41,7 +47,11 @@ export function SecretSantaPeopleSection({
       </div>
 
       {people.length === 0 ? (
-        <p className={styles.empty}>{emptyText}</p>
+        emptyMascot ? (
+          <MascotEmptyState compact variant={emptyMascot} message={emptyText} />
+        ) : (
+          <p className={styles.empty}>{emptyText}</p>
+        )
       ) : (
         <div className={styles.peopleGrid}>
           {people.map((person) => (

@@ -14,6 +14,10 @@
   flex: 0 0 auto;
 }
 
+.compactLabel {
+  display: none;
+}
+
 @media (max-width: 520px) {
   .tabsRow {
     align-items: stretch;
@@ -23,5 +27,23 @@
   .action {
     display: flex;
     justify-content: flex-end;
+  }
+}
+
+@media (max-width: 380px) {
+  .tabs {
+    gap: 2px;
+  }
+
+  .tabs button {
+    padding-inline: 6px;
+  }
+
+  .fullLabel {
+    display: none;
+  }
+
+  .compactLabel {
+    display: inline;
   }
 }

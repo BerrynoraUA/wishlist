@@ -1,14 +1,17 @@
 import { Text } from "@/components/ui/text";
+import { MascotEmptyState, type MascotVariant } from "@/components/shared/mascot-empty-state";
 import { cn } from "@/lib/utils";
 import { View } from "react-native";
 
 export function InlineState({
   className,
   message,
+  mascot,
   width,
 }: {
   className?: string;
   message: string;
+  mascot?: MascotVariant;
   width?: number;
 }) {
   return (
@@ -19,7 +22,11 @@ export function InlineState({
       )}
       style={width === undefined ? undefined : { width }}
     >
-      <Text className="text-center text-sm font-semibold text-text-muted">{message}</Text>
+      {mascot ? (
+        <MascotEmptyState message={message} variant={mascot} />
+      ) : (
+        <Text className="text-center text-sm font-semibold text-text-muted">{message}</Text>
+      )}
     </View>
   );
 }

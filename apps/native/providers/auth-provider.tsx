@@ -1,4 +1,5 @@
 import type { SupabaseSession, SupabaseUser } from "@wishlist/backend/supabase";
+import { deactivateCurrentPushToken } from "@/api/notifications";
 import { supabase } from "@wishlist/backend/supabase/native";
 import type { KnownAccountProvider } from "@wishlist/backend/types/known-accounts";
 import { upsertKnownAccount } from "@/lib/known-accounts";
@@ -89,6 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = async () => {
+    await deactivateCurrentPushToken().catch(() => undefined);
     await supabase.auth.signOut();
   };
 

@@ -261,6 +261,8 @@ export function AppearanceSettings() {
         </p>
       </SettingsSection>
 
+      <CurrencySettings />
+
       <SettingsSection
         title={t("Item Priorities", {
           $id: "settings.appearance.prioritiesSectionTitle",
@@ -296,8 +298,6 @@ export function AppearanceSettings() {
           />
         </button>
       </SettingsSection>
-
-      <CurrencySettings />
     </>
   );
 }

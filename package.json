@@ -27,10 +27,11 @@
     "clean": "pnpm -r exec -- node -e \"const fs=require('fs');try{fs.rmSync('node_modules',{recursive:true,force:true});console.log('Deleted node_modules')}catch(e){}\" && node -e \"const fs=require('fs');try{fs.rmSync('node_modules',{recursive:true,force:true});console.log('Deleted root node_modules')}catch(e){}\" && pnpm store prune"
   },
   "devDependencies": {
+    "node-gyp": "^12.4.0",
     "oxfmt": "^0.45.0",
     "oxlint": "^1.60.0",
     "supabase": "^2.90.0",
     "turbo": "^2.9.6"
   },
-  "packageManager": "pnpm@10.33.2"
+  "packageManager": "pnpm@11.9.0"
 }

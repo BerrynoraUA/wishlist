@@ -100,7 +100,7 @@ export function AccountSettings({
     try {
       await switchAccount(account);
       setSwitchingUserId(null);
-      router.replace("/wishlists" as never);
+      router.replace("/(tabs)/wishlists" as never);
     } catch (error) {
       setMessage({
         title: t("Switch account failed"),
@@ -117,7 +117,7 @@ export function AccountSettings({
       await loginWithGoogle();
       await refresh();
       setAddingAccount(false);
-      router.replace("/wishlists" as never);
+      router.replace("/(tabs)/wishlists" as never);
     } catch (error) {
       setMessage({
         title: t("Add account failed"),

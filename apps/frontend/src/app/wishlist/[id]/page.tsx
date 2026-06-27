@@ -28,6 +28,7 @@ import { useWishlistPageModals } from "./hooks/use-wishlist-page-modals";
 import { useWishlistShare } from "./hooks/use-wishlist-share";
 import { paginationFlags } from "@/lib/filter-helpers";
 import { WISHLIST_ITEMS_PAGE_SIZE } from "./constants";
+import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 
 export default function WishlistItemsPage() {
   const t = useGT();
@@ -70,6 +71,7 @@ export default function WishlistItemsPage() {
   const deleteWishlistMutation = useDeleteWishlist();
 
   const items = itemsData ?? [];
+  const visibleItems = items.slice(0, WISHLIST_ITEMS_PAGE_SIZE);
   const hasAnyItems = (allItemsData?.length ?? 0) > 0;
   const isOwner = Boolean(wishlist?.is_owner);
   const canEditWishlist = Boolean(wishlist?.can_edit || wishlist?.is_owner);
@@ -157,28 +159,34 @@ export default function WishlistItemsPage() {
           </div>
 
           {!itemsLoading && !hasAnyItems && !isFiltersActive && (
-            <p>{t("No items yet.", { $id: "wishlist.page.noItems" })}</p>
+            <MascotEmptyState
+              variant={canEditWishlist ? "gift-in-hands" : "empty-hands-shrug"}
+              message={t("No items yet.", { $id: "wishlist.page.noItems" })}
+            />
           )}
 
-          {!itemsLoading && items.length === 0 && isFiltersActive && (
-            <p>
-              {t("No items match your filters.", {
+          {!itemsLoading && visibleItems.length === 0 && isFiltersActive && (
+            <MascotEmptyState
+              variant="magnifying-glass"
+              message={t("No items match your filters.", {
                 $id: "wishlist.page.noFilteredItems",
               })}
-            </p>
+            />
           )}
 
-          {!itemsLoading && items.length > 0 && (
+          {!itemsLoading && visibleItems.length > 0 && (
             <>
               <WishlistItemsGrid
-                items={items}
+                items={visibleItems}
                 isOwner={canEditWishlist}
                 showDiscountBadge={showDiscountBadge}
                 onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
                 onToggleBought={(itemId) => toggleBought.mutate(itemId)}
                 onDelete={(itemId) => modals.setDeleteItemId(itemId)}
                 onEdit={(item) => modals.setEditItem(item)}
-                onAddItem={canEditWishlist ? () => modals.setCreateOpen(true) : undefined}
+                onAddItem={
+                  canEditWishlist && !hasNextPage ? () => modals.setCreateOpen(true) : undefined
+                }
                 hasAddItemDraft={hasCreateItemDraft}
                 openItemId={openItemId}
                 onOpenItemHandled={handleOpenItemHandled}

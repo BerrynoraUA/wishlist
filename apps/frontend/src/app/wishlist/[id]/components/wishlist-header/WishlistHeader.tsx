@@ -65,7 +65,6 @@ export function WishlistHeader({
   const router = useRouter();
   const visibilityLabels = getWishlistVisibilityLabels(t);
   const { isPro } = useSubscription();
-  const showActions = Boolean(onShare || onManageAccess || onEdit || onDelete || isOwner);
   const showMenu = Boolean(onEdit || onDelete);
   const hasImage = Boolean(wishlist.image_url);
   const displayVisibility = getWishlistDisplayVisibility(wishlist);
@@ -79,6 +78,25 @@ export function WishlistHeader({
   const canAddItem = Boolean(onAddItem);
   const atItemLimit =
     SUBSCRIPTIONS_UI_ENABLED && !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
+  const showFriendInlineShare = !isOwner && Boolean(onShare);
+  const showAsideShare = Boolean(onShare) && !showFriendInlineShare;
+  const showAsideActions = Boolean(showAsideShare || onManageAccess || showMenu);
+  const itemsBadgeLabel =
+    isOwner && SUBSCRIPTIONS_UI_ENABLED && !isPro
+      ? t("{current}/{max} items", {
+          current: itemsCount,
+          max: FREE_LIMITS.maxItemsPerWishlist,
+          $id: "wishlist.header.limitCounter",
+        })
+      : itemsCount === 1
+        ? t("{n} item", {
+            n: itemsCount,
+            $id: "wishlist.itemCount.one",
+          })
+        : t("{n} items", {
+            n: itemsCount,
+            $id: "wishlist.itemCount.other",
+          });
   const canInlineEdit = isOwner;
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
@@ -333,7 +351,7 @@ export function WishlistHeader({
                     </div>
                   ))}
 
-                <div className={styles.badges}>
+                <div className={`${styles.badges} ${isOwner ? styles.ownerBadges : ""}`.trim()}>
                   <div className={styles.badgeWrapper} ref={visibilityPopoverRef}>
                     <span
                       className={`${styles.visibilityBadge} ${wishlist.visibility_type === WishlistVisibility.FriendsOnly ? styles.friendsOnlyBadge : ""} ${canInlineEdit ? styles.editableBadge : ""}`.trim()}
@@ -377,17 +395,6 @@ export function WishlistHeader({
                       </div>
                     )}
                   </div>
-                  <span className={styles.countBadge}>
-                    {itemsCount === 1
-                      ? t("{n} item", {
-                          n: itemsCount,
-                          $id: "wishlist.itemCount.one",
-                        })
-                      : t("{n} items", {
-                          n: itemsCount,
-                          $id: "wishlist.itemCount.other",
-                        })}
-                  </span>
                   <div className={styles.badgeWrapper} ref={datePopoverRef}>
                     {eventDate ? (
                       <span
@@ -429,6 +436,23 @@ export function WishlistHeader({
                       </div>
                     )}
                   </div>
+                  <span className={styles.countBadge}>{itemsBadgeLabel}</span>
+                  {showFriendInlineShare && (
+                    <button
+                      type="button"
+                      className={`${styles.menuButton} ${styles.inlineShareButton} iconTooltipTrigger`}
+                      onClick={onShare}
+                      data-guide-target="wishlist-share"
+                      aria-label={t("Share wishlist", {
+                        $id: "wishlist.header.shareAria",
+                      })}
+                      data-tooltip={t("Share wishlist", {
+                        $id: "wishlist.header.shareTooltip",
+                      })}
+                    >
+                      <Share2 size={18} />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -466,109 +490,123 @@ export function WishlistHeader({
               </div>
             </div>
 
-            <div className={styles.heroAside}>
-              {canAddItem && (
-                <div className={styles.addItemArea}>
-                  {SUBSCRIPTIONS_UI_ENABLED && !isPro && (
-                    <span className={styles.limitCounter}>
-                      {t("{current}/{max} items", {
-                        current: itemsCount,
-                        max: FREE_LIMITS.maxItemsPerWishlist,
-                        $id: "wishlist.header.limitCounter",
-                      })}
-                    </span>
-                  )}
-                  <Button size="sm" onClick={handleAddItem} data-guide-target="wishlist-add-item">
-                    {atItemLimit ? (
-                      <>
-                        <Sparkles size={14} />
-                        <span>
-                          {t("Upgrade to Add", {
-                            $id: "wishlist.header.upgradeToAdd",
-                          })}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus size={14} />
-                        <span>{t("Add Item", { $id: "wishlist.header.addItem" })}</span>
-                        {hasAddItemDraft && <DraftBadge variant="dot" />}
-                      </>
-                    )}
-                  </Button>
-                </div>
-              )}
+            {(canAddItem || showAsideActions) && (
+              <div className={styles.heroAside}>
+                {canAddItem && (
+                  <div className={styles.addItemArea}>
+                    <Button
+                      size="sm"
+                      className={styles.addItemButton}
+                      onClick={handleAddItem}
+                      data-guide-target="wishlist-add-item"
+                      aria-label={
+                        atItemLimit
+                          ? t("Upgrade to Add", {
+                              $id: "wishlist.header.upgradeToAdd",
+                            })
+                          : t("Add Item", { $id: "wishlist.header.addItem" })
+                      }
+                      title={
+                        atItemLimit
+                          ? t("Upgrade to Add", {
+                              $id: "wishlist.header.upgradeToAdd",
+                            })
+                          : t("Add Item", { $id: "wishlist.header.addItem" })
+                      }
+                    >
+                      {atItemLimit ? (
+                        <>
+                          <Sparkles size={14} />
+                          <span className={styles.addItemButtonLabel}>
+                            {t("Upgrade to Add", {
+                              $id: "wishlist.header.upgradeToAdd",
+                            })}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus size={14} />
+                          <span className={styles.addItemButtonLabel}>
+                            {t("Add Item", { $id: "wishlist.header.addItem" })}
+                          </span>
+                          {hasAddItemDraft && <DraftBadge variant="dot" />}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
 
-              {showActions && (
-                <div className={styles.bannerActions}>
-                  {onShare && (
-                    <button
-                      type="button"
-                      className={`${styles.menuButton} iconTooltipTrigger`}
-                      onClick={onShare}
-                      data-guide-target="wishlist-share"
-                      aria-label={t("Share wishlist", {
-                        $id: "wishlist.header.shareAria",
-                      })}
-                      data-tooltip={t("Share wishlist", {
-                        $id: "wishlist.header.shareTooltip",
-                      })}
-                    >
-                      <Share2 size={18} />
-                    </button>
-                  )}
-                  {onManageAccess && (
-                    <button
-                      type="button"
-                      className={`${styles.menuButton} iconTooltipTrigger`}
-                      onClick={onManageAccess}
-                      data-guide-target="wishlist-manage-access"
-                      aria-label={t("Manage wishlist access", {
-                        $id: "wishlist.header.manageAccessAria",
-                      })}
-                      data-tooltip={t("Manage access", {
-                        $id: "wishlist.header.manageAccessTooltip",
-                      })}
-                    >
-                      <KeyRound size={18} />
-                    </button>
-                  )}
-                  {showMenu && (
-                    <DropdownMenu
-                      trigger={({ toggle }) => (
-                        <button
-                          type="button"
-                          className={`${styles.menuButton} iconTooltipTrigger`}
-                          onClick={toggle}
-                          aria-label={t("Wishlist actions", {
-                            $id: "wishlist.header.moreAria",
-                          })}
-                          data-tooltip={t("More options", {
-                            $id: "wishlist.header.moreTooltip",
-                          })}
-                        >
-                          <MoreHorizontal size={18} />
-                          {hasEditWishlistDraft && (
-                            <DraftBadge variant="dot" className={styles.menuButtonDraftDot} />
-                          )}
-                        </button>
-                      )}
-                    >
-                      {onEdit && (
-                        <DropdownMenuItem variant="edit" onClick={() => onEdit()}>
-                          <span>{t("Edit", { $id: "common.edit" })}</span>
-                        </DropdownMenuItem>
-                      )}
-                      {onDelete && (
-                        <DropdownMenuItem variant="danger" onClick={() => onDelete()}>
-                          <span>{t("Delete", { $id: "common.delete" })}</span>
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenu>
-                  )}
-                </div>
-              )}
-            </div>
+                {showAsideActions && (
+                  <div className={styles.bannerActions}>
+                    {showAsideShare && (
+                      <button
+                        type="button"
+                        className={`${styles.menuButton} iconTooltipTrigger`}
+                        onClick={onShare}
+                        data-guide-target="wishlist-share"
+                        aria-label={t("Share wishlist", {
+                          $id: "wishlist.header.shareAria",
+                        })}
+                        data-tooltip={t("Share wishlist", {
+                          $id: "wishlist.header.shareTooltip",
+                        })}
+                      >
+                        <Share2 size={18} />
+                      </button>
+                    )}
+                    {onManageAccess && (
+                      <button
+                        type="button"
+                        className={`${styles.menuButton} iconTooltipTrigger`}
+                        onClick={onManageAccess}
+                        data-guide-target="wishlist-manage-access"
+                        aria-label={t("Manage wishlist access", {
+                          $id: "wishlist.header.manageAccessAria",
+                        })}
+                        data-tooltip={t("Manage access", {
+                          $id: "wishlist.header.manageAccessTooltip",
+                        })}
+                      >
+                        <KeyRound size={18} />
+                      </button>
+                    )}
+                    {showMenu && (
+                      <DropdownMenu
+                        trigger={({ toggle }) => (
+                          <button
+                            type="button"
+                            className={`${styles.menuButton} iconTooltipTrigger`}
+                            onClick={toggle}
+                            aria-label={t("Wishlist actions", {
+                              $id: "wishlist.header.moreAria",
+                            })}
+                            data-tooltip={t("More options", {
+                              $id: "wishlist.header.moreTooltip",
+                            })}
+                          >
+                            <MoreHorizontal size={18} />
+                            {hasEditWishlistDraft && (
+                              <DraftBadge variant="dot" className={styles.menuButtonDraftDot} />
+                            )}
+                          </button>
+                        )}
+                      >
+                        {onEdit && (
+                          <DropdownMenuItem variant="edit" onClick={() => onEdit()}>
+                            <span>{t("Edit", { $id: "common.edit" })}</span>
+                          </DropdownMenuItem>
+                        )}
+                        {onDelete && (
+                          <DropdownMenuItem variant="danger" onClick={() => onDelete()}>
+                            <span>{t("Delete", { $id: "common.delete" })}</span>
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenu>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

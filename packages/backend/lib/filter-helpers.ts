@@ -22,11 +22,13 @@ export function toNumberArray(values: string[]): number[] {
 }
 
 export function paginationFlags(page: number, itemsCount: number, pageSize: number) {
+  const hasNextPage = itemsCount > pageSize;
+
   return {
-    hasNextPage: itemsCount === pageSize,
+    hasNextPage,
     hasPrevPage: page > 1,
-    showPagination: itemsCount === pageSize || page > 1,
-    totalForPagination: itemsCount === pageSize ? page + 1 : page,
+    showPagination: hasNextPage || page > 1,
+    totalForPagination: hasNextPage ? page + 1 : page,
   };
 }
 

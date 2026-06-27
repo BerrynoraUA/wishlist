@@ -66,6 +66,7 @@ export function DiscoverFilterBar() {
     <FilterSortBar>
       <FilterSortRow className={styles.row}>
         <SearchFilter
+          className={styles.searchFilter}
           value={discoverSearch}
           onChange={handleSearchChange}
           placeholder={t("Search...", { $id: "discover.filter.search" })}

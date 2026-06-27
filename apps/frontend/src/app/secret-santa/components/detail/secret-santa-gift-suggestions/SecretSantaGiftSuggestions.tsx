@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useGT } from "gt-next";
 import { Gift, Loader2, ShoppingCart } from "lucide-react";
-import type { VisibleItem } from "@/api/types/secret-santa";
+import type { VisibleItem } from "@wishlist/backend/types/secret-santa";
 import { useGiftSuggestions } from "@/hooks/use-secret-santa";
 import { useToggleItemReservationSecret, useToggleItemBoughtSecret } from "@/hooks/use-items";
 import { useCurrencyFormatter } from "@/hooks/use-currency";

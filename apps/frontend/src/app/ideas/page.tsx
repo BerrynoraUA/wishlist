@@ -10,6 +10,7 @@ import { StatusBadge } from "./components/status-badge/StatusBadge";
 import { SubmitIdeaModal } from "./components/submit-idea-modal/SubmitIdeaModal";
 import { useIdeasPage } from "./hooks/use-ideas-page";
 import { IDEA_STATUS_FILTERS, type IdeaStatusFilter } from "./constants";
+import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 import styles from "./ideas.module.scss";
 
 export default function IdeasPage() {
@@ -107,11 +108,13 @@ export default function IdeasPage() {
       )}
 
       {!isLoading && !isError && ideas.length === 0 && (
-        <p className={styles.emptyState}>
-          {t("No ideas yet. Be the first to share one!", {
+        <MascotEmptyState
+          className={styles.emptyState}
+          variant="lightbulb-idea"
+          message={t("No ideas yet. Be the first to share one!", {
             $id: "ideas.page.empty",
           })}
-        </p>
+        />
       )}
 
       <Tabs

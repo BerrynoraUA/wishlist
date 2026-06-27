@@ -1,4 +1,4 @@
-import { getNavigationTheme, getThemeMode } from "@/lib/theme";
+import { getThemeMode, useNavigationTheme } from "@/lib/theme";
 import { useAuth } from "@/providers/auth-provider";
 import { useUserGuide } from "@/components/user-guide/user-guide-provider";
 import { Redirect } from "expo-router";
@@ -12,14 +12,13 @@ export default function TabsLayout() {
   const { handleTabPress } = useUserGuide();
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
-  const navigationTheme = getNavigationTheme(theme);
-  const selectedTabBackground =
-    themeMode === "dark"
-      ? `${navigationTheme.colors.primary}24`
-      : `${navigationTheme.colors.primary}18`;
+  const navigationTheme = useNavigationTheme(theme);
+  const primaryColor =
+    typeof navigationTheme.colors.primary === "string" ? navigationTheme.colors.primary : "#208aef";
+  const selectedTabBackground = themeMode === "dark" ? `${primaryColor}24` : `${primaryColor}18`;
 
   if (!session) {
-    return <Redirect href={"/sign-in" as never} />;
+    return <Redirect href={"/(auth)/sign-in" as never} />;
   }
 
   return (
@@ -48,6 +47,15 @@ export default function TabsLayout() {
       >
         <NativeTabs.Trigger.Icon sf="sparkles" md="explore" />
         <NativeTabs.Trigger.Label>{t("Discover")}</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger
+        name="secret-santa"
+        listeners={{
+          tabPress: () => handleTabPress("secret-santa"),
+        }}
+      >
+        <NativeTabs.Trigger.Icon sf="party.popper.fill" md="card_giftcard" />
+        <NativeTabs.Trigger.Label>{t("Secret Santa")}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         name="friends"

@@ -26,6 +26,12 @@
       "sourceType": "github",
       "computedHash": "8e41c7417894e6f394614ee7ca3ee5322b1e58d890255d441f42dea98732597f"
     },
+    "thermo-nuclear-code-quality-review": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "cursor-team-kit/skills/thermo-nuclear-code-quality-review/SKILL.md",
+      "computedHash": "1be9e8126d5b4bd3000f1e654622faf1493c7df204f9460ba0c1e41e7227497f"
+    },
     "truesheet-usage": {
       "source": "lodev09/react-native-true-sheet",
       "sourceType": "github",

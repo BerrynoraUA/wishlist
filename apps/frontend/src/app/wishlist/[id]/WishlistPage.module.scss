@@ -72,32 +72,40 @@
 }
 
 .priorityFilterDropdown {
-  padding: 0;
+  padding: 6px;
   min-width: 220px;
   max-height: 280px;
   overflow-x: hidden;
   overflow-y: auto;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 82%, transparent);
+  background:
+    radial-gradient(circle at top left, var(--brand-alpha-08), transparent 36%),
+    color-mix(in srgb, var(--card-bg) 96%, white 4%);
+  box-shadow:
+    0 18px 42px rgba(15, 23, 42, 0.14),
+    0 2px 8px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34);
 }
 
 .priorityFilterOption {
   gap: 10px;
-  padding: 10px 14px;
-  border-radius: 0;
-  background: var(--color-bg-subtle);
+  padding: 10px;
+  border-radius: 12px;
+  background: transparent;
   color: var(--color-text);
   font-weight: var(--fw-medium);
-  transition: background 0.15s $ease-out;
-
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--color-border-light);
-  }
+  transition:
+    background 0.15s $ease-out,
+    transform 0.15s $ease-out;
 
   &:hover:not(:disabled) {
-    background: var(--color-surface-hover);
+    background: color-mix(in srgb, var(--color-brand) 8%, transparent);
+    transform: translateY(-1px);
   }
 
   &[aria-selected="true"] {
-    background: var(--color-bg);
+    background: color-mix(in srgb, var(--color-brand) 10%, var(--card-bg));
     color: var(--color-text);
     font-weight: var(--fw-medium);
   }
@@ -137,9 +145,9 @@
   flex: 0 0 auto;
   width: 18px;
   height: 18px;
-  border-radius: 4px;
-  border: 1.5px solid var(--color-border);
-  background: transparent;
+  border-radius: 6px;
+  border: 1.5px solid color-mix(in srgb, var(--color-brand) 24%, var(--color-border));
+  background: color-mix(in srgb, var(--card-bg) 88%, transparent);
   display: grid;
   place-items: center;
   color: transparent;
@@ -148,9 +156,110 @@
 }
 
 .priorityFilterOption[aria-selected="true"] .priorityFilterCheck {
-  background: var(--color-brand);
+  background: linear-gradient(
+    135deg,
+    var(--color-brand),
+    color-mix(in srgb, var(--color-brand) 78%, #fff)
+  );
   border-color: var(--color-brand);
   color: #fff;
+  box-shadow: 0 6px 14px var(--brand-alpha-20);
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-inline: 16px;
+  }
+
+  .sectionTitle {
+    display: block;
+  }
+
+  .filterBar {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .filterRow {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    grid-template-areas:
+      "search search search search search search price price price price"
+      "status status status priority priority priority actions actions actions actions";
+    align-items: center;
+    gap: 10px;
+  }
+
+  .filterRow .itemSearchFilter {
+    grid-area: search;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .filterRow .itemFilterControl {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .filterRow .itemStatusFilter {
+    grid-area: status;
+  }
+
+  .filterRow .itemPriorityFilter {
+    grid-area: priority;
+  }
+
+  .filterRow .itemPriceFilter {
+    grid-area: price;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .filterRow .itemFilterActions {
+    grid-area: actions;
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+
+  .filterRow .itemFilterControl button,
+  .filterRow .itemFilterActions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filterRow .itemPriceFilter > :last-child {
+    display: flex;
+    width: 100%;
+  }
+
+  .filterRow .itemPriceFilter input {
+    flex: 1 1 0;
+    width: 0;
+  }
+
+  .filterRow .itemFilterActions > :last-child {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .filterRow .itemFilterActions button.clearFiltersBtn {
+    flex: 0 0 32px;
+    width: 32px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 720px) {
+  .filterRow .itemFilterControl button,
+  .filterRow .itemFilterActions button {
+    padding-inline: 10px;
+  }
 }
 
 @media (max-width: 768px) {

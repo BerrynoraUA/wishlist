@@ -36,7 +36,7 @@ export function useHomeWishlistFilters() {
   const queryParams = useMemo(
     () => ({
       skip: (page - 1) * WISHLIST_PAGE_SIZE,
-      take: WISHLIST_PAGE_SIZE,
+      take: WISHLIST_PAGE_SIZE + 1,
       search,
       sort,
       visibilityTypes,

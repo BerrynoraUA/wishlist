@@ -1,7 +1,8 @@
 {
   "extends": "./tsconfig/base.json",
   "compilerOptions": {
-    "baseUrl": "."
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0"
   },
   "include": ["*.ts", "db-types/**/*.ts", "lib/**/*.ts", "supabase/**/*.ts", "types/**/*.ts"]
 }

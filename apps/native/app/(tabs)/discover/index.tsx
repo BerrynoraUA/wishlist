@@ -203,6 +203,7 @@ export default function DiscoverScreen() {
             ((feed.sectionTab && feed.activeSections.length === 0) ||
               (!feed.sectionTab && feed.activeItems.length === 0)) ? (
               <InlineState
+                mascot={feed.filtersActive ? "magnifying-glass" : "explorer-map"}
                 message={
                   feed.filtersActive
                     ? t("No gifts match your filters.")

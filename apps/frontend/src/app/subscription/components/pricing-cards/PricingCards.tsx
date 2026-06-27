@@ -5,7 +5,13 @@ import { Check, X, Sparkles, Crown } from "lucide-react";
 import { useGT } from "gt-next";
 import styles from "./PricingCards.module.scss";
 import { Button } from "@/components/ui/Button/Button";
-import { useSubscription, useCheckout, useSyncSubscription } from "@/hooks/use-subscription";
+import {
+  useCheckout,
+  useManageSubscription,
+  useSubscription,
+  useSubscriptionPackages,
+  useSyncSubscription,
+} from "@/hooks/use-subscription";
 import { PRICING, BillingInterval } from "@/types/subscription";
 
 type FreeFeature = { key: string; label: string; included: boolean };
@@ -20,7 +26,9 @@ export function PricingCards() {
   const t = useGT();
   const [interval, setInterval] = useState<BillingInterval>(BillingInterval.Monthly);
   const { isPro } = useSubscription();
-  const { checkout } = useCheckout();
+  const checkout = useCheckout();
+  const manageSubscription = useManageSubscription();
+  const packagesQuery = useSubscriptionPackages();
   const syncSubscription = useSyncSubscription();
 
   const freeFeatures = useMemo<FreeFeature[]>(
@@ -209,14 +217,30 @@ export function PricingCards() {
   );
 
   const isMonthly = interval === BillingInterval.Monthly;
-  const perMonth = isMonthly ? PRICING.monthly : +(PRICING.yearly / 12).toFixed(2);
+  const selectedPackage = packagesQuery.data?.find((item) => item.interval === interval);
+  const monthlyPackage = packagesQuery.data?.find(
+    (item) => item.interval === BillingInterval.Monthly,
+  );
+  const yearlyPackage = packagesQuery.data?.find(
+    (item) => item.interval === BillingInterval.Yearly,
+  );
+  const monthlyPrice = monthlyPackage?.price ?? `$${PRICING.monthly}`;
+  const yearlyPrice = yearlyPackage?.price ?? `$${PRICING.yearly}`;
+  const selectedPrice = selectedPackage?.price ?? (isMonthly ? monthlyPrice : yearlyPrice);
+  const selectedPricePerMonth =
+    selectedPackage?.pricePerMonth ??
+    (isMonthly ? monthlyPrice : `$${+(PRICING.yearly / 12).toFixed(2)}`);
 
   function handleUpgrade() {
-    checkout(interval);
+    checkout.checkout(interval);
   }
 
   function handleRestorePurchases() {
     syncSubscription.mutate();
+  }
+
+  function handleManageSubscription() {
+    manageSubscription.mutate();
   }
 
   return (
@@ -314,15 +338,23 @@ export function PricingCards() {
           </div>
 
           <div className={styles.priceBlock}>
-            <span className={styles.priceAmount}>${isMonthly ? PRICING.monthly : perMonth}</span>
+            <span className={styles.priceAmount}>{selectedPricePerMonth}</span>
             <span className={styles.pricePeriod}>
               {t("/month", { $id: "subscription.pricing.perMonth" })}
             </span>
             {!isMonthly && (
               <span className={styles.billedAs}>
                 {t("Billed as {amount}/year", {
-                  amount: `$${PRICING.yearly}`,
+                  amount: yearlyPrice,
                   $id: "subscription.pricing.billedYearly",
+                })}
+              </span>
+            )}
+            {isMonthly && selectedPrice !== selectedPricePerMonth && (
+              <span className={styles.billedAs}>
+                {t("Billed as {amount}/month", {
+                  amount: selectedPrice,
+                  $id: "subscription.pricing.billedMonthly",
                 })}
               </span>
             )}
@@ -346,17 +378,32 @@ export function PricingCards() {
           </ul>
 
           {isPro ? (
-            <div className={styles.currentBadge}>
-              {t("Current Plan", {
-                $id: "subscription.pricing.currentPlanPro",
-              })}
-            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleManageSubscription}
+              disabled={manageSubscription.isPending}
+            >
+              {manageSubscription.isPending
+                ? t("Opening...", { $id: "subscription.pricing.openingManagement" })
+                : t("Manage subscription", {
+                    $id: "subscription.pricing.manageSubscription",
+                  })}
+            </Button>
           ) : (
             <>
-              <Button variant="primary" onClick={handleUpgrade}>
-                {t("Upgrade to Pro", {
-                  $id: "subscription.pricing.upgradeToPro",
-                })}
+              <Button
+                variant="primary"
+                onClick={handleUpgrade}
+                disabled={checkout.isPending || packagesQuery.isLoading}
+              >
+                {checkout.isPending
+                  ? t("Opening checkout...", {
+                      $id: "subscription.pricing.openingCheckout",
+                    })
+                  : t("Upgrade to Pro", {
+                      $id: "subscription.pricing.upgradeToPro",
+                    })}
               </Button>
               <Button
                 type="button"
@@ -367,8 +414,8 @@ export function PricingCards() {
               >
                 {syncSubscription.isPending
                   ? t("Syncing…", { $id: "subscription.pricing.syncing" })
-                  : t("Already purchased? Restore", {
-                      $id: "subscription.pricing.restore",
+                  : t("Sync subscription", {
+                      $id: "subscription.pricing.syncSubscription",
                     })}
               </Button>
             </>

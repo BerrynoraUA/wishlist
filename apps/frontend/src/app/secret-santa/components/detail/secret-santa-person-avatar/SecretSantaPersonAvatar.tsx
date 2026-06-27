@@ -1,4 +1,4 @@
-import type { SecretSantaPerson } from "@/api/types/secret-santa";
+import type { SecretSantaPerson } from "@wishlist/backend/types/secret-santa";
 import styles from "./SecretSantaPersonAvatar.module.scss";
 
 type Props = {

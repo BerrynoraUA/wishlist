@@ -138,13 +138,14 @@ export default function FriendsScreen() {
     });
   }
 
-  function renderRow({ item }: { item: FriendsRow }) {
+  function renderRow({ item, index }: { item: FriendsRow; index: number }) {
     return (
       <View
         className="flex-row"
         style={{
           alignSelf: "center",
           gap: gridGap,
+          paddingTop: index === 0 ? 8 : 0,
           width: contentWidth,
         }}
       >
@@ -202,30 +203,6 @@ export default function FriendsScreen() {
           ItemSeparatorComponent={() => <View className="h-4" />}
           ListHeaderComponent={
             <View className="gap-5 self-center pb-8" style={{ width: contentWidth }}>
-              <View className="flex-row items-start justify-between gap-3">
-                <View className="min-w-0 flex-1 gap-1">
-                  <Text className="text-2xl font-extrabold text-text">{t("Friends")}</Text>
-                </View>
-                <GuideTarget
-                  attachedTooltip={false}
-                  id="friends-invite"
-                  tooltipHorizontalOffset={-72}
-                  tooltipPlacementOverride="bottom"
-                  tooltipVerticalOffset={0}
-                >
-                  <Button
-                    onPress={() => {
-                      completeAddFriendStep();
-                      setSheet({ type: "add" });
-                    }}
-                    className="rounded-full"
-                  >
-                    <Icon as={UserPlus} className="size-4 text-primary-foreground" />
-                    <Text>{t("Invite")}</Text>
-                  </Button>
-                </GuideTarget>
-              </View>
-
               <FriendsTabs
                 value={tab}
                 friendsCount={friends.length}
@@ -279,7 +256,26 @@ export default function FriendsScreen() {
                       <Text>{t("Create")}</Text>
                     </Button>
                   </GuideTarget>
-                ) : null}
+                ) : (
+                  <GuideTarget
+                    attachedTooltip={false}
+                    id="friends-invite"
+                    tooltipHorizontalOffset={-72}
+                    tooltipPlacementOverride="bottom"
+                    tooltipVerticalOffset={0}
+                  >
+                    <Button
+                      onPress={() => {
+                        completeAddFriendStep();
+                        setSheet({ type: "add" });
+                      }}
+                      className="rounded-full"
+                    >
+                      <Icon as={UserPlus} className="size-4 text-primary-foreground" />
+                      <Text>{t("Invite")}</Text>
+                    </Button>
+                  </GuideTarget>
+                )}
               </View>
             </View>
           }
@@ -293,6 +289,7 @@ export default function FriendsScreen() {
               {isError ? <InlineState message={t("Failed to load friends.")} /> : null}
               {!isLoading && !isError && activeItems.length === 0 ? (
                 <InlineState
+                  mascot={debouncedSearch ? "magnifying-glass" : "sad-alone"}
                   message={
                     tab === "groups"
                       ? t("No groups yet.")
