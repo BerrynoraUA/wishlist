@@ -13,8 +13,9 @@ import {
   ActionBottomSheetMessage,
   type ActionBottomSheetMessagePayload,
 } from "@/components/ui/action-bottom-sheet";
-import { AnimatedPressable } from "@/components/ui/animated-pressable";
-import { Icon } from "@/components/ui/icon";
+import { FloatingBackButton } from "@/components/ui/floating-back-button";
+import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
+import { StyledImage } from "@/components/ui/styled-image";
 import {
   useDeleteSecretSantaEvent,
   useRemoveSecretSantaInvite,
@@ -25,7 +26,6 @@ import { useCurrentUserId } from "@/hooks/use-user";
 import { MIN_PARTICIPANTS_TO_LAUNCH, buildSecretSantaJoinUrl } from "@/lib/secret-santa";
 import * as Clipboard from "expo-clipboard";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, ScrollView, View, useWindowDimensions } from "react-native";
@@ -94,127 +94,133 @@ export default function SecretSantaDetailScreen() {
   return (
     <>
       <Stack.Screen options={{ title: data?.name ?? t("Secret Santa") }} />
-      <ScrollView
-        className="flex-1 bg-bg"
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
-      >
-        <View className="gap-5">
-          {detailsQuery.isLoading ? (
-            <View
-              className="items-center justify-center self-center rounded-xl border border-border-subtle bg-card-bg p-8"
-              style={{ marginTop: insets.top + 20, width: contentWidth }}
-            >
-              <ActivityIndicator colorClassName="accent-brand" />
-            </View>
-          ) : null}
-
-          {detailsQuery.isError ? (
-            <View
-              className="self-center"
-              style={{ marginTop: insets.top + 20, width: contentWidth }}
-            >
-              <InlineState message={t("Failed to load Secret Santa event.")} />
-            </View>
-          ) : null}
-
-          {data ? (
-            <>
-              <SecretSantaDetailHero
-                event={data}
-                totalPeople={totalPeople}
-                isOwner={isOwner}
-                copied={copied}
-                onCopyLink={copyInviteLink}
-                onEdit={() => setSheet("edit")}
-                onDelete={() => setSheet("delete")}
-                topInset={insets.top}
+      <View className="flex-1 bg-bg">
+        {data ? (
+          <ScreenTopBackdrop>
+            <View className="absolute inset-0 bg-linear-135 from-pink-300 via-pink-400 to-pink-600" />
+            {data.image_url ? (
+              <StyledImage
+                source={{ uri: data.image_url }}
+                contentFit="cover"
+                className="absolute inset-0 w-full"
               />
-
-              <View className="gap-5 self-center" style={{ width: contentWidth }}>
-                {isStarted ? (
-                  <>
-                    {data.my_receiver ? (
-                      <SecretSantaReceiverCard receiver={data.my_receiver} />
-                    ) : null}
-                    <SecretSantaPeopleSection
-                      title={t("Participants")}
-                      emptyText={t("No participants have accepted yet.")}
-                      emptyMascot="sad-alone"
-                      people={participants}
-                    />
-                    <SecretSantaGiftSuggestions
-                      receiverId={data.my_receiver?.id}
-                      budget={data.budget}
-                      currency={data.currency}
-                    />
-                  </>
-                ) : isOwner ? (
-                  <>
-                    <SecretSantaLaunchCard
-                      canLaunch={canLaunch}
-                      pendingInvitesCount={pendingInvites.length}
-                      participantsCount={participants.length}
-                      onLaunch={() => setSheet("launch")}
-                    />
-                    <SecretSantaPeopleSection
-                      title={t("Participants")}
-                      emptyText={t("No participants have accepted yet.")}
-                      emptyMascot="sad-alone"
-                      people={participants}
-                      onRemove={(userId) => {
-                        removeParticipant.mutate(
-                          { eventId, userId },
-                          {
-                            onError: (error) =>
-                              setMessage({
-                                title: t("Remove failed"),
-                                message: error.message,
-                              }),
-                          },
-                        );
-                      }}
-                    />
-                    <SecretSantaPeopleSection
-                      title={t("Pending invites")}
-                      emptyText={t("No pending invites.")}
-                      people={pendingInvites}
-                      onRemove={(inviteId) => {
-                        removeInvite.mutate(
-                          { eventId, inviteId },
-                          {
-                            onError: (error) =>
-                              setMessage({
-                                title: t("Remove failed"),
-                                message: error.message,
-                              }),
-                          },
-                        );
-                      }}
-                    />
-                  </>
-                ) : (
-                  <SecretSantaPeopleSection
-                    title={t("Participants")}
-                    emptyText={t("No participants have accepted yet.")}
-                    emptyMascot="sad-alone"
-                    people={participants}
-                  />
-                )}
+            ) : (
+              <View className="absolute inset-0 bg-brand-lighter" />
+            )}
+            <View className="absolute inset-0 bg-black/25" />
+          </ScreenTopBackdrop>
+        ) : null}
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
+        >
+          <View className="gap-5 bg-bg">
+            {detailsQuery.isLoading ? (
+              <View
+                className="items-center justify-center self-center rounded-xl border border-border-subtle bg-card-bg p-8"
+                style={{ marginTop: 20, width: contentWidth }}
+              >
+                <ActivityIndicator colorClassName="accent-brand" />
               </View>
-            </>
-          ) : null}
-        </View>
-      </ScrollView>
+            ) : null}
 
-      <AnimatedPressable
-        accessibilityRole="button"
-        accessibilityLabel={t("Back")}
-        onPress={() => router.back()}
-        className="absolute bottom-3 left-3 z-20 size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
-      >
-        <Icon as={ChevronLeft} className="size-7 text-text" />
-      </AnimatedPressable>
+            {detailsQuery.isError ? (
+              <View className="self-center" style={{ marginTop: 20, width: contentWidth }}>
+                <InlineState message={t("Failed to load Secret Santa event.")} />
+              </View>
+            ) : null}
+
+            {data ? (
+              <>
+                <SecretSantaDetailHero
+                  event={data}
+                  totalPeople={totalPeople}
+                  isOwner={isOwner}
+                  copied={copied}
+                  onCopyLink={copyInviteLink}
+                  onEdit={() => setSheet("edit")}
+                  onDelete={() => setSheet("delete")}
+                  topInset={insets.top}
+                />
+
+                <View className="gap-5 self-center" style={{ width: contentWidth }}>
+                  {isStarted ? (
+                    <>
+                      {data.my_receiver ? (
+                        <SecretSantaReceiverCard receiver={data.my_receiver} />
+                      ) : null}
+                      <SecretSantaPeopleSection
+                        title={t("Participants")}
+                        emptyText={t("No participants have accepted yet.")}
+                        emptyMascot="sad-alone"
+                        people={participants}
+                      />
+                      <SecretSantaGiftSuggestions
+                        receiverId={data.my_receiver?.id}
+                        budget={data.budget}
+                        currency={data.currency}
+                      />
+                    </>
+                  ) : isOwner ? (
+                    <>
+                      <SecretSantaLaunchCard
+                        canLaunch={canLaunch}
+                        pendingInvitesCount={pendingInvites.length}
+                        participantsCount={participants.length}
+                        onLaunch={() => setSheet("launch")}
+                      />
+                      <SecretSantaPeopleSection
+                        title={t("Participants")}
+                        emptyText={t("No participants have accepted yet.")}
+                        emptyMascot="sad-alone"
+                        people={participants}
+                        onRemove={(userId) => {
+                          removeParticipant.mutate(
+                            { eventId, userId },
+                            {
+                              onError: (error) =>
+                                setMessage({
+                                  title: t("Remove failed"),
+                                  message: error.message,
+                                }),
+                            },
+                          );
+                        }}
+                      />
+                      <SecretSantaPeopleSection
+                        title={t("Pending invites")}
+                        emptyText={t("No pending invites.")}
+                        people={pendingInvites}
+                        onRemove={(inviteId) => {
+                          removeInvite.mutate(
+                            { eventId, inviteId },
+                            {
+                              onError: (error) =>
+                                setMessage({
+                                  title: t("Remove failed"),
+                                  message: error.message,
+                                }),
+                            },
+                          );
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <SecretSantaPeopleSection
+                      title={t("Participants")}
+                      emptyText={t("No participants have accepted yet.")}
+                      emptyMascot="sad-alone"
+                      people={participants}
+                    />
+                  )}
+                </View>
+              </>
+            ) : null}
+          </View>
+        </ScrollView>
+
+        <FloatingBackButton />
+      </View>
 
       {data ? (
         <>

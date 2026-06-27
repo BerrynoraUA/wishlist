@@ -112,7 +112,7 @@ export default function EmailAuthScreen() {
           <View className="min-h-full flex-1 px-5 py-safe-offset-5">
             <View className="flex-1 justify-center pb-16">
               <Animated.View
-                className="w-full max-w-[440px] self-center"
+                className="w-full max-w-110 self-center"
                 layout={formLayoutTransition}
               >
                 <Animated.View className="mb-7 items-center gap-3" layout={formLayoutTransition}>
@@ -337,7 +337,7 @@ function PasswordToggle({
       className="absolute right-3 top-0 h-13 items-center justify-center px-2"
       onPress={onPress}
     >
-      <Icon as={visible ? EyeOffIcon : EyeIcon} className="size-[18px] text-white/58" />
+      <Icon as={visible ? EyeOffIcon : EyeIcon} className="size-4.5 text-white/58" />
     </Pressable>
   );
 }

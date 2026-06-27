@@ -5,7 +5,6 @@ import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Stack } from "expo-router";
 import * as React from "react";
 import { View, useWindowDimensions } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WishlistFilterBar } from "@/components/wishlists/wishlist-filter-bar";
 import { WishlistListStatsRow, WishlistList } from "@/components/wishlists/wishlist-list";
 import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
@@ -22,7 +21,6 @@ type SheetState =
 export default function WishlistsScreen() {
   const t = useGT();
   const { width } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
   const feed = useWishlistFeed(width);
   const completeStartWishlistStep = useUserGuideStepCompletion(2);
   const [sheet, setSheet] = React.useState<SheetState>(null);
@@ -43,7 +41,7 @@ export default function WishlistsScreen() {
           pagination={feed.pagination}
           page={feed.page}
           ListHeaderComponent={
-            <View style={{ marginBottom: -insets.top }}>
+            <View>
               <WishlistListStatsRow />
             </View>
           }

@@ -212,7 +212,7 @@ export function WishlistItemCard({
             <AnimatedPressable
               ref={menuTriggerRef}
               pointerEvents="none"
-              className="absolute right-3 top-[144px] size-8 opacity-0"
+              className="absolute right-3 top-36 size-8 opacity-0"
             />
           </DropdownMenuTrigger>
         ) : null}

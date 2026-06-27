@@ -182,7 +182,6 @@ export default function DiscoverScreen() {
         renderItem={renderRow}
         keyExtractor={(row) => ("type" in row ? row.id : row.id)}
         className="flex-1"
-        contentInsetAdjustmentBehavior="never"
         contentContainerClassName="pb-8"
         contentContainerStyle={{ paddingTop: insets.top + 8 }}
         onScroll={requestMeasure}

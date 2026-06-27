@@ -14,6 +14,7 @@ import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SETTINGS_SECTIONS = [
   "account",
@@ -29,6 +30,7 @@ type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 export default function ProfileScreen() {
   const t = useGT();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { session, signOut, user } = useAuth();
   const { rememberAccount } = useKnownAccounts();
   const { data: settings, isLoading: settingsLoading } = useSettings();
@@ -120,7 +122,8 @@ export default function ProfileScreen() {
           renderItem={renderSection}
           keyExtractor={(item) => item}
           className="flex-1"
-          contentContainerClassName="px-4 pb-6 pt-6"
+          contentContainerClassName="px-4 pb-6"
+          contentContainerStyle={{ paddingTop: insets.top + 24 }}
           ItemSeparatorComponent={SettingsSectionSeparator}
           ListHeaderComponent={
             settingsLoading || profileLoading ? (

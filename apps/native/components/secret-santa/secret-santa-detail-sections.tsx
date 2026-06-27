@@ -120,20 +120,20 @@ export function SecretSantaDetailHero({
             {event.name}
           </Text>
 
-          <View className="flex-row flex-wrap gap-2">
-            <View className="h-9 flex-row items-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
+          <View className="flex-row gap-2">
+            <View className="h-9 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
               <Icon as={CalendarDays} className="size-3.5 text-white" />
               <Text className="text-xs font-bold text-white" numberOfLines={1}>
                 {formatSecretSantaDate(event.event_date, locale ?? "en")}
               </Text>
             </View>
-            <View className="h-9 flex-row items-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
+            <View className="h-9 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
               <Icon as={Gift} className="size-3.5 text-white" />
               <Text className="text-xs font-bold text-white" numberOfLines={1}>
                 {formatSecretSantaBudget(event.budget, event.currency)}
               </Text>
             </View>
-            <View className="h-9 flex-row items-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
+            <View className="h-9 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
               <Icon as={Users} className="size-3.5 text-white" />
               <Text className="text-xs font-bold text-white" numberOfLines={1}>
                 {t("{count} people", { count: totalPeople })}

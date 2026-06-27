@@ -217,7 +217,7 @@ export function AppearanceSettings({
           optionHeight={THEME_OPTION_HEIGHT}
           optionHeightClassName="min-h-24"
           rowClassName="gap-2"
-          optionClassName="relative flex-col gap-2 rounded-lg border border-border-light bg-bg-subtle p-3 active:opacity-[0.99]"
+          optionClassName="relative flex-col gap-2 rounded-lg border border-border-light bg-bg-subtle p-3 active:opacity-99"
           indicatorClassName="rounded-lg border border-brand bg-brand-lighter shadow-brand"
         />
       </View>
@@ -342,7 +342,7 @@ function SwatchPicker<T extends WishlistAccent | WishlistColorIndex>({
         value={value}
         onChange={onChange}
         optionHeight={SWATCH_OPTION_HEIGHT}
-        optionHeightClassName="h-[76px]"
+        optionHeightClassName="h-19"
         rowClassName="gap-1"
         optionClassName="flex-col items-center justify-center border-0 bg-transparent px-0.5 py-0 shadow-none"
         indicatorClassName={cn(

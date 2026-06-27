@@ -98,6 +98,8 @@ export function WishlistList({
   const completeOpenDetailStep = useUserGuideStepCompletion(4);
   const { requestMeasure } = useUserGuideTargetRegistration();
   const insets = useSafeAreaInsets();
+  const stickyHeaderPaddingTop = insets.top + 4;
+  const contentTopPadding = insets.top;
   const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
   const data = React.useMemo<WishlistListRow[]>(
     () => [{ id: "filters", type: "filters" }, ...(query.isLoading ? [] : rows)],
@@ -107,10 +109,10 @@ export function WishlistList({
     ({ item, target, index }: { item: WishlistListRow; target: string; index: number }) =>
       "type" in item ? (
         <View
-          className={cn("z-[2] pb-4", target === "StickyHeader" ? "bg-bg" : "bg-transparent")}
-          style={{ paddingTop: insets.top + 16 }}
+          className={cn("z-2 pb-4", target === "StickyHeader" ? "bg-bg" : "bg-transparent")}
+          style={{ paddingTop: target === "StickyHeader" ? stickyHeaderPaddingTop : 16 }}
         >
-          <View className="max-w-[1200px] self-center" style={{ width: contentWidth }}>
+          <View className="max-w-300 self-center" style={{ width: contentWidth }}>
             {StickyHeaderComponent}
           </View>
         </View>
@@ -171,7 +173,7 @@ export function WishlistList({
       cardWidth,
       contentWidth,
       gridGap,
-      insets.top,
+      stickyHeaderPaddingTop,
       onOpenSheet,
       completeOpenDetailStep,
       query.isFetching,
@@ -184,15 +186,14 @@ export function WishlistList({
       data={data}
       renderItem={renderRow}
       keyExtractor={(row) => ("type" in row ? row.id : row.map((entry) => entry.id).join(":"))}
-      contentInsetAdjustmentBehavior="automatic"
       className="flex-1"
       contentContainerClassName="pb-8"
-      contentContainerStyle={{ paddingTop: insets.top + 24 }}
+      contentContainerStyle={{ paddingTop: contentTopPadding }}
       ItemSeparatorComponent={RowSeparator}
       onScroll={requestMeasure}
       scrollEventThrottle={16}
       ListHeaderComponent={
-        <View className="mb-0 max-w-[1200px] self-center" style={{ width: contentWidth }}>
+        <View className="mb-0 max-w-300 self-center" style={{ width: contentWidth }}>
           {ListHeaderComponent}
         </View>
       }
@@ -227,7 +228,6 @@ export function WishlistList({
         contentWidth,
         gridGap,
         isFetching: query.isFetching,
-        safeAreaTop: insets.top,
         StickyHeaderComponent,
       }}
       stickyHeaderIndices={[0]}
@@ -298,7 +298,7 @@ function WishlistGridSkeleton({ cardWidth, gridGap }: { cardWidth: number; gridG
           className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg"
           style={{ width: cardWidth }}
         >
-          <Skeleton className="h-[120px] rounded-none" />
+          <Skeleton className="h-30 rounded-none" />
           <View className="gap-3 p-4">
             <Skeleton className="h-5 w-3/4" />
             <Skeleton className="h-4 w-full" />
@@ -358,7 +358,7 @@ function WishlistCard({
             className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
             pressedScale={0.98}
           >
-            <View className="h-[120px] items-center justify-center overflow-hidden">
+            <View className="h-30 items-center justify-center overflow-hidden">
               <View
                 className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))}
               />
@@ -424,7 +424,7 @@ function WishlistCard({
             <AnimatedPressable
               ref={menuTriggerRef}
               pointerEvents="none"
-              className="absolute right-4 top-[132px] size-10 opacity-0"
+              className="absolute right-4 top-33 size-10 opacity-0"
             />
           </DropdownMenuTrigger>
         ) : null}

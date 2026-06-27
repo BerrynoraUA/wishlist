@@ -1,6 +1,6 @@
-import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { Icon } from "@/components/ui/icon";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
@@ -16,7 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, Gift, UserMinus } from "lucide-react-native";
+import { Gift, UserMinus } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, Pressable, View, useWindowDimensions } from "react-native";
@@ -73,7 +73,6 @@ export default function FriendWishlistsScreen() {
           )}
           keyExtractor={(row: Wishlist[]) => row.map((wishlist) => wishlist.id).join(":")}
           className="flex-1"
-          contentInsetAdjustmentBehavior="automatic"
           contentContainerClassName="pb-8"
           contentContainerStyle={{ paddingTop: insets.top + 24 }}
           ItemSeparatorComponent={() => <View className="h-4" />}
@@ -123,14 +122,7 @@ export default function FriendWishlistsScreen() {
           extraData={{ cardWidth, contentWidth, gridGap }}
         />
 
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={t("Back")}
-          onPress={() => router.back()}
-          className="absolute bottom-3 left-3 z-20 size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
-        >
-          <Icon as={ChevronLeft} className="size-7 text-text" />
-        </AnimatedPressable>
+        <FloatingBackButton />
 
         <RemoveFriendSheet
           open={removeOpen}
@@ -163,7 +155,7 @@ function FriendWishlistCard({
       onPress={onPress}
       className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm active:scale-[0.99]"
     >
-      <View className="h-[120px] items-center justify-center overflow-hidden">
+      <View className="h-30 items-center justify-center overflow-hidden">
         <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
         {wishlist.image_url ? (
           <StyledImage

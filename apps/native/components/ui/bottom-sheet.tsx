@@ -13,7 +13,6 @@ import {
 } from "react";
 import {
   Keyboard,
-  Platform,
   View,
   type ColorValue,
   type GestureResponderEvent,
@@ -21,7 +20,6 @@ import {
   TextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ReanimatedTrueSheet } from "@lodev09/react-native-true-sheet/reanimated";
 import { useCSSVariable } from "uniwind";
 
@@ -78,16 +76,10 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
   ) => {
     const router = useRouter();
     const sheetRef = useRef<BottomSheetRef>(null);
-    const insets = useSafeAreaInsets();
-    /** Sheet height already includes bottom safe area on iPad; avoid double inset. */
-    const isIPad = Platform.OS === "ios" && Platform.isPad;
-    const footerBottomSafeInset = isIPad ? 0 : insets.bottom;
     const sheetBackground = useCSSVariable("--color-bg-elevated") as ColorValue | undefined;
     const grabberColor = useCSSVariable("--color-border-light") as ColorValue | undefined;
 
-    const calculatedFooterPadding = footer
-      ? Math.max(footerPaddingBottom ?? 0, footerBottomSafeInset)
-      : undefined;
+    const calculatedFooterPadding = footer ? (footerPaddingBottom ?? 0) : undefined;
 
     const [footerHeight, setFooterHeight] = useState(0);
 

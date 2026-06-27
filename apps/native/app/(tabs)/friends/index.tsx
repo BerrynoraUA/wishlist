@@ -195,9 +195,8 @@ export default function FriendsScreen() {
           renderItem={renderRow}
           keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
           className="flex-1"
-          contentInsetAdjustmentBehavior="automatic"
           contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop: insets.top + 24 }}
+          contentContainerStyle={{ paddingTop: insets.top }}
           onScroll={requestMeasure}
           scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View className="h-4" />}

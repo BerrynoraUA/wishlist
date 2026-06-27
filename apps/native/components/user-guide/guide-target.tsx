@@ -92,12 +92,12 @@ function AttachedTooltip({
       : { marginTop: 2, top: "100%" as const };
   const arrowClassName =
     tooltip.placement === "top"
-      ? "absolute -bottom-[5px] size-3 rotate-45 border-b border-r border-border bg-card-bg"
-      : "absolute -top-[5px] size-3 rotate-45 border-l border-t border-border bg-card-bg";
+      ? "absolute -bottom-1.25 size-3 rotate-45 border-b border-r border-border bg-card-bg"
+      : "absolute -top-1.25 size-3 rotate-45 border-l border-t border-border bg-card-bg";
 
   return (
     <View
-      className="absolute z-50 w-[230px] gap-2 rounded-lg border border-border bg-card-bg px-3 py-2"
+      className="absolute z-50 w-57.5 gap-2 rounded-lg border border-border bg-card-bg px-3 py-2"
       style={[
         tooltipPosition,
         {

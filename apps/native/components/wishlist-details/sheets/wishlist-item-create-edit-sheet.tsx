@@ -587,7 +587,7 @@ function PrioritySelector({
       value={value}
       onChange={(nextValue) => onChange(nextValue === value ? null : nextValue)}
       optionHeight={46}
-      optionHeightClassName="h-[46px]"
+      optionHeightClassName="h-11.5"
       optionClassName="rounded-xl px-3"
       indicatorClassName="rounded-lg border border-brand bg-brand-lighter"
     />

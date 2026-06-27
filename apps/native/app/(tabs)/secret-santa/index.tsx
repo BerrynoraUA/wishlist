@@ -104,9 +104,8 @@ export default function SecretSantaScreen() {
           renderItem={renderRow}
           keyExtractor={(row) => row.map((event) => event.id).join(":")}
           className="flex-1"
-          contentInsetAdjustmentBehavior="automatic"
           contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop: insets.top + 24 }}
+          contentContainerStyle={{ paddingTop: insets.top }}
           ItemSeparatorComponent={() => <View className="h-4" />}
           ListHeaderComponent={
             <View className="gap-5 self-center pb-8" style={{ width: contentWidth }}>

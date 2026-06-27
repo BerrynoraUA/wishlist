@@ -16,7 +16,7 @@ import * as Clipboard from "expo-clipboard";
 import { Copy, ExternalLink, Gift, Pencil, ShoppingCart, Trash2 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, Linking, View } from "react-native";
+import { ActivityIndicator, Linking, Platform, View } from "react-native";
 
 type Confirmation = {
   title: string;
@@ -135,7 +135,8 @@ export function WishlistItemDetailSheet({
           <Text className="mx-5 mt-5 text-2xl font-extrabold leading-7 text-text">{item.name}</Text>
         }
       >
-        <View className="gap-5 px-5 pb-6 pt-5">
+        {/* iOS sheets add their own bottom safe-area inset; only Android needs the extra padding. */}
+        <View className={`gap-5 px-5 pt-5 ${Platform.OS === "ios" ? "pb-0" : "pb-4"}`}>
           <View className="h-56 overflow-hidden rounded-2xl border border-border-subtle bg-bg-muted">
             {item.image_url ? (
               <StyledImage

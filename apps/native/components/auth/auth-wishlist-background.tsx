@@ -12,10 +12,10 @@ type SkeletonConfig = {
 const SKELETONS: Record<AuthBackgroundVariant, readonly SkeletonConfig[]> = {
   "sign-in": [
     { className: "-left-10 top-16 rotate-[-10deg] opacity-55" },
-    { className: "right-[-84px] bottom-24 rotate-[10deg] opacity-42", compact: true },
+    { className: "right-[-84px] bottom-24 rotate-10 opacity-42", compact: true },
   ],
   email: [
-    { className: "left-[-92px] top-20 rotate-[8deg] opacity-42", compact: true },
+    { className: "left-[-92px] top-20 rotate-8 opacity-42", compact: true },
     { className: "right-[-44px] bottom-28 rotate-[-9deg] opacity-56" },
   ],
 };
@@ -55,7 +55,7 @@ function WishlistSkeleton({
 
   return (
     <View
-      className={`absolute w-[330px] rounded-[32px] border border-white/12 bg-white/10 p-5 ${className}`}
+      className={`absolute w-82.5 rounded-[32px] border border-white/12 bg-white/10 p-5 ${className}`}
     >
       <View className="mb-5 flex-row items-center gap-3">
         <View className="size-11 items-center justify-center rounded-2xl bg-white/16">

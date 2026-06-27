@@ -53,7 +53,7 @@ export default function SignInScreen() {
       <View className="relative min-h-full flex-1 overflow-hidden bg-[#16111f]">
         <AuthWishlistBackground />
         <View className="min-h-full flex-1 justify-center px-7 py-safe-offset-8">
-          <View className="w-full max-w-[420px] self-center">
+          <View className="w-full max-w-105 self-center">
             <View className="mb-9 items-center gap-4">
               <View className="size-16 items-center justify-center rounded-full bg-white/95">
                 <Icon as={GiftIcon} className="size-8 text-[#c0267e]" />

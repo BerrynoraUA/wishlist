@@ -1,7 +1,7 @@
-import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { InlineState } from "@/components/shared/inline-state";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
+import { FloatingBackButton } from "@/components/ui/floating-back-button";
+import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
@@ -46,11 +46,10 @@ import {
 } from "@/lib/items";
 import { chunkRows } from "@/lib/layout";
 import { cn } from "@/lib/utils";
-import { paginationFlags } from "@/lib/wishlists";
+import { getWishlistAccentClass, paginationFlags } from "@/lib/wishlists";
 import type { Item } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View, useWindowDimensions } from "react-native";
@@ -223,7 +222,7 @@ export default function WishlistDetailScreen() {
     ({ item, target }: { item: WishlistItemListRow; target: string }) =>
       "type" in item && item.type === "header" ? (
         wishlist ? (
-          <View style={{ marginBottom: -insets.top, marginTop: -insets.top }}>
+          <View>
             <WishlistItemHeader
               wishlist={wishlist}
               isOwner={wishlist.is_owner}
@@ -248,10 +247,10 @@ export default function WishlistDetailScreen() {
         ) : null
       ) : "type" in item ? (
         <View
-          className={cn("z-[2] pb-4", target === "StickyHeader" ? "bg-bg" : "bg-transparent")}
-          style={{ paddingTop: insets.top + 16 }}
+          className="z-2 bg-bg pb-4"
+          style={{ paddingTop: target === "StickyHeader" ? insets.top + 8 : 16 }}
         >
-          <View className="max-w-[1200px] self-center" style={{ width: contentWidth }}>
+          <View className="max-w-300 self-center" style={{ width: contentWidth }}>
             <WishlistItemFilterBar
               filters={filters}
               itemsCount={wishlist?.items_count ?? 0}
@@ -343,6 +342,12 @@ export default function WishlistDetailScreen() {
     <>
       <Stack.Screen options={{ title: wishlist?.title ?? t("Wishlist") }} />
       <View className="flex-1 bg-bg">
+        {wishlist ? (
+          <ScreenTopBackdrop>
+            <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
+            <View className="absolute inset-0 bg-black/20" />
+          </ScreenTopBackdrop>
+        ) : null}
         {wishlistQuery.isLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
@@ -367,10 +372,8 @@ export default function WishlistDetailScreen() {
             keyExtractor={(row) =>
               "type" in row ? row.id : row.map((entry) => entry.id).join(":")
             }
-            contentInsetAdjustmentBehavior="automatic"
             className="flex-1"
-            contentContainerClassName="pb-8"
-            contentContainerStyle={{ paddingTop: insets.top }}
+            contentContainerClassName="bg-bg pb-8"
             onScroll={requestMeasure}
             scrollEventThrottle={16}
             ItemSeparatorComponent={ItemRowSeparator}
@@ -429,19 +432,11 @@ export default function WishlistDetailScreen() {
               filtersOpen,
               gridGap,
               isFetching: itemsQuery.isFetching,
-              safeAreaTop: insets.top,
             }}
             stickyHeaderIndices={[1]}
           />
         )}
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={t("Back")}
-          onPress={() => router.back()}
-          className="absolute bottom-3 left-3 z-20 size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
-        >
-          <Icon as={ChevronLeft} className="size-7 text-text" />
-        </AnimatedPressable>
+        <FloatingBackButton />
         <WishlistItemCreateEditSheet
           mode={sheet?.type === "edit" ? "edit" : "create"}
           wishlistId={wishlistId}

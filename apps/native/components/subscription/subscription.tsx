@@ -91,7 +91,7 @@ function PlanOption({
     >
       <View
         className={cn(
-          "min-h-[62px] flex-row items-center gap-3 rounded-xl border bg-black/35 px-4 py-3",
+          "min-h-15.5 flex-row items-center gap-3 rounded-xl border bg-black/35 px-4 py-3",
           isCurrent
             ? "border-success bg-success/15"
             : isSelected
