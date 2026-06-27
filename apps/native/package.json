@@ -101,5 +101,6 @@
     "@types/react": "~19.2.10",
     "gt": "^2.14.10",
     "typescript": "~6.0.3"
-  }
+  },
+  "packageManager": "pnpm@11.9.0"
 }
