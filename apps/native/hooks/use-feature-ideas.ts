@@ -37,7 +37,9 @@ export function useToggleFeatureIdeaVote() {
     mutationFn: (ideaId: string) => toggleFeatureIdeaVote(ideaId),
     onMutate: async (ideaId: string) => {
       await queryClient.cancelQueries({ queryKey });
-      const previous = queryClient.getQueryData<FeatureIdea[]>(queryKey);
+      const previousIdea = queryClient
+        .getQueryData<FeatureIdea[]>(queryKey)
+        ?.find((idea) => idea.id === ideaId);
 
       queryClient.setQueryData<FeatureIdea[]>(queryKey, (old) =>
         (old ?? []).map((idea) =>
@@ -53,12 +55,15 @@ export function useToggleFeatureIdeaVote() {
         ),
       );
 
-      return { previous };
+      return { previousIdea };
     },
-    onError: (_error, _ideaId, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(queryKey, context.previous);
-      }
+    onError: (_error, ideaId, context) => {
+      if (!context?.previousIdea) return;
+      const previousIdea = context.previousIdea;
+
+      queryClient.setQueryData<FeatureIdea[]>(queryKey, (old) =>
+        old?.map((idea) => (idea.id === ideaId ? previousIdea : idea)),
+      );
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey });

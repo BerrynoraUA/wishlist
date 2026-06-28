@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./api/feature-ideas": "./api/feature-ideas.ts",
     "./db-types": "./db-types/index.ts",
     "./lib": "./lib/index.ts",
     "./lib/currencies": "./lib/currencies.ts",

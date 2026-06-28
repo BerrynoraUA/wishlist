@@ -5,8 +5,7 @@ import {
   createFeatureIdea,
   toggleFeatureIdeaVote,
 } from "@/api/feature-ideas";
-import type { CreateFeatureIdeaParams } from "@/api/types/feature-ideas";
-import type { FeatureIdea } from "@/api/types/feature-ideas";
+import type { CreateFeatureIdeaParams, FeatureIdea } from "@wishlist/backend/types/feature-ideas";
 
 export const featureIdeaKeys = {
   all: ["feature-ideas"] as const,
@@ -42,7 +41,9 @@ export function useToggleFeatureIdeaVote() {
     mutationFn: (ideaId: string) => toggleFeatureIdeaVote(ideaId),
     onMutate: async (ideaId: string) => {
       await queryClient.cancelQueries({ queryKey });
-      const previous = queryClient.getQueryData<FeatureIdea[]>(queryKey);
+      const previousIdea = queryClient
+        .getQueryData<FeatureIdea[]>(queryKey)
+        ?.find((idea) => idea.id === ideaId);
 
       queryClient.setQueryData<FeatureIdea[]>(queryKey, (old) =>
         (old ?? []).map((idea) =>
@@ -58,12 +59,15 @@ export function useToggleFeatureIdeaVote() {
         ),
       );
 
-      return { previous };
+      return { previousIdea };
     },
-    onError: (_err, _ideaId, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(queryKey, context.previous);
-      }
+    onError: (_err, ideaId, context) => {
+      if (!context?.previousIdea) return;
+      const previousIdea = context.previousIdea;
+
+      queryClient.setQueryData<FeatureIdea[]>(queryKey, (old) =>
+        old?.map((idea) => (idea.id === ideaId ? previousIdea : idea)),
+      );
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey });

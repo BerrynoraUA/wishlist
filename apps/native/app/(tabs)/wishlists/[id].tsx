@@ -49,6 +49,7 @@ import {
   parseOptionalNumber,
   optimisticallyToggleItemBought,
   optimisticallyToggleItemReservation,
+  updateItemIfSelected,
 } from "@/lib/items";
 import { chunkRows } from "@/lib/layout";
 import { cn } from "@/lib/utils";
@@ -234,7 +235,15 @@ export default function WishlistDetailScreen() {
       item: optimisticallyToggleItemReservation(previousItem, currentUser.data),
     });
     toggleReservation.mutate(itemId, {
-      onError: () => setSheet({ type: "detail", item: previousItem }),
+      onError: () =>
+        setSheet((current) =>
+          current?.type === "detail"
+            ? {
+                type: "detail",
+                item: updateItemIfSelected(current.item, itemId, () => previousItem),
+              }
+            : current,
+        ),
       onSuccess: (item) =>
         setSheet((current) =>
           current?.type === "detail" && current.item.id === itemId
@@ -253,7 +262,15 @@ export default function WishlistDetailScreen() {
       item: optimisticallyToggleItemBought(previousItem, currentUser.data),
     });
     toggleBought.mutate(itemId, {
-      onError: () => setSheet({ type: "detail", item: previousItem }),
+      onError: () =>
+        setSheet((current) =>
+          current?.type === "detail"
+            ? {
+                type: "detail",
+                item: updateItemIfSelected(current.item, itemId, () => previousItem),
+              }
+            : current,
+        ),
       onSuccess: (item) =>
         setSheet((current) =>
           current?.type === "detail" && current.item.id === itemId

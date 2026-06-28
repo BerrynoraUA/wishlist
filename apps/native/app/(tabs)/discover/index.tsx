@@ -17,7 +17,11 @@ import { useUserGuideTargetRegistration } from "@/components/user-guide/user-gui
 import { useDiscoverFeed } from "@/hooks/use-discover-feed";
 import { useFriends } from "@/hooks/use-friends";
 import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
-import { optimisticallyToggleItemBought, optimisticallyToggleItemReservation } from "@/lib/items";
+import {
+  optimisticallyToggleItemBought,
+  optimisticallyToggleItemReservation,
+  updateItemIfSelected,
+} from "@/lib/items";
 import { useAuth } from "@/providers/auth-provider";
 import type { DiscoverSection as DiscoverSectionType } from "@wishlist/backend/types/discover";
 import type { Item } from "@wishlist/backend/types/item";
@@ -68,7 +72,14 @@ export default function DiscoverScreen() {
     );
     toggleReservation.mutate(itemId, {
       onError: () =>
-        setSelection((current) => (current ? { ...current, item: previousItem } : current)),
+        setSelection((current) =>
+          current
+            ? {
+                ...current,
+                item: updateItemIfSelected(current.item, itemId, () => previousItem),
+              }
+            : current,
+        ),
       onSuccess: (item) =>
         setSelection((current) =>
           current?.item.id === itemId
@@ -89,7 +100,14 @@ export default function DiscoverScreen() {
     );
     toggleBought.mutate(itemId, {
       onError: () =>
-        setSelection((current) => (current ? { ...current, item: previousItem } : current)),
+        setSelection((current) =>
+          current
+            ? {
+                ...current,
+                item: updateItemIfSelected(current.item, itemId, () => previousItem),
+              }
+            : current,
+        ),
       onSuccess: (item) =>
         setSelection((current) =>
           current?.item.id === itemId

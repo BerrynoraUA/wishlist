@@ -218,6 +218,14 @@ export function optimisticallyToggleItemBought(item: Item, currentUserId: string
   };
 }
 
+export function updateItemIfSelected(
+  item: Item,
+  selectedItemId: string,
+  update: (selectedItem: Item) => Item,
+): Item {
+  return item.id === selectedItemId ? update(item) : item;
+}
+
 export function buildReservationLabel(
   args: {
     isPurchased: boolean;
