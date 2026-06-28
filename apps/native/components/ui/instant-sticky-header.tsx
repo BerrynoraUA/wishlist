@@ -20,10 +20,15 @@ export function useInstantStickyHeader({
 } = {}) {
   const scrollY = React.useRef(new Animated.Value(0)).current;
   const [headerHeight, setHeaderHeight] = React.useState(0);
+  const [overlayHeight, setOverlayHeight] = React.useState(0);
   const [threshold, setThreshold] = React.useState(initialThreshold);
 
   const onHeaderLayout = React.useCallback((event: LayoutChangeEvent) => {
     setHeaderHeight(event.nativeEvent.layout.height);
+  }, []);
+
+  const onOverlayLayout = React.useCallback((event: LayoutChangeEvent) => {
+    setOverlayHeight(event.nativeEvent.layout.height);
   }, []);
 
   const onAnchorLayout = React.useCallback(
@@ -43,15 +48,19 @@ export function useInstantStickyHeader({
   );
 
   const clampedThreshold = Math.max(0.01, threshold);
+  // Hide by the overlay's own height when it differs from the inline header
+  // (e.g. the overlay carries extra top inset to clear the status bar).
+  const hideOffset = overlayHeight || headerHeight;
   const translateY = scrollY.interpolate({
     inputRange: [Math.max(0, clampedThreshold - 0.01), clampedThreshold],
-    outputRange: [-headerHeight, 0],
+    outputRange: [-hideOffset, 0],
     extrapolate: "clamp",
   });
 
   return {
     onAnchorLayout,
     onHeaderLayout,
+    onOverlayLayout,
     onScroll,
     overlayStyle: { transform: [{ translateY }] },
     ready: headerHeight > 0,
@@ -62,16 +71,20 @@ export function InstantStickyHeaderOverlay({
   children,
   ready,
   style,
+  onLayout,
 }: {
   children: React.ReactNode;
   ready: boolean;
   style: React.ComponentProps<typeof Animated.View>["style"];
+  onLayout?: (event: LayoutChangeEvent) => void;
 }) {
   if (!ready) return null;
 
   return (
     <Animated.View pointerEvents="box-none" className="absolute inset-x-0 top-0 z-20" style={style}>
-      <View pointerEvents="auto">{children}</View>
+      <View pointerEvents="auto" onLayout={onLayout}>
+        {children}
+      </View>
     </Animated.View>
   );
 }

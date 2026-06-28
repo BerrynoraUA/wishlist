@@ -58,6 +58,13 @@ export function AccountSettings({
   const [switchingUserId, setSwitchingUserId] = React.useState<string | null>(null);
   const [addingAccount, setAddingAccount] = React.useState(false);
   const isOAuth = provider !== "email";
+  const providerLabel = {
+    apple: t("Apple Account"),
+    facebook: t("Facebook Account"),
+    google: t("Google Account"),
+    email: t("Email Account"),
+    unknown: t("Email Account"),
+  }[provider ?? "email"];
   const googleAccounts = accounts.filter(
     (account) =>
       account.userId !== userId &&
@@ -158,10 +165,7 @@ export function AccountSettings({
         }
       >
         <SettingsControlsInfoRow icon={Mail} title={email || emailUnavailable} />
-        <SettingsControlsInfoRow
-          icon={Shield}
-          title={isOAuth ? t("Google Account") : t("Email Account")}
-        />
+        <SettingsControlsInfoRow icon={Shield} title={providerLabel} />
 
         {!isOAuth && (
           <View className="gap-3">

@@ -10,6 +10,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { useKnownAccounts } from "@/hooks/use-known-accounts";
 import { useSettings, useProfile, useUpdateSettings } from "@/hooks/use-settings";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
+import { toKnownAccountProvider } from "@wishlist/backend/types/known-accounts";
 import type { ThemePreference } from "@wishlist/backend/types/settings";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Stack, useRouter } from "expo-router";
@@ -55,8 +56,9 @@ export default function ProfileScreen() {
   React.useEffect(() => {
     if (!session?.user.id || !session.user.email) return;
 
-    const provider = String(session.user.app_metadata?.provider ?? "email");
-    const supportedProvider = provider === "google" ? "google" : "email";
+    const supportedProvider = toKnownAccountProvider(
+      String(session.user.app_metadata?.provider ?? "email"),
+    );
     const profileForSession = profile?.id === session.user.id ? profile : null;
     const settingsForSession = settings?.user_id === session.user.id ? settings : null;
 
