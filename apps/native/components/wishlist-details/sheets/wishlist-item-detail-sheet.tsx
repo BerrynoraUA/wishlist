@@ -4,8 +4,10 @@ import { ActionBottomSheetConfirm } from "@/components/ui/action-bottom-sheet";
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
+import { ItemDetailStatusBadge, ItemPriorityBadge } from "@/components/items/item-labels";
 import {
   buildReservationLabel,
+  getItemPriority,
   getItemReservationState,
   getItemStoreFromUrl,
   getSalePercentOff,
@@ -13,7 +15,15 @@ import {
 } from "@/lib/items";
 import type { Item } from "@wishlist/backend/types/item";
 import * as Clipboard from "expo-clipboard";
-import { Copy, ExternalLink, Gift, Pencil, ShoppingCart, Trash2 } from "lucide-react-native";
+import {
+  Copy,
+  ExternalLink,
+  Gift,
+  LockKeyhole,
+  Pencil,
+  ShoppingCart,
+  Trash2,
+} from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, Linking, Platform, View } from "react-native";
@@ -72,6 +82,7 @@ export function WishlistItemDetailSheet({
     t,
   );
   const priorityLabel = getTranslatedItemPriorityLabel(t, selectedItem.priority_id);
+  const priority = getItemPriority(selectedItem.priority_id);
   const store = getItemStoreFromUrl(selectedItem.url);
   const salePercentOff = getSalePercentOff(
     selectedItem.price,
@@ -181,15 +192,14 @@ export function WishlistItemDetailSheet({
                   {t("Sale -{percent}%", { percent: salePercentOff })}
                 </Text>
               ) : null}
-              {priorityLabel ? (
-                <Text className="rounded-full bg-bg-subtle px-3 py-1.5 text-sm font-bold text-text-muted">
-                  {priorityLabel}
-                </Text>
+              {priority && priorityLabel ? (
+                <ItemPriorityBadge priority={priority} label={priorityLabel} />
               ) : null}
               {reservationLabel ? (
-                <Text className="rounded-full bg-bg-subtle px-3 py-1.5 text-sm font-bold text-text-muted">
-                  {reservationLabel}
-                </Text>
+                <ItemDetailStatusBadge
+                  label={reservationLabel}
+                  purchased={reservation.isPurchased}
+                />
               ) : null}
             </View>
           </View>
@@ -274,14 +284,29 @@ export function WishlistItemDetailSheet({
               <View className="gap-2">
                 {onToggleReserve ? (
                   <Button
-                    variant={reservation.isReserved ? "secondary" : "default"}
+                    variant="outline"
                     disabled={!reservation.canToggleReservation || reservePending}
                     onPress={confirmReservation}
+                    className={
+                      reservation.isReserved
+                        ? "border-brand bg-brand"
+                        : "border-brand/25 bg-brand-lighter"
+                    }
                   >
                     {reservePending ? (
                       <ActivityIndicator colorClassName="accent-primary-foreground" />
                     ) : null}
-                    <Text>
+                    <Icon
+                      as={LockKeyhole}
+                      className={
+                        reservation.isReserved
+                          ? "size-4 text-primary-foreground"
+                          : "size-4 text-brand"
+                      }
+                    />
+                    <Text
+                      className={reservation.isReserved ? "text-primary-foreground" : "text-brand"}
+                    >
                       {!reservation.isReserved
                         ? t("Reserve this gift")
                         : reservation.reservedByMe
@@ -292,15 +317,26 @@ export function WishlistItemDetailSheet({
                 ) : null}
                 {onToggleBought ? (
                   <Button
-                    variant={reservation.isPurchased ? "secondary" : "default"}
+                    variant="outline"
                     disabled={!reservation.canToggleBought || boughtPending}
                     onPress={confirmBought}
+                    className={
+                      reservation.isPurchased
+                        ? "border-[#15803d] bg-[#16a34a1f]"
+                        : "border-border-subtle bg-card-bg"
+                    }
                   >
                     {boughtPending ? (
                       <ActivityIndicator colorClassName="accent-primary-foreground" />
                     ) : null}
-                    <Icon as={ShoppingCart} className="size-4 text-primary-foreground" />
-                    <Text>{reservation.isPurchased ? t("Purchased") : t("Bought")}</Text>
+                    <Icon
+                      as={ShoppingCart}
+                      className="size-4"
+                      color={reservation.isPurchased ? "#15803d" : undefined}
+                    />
+                    <Text style={reservation.isPurchased ? { color: "#15803d" } : undefined}>
+                      {reservation.isPurchased ? t("Purchased") : t("Bought")}
+                    </Text>
                   </Button>
                 ) : null}
               </View>

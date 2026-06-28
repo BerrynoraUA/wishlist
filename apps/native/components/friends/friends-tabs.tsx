@@ -1,13 +1,6 @@
-import {
-  SlidingOptionSelector,
-  type SlidingOption,
-  type SlidingOptionRenderProps,
-} from "@/components/ui/sliding-option-selector";
-import { Text } from "@/components/ui/text";
-import { cn } from "@/lib/utils";
+import { ScrollableTabs, type ScrollableTab } from "@/components/ui/scrollable-tabs";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View } from "react-native";
 
 export type FriendsTab = "friends" | "groups" | "requests" | "sent";
 
@@ -27,51 +20,35 @@ export function FriendsTabs({
   onChange: (value: FriendsTab) => void;
 }) {
   const t = useGT();
-  const rows = React.useMemo<SlidingOption<FriendsTab>[][]>(
+  const tabs = React.useMemo<ScrollableTab<FriendsTab>[]>(
     () => [
-      [
-        createTabOption("friends", `${t("Friends")} ${friendsCount}`, "friends-tab-friends"),
-        createTabOption("groups", `${t("Groups")} ${groupsCount}`, "friends-tab-groups"),
-      ],
-      [
-        createTabOption("requests", `${t("Requests")} ${requestsCount}`, "friends-tab-requests"),
-        createTabOption("sent", `${t("Sent")} ${sentCount}`, "friends-tab-sent"),
-      ],
+      {
+        value: "friends",
+        label: t("Friends"),
+        count: friendsCount,
+        guideTargetId: "friends-tab-friends",
+      },
+      {
+        value: "groups",
+        label: t("Groups"),
+        count: groupsCount,
+        guideTargetId: "friends-tab-groups",
+      },
+      {
+        value: "requests",
+        label: t("Requests"),
+        count: requestsCount,
+        guideTargetId: "friends-tab-requests",
+      },
+      {
+        value: "sent",
+        label: t("Sent"),
+        count: sentCount,
+        guideTargetId: "friends-tab-sent",
+      },
     ],
     [friendsCount, groupsCount, requestsCount, sentCount, t],
   );
 
-  return (
-    <View className="rounded-[28px] border border-border-subtle bg-card-bg p-2 shadow-sm">
-      <SlidingOptionSelector
-        rows={rows}
-        value={value}
-        onChange={onChange}
-        optionHeight={44}
-        optionHeightClassName="h-11"
-        optionClassName="rounded-full px-3"
-        indicatorClassName="rounded-full border border-brand bg-brand"
-      />
-    </View>
-  );
-}
-
-function createTabOption(
-  value: FriendsTab,
-  label: string,
-  guideTargetId: string,
-): SlidingOption<FriendsTab> {
-  return {
-    value,
-    accessibilityLabel: label,
-    guideTargetId,
-    children: ({ selected }: SlidingOptionRenderProps) => (
-      <Text
-        className={cn("text-sm font-bold", selected ? "text-primary-foreground" : "text-text")}
-        numberOfLines={1}
-      >
-        {label}
-      </Text>
-    ),
-  };
+  return <ScrollableTabs tabs={tabs} value={value} onChange={onChange} />;
 }

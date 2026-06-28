@@ -5,6 +5,7 @@ import {
   useNotificationResponseObserver,
   useRegisterPushNotifications,
 } from "@/hooks/use-notifications";
+import { NotificationPermissionSheet } from "@/components/notifications/notification-permission-sheet";
 import { useSettings } from "@/hooks/use-settings";
 import {
   applyNativeThemeSettings,
@@ -142,6 +143,7 @@ function RootStack({ initialRouteName }: { initialRouteName: "(auth)" | "(tabs)"
     <Stack initialRouteName={initialRouteName} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="ideas" />
       <Stack.Screen name="subscription" />
     </Stack>
   );
@@ -154,7 +156,8 @@ function AuthRedirector() {
   const rootSegment = segments[0];
 
   useEffect(() => {
-    const isAuthenticatedRoute = rootSegment === "(tabs)" || rootSegment === "subscription";
+    const isAuthenticatedRoute =
+      rootSegment === "(tabs)" || rootSegment === "ideas" || rootSegment === "subscription";
 
     if (session && !isAuthenticatedRoute) {
       router.replace("/(tabs)/wishlists" as never);
@@ -170,10 +173,11 @@ function AuthRedirector() {
 }
 
 function NotificationPushBootstrap() {
+  const { user } = useAuth();
   useRegisterPushNotifications();
   useNotificationResponseObserver();
 
-  return null;
+  return user?.id ? <NotificationPermissionSheet userId={user.id} /> : null;
 }
 
 function AuthenticatedThemeGate({ children }: { children: ReactNode }) {

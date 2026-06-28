@@ -40,9 +40,7 @@ export function FloatingBackButton({
   const insets = useSafeAreaInsets();
 
   const bottom =
-    process.env.EXPO_OS === "ios"
-      ? insets.bottom + IOS_TAB_BAR_CLEARANCE
-      : ANDROID_BOTTOM;
+    process.env.EXPO_OS === "ios" ? insets.bottom + IOS_TAB_BAR_CLEARANCE : ANDROID_BOTTOM;
 
   return (
     <AnimatedPressable

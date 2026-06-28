@@ -8,6 +8,7 @@ import { FriendGroupSheet } from "@/components/friends/sheets/friend-group-sheet
 import { InlineState } from "@/components/shared/inline-state";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
@@ -244,16 +245,15 @@ export default function FriendsScreen() {
                 ) : null}
                 {tab === "groups" ? (
                   <GuideTarget id="friends-create-group">
-                    <Button
+                    <AnimatedGradientBackgroundButton
+                      accessibilityLabel={t("Create")}
+                      Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
                       onPress={() => {
                         completeCreateGroupStep();
                         setSheet({ type: "group", group: null });
                       }}
-                      className="rounded-full"
-                    >
-                      <Icon as={Plus} className="size-4 text-primary-foreground" />
-                      <Text>{t("Create")}</Text>
-                    </Button>
+                      title={t("Create")}
+                    />
                   </GuideTarget>
                 ) : (
                   <GuideTarget
@@ -263,16 +263,15 @@ export default function FriendsScreen() {
                     tooltipPlacementOverride="bottom"
                     tooltipVerticalOffset={0}
                   >
-                    <Button
+                    <AnimatedGradientBackgroundButton
+                      accessibilityLabel={t("Invite")}
+                      Icon={<Icon as={UserPlus} className="size-4 text-primary-foreground" />}
                       onPress={() => {
                         completeAddFriendStep();
                         setSheet({ type: "add" });
                       }}
-                      className="rounded-full"
-                    >
-                      <Icon as={UserPlus} className="size-4 text-primary-foreground" />
-                      <Text>{t("Invite")}</Text>
-                    </Button>
+                      title={t("Invite")}
+                    />
                   </GuideTarget>
                 )}
               </View>

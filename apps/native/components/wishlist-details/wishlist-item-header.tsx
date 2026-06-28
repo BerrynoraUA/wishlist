@@ -68,32 +68,23 @@ export function WishlistItemHeader({
   });
   const [editingTitle, setEditingTitle] = React.useState(false);
   const [editingDescription, setEditingDescription] = React.useState(false);
+  const [displayTitle, setDisplayTitle] = React.useState(wishlist.title);
+  const optimisticTitleRef = React.useRef<string | null>(null);
   const visibility = wishlist.visibility_type;
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[visibility];
   const eventDate = wishlist.event_date;
   const canInlineEdit = isOwner;
   const hasButtonsRow = Boolean(onShare || (isOwner && onManageAccess));
   const hasActionsMenu = Boolean(onEdit || onDelete);
-  // Geometry of the absolutely-positioned action cluster (share/key row stacked
-  // above the three-dots menu) used to reserve vertical space in the title column.
-  const HEADER_BUTTON_SIZE = 36; // size-9
-  const HEADER_CLUSTER_GAP = 8; // gap-2 between the stacked button rows
-  const HEADER_CONTENT_GAP = 16; // gap-4 between the title column and the pills row
-  const headerClusterHeight =
-    (hasButtonsRow ? HEADER_BUTTON_SIZE : 0) +
-    (hasActionsMenu ? HEADER_BUTTON_SIZE : 0) +
-    (hasButtonsRow && hasActionsMenu ? HEADER_CLUSTER_GAP : 0);
-  // Min height for the title/description column so the pills row clears the cluster.
-  // When the three-dots menu sits below the share/key row, match the gap below it to
-  // the gap above it (HEADER_CLUSTER_GAP) so the menu is centered between the buttons
-  // and the pills. A longer description grows the column past this min, extending only
-  // the space below the three-dots button.
-  const headerActionsMinHeight =
-    hasButtonsRow && hasActionsMenu
-      ? headerClusterHeight + HEADER_CLUSTER_GAP - HEADER_CONTENT_GAP
-      : headerClusterHeight;
+  const headerActionsCount =
+    Number(Boolean(onShare)) + Number(Boolean(isOwner && onManageAccess)) + Number(hasActionsMenu);
+  const headerActionsRightPadding =
+    headerActionsCount >= 3 ? "pr-32" : headerActionsCount === 2 ? "pr-20" : "pr-12";
   React.useEffect(() => {
-    if (!editingTitle) setValue("title", wishlist.title);
+    if (!editingTitle && optimisticTitleRef.current === null) {
+      setValue("title", wishlist.title);
+      setDisplayTitle(wishlist.title);
+    }
   }, [editingTitle, setValue, wishlist.title]);
 
   React.useEffect(() => {
@@ -102,9 +93,29 @@ export function WishlistItemHeader({
 
   function saveTitle() {
     const nextTitle = getValues("title").trim();
+    if (!nextTitle || nextTitle === wishlist.title || patchWishlist.isPending) {
+      setEditingTitle(false);
+      return;
+    }
+    const previousTitle = displayTitle;
+    optimisticTitleRef.current = nextTitle;
+    setDisplayTitle(nextTitle);
     setEditingTitle(false);
-    if (!nextTitle || nextTitle === wishlist.title || patchWishlist.isPending) return;
-    patchWishlist.mutate({ id: wishlist.id, values: { title: nextTitle } });
+    patchWishlist.mutate(
+      { id: wishlist.id, values: { title: nextTitle } },
+      {
+        onError: () => {
+          optimisticTitleRef.current = null;
+          setDisplayTitle(previousTitle);
+          setValue("title", previousTitle);
+        },
+        onSuccess: (updatedWishlist) => {
+          optimisticTitleRef.current = null;
+          setDisplayTitle(updatedWishlist.title);
+          setValue("title", updatedWishlist.title);
+        },
+      },
+    );
   }
 
   function saveDescription() {
@@ -133,35 +144,34 @@ export function WishlistItemHeader({
       <View className="absolute inset-0 bg-black/20" />
       <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
         {hasButtonsRow || hasActionsMenu ? (
-          <View className="absolute right-4 z-10 items-end gap-2" style={{ top: topInset + 8 }}>
-            {hasButtonsRow ? (
-              <View className="flex-row items-center justify-end gap-2">
-                {onShare ? (
-                  <GuideTarget id="wishlist-share">
-                    <AnimatedPressable
-                      accessibilityRole="button"
-                      accessibilityLabel={t("Share wishlist")}
-                      onPress={onShare}
-                      className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-                    >
-                      <Icon as={Share2} className="size-4 text-white" />
-                    </AnimatedPressable>
-                  </GuideTarget>
-                ) : null}
+          <View
+            className="absolute right-4 z-10 flex-row items-center justify-end gap-2"
+            style={{ top: topInset + 8 }}
+          >
+            {onShare ? (
+              <GuideTarget id="wishlist-share">
+                <AnimatedPressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t("Share wishlist")}
+                  onPress={onShare}
+                  className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+                >
+                  <Icon as={Share2} className="size-4 text-white" />
+                </AnimatedPressable>
+              </GuideTarget>
+            ) : null}
 
-                {isOwner && onManageAccess ? (
-                  <GuideTarget id="wishlist-manage-access">
-                    <AnimatedPressable
-                      accessibilityRole="button"
-                      accessibilityLabel={t("Manage wishlist access")}
-                      onPress={onManageAccess}
-                      className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-                    >
-                      <Icon as={KeyRound} className="size-4 text-white" />
-                    </AnimatedPressable>
-                  </GuideTarget>
-                ) : null}
-              </View>
+            {isOwner && onManageAccess ? (
+              <GuideTarget id="wishlist-manage-access">
+                <AnimatedPressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t("Manage wishlist access")}
+                  onPress={onManageAccess}
+                  className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+                >
+                  <Icon as={KeyRound} className="size-4 text-white" />
+                </AnimatedPressable>
+              </GuideTarget>
             ) : null}
 
             {hasActionsMenu ? (
@@ -198,14 +208,9 @@ export function WishlistItemHeader({
         ) : null}
 
         <View className="gap-4">
-          {/* The pr reserves horizontal space for the absolutely-positioned action
-              cluster above so the title/description never slide underneath it.
-              pr-24 fits the two-button (share + key) row; pr-12 fits a lone three-dots
-              button. minHeight reserves the vertical space so the pills row clears the
-              cluster. Keep in sync if those buttons change. */}
           <View
-            className={cn("min-w-0", hasButtonsRow ? "pr-24" : hasActionsMenu ? "pr-12" : undefined)}
-            style={{ minHeight: headerActionsMinHeight }}
+            className={cn("min-w-0", headerActionsCount > 0 && headerActionsRightPadding)}
+            style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
           >
             {editingTitle ? (
               <Controller
@@ -229,11 +234,11 @@ export function WishlistItemHeader({
               <AnimatedPressable
                 disabled={!canInlineEdit}
                 accessibilityRole={canInlineEdit ? "button" : "text"}
-                accessibilityLabel={canInlineEdit ? t("Edit wishlist title") : wishlist.title}
+                accessibilityLabel={canInlineEdit ? t("Edit wishlist title") : displayTitle}
                 onPress={() => setEditingTitle(true)}
               >
                 <Text className="text-[21px] font-extrabold leading-6 text-white" numberOfLines={2}>
-                  {wishlist.title}
+                  {displayTitle}
                 </Text>
               </AnimatedPressable>
             )}

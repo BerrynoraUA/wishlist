@@ -17,6 +17,7 @@
     "./supabase/server": "./supabase/server.ts",
     "./types": "./types/index.ts",
     "./types/discover": "./types/discover.ts",
+    "./types/feature-ideas": "./types/feature-ideas.ts",
     "./types/friends": "./types/friends.ts",
     "./types/item": "./types/item.ts",
     "./types/known-accounts": "./types/known-accounts.ts",

@@ -111,10 +111,7 @@ export default function EmailAuthScreen() {
 
           <View className="min-h-full flex-1 px-5 py-safe-offset-5">
             <View className="flex-1 justify-center pb-16">
-              <Animated.View
-                className="w-full max-w-110 self-center"
-                layout={formLayoutTransition}
-              >
+              <Animated.View className="w-full max-w-110 self-center" layout={formLayoutTransition}>
                 <Animated.View className="mb-7 items-center gap-3" layout={formLayoutTransition}>
                   <View className="size-14 items-center justify-center rounded-full bg-white/95">
                     <Icon as={GiftIcon} className="size-7 text-[#c0267e]" />

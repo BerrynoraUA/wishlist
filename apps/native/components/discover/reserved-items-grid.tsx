@@ -25,7 +25,7 @@ export function ReservedItemsGrid({
   currentUserId?: string | null;
   purchased?: boolean;
   headerAccessory?: React.ReactNode;
-  onOpenItem: (item: Item) => void;
+  onOpenItem: (item: Item, reservedByName?: string | null) => void;
 }) {
   const t = useGT();
   const normalized = React.useMemo(
@@ -59,7 +59,7 @@ export function ReservedItemsGrid({
                 item={item}
                 width={cardWidth}
                 currentUserId={currentUserId}
-                reservedByName={source.owner_name}
+                purchasedMode={purchased}
                 onPress={() => onOpenItem(item)}
               />
             </View>

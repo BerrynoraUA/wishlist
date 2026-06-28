@@ -11,11 +11,13 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { PriorityFilterIcon, StatusFilterIcon } from "@/components/items/item-labels";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import { useSettings } from "@/hooks/use-settings";
 import {
   DEFAULT_ITEM_SORT,
   getItemPriorityOptions,
+  getItemPriority,
   getItemSortOptions,
   getItemStatusOptions,
 } from "@/lib/items";
@@ -194,6 +196,7 @@ export function WishlistItemFilterBar({
                 options={itemStatusOptions.map((option) => ({
                   value: option.value,
                   label: option.label,
+                  leading: <StatusFilterIcon status={option.value} />,
                 }))}
                 onToggle={(value) => toggleValue("statuses", value)}
               />
@@ -210,6 +213,9 @@ export function WishlistItemFilterBar({
                   value: option.value,
                   label: option.label,
                   color: option.color,
+                  leading: getItemPriority(option.value) ? (
+                    <PriorityFilterIcon priority={getItemPriority(option.value)!} />
+                  ) : undefined,
                 }))}
                 onToggle={(value) => toggleValue("priorities", value)}
               />
@@ -244,14 +250,20 @@ export function WishlistItemFilterBar({
               onChangeText={(priceMin) => onChange({ priceMin })}
               placeholder={t("From")}
               keyboardType="decimal-pad"
-              className="h-10 w-[42%] rounded-full"
+              className={cn(
+                "h-10 w-[42%] rounded-full border-border-subtle bg-card-bg",
+                filters.priceMin.trim() && "border-brand bg-brand-lighter text-brand",
+              )}
             />
             <Input
               value={filters.priceMax}
               onChangeText={(priceMax) => onChange({ priceMax })}
               placeholder={t("To")}
               keyboardType="decimal-pad"
-              className="h-10 w-[42%] rounded-full"
+              className={cn(
+                "h-10 w-[42%] rounded-full border-border-subtle bg-card-bg",
+                filters.priceMax.trim() && "border-brand bg-brand-lighter text-brand",
+              )}
             />
           </View>
         </View>
@@ -285,7 +297,7 @@ function MultiSelectMenu({
 }: {
   label: string;
   values: string[];
-  options: { value: string; label: string; color?: string }[];
+  options: { value: string; label: string; color?: string; leading?: React.ReactNode }[];
   onToggle: (value: string) => void;
 }) {
   return (
@@ -318,11 +330,14 @@ function MultiSelectMenu({
             key={option.value}
             checked={values.includes(option.value)}
             closeOnPress={false}
+            className={option.leading ? "min-h-11 rounded-xl pl-11" : undefined}
             leading={
-              option.color ? (
+              option.leading ??
+              (option.color ? (
                 <View className="size-3 rounded-full" style={{ backgroundColor: option.color }} />
-              ) : undefined
+              ) : undefined)
             }
+            leadingClassName={option.leading ? "size-7" : undefined}
             onCheckedChange={() => onToggle(option.value)}
           >
             <Text>{option.label}</Text>

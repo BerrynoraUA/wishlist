@@ -9,6 +9,7 @@ import {
   registerPushToken,
   type GetNotificationsParams,
 } from "@/api/notifications";
+import { getNotificationPermissionPromptDecision } from "@/lib/notification-permission-prompt";
 import { useAuth } from "@/providers/auth-provider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
@@ -67,8 +68,12 @@ async function ensureAndroidNotificationChannel() {
   });
 }
 
-async function getGrantedNotificationStatus() {
-  const existingPermission = await Notifications.getPermissionsAsync();
+export async function getNotificationPermission() {
+  return Notifications.getPermissionsAsync();
+}
+
+async function getGrantedNotificationStatus(requestPermission: boolean) {
+  const existingPermission = await getNotificationPermission();
   console.log("[push] existing notification permission", {
     status: existingPermission.status,
     granted: existingPermission.granted,
@@ -76,6 +81,7 @@ async function getGrantedNotificationStatus() {
   });
 
   if (existingPermission.status === "granted") return existingPermission.status;
+  if (!requestPermission || !existingPermission.canAskAgain) return existingPermission.status;
 
   const requestedPermission = await Notifications.requestPermissionsAsync();
   console.log("[push] requested notification permission", {
@@ -87,6 +93,36 @@ async function getGrantedNotificationStatus() {
   return requestedPermission.status;
 }
 
+export async function registerPushNotifications({
+  requestPermission,
+}: {
+  requestPermission: boolean;
+}) {
+  await ensureAndroidNotificationChannel();
+
+  const finalStatus = await getGrantedNotificationStatus(requestPermission);
+  if (finalStatus !== "granted") return false;
+
+  const projectId = getExpoProjectId();
+  if (!projectId) {
+    console.error("[push] registration stopped: Expo projectId not found");
+    return false;
+  }
+
+  const expoPushToken = (
+    await Notifications.getExpoPushTokenAsync({
+      projectId,
+    })
+  ).data;
+
+  await registerPushToken({
+    expoPushToken,
+    platform: process.env.EXPO_OS ?? "unknown",
+  });
+
+  return true;
+}
+
 export function useRegisterPushNotifications() {
   const { user } = useAuth();
 
@@ -96,63 +132,23 @@ export function useRegisterPushNotifications() {
       return;
     }
 
+    const userId = user.id;
     let cancelled = false;
 
     async function register() {
       console.log("[push] registration started", {
-        userId: user?.id,
+        userId,
         platform: process.env.EXPO_OS ?? "unknown",
       });
 
-      await ensureAndroidNotificationChannel();
-
-      const finalStatus = await getGrantedNotificationStatus();
-      if (cancelled) {
-        console.log("[push] registration cancelled after permission check");
+      const promptDecision = await getNotificationPermissionPromptDecision(userId);
+      if (promptDecision !== "allowed") {
+        console.log("[push] registration deferred until notification prompt is accepted");
         return;
       }
 
-      if (finalStatus !== "granted") {
-        console.warn("[push] registration stopped: notification permission not granted", {
-          status: finalStatus,
-        });
-        return;
-      }
-
-      const projectId = getExpoProjectId();
-      console.log("[push] resolved Expo project id", {
-        projectId,
-        hasExpoConfig: Boolean(Constants.expoConfig),
-        hasEasConfig: Boolean(Constants.easConfig),
-      });
-
-      if (!projectId) {
-        console.error("[push] registration stopped: Expo projectId not found");
-        return;
-      }
-
-      const expoPushToken = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId,
-        })
-      ).data;
-
-      console.log("[push] Expo push token received", {
-        tokenPrefix: expoPushToken.slice(0, 24),
-        tokenLength: expoPushToken.length,
-      });
-
-      if (cancelled) {
-        console.log("[push] registration cancelled after token received");
-        return;
-      }
-
-      await registerPushToken({
-        expoPushToken,
-        platform: process.env.EXPO_OS ?? "unknown",
-      });
-
-      console.log("[push] registration finished");
+      await registerPushNotifications({ requestPermission: false });
+      if (!cancelled) console.log("[push] registration check finished");
     }
 
     void register().catch((error) => {

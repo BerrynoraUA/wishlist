@@ -1,5 +1,4 @@
 import {
-  DiscoverFilterActions,
   DiscoverFilterHeader,
   DiscoverFiltersPanel,
 } from "@/components/discover/discover-filter-bar";
@@ -9,11 +8,16 @@ import { ReservedItemsGrid } from "@/components/discover/reserved-items-grid";
 import { DiscoverItemDetailSheet } from "@/components/discover/sheets/discover-item-detail-sheet";
 import { UpcomingEventsCard } from "@/components/discover/upcoming-events-card";
 import { InlineState } from "@/components/shared/inline-state";
+import {
+  InstantStickyHeaderOverlay,
+  useInstantStickyHeader,
+} from "@/components/ui/instant-sticky-header";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import { useDiscoverFeed } from "@/hooks/use-discover-feed";
 import { useFriends } from "@/hooks/use-friends";
 import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
+import { optimisticallyToggleItemBought, optimisticallyToggleItemReservation } from "@/lib/items";
 import { useAuth } from "@/providers/auth-provider";
 import type { DiscoverSection as DiscoverSectionType } from "@wishlist/backend/types/discover";
 import type { Item } from "@wishlist/backend/types/item";
@@ -28,6 +32,11 @@ type DiscoverRow =
   | { id: "discover-intro"; type: "discover-intro" }
   | { id: "reserved-grid"; type: "reserved-grid" };
 
+type SelectedDiscoverItem = {
+  item: Item;
+  reservedByName?: string | null;
+};
+
 export default function DiscoverScreen() {
   const t = useGT();
   const { user } = useAuth();
@@ -38,14 +47,61 @@ export default function DiscoverScreen() {
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
   const [filtersOpen, setFiltersOpen] = React.useState(false);
-  const [selectedItem, setSelectedItem] = React.useState<Item | null>(null);
+  const [selection, setSelection] = React.useState<SelectedDiscoverItem | null>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
+  const stickyHeader = useInstantStickyHeader({ scrollListener: requestMeasure });
 
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 3 : 2;
   const cardWidth = (contentWidth - gridGap * (columns - 1)) / columns;
   const friends = friendsQuery.data ?? [];
+
+  function handleToggleSelectedReservation(itemId: string) {
+    if (!selection || selection.item.id !== itemId || !user?.id) return;
+
+    const previousItem = selection.item;
+    setSelection((current) =>
+      current
+        ? { ...current, item: optimisticallyToggleItemReservation(previousItem, user.id) }
+        : current,
+    );
+    toggleReservation.mutate(itemId, {
+      onError: () =>
+        setSelection((current) => (current ? { ...current, item: previousItem } : current)),
+      onSuccess: (item) =>
+        setSelection((current) =>
+          current?.item.id === itemId
+            ? { ...current, item: { ...current.item, ...item } }
+            : current,
+        ),
+    });
+  }
+
+  function handleToggleSelectedBought(itemId: string) {
+    if (!selection || selection.item.id !== itemId || !user?.id) return;
+
+    const previousItem = selection.item;
+    setSelection((current) =>
+      current
+        ? { ...current, item: optimisticallyToggleItemBought(previousItem, user.id) }
+        : current,
+    );
+    toggleBought.mutate(itemId, {
+      onError: () =>
+        setSelection((current) => (current ? { ...current, item: previousItem } : current)),
+      onSuccess: (item) =>
+        setSelection((current) =>
+          current?.item.id === itemId
+            ? { ...current, item: { ...current.item, ...item } }
+            : current,
+        ),
+    });
+  }
+
+  function openItem(item: Item, reservedByName?: string | null) {
+    setSelection({ item, reservedByName });
+  }
 
   const avatarByKey = React.useMemo(() => {
     const map = new Map<string, string | null>();
@@ -68,17 +124,6 @@ export default function DiscoverScreen() {
     ];
   }, [feed.activeSections, feed.sectionTab, filtersOpen]);
 
-  function renderFilterActions() {
-    return (
-      <DiscoverFilterActions
-        filtersOpen={filtersOpen}
-        filtersActive={feed.filtersActive}
-        onFiltersOpenChange={setFiltersOpen}
-        onResetFilters={feed.resetFilters}
-      />
-    );
-  }
-
   function renderFiltersPanel() {
     if (!filtersOpen) return null;
 
@@ -98,35 +143,36 @@ export default function DiscoverScreen() {
     );
   }
 
-  function renderRow({ item, target }: { item: DiscoverRow; target: string }) {
-    if ("type" in item && item.type === "discover-header") {
-      const sticky = target === "StickyHeader";
-
-      return (
-        <View
-          className={sticky ? "bg-bg pb-4" : "bg-transparent pb-4"}
-          style={{ paddingTop: sticky ? insets.top + 8 : 0 }}
-        >
-          <View className="gap-4 self-center" style={{ width: contentWidth }}>
-            <DiscoverTabs
-              value={feed.tab}
-              onChange={(value) => {
-                feed.setTab(value);
-                setSelectedItem(null);
-              }}
-            />
-            {sticky ? (
-              <DiscoverFilterHeader
-                filtersOpen={filtersOpen}
-                filtersActive={feed.filtersActive}
-                onFiltersOpenChange={setFiltersOpen}
-                onResetFilters={feed.resetFilters}
-              />
-            ) : null}
-            {renderFiltersPanel()}
-          </View>
+  function renderDiscoverHeader(measure: boolean) {
+    return (
+      <View
+        className="bg-bg pb-4"
+        onLayout={measure ? stickyHeader.onHeaderLayout : undefined}
+        style={{ paddingTop: insets.top + 8 }}
+      >
+        <View className="gap-4 self-center" style={{ width: contentWidth }}>
+          <DiscoverTabs
+            value={feed.tab}
+            onChange={(value) => {
+              feed.setTab(value);
+              setSelection(null);
+            }}
+          />
+          <DiscoverFilterHeader
+            filtersOpen={filtersOpen}
+            filtersActive={feed.filtersActive}
+            onFiltersOpenChange={setFiltersOpen}
+            onResetFilters={feed.resetFilters}
+          />
+          {renderFiltersPanel()}
         </View>
-      );
+      </View>
+    );
+  }
+
+  function renderRow({ item }: { item: DiscoverRow }) {
+    if ("type" in item && item.type === "discover-header") {
+      return renderDiscoverHeader(true);
     }
 
     if ("type" in item && item.type === "discover-intro") {
@@ -151,8 +197,8 @@ export default function DiscoverScreen() {
             gridGap={gridGap}
             currentUserId={user?.id}
             purchased={feed.tab === "purchased"}
-            headerAccessory={renderFilterActions()}
-            onOpenItem={setSelectedItem}
+            headerAccessory={null}
+            onOpenItem={openItem}
           />
         </View>
       );
@@ -168,8 +214,8 @@ export default function DiscoverScreen() {
           avatarUrl={
             item.friend_id ? avatarByKey.get(item.friend_id) : avatarByKey.get(item.username)
           }
-          headerAccessory={item.id === feed.activeSections[0]?.id ? renderFilterActions() : null}
-          onOpenItem={setSelectedItem}
+          headerAccessory={null}
+          onOpenItem={openItem}
         />
       </View>
     );
@@ -183,9 +229,9 @@ export default function DiscoverScreen() {
         keyExtractor={(row) => ("type" in row ? row.id : row.id)}
         className="flex-1"
         contentContainerClassName="pb-8"
-        contentContainerStyle={{ paddingTop: insets.top + 8 }}
-        onScroll={requestMeasure}
-        scrollEventThrottle={16}
+        contentContainerStyle={{ paddingTop: 0 }}
+        onScroll={stickyHeader.onScroll}
+        scrollEventThrottle={1}
         ItemSeparatorComponent={RowSeparator}
         ListFooterComponent={
           <View className="gap-4 self-center" style={{ width: contentWidth }}>
@@ -221,18 +267,21 @@ export default function DiscoverScreen() {
           activeItems: feed.activeItems,
           loading: feed.activeQuery.isLoading,
         }}
-        stickyHeaderIndices={[0]}
       />
+      <InstantStickyHeaderOverlay ready={stickyHeader.ready} style={stickyHeader.overlayStyle}>
+        {renderDiscoverHeader(false)}
+      </InstantStickyHeaderOverlay>
 
-      {selectedItem ? (
+      {selection ? (
         <DiscoverItemDetailSheet
-          item={selectedItem}
+          item={selection.item}
+          reservedByName={selection.reservedByName}
           currentUserId={user?.id}
           reservePending={toggleReservation.isPending}
           boughtPending={toggleBought.isPending}
-          onClose={() => setSelectedItem(null)}
-          onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
-          onToggleBought={(itemId) => toggleBought.mutate(itemId)}
+          onClose={() => setSelection(null)}
+          onToggleReserve={handleToggleSelectedReservation}
+          onToggleBought={handleToggleSelectedBought}
         />
       ) : null}
     </View>

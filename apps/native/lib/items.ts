@@ -71,6 +71,12 @@ export function getTranslatedItemPriorityLabel(
   return priority ? t(priority.name) : null;
 }
 
+export function getItemPriority(priorityId: string | null | undefined) {
+  return ALL_PRIORITIES.find(
+    (priority) => priority.id === priorityId || priority.name === priorityId,
+  );
+}
+
 export const EMPTY_ITEM_FORM: ItemFormValues = {
   name: "",
   description: "",
@@ -191,6 +197,24 @@ export function getItemReservationState({
     canToggleBought:
       !isOwner &&
       ((isPurchased && reservedByMe) || (!isPurchased && (!isReserved || reservedByMe))),
+  };
+}
+
+export function optimisticallyToggleItemReservation(item: Item, currentUserId: string): Item {
+  const releasing = item.status === 1 && item.reserved_by === currentUserId;
+
+  return {
+    ...item,
+    status: releasing ? 0 : 1,
+    reserved_by: releasing ? null : currentUserId,
+  };
+}
+
+export function optimisticallyToggleItemBought(item: Item, currentUserId: string): Item {
+  return {
+    ...item,
+    status: item.status === 2 ? 1 : 2,
+    reserved_by: currentUserId,
   };
 }
 
