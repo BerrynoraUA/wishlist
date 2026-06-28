@@ -12,7 +12,7 @@ export function FeatureIdeasSettings() {
   const router = useRouter();
 
   return (
-    <SettingsSection title={t("Feedback")} icon={MessageSquarePlus}>
+    <SettingsSection id="feature-ideas" title={t("Feedback")} icon={MessageSquarePlus}>
       <View className="gap-3">
         <Text className="text-sm leading-5 text-text-muted">
           {t("Share your ideas and vote for features you would like to see next.")}
