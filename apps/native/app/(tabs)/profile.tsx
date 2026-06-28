@@ -1,6 +1,7 @@
 import { AccountSettings } from "@/components/settings/account-settings";
 import { AppearanceSettings } from "@/components/settings/appearance-settings";
 import { CurrencySettings } from "@/components/settings/currency-settings";
+import { FeatureIdeasSettings } from "@/components/settings/feature-ideas-settings";
 import { NotificationSettings } from "@/components/settings/notification-settings";
 import { ProfileSettings } from "@/components/settings/profile-settings";
 import { SettingsSectionProvider } from "@/components/settings/settings-section";
@@ -24,6 +25,7 @@ const SETTINGS_SECTIONS = [
   "notifications",
   "appearance",
   "currency",
+  "feature-ideas",
 ] as const;
 
 type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
@@ -119,6 +121,8 @@ export default function ProfileScreen() {
         );
       case "currency":
         return <CurrencySettings selectedCurrency={settings?.display_currency ?? "USD"} />;
+      case "feature-ideas":
+        return <FeatureIdeasSettings />;
     }
   }
 

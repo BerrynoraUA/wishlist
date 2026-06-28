@@ -3,13 +3,10 @@ import { SecretSantaInvitesPanel } from "@/components/secret-santa/secret-santa-
 import { SecretSantaCreateEditSheet } from "@/components/secret-santa/sheets/secret-santa-create-edit-sheet";
 import { InlineState } from "@/components/shared/inline-state";
 import { Button } from "@/components/ui/button";
+import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
-import {
-  SlidingOptionSelector,
-  type SlidingOption,
-  type SlidingOptionRenderProps,
-} from "@/components/ui/sliding-option-selector";
+import { ScrollableTabs, type ScrollableTab } from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { useNotifications } from "@/hooks/use-notifications";
@@ -61,19 +58,14 @@ export default function SecretSantaScreen() {
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
   const rows = React.useMemo<SecretSantaRow[]>(() => chunkRows(events, columns), [columns, events]);
-  const tabs = React.useMemo<SlidingOption<SecretSantaTab>[][]>(
+  const tabs = React.useMemo<ScrollableTab<SecretSantaTab>[]>(
     () => [
-      [
-        createSecretSantaTab({
-          value: "events",
-          label: t("Events"),
-        }),
-        createSecretSantaTab({
-          value: "invites",
-          label: t("Invites"),
-          count: inviteNotifications.length,
-        }),
-      ],
+      { value: "events", label: t("Events") },
+      {
+        value: "invites",
+        label: t("Invites"),
+        count: inviteNotifications.length || undefined,
+      },
     ],
     [inviteNotifications.length, t],
   );
@@ -105,51 +97,48 @@ export default function SecretSantaScreen() {
           keyExtractor={(row) => row.map((event) => event.id).join(":")}
           className="flex-1"
           contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop: insets.top }}
+          contentContainerStyle={{ paddingTop: insets.top + 12 }}
           ItemSeparatorComponent={() => <View className="h-4" />}
           ListHeaderComponent={
             <View className="gap-5 self-center pb-8" style={{ width: contentWidth }}>
-              <SlidingOptionSelector
-                rows={tabs}
-                value={activeTab}
-                onChange={setActiveTab}
-                optionHeight={40}
-                optionHeightClassName="h-10"
-                optionClassName="rounded-full"
-                selectedOptionClassName="border-brand"
-                indicatorClassName="rounded-full bg-brand"
-              />
+              <ScrollableTabs tabs={tabs} value={activeTab} onChange={setActiveTab} />
+
+              <View className="flex-row items-center justify-between gap-3">
+                <Text className="min-w-0 flex-1 text-xl font-extrabold text-text">
+                  {t("Secret Santa")}
+                </Text>
+                <AnimatedGradientBackgroundButton
+                  accessibilityLabel={t("New Event")}
+                  Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
+                  onPress={() => setCreateOpen(true)}
+                  title={t("New Event")}
+                />
+              </View>
 
               {activeTab === "events" ? (
-                <View className="flex-row items-center gap-2">
-                  <View className="min-w-0 flex-1 flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 shadow-sm">
-                    <Icon as={Search} className="size-4 text-text-muted" />
-                    <Input
-                      value={search}
-                      onChangeText={setSearch}
-                      placeholder={t("Search events")}
-                      className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
-                      returnKeyType="search"
-                    />
-                    {search.length > 0 ? (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        accessibilityLabel={t("Clear search")}
-                        onPress={() => {
-                          setSearch("");
-                          setDebouncedSearch("");
-                        }}
-                        className="size-9 shrink-0 rounded-full"
-                      >
-                        <Icon as={X} className="size-4 text-text-muted" />
-                      </Button>
-                    ) : null}
-                  </View>
-                  <Button onPress={() => setCreateOpen(true)} className="rounded-full">
-                    <Icon as={Plus} className="size-4 text-primary-foreground" />
-                    <Text>{t("New Event")}</Text>
-                  </Button>
+                <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 shadow-sm">
+                  <Icon as={Search} className="size-4 text-text-muted" />
+                  <Input
+                    value={search}
+                    onChangeText={setSearch}
+                    placeholder={t("Search events")}
+                    className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
+                    returnKeyType="search"
+                  />
+                  {search.length > 0 ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      accessibilityLabel={t("Clear search")}
+                      onPress={() => {
+                        setSearch("");
+                        setDebouncedSearch("");
+                      }}
+                      className="size-9 shrink-0 rounded-full"
+                    >
+                      <Icon as={X} className="size-4 text-text-muted" />
+                    </Button>
+                  ) : null}
                 </View>
               ) : null}
             </View>
@@ -216,52 +205,4 @@ export default function SecretSantaScreen() {
       </View>
     </>
   );
-}
-
-function createSecretSantaTab({
-  value,
-  label,
-  count,
-}: {
-  value: SecretSantaTab;
-  label: string;
-  count?: number;
-}): SlidingOption<SecretSantaTab> {
-  return {
-    value,
-    accessibilityLabel: label,
-    children: ({ selected }: SlidingOptionRenderProps) => (
-      <View className="flex-row items-center justify-center gap-2">
-        <Text
-          className={
-            selected
-              ? "text-sm font-extrabold text-primary-foreground"
-              : "text-sm font-extrabold text-text-muted"
-          }
-          numberOfLines={1}
-        >
-          {label}
-        </Text>
-        {count ? (
-          <View
-            className={
-              selected
-                ? "min-w-5 items-center rounded-full bg-primary-foreground/20 px-1.5"
-                : "min-w-5 items-center rounded-full bg-brand-lighter px-1.5"
-            }
-          >
-            <Text
-              className={
-                selected
-                  ? "text-[11px] font-extrabold text-primary-foreground"
-                  : "text-[11px] font-extrabold text-brand"
-              }
-            >
-              {count}
-            </Text>
-          </View>
-        ) : null}
-      </View>
-    ),
-  };
 }

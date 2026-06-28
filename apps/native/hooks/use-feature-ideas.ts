@@ -1,10 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import {
-  getApprovedFeatureIdeas,
   createFeatureIdea,
+  getApprovedFeatureIdeas,
   toggleFeatureIdeaVote,
 } from "@/api/feature-ideas";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CreateFeatureIdeaParams, FeatureIdea } from "@wishlist/backend/types/feature-ideas";
 
 export const featureIdeaKeys = {
@@ -21,14 +20,11 @@ export function useFeatureIdeas() {
 
 export function useCreateFeatureIdea() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (params: CreateFeatureIdeaParams) => createFeatureIdea(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: featureIdeaKeys.all });
-      toast.success("Idea submitted");
-    },
-    onError: (err) => {
-      toast.error(err.message || "Failed to submit idea");
     },
   });
 }
@@ -61,7 +57,7 @@ export function useToggleFeatureIdeaVote() {
 
       return { previousIdea };
     },
-    onError: (_err, ideaId, context) => {
+    onError: (_error, ideaId, context) => {
       if (!context?.previousIdea) return;
       const previousIdea = context.previousIdea;
 

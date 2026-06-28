@@ -28,7 +28,7 @@ export function DiscoverSection({
   currentUserId?: string | null;
   avatarUrl?: string | null;
   headerAccessory?: React.ReactNode;
-  onOpenItem: (item: Item) => void;
+  onOpenItem: (item: Item, reservedByName?: string | null) => void;
 }) {
   const t = useGT();
   const items = React.useMemo(() => section.items.map(normalizeDiscoverItem), [section.items]);
@@ -65,19 +65,22 @@ export function DiscoverSection({
 
       {items.length > 0 ? (
         <View className="flex-row flex-wrap" style={{ gap: gridGap }}>
-          {items.map((item) => (
-            <DiscoverItemCard
-              key={item.id}
-              item={item}
-              width={cardWidth}
-              currentUserId={currentUserId}
-              reservedByName={
-                section.items.find((entry: DiscoverItem) => entry.id === item.id)?.reservedByName ??
-                null
-              }
-              onPress={() => onOpenItem(item)}
-            />
-          ))}
+          {items.map((item) => {
+            const reservedByName =
+              section.items.find((entry: DiscoverItem) => entry.id === item.id)?.reservedByName ??
+              null;
+
+            return (
+              <DiscoverItemCard
+                key={item.id}
+                item={item}
+                width={cardWidth}
+                currentUserId={currentUserId}
+                reservedByName={reservedByName}
+                onPress={() => onOpenItem(item, reservedByName)}
+              />
+            );
+          })}
         </View>
       ) : (
         <View className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-6">

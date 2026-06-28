@@ -38,6 +38,7 @@ export interface NotificationPushToken {
 }
 
 export * from "./discover";
+export * from "./feature-ideas";
 export * from "./friends";
 export * from "./item";
 export * from "./priority";

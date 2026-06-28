@@ -13,6 +13,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
+import {
+  InstantStickyHeaderOverlay,
+  useInstantStickyHeader,
+} from "@/components/ui/instant-sticky-header";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import {
   useUserGuideStepCompletion,
@@ -100,17 +104,22 @@ export function WishlistList({
   const insets = useSafeAreaInsets();
   const stickyHeaderPaddingTop = insets.top + 4;
   const contentTopPadding = insets.top;
+  const stickyHeader = useInstantStickyHeader({
+    scrollListener: requestMeasure,
+    thresholdOffset: contentTopPadding,
+  });
   const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
   const data = React.useMemo<WishlistListRow[]>(
     () => [{ id: "filters", type: "filters" }, ...(query.isLoading ? [] : rows)],
     [query.isLoading, rows],
   );
   const renderRow = React.useCallback(
-    ({ item, target, index }: { item: WishlistListRow; target: string; index: number }) =>
+    ({ item, index }: { item: WishlistListRow; index: number }) =>
       "type" in item ? (
         <View
-          className={cn("z-2 pb-4", target === "StickyHeader" ? "bg-bg" : "bg-transparent")}
-          style={{ paddingTop: target === "StickyHeader" ? stickyHeaderPaddingTop : 16 }}
+          className="z-2 bg-bg pb-4"
+          onLayout={stickyHeader.onHeaderLayout}
+          style={{ paddingTop: stickyHeaderPaddingTop }}
         >
           <View className="max-w-300 self-center" style={{ width: contentWidth }}>
             {StickyHeaderComponent}
@@ -177,61 +186,74 @@ export function WishlistList({
       onOpenSheet,
       completeOpenDetailStep,
       query.isFetching,
+      stickyHeader.onHeaderLayout,
       StickyHeaderComponent,
     ],
   );
 
   return (
-    <StyledFlashList
-      data={data}
-      renderItem={renderRow}
-      keyExtractor={(row) => ("type" in row ? row.id : row.map((entry) => entry.id).join(":"))}
-      className="flex-1"
-      contentContainerClassName="pb-8"
-      contentContainerStyle={{ paddingTop: contentTopPadding }}
-      ItemSeparatorComponent={RowSeparator}
-      onScroll={requestMeasure}
-      scrollEventThrottle={16}
-      ListHeaderComponent={
-        <View className="mb-0 max-w-300 self-center" style={{ width: contentWidth }}>
-          {ListHeaderComponent}
+    <View className="flex-1">
+      <StyledFlashList
+        data={data}
+        renderItem={renderRow}
+        keyExtractor={(row) => ("type" in row ? row.id : row.map((entry) => entry.id).join(":"))}
+        className="flex-1"
+        contentContainerClassName="pb-8"
+        contentContainerStyle={{ paddingTop: contentTopPadding }}
+        ItemSeparatorComponent={RowSeparator}
+        onScroll={stickyHeader.onScroll}
+        scrollEventThrottle={1}
+        ListHeaderComponent={
+          <View
+            className="mb-0 max-w-300 self-center"
+            onLayout={stickyHeader.onAnchorLayout}
+            style={{ width: contentWidth }}
+          >
+            {ListHeaderComponent}
+          </View>
+        }
+        ListFooterComponent={
+          <View className="gap-5" style={{ alignSelf: "center", width: contentWidth }}>
+            {query.isLoading ? (
+              <WishlistGridSkeleton cardWidth={cardWidth} gridGap={gridGap} />
+            ) : null}
+            {query.isError ? (
+              <InlineState width={contentWidth} message={t("Failed to load wishlists.")} />
+            ) : null}
+            {!query.isLoading && !query.isError && wishlists.length === 0 && filtersActive ? (
+              <InlineState
+                width={contentWidth}
+                mascot="magnifying-glass"
+                message={t("No wishlists match your filters.")}
+              />
+            ) : null}
+            {pagination.showPagination ? (
+              <PaginationControls
+                page={page}
+                total={pagination.totalForPagination}
+                hasPrevPage={pagination.hasPrevPage}
+                hasNextPage={pagination.hasNextPage}
+                onChange={onPageChange}
+              />
+            ) : null}
+          </View>
+        }
+        extraData={{
+          cardWidth,
+          contentWidth,
+          gridGap,
+          isFetching: query.isFetching,
+          StickyHeaderComponent,
+        }}
+      />
+      <InstantStickyHeaderOverlay ready={stickyHeader.ready} style={stickyHeader.overlayStyle}>
+        <View className="bg-bg pb-4" style={{ paddingTop: stickyHeaderPaddingTop }}>
+          <View className="max-w-300 self-center" style={{ width: contentWidth }}>
+            {StickyHeaderComponent}
+          </View>
         </View>
-      }
-      ListFooterComponent={
-        <View className="gap-5" style={{ alignSelf: "center", width: contentWidth }}>
-          {query.isLoading ? (
-            <WishlistGridSkeleton cardWidth={cardWidth} gridGap={gridGap} />
-          ) : null}
-          {query.isError ? (
-            <InlineState width={contentWidth} message={t("Failed to load wishlists.")} />
-          ) : null}
-          {!query.isLoading && !query.isError && wishlists.length === 0 && filtersActive ? (
-            <InlineState
-              width={contentWidth}
-              mascot="magnifying-glass"
-              message={t("No wishlists match your filters.")}
-            />
-          ) : null}
-          {pagination.showPagination ? (
-            <PaginationControls
-              page={page}
-              total={pagination.totalForPagination}
-              hasPrevPage={pagination.hasPrevPage}
-              hasNextPage={pagination.hasNextPage}
-              onChange={onPageChange}
-            />
-          ) : null}
-        </View>
-      }
-      extraData={{
-        cardWidth,
-        contentWidth,
-        gridGap,
-        isFetching: query.isFetching,
-        StickyHeaderComponent,
-      }}
-      stickyHeaderIndices={[0]}
-    />
+      </InstantStickyHeaderOverlay>
+    </View>
   );
 }
 

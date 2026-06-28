@@ -157,10 +157,12 @@ function DropdownMenuCheckboxItem({
   className,
   children,
   leading,
+  leadingClassName,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem> & {
   children?: React.ReactNode;
   leading?: React.ReactNode;
+  leadingClassName?: string;
 }) {
   return (
     <TextClassContext.Provider value="text-sm text-popover-foreground select-none group-active:text-accent-foreground">
@@ -172,7 +174,12 @@ function DropdownMenuCheckboxItem({
         )}
         {...props}
       >
-        <View className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <View
+          className={cn(
+            "absolute left-2 flex h-3.5 w-3.5 items-center justify-center",
+            leadingClassName,
+          )}
+        >
           {leading ?? (
             <DropdownMenuPrimitive.ItemIndicator>
               <Icon

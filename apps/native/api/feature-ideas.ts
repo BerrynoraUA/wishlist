@@ -1,5 +1,5 @@
 import { createFeatureIdeasApi } from "@wishlist/backend/api/feature-ideas";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { supabase } from "@wishlist/backend/supabase/native";
 
 export const { createFeatureIdea, getApprovedFeatureIdeas, toggleFeatureIdeaVote } =
-  createFeatureIdeasApi(supabaseBrowser);
+  createFeatureIdeasApi(supabase);

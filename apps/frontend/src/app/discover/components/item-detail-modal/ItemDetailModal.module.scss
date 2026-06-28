@@ -17,12 +17,31 @@
 }
 
 .reservedBadge {
-  background: var(--badge-reserved-bg);
-  color: var(--color-info);
+  background: #fde7f3;
+  color: #be185d;
+  border: 1px solid #f9a8d4;
   font-size: var(--fs-caption);
   font-weight: var(--fw-semibold);
   padding: 4px 10px;
   border-radius: $radius-pill;
+}
+
+.purchasedBadge {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #86efac;
+}
+
+:global([data-theme="dark"]) .reservedBadge {
+  background: #3d1327;
+  color: #f9a8d4;
+  border-color: #7a284f;
+}
+
+:global([data-theme="dark"]) .purchasedBadge {
+  background: #16351f;
+  color: #86efac;
+  border-color: #2f6d46;
 }
 
 .footerRight {

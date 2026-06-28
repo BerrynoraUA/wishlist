@@ -14,13 +14,20 @@ import {
 } from "@/components/ui/sliding-option-selector";
 import { Text } from "@/components/ui/text";
 import { SettingsControlsToggleRow } from "@/components/settings/settings-controls";
+import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { SettingsSection } from "@/components/settings/settings-section";
+import {
+  settingsDropdownContentClassName,
+  settingsDropdownOptionClassName,
+  settingsDropdownTriggerClassName,
+} from "@/components/settings/settings-dropdown-styles";
 import { useHideBackButton } from "@/hooks/use-hide-back-button";
 import type { NativeAccentName } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { getWishlistAccentOptions } from "@/lib/wishlists";
 import type { TranslateFn } from "@/lib/translate-fn";
 import { useUpdateSettings } from "@/hooks/use-settings";
+import { useSubscriptionManager } from "@/providers/subscription-provider";
 import { ALL_PRIORITIES } from "@wishlist/backend/lib";
 import type { ThemePreference, WishlistColorIndex } from "@wishlist/backend/types/settings";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
@@ -112,6 +119,7 @@ export function AppearanceSettings({
   const setLocale = useSetLocale();
   const updateSettings = useUpdateSettings();
   const [hideBackButton, setHideBackButton] = useHideBackButton();
+  const { isPro } = useSubscriptionManager();
   const [prioritiesExpanded, setPrioritiesExpanded] = React.useState(false);
 
   const hideBackButtonDescription =
@@ -195,15 +203,22 @@ export function AppearanceSettings({
         </View>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-11 justify-between px-3">
+            <Button
+              variant="outline"
+              className={cn(settingsDropdownTriggerClassName, "justify-between")}
+            >
               <Text className="font-semibold text-text">{activeLocaleDisplay}</Text>
               <Icon as={ChevronDown} className="size-4 text-text-muted" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-72">
+          <DropdownMenuContent className={cn(settingsDropdownContentClassName, "w-72")}>
             <DropdownMenuRadioGroup value={localeCode} onValueChange={(v) => setLocale(v)}>
               {locales.map((code) => (
-                <DropdownMenuRadioItem key={code} value={code}>
+                <DropdownMenuRadioItem
+                  key={code}
+                  value={code}
+                  className={settingsDropdownOptionClassName}
+                >
                   <Text className="text-sm font-semibold text-popover-foreground">
                     {LOCALIZED_LOCALE_LABELS[code] ?? code}
                   </Text>
@@ -252,13 +267,16 @@ export function AppearanceSettings({
           <Icon as={ListFilter} className="size-4 text-brand" />
           <Text className="text-sm font-semibold text-text">{t("Item Priorities")}</Text>
         </View>
-        <View className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg">
+        <View className="gap-2">
           <Pressable
             accessibilityRole="button"
             accessibilityState={{ expanded: prioritiesExpanded }}
             accessibilityLabel={t("Toggle item priorities")}
             onPress={() => setPrioritiesExpanded((current) => !current)}
-            className="min-h-12 flex-row items-center justify-between gap-3 px-3 py-3 active:bg-bg-subtle"
+            className={cn(
+              settingsDropdownTriggerClassName,
+              "flex-row items-center justify-between gap-3 active:bg-bg-subtle",
+            )}
           >
             <Text className="min-w-0 flex-1 font-semibold text-text" numberOfLines={2}>
               {getPrioritySummary(priorities, t)}
@@ -270,7 +288,7 @@ export function AppearanceSettings({
           </Pressable>
 
           {prioritiesExpanded ? (
-            <View className="gap-1 border-t border-border-subtle p-2">
+            <View className={cn(settingsDropdownContentClassName, "gap-1")}>
               {ALL_PRIORITIES.map((priority) => (
                 <Pressable
                   key={priority.id}
@@ -281,24 +299,24 @@ export function AppearanceSettings({
                   }}
                   disabled={priorities.length === 1 && priorities.includes(priority.id)}
                   onPress={() => togglePriority(priority.id)}
-                  className="min-h-11 flex-row items-center gap-3 rounded-lg px-2 py-2 active:bg-bg-subtle disabled:opacity-50"
+                  className={cn(
+                    settingsDropdownOptionClassName,
+                    "flex-row items-center gap-3 disabled:opacity-50",
+                  )}
                 >
                   <View className="size-5 items-center justify-center">
                     {priorities.includes(priority.id) ? (
                       <Icon as={Check} className="size-4 text-text" />
                     ) : null}
                   </View>
-                  <View
-                    className="size-3 rounded-full"
-                    style={{ backgroundColor: priority.color }}
-                  />
+                  <PriorityFilterIcon priority={priority} />
                   <Text
                     className="min-w-0 flex-1 text-sm font-semibold text-text"
                     numberOfLines={1}
                   >
                     {t(priority.name)}
                   </Text>
-                  {!priority.is_free ? (
+                  {!isPro && !priority.is_free ? (
                     <Text className="text-xs font-bold text-brand">{t("Pro")}</Text>
                   ) : null}
                 </Pressable>

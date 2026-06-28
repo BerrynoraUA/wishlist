@@ -1,14 +1,19 @@
 import { getThemeMode, useNavigationTheme } from "@/lib/theme";
 import { useAuth } from "@/providers/auth-provider";
 import { useUserGuide } from "@/components/user-guide/user-guide-provider";
-import { Redirect } from "expo-router";
+import { Redirect, usePathname } from "expo-router";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useGT } from "gt-react-native";
 import { useUniwind } from "uniwind";
 
+export const unstable_settings = {
+  initialRouteName: "wishlists",
+};
+
 export default function TabsLayout() {
   const t = useGT();
   const { session } = useAuth();
+  const pathname = usePathname();
   const { handleTabPress } = useUserGuide();
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
@@ -21,6 +26,10 @@ export default function TabsLayout() {
     return <Redirect href={"/(auth)/sign-in" as never} />;
   }
 
+  if (pathname === "/") {
+    return <Redirect href={"/(tabs)/wishlists" as never} />;
+  }
+
   return (
     <NativeTabs
       backgroundColor={navigationTheme.colors.card}
@@ -31,13 +40,13 @@ export default function TabsLayout() {
       tintColor={navigationTheme.colors.primary}
     >
       <NativeTabs.Trigger
-        name="wishlists"
+        name="secret-santa"
         listeners={{
-          tabPress: () => handleTabPress("wishlists"),
+          tabPress: () => handleTabPress("secret-santa"),
         }}
       >
-        <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
-        <NativeTabs.Trigger.Label>{t("Wishlists")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="party.popper.fill" md="card_giftcard" />
+        <NativeTabs.Trigger.Label>{t("Secret Santa")}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         name="discover"
@@ -49,13 +58,13 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Label>{t("Discover")}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
-        name="secret-santa"
+        name="wishlists"
         listeners={{
-          tabPress: () => handleTabPress("secret-santa"),
+          tabPress: () => handleTabPress("wishlists"),
         }}
       >
-        <NativeTabs.Trigger.Icon sf="party.popper.fill" md="card_giftcard" />
-        <NativeTabs.Trigger.Label>{t("Secret Santa")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
+        <NativeTabs.Trigger.Label>{t("Wishlists")}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         name="friends"

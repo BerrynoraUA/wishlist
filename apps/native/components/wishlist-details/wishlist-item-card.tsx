@@ -8,8 +8,10 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
+import { ItemPriorityBadge, ItemStatusBadge } from "@/components/items/item-labels";
 import {
   buildReservationLabel,
+  getItemPriority,
   getItemReservationState,
   getItemStoreFromUrl,
   getSalePercentOff,
@@ -66,6 +68,7 @@ export function WishlistItemCard({
     t,
   );
   const priorityLabel = getTranslatedItemPriorityLabel(t, item.priority_id);
+  const priority = getItemPriority(item.priority_id);
   const store = getItemStoreFromUrl(item.url);
   const itemUrl = item.url?.trim() ?? "";
   const showCopyLink = itemUrl.length > 0;
@@ -106,31 +109,32 @@ export function WishlistItemCard({
             )}
 
             {reservationLabel ? (
-              <View
-                className={cn(
-                  "absolute left-2 top-2 rounded-full px-2 py-1",
-                  reservation.isPurchased ? "bg-success-bg" : "bg-card-bg/90",
-                )}
-              >
-                <Text
-                  className={cn(
-                    "text-[11px] font-extrabold",
-                    reservation.isPurchased ? "text-success" : "text-text-muted",
-                  )}
-                  numberOfLines={1}
-                >
-                  {reservationLabel}
-                </Text>
+              <View className="absolute left-2 top-2 z-10 max-w-[70%]">
+                <ItemStatusBadge
+                  label={reservationLabel}
+                  purchased={reservation.isPurchased}
+                  compact={salePercentOff != null}
+                />
               </View>
             ) : null}
 
-            {salePercentOff != null ? (
-              <View className="absolute right-2 top-2 rounded-full bg-danger px-2 py-1">
-                <Text className="text-[11px] font-extrabold text-white">
-                  {t("Sale -{percent}%", { percent: salePercentOff })}
-                </Text>
-              </View>
-            ) : null}
+            <View className="absolute right-2 top-2 z-10 items-end gap-1.5">
+              {salePercentOff != null ? (
+                <View className="rounded-full border border-danger bg-danger-bg px-2 py-1">
+                  <Text className="text-[11px] font-extrabold text-danger">
+                    {t("Sale -{percent}%", { percent: salePercentOff })}
+                  </Text>
+                </View>
+              ) : null}
+              {priority && priorityLabel ? (
+                <ItemPriorityBadge
+                  priority={priority}
+                  label={priorityLabel}
+                  compact
+                  context="card"
+                />
+              ) : null}
+            </View>
           </View>
 
           <View className="gap-2 p-3">
@@ -170,11 +174,6 @@ export function WishlistItemCard({
                       {item.price}
                     </Text>
                   )
-                ) : null}
-                {priorityLabel ? (
-                  <Text className="rounded-full bg-bg-subtle px-2 py-1 text-[11px] font-bold text-text-muted">
-                    {priorityLabel}
-                  </Text>
                 ) : null}
               </View>
 

@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
+import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
 import { useSettings } from "@/hooks/use-settings";
 import {
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/sliding-option-selector";
 import {
   EMPTY_ITEM_FORM,
+  getItemPriority,
   getItemPriorityOptions,
   cleanAdditionalLinks,
   toItemFormValues,
@@ -562,7 +564,9 @@ function PrioritySelector({
       value: option.priority_id,
       children: ({ selected }: SlidingOptionRenderProps) => (
         <View className="w-full min-w-0 flex-row items-center justify-start gap-2 px-2">
-          <View className="size-2.5 rounded-full" style={{ backgroundColor: option.color }} />
+          {getItemPriority(option.priority_id) ? (
+            <PriorityFilterIcon priority={getItemPriority(option.priority_id)!} />
+          ) : null}
           <Text
             className={cn("min-w-0 text-sm font-bold text-text", selected && "text-brand")}
             numberOfLines={1}

@@ -16,7 +16,10 @@ import {
   formatSecretSantaBudget,
   formatSecretSantaDate,
   getSecretSantaPersonName,
+  MIN_PARTICIPANTS_TO_LAUNCH,
 } from "@/lib/secret-santa";
+import { cn } from "@/lib/utils";
+import { getWishlistAccentClass } from "@/lib/wishlists";
 import type {
   SecretSantaDetails,
   SecretSantaPendingInvite,
@@ -25,6 +28,8 @@ import type {
 } from "@wishlist/backend/types/secret-santa";
 import {
   CalendarDays,
+  CircleCheck,
+  Clock3,
   Copy,
   Gift,
   Image as ImageIcon,
@@ -32,8 +37,8 @@ import {
   Pencil,
   Sparkles,
   Trash2,
-  UserMinus,
   Users,
+  UserMinus,
 } from "lucide-react-native";
 import { useGT, useLocale } from "gt-react-native";
 import { ActivityIndicator, Pressable, View } from "react-native";
@@ -62,7 +67,7 @@ export function SecretSantaDetailHero({
 
   return (
     <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
-      <View className="absolute inset-0 bg-linear-135 from-pink-300 via-pink-400 to-pink-600" />
+      <View className={cn("absolute inset-0", getWishlistAccentClass(null))} />
       {event.image_url ? (
         <StyledImage
           source={{ uri: event.image_url }}
@@ -70,8 +75,10 @@ export function SecretSantaDetailHero({
           className="absolute inset-0 size-full"
         />
       ) : (
-        <View className="absolute inset-0 items-center justify-center bg-brand-lighter">
-          <Icon as={Gift} className="size-20 text-brand" />
+        <View className="absolute inset-0 items-center justify-center">
+          <View className="size-16 items-center justify-center rounded-full border border-white/30 bg-white/20">
+            <Icon as={Gift} className="size-8 text-white" />
+          </View>
         </View>
       )}
       <View className="absolute inset-0 bg-black/25" />
@@ -258,23 +265,58 @@ export function SecretSantaLaunchCard({
   onLaunch: () => void;
 }) {
   const t = useGT();
+  const hasEnoughParticipants = participantsCount >= MIN_PARTICIPANTS_TO_LAUNCH;
+  const allInvitesAnswered = pendingInvitesCount === 0;
+  const missingParticipants = Math.max(MIN_PARTICIPANTS_TO_LAUNCH - participantsCount, 0);
+  const launchLabel = !hasEnoughParticipants
+    ? t("Need {count} more participant", { count: missingParticipants })
+    : !allInvitesAnswered
+      ? t("Waiting for pending invites")
+      : t("Launch Secret Santa");
 
   return (
     <View className="gap-3 rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm">
       <View className="gap-1">
         <Text className="text-lg font-extrabold text-text">{t("Ready to draw?")}</Text>
       </View>
-      <View className="gap-1">
-        <Text className="text-sm font-semibold text-text-muted">
-          {t("{count} accepted participants", { count: participantsCount })}
-        </Text>
-        <Text className="text-sm font-semibold text-text-muted">
-          {t("{count} pending invites", { count: pendingInvitesCount })}
-        </Text>
+      <View className="gap-2 rounded-lg bg-bg-muted p-3">
+        <View className="flex-row items-center gap-2">
+          <Icon
+            as={hasEnoughParticipants ? CircleCheck : Users}
+            className={hasEnoughParticipants ? "size-4 text-success" : "size-4 text-destructive"}
+          />
+          <Text
+            className={
+              hasEnoughParticipants
+                ? "flex-1 text-sm font-semibold text-text"
+                : "flex-1 text-sm font-semibold text-destructive"
+            }
+          >
+            {t("{current}/{required} accepted participants", {
+              current: participantsCount,
+              required: MIN_PARTICIPANTS_TO_LAUNCH,
+            })}
+          </Text>
+        </View>
+        <View className="flex-row items-center gap-2">
+          <Icon
+            as={allInvitesAnswered ? CircleCheck : Clock3}
+            className={allInvitesAnswered ? "size-4 text-success" : "size-4 text-brand"}
+          />
+          <Text className="flex-1 text-sm font-semibold text-text">
+            {allInvitesAnswered
+              ? t("All invitations answered")
+              : t("{count} pending invites", { count: pendingInvitesCount })}
+          </Text>
+        </View>
       </View>
-      <Button disabled={!canLaunch} onPress={onLaunch}>
+      <Button
+        disabled={!canLaunch}
+        accessibilityHint={!canLaunch ? launchLabel : undefined}
+        onPress={onLaunch}
+      >
         <Icon as={Sparkles} className="size-4 text-primary-foreground" />
-        <Text>{t("Launch Secret Santa")}</Text>
+        <Text>{launchLabel}</Text>
       </Button>
     </View>
   );

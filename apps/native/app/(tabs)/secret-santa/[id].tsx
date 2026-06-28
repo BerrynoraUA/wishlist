@@ -24,6 +24,8 @@ import {
 } from "@/hooks/use-secret-santa";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { MIN_PARTICIPANTS_TO_LAUNCH, buildSecretSantaJoinUrl } from "@/lib/secret-santa";
+import { cn } from "@/lib/utils";
+import { getWishlistAccentClass } from "@/lib/wishlists";
 import * as Clipboard from "expo-clipboard";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
@@ -97,16 +99,14 @@ export default function SecretSantaDetailScreen() {
       <View className="flex-1 bg-bg">
         {data ? (
           <ScreenTopBackdrop>
-            <View className="absolute inset-0 bg-linear-135 from-pink-300 via-pink-400 to-pink-600" />
+            <View className={cn("absolute inset-0", getWishlistAccentClass(null))} />
             {data.image_url ? (
               <StyledImage
                 source={{ uri: data.image_url }}
                 contentFit="cover"
                 className="absolute inset-0 w-full"
               />
-            ) : (
-              <View className="absolute inset-0 bg-brand-lighter" />
-            )}
+            ) : null}
             <View className="absolute inset-0 bg-black/25" />
           </ScreenTopBackdrop>
         ) : null}

@@ -10,8 +10,9 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { useSettings } from "@/hooks/use-settings";
-import { getItemPriorityOptions } from "@/lib/items";
+import { getItemPriority, getItemPriorityOptions } from "@/lib/items";
 import { cn } from "@/lib/utils";
 import { ChevronsUpDown, SlidersHorizontal, Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
@@ -179,12 +180,13 @@ export function DiscoverFiltersPanel({
                   key={option.value}
                   checked={priorityIds.includes(option.value)}
                   closeOnPress={false}
+                  className="min-h-11 rounded-xl pl-11"
                   leading={
-                    <View
-                      className="size-3 rounded-full"
-                      style={{ backgroundColor: option.color }}
-                    />
+                    getItemPriority(option.value) ? (
+                      <PriorityFilterIcon priority={getItemPriority(option.value)!} />
+                    ) : undefined
                   }
+                  leadingClassName="size-7"
                   onCheckedChange={() => onPriorityToggle(option.value)}
                 >
                   <Text>{option.label}</Text>
@@ -221,14 +223,20 @@ export function DiscoverFiltersPanel({
           onChangeText={onPriceMinChange}
           keyboardType="decimal-pad"
           placeholder={t("Min price")}
-          className="min-w-0 flex-1 rounded-full"
+          className={cn(
+            "min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg",
+            priceMin.trim() && "border-brand bg-brand-lighter text-brand",
+          )}
         />
         <Input
           value={priceMax}
           onChangeText={onPriceMaxChange}
           keyboardType="decimal-pad"
           placeholder={t("Max price")}
-          className="min-w-0 flex-1 rounded-full"
+          className={cn(
+            "min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg",
+            priceMax.trim() && "border-brand bg-brand-lighter text-brand",
+          )}
         />
       </View>
     </View>

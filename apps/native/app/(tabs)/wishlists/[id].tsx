@@ -4,6 +4,10 @@ import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
+import {
+  InstantStickyHeaderOverlay,
+  useInstantStickyHeader,
+} from "@/components/ui/instant-sticky-header";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
 import { WishlistItemDetailSheet } from "@/components/wishlist-details/sheets/wishlist-item-detail-sheet";
 import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheets/wishlist-item-create-edit-sheet";
@@ -43,6 +47,9 @@ import {
   ITEM_STATUS_LOOKUP,
   WISHLIST_ITEMS_PAGE_SIZE,
   parseOptionalNumber,
+  optimisticallyToggleItemBought,
+  optimisticallyToggleItemReservation,
+  updateItemIfSelected,
 } from "@/lib/items";
 import { chunkRows } from "@/lib/layout";
 import { cn } from "@/lib/utils";
@@ -146,6 +153,7 @@ export default function WishlistDetailScreen() {
   const completeShareStep = useUserGuideStepCompletion(7);
   const completeManageAccessStep = useUserGuideStepCompletion(8);
   const { requestMeasure } = useUserGuideTargetRegistration();
+  const stickyHeader = useInstantStickyHeader({ scrollListener: requestMeasure });
   const reservedByIds = React.useMemo(
     () => [
       ...new Set(items.map((item) => item.reserved_by).filter((value): value is string => !!value)),
@@ -218,11 +226,94 @@ export default function WishlistDetailScreen() {
     }
   }
 
+  function handleToggleSelectedReservation(itemId: string) {
+    if (sheet?.type !== "detail" || sheet.item.id !== itemId) return;
+
+    const previousItem = sheet.item;
+    setSheet({
+      type: "detail",
+      item: optimisticallyToggleItemReservation(previousItem, currentUser.data),
+    });
+    toggleReservation.mutate(itemId, {
+      onError: () =>
+        setSheet((current) =>
+          current?.type === "detail"
+            ? {
+                type: "detail",
+                item: updateItemIfSelected(current.item, itemId, () => previousItem),
+              }
+            : current,
+        ),
+      onSuccess: (item) =>
+        setSheet((current) =>
+          current?.type === "detail" && current.item.id === itemId
+            ? { type: "detail", item: { ...current.item, ...item } }
+            : current,
+        ),
+    });
+  }
+
+  function handleToggleSelectedBought(itemId: string) {
+    if (sheet?.type !== "detail" || sheet.item.id !== itemId) return;
+
+    const previousItem = sheet.item;
+    setSheet({
+      type: "detail",
+      item: optimisticallyToggleItemBought(previousItem, currentUser.data),
+    });
+    toggleBought.mutate(itemId, {
+      onError: () =>
+        setSheet((current) =>
+          current?.type === "detail"
+            ? {
+                type: "detail",
+                item: updateItemIfSelected(current.item, itemId, () => previousItem),
+              }
+            : current,
+        ),
+      onSuccess: (item) =>
+        setSheet((current) =>
+          current?.type === "detail" && current.item.id === itemId
+            ? { type: "detail", item: { ...current.item, ...item } }
+            : current,
+        ),
+    });
+  }
+
+  function renderFilterHeader(measure: boolean) {
+    return (
+      <View
+        className="z-2 bg-bg pb-4"
+        onLayout={measure ? stickyHeader.onHeaderLayout : undefined}
+        style={{ paddingTop: insets.top + 8 }}
+      >
+        <View className="max-w-300 self-center" style={{ width: contentWidth }}>
+          <WishlistItemFilterBar
+            filters={filters}
+            itemsCount={wishlist?.items_count ?? 0}
+            onChange={updateFilters}
+            onReset={resetFilters}
+            onAddItem={
+              canEditWishlist
+                ? () => {
+                    completeOpenItemStep();
+                    setSheet({ type: "create" });
+                  }
+                : undefined
+            }
+            open={filtersOpen}
+            onOpenChange={setFiltersOpen}
+          />
+        </View>
+      </View>
+    );
+  }
+
   const renderItemRow = React.useCallback(
-    ({ item, target }: { item: WishlistItemListRow; target: string }) =>
+    ({ item }: { item: WishlistItemListRow }) =>
       "type" in item && item.type === "header" ? (
         wishlist ? (
-          <View>
+          <View onLayout={stickyHeader.onAnchorLayout}>
             <WishlistItemHeader
               wishlist={wishlist}
               isOwner={wishlist.is_owner}
@@ -246,29 +337,7 @@ export default function WishlistDetailScreen() {
           </View>
         ) : null
       ) : "type" in item ? (
-        <View
-          className="z-2 bg-bg pb-4"
-          style={{ paddingTop: target === "StickyHeader" ? insets.top + 8 : 16 }}
-        >
-          <View className="max-w-300 self-center" style={{ width: contentWidth }}>
-            <WishlistItemFilterBar
-              filters={filters}
-              itemsCount={wishlist?.items_count ?? 0}
-              onChange={updateFilters}
-              onReset={resetFilters}
-              onAddItem={
-                canEditWishlist
-                  ? () => {
-                      completeOpenItemStep();
-                      setSheet({ type: "create" });
-                    }
-                  : undefined
-              }
-              open={filtersOpen}
-              onOpenChange={setFiltersOpen}
-            />
-          </View>
-        </View>
+        renderFilterHeader(true)
       ) : (
         <View
           className="flex-row"
@@ -344,7 +413,9 @@ export default function WishlistDetailScreen() {
       <View className="flex-1 bg-bg">
         {wishlist ? (
           <ScreenTopBackdrop>
-            <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
+            <View
+              className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))}
+            />
             <View className="absolute inset-0 bg-black/20" />
           </ScreenTopBackdrop>
         ) : null}
@@ -374,8 +445,8 @@ export default function WishlistDetailScreen() {
             }
             className="flex-1"
             contentContainerClassName="bg-bg pb-8"
-            onScroll={requestMeasure}
-            scrollEventThrottle={16}
+            onScroll={stickyHeader.onScroll}
+            scrollEventThrottle={1}
             ItemSeparatorComponent={ItemRowSeparator}
             ListFooterComponent={
               <View
@@ -433,9 +504,13 @@ export default function WishlistDetailScreen() {
               gridGap,
               isFetching: itemsQuery.isFetching,
             }}
-            stickyHeaderIndices={[1]}
           />
         )}
+        {wishlist ? (
+          <InstantStickyHeaderOverlay ready={stickyHeader.ready} style={stickyHeader.overlayStyle}>
+            {renderFilterHeader(false)}
+          </InstantStickyHeaderOverlay>
+        ) : null}
         <FloatingBackButton />
         <WishlistItemCreateEditSheet
           mode={sheet?.type === "edit" ? "edit" : "create"}
@@ -501,8 +576,8 @@ export default function WishlistDetailScreen() {
           onClose={() => setSheet(null)}
           onEdit={canEditWishlist ? (item) => setSheet({ type: "edit", item }) : undefined}
           onDelete={canEditWishlist ? (item) => setSheet({ type: "delete", item }) : undefined}
-          onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
-          onToggleBought={(itemId) => toggleBought.mutate(itemId)}
+          onToggleReserve={handleToggleSelectedReservation}
+          onToggleBought={handleToggleSelectedBought}
         />
         <WishlistItemDeleteSheet
           item={sheet?.type === "delete" ? sheet.item : null}
