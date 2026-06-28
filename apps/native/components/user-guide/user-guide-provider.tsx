@@ -15,7 +15,7 @@ import { useProfile, useUpdateUserGuideStep } from "@/hooks/use-settings";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { useAuth } from "@/providers/auth-provider";
 import { Portal } from "@rn-primitives/portal";
-import { usePathname, useRouter } from "expo-router";
+import { usePathname } from "expo-router";
 import { X } from "lucide-react-native";
 import * as React from "react";
 import {
@@ -113,10 +113,6 @@ function normalizeCompletedStep(step: number | null | undefined): number {
   return Math.max(0, Math.min(USER_GUIDE_COMPLETE_STEP, Number(step)));
 }
 
-function isGuideBypassPath(pathname: string): boolean {
-  return pathname === "/" || pathname === "/sign-in" || pathname === "/email-auth";
-}
-
 function boxesEqual(a: GuideHighlightBox | null, b: GuideHighlightBox | null): boolean {
   if (a === b) return true;
   if (!a || !b) return false;
@@ -138,7 +134,6 @@ function clamp(value: number, min: number, max: number): number {
 
 export function UserGuideProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const { user } = useAuth();
   const profileQuery = useProfile();
   const updateGuideStep = useUpdateUserGuideStep();
@@ -185,17 +180,6 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     setSequenceIndex(0);
   }, [currentStep?.id]);
-
-  React.useEffect(() => {
-    if (!active || !currentSegment || routeMatchesCurrentSegment || isGuideBypassPath(pathname)) {
-      return;
-    }
-    if (currentStep?.id === 4 && pathname.startsWith("/wishlists/")) return;
-    if (currentStep?.targetId === "nav-friends" && pathname === "/friends") return;
-    if (currentStep?.targetId === "nav-discover" && pathname === "/discover") return;
-
-    router.replace(currentSegment.fallbackPath as never);
-  }, [active, currentSegment, currentStep, pathname, routeMatchesCurrentSegment, router]);
 
   const getNavBox = React.useCallback(
     (targetId: string): LayoutRectangle | null => {
