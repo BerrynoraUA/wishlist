@@ -16,6 +16,7 @@ import {
   getItemStoreFromUrl,
   getSalePercentOff,
   getTranslatedItemPriorityLabel,
+  isDiscountActive,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
 import type { Item } from "@wishlist/backend/types/item";
@@ -73,10 +74,11 @@ export function WishlistItemCard({
   const itemUrl = item.url?.trim() ?? "";
   const showCopyLink = itemUrl.length > 0;
   const showMenu = Boolean(showCopyLink || (isOwner && (onEdit || onDelete)));
+  const hasActiveDiscount = isDiscountActive(item.has_discount, item.discount_end_date);
   const salePercentOff = getSalePercentOff(
     item.price,
     item.discount_price,
-    showDiscountBadge && item.has_discount,
+    showDiscountBadge && hasActiveDiscount,
   );
   const menuTriggerRef = React.useRef<TriggerRef>(null);
 
@@ -154,7 +156,7 @@ export function WishlistItemCard({
             <View className="flex-row items-center justify-between gap-2">
               <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-1.5">
                 {item.price ? (
-                  item.has_discount && item.discount_price ? (
+                  hasActiveDiscount && item.discount_price ? (
                     <>
                       <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
                         {item.currency ? `${item.currency} ` : ""}

@@ -10,6 +10,7 @@ import {
   buildReservationStatusLabel,
   buildPurchaseActionLabel,
   getSalePercentOff,
+  isDiscountActive,
 } from "@/lib/helpers/item-card";
 import { ALL_PRIORITIES } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
@@ -39,6 +40,7 @@ export function ItemCard({
   description,
   priority,
   discountPrice,
+  discountEndDate,
   currency,
   status,
   isReserved,
@@ -78,7 +80,9 @@ export function ItemCard({
   const hasStarAccent = isStarCardColorIndex(colorIndex);
 
   const formattedPrice = formatPrice(price, currency);
-  const salePercentOff = getSalePercentOff(price, discountPrice, showDiscountBadge);
+  const showActiveDiscount =
+    showDiscountBadge && isDiscountActive(discountPrice != null, discountEndDate);
+  const salePercentOff = getSalePercentOff(price, discountPrice, showActiveDiscount);
   const isWishlist = variant === "wishlist";
   const isPurchasedMode = mode === "purchased";
 

@@ -52,6 +52,7 @@ export type DiscoverItem = {
   reservedBy?: string | null;
   reservedByName?: string | null;
   discount_price?: string | number | null;
+  discount_end_date?: string | null;
   currency?: string | null;
   additional_links?: ItemLink[] | null;
 };
@@ -86,6 +87,7 @@ export type ReservedItem = {
   owner_username: string;
   owner_avatar: string;
   discount_price?: string | number | null;
+  discount_end_date?: string | null;
   currency?: string | null;
   additional_links?: ItemLink[] | null;
 };

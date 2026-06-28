@@ -79,7 +79,7 @@ export default function WishlistItemsPage() {
   const friendshipCheckUserId =
     !isOwner && !!currentUserId && !!wishlist?.user_id ? wishlist.user_id : "";
   const { data: isFriend = false } = useCheckFriendship(friendshipCheckUserId);
-  const showDiscountBadge = !isOwner && isFriend;
+  const showDiscountBadge = isOwner || isFriend;
 
   const { hasNextPage, hasPrevPage, totalForPagination } = paginationFlags(
     page,

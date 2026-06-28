@@ -12,6 +12,7 @@ import {
   getItemStoreFromUrl,
   getSalePercentOff,
   getTranslatedItemPriorityLabel,
+  isDiscountActive,
 } from "@/lib/items";
 import type { Item } from "@wishlist/backend/types/item";
 import * as Clipboard from "expo-clipboard";
@@ -84,10 +85,14 @@ export function WishlistItemDetailSheet({
   const priorityLabel = getTranslatedItemPriorityLabel(t, selectedItem.priority_id);
   const priority = getItemPriority(selectedItem.priority_id);
   const store = getItemStoreFromUrl(selectedItem.url);
+  const hasActiveDiscount = isDiscountActive(
+    selectedItem.has_discount,
+    selectedItem.discount_end_date,
+  );
   const salePercentOff = getSalePercentOff(
     selectedItem.price,
     selectedItem.discount_price,
-    selectedItem.has_discount,
+    hasActiveDiscount,
   );
 
   function handleClose() {
@@ -169,7 +174,7 @@ export function WishlistItemDetailSheet({
 
             <View className="flex-row flex-wrap gap-2">
               {item.price ? (
-                item.has_discount && item.discount_price ? (
+                hasActiveDiscount && item.discount_price ? (
                   <View className="flex-row items-center gap-2 rounded-full bg-brand-lighter px-3 py-1.5">
                     <Text className="text-sm font-extrabold text-brand">
                       {item.currency ? `${item.currency} ` : ""}

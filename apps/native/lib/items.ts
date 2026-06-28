@@ -174,6 +174,14 @@ export function getSalePercentOff(
   return Math.min(99, rounded);
 }
 
+export function isDiscountActive(hasDiscount: boolean, discountEndDate: string | null | undefined) {
+  if (!hasDiscount) return false;
+  if (!discountEndDate) return true;
+
+  const endTime = Date.parse(discountEndDate);
+  return Number.isNaN(endTime) || endTime > Date.now();
+}
+
 export function getItemReservationState({
   status,
   reservedBy,

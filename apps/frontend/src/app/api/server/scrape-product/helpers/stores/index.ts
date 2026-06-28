@@ -9,7 +9,7 @@ import { scrapeAmazon } from "./amazon";
 import { scrapeAliExpress } from "./aliexpress";
 import { scrapeAvrora } from "./avrora";
 import { scrapeOctopus } from "./octopus";
-import { scrapeHoroshop } from "./horoshop";
+import { scrapeHoroshop, scrapeLelekan } from "./horoshop";
 import { scrapeTarget } from "./target";
 import { scrapeTrendyol } from "./trendyol";
 import { scrapeHepsiburada } from "./hepsiburada";
@@ -35,7 +35,7 @@ const storeRegistry: {
   scraper: ScraperMethod | AsyncScraperMethod;
   async?: boolean;
 }[] = [
-  { pattern: "rozetka.com.ua", scraper: scrapeRozetka },
+  { pattern: "rozetka.com.ua", scraper: scrapeRozetka, async: true },
   { pattern: "epicentrk.ua", scraper: scrapeEpicentr },
   { pattern: "foxtrot.com.ua", scraper: scrapeFoxtrot },
   { pattern: "prom.ua", scraper: scrapeProm },
@@ -48,6 +48,7 @@ const storeRegistry: {
   { pattern: "bujobox.com.ua", scraper: scrapeHoroshop },
   { pattern: "hobymonster.com.ua", scraper: scrapeHoroshop },
   { pattern: "leleka.camp", scraper: scrapeHoroshop },
+  { pattern: "lelekan.com.ua", scraper: scrapeLelekan, async: true },
   { pattern: "target.com", scraper: scrapeTarget },
   { pattern: "trendyol.com", scraper: scrapeTrendyol },
   { pattern: "hepsiburada.com", scraper: scrapeHepsiburada },

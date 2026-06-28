@@ -22,6 +22,7 @@ export function normalizeDiscoverItem(item: DiscoverItem): ItemCardData {
     reservedBy: (item.reservedBy ?? item.reserved_by ?? null)?.toString() ?? null,
     reservedByName: item.reservedByName ?? null,
     colorIndex: item.color_index ?? null,
+    discountEndDate: item.discount_end_date ?? null,
   };
 }
 
@@ -43,6 +44,7 @@ export function normalizeReservedItem(item: ReservedItem): ItemCardData {
     reservedBy: null,
     reservedByName: null,
     colorIndex: item.color_index ?? null,
+    discountEndDate: item.discount_end_date ?? null,
   };
 }
 
@@ -62,6 +64,7 @@ export function normalizeWishlistItem(item: Item, reservedByName?: string | null
         ? (ALL_PRIORITIES.find((p) => p.id === item.priority_id)?.name ?? null)
         : null),
     discountPrice: item.has_discount ? item.discount_price : null,
+    discountEndDate: item.discount_end_date,
     currency: item.currency,
     status: item.status,
     isReserved: false,
