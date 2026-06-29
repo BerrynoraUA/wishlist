@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button";
 import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
-import { ScrollableTabs, type ScrollableTab } from "@/components/ui/scrollable-tabs";
+import {
+  ScrollableTabs,
+  SCROLLABLE_TABS_TOP_GAP,
+  type ScrollableTab,
+} from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { useNotifications } from "@/hooks/use-notifications";
@@ -97,7 +101,7 @@ export default function SecretSantaScreen() {
           keyExtractor={(row) => row.map((event) => event.id).join(":")}
           className="flex-1"
           contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop: insets.top + 12 }}
+          contentContainerStyle={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
           ItemSeparatorComponent={() => <View className="h-4" />}
           ListHeaderComponent={
             <View className="gap-5 self-center pb-8" style={{ width: contentWidth }}>

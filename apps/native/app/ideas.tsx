@@ -5,6 +5,7 @@ import { MascotEmptyState } from "@/components/shared/mascot-empty-state";
 import { Button } from "@/components/ui/button";
 import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Icon } from "@/components/ui/icon";
+import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { useFeatureIdeas, useToggleFeatureIdeaVote } from "@/hooks/use-feature-ideas";
@@ -104,7 +105,7 @@ export default function IdeasScreen() {
           keyExtractor={(item) => item.id}
           className="flex-1"
           contentContainerClassName="px-4 pb-8"
-          contentContainerStyle={{ paddingTop: insets.top + 12 }}
+          contentContainerStyle={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
           ItemSeparatorComponent={() => <View className="h-3" />}
           ListHeaderComponent={listHeader}
           ListEmptyComponent={
