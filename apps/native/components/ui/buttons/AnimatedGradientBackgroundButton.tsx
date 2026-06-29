@@ -28,7 +28,7 @@ export interface AnimatedGradientBackgroundButtonProps {
   title: string;
 }
 
-const HEIGHT = 40;
+const HEIGHT = 44;
 
 export const AnimatedGradientBackgroundButton = ({
   accessibilityHint,
@@ -84,7 +84,7 @@ export const AnimatedGradientBackgroundButton = ({
         <View
           onLayout={({ nativeEvent }) => setOuterContainerWidth(nativeEvent.layout.width)}
           className={cn(
-            "h-10 overflow-hidden rounded-md bg-primary shadow-sm shadow-black/5 sm:h-9",
+            "h-11 overflow-hidden rounded-md bg-primary shadow-sm shadow-black/5",
             isDisabled && animatedButtonDisabledClassName,
           )}
         >
@@ -100,7 +100,7 @@ export const AnimatedGradientBackgroundButton = ({
           />
           <View
             className={cn(
-              "h-10 flex-row items-center justify-center gap-2 rounded-md px-4 py-2 sm:h-9",
+              "h-11 flex-row items-center justify-center gap-2 rounded-md px-4 py-2",
               pressed && "bg-primary/20",
             )}
           >

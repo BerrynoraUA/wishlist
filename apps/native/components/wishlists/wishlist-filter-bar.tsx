@@ -1,4 +1,3 @@
-import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Button } from "@/components/ui/button";
 import {
@@ -69,12 +68,12 @@ export function WishlistFilterBar({
           <Text className="text-xl font-extrabold tracking-tight text-text">{t("Wishlists")}</Text>
           <Button
             variant="outline"
-            size="lg"
+            size="icon-lg"
             accessibilityLabel={t("Show filters")}
             accessibilityState={{ expanded: filtersOpen }}
             onPress={() => onFiltersOpenChange(!filtersOpen)}
             className={cn(
-              "h-11 w-11 min-w-11 shrink-0 rounded-full border-border-subtle bg-card-bg p-0 sm:h-11 sm:w-11 sm:min-w-11",
+              "shrink-0 rounded-full border-border-subtle bg-card-bg",
               filtersOpen && "border-brand bg-brand-lighter",
             )}
           >
@@ -86,10 +85,10 @@ export function WishlistFilterBar({
           {canResetFilters ? (
             <Button
               variant="destructive"
-              size="icon"
+              size="icon-lg"
               accessibilityLabel={t("Clear filters")}
               onPress={onResetFilters}
-              className="h-11 w-11 shrink-0 rounded-full"
+              className="shrink-0 rounded-full"
             >
               <Icon as={X} className="size-4 text-white" />
             </Button>
@@ -132,11 +131,12 @@ export function WishlistFilterBar({
             <View className="min-w-0 flex-1">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <AnimatedPressable
-                    accessibilityRole="button"
+                  <Button
+                    variant="outline"
+                    size="pill"
                     accessibilityLabel={t("Filter by visibility")}
                     className={cn(
-                      "h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
+                      "w-full justify-between border-border-subtle bg-card-bg shadow-none",
                       visibility.length > 0 && "border-brand bg-brand-lighter",
                     )}
                   >
@@ -156,7 +156,7 @@ export function WishlistFilterBar({
                         visibility.length > 0 && "text-brand",
                       )}
                     />
-                  </AnimatedPressable>
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="min-w-52">
                   {visibilityOptions.map((option) => {
@@ -180,12 +180,17 @@ export function WishlistFilterBar({
             <View className="min-w-0 flex-1">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <AnimatedPressable className="h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
+                  <Button
+                    variant="outline"
+                    size="pill"
+                    accessibilityLabel={t("Sort wishlists")}
+                    className="w-full justify-between border-border-subtle bg-card-bg shadow-none"
+                  >
                     <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                       {selectedSortLabel}
                     </Text>
                     <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text-muted" />
-                  </AnimatedPressable>
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="min-w-52">
                   {sortOptions.map((option) => (
