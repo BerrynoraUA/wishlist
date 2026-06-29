@@ -6,7 +6,16 @@ import { SettingsSection } from "../settings-section/SettingsSection";
 import { Toggle } from "@/components/ui/Toggle/Toggle";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
-import { CalendarDays, Gift, ListPlus, PartyPopper, UserPlus } from "lucide-react";
+import {
+  CalendarDays,
+  Gift,
+  ListPlus,
+  PartyPopper,
+  RefreshCw,
+  Share2,
+  UserPlus,
+  Users,
+} from "lucide-react";
 
 export function NotificationSettings() {
   const t = useGT();
@@ -20,7 +29,7 @@ export function NotificationSettings() {
   if (isLoading || !settings) {
     return (
       <div style={{ display: "grid", gap: 14 }}>
-        {[0, 1, 2, 3, 4].map((i) => (
+        {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
           <div
             key={i}
             style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
@@ -168,6 +177,84 @@ export function NotificationSettings() {
           <Toggle
             checked={settings.notify_upcoming_events}
             onChange={(v) => toggle("notify_upcoming_events", v)}
+          />
+        </div>
+
+        <div className={styles.divider} />
+
+        <div className={styles.row}>
+          <div className={styles.rowInfo}>
+            <div className={styles.rowIcon}>
+              <Users size={16} />
+            </div>
+            <div>
+              <p className={styles.rowLabel}>
+                {t("Group Invitations", {
+                  $id: "settings.notifications.groupAdded",
+                })}
+              </p>
+              <p className={styles.rowHint}>
+                {t("When someone adds you to a friend group", {
+                  $id: "settings.notifications.groupAddedHint",
+                })}
+              </p>
+            </div>
+          </div>
+          <Toggle
+            checked={settings.notify_group_added}
+            onChange={(v) => toggle("notify_group_added", v)}
+          />
+        </div>
+
+        <div className={styles.divider} />
+
+        <div className={styles.row}>
+          <div className={styles.rowInfo}>
+            <div className={styles.rowIcon}>
+              <Share2 size={16} />
+            </div>
+            <div>
+              <p className={styles.rowLabel}>
+                {t("Wishlist Access", {
+                  $id: "settings.notifications.wishlistAccess",
+                })}
+              </p>
+              <p className={styles.rowHint}>
+                {t("When someone shares a wishlist with you", {
+                  $id: "settings.notifications.wishlistAccessHint",
+                })}
+              </p>
+            </div>
+          </div>
+          <Toggle
+            checked={settings.notify_wishlist_access}
+            onChange={(v) => toggle("notify_wishlist_access", v)}
+          />
+        </div>
+
+        <div className={styles.divider} />
+
+        <div className={styles.row}>
+          <div className={styles.rowInfo}>
+            <div className={styles.rowIcon}>
+              <RefreshCw size={16} />
+            </div>
+            <div>
+              <p className={styles.rowLabel}>
+                {t("Reserved Item Updates", {
+                  $id: "settings.notifications.reservedItemUpdates",
+                })}
+              </p>
+              <p className={styles.rowHint}>
+                {t("When an item you reserved is updated", {
+                  $id: "settings.notifications.reservedItemUpdatesHint",
+                })}
+              </p>
+            </div>
+          </div>
+          <Toggle
+            checked={settings.notify_reserved_item_updates}
+            onChange={(v) => toggle("notify_reserved_item_updates", v)}
           />
         </div>
       </SettingsSection>
