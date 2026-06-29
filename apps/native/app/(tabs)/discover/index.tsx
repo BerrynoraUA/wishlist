@@ -12,6 +12,7 @@ import {
   InstantStickyHeaderOverlay,
   useInstantStickyHeader,
 } from "@/components/ui/instant-sticky-header";
+import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import { useDiscoverFeed } from "@/hooks/use-discover-feed";
@@ -166,7 +167,7 @@ export default function DiscoverScreen() {
       <View
         className="bg-bg pb-4"
         onLayout={measure ? stickyHeader.onHeaderLayout : undefined}
-        style={{ paddingTop: insets.top + 8 }}
+        style={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
       >
         <View className="gap-4 self-center" style={{ width: contentWidth }}>
           <DiscoverTabs

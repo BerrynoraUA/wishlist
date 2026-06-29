@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { GuideTarget } from "@/components/user-guide/guide-target";
@@ -197,7 +198,7 @@ export default function FriendsScreen() {
           keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
           className="flex-1"
           contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop: insets.top }}
+          contentContainerStyle={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
           onScroll={requestMeasure}
           scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View className="h-4" />}

@@ -102,11 +102,18 @@ export function WishlistList({
   const completeOpenDetailStep = useUserGuideStepCompletion(4);
   const { requestMeasure } = useUserGuideTargetRegistration();
   const insets = useSafeAreaInsets();
-  const stickyHeaderPaddingTop = insets.top + 4;
+  // Keep the filter row's top gap equal to its bottom gap (pb-4 = 16px). The
+  // floating overlay adds the status-bar inset on top of that unified margin.
+  const headerVerticalGap = 16;
+  const overlayPaddingTop = insets.top + headerVerticalGap;
+  const inlineHeaderPaddingTop = headerVerticalGap;
   const contentTopPadding = insets.top;
+  // No snap offset needed: the inline filter row and the floating overlay rest at
+  // the same vertical position once the shared status-bar inset + gap is removed
+  // (overlayPaddingTop === contentTopPadding + inlineHeaderPaddingTop), so the row
+  // doesn't jump when it becomes sticky. thresholdOffset defaults to 0.
   const stickyHeader = useInstantStickyHeader({
     scrollListener: requestMeasure,
-    thresholdOffset: contentTopPadding,
   });
   const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
   const data = React.useMemo<WishlistListRow[]>(
@@ -119,7 +126,7 @@ export function WishlistList({
         <View
           className="z-2 bg-bg pb-4"
           onLayout={stickyHeader.onHeaderLayout}
-          style={{ paddingTop: stickyHeaderPaddingTop }}
+          style={{ paddingTop: inlineHeaderPaddingTop }}
         >
           <View className="max-w-300 self-center" style={{ width: contentWidth }}>
             {StickyHeaderComponent}
@@ -182,7 +189,7 @@ export function WishlistList({
       cardWidth,
       contentWidth,
       gridGap,
-      stickyHeaderPaddingTop,
+      inlineHeaderPaddingTop,
       onOpenSheet,
       completeOpenDetailStep,
       query.isFetching,
@@ -246,8 +253,12 @@ export function WishlistList({
           StickyHeaderComponent,
         }}
       />
-      <InstantStickyHeaderOverlay ready={stickyHeader.ready} style={stickyHeader.overlayStyle}>
-        <View className="bg-bg pb-4" style={{ paddingTop: stickyHeaderPaddingTop }}>
+      <InstantStickyHeaderOverlay
+        ready={stickyHeader.ready}
+        style={stickyHeader.overlayStyle}
+        onLayout={stickyHeader.onOverlayLayout}
+      >
+        <View className="bg-bg pb-4" style={{ paddingTop: overlayPaddingTop }}>
           <View className="max-w-300 self-center" style={{ width: contentWidth }}>
             {StickyHeaderComponent}
           </View>

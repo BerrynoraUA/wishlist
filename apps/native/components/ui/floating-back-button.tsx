@@ -1,5 +1,6 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Icon } from "@/components/ui/icon";
+import { useHideBackButton } from "@/hooks/use-hide-back-button";
 import { cn } from "@/lib/utils";
 import { useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
@@ -38,6 +39,9 @@ export function FloatingBackButton({
   const t = useGT();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [hidden] = useHideBackButton();
+
+  if (hidden) return null;
 
   const bottom =
     process.env.EXPO_OS === "ios" ? insets.bottom + IOS_TAB_BAR_CLEARANCE : ANDROID_BOTTOM;

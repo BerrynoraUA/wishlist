@@ -164,7 +164,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
 
   return (
     <>
-      <SettingsSection title={t("Profile")} icon={UserRound} defaultOpen>
+      <SettingsSection id="profile" title={t("Profile")} icon={UserRound} defaultOpen>
         <View className="flex-row items-center gap-3">
           <StyledPressable
             accessibilityRole="button"

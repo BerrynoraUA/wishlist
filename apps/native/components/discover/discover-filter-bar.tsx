@@ -48,7 +48,7 @@ export function DiscoverFilterActions({
           size="icon"
           accessibilityLabel={t("Clear filters")}
           onPress={onResetFilters}
-          className="h-10 w-10 shrink-0 rounded-full"
+          className="h-11 w-11 shrink-0 rounded-full"
         >
           <Icon as={X} className="size-4 text-white" />
         </Button>
@@ -60,7 +60,7 @@ export function DiscoverFilterActions({
         accessibilityState={{ expanded: filtersOpen }}
         onPress={() => onFiltersOpenChange(!filtersOpen)}
         className={cn(
-          "h-10 w-10 min-w-10 shrink-0 rounded-full border-border-subtle bg-card-bg p-0",
+          "h-11 w-11 min-w-11 shrink-0 rounded-full border-border-subtle bg-card-bg p-0",
           filtersOpen && "border-brand bg-brand-lighter",
         )}
       >
@@ -152,7 +152,7 @@ export function DiscoverFiltersPanel({
             <DropdownMenuTrigger asChild>
               <AnimatedPressable
                 className={cn(
-                  "h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
+                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
                   priorityIds.length > 0 && "border-brand bg-brand-lighter",
                 )}
               >
@@ -199,7 +199,7 @@ export function DiscoverFiltersPanel({
         <View className="min-w-0 flex-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <AnimatedPressable className="h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
+              <AnimatedPressable className="h-11 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
                 <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                   {t(sortLabel)}
                 </Text>
@@ -224,7 +224,7 @@ export function DiscoverFiltersPanel({
           keyboardType="decimal-pad"
           placeholder={t("Min price")}
           className={cn(
-            "min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg",
+            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg",
             priceMin.trim() && "border-brand bg-brand-lighter text-brand",
           )}
         />
@@ -234,7 +234,7 @@ export function DiscoverFiltersPanel({
           keyboardType="decimal-pad"
           placeholder={t("Max price")}
           className={cn(
-            "min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg",
+            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg",
             priceMax.trim() && "border-brand bg-brand-lighter text-brand",
           )}
         />

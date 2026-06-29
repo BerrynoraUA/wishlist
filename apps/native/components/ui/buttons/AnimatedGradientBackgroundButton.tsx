@@ -28,7 +28,7 @@ export interface AnimatedGradientBackgroundButtonProps {
   title: string;
 }
 
-const HEIGHT = 40;
+const HEIGHT = 44;
 
 export const AnimatedGradientBackgroundButton = ({
   accessibilityHint,
@@ -65,7 +65,6 @@ export const AnimatedGradientBackgroundButton = ({
       },
     ],
   }));
-  const buttonWidth = Math.max(96, title.length * 8 + (Icon ? 52 : 32));
 
   return (
     <AnimatedPressable
@@ -79,19 +78,18 @@ export const AnimatedGradientBackgroundButton = ({
       disabled={isDisabled || isLoading}
       hitSlop={16}
       onPress={onPress}
-      style={{ flexShrink: 0, width: buttonWidth }}
+      style={{ flexShrink: 0 }}
     >
       {({ pressed }) => (
         <View
           onLayout={({ nativeEvent }) => setOuterContainerWidth(nativeEvent.layout.width)}
-          style={{ width: buttonWidth }}
           className={cn(
-            "h-10 overflow-hidden rounded-md bg-primary shadow-sm shadow-black/5 sm:h-9",
+            "h-11 overflow-hidden rounded-md bg-primary shadow-sm shadow-black/5",
             isDisabled && animatedButtonDisabledClassName,
           )}
         >
           <Animated.View
-            className="bg-linear-135 from-primary via-accent-foreground to-brand"
+            className="absolute bg-linear-135 from-primary via-accent-foreground to-brand"
             style={[
               animatedGradientContainerStyle,
               {
@@ -102,7 +100,7 @@ export const AnimatedGradientBackgroundButton = ({
           />
           <View
             className={cn(
-              "absolute h-10 w-full flex-row items-center justify-center gap-2 rounded-md px-4 py-2 sm:h-9",
+              "h-11 flex-row items-center justify-center gap-2 rounded-md px-4 py-2",
               pressed && "bg-primary/20",
             )}
           >

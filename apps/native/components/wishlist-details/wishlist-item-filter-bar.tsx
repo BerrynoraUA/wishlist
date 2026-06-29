@@ -125,12 +125,12 @@ export function WishlistItemFilterBar({
           </Text>
           <Button
             variant="outline"
-            size="lg"
+            size="icon-lg"
             accessibilityLabel={t("Show item filters")}
             accessibilityState={{ expanded: open }}
             onPress={() => onOpenChange(!open)}
             className={cn(
-              "h-10 w-10 min-w-10 shrink-0 rounded-full border-border-subtle bg-card-bg p-0 sm:h-10 sm:w-10 sm:min-w-10",
+              "shrink-0 rounded-full border-border-subtle bg-card-bg",
               open && "border-brand bg-brand-lighter",
             )}
           >
@@ -139,10 +139,10 @@ export function WishlistItemFilterBar({
           {active ? (
             <Button
               variant="destructive"
-              size="icon"
+              size="icon-lg"
               accessibilityLabel={t("Clear filters")}
               onPress={onReset}
-              className="h-11 w-11 shrink-0 rounded-full"
+              className="shrink-0 rounded-full"
             >
               <Icon as={X} className="size-4 text-white" />
             </Button>
@@ -174,10 +174,10 @@ export function WishlistItemFilterBar({
             {filters.search.length > 0 ? (
               <Button
                 variant="ghost"
-                size="icon"
+                size="icon-sm"
                 accessibilityLabel={t("Clear search")}
                 onPress={() => onChange({ search: "" })}
-                className="size-9 shrink-0 rounded-full"
+                className="shrink-0 rounded-full"
               >
                 <Icon as={X} className="size-4 text-text-muted" />
               </Button>
@@ -223,12 +223,17 @@ export function WishlistItemFilterBar({
             <View className="min-w-0 flex-1">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <AnimatedPressable className="h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
+                  <Button
+                    variant="outline"
+                    size="pill"
+                    accessibilityLabel={t("Sort items")}
+                    className="w-full justify-between border-border-subtle bg-card-bg shadow-none"
+                  >
                     <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                       {selectedSort}
                     </Text>
                     <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text-muted" />
-                  </AnimatedPressable>
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="min-w-52">
                   {itemSortOptions.map((option) => (
@@ -251,7 +256,7 @@ export function WishlistItemFilterBar({
               placeholder={t("From")}
               keyboardType="decimal-pad"
               className={cn(
-                "h-10 w-[42%] rounded-full border-border-subtle bg-card-bg",
+                "h-11 w-[42%] rounded-full border-border-subtle bg-card-bg",
                 filters.priceMin.trim() && "border-brand bg-brand-lighter text-brand",
               )}
             />
@@ -261,7 +266,7 @@ export function WishlistItemFilterBar({
               placeholder={t("To")}
               keyboardType="decimal-pad"
               className={cn(
-                "h-10 w-[42%] rounded-full border-border-subtle bg-card-bg",
+                "h-11 w-[42%] rounded-full border-border-subtle bg-card-bg",
                 filters.priceMax.trim() && "border-brand bg-brand-lighter text-brand",
               )}
             />
@@ -305,7 +310,7 @@ function MultiSelectMenu({
       <DropdownMenuTrigger asChild>
         <AnimatedPressable
           className={cn(
-            "h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
+            "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
             values.length > 0 && "border-brand bg-brand-lighter",
           )}
         >

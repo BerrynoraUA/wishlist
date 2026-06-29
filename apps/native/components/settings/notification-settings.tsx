@@ -13,7 +13,7 @@ export function NotificationSettings({
   const updateSettings = useUpdateSettings();
 
   return (
-    <SettingsSection title={t("Push Notifications")} icon={Bell}>
+    <SettingsSection id="notifications" title={t("Push Notifications")} icon={Bell}>
       <NotificationPreferenceToggles
         preferences={{
           notify_friend_requests: settings?.notify_friend_requests ?? true,
