@@ -22,10 +22,14 @@ import {
   getItemStatusOptions,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { ChevronsUpDown, Plus, Search, SlidersHorizontal, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
+
+const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
+const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 9999 }];
 
 export type WishlistItemFilterState = {
   search: string;
@@ -130,10 +134,17 @@ export function WishlistItemFilterBar({
             accessibilityState={{ expanded: open }}
             onPress={() => onOpenChange(!open)}
             className={cn(
-              "shrink-0 rounded-full border-border-subtle bg-card-bg",
-              open && "border-brand bg-brand-lighter",
+              "shrink-0 rounded-full",
+              open
+                ? "border-brand bg-brand-lighter"
+                : HAS_LIQUID_GLASS
+                  ? "border-transparent bg-transparent"
+                  : "border-border-subtle bg-card-bg",
             )}
           >
+            {!open && HAS_LIQUID_GLASS ? (
+              <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+            ) : null}
             <Icon as={SlidersHorizontal} className={cn("size-4 text-text", open && "text-brand")} />
           </Button>
           {active ? (
@@ -162,7 +173,15 @@ export function WishlistItemFilterBar({
 
       {open ? (
         <View className="gap-3">
-          <View className="flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
+          <View
+            className={cn(
+              "flex-row items-center gap-1 rounded-full border px-2 pl-3",
+              HAS_LIQUID_GLASS
+                ? "border-transparent bg-transparent"
+                : "border-border-subtle bg-card-bg shadow-sm",
+            )}
+          >
+            {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
             <Icon as={Search} className="size-4 text-text-muted" />
             <Input
               value={filters.search}
@@ -227,8 +246,16 @@ export function WishlistItemFilterBar({
                     variant="outline"
                     size="pill"
                     accessibilityLabel={t("Sort items")}
-                    className="w-full justify-between border-border-subtle bg-card-bg shadow-none"
+                    className={cn(
+                      "w-full justify-between shadow-none",
+                      HAS_LIQUID_GLASS
+                        ? "border-transparent bg-transparent"
+                        : "border-border-subtle bg-card-bg",
+                    )}
                   >
+                    {HAS_LIQUID_GLASS ? (
+                      <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+                    ) : null}
                     <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                       {selectedSort}
                     </Text>
@@ -310,10 +337,17 @@ function MultiSelectMenu({
       <DropdownMenuTrigger asChild>
         <AnimatedPressable
           className={cn(
-            "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
-            values.length > 0 && "border-brand bg-brand-lighter",
+            "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
+            values.length > 0
+              ? "border-brand bg-brand-lighter"
+              : HAS_LIQUID_GLASS
+                ? "border-transparent bg-transparent"
+                : "border-border-subtle bg-card-bg",
           )}
         >
+          {values.length === 0 && HAS_LIQUID_GLASS ? (
+            <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+          ) : null}
           <Text
             className={cn(
               "shrink text-sm font-semibold text-text-muted",

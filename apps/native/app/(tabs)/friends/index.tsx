@@ -33,16 +33,18 @@ import {
   useUpdateFriendGroup,
 } from "@/hooks/use-friends";
 import { chunkRows } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 import type {
   FriendGroup,
   FriendRequestWithDetails,
   FriendWithDetails,
 } from "@wishlist/backend/types/friends";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack, useRouter } from "expo-router";
 import { Plus, Search, UserPlus, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View, useWindowDimensions } from "react-native";
+import { ActivityIndicator, StyleSheet, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SheetState =
@@ -54,6 +56,8 @@ type SheetState =
 
 type FriendEntry = FriendWithDetails | FriendGroup | FriendRequestWithDetails;
 type FriendsRow = FriendEntry[];
+const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
+const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 9999 }];
 
 export default function FriendsScreen() {
   const t = useGT();
@@ -219,7 +223,17 @@ export default function FriendsScreen() {
 
               <View className="flex-row items-center gap-2">
                 {tab === "friends" || tab === "groups" ? (
-                  <View className="min-w-0 flex-1 flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 shadow-sm">
+                  <View
+                    className={cn(
+                      "min-w-0 flex-1 flex-row items-center gap-2 rounded-full border px-3",
+                      HAS_LIQUID_GLASS
+                        ? "border-transparent bg-transparent"
+                        : "border-border-subtle bg-card-bg shadow-sm",
+                    )}
+                  >
+                    {HAS_LIQUID_GLASS ? (
+                      <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+                    ) : null}
                     <Icon as={Search} className="size-4 text-text-muted" />
                     <Input
                       value={search}

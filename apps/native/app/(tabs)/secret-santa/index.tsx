@@ -17,16 +17,20 @@ import { useNotifications } from "@/hooks/use-notifications";
 import { useSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { SECRET_SANTA_PAGE_SIZE } from "@/lib/secret-santa";
 import { chunkRows } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 import type { SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack, useRouter } from "expo-router";
 import { Plus, Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View, useWindowDimensions } from "react-native";
+import { ActivityIndicator, StyleSheet, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SecretSantaRow = SecretSantaListItem[];
 type SecretSantaTab = "events" | "invites";
+const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
+const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 9999 }];
 
 export default function SecretSantaScreen() {
   const t = useGT();
@@ -120,7 +124,17 @@ export default function SecretSantaScreen() {
               </View>
 
               {activeTab === "events" ? (
-                <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 shadow-sm">
+                <View
+                  className={cn(
+                    "flex-row items-center gap-2 rounded-full border px-3",
+                    HAS_LIQUID_GLASS
+                      ? "border-transparent bg-transparent"
+                      : "border-border-subtle bg-card-bg shadow-sm",
+                  )}
+                >
+                  {HAS_LIQUID_GLASS ? (
+                    <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+                  ) : null}
                   <Icon as={Search} className="size-4 text-text-muted" />
                   <Input
                     value={search}

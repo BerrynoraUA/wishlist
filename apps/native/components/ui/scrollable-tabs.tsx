@@ -11,7 +11,8 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-na
 // iOS renders a sliding Telegram-style capsule behind the active tab; on iOS 26+ the capsule
 // is layered with a real liquid-glass sheen. Android keeps the Material-style underline.
 const IS_IOS = Platform.OS === "ios";
-const HAS_LIQUID_GLASS = IS_IOS && isLiquidGlassAvailable();
+const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
+const INDICATOR_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 999 }];
 
 /**
  * Vertical gap between the safe-area top inset and the top tabs. Shared by every screen
@@ -130,10 +131,7 @@ export function ScrollableTabs<T>({
             ]}
           >
             {HAS_LIQUID_GLASS ? (
-              <GlassView
-                glassEffectStyle="regular"
-                style={[StyleSheet.absoluteFill, { borderRadius: 999 }]}
-              />
+              <GlassView pointerEvents="none" style={INDICATOR_GLASS_STYLE} />
             ) : null}
           </Animated.View>
         ) : null}
@@ -151,10 +149,7 @@ export function ScrollableTabs<T>({
               )}
             >
               <Text
-                className={cn(
-                  "text-sm font-bold",
-                  selected ? "text-brand" : "text-text-muted",
-                )}
+                className={cn("text-sm font-bold", selected ? "text-brand" : "text-text-muted")}
                 numberOfLines={1}
               >
                 {tab.label}

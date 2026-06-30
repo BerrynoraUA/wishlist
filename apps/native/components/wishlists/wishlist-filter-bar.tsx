@@ -17,10 +17,14 @@ import {
   getWishlistVisibilityOptions,
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { ChevronsUpDown, Plus, Search, SlidersHorizontal, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
+
+const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
+const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 9999 }];
 
 export function WishlistFilterBar({
   search,
@@ -73,10 +77,17 @@ export function WishlistFilterBar({
             accessibilityState={{ expanded: filtersOpen }}
             onPress={() => onFiltersOpenChange(!filtersOpen)}
             className={cn(
-              "shrink-0 rounded-full border-border-subtle bg-card-bg",
-              filtersOpen && "border-brand bg-brand-lighter",
+              "shrink-0 rounded-full",
+              filtersOpen
+                ? "border-brand bg-brand-lighter"
+                : HAS_LIQUID_GLASS
+                  ? "border-transparent bg-transparent"
+                  : "border-border-subtle bg-card-bg",
             )}
           >
+            {!filtersOpen && HAS_LIQUID_GLASS ? (
+              <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+            ) : null}
             <Icon
               as={SlidersHorizontal}
               className={cn("size-4 text-text", filtersOpen && "text-brand")}
@@ -106,7 +117,15 @@ export function WishlistFilterBar({
 
       {filtersOpen ? (
         <View className="gap-3">
-          <View className="w-full flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
+          <View
+            className={cn(
+              "w-full flex-row items-center gap-1 rounded-full border px-2 pl-3",
+              HAS_LIQUID_GLASS
+                ? "border-transparent bg-transparent"
+                : "border-border-subtle bg-card-bg shadow-sm",
+            )}
+          >
+            {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
             <Icon as={Search} className="size-4 text-text-muted" />
             <Input
               value={search}
@@ -136,10 +155,17 @@ export function WishlistFilterBar({
                     size="pill"
                     accessibilityLabel={t("Filter by visibility")}
                     className={cn(
-                      "w-full justify-between border-border-subtle bg-card-bg shadow-none",
-                      visibility.length > 0 && "border-brand bg-brand-lighter",
+                      "w-full justify-between shadow-none",
+                      visibility.length > 0
+                        ? "border-brand bg-brand-lighter"
+                        : HAS_LIQUID_GLASS
+                          ? "border-transparent bg-transparent"
+                          : "border-border-subtle bg-card-bg",
                     )}
                   >
+                    {visibility.length === 0 && HAS_LIQUID_GLASS ? (
+                      <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+                    ) : null}
                     <Text
                       className={cn(
                         "shrink text-sm font-semibold text-text-muted",
@@ -184,8 +210,16 @@ export function WishlistFilterBar({
                     variant="outline"
                     size="pill"
                     accessibilityLabel={t("Sort wishlists")}
-                    className="w-full justify-between border-border-subtle bg-card-bg shadow-none"
+                    className={cn(
+                      "w-full justify-between shadow-none",
+                      HAS_LIQUID_GLASS
+                        ? "border-transparent bg-transparent"
+                        : "border-border-subtle bg-card-bg",
+                    )}
                   >
+                    {HAS_LIQUID_GLASS ? (
+                      <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+                    ) : null}
                     <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                       {selectedSortLabel}
                     </Text>

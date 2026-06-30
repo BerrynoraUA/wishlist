@@ -14,10 +14,11 @@ import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { useSettings } from "@/hooks/use-settings";
 import { getItemPriority, getItemPriorityOptions } from "@/lib/items";
 import { cn } from "@/lib/utils";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { ChevronsUpDown, SlidersHorizontal, Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 const SORT_OPTIONS = [
   { value: "default", labelKey: "Recommended" },
@@ -26,6 +27,8 @@ const SORT_OPTIONS = [
   { value: "priority-high", labelKey: "Highest priority" },
   { value: "priority-low", labelKey: "Lowest priority" },
 ] as const;
+const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
+const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 9999 }];
 
 export function DiscoverFilterActions({
   filtersOpen,
@@ -60,10 +63,17 @@ export function DiscoverFilterActions({
         accessibilityState={{ expanded: filtersOpen }}
         onPress={() => onFiltersOpenChange(!filtersOpen)}
         className={cn(
-          "h-11 w-11 min-w-11 shrink-0 rounded-full border-border-subtle bg-card-bg p-0",
-          filtersOpen && "border-brand bg-brand-lighter",
+          "h-11 w-11 min-w-11 shrink-0 rounded-full p-0",
+          filtersOpen
+            ? "border-brand bg-brand-lighter"
+            : HAS_LIQUID_GLASS
+              ? "border-transparent bg-transparent"
+              : "border-border-subtle bg-card-bg",
         )}
       >
+        {!filtersOpen && HAS_LIQUID_GLASS ? (
+          <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+        ) : null}
         <Icon
           as={SlidersHorizontal}
           className={cn("size-4 text-text", filtersOpen && "text-brand")}
@@ -124,7 +134,15 @@ export function DiscoverFiltersPanel({
 
   return (
     <View className="gap-3">
-      <View className="w-full flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
+      <View
+        className={cn(
+          "w-full flex-row items-center gap-1 rounded-full border px-2 pl-3",
+          HAS_LIQUID_GLASS
+            ? "border-transparent bg-transparent"
+            : "border-border-subtle bg-card-bg shadow-sm",
+        )}
+      >
+        {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
         <Icon as={Search} className="size-4 text-text-muted" />
         <Input
           value={search}
@@ -152,10 +170,17 @@ export function DiscoverFiltersPanel({
             <DropdownMenuTrigger asChild>
               <AnimatedPressable
                 className={cn(
-                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
-                  priorityIds.length > 0 && "border-brand bg-brand-lighter",
+                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
+                  priorityIds.length > 0
+                    ? "border-brand bg-brand-lighter"
+                    : HAS_LIQUID_GLASS
+                      ? "border-transparent bg-transparent"
+                      : "border-border-subtle bg-card-bg",
                 )}
               >
+                {priorityIds.length === 0 && HAS_LIQUID_GLASS ? (
+                  <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+                ) : null}
                 <Text
                   className={cn(
                     "shrink text-sm font-semibold text-text-muted",
@@ -199,7 +224,17 @@ export function DiscoverFiltersPanel({
         <View className="min-w-0 flex-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <AnimatedPressable className="h-11 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
+              <AnimatedPressable
+                className={cn(
+                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
+                  HAS_LIQUID_GLASS
+                    ? "border-transparent bg-transparent"
+                    : "border-border-subtle bg-card-bg",
+                )}
+              >
+                {HAS_LIQUID_GLASS ? (
+                  <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+                ) : null}
                 <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                   {t(sortLabel)}
                 </Text>
