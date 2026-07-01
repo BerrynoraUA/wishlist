@@ -1,13 +1,52 @@
+import { BlurView } from "expo-blur";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import * as React from "react";
 import {
   Animated,
   type LayoutChangeEvent,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  Platform,
+  StyleSheet,
   View,
 } from "react-native";
 
 type ScrollListener = (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+
+const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
+const IS_IOS = Platform.OS === "ios";
+
+/**
+ * Vertical padding above and below a sticky header's content. Matches the `pb-4`
+ * (16px) bottom so the from-notch and bottom margins stay equal (Telegram-style).
+ */
+export const STICKY_HEADER_GAP = 16;
+
+/**
+ * Full-bleed backdrop for a sticky header, rendered as an absolute-fill sibling
+ * behind the header content — so the wrapper never needs its own `bg-bg`.
+ *
+ * The `floating` copy (the one that overlays scrolling content) gets a translucent
+ * Telegram-style material: liquid glass on iOS 26+, otherwise a frosted blur. Every
+ * other case — the inline copy, or Android — falls back to the opaque page background.
+ * It always renders a fill, so the header can never end up accidentally transparent.
+ */
+export function StickyHeaderBackground({ floating = false }: { floating?: boolean }) {
+  if (floating && HAS_LIQUID_GLASS) {
+    return <GlassView pointerEvents="none" style={StyleSheet.absoluteFill} />;
+  }
+  if (floating && IS_IOS) {
+    return (
+      <BlurView
+        pointerEvents="none"
+        tint="systemChromeMaterial"
+        intensity={80}
+        style={StyleSheet.absoluteFill}
+      />
+    );
+  }
+  return <View pointerEvents="none" className="bg-bg" style={StyleSheet.absoluteFill} />;
+}
 
 export function useInstantStickyHeader({
   scrollListener,

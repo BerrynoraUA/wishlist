@@ -3,6 +3,7 @@ import {
   DiscoverFiltersPanel,
 } from "@/components/discover/discover-filter-bar";
 import { DiscoverSection } from "@/components/discover/discover-section";
+import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
 import { DiscoverTabs } from "@/components/discover/discover-tabs";
 import { ReservedItemsGrid } from "@/components/discover/reserved-items-grid";
 import { DiscoverItemDetailSheet } from "@/components/discover/sheets/discover-item-detail-sheet";
@@ -10,9 +11,9 @@ import { UpcomingEventsCard } from "@/components/discover/upcoming-events-card";
 import { InlineState } from "@/components/shared/inline-state";
 import {
   InstantStickyHeaderOverlay,
+  StickyHeaderBackground,
   useInstantStickyHeader,
 } from "@/components/ui/instant-sticky-header";
-import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import { useDiscoverFeed } from "@/hooks/use-discover-feed";
@@ -165,10 +166,13 @@ export default function DiscoverScreen() {
   function renderDiscoverHeader(measure: boolean) {
     return (
       <View
-        className="bg-bg pb-4"
+        className="pb-4"
         onLayout={measure ? stickyHeader.onHeaderLayout : undefined}
         style={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
       >
+        {/* The floating overlay copy (measure === false) blurs the scrolling content
+            behind it; the inline copy just paints the page background. */}
+        <StickyHeaderBackground floating={!measure} />
         <View className="gap-4 self-center" style={{ width: contentWidth }}>
           <DiscoverTabs
             value={feed.tab}

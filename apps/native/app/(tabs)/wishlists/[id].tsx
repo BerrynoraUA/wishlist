@@ -6,6 +6,8 @@ import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import {
   InstantStickyHeaderOverlay,
+  STICKY_HEADER_GAP,
+  StickyHeaderBackground,
   useInstantStickyHeader,
 } from "@/components/ui/instant-sticky-header";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
@@ -283,10 +285,13 @@ export default function WishlistDetailScreen() {
   function renderFilterHeader(measure: boolean) {
     return (
       <View
-        className="z-2 bg-bg pb-4"
+        className="z-2 pb-4"
         onLayout={measure ? stickyHeader.onHeaderLayout : undefined}
-        style={{ paddingTop: insets.top + 8 }}
+        style={{ paddingTop: insets.top + STICKY_HEADER_GAP }}
       >
+        {/* The floating overlay copy (measure === false) blurs the scrolling content
+            behind it; the inline copy just paints the page background. */}
+        <StickyHeaderBackground floating={!measure} />
         <View className="max-w-300 self-center" style={{ width: contentWidth }}>
           <WishlistItemFilterBar
             filters={filters}

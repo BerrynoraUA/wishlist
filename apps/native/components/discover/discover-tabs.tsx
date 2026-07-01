@@ -21,5 +21,10 @@ export function DiscoverTabs({
     [t],
   );
 
-  return <ScrollableTabs tabs={tabs} value={value} onChange={onChange} />;
+  // These tabs only ever render inside the sticky header, which always paints its own
+  // backdrop (blur/glass or bg-bg) behind them, so keep the strip transparent and let
+  // that backdrop show through.
+  return (
+    <ScrollableTabs tabs={tabs} value={value} onChange={onChange} className="bg-transparent" />
+  );
 }

@@ -15,6 +15,8 @@ import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import {
   InstantStickyHeaderOverlay,
+  STICKY_HEADER_GAP,
+  StickyHeaderBackground,
   useInstantStickyHeader,
 } from "@/components/ui/instant-sticky-header";
 import { GuideTarget } from "@/components/user-guide/guide-target";
@@ -104,7 +106,7 @@ export function WishlistList({
   const insets = useSafeAreaInsets();
   // Keep the filter row's top gap equal to its bottom gap (pb-4 = 16px). The
   // floating overlay adds the status-bar inset on top of that unified margin.
-  const headerVerticalGap = 16;
+  const headerVerticalGap = STICKY_HEADER_GAP;
   const overlayPaddingTop = insets.top + headerVerticalGap;
   const inlineHeaderPaddingTop = headerVerticalGap;
   const contentTopPadding = insets.top;
@@ -258,7 +260,8 @@ export function WishlistList({
         style={stickyHeader.overlayStyle}
         onLayout={stickyHeader.onOverlayLayout}
       >
-        <View className="bg-bg pb-4" style={{ paddingTop: overlayPaddingTop }}>
+        <View className="pb-4" style={{ paddingTop: overlayPaddingTop }}>
+          <StickyHeaderBackground floating />
           <View className="max-w-300 self-center" style={{ width: contentWidth }}>
             {StickyHeaderComponent}
           </View>
