@@ -8,10 +8,7 @@ import { useMMKVBoolean } from "react-native-mmkv";
  * component using this hook. Defaults to `false` (button visible) when unset.
  */
 export function useHideBackButton(): [boolean, (value: boolean) => void] {
-  const [hidden, setHidden] = useMMKVBoolean(
-    PREFERENCE_KEYS.hideBackButton,
-    preferencesStorage,
-  );
+  const [hidden, setHidden] = useMMKVBoolean(PREFERENCE_KEYS.hideBackButton, preferencesStorage);
 
   return [hidden ?? false, setHidden];
 }

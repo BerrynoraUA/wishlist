@@ -15,14 +15,14 @@ allowBuilds:
   tree-sitter-python: true
 
 minimumReleaseAgeExclude:
-  - '@expo/cli@57.0.3'
-  - '@expo/fingerprint@0.20.1'
-  - '@expo/inline-modules@0.1.1'
-  - '@expo/local-build-cache-provider@57.0.1'
-  - '@expo/metro-config@57.0.2'
-  - '@expo/metro-runtime@57.0.2'
-  - '@expo/prebuild-config@57.0.3'
-  - '@expo/router-server@57.0.1'
+  - "@expo/cli@57.0.3"
+  - "@expo/fingerprint@0.20.1"
+  - "@expo/inline-modules@0.1.1"
+  - "@expo/local-build-cache-provider@57.0.1"
+  - "@expo/metro-config@57.0.2"
+  - "@expo/metro-runtime@57.0.2"
+  - "@expo/prebuild-config@57.0.3"
+  - "@expo/router-server@57.0.1"
   - babel-preset-expo@57.0.1
   - expo-asset@57.0.2
   - expo-constants@57.0.2
