@@ -10,6 +10,7 @@ allowBuilds:
   core-js: true
   esbuild: true
   protobufjs: true
+  re2: false
   sharp: true
   supabase: true
   tree-sitter-python: true
