@@ -200,15 +200,15 @@ export function buildReservationStatusLabel(
   reservedByName: string | null | undefined,
   labels: ReservationStatusLabelFactory,
 ): string | null {
+  // Privacy: never reveal who reserved/purchased an item. Only the actor
+  // sees "by you"; everyone else sees the generic status.
   if (state.isPurchased) {
     if (state.reservedByMe) return labels.purchasedByYou();
-    if (reservedByName) return labels.purchasedByName(reservedByName);
     return labels.purchased();
   }
 
   if (!state.isReserved) return null;
   if (state.reservedByMe) return labels.reservedByYou();
-  if (reservedByName) return labels.reservedByName(reservedByName);
   return labels.reserved();
 }
 

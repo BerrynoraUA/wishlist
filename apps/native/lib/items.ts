@@ -243,16 +243,16 @@ export function buildReservationLabel(
   },
   t: TranslateFn,
 ) {
-  const { isPurchased, isReserved, reservedByMe, reservedByName } = args;
+  const { isPurchased, isReserved, reservedByMe } = args;
 
+  // Privacy: never reveal who reserved/purchased an item. Only the actor
+  // sees "by you"; everyone else sees the generic status.
   if (isPurchased) {
     if (reservedByMe) return t("Purchased by you");
-    if (reservedByName) return t("Purchased by {name}", { name: reservedByName });
     return t("Purchased");
   }
 
   if (!isReserved) return null;
   if (reservedByMe) return t("Reserved by you");
-  if (reservedByName) return t("Reserved by {name}", { name: reservedByName });
   return t("Reserved");
 }

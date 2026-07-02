@@ -68,6 +68,11 @@ export function WishlistItemCard({
     },
     t,
   );
+  // Owners never see reservation status on their own wishlist (keep the
+  // surprise). For everyone else, gray out reserved/purchased items so they
+  // read as "taken" at a glance, while the badge itself stays fully visible.
+  const showReservation = !isOwner && Boolean(reservationLabel);
+  const isTaken = showReservation;
   const priorityLabel = getTranslatedItemPriorityLabel(t, item.priority_id);
   const priority = getItemPriority(item.priority_id);
   const store = getItemStoreFromUrl(item.url);
@@ -95,7 +100,7 @@ export function WishlistItemCard({
           accessibilityLabel={t('Open "{name}"', { name: item.name })}
           onPress={onPress}
           onLongPress={showMenu ? () => menuTriggerRef.current?.open() : undefined}
-          pressedScale={0.98}
+          pressedScale={isTaken ? 1 : 0.98}
           className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
         >
           <View className="relative aspect-square w-full min-h-0 items-center justify-center overflow-hidden bg-bg-muted">
@@ -104,13 +109,29 @@ export function WishlistItemCard({
                 source={{ uri: item.image_url }}
                 contentFit="cover"
                 contentPosition="center"
-                className="absolute inset-0 size-full"
+                className={cn("absolute inset-0 size-full", isTaken && "opacity-40")}
               />
             ) : (
-              <Icon as={Gift} className="size-10 text-text-light" />
+              <Icon as={Gift} className={cn("size-10 text-text-light", isTaken && "opacity-40")} />
             )}
 
-            {reservationLabel ? (
+            {isTaken ? (
+              <View
+                pointerEvents="none"
+                className="absolute inset-0 items-center justify-center"
+              >
+                <View
+                  className="w-[170%] items-center bg-black/70 py-1.5"
+                  style={{ transform: [{ rotate: "-20deg" }] }}
+                >
+                  <Text className="text-lg font-extrabold uppercase tracking-widest text-brand">
+                    {reservation.isPurchased ? t("Purchased") : t("Reserved")}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+
+            {showReservation && reservationLabel ? (
               <View className="absolute left-2 top-2 z-10 max-w-[70%]">
                 <ItemStatusBadge
                   label={reservationLabel}
@@ -141,7 +162,7 @@ export function WishlistItemCard({
 
           <View className="gap-2 p-3">
             <View className="min-h-10 flex-row items-start gap-2">
-              <View className="min-w-0 flex-1">
+              <View className={cn("min-w-0 flex-1", isTaken && "opacity-50")}>
                 <Text className="text-sm font-extrabold leading-5 text-text" numberOfLines={2}>
                   {item.name}
                 </Text>
@@ -154,7 +175,12 @@ export function WishlistItemCard({
             </View>
 
             <View className="flex-row items-center justify-between gap-2">
-              <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-1.5">
+              <View
+                className={cn(
+                  "min-w-0 flex-1 flex-row flex-wrap items-center gap-1.5",
+                  isTaken && "opacity-50",
+                )}
+              >
                 {item.price ? (
                   hasActiveDiscount && item.discount_price ? (
                     <>
@@ -202,7 +228,7 @@ export function WishlistItemCard({
                     {voteCount}
                   </Text>
                 </AnimatedPressable>
-              ) : reservation.isPurchased ? (
+              ) : showReservation && reservation.isPurchased ? (
                 <Icon as={PackageCheck} className="size-4 text-success" />
               ) : null}
             </View>

@@ -158,7 +158,7 @@ export function WishlistItemDetailModal({
               {priorityKey && priorityLabel && (
                 <span className={`${styles.priority} ${styles[priorityKey]}`}>{priorityLabel}</span>
               )}
-              {reserveStatusLabel && (
+              {!isOwner && reserveStatusLabel && (
                 <span
                   className={`${styles.reservedBadge} ${
                     reservationState.isPurchased ? styles.purchasedBadge : ""

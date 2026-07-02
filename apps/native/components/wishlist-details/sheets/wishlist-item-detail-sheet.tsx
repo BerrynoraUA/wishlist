@@ -200,7 +200,7 @@ export function WishlistItemDetailSheet({
               {priority && priorityLabel ? (
                 <ItemPriorityBadge priority={priority} label={priorityLabel} />
               ) : null}
-              {reservationLabel ? (
+              {!isOwner && reservationLabel ? (
                 <ItemDetailStatusBadge
                   label={reservationLabel}
                   purchased={reservation.isPurchased}
