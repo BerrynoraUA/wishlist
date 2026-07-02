@@ -66,27 +66,46 @@ export function validateResult(testCase: TestCase, data: ProductData | null): Fi
     field: string;
     key: keyof TestCase["expected"];
     dataKey: keyof ProductData;
+    price?: boolean;
   }[] = [
     { field: "Title", key: "title", dataKey: "title" },
-    { field: "Price", key: "price", dataKey: "price" },
+    { field: "Regular price", key: "price", dataKey: "price", price: true },
+    {
+      field: "Discount price",
+      key: "discount_price",
+      dataKey: "discount_price",
+      price: true,
+    },
+    { field: "Currency", key: "currency", dataKey: "currency" },
+    { field: "Has discount", key: "has_discount", dataKey: "has_discount" },
     { field: "Image", key: "image", dataKey: "image" },
     { field: "Description", key: "description", dataKey: "description" },
   ];
 
-  return fields.map(({ field, key, dataKey }) => {
-    const expected = testCase.expected[key];
+  return fields.map(({ field, key, dataKey, price }) => {
+    const expected = testCase.expected[key] ?? null;
     const rawActual = data?.[dataKey];
-    const actual = rawActual == null ? null : String(rawActual);
+    const actual =
+      rawActual == null ? null : typeof rawActual === "boolean" ? rawActual : String(rawActual);
 
     if (expected === null) {
       return { field, expected, actual, match: null };
     }
 
-    const trimmedExpected = expected?.trim() ?? null;
-    const trimmedActual = actual?.trim() ?? null;
+    if (typeof expected === "boolean") {
+      return {
+        field,
+        expected,
+        actual,
+        match: actual === expected,
+      };
+    }
+
+    const trimmedExpected = expected.trim();
+    const trimmedActual = typeof actual === "string" ? actual.trim() : null;
 
     let match: boolean;
-    if (key === "price") {
+    if (price) {
       match = isPriceMatch(trimmedExpected, trimmedActual);
     } else if (key === "description" && trimmedExpected && trimmedActual) {
       match =

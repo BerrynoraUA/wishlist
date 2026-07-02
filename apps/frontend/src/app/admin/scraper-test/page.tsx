@@ -514,10 +514,10 @@ function ResultRow({
                         {!v.match && (
                           <div className={styles.validationDiff}>
                             <div className={styles.diffExpected}>
-                              <span>Expected:</span> {v.expected ?? "—"}
+                              <span>Expected:</span> {v.expected == null ? "—" : String(v.expected)}
                             </div>
                             <div className={styles.diffActual}>
-                              <span>Got:</span> {v.actual ?? "—"}
+                              <span>Got:</span> {v.actual == null ? "—" : String(v.actual)}
                             </div>
                           </div>
                         )}

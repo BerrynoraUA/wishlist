@@ -13,9 +13,15 @@ export interface TestCase {
   expected: {
     title: string | null;
     price: string | null;
+    discount_price?: string | null;
+    currency?: string | null;
+    has_discount?: boolean | null;
     image: string | null;
     description: string | null;
   };
+  verified_at?: string;
+  locale?: string;
+  variant?: string;
 }
 
 const ACCEPTANCE_CRITERIA: Map<string, TestCase["expected"]> = new Map(

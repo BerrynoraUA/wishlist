@@ -39,7 +39,8 @@ export function scrapeAliExpress(html: string, url: string): ProductData {
     extractTitle($);
 
   // Очищаємо суфікс " - AliExpress N" з заголовку
-  const title = rawTitle ? rawTitle.replace(/\s*[-–|]\s*AliExpress.*$/i, "").trim() : null;
+  const cleanedTitle = rawTitle ? rawTitle.replace(/\s*[-–|]\s*AliExpress.*$/i, "").trim() : null;
+  const title = cleanedTitle && !/^aliexpress(?:\.com)?$/i.test(cleanedTitle) ? cleanedTitle : null;
 
   // ── Image ──────────────────────────────────────────────────────
   const image =
@@ -59,13 +60,10 @@ export function scrapeAliExpress(html: string, url: string): ProductData {
   // Очищаємо generic опис AliExpress
   const description = rawDesc && !/^Smarter Shopping/i.test(rawDesc) ? rawDesc : null;
 
-  // ── Prices (URL → DOM → meta → script) ────────────────────────
-  // URL pdp_npi parameter — найнадійніше джерело, бо AliExpress
-  // є SPA і server-side fetch не отримує клієнтський DOM.
-  const urlPrices = extractPricesFromUrl(url);
-
-  let currentPrice = urlPrices.currentPrice || domPrices.currentPrice || fromScript.currentPrice;
-  let oldPrice = urlPrices.oldPrice || domPrices.oldPrice || fromScript.oldPrice;
+  // Tracking query prices are stale advertising snapshots and may describe
+  // another locale or SKU. Product DOM/state is the only price authority.
+  let currentPrice = domPrices.currentPrice || fromScript.currentPrice;
+  let oldPrice = domPrices.oldPrice || fromScript.oldPrice;
 
   // Fallback: meta-tags
   if (!currentPrice) {
@@ -400,59 +398,6 @@ function extractPricesFromDOM($: cheerio.CheerioAPI): DOMPrices {
         break;
       }
     }
-  }
-
-  return result;
-}
-
-// ── Extract BOTH prices from URL (pdp_npi parameter) ─────────────
-//
-// AliExpress URL містить pdp_npi з обома цінами у форматі:
-//   6@dis!UAH!грн.10,262.74!грн.7,491.63!!...
-// Перша ціна — оригінальна, друга — зі знижкою.
-
-function extractPricesFromUrl(url: string): DOMPrices {
-  const result: DOMPrices = { currentPrice: null, oldPrice: null };
-
-  try {
-    const decoded = decodeURIComponent(url);
-
-    // Шукаємо pdp_npi параметр
-    const npiMatch = decoded.match(/pdp_npi=([^&]+)/);
-    if (!npiMatch) return result;
-
-    const npiValue = npiMatch[1];
-
-    // Витягуємо всі ціни з pdp_npi (формат: !валюта.ціна!валюта.ціна!)
-    const pricePattern = /(?:US\s*\$|\$|€|£|грн\.?)\s*([\d][\d,.]*\d)/g;
-    const prices: string[] = [];
-
-    let match: RegExpExecArray | null;
-    while ((match = pricePattern.exec(npiValue)) !== null) {
-      const price = extractNumericPrice(match[1]);
-      if (price && parseFloat(price) > 1) {
-        prices.push(price);
-      }
-    }
-
-    if (prices.length >= 2) {
-      // Перша — оригінальна (вища), друга — зі знижкою (нижча)
-      const p1 = parseFloat(prices[0]);
-      const p2 = parseFloat(prices[1]);
-      if (p1 > p2) {
-        result.oldPrice = prices[0];
-        result.currentPrice = prices[1];
-      } else if (p2 > p1) {
-        result.oldPrice = prices[1];
-        result.currentPrice = prices[0];
-      } else {
-        result.currentPrice = prices[0];
-      }
-    } else if (prices.length === 1) {
-      result.currentPrice = prices[0];
-    }
-  } catch {
-    // ignore malformed URL
   }
 
   return result;

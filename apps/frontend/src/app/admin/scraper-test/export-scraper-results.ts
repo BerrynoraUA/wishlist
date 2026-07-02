@@ -18,8 +18,8 @@ export type ExportRowInput = {
   } | null;
   validations: {
     field: string;
-    expected: string | null;
-    actual: string | null;
+    expected: string | boolean | null;
+    actual: string | boolean | null;
     match: boolean | null;
   }[];
 };
@@ -63,8 +63,8 @@ function toRows(results: ExportRowInput[]): ExportRow[] {
 function formatValidations(
   validations: {
     field: string;
-    expected: string | null;
-    actual: string | null;
+    expected: string | boolean | null;
+    actual: string | boolean | null;
     match: boolean | null;
   }[],
 ): string {

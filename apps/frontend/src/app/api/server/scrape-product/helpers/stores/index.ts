@@ -24,6 +24,9 @@ import { scrapeMiinto } from "./miinto";
 import { scrapeFlipkart } from "./flipkart";
 import { scrapeRubylane } from "./rubylane";
 import { scrapeWildberries } from "./wildberries";
+import { scrapeUaTao } from "./uatao";
+import { scrapeZalando } from "./zalando";
+import { scrapeStructuredMarketplace } from "./structured-marketplaces";
 
 /**
  * Реєстр магазинів: домен → скрапер.
@@ -35,7 +38,15 @@ const storeRegistry: {
   scraper: ScraperMethod | AsyncScraperMethod;
   async?: boolean;
 }[] = [
-  { pattern: "rozetka.com.ua", scraper: scrapeRozetka, async: true },
+  { pattern: "lamoda.ru", scraper: scrapeStructuredMarketplace },
+  { pattern: "lazada.", scraper: scrapeStructuredMarketplace },
+  { pattern: "meesho.com", scraper: scrapeStructuredMarketplace },
+  { pattern: "overstock.com", scraper: scrapeStructuredMarketplace },
+  { pattern: "emag.", scraper: scrapeStructuredMarketplace },
+  { pattern: "takealot.com", scraper: scrapeStructuredMarketplace },
+  { pattern: "cdiscount.com", scraper: scrapeStructuredMarketplace },
+  { pattern: "farfetch.com", scraper: scrapeStructuredMarketplace },
+  { pattern: "rozetka.com.ua", scraper: scrapeRozetka },
   { pattern: "epicentrk.ua", scraper: scrapeEpicentr },
   { pattern: "foxtrot.com.ua", scraper: scrapeFoxtrot },
   { pattern: "prom.ua", scraper: scrapeProm },
@@ -49,7 +60,7 @@ const storeRegistry: {
   { pattern: "hobymonster.com.ua", scraper: scrapeHoroshop },
   { pattern: "leleka.camp", scraper: scrapeHoroshop },
   { pattern: "lelekan.com.ua", scraper: scrapeLelekan, async: true },
-  { pattern: "target.com", scraper: scrapeTarget },
+  { pattern: "target.com", scraper: scrapeTarget, async: true },
   { pattern: "trendyol.com", scraper: scrapeTrendyol },
   { pattern: "hepsiburada.com", scraper: scrapeHepsiburada },
   { pattern: "n11.com", scraper: scrapeN11 },
@@ -63,6 +74,8 @@ const storeRegistry: {
   { pattern: "flipkart.com", scraper: scrapeFlipkart },
   { pattern: "rubylane.com", scraper: scrapeRubylane },
   { pattern: "wildberries.ru", scraper: scrapeWildberries, async: true },
+  { pattern: "ua-tao.com", scraper: scrapeUaTao },
+  { pattern: "zalando.", scraper: scrapeZalando },
 ];
 
 /**

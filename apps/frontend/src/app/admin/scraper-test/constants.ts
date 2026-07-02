@@ -17,8 +17,8 @@ export interface ProductData {
 
 export interface FieldValidation {
   field: string;
-  expected: string | null;
-  actual: string | null;
+  expected: string | boolean | null;
+  actual: string | boolean | null;
   /** null = not validated (expected is null) */
   match: boolean | null;
 }
