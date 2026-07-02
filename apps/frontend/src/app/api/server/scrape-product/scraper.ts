@@ -98,35 +98,52 @@ function finalizeProduct(product: ProductData, url: string): ProductData | null 
 }
 
 /**
+ * Metadata-first extraction on a given HTML document:
+ *   Tier 1  OG / JSON-LD metadata (metascraper + generic extractors)
+ *   Tier 2  store-specific parser — when metadata lacks a price
+ */
+async function extractProduct(html: string, url: string): Promise<ProductData> {
+  const product = await extractGenericProduct(html, url);
+  if (hasCoreData(product)) return product;
+
+  const storeResult = await runStoreScraper(url, html);
+  if (storeResult) fillGaps(product, storeResult);
+  return product;
+}
+
+/**
  * Metadata-first product scraper.
  *
  *   Tier 1  OG / JSON-LD metadata (metascraper + generic extractors)
- *   Tier 2  store-specific parser  — only when metadata lacks a price
- *   Tier 3  headless render        — only when metadata is absent (stubbed)
+ *   Tier 2  store-specific parser  — when metadata lacks a price
+ *   Tier 3  anti-bot render        — when the page is blocked/empty (FlareSolverr)
  *
  * The page is fetched once, on demand, with a browser-like User-Agent. Reading
  * metadata (what link-preview bots read) is the ban-resistant default; the
- * expensive/detectable headless path is a genuine last resort.
+ * anti-bot render is a genuine last resort for Cloudflare-style walls.
  */
 export async function scrapeProduct(url: string): Promise<ProductData | null> {
   if (!isSafeUrl(url)) return null;
 
   const html = await fetchHtml(url);
 
-  // Tier 1 — metadata-first.
-  const product = html ? await extractGenericProduct(html, url) : emptyProduct();
+  // Tiers 1-2 on the direct fetch.
+  const product = html ? await extractProduct(html, url) : emptyProduct();
   if (hasCoreData(product)) return finalizeProduct(product, url);
 
-  // Tier 2 — known-store parser. Uses the same HTML, or the store's own API
-  // (async parsers) when the initial fetch was blocked/empty.
-  const storeResult = await runStoreScraper(url, html ?? "");
-  if (storeResult) fillGaps(product, storeResult);
-  if (hasCoreData(product)) return finalizeProduct(product, url);
+  // When the direct fetch was blocked/empty, an async store parser can still
+  // reach the store's own API.
+  if (!html) {
+    const storeResult = await runStoreScraper(url, "");
+    if (storeResult) fillGaps(product, storeResult);
+    if (hasCoreData(product)) return finalizeProduct(product, url);
+  }
 
-  // Tier 3 — headless render, only when metadata is still absent (stub → null).
+  // Tier 3 — anti-bot render (FlareSolverr), then re-run Tiers 1-2 on the
+  // solved HTML so both metadata and the store parser get a clean page.
   const renderedHtml = await renderWithHeadlessBrowser(url);
   if (renderedHtml) {
-    fillGaps(product, await extractGenericProduct(renderedHtml, url));
+    fillGaps(product, await extractProduct(renderedHtml, url));
   }
 
   return finalizeProduct(product, url);

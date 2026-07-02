@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scrapeProduct } from "./scraper";
 
+// Tier-3 (FlareSolverr) can spend 10-30s solving a Cloudflare challenge.
+export const maxDuration = 60;
+
 const SCRAPER_ALLOWED_ORIGINS = ["https://wishlane.net"];
 
 function getCorsHeaders(request: NextRequest): Record<string, string> {
