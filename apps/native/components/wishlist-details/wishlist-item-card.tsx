@@ -116,10 +116,7 @@ export function WishlistItemCard({
             )}
 
             {isTaken ? (
-              <View
-                pointerEvents="none"
-                className="absolute inset-0 items-center justify-center"
-              >
+              <View pointerEvents="none" className="absolute inset-0 items-center justify-center">
                 <View
                   className="w-[170%] items-center bg-black/70 py-1.5"
                   style={{ transform: [{ rotate: "-20deg" }] }}
