@@ -10,12 +10,27 @@ type ScraplingQuality = {
   warnings: string[];
 };
 
-type ScraplingDiagnostics = {
+export type ScraplingDiagnostics = {
   fetch_mode: string;
+  selected_fetch_mode: string | null;
   status: number | null;
-  attempts: number;
+  attempts: ScraplingAttempt[];
   elapsed_ms: number;
   parser_sources: Record<string, string>;
+};
+
+export type ScraplingAttempt = {
+  sequence: number;
+  mode: string;
+  purpose: string;
+  outcome: string;
+  duration_ms: number;
+  status?: number | null;
+  block_reason?: string | null;
+  error?: string | null;
+  parse_score?: number | null;
+  parse_accepted?: boolean | null;
+  selected: boolean;
 };
 
 export type ScraplingResponse = {
@@ -24,8 +39,16 @@ export type ScraplingResponse = {
   diagnostics: ScraplingDiagnostics;
 };
 
+export type ScraplingRequestResult = {
+  response: ScraplingResponse | null;
+  errorCode?: string;
+  errorMessage?: string;
+  status?: number;
+  diagnostics?: ScraplingDiagnostics;
+};
+
 const DEFAULT_SERVICE_URL = "http://127.0.0.1:8001";
-const DEFAULT_TIMEOUT_MS = 20_000;
+const DEFAULT_TIMEOUT_MS = 60_000;
 const DEFAULT_SHADOW_SAMPLE_RATE = 0.1;
 
 export function getScraplingMode(): ScraplingMode {
@@ -52,6 +75,10 @@ export function shouldSampleScraplingShadow(url: string): boolean {
 }
 
 export async function scrapeWithScrapling(url: string): Promise<ScraplingResponse | null> {
+  return (await scrapeWithScraplingResult(url)).response;
+}
+
+export async function scrapeWithScraplingResult(url: string): Promise<ScraplingRequestResult> {
   const serviceUrl = (process.env.SCRAPLING_SERVICE_URL?.trim() || DEFAULT_SERVICE_URL).replace(
     /\/$/,
     "",
@@ -76,16 +103,29 @@ export async function scrapeWithScrapling(url: string): Promise<ScraplingRespons
     });
     if (!response.ok) {
       console.warn("[scrapling] request failed", { status: response.status });
-      return null;
+      const payload: unknown = await response.json().catch(() => null);
+      const error =
+        isRecord(payload) && isRecord(payload.error)
+          ? {
+              errorCode: typeof payload.error.code === "string" ? payload.error.code : undefined,
+              errorMessage:
+                typeof payload.error.message === "string" ? payload.error.message : undefined,
+              diagnostics: parseScraplingDiagnostics(payload.error.diagnostics),
+            }
+          : {};
+      return { response: null, status: response.status, ...error };
     }
 
     const payload: unknown = await response.json();
-    return parseScraplingResponse(payload);
+    return { response: parseScraplingResponse(payload) };
   } catch (error) {
     console.warn("[scrapling] service unavailable", {
       reason: error instanceof Error ? error.name : "unknown",
     });
-    return null;
+    return {
+      response: null,
+      errorMessage: error instanceof Error ? error.message : "Scrapling service unavailable",
+    };
   }
 }
 
@@ -143,18 +183,14 @@ function parseScraplingResponse(value: unknown): ScraplingResponse | null {
   const score = value.quality.score;
   const accepted = value.quality.accepted;
   const warnings = value.quality.warnings;
-  const diagnostics = value.diagnostics;
+  const diagnostics = parseScraplingDiagnostics(value.diagnostics);
   if (
     typeof score !== "number" ||
     !Number.isFinite(score) ||
     typeof accepted !== "boolean" ||
     !Array.isArray(warnings) ||
     !warnings.every((warning) => typeof warning === "string") ||
-    typeof diagnostics.fetch_mode !== "string" ||
-    !(diagnostics.status === null || typeof diagnostics.status === "number") ||
-    typeof diagnostics.attempts !== "number" ||
-    typeof diagnostics.elapsed_ms !== "number" ||
-    !isStringRecord(diagnostics.parser_sources)
+    diagnostics === undefined
   ) {
     return null;
   }
@@ -162,13 +198,58 @@ function parseScraplingResponse(value: unknown): ScraplingResponse | null {
   return {
     product,
     quality: { score, accepted, warnings },
-    diagnostics: {
-      fetch_mode: diagnostics.fetch_mode,
-      status: diagnostics.status,
-      attempts: diagnostics.attempts,
-      elapsed_ms: diagnostics.elapsed_ms,
-      parser_sources: diagnostics.parser_sources,
-    },
+    diagnostics,
+  };
+}
+
+function parseScraplingDiagnostics(value: unknown): ScraplingDiagnostics | undefined {
+  if (!isRecord(value)) return undefined;
+  if (
+    typeof value.fetch_mode !== "string" ||
+    !(value.selected_fetch_mode === null || typeof value.selected_fetch_mode === "string") ||
+    !(value.status === null || typeof value.status === "number") ||
+    !Array.isArray(value.attempts) ||
+    typeof value.elapsed_ms !== "number" ||
+    !isStringRecord(value.parser_sources)
+  ) {
+    return undefined;
+  }
+  const attempts = value.attempts.map(parseScraplingAttempt);
+  if (attempts.some((attempt) => attempt === null)) return undefined;
+  return {
+    fetch_mode: value.fetch_mode,
+    selected_fetch_mode: value.selected_fetch_mode,
+    status: value.status,
+    attempts: attempts as ScraplingAttempt[],
+    elapsed_ms: value.elapsed_ms,
+    parser_sources: value.parser_sources,
+  };
+}
+
+function parseScraplingAttempt(value: unknown): ScraplingAttempt | null {
+  if (
+    !isRecord(value) ||
+    typeof value.sequence !== "number" ||
+    typeof value.mode !== "string" ||
+    typeof value.purpose !== "string" ||
+    typeof value.outcome !== "string" ||
+    typeof value.duration_ms !== "number" ||
+    typeof value.selected !== "boolean"
+  ) {
+    return null;
+  }
+  return {
+    sequence: value.sequence,
+    mode: value.mode,
+    purpose: value.purpose,
+    outcome: value.outcome,
+    duration_ms: value.duration_ms,
+    status: typeof value.status === "number" ? value.status : null,
+    block_reason: typeof value.block_reason === "string" ? value.block_reason : null,
+    error: typeof value.error === "string" ? value.error : null,
+    parse_score: typeof value.parse_score === "number" ? value.parse_score : null,
+    parse_accepted: typeof value.parse_accepted === "boolean" ? value.parse_accepted : null,
+    selected: value.selected,
   };
 }
 

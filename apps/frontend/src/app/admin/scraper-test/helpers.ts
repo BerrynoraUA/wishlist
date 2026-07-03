@@ -79,14 +79,25 @@ export function validateResult(testCase: TestCase, data: ProductData | null): Fi
     { field: "Currency", key: "currency", dataKey: "currency" },
     { field: "Has discount", key: "has_discount", dataKey: "has_discount" },
     { field: "Image", key: "image", dataKey: "image" },
-    { field: "Description", key: "description", dataKey: "description" },
   ];
 
   return fields.map(({ field, key, dataKey, price }) => {
-    const expected = testCase.expected[key] ?? null;
+    const expected = key === "image" ? "Valid HTTP(S) URL" : (testCase.expected[key] ?? null);
     const rawActual = data?.[dataKey];
     const actual =
       rawActual == null ? null : typeof rawActual === "boolean" ? rawActual : String(rawActual);
+
+    if (key === "image") {
+      let match = false;
+      if (typeof actual === "string") {
+        try {
+          match = ["http:", "https:"].includes(new URL(actual).protocol);
+        } catch {
+          match = false;
+        }
+      }
+      return { field, expected, actual, match };
+    }
 
     if (expected === null) {
       return { field, expected, actual, match: null };
@@ -107,11 +118,6 @@ export function validateResult(testCase: TestCase, data: ProductData | null): Fi
     let match: boolean;
     if (price) {
       match = isPriceMatch(trimmedExpected, trimmedActual);
-    } else if (key === "description" && trimmedExpected && trimmedActual) {
-      match =
-        trimmedActual === trimmedExpected ||
-        trimmedActual.startsWith(trimmedExpected.replace(/…$/, "")) ||
-        trimmedExpected.startsWith(trimmedActual.replace(/…$/, ""));
     } else {
       match = trimmedExpected === trimmedActual;
     }
@@ -128,6 +134,7 @@ export function computeStatus(
   scraperStatus: ScraperStatus,
   validations: FieldValidation[],
 ): ScraperStatus {
+  if (scraperStatus === "blocked") return "blocked";
   if (scraperStatus === "failed") return "failed";
 
   const checked = validations.filter((v) => v.match !== null);

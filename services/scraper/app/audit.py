@@ -8,8 +8,8 @@ from time import monotonic
 from typing import Any, Awaitable, Callable, TypeVar
 from urllib.parse import urlsplit, urlunsplit
 
-from app.fetching.http import FetchResult
-from app.models import FetchMode
+from app.fetching.http import FetchError, FetchResult
+from app.models import FetchAttemptDiagnostics, FetchMode, ScrapeDiagnostics
 
 T = TypeVar("T", bound=FetchResult)
 
@@ -33,6 +33,8 @@ class ScrapeAuditTrace:
         mode: FetchMode,
         purpose: str,
         operation: Callable[[], Awaitable[T]],
+        *,
+        timeout_seconds: float,
     ) -> tuple[T, int]:
         started = monotonic()
         attempt: dict[str, Any] = {
@@ -43,7 +45,18 @@ class ScrapeAuditTrace:
         self.attempts.append(attempt)
         index = len(self.attempts) - 1
         try:
-            result = await operation()
+            async with asyncio.timeout(timeout_seconds):
+                result = await operation()
+        except TimeoutError as error:
+            attempt.update(
+                {
+                    "outcome": "timeout",
+                    "duration_ms": int((monotonic() - started) * 1000),
+                    "error_type": type(error).__name__,
+                    "error": f"{mode.value} timed out",
+                }
+            )
+            raise FetchError(f"{mode.value} timed out") from error
         except Exception as error:
             attempt.update(
                 {
@@ -68,6 +81,26 @@ class ScrapeAuditTrace:
             }
         )
         return result, index
+
+    def skipped(self, mode: FetchMode, purpose: str, reason: str) -> None:
+        self.attempts.append(
+            {
+                "sequence": len(self.attempts) + 1,
+                "mode": mode.value,
+                "purpose": purpose,
+                "outcome": "skipped",
+                "duration_ms": 0,
+                "error": reason,
+                "selected": False,
+            }
+        )
+
+    def attempted(self, mode: FetchMode) -> bool:
+        return any(
+            attempt.get("mode") == mode.value
+            and attempt.get("outcome") != "skipped"
+            for attempt in self.attempts
+        )
 
     def parsed(
         self,
@@ -124,6 +157,48 @@ class ScrapeAuditTrace:
             ),
             "attempts": self.attempts,
         }
+
+    def diagnostics(
+        self,
+        *,
+        elapsed_ms: int,
+        parser_sources: dict[str, str] | None = None,
+    ) -> ScrapeDiagnostics:
+        completed = [
+            attempt for attempt in self.attempts if attempt.get("outcome") != "skipped"
+        ]
+        terminal = completed[-1] if completed else None
+        selected = next(
+            (attempt for attempt in self.attempts if attempt.get("selected")),
+            None,
+        )
+        return ScrapeDiagnostics(
+            fetch_mode=FetchMode(terminal["mode"])
+            if terminal is not None
+            else FetchMode.NOT_ATTEMPTED,
+            selected_fetch_mode=FetchMode(selected["mode"])
+            if selected is not None
+            else None,
+            status=terminal.get("status") if terminal is not None else None,
+            attempts=[
+                FetchAttemptDiagnostics(
+                    sequence=attempt["sequence"],
+                    mode=FetchMode(attempt["mode"]),
+                    purpose=attempt["purpose"],
+                    outcome=attempt.get("outcome", "error"),
+                    duration_ms=attempt.get("duration_ms", 0),
+                    status=attempt.get("status"),
+                    block_reason=attempt.get("block_reason"),
+                    error=attempt.get("error"),
+                    parse_score=attempt.get("parse_score"),
+                    parse_accepted=attempt.get("parse_accepted"),
+                    selected=bool(attempt.get("selected")),
+                )
+                for attempt in self.attempts
+            ],
+            elapsed_ms=elapsed_ms,
+            parser_sources=parser_sources or {},
+        )
 
 
 class ScrapeAuditLogger:

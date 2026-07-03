@@ -134,6 +134,7 @@ async def handle_scrape_error(
             code=error.code,
             message=error.message,
             request_id=error.request_id,
+            diagnostics=error.diagnostics,
         )
     )
     return JSONResponse(
@@ -160,7 +161,7 @@ async def handle_validation_error(
     url_value = body.get("url")
     url = url_value if isinstance(url_value, str) else ""
     deadline_value = body.get("deadline_ms")
-    deadline_ms = deadline_value if isinstance(deadline_value, int) else 20_000
+    deadline_ms = deadline_value if isinstance(deadline_value, int) else 59_500
     audit_logger: ScrapeAuditLogger | None = getattr(
         request.app.state,
         "audit_logger",

@@ -81,14 +81,16 @@ const storeRegistry: {
 /**
  * Повертає скрапер для конкретного магазину за URL, або null якщо невідомий домен.
  */
-export function getStoreScraper(
-  url: string,
-): { scraper: ScraperMethod | AsyncScraperMethod; async: boolean } | null {
+export function getStoreScraper(url: string): {
+  scraper: ScraperMethod | AsyncScraperMethod;
+  async: boolean;
+  pattern: string;
+} | null {
   const domain = new URL(url).hostname.toLowerCase();
 
   for (const entry of storeRegistry) {
     if (domain.includes(entry.pattern)) {
-      return { scraper: entry.scraper, async: entry.async ?? false };
+      return { scraper: entry.scraper, async: entry.async ?? false, pattern: entry.pattern };
     }
   }
 

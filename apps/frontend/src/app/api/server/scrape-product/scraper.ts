@@ -8,25 +8,81 @@ import {
   logShadowComparison,
   scoreProduct,
   scrapeWithScrapling,
+  scrapeWithScraplingResult,
   shouldSampleScraplingShadow,
+  type ScraplingDiagnostics,
 } from "./scrapling-client";
 
 export type { ProductData };
 
+export type ScrapeParserSource = {
+  source: string;
+  library: string;
+};
+
+export type ScrapeProductDiagnostics = {
+  engine: "legacy" | "scrapling";
+  fetchMethod: string;
+  selectedFetchMethod?: string;
+  attempts: ScrapeFetchAttempt[];
+  parserSources: Record<string, ScrapeParserSource>;
+  warnings?: string[];
+};
+
+export type ScrapeFetchAttempt = {
+  sequence: number;
+  mode: string;
+  purpose: string;
+  outcome: "received" | "blocked" | "error" | "timeout" | "skipped";
+  durationMs: number;
+  status?: number;
+  blockReason?: string;
+  error?: string;
+  parseScore?: number;
+  parseAccepted?: boolean;
+  selected?: boolean;
+};
+
+export type DetailedScrapeProduct = {
+  product: ProductData | null;
+  diagnostics?: ScrapeProductDiagnostics;
+  blocked?: boolean;
+  error?: string;
+};
+
+type LegacyScrapeResult = {
+  product: ProductData | null;
+  diagnostics: ScrapeProductDiagnostics;
+  blocked?: boolean;
+};
+
 export async function scrapeProduct(url: string): Promise<ProductData | null> {
+  const result = await scrapeProductDetailed(url);
+  return result.product;
+}
+
+export async function scrapeProductDetailed(url: string): Promise<DetailedScrapeProduct> {
   url = canonicalizeProductUrl(url);
   const mode = getScraplingMode();
-  let legacyProduct: ProductData | null = null;
+  let legacyResult: LegacyScrapeResult | null = null;
   let legacyError: unknown = null;
 
   try {
-    legacyProduct = await scrapeProductLegacy(url);
+    legacyResult = await scrapeProductLegacy(url);
   } catch (error) {
     legacyError = error;
     if (mode === "disabled") throw error;
   }
 
-  if (mode === "disabled") return legacyProduct;
+  const legacyProduct = legacyResult?.product ?? null;
+
+  if (mode === "disabled") {
+    return {
+      product: legacyProduct,
+      diagnostics: legacyResult?.diagnostics,
+      blocked: legacyResult?.blocked,
+    };
+  }
 
   if (mode === "shadow") {
     if (shouldSampleScraplingShadow(url)) {
@@ -34,20 +90,108 @@ export async function scrapeProduct(url: string): Promise<ProductData | null> {
       if (scrapling) logShadowComparison(legacyProduct, scrapling);
     }
     if (legacyError) throw legacyError;
-    return legacyProduct;
+    return {
+      product: legacyProduct,
+      diagnostics: legacyResult?.diagnostics,
+      blocked: legacyResult?.blocked,
+    };
   }
 
-  if (isAcceptableProduct(legacyProduct)) return legacyProduct;
+  if (isAcceptableProduct(legacyProduct)) {
+    return { product: legacyProduct, diagnostics: legacyResult?.diagnostics };
+  }
 
-  const scrapling = await scrapeWithScrapling(url);
+  const scraplingResult = await scrapeWithScraplingResult(url);
+  const scrapling = scraplingResult.response;
   if (!scrapling) {
+    const scraplingDiagnostics = scraplingResult.diagnostics
+      ? toScraplingDiagnosticsValue(scraplingResult.diagnostics)
+      : undefined;
+    const blocked =
+      legacyResult?.blocked ||
+      scraplingResult.errorCode === "blocked" ||
+      scraplingResult.status === 403 ||
+      scraplingResult.status === 429;
+    if (blocked) {
+      return {
+        product: legacyProduct,
+        diagnostics: scraplingDiagnostics ?? legacyResult?.diagnostics,
+        blocked: true,
+        error: scraplingResult.errorMessage,
+      };
+    }
+    if (scraplingDiagnostics) {
+      return {
+        product: legacyProduct,
+        diagnostics: scraplingDiagnostics,
+        error: scraplingResult.errorMessage,
+      };
+    }
     if (legacyError) throw legacyError;
-    return legacyProduct;
+    return {
+      product: legacyProduct,
+      diagnostics: scraplingDiagnostics ?? legacyResult?.diagnostics,
+      error: scraplingResult.errorMessage,
+    };
   }
+  const scraplingDiagnostics = toScraplingDiagnostics(scrapling);
   if (scrapling.quality.accepted || scoreProduct(scrapling.product) > scoreProduct(legacyProduct)) {
-    return scrapling.product;
+    return { product: scrapling.product, diagnostics: scraplingDiagnostics };
   }
-  return legacyProduct ?? scrapling.product;
+  return legacyProduct
+    ? { product: legacyProduct, diagnostics: legacyResult?.diagnostics }
+    : { product: scrapling.product, diagnostics: scraplingDiagnostics };
+}
+
+function toScraplingDiagnostics(
+  scrapling: Awaited<ReturnType<typeof scrapeWithScrapling>>,
+): ScrapeProductDiagnostics | undefined {
+  if (!scrapling) return undefined;
+  return toScraplingDiagnosticsValue(scrapling.diagnostics, scrapling.quality.warnings);
+}
+
+function toScraplingDiagnosticsValue(
+  diagnostics: ScraplingDiagnostics,
+  warnings: string[] = [],
+): ScrapeProductDiagnostics {
+  return {
+    engine: "scrapling",
+    fetchMethod: diagnostics.fetch_mode,
+    selectedFetchMethod: diagnostics.selected_fetch_mode ?? undefined,
+    attempts: diagnostics.attempts.map((attempt) => ({
+      sequence: attempt.sequence,
+      mode: attempt.mode,
+      purpose: attempt.purpose,
+      outcome: attempt.outcome as ScrapeFetchAttempt["outcome"],
+      durationMs: attempt.duration_ms,
+      status: attempt.status ?? undefined,
+      blockReason: attempt.block_reason ?? undefined,
+      error: attempt.error ?? undefined,
+      parseScore: attempt.parse_score ?? undefined,
+      parseAccepted: attempt.parse_accepted ?? undefined,
+      selected: attempt.selected,
+    })),
+    parserSources: Object.fromEntries(
+      Object.entries(diagnostics.parser_sources).map(([field, source]) => [
+        field,
+        {
+          source,
+          library: scraplingLibrary(source),
+        },
+      ]),
+    ),
+    warnings,
+  };
+}
+
+function scraplingLibrary(source: string): string {
+  if (source === "json_ld") return "json / lxml";
+  if (source === "regex") return "Python regex";
+  if (source.startsWith("api:")) return "httpx / json";
+  if (source.includes("embedded_state")) return "json / lxml";
+  if (source === "jina_reader") return "Jina Reader";
+  if (source.startsWith("adaptive")) return "Scrapling";
+  return "lxml";
 }
 
 function canonicalizeProductUrl(value: string): string {
@@ -83,8 +227,23 @@ function canonicalizeProductUrl(value: string): string {
   return value;
 }
 
-async function scrapeProductLegacy(url: string): Promise<ProductData | null> {
-  if (!isSafeUrl(url)) return null;
+async function scrapeProductLegacy(url: string): Promise<LegacyScrapeResult> {
+  const diagnostics: ScrapeProductDiagnostics = {
+    engine: "legacy",
+    fetchMethod: "direct_http",
+    attempts: [
+      {
+        sequence: 1,
+        mode: "direct_http",
+        purpose: "product_page",
+        outcome: "received",
+        durationMs: 0,
+        selected: true,
+      },
+    ],
+    parserSources: {},
+  };
+  if (!isSafeUrl(url)) return { product: null, diagnostics };
 
   const configuredTimeout = Number(process.env.LEGACY_SCRAPER_TIMEOUT_MS);
   const timeoutMs =
@@ -102,22 +261,31 @@ async function scrapeProductLegacy(url: string): Promise<ProductData | null> {
   if (!response.ok) {
     const storeEntry = getStoreScraper(url);
     if (storeEntry?.async) {
+      diagnostics.fetchMethod = "store_api_endpoint";
       const result = await (
         storeEntry.scraper as (html: string, url: string) => Promise<ProductData>
       )("", url);
       if (result && (result.title || result.image || result.price)) {
-        return result;
+        addProductSources(diagnostics, result, `store:${storeEntry.pattern}`, "fetch / JSON");
+        return { product: result, diagnostics };
       }
     }
-    return null;
+    return {
+      product: null,
+      diagnostics,
+      blocked: response.status === 403 || response.status === 429,
+    };
   }
 
   let html = await response.text();
+  if (isBlockedResponse(html)) {
+    return { product: null, diagnostics, blocked: true };
+  }
   if (isNonProductResponse(html, url)) {
     // A number of stores return HTTP 200 for a challenge, homepage or login
     // shell. Treat it as a failed legacy fetch so fallback mode can invoke the
     // full Scrapling browser/proxy cascade.
-    return null;
+    return { product: null, diagnostics };
   }
 
   const challengeMatch = html.match(/const\s+defaultHash\s*=\s*"([a-f0-9]{64})"/);
@@ -133,18 +301,31 @@ async function scrapeProductLegacy(url: string): Promise<ProductData | null> {
         Cookie: cookiePairs.join("; "),
       },
     });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      return {
+        product: null,
+        diagnostics,
+        blocked: response.status === 403 || response.status === 429,
+      };
+    }
     html = await response.text();
   }
 
   const storeEntry = getStoreScraper(url);
   let storeResult: ProductData | null = null;
   if (storeEntry) {
+    if (storeEntry.async) diagnostics.fetchMethod = "store_api_endpoint";
     storeResult = storeEntry.async
       ? await (storeEntry.scraper as (html: string, url: string) => Promise<ProductData>)(html, url)
       : (storeEntry.scraper as (html: string, url: string) => ProductData)(html, url);
     if (storeResult.price) {
-      return storeResult;
+      addProductSources(
+        diagnostics,
+        storeResult,
+        `store:${storeEntry.pattern}`,
+        storeEntry.async ? "fetch / JSON" : "Cheerio",
+      );
+      return { product: storeResult, diagnostics };
     }
     const strictStoreDomains = [
       "target.com",
@@ -157,26 +338,63 @@ async function scrapeProductLegacy(url: string): Promise<ProductData | null> {
       strictStoreDomains.some((domain) => new URL(url).hostname.includes(domain)) &&
       (storeResult.title || storeResult.image)
     ) {
-      return storeResult;
+      addProductSources(
+        diagnostics,
+        storeResult,
+        `store:${storeEntry.pattern}`,
+        storeEntry.async ? "fetch / JSON" : "Cheerio",
+      );
+      return { product: storeResult, diagnostics };
     }
   }
 
   const product: ProductData =
     storeResult && (storeResult.title || storeResult.image) ? { ...storeResult } : emptyProduct();
+  if (storeResult && storeEntry) {
+    addProductSources(
+      diagnostics,
+      storeResult,
+      `store:${storeEntry.pattern}`,
+      storeEntry.async ? "fetch / JSON" : "Cheerio",
+    );
+  }
 
   for (const scraper of genericScrapers) {
     const result = scraper(html, url);
 
-    if (!product.title && result.title) product.title = result.title;
-    if (!product.description && result.description) product.description = result.description;
-    if (!product.image && result.image) product.image = result.image;
-    if (!product.price && result.price) product.price = result.price;
-    if (!product.discount_price && result.discount_price)
+    const source = genericSource(scraper.name);
+    if (!product.title && result.title) {
+      product.title = result.title;
+      diagnostics.parserSources.title = source;
+    }
+    if (!product.description && result.description) {
+      product.description = result.description;
+      diagnostics.parserSources.description = source;
+    }
+    if (!product.image && result.image) {
+      product.image = result.image;
+      diagnostics.parserSources.image = source;
+    }
+    if (!product.price && result.price) {
+      product.price = result.price;
+      diagnostics.parserSources.price = source;
+    }
+    if (!product.discount_price && result.discount_price) {
       product.discount_price = result.discount_price;
-    if (!product.has_discount && result.has_discount) product.has_discount = result.has_discount;
-    if (!product.discount_end_date && result.discount_end_date)
+      diagnostics.parserSources.discount_price = source;
+    }
+    if (!product.has_discount && result.has_discount) {
+      product.has_discount = result.has_discount;
+      diagnostics.parserSources.has_discount = source;
+    }
+    if (!product.discount_end_date && result.discount_end_date) {
       product.discount_end_date = result.discount_end_date;
-    if (!product.currency && result.currency) product.currency = result.currency;
+      diagnostics.parserSources.discount_end_date = source;
+    }
+    if (!product.currency && result.currency) {
+      product.currency = result.currency;
+      diagnostics.parserSources.currency = source;
+    }
 
     if (product.title && product.description && product.image && product.price) {
       break;
@@ -196,10 +414,41 @@ async function scrapeProductLegacy(url: string): Promise<ProductData | null> {
   }
 
   if (!product.title && !product.description && !product.image && !product.price) {
-    return null;
+    return { product: null, diagnostics };
   }
 
-  return product;
+  return { product, diagnostics };
+}
+
+function addProductSources(
+  diagnostics: ScrapeProductDiagnostics,
+  product: ProductData,
+  source: string,
+  library: string,
+): void {
+  for (const [field, value] of Object.entries(product)) {
+    if (value !== null && value !== false && value !== "") {
+      diagnostics.parserSources[field] = { source, library };
+    }
+  }
+}
+
+function genericSource(name: string): ScrapeParserSource {
+  if (name === "scrapeWithJSONLD") return { source: "json_ld", library: "JSON.parse" };
+  if (name === "scrapeWithRegex") return { source: "regex", library: "RegExp" };
+  return { source: "html_meta_dom", library: "Cheerio" };
+}
+
+function isBlockedResponse(html: string): boolean {
+  const sample = html.slice(0, 500_000).toLowerCase();
+  return [
+    "captcha",
+    "cf-chl-",
+    "cloudflare challenge",
+    "attention required! | cloudflare",
+    "please enable javascript and cookies to continue",
+    "access denied",
+  ].some((marker) => sample.includes(marker));
 }
 
 function isNonProductResponse(html: string, url: string): boolean {

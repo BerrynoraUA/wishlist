@@ -33,10 +33,25 @@ class QualityResult(StrictModel):
     warnings: list[str] = Field(default_factory=list)
 
 
+class FetchAttemptDiagnostics(StrictModel):
+    sequence: int = Field(ge=1)
+    mode: FetchMode
+    purpose: str
+    outcome: str
+    duration_ms: int = Field(default=0, ge=0)
+    status: int | None = Field(default=None, ge=100, le=599)
+    block_reason: str | None = None
+    error: str | None = None
+    parse_score: int | None = Field(default=None, ge=0, le=100)
+    parse_accepted: bool | None = None
+    selected: bool = False
+
+
 class ScrapeDiagnostics(StrictModel):
     fetch_mode: FetchMode
+    selected_fetch_mode: FetchMode | None = None
     status: int | None = Field(default=None, ge=100, le=599)
-    attempts: int = Field(default=0, ge=0)
+    attempts: list[FetchAttemptDiagnostics] = Field(default_factory=list)
     elapsed_ms: int = Field(default=0, ge=0)
     parser_sources: dict[str, str] = Field(default_factory=dict)
 
@@ -44,7 +59,7 @@ class ScrapeDiagnostics(StrictModel):
 class ScrapeRequest(StrictModel):
     url: HttpUrl
     request_id: str | None = Field(default=None, min_length=1, max_length=128)
-    deadline_ms: int = Field(default=20_000, ge=1_000, le=60_000)
+    deadline_ms: int = Field(default=59_500, ge=1_000, le=60_000)
 
     @model_validator(mode="after")
     def reject_url_credentials(self) -> "ScrapeRequest":
@@ -74,6 +89,7 @@ class ErrorDetail(StrictModel):
     code: ErrorCode
     message: str
     request_id: str | None = None
+    diagnostics: ScrapeDiagnostics | None = None
 
 
 class ErrorResponse(StrictModel):

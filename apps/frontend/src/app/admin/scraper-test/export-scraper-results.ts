@@ -22,6 +22,26 @@ export type ExportRowInput = {
     actual: string | boolean | null;
     match: boolean | null;
   }[];
+  diagnostics?: {
+    engine: "legacy" | "scrapling";
+    fetchMethod: string;
+    selectedFetchMethod?: string;
+    attempts: {
+      sequence: number;
+      mode: string;
+      purpose: string;
+      outcome: string;
+      durationMs: number;
+      status?: number;
+      blockReason?: string;
+      error?: string;
+      parseScore?: number;
+      parseAccepted?: boolean;
+      selected?: boolean;
+    }[];
+    parserSources: Record<string, { source: string; library: string }>;
+    warnings?: string[];
+  };
 };
 
 type ExportRow = {
@@ -39,6 +59,12 @@ type ExportRow = {
   has_discount: string;
   discount_end_date: string;
   validations: string;
+  engine: string;
+  fetch_method: string;
+  selected_fetch_method: string;
+  pipeline: string;
+  parser_sources: string;
+  warnings: string;
 };
 
 function toRows(results: ExportRowInput[]): ExportRow[] {
@@ -57,6 +83,22 @@ function toRows(results: ExportRowInput[]): ExportRow[] {
     has_discount: r.data?.has_discount === undefined ? "" : r.data.has_discount ? "yes" : "no",
     discount_end_date: r.data?.discount_end_date ?? "",
     validations: formatValidations(r.validations),
+    engine: r.diagnostics?.engine ?? "",
+    fetch_method: r.diagnostics?.fetchMethod ?? "",
+    selected_fetch_method: r.diagnostics?.selectedFetchMethod ?? "",
+    pipeline:
+      r.diagnostics?.attempts
+        .map(
+          (attempt) =>
+            `${attempt.sequence}. ${attempt.mode}: ${attempt.outcome} (${attempt.durationMs}ms)`,
+        )
+        .join(" → ") ?? "",
+    parser_sources: r.diagnostics
+      ? Object.entries(r.diagnostics.parserSources)
+          .map(([field, details]) => `${field}: ${details.source} (${details.library})`)
+          .join(" | ")
+      : "",
+    warnings: r.diagnostics?.warnings?.join(", ") ?? "",
   }));
 }
 
@@ -105,6 +147,7 @@ export function exportScraperResultsJson(
       missingFields: r.missingFields,
       data: r.data,
       validations: r.validations,
+      diagnostics: r.diagnostics,
     })),
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {
