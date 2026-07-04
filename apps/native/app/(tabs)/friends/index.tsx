@@ -17,10 +17,10 @@ import {
   useAcceptFriendRequest,
   useCancelFriendRequest,
   useDeleteFriendGroup,
-  useFriendGroups,
-  useFriends,
-  useIncomingFriendRequests,
-  useOutgoingFriendRequests,
+  useInfiniteFriendGroups,
+  useInfiniteFriends,
+  useInfiniteIncomingFriendRequests,
+  useInfiniteOutgoingFriendRequests,
   useRejectFriendRequest,
   useRemoveFriend,
   useUpdateFriendGroup,
@@ -48,6 +48,7 @@ type SheetState =
 
 type FriendEntry = FriendWithDetails | FriendGroup | FriendRequestWithDetails;
 type FriendsRow = FriendEntry[];
+const FRIENDS_PAGE_SIZE = 20;
 const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
 const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 9999 }];
 
@@ -75,10 +76,10 @@ export default function FriendsScreen() {
     () => ({ search: tab === "groups" ? debouncedSearch : undefined }),
     [debouncedSearch, tab],
   );
-  const friendsQuery = useFriends(friendsParams);
-  const groupsQuery = useFriendGroups(groupsParams);
-  const requestsQuery = useIncomingFriendRequests();
-  const outgoingQuery = useOutgoingFriendRequests();
+  const friendsQuery = useInfiniteFriends(friendsParams, FRIENDS_PAGE_SIZE);
+  const groupsQuery = useInfiniteFriendGroups(groupsParams, FRIENDS_PAGE_SIZE);
+  const requestsQuery = useInfiniteIncomingFriendRequests(FRIENDS_PAGE_SIZE);
+  const outgoingQuery = useInfiniteOutgoingFriendRequests(FRIENDS_PAGE_SIZE);
   const acceptRequest = useAcceptFriendRequest();
   const rejectRequest = useRejectFriendRequest();
   const cancelRequest = useCancelFriendRequest();
@@ -90,10 +91,22 @@ export default function FriendsScreen() {
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
-  const friends = friendsQuery.data ?? [];
-  const groups = groupsQuery.data ?? [];
-  const requests = requestsQuery.data ?? [];
-  const outgoing = outgoingQuery.data ?? [];
+  const friends = React.useMemo(
+    () => friendsQuery.data?.pages.flatMap((page) => page) ?? [],
+    [friendsQuery.data],
+  );
+  const groups = React.useMemo(
+    () => groupsQuery.data?.pages.flatMap((page) => page) ?? [],
+    [groupsQuery.data],
+  );
+  const requests = React.useMemo(
+    () => requestsQuery.data?.pages.flatMap((page) => page) ?? [],
+    [requestsQuery.data],
+  );
+  const outgoing = React.useMemo(
+    () => outgoingQuery.data?.pages.flatMap((page) => page) ?? [],
+    [outgoingQuery.data],
+  );
 
   const activeItems = React.useMemo<FriendEntry[]>(() => {
     if (tab === "groups") return groups;
@@ -122,6 +135,20 @@ export default function FriendsScreen() {
         : tab === "sent"
           ? outgoingQuery.isError
           : friendsQuery.isError;
+  const activeQuery =
+    tab === "groups"
+      ? groupsQuery
+      : tab === "requests"
+        ? requestsQuery
+        : tab === "sent"
+          ? outgoingQuery
+          : friendsQuery;
+
+  function loadMore() {
+    if (activeQuery.hasNextPage && !activeQuery.isFetchingNextPage) {
+      void activeQuery.fetchNextPage();
+    }
+  }
 
   function handleSubmitGroup(payload: Parameters<typeof updateGroup.mutateAsync>[0]["payload"]) {
     if (sheet?.type !== "group") return Promise.resolve();
@@ -190,6 +217,8 @@ export default function FriendsScreen() {
           onScroll={requestMeasure}
           scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View className="h-4" />}
+          onEndReached={loadMore}
+          isLoadingMore={activeQuery.isFetchingNextPage}
           ListHeaderComponent={
             <View className="gap-4 self-center pb-4" style={{ width: contentWidth }}>
               <FriendsTabs

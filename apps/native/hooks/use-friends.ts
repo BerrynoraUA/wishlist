@@ -27,7 +27,7 @@ import type {
   FriendGroupPayload,
   GetFriendsWithoutWishlistAccessParams,
 } from "@wishlist/backend/types/friends";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { wishlistKeys } from "./use-wishlists";
 
@@ -71,12 +71,46 @@ export function useIncomingFriendRequests(params?: PaginationParams) {
   });
 }
 
+export function useInfiniteIncomingFriendRequests(pageSize: number) {
+  const { user } = useAuth();
+
+  return useInfiniteQuery({
+    queryKey: friendKeys.incoming(user?.id, { take: pageSize }),
+    queryFn: ({ pageParam }) =>
+      getIncomingFriendRequests({
+        skip: pageParam * pageSize,
+        take: pageSize,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
+    enabled: Boolean(user?.id),
+  });
+}
+
 export function useOutgoingFriendRequests(params?: PaginationParams) {
   const { user } = useAuth();
 
   return useQuery({
     queryKey: friendKeys.outgoing(user?.id, params),
     queryFn: () => getOutgoingFriendRequests(params),
+    enabled: Boolean(user?.id),
+  });
+}
+
+export function useInfiniteOutgoingFriendRequests(pageSize: number) {
+  const { user } = useAuth();
+
+  return useInfiniteQuery({
+    queryKey: friendKeys.outgoing(user?.id, { take: pageSize }),
+    queryFn: ({ pageParam }) =>
+      getOutgoingFriendRequests({
+        skip: pageParam * pageSize,
+        take: pageSize,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
     enabled: Boolean(user?.id),
   });
 }
@@ -145,6 +179,30 @@ export function useFriends(params?: PaginationParams) {
   });
 }
 
+export function useInfiniteFriends(params: PaginationParams, pageSize: number) {
+  const { user } = useAuth();
+  const normalizedParams = React.useMemo(
+    () => ({
+      search: normalizeSearchQuery(params.search) || undefined,
+    }),
+    [params.search],
+  );
+
+  return useInfiniteQuery({
+    queryKey: friendKeys.list(user?.id, { ...normalizedParams, take: pageSize }),
+    queryFn: ({ pageParam }) =>
+      getFriends({
+        ...normalizedParams,
+        skip: pageParam * pageSize,
+        take: pageSize,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
+    enabled: Boolean(user?.id),
+  });
+}
+
 export function useFriendGroups(params?: PaginationParams) {
   const { user } = useAuth();
   const normalizedParams = React.useMemo(
@@ -162,6 +220,30 @@ export function useFriendGroups(params?: PaginationParams) {
   return useQuery({
     queryKey: friendKeys.groupList(user?.id, normalizedParams),
     queryFn: () => getFriendGroups(normalizedParams),
+    enabled: Boolean(user?.id),
+  });
+}
+
+export function useInfiniteFriendGroups(params: PaginationParams, pageSize: number) {
+  const { user } = useAuth();
+  const normalizedParams = React.useMemo(
+    () => ({
+      search: normalizeSearchQuery(params.search) || undefined,
+    }),
+    [params.search],
+  );
+
+  return useInfiniteQuery({
+    queryKey: friendKeys.groupList(user?.id, { ...normalizedParams, take: pageSize }),
+    queryFn: ({ pageParam }) =>
+      getFriendGroups({
+        ...normalizedParams,
+        skip: pageParam * pageSize,
+        take: pageSize,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
     enabled: Boolean(user?.id),
   });
 }

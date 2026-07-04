@@ -1,5 +1,4 @@
 import { InlineState } from "@/components/shared/inline-state";
-import { Button } from "@/components/ui/button";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
@@ -36,6 +35,7 @@ import { createWishlistShareToken } from "@/api/share";
 import { useCheckFriendship, useProfilesByIds } from "@/hooks/use-friends";
 import {
   useItemVotes,
+  useInfiniteWishlistItems,
   useToggleItemBought,
   useToggleItemReservation,
   useToggleItemVote,
@@ -55,7 +55,7 @@ import {
 } from "@/lib/items";
 import { chunkRows } from "@/lib/layout";
 import { cn } from "@/lib/utils";
-import { getWishlistAccentClass, paginationFlags } from "@/lib/wishlists";
+import { getWishlistAccentClass } from "@/lib/wishlists";
 import type { Item } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -101,7 +101,6 @@ export default function WishlistDetailScreen() {
   const wishlistQuery = useWishlistById(wishlistId);
   const wishlist = wishlistQuery.data;
   const currentUser = useCurrentUserId();
-  const [page, setPage] = React.useState(1);
   const [filters, setFilters] = React.useState<WishlistItemFilterState>(EMPTY_FILTERS);
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
@@ -132,8 +131,6 @@ export default function WishlistDetailScreen() {
     }
 
     return {
-      skip: (page - 1) * WISHLIST_ITEMS_PAGE_SIZE,
-      take: WISHLIST_ITEMS_PAGE_SIZE,
       search: debouncedSearch,
       sort: filters.sort,
       statuses,
@@ -141,11 +138,18 @@ export default function WishlistDetailScreen() {
       priceMin: parseOptionalNumber(filters.priceMin),
       priceMax: parseOptionalNumber(filters.priceMax),
     };
-  }, [debouncedSearch, filters, page]);
+  }, [debouncedSearch, filters]);
 
-  const itemsQuery = useWishlistItems(wishlistId, itemQueryParams);
+  const itemsQuery = useInfiniteWishlistItems(
+    wishlistId,
+    itemQueryParams,
+    WISHLIST_ITEMS_PAGE_SIZE,
+  );
   const allItemsQuery = useWishlistItems(wishlistId, { skip: 0, take: 1 });
-  const items = itemsQuery.data ?? [];
+  const items = React.useMemo(
+    () => itemsQuery.data?.pages.flatMap((page) => page) ?? [],
+    [itemsQuery.data],
+  );
   const itemIds = React.useMemo(() => items.map((item) => item.id), [items]);
   const votesQuery = useItemVotes(itemIds);
   const toggleVote = useToggleItemVote(itemIds);
@@ -174,7 +178,6 @@ export default function WishlistDetailScreen() {
   }, [profilesQuery.data, t]);
   const filtersActive = wishlistItemFilterBarHasActiveFilters(filters);
   const hasAnyItems = (allItemsQuery.data?.length ?? 0) > 0;
-  const pagination = paginationFlags(page, items.length, WISHLIST_ITEMS_PAGE_SIZE);
   const contentWidth = Math.min(width - 32, 1200);
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;
@@ -192,13 +195,17 @@ export default function WishlistDetailScreen() {
 
   function updateFilters(patch: Partial<WishlistItemFilterState>) {
     setFilters((current) => ({ ...current, ...patch }));
-    setPage(1);
   }
 
   function resetFilters() {
     setFilters(EMPTY_FILTERS);
     setDebouncedSearch("");
-    setPage(1);
+  }
+
+  function loadMoreItems() {
+    if (itemsQuery.hasNextPage && !itemsQuery.isFetchingNextPage) {
+      void itemsQuery.fetchNextPage();
+    }
   }
 
   async function handleShareWishlist() {
@@ -349,7 +356,6 @@ export default function WishlistDetailScreen() {
           style={{
             alignSelf: "center",
             gap: gridGap,
-            opacity: itemsQuery.isFetching ? 0.6 : 1,
             width: contentWidth,
           }}
         >
@@ -390,7 +396,6 @@ export default function WishlistDetailScreen() {
       filtersOpen,
       gridGap,
       insets.top,
-      itemsQuery.isFetching,
       profileNamesById,
       showDiscountBadge,
       toggleVote,
@@ -453,6 +458,9 @@ export default function WishlistDetailScreen() {
             onScroll={stickyHeader.onScroll}
             scrollEventThrottle={1}
             ItemSeparatorComponent={ItemRowSeparator}
+            onEndReached={loadMoreItems}
+            isLoadingMore={itemsQuery.isFetchingNextPage}
+            getItemType={(row) => ("type" in row ? row.type : "item-row")}
             ListFooterComponent={
               <View
                 className="gap-5"
@@ -480,25 +488,6 @@ export default function WishlistDetailScreen() {
                     }
                   />
                 ) : null}
-                {pagination.showPagination ? (
-                  <View className="flex-row items-center justify-center gap-2 pt-1">
-                    <Button
-                      variant="outline"
-                      disabled={!pagination.hasPrevPage}
-                      onPress={() => setPage((current) => Math.max(1, current - 1))}
-                    >
-                      <Text>{t("Previous")}</Text>
-                    </Button>
-                    <Text className="px-2 text-sm font-bold text-text-muted">{page}</Text>
-                    <Button
-                      variant="outline"
-                      disabled={!pagination.hasNextPage}
-                      onPress={() => setPage((current) => current + 1)}
-                    >
-                      <Text>{t("Next")}</Text>
-                    </Button>
-                  </View>
-                ) : null}
               </View>
             }
             extraData={{
@@ -507,7 +496,6 @@ export default function WishlistDetailScreen() {
               filters,
               filtersOpen,
               gridGap,
-              isFetching: itemsQuery.isFetching,
             }}
           />
         )}

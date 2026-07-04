@@ -60,6 +60,8 @@ export function DiscoverItemCard({
               source={{ uri: item.image_url }}
               contentFit="cover"
               contentPosition="center"
+              cachePolicy="memory-disk"
+              recyclingKey={item.id}
               className="absolute inset-0 size-full"
             />
           ) : (

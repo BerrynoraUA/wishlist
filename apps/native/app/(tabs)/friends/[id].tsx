@@ -6,9 +6,10 @@ import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { useRemoveFriend } from "@/hooks/use-friends";
-import { useFriendWishlists } from "@/hooks/use-wishlists";
+import { useInfiniteFriendWishlists } from "@/hooks/use-wishlists";
 import { chunkRows } from "@/lib/layout";
 import {
+  WISHLIST_PAGE_SIZE,
   WISHLIST_VISIBILITY_ICONS,
   getWishlistAccentClass,
   getWishlistVisibilityLabels,
@@ -29,10 +30,13 @@ export default function FriendWishlistsScreen() {
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const friendId = Array.isArray(id) ? (id[0] ?? "") : (id ?? "");
-  const wishlistsQuery = useFriendWishlists(friendId);
+  const wishlistsQuery = useInfiniteFriendWishlists(friendId, {}, WISHLIST_PAGE_SIZE);
   const removeFriend = useRemoveFriend();
   const [removeOpen, setRemoveOpen] = React.useState(false);
-  const wishlists = wishlistsQuery.data ?? [];
+  const wishlists = React.useMemo(
+    () => wishlistsQuery.data?.pages.flatMap((page) => page) ?? [],
+    [wishlistsQuery.data],
+  );
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;
@@ -43,6 +47,12 @@ export default function FriendWishlistsScreen() {
     removeFriend.mutate(friendId, {
       onSuccess: () => router.replace("/friends" as never),
     });
+  }
+
+  function loadMoreWishlists() {
+    if (wishlistsQuery.hasNextPage && !wishlistsQuery.isFetchingNextPage) {
+      void wishlistsQuery.fetchNextPage();
+    }
   }
 
   return (
@@ -76,6 +86,8 @@ export default function FriendWishlistsScreen() {
           contentContainerClassName="pb-8"
           contentContainerStyle={{ paddingTop: insets.top + 24 }}
           ItemSeparatorComponent={() => <View className="h-4" />}
+          onEndReached={loadMoreWishlists}
+          isLoadingMore={wishlistsQuery.isFetchingNextPage}
           ListHeaderComponent={
             <View className="gap-5 self-center pb-5" style={{ width: contentWidth }}>
               <View className="flex-row items-start justify-between gap-3">

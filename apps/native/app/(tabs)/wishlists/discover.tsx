@@ -259,6 +259,9 @@ export default function DiscoverScreen() {
         onScroll={stickyHeader.onScroll}
         scrollEventThrottle={1}
         ItemSeparatorComponent={RowSeparator}
+        onEndReached={feed.loadMore}
+        isLoadingMore={feed.activeQuery.isFetchingNextPage}
+        getItemType={(row) => ("type" in row ? row.type : "discover-section")}
         ListFooterComponent={
           <View className="gap-4 self-center" style={{ width: contentWidth }}>
             {feed.activeQuery.isLoading ? (

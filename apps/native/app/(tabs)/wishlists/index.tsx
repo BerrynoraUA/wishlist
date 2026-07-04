@@ -38,8 +38,6 @@ export default function WishlistsScreen() {
           contentWidth={feed.contentWidth}
           columns={feed.columns}
           gridGap={feed.gridGap}
-          pagination={feed.pagination}
-          page={feed.page}
           ListHeaderComponent={
             <View>
               <WishlistListStatsRow />
@@ -62,7 +60,7 @@ export default function WishlistsScreen() {
               onFiltersOpenChange={setFiltersOpen}
             />
           }
-          onPageChange={feed.setPage}
+          onEndReached={feed.loadMore}
           onOpenSheet={setSheet}
         />
 

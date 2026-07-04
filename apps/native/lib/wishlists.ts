@@ -138,15 +138,6 @@ export function normalizeSearchQuery(value?: string) {
   return value?.trim().replace(/\s+/g, " ") ?? "";
 }
 
-export function paginationFlags(page: number, itemsCount: number, pageSize: number) {
-  return {
-    hasNextPage: itemsCount === pageSize,
-    hasPrevPage: page > 1,
-    showPagination: itemsCount === pageSize || page > 1,
-    totalForPagination: itemsCount === pageSize ? page + 1 : page,
-  };
-}
-
 export function hasActiveFilters(search: string, visibility: string[]) {
   return search.trim() !== "" || visibility.length > 0;
 }

@@ -17,7 +17,7 @@ import type {
   ItemVotesResult,
   UpdateItemParams,
 } from "@wishlist/backend/types/item";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const itemKeys = {
   all: ["items"] as const,
@@ -39,6 +39,34 @@ export function useWishlistItems(wishlistId: string, params?: ItemQueryParams) {
   return useQuery({
     queryKey: itemKeys.wishlist(user?.id, wishlistId, normalizedParams),
     queryFn: () => getWishlistItems(wishlistId, normalizedParams),
+    enabled: Boolean(user?.id && wishlistId),
+  });
+}
+
+export function useInfiniteWishlistItems(
+  wishlistId: string,
+  params: ItemQueryParams,
+  pageSize: number,
+) {
+  const { user } = useAuth();
+  const normalizedParams = {
+    ...params,
+    skip: undefined,
+    take: undefined,
+    search: normalizeItemSearch(params.search) || undefined,
+  };
+
+  return useInfiniteQuery({
+    queryKey: itemKeys.wishlist(user?.id, wishlistId, { ...normalizedParams, take: pageSize }),
+    queryFn: ({ pageParam }) =>
+      getWishlistItems(wishlistId, {
+        ...normalizedParams,
+        skip: pageParam * pageSize,
+        take: pageSize,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
     enabled: Boolean(user?.id && wishlistId),
   });
 }

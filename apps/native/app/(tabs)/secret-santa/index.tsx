@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useNotifications } from "@/hooks/use-notifications";
-import { useSecretSantaEvents } from "@/hooks/use-secret-santa";
+import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { SECRET_SANTA_PAGE_SIZE } from "@/lib/secret-santa";
 import { chunkRows } from "@/lib/layout";
@@ -49,13 +49,17 @@ export default function SecretSantaScreen() {
     return () => clearTimeout(timeout);
   }, [search]);
 
-  const query = useSecretSantaEvents({
-    search: debouncedSearch,
-    limit: SECRET_SANTA_PAGE_SIZE,
-    offset: 0,
-  });
+  const query = useInfiniteSecretSantaEvents(
+    {
+      search: debouncedSearch,
+    },
+    SECRET_SANTA_PAGE_SIZE,
+  );
   const notificationsQuery = useNotifications({ limit: 50 });
-  const events = query.data?.items ?? [];
+  const events = React.useMemo(
+    () => query.data?.pages.flatMap((page) => page.items) ?? [],
+    [query.data],
+  );
   const inviteNotifications = React.useMemo(
     () =>
       (notificationsQuery.data ?? []).filter(
@@ -127,6 +131,12 @@ export default function SecretSantaScreen() {
     );
   }
 
+  function loadMoreEvents() {
+    if (activeTab === "events" && query.hasNextPage && !query.isFetchingNextPage) {
+      void query.fetchNextPage();
+    }
+  }
+
   return (
     <>
       <Stack.Screen options={{ title: t("Secret Santa") }} />
@@ -139,6 +149,8 @@ export default function SecretSantaScreen() {
           contentContainerClassName="pb-8"
           contentContainerStyle={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
           ItemSeparatorComponent={() => <View className="h-4" />}
+          onEndReached={loadMoreEvents}
+          isLoadingMore={activeTab === "events" && query.isFetchingNextPage}
           ListHeaderComponent={
             <View className="gap-5 self-center pb-8" style={{ width: contentWidth }}>
               <View className="relative h-11">

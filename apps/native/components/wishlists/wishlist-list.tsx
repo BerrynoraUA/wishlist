@@ -1,7 +1,6 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { InlineState } from "@/components/shared/inline-state";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,8 +36,6 @@ import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import type { TriggerRef } from "@rn-primitives/dropdown-menu";
 import { Link } from "expo-router";
 import {
-  ChevronLeft,
-  ChevronRight,
   Gift,
   Link2,
   ListChecks,
@@ -69,16 +66,14 @@ export function WishlistList({
   contentWidth,
   columns,
   gridGap,
-  pagination,
-  page,
   ListHeaderComponent,
   StickyHeaderComponent,
-  onPageChange,
+  onEndReached,
   onOpenSheet,
 }: {
   query: {
     isLoading: boolean;
-    isFetching: boolean;
+    isFetchingNextPage?: boolean;
     isError: boolean;
   };
   wishlists: Wishlist[];
@@ -87,16 +82,9 @@ export function WishlistList({
   contentWidth: number;
   columns: number;
   gridGap: number;
-  pagination: {
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-    showPagination: boolean;
-    totalForPagination: number;
-  };
-  page: number;
   ListHeaderComponent: React.ReactElement;
   StickyHeaderComponent: React.ReactElement;
-  onPageChange: (page: number) => void;
+  onEndReached: () => void;
   onOpenSheet: (sheet: Exclude<SheetState, null>) => void;
 }) {
   const t = useGT();
@@ -139,7 +127,6 @@ export function WishlistList({
           style={{
             alignSelf: "center",
             gap: gridGap,
-            opacity: query.isFetching ? 0.6 : 1,
             width: contentWidth,
           }}
         >
@@ -193,7 +180,6 @@ export function WishlistList({
       inlineHeaderPaddingTop,
       onOpenSheet,
       completeOpenDetailStep,
-      query.isFetching,
       stickyHeader.onHeaderLayout,
       StickyHeaderComponent,
     ],
@@ -209,6 +195,9 @@ export function WishlistList({
         contentContainerClassName="pb-8"
         contentContainerStyle={{ paddingTop: contentTopPadding }}
         ItemSeparatorComponent={RowSeparator}
+        onEndReached={onEndReached}
+        isLoadingMore={query.isFetchingNextPage}
+        getItemType={(row) => ("type" in row ? row.type : "wishlist-row")}
         onScroll={stickyHeader.onScroll}
         scrollEventThrottle={1}
         ListHeaderComponent={
@@ -235,22 +224,12 @@ export function WishlistList({
                 message={t("No wishlists match your filters.")}
               />
             ) : null}
-            {pagination.showPagination ? (
-              <PaginationControls
-                page={page}
-                total={pagination.totalForPagination}
-                hasPrevPage={pagination.hasPrevPage}
-                hasNextPage={pagination.hasNextPage}
-                onChange={onPageChange}
-              />
-            ) : null}
           </View>
         }
         extraData={{
           cardWidth,
           contentWidth,
           gridGap,
-          isFetching: query.isFetching,
           StickyHeaderComponent,
         }}
       />
@@ -401,6 +380,8 @@ function WishlistCard({
                 <StyledImage
                   source={{ uri: wishlist.image_url }}
                   contentFit="cover"
+                  cachePolicy="memory-disk"
+                  recyclingKey={wishlist.id}
                   className="absolute inset-0 size-full"
                 />
               ) : (
@@ -477,50 +458,5 @@ function WishlistCard({
         </DropdownMenuContent>
       </DropdownMenu>
     </Animated.View>
-  );
-}
-
-function PaginationControls({
-  page,
-  total,
-  hasPrevPage,
-  hasNextPage,
-  onChange,
-}: {
-  page: number;
-  total: number;
-  hasPrevPage: boolean;
-  hasNextPage: boolean;
-  onChange: (page: number) => void;
-}) {
-  return (
-    <View className="flex-row items-center justify-center gap-2 pt-2">
-      <Button
-        variant="outline"
-        size="icon"
-        disabled={!hasPrevPage}
-        onPress={() => onChange(Math.max(1, page - 1))}
-      >
-        <Icon as={ChevronLeft} className="size-4 text-text" />
-      </Button>
-      {Array.from({ length: total }, (_, index) => index + 1).map((item) => (
-        <Button
-          key={item}
-          variant={item === page ? "default" : "outline"}
-          size="icon"
-          onPress={() => onChange(item)}
-        >
-          <Text>{item}</Text>
-        </Button>
-      ))}
-      <Button
-        variant="outline"
-        size="icon"
-        disabled={!hasNextPage}
-        onPress={() => onChange(page + 1)}
-      >
-        <Icon as={ChevronRight} className="size-4 text-text" />
-      </Button>
-    </View>
   );
 }

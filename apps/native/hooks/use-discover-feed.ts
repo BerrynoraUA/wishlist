@@ -1,9 +1,9 @@
 import {
   useFriendsUpcomingWishlists,
-  useFriendsWishlistsDiscover,
-  useFriendsWishlistsDiscoverAll,
-  useFriendsWishlistsPurchasedByMe,
-  useFriendsWishlistsReservedByMe,
+  useInfiniteFriendsWishlistsDiscover,
+  useInfiniteFriendsWishlistsDiscoverAll,
+  useInfiniteFriendsWishlistsPurchasedByMe,
+  useInfiniteFriendsWishlistsReservedByMe,
 } from "@/hooks/use-wishlists";
 import { DISCOVER_PAGE_SIZE, type DiscoverTab, isDiscoverSectionTab } from "@/lib/discover";
 import { parseOptionalNumber } from "@/lib/items";
@@ -27,8 +27,6 @@ export function useDiscoverFeed() {
 
   const params = React.useMemo<DiscoverQueryParams>(
     () => ({
-      skip: 0,
-      take: DISCOVER_PAGE_SIZE,
       search: normalizeSearchQuery(debouncedSearch) || undefined,
       sort,
       priorities: priorityIds,
@@ -39,16 +37,47 @@ export function useDiscoverFeed() {
     [debouncedSearch, priceMax, priceMin, priorityIds, sort],
   );
 
-  const allQuery = useFriendsWishlistsDiscoverAll(params, tab === "wishlists");
-  const availableQuery = useFriendsWishlistsDiscover(params, tab === "available");
-  const reservedQuery = useFriendsWishlistsReservedByMe(params, tab === "reserved");
-  const purchasedQuery = useFriendsWishlistsPurchasedByMe(params, tab === "purchased");
+  const allQuery = useInfiniteFriendsWishlistsDiscoverAll(
+    params,
+    DISCOVER_PAGE_SIZE,
+    tab === "wishlists",
+  );
+  const availableQuery = useInfiniteFriendsWishlistsDiscover(
+    params,
+    DISCOVER_PAGE_SIZE,
+    tab === "available",
+  );
+  const reservedQuery = useInfiniteFriendsWishlistsReservedByMe(
+    params,
+    DISCOVER_PAGE_SIZE,
+    tab === "reserved",
+  );
+  const purchasedQuery = useInfiniteFriendsWishlistsPurchasedByMe(
+    params,
+    DISCOVER_PAGE_SIZE,
+    tab === "purchased",
+  );
   const upcomingQuery = useFriendsUpcomingWishlists();
 
   const sectionTab = isDiscoverSectionTab(tab);
-  const activeSections = tab === "available" ? (availableQuery.data ?? []) : (allQuery.data ?? []);
-  const activeItems =
-    tab === "purchased" ? (purchasedQuery.data ?? []) : (reservedQuery.data ?? []);
+  const allSections = React.useMemo(
+    () => allQuery.data?.pages.flatMap((page) => page) ?? [],
+    [allQuery.data],
+  );
+  const availableSections = React.useMemo(
+    () => availableQuery.data?.pages.flatMap((page) => page) ?? [],
+    [availableQuery.data],
+  );
+  const reservedItems = React.useMemo(
+    () => reservedQuery.data?.pages.flatMap((page) => page) ?? [],
+    [reservedQuery.data],
+  );
+  const purchasedItems = React.useMemo(
+    () => purchasedQuery.data?.pages.flatMap((page) => page) ?? [],
+    [purchasedQuery.data],
+  );
+  const activeSections = tab === "available" ? availableSections : allSections;
+  const activeItems = tab === "purchased" ? purchasedItems : reservedItems;
   const activeQuery =
     tab === "available"
       ? availableQuery
@@ -81,6 +110,12 @@ export function useDiscoverFeed() {
     setSort("default");
   }
 
+  function loadMore() {
+    if (activeQuery.hasNextPage && !activeQuery.isFetchingNextPage) {
+      void activeQuery.fetchNextPage();
+    }
+  }
+
   return {
     tab,
     search,
@@ -94,6 +129,7 @@ export function useDiscoverFeed() {
     activeQuery,
     upcomingQuery,
     filtersActive,
+    loadMore,
     setTab,
     setSearch,
     setPriceMin,
