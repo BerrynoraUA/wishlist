@@ -44,15 +44,6 @@ export default function TabsLayout() {
         tintColor={navigationTheme.colors.primary}
       >
         <NativeTabs.Trigger
-          name="secret-santa"
-          listeners={{
-            tabPress: () => handleTabPress("secret-santa"),
-          }}
-        >
-          <NativeTabs.Trigger.Icon sf="party.popper.fill" md="card_giftcard" />
-          <NativeTabs.Trigger.Label>{t("Secret Santa")}</NativeTabs.Trigger.Label>
-        </NativeTabs.Trigger>
-        <NativeTabs.Trigger
           name="wishlists"
           listeners={{
             tabPress: () => handleTabPress("wishlists"),
@@ -60,6 +51,15 @@ export default function TabsLayout() {
         >
           <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
           <NativeTabs.Trigger.Label>{t("Wishlists")}</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger
+          name="secret-santa"
+          listeners={{
+            tabPress: () => handleTabPress("secret-santa"),
+          }}
+        >
+          <NativeTabs.Trigger.Icon sf="party.popper.fill" md="card_giftcard" />
+          <NativeTabs.Trigger.Label>{t("Secret Santa")}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
         {/* Disabled trigger: the native side blocks selection but still emits
             tabPress, which opens the create menu instead of navigating. */}
