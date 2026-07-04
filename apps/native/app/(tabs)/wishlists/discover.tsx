@@ -9,6 +9,7 @@ import { ReservedItemsGrid } from "@/components/discover/reserved-items-grid";
 import { DiscoverItemDetailSheet } from "@/components/discover/sheets/discover-item-detail-sheet";
 import { UpcomingEventsCard } from "@/components/discover/upcoming-events-card";
 import { InlineState } from "@/components/shared/inline-state";
+import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import {
   InstantStickyHeaderOverlay,
   StickyHeaderBackground,
@@ -27,6 +28,7 @@ import {
 import { useAuth } from "@/providers/auth-provider";
 import type { DiscoverSection as DiscoverSectionType } from "@wishlist/backend/types/discover";
 import type { Item } from "@wishlist/backend/types/item";
+import { Stack } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View, useWindowDimensions } from "react-native";
@@ -246,6 +248,7 @@ export default function DiscoverScreen() {
 
   return (
     <View className="flex-1 bg-bg">
+      <Stack.Screen options={{ title: t("Discover") }} />
       <StyledFlashList
         data={rows}
         renderItem={renderRow}
@@ -294,6 +297,7 @@ export default function DiscoverScreen() {
       <InstantStickyHeaderOverlay ready={stickyHeader.ready} style={stickyHeader.overlayStyle}>
         {renderDiscoverHeader(false)}
       </InstantStickyHeaderOverlay>
+      <FloatingBackButton />
 
       {selection ? (
         <DiscoverItemDetailSheet

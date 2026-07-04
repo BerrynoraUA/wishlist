@@ -3,26 +3,19 @@ import { FriendGroupCard } from "@/components/friends/friend-group-card";
 import { FriendsTabs, type FriendsTab } from "@/components/friends/friends-tabs";
 import { OutgoingRequestCard } from "@/components/friends/outgoing-request-card";
 import { RequestCard } from "@/components/friends/request-card";
-import { AddFriendSheet } from "@/components/friends/sheets/add-friend-sheet";
 import { FriendGroupSheet } from "@/components/friends/sheets/friend-group-sheet";
 import { InlineState } from "@/components/shared/inline-state";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
-import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
-import { GuideTarget } from "@/components/user-guide/guide-target";
-import {
-  useUserGuideStepCompletion,
-  useUserGuideTargetRegistration,
-} from "@/components/user-guide/user-guide-provider";
+import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import {
   useAcceptFriendRequest,
   useCancelFriendRequest,
-  useCreateFriendGroup,
   useDeleteFriendGroup,
   useFriendGroups,
   useFriends,
@@ -41,15 +34,14 @@ import type {
 } from "@wishlist/backend/types/friends";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack, useRouter } from "expo-router";
-import { Plus, Search, UserPlus, X } from "lucide-react-native";
+import { Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, StyleSheet, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SheetState =
-  | { type: "add" }
-  | { type: "group"; group: FriendGroup | null }
+  | { type: "group"; group: FriendGroup }
   | { type: "removeFriend"; friendId: string }
   | { type: "deleteGroup"; group: FriendGroup }
   | null;
@@ -68,8 +60,6 @@ export default function FriendsScreen() {
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sheet, setSheet] = React.useState<SheetState>(null);
-  const completeAddFriendStep = useUserGuideStepCompletion(10);
-  const completeCreateGroupStep = useUserGuideStepCompletion(12);
   const { requestMeasure } = useUserGuideTargetRegistration();
 
   React.useEffect(() => {
@@ -93,7 +83,6 @@ export default function FriendsScreen() {
   const rejectRequest = useRejectFriendRequest();
   const cancelRequest = useCancelFriendRequest();
   const removeFriend = useRemoveFriend();
-  const createGroup = useCreateFriendGroup();
   const updateGroup = useUpdateFriendGroup();
   const deleteGroup = useDeleteFriendGroup();
 
@@ -134,14 +123,10 @@ export default function FriendsScreen() {
           ? outgoingQuery.isError
           : friendsQuery.isError;
 
-  function handleSubmitGroup(payload: Parameters<typeof createGroup.mutateAsync>[0]) {
-    if (sheet?.type === "group" && sheet.group) {
-      return updateGroup.mutateAsync({ groupId: sheet.group.id, payload });
-    }
+  function handleSubmitGroup(payload: Parameters<typeof updateGroup.mutateAsync>[0]["payload"]) {
+    if (sheet?.type !== "group") return Promise.resolve();
 
-    return createGroup.mutateAsync(payload).then((result) => {
-      return result;
-    });
+    return updateGroup.mutateAsync({ groupId: sheet.group.id, payload });
   }
 
   function renderRow({ item, index }: { item: FriendsRow; index: number }) {
@@ -221,75 +206,42 @@ export default function FriendsScreen() {
                 }}
               />
 
-              <View className="flex-row items-center gap-2">
-                {tab === "friends" || tab === "groups" ? (
-                  <View
-                    className={cn(
-                      "min-w-0 flex-1 flex-row items-center gap-2 rounded-full border px-3",
-                      HAS_LIQUID_GLASS
-                        ? "border-transparent bg-transparent"
-                        : "border-border-subtle bg-card-bg shadow-sm",
-                    )}
-                  >
-                    {HAS_LIQUID_GLASS ? (
-                      <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-                    ) : null}
-                    <Icon as={Search} className="size-4 text-text-muted" />
-                    <Input
-                      value={search}
-                      onChangeText={setSearch}
-                      placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
-                      className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
-                      returnKeyType="search"
-                    />
-                    {search.length > 0 ? (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        accessibilityLabel={t("Clear search")}
-                        onPress={() => {
-                          setSearch("");
-                          setDebouncedSearch("");
-                        }}
-                        className="size-9 shrink-0 rounded-full"
-                      >
-                        <Icon as={X} className="size-4 text-text-muted" />
-                      </Button>
-                    ) : null}
-                  </View>
-                ) : null}
-                {tab === "groups" ? (
-                  <GuideTarget id="friends-create-group">
-                    <AnimatedGradientBackgroundButton
-                      accessibilityLabel={t("Create")}
-                      Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
+              {tab === "friends" || tab === "groups" ? (
+                <View
+                  className={cn(
+                    "w-full flex-row items-center gap-2 rounded-full border px-3",
+                    HAS_LIQUID_GLASS
+                      ? "border-transparent bg-transparent"
+                      : "border-border-subtle bg-card-bg shadow-sm",
+                  )}
+                >
+                  {HAS_LIQUID_GLASS ? (
+                    <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+                  ) : null}
+                  <Icon as={Search} className="size-4 text-text-muted" />
+                  <Input
+                    value={search}
+                    onChangeText={setSearch}
+                    placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
+                    className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
+                    returnKeyType="search"
+                  />
+                  {search.length > 0 ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      accessibilityLabel={t("Clear search")}
                       onPress={() => {
-                        completeCreateGroupStep();
-                        setSheet({ type: "group", group: null });
+                        setSearch("");
+                        setDebouncedSearch("");
                       }}
-                      title={t("Create")}
-                    />
-                  </GuideTarget>
-                ) : (
-                  <GuideTarget
-                    attachedTooltip={false}
-                    id="friends-invite"
-                    tooltipHorizontalOffset={-72}
-                    tooltipPlacementOverride="bottom"
-                    tooltipVerticalOffset={0}
-                  >
-                    <AnimatedGradientBackgroundButton
-                      accessibilityLabel={t("Invite")}
-                      Icon={<Icon as={UserPlus} className="size-4 text-primary-foreground" />}
-                      onPress={() => {
-                        completeAddFriendStep();
-                        setSheet({ type: "add" });
-                      }}
-                      title={t("Invite")}
-                    />
-                  </GuideTarget>
-                )}
-              </View>
+                      className="size-9 shrink-0 rounded-full"
+                    >
+                      <Icon as={X} className="size-4 text-text-muted" />
+                    </Button>
+                  ) : null}
+                </View>
+              ) : null}
             </View>
           }
           ListFooterComponent={
@@ -327,22 +279,12 @@ export default function FriendsScreen() {
           }}
         />
 
-        {sheet?.type === "add" ? (
-          <AddFriendSheet
-            open
-            onOpenChange={(open) => {
-              if (!open) {
-                setSheet(null);
-              }
-            }}
-          />
-        ) : null}
         {sheet?.type === "group" ? (
           <FriendGroupSheet
             open
             group={sheet.group}
             friends={friends}
-            isSaving={createGroup.isPending || updateGroup.isPending}
+            isSaving={updateGroup.isPending}
             onOpenChange={(open) => {
               if (!open) {
                 setSheet(null);

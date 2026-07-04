@@ -54,7 +54,6 @@ import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SheetState =
-  | { type: "create" }
   | { type: "edit"; wishlist: Wishlist }
   | { type: "addItem"; wishlist: Wishlist }
   | { type: "delete"; wishlist: Wishlist }

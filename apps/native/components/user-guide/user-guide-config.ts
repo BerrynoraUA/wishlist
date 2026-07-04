@@ -1,4 +1,4 @@
-export type UserGuideRoute = "/wishlists" | "/wishlists/[id]" | "/friends" | "/discover";
+export type UserGuideRoute = "/wishlists" | "/wishlists/[id]" | "/friends" | "/wishlists/discover";
 
 export type UserGuideStepTarget = {
   targetId: string;
@@ -19,7 +19,7 @@ export type UserGuideStep = {
 };
 
 export type UserGuideSegment = {
-  id: "wishlists-create" | "wishlist-detail" | "friends" | "discover";
+  id: "wishlists-create" | "wishlist-detail" | "friends" | "discover-open" | "discover";
   route: UserGuideRoute;
   title: string;
   stepIds: readonly number[];
@@ -43,8 +43,8 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
         tooltip: "Wishlists is where your own lists live.",
       },
       {
-        targetId: "nav-discover",
-        tooltip: "Discover is where you can find friends' gifts.",
+        targetId: "nav-create",
+        tooltip: "The + button creates wishlists, wishes, events, and more.",
       },
       {
         targetId: "nav-friends",
@@ -62,9 +62,9 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     route: "/wishlists",
     title: "Start a wishlist",
     listTitle: "Start wishlist",
-    tooltip: "Tap Add Wishlist to create your first list.",
-    targetId: "home-add-wishlist",
-    description: "Tap Add Wishlist to start creating your first wishlist.",
+    tooltip: "Tap + and choose New Wishlist.",
+    targetId: "nav-create",
+    description: "Tap the + button and choose New Wishlist to start your first wishlist.",
     actionRequired: true,
   },
   {
@@ -142,9 +142,9 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     route: "/friends",
     title: "Invite a friend",
     listTitle: "Add friend",
-    tooltip: "Tap Invite to add someone.",
-    targetId: "friends-invite",
-    description: "Invite or add a friend.",
+    tooltip: "Tap + and choose Invite Friend.",
+    targetId: "nav-create",
+    description: "Tap the + button and choose Invite Friend to add someone.",
     actionRequired: true,
   },
   {
@@ -173,9 +173,9 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     route: "/friends",
     title: "Create a group",
     listTitle: "Create group",
-    tooltip: "Tap Create to open the group sheet.",
-    targetId: "friends-create-group",
-    description: "Open the create group sheet from the Groups tab.",
+    tooltip: "Tap + and choose Friend Group.",
+    targetId: "nav-create",
+    description: "Tap the + button and choose Friend Group to organize friends.",
     actionRequired: true,
   },
   {
@@ -193,7 +193,7 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
       },
       {
         targetId: "friends-tab-sent",
-        tooltip: "Sent shows invitations you already sent.",
+        tooltip: "Sent shows invitations you already sent. Next, head to Wishlists.",
         activateOnNext: true,
       },
     ],
@@ -201,17 +201,17 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
   },
   {
     id: 14,
-    route: "/friends",
+    route: "/wishlists",
     title: "Open Discover",
     listTitle: "Open Discover",
-    tooltip: "Tap Discover in the tab bar.",
-    targetId: "nav-discover",
-    description: "Open Discover from the main navigation.",
+    tooltip: "Tap Discover to explore friends' gifts.",
+    targetId: "wishlists-discover",
+    description: "Open Discover from the Wishlists page.",
     actionRequired: true,
   },
   {
     id: 15,
-    route: "/discover",
+    route: "/wishlists/discover",
     title: "Explore Discover tabs",
     listTitle: "Discover tabs",
     tooltip: "Start with Wishlists.",
@@ -261,15 +261,22 @@ export const USER_GUIDE_SEGMENTS: readonly UserGuideSegment[] = [
     id: "friends",
     route: "/friends",
     title: "Friends",
-    stepIds: [10, 11, 12, 13, 14],
+    stepIds: [10, 11, 12, 13],
     fallbackPath: "/friends",
   },
   {
+    id: "discover-open",
+    route: "/wishlists",
+    title: "Discover",
+    stepIds: [14],
+    fallbackPath: "/wishlists",
+  },
+  {
     id: "discover",
-    route: "/discover",
+    route: "/wishlists/discover",
     title: "Discover",
     stepIds: [15],
-    fallbackPath: "/discover",
+    fallbackPath: "/wishlists/discover",
   },
 ] as const;
 
@@ -282,6 +289,8 @@ export function getUserGuideSegmentForStep(stepId: number): UserGuideSegment | u
 }
 
 export function matchesUserGuideRoute(pathname: string, route: UserGuideRoute): boolean {
-  if (route === "/wishlists/[id]") return pathname.startsWith("/wishlists/");
+  if (route === "/wishlists/[id]") {
+    return pathname.startsWith("/wishlists/") && pathname !== "/wishlists/discover";
+  }
   return pathname === route;
 }

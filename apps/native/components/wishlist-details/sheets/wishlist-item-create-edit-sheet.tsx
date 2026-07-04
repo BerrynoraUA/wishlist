@@ -9,6 +9,7 @@ import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
+import { useMyWishlists } from "@/hooks/use-wishlists";
 import { useSettings } from "@/hooks/use-settings";
 import {
   SlidingOptionSelector,
@@ -39,7 +40,8 @@ export function WishlistItemCreateEditSheet({
   onOpenChange,
 }: {
   mode: "create" | "edit";
-  wishlistId: string;
+  /** When omitted in create mode, the sheet shows a wishlist picker. */
+  wishlistId?: string;
   item?: Item | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -60,6 +62,9 @@ export function WishlistItemCreateEditSheet({
     defaultValues: EMPTY_ITEM_FORM,
   });
   const values = useWatch({ control }) as ItemFormValues;
+  const [selectedWishlistId, setSelectedWishlistId] = React.useState("");
+  const needsWishlistPicker = mode === "create" && !wishlistId;
+  const targetWishlistId = wishlistId || selectedWishlistId;
   const [isScraping, setIsScraping] = React.useState(false);
   const [scrapeError, setScrapeError] = React.useState<string | null>(null);
   const currentUrlRef = React.useRef("");
@@ -80,6 +85,7 @@ export function WishlistItemCreateEditSheet({
   const canSubmit =
     !isPending &&
     values.name.trim() !== "" &&
+    (mode === "edit" || targetWishlistId !== "") &&
     !productLinkInvalid &&
     !imageUrlInvalid &&
     !hasInvalidAdditionalLinks;
@@ -88,6 +94,7 @@ export function WishlistItemCreateEditSheet({
     if (open) {
       const nextValues = mode === "edit" ? toItemFormValues(item ?? undefined) : EMPTY_ITEM_FORM;
       reset(nextValues);
+      setSelectedWishlistId("");
       setScrapeError(null);
       currentUrlRef.current = nextValues.url.trim();
       lastScrapedUrlRef.current = nextValues.url.trim();
@@ -227,7 +234,7 @@ export function WishlistItemCreateEditSheet({
 
     createMutation.mutate(
       {
-        wishlist_id: wishlistId,
+        wishlist_id: targetWishlistId,
         ...payload,
       },
       {
@@ -280,6 +287,12 @@ export function WishlistItemCreateEditSheet({
         showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-5 px-5 pb-6 pt-5"
       >
+        {needsWishlistPicker ? (
+          <Field label={t("Wishlist")}>
+            <WishlistPickerField value={selectedWishlistId} onChange={setSelectedWishlistId} />
+          </Field>
+        ) : null}
+
         <Field label={t("Product link")}>
           <View className="gap-2">
             <View className="flex-row items-center gap-2">
@@ -547,6 +560,80 @@ function Field({
       <Text className="text-sm font-bold text-text">{label}</Text>
       {children}
     </View>
+  );
+}
+
+function WishlistPickerField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (wishlistId: string) => void;
+}) {
+  const t = useGT();
+  const wishlistsQuery = useMyWishlists();
+  const wishlists = React.useMemo(
+    () => (wishlistsQuery.data ?? []).filter((wishlist) => wishlist.is_owner || wishlist.can_edit),
+    [wishlistsQuery.data],
+  );
+
+  React.useEffect(() => {
+    if (!value && wishlists.length > 0) {
+      onChange(wishlists[0].id);
+    }
+  }, [onChange, value, wishlists]);
+
+  const rows = React.useMemo((): SlidingOption<string | null>[][] => {
+    const options: SlidingOption<string | null>[] = wishlists.map((wishlist) => ({
+      value: wishlist.id,
+      children: ({ selected }: SlidingOptionRenderProps) => (
+        <View className="w-full min-w-0 flex-row items-center justify-start px-2">
+          <Text
+            className={cn("min-w-0 text-sm font-bold text-text", selected && "text-brand")}
+            numberOfLines={1}
+          >
+            {wishlist.title}
+          </Text>
+        </View>
+      ),
+    }));
+
+    const nextRows: SlidingOption<string | null>[][] = [];
+    for (let index = 0; index < options.length; index += 2) {
+      nextRows.push(options.slice(index, index + 2));
+    }
+
+    return nextRows;
+  }, [wishlists]);
+
+  if (wishlistsQuery.isLoading) {
+    return (
+      <View className="items-center justify-center rounded-xl border border-border-subtle bg-bg-muted p-4">
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (wishlists.length === 0) {
+    return (
+      <Text className="text-sm font-semibold text-text-muted">
+        {t("Create a wishlist first to add wishes to it.")}
+      </Text>
+    );
+  }
+
+  return (
+    <SlidingOptionSelector<string | null>
+      rows={rows}
+      value={value || null}
+      onChange={(nextValue) => {
+        if (nextValue) onChange(nextValue);
+      }}
+      optionHeight={46}
+      optionHeightClassName="h-11.5"
+      optionClassName="rounded-xl px-3"
+      indicatorClassName="rounded-lg border border-brand bg-brand-lighter"
+    />
   );
 }
 

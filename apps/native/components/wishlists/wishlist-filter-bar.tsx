@@ -18,7 +18,7 @@ import {
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
-import { ChevronsUpDown, Plus, Search, SlidersHorizontal, X } from "lucide-react-native";
+import { ChevronsUpDown, Search, SlidersHorizontal, Sparkles, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { StyleSheet, View } from "react-native";
@@ -34,7 +34,7 @@ export function WishlistFilterBar({
   onVisibilityChange,
   onSortChange,
   onResetFilters,
-  onCreateWishlist,
+  onOpenDiscover,
   filtersOpen,
   onFiltersOpenChange,
 }: {
@@ -45,7 +45,7 @@ export function WishlistFilterBar({
   onVisibilityChange: (value: string) => void;
   onSortChange: (value: string) => void;
   onResetFilters: () => void;
-  onCreateWishlist: () => void;
+  onOpenDiscover: () => void;
   filtersOpen: boolean;
   onFiltersOpenChange: (open: boolean) => void;
 }) {
@@ -105,12 +105,12 @@ export function WishlistFilterBar({
             </Button>
           ) : null}
         </View>
-        <GuideTarget id="home-add-wishlist">
+        <GuideTarget id="wishlists-discover">
           <AnimatedGradientBackgroundButton
-            accessibilityLabel={t("Add wishlist")}
-            Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
-            onPress={onCreateWishlist}
-            title={t("Add Wishlist")}
+            accessibilityLabel={t("Discover")}
+            Icon={<Icon as={Sparkles} className="size-4 text-primary-foreground" />}
+            onPress={onOpenDiscover}
+            title={t("Discover")}
           />
         </GuideTarget>
       </View>

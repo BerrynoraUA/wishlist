@@ -97,10 +97,11 @@ const UserGuideTargetRegistrationContext = React.createContext<UserGuideTargetRe
   requestMeasure: () => {},
 });
 
+// Order must match the tab bar: secret santa, wishlists, create, friends, profile.
 const NAV_TARGETS = [
-  "nav-wishlists",
-  "nav-discover",
   "nav-secret-santa",
+  "nav-wishlists",
+  "nav-create",
   "nav-friends",
   "nav-profile",
 ] as const;
@@ -366,9 +367,6 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
       if (name === "friends" && currentStep.targetId === "nav-friends") {
         completeStep(currentStep.id);
       }
-      if (name === "discover" && currentStep.targetId === "nav-discover") {
-        completeStep(currentStep.id);
-      }
     },
     [completeStep, currentStep],
   );
@@ -497,11 +495,7 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
                 </>
               ) : null}
               <GuideCard
-                bottomRight={
-                  pathname === "/friends" ||
-                  pathname === "/discover" ||
-                  pathname.startsWith("/wishlists/")
-                }
+                bottomRight={pathname === "/friends" || pathname.startsWith("/wishlists/")}
                 lowerCenter={pathname === "/wishlists"}
                 segmentTitle={currentSegment.title}
                 stepTitle={currentStep.title}

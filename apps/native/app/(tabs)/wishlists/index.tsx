@@ -2,7 +2,7 @@ import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheet
 import { WishlistDeleteSheet } from "@/components/wishlists/sheets/wishlist-delete-sheet";
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as React from "react";
 import { View, useWindowDimensions } from "react-native";
 import { WishlistFilterBar } from "@/components/wishlists/wishlist-filter-bar";
@@ -12,7 +12,6 @@ import { useWishlistFeed } from "@/hooks/use-wishlist-feed";
 import { useGT } from "gt-react-native";
 
 type SheetState =
-  | { type: "create" }
   | { type: "edit"; wishlist: Wishlist }
   | { type: "addItem"; wishlist: Wishlist }
   | { type: "delete"; wishlist: Wishlist }
@@ -20,9 +19,10 @@ type SheetState =
 
 export default function WishlistsScreen() {
   const t = useGT();
+  const router = useRouter();
   const { width } = useWindowDimensions();
   const feed = useWishlistFeed(width);
-  const completeStartWishlistStep = useUserGuideStepCompletion(2);
+  const completeOpenDiscoverStep = useUserGuideStepCompletion(14);
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const [filtersOpen, setFiltersOpen] = React.useState(false);
 
@@ -54,9 +54,9 @@ export default function WishlistsScreen() {
               onVisibilityChange={feed.handleVisibilityChange}
               onSortChange={feed.handleSortChange}
               onResetFilters={feed.handleResetFilters}
-              onCreateWishlist={() => {
-                completeStartWishlistStep();
-                setSheet({ type: "create" });
+              onOpenDiscover={() => {
+                completeOpenDiscoverStep();
+                router.push("/wishlists/discover" as never);
               }}
               filtersOpen={filtersOpen}
               onFiltersOpenChange={setFiltersOpen}
@@ -67,8 +67,8 @@ export default function WishlistsScreen() {
         />
 
         <WishlistCreateEditSheet
-          mode={sheet?.type === "edit" ? "edit" : "create"}
-          open={sheet?.type === "create" || sheet?.type === "edit"}
+          mode="edit"
+          open={sheet?.type === "edit"}
           wishlist={sheet?.type === "edit" ? sheet.wishlist : undefined}
           onOpenChange={(open) => {
             if (!open) setSheet(null);
