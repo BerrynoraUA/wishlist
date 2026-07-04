@@ -4,7 +4,7 @@ import { TextClassContext } from "@/components/ui/text";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as SelectPrimitive from "@rn-primitives/select";
-import { Check, ChevronDown } from "lucide-react-native";
+import { Check, ChevronDown, type LucideIcon } from "lucide-react-native";
 import * as React from "react";
 import { Platform, View } from "react-native";
 import { FadeIn, FadeOut } from "react-native-reanimated";
@@ -128,8 +128,11 @@ function SelectLabel({ className, ...props }: React.ComponentProps<typeof Select
 
 function SelectItem({
   className,
+  icon,
   ...props
-}: Omit<React.ComponentProps<typeof SelectPrimitive.Item>, "children">) {
+}: Omit<React.ComponentProps<typeof SelectPrimitive.Item>, "children"> & {
+  icon?: LucideIcon;
+}) {
   return (
     <SelectPrimitive.Item
       className={cn(
@@ -139,6 +142,7 @@ function SelectItem({
       )}
       {...props}
     >
+      {icon ? <Icon as={icon} className="text-muted-foreground size-4 shrink-0" /> : null}
       <View className="absolute right-2 flex size-3.5 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
           <Icon as={Check} className="text-muted-foreground size-4 shrink-0" />

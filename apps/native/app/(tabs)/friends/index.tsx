@@ -129,14 +129,13 @@ export default function FriendsScreen() {
     return updateGroup.mutateAsync({ groupId: sheet.group.id, payload });
   }
 
-  function renderRow({ item, index }: { item: FriendsRow; index: number }) {
+  function renderRow({ item }: { item: FriendsRow }) {
     return (
       <View
         className="flex-row"
         style={{
           alignSelf: "center",
           gap: gridGap,
-          paddingTop: index === 0 ? 8 : 0,
           width: contentWidth,
         }}
       >
@@ -192,7 +191,7 @@ export default function FriendsScreen() {
           scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View className="h-4" />}
           ListHeaderComponent={
-            <View className="gap-5 self-center pb-8" style={{ width: contentWidth }}>
+            <View className="gap-4 self-center pb-4" style={{ width: contentWidth }}>
               <FriendsTabs
                 value={tab}
                 friendsCount={friends.length}

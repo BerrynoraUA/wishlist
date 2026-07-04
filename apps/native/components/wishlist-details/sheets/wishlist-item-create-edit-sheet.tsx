@@ -1,4 +1,8 @@
 import { scrapeProductLink } from "@/api/scrape-product";
+import {
+  AutocompleteDropdown,
+  type AutocompleteDropdownOption,
+} from "@/components/ui/autocomplete-dropdown";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { GuideTarget } from "@/components/user-guide/guide-target";
@@ -12,11 +16,6 @@ import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
 import { useMyWishlists } from "@/hooks/use-wishlists";
 import { useSettings } from "@/hooks/use-settings";
 import {
-  SlidingOptionSelector,
-  type SlidingOption,
-  type SlidingOptionRenderProps,
-} from "@/components/ui/sliding-option-selector";
-import {
   EMPTY_ITEM_FORM,
   getItemPriority,
   getItemPriorityOptions,
@@ -25,6 +24,7 @@ import {
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
+import { PRIORITY_IDS } from "@wishlist/backend/lib";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
 import { Plus, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
@@ -92,7 +92,10 @@ export function WishlistItemCreateEditSheet({
 
   React.useEffect(() => {
     if (open) {
-      const nextValues = mode === "edit" ? toItemFormValues(item ?? undefined) : EMPTY_ITEM_FORM;
+      const nextValues =
+        mode === "edit"
+          ? toItemFormValues(item ?? undefined)
+          : { ...EMPTY_ITEM_FORM, priority_id: PRIORITY_IDS.LOW };
       reset(nextValues);
       setSelectedWishlistId("");
       setScrapeError(null);
@@ -172,7 +175,11 @@ export function WishlistItemCreateEditSheet({
 
     try {
       const product = await scrapeProductLink(url);
-      const isEmpty = !product.title && !product.description && !product.image && !product.price;
+      const isEmpty =
+        !product.title &&
+        !(mode === "edit" && product.description) &&
+        !product.image &&
+        !product.price;
 
       if (isEmpty) {
         if (requestId === scrapeRequestIdRef.current && currentUrlRef.current === url) {
@@ -185,7 +192,7 @@ export function WishlistItemCreateEditSheet({
 
       patchValues({
         ...(product.title ? { name: product.title } : {}),
-        ...(product.description ? { description: product.description } : {}),
+        ...(mode === "edit" && product.description ? { description: product.description } : {}),
         ...(product.image ? { imageUrl: product.image } : {}),
         ...(product.price ? { price: product.price } : {}),
         ...(product.currency ? { currency: product.currency } : {}),
@@ -210,7 +217,7 @@ export function WishlistItemCreateEditSheet({
 
     const payload = {
       name,
-      description: formValues.description.trim() || null,
+      description: mode === "edit" ? formValues.description.trim() || null : null,
       price: formValues.price.trim() || null,
       priority_id: formValues.priority_id,
       image_url: formValues.imageUrl.trim() || null,
@@ -255,9 +262,9 @@ export function WishlistItemCreateEditSheet({
       dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}
       header={
-        <Text className="mx-5 mt-5 text-lg font-extrabold text-text">
-          {mode === "edit" ? t("Edit Item") : t("Create Item")}
-        </Text>
+        mode === "edit" ? (
+          <Text className="mx-5 mt-5 text-lg font-extrabold text-text">{t("Edit Item")}</Text>
+        ) : undefined
       }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
@@ -287,6 +294,20 @@ export function WishlistItemCreateEditSheet({
         showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-5 px-5 pb-6 pt-5"
       >
+        <Field label={t("Name")}>
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                value={value}
+                onChangeText={onChange}
+                placeholder={t("e.g. Noise-cancelling headphones")}
+              />
+            )}
+          />
+        </Field>
+
         {needsWishlistPicker ? (
           <Field label={t("Wishlist")}>
             <WishlistPickerField value={selectedWishlistId} onChange={setSelectedWishlistId} />
@@ -367,36 +388,24 @@ export function WishlistItemCreateEditSheet({
           </View>
         </Field>
 
-        <Field label={t("Name")}>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field: { onChange, value } }) => (
-              <Input
-                value={value}
-                onChangeText={onChange}
-                placeholder={t("e.g. Noise-cancelling headphones")}
-              />
-            )}
-          />
-        </Field>
-
-        <Field label={t("Description")}>
-          <Controller
-            control={control}
-            name="description"
-            render={({ field: { onChange, value } }) => (
-              <Input
-                value={value}
-                onChangeText={onChange}
-                placeholder={t("Add details, size, color...")}
-                multiline
-                className="h-24 items-start py-3"
-                textAlignVertical="top"
-              />
-            )}
-          />
-        </Field>
+        {mode === "edit" ? (
+          <Field label={t("Description")}>
+            <Controller
+              control={control}
+              name="description"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder={t("Add details, size, color...")}
+                  multiline
+                  className="h-24 items-start py-3"
+                  textAlignVertical="top"
+                />
+              )}
+            />
+          </Field>
+        ) : null}
 
         <View className="flex-row gap-2">
           <Field label={t("Currency")} className="w-24">
@@ -576,35 +585,23 @@ function WishlistPickerField({
     () => (wishlistsQuery.data ?? []).filter((wishlist) => wishlist.is_owner || wishlist.can_edit),
     [wishlistsQuery.data],
   );
+  const options = React.useMemo<AutocompleteDropdownOption[]>(
+    () =>
+      wishlists.map((wishlist) => ({
+        value: wishlist.id,
+        label: wishlist.title,
+        description: t("{count} items", { count: wishlist.items_count ?? 0 }),
+        imageUrl: wishlist.image_url,
+      })),
+    [t, wishlists],
+  );
+  const selectedOption = options.find((option) => option.value === value) ?? null;
 
   React.useEffect(() => {
     if (!value && wishlists.length > 0) {
       onChange(wishlists[0].id);
     }
   }, [onChange, value, wishlists]);
-
-  const rows = React.useMemo((): SlidingOption<string | null>[][] => {
-    const options: SlidingOption<string | null>[] = wishlists.map((wishlist) => ({
-      value: wishlist.id,
-      children: ({ selected }: SlidingOptionRenderProps) => (
-        <View className="w-full min-w-0 flex-row items-center justify-start px-2">
-          <Text
-            className={cn("min-w-0 text-sm font-bold text-text", selected && "text-brand")}
-            numberOfLines={1}
-          >
-            {wishlist.title}
-          </Text>
-        </View>
-      ),
-    }));
-
-    const nextRows: SlidingOption<string | null>[][] = [];
-    for (let index = 0; index < options.length; index += 2) {
-      nextRows.push(options.slice(index, index + 2));
-    }
-
-    return nextRows;
-  }, [wishlists]);
 
   if (wishlistsQuery.isLoading) {
     return (
@@ -623,16 +620,14 @@ function WishlistPickerField({
   }
 
   return (
-    <SlidingOptionSelector<string | null>
-      rows={rows}
-      value={value || null}
-      onChange={(nextValue) => {
-        if (nextValue) onChange(nextValue);
-      }}
-      optionHeight={46}
-      optionHeightClassName="h-11.5"
-      optionClassName="rounded-xl px-3"
-      indicatorClassName="rounded-lg border border-brand bg-brand-lighter"
+    <AutocompleteDropdown
+      value={selectedOption}
+      onValueChange={(option) => onChange(option.value)}
+      options={options}
+      placeholder={t("Search wishlists")}
+      emptyText={t("No wishlists found")}
+      attached
+      maxVisibleOptions={4}
     />
   );
 }
@@ -646,41 +641,29 @@ function PrioritySelector({
   value: ItemFormValues["priority_id"];
   onChange: (priority: ItemFormValues["priority_id"]) => void;
 }) {
-  const rows = React.useMemo((): SlidingOption<string | null>[][] => {
-    const options: SlidingOption<string | null>[] = priorityOptions.map((option) => ({
-      value: option.priority_id,
-      children: ({ selected }: SlidingOptionRenderProps) => (
-        <View className="w-full min-w-0 flex-row items-center justify-start gap-2 px-2">
-          {getItemPriority(option.priority_id) ? (
-            <PriorityFilterIcon priority={getItemPriority(option.priority_id)!} />
-          ) : null}
-          <Text
-            className={cn("min-w-0 text-sm font-bold text-text", selected && "text-brand")}
-            numberOfLines={1}
-          >
-            {option.label}
-          </Text>
-        </View>
-      ),
-    }));
-
-    const nextRows: SlidingOption<string | null>[][] = [];
-    for (let index = 0; index < options.length; index += 2) {
-      nextRows.push(options.slice(index, index + 2));
-    }
-
-    return nextRows;
-  }, [priorityOptions]);
+  const t = useGT();
+  const options = React.useMemo<AutocompleteDropdownOption[]>(
+    () =>
+      priorityOptions.map((option) => ({
+        value: option.priority_id,
+        label: option.label,
+      })),
+    [priorityOptions],
+  );
+  const selectedOption = options.find((option) => option.value === value) ?? null;
+  const selectedPriority = getItemPriority(value);
 
   return (
-    <SlidingOptionSelector<string | null>
-      rows={rows}
-      value={value}
-      onChange={(nextValue) => onChange(nextValue === value ? null : nextValue)}
-      optionHeight={46}
-      optionHeightClassName="h-11.5"
-      optionClassName="rounded-xl px-3"
-      indicatorClassName="rounded-lg border border-brand bg-brand-lighter"
-    />
+    <View className="gap-2">
+      {selectedPriority ? <PriorityFilterIcon priority={selectedPriority} /> : null}
+      <AutocompleteDropdown
+        value={selectedOption}
+        onValueChange={(option) => onChange(option.value)}
+        options={options}
+        placeholder={t("Search priority")}
+        emptyText={t("No priorities found")}
+        attached
+      />
+    </View>
   );
 }

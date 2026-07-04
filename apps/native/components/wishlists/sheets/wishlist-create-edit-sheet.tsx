@@ -6,6 +6,13 @@ import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-p
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
 import {
   useFriendGroups,
@@ -488,7 +495,7 @@ export function WishlistCreateEditSheet({
           />
         </Field>
 
-        <Field label={t("Description")}>
+        <Field label={t("Description (optional)")}>
           <Controller
             control={control}
             name="description"
@@ -666,10 +673,6 @@ function VisibilitySelector({
       icon: WishlistVisibilityOption["icon"];
       visibility: WishlistFormValues["visibility"];
       selectedAccessTarget?: SelectedAccessTarget;
-      surfaceClassName: string;
-      indicatorClassName?: string;
-      selectedIconClassName?: string;
-      selectedTextClassName?: string;
     }[] = [
       {
         ...privateOption,
@@ -679,9 +682,6 @@ function VisibilitySelector({
         ...selectedFriendsOption,
         value: "selected-friends",
         selectedAccessTarget: "friends",
-        indicatorClassName: "rounded-full border border-brand bg-brand-lighter",
-        selectedIconClassName: "text-brand",
-        selectedTextClassName: "text-brand",
       },
       {
         value: "selected-groups",
@@ -689,10 +689,6 @@ function VisibilitySelector({
         icon: friendsOption.icon,
         visibility: WishlistVisibility.SelectedFriends,
         selectedAccessTarget: "groups",
-        surfaceClassName: "bg-info-bg",
-        indicatorClassName: "rounded-full border border-info bg-info-bg",
-        selectedIconClassName: "text-info",
-        selectedTextClassName: "text-info",
       },
       {
         ...friendsOption,
@@ -703,53 +699,40 @@ function VisibilitySelector({
         value: "public",
       },
     ];
-    const options = orderedOptions.map((option) => ({
-      value: option.value,
-      surfaceClassName: option.surfaceClassName,
-      indicatorClassName: option.indicatorClassName,
-      children: ({ selected }: SlidingOptionRenderProps) => (
-        <>
-          <Icon
-            as={option.icon}
-            className={cn(
-              "size-3.5 text-text-muted",
-              selected && (option.selectedIconClassName ?? "text-brand"),
-            )}
-          />
-          <Text
-            className={cn(
-              "text-xs font-semibold text-text",
-              selected && (option.selectedTextClassName ?? "text-brand"),
-            )}
-          >
-            {option.label}
-          </Text>
-        </>
-      ),
-      visibility: option.visibility,
-      selectedAccessTarget: option.selectedAccessTarget,
-    }));
-
-    return [options.slice(0, 3), options.slice(3)];
+    return orderedOptions;
   }, [t, visibilityOptions]);
 
+  const selectedOption = rows.find((option) => option.value === selectorValue);
+  const SelectedIcon = selectedOption?.icon;
+
   return (
-    <SlidingOptionSelector
-      rows={rows}
-      value={selectorValue}
-      onChange={(nextValue) => {
-        const nextOption = rows.flat().find((option) => option.value === nextValue);
+    <Select
+      value={
+        selectedOption ? { value: selectedOption.value, label: selectedOption.label } : undefined
+      }
+      onValueChange={(nextValue) => {
+        const nextOption = rows.find((option) => option.value === nextValue?.value);
         if (!nextOption) return;
         onChange(nextOption.visibility, nextOption.selectedAccessTarget);
       }}
-      optionHeight={40}
-      optionHeightClassName="h-10"
-      optionClassName="gap-1.5 rounded-full px-2"
-      indicatorClassName={
-        rows.flat().find((option) => option.value === selectorValue)?.indicatorClassName ??
-        "rounded-full border border-brand bg-brand-lighter"
-      }
-    />
+    >
+      <SelectTrigger className="h-12 rounded-lg border-border-subtle bg-bg-subtle">
+        <View className="min-w-0 flex-1 flex-row items-center gap-2">
+          {SelectedIcon ? <Icon as={SelectedIcon} className="size-4 text-text-muted" /> : null}
+          <SelectValue className="min-w-0 flex-1" placeholder={t("Select visibility")} />
+        </View>
+      </SelectTrigger>
+      <SelectContent>
+        {rows.map((option) => (
+          <SelectItem
+            key={option.value}
+            value={option.value}
+            label={option.label}
+            icon={option.icon}
+          />
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 

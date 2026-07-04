@@ -190,7 +190,6 @@ export function WishlistFilterBar({
                     return (
                       <DropdownMenuCheckboxItem
                         key={option.value}
-                        className={cn(option.surfaceClassName, option.itemClassName)}
                         checked={visibility.includes(option.value)}
                         closeOnPress={false}
                         onCheckedChange={() => onVisibilityChange(option.value)}
