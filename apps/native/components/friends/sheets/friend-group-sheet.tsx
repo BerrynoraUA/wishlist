@@ -166,7 +166,7 @@ export function FriendGroupSheet({
           <Textarea
             value={description}
             onChangeText={setDescription}
-            placeholder={t("Add details, size, color...")}
+            placeholder={t("Add a note about this group")}
             className="min-h-16"
             numberOfLines={3}
           />
