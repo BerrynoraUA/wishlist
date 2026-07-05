@@ -260,7 +260,7 @@ export function AutocompleteDropdown({
         {isOpen ? (
           <View
             className={cn(
-              "max-h-80 overflow-hidden border border-border bg-popover",
+              "max-h-80 overflow-hidden border border-border bg-card-bg/95",
               attached ? "rounded-b-md rounded-t-none" : "rounded-md",
               dropdownClassName,
             )}

@@ -66,7 +66,7 @@ function DropdownMenuSubContent({
     <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
       <DropdownMenuPrimitive.SubContent
         className={cn(
-          "bg-popover border-border overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
+          "bg-card-bg/95 border-border overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
           className,
         )}
         {...props}
@@ -108,7 +108,7 @@ function DropdownMenuContent({
             <TextClassContext.Provider value="text-popover-foreground">
               <DropdownMenuPrimitive.Content
                 className={cn(
-                  "bg-popover border-border min-w-[8rem] overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
+                  "bg-card-bg/95 border-border min-w-[8rem] overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
                   className,
                 )}
                 style={contentStyle}

@@ -97,7 +97,7 @@ function SelectContent({
             >
               <SelectPrimitive.Content
                 className={cn(
-                  "bg-popover border-border relative z-50 min-w-[8rem] rounded-md border shadow-md shadow-black/5",
+                  "bg-card-bg/95 border-border relative z-50 min-w-[8rem] rounded-md border shadow-md shadow-black/5",
                   "p-1",
                   className,
                 )}
