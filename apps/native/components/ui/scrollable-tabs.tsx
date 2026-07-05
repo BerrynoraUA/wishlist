@@ -15,10 +15,8 @@ const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
 const INDICATOR_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 999 }];
 
 /**
- * Vertical gap between the safe-area top inset and the top tabs. Shared by every screen
- * that renders `ScrollableTabs` so the tabs sit at the exact same position everywhere.
- * Matches the sticky headers' 16px (`pb-4`) bottom padding so the from-notch and bottom
- * margins are equal. Use as `paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP`.
+ * Vertical gap between the safe-area top inset and the top tabs. Shared by screens
+ * that render `ScrollableTabs` so the tabs sit at the exact same position everywhere.
  */
 export const SCROLLABLE_TABS_TOP_GAP = 16;
 

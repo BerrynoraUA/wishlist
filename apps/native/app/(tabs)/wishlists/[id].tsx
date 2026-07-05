@@ -1,15 +1,9 @@
 import { InlineState } from "@/components/shared/inline-state";
-import { CreateItemSourceMenu, type ItemCreateSource } from "@/components/create/create-menu";
+import { useCreateMenuActions } from "@/components/create/create-menu";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
-import {
-  InstantStickyHeaderOverlay,
-  STICKY_HEADER_GAP,
-  StickyHeaderBackground,
-  useInstantStickyHeader,
-} from "@/components/ui/instant-sticky-header";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
 import { WishlistItemDetailSheet } from "@/components/wishlist-details/sheets/wishlist-item-detail-sheet";
 import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheets/wishlist-item-create-edit-sheet";
@@ -77,8 +71,6 @@ const EMPTY_FILTERS: WishlistItemFilterState = {
 };
 
 type SheetState =
-  | { type: "selectCreate" }
-  | { type: "create"; source: ItemCreateSource }
   | { type: "edit"; item: Item }
   | { type: "detail"; item: Item }
   | { type: "delete"; item: Item }
@@ -103,6 +95,7 @@ export default function WishlistDetailScreen() {
   const wishlistQuery = useWishlistById(wishlistId);
   const wishlist = wishlistQuery.data;
   const currentUser = useCurrentUserId();
+  const createMenuActions = useCreateMenuActions();
   const [filters, setFilters] = React.useState<WishlistItemFilterState>(EMPTY_FILTERS);
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
@@ -161,7 +154,6 @@ export default function WishlistDetailScreen() {
   const completeShareStep = useUserGuideStepCompletion(7);
   const completeManageAccessStep = useUserGuideStepCompletion(8);
   const { requestMeasure } = useUserGuideTargetRegistration();
-  const stickyHeader = useInstantStickyHeader({ scrollListener: requestMeasure });
   const reservedByIds = React.useMemo(
     () => [
       ...new Set(items.map((item) => item.reserved_by).filter((value): value is string => !!value)),
@@ -291,16 +283,9 @@ export default function WishlistDetailScreen() {
     });
   }
 
-  function renderFilterHeader(measure: boolean) {
+  function renderFilterHeader() {
     return (
-      <View
-        className="z-2 pb-4"
-        onLayout={measure ? stickyHeader.onHeaderLayout : undefined}
-        style={{ paddingTop: insets.top + STICKY_HEADER_GAP }}
-      >
-        {/* The floating overlay copy (measure === false) blurs the scrolling content
-            behind it; the inline copy just paints the page background. */}
-        <StickyHeaderBackground floating={!measure} />
+      <View className="z-2 bg-bg pb-4 pt-4">
         <View className="max-w-300 self-center" style={{ width: contentWidth }}>
           <WishlistItemFilterBar
             filters={filters}
@@ -311,7 +296,7 @@ export default function WishlistDetailScreen() {
               canEditWishlist
                 ? () => {
                     completeOpenItemStep();
-                    setSheet({ type: "selectCreate" });
+                    createMenuActions.openItemSourceMenu();
                   }
                 : undefined
             }
@@ -327,7 +312,7 @@ export default function WishlistDetailScreen() {
     ({ item }: { item: WishlistItemListRow }) =>
       "type" in item && item.type === "header" ? (
         wishlist ? (
-          <View onLayout={stickyHeader.onAnchorLayout}>
+          <View>
             <WishlistItemHeader
               wishlist={wishlist}
               isOwner={wishlist.is_owner}
@@ -351,7 +336,7 @@ export default function WishlistDetailScreen() {
           </View>
         ) : null
       ) : "type" in item ? (
-        renderFilterHeader(true)
+        renderFilterHeader()
       ) : (
         <View
           className="flex-row"
@@ -457,7 +442,7 @@ export default function WishlistDetailScreen() {
             }
             className="flex-1"
             contentContainerClassName="bg-bg pb-8"
-            onScroll={stickyHeader.onScroll}
+            onScroll={requestMeasure}
             scrollEventThrottle={1}
             ItemSeparatorComponent={ItemRowSeparator}
             onEndReached={loadMoreItems}
@@ -501,26 +486,15 @@ export default function WishlistDetailScreen() {
             }}
           />
         )}
-        {wishlist ? (
-          <InstantStickyHeaderOverlay ready={stickyHeader.ready} style={stickyHeader.overlayStyle}>
-            {renderFilterHeader(false)}
-          </InstantStickyHeaderOverlay>
-        ) : null}
         <FloatingBackButton />
         <WishlistItemCreateEditSheet
-          mode={sheet?.type === "edit" ? "edit" : "create"}
+          mode="edit"
           wishlistId={wishlistId}
-          createSource={sheet?.type === "create" ? sheet.source : "link"}
           item={sheet?.type === "edit" ? sheet.item : undefined}
-          open={sheet?.type === "create" || sheet?.type === "edit"}
+          open={sheet?.type === "edit"}
           onOpenChange={(open) => {
             if (!open) setSheet(null);
           }}
-        />
-        <CreateItemSourceMenu
-          open={sheet?.type === "selectCreate"}
-          onClose={() => setSheet(null)}
-          onSelect={(source) => setSheet({ type: "create", source })}
         />
         <WishlistCreateEditSheet
           mode="edit"

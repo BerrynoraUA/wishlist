@@ -6,6 +6,7 @@ import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-p
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { SingleImagePicker } from "@/components/ui/single-image-picker";
 import {
   Select,
   SelectContent,
@@ -42,7 +43,7 @@ import {
 } from "@/lib/wishlists";
 import type { TranslateFn } from "@/lib/translate-fn";
 import { cn } from "@/lib/utils";
-import { hasInvalidOptionalUrl } from "@/lib/urls";
+import { type NativePickedImage, uploadPickedImage } from "@/lib/image-upload";
 import {
   SlidingOptionSelector,
   type SlidingOptionRenderProps,
@@ -124,16 +125,19 @@ export function WishlistCreateEditSheet({
   );
   const [accessTab, setAccessTab] = React.useState<"friends" | "groups">("friends");
   const [accessError, setAccessError] = React.useState<string | null>(null);
+  const [pickedImage, setPickedImage] = React.useState<NativePickedImage | null>(null);
+  const [imageError, setImageError] = React.useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = React.useState(false);
   const [isSavingAccess, setIsSavingAccess] = React.useState(false);
   const [accessPanelMounted, setAccessPanelMounted] = React.useState(false);
   const accessPanelOpacity = useSharedValue(0);
   const accessPanelTranslateY = useSharedValue(-14);
   const accessPanelScaleY = useSharedValue(0.94);
   const title = mode === "edit" ? t("Edit Wishlist") : t("Create Wishlist");
-  const imageUrlInvalid = hasInvalidOptionalUrl(values.imageUrl);
   const canManageSelectedAccess = mode === "create" || Boolean(wishlist?.is_owner);
   const wishlistId = wishlist?.id ?? "";
-  const canSubmit = !isPending && !isSavingAccess && values.title.trim() !== "" && !imageUrlInvalid;
+  const canSubmit =
+    !isPending && !isSavingAccess && !isUploadingImage && values.title.trim() !== "";
   const accessPanelVisible =
     values.visibility === WishlistVisibility.SelectedFriends && canManageSelectedAccess;
   const accessPanelAnimatedStyle = useAnimatedStyle(() => ({
@@ -229,6 +233,9 @@ export function WishlistCreateEditSheet({
     setSelectedAccessGroups([]);
     setAccessTab("friends");
     setAccessError(null);
+    setPickedImage(null);
+    setImageError(null);
+    setIsUploadingImage(false);
   }, [mode, open, reset, wishlist]);
 
   React.useEffect(() => {
@@ -379,11 +386,30 @@ export function WishlistCreateEditSheet({
     if (!canSubmit) return;
 
     setAccessError(null);
+    setImageError(null);
     setIsSavingAccess(false);
+
+    let imageUrl = formValues.imageUrl.trim();
+
+    if (pickedImage) {
+      setIsUploadingImage(true);
+      try {
+        imageUrl = await uploadPickedImage(pickedImage, "wishlist");
+      } catch (uploadError) {
+        setImageError(
+          uploadError instanceof Error ? uploadError.message : t("Could not save image."),
+        );
+        return;
+      } finally {
+        setIsUploadingImage(false);
+      }
+    }
+
+    const valuesToSave = { ...formValues, imageUrl };
 
     try {
       if (mode === "edit" && wishlist) {
-        await updateMutation.mutateAsync({ id: wishlist.id, values: formValues });
+        await updateMutation.mutateAsync({ id: wishlist.id, values: valuesToSave });
 
         if (
           canManageSelectedAccess &&
@@ -400,7 +426,7 @@ export function WishlistCreateEditSheet({
         return;
       }
 
-      const createdWishlist = await createMutation.mutateAsync(formValues);
+      const createdWishlist = await createMutation.mutateAsync(valuesToSave);
       await grantSelectedAccess(createdWishlist.id);
       completeCreateWishlistStep();
       handleClose();
@@ -471,7 +497,7 @@ export function WishlistCreateEditSheet({
               disabled={!canSubmit}
               onPress={handleSubmit(submitForm)}
             >
-              {isPending || isSavingAccess ? (
+              {isPending || isSavingAccess || isUploadingImage ? (
                 <ActivityIndicator colorClassName="accent-primary-foreground" />
               ) : null}
               <Text>{mode === "edit" ? t("Save changes") : t("Create wishlist")}</Text>
@@ -607,23 +633,25 @@ export function WishlistCreateEditSheet({
           />
         </Field>
 
-        <Field label={t("Image URL")}>
-          <Controller
-            control={control}
-            name="imageUrl"
-            render={({ field: { onChange, value } }) => (
-              <Input
-                value={value}
-                onChangeText={onChange}
-                placeholder={t("https://...")}
-                autoCapitalize="none"
-                keyboardType="url"
-                className={imageUrlInvalid ? "border-destructive" : undefined}
-              />
-            )}
+        <Field label={t("Cover Image")}>
+          <SingleImagePicker
+            previewUri={pickedImage?.uri ?? values.imageUrl}
+            aspect={[16, 9]}
+            pickLabel={t("Choose cover image")}
+            changeLabel={t("Change image")}
+            onPick={(image) => {
+              setPickedImage(image);
+              setImageError(null);
+            }}
+            onClear={() => {
+              setPickedImage(null);
+              patchValues({ imageUrl: "" });
+              setImageError(null);
+            }}
+            onError={setImageError}
           />
-          {imageUrlInvalid ? (
-            <Text className="text-xs font-semibold text-destructive">{t("Enter valid Url")}</Text>
+          {imageError ? (
+            <Text className="text-xs font-semibold text-destructive">{imageError}</Text>
           ) : null}
         </Field>
 

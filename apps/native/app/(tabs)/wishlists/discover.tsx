@@ -3,18 +3,13 @@ import {
   DiscoverFiltersPanel,
 } from "@/components/discover/discover-filter-bar";
 import { DiscoverSection } from "@/components/discover/discover-section";
-import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
 import { DiscoverTabs } from "@/components/discover/discover-tabs";
 import { ReservedItemsGrid } from "@/components/discover/reserved-items-grid";
 import { DiscoverItemDetailSheet } from "@/components/discover/sheets/discover-item-detail-sheet";
 import { UpcomingEventsCard } from "@/components/discover/upcoming-events-card";
 import { InlineState } from "@/components/shared/inline-state";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
-import {
-  InstantStickyHeaderOverlay,
-  StickyHeaderBackground,
-  useInstantStickyHeader,
-} from "@/components/ui/instant-sticky-header";
+import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import { useDiscoverFeed } from "@/hooks/use-discover-feed";
@@ -57,7 +52,6 @@ export default function DiscoverScreen() {
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [selection, setSelection] = React.useState<SelectedDiscoverItem | null>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
-  const stickyHeader = useInstantStickyHeader({ scrollListener: requestMeasure });
 
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
@@ -165,16 +159,9 @@ export default function DiscoverScreen() {
     );
   }
 
-  function renderDiscoverHeader(measure: boolean) {
+  function renderDiscoverHeader() {
     return (
-      <View
-        className="pb-4"
-        onLayout={measure ? stickyHeader.onHeaderLayout : undefined}
-        style={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
-      >
-        {/* The floating overlay copy (measure === false) blurs the scrolling content
-            behind it; the inline copy just paints the page background. */}
-        <StickyHeaderBackground floating={!measure} />
+      <View className="bg-bg pb-4" style={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}>
         <View className="gap-4 self-center" style={{ width: contentWidth }}>
           <DiscoverTabs
             value={feed.tab}
@@ -197,7 +184,7 @@ export default function DiscoverScreen() {
 
   function renderRow({ item }: { item: DiscoverRow }) {
     if ("type" in item && item.type === "discover-header") {
-      return renderDiscoverHeader(true);
+      return renderDiscoverHeader();
     }
 
     if ("type" in item && item.type === "discover-intro") {
@@ -256,7 +243,7 @@ export default function DiscoverScreen() {
         className="flex-1"
         contentContainerClassName="pb-8"
         contentContainerStyle={{ paddingTop: 0 }}
-        onScroll={stickyHeader.onScroll}
+        onScroll={requestMeasure}
         scrollEventThrottle={1}
         ItemSeparatorComponent={RowSeparator}
         onEndReached={feed.loadMore}
@@ -297,9 +284,6 @@ export default function DiscoverScreen() {
           loading: feed.activeQuery.isLoading,
         }}
       />
-      <InstantStickyHeaderOverlay ready={stickyHeader.ready} style={stickyHeader.overlayStyle}>
-        {renderDiscoverHeader(false)}
-      </InstantStickyHeaderOverlay>
       <FloatingBackButton />
 
       {selection ? (

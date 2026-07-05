@@ -3,9 +3,17 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
-import { Check, ChevronUp } from "lucide-react-native";
+import { Check } from "lucide-react-native";
 import * as React from "react";
-import { ActivityIndicator, Keyboard, Pressable, ScrollView, View } from "react-native";
+import {
+  ActivityIndicator,
+  Keyboard,
+  Pressable,
+  ScrollView,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
 
 export type AutocompleteDropdownOption = {
   value: string;
@@ -33,6 +41,11 @@ type CommonProps = {
   closeAccessibilityLabel?: string;
   hideSelectedOptions?: boolean;
   showSelectedValue?: boolean;
+  searchable?: boolean;
+  trailingAccessory?: React.ReactNode;
+  attachedContainerStyle?: StyleProp<ViewStyle>;
+  highlightSelectedOption?: boolean;
+  renderOptionLeading?: (option: AutocompleteDropdownOption) => React.ReactNode;
   inputProps?: Omit<
     React.ComponentProps<typeof Input>,
     "value" | "onChangeText" | "onFocus" | "onSubmitEditing" | "placeholder"
@@ -69,26 +82,62 @@ export function AutocompleteDropdown({
   closeAccessibilityLabel = "Close dropdown",
   hideSelectedOptions = false,
   showSelectedValue = true,
+  searchable = true,
+  trailingAccessory,
+  attachedContainerStyle,
+  highlightSelectedOption = true,
+  renderOptionLeading,
   inputProps,
   ...props
 }: AutocompleteDropdownProps) {
-  const [isFocused, setIsFocused] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [outsideDismissEnabled, setOutsideDismissEnabled] = React.useState(false);
   const [query, setQuery] = React.useState("");
+  const outsideDismissTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedOptions = props.multiple ? props.value : props.value ? [props.value] : [];
   const selectedValues = React.useMemo(
     () => new Set(selectedOptions.map((option) => option.value)),
     [selectedOptions],
   );
-  const visibleValue =
-    isFocused || !showSelectedValue ? query : formatSelectedValue(selectedOptions);
+  const selectedValue = formatSelectedValue(selectedOptions);
+  const visibleValue = searchable && (isOpen || !showSelectedValue) ? query : selectedValue;
   const matchingOptions = React.useMemo(() => {
-    const matches = filterOptions(options, query);
+    const matches = searchable ? filterOptions(options, query) : options;
     return hideSelectedOptions
       ? matches.filter((option) => !selectedValues.has(option.value))
       : matches;
-  }, [hideSelectedOptions, options, query, selectedValues]);
+  }, [hideSelectedOptions, options, query, searchable, selectedValues]);
+
+  React.useEffect(() => {
+    return () => {
+      if (outsideDismissTimeoutRef.current) clearTimeout(outsideDismissTimeoutRef.current);
+    };
+  }, []);
+
+  function clearOutsideDismissTimeout() {
+    if (!outsideDismissTimeoutRef.current) return;
+
+    clearTimeout(outsideDismissTimeoutRef.current);
+    outsideDismissTimeoutRef.current = null;
+  }
+
+  function openDropdown() {
+    clearOutsideDismissTimeout();
+    setQuery("");
+    onQueryChange?.("");
+    setIsOpen(true);
+    // Grace period so the tap that opened the dropdown can't also land on the
+    // outside-dismiss backdrop and immediately close it again.
+    setOutsideDismissEnabled(false);
+    outsideDismissTimeoutRef.current = setTimeout(() => {
+      setOutsideDismissEnabled(true);
+      outsideDismissTimeoutRef.current = null;
+    }, 150);
+  }
 
   function handleSelect(option: AutocompleteDropdownOption) {
+    clearOutsideDismissTimeout();
+
     if (props.multiple) {
       const nextValue = selectedValues.has(option.value)
         ? props.value.filter((item) => item.value !== option.value)
@@ -103,7 +152,9 @@ export function AutocompleteDropdown({
     props.onValueChange(option);
     setQuery("");
     onQueryChange?.("");
-    setIsFocused(false);
+    setOutsideDismissEnabled(false);
+    setIsOpen(false);
+    Keyboard.dismiss();
   }
 
   function handleSubmit() {
@@ -125,9 +176,11 @@ export function AutocompleteDropdown({
   }
 
   function closeDropdown() {
+    clearOutsideDismissTimeout();
+    setOutsideDismissEnabled(false);
     setQuery("");
     onQueryChange?.("");
-    setIsFocused(false);
+    setIsOpen(false);
     Keyboard.dismiss();
   }
 
@@ -144,126 +197,141 @@ export function AutocompleteDropdown({
     if (distanceFromEnd <= 24) onEndReached?.();
   }
 
-  const input = (
+  const inputClass = cn(
+    attached && "flex-1 border-0 bg-transparent shadow-none",
+    attached && isOpen && "rounded-b-none",
+    inputClassName,
+  );
+  const input = searchable ? (
     <Input
       value={visibleValue}
-      onFocus={() => {
-        setQuery("");
-        onQueryChange?.("");
-        setIsFocused(true);
-      }}
+      onFocus={openDropdown}
       onChangeText={handleQueryChange}
       onSubmitEditing={handleSubmit}
       placeholder={placeholder}
       autoCorrect={false}
       returnKeyType="search"
-      className={cn(
-        attached && "flex-1 border-0 bg-transparent shadow-none",
-        attached && isFocused && "rounded-b-none",
-        inputClassName,
-      )}
+      className={inputClass}
       {...inputProps}
     />
+  ) : (
+    <Pressable
+      accessibilityRole="button"
+      onPress={isOpen ? closeDropdown : openDropdown}
+      className={cn(
+        "flex h-10 w-full min-w-0 flex-row items-center rounded-md px-3 py-1 sm:h-9",
+        inputClass,
+      )}
+    >
+      <Text className={cn("text-base leading-5", selectedValue ? "text-text" : "text-text-muted")}>
+        {visibleValue || placeholder}
+      </Text>
+    </Pressable>
   );
 
   return (
     <View className={cn(attached ? "gap-0" : "gap-2", className)}>
-      {attached ? (
-        <View
-          className={cn(
-            "flex-row items-center border border-input bg-background pr-2 shadow-sm shadow-black/5",
-            isFocused ? "rounded-t-md border-b-0" : "rounded-md",
-          )}
-        >
-          {input}
-          {isFocused ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={closeAccessibilityLabel}
-              hitSlop={8}
-              onPress={closeDropdown}
-              className="size-8 items-center justify-center rounded-full active:bg-accent"
-            >
-              <Icon as={ChevronUp} className="size-4 text-text-muted" />
-            </Pressable>
-          ) : null}
-        </View>
-      ) : (
-        input
-      )}
-      {isFocused ? (
-        <View
-          className={cn(
-            "max-h-80 overflow-hidden border border-border bg-popover",
-            attached ? "rounded-b-md rounded-t-none" : "rounded-md",
-            dropdownClassName,
-          )}
-        >
-          {matchingOptions.length > 0 ? (
-            <ScrollView
-              keyboardShouldPersistTaps="handled"
-              nestedScrollEnabled
-              onScroll={handleDropdownScroll}
-              scrollEventThrottle={16}
-              style={
-                maxVisibleOptions ? { maxHeight: Math.max(1, maxVisibleOptions) * 64 } : undefined
-              }
-            >
-              {matchingOptions.map((option) => {
-                const isSelected = selectedValues.has(option.value);
-
-                return (
-                  <Pressable
-                    key={option.value}
-                    onPress={() => handleSelect(option)}
-                    role="button"
-                    accessibilityState={{ selected: isSelected }}
-                    className={cn(
-                      "min-h-16 flex-row items-center justify-between gap-3 px-3 py-3 active:bg-accent",
-                      isSelected && "bg-accent/60",
-                      optionClassName,
-                    )}
-                  >
-                    {option.imageUrl ? (
-                      <Avatar alt={option.label} className="size-9">
-                        <AvatarImage source={{ uri: option.imageUrl }} />
-                        <AvatarFallback>
-                          <Text className="text-xs font-bold text-text-muted">
-                            {option.label.slice(0, 2).toUpperCase()}
-                          </Text>
-                        </AvatarFallback>
-                      </Avatar>
-                    ) : null}
-                    <View className="min-w-0 flex-1">
-                      <Text className="font-semibold text-text">{option.label}</Text>
-                      {option.description ? (
-                        <Text className="text-sm text-text-muted">{option.description}</Text>
-                      ) : null}
-                    </View>
-                    <View className="flex-row items-center gap-2">
-                      {isSelected ? (
-                        <Icon as={Check} aria-hidden={true} className="size-4 text-brand" />
-                      ) : null}
-                      {option.trailing ? (
-                        <Text className="text-sm font-semibold text-text-muted">
-                          {option.trailing}
-                        </Text>
-                      ) : null}
-                    </View>
-                  </Pressable>
-                );
-              })}
-              {isLoadingMore ? (
-                <View className="h-12 items-center justify-center">
-                  <ActivityIndicator colorClassName="accent-brand" size="small" />
-                </View>
-              ) : null}
-            </ScrollView>
-          ) : (
-            <Text className="px-3 py-3 text-sm text-text-muted">{emptyText}</Text>
-          )}
-        </View>
+      {isOpen ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={closeAccessibilityLabel}
+          onPress={closeDropdown}
+          pointerEvents={outsideDismissEnabled ? "auto" : "none"}
+          style={{ position: "absolute", inset: -1000, zIndex: 1 }}
+        />
       ) : null}
+      <View style={isOpen ? { position: "relative", zIndex: 2 } : undefined}>
+        {attached ? (
+          <View
+            className={cn(
+              "flex-row items-center border border-input bg-background pr-2 shadow-sm shadow-black/5",
+              isOpen ? "rounded-t-md border-b-0" : "rounded-md",
+            )}
+            style={attachedContainerStyle}
+          >
+            {input}
+            {trailingAccessory ? (
+              <View className="ml-2 items-center justify-center">{trailingAccessory}</View>
+            ) : null}
+          </View>
+        ) : (
+          input
+        )}
+        {isOpen ? (
+          <View
+            className={cn(
+              "max-h-80 overflow-hidden border border-border bg-popover",
+              attached ? "rounded-b-md rounded-t-none" : "rounded-md",
+              dropdownClassName,
+            )}
+          >
+            {matchingOptions.length > 0 ? (
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                nestedScrollEnabled
+                onScroll={handleDropdownScroll}
+                scrollEventThrottle={16}
+                style={
+                  maxVisibleOptions ? { maxHeight: Math.max(1, maxVisibleOptions) * 64 } : undefined
+                }
+              >
+                {matchingOptions.map((option) => {
+                  const isSelected = selectedValues.has(option.value);
+
+                  return (
+                    <Pressable
+                      key={option.value}
+                      onPress={() => handleSelect(option)}
+                      role="button"
+                      accessibilityState={{ selected: isSelected }}
+                      className={cn(
+                        "min-h-16 flex-row items-center justify-between gap-3 px-3 py-3 active:bg-accent",
+                        isSelected && highlightSelectedOption && "bg-accent/60",
+                        optionClassName,
+                      )}
+                    >
+                      {renderOptionLeading ? renderOptionLeading(option) : null}
+                      {option.imageUrl ? (
+                        <Avatar alt={option.label} className="size-9">
+                          <AvatarImage source={{ uri: option.imageUrl }} />
+                          <AvatarFallback>
+                            <Text className="text-xs font-bold text-text-muted">
+                              {option.label.slice(0, 2).toUpperCase()}
+                            </Text>
+                          </AvatarFallback>
+                        </Avatar>
+                      ) : null}
+                      <View className="min-w-0 flex-1">
+                        <Text className="font-semibold text-text">{option.label}</Text>
+                        {option.description ? (
+                          <Text className="text-sm text-text-muted">{option.description}</Text>
+                        ) : null}
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        {isSelected ? (
+                          <Icon as={Check} aria-hidden={true} className="size-4 text-brand" />
+                        ) : null}
+                        {option.trailing ? (
+                          <Text className="text-sm font-semibold text-text-muted">
+                            {option.trailing}
+                          </Text>
+                        ) : null}
+                      </View>
+                    </Pressable>
+                  );
+                })}
+                {isLoadingMore ? (
+                  <View className="h-12 items-center justify-center">
+                    <ActivityIndicator colorClassName="accent-brand" size="small" />
+                  </View>
+                ) : null}
+              </ScrollView>
+            ) : (
+              <Text className="px-3 py-3 text-sm text-text-muted">{emptyText}</Text>
+            )}
+          </View>
+        ) : null}
+      </View>
     </View>
   );
 }

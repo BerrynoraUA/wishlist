@@ -9,6 +9,7 @@ import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheet
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import { useCreateFriendGroup, useFriends } from "@/hooks/use-friends";
 import { Portal } from "@rn-primitives/portal";
+import { useGlobalSearchParams, usePathname } from "expo-router";
 import {
   Gift,
   Link,
@@ -46,17 +47,56 @@ type CreateMenuEntry = {
   guideStep?: number;
 };
 
+type CreateMenuActions = {
+  openItemSourceMenu: () => void;
+};
+
+const CreateMenuActionsContext = React.createContext<CreateMenuActions | null>(null);
+
+export function useCreateMenuActions() {
+  const actions = React.useContext(CreateMenuActionsContext);
+  if (!actions) throw new Error("useCreateMenuActions must be used within CreateMenuHost");
+  return actions;
+}
+
+/**
+ * Wishlist detail route id while the user is viewing one, so items created
+ * from the global "+" menu default to that wishlist.
+ */
+function useContextualWishlistId() {
+  const pathname = usePathname();
+  const params = useGlobalSearchParams<{ id?: string | string[] }>();
+
+  if (!pathname.startsWith("/wishlists/") || pathname === "/wishlists/discover") return undefined;
+
+  const routeId = Array.isArray(params.id) ? params.id[0] : params.id;
+  return routeId || undefined;
+}
+
 export function CreateMenuHost({
   open,
   onOpenChange,
+  children,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  children: React.ReactNode;
 }) {
   const t = useGT();
   const { completeStep } = useUserGuide();
   const [action, setAction] = React.useState<CreateAction | null>(null);
   const [itemMenuOpen, setItemMenuOpen] = React.useState(false);
+  const contextualWishlistId = useContextualWishlistId();
+  const actions = React.useMemo<CreateMenuActions>(
+    () => ({
+      openItemSourceMenu: () => {
+        onOpenChange(false);
+        setAction(null);
+        setItemMenuOpen(true);
+      },
+    }),
+    [onOpenChange],
+  );
 
   function handleSelect(entry: CreateMenuEntry) {
     onOpenChange(false);
@@ -79,7 +119,8 @@ export function CreateMenuHost({
   }
 
   return (
-    <>
+    <CreateMenuActionsContext.Provider value={actions}>
+      {children}
       <CreateActionMenu open={open} onClose={() => onOpenChange(false)} onSelect={handleSelect} />
       <CreateItemSourceMenu
         open={itemMenuOpen}
@@ -101,6 +142,7 @@ export function CreateMenuHost({
       <WishlistItemCreateEditSheet
         mode="create"
         createSource={action === "item-link" ? "link" : "scratch"}
+        wishlistId={contextualWishlistId}
         open={action === "item-scratch" || action === "item-link"}
         onOpenChange={closeAction}
       />
@@ -111,7 +153,7 @@ export function CreateMenuHost({
       />
       {action === "friend" ? <AddFriendSheet open onOpenChange={closeAction} /> : null}
       {action === "friend-group" ? <CreateFriendGroupSheet onOpenChange={closeAction} /> : null}
-    </>
+    </CreateMenuActionsContext.Provider>
   );
 }
 
@@ -182,62 +224,79 @@ function CreateFloatingMenu({
   entries: CreateMenuEntry[];
   onSelect: (entry: CreateMenuEntry) => void;
 }) {
-  const t = useGT();
-  const insets = useSafeAreaInsets();
-
   if (!open) return null;
+
+  return (
+    <Portal name="create-action-menu">
+      <CreateFloatingMenuContent onClose={onClose} entries={entries} onSelect={onSelect} />
+    </Portal>
+  );
+}
+
+function CreateFloatingMenuContent({
+  onClose,
+  entries,
+  onSelect,
+}: {
+  onClose: () => void;
+  entries: CreateMenuEntry[];
+  onSelect: (entry: CreateMenuEntry) => void;
+}) {
+  const t = useGT();
+  // Mounted under the root PortalHost, so these are the window insets. Reading
+  // them in the component that opens the menu would include the native tab bar
+  // on iOS when triggered from inside a tab screen, pushing the menu up.
+  const insets = useSafeAreaInsets();
 
   const menuBottom = Math.max(insets.bottom, 8) + TAB_BAR_HEIGHT + 12;
 
   return (
-    <Portal name="create-action-menu">
-      <View className="absolute inset-0" style={{ zIndex: 9000 }}>
-        <Animated.View
-          className="absolute inset-0 bg-black/40"
-          entering={FadeIn.duration(180)}
-          exiting={FadeOut.duration(150)}
-        >
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t("Close create menu")}
-            className="flex-1"
-            onPress={onClose}
-          />
-        </Animated.View>
-        <View
-          className="absolute left-0 right-0 items-center gap-2.5"
-          pointerEvents="box-none"
-          style={{ bottom: menuBottom }}
-        >
-          {entries.map((entry, index) => (
-            <Animated.View
-              key={entry.action}
-              entering={FadeInDown.springify()
-                .damping(16)
-                .stiffness(240)
-                .mass(0.7)
-                .delay((entries.length - 1 - index) * 45)
-                .withInitialValues({ opacity: 0, transform: [{ translateY: 48 }] })}
-              exiting={FadeOutDown.duration(140).delay(index * 20)}
+    <View className="absolute inset-0" style={{ zIndex: 9000 }}>
+      <Animated.View
+        className="absolute inset-0 bg-black/40"
+        entering={FadeIn.duration(180)}
+        exiting={FadeOut.duration(150)}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t("Close create menu")}
+          className="flex-1"
+          onPress={onClose}
+        />
+      </Animated.View>
+      <View
+        className="absolute left-0 right-0 items-center gap-2.5"
+        pointerEvents="box-none"
+        style={{ bottom: menuBottom }}
+      >
+        {entries.map((entry, index) => (
+          <Animated.View
+            key={entry.action}
+            entering={FadeInDown.springify()
+              .damping(16)
+              .stiffness(240)
+              .mass(0.7)
+              .delay((entries.length - 1 - index) * 45)
+              .withInitialValues({ opacity: 0, transform: [{ translateY: 48 }] })}
+            exiting={FadeOutDown.duration(140).delay(index * 20)}
+          >
+            <AnimatedPressable
+              accessibilityRole="button"
+              accessibilityLabel={entry.label}
+              onPress={() => onSelect(entry)}
+              className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg py-2.5 pl-2.5 pr-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
             >
-              <AnimatedPressable
-                accessibilityRole="button"
-                accessibilityLabel={entry.label}
-                onPress={() => onSelect(entry)}
-                className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg py-2.5 pl-2.5 pr-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
-              >
-                <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
-                  <Icon as={entry.icon} className="size-5 text-brand" />
-                </View>
-                <Text className="min-w-0 flex-1 text-base font-bold text-text" numberOfLines={1}>
-                  {entry.label}
-                </Text>
-              </AnimatedPressable>
-            </Animated.View>
-          ))}
-        </View>
+              <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
+                <Icon as={entry.icon} className="size-5 text-brand" />
+              </View>
+              <Text className="min-w-0 flex-1 text-base font-bold text-text" numberOfLines={1}>
+                {entry.label}
+              </Text>
+            </AnimatedPressable>
+          </Animated.View>
+        ))}
       </View>
-    </Portal>
+    </View>
   );
 }
 

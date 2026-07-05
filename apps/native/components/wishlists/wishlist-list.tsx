@@ -12,12 +12,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
-import {
-  InstantStickyHeaderOverlay,
-  STICKY_HEADER_GAP,
-  StickyHeaderBackground,
-  useInstantStickyHeader,
-} from "@/components/ui/instant-sticky-header";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import {
   useUserGuideStepCompletion,
@@ -66,8 +60,8 @@ export function WishlistList({
   contentWidth,
   columns,
   gridGap,
+  FilterHeaderComponent,
   ListHeaderComponent,
-  StickyHeaderComponent,
   onEndReached,
   onOpenSheet,
 }: {
@@ -82,8 +76,8 @@ export function WishlistList({
   contentWidth: number;
   columns: number;
   gridGap: number;
+  FilterHeaderComponent: React.ReactElement;
   ListHeaderComponent: React.ReactElement;
-  StickyHeaderComponent: React.ReactElement;
   onEndReached: () => void;
   onOpenSheet: (sheet: Exclude<SheetState, null>) => void;
 }) {
@@ -91,19 +85,7 @@ export function WishlistList({
   const completeOpenDetailStep = useUserGuideStepCompletion(4);
   const { requestMeasure } = useUserGuideTargetRegistration();
   const insets = useSafeAreaInsets();
-  // Keep the filter row's top gap equal to its bottom gap (pb-4 = 16px). The
-  // floating overlay adds the status-bar inset on top of that unified margin.
-  const headerVerticalGap = STICKY_HEADER_GAP;
-  const overlayPaddingTop = insets.top + headerVerticalGap;
-  const inlineHeaderPaddingTop = headerVerticalGap;
   const contentTopPadding = insets.top;
-  // No snap offset needed: the inline filter row and the floating overlay rest at
-  // the same vertical position once the shared status-bar inset + gap is removed
-  // (overlayPaddingTop === contentTopPadding + inlineHeaderPaddingTop), so the row
-  // doesn't jump when it becomes sticky. thresholdOffset defaults to 0.
-  const stickyHeader = useInstantStickyHeader({
-    scrollListener: requestMeasure,
-  });
   const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
   const data = React.useMemo<WishlistListRow[]>(
     () => [{ id: "filters", type: "filters" }, ...(query.isLoading ? [] : rows)],
@@ -112,13 +94,9 @@ export function WishlistList({
   const renderRow = React.useCallback(
     ({ item, index }: { item: WishlistListRow; index: number }) =>
       "type" in item ? (
-        <View
-          className="z-2 bg-bg pb-4"
-          onLayout={stickyHeader.onHeaderLayout}
-          style={{ paddingTop: inlineHeaderPaddingTop }}
-        >
+        <View className="z-2 bg-bg pb-4 pt-4">
           <View className="max-w-300 self-center" style={{ width: contentWidth }}>
-            {StickyHeaderComponent}
+            {FilterHeaderComponent}
           </View>
         </View>
       ) : (
@@ -173,16 +151,7 @@ export function WishlistList({
           })}
         </View>
       ),
-    [
-      cardWidth,
-      contentWidth,
-      gridGap,
-      inlineHeaderPaddingTop,
-      onOpenSheet,
-      completeOpenDetailStep,
-      stickyHeader.onHeaderLayout,
-      StickyHeaderComponent,
-    ],
+    [cardWidth, contentWidth, gridGap, onOpenSheet, completeOpenDetailStep, FilterHeaderComponent],
   );
 
   return (
@@ -198,14 +167,10 @@ export function WishlistList({
         onEndReached={onEndReached}
         isLoadingMore={query.isFetchingNextPage}
         getItemType={(row) => ("type" in row ? row.type : "wishlist-row")}
-        onScroll={stickyHeader.onScroll}
+        onScroll={requestMeasure}
         scrollEventThrottle={1}
         ListHeaderComponent={
-          <View
-            className="mb-0 max-w-300 self-center"
-            onLayout={stickyHeader.onAnchorLayout}
-            style={{ width: contentWidth }}
-          >
+          <View className="mb-0 max-w-300 self-center" style={{ width: contentWidth }}>
             {ListHeaderComponent}
           </View>
         }
@@ -230,21 +195,9 @@ export function WishlistList({
           cardWidth,
           contentWidth,
           gridGap,
-          StickyHeaderComponent,
+          FilterHeaderComponent,
         }}
       />
-      <InstantStickyHeaderOverlay
-        ready={stickyHeader.ready}
-        style={stickyHeader.overlayStyle}
-        onLayout={stickyHeader.onOverlayLayout}
-      >
-        <View className="pb-4" style={{ paddingTop: overlayPaddingTop }}>
-          <StickyHeaderBackground floating />
-          <View className="max-w-300 self-center" style={{ width: contentWidth }}>
-            {StickyHeaderComponent}
-          </View>
-        </View>
-      </InstantStickyHeaderOverlay>
     </View>
   );
 }

@@ -9,7 +9,7 @@ import { GuideTarget } from "@/components/user-guide/guide-target";
 import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
-import { StyledImage } from "@/components/ui/styled-image";
+import { SingleImagePicker } from "@/components/ui/single-image-picker";
 import { Text } from "@/components/ui/text";
 import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
@@ -22,9 +22,9 @@ import {
   cleanAdditionalLinks,
   toItemFormValues,
 } from "@/lib/items";
+import { type NativePickedImage, uploadPickedImage } from "@/lib/image-upload";
 import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
-import { PRIORITY_IDS } from "@wishlist/backend/lib";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
 import { Plus, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
@@ -71,6 +71,9 @@ export function WishlistItemCreateEditSheet({
   const isCreateFromLink = mode === "create" && createSource === "link";
   const isCreateFromScratch = mode === "create" && createSource === "scratch";
   const [isScraping, setIsScraping] = React.useState(false);
+  const [pickedImage, setPickedImage] = React.useState<NativePickedImage | null>(null);
+  const [imageError, setImageError] = React.useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = React.useState(false);
   const [scrapeError, setScrapeError] = React.useState<string | null>(null);
   const currentUrlRef = React.useRef("");
   const lastScrapedUrlRef = React.useRef("");
@@ -89,6 +92,7 @@ export function WishlistItemCreateEditSheet({
   const hasInvalidAdditionalLinks = invalidAdditionalLinkIndexes.size > 0;
   const canSubmit =
     !isPending &&
+    !isUploadingImage &&
     values.name.trim() !== "" &&
     (mode === "edit" || targetWishlistId !== "") &&
     !productLinkInvalid &&
@@ -100,14 +104,26 @@ export function WishlistItemCreateEditSheet({
       const nextValues =
         mode === "edit"
           ? toItemFormValues(item ?? undefined)
-          : { ...EMPTY_ITEM_FORM, priority_id: PRIORITY_IDS.LOW };
+          : { ...EMPTY_ITEM_FORM, priority_id: null };
       reset(nextValues);
       setSelectedWishlistId("");
       setScrapeError(null);
+      setPickedImage(null);
+      setImageError(null);
+      setIsUploadingImage(false);
       currentUrlRef.current = nextValues.url.trim();
       lastScrapedUrlRef.current = nextValues.url.trim();
     }
   }, [createSource, item, mode, open, reset]);
+
+  // Priority options can arrive after the sheet opens (they come from settings),
+  // so defaulting can't happen in the open/reset effect above.
+  React.useEffect(() => {
+    if (!open || mode !== "create" || priorityOptions.length === 0) return;
+    if (priorityOptions.some((option) => option.priority_id === values.priority_id)) return;
+
+    setValue("priority_id", priorityOptions[0].priority_id);
+  }, [mode, open, priorityOptions, setValue, values.priority_id]);
 
   React.useEffect(() => {
     currentUrlRef.current = values.url.trim();
@@ -144,6 +160,7 @@ export function WishlistItemCreateEditSheet({
     scrapeRequestIdRef.current += 1;
     setIsScraping(false);
     setScrapeError(null);
+    setPickedImage(null);
     lastScrapedUrlRef.current = "";
     patchValues({
       url: "",
@@ -181,53 +198,46 @@ export function WishlistItemCreateEditSheet({
         : t("Create from link");
 
   const productLinkField = usesProductLink ? (
-    <Field label={t("Product link")}>
-      <View className="gap-2">
-        {isCreateFromLink ? (
-          <Text className="text-sm font-semibold text-text-muted">
-            {t("Paste a link and we'll fill in what we can.")}
-          </Text>
-        ) : null}
-        <View className="flex-row items-center gap-2">
-          <Controller
-            control={control}
-            name="url"
-            render={({ field: { onChange, value } }) => (
-              <Input
-                value={value}
-                onChangeText={(url) => {
-                  onChange(url);
-                  if (scrapeError) setScrapeError(null);
-                }}
-                placeholder={t("Paste a product URL")}
-                autoCapitalize="none"
-                keyboardType="url"
-                returnKeyType="done"
-                className={cn("min-w-0 flex-1", productLinkInvalid && "border-destructive")}
-              />
-            )}
-          />
-          {canClearScrapedFields ? (
-            <Button
-              variant="destructive"
-              size="icon"
-              disabled={isScraping || isPending}
-              onPress={clearProductLinkAndScraperFields}
-              accessibilityLabel={t("Clear product link and autofill")}
-            >
-              <Icon as={X} className="size-4 text-white" />
-            </Button>
-          ) : null}
-        </View>
-        {productLinkInvalid ? (
-          <Text className="text-sm font-semibold text-destructive">{t("Enter valid Url")}</Text>
-        ) : isScraping ? (
-          <Text className="text-sm font-semibold text-text-muted">{t("Searching...")}</Text>
-        ) : scrapeError ? (
-          <Text className="text-sm font-semibold text-destructive">{scrapeError}</Text>
+    <View className="gap-2">
+      <View className="flex-row items-center gap-2">
+        <Controller
+          control={control}
+          name="url"
+          render={({ field: { onChange, value } }) => (
+            <Input
+              value={value}
+              onChangeText={(url) => {
+                onChange(url);
+                if (scrapeError) setScrapeError(null);
+              }}
+              placeholder={t("Product URL")}
+              autoCapitalize="none"
+              keyboardType="url"
+              returnKeyType="done"
+              className={cn("min-w-0 flex-1", productLinkInvalid && "border-destructive")}
+            />
+          )}
+        />
+        {canClearScrapedFields ? (
+          <Button
+            variant="destructive"
+            size="icon"
+            disabled={isScraping || isPending}
+            onPress={clearProductLinkAndScraperFields}
+            accessibilityLabel={t("Clear product link and autofill")}
+          >
+            <Icon as={X} className="size-4 text-white" />
+          </Button>
         ) : null}
       </View>
-    </Field>
+      {productLinkInvalid ? (
+        <Text className="text-sm font-semibold text-destructive">{t("Enter valid Url")}</Text>
+      ) : isScraping ? (
+        <Text className="text-sm font-semibold text-text-muted">{t("Searching...")}</Text>
+      ) : scrapeError ? (
+        <Text className="text-sm font-semibold text-destructive">{scrapeError}</Text>
+      ) : null}
+    </View>
   ) : null;
 
   async function handleScrape(url: string) {
@@ -260,6 +270,9 @@ export function WishlistItemCreateEditSheet({
 
       if (requestId !== scrapeRequestIdRef.current || currentUrlRef.current !== url) return;
 
+      if (product.image) {
+        setPickedImage(null);
+      }
       patchValues({
         ...(product.title ? { name: product.title } : {}),
         ...(mode === "edit" && product.description ? { description: product.description } : {}),
@@ -281,16 +294,34 @@ export function WishlistItemCreateEditSheet({
     }
   }
 
-  function submitForm(formValues: ItemFormValues) {
+  async function submitForm(formValues: ItemFormValues) {
     const name = formValues.name.trim();
     if (!canSubmit) return;
+
+    setImageError(null);
+
+    let imageUrl = formValues.imageUrl.trim() || null;
+
+    if (pickedImage) {
+      setIsUploadingImage(true);
+      try {
+        imageUrl = await uploadPickedImage(pickedImage, "item");
+      } catch (uploadError) {
+        setImageError(
+          uploadError instanceof Error ? uploadError.message : t("Could not save image."),
+        );
+        return;
+      } finally {
+        setIsUploadingImage(false);
+      }
+    }
 
     const payload = {
       name,
       description: mode === "edit" ? formValues.description.trim() || null : null,
       price: formValues.price.trim() || null,
       priority_id: formValues.priority_id,
-      image_url: formValues.imageUrl.trim() || null,
+      image_url: imageUrl,
       url: formValues.url.trim() || null,
       currency: formValues.currency.trim() || null,
       discount_price: formValues.discountPrice.trim() || null,
@@ -348,7 +379,9 @@ export function WishlistItemCreateEditSheet({
               disabled={!canSubmit}
               onPress={handleSubmit(submitForm)}
             >
-              {isPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
+              {isPending || isUploadingImage ? (
+                <ActivityIndicator colorClassName="accent-primary-foreground" />
+              ) : null}
               <Text>{mode === "edit" ? t("Save changes") : t("Create item")}</Text>
             </Button>
           </GuideTarget>
@@ -384,35 +417,29 @@ export function WishlistItemCreateEditSheet({
 
         {!isCreateFromLink ? productLinkField : null}
 
-        <Field label={t("Image URL")}>
-          <View className="gap-3">
-            {values.imageUrl.trim() && !imageUrlInvalid ? (
-              <View className="h-40 overflow-hidden rounded-xl border border-border-subtle bg-bg-muted">
-                <StyledImage
-                  source={{ uri: values.imageUrl.trim() }}
-                  contentFit="cover"
-                  className="size-full"
-                />
-              </View>
-            ) : null}
-            <Controller
-              control={control}
-              name="imageUrl"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder={t("https://...")}
-                  autoCapitalize="none"
-                  keyboardType="url"
-                  className={imageUrlInvalid ? "border-destructive" : undefined}
-                />
-              )}
-            />
-            {imageUrlInvalid ? (
-              <Text className="text-xs font-semibold text-destructive">{t("Enter valid Url")}</Text>
-            ) : null}
-          </View>
+        <Field label={t("Image")}>
+          <SingleImagePicker
+            previewUri={pickedImage?.uri ?? (imageUrlInvalid ? null : values.imageUrl.trim())}
+            pickLabel={t("Choose image")}
+            changeLabel={t("Change image")}
+            onPick={(image) => {
+              setPickedImage(image);
+              patchValues({ imageUrl: "" });
+              setImageError(null);
+            }}
+            onClear={() => {
+              setPickedImage(null);
+              patchValues({ imageUrl: "" });
+              setImageError(null);
+            }}
+            onError={setImageError}
+          />
+          {imageUrlInvalid ? (
+            <Text className="text-xs font-semibold text-destructive">{t("Enter valid Url")}</Text>
+          ) : null}
+          {imageError ? (
+            <Text className="text-xs font-semibold text-destructive">{imageError}</Text>
+          ) : null}
         </Field>
 
         {mode === "edit" ? (
@@ -477,46 +504,6 @@ export function WishlistItemCreateEditSheet({
               />
             )}
           />
-        </Field>
-
-        <Field label={t("Discount")}>
-          <View className="gap-2">
-            <Button
-              variant={values.hasDiscount ? "default" : "outline"}
-              onPress={() => patchValues({ hasDiscount: !values.hasDiscount })}
-            >
-              <Text>{values.hasDiscount ? t("Discount enabled") : t("Enable discount")}</Text>
-            </Button>
-            {values.hasDiscount ? (
-              <View className="flex-row gap-2">
-                <Controller
-                  control={control}
-                  name="discountPrice"
-                  render={({ field: { onChange, value } }) => (
-                    <Input
-                      value={value}
-                      onChangeText={onChange}
-                      placeholder={t("Sale price")}
-                      keyboardType="decimal-pad"
-                      className="min-w-0 flex-1"
-                    />
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name="discountEndDate"
-                  render={({ field: { onChange, value } }) => (
-                    <Input
-                      value={value}
-                      onChangeText={onChange}
-                      placeholder={t("YYYY-MM-DD")}
-                      className="min-w-0 flex-1"
-                    />
-                  )}
-                />
-              </View>
-            ) : null}
-          </View>
         </Field>
 
         <Field label={t("Additional links")}>
@@ -678,19 +665,44 @@ function PrioritySelector({
     [priorityOptions],
   );
   const selectedOption = options.find((option) => option.value === value) ?? null;
-  const selectedPriority = getItemPriority(value);
+  const prioritiesById = React.useMemo(
+    () =>
+      new Map(
+        priorityOptions.map((option) => [option.priority_id, getItemPriority(option.priority_id)]),
+      ),
+    [priorityOptions],
+  );
+  const selectedPriority = value ? prioritiesById.get(value) : undefined;
 
   return (
-    <View className="gap-2">
-      {selectedPriority ? <PriorityFilterIcon priority={selectedPriority} /> : null}
-      <AutocompleteDropdown
-        value={selectedOption}
-        onValueChange={(option) => onChange(option.value)}
-        options={options}
-        placeholder={t("Search priority")}
-        emptyText={t("No priorities found")}
-        attached
-      />
-    </View>
+    <AutocompleteDropdown
+      value={selectedOption}
+      onValueChange={(option) => onChange(option.value)}
+      options={options}
+      placeholder={t("Search priority")}
+      emptyText={t("No priorities found")}
+      attached
+      searchable={false}
+      highlightSelectedOption={false}
+      optionClassName="min-h-10 py-2"
+      renderOptionLeading={(option) => {
+        const priority = prioritiesById.get(option.value);
+
+        return priority ? <PriorityFilterIcon priority={priority} /> : null;
+      }}
+      attachedContainerStyle={
+        selectedPriority
+          ? {
+              backgroundColor: `${selectedPriority.color}1f`,
+              borderColor: `${selectedPriority.color}33`,
+            }
+          : undefined
+      }
+      trailingAccessory={
+        selectedPriority ? (
+          <PriorityFilterIcon priority={selectedPriority} showBackground={false} />
+        ) : null
+      }
+    />
   );
 }

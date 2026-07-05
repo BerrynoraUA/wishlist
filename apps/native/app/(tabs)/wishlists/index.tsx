@@ -40,12 +40,7 @@ export default function WishlistsScreen() {
           contentWidth={feed.contentWidth}
           columns={feed.columns}
           gridGap={feed.gridGap}
-          ListHeaderComponent={
-            <View>
-              <WishlistListStatsRow />
-            </View>
-          }
-          StickyHeaderComponent={
+          FilterHeaderComponent={
             <WishlistFilterBar
               search={feed.search}
               visibility={feed.visibility}
@@ -61,6 +56,11 @@ export default function WishlistsScreen() {
               filtersOpen={filtersOpen}
               onFiltersOpenChange={setFiltersOpen}
             />
+          }
+          ListHeaderComponent={
+            <View>
+              <WishlistListStatsRow />
+            </View>
           }
           onEndReached={feed.loadMore}
           onOpenSheet={(nextSheet) =>

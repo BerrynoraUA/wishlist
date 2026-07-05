@@ -34,7 +34,7 @@ export default function TabsLayout() {
   }
 
   return (
-    <>
+    <CreateMenuHost open={createOpen} onOpenChange={setCreateOpen}>
       <NativeTabs
         backgroundColor={navigationTheme.colors.card}
         blurEffect={themeMode === "dark" ? "systemMaterialDark" : "systemMaterialLight"}
@@ -92,7 +92,6 @@ export default function TabsLayout() {
           <NativeTabs.Trigger.Label>{t("Profile")}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
       </NativeTabs>
-      <CreateMenuHost open={createOpen} onOpenChange={setCreateOpen} />
-    </>
+    </CreateMenuHost>
   );
 }
