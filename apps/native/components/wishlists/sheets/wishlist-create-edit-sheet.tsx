@@ -133,7 +133,6 @@ export function WishlistCreateEditSheet({
   const accessPanelOpacity = useSharedValue(0);
   const accessPanelTranslateY = useSharedValue(-14);
   const accessPanelScaleY = useSharedValue(0.94);
-  const title = mode === "edit" ? t("Edit Wishlist") : t("Create Wishlist");
   const canManageSelectedAccess = mode === "create" || Boolean(wishlist?.is_owner);
   const wishlistId = wishlist?.id ?? "";
   const canSubmit =
@@ -480,7 +479,6 @@ export function WishlistCreateEditSheet({
       scrollable
       dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}
-      header={<Text className="mx-5 mt-5 text-lg font-extrabold text-text">{title}</Text>}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button

@@ -190,13 +190,6 @@ export function WishlistItemCreateEditSheet({
     void sheetRef.current?.dismiss();
   }
 
-  const title =
-    mode === "edit"
-      ? t("Edit Item")
-      : isCreateFromScratch
-        ? t("Create from scratch")
-        : t("Create from link");
-
   const productLinkField = usesProductLink ? (
     <View className="gap-2">
       <View className="flex-row items-center gap-2">
@@ -362,7 +355,6 @@ export function WishlistItemCreateEditSheet({
       scrollableOptions={{ scrollingExpandsSheet: false }}
       dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}
-      header={<Text className="mx-5 mt-5 text-lg font-extrabold text-text">{title}</Text>}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button

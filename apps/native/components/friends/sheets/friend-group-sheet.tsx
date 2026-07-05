@@ -125,16 +125,6 @@ export function FriendGroupSheet({
       scrollable
       dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}
-      header={
-        <View className="mx-5 mt-5 gap-1">
-          <Text className="text-lg font-extrabold text-text">
-            {group ? t("Edit group") : t("Create group")}
-          </Text>
-          <Text className="text-xs font-semibold text-text-muted">
-            {t("Group friends for faster sharing.")}
-          </Text>
-        </View>
-      }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
