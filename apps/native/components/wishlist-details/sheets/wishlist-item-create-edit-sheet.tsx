@@ -69,7 +69,6 @@ export function WishlistItemCreateEditSheet({
   const targetWishlistId = wishlistId || selectedWishlistId;
   const usesProductLink = mode === "edit" || createSource === "link";
   const isCreateFromLink = mode === "create" && createSource === "link";
-  const isCreateFromScratch = mode === "create" && createSource === "scratch";
   const [isScraping, setIsScraping] = React.useState(false);
   const [pickedImage, setPickedImage] = React.useState<NativePickedImage | null>(null);
   const [imageError, setImageError] = React.useState<string | null>(null);
@@ -350,7 +349,6 @@ export function WishlistItemCreateEditSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={[1]}
       scrollable
       scrollableOptions={{ scrollingExpandsSheet: false }}
       dismissOnBack={false}

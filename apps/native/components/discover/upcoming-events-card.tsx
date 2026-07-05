@@ -79,7 +79,6 @@ export function UpcomingEventsCard({
       {open ? (
         <BottomSheet
           ref={sheetRef}
-          detents={[0.7]}
           dismissOnBack={false}
           onDidDismiss={() => setOpen(false)}
           header={

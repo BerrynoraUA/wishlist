@@ -101,7 +101,6 @@ export function SecretSantaLaunchSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={[0.85, 1]}
       scrollable
       dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}

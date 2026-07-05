@@ -216,7 +216,6 @@ export function SecretSantaCreateEditSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={[0.85, 1]}
       scrollable
       scrollableOptions={{ scrollingExpandsSheet: false }}
       dismissOnBack={false}

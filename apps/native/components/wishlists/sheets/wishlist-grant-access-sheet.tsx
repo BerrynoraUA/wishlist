@@ -83,7 +83,6 @@ export function WishlistGrantAccessSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={[0.82, 1]}
       scrollable
       dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}

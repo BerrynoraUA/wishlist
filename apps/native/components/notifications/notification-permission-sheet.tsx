@@ -112,7 +112,6 @@ export function NotificationPermissionSheet({ userId }: { userId: string }) {
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={[0.78, 0.92]}
       initialDetentIndex={0}
       initialDetentAnimated
       scrollable

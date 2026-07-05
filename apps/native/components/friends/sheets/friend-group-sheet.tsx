@@ -121,7 +121,6 @@ export function FriendGroupSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={[0.7, 1]}
       scrollable
       dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}
