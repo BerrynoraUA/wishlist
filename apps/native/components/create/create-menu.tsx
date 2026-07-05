@@ -47,18 +47,6 @@ type CreateMenuEntry = {
   guideStep?: number;
 };
 
-type CreateMenuActions = {
-  openItemSourceMenu: () => void;
-};
-
-const CreateMenuActionsContext = React.createContext<CreateMenuActions | null>(null);
-
-export function useCreateMenuActions() {
-  const actions = React.useContext(CreateMenuActionsContext);
-  if (!actions) throw new Error("useCreateMenuActions must be used within CreateMenuHost");
-  return actions;
-}
-
 /**
  * Wishlist detail route id while the user is viewing one, so items created
  * from the global "+" menu default to that wishlist.
@@ -87,24 +75,14 @@ export function CreateMenuHost({
   const [action, setAction] = React.useState<CreateAction | null>(null);
   const [itemMenuOpen, setItemMenuOpen] = React.useState(false);
   const contextualWishlistId = useContextualWishlistId();
-  const actions = React.useMemo<CreateMenuActions>(
-    () => ({
-      openItemSourceMenu: () => {
-        onOpenChange(false);
-        setAction(null);
-        setItemMenuOpen(true);
-      },
-    }),
-    [onOpenChange],
-  );
 
   function handleSelect(entry: CreateMenuEntry) {
     onOpenChange(false);
+    if (entry.guideStep !== undefined) completeStep(entry.guideStep);
     if (entry.action === "item") {
       setItemMenuOpen(true);
       return;
     }
-    if (entry.guideStep !== undefined) completeStep(entry.guideStep);
     setAction(entry.action);
   }
 
@@ -119,7 +97,7 @@ export function CreateMenuHost({
   }
 
   return (
-    <CreateMenuActionsContext.Provider value={actions}>
+    <>
       {children}
       <CreateActionMenu open={open} onClose={() => onOpenChange(false)} onSelect={handleSelect} />
       <CreateItemSourceMenu
@@ -130,7 +108,6 @@ export function CreateMenuHost({
             action: source === "link" ? "item-link" : "item-scratch",
             icon: source === "link" ? Link : PencilLine,
             label: source === "link" ? t("Create from link") : t("Create from scratch"),
-            guideStep: 4,
           })
         }
       />
@@ -153,7 +130,7 @@ export function CreateMenuHost({
       />
       {action === "friend" ? <AddFriendSheet open onOpenChange={closeAction} /> : null}
       {action === "friend-group" ? <CreateFriendGroupSheet onOpenChange={closeAction} /> : null}
-    </CreateMenuActionsContext.Provider>
+    </>
   );
 }
 
@@ -172,9 +149,8 @@ export function CreateItemSourceMenu({
       action: "item-scratch",
       icon: PencilLine,
       label: t("Create from scratch"),
-      guideStep: 4,
     },
-    { action: "item-link", icon: Link, label: t("Create from link"), guideStep: 4 },
+    { action: "item-link", icon: Link, label: t("Create from link") },
   ];
 
   return (
@@ -207,7 +183,7 @@ function CreateActionMenu({
     { action: "friend", icon: UserPlus, label: t("Invite Friend"), guideStep: 10 },
     { action: "secret-santa", icon: PartyPopper, label: t("Secret Santa Event") },
     { action: "wishlist", icon: Gift, label: t("New Wishlist"), guideStep: 2 },
-    { action: "item", icon: Star, label: t("New Wish") },
+    { action: "item", icon: Star, label: t("New Wish"), guideStep: 5 },
   ];
 
   return <CreateFloatingMenu open={open} onClose={onClose} entries={entries} onSelect={onSelect} />;

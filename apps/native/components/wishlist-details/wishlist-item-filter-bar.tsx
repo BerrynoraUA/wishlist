@@ -1,5 +1,4 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
-import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,7 +11,6 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { PriorityFilterIcon, StatusFilterIcon } from "@/components/items/item-labels";
-import { GuideTarget } from "@/components/user-guide/guide-target";
 import { useSettings } from "@/hooks/use-settings";
 import {
   DEFAULT_ITEM_SORT,
@@ -23,7 +21,7 @@ import {
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
-import { ChevronsUpDown, Plus, Search, SlidersHorizontal, X } from "lucide-react-native";
+import { ChevronsUpDown, Search, SlidersHorizontal, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { StyleSheet, View } from "react-native";
@@ -56,7 +54,6 @@ export function WishlistItemFilterBar({
   itemsCount,
   onChange,
   onReset,
-  onAddItem,
   open,
   onOpenChange,
 }: {
@@ -64,7 +61,6 @@ export function WishlistItemFilterBar({
   itemsCount: number;
   onChange: (patch: Partial<WishlistItemFilterState>) => void;
   onReset: () => void;
-  onAddItem?: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -123,10 +119,24 @@ export function WishlistItemFilterBar({
   return (
     <View className="gap-4">
       <View className="flex-row items-center justify-between gap-3">
-        <View className="min-w-0 flex-1 flex-row items-center gap-3">
-          <Text className="text-xl font-extrabold tracking-tight text-text">
-            {itemsCount === 1 ? t("1 Item") : t("{count} Items", { count: itemsCount })}
-          </Text>
+        <Text
+          className="min-w-0 flex-1 text-xl font-extrabold tracking-tight text-text"
+          numberOfLines={1}
+        >
+          {itemsCount === 1 ? t("1 Item") : t("{count} Items", { count: itemsCount })}
+        </Text>
+        <View className="shrink-0 flex-row items-center gap-3">
+          {active ? (
+            <Button
+              variant="destructive"
+              size="icon-lg"
+              accessibilityLabel={t("Clear filters")}
+              onPress={onReset}
+              className="shrink-0 rounded-full"
+            >
+              <Icon as={X} className="size-4 text-white" />
+            </Button>
+          ) : null}
           <Button
             variant="outline"
             size="icon-lg"
@@ -147,28 +157,7 @@ export function WishlistItemFilterBar({
             ) : null}
             <Icon as={SlidersHorizontal} className={cn("size-4 text-text", open && "text-brand")} />
           </Button>
-          {active ? (
-            <Button
-              variant="destructive"
-              size="icon-lg"
-              accessibilityLabel={t("Clear filters")}
-              onPress={onReset}
-              className="shrink-0 rounded-full"
-            >
-              <Icon as={X} className="size-4 text-white" />
-            </Button>
-          ) : null}
         </View>
-        {onAddItem ? (
-          <GuideTarget id="wishlist-add-item">
-            <AnimatedGradientBackgroundButton
-              accessibilityLabel={t("Add item")}
-              Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
-              onPress={onAddItem}
-              title={t("Add Item")}
-            />
-          </GuideTarget>
-        ) : null}
       </View>
 
       {open ? (

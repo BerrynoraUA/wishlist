@@ -1,5 +1,4 @@
 import { InlineState } from "@/components/shared/inline-state";
-import { useCreateMenuActions } from "@/components/create/create-menu";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
@@ -95,7 +94,6 @@ export default function WishlistDetailScreen() {
   const wishlistQuery = useWishlistById(wishlistId);
   const wishlist = wishlistQuery.data;
   const currentUser = useCurrentUserId();
-  const createMenuActions = useCreateMenuActions();
   const [filters, setFilters] = React.useState<WishlistItemFilterState>(EMPTY_FILTERS);
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
@@ -150,7 +148,6 @@ export default function WishlistDetailScreen() {
   const toggleVote = useToggleItemVote(itemIds);
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
-  const completeOpenItemStep = useUserGuideStepCompletion(5);
   const completeShareStep = useUserGuideStepCompletion(7);
   const completeManageAccessStep = useUserGuideStepCompletion(8);
   const { requestMeasure } = useUserGuideTargetRegistration();
@@ -292,14 +289,6 @@ export default function WishlistDetailScreen() {
             itemsCount={wishlist?.items_count ?? 0}
             onChange={updateFilters}
             onReset={resetFilters}
-            onAddItem={
-              canEditWishlist
-                ? () => {
-                    completeOpenItemStep();
-                    createMenuActions.openItemSourceMenu();
-                  }
-                : undefined
-            }
             open={filtersOpen}
             onOpenChange={setFiltersOpen}
           />
@@ -390,7 +379,6 @@ export default function WishlistDetailScreen() {
       wishlist,
       t,
       completeManageAccessStep,
-      completeOpenItemStep,
       completeShareStep,
     ],
   );

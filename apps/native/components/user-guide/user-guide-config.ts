@@ -92,9 +92,9 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     route: "/wishlists/[id]",
     title: "Add a gift idea",
     listTitle: "Add item",
-    tooltip: "Tap Add Item to add a gift idea.",
-    targetId: "wishlist-add-item",
-    description: "Tap Add Item to add a product or gift idea.",
+    tooltip: "Tap + and choose New Wish.",
+    targetId: "nav-create",
+    description: "Tap the + button and choose New Wish to add a product or gift idea.",
     actionRequired: true,
   },
   {

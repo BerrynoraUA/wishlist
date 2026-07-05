@@ -97,10 +97,10 @@ const UserGuideTargetRegistrationContext = React.createContext<UserGuideTargetRe
   requestMeasure: () => {},
 });
 
-// Order must match the tab bar: secret santa, wishlists, create, friends, profile.
+// Order must match the tab bar: wishlists, secret santa, create, friends, profile.
 const NAV_TARGETS = [
-  "nav-secret-santa",
   "nav-wishlists",
+  "nav-secret-santa",
   "nav-create",
   "nav-friends",
   "nav-profile",
@@ -326,10 +326,17 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
 
   const completeStep = React.useCallback(
     (step: number) => {
-      if (!active || step <= completedStep || step > USER_GUIDE_COMPLETE_STEP) return;
+      if (
+        !active ||
+        step !== currentStep?.id ||
+        step <= completedStep ||
+        step > USER_GUIDE_COMPLETE_STEP
+      ) {
+        return;
+      }
       updateGuideStep.mutate(step);
     },
-    [active, completedStep, updateGuideStep],
+    [active, completedStep, currentStep?.id, updateGuideStep],
   );
 
   const completeCurrentStep = React.useCallback(() => {
