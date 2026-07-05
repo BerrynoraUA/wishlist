@@ -251,7 +251,7 @@ export default function FriendsScreen() {
                     value={search}
                     onChangeText={setSearch}
                     placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
-                    className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
+                    className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
                     returnKeyType="search"
                   />
                   {search.length > 0 ? (

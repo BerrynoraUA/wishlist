@@ -236,7 +236,7 @@ export function FriendGroupSheet({
           <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
             <Icon as={Search} className="size-4 text-text-muted" />
             <Input
-              className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
+              className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
               value={query}
               onChangeText={setQuery}
               placeholder={t("Search friends")}
