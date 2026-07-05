@@ -146,10 +146,10 @@ export function WishlistItemFilterBar({
             className={cn(
               "shrink-0 rounded-full",
               open
-                ? "border-brand bg-brand-lighter"
+                ? "border-brand bg-brand-lighter dark:bg-brand-lighter"
                 : HAS_LIQUID_GLASS
-                  ? "border-transparent bg-transparent"
-                  : "border-border-subtle bg-card-bg",
+                  ? "border-transparent bg-transparent dark:bg-transparent"
+                  : "border-border-subtle bg-card-bg dark:bg-card-bg",
             )}
           >
             {!open && HAS_LIQUID_GLASS ? (
@@ -171,13 +171,13 @@ export function WishlistItemFilterBar({
             )}
           >
             {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
-            <Icon as={Search} className="size-4 text-text-muted" />
+            <Icon as={Search} className="size-4 text-muted-foreground/50" />
             <Input
               value={filters.search}
               onChangeText={(search) => onChange({ search })}
               placeholder={t("Search items...")}
               returnKeyType="search"
-              className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
+              className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
             />
             {filters.search.length > 0 ? (
               <Button
@@ -238,8 +238,8 @@ export function WishlistItemFilterBar({
                     className={cn(
                       "w-full justify-between shadow-none",
                       HAS_LIQUID_GLASS
-                        ? "border-transparent bg-transparent"
-                        : "border-border-subtle bg-card-bg",
+                        ? "border-transparent bg-transparent dark:bg-transparent"
+                        : "border-border-subtle bg-card-bg dark:bg-card-bg",
                     )}
                   >
                     {HAS_LIQUID_GLASS ? (
@@ -248,7 +248,7 @@ export function WishlistItemFilterBar({
                     <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                       {selectedSort}
                     </Text>
-                    <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text-muted" />
+                    <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="min-w-52">
@@ -272,8 +272,9 @@ export function WishlistItemFilterBar({
               placeholder={t("From")}
               keyboardType="decimal-pad"
               className={cn(
-                "h-11 w-[42%] rounded-full border-border-subtle bg-card-bg",
-                filters.priceMin.trim() && "border-brand bg-brand-lighter text-brand",
+                "h-11 w-[42%] rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
+                filters.priceMin.trim() &&
+                  "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
               )}
             />
             <Input
@@ -282,8 +283,9 @@ export function WishlistItemFilterBar({
               placeholder={t("To")}
               keyboardType="decimal-pad"
               className={cn(
-                "h-11 w-[42%] rounded-full border-border-subtle bg-card-bg",
-                filters.priceMax.trim() && "border-brand bg-brand-lighter text-brand",
+                "h-11 w-[42%] rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
+                filters.priceMax.trim() &&
+                  "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
               )}
             />
           </View>
@@ -339,7 +341,7 @@ function MultiSelectMenu({
           ) : null}
           <Text
             className={cn(
-              "shrink text-sm font-semibold text-text-muted",
+              "shrink text-sm font-semibold text-text",
               values.length > 0 && "text-brand",
             )}
             numberOfLines={1}
@@ -348,7 +350,7 @@ function MultiSelectMenu({
           </Text>
           <Icon
             as={ChevronsUpDown}
-            className={cn("size-3.5 shrink-0 text-text-muted", values.length > 0 && "text-brand")}
+            className={cn("size-3.5 shrink-0 text-text", values.length > 0 && "text-brand")}
           />
         </AnimatedPressable>
       </DropdownMenuTrigger>

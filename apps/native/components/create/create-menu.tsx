@@ -179,7 +179,7 @@ function CreateActionMenu({
   // Rendered top-to-bottom; the last entry sits closest to the + button and
   // animates in first, so the menu appears to unfold upwards.
   const entries: CreateMenuEntry[] = [
-    { action: "friend-group", icon: Users, label: t("Friend Group"), guideStep: 12 },
+    { action: "friend-group", icon: Users, label: t("Friend Group") },
     { action: "friend", icon: UserPlus, label: t("Invite Friend"), guideStep: 10 },
     { action: "secret-santa", icon: PartyPopper, label: t("Secret Santa Event") },
     { action: "wishlist", icon: Gift, label: t("New Wishlist"), guideStep: 2 },
@@ -277,6 +277,7 @@ function CreateFloatingMenuContent({
 }
 
 function CreateFriendGroupSheet({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
+  const { completeStep } = useUserGuide();
   const friendsQuery = useFriends();
   const createGroup = useCreateFriendGroup();
 
@@ -287,7 +288,11 @@ function CreateFriendGroupSheet({ onOpenChange }: { onOpenChange: (open: boolean
       friends={friendsQuery.data ?? []}
       isSaving={createGroup.isPending}
       onOpenChange={onOpenChange}
-      onSubmit={(payload) => createGroup.mutateAsync(payload).then(() => undefined)}
+      onSubmit={(payload) =>
+        createGroup.mutateAsync(payload).then(() => {
+          completeStep(12);
+        })
+      }
     />
   );
 }

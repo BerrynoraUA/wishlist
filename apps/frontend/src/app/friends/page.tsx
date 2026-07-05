@@ -77,7 +77,6 @@ function FriendsPageContent() {
 
   function closeGroupModal() {
     handleCloseGroupModal();
-    completePendingGuideModal(12, completeCreateGroupStep);
   }
 
   async function submitGroup(payload: Parameters<typeof handleSubmitGroup>[0]) {

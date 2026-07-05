@@ -246,7 +246,7 @@ export default function FriendsScreen() {
                   {HAS_LIQUID_GLASS ? (
                     <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
                   ) : null}
-                  <Icon as={Search} className="size-4 text-text-muted" />
+                  <Icon as={Search} className="size-4 text-muted-foreground/50" />
                   <Input
                     value={search}
                     onChangeText={setSearch}

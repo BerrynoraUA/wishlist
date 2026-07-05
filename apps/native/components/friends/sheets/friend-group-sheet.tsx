@@ -162,11 +162,11 @@ export function FriendGroupSheet({
         </View>
 
         <View className="gap-1.5">
-          <Text className="text-sm font-bold text-text">{t("Description")}</Text>
+          <Text className="text-sm font-bold text-text">{t("Description (optional)")}</Text>
           <Textarea
             value={description}
             onChangeText={setDescription}
-            placeholder={t("Optional note")}
+            placeholder={t("Add details, size, color...")}
             className="min-h-16"
             numberOfLines={3}
           />
@@ -223,7 +223,7 @@ export function FriendGroupSheet({
             </Text>
           </View>
           <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
-            <Icon as={Search} className="size-4 text-text-muted" />
+            <Icon as={Search} className="size-4 text-muted-foreground/50" />
             <Input
               className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
               value={query}

@@ -130,7 +130,7 @@ export function WishlistGrantAccessSheet({
           ) : (
             <>
               <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
-                <Icon as={Search} className="size-4 text-text-muted" />
+                <Icon as={Search} className="size-4 text-muted-foreground/50" />
                 <Controller
                   control={control}
                   name="query"
@@ -139,7 +139,7 @@ export function WishlistGrantAccessSheet({
                       value={value}
                       onChangeText={onChange}
                       placeholder={t("Search among your friends")}
-                      className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none"
+                      className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
                       returnKeyType="search"
                     />
                   )}

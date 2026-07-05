@@ -79,10 +79,10 @@ export function WishlistFilterBar({
             className={cn(
               "shrink-0 rounded-full",
               filtersOpen
-                ? "border-brand bg-brand-lighter"
+                ? "border-brand bg-brand-lighter dark:bg-brand-lighter"
                 : HAS_LIQUID_GLASS
-                  ? "border-transparent bg-transparent"
-                  : "border-border-subtle bg-card-bg",
+                  ? "border-transparent bg-transparent dark:bg-transparent"
+                  : "border-border-subtle bg-card-bg dark:bg-card-bg",
             )}
           >
             {!filtersOpen && HAS_LIQUID_GLASS ? (
@@ -126,12 +126,12 @@ export function WishlistFilterBar({
             )}
           >
             {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
-            <Icon as={Search} className="size-4 text-text-muted" />
+            <Icon as={Search} className="size-4 text-muted-foreground/50" />
             <Input
               value={search}
               onChangeText={onSearchChange}
               placeholder={t("Search wishlists...")}
-              className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
+              className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
               returnKeyType="search"
             />
             {search.length > 0 ? (
@@ -157,10 +157,10 @@ export function WishlistFilterBar({
                     className={cn(
                       "w-full justify-between shadow-none",
                       visibility.length > 0
-                        ? "border-brand bg-brand-lighter"
+                        ? "border-brand bg-brand-lighter dark:bg-brand-lighter"
                         : HAS_LIQUID_GLASS
-                          ? "border-transparent bg-transparent"
-                          : "border-border-subtle bg-card-bg",
+                          ? "border-transparent bg-transparent dark:bg-transparent"
+                          : "border-border-subtle bg-card-bg dark:bg-card-bg",
                     )}
                   >
                     {visibility.length === 0 && HAS_LIQUID_GLASS ? (
@@ -168,7 +168,7 @@ export function WishlistFilterBar({
                     ) : null}
                     <Text
                       className={cn(
-                        "shrink text-sm font-semibold text-text-muted",
+                        "shrink text-sm font-semibold text-text",
                         visibility.length > 0 && "text-brand",
                       )}
                       numberOfLines={1}
@@ -178,7 +178,7 @@ export function WishlistFilterBar({
                     <Icon
                       as={ChevronsUpDown}
                       className={cn(
-                        "size-3.5 shrink-0 text-text-muted",
+                        "size-3.5 shrink-0 text-text",
                         visibility.length > 0 && "text-brand",
                       )}
                     />
@@ -212,8 +212,8 @@ export function WishlistFilterBar({
                     className={cn(
                       "w-full justify-between shadow-none",
                       HAS_LIQUID_GLASS
-                        ? "border-transparent bg-transparent"
-                        : "border-border-subtle bg-card-bg",
+                        ? "border-transparent bg-transparent dark:bg-transparent"
+                        : "border-border-subtle bg-card-bg dark:bg-card-bg",
                     )}
                   >
                     {HAS_LIQUID_GLASS ? (
@@ -222,7 +222,7 @@ export function WishlistFilterBar({
                     <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                       {selectedSortLabel}
                     </Text>
-                    <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text-muted" />
+                    <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="min-w-52">

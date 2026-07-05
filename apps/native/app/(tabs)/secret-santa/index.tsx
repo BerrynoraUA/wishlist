@@ -182,7 +182,7 @@ export default function SecretSantaScreen() {
                       }}
                       className="shrink-0 rounded-full"
                     >
-                      <Icon as={Search} className="size-4 text-text-muted" />
+                      <Icon as={Search} className="size-4 text-muted-foreground/50" />
                     </Button>
                     <Animated.View className="min-w-0 flex-1" style={searchInputStyle}>
                       <TextInput

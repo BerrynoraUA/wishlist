@@ -65,10 +65,10 @@ export function DiscoverFilterActions({
         className={cn(
           "h-11 w-11 min-w-11 shrink-0 rounded-full p-0",
           filtersOpen
-            ? "border-brand bg-brand-lighter"
+            ? "border-brand bg-brand-lighter dark:bg-brand-lighter"
             : HAS_LIQUID_GLASS
-              ? "border-transparent bg-transparent"
-              : "border-border-subtle bg-card-bg",
+              ? "border-transparent bg-transparent dark:bg-transparent"
+              : "border-border-subtle bg-card-bg dark:bg-card-bg",
         )}
       >
         {!filtersOpen && HAS_LIQUID_GLASS ? (
@@ -143,12 +143,12 @@ export function DiscoverFiltersPanel({
         )}
       >
         {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
-        <Icon as={Search} className="size-4 text-text-muted" />
+        <Icon as={Search} className="size-4 text-muted-foreground/50" />
         <Input
           value={search}
           onChangeText={onSearchChange}
           placeholder={t("Search gifts or wishlists")}
-          className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
+          className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
           returnKeyType="search"
         />
         {search.length > 0 ? (
@@ -183,7 +183,7 @@ export function DiscoverFiltersPanel({
                 ) : null}
                 <Text
                   className={cn(
-                    "shrink text-sm font-semibold text-text-muted",
+                    "shrink text-sm font-semibold text-text",
                     priorityIds.length > 0 && "text-brand",
                   )}
                   numberOfLines={1}
@@ -193,7 +193,7 @@ export function DiscoverFiltersPanel({
                 <Icon
                   as={ChevronsUpDown}
                   className={cn(
-                    "size-3.5 shrink-0 text-text-muted",
+                    "size-3.5 shrink-0 text-text",
                     priorityIds.length > 0 && "text-brand",
                   )}
                 />
@@ -228,8 +228,8 @@ export function DiscoverFiltersPanel({
                 className={cn(
                   "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
                   HAS_LIQUID_GLASS
-                    ? "border-transparent bg-transparent"
-                    : "border-border-subtle bg-card-bg",
+                    ? "border-transparent bg-transparent dark:bg-transparent"
+                    : "border-border-subtle bg-card-bg dark:bg-card-bg",
                 )}
               >
                 {HAS_LIQUID_GLASS ? (
@@ -238,7 +238,7 @@ export function DiscoverFiltersPanel({
                 <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                   {t(sortLabel)}
                 </Text>
-                <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text-muted" />
+                <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text" />
               </AnimatedPressable>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="min-w-52">
@@ -259,8 +259,8 @@ export function DiscoverFiltersPanel({
           keyboardType="decimal-pad"
           placeholder={t("Min price")}
           className={cn(
-            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg",
-            priceMin.trim() && "border-brand bg-brand-lighter text-brand",
+            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
+            priceMin.trim() && "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
           )}
         />
         <Input
@@ -269,8 +269,8 @@ export function DiscoverFiltersPanel({
           keyboardType="decimal-pad"
           placeholder={t("Max price")}
           className={cn(
-            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg",
-            priceMax.trim() && "border-brand bg-brand-lighter text-brand",
+            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
+            priceMax.trim() && "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
           )}
         />
       </View>

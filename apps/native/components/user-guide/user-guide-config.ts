@@ -173,9 +173,9 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     route: "/friends",
     title: "Create a group",
     listTitle: "Create group",
-    tooltip: "Tap + and choose Friend Group.",
+    tooltip: "Tap +, choose Friend Group, fill the name, then tap Save.",
     targetId: "nav-create",
-    description: "Tap the + button and choose Friend Group to organize friends.",
+    description: "Create the group and return to the groups list.",
     actionRequired: true,
   },
   {

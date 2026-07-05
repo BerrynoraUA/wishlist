@@ -117,7 +117,7 @@ export function AddFriendSheet({
         <View className="gap-3">
           <Text className="text-xs font-extrabold uppercase text-text-muted">{t("Or search")}</Text>
           <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
-            <Icon as={Search} className="size-4 text-text-muted" />
+            <Icon as={Search} className="size-4 text-muted-foreground/50" />
             <Input
               value={query}
               onChangeText={(value) => {
@@ -126,7 +126,7 @@ export function AddFriendSheet({
               }}
               placeholder={t("username")}
               autoCapitalize="none"
-              className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none"
+              className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
               returnKeyType="search"
             />
             {query.length > 0 ? (
