@@ -1,3 +1,4 @@
+import { CreateItemSourceMenu, type ItemCreateSource } from "@/components/create/create-menu";
 import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheets/wishlist-item-create-edit-sheet";
 import { WishlistDeleteSheet } from "@/components/wishlists/sheets/wishlist-delete-sheet";
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
@@ -13,7 +14,8 @@ import { useGT } from "gt-react-native";
 
 type SheetState =
   | { type: "edit"; wishlist: Wishlist }
-  | { type: "addItem"; wishlist: Wishlist }
+  | { type: "selectAddItem"; wishlist: Wishlist }
+  | { type: "addItem"; wishlist: Wishlist; source: ItemCreateSource }
   | { type: "delete"; wishlist: Wishlist }
   | null;
 
@@ -61,7 +63,13 @@ export default function WishlistsScreen() {
             />
           }
           onEndReached={feed.loadMore}
-          onOpenSheet={setSheet}
+          onOpenSheet={(nextSheet) =>
+            setSheet(
+              nextSheet.type === "addItem"
+                ? { type: "selectAddItem", wishlist: nextSheet.wishlist }
+                : nextSheet,
+            )
+          }
         />
 
         <WishlistCreateEditSheet
@@ -81,10 +89,22 @@ export default function WishlistsScreen() {
         <WishlistItemCreateEditSheet
           mode="create"
           wishlistId={sheet?.type === "addItem" ? sheet.wishlist.id : ""}
+          createSource={sheet?.type === "addItem" ? sheet.source : "link"}
           open={sheet?.type === "addItem"}
           onOpenChange={(open) => {
             if (!open) setSheet(null);
           }}
+        />
+        <CreateItemSourceMenu
+          open={sheet?.type === "selectAddItem"}
+          onClose={() => setSheet(null)}
+          onSelect={(source) =>
+            setSheet((current) =>
+              current?.type === "selectAddItem"
+                ? { type: "addItem", wishlist: current.wishlist, source }
+                : current,
+            )
+          }
         />
       </View>
     </>

@@ -34,12 +34,14 @@ import { ActivityIndicator, ScrollView, View } from "react-native";
 
 export function WishlistItemCreateEditSheet({
   mode,
+  createSource = "link",
   wishlistId,
   item,
   open,
   onOpenChange,
 }: {
   mode: "create" | "edit";
+  createSource?: "scratch" | "link";
   /** When omitted in create mode, the sheet shows a wishlist picker. */
   wishlistId?: string;
   item?: Item | null;
@@ -65,12 +67,15 @@ export function WishlistItemCreateEditSheet({
   const [selectedWishlistId, setSelectedWishlistId] = React.useState("");
   const needsWishlistPicker = mode === "create" && !wishlistId;
   const targetWishlistId = wishlistId || selectedWishlistId;
+  const usesProductLink = mode === "edit" || createSource === "link";
+  const isCreateFromLink = mode === "create" && createSource === "link";
+  const isCreateFromScratch = mode === "create" && createSource === "scratch";
   const [isScraping, setIsScraping] = React.useState(false);
   const [scrapeError, setScrapeError] = React.useState<string | null>(null);
   const currentUrlRef = React.useRef("");
   const lastScrapedUrlRef = React.useRef("");
   const scrapeRequestIdRef = React.useRef(0);
-  const productLinkInvalid = hasInvalidOptionalUrl(values.url);
+  const productLinkInvalid = usesProductLink && hasInvalidOptionalUrl(values.url);
   const imageUrlInvalid = hasInvalidOptionalUrl(values.imageUrl);
   const invalidAdditionalLinkIndexes = React.useMemo(
     () =>
@@ -102,7 +107,7 @@ export function WishlistItemCreateEditSheet({
       currentUrlRef.current = nextValues.url.trim();
       lastScrapedUrlRef.current = nextValues.url.trim();
     }
-  }, [item, mode, open, reset]);
+  }, [createSource, item, mode, open, reset]);
 
   React.useEffect(() => {
     currentUrlRef.current = values.url.trim();
@@ -110,14 +115,22 @@ export function WishlistItemCreateEditSheet({
 
   React.useEffect(() => {
     const url = values.url.trim();
-    if (!open || url === "" || !isValidHttpUrl(url) || url === lastScrapedUrlRef.current) return;
+    if (
+      !open ||
+      !usesProductLink ||
+      url === "" ||
+      !isValidHttpUrl(url) ||
+      url === lastScrapedUrlRef.current
+    ) {
+      return;
+    }
 
     const timeoutId = setTimeout(() => {
       void handleScrape(url);
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [open, values.url]);
+  }, [open, usesProductLink, values.url]);
 
   if (!open) return null;
 
@@ -146,7 +159,7 @@ export function WishlistItemCreateEditSheet({
   }
 
   const canClearScrapedFields =
-    mode === "create" &&
+    isCreateFromLink &&
     (values.url.trim() !== "" ||
       values.name.trim() !== "" ||
       values.description.trim() !== "" ||
@@ -159,6 +172,63 @@ export function WishlistItemCreateEditSheet({
   function handleClose() {
     void sheetRef.current?.dismiss();
   }
+
+  const title =
+    mode === "edit"
+      ? t("Edit Item")
+      : isCreateFromScratch
+        ? t("Create from scratch")
+        : t("Create from link");
+
+  const productLinkField = usesProductLink ? (
+    <Field label={t("Product link")}>
+      <View className="gap-2">
+        {isCreateFromLink ? (
+          <Text className="text-sm font-semibold text-text-muted">
+            {t("Paste a link and we'll fill in what we can.")}
+          </Text>
+        ) : null}
+        <View className="flex-row items-center gap-2">
+          <Controller
+            control={control}
+            name="url"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                value={value}
+                onChangeText={(url) => {
+                  onChange(url);
+                  if (scrapeError) setScrapeError(null);
+                }}
+                placeholder={t("Paste a product URL")}
+                autoCapitalize="none"
+                keyboardType="url"
+                returnKeyType="done"
+                className={cn("min-w-0 flex-1", productLinkInvalid && "border-destructive")}
+              />
+            )}
+          />
+          {canClearScrapedFields ? (
+            <Button
+              variant="destructive"
+              size="icon"
+              disabled={isScraping || isPending}
+              onPress={clearProductLinkAndScraperFields}
+              accessibilityLabel={t("Clear product link and autofill")}
+            >
+              <Icon as={X} className="size-4 text-white" />
+            </Button>
+          ) : null}
+        </View>
+        {productLinkInvalid ? (
+          <Text className="text-sm font-semibold text-destructive">{t("Enter valid Url")}</Text>
+        ) : isScraping ? (
+          <Text className="text-sm font-semibold text-text-muted">{t("Searching...")}</Text>
+        ) : scrapeError ? (
+          <Text className="text-sm font-semibold text-destructive">{scrapeError}</Text>
+        ) : null}
+      </View>
+    </Field>
+  ) : null;
 
   async function handleScrape(url: string) {
     if (!url) return;
@@ -261,11 +331,7 @@ export function WishlistItemCreateEditSheet({
       scrollableOptions={{ scrollingExpandsSheet: false }}
       dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}
-      header={
-        mode === "edit" ? (
-          <Text className="mx-5 mt-5 text-lg font-extrabold text-text">{t("Edit Item")}</Text>
-        ) : undefined
-      }
+      header={<Text className="mx-5 mt-5 text-lg font-extrabold text-text">{title}</Text>}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -294,6 +360,8 @@ export function WishlistItemCreateEditSheet({
         showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-5 px-5 pb-6 pt-5"
       >
+        {isCreateFromLink ? productLinkField : null}
+
         <Field label={t("Name")}>
           <Controller
             control={control}
@@ -314,48 +382,7 @@ export function WishlistItemCreateEditSheet({
           </Field>
         ) : null}
 
-        <Field label={t("Product link")}>
-          <View className="gap-2">
-            <View className="flex-row items-center gap-2">
-              <Controller
-                control={control}
-                name="url"
-                render={({ field: { onChange, value } }) => (
-                  <Input
-                    value={value}
-                    onChangeText={(url) => {
-                      onChange(url);
-                      if (scrapeError) setScrapeError(null);
-                    }}
-                    placeholder={t("Paste a product URL")}
-                    autoCapitalize="none"
-                    keyboardType="url"
-                    returnKeyType="done"
-                    className={cn("min-w-0 flex-1", productLinkInvalid && "border-destructive")}
-                  />
-                )}
-              />
-              {canClearScrapedFields ? (
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  disabled={isScraping || isPending}
-                  onPress={clearProductLinkAndScraperFields}
-                  accessibilityLabel={t("Clear product link and autofill")}
-                >
-                  <Icon as={X} className="size-4 text-white" />
-                </Button>
-              ) : null}
-            </View>
-            {productLinkInvalid ? (
-              <Text className="text-sm font-semibold text-destructive">{t("Enter valid Url")}</Text>
-            ) : isScraping ? (
-              <Text className="text-sm font-semibold text-text-muted">{t("Searching...")}</Text>
-            ) : scrapeError ? (
-              <Text className="text-sm font-semibold text-destructive">{scrapeError}</Text>
-            ) : null}
-          </View>
-        </Field>
+        {!isCreateFromLink ? productLinkField : null}
 
         <Field label={t("Image URL")}>
           <View className="gap-3">

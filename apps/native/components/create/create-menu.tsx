@@ -9,20 +9,37 @@ import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheet
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import { useCreateFriendGroup, useFriends } from "@/hooks/use-friends";
 import { Portal } from "@rn-primitives/portal";
-import { Gift, PartyPopper, Star, UserPlus, Users, type LucideIcon } from "lucide-react-native";
+import {
+  Gift,
+  Link,
+  PartyPopper,
+  PencilLine,
+  Star,
+  UserPlus,
+  Users,
+  type LucideIcon,
+} from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Pressable, View } from "react-native";
 import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export type CreateAction = "item" | "wishlist" | "secret-santa" | "friend" | "friend-group";
+export type CreateAction =
+  | "item-scratch"
+  | "item-link"
+  | "wishlist"
+  | "secret-santa"
+  | "friend"
+  | "friend-group";
+export type ItemCreateSource = "scratch" | "link";
+type CreateMenuAction = CreateAction | "item";
 
 /** Matches the nav metrics used by the user guide (`getNavBox`). */
 const TAB_BAR_HEIGHT = 58;
 
 type CreateMenuEntry = {
-  action: CreateAction;
+  action: CreateMenuAction;
   icon: LucideIcon;
   label: string;
   /** Completes the matching user-guide step when the action is chosen. */
@@ -36,13 +53,25 @@ export function CreateMenuHost({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const t = useGT();
   const { completeStep } = useUserGuide();
   const [action, setAction] = React.useState<CreateAction | null>(null);
+  const [itemMenuOpen, setItemMenuOpen] = React.useState(false);
 
   function handleSelect(entry: CreateMenuEntry) {
     onOpenChange(false);
+    if (entry.action === "item") {
+      setItemMenuOpen(true);
+      return;
+    }
     if (entry.guideStep !== undefined) completeStep(entry.guideStep);
     setAction(entry.action);
+  }
+
+  function handleItemSelect(entry: CreateMenuEntry) {
+    setItemMenuOpen(false);
+    if (entry.guideStep !== undefined) completeStep(entry.guideStep);
+    setAction(entry.action as CreateAction);
   }
 
   function closeAction(openState: boolean) {
@@ -52,6 +81,18 @@ export function CreateMenuHost({
   return (
     <>
       <CreateActionMenu open={open} onClose={() => onOpenChange(false)} onSelect={handleSelect} />
+      <CreateItemSourceMenu
+        open={itemMenuOpen}
+        onClose={() => setItemMenuOpen(false)}
+        onSelect={(source) =>
+          handleItemSelect({
+            action: source === "link" ? "item-link" : "item-scratch",
+            icon: source === "link" ? Link : PencilLine,
+            label: source === "link" ? t("Create from link") : t("Create from scratch"),
+            guideStep: 4,
+          })
+        }
+      />
       <WishlistCreateEditSheet
         mode="create"
         open={action === "wishlist"}
@@ -59,7 +100,8 @@ export function CreateMenuHost({
       />
       <WishlistItemCreateEditSheet
         mode="create"
-        open={action === "item"}
+        createSource={action === "item-link" ? "link" : "scratch"}
+        open={action === "item-scratch" || action === "item-link"}
         onOpenChange={closeAction}
       />
       <SecretSantaCreateEditSheet
@@ -73,6 +115,36 @@ export function CreateMenuHost({
   );
 }
 
+export function CreateItemSourceMenu({
+  open,
+  onClose,
+  onSelect,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSelect: (source: ItemCreateSource) => void;
+}) {
+  const t = useGT();
+  const entries: CreateMenuEntry[] = [
+    {
+      action: "item-scratch",
+      icon: PencilLine,
+      label: t("Create from scratch"),
+      guideStep: 4,
+    },
+    { action: "item-link", icon: Link, label: t("Create from link"), guideStep: 4 },
+  ];
+
+  return (
+    <CreateFloatingMenu
+      open={open}
+      onClose={onClose}
+      entries={entries}
+      onSelect={(entry) => onSelect(entry.action === "item-link" ? "link" : "scratch")}
+    />
+  );
+}
+
 function CreateActionMenu({
   open,
   onClose,
@@ -83,7 +155,6 @@ function CreateActionMenu({
   onSelect: (entry: CreateMenuEntry) => void;
 }) {
   const t = useGT();
-  const insets = useSafeAreaInsets();
 
   if (!open) return null;
 
@@ -96,6 +167,26 @@ function CreateActionMenu({
     { action: "wishlist", icon: Gift, label: t("New Wishlist"), guideStep: 2 },
     { action: "item", icon: Star, label: t("New Wish") },
   ];
+
+  return <CreateFloatingMenu open={open} onClose={onClose} entries={entries} onSelect={onSelect} />;
+}
+
+function CreateFloatingMenu({
+  open,
+  onClose,
+  entries,
+  onSelect,
+}: {
+  open: boolean;
+  onClose: () => void;
+  entries: CreateMenuEntry[];
+  onSelect: (entry: CreateMenuEntry) => void;
+}) {
+  const t = useGT();
+  const insets = useSafeAreaInsets();
+
+  if (!open) return null;
+
   const menuBottom = Math.max(insets.bottom, 8) + TAB_BAR_HEIGHT + 12;
 
   return (

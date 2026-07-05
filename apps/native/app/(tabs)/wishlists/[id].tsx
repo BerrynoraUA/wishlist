@@ -1,4 +1,5 @@
 import { InlineState } from "@/components/shared/inline-state";
+import { CreateItemSourceMenu, type ItemCreateSource } from "@/components/create/create-menu";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
@@ -76,7 +77,8 @@ const EMPTY_FILTERS: WishlistItemFilterState = {
 };
 
 type SheetState =
-  | { type: "create" }
+  | { type: "selectCreate" }
+  | { type: "create"; source: ItemCreateSource }
   | { type: "edit"; item: Item }
   | { type: "detail"; item: Item }
   | { type: "delete"; item: Item }
@@ -309,7 +311,7 @@ export default function WishlistDetailScreen() {
               canEditWishlist
                 ? () => {
                     completeOpenItemStep();
-                    setSheet({ type: "create" });
+                    setSheet({ type: "selectCreate" });
                   }
                 : undefined
             }
@@ -508,11 +510,17 @@ export default function WishlistDetailScreen() {
         <WishlistItemCreateEditSheet
           mode={sheet?.type === "edit" ? "edit" : "create"}
           wishlistId={wishlistId}
+          createSource={sheet?.type === "create" ? sheet.source : "link"}
           item={sheet?.type === "edit" ? sheet.item : undefined}
           open={sheet?.type === "create" || sheet?.type === "edit"}
           onOpenChange={(open) => {
             if (!open) setSheet(null);
           }}
+        />
+        <CreateItemSourceMenu
+          open={sheet?.type === "selectCreate"}
+          onClose={() => setSheet(null)}
+          onSelect={(source) => setSheet({ type: "create", source })}
         />
         <WishlistCreateEditSheet
           mode="edit"
