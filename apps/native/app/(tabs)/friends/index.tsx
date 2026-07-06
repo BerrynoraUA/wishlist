@@ -7,8 +7,7 @@ import { FriendGroupSheet } from "@/components/friends/sheets/friend-group-sheet
 import { InlineState } from "@/components/shared/inline-state";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
-import { Input } from "@/components/ui/input";
+import { ExpandingSearchHeader } from "@/components/ui/expanding-search-header";
 import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
@@ -26,18 +25,15 @@ import {
   useUpdateFriendGroup,
 } from "@/hooks/use-friends";
 import { chunkRows } from "@/lib/layout";
-import { cn } from "@/lib/utils";
 import type {
   FriendGroup,
   FriendRequestWithDetails,
   FriendWithDetails,
 } from "@wishlist/backend/types/friends";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack, useRouter } from "expo-router";
-import { Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, StyleSheet, View, useWindowDimensions } from "react-native";
+import { ActivityIndicator, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SheetState =
@@ -49,8 +45,6 @@ type SheetState =
 type FriendEntry = FriendWithDetails | FriendGroup | FriendRequestWithDetails;
 type FriendsRow = FriendEntry[];
 const FRIENDS_PAGE_SIZE = 20;
-const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
-const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 9999 }];
 
 export default function FriendsScreen() {
   const t = useGT();
@@ -67,6 +61,17 @@ export default function FriendsScreen() {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
     return () => clearTimeout(timeout);
   }, [search]);
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    if (value.length === 0) setDebouncedSearch("");
+  }
+
+  function handleTabChange(value: FriendsTab) {
+    setTab(value);
+    setSearch("");
+    setDebouncedSearch("");
+  }
 
   const friendsParams = React.useMemo(
     () => ({ search: tab === "friends" ? debouncedSearch : undefined }),
@@ -221,55 +226,32 @@ export default function FriendsScreen() {
           isLoadingMore={activeQuery.isFetchingNextPage}
           ListHeaderComponent={
             <View className="gap-4 self-center pb-4" style={{ width: contentWidth }}>
-              <FriendsTabs
-                value={tab}
-                friendsCount={friends.length}
-                groupsCount={groups.length}
-                requestsCount={requests.length}
-                sentCount={outgoing.length}
-                onChange={(value) => {
-                  setTab(value);
-                  setSearch("");
-                  setDebouncedSearch("");
-                }}
-              />
-
               {tab === "friends" || tab === "groups" ? (
-                <View
-                  className={cn(
-                    "w-full flex-row items-center gap-2 rounded-full border px-3",
-                    HAS_LIQUID_GLASS
-                      ? "border-transparent bg-transparent"
-                      : "border-border-subtle bg-card-bg shadow-sm",
-                  )}
+                <ExpandingSearchHeader
+                  search={search}
+                  onChangeSearch={handleSearchChange}
+                  placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
+                  contentWidth={contentWidth}
                 >
-                  {HAS_LIQUID_GLASS ? (
-                    <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-                  ) : null}
-                  <Icon as={Search} className="size-4 text-muted-foreground/50" />
-                  <Input
-                    value={search}
-                    onChangeText={setSearch}
-                    placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
-                    className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
-                    returnKeyType="search"
+                  <FriendsTabs
+                    value={tab}
+                    friendsCount={friends.length}
+                    groupsCount={groups.length}
+                    requestsCount={requests.length}
+                    sentCount={outgoing.length}
+                    onChange={handleTabChange}
                   />
-                  {search.length > 0 ? (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      accessibilityLabel={t("Clear search")}
-                      onPress={() => {
-                        setSearch("");
-                        setDebouncedSearch("");
-                      }}
-                      className="size-9 shrink-0 rounded-full"
-                    >
-                      <Icon as={X} className="size-4 text-text-muted" />
-                    </Button>
-                  ) : null}
-                </View>
-              ) : null}
+                </ExpandingSearchHeader>
+              ) : (
+                <FriendsTabs
+                  value={tab}
+                  friendsCount={friends.length}
+                  groupsCount={groups.length}
+                  requestsCount={requests.length}
+                  sentCount={outgoing.length}
+                  onChange={handleTabChange}
+                />
+              )}
             </View>
           }
           ListFooterComponent={

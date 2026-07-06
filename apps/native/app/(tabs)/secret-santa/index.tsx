@@ -1,8 +1,7 @@
 import { SecretSantaEventCard } from "@/components/secret-santa/secret-santa-event-card";
 import { SecretSantaInvitesPanel } from "@/components/secret-santa/secret-santa-invites-panel";
 import { InlineState } from "@/components/shared/inline-state";
-import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
+import { ExpandingSearchHeader } from "@/components/ui/expanding-search-header";
 import {
   ScrollableTabs,
   SCROLLABLE_TABS_TOP_GAP,
@@ -11,43 +10,36 @@ import {
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
-import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { SECRET_SANTA_PAGE_SIZE } from "@/lib/secret-santa";
 import { chunkRows } from "@/lib/layout";
-import { cn } from "@/lib/utils";
 import type { SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack, useRouter } from "expo-router";
-import { Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, StyleSheet, TextInput, View, useWindowDimensions } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { ActivityIndicator, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SecretSantaRow = SecretSantaListItem[];
 type SecretSantaTab = "events" | "invites";
-const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
-const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 9999 }];
 
 export default function SecretSantaScreen() {
   const t = useGT();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const reduceMotion = useReducedMotion();
-  const searchInputRef = React.useRef<TextInput>(null);
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
-  const [searchOpen, setSearchOpen] = React.useState(false);
-  const [tabsVisible, setTabsVisible] = React.useState(true);
   const [activeTab, setActiveTab] = React.useState<SecretSantaTab>("events");
-  const searchProgress = useSharedValue(0);
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
     return () => clearTimeout(timeout);
   }, [search]);
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    if (value.length === 0) setDebouncedSearch("");
+  }
 
   const query = useInfiniteSecretSantaEvents(
     {
@@ -68,9 +60,6 @@ export default function SecretSantaScreen() {
     [notificationsQuery.data],
   );
   const contentWidth = Math.min(width - 32, 900);
-  const tabsWidth = contentWidth - 56;
-  const searchCollapsedWidth = 44;
-  const searchExpandedWidth = contentWidth;
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
@@ -86,34 +75,6 @@ export default function SecretSantaScreen() {
     ],
     [inviteNotifications.length, t],
   );
-  const searchExpanded = searchOpen || search.length > 0;
-
-  React.useEffect(() => {
-    const duration = reduceMotion ? 0 : motionDuration.normal;
-
-    searchProgress.value = withTiming(searchExpanded ? 1 : 0, {
-      duration,
-    });
-
-    if (searchExpanded) {
-      setTabsVisible(false);
-      const frame = requestAnimationFrame(() => searchInputRef.current?.focus());
-      return () => cancelAnimationFrame(frame);
-    }
-
-    const timeout = setTimeout(() => setTabsVisible(true), duration);
-    return () => clearTimeout(timeout);
-  }, [reduceMotion, searchExpanded, searchProgress]);
-
-  const searchContainerStyle = useAnimatedStyle(() => ({
-    width:
-      searchCollapsedWidth + (searchExpandedWidth - searchCollapsedWidth) * searchProgress.value,
-  }));
-
-  const searchInputStyle = useAnimatedStyle(() => ({
-    opacity: searchProgress.value,
-  }));
-
   function renderRow({ item }: { item: SecretSantaRow }) {
     return (
       <View className="flex-row" style={{ alignSelf: "center", gap: gridGap, width: contentWidth }}>
@@ -153,72 +114,16 @@ export default function SecretSantaScreen() {
           isLoadingMore={activeTab === "events" && query.isFetchingNextPage}
           ListHeaderComponent={
             <View className="gap-5 self-center pb-8" style={{ width: contentWidth }}>
-              <View className="relative h-11">
-                {tabsVisible ? (
-                  <View className="absolute left-0 top-0" style={{ width: tabsWidth }}>
-                    <ScrollableTabs tabs={tabs} value={activeTab} onChange={setActiveTab} />
-                  </View>
-                ) : null}
-                <Animated.View
-                  className={cn(
-                    "absolute right-0 top-0 z-10 h-11 overflow-hidden rounded-full border",
-                    HAS_LIQUID_GLASS
-                      ? "border-transparent bg-transparent"
-                      : "border-border-subtle bg-card-bg shadow-sm",
-                  )}
-                  style={searchContainerStyle}
-                >
-                  {HAS_LIQUID_GLASS ? (
-                    <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-                  ) : null}
-                  <View className="h-full flex-row items-center gap-2 px-0">
-                    <Button
-                      variant="ghost"
-                      size="icon-lg"
-                      accessibilityLabel={searchExpanded ? t("Focus search") : t("Open search")}
-                      onPress={() => {
-                        setActiveTab("events");
-                        setSearchOpen(true);
-                      }}
-                      className="shrink-0 rounded-full"
-                    >
-                      <Icon as={Search} className="size-4 text-muted-foreground/50" />
-                    </Button>
-                    <Animated.View className="min-w-0 flex-1" style={searchInputStyle}>
-                      <TextInput
-                        ref={searchInputRef}
-                        value={search}
-                        onChangeText={setSearch}
-                        placeholder={t("Search events")}
-                        className="h-11 min-w-0 flex-1 bg-transparent px-0 text-base leading-5 text-text"
-                        placeholderTextColorClassName="accent-muted-foreground/50"
-                        returnKeyType="search"
-                      />
-                    </Animated.View>
-                    {searchExpanded ? (
-                      <Button
-                        variant="ghost"
-                        size="icon-lg"
-                        accessibilityLabel={
-                          search.length > 0 ? t("Clear search") : t("Close search")
-                        }
-                        onPress={() => {
-                          if (search.length > 0) {
-                            setSearch("");
-                            setDebouncedSearch("");
-                          } else {
-                            setSearchOpen(false);
-                            searchInputRef.current?.blur();
-                          }
-                        }}
-                        className="shrink-0 rounded-full"
-                      >
-                        <Icon as={X} className="size-4 text-text-muted" />
-                      </Button>
-                    ) : null}
-                  </View>
-                </Animated.View>
-              </View>
+              <ExpandingSearchHeader
+                search={search}
+                onChangeSearch={handleSearchChange}
+                placeholder={t("Search events")}
+                contentWidth={contentWidth}
+                searchSide="right"
+                onOpen={() => setActiveTab("events")}
+              >
+                <ScrollableTabs tabs={tabs} value={activeTab} onChange={setActiveTab} />
+              </ExpandingSearchHeader>
             </View>
           }
           ListFooterComponent={
