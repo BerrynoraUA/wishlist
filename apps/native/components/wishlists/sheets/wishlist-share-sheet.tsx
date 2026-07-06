@@ -18,7 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react-native";
 import * as React from "react";
-import { Linking, Platform, Share, View } from "react-native";
+import { Linking, Platform, Share, useWindowDimensions, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
 
 type ShareTarget = "whatsapp" | "copy" | "more" | "message" | "story" | "telegram";
@@ -33,6 +33,7 @@ export function WishlistShareSheet({
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useGT();
+  const { height } = useWindowDimensions();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const [copied, setCopied] = React.useState(false);
 
@@ -44,7 +45,13 @@ export function WishlistShareSheet({
 
   const activeWishlist = wishlist;
   const activeLink = link;
-  const shareMessage = t("Take a look at my wishlist: {link}", { link: activeLink });
+  const previewImageHeight = Math.max(116, Math.min(190, Math.round(height * 0.22)));
+  const shareMessage = t(
+    "Here's my wishlist. You can view gift ideas and reserve one here: {link}",
+    {
+      link: activeLink,
+    },
+  );
   const targets: Array<{
     key: ShareTarget;
     label: string;
@@ -155,9 +162,14 @@ export function WishlistShareSheet({
       onDidDismiss={() => onOpenChange(false)}
       backgroundColor="#282c32"
     >
-      <View className="gap-8 px-6 pb-8 pt-5">
+      <View className="gap-5 px-4 pb-5 pt-4">
         <View className="flex-row items-center justify-center">
-          <Text className="text-xl font-extrabold text-white">{t("Share your wishlist")}</Text>
+          <View className="items-center gap-1 px-12">
+            <Text className="text-xl font-extrabold text-white">{t("Share this wishlist")}</Text>
+            <Text className="text-center text-sm font-semibold text-white/70">
+              {t("Send one link so people can view ideas and reserve gifts.")}
+            </Text>
+          </View>
           <AnimatedPressable
             accessibilityRole="button"
             accessibilityLabel={t("Close")}
@@ -168,8 +180,11 @@ export function WishlistShareSheet({
           </AnimatedPressable>
         </View>
 
-        <View className="overflow-hidden rounded-[28px] bg-neutral-100">
-          <View className="aspect-[1.04] items-center justify-center bg-[#fbf2e4]">
+        <View className="overflow-hidden rounded-[24px] bg-neutral-100">
+          <View
+            className="items-center justify-center bg-[#fbf2e4]"
+            style={{ height: previewImageHeight }}
+          >
             {wishlist.image_url ? (
               <StyledImage
                 source={{ uri: wishlist.image_url }}
@@ -183,28 +198,28 @@ export function WishlistShareSheet({
             )}
           </View>
 
-          <View className="gap-4 p-5">
-            <Text className="text-2xl font-extrabold text-neutral-900" numberOfLines={2}>
+          <View className="gap-3 p-4">
+            <Text className="text-xl font-extrabold text-neutral-900" numberOfLines={1}>
               {wishlist.title}
             </Text>
-            <View className="flex-row items-center gap-4">
+            <View className="flex-row items-center gap-3">
               <View
                 className={cn(
-                  "size-24 items-center justify-center rounded-2xl",
+                  "size-16 items-center justify-center rounded-2xl",
                   getWishlistAccentClass(wishlist.accent_type),
                 )}
               >
-                <Icon as={Gift} className="size-9 text-white" />
+                <Icon as={Gift} className="size-7 text-white" />
               </View>
-              <View className="gap-2">
-                <View className="rounded-xl bg-white px-4 py-2">
-                  <Text className="text-base text-neutral-700">
-                    {t("open wishes")}{" "}
+              <View className="flex-1 gap-2">
+                <View className="rounded-xl bg-white px-3 py-2">
+                  <Text className="text-sm text-neutral-700">
+                    {t("gift ideas")}{" "}
                     <Text className="font-extrabold text-neutral-900">{wishlist.items_count}</Text>
                   </Text>
                 </View>
-                <View className="rounded-xl bg-white px-4 py-2">
-                  <Text className="text-base text-neutral-700">{t("ready to share")}</Text>
+                <View className="rounded-xl bg-white px-3 py-2">
+                  <Text className="text-sm text-neutral-700">{t("view and reserve")}</Text>
                 </View>
               </View>
             </View>
