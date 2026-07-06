@@ -58,7 +58,11 @@ def classify_block(status: int, body: str) -> BlockDecision:
         return BlockDecision(True, BlockReason.CHALLENGE)
     if any(marker in normalized for marker in _ACCESS_DENIED_MARKERS):
         return BlockDecision(True, BlockReason.ACCESS_DENIED)
-    if any(marker in normalized for marker in _CAPTCHA_MARKERS):
+    has_product_meta = (
+        ("property=\"og:title\"" in normalized or "property='og:title'" in normalized)
+        and ("property=\"og:image\"" in normalized or "property='og:image'" in normalized)
+    )
+    if any(marker in normalized for marker in _CAPTCHA_MARKERS) and not has_product_meta:
         return BlockDecision(True, BlockReason.CAPTCHA)
     if any(marker in normalized for marker in _SOFT_BLOCK_MARKERS):
         return BlockDecision(True, BlockReason.SOFT_BLOCK)

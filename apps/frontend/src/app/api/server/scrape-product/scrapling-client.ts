@@ -53,7 +53,8 @@ const DEFAULT_SHADOW_SAMPLE_RATE = 0.1;
 
 export function getScraplingMode(): ScraplingMode {
   const value = process.env.SCRAPLING_SERVICE_MODE?.trim().toLowerCase();
-  return value === "shadow" || value === "fallback" ? value : "disabled";
+  if (value === "disabled" || value === "shadow") return value;
+  return "fallback";
 }
 
 export function shouldSampleScraplingShadow(url: string): boolean {
@@ -142,10 +143,8 @@ export function scoreProduct(product: ProductData | null): number {
 }
 
 export function isAcceptableProduct(product: ProductData | null): boolean {
-  if (!product?.title?.trim()) return false;
-  return (
-    scoreProduct(product) >= 70 &&
-    Boolean(isValidPrice(product.price) || isValidImage(product.image))
+  return Boolean(
+    product?.title?.trim() && isValidPrice(product.price) && isValidImage(product.image),
   );
 }
 

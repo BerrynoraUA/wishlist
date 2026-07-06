@@ -29,6 +29,10 @@ _CURRENCY_ALIASES = {
     "AUD": "AUD",
     "INR": "INR",
     "₹": "INR",
+    "LEI": "RON",
+    "RON": "RON",
+    "KSH": "KES",
+    "KES": "KES",
 }
 
 

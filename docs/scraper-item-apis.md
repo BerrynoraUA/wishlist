@@ -85,3 +85,30 @@ rate limits і юридичну підставу використання.
 5. Для internal API залишати HTML/JSON-LD fallback і автоматичний circuit breaker:
    після 401/403/429 або schema mismatch одразу повертатися до звичайного scraper
    cascade.
+
+## Реалізовано
+
+Public developer API adapters для eBay, Etsy, Discogs, GunBroker, bol та AliExpress вимкнені.
+Ці домени використовують звичайний legacy/Scrapling parsing pipeline і не потребують API keys.
+
+Internal API-first adapters також реалізовані для:
+
+- Aukro Offer Detail API;
+- Best Buy Canada Catalog API;
+- Digitec/Galaxus Product GraphQL;
+- Rozetka Catalog API;
+- Noon Catalog API;
+- Meesho Product API;
+- Lazada PDP Modules API.
+
+Якщо Next отримує 403/429 або network error, endpoint повторюється через окремий Python
+transport: спочатку direct HTTP, потім HTTP proxy. Цей transport не запускає HTML parsing,
+browser або Jina.
+
+Joom, N11, Galaxus/Digitec, Maudau, Foxtrot і Yakaboo не перемикаються на API-first без
+підтвердженого server-side контракту. Їхні відомі endpoints потребують session/auth,
+підписаного GraphQL/BFF request або не повертають повний item. Вигаданий endpoint чи
+копіювання короткоживучого browser token було б нестабільнішим за чинний scraper cascade.
+
+Повний browser-аудит решти 43 доменів: `docs/scraper-api-audit-43.md`.
+Перший HAR batch: `docs/har-api-batch-1.md`.

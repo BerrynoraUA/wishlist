@@ -18,6 +18,8 @@ from app.models import ProductData
 
 
 class EnrichmentKind(StrEnum):
+    AMAZON_OFFERS = "amazon_offers"
+    ASOS_PRODUCT = "asos_product"
     LELEKAN_PROMOTION = "lelekan_promotion"
     SHOPGOODWILL_ITEM = "shopgoodwill_item"
     WILDBERRIES_CARD = "wildberries_card"
@@ -36,6 +38,50 @@ def build_enrichment_request(
     html_text: str,
 ) -> EnrichmentRequest | None:
     hostname = (urlparse(page_url).hostname or "").lower()
+    if "amazon." in hostname:
+        document = _document(html_text)
+        selected_variant_price = document.xpath(
+            "//li[@data-initiallyselected='true' or "
+            ".//input[@role='radio' and @aria-checked='true']]"
+            "//*[contains(concat(' ', normalize-space(@class), ' '), "
+            "' inline-twister-swatch-price ')]"
+        )
+        if selected_variant_price:
+            return None
+        asin = re.search(r"/(?:dp|gp/product)/([A-Z0-9]{10})(?:[/?]|$)", page_url, re.I)
+        if not asin:
+            return None
+        return EnrichmentRequest(
+            kind=EnrichmentKind.AMAZON_OFFERS,
+            url=(
+                f"{urlparse(page_url).scheme}://{hostname}/gp/aod/ajax/"
+                f"ref=auto_load_aod?asin={asin.group(1).upper()}"
+                "&pc=dp&experienceId=aodAjaxMain"
+            ),
+            headers={
+                "Referer": page_url,
+                "Accept-Language": "en-US,en;q=0.9",
+                "Cookie": "lc-main=en_US; i18n-prefs=RON",
+            },
+        )
+    if hostname.endswith("asos.com"):
+        if "window.asos.pdp.config.stockPriceResponse" in html_text:
+            return None
+        product_id = re.search(r"/prd/(\d+)(?:[/?#]|$)", page_url, re.I)
+        if not product_id:
+            return None
+        return EnrichmentRequest(
+            kind=EnrichmentKind.ASOS_PRODUCT,
+            url=(
+                "https://www.asos.com/api/product/catalogue/v3/products/"
+                f"{product_id.group(1)}"
+                "?store=COM&currency=EUR&lang=en-GB&sizeSchema=EU&country=UA"
+            ),
+            headers={
+                "Referer": page_url,
+                "Accept": "application/json",
+            },
+        )
     if "lelekan.com.ua" in hostname:
         match = re.search(
             r"\.load\(\s*[\"']([^\"']*product_promotion[^\"']*)[\"']\s*\)",
@@ -102,6 +148,10 @@ def parse_enrichment_response(
     *,
     now: datetime | None = None,
 ) -> ExtractionResult:
+    if request.kind == EnrichmentKind.AMAZON_OFFERS:
+        return _parse_amazon_offers(body)
+    if request.kind == EnrichmentKind.ASOS_PRODUCT:
+        return _parse_asos_product(body)
     if request.kind == EnrichmentKind.LELEKAN_PROMOTION:
         return _parse_lelekan_promotion(body, base or ExtractionResult(), now=now)
     if request.kind == EnrichmentKind.SHOPGOODWILL_ITEM:
@@ -111,6 +161,96 @@ def parse_enrichment_response(
     if request.kind == EnrichmentKind.TARGET_PRODUCT:
         return _parse_target_product(body, request.url)
     return base or ExtractionResult()
+
+
+def _parse_amazon_offers(body: str) -> ExtractionResult:
+    document = _document(body)
+    current = _price(
+        document,
+        (
+            "//*[@id='aod-offer-list']//*[contains(@class,'a-price') and "
+            "not(contains(@class,'a-text-price'))]//*[contains(@class,'a-offscreen')][1]",
+            "//*[contains(@class,'a-price') and not(contains(@class,'a-text-price'))]"
+            "//*[contains(@class,'a-offscreen')][1]",
+        ),
+    )
+    regular = _price(
+        document,
+        (
+            "//*[@id='aod-offer-list']//*[contains(@class,'a-text-price')]"
+            "//*[contains(@class,'a-offscreen')][1]",
+        ),
+    )
+    if regular and current:
+        price, discount, has_discount = normalize_discount(regular, current)
+    else:
+        price, discount, has_discount = current, None, False
+
+    price_text = _text(
+        document,
+        (
+            "//*[@id='aod-offer-list']//*[contains(@class,'a-price')][1]",
+            "//*[contains(@class,'a-price')][1]",
+        ),
+    )
+    currency = None
+    if price_text:
+        if "RON" in price_text.upper():
+            currency = "RON"
+        elif "$" in price_text or "USD" in price_text.upper():
+            currency = "USD"
+        elif "€" in price_text or "EUR" in price_text.upper():
+            currency = "EUR"
+
+    return _sourced(
+        ProductData(
+            price=price,
+            discount_price=discount,
+            has_discount=has_discount,
+            currency=currency,
+        ),
+        "amazon_offers",
+        prefix="api",
+    )
+
+
+def _parse_asos_product(body: str) -> ExtractionResult:
+    try:
+        data = json.loads(body)
+    except json.JSONDecodeError:
+        return ExtractionResult(warnings=["asos_invalid_json"])
+    if not isinstance(data, dict):
+        return ExtractionResult(warnings=["asos_invalid_payload"])
+
+    price_data = data.get("price") if isinstance(data.get("price"), dict) else {}
+    current_data = (
+        price_data.get("current")
+        if isinstance(price_data.get("current"), dict)
+        else {}
+    )
+    previous_data = (
+        price_data.get("previous")
+        if isinstance(price_data.get("previous"), dict)
+        else {}
+    )
+    current = normalize_price(current_data.get("value"))
+    previous = normalize_price(previous_data.get("value"))
+    if current and previous:
+        price, discount, has_discount = normalize_discount(previous, current)
+    else:
+        price, discount, has_discount = current, None, False
+
+    return _sourced(
+        ProductData(
+            title=clean_text(data.get("name")),
+            price=price,
+            discount_price=discount,
+            has_discount=has_discount,
+            currency=clean_text(price_data.get("currency")) or ("EUR" if price else None),
+        ),
+        "asos_product",
+        prefix="api",
+    )
 
 
 def extract_rozetka_html(html_text: str, page_url: str) -> ExtractionResult:

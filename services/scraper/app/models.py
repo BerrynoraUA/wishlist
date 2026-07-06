@@ -1,5 +1,7 @@
 from enum import StrEnum
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_validator
 
 
@@ -66,6 +68,56 @@ class ScrapeRequest(StrictModel):
         if self.url.username is not None or self.url.password is not None:
             raise ValueError("URL credentials are not allowed")
         return self
+
+
+class ApiFetchRequest(StrictModel):
+    url: HttpUrl
+    method: Literal["GET", "POST"] = "GET"
+    headers: dict[str, str] = Field(default_factory=dict)
+    body: str | None = Field(default=None, max_length=100_000)
+    deadline_ms: int = Field(default=12_000, ge=1_000, le=30_000)
+
+    @model_validator(mode="after")
+    def reject_url_credentials(self) -> "ApiFetchRequest":
+        if self.url.username is not None or self.url.password is not None:
+            raise ValueError("URL credentials are not allowed")
+        allowed_headers = {
+            "accept",
+            "accept-language",
+            "authorization",
+            "content-type",
+            "origin",
+            "referer",
+            "user-agent",
+            "x-api-key",
+            "x-devkey",
+            "x-ebay-c-marketplace-id",
+            "x-dg-graphql-client-name",
+            "x-dg-language",
+            "x-dg-portal",
+            "x-dg-routename",
+        }
+        for name, value in self.headers.items():
+            if name.lower() not in allowed_headers:
+                raise ValueError(f"API header is not allowed: {name}")
+            if "\r" in value or "\n" in value or len(value) > 4096:
+                raise ValueError(f"Invalid API header value: {name}")
+        return self
+
+
+class ApiFetchAttempt(StrictModel):
+    mode: str
+    outcome: str
+    duration_ms: int = Field(ge=0)
+    status: int | None = Field(default=None, ge=100, le=599)
+    error: str | None = None
+
+
+class ApiFetchResponse(StrictModel):
+    status: int = Field(ge=100, le=599)
+    body: str
+    fetch_mode: str
+    attempts: list[ApiFetchAttempt]
 
 
 class ScrapeResponse(StrictModel):

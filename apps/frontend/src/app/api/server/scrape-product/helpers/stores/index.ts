@@ -27,6 +27,8 @@ import { scrapeWildberries } from "./wildberries";
 import { scrapeUaTao } from "./uatao";
 import { scrapeZalando } from "./zalando";
 import { scrapeStructuredMarketplace } from "./structured-marketplaces";
+import { scrapeSidelineSwap } from "./sidelineswap";
+import { scrapeVestiaire } from "./vestiaire";
 
 /**
  * Реєстр магазинів: домен → скрапер.
@@ -46,6 +48,8 @@ const storeRegistry: {
   { pattern: "takealot.com", scraper: scrapeStructuredMarketplace },
   { pattern: "cdiscount.com", scraper: scrapeStructuredMarketplace },
   { pattern: "farfetch.com", scraper: scrapeStructuredMarketplace },
+  { pattern: "sidelineswap.com", scraper: scrapeSidelineSwap },
+  { pattern: "vestiairecollective.com", scraper: scrapeVestiaire },
   { pattern: "rozetka.com.ua", scraper: scrapeRozetka },
   { pattern: "epicentrk.ua", scraper: scrapeEpicentr },
   { pattern: "foxtrot.com.ua", scraper: scrapeFoxtrot },

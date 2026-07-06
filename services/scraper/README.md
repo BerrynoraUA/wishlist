@@ -69,6 +69,8 @@ python -m pytest
 - `GET /ready`: configuration readiness.
 - `POST /v1/scrape`: fetches a public product URL with a persistent browser-impersonating HTTP
   session and returns normalized product data.
+- `POST /v1/api-fetch`: retries an allowlisted marketplace JSON API through direct HTTP and then
+  HTTP proxy. It does not use browser, HTML parsing, or Jina, and accepts only restricted headers.
 
 The HTTP session uses Scrapling's Chrome TLS impersonation and matching browser headers. When the
 HTTP response is blocked or incomplete, the service lazily starts a shared stealth Chromium session.

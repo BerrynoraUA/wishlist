@@ -1,4 +1,6 @@
 import asyncio
+import codecs
+import re
 from dataclasses import dataclass, field
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -90,6 +92,8 @@ class HttpFetcher:
         url: str,
         *,
         headers: dict[str, str] | None = None,
+        method: str = "GET",
+        body: str | None = None,
     ) -> FetchResult:
         await self._url_validator(url)
         await self.start()
@@ -97,7 +101,14 @@ class HttpFetcher:
             raise FetchError("HTTP session failed to start")
 
         try:
-            response = await self._session.get(url, headers=headers or {})
+            if method == "POST":
+                response = await self._session.post(
+                    url,
+                    headers=headers or {},
+                    data=body or "",
+                )
+            else:
+                response = await self._session.get(url, headers=headers or {})
         except Exception as error:
             raise FetchError("HTTP request failed") from error
 
@@ -106,12 +117,12 @@ class HttpFetcher:
         raw_body = bytes(response.body)
         if len(raw_body) > self._settings.max_response_bytes:
             raise ResponseTooLargeError("Upstream response exceeds the configured size limit")
-        body = raw_body.decode("utf-8", errors="replace")
         status = int(response.status)
         response_headers = {
             str(key).lower(): str(value)
             for key, value in dict(getattr(response, "headers", {}) or {}).items()
         }
+        body = decode_response_body(raw_body, response_headers)
         return FetchResult(
             requested_url=url,
             final_url=final_url,
@@ -121,3 +132,14 @@ class HttpFetcher:
             block=classify_block(status, body),
             response_headers=response_headers,
         )
+
+
+def decode_response_body(raw_body: bytes, headers: dict[str, str]) -> str:
+    content_type = headers.get("content-type", "")
+    match = re.search(r"charset\s*=\s*[\"']?([^;\"'\s]+)", content_type, re.I)
+    charset = match.group(1) if match else "utf-8"
+    try:
+        codecs.lookup(charset)
+    except LookupError:
+        charset = "utf-8"
+    return raw_body.decode(charset, errors="replace")

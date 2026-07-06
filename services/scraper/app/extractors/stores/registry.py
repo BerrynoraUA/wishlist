@@ -15,6 +15,7 @@ from app.extractors.result import ExtractionResult
 from app.extractors.stores.complex import (
     extract_aliexpress,
     extract_amazon,
+    extract_asos,
     extract_flipkart,
     extract_foxtrot,
     extract_n11,
@@ -71,6 +72,7 @@ def extract_store_product(
     complex_extractors = (
         ("amazon.", extract_amazon),
         ("aliexpress.", extract_aliexpress),
+        ("asos.com", extract_asos),
         ("foxtrot.com.ua", extract_foxtrot),
         ("n11.com", extract_n11),
         ("target.com", extract_target),

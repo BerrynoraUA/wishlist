@@ -2,6 +2,7 @@ import json
 import re
 from collections.abc import Iterable
 from typing import Any
+from urllib.parse import urlparse
 
 from lxml import etree, html
 
@@ -40,6 +41,7 @@ def _parse_document(html_text: str) -> html.HtmlElement:
 
 def _extract_json_ld(document: html.HtmlElement, page_url: str) -> ExtractionResult:
     result = ExtractionResult()
+    products: list[dict[str, Any]] = []
     scripts = document.xpath(
         "//script[translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', "
         "'abcdefghijklmnopqrstuvwxyz')='application/ld+json']/text()"
@@ -51,14 +53,32 @@ def _extract_json_ld(document: html.HtmlElement, page_url: str) -> ExtractionRes
             result.warnings.append("malformed_json_ld")
             continue
 
-        product = next(_iter_products(payload), None)
-        if product is None:
-            continue
-
+        products.extend(_iter_products(payload))
+    products.sort(key=lambda item: _json_ld_product_score(item, page_url), reverse=True)
+    for product in products:
         parsed = _product_from_json_ld(product, page_url)
         if parsed.product.title or parsed.product.price or parsed.product.image:
             return parsed
     return result
+
+
+def _json_ld_product_score(item: dict[str, Any], page_url: str) -> int:
+    requested = urlparse(page_url)
+    requested_path = requested.path.rstrip("/").lower()
+    identifiers = set(re.findall(r"[a-z0-9]{5,}", requested_path))
+    score = 2 if item.get("offers") else 0
+    for value in (item.get("url"), item.get("@id"), item.get("sku"), item.get("productID")):
+        if not isinstance(value, (str, int)):
+            continue
+        candidate = str(value).lower()
+        try:
+            candidate_path = urlparse(candidate).path.rstrip("/").lower()
+        except ValueError:
+            candidate_path = candidate
+        if requested_path and candidate_path == requested_path:
+            score += 100
+        score += 10 * sum(identifier in candidate for identifier in identifiers)
+    return score
 
 
 def _iter_products(value: Any) -> Iterable[dict[str, Any]]:
@@ -267,7 +287,8 @@ def _extract_meta_and_dom(
     else:
         price, discount_price, has_discount = current_price, None, False
 
-    currency = normalize_currency(
+    currency = _currency_for_page(
+        normalize_currency(
         meta("product:price:currency", "og:price:currency")
         or _first_attribute_or_text(
             document,
@@ -275,6 +296,8 @@ def _extract_meta_and_dom(
             "content",
         )
         or _currency_from_text(html_text)
+        ),
+        page_url,
     )
 
     product = ProductData(
@@ -327,10 +350,13 @@ def _extract_regex(html_text: str, page_url: str) -> ExtractionResult:
         )
         raw_price = match.group(1) if match else None
     price = normalize_price(raw_price)
-    currency = normalize_currency(
+    currency = _currency_for_page(
+        normalize_currency(
         meta_content("product:price:currency")
         or meta_content("og:price:currency")
         or _currency_from_text(html_text)
+        ),
+        page_url,
     )
 
     product = ProductData(
@@ -399,6 +425,13 @@ def _currency_from_text(text: str) -> str | None:
         if re.search(pattern, text, re.I):
             return currency
     return None
+
+
+def _currency_for_page(currency: str | None, page_url: str) -> str | None:
+    hostname = (urlparse(page_url).hostname or "").lower()
+    if hostname.endswith("zalora.com.hk") and currency in (None, "USD"):
+        return "HKD"
+    return currency
 
 
 def _finalize_product(result: ExtractionResult) -> None:

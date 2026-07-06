@@ -13,7 +13,7 @@ from app.extractors.stores import (
     parse_enrichment_response,
 )
 from app.fetching import BrowserFetcher, HttpFetcher
-from app.fetching.http import FetchError, ResponseTooLargeError
+from app.fetching.http import FetchError, FetchResult, ResponseTooLargeError
 from app.models import (
     ErrorCode,
     FetchMode,
@@ -81,8 +81,6 @@ class ScrapeService:
                     recovered = None
                     recovery_fetchers = (
                         (FetchMode.BROWSER_NO_PROXY, self._browser_fetcher),
-                        (FetchMode.HTTP_PROXY, self._proxy_http_fetcher),
-                        (FetchMode.BROWSER_PROXY, self._proxy_browser_fetcher),
                     )
                     for recovery_mode, recovery_fetcher in recovery_fetchers:
                         if recovery_fetcher is None:
@@ -111,6 +109,33 @@ class ScrapeService:
                             break
                         except (FetchError, ResponseTooLargeError):
                             continue
+                    if recovered is None:
+                        for recovery_mode, recovery_fetcher in (
+                            (FetchMode.HTTP_PROXY, self._proxy_http_fetcher),
+                            (FetchMode.BROWSER_PROXY, self._proxy_browser_fetcher),
+                        ):
+                            if recovery_fetcher is None:
+                                trace.skipped(
+                                    recovery_mode,
+                                    "product_page_recovery",
+                                    "fetcher is disabled or not configured",
+                                )
+                                continue
+                            try:
+                                recovered = await trace.fetch(
+                                    recovery_mode,
+                                    "product_page_recovery",
+                                    lambda fetcher=recovery_fetcher: fetcher.fetch(url),
+                                    timeout_seconds=(
+                                        13
+                                        if recovery_mode == FetchMode.BROWSER_PROXY
+                                        else 6
+                                    ),
+                                )
+                                initial_mode = recovery_mode
+                                break
+                            except (FetchError, ResponseTooLargeError):
+                                continue
                     if recovered is None and self._enable_jina:
                         try:
                             recovered = await trace.fetch(
@@ -122,7 +147,7 @@ class ScrapeService:
                             initial_mode = FetchMode.JINA_READER
                             initial_is_reader = True
                         except (FetchError, ResponseTooLargeError):
-                            raise direct_error
+                            pass
                     if recovered is None:
                         raise direct_error
                     fetched, selected_attempt = recovered
@@ -153,7 +178,7 @@ class ScrapeService:
 
                 should_use_browser = (
                     not initial_is_reader
-                    and (fetched.block.blocked or not quality.accepted)
+                    and self._needs_fallback(fetched, extraction)
                     and not trace.attempted(FetchMode.BROWSER_NO_PROXY)
                 )
                 if should_use_browser and self._browser_fetcher is not None:
@@ -206,11 +231,8 @@ class ScrapeService:
                         "browser fetcher is disabled",
                     )
 
-                # A 200 shell with no product data is operationally equivalent
-                # to an IP/geo soft block. Escalate after the direct browser has
-                # also failed, not only after an explicit 403/429.
                 should_use_proxy = (
-                    not quality.accepted
+                    self._needs_fallback(fetched, extraction)
                     and self._proxy_http_fetcher is not None
                     and not trace.attempted(FetchMode.HTTP_PROXY)
                 )
@@ -251,7 +273,10 @@ class ScrapeService:
                         trace.select(selected_attempt)
 
                         if (
-                            (proxy_result.block.blocked or not proxy_quality.accepted)
+                            self._needs_fallback(
+                                proxy_result,
+                                proxy_extraction,
+                            )
                             and self._proxy_browser_fetcher is not None
                             and not trace.attempted(FetchMode.BROWSER_PROXY)
                         ):
@@ -299,7 +324,7 @@ class ScrapeService:
                                 sources=proxy_browser_extraction.sources,
                             )
                             trace.select(selected_attempt)
-                        elif proxy_result.block.blocked or not proxy_quality.accepted:
+                        elif self._needs_fallback(proxy_result, proxy_extraction):
                             trace.skipped(
                                 FetchMode.BROWSER_PROXY,
                                 "product_page",
@@ -357,7 +382,7 @@ class ScrapeService:
                                 "product_page_recovery",
                                 "proxy browser fetcher is disabled or not configured",
                             )
-                elif not quality.accepted:
+                elif self._needs_fallback(fetched, extraction):
                     trace.skipped(
                         FetchMode.HTTP_PROXY,
                         "product_page",
@@ -370,7 +395,7 @@ class ScrapeService:
                     )
 
                 if (
-                    not quality.accepted
+                    self._needs_fallback(fetched, extraction)
                     and self._proxy_browser_fetcher is not None
                     and not trace.attempted(FetchMode.BROWSER_PROXY)
                 ):
@@ -424,6 +449,7 @@ class ScrapeService:
                     fetched.body,
                 )
                 if enrichment is not None:
+                    needs_browser_enrichment = False
                     try:
                         enriched_response, enrichment_attempt = await trace.fetch(
                             FetchMode.HTTP_NO_PROXY,
@@ -449,6 +475,8 @@ class ScrapeService:
                                 enrichment_extraction,
                             )
                             quality = evaluate_quality(extraction)
+                        else:
+                            needs_browser_enrichment = True
                         trace.parsed(
                             enrichment_attempt,
                             score=quality.score,
@@ -457,11 +485,44 @@ class ScrapeService:
                             sources=enrichment_extraction.sources,
                         )
                     except (FetchError, ResponseTooLargeError):
-                        pass
+                        needs_browser_enrichment = True
+
+                    if needs_browser_enrichment and self._browser_fetcher is not None:
+                        try:
+                            browser_enrichment, browser_enrichment_attempt = await trace.fetch(
+                                FetchMode.BROWSER_NO_PROXY,
+                                "store_enrichment",
+                                lambda: self._browser_fetcher.fetch(enrichment.url),
+                                timeout_seconds=13,
+                            )
+                            browser_enrichment_extraction = ExtractionResult()
+                            if (
+                                200 <= browser_enrichment.status < 300
+                                and not browser_enrichment.block.blocked
+                            ):
+                                browser_enrichment_extraction = parse_enrichment_response(
+                                    enrichment,
+                                    browser_enrichment.body,
+                                    extraction,
+                                )
+                                extraction = self._merge_enrichment(
+                                    extraction,
+                                    browser_enrichment_extraction,
+                                )
+                                quality = evaluate_quality(extraction)
+                            trace.parsed(
+                                browser_enrichment_attempt,
+                                score=quality.score,
+                                accepted=quality.accepted,
+                                selected=False,
+                                sources=browser_enrichment_extraction.sources,
+                            )
+                        except (FetchError, ResponseTooLargeError):
+                            pass
 
                 if (
                     self._enable_jina
-                    and not quality.accepted
+                    and self._needs_fallback(fetched, extraction)
                     and not trace.attempted(FetchMode.JINA_READER)
                 ):
                     try:
@@ -498,7 +559,7 @@ class ScrapeService:
                         trace.select(selected_attempt)
                     except (FetchError, ResponseTooLargeError):
                         pass
-                elif not quality.accepted:
+                elif self._needs_fallback(fetched, extraction):
                     trace.skipped(
                         FetchMode.JINA_READER,
                         "reader_fallback",
@@ -646,3 +707,38 @@ class ScrapeService:
     def _has_any_product_data(extraction: ExtractionResult) -> bool:
         product = extraction.product
         return any((product.title, product.image, product.price, product.description))
+
+    @staticmethod
+    def _has_usable_product_data(extraction: ExtractionResult) -> bool:
+        product = extraction.product
+        if product.price:
+            return True
+        if product.image and product.image.startswith(("http://", "https://")):
+            return True
+        title = (product.title or "").strip().lower()
+        if not title:
+            return False
+        placeholder_markers = (
+            "access denied",
+            "forbidden",
+            "just a moment",
+            "page not found",
+            "cannot be found",
+            "online shopping |",
+            "amazon.com",
+            "javascript is disabled",
+            "verify you are human",
+        )
+        return not any(marker in title for marker in placeholder_markers)
+
+    @classmethod
+    def _needs_fallback(
+        cls,
+        fetched: FetchResult,
+        extraction: ExtractionResult,
+    ) -> bool:
+        return (
+            fetched.block.blocked
+            or not 200 <= fetched.status < 300
+            or not cls._has_usable_product_data(extraction)
+        )

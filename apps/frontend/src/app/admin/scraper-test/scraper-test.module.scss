@@ -144,6 +144,10 @@
   color: #8b5cf6;
 }
 
+.statUnavailable {
+  color: #a78bfa;
+}
+
 .statTotal {
   color: $brand;
 }
@@ -458,6 +462,10 @@
   border-left: 3px solid #8b5cf6;
 }
 
+.row_unavailable {
+  border-left: 3px solid #a78bfa;
+}
+
 .rowExpanded {
   background: var(--color-bg-warm);
 }
@@ -511,6 +519,10 @@
   flex-shrink: 0;
 }
 
+.iconUnavailable {
+  color: #a78bfa;
+}
+
 /* ===== Badges ===== */
 .badge {
   display: inline-flex;
@@ -561,6 +573,12 @@
     background: rgba(139, 92, 246, 0.15);
     color: #a78bfa;
   }
+}
+
+.badge_unavailable {
+  color: #c4b5fd;
+  background: rgb(139 92 246 / 12%);
+  border-color: rgb(139 92 246 / 28%);
 }
 
 /* ===== Expanded row ===== */

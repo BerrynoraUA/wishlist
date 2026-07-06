@@ -18,7 +18,13 @@ def canonicalize_product_url(value: str) -> str:
                 candidate = payload.get("sku_id") if isinstance(payload, dict) else None
                 if candidate is not None:
                     sku_id = str(candidate)
-        canonical_query = urlencode({"sku_id": sku_id}) if sku_id else ""
+        canonical_params: dict[str, str] = {}
+        if sku_id:
+            canonical_params["sku_id"] = sku_id
+        price_context = (query.get("pdp_npi") or [None])[0]
+        if price_context and sku_id and sku_id in price_context:
+            canonical_params["pdp_npi"] = price_context
+        canonical_query = urlencode(canonical_params)
         return urlunsplit(
             (parts.scheme, parts.netloc, parts.path, canonical_query, "")
         )

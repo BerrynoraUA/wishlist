@@ -4,7 +4,7 @@ The public `/api/server/scrape-product` contract does not change. Next.js remain
 scraper and can call the Python service according to the configured mode.
 
 ```dotenv
-SCRAPLING_SERVICE_MODE=disabled
+SCRAPLING_SERVICE_MODE=fallback
 SCRAPLING_SERVICE_URL=http://127.0.0.1:8001
 SCRAPLING_SERVICE_TIMEOUT_MS=20000
 SCRAPLING_SHADOW_SAMPLE_RATE=0.1

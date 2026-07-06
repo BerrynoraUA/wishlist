@@ -135,6 +135,7 @@ export function computeStatus(
   validations: FieldValidation[],
 ): ScraperStatus {
   if (scraperStatus === "blocked") return "blocked";
+  if (scraperStatus === "unavailable") return "unavailable";
   if (scraperStatus === "failed") return "failed";
 
   const checked = validations.filter((v) => v.match !== null);

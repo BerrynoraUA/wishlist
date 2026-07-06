@@ -19,6 +19,7 @@ import {
   Search,
   X,
   ShieldBan,
+  CircleSlash2,
 } from "lucide-react";
 import { TEST_CASES } from "./test-urls";
 import { exportScraperResultsExcel, exportScraperResultsJson } from "./export-scraper-results";
@@ -57,6 +58,7 @@ export default function ScraperTestPage() {
   const partialCount = results.filter((r) => r.status === "partial").length;
   const failedCount = results.filter((r) => r.status === "failed").length;
   const blockedCount = results.filter((r) => r.status === "blocked").length;
+  const unavailableCount = results.filter((r) => r.status === "unavailable").length;
 
   const runTest = useCallback(async () => {
     setState("running");
@@ -189,6 +191,8 @@ export default function ScraperTestPage() {
         return <AlertTriangle size={14} className={styles.iconPartial} />;
       case "blocked":
         return <ShieldBan size={14} className={styles.iconBlocked} />;
+      case "unavailable":
+        return <CircleSlash2 size={14} className={styles.iconUnavailable} />;
       default:
         return <XCircle size={14} className={styles.iconFailed} />;
     }
@@ -202,6 +206,8 @@ export default function ScraperTestPage() {
         return "Partial";
       case "blocked":
         return "Blocked";
+      case "unavailable":
+        return "Unavailable";
       default:
         return "Failed";
     }
@@ -314,6 +320,11 @@ export default function ScraperTestPage() {
             <strong>{blockedCount}</strong>
             <span>Blocked</span>
           </div>
+          <div className={`${styles.statCard} ${styles.statUnavailable}`}>
+            <CircleSlash2 size={16} />
+            <strong>{unavailableCount}</strong>
+            <span>Unavailable</span>
+          </div>
           <div className={`${styles.statCard} ${styles.statTotal}`}>
             <Clock size={16} />
             <strong>
@@ -370,6 +381,7 @@ export default function ScraperTestPage() {
                       <option value="partial">Partial</option>
                       <option value="failed">Failed</option>
                       <option value="blocked">Blocked</option>
+                      <option value="unavailable">Unavailable</option>
                     </select>
                   </div>
                 </th>
@@ -576,7 +588,22 @@ function DiagnosticsDetails({
     <div className={styles.diagnostics}>
       <div className={styles.validationTitle}>Scraping pipeline</div>
       <div className={styles.diagnosticsSummary}>
-        <span>{diagnostics.engine === "legacy" ? "Next / legacy" : "Scrapling"}</span>
+        <span>
+          {diagnostics.engine === "legacy"
+            ? "Next / legacy"
+            : diagnostics.engine === "scrapling"
+              ? "Scrapling"
+              : diagnostics.engine === "official_api"
+                ? "Official API"
+                : "Internal API"}
+        </span>
+        {diagnostics.api && (
+          <>
+            <span>{diagnostics.api.provider}</span>
+            <span>Adapter: {diagnostics.api.adapter}</span>
+            {diagnostics.api.itemId && <span>Item: {diagnostics.api.itemId}</span>}
+          </>
+        )}
         <span>Stopped at: {diagnostics.fetchMethod}</span>
         {diagnostics.selectedFetchMethod && (
           <span>Best result: {diagnostics.selectedFetchMethod}</span>

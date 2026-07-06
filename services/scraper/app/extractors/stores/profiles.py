@@ -53,6 +53,30 @@ ITEM_CURRENCY = FieldRule(
 
 PROFILES: tuple[StoreProfile, ...] = (
     StoreProfile(
+        name="sidelineswap",
+        patterns=("sidelineswap.com",),
+        title=OG_TITLE,
+        current_price=FieldRule((
+            "//*[contains(@class,'text-4xl') and contains(@class,'font-bold')][1]",
+        )),
+        description=OG_DESCRIPTION,
+        image=OG_IMAGE,
+        default_currency="USD",
+        title_cleanup=(r"\s*\|\s*SidelineSwap.*$",),
+    ),
+    StoreProfile(
+        name="zalora_hk",
+        patterns=("zalora.com.hk",),
+        title=FieldRule(("//*[@data-test-id='productName'][1]",) + OG_TITLE.xpaths),
+        current_price=FieldRule((
+            "//h1//div[contains(@class,'hidden')]/span[2]",
+        )),
+        description=OG_DESCRIPTION,
+        image=OG_IMAGE,
+        default_currency="HKD",
+        current_price_regex=(r'"product"\s*:\s*\{.{0,600}?"Price"\s*:\s*"([\d.]+)"',),
+    ),
+    StoreProfile(
         name="lamoda",
         patterns=("lamoda.ru",),
         title=FieldRule(("//h1[1]",) + OG_TITLE.xpaths),
@@ -181,6 +205,29 @@ PROFILES: tuple[StoreProfile, ...] = (
             ("src", "href"),
         ),
         currency=FieldRule(("//meta[@itemprop='priceCurrency']",)),
+        default_currency="USD",
+    ),
+    StoreProfile(
+        name="zvab",
+        patterns=("zvab.com",),
+        title=FieldRule(("//*[@data-test-id='book-title'][1]",)),
+        current_price=FieldRule(
+            ("//meta[@itemprop='price']", "//*[@data-test-id='item-price'][1]")
+        ),
+        description=FieldRule(("//meta[@name='description']",)),
+        image=FieldRule(("//meta[@itemprop='image'][1]",)),
+        currency=FieldRule(("//meta[@itemprop='priceCurrency'][1]",)),
+        default_currency="EUR",
+    ),
+    StoreProfile(
+        name="souq",
+        patterns=("souq.co",),
+        title=FieldRule(("//meta[@property='og:title']",)),
+        current_price=FieldRule(
+            ("//*[contains(@class,'discounted-unit-price')][1]",)
+        ),
+        description=OG_DESCRIPTION,
+        image=FieldRule(("//meta[@property='og:image']",)),
         default_currency="USD",
     ),
     StoreProfile(

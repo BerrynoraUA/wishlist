@@ -23,7 +23,7 @@ export type ExportRowInput = {
     match: boolean | null;
   }[];
   diagnostics?: {
-    engine: "legacy" | "scrapling";
+    engine: "legacy" | "scrapling" | "official_api" | "internal_api";
     fetchMethod: string;
     selectedFetchMethod?: string;
     attempts: {
@@ -41,6 +41,12 @@ export type ExportRowInput = {
     }[];
     parserSources: Record<string, { source: string; library: string }>;
     warnings?: string[];
+    api?: {
+      provider: string;
+      apiKind: "official" | "internal";
+      adapter: string;
+      itemId?: string;
+    };
   };
 };
 
@@ -65,6 +71,10 @@ type ExportRow = {
   pipeline: string;
   parser_sources: string;
   warnings: string;
+  api_provider: string;
+  api_kind: string;
+  api_adapter: string;
+  api_item_id: string;
 };
 
 function toRows(results: ExportRowInput[]): ExportRow[] {
@@ -99,6 +109,10 @@ function toRows(results: ExportRowInput[]): ExportRow[] {
           .join(" | ")
       : "",
     warnings: r.diagnostics?.warnings?.join(", ") ?? "",
+    api_provider: r.diagnostics?.api?.provider ?? "",
+    api_kind: r.diagnostics?.api?.apiKind ?? "",
+    api_adapter: r.diagnostics?.api?.adapter ?? "",
+    api_item_id: r.diagnostics?.api?.itemId ?? "",
   }));
 }
 

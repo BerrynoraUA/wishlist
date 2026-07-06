@@ -6,7 +6,12 @@ from scrapling.fetchers import AsyncStealthySession
 
 from app.blocking import classify_block
 from app.config import Settings
-from app.fetching.http import FetchError, FetchResult, ResponseTooLargeError
+from app.fetching.http import (
+    FetchError,
+    FetchResult,
+    ResponseTooLargeError,
+    decode_response_body,
+)
 from app.proxy import ProxyOptions
 from app.security import UnsafeUrlError, validate_public_url
 
@@ -105,8 +110,12 @@ class BrowserFetcher:
         raw_body = bytes(response.body)
         if len(raw_body) > self._settings.max_response_bytes:
             raise ResponseTooLargeError("Browser response exceeds the configured size limit")
-        body = raw_body.decode("utf-8", errors="replace")
         status = int(response.status)
+        response_headers = {
+            str(key).lower(): str(value)
+            for key, value in dict(getattr(response, "headers", {}) or {}).items()
+        }
+        body = decode_response_body(raw_body, response_headers)
         return FetchResult(
             requested_url=url,
             final_url=final_url,
@@ -114,10 +123,7 @@ class BrowserFetcher:
             body=body,
             body_bytes=len(raw_body),
             block=classify_block(status, body),
-            response_headers={
-                str(key).lower(): str(value)
-                for key, value in dict(getattr(response, "headers", {}) or {}).items()
-            },
+            response_headers=response_headers,
         )
 
     async def _guard_navigation(self, page: Any) -> None:

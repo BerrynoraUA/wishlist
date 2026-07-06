@@ -1,4 +1,5 @@
 import { genericScrapers } from "./helpers/generic";
+import { hasApiAdapter, scrapeWithApiAdapter } from "./api-adapters";
 import { getStoreScraper } from "./helpers/stores";
 import { emptyProduct, type ProductData } from "./helpers/types";
 import { isSafeUrl } from "./helpers/validate-url";
@@ -21,12 +22,18 @@ export type ScrapeParserSource = {
 };
 
 export type ScrapeProductDiagnostics = {
-  engine: "legacy" | "scrapling";
+  engine: "legacy" | "scrapling" | "official_api" | "internal_api";
   fetchMethod: string;
   selectedFetchMethod?: string;
   attempts: ScrapeFetchAttempt[];
   parserSources: Record<string, ScrapeParserSource>;
   warnings?: string[];
+  api?: {
+    provider: string;
+    apiKind: "official" | "internal";
+    adapter: string;
+    itemId?: string;
+  };
 };
 
 export type ScrapeFetchAttempt = {
@@ -47,6 +54,7 @@ export type DetailedScrapeProduct = {
   product: ProductData | null;
   diagnostics?: ScrapeProductDiagnostics;
   blocked?: boolean;
+  unavailable?: boolean;
   error?: string;
 };
 
@@ -63,6 +71,64 @@ export async function scrapeProduct(url: string): Promise<ProductData | null> {
 
 export async function scrapeProductDetailed(url: string): Promise<DetailedScrapeProduct> {
   url = canonicalizeProductUrl(url);
+  if (hasApiAdapter(url)) {
+    const api = await scrapeWithApiAdapter(url);
+    if (!api) return { product: null, error: "API adapter not found" };
+    const outcome = api.unavailable
+      ? "skipped"
+      : api.blocked
+        ? "blocked"
+        : api.reason?.includes("timeout")
+          ? "timeout"
+          : api.reason
+            ? "error"
+            : "received";
+    return {
+      product: api.product,
+      blocked: api.blocked,
+      unavailable: api.unavailable,
+      error: api.reason,
+      diagnostics: {
+        engine: api.apiKind === "official" ? "official_api" : "internal_api",
+        fetchMethod: api.attempts.at(-1)?.mode ?? "next_api",
+        selectedFetchMethod: api.product ? (api.attempts.at(-1)?.mode ?? "next_api") : undefined,
+        attempts:
+          api.attempts.length > 0
+            ? api.attempts.map((attempt, index) => ({
+                sequence: index + 1,
+                mode: attempt.mode,
+                purpose: "product_api",
+                outcome: attempt.outcome,
+                durationMs: attempt.durationMs,
+                status: attempt.status,
+                blockReason: attempt.outcome === "blocked" ? api.reason : undefined,
+                error: attempt.error,
+                selected: Boolean(api.product) && index === api.attempts.length - 1,
+              }))
+            : [
+                {
+                  sequence: 1,
+                  mode: "next_api",
+                  purpose: "product_api",
+                  outcome,
+                  durationMs: api.durationMs,
+                  status: api.status,
+                  blockReason: api.blocked ? api.reason : undefined,
+                  error: !api.blocked && api.reason ? api.reason : undefined,
+                  selected: Boolean(api.product),
+                },
+              ],
+        parserSources: api.parserSources,
+        warnings: api.reason ? [api.reason] : undefined,
+        api: {
+          provider: api.provider,
+          apiKind: api.apiKind,
+          adapter: api.adapter,
+          itemId: api.itemId,
+        },
+      },
+    };
+  }
   const mode = getScraplingMode();
   let legacyResult: LegacyScrapeResult | null = null;
   let legacyError: unknown = null;
@@ -217,7 +283,13 @@ function canonicalizeProductUrl(value: string): string {
           }
         }
       }
-      parsed.search = skuId ? new URLSearchParams({ sku_id: skuId }).toString() : "";
+      const priceContext = parsed.searchParams.get("pdp_npi");
+      const canonicalParams = new URLSearchParams();
+      if (skuId) canonicalParams.set("sku_id", skuId);
+      if (skuId && priceContext?.includes(skuId)) {
+        canonicalParams.set("pdp_npi", priceContext);
+      }
+      parsed.search = canonicalParams.toString();
       parsed.hash = "";
       return parsed.href;
     }

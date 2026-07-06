@@ -1,6 +1,9 @@
 from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
 from uuid import uuid4
+from time import monotonic
+import asyncio
+from urllib.parse import urlparse
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -12,6 +15,9 @@ from app.config import get_settings
 from app.fetching import BrowserFetcher, HttpFetcher
 from app.models import (
     ErrorCode,
+    ApiFetchAttempt,
+    ApiFetchRequest,
+    ApiFetchResponse,
     ErrorDetail,
     ErrorResponse,
     HealthResponse,
@@ -106,6 +112,125 @@ async def ready() -> ReadinessResponse:
         browser_enabled=settings.enable_browser,
         proxy_enabled=settings.enable_proxy,
         proxy_configured=bool(settings.proxy_url or settings.proxy_urls),
+    )
+
+
+API_HOSTS = {
+    "api.ebay.com",
+    "openapi.etsy.com",
+    "api.discogs.com",
+    "api.gunbroker.com",
+    "api.bol.com",
+    "api-sg.aliexpress.com",
+    "aukro.cz",
+    "www.bestbuy.ca",
+    "www.digitec.ch",
+    "www.galaxus.ch",
+    "rozetka.com.ua",
+    "www.rozetka.com.ua",
+    "www.noon.com",
+    "www.meesho.com",
+    "www.lazada.co.th",
+}
+
+
+@app.post("/v1/api-fetch", response_model=ApiFetchResponse)
+async def api_fetch(payload: ApiFetchRequest, request: Request) -> ApiFetchResponse:
+    url = str(payload.url)
+    hostname = (urlparse(url).hostname or "").lower()
+    if hostname not in API_HOSTS:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "API hostname is not allowlisted"},
+        )
+
+    attempts: list[ApiFetchAttempt] = []
+    fetchers = [
+        ("python_api_http", request.app.state.http_fetcher),
+        ("python_api_proxy", request.app.state.proxy_http_fetcher),
+    ]
+    last_response = None
+    deadline = monotonic() + payload.deadline_ms / 1000
+
+    for mode, fetcher in fetchers:
+        if fetcher is None:
+            attempts.append(
+                ApiFetchAttempt(
+                    mode=mode,
+                    outcome="skipped",
+                    duration_ms=0,
+                    error="not_configured",
+                )
+            )
+            continue
+        remaining = deadline - monotonic()
+        if remaining <= 0:
+            attempts.append(
+                ApiFetchAttempt(
+                    mode=mode,
+                    outcome="timeout",
+                    duration_ms=0,
+                    error="deadline_exceeded",
+                )
+            )
+            break
+        started = monotonic()
+        try:
+            response = await asyncio.wait_for(
+                fetcher.fetch(
+                    url,
+                    headers=payload.headers,
+                    method=payload.method,
+                    body=payload.body,
+                ),
+                timeout=remaining,
+            )
+            last_response = response
+            blocked = response.status in {403, 429} or response.block.blocked
+            attempts.append(
+                ApiFetchAttempt(
+                    mode=mode,
+                    outcome="blocked" if blocked else "received",
+                    duration_ms=int((monotonic() - started) * 1000),
+                    status=response.status,
+                )
+            )
+            if not blocked:
+                break
+        except TimeoutError:
+            attempts.append(
+                ApiFetchAttempt(
+                    mode=mode,
+                    outcome="timeout",
+                    duration_ms=int((monotonic() - started) * 1000),
+                    error="request_timeout",
+                )
+            )
+        except Exception:
+            attempts.append(
+                ApiFetchAttempt(
+                    mode=mode,
+                    outcome="error",
+                    duration_ms=int((monotonic() - started) * 1000),
+                    error="request_failed",
+                )
+            )
+
+    if last_response is None:
+        return JSONResponse(
+            status_code=502,
+            content={
+                "status": 502,
+                "body": "",
+                "fetch_mode": attempts[-1].mode if attempts else "not_attempted",
+                "attempts": [attempt.model_dump(mode="json") for attempt in attempts],
+            },
+        )
+    return ApiFetchResponse(
+        status=last_response.status,
+        body=last_response.body,
+        fetch_mode=attempts[-1].mode,
+        attempts=attempts,
     )
 
 

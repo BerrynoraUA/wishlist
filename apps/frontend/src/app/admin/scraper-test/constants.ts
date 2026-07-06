@@ -1,4 +1,4 @@
-export type ScraperStatus = "success" | "partial" | "failed" | "blocked";
+export type ScraperStatus = "success" | "partial" | "failed" | "blocked" | "unavailable";
 export type TestState = "idle" | "running" | "done";
 export type SortField = "site" | "status" | "duration";
 export type SortDir = "asc" | "desc";
@@ -24,12 +24,18 @@ export interface FieldValidation {
 }
 
 export interface ScrapeDiagnostics {
-  engine: "legacy" | "scrapling";
+  engine: "legacy" | "scrapling" | "official_api" | "internal_api";
   fetchMethod: string;
   selectedFetchMethod?: string;
   attempts: FetchAttempt[];
   parserSources: Record<string, { source: string; library: string }>;
   warnings?: string[];
+  api?: {
+    provider: string;
+    apiKind: "official" | "internal";
+    adapter: string;
+    itemId?: string;
+  };
 }
 
 export interface FetchAttempt {
@@ -76,4 +82,5 @@ export const STATUS_ORDER: Record<string, number> = {
   partial: 1,
   failed: 2,
   blocked: 3,
+  unavailable: 4,
 };

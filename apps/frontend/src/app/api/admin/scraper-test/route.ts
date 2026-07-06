@@ -56,7 +56,35 @@ export async function POST(request: NextRequest) {
       const product = scraped.product;
       const duration = Date.now() - start;
 
-      if (isAccessFailure(scraped)) {
+      if (scraped.unavailable) {
+        results.push({
+          url,
+          status: "unavailable",
+          error: scraped.error ?? "API is unavailable",
+          data: product,
+          duration,
+          diagnostics: scraped.diagnostics,
+        });
+        continue;
+      }
+
+      const isApiResult =
+        scraped.diagnostics?.engine === "official_api" ||
+        scraped.diagnostics?.engine === "internal_api";
+
+      if (!product && isApiResult) {
+        results.push({
+          url,
+          status: scraped.blocked ? "blocked" : "failed",
+          error: scraped.error ?? "API response could not be parsed",
+          data: null,
+          duration,
+          diagnostics: scraped.diagnostics,
+        });
+        continue;
+      }
+
+      if (!isApiResult && isAccessFailure(scraped)) {
         results.push({
           url,
           status: "blocked",

@@ -1,7 +1,7 @@
 import json
 import re
 from collections.abc import Iterable
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 from lxml import etree, html
 
@@ -53,6 +53,14 @@ def extract_amazon(html_text: str, page_url: str) -> ExtractionResult:
                 r'"price"\s*:\s*"?([\d,.]+)"?',
             ),
         )
+    if not current:
+        selected_variant_price = _amazon_selected_variant_price(document)
+        if selected_variant_price:
+            current, variant_currency = selected_variant_price
+        else:
+            variant_currency = None
+    else:
+        variant_currency = None
 
     title = _text(
         document,
@@ -78,6 +86,8 @@ def extract_amazon(html_text: str, page_url: str) -> ExtractionResult:
             title,
             maxsplit=1,
         )[0].strip()
+        if re.fullmatch(r"Amazon\.[a-z.]+", title, re.I):
+            title = None
 
     raw_image = _attribute(
         document,
@@ -99,7 +109,9 @@ def extract_amazon(html_text: str, page_url: str) -> ExtractionResult:
             "//*[@id='corePriceDisplay_desktop_feature_div']",
         ),
     )
-    currency = _currency_from_text(price_region_text or html_text[:100_000])
+    currency = variant_currency or _currency_from_text(
+        price_region_text or html_text[:100_000]
+    )
     return _result(
         "amazon",
         title,
@@ -109,6 +121,32 @@ def extract_amazon(html_text: str, page_url: str) -> ExtractionResult:
         current,
         currency,
     )
+
+
+def _amazon_selected_variant_price(
+    document: html.HtmlElement,
+) -> tuple[str, str | None] | None:
+    selected = document.xpath(
+        "//li[@data-initiallyselected='true' or "
+        ".//input[@role='radio' and @aria-checked='true']]"
+        "//*[contains(concat(' ', normalize-space(@class), ' '), "
+        "' inline-twister-swatch-price ')]"
+    )
+    for node in selected:
+        text = clean_text(node.text_content())
+        if not text:
+            continue
+        match = re.search(
+            r"(?:\bfrom\b|[$€£])\s*(?:US\s*)?([$€£])?\s*([\d][\d,.]*)",
+            text,
+            re.I,
+        )
+        if not match:
+            continue
+        price = normalize_price(match.group(2))
+        if price:
+            return price, _currency_from_text(text)
+    return None
 
 
 def extract_aliexpress(html_text: str, page_url: str) -> ExtractionResult:
@@ -177,7 +215,15 @@ def extract_aliexpress(html_text: str, page_url: str) -> ExtractionResult:
         )
         or normalize_price(script_data.get("old_price"))
     )
-    currency = normalize_currency(
+    if not current:
+        tracked_prices = _aliexpress_tracking_prices(page_url)
+        if tracked_prices:
+            old, current, tracked_currency = tracked_prices
+        else:
+            tracked_currency = None
+    else:
+        tracked_currency = None
+    currency = tracked_currency or normalize_currency(
         _attribute(
             document,
             ("//meta[@property='product:price:currency']",),
@@ -191,6 +237,64 @@ def extract_aliexpress(html_text: str, page_url: str) -> ExtractionResult:
         image,
         old,
         current,
+        currency,
+    )
+
+
+def extract_asos(html_text: str, page_url: str) -> ExtractionResult:
+    document = _document(html_text)
+    title = _text(document, ("//meta[@property='og:title']", "//h1[1]", "//title"))
+    description = _text(
+        document,
+        ("//meta[@property='og:description']", "//meta[@name='description']"),
+    )
+    image = normalize_image_url(
+        _attribute(document, ("//meta[@property='og:image']",), ("content",)),
+        page_url,
+    )
+
+    product_id_match = re.search(r"/prd/(\d+)", page_url, re.I)
+    response_match = re.search(
+        r"window\.asos\.pdp\.config\.stockPriceResponse\s*=\s*'(\[.*?\])'\s*;",
+        html_text,
+        re.S,
+    )
+    old_price = None
+    current_price = None
+    currency = None
+    if product_id_match and response_match:
+        try:
+            prices = json.loads(response_match.group(1))
+        except (json.JSONDecodeError, TypeError):
+            prices = []
+        product_id = int(product_id_match.group(1))
+        price_entry = next(
+            (
+                entry
+                for entry in prices
+                if isinstance(entry, dict) and entry.get("productId") == product_id
+            ),
+            None,
+        )
+        product_price = price_entry.get("productPrice") if price_entry else None
+        if isinstance(product_price, dict):
+            current = product_price.get("current")
+            previous = product_price.get("previous")
+            current_price = normalize_price(
+                current.get("value") if isinstance(current, dict) else None
+            )
+            old_price = normalize_price(
+                previous.get("value") if isinstance(previous, dict) else None
+            )
+            currency = normalize_currency(product_price.get("currency"))
+
+    return _result(
+        "asos",
+        title,
+        description,
+        image,
+        old_price,
+        current_price,
         currency,
     )
 
@@ -566,6 +670,28 @@ def _aliexpress_script_data(html_text: str) -> dict[str, str]:
             result[key] = value
             break
     return result
+
+
+def _aliexpress_tracking_prices(
+    page_url: str,
+) -> tuple[str, str, str] | None:
+    query = parse_qs(urlparse(page_url).query)
+    npi = unquote(query.get("pdp_npi", [""])[0])
+    sku_payload = unquote(query.get("pdp_ext_f", [""])[0])
+    sku_match = re.search(r'"sku_id"\s*:\s*"(\d+)"', sku_payload)
+    sku_id = query.get("sku_id", [None])[0] or (
+        sku_match.group(1) if sku_match else None
+    )
+    if not npi or not sku_id or sku_id not in npi:
+        return None
+
+    price_match = re.search(
+        r"!{3,}(\d+(?:\.\d+)?)!(\d+(?:\.\d+)?)!",
+        npi,
+    )
+    if not price_match:
+        return None
+    return price_match.group(1), price_match.group(2), "USD"
 
 
 def _result(

@@ -13,6 +13,7 @@ _BLOCKED_TITLES = {
     "javascript is disabled",
     "register & sign in - farfetch",
     "cdiscount.com",
+    "amazon.com",
 }
 
 
