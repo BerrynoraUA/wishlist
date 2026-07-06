@@ -1,14 +1,14 @@
 import { Icon } from "@/components/ui/icon";
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
 import { TextClassContext } from "@/components/ui/text";
+import { WindowOverlay } from "@/components/ui/window-overlay";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as DropdownMenuPrimitive from "@rn-primitives/dropdown-menu";
 import { Check, ChevronDown, ChevronUp } from "lucide-react-native";
 import * as React from "react";
-import { Platform, type StyleProp, Text, View, type ViewStyle } from "react-native";
+import { type StyleProp, Text, View, type ViewStyle } from "react-native";
 import { FadeIn } from "react-native-reanimated";
-import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -75,8 +75,6 @@ function DropdownMenuSubContent({
   );
 }
 
-const FullWindowOverlay = Platform.OS === "ios" ? RNFullWindowOverlay : React.Fragment;
-
 function DropdownMenuContent({
   className,
   overlayClassName,
@@ -89,7 +87,12 @@ function DropdownMenuContent({
   overlayClassName?: string;
   portalHost?: string;
 }) {
-  const { triggerPosition } = DropdownMenuPrimitive.useRootContext();
+  const { triggerPosition, setTriggerPosition, onOpenChange } =
+    DropdownMenuPrimitive.useRootContext();
+  const closeFromBackPress = () => {
+    setTriggerPosition(null);
+    onOpenChange(false);
+  };
   const contentStyle =
     triggerPosition?.width != null
       ? ([style, { minWidth: triggerPosition.width }] as unknown as React.ComponentProps<
@@ -99,7 +102,7 @@ function DropdownMenuContent({
 
   return (
     <DropdownMenuPrimitive.Portal hostName={portalHost}>
-      <FullWindowOverlay>
+      <WindowOverlay onRequestClose={closeFromBackPress}>
         <DropdownMenuPrimitive.Overlay
           className={cn("absolute inset-0", overlayClassName)}
           style={overlayStyle}
@@ -117,7 +120,7 @@ function DropdownMenuContent({
             </TextClassContext.Provider>
           </NativeOnlyAnimatedView>
         </DropdownMenuPrimitive.Overlay>
-      </FullWindowOverlay>
+      </WindowOverlay>
     </DropdownMenuPrimitive.Portal>
   );
 }
