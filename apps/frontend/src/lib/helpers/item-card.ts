@@ -36,8 +36,6 @@ type PurchaseActionLabelFactory = {
   available: () => string;
 };
 
-type PriorityLabelFactory = Record<ItemCardPriorityKey, string>;
-
 type SaveItemInput = {
   name: string;
   description?: string | null;

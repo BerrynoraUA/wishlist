@@ -321,7 +321,7 @@ export function WishlistCreateEditSheet({
     }
   }
 
-  async function invalidateAccessQueries(id: string) {
+  async function invalidateAccessQueries() {
     await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
     await queryClient.invalidateQueries({
       queryKey: ["friends-without-wishlist-access"],
@@ -357,7 +357,7 @@ export function WishlistCreateEditSheet({
         }),
       ),
     ]);
-    await invalidateAccessQueries(id);
+    await invalidateAccessQueries();
   }
 
   async function revokeExistingSelectedAccess(id: string) {
@@ -378,7 +378,7 @@ export function WishlistCreateEditSheet({
         }),
       ),
     ]);
-    await invalidateAccessQueries(id);
+    await invalidateAccessQueries();
   }
 
   async function submitForm(formValues: WishlistFormValues) {

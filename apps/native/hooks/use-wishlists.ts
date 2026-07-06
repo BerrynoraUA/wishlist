@@ -402,7 +402,7 @@ export function useGrantWishlistAccess() {
       grantedToUserId: string;
       accessType: 0 | 1 | 2 | 3;
     }) => grantWishlistAccess(wishlistId, grantedToUserId, accessType),
-    onSuccess: async (_data, variables) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({
         queryKey: ["friends-without-wishlist-access"],
@@ -422,7 +422,7 @@ export function useRevokeWishlistAccess() {
   return useMutation({
     mutationFn: ({ wishlistId, targetUserId }: { wishlistId: string; targetUserId: string }) =>
       revokeWishlistAccess(wishlistId, targetUserId),
-    onSuccess: async (_data, variables) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["friends-without-wishlist-access"],
         exact: false,

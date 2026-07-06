@@ -332,7 +332,7 @@ export function useUpdateFriendGroup() {
   return useMutation({
     mutationFn: ({ groupId, payload }: { groupId: string; payload: FriendGroupPayload }) =>
       updateFriendGroup(groupId, payload),
-    onSuccess: async (_data, variables) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: friendKeys.groups() });
       await queryClient.invalidateQueries({ queryKey: friendKeys.groupMembersRoot() });
     },
@@ -419,7 +419,7 @@ export function useGrantWishlistGroupAccess() {
   return useMutation({
     mutationFn: ({ wishlistId, groupId }: { wishlistId: string; groupId: string }) =>
       grantWishlistGroupAccess(wishlistId, groupId),
-    onSuccess: async (_data, variables) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({
         queryKey: ["wishlist-access-list"],
@@ -439,7 +439,7 @@ export function useRevokeWishlistGroupAccess() {
   return useMutation({
     mutationFn: ({ wishlistId, groupId }: { wishlistId: string; groupId: string }) =>
       revokeWishlistGroupAccess(wishlistId, groupId),
-    onSuccess: async (_data, variables) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({
         queryKey: ["wishlist-access-list"],
