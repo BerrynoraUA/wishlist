@@ -119,10 +119,14 @@ export default function SecretSantaScreen() {
                 onChangeSearch={handleSearchChange}
                 placeholder={t("Search events")}
                 contentWidth={contentWidth}
-                searchSide="right"
                 onOpen={() => setActiveTab("events")}
               >
-                <ScrollableTabs tabs={tabs} value={activeTab} onChange={setActiveTab} />
+                <ScrollableTabs
+                  tabs={tabs}
+                  value={activeTab}
+                  onChange={setActiveTab}
+                  align="right"
+                />
               </ExpandingSearchHeader>
             </View>
           }
