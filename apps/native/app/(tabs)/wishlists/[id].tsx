@@ -24,6 +24,7 @@ import {
   ShareFeedbackSheet,
   type ShareFeedback,
 } from "@/components/wishlists/sheets/share-feedback-sheet";
+import { WishlistShareSheet } from "@/components/wishlists/sheets/wishlist-share-sheet";
 import { WishlistGrantAccessSheet } from "@/components/wishlists/sheets/wishlist-grant-access-sheet";
 import { createWishlistShareToken } from "@/api/share";
 import { useCheckFriendship, useProfilesByIds } from "@/hooks/use-friends";
@@ -56,7 +57,6 @@ import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View, useWindowDimensions } from "react-native";
-import * as Clipboard from "expo-clipboard";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -99,6 +99,8 @@ export default function WishlistDetailScreen() {
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const [shareFeedback, setShareFeedback] = React.useState<ShareFeedback>(null);
+  const [shareLink, setShareLink] = React.useState<string | null>(null);
+  const [shareWishlist, setShareWishlist] = React.useState<Wishlist | null>(null);
   const [shareGuideCompletionPending, setShareGuideCompletionPending] = React.useState(false);
   const canEditWishlist = Boolean(wishlist?.is_owner || wishlist?.can_edit);
   const friendshipCheckUserId =
@@ -199,7 +201,7 @@ export default function WishlistDetailScreen() {
     }
   }
 
-  async function handleShareWishlist() {
+  const handleShareWishlist = React.useCallback(async () => {
     if (!wishlist) return;
     try {
       const token = await createWishlistShareToken(wishlist.id);
@@ -208,14 +210,9 @@ export default function WishlistDetailScreen() {
         "",
       );
       const link = `${baseUrl}/share?token=${encodeURIComponent(token)}`;
-      await Clipboard.setStringAsync(link);
+      setShareWishlist(wishlist);
+      setShareLink(link);
       setShareGuideCompletionPending(true);
-      setShareFeedback({
-        variant: "success",
-        title: t("Link copied"),
-        description: t("Wishlist share link is ready to send."),
-        link,
-      });
     } catch (error) {
       setShareFeedback({
         variant: "error",
@@ -224,7 +221,7 @@ export default function WishlistDetailScreen() {
       });
       setShareGuideCompletionPending(false);
     }
-  }
+  }, [t, wishlist]);
 
   function handleToggleSelectedReservation(itemId: string) {
     if (sheet?.type !== "detail" || sheet.item.id !== itemId) return;
@@ -371,6 +368,7 @@ export default function WishlistDetailScreen() {
       filters,
       filtersOpen,
       gridGap,
+      handleShareWishlist,
       insets.top,
       profileNamesById,
       showDiscountBadge,
@@ -379,7 +377,6 @@ export default function WishlistDetailScreen() {
       wishlist,
       t,
       completeManageAccessStep,
-      completeShareStep,
     ],
   );
 
@@ -513,10 +510,19 @@ export default function WishlistDetailScreen() {
           feedback={shareFeedback}
           onOpenChange={(open) => {
             if (!open) {
-              const shouldCompleteShareStep =
-                shareGuideCompletionPending && shareFeedback?.variant === "success";
-
               setShareFeedback(null);
+            }
+          }}
+        />
+        <WishlistShareSheet
+          wishlist={shareWishlist}
+          link={shareLink}
+          onOpenChange={(open) => {
+            if (!open) {
+              const shouldCompleteShareStep = shareGuideCompletionPending;
+
+              setShareWishlist(null);
+              setShareLink(null);
               setShareGuideCompletionPending(false);
 
               if (shouldCompleteShareStep) {
