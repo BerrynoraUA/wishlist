@@ -190,7 +190,7 @@ export function WishlistItemCreateEditSheet({
   }
 
   const productLinkField = usesProductLink ? (
-    <View className="gap-2">
+    <View className={cn("gap-2", isCreateFromLink && "mt-2")}>
       <View className="flex-row items-center gap-2">
         <Controller
           control={control}
@@ -206,7 +206,10 @@ export function WishlistItemCreateEditSheet({
               autoCapitalize="none"
               keyboardType="url"
               returnKeyType="done"
-              className={cn("min-w-0 flex-1", productLinkInvalid && "border-destructive")}
+              className={cn(
+                "min-w-0 flex-1 border-primary",
+                productLinkInvalid && "border-destructive",
+              )}
             />
           )}
         />
@@ -594,7 +597,7 @@ function WishlistPickerField({
       wishlists.map((wishlist) => ({
         value: wishlist.id,
         label: wishlist.title,
-        description: t("{count} items", { count: wishlist.items_count ?? 0 }),
+        trailing: t("{count} items", { count: wishlist.items_count ?? 0 }),
         imageUrl: wishlist.image_url,
       })),
     [t, wishlists],
@@ -632,6 +635,8 @@ function WishlistPickerField({
       emptyText={t("No wishlists found")}
       attached
       maxVisibleOptions={4}
+      selectedIndicatorPosition="leading"
+      optionClassName="min-h-12 py-3"
     />
   );
 }

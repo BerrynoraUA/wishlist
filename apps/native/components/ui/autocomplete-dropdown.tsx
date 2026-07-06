@@ -45,6 +45,7 @@ type CommonProps = {
   trailingAccessory?: React.ReactNode;
   attachedContainerStyle?: StyleProp<ViewStyle>;
   highlightSelectedOption?: boolean;
+  selectedIndicatorPosition?: "leading" | "trailing";
   renderOptionLeading?: (option: AutocompleteDropdownOption) => React.ReactNode;
   inputProps?: Omit<
     React.ComponentProps<typeof Input>,
@@ -86,6 +87,7 @@ export function AutocompleteDropdown({
   trailingAccessory,
   attachedContainerStyle,
   highlightSelectedOption = true,
+  selectedIndicatorPosition = "trailing",
   renderOptionLeading,
   inputProps,
   ...props
@@ -277,6 +279,11 @@ export function AutocompleteDropdown({
               >
                 {matchingOptions.map((option) => {
                   const isSelected = selectedValues.has(option.value);
+                  const selectedIndicator = isSelected ? (
+                    <Icon as={Check} aria-hidden={true} className="size-4 text-brand" />
+                  ) : (
+                    <View className="size-4" />
+                  );
 
                   return (
                     <Pressable
@@ -290,6 +297,7 @@ export function AutocompleteDropdown({
                         optionClassName,
                       )}
                     >
+                      {selectedIndicatorPosition === "leading" ? selectedIndicator : null}
                       {renderOptionLeading ? renderOptionLeading(option) : null}
                       {option.imageUrl ? (
                         <Avatar alt={option.label} className="size-9">
@@ -308,9 +316,9 @@ export function AutocompleteDropdown({
                         ) : null}
                       </View>
                       <View className="flex-row items-center gap-2">
-                        {isSelected ? (
-                          <Icon as={Check} aria-hidden={true} className="size-4 text-brand" />
-                        ) : null}
+                        {selectedIndicatorPosition === "trailing" && isSelected
+                          ? selectedIndicator
+                          : null}
                         {option.trailing ? (
                           <Text className="text-sm font-semibold text-text-muted">
                             {option.trailing}
