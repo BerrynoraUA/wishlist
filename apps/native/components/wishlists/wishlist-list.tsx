@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
+import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
@@ -40,9 +41,8 @@ import {
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View, useWindowDimensions } from "react-native";
+import { Platform, View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SheetState =
   | { type: "edit"; wishlist: Wishlist }
@@ -50,7 +50,8 @@ type SheetState =
   | { type: "delete"; wishlist: Wishlist }
   | null;
 
-type WishlistListRow = Wishlist[] | { id: "filters"; type: "filters" };
+type WishlistListRow = Wishlist[];
+const HEADER_CONTENT_GAP = 16;
 
 export function WishlistList({
   query,
@@ -84,93 +85,88 @@ export function WishlistList({
   const t = useGT();
   const completeOpenDetailStep = useUserGuideStepCompletion(4);
   const { requestMeasure } = useUserGuideTargetRegistration();
-  const insets = useSafeAreaInsets();
-  const contentTopPadding = insets.top;
+  const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
+  const listPaddingTop = paddingTop + (Platform.OS === "ios" ? HEADER_CONTENT_GAP : 0);
   const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
   const data = React.useMemo<WishlistListRow[]>(
-    () => [{ id: "filters", type: "filters" }, ...(query.isLoading ? [] : rows)],
+    () => (query.isLoading ? [] : rows),
     [query.isLoading, rows],
   );
   const renderRow = React.useCallback(
-    ({ item, index }: { item: WishlistListRow; index: number }) =>
-      "type" in item ? (
-        <View className="z-2 bg-bg pb-4 pt-4">
-          <View className="max-w-300 self-center" style={{ width: contentWidth }}>
-            {FilterHeaderComponent}
-          </View>
-        </View>
-      ) : (
-        <View
-          className="flex-row"
-          style={{
-            alignSelf: "center",
-            gap: gridGap,
-            width: contentWidth,
-          }}
-        >
-          {item.map((entry, entryIndex) => {
-            const isFirstWishlistCard = index === 1 && entryIndex === 0;
-            const card = (
-              <WishlistCard
-                key={entry.id}
-                wishlist={entry}
-                width={cardWidth}
-                onOpen={isFirstWishlistCard ? completeOpenDetailStep : undefined}
-                onEdit={
-                  entry.is_owner || entry.can_edit
-                    ? () => onOpenSheet({ type: "edit", wishlist: entry })
-                    : undefined
-                }
-                onAddItem={
-                  entry.is_owner || entry.can_edit
-                    ? () => onOpenSheet({ type: "addItem", wishlist: entry })
-                    : undefined
-                }
-                onDelete={
-                  entry.is_owner
-                    ? () => onOpenSheet({ type: "delete", wishlist: entry })
-                    : undefined
-                }
-              />
-            );
+    ({ item, index }: { item: WishlistListRow; index: number }) => (
+      <View
+        className="flex-row"
+        style={{
+          alignSelf: "center",
+          gap: gridGap,
+          width: contentWidth,
+        }}
+      >
+        {item.map((entry, entryIndex) => {
+          const isFirstWishlistCard = index === 0 && entryIndex === 0;
+          const card = (
+            <WishlistCard
+              key={entry.id}
+              wishlist={entry}
+              width={cardWidth}
+              onOpen={isFirstWishlistCard ? completeOpenDetailStep : undefined}
+              onEdit={
+                entry.is_owner || entry.can_edit
+                  ? () => onOpenSheet({ type: "edit", wishlist: entry })
+                  : undefined
+              }
+              onAddItem={
+                entry.is_owner || entry.can_edit
+                  ? () => onOpenSheet({ type: "addItem", wishlist: entry })
+                  : undefined
+              }
+              onDelete={
+                entry.is_owner ? () => onOpenSheet({ type: "delete", wishlist: entry }) : undefined
+              }
+            />
+          );
 
-            return isFirstWishlistCard ? (
-              <GuideTarget
-                attachedTooltip={false}
-                key={entry.id}
-                id="home-wishlist-card"
-                style={{ width: cardWidth }}
-                tooltipHorizontalOffset={-24}
-                tooltipPlacementOverride="top"
-              >
-                {card}
-              </GuideTarget>
-            ) : (
-              card
-            );
-          })}
-        </View>
-      ),
-    [cardWidth, contentWidth, gridGap, onOpenSheet, completeOpenDetailStep, FilterHeaderComponent],
+          return isFirstWishlistCard ? (
+            <GuideTarget
+              attachedTooltip={false}
+              key={entry.id}
+              id="home-wishlist-card"
+              style={{ width: cardWidth }}
+              tooltipHorizontalOffset={-24}
+              tooltipPlacementOverride="top"
+            >
+              {card}
+            </GuideTarget>
+          ) : (
+            card
+          );
+        })}
+      </View>
+    ),
+    [cardWidth, contentWidth, gridGap, onOpenSheet, completeOpenDetailStep],
   );
 
   return (
     <View className="flex-1">
+      <PinnedListHeader onLayout={onHeaderLayout}>
+        <View className="max-w-300 self-center" style={{ width: contentWidth }}>
+          {FilterHeaderComponent}
+        </View>
+      </PinnedListHeader>
       <StyledFlashList
         data={data}
         renderItem={renderRow}
-        keyExtractor={(row) => ("type" in row ? row.id : row.map((entry) => entry.id).join(":"))}
+        keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
         className="flex-1"
         contentContainerClassName="pb-8"
-        contentContainerStyle={{ paddingTop: contentTopPadding }}
+        contentContainerStyle={{ paddingTop: listPaddingTop }}
         ItemSeparatorComponent={RowSeparator}
         onEndReached={onEndReached}
         isLoadingMore={query.isFetchingNextPage}
-        getItemType={(row) => ("type" in row ? row.type : "wishlist-row")}
         onScroll={requestMeasure}
         scrollEventThrottle={1}
         ListHeaderComponent={
-          <View className="mb-0 max-w-300 self-center" style={{ width: contentWidth }}>
+          <View className="max-w-300 self-center pb-4" style={{ width: contentWidth }}>
             {ListHeaderComponent}
           </View>
         }
@@ -195,7 +191,7 @@ export function WishlistList({
           cardWidth,
           contentWidth,
           gridGap,
-          FilterHeaderComponent,
+          listPaddingTop,
         }}
       />
     </View>
@@ -276,11 +272,7 @@ function WishlistGridSkeleton({ cardWidth, gridGap }: { cardWidth: number; gridG
   );
 }
 
-function RowSeparator({ leadingItem }: { leadingItem?: WishlistListRow }) {
-  if (leadingItem && "type" in leadingItem) {
-    return null;
-  }
-
+function RowSeparator() {
   return <View className="h-4" />;
 }
 

@@ -2,11 +2,8 @@ import { SecretSantaEventCard } from "@/components/secret-santa/secret-santa-eve
 import { SecretSantaInvitesPanel } from "@/components/secret-santa/secret-santa-invites-panel";
 import { InlineState } from "@/components/shared/inline-state";
 import { ExpandingSearchHeader } from "@/components/ui/expanding-search-header";
-import {
-  ScrollableTabs,
-  SCROLLABLE_TABS_TOP_GAP,
-  type ScrollableTab,
-} from "@/components/ui/scrollable-tabs";
+import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
+import { ScrollableTabs, type ScrollableTab } from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
@@ -17,7 +14,6 @@ import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View, useWindowDimensions } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SecretSantaRow = SecretSantaListItem[];
 type SecretSantaTab = "events" | "invites";
@@ -26,10 +22,10 @@ export default function SecretSantaScreen() {
   const t = useGT();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [activeTab, setActiveTab] = React.useState<SecretSantaTab>("events");
+  const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
@@ -102,34 +98,27 @@ export default function SecretSantaScreen() {
     <>
       <Stack.Screen options={{ title: t("Secret Santa") }} />
       <View className="flex-1 bg-bg">
+        <PinnedListHeader contentWidth={contentWidth} onLayout={onHeaderLayout}>
+          <ExpandingSearchHeader
+            search={search}
+            onChangeSearch={handleSearchChange}
+            placeholder={t("Search events")}
+            contentWidth={contentWidth}
+            onOpen={() => setActiveTab("events")}
+          >
+            <ScrollableTabs tabs={tabs} value={activeTab} onChange={setActiveTab} align="right" />
+          </ExpandingSearchHeader>
+        </PinnedListHeader>
         <StyledFlashList
           data={activeTab === "events" && !query.isLoading && !query.isError ? rows : []}
           renderItem={renderRow}
           keyExtractor={(row) => row.map((event) => event.id).join(":")}
           className="flex-1"
           contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
+          contentContainerStyle={{ paddingTop }}
           ItemSeparatorComponent={() => <View className="h-4" />}
           onEndReached={loadMoreEvents}
           isLoadingMore={activeTab === "events" && query.isFetchingNextPage}
-          ListHeaderComponent={
-            <View className="gap-5 self-center pb-8" style={{ width: contentWidth }}>
-              <ExpandingSearchHeader
-                search={search}
-                onChangeSearch={handleSearchChange}
-                placeholder={t("Search events")}
-                contentWidth={contentWidth}
-                onOpen={() => setActiveTab("events")}
-              >
-                <ScrollableTabs
-                  tabs={tabs}
-                  value={activeTab}
-                  onChange={setActiveTab}
-                  align="right"
-                />
-              </ExpandingSearchHeader>
-            </View>
-          }
           ListFooterComponent={
             <View className="gap-4 self-center" style={{ width: contentWidth }}>
               {activeTab === "invites" && notificationsQuery.isLoading ? (

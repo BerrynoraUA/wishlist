@@ -9,7 +9,7 @@ import { DiscoverItemDetailSheet } from "@/components/discover/sheets/discover-i
 import { UpcomingEventsCard } from "@/components/discover/upcoming-events-card";
 import { InlineState } from "@/components/shared/inline-state";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
-import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
+import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import { useDiscoverFeed } from "@/hooks/use-discover-feed";
@@ -27,11 +27,9 @@ import { Stack } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View, useWindowDimensions } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type DiscoverRow =
   | DiscoverSectionType
-  | { id: "discover-header"; type: "discover-header" }
   | { id: "discover-intro"; type: "discover-intro" }
   | { id: "reserved-grid"; type: "reserved-grid" };
 
@@ -44,7 +42,6 @@ export default function DiscoverScreen() {
   const t = useGT();
   const { user } = useAuth();
   const { width } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
   const feed = useDiscoverFeed();
   const friendsQuery = useFriends();
   const toggleReservation = useToggleItemReservation();
@@ -52,6 +49,7 @@ export default function DiscoverScreen() {
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [selection, setSelection] = React.useState<SelectedDiscoverItem | null>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
+  const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding(2);
 
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
@@ -133,12 +131,8 @@ export default function DiscoverScreen() {
       ? feed.activeSections
       : [{ id: "reserved-grid", type: "reserved-grid" }];
 
-    return [
-      { id: "discover-header", type: "discover-header" },
-      { id: "discover-intro", type: "discover-intro" },
-      ...contentRows,
-    ];
-  }, [feed.activeSections, feed.sectionTab, filtersOpen]);
+    return [{ id: "discover-intro", type: "discover-intro" }, ...contentRows];
+  }, [feed.activeSections, feed.sectionTab]);
 
   function renderFiltersPanel() {
     if (!filtersOpen) return null;
@@ -159,34 +153,7 @@ export default function DiscoverScreen() {
     );
   }
 
-  function renderDiscoverHeader() {
-    return (
-      <View className="bg-bg pb-4" style={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}>
-        <View className="gap-4 self-center" style={{ width: contentWidth }}>
-          <DiscoverTabs
-            value={feed.tab}
-            onChange={(value) => {
-              feed.setTab(value);
-              setSelection(null);
-            }}
-          />
-          <DiscoverFilterHeader
-            filtersOpen={filtersOpen}
-            filtersActive={feed.filtersActive}
-            onFiltersOpenChange={setFiltersOpen}
-            onResetFilters={feed.resetFilters}
-          />
-          {renderFiltersPanel()}
-        </View>
-      </View>
-    );
-  }
-
   function renderRow({ item }: { item: DiscoverRow }) {
-    if ("type" in item && item.type === "discover-header") {
-      return renderDiscoverHeader();
-    }
-
     if ("type" in item && item.type === "discover-intro") {
       return (
         <View className="pb-4" style={{ alignSelf: "center", width: contentWidth }}>
@@ -236,13 +203,29 @@ export default function DiscoverScreen() {
   return (
     <View className="flex-1 bg-bg">
       <Stack.Screen options={{ title: t("Discover") }} />
+      <PinnedListHeader contentWidth={contentWidth} onLayout={onHeaderLayout}>
+        <DiscoverTabs
+          value={feed.tab}
+          onChange={(value) => {
+            feed.setTab(value);
+            setSelection(null);
+          }}
+        />
+        <DiscoverFilterHeader
+          filtersOpen={filtersOpen}
+          filtersActive={feed.filtersActive}
+          onFiltersOpenChange={setFiltersOpen}
+          onResetFilters={feed.resetFilters}
+        />
+        {renderFiltersPanel()}
+      </PinnedListHeader>
       <StyledFlashList
         data={rows}
         renderItem={renderRow}
         keyExtractor={(row) => ("type" in row ? row.id : row.id)}
         className="flex-1"
         contentContainerClassName="pb-8"
-        contentContainerStyle={{ paddingTop: 0 }}
+        contentContainerStyle={{ paddingTop }}
         onScroll={requestMeasure}
         scrollEventThrottle={1}
         ItemSeparatorComponent={RowSeparator}
@@ -278,7 +261,6 @@ export default function DiscoverScreen() {
           tab: feed.tab,
           cardWidth,
           contentWidth,
-          filtersOpen,
           gridGap,
           activeItems: feed.activeItems,
           loading: feed.activeQuery.isLoading,

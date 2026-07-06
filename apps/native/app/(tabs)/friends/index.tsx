@@ -8,7 +8,7 @@ import { InlineState } from "@/components/shared/inline-state";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { ExpandingSearchHeader } from "@/components/ui/expanding-search-header";
-import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
+import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
@@ -34,7 +34,6 @@ import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View, useWindowDimensions } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SheetState =
   | { type: "group"; group: FriendGroup }
@@ -50,12 +49,12 @@ export default function FriendsScreen() {
   const t = useGT();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
   const [tab, setTab] = React.useState<FriendsTab>("friends");
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
+  const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
@@ -212,48 +211,46 @@ export default function FriendsScreen() {
     <>
       <Stack.Screen options={{ title: t("Friends") }} />
       <View className="flex-1 bg-bg">
+        <PinnedListHeader contentWidth={contentWidth} onLayout={onHeaderLayout}>
+          {tab === "friends" || tab === "groups" ? (
+            <ExpandingSearchHeader
+              search={search}
+              onChangeSearch={handleSearchChange}
+              placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
+              contentWidth={contentWidth}
+            >
+              <FriendsTabs
+                value={tab}
+                friendsCount={friends.length}
+                groupsCount={groups.length}
+                requestsCount={requests.length}
+                sentCount={outgoing.length}
+                onChange={handleTabChange}
+              />
+            </ExpandingSearchHeader>
+          ) : (
+            <FriendsTabs
+              value={tab}
+              friendsCount={friends.length}
+              groupsCount={groups.length}
+              requestsCount={requests.length}
+              sentCount={outgoing.length}
+              onChange={handleTabChange}
+            />
+          )}
+        </PinnedListHeader>
         <StyledFlashList
           data={isLoading || isError ? [] : rows}
           renderItem={renderRow}
           keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
           className="flex-1"
           contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
+          contentContainerStyle={{ paddingTop }}
           onScroll={requestMeasure}
           scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View className="h-4" />}
           onEndReached={loadMore}
           isLoadingMore={activeQuery.isFetchingNextPage}
-          ListHeaderComponent={
-            <View className="gap-4 self-center pb-4" style={{ width: contentWidth }}>
-              {tab === "friends" || tab === "groups" ? (
-                <ExpandingSearchHeader
-                  search={search}
-                  onChangeSearch={handleSearchChange}
-                  placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
-                  contentWidth={contentWidth}
-                >
-                  <FriendsTabs
-                    value={tab}
-                    friendsCount={friends.length}
-                    groupsCount={groups.length}
-                    requestsCount={requests.length}
-                    sentCount={outgoing.length}
-                    onChange={handleTabChange}
-                  />
-                </ExpandingSearchHeader>
-              ) : (
-                <FriendsTabs
-                  value={tab}
-                  friendsCount={friends.length}
-                  groupsCount={groups.length}
-                  requestsCount={requests.length}
-                  sentCount={outgoing.length}
-                  onChange={handleTabChange}
-                />
-              )}
-            </View>
-          }
           ListFooterComponent={
             <View className="gap-4 self-center" style={{ width: contentWidth }}>
               {isLoading ? (

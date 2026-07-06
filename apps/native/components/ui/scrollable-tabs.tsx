@@ -102,7 +102,7 @@ export function ScrollableTabs<T>({
   }
 
   return (
-    <View className={cn("bg-bg", className)} onLayout={handleViewportLayout}>
+    <View className={cn("h-11", className)} onLayout={handleViewportLayout}>
       <ScrollView
         ref={scrollRef}
         horizontal
@@ -118,8 +118,8 @@ export function ScrollableTabs<T>({
             className="absolute rounded-full border border-border-subtle bg-bg-elevated"
             style={[
               {
-                top: 4,
-                bottom: 4,
+                top: 0,
+                bottom: 0,
                 left: 0,
                 shadowColor: "#000",
                 shadowOpacity: 0.1,
