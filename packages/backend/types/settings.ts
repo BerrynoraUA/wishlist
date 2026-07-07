@@ -25,6 +25,9 @@ export interface UserSettings {
   notify_secret_santa: boolean;
   notify_new_wishlists: boolean;
   notify_upcoming_events: boolean;
+  notify_group_added: boolean;
+  notify_wishlist_access: boolean;
+  notify_reserved_item_updates: boolean;
   email_digest: boolean;
   theme: ThemePreference;
   default_accent: WishlistAccent;
@@ -59,6 +62,9 @@ export const DEFAULT_SETTINGS: Omit<UserSettings, "user_id"> = {
   notify_secret_santa: true,
   notify_new_wishlists: true,
   notify_upcoming_events: true,
+  notify_group_added: true,
+  notify_wishlist_access: true,
+  notify_reserved_item_updates: true,
   email_digest: false,
   theme: "system",
   default_accent: WishlistAccent.Pink,
