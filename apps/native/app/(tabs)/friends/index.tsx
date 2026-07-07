@@ -3,79 +3,75 @@ import { FriendGroupCard } from "@/components/friends/friend-group-card";
 import { FriendsTabs, type FriendsTab } from "@/components/friends/friends-tabs";
 import { OutgoingRequestCard } from "@/components/friends/outgoing-request-card";
 import { RequestCard } from "@/components/friends/request-card";
-import { AddFriendSheet } from "@/components/friends/sheets/add-friend-sheet";
 import { FriendGroupSheet } from "@/components/friends/sheets/friend-group-sheet";
 import { InlineState } from "@/components/shared/inline-state";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
-import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
-import { Icon } from "@/components/ui/icon";
-import { Input } from "@/components/ui/input";
-import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
+import { ExpandingSearchHeader } from "@/components/ui/expanding-search-header";
+import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
-import { GuideTarget } from "@/components/user-guide/guide-target";
-import {
-  useUserGuideStepCompletion,
-  useUserGuideTargetRegistration,
-} from "@/components/user-guide/user-guide-provider";
+import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import {
   useAcceptFriendRequest,
   useCancelFriendRequest,
-  useCreateFriendGroup,
   useDeleteFriendGroup,
-  useFriendGroups,
-  useFriends,
-  useIncomingFriendRequests,
-  useOutgoingFriendRequests,
+  useInfiniteFriendGroups,
+  useInfiniteFriends,
+  useInfiniteIncomingFriendRequests,
+  useInfiniteOutgoingFriendRequests,
   useRejectFriendRequest,
   useRemoveFriend,
   useUpdateFriendGroup,
 } from "@/hooks/use-friends";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { chunkRows } from "@/lib/layout";
-import { cn } from "@/lib/utils";
 import type {
   FriendGroup,
   FriendRequestWithDetails,
   FriendWithDetails,
 } from "@wishlist/backend/types/friends";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack, useRouter } from "expo-router";
-import { Plus, Search, UserPlus, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, StyleSheet, View, useWindowDimensions } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ActivityIndicator, View, useWindowDimensions } from "react-native";
 
 type SheetState =
-  | { type: "add" }
-  | { type: "group"; group: FriendGroup | null }
+  | { type: "group"; group: FriendGroup }
   | { type: "removeFriend"; friendId: string }
   | { type: "deleteGroup"; group: FriendGroup }
   | null;
 
 type FriendEntry = FriendWithDetails | FriendGroup | FriendRequestWithDetails;
 type FriendsRow = FriendEntry[];
-const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
-const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 9999 }];
+const FRIENDS_PAGE_SIZE = 20;
 
 export default function FriendsScreen() {
   const t = useGT();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
   const [tab, setTab] = React.useState<FriendsTab>("friends");
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sheet, setSheet] = React.useState<SheetState>(null);
-  const completeAddFriendStep = useUserGuideStepCompletion(10);
-  const completeCreateGroupStep = useUserGuideStepCompletion(12);
   const { requestMeasure } = useUserGuideTargetRegistration();
+  const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
     return () => clearTimeout(timeout);
   }, [search]);
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    if (value.length === 0) setDebouncedSearch("");
+  }
+
+  function handleTabChange(value: FriendsTab) {
+    setTab(value);
+    setSearch("");
+    setDebouncedSearch("");
+  }
 
   const friendsParams = React.useMemo(
     () => ({ search: tab === "friends" ? debouncedSearch : undefined }),
@@ -85,15 +81,14 @@ export default function FriendsScreen() {
     () => ({ search: tab === "groups" ? debouncedSearch : undefined }),
     [debouncedSearch, tab],
   );
-  const friendsQuery = useFriends(friendsParams);
-  const groupsQuery = useFriendGroups(groupsParams);
-  const requestsQuery = useIncomingFriendRequests();
-  const outgoingQuery = useOutgoingFriendRequests();
+  const friendsQuery = useInfiniteFriends(friendsParams, FRIENDS_PAGE_SIZE);
+  const groupsQuery = useInfiniteFriendGroups(groupsParams, FRIENDS_PAGE_SIZE);
+  const requestsQuery = useInfiniteIncomingFriendRequests(FRIENDS_PAGE_SIZE);
+  const outgoingQuery = useInfiniteOutgoingFriendRequests(FRIENDS_PAGE_SIZE);
   const acceptRequest = useAcceptFriendRequest();
   const rejectRequest = useRejectFriendRequest();
   const cancelRequest = useCancelFriendRequest();
   const removeFriend = useRemoveFriend();
-  const createGroup = useCreateFriendGroup();
   const updateGroup = useUpdateFriendGroup();
   const deleteGroup = useDeleteFriendGroup();
 
@@ -101,10 +96,10 @@ export default function FriendsScreen() {
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
-  const friends = friendsQuery.data ?? [];
-  const groups = groupsQuery.data ?? [];
-  const requests = requestsQuery.data ?? [];
-  const outgoing = outgoingQuery.data ?? [];
+  const { items: friends, loadMore: loadMoreFriends } = useInfiniteListData(friendsQuery);
+  const { items: groups, loadMore: loadMoreGroups } = useInfiniteListData(groupsQuery);
+  const { items: requests, loadMore: loadMoreRequests } = useInfiniteListData(requestsQuery);
+  const { items: outgoing, loadMore: loadMoreOutgoing } = useInfiniteListData(outgoingQuery);
 
   const activeItems = React.useMemo<FriendEntry[]>(() => {
     if (tab === "groups") return groups;
@@ -133,25 +128,36 @@ export default function FriendsScreen() {
         : tab === "sent"
           ? outgoingQuery.isError
           : friendsQuery.isError;
+  const activeQuery =
+    tab === "groups"
+      ? groupsQuery
+      : tab === "requests"
+        ? requestsQuery
+        : tab === "sent"
+          ? outgoingQuery
+          : friendsQuery;
+  const loadMore =
+    tab === "groups"
+      ? loadMoreGroups
+      : tab === "requests"
+        ? loadMoreRequests
+        : tab === "sent"
+          ? loadMoreOutgoing
+          : loadMoreFriends;
 
-  function handleSubmitGroup(payload: Parameters<typeof createGroup.mutateAsync>[0]) {
-    if (sheet?.type === "group" && sheet.group) {
-      return updateGroup.mutateAsync({ groupId: sheet.group.id, payload });
-    }
+  function handleSubmitGroup(payload: Parameters<typeof updateGroup.mutateAsync>[0]["payload"]) {
+    if (sheet?.type !== "group") return Promise.resolve();
 
-    return createGroup.mutateAsync(payload).then((result) => {
-      return result;
-    });
+    return updateGroup.mutateAsync({ groupId: sheet.group.id, payload });
   }
 
-  function renderRow({ item, index }: { item: FriendsRow; index: number }) {
+  function renderRow({ item }: { item: FriendsRow }) {
     return (
       <View
         className="flex-row"
         style={{
           alignSelf: "center",
           gap: gridGap,
-          paddingTop: index === 0 ? 8 : 0,
           width: contentWidth,
         }}
       >
@@ -196,102 +202,46 @@ export default function FriendsScreen() {
     <>
       <Stack.Screen options={{ title: t("Friends") }} />
       <View className="flex-1 bg-bg">
-        <StyledFlashList
-          data={isLoading || isError ? [] : rows}
-          renderItem={renderRow}
-          keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
-          className="flex-1"
-          contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
-          onScroll={requestMeasure}
-          scrollEventThrottle={16}
-          ItemSeparatorComponent={() => <View className="h-4" />}
-          ListHeaderComponent={
-            <View className="gap-5 self-center pb-8" style={{ width: contentWidth }}>
+        <PinnedListHeader contentWidth={contentWidth} onLayout={onHeaderLayout}>
+          {tab === "friends" || tab === "groups" ? (
+            <ExpandingSearchHeader
+              search={search}
+              onChangeSearch={handleSearchChange}
+              placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
+              contentWidth={contentWidth}
+            >
               <FriendsTabs
                 value={tab}
                 friendsCount={friends.length}
                 groupsCount={groups.length}
                 requestsCount={requests.length}
                 sentCount={outgoing.length}
-                onChange={(value) => {
-                  setTab(value);
-                  setSearch("");
-                  setDebouncedSearch("");
-                }}
+                onChange={handleTabChange}
               />
-
-              <View className="flex-row items-center gap-2">
-                {tab === "friends" || tab === "groups" ? (
-                  <View
-                    className={cn(
-                      "min-w-0 flex-1 flex-row items-center gap-2 rounded-full border px-3",
-                      HAS_LIQUID_GLASS
-                        ? "border-transparent bg-transparent"
-                        : "border-border-subtle bg-card-bg shadow-sm",
-                    )}
-                  >
-                    {HAS_LIQUID_GLASS ? (
-                      <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-                    ) : null}
-                    <Icon as={Search} className="size-4 text-text-muted" />
-                    <Input
-                      value={search}
-                      onChangeText={setSearch}
-                      placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
-                      className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
-                      returnKeyType="search"
-                    />
-                    {search.length > 0 ? (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        accessibilityLabel={t("Clear search")}
-                        onPress={() => {
-                          setSearch("");
-                          setDebouncedSearch("");
-                        }}
-                        className="size-9 shrink-0 rounded-full"
-                      >
-                        <Icon as={X} className="size-4 text-text-muted" />
-                      </Button>
-                    ) : null}
-                  </View>
-                ) : null}
-                {tab === "groups" ? (
-                  <GuideTarget id="friends-create-group">
-                    <AnimatedGradientBackgroundButton
-                      accessibilityLabel={t("Create")}
-                      Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
-                      onPress={() => {
-                        completeCreateGroupStep();
-                        setSheet({ type: "group", group: null });
-                      }}
-                      title={t("Create")}
-                    />
-                  </GuideTarget>
-                ) : (
-                  <GuideTarget
-                    attachedTooltip={false}
-                    id="friends-invite"
-                    tooltipHorizontalOffset={-72}
-                    tooltipPlacementOverride="bottom"
-                    tooltipVerticalOffset={0}
-                  >
-                    <AnimatedGradientBackgroundButton
-                      accessibilityLabel={t("Invite")}
-                      Icon={<Icon as={UserPlus} className="size-4 text-primary-foreground" />}
-                      onPress={() => {
-                        completeAddFriendStep();
-                        setSheet({ type: "add" });
-                      }}
-                      title={t("Invite")}
-                    />
-                  </GuideTarget>
-                )}
-              </View>
-            </View>
-          }
+            </ExpandingSearchHeader>
+          ) : (
+            <FriendsTabs
+              value={tab}
+              friendsCount={friends.length}
+              groupsCount={groups.length}
+              requestsCount={requests.length}
+              sentCount={outgoing.length}
+              onChange={handleTabChange}
+            />
+          )}
+        </PinnedListHeader>
+        <StyledFlashList
+          data={isLoading || isError ? [] : rows}
+          renderItem={renderRow}
+          keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
+          className="flex-1"
+          contentContainerClassName="pb-8"
+          contentContainerStyle={{ paddingTop }}
+          onScroll={requestMeasure}
+          scrollEventThrottle={16}
+          ItemSeparatorComponent={() => <View className="h-4" />}
+          onEndReached={loadMore}
+          isLoadingMore={activeQuery.isFetchingNextPage}
           ListFooterComponent={
             <View className="gap-4 self-center" style={{ width: contentWidth }}>
               {isLoading ? (
@@ -327,22 +277,12 @@ export default function FriendsScreen() {
           }}
         />
 
-        {sheet?.type === "add" ? (
-          <AddFriendSheet
-            open
-            onOpenChange={(open) => {
-              if (!open) {
-                setSheet(null);
-              }
-            }}
-          />
-        ) : null}
         {sheet?.type === "group" ? (
           <FriendGroupSheet
             open
             group={sheet.group}
             friends={friends}
-            isSaving={createGroup.isPending || updateGroup.isPending}
+            isSaving={updateGroup.isPending}
             onOpenChange={(open) => {
               if (!open) {
                 setSheet(null);
@@ -419,12 +359,7 @@ function ConfirmActionSheet({
   if (!open) return null;
 
   return (
-    <BottomSheet
-      ref={sheetRef}
-      detents={["auto"]}
-      dismissOnBack={false}
-      onDidDismiss={() => onOpenChange(false)}
-    >
+    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={() => onOpenChange(false)}>
       <View className="gap-4 px-5 pb-5 pt-5">
         <View className="gap-2">
           <Text className="text-lg font-extrabold text-text">{title}</Text>

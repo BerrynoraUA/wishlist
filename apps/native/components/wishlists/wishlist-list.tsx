@@ -1,7 +1,6 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { InlineState } from "@/components/shared/inline-state";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,36 +8,34 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
+import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
-import {
-  InstantStickyHeaderOverlay,
-  STICKY_HEADER_GAP,
-  StickyHeaderBackground,
-  useInstantStickyHeader,
-} from "@/components/ui/instant-sticky-header";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import {
   useUserGuideStepCompletion,
   useUserGuideTargetRegistration,
 } from "@/components/user-guide/user-guide-provider";
+import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { useMyStatistics } from "@/hooks/use-wishlists";
 import { chunkRows } from "@/lib/layout";
+import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import {
   WISHLIST_VISIBILITY_ICONS,
   getWishlistAccentClass,
   getWishlistVisibilityLabels,
 } from "@/lib/wishlists";
-import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
+import {
+  wishlistCardFadeIn,
+  wishlistGridLinearTransition,
+} from "@/components/wishlists/wishlist-grid-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import type { TriggerRef } from "@rn-primitives/dropdown-menu";
 import { Link } from "expo-router";
 import {
-  ChevronLeft,
-  ChevronRight,
   Gift,
   Link2,
   ListChecks,
@@ -51,16 +48,14 @@ import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SheetState =
-  | { type: "create" }
   | { type: "edit"; wishlist: Wishlist }
   | { type: "addItem"; wishlist: Wishlist }
   | { type: "delete"; wishlist: Wishlist }
   | null;
 
-type WishlistListRow = Wishlist[] | { id: "filters"; type: "filters" };
+type WishlistListRow = Wishlist[];
 
 export function WishlistList({
   query,
@@ -70,16 +65,14 @@ export function WishlistList({
   contentWidth,
   columns,
   gridGap,
-  pagination,
-  page,
+  FilterHeaderComponent,
   ListHeaderComponent,
-  StickyHeaderComponent,
-  onPageChange,
+  onEndReached,
   onOpenSheet,
 }: {
   query: {
     isLoading: boolean;
-    isFetching: boolean;
+    isFetchingNextPage?: boolean;
     isError: boolean;
   };
   wishlists: Wishlist[];
@@ -88,138 +81,103 @@ export function WishlistList({
   contentWidth: number;
   columns: number;
   gridGap: number;
-  pagination: {
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-    showPagination: boolean;
-    totalForPagination: number;
-  };
-  page: number;
+  FilterHeaderComponent: React.ReactElement;
   ListHeaderComponent: React.ReactElement;
-  StickyHeaderComponent: React.ReactElement;
-  onPageChange: (page: number) => void;
+  onEndReached: () => void;
   onOpenSheet: (sheet: Exclude<SheetState, null>) => void;
 }) {
   const t = useGT();
-  const completeOpenDetailStep = useUserGuideStepCompletion(4);
+  const completeOpenDetailStep = useUserGuideStepCompletion(
+    USER_GUIDE_STEP_IDS.openWishlistDetails,
+  );
   const { requestMeasure } = useUserGuideTargetRegistration();
-  const insets = useSafeAreaInsets();
-  // Keep the filter row's top gap equal to its bottom gap (pb-4 = 16px). The
-  // floating overlay adds the status-bar inset on top of that unified margin.
-  const headerVerticalGap = STICKY_HEADER_GAP;
-  const overlayPaddingTop = insets.top + headerVerticalGap;
-  const inlineHeaderPaddingTop = headerVerticalGap;
-  const contentTopPadding = insets.top;
-  // No snap offset needed: the inline filter row and the floating overlay rest at
-  // the same vertical position once the shared status-bar inset + gap is removed
-  // (overlayPaddingTop === contentTopPadding + inlineHeaderPaddingTop), so the row
-  // doesn't jump when it becomes sticky. thresholdOffset defaults to 0.
-  const stickyHeader = useInstantStickyHeader({
-    scrollListener: requestMeasure,
-  });
+  const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
   const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
   const data = React.useMemo<WishlistListRow[]>(
-    () => [{ id: "filters", type: "filters" }, ...(query.isLoading ? [] : rows)],
+    () => (query.isLoading ? [] : rows),
     [query.isLoading, rows],
   );
   const renderRow = React.useCallback(
-    ({ item, index }: { item: WishlistListRow; index: number }) =>
-      "type" in item ? (
-        <View
-          className="z-2 bg-bg pb-4"
-          onLayout={stickyHeader.onHeaderLayout}
-          style={{ paddingTop: inlineHeaderPaddingTop }}
-        >
-          <View className="max-w-300 self-center" style={{ width: contentWidth }}>
-            {StickyHeaderComponent}
-          </View>
-        </View>
-      ) : (
-        <View
-          className="flex-row"
-          style={{
-            alignSelf: "center",
-            gap: gridGap,
-            opacity: query.isFetching ? 0.6 : 1,
-            width: contentWidth,
-          }}
-        >
-          {item.map((entry, entryIndex) => {
-            const isFirstWishlistCard = index === 1 && entryIndex === 0;
-            const card = (
-              <WishlistCard
-                key={entry.id}
-                wishlist={entry}
-                width={cardWidth}
-                onOpen={isFirstWishlistCard ? completeOpenDetailStep : undefined}
-                onEdit={
-                  entry.is_owner || entry.can_edit
-                    ? () => onOpenSheet({ type: "edit", wishlist: entry })
-                    : undefined
-                }
-                onAddItem={
-                  entry.is_owner || entry.can_edit
-                    ? () => onOpenSheet({ type: "addItem", wishlist: entry })
-                    : undefined
-                }
-                onDelete={
-                  entry.is_owner
-                    ? () => onOpenSheet({ type: "delete", wishlist: entry })
-                    : undefined
-                }
-              />
-            );
+    ({ item, index }: { item: WishlistListRow; index: number }) => (
+      <View
+        className="flex-row"
+        style={{
+          alignSelf: "center",
+          gap: gridGap,
+          width: contentWidth,
+        }}
+      >
+        {item.map((entry, entryIndex) => {
+          const isFirstWishlistCard = index === 0 && entryIndex === 0;
+          const card = (
+            <WishlistCard
+              key={entry.id}
+              wishlist={entry}
+              width={cardWidth}
+              onOpen={isFirstWishlistCard ? completeOpenDetailStep : undefined}
+              onEdit={
+                entry.is_owner || entry.can_edit
+                  ? () => onOpenSheet({ type: "edit", wishlist: entry })
+                  : undefined
+              }
+              onAddItem={
+                entry.is_owner || entry.can_edit
+                  ? () => onOpenSheet({ type: "addItem", wishlist: entry })
+                  : undefined
+              }
+              onDelete={
+                entry.is_owner ? () => onOpenSheet({ type: "delete", wishlist: entry }) : undefined
+              }
+            />
+          );
 
-            return isFirstWishlistCard ? (
-              <GuideTarget
-                attachedTooltip={false}
-                key={entry.id}
-                id="home-wishlist-card"
-                style={{ width: cardWidth }}
-                tooltipHorizontalOffset={-24}
-                tooltipPlacementOverride="top"
-              >
-                {card}
-              </GuideTarget>
-            ) : (
-              card
-            );
-          })}
-        </View>
-      ),
-    [
-      cardWidth,
-      contentWidth,
-      gridGap,
-      inlineHeaderPaddingTop,
-      onOpenSheet,
-      completeOpenDetailStep,
-      query.isFetching,
-      stickyHeader.onHeaderLayout,
-      StickyHeaderComponent,
-    ],
+          return isFirstWishlistCard ? (
+            <GuideTarget
+              attachedTooltip={false}
+              key={entry.id}
+              id="home-wishlist-card"
+              style={{ width: cardWidth }}
+              tooltipHorizontalOffset={-24}
+              tooltipPlacementOverride="top"
+            >
+              {card}
+            </GuideTarget>
+          ) : (
+            card
+          );
+        })}
+      </View>
+    ),
+    [cardWidth, contentWidth, gridGap, onOpenSheet, completeOpenDetailStep],
   );
 
   return (
     <View className="flex-1">
+      <PinnedListHeader onLayout={onHeaderLayout}>
+        <View className="max-w-300 self-center" style={{ width: contentWidth }}>
+          {FilterHeaderComponent}
+        </View>
+      </PinnedListHeader>
       <StyledFlashList
         data={data}
         renderItem={renderRow}
-        keyExtractor={(row) => ("type" in row ? row.id : row.map((entry) => entry.id).join(":"))}
+        keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
         className="flex-1"
         contentContainerClassName="pb-8"
-        contentContainerStyle={{ paddingTop: contentTopPadding }}
+        contentContainerStyle={{ paddingTop }}
         ItemSeparatorComponent={RowSeparator}
-        onScroll={stickyHeader.onScroll}
+        onEndReached={onEndReached}
+        isLoadingMore={query.isFetchingNextPage}
+        onScroll={requestMeasure}
         scrollEventThrottle={1}
         ListHeaderComponent={
-          <View
-            className="mb-0 max-w-300 self-center"
-            onLayout={stickyHeader.onAnchorLayout}
+          <Animated.View
+            layout={wishlistGridLinearTransition.duration(motionDuration.normal)}
+            className="max-w-300 self-center pb-4"
             style={{ width: contentWidth }}
           >
             {ListHeaderComponent}
-          </View>
+          </Animated.View>
         }
         ListFooterComponent={
           <View className="gap-5" style={{ alignSelf: "center", width: contentWidth }}>
@@ -236,13 +194,11 @@ export function WishlistList({
                 message={t("No wishlists match your filters.")}
               />
             ) : null}
-            {pagination.showPagination ? (
-              <PaginationControls
-                page={page}
-                total={pagination.totalForPagination}
-                hasPrevPage={pagination.hasPrevPage}
-                hasNextPage={pagination.hasNextPage}
-                onChange={onPageChange}
+            {!query.isLoading && !query.isError && wishlists.length === 0 && !filtersActive ? (
+              <InlineState
+                width={contentWidth}
+                mascot="sad-alone"
+                message={t("No wishlists yet.")}
               />
             ) : null}
           </View>
@@ -251,22 +207,9 @@ export function WishlistList({
           cardWidth,
           contentWidth,
           gridGap,
-          isFetching: query.isFetching,
-          StickyHeaderComponent,
+          paddingTop,
         }}
       />
-      <InstantStickyHeaderOverlay
-        ready={stickyHeader.ready}
-        style={stickyHeader.overlayStyle}
-        onLayout={stickyHeader.onOverlayLayout}
-      >
-        <View className="pb-4" style={{ paddingTop: overlayPaddingTop }}>
-          <StickyHeaderBackground floating />
-          <View className="max-w-300 self-center" style={{ width: contentWidth }}>
-            {StickyHeaderComponent}
-          </View>
-        </View>
-      </InstantStickyHeaderOverlay>
     </View>
   );
 }
@@ -275,14 +218,37 @@ export function WishlistListStatsRow() {
   const { width } = useWindowDimensions();
   const { data, isError, isLoading } = useMyStatistics();
   const t = useGT();
-  const gap = 12;
-  const cardWidth = (Math.min(width - 32, 1200) - gap) / 2;
+  const [compact, setCompact] = React.useState(false);
+  const contentWidth = Math.min(width - 32, 1200);
+  const gap = compact ? 8 : 12;
+  const cardWidth = compact ? (contentWidth - gap * 3) / 4 : (contentWidth - gap) / 2;
   const stats = [
-    { label: t("Wishlists"), value: data?.wishlists_count ?? 0, icon: ListChecks },
-    { label: t("Total Items"), value: data?.total_items_count ?? 0, icon: Package },
-    { label: t("Reserved"), value: data?.reserved_items_count ?? 0, icon: LockKeyhole },
-    { label: t("Purchased"), value: data?.purchased_items_count ?? 0, icon: ShoppingBag },
+    {
+      key: "wishlists",
+      label: t("Wishlists"),
+      value: data?.wishlists_count ?? 0,
+      icon: ListChecks,
+    },
+    {
+      key: "total-items",
+      label: t("Total Items"),
+      value: data?.total_items_count ?? 0,
+      icon: Package,
+    },
+    {
+      key: "reserved",
+      label: t("Reserved"),
+      value: data?.reserved_items_count ?? 0,
+      icon: LockKeyhole,
+    },
+    {
+      key: "purchased",
+      label: t("Purchased"),
+      value: data?.purchased_items_count ?? 0,
+      icon: ShoppingBag,
+    },
   ];
+  const statsLayoutTransition = wishlistGridLinearTransition.duration(motionDuration.normal);
 
   if (isLoading) {
     return (
@@ -303,25 +269,52 @@ export function WishlistListStatsRow() {
   }
 
   return (
-    <View className="flex-row flex-wrap" style={{ gap }}>
+    <Animated.View layout={statsLayoutTransition} className="flex-row flex-wrap" style={{ gap }}>
       {stats.map((stat) => (
-        <View
-          key={stat.label}
-          className="flex-row items-center gap-3 rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm"
-          style={{ width: cardWidth }}
-        >
-          <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
-            <Icon as={stat.icon} className="size-4 text-brand" />
-          </View>
-          <View className="min-w-0 flex-1">
-            <Text className="text-2xl font-extrabold text-text">{stat.value}</Text>
-            <Text className="text-sm font-semibold text-text-muted" numberOfLines={1}>
-              {stat.label}
-            </Text>
-          </View>
-        </View>
+        <Animated.View key={stat.key} layout={statsLayoutTransition} style={{ width: cardWidth }}>
+          <AnimatedPressable
+            accessibilityRole="button"
+            accessibilityLabel={t("{label}: {value}", {
+              label: stat.label,
+              value: stat.value,
+            })}
+            accessibilityState={{ expanded: !compact }}
+            onPress={() => setCompact((current) => !current)}
+            className={cn(
+              "w-full rounded-xl border border-border-subtle bg-card-bg shadow-sm",
+              compact
+                ? "h-14 flex-row items-center justify-center gap-1.5 p-0"
+                : "flex-row items-center gap-3 p-4",
+            )}
+          >
+            <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
+              <Icon as={stat.icon} className="size-4 text-brand" />
+            </View>
+            {compact ? (
+              <Text
+                className="text-sm font-extrabold text-text"
+                numberOfLines={1}
+                style={{ fontVariant: ["tabular-nums"] }}
+              >
+                {stat.value}
+              </Text>
+            ) : (
+              <View className="min-w-0 flex-1">
+                <Text
+                  className="text-2xl font-extrabold text-text"
+                  style={{ fontVariant: ["tabular-nums"] }}
+                >
+                  {stat.value}
+                </Text>
+                <Text className="text-sm font-semibold text-text-muted" numberOfLines={1}>
+                  {stat.label}
+                </Text>
+              </View>
+            )}
+          </AnimatedPressable>
+        </Animated.View>
       ))}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -345,11 +338,7 @@ function WishlistGridSkeleton({ cardWidth, gridGap }: { cardWidth: number; gridG
   );
 }
 
-function RowSeparator({ leadingItem }: { leadingItem?: WishlistListRow }) {
-  if (leadingItem && "type" in leadingItem) {
-    return null;
-  }
-
+function RowSeparator() {
   return <View className="h-4" />;
 }
 
@@ -402,6 +391,8 @@ function WishlistCard({
                 <StyledImage
                   source={{ uri: wishlist.image_url }}
                   contentFit="cover"
+                  cachePolicy="memory-disk"
+                  recyclingKey={wishlist.id}
                   className="absolute inset-0 size-full"
                 />
               ) : (
@@ -478,50 +469,5 @@ function WishlistCard({
         </DropdownMenuContent>
       </DropdownMenu>
     </Animated.View>
-  );
-}
-
-function PaginationControls({
-  page,
-  total,
-  hasPrevPage,
-  hasNextPage,
-  onChange,
-}: {
-  page: number;
-  total: number;
-  hasPrevPage: boolean;
-  hasNextPage: boolean;
-  onChange: (page: number) => void;
-}) {
-  return (
-    <View className="flex-row items-center justify-center gap-2 pt-2">
-      <Button
-        variant="outline"
-        size="icon"
-        disabled={!hasPrevPage}
-        onPress={() => onChange(Math.max(1, page - 1))}
-      >
-        <Icon as={ChevronLeft} className="size-4 text-text" />
-      </Button>
-      {Array.from({ length: total }, (_, index) => index + 1).map((item) => (
-        <Button
-          key={item}
-          variant={item === page ? "default" : "outline"}
-          size="icon"
-          onPress={() => onChange(item)}
-        >
-          <Text>{item}</Text>
-        </Button>
-      ))}
-      <Button
-        variant="outline"
-        size="icon"
-        disabled={!hasNextPage}
-        onPress={() => onChange(page + 1)}
-      >
-        <Icon as={ChevronRight} className="size-4 text-text" />
-      </Button>
-    </View>
   );
 }

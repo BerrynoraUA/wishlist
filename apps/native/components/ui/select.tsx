@@ -1,14 +1,14 @@
 import { Icon } from "@/components/ui/icon";
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
 import { TextClassContext } from "@/components/ui/text";
+import { WindowOverlay } from "@/components/ui/window-overlay";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as SelectPrimitive from "@rn-primitives/select";
-import { Check, ChevronDown } from "lucide-react-native";
+import { Check, ChevronDown, type LucideIcon } from "lucide-react-native";
 import * as React from "react";
-import { Platform, View } from "react-native";
+import { View } from "react-native";
 import { FadeIn, FadeOut } from "react-native-reanimated";
-import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
 type Option = SelectPrimitive.Option;
 
@@ -64,8 +64,6 @@ function SelectTrigger({
   );
 }
 
-const FullWindowOverlay = Platform.OS === "ios" ? RNFullWindowOverlay : React.Fragment;
-
 function SelectContent({
   className,
   children,
@@ -77,7 +75,11 @@ function SelectContent({
   className?: string;
   portalHost?: string;
 }) {
-  const { triggerPosition } = SelectPrimitive.useRootContext();
+  const { triggerPosition, setTriggerPosition, onOpenChange } = SelectPrimitive.useRootContext();
+  const closeFromBackPress = () => {
+    setTriggerPosition(null);
+    onOpenChange(false);
+  };
   const contentStyle =
     triggerPosition?.width != null
       ? ([style, { minWidth: triggerPosition.width }] as unknown as React.ComponentProps<
@@ -87,7 +89,7 @@ function SelectContent({
 
   return (
     <SelectPrimitive.Portal hostName={portalHost}>
-      <FullWindowOverlay>
+      <WindowOverlay onRequestClose={closeFromBackPress}>
         <SelectPrimitive.Overlay className="absolute inset-0">
           <TextClassContext.Provider value="text-text">
             <NativeOnlyAnimatedView
@@ -97,7 +99,7 @@ function SelectContent({
             >
               <SelectPrimitive.Content
                 className={cn(
-                  "bg-popover border-border relative z-50 min-w-[8rem] rounded-md border shadow-md shadow-black/5",
+                  "bg-card-bg/95 border-border relative z-50 min-w-[8rem] rounded-md border shadow-md shadow-black/5",
                   "p-1",
                   className,
                 )}
@@ -112,7 +114,7 @@ function SelectContent({
             </NativeOnlyAnimatedView>
           </TextClassContext.Provider>
         </SelectPrimitive.Overlay>
-      </FullWindowOverlay>
+      </WindowOverlay>
     </SelectPrimitive.Portal>
   );
 }
@@ -128,8 +130,13 @@ function SelectLabel({ className, ...props }: React.ComponentProps<typeof Select
 
 function SelectItem({
   className,
+  icon,
+  leading,
   ...props
-}: Omit<React.ComponentProps<typeof SelectPrimitive.Item>, "children">) {
+}: Omit<React.ComponentProps<typeof SelectPrimitive.Item>, "children"> & {
+  icon?: LucideIcon;
+  leading?: React.ReactNode;
+}) {
   return (
     <SelectPrimitive.Item
       className={cn(
@@ -139,6 +146,8 @@ function SelectItem({
       )}
       {...props}
     >
+      {icon ? <Icon as={icon} className="text-muted-foreground size-4 shrink-0" /> : null}
+      {leading}
       <View className="absolute right-2 flex size-3.5 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
           <Icon as={Check} className="text-muted-foreground size-4 shrink-0" />

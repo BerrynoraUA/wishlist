@@ -9,6 +9,7 @@ export default function WishlistsStackLayout() {
       }}
     >
       <Stack.Screen name="index" />
+      <Stack.Screen name="discover" options={{ animation: "fade" }} />
       <Stack.Screen name="[id]" options={{ animation: "fade" }} />
     </Stack>
   );

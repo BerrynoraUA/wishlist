@@ -172,10 +172,7 @@ export function NotificationsPanel({
                     <span>{formatNotificationTime(n.created_at, t)}</span>
                   </div>
                   {isInvite && (
-                    <div
-                      className={styles.inviteActions}
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <div className={styles.inviteActions} onClick={(e) => e.stopPropagation()}>
                       <Button
                         variant="success"
                         size="sm"

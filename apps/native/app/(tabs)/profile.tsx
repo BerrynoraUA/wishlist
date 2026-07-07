@@ -3,6 +3,7 @@ import { AppearanceSettings } from "@/components/settings/appearance-settings";
 import { CurrencySettings } from "@/components/settings/currency-settings";
 import { FeatureIdeasSettings } from "@/components/settings/feature-ideas-settings";
 import { NotificationSettings } from "@/components/settings/notification-settings";
+import { PreferencesSettings } from "@/components/settings/preferences-settings";
 import { ProfileSettings } from "@/components/settings/profile-settings";
 import { SettingsSectionProvider } from "@/components/settings/settings-section";
 import { SubscriptionSettings } from "@/components/settings/subscription-settings";
@@ -24,6 +25,7 @@ const SETTINGS_SECTIONS = [
   "profile",
   "subscription",
   "notifications",
+  "preferences",
   "appearance",
   "currency",
   "feature-ideas",
@@ -111,13 +113,14 @@ export default function ProfileScreen() {
         return <ProfileSettings profile={profile} />;
       case "notifications":
         return <NotificationSettings settings={settings} />;
+      case "preferences":
+        return <PreferencesSettings selectedPriorities={settings?.selected_priorities} />;
       case "appearance":
         return (
           <AppearanceSettings
             selectedTheme={settings?.theme ?? "system"}
             selectedAccent={settings?.default_accent ?? WishlistAccent.Pink}
             selectedWishlistColor={settings?.default_wishlist_color ?? 0}
-            selectedPriorities={settings?.selected_priorities}
             setThemePreference={setThemePreference}
           />
         );

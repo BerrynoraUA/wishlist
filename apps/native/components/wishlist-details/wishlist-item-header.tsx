@@ -296,7 +296,6 @@ export function WishlistItemHeader({
                         {visibilityOptions.map((option) => (
                           <DropdownMenuItem
                             key={option.value}
-                            className={cn(option.surfaceClassName, option.itemClassName)}
                             onPress={() => updateVisibility(option.visibility)}
                           >
                             <Icon as={option.icon} className="size-4 text-popover-foreground" />

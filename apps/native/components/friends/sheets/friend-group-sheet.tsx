@@ -121,20 +121,8 @@ export function FriendGroupSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={[0.7, 1]}
       scrollable
-      dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}
-      header={
-        <View className="mx-5 mt-5 gap-1">
-          <Text className="text-lg font-extrabold text-text">
-            {group ? t("Edit group") : t("Create group")}
-          </Text>
-          <Text className="text-xs font-semibold text-text-muted">
-            {t("Group friends for faster sharing.")}
-          </Text>
-        </View>
-      }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -173,11 +161,11 @@ export function FriendGroupSheet({
         </View>
 
         <View className="gap-1.5">
-          <Text className="text-sm font-bold text-text">{t("Description")}</Text>
+          <Text className="text-sm font-bold text-text">{t("Description (optional)")}</Text>
           <Textarea
             value={description}
             onChangeText={setDescription}
-            placeholder={t("Optional note")}
+            placeholder={t("Add a note about this group")}
             className="min-h-16"
             numberOfLines={3}
           />
@@ -234,9 +222,9 @@ export function FriendGroupSheet({
             </Text>
           </View>
           <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
-            <Icon as={Search} className="size-4 text-text-muted" />
+            <Icon as={Search} className="size-4 text-muted-foreground/50" />
             <Input
-              className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
+              className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
               value={query}
               onChangeText={setQuery}
               placeholder={t("Search friends")}

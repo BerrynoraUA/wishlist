@@ -160,7 +160,7 @@ export default function WishlistItemsPage() {
 
           {!itemsLoading && !hasAnyItems && !isFiltersActive && (
             <MascotEmptyState
-              variant={canEditWishlist ? "gift-in-hands" : "empty-hands-shrug"}
+              variant="gift-in-hands"
               message={t("No items yet.", { $id: "wishlist.page.noItems" })}
             />
           )}
