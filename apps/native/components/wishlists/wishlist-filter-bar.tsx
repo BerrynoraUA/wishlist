@@ -68,8 +68,15 @@ export function WishlistFilterBar({
   return (
     <View className="gap-4">
       <View className="flex-row items-center justify-between gap-3">
-        <View className="min-w-0 flex-1 flex-row items-center gap-2">
-          <Text className="text-xl font-extrabold tracking-tight text-text">{t("Wishlists")}</Text>
+        <GuideTarget id="wishlists-discover">
+          <AnimatedGradientBackgroundButton
+            accessibilityLabel={t("Discover")}
+            Icon={<Icon as={Sparkles} className="size-4 text-primary-foreground" />}
+            onPress={onOpenDiscover}
+            title={t("Discover")}
+          />
+        </GuideTarget>
+        <View className="flex-row items-center justify-end gap-2">
           <Button
             variant="outline"
             size="icon-lg"
@@ -105,14 +112,6 @@ export function WishlistFilterBar({
             </Button>
           ) : null}
         </View>
-        <GuideTarget id="wishlists-discover">
-          <AnimatedGradientBackgroundButton
-            accessibilityLabel={t("Discover")}
-            Icon={<Icon as={Sparkles} className="size-4 text-primary-foreground" />}
-            onPress={onOpenDiscover}
-            title={t("Discover")}
-          />
-        </GuideTarget>
       </View>
 
       {filtersOpen ? (
