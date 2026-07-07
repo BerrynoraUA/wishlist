@@ -5,6 +5,7 @@ import { ExpandingSearchHeader } from "@/components/ui/expanding-search-header";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
 import { ScrollableTabs, type ScrollableTab } from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { SECRET_SANTA_PAGE_SIZE } from "@/lib/secret-santa";
@@ -13,11 +14,10 @@ import type { SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
 import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, Platform, View, useWindowDimensions } from "react-native";
+import { ActivityIndicator, View, useWindowDimensions } from "react-native";
 
 type SecretSantaRow = SecretSantaListItem[];
 type SecretSantaTab = "events" | "invites";
-const IOS_HEADER_CONTENT_GAP = 16;
 
 export default function SecretSantaScreen() {
   const t = useGT();
@@ -45,10 +45,7 @@ export default function SecretSantaScreen() {
     SECRET_SANTA_PAGE_SIZE,
   );
   const notificationsQuery = useNotifications({ limit: 50 });
-  const events = React.useMemo(
-    () => query.data?.pages.flatMap((page) => page.items) ?? [],
-    [query.data],
-  );
+  const { items: events, loadMore } = useInfiniteListData(query, (page) => page.items);
   const inviteNotifications = React.useMemo(
     () =>
       (notificationsQuery.data ?? []).filter(
@@ -90,9 +87,7 @@ export default function SecretSantaScreen() {
   }
 
   function loadMoreEvents() {
-    if (activeTab === "events" && query.hasNextPage && !query.isFetchingNextPage) {
-      void query.fetchNextPage();
-    }
+    if (activeTab === "events") loadMore();
   }
 
   return (
@@ -117,7 +112,6 @@ export default function SecretSantaScreen() {
           className="flex-1"
           contentContainerClassName="pb-8"
           contentContainerStyle={{ paddingTop }}
-          ListHeaderComponent={Platform.OS === "ios" ? SecretSantaListTopSpacer : undefined}
           ItemSeparatorComponent={() => <View className="h-4" />}
           onEndReached={loadMoreEvents}
           isLoadingMore={activeTab === "events" && query.isFetchingNextPage}
@@ -181,8 +175,4 @@ export default function SecretSantaScreen() {
       </View>
     </>
   );
-}
-
-function SecretSantaListTopSpacer() {
-  return <View style={{ height: IOS_HEADER_CONTENT_GAP }} />;
 }

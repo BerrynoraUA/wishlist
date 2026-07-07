@@ -21,13 +21,14 @@ import {
   sendFriendRequest,
   updateFriendGroup,
 } from "@/api/friends";
+import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
 import { normalizeSearchQuery } from "@/lib/wishlists";
 import { useAuth } from "@/providers/auth-provider";
 import type {
   FriendGroupPayload,
   GetFriendsWithoutWishlistAccessParams,
 } from "@wishlist/backend/types/friends";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { wishlistKeys } from "./use-wishlists";
 
@@ -61,39 +62,17 @@ export const friendKeys = {
     [...friendKeys.all, "profiles-by-ids", authUserId ?? "anonymous", idsKey] as const,
 };
 
-export function useIncomingFriendRequests(params?: PaginationParams) {
-  const { user } = useAuth();
-
-  return useQuery({
-    queryKey: friendKeys.incoming(user?.id, params),
-    queryFn: () => getIncomingFriendRequests(params),
-    enabled: Boolean(user?.id),
-  });
-}
-
 export function useInfiniteIncomingFriendRequests(pageSize: number) {
   const { user } = useAuth();
 
-  return useInfiniteQuery({
+  return useSkipTakeInfiniteQuery({
     queryKey: friendKeys.incoming(user?.id, { take: pageSize }),
-    queryFn: ({ pageParam }) =>
+    fetchPage: ({ skip, take }) =>
       getIncomingFriendRequests({
-        skip: pageParam * pageSize,
-        take: pageSize,
+        skip,
+        take,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
-    enabled: Boolean(user?.id),
-  });
-}
-
-export function useOutgoingFriendRequests(params?: PaginationParams) {
-  const { user } = useAuth();
-
-  return useQuery({
-    queryKey: friendKeys.outgoing(user?.id, params),
-    queryFn: () => getOutgoingFriendRequests(params),
+    pageSize,
     enabled: Boolean(user?.id),
   });
 }
@@ -101,16 +80,14 @@ export function useOutgoingFriendRequests(params?: PaginationParams) {
 export function useInfiniteOutgoingFriendRequests(pageSize: number) {
   const { user } = useAuth();
 
-  return useInfiniteQuery({
+  return useSkipTakeInfiniteQuery({
     queryKey: friendKeys.outgoing(user?.id, { take: pageSize }),
-    queryFn: ({ pageParam }) =>
+    fetchPage: ({ skip, take }) =>
       getOutgoingFriendRequests({
-        skip: pageParam * pageSize,
-        take: pageSize,
+        skip,
+        take,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
+    pageSize,
     enabled: Boolean(user?.id),
   });
 }
@@ -188,17 +165,15 @@ export function useInfiniteFriends(params: PaginationParams, pageSize: number) {
     [params.search],
   );
 
-  return useInfiniteQuery({
+  return useSkipTakeInfiniteQuery({
     queryKey: friendKeys.list(user?.id, { ...normalizedParams, take: pageSize }),
-    queryFn: ({ pageParam }) =>
+    fetchPage: ({ skip, take }) =>
       getFriends({
         ...normalizedParams,
-        skip: pageParam * pageSize,
-        take: pageSize,
+        skip,
+        take,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
+    pageSize,
     enabled: Boolean(user?.id),
   });
 }
@@ -233,17 +208,15 @@ export function useInfiniteFriendGroups(params: PaginationParams, pageSize: numb
     [params.search],
   );
 
-  return useInfiniteQuery({
+  return useSkipTakeInfiniteQuery({
     queryKey: friendKeys.groupList(user?.id, { ...normalizedParams, take: pageSize }),
-    queryFn: ({ pageParam }) =>
+    fetchPage: ({ skip, take }) =>
       getFriendGroups({
         ...normalizedParams,
-        skip: pageParam * pageSize,
-        take: pageSize,
+        skip,
+        take,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
+    pageSize,
     enabled: Boolean(user?.id),
   });
 }

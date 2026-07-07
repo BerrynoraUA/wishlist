@@ -8,6 +8,7 @@ import {
   toggleItemVote,
   updateItem,
 } from "@/api/items";
+import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
 import { statisticsKeys, wishlistKeys } from "@/hooks/use-wishlists";
 import { normalizeItemSearch } from "@/lib/items";
 import { useAuth } from "@/providers/auth-provider";
@@ -17,7 +18,7 @@ import type {
   ItemVotesResult,
   UpdateItemParams,
 } from "@wishlist/backend/types/item";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const itemKeys = {
   all: ["items"] as const,
@@ -56,17 +57,15 @@ export function useInfiniteWishlistItems(
     search: normalizeItemSearch(params.search) || undefined,
   };
 
-  return useInfiniteQuery({
+  return useSkipTakeInfiniteQuery({
     queryKey: itemKeys.wishlist(user?.id, wishlistId, { ...normalizedParams, take: pageSize }),
-    queryFn: ({ pageParam }) =>
+    fetchPage: ({ skip, take }) =>
       getWishlistItems(wishlistId, {
         ...normalizedParams,
-        skip: pageParam * pageSize,
-        take: pageSize,
+        skip,
+        take,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
+    pageSize,
     enabled: Boolean(user?.id && wishlistId),
   });
 }

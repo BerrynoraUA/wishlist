@@ -207,11 +207,13 @@ export async function getSettings(): Promise<UserSettings> {
 // Rows created before a settings column existed (or partial upserts) can
 // hold NULLs the UserSettings type doesn't allow — fall back per column.
 function withSettingsDefaults(row: Record<string, unknown>): UserSettings {
+  const settings = { ...row };
+
   for (const [key, fallback] of Object.entries(DEFAULT_SETTINGS)) {
-    if (row[key] == null) row[key] = fallback;
+    if (settings[key] == null) settings[key] = fallback;
   }
 
-  return row as unknown as UserSettings;
+  return settings as unknown as UserSettings;
 }
 
 export async function updateSettings(payload: UpdateSettingsPayload): Promise<UserSettings> {

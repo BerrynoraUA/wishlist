@@ -1,4 +1,5 @@
 import { useInfiniteMyWishlists } from "@/hooks/use-wishlists";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import {
   DEFAULT_WISHLIST_SORT,
   WISHLIST_PAGE_SIZE,
@@ -37,10 +38,7 @@ export function useWishlistFeed(width: number) {
   );
 
   const query = useInfiniteMyWishlists(queryParams, WISHLIST_PAGE_SIZE);
-  const wishlists = React.useMemo(
-    () => query.data?.pages.flatMap((page) => page) ?? [],
-    [query.data],
-  );
+  const { items: wishlists, loadMore } = useInfiniteListData(query);
   const filtersActive = hasActiveFilters(debouncedSearch, visibility);
   const contentWidth = Math.min(width - 32, 1200);
   const gridGap = width >= 768 ? 22 : 16;
@@ -66,12 +64,6 @@ export function useWishlistFeed(width: number) {
     setDebouncedSearch("");
     setVisibility([]);
     setSort(DEFAULT_WISHLIST_SORT);
-  }
-
-  function loadMore() {
-    if (query.hasNextPage && !query.isFetchingNextPage) {
-      void query.fetchNextPage();
-    }
   }
 
   return {

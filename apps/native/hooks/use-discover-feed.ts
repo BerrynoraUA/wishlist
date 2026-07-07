@@ -5,6 +5,7 @@ import {
   useInfiniteFriendsWishlistsPurchasedByMe,
   useInfiniteFriendsWishlistsReservedByMe,
 } from "@/hooks/use-wishlists";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { DISCOVER_PAGE_SIZE, type DiscoverTab, isDiscoverSectionTab } from "@/lib/discover";
 import { parseOptionalNumber } from "@/lib/items";
 import { normalizeSearchQuery } from "@/lib/wishlists";
@@ -60,22 +61,12 @@ export function useDiscoverFeed() {
   const upcomingQuery = useFriendsUpcomingWishlists();
 
   const sectionTab = isDiscoverSectionTab(tab);
-  const allSections = React.useMemo(
-    () => allQuery.data?.pages.flatMap((page) => page) ?? [],
-    [allQuery.data],
-  );
-  const availableSections = React.useMemo(
-    () => availableQuery.data?.pages.flatMap((page) => page) ?? [],
-    [availableQuery.data],
-  );
-  const reservedItems = React.useMemo(
-    () => reservedQuery.data?.pages.flatMap((page) => page) ?? [],
-    [reservedQuery.data],
-  );
-  const purchasedItems = React.useMemo(
-    () => purchasedQuery.data?.pages.flatMap((page) => page) ?? [],
-    [purchasedQuery.data],
-  );
+  const { items: allSections, loadMore: loadMoreAll } = useInfiniteListData(allQuery);
+  const { items: availableSections, loadMore: loadMoreAvailable } =
+    useInfiniteListData(availableQuery);
+  const { items: reservedItems, loadMore: loadMoreReserved } = useInfiniteListData(reservedQuery);
+  const { items: purchasedItems, loadMore: loadMorePurchased } =
+    useInfiniteListData(purchasedQuery);
   const activeSections = tab === "available" ? availableSections : allSections;
   const activeItems = tab === "purchased" ? purchasedItems : reservedItems;
   const activeQuery =
@@ -86,6 +77,14 @@ export function useDiscoverFeed() {
         : tab === "purchased"
           ? purchasedQuery
           : allQuery;
+  const loadMore =
+    tab === "available"
+      ? loadMoreAvailable
+      : tab === "reserved"
+        ? loadMoreReserved
+        : tab === "purchased"
+          ? loadMorePurchased
+          : loadMoreAll;
   const filtersActive =
     Boolean(search.trim()) ||
     priorityIds.length > 0 ||
@@ -108,12 +107,6 @@ export function useDiscoverFeed() {
     setPriceMin("");
     setPriceMax("");
     setSort("default");
-  }
-
-  function loadMore() {
-    if (activeQuery.hasNextPage && !activeQuery.isFetchingNextPage) {
-      void activeQuery.fetchNextPage();
-    }
   }
 
   return {

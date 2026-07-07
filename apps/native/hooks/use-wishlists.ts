@@ -15,19 +15,16 @@ import {
   revokeWishlistAccess,
   updateWishlist,
 } from "@/api/wishlists";
+import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
 import { normalizeSearchQuery } from "@/lib/wishlists";
-import type {
-  DiscoverQueryParams,
-  DiscoverSection,
-  ReservedItem,
-} from "@wishlist/backend/types/discover";
+import type { DiscoverQueryParams } from "@wishlist/backend/types/discover";
 import { useAuth } from "@/providers/auth-provider";
 import type {
   WishlistFormValues,
   WishlistQueryParams,
   WishlistUpdateValues,
 } from "@wishlist/backend/types/wishlist";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 
 export const wishlistKeys = {
@@ -85,17 +82,15 @@ export function useInfiniteMyWishlists(params: WishlistQueryParams, pageSize: nu
     [params.search, params.sort, params.visibilityTypes],
   );
 
-  return useInfiniteQuery({
+  return useSkipTakeInfiniteQuery({
     queryKey: wishlistKeys.my(user?.id, { ...normalizedParams, take: pageSize }),
-    queryFn: ({ pageParam }) =>
+    fetchPage: ({ skip, take }) =>
       getMyWishlists({
         ...normalizedParams,
-        skip: pageParam * pageSize,
-        take: pageSize,
+        skip,
+        take,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
+    pageSize,
     enabled: Boolean(user?.id),
   });
 }
@@ -107,22 +102,6 @@ export function useMyStatistics() {
     queryKey: statisticsKeys.my(user?.id),
     queryFn: getMyStatistics,
     enabled: Boolean(user?.id),
-  });
-}
-
-export function useFriendWishlists(userId: string, params?: WishlistQueryParams) {
-  const { user } = useAuth();
-  const normalizedParams = params
-    ? {
-        ...params,
-        search: normalizeSearchQuery(params.search) || undefined,
-      }
-    : undefined;
-
-  return useQuery({
-    queryKey: wishlistKeys.friend(user?.id, userId, normalizedParams),
-    queryFn: () => getFriendWishlists(userId, normalizedParams),
-    enabled: Boolean(user?.id && userId),
   });
 }
 
@@ -142,17 +121,15 @@ export function useInfiniteFriendWishlists(
     [params.search, params.sort, params.visibilityTypes],
   );
 
-  return useInfiniteQuery({
+  return useSkipTakeInfiniteQuery({
     queryKey: wishlistKeys.friend(user?.id, userId, { ...normalizedParams, take: pageSize }),
-    queryFn: ({ pageParam }) =>
+    fetchPage: ({ skip, take }) =>
       getFriendWishlists(userId, {
         ...normalizedParams,
-        skip: pageParam * pageSize,
-        take: pageSize,
+        skip,
+        take,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
+    pageSize,
     enabled: Boolean(user?.id && userId),
   });
 }
@@ -182,17 +159,6 @@ function useNormalizedDiscoverParams(params?: DiscoverQueryParams) {
   );
 }
 
-export function useFriendsWishlistsDiscoverAll(params?: DiscoverQueryParams, enabled = true) {
-  const { user } = useAuth();
-  const normalizedParams = useNormalizedDiscoverParams(params);
-
-  return useQuery<DiscoverSection[]>({
-    queryKey: wishlistKeys.discoverAll(user?.id, normalizedParams),
-    queryFn: () => getFriendsWishlistsDiscoverAll(normalizedParams),
-    enabled: Boolean(user?.id) && enabled,
-  });
-}
-
 export function useInfiniteFriendsWishlistsDiscoverAll(
   params: DiscoverQueryParams,
   pageSize: number,
@@ -201,28 +167,15 @@ export function useInfiniteFriendsWishlistsDiscoverAll(
   const { user } = useAuth();
   const normalizedParams = useNormalizedDiscoverParams(params);
 
-  return useInfiniteQuery({
+  return useSkipTakeInfiniteQuery({
     queryKey: wishlistKeys.discoverAll(user?.id, { ...normalizedParams, take: pageSize }),
-    queryFn: ({ pageParam }) =>
+    fetchPage: ({ skip, take }) =>
       getFriendsWishlistsDiscoverAll({
         ...normalizedParams,
-        skip: pageParam * pageSize,
-        take: pageSize,
+        skip,
+        take,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
-    enabled: Boolean(user?.id) && enabled,
-  });
-}
-
-export function useFriendsWishlistsDiscover(params?: DiscoverQueryParams, enabled = true) {
-  const { user } = useAuth();
-  const normalizedParams = useNormalizedDiscoverParams(params);
-
-  return useQuery<DiscoverSection[]>({
-    queryKey: wishlistKeys.discoverAvailable(user?.id, normalizedParams),
-    queryFn: () => getFriendsWishlistsDiscover(normalizedParams),
+    pageSize,
     enabled: Boolean(user?.id) && enabled,
   });
 }
@@ -235,28 +188,15 @@ export function useInfiniteFriendsWishlistsDiscover(
   const { user } = useAuth();
   const normalizedParams = useNormalizedDiscoverParams(params);
 
-  return useInfiniteQuery({
+  return useSkipTakeInfiniteQuery({
     queryKey: wishlistKeys.discoverAvailable(user?.id, { ...normalizedParams, take: pageSize }),
-    queryFn: ({ pageParam }) =>
+    fetchPage: ({ skip, take }) =>
       getFriendsWishlistsDiscover({
         ...normalizedParams,
-        skip: pageParam * pageSize,
-        take: pageSize,
+        skip,
+        take,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
-    enabled: Boolean(user?.id) && enabled,
-  });
-}
-
-export function useFriendsWishlistsReservedByMe(params?: DiscoverQueryParams, enabled = true) {
-  const { user } = useAuth();
-  const normalizedParams = useNormalizedDiscoverParams(params);
-
-  return useQuery<ReservedItem[]>({
-    queryKey: wishlistKeys.discoverReserved(user?.id, normalizedParams),
-    queryFn: () => getFriendsWishlistsReservedByMe(normalizedParams),
+    pageSize,
     enabled: Boolean(user?.id) && enabled,
   });
 }
@@ -269,28 +209,15 @@ export function useInfiniteFriendsWishlistsReservedByMe(
   const { user } = useAuth();
   const normalizedParams = useNormalizedDiscoverParams(params);
 
-  return useInfiniteQuery({
+  return useSkipTakeInfiniteQuery({
     queryKey: wishlistKeys.discoverReserved(user?.id, { ...normalizedParams, take: pageSize }),
-    queryFn: ({ pageParam }) =>
+    fetchPage: ({ skip, take }) =>
       getFriendsWishlistsReservedByMe({
         ...normalizedParams,
-        skip: pageParam * pageSize,
-        take: pageSize,
+        skip,
+        take,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
-    enabled: Boolean(user?.id) && enabled,
-  });
-}
-
-export function useFriendsWishlistsPurchasedByMe(params?: DiscoverQueryParams, enabled = true) {
-  const { user } = useAuth();
-  const normalizedParams = useNormalizedDiscoverParams(params);
-
-  return useQuery<ReservedItem[]>({
-    queryKey: wishlistKeys.discoverPurchased(user?.id, normalizedParams),
-    queryFn: () => getFriendsWishlistsPurchasedByMe(normalizedParams),
+    pageSize,
     enabled: Boolean(user?.id) && enabled,
   });
 }
@@ -303,17 +230,15 @@ export function useInfiniteFriendsWishlistsPurchasedByMe(
   const { user } = useAuth();
   const normalizedParams = useNormalizedDiscoverParams(params);
 
-  return useInfiniteQuery({
+  return useSkipTakeInfiniteQuery({
     queryKey: wishlistKeys.discoverPurchased(user?.id, { ...normalizedParams, take: pageSize }),
-    queryFn: ({ pageParam }) =>
+    fetchPage: ({ skip, take }) =>
       getFriendsWishlistsPurchasedByMe({
         ...normalizedParams,
-        skip: pageParam * pageSize,
-        take: pageSize,
+        skip,
+        take,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
+    pageSize,
     enabled: Boolean(user?.id) && enabled,
   });
 }

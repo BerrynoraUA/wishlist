@@ -1,7 +1,7 @@
 import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import * as React from "react";
-import { StyleSheet, View, type LayoutChangeEvent } from "react-native";
+import { Platform, StyleSheet, View, type LayoutChangeEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
@@ -11,6 +11,7 @@ const HEADER_BOTTOM_GAP = 16;
 const HEADER_ROW_HEIGHT = 44;
 /** Vertical gap between stacked header rows (matches the `gap-4` content wrapper). */
 const HEADER_ROW_GAP = 16;
+const IOS_HEADER_CONTENT_GAP = 16;
 
 /**
  * List top padding for screens using `PinnedListHeader`. Starts from an estimate so
@@ -19,16 +20,21 @@ const HEADER_ROW_GAP = 16;
  */
 export function usePinnedListHeaderPadding(estimatedRows = 1) {
   const insets = useSafeAreaInsets();
+  const listContentGap = Platform.OS === "ios" ? IOS_HEADER_CONTENT_GAP : 0;
   const [height, setHeight] = React.useState(
     insets.top +
       SCROLLABLE_TABS_TOP_GAP +
       estimatedRows * HEADER_ROW_HEIGHT +
       (estimatedRows - 1) * HEADER_ROW_GAP +
-      HEADER_BOTTOM_GAP,
+      HEADER_BOTTOM_GAP +
+      listContentGap,
   );
-  const onHeaderLayout = React.useCallback((event: LayoutChangeEvent) => {
-    setHeight(event.nativeEvent.layout.height);
-  }, []);
+  const onHeaderLayout = React.useCallback(
+    (event: LayoutChangeEvent) => {
+      setHeight(event.nativeEvent.layout.height + listContentGap);
+    },
+    [listContentGap],
+  );
 
   return { paddingTop: height, onHeaderLayout };
 }

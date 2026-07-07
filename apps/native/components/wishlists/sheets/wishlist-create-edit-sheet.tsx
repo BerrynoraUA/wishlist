@@ -3,6 +3,7 @@ import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
+import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
@@ -15,26 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
-import {
-  useFriendGroups,
-  useFriendGroupsWithoutWishlistAccess,
-  useFriends,
-  useFriendsWithoutWishlistAccess,
-  useGrantWishlistGroupAccess,
-  useRevokeWishlistGroupAccess,
-  useWishlistAccessList,
-} from "@/hooks/use-friends";
-import {
-  useCreateWishlist,
-  useGrantWishlistAccess,
-  useRevokeWishlistAccess,
-  useUpdateWishlist,
-  wishlistKeys,
-} from "@/hooks/use-wishlists";
+import { useCreateWishlist, useUpdateWishlist } from "@/hooks/use-wishlists";
 import {
   EMPTY_WISHLIST_FORM,
-  SELECTED_FRIENDS_ACCESS_TYPE,
-  SELECTED_GROUPS_ACCESS_TYPE,
   getWishlistAccentOptions,
   getWishlistVisibilityOptions,
   getWishlistAccentClass,
@@ -43,13 +27,12 @@ import {
 } from "@/lib/wishlists";
 import type { TranslateFn } from "@/lib/translate-fn";
 import { cn } from "@/lib/utils";
-import { type NativePickedImage, uploadPickedImage } from "@/lib/image-upload";
+import { useImageUploadField } from "@/lib/image-upload";
+import { motionDuration } from "@/lib/motion";
 import {
   SlidingOptionSelector,
   type SlidingOptionRenderProps,
 } from "@/components/ui/sliding-option-selector";
-import { motionDuration } from "@/lib/motion";
-import { useQueryClient } from "@tanstack/react-query";
 import type { WishlistAccessUser } from "@wishlist/backend/types/friends";
 import {
   WishlistVisibility,
@@ -61,19 +44,12 @@ import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, ScrollView, View } from "react-native";
-import Animated, {
-  LinearTransition,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
-
-type WishlistAccessOption = {
-  id: string;
-  nickname: string;
-};
-
-type SelectedAccessTarget = "friends" | "groups";
+import Animated, { LinearTransition } from "react-native-reanimated";
+import {
+  useWishlistSelectedAccess,
+  type SelectedAccessTarget,
+  type WishlistAccessOption,
+} from "./use-wishlist-selected-access";
 
 type VisibilitySelectorValue =
   | "private"
@@ -95,204 +71,40 @@ export function WishlistCreateEditSheet({
 }) {
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const t = useGT();
-  const completeCreateWishlistStep = useUserGuideStepCompletion(3);
+  const completeCreateWishlistStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.createWishlist);
   const visibilityOptions = React.useMemo(() => getWishlistVisibilityOptions(t), [t]);
   const accentOptions = React.useMemo(() => getWishlistAccentOptions(t), [t]);
-  const queryClient = useQueryClient();
   const createMutation = useCreateWishlist();
   const updateMutation = useUpdateWishlist();
-  const grantAccess = useGrantWishlistAccess();
-  const revokeAccess = useRevokeWishlistAccess();
-  const grantGroupAccess = useGrantWishlistGroupAccess();
-  const revokeGroupAccess = useRevokeWishlistGroupAccess();
-  const isPending =
-    createMutation.isPending ||
-    updateMutation.isPending ||
-    grantAccess.isPending ||
-    revokeAccess.isPending ||
-    grantGroupAccess.isPending ||
-    revokeGroupAccess.isPending;
+  const isPending = createMutation.isPending || updateMutation.isPending;
   const error = createMutation.error ?? updateMutation.error;
   const { control, handleSubmit, reset, setValue } = useForm<WishlistFormValues>({
     defaultValues: EMPTY_WISHLIST_FORM,
   });
   const values = useWatch({ control }) as WishlistFormValues;
-  const [selectedAccessFriends, setSelectedAccessFriends] = React.useState<WishlistAccessOption[]>(
-    [],
+  const setSelectedAccessVisibility = React.useCallback(
+    (visibility: WishlistVisibility) => setValue("visibility", visibility),
+    [setValue],
   );
-  const [selectedAccessGroups, setSelectedAccessGroups] = React.useState<WishlistAccessOption[]>(
-    [],
-  );
-  const [accessTab, setAccessTab] = React.useState<"friends" | "groups">("friends");
-  const [accessError, setAccessError] = React.useState<string | null>(null);
-  const [pickedImage, setPickedImage] = React.useState<NativePickedImage | null>(null);
-  const [imageError, setImageError] = React.useState<string | null>(null);
-  const [isUploadingImage, setIsUploadingImage] = React.useState(false);
-  const [isSavingAccess, setIsSavingAccess] = React.useState(false);
-  const [accessPanelMounted, setAccessPanelMounted] = React.useState(false);
-  const accessPanelOpacity = useSharedValue(0);
-  const accessPanelTranslateY = useSharedValue(-14);
-  const accessPanelScaleY = useSharedValue(0.94);
-  const canManageSelectedAccess = mode === "create" || Boolean(wishlist?.is_owner);
-  const wishlistId = wishlist?.id ?? "";
+  const selectedAccess = useWishlistSelectedAccess({
+    mode,
+    open,
+    wishlist,
+    visibility: values.visibility,
+    setVisibility: setSelectedAccessVisibility,
+  });
+  const imageUpload = useImageUploadField("wishlist");
   const canSubmit =
-    !isPending && !isSavingAccess && !isUploadingImage && values.title.trim() !== "";
-  const accessPanelVisible =
-    values.visibility === WishlistVisibility.SelectedFriends && canManageSelectedAccess;
-  const accessPanelAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: accessPanelOpacity.value,
-    transform: [{ translateY: accessPanelTranslateY.value }, { scaleY: accessPanelScaleY.value }],
-  }));
-
-  const {
-    data: friends = [],
-    isLoading: friendsLoading,
-    isError: friendsError,
-  } = useFriends({
-    skip: 0,
-    take: 100,
-  });
-  const {
-    data: groups = [],
-    isLoading: groupsLoading,
-    isError: groupsError,
-  } = useFriendGroups({
-    skip: 0,
-    take: 100,
-  });
-  const {
-    data: friendsWithoutAccess = [],
-    isLoading: friendsWithoutAccessLoading,
-    isError: friendsWithoutAccessError,
-  } = useFriendsWithoutWishlistAccess({
-    wishlistId,
-    skip: 0,
-    take: 100,
-  });
-  const {
-    data: groupsWithoutAccess = [],
-    isLoading: groupsWithoutAccessLoading,
-    isError: groupsWithoutAccessError,
-  } = useFriendGroupsWithoutWishlistAccess({
-    wishlistId,
-    skip: 0,
-    take: 100,
-  });
-  const { data: accessList = [], isLoading: accessListLoading } = useWishlistAccessList(wishlistId);
-
-  const friendOptions = React.useMemo<WishlistAccessOption[]>(() => {
-    if (mode === "edit") {
-      return friendsWithoutAccess.map((friend) => ({
-        id: friend.id,
-        nickname: friend.nickname,
-      }));
-    }
-
-    return friends
-      .map((friend) => ({
-        id: friend.friend_id,
-        nickname: friend.nickname ?? friend.display_name ?? t("friend"),
-      }))
-      .filter((friend) => Boolean(friend.id));
-  }, [friends, friendsWithoutAccess, mode, t]);
-
-  const groupOptions = React.useMemo<WishlistAccessOption[]>(() => {
-    const source = mode === "edit" ? groupsWithoutAccess : groups;
-
-    return source
-      .map((group) => ({
-        id: group.id,
-        nickname: group.name,
-      }))
-      .filter((group) => Boolean(group.id));
-  }, [groups, groupsWithoutAccess, mode]);
-
-  const specificAccessList = React.useMemo(
-    () =>
-      accessList.filter(
-        (user) => user.access_type === SELECTED_FRIENDS_ACCESS_TYPE && user.target_type !== "group",
-      ),
-    [accessList],
-  );
-
-  const groupAccessList = React.useMemo(
-    () =>
-      accessList.filter(
-        (target) =>
-          target.access_type === SELECTED_GROUPS_ACCESS_TYPE || target.target_type === "group",
-      ),
-    [accessList],
-  );
-
+    !isPending &&
+    !selectedAccess.isSaving &&
+    !imageUpload.isUploading &&
+    values.title.trim() !== "";
   React.useEffect(() => {
     if (!open) return;
 
     reset(toWishlistFormValues(wishlist));
-    setSelectedAccessFriends([]);
-    setSelectedAccessGroups([]);
-    setAccessTab("friends");
-    setAccessError(null);
-    setPickedImage(null);
-    setImageError(null);
-    setIsUploadingImage(false);
-  }, [mode, open, reset, wishlist]);
-
-  React.useEffect(() => {
-    if (!open || mode !== "edit" || !wishlist) return;
-    if (specificAccessList.length === 0 && groupAccessList.length === 0) return;
-    if (
-      wishlist.visibility_type !== WishlistVisibility.Private &&
-      wishlist.visibility_type !== WishlistVisibility.SelectedFriends
-    ) {
-      return;
-    }
-
-    if (values.visibility === wishlist.visibility_type) {
-      setValue("visibility", WishlistVisibility.SelectedFriends);
-    }
-    if (groupAccessList.length > 0 && specificAccessList.length === 0) {
-      setAccessTab("groups");
-    }
-  }, [
-    groupAccessList.length,
-    mode,
-    open,
-    setValue,
-    specificAccessList.length,
-    values.visibility,
-    wishlist,
-  ]);
-
-  React.useEffect(() => {
-    if (values.visibility !== WishlistVisibility.SelectedFriends) {
-      setSelectedAccessFriends([]);
-      setSelectedAccessGroups([]);
-      setAccessError(null);
-    }
-  }, [values.visibility]);
-
-  React.useEffect(() => {
-    if (accessPanelVisible) {
-      setAccessPanelMounted(true);
-      accessPanelOpacity.value = 0;
-      accessPanelTranslateY.value = -14;
-      accessPanelScaleY.value = 0.94;
-      accessPanelOpacity.value = withTiming(1, { duration: motionDuration.normal });
-      accessPanelTranslateY.value = withTiming(0, { duration: motionDuration.normal });
-      accessPanelScaleY.value = withTiming(1, { duration: motionDuration.normal });
-      return;
-    }
-
-    accessPanelOpacity.value = withTiming(0, { duration: motionDuration.normal });
-    accessPanelTranslateY.value = withTiming(-14, { duration: motionDuration.normal });
-    accessPanelScaleY.value = withTiming(0.94, { duration: motionDuration.normal });
-
-    const timeoutId = setTimeout(() => {
-      setAccessPanelMounted(false);
-    }, motionDuration.normal);
-
-    return () => clearTimeout(timeoutId);
-  }, [accessPanelOpacity, accessPanelScaleY, accessPanelTranslateY, accessPanelVisible]);
+    imageUpload.reset();
+  }, [imageUpload.reset, mode, open, reset, wishlist]);
 
   if (!open) return null;
 
@@ -317,158 +129,40 @@ export function WishlistCreateEditSheet({
   ) {
     patchValues({ visibility });
     if (selectedAccessTarget) {
-      setAccessTab(selectedAccessTarget);
+      selectedAccess.setTarget(selectedAccessTarget);
     }
-  }
-
-  async function invalidateAccessQueries() {
-    await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
-    await queryClient.invalidateQueries({
-      queryKey: ["friends-without-wishlist-access"],
-      exact: false,
-    });
-    await queryClient.invalidateQueries({
-      queryKey: ["friend-groups-without-wishlist-access"],
-      exact: false,
-    });
-    await queryClient.invalidateQueries({
-      queryKey: ["wishlist-access-list"],
-      exact: false,
-    });
-  }
-
-  async function grantSelectedAccess(id: string) {
-    if (values.visibility !== WishlistVisibility.SelectedFriends) return;
-    if (selectedAccessFriends.length === 0 && selectedAccessGroups.length === 0) return;
-
-    setIsSavingAccess(true);
-    await Promise.all([
-      ...selectedAccessFriends.map((friend) =>
-        grantAccess.mutateAsync({
-          wishlistId: id,
-          grantedToUserId: friend.id,
-          accessType: SELECTED_FRIENDS_ACCESS_TYPE,
-        }),
-      ),
-      ...selectedAccessGroups.map((group) =>
-        grantGroupAccess.mutateAsync({
-          wishlistId: id,
-          groupId: group.id,
-        }),
-      ),
-    ]);
-    await invalidateAccessQueries();
-  }
-
-  async function revokeExistingSelectedAccess(id: string) {
-    if (specificAccessList.length === 0 && groupAccessList.length === 0) return;
-
-    setIsSavingAccess(true);
-    await Promise.all([
-      ...specificAccessList.map((friend) =>
-        revokeAccess.mutateAsync({
-          wishlistId: id,
-          targetUserId: friend.id,
-        }),
-      ),
-      ...groupAccessList.map((group) =>
-        revokeGroupAccess.mutateAsync({
-          wishlistId: id,
-          groupId: group.group_id ?? group.id,
-        }),
-      ),
-    ]);
-    await invalidateAccessQueries();
   }
 
   async function submitForm(formValues: WishlistFormValues) {
     if (!canSubmit) return;
 
-    setAccessError(null);
-    setImageError(null);
-    setIsSavingAccess(false);
+    selectedAccess.setError(null);
+    selectedAccess.setIsSaving(false);
 
-    let imageUrl = formValues.imageUrl.trim();
+    const imageUrl = await imageUpload.resolveImageUrl(formValues.imageUrl);
+    if (imageUrl === undefined) return;
 
-    if (pickedImage) {
-      setIsUploadingImage(true);
-      try {
-        imageUrl = await uploadPickedImage(pickedImage, "wishlist");
-      } catch (uploadError) {
-        setImageError(
-          uploadError instanceof Error ? uploadError.message : t("Could not save image."),
-        );
-        return;
-      } finally {
-        setIsUploadingImage(false);
-      }
-    }
-
-    const valuesToSave = { ...formValues, imageUrl };
+    const valuesToSave = { ...formValues, imageUrl: imageUrl ?? "" };
 
     try {
       if (mode === "edit" && wishlist) {
         await updateMutation.mutateAsync({ id: wishlist.id, values: valuesToSave });
-
-        if (
-          canManageSelectedAccess &&
-          formValues.visibility !== WishlistVisibility.SelectedFriends
-        ) {
-          await revokeExistingSelectedAccess(wishlist.id);
-        }
-
-        if (canManageSelectedAccess) {
-          await grantSelectedAccess(wishlist.id);
-        }
+        await selectedAccess.syncAfterSave(wishlist.id, formValues.visibility);
 
         handleClose();
         return;
       }
 
       const createdWishlist = await createMutation.mutateAsync(valuesToSave);
-      await grantSelectedAccess(createdWishlist.id);
+      await selectedAccess.grantSelectedAccess(createdWishlist.id);
       completeCreateWishlistStep();
       handleClose();
     } catch (submitError) {
-      setAccessError(
+      selectedAccess.setError(
         submitError instanceof Error ? submitError.message : t("Could not save selected access."),
       );
     } finally {
-      setIsSavingAccess(false);
-    }
-  }
-
-  async function handleRevokeSpecificAccess(targetUserId: string) {
-    if (!wishlist) return;
-
-    setAccessError(null);
-
-    try {
-      await revokeAccess.mutateAsync({
-        wishlistId: wishlist.id,
-        targetUserId,
-      });
-    } catch (revokeError) {
-      setAccessError(
-        revokeError instanceof Error ? revokeError.message : t("Could not remove access."),
-      );
-    }
-  }
-
-  async function handleRevokeGroupAccess(groupId: string) {
-    if (!wishlist) return;
-
-    setAccessError(null);
-
-    try {
-      await revokeGroupAccess.mutateAsync({
-        wishlistId: wishlist.id,
-        groupId,
-      });
-    } catch (revokeError) {
-      setAccessError(
-        revokeError instanceof Error ? revokeError.message : t("Could not remove access."),
-      );
+      selectedAccess.setIsSaving(false);
     }
   }
 
@@ -494,7 +188,7 @@ export function WishlistCreateEditSheet({
               disabled={!canSubmit}
               onPress={handleSubmit(submitForm)}
             >
-              {isPending || isSavingAccess || isUploadingImage ? (
+              {isPending || selectedAccess.isSaving || imageUpload.isUploading ? (
                 <ActivityIndicator colorClassName="accent-primary-foreground" />
               ) : null}
               <Text>{mode === "edit" ? t("Save changes") : t("Create wishlist")}</Text>
@@ -540,26 +234,34 @@ export function WishlistCreateEditSheet({
             t={t}
             visibilityOptions={visibilityOptions}
             value={values.visibility}
-            selectedAccessTarget={accessTab}
+            selectedAccessTarget={selectedAccess.target}
             onChange={handleVisibilityChange}
           />
-          {accessPanelMounted ? (
+          {selectedAccess.panelMounted ? (
             <Animated.View
               layout={LinearTransition.duration(motionDuration.normal)}
               className="gap-3 overflow-hidden rounded-xl border border-border-subtle bg-bg-subtle p-3"
-              style={accessPanelAnimatedStyle}
+              style={selectedAccess.panelAnimatedStyle}
             >
-              {accessTab === "friends" ? (
+              {selectedAccess.target === "friends" ? (
                 <WishlistAccessPicker
                   title={t("Selected friends")}
-                  options={friendOptions}
-                  selected={selectedAccessFriends}
+                  options={selectedAccess.friendOptions}
+                  selected={selectedAccess.selectedFriends}
                   onChange={(nextSelected) => {
-                    setSelectedAccessFriends(nextSelected);
-                    setAccessError(null);
+                    selectedAccess.setSelectedFriends(nextSelected);
+                    selectedAccess.setError(null);
                   }}
-                  isLoading={mode === "edit" ? friendsWithoutAccessLoading : friendsLoading}
-                  isError={mode === "edit" ? friendsWithoutAccessError : friendsError}
+                  isLoading={
+                    mode === "edit"
+                      ? selectedAccess.friendsWithoutAccessLoading
+                      : selectedAccess.friendsLoading
+                  }
+                  isError={
+                    mode === "edit"
+                      ? selectedAccess.friendsWithoutAccessError
+                      : selectedAccess.friendsError
+                  }
                   emptyLabel={
                     mode === "edit"
                       ? t("All available friends already have access.")
@@ -567,27 +269,37 @@ export function WishlistCreateEditSheet({
                   }
                   errorLabel={t("Could not load friends right now.")}
                   searchPlaceholder={t("Search friends")}
-                  existingAccess={mode === "edit" ? specificAccessList : []}
+                  existingAccess={mode === "edit" ? selectedAccess.specificAccessList : []}
                   existingAccessTitle={mode === "edit" ? t("Already selected") : undefined}
                   existingAccessEmptyLabel={
-                    accessListLoading
+                    selectedAccess.accessListLoading
                       ? t("Loading current access...")
                       : t("No selected friends yet.")
                   }
-                  onRevokeAccess={mode === "edit" ? handleRevokeSpecificAccess : undefined}
-                  revokingTargetId={revokeAccess.variables?.targetUserId ?? null}
+                  onRevokeAccess={
+                    mode === "edit" ? selectedAccess.handleRevokeSpecificAccess : undefined
+                  }
+                  revokingTargetId={selectedAccess.revokeAccess.variables?.targetUserId ?? null}
                 />
               ) : (
                 <WishlistAccessPicker
                   title={t("Selected groups")}
-                  options={groupOptions}
-                  selected={selectedAccessGroups}
+                  options={selectedAccess.groupOptions}
+                  selected={selectedAccess.selectedGroups}
                   onChange={(nextSelected) => {
-                    setSelectedAccessGroups(nextSelected);
-                    setAccessError(null);
+                    selectedAccess.setSelectedGroups(nextSelected);
+                    selectedAccess.setError(null);
                   }}
-                  isLoading={mode === "edit" ? groupsWithoutAccessLoading : groupsLoading}
-                  isError={mode === "edit" ? groupsWithoutAccessError : groupsError}
+                  isLoading={
+                    mode === "edit"
+                      ? selectedAccess.groupsWithoutAccessLoading
+                      : selectedAccess.groupsLoading
+                  }
+                  isError={
+                    mode === "edit"
+                      ? selectedAccess.groupsWithoutAccessError
+                      : selectedAccess.groupsError
+                  }
                   emptyLabel={
                     mode === "edit"
                       ? t("All available groups already have access.")
@@ -595,15 +307,17 @@ export function WishlistCreateEditSheet({
                   }
                   errorLabel={t("Could not load groups right now.")}
                   searchPlaceholder={t("Search groups")}
-                  existingAccess={mode === "edit" ? groupAccessList : []}
+                  existingAccess={mode === "edit" ? selectedAccess.groupAccessList : []}
                   existingAccessTitle={mode === "edit" ? t("Already selected") : undefined}
                   existingAccessEmptyLabel={
-                    accessListLoading
+                    selectedAccess.accessListLoading
                       ? t("Loading current access...")
                       : t("No selected groups yet.")
                   }
-                  onRevokeAccess={mode === "edit" ? handleRevokeGroupAccess : undefined}
-                  revokingTargetId={revokeGroupAccess.variables?.groupId ?? null}
+                  onRevokeAccess={
+                    mode === "edit" ? selectedAccess.handleRevokeGroupAccess : undefined
+                  }
+                  revokingTargetId={selectedAccess.revokeGroupAccess.variables?.groupId ?? null}
                 />
               )}
             </Animated.View>
@@ -632,31 +346,29 @@ export function WishlistCreateEditSheet({
 
         <Field label={t("Cover Image")}>
           <SingleImagePicker
-            previewUri={pickedImage?.uri ?? values.imageUrl}
+            previewUri={imageUpload.pickedImage?.uri ?? values.imageUrl}
             aspect={[16, 9]}
             pickLabel={t("Choose cover image")}
             changeLabel={t("Change image")}
             onPick={(image) => {
-              setPickedImage(image);
-              setImageError(null);
+              imageUpload.onPick(image);
             }}
             onClear={() => {
-              setPickedImage(null);
+              imageUpload.onClear();
               patchValues({ imageUrl: "" });
-              setImageError(null);
             }}
-            onError={setImageError}
+            onError={imageUpload.onError}
           />
-          {imageError ? (
-            <Text className="text-xs font-semibold text-destructive">{imageError}</Text>
+          {imageUpload.error ? (
+            <Text className="text-xs font-semibold text-destructive">{imageUpload.error}</Text>
           ) : null}
         </Field>
 
         {error ? (
           <Text className="text-sm font-semibold text-destructive">{error.message}</Text>
         ) : null}
-        {accessError ? (
-          <Text className="text-sm font-semibold text-destructive">{accessError}</Text>
+        {selectedAccess.error ? (
+          <Text className="text-sm font-semibold text-destructive">{selectedAccess.error}</Text>
         ) : null}
       </ScrollView>
     </BottomSheet>

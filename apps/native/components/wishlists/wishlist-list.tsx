@@ -18,6 +18,7 @@ import {
   useUserGuideStepCompletion,
   useUserGuideTargetRegistration,
 } from "@/components/user-guide/user-guide-provider";
+import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { useMyStatistics } from "@/hooks/use-wishlists";
 import { chunkRows } from "@/lib/layout";
 import { motionDuration } from "@/lib/motion";
@@ -45,7 +46,7 @@ import {
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { Platform, View, useWindowDimensions } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
 
 type SheetState =
@@ -55,7 +56,6 @@ type SheetState =
   | null;
 
 type WishlistListRow = Wishlist[];
-const HEADER_CONTENT_GAP = 16;
 
 export function WishlistList({
   query,
@@ -87,10 +87,11 @@ export function WishlistList({
   onOpenSheet: (sheet: Exclude<SheetState, null>) => void;
 }) {
   const t = useGT();
-  const completeOpenDetailStep = useUserGuideStepCompletion(4);
+  const completeOpenDetailStep = useUserGuideStepCompletion(
+    USER_GUIDE_STEP_IDS.openWishlistDetails,
+  );
   const { requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
-  const listPaddingTop = paddingTop + (Platform.OS === "ios" ? HEADER_CONTENT_GAP : 0);
   const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
   const data = React.useMemo<WishlistListRow[]>(
     () => (query.isLoading ? [] : rows),
@@ -163,7 +164,7 @@ export function WishlistList({
         keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
         className="flex-1"
         contentContainerClassName="pb-8"
-        contentContainerStyle={{ paddingTop: listPaddingTop }}
+        contentContainerStyle={{ paddingTop }}
         ItemSeparatorComponent={RowSeparator}
         onEndReached={onEndReached}
         isLoadingMore={query.isFetchingNextPage}
@@ -206,7 +207,7 @@ export function WishlistList({
           cardWidth,
           contentWidth,
           gridGap,
-          listPaddingTop,
+          paddingTop,
         }}
       />
     </View>

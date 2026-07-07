@@ -24,6 +24,7 @@ import {
   useRemoveFriend,
   useUpdateFriendGroup,
 } from "@/hooks/use-friends";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { chunkRows } from "@/lib/layout";
 import type {
   FriendGroup,
@@ -33,7 +34,7 @@ import type {
 import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, Platform, View, useWindowDimensions } from "react-native";
+import { ActivityIndicator, View, useWindowDimensions } from "react-native";
 
 type SheetState =
   | { type: "group"; group: FriendGroup }
@@ -44,7 +45,6 @@ type SheetState =
 type FriendEntry = FriendWithDetails | FriendGroup | FriendRequestWithDetails;
 type FriendsRow = FriendEntry[];
 const FRIENDS_PAGE_SIZE = 20;
-const IOS_HEADER_CONTENT_GAP = 16;
 
 export default function FriendsScreen() {
   const t = useGT();
@@ -96,22 +96,10 @@ export default function FriendsScreen() {
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
-  const friends = React.useMemo(
-    () => friendsQuery.data?.pages.flatMap((page) => page) ?? [],
-    [friendsQuery.data],
-  );
-  const groups = React.useMemo(
-    () => groupsQuery.data?.pages.flatMap((page) => page) ?? [],
-    [groupsQuery.data],
-  );
-  const requests = React.useMemo(
-    () => requestsQuery.data?.pages.flatMap((page) => page) ?? [],
-    [requestsQuery.data],
-  );
-  const outgoing = React.useMemo(
-    () => outgoingQuery.data?.pages.flatMap((page) => page) ?? [],
-    [outgoingQuery.data],
-  );
+  const { items: friends, loadMore: loadMoreFriends } = useInfiniteListData(friendsQuery);
+  const { items: groups, loadMore: loadMoreGroups } = useInfiniteListData(groupsQuery);
+  const { items: requests, loadMore: loadMoreRequests } = useInfiniteListData(requestsQuery);
+  const { items: outgoing, loadMore: loadMoreOutgoing } = useInfiniteListData(outgoingQuery);
 
   const activeItems = React.useMemo<FriendEntry[]>(() => {
     if (tab === "groups") return groups;
@@ -148,12 +136,14 @@ export default function FriendsScreen() {
         : tab === "sent"
           ? outgoingQuery
           : friendsQuery;
-
-  function loadMore() {
-    if (activeQuery.hasNextPage && !activeQuery.isFetchingNextPage) {
-      void activeQuery.fetchNextPage();
-    }
-  }
+  const loadMore =
+    tab === "groups"
+      ? loadMoreGroups
+      : tab === "requests"
+        ? loadMoreRequests
+        : tab === "sent"
+          ? loadMoreOutgoing
+          : loadMoreFriends;
 
   function handleSubmitGroup(payload: Parameters<typeof updateGroup.mutateAsync>[0]["payload"]) {
     if (sheet?.type !== "group") return Promise.resolve();
@@ -247,7 +237,6 @@ export default function FriendsScreen() {
           className="flex-1"
           contentContainerClassName="pb-8"
           contentContainerStyle={{ paddingTop }}
-          ListHeaderComponent={Platform.OS === "ios" ? FriendsListTopSpacer : undefined}
           onScroll={requestMeasure}
           scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View className="h-4" />}
@@ -343,10 +332,6 @@ export default function FriendsScreen() {
       </View>
     </>
   );
-}
-
-function FriendsListTopSpacer() {
-  return <View style={{ height: IOS_HEADER_CONTENT_GAP }} />;
 }
 
 function ConfirmActionSheet({

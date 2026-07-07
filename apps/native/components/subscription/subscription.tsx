@@ -48,14 +48,14 @@ function getPlanDetail(plan: PurchasesPackage, t: TranslateFn) {
   }
 }
 
-function getPlanSuffix(plan: PurchasesPackage, t: TranslateFn) {
+function getPlanPeriod(plan: PurchasesPackage, t: TranslateFn) {
   switch (plan.packageType) {
     case PACKAGE_TYPE.ANNUAL:
-      return t(" / year");
+      return t("year");
     case PACKAGE_TYPE.MONTHLY:
-      return t(" / month");
+      return t("month");
     default:
-      return "";
+      return null;
   }
 }
 
@@ -87,6 +87,7 @@ function PlanOption({
   onPress: () => void;
 }) {
   const t = useGT();
+  const planPeriod = getPlanPeriod(plan, t);
 
   return (
     <Pressable
@@ -127,7 +128,9 @@ function PlanOption({
         </View>
         <Text className="shrink-0 font-semibold text-white">
           {plan.product.priceString}
-          <Text className="text-xs font-normal text-white/60">{getPlanSuffix(plan, t)}</Text>
+          {planPeriod ? (
+            <Text className="text-xs font-normal text-white/60"> / {planPeriod}</Text>
+          ) : null}
         </Text>
       </View>
     </Pressable>

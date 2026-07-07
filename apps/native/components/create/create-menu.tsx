@@ -7,7 +7,10 @@ import { Text } from "@/components/ui/text";
 import { useUserGuide } from "@/components/user-guide/user-guide-provider";
 import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheets/wishlist-item-create-edit-sheet";
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
+import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { useCreateFriendGroup, useFriends } from "@/hooks/use-friends";
+import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
+import { isWishlistDetailPath } from "@/lib/routes";
 import { Portal } from "@rn-primitives/portal";
 import { useGlobalSearchParams, usePathname } from "expo-router";
 import {
@@ -44,11 +47,11 @@ export type CreateAction =
 export type ItemCreateSource = "scratch" | "link";
 type CreateMenuAction = CreateAction | "item";
 
-/** Matches the nav metrics used by the user guide (`getNavBox`). */
-const TAB_BAR_HEIGHT = 58;
+const MENU_ROW_HEIGHT = 60;
+const MENU_ROW_GAP = 10;
 
 /** Row height (40 icon + 2×10 padding) plus the 10px stack gap. */
-const MENU_ROW_STRIDE = 70;
+const MENU_ROW_STRIDE = MENU_ROW_HEIGHT + MENU_ROW_GAP;
 /** Approximate center of the trailing "+" action button, from the right edge. */
 const IOS_PLUS_BUTTON_RIGHT_OFFSET = 40;
 
@@ -60,9 +63,9 @@ function iosEnteringFromPlusButton(windowWidth: number, indexFromBottom: number)
   const springConfig = { damping: 18, stiffness: 220, mass: 0.7 };
   const delay = indexFromBottom * 45;
   const fromX = windowWidth / 2 - IOS_PLUS_BUTTON_RIGHT_OFFSET;
-  // Rows are centered above the tab bar; the button center is ~70px below the
+  // Rows are centered above the tab bar; the button center is one stride below the
   // bottom row's center, one stride further per row up the stack.
-  const fromY = indexFromBottom * MENU_ROW_STRIDE + 70;
+  const fromY = indexFromBottom * MENU_ROW_STRIDE + MENU_ROW_STRIDE;
 
   return () => {
     "worklet";
@@ -99,7 +102,7 @@ function useContextualWishlistId() {
   const pathname = usePathname();
   const params = useGlobalSearchParams<{ id?: string | string[] }>();
 
-  if (!pathname.startsWith("/wishlists/") || pathname === "/wishlists/discover") return undefined;
+  if (!isWishlistDetailPath(pathname)) return undefined;
 
   const routeId = Array.isArray(params.id) ? params.id[0] : params.id;
   return routeId || undefined;
@@ -114,7 +117,6 @@ export function CreateMenuHost({
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
 }) {
-  const t = useGT();
   const { completeStep } = useUserGuide();
   const [action, setAction] = React.useState<CreateAction | null>(null);
   const [itemMenuOpen, setItemMenuOpen] = React.useState(false);
@@ -130,10 +132,9 @@ export function CreateMenuHost({
     setAction(entry.action);
   }
 
-  function handleItemSelect(entry: CreateMenuEntry) {
+  function handleItemSelect(source: ItemCreateSource) {
     setItemMenuOpen(false);
-    if (entry.guideStep !== undefined) completeStep(entry.guideStep);
-    setAction(entry.action as CreateAction);
+    setAction(source === "link" ? "item-link" : "item-scratch");
   }
 
   function closeAction(openState: boolean) {
@@ -147,13 +148,7 @@ export function CreateMenuHost({
       <CreateItemSourceMenu
         open={itemMenuOpen}
         onClose={() => setItemMenuOpen(false)}
-        onSelect={(source) =>
-          handleItemSelect({
-            action: source === "link" ? "item-link" : "item-scratch",
-            icon: source === "link" ? Link : PencilLine,
-            label: source === "link" ? t("Create from link") : t("Create from scratch"),
-          })
-        }
+        onSelect={handleItemSelect}
       />
       <WishlistCreateEditSheet
         mode="create"
@@ -224,10 +219,20 @@ function CreateActionMenu({
   // animates in first, so the menu appears to unfold upwards.
   const entries: CreateMenuEntry[] = [
     { action: "friend-group", icon: Users, label: t("Friend Group") },
-    { action: "friend", icon: UserPlus, label: t("Invite Friend"), guideStep: 10 },
+    {
+      action: "friend",
+      icon: UserPlus,
+      label: t("Invite Friend"),
+      guideStep: USER_GUIDE_STEP_IDS.inviteFriend,
+    },
     { action: "secret-santa", icon: PartyPopper, label: t("Secret Santa Event") },
-    { action: "wishlist", icon: Gift, label: t("New Wishlist"), guideStep: 2 },
-    { action: "item", icon: Star, label: t("New Wish"), guideStep: 5 },
+    {
+      action: "wishlist",
+      icon: Gift,
+      label: t("New Wishlist"),
+      guideStep: USER_GUIDE_STEP_IDS.startWishlist,
+    },
+    { action: "item", icon: Star, label: t("New Wish"), guideStep: USER_GUIDE_STEP_IDS.addItem },
   ];
 
   return <CreateFloatingMenu open={open} onClose={onClose} entries={entries} onSelect={onSelect} />;
@@ -269,7 +274,7 @@ function CreateFloatingMenuContent({
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
 
-  const menuBottom = Math.max(insets.bottom, 8) + TAB_BAR_HEIGHT + 12;
+  const menuBottom = Math.max(insets.bottom, 8) + NAV_TAB_BAR_HEIGHT + 12;
 
   return (
     <View className="absolute inset-0" style={{ zIndex: 9000 }}>
@@ -339,7 +344,7 @@ function CreateFriendGroupSheet({ onOpenChange }: { onOpenChange: (open: boolean
       onOpenChange={onOpenChange}
       onSubmit={(payload) =>
         createGroup.mutateAsync(payload).then(() => {
-          completeStep(12);
+          completeStep(USER_GUIDE_STEP_IDS.createGroup);
         })
       }
     />

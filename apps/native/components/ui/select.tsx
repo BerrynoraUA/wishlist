@@ -131,9 +131,11 @@ function SelectLabel({ className, ...props }: React.ComponentProps<typeof Select
 function SelectItem({
   className,
   icon,
+  leading,
   ...props
 }: Omit<React.ComponentProps<typeof SelectPrimitive.Item>, "children"> & {
   icon?: LucideIcon;
+  leading?: React.ReactNode;
 }) {
   return (
     <SelectPrimitive.Item
@@ -145,6 +147,7 @@ function SelectItem({
       {...props}
     >
       {icon ? <Icon as={icon} className="text-muted-foreground size-4 shrink-0" /> : null}
+      {leading}
       <View className="absolute right-2 flex size-3.5 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
           <Icon as={Check} className="text-muted-foreground size-4 shrink-0" />

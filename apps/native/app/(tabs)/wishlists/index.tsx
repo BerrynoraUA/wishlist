@@ -9,6 +9,7 @@ import { View, useWindowDimensions } from "react-native";
 import { WishlistFilterBar } from "@/components/wishlists/wishlist-filter-bar";
 import { WishlistListStatsRow, WishlistList } from "@/components/wishlists/wishlist-list";
 import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
+import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { useWishlistFeed } from "@/hooks/use-wishlist-feed";
 import { useGT } from "gt-react-native";
 
@@ -24,7 +25,7 @@ export default function WishlistsScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const feed = useWishlistFeed(width);
-  const completeOpenDiscoverStep = useUserGuideStepCompletion(14);
+  const completeOpenDiscoverStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.openDiscover);
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const [filtersOpen, setFiltersOpen] = React.useState(false);
 
@@ -88,7 +89,7 @@ export default function WishlistsScreen() {
         />
         <WishlistItemCreateEditSheet
           mode="create"
-          wishlistId={sheet?.type === "addItem" ? sheet.wishlist.id : ""}
+          wishlistId={sheet?.type === "addItem" ? sheet.wishlist.id : undefined}
           createSource={sheet?.type === "addItem" ? sheet.source : "link"}
           open={sheet?.type === "addItem"}
           onOpenChange={(open) => {

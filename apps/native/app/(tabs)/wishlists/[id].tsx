@@ -12,6 +12,7 @@ import {
   useUserGuideStepCompletion,
   useUserGuideTargetRegistration,
 } from "@/components/user-guide/user-guide-provider";
+import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import {
   wishlistItemFilterBarHasActiveFilters,
   WishlistItemFilterBar,
@@ -28,6 +29,7 @@ import { WishlistShareSheet } from "@/components/wishlists/sheets/wishlist-share
 import { WishlistGrantAccessSheet } from "@/components/wishlists/sheets/wishlist-grant-access-sheet";
 import { createWishlistShareToken } from "@/api/share";
 import { useCheckFriendship, useProfilesByIds } from "@/hooks/use-friends";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import {
   useItemVotes,
   useInfiniteWishlistItems,
@@ -141,17 +143,16 @@ export default function WishlistDetailScreen() {
     WISHLIST_ITEMS_PAGE_SIZE,
   );
   const allItemsQuery = useWishlistItems(wishlistId, { skip: 0, take: 1 });
-  const items = React.useMemo(
-    () => itemsQuery.data?.pages.flatMap((page) => page) ?? [],
-    [itemsQuery.data],
-  );
+  const { items, loadMore: loadMoreItems } = useInfiniteListData(itemsQuery);
   const itemIds = React.useMemo(() => items.map((item) => item.id), [items]);
   const votesQuery = useItemVotes(itemIds);
   const toggleVote = useToggleItemVote(itemIds);
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
-  const completeShareStep = useUserGuideStepCompletion(7);
-  const completeManageAccessStep = useUserGuideStepCompletion(8);
+  const completeShareStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.shareWishlist);
+  const completeManageAccessStep = useUserGuideStepCompletion(
+    USER_GUIDE_STEP_IDS.manageWishlistAccess,
+  );
   const { requestMeasure } = useUserGuideTargetRegistration();
   const reservedByIds = React.useMemo(
     () => [
@@ -193,12 +194,6 @@ export default function WishlistDetailScreen() {
   function resetFilters() {
     setFilters(EMPTY_FILTERS);
     setDebouncedSearch("");
-  }
-
-  function loadMoreItems() {
-    if (itemsQuery.hasNextPage && !itemsQuery.isFetchingNextPage) {
-      void itemsQuery.fetchNextPage();
-    }
   }
 
   const handleShareWishlist = React.useCallback(async () => {

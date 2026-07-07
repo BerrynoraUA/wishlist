@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useProfile, useUpdateUserGuideStep } from "@/hooks/use-settings";
+import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { useAuth } from "@/providers/auth-provider";
 import { Portal } from "@rn-primitives/portal";
@@ -32,7 +33,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   USER_GUIDE_COMPLETE_STEP,
   getUserGuideSegmentForStep,
+  getUserGuideSegments,
   getUserGuideStep,
+  getUserGuideSteps,
   matchesUserGuideRoute,
   type UserGuideSegment,
   type UserGuideStep,
@@ -149,11 +152,15 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
   const [confirmCloseOpen, setConfirmCloseOpen] = React.useState(false);
   const [sequenceIndex, setSequenceIndex] = React.useState(0);
   const [instantHighlight, setInstantHighlight] = React.useState(false);
+  const guideSteps = React.useMemo(() => getUserGuideSteps(t), [t]);
+  const guideSegments = React.useMemo(() => getUserGuideSegments(t), [t]);
 
   const completedStep = normalizeCompletedStep(profileQuery.data?.userGuideStep);
   const active = Boolean(user?.id && profileQuery.data) && completedStep < USER_GUIDE_COMPLETE_STEP;
-  const currentStep = active ? (getUserGuideStep(completedStep + 1) ?? null) : null;
-  const currentSegment = currentStep ? (getUserGuideSegmentForStep(currentStep.id) ?? null) : null;
+  const currentStep = active ? (getUserGuideStep(guideSteps, completedStep + 1) ?? null) : null;
+  const currentSegment = currentStep
+    ? (getUserGuideSegmentForStep(guideSegments, currentStep.id) ?? null)
+    : null;
   const routeMatchesCurrentSegment = Boolean(
     currentSegment && matchesUserGuideRoute(pathname, currentSegment.route),
   );
@@ -190,7 +197,7 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
       if (index < 0) return null;
 
       const tabWidth = width / NAV_TARGETS.length;
-      const tabHeight = 58;
+      const tabHeight = NAV_TAB_BAR_HEIGHT;
       const pillWidth = Math.min(72, tabWidth - 16);
       const bottom = Math.max(insets.bottom, 8);
       return {
@@ -414,10 +421,7 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
   );
 
   const shouldRenderGuide = active && currentStep && currentSegment && routeMatchesCurrentSegment;
-  const tooltipText = translateUserGuideText(
-    t,
-    activeSequenceTarget?.tooltip ?? currentStep?.tooltip ?? "",
-  );
+  const tooltipText = activeSequenceTarget?.tooltip ?? currentStep?.tooltip ?? "";
   const activeTargetTooltip = React.useMemo(() => {
     if (!shouldRenderGuide || !highlightBox || highlightBox.source !== "target") return null;
     const target = activeTargetId ? targetsRef.current.get(activeTargetId) : null;
@@ -509,8 +513,8 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
               <GuideCard
                 bottomRight={pathname === "/friends" || pathname.startsWith("/wishlists/")}
                 lowerCenter={pathname === "/wishlists"}
-                segmentTitle={translateUserGuideText(t, currentSegment.title)}
-                stepTitle={translateUserGuideText(t, currentStep.title)}
+                segmentTitle={currentSegment.title}
+                stepTitle={currentStep.title}
                 progressLabel={progress.label}
                 progressPercent={progress.percent}
                 pending={updateGuideStep.isPending}
@@ -749,157 +753,4 @@ export function useUserGuideStepCompletion(step: number) {
 
 export function useUserGuideTargetRegistration() {
   return React.useContext(UserGuideTargetRegistrationContext);
-}
-
-function translateUserGuideText(t: (message: string) => string, text: string): string {
-  switch (text) {
-    case "Explore the main menu":
-      return t("Explore the main menu");
-    case "Main menu":
-      return t("Main menu");
-    case "Start with Wishlists.":
-      return t("Start with Wishlists.");
-    case "Wishlists is where your own lists live.":
-      return t("Wishlists is where your own lists live.");
-    case "The + button creates wishlists, wishes, events, and more.":
-      return t("The + button creates wishlists, wishes, events, and more.");
-    case "Friends is where invites, requests, and groups live.":
-      return t("Friends is where invites, requests, and groups live.");
-    case "Profile is where your account and settings live.":
-      return t("Profile is where your account and settings live.");
-    case "Learn where each main section lives before creating your first wishlist.":
-      return t("Learn where each main section lives before creating your first wishlist.");
-    case "Start a wishlist":
-      return t("Start a wishlist");
-    case "Start wishlist":
-      return t("Start wishlist");
-    case "Tap + and choose New Wishlist.":
-      return t("Tap + and choose New Wishlist.");
-    case "Tap the + button and choose New Wishlist to start your first wishlist.":
-      return t("Tap the + button and choose New Wishlist to start your first wishlist.");
-    case "Create the wishlist":
-      return t("Create the wishlist");
-    case "Create wishlist":
-      return t("Create wishlist");
-    case "Fill the name, then tap Create wishlist.":
-      return t("Fill the name, then tap Create wishlist.");
-    case "Create the wishlist to continue to the wishlist detail page.":
-      return t("Create the wishlist to continue to the wishlist detail page.");
-    case "Open wishlist details":
-      return t("Open wishlist details");
-    case "Open details":
-      return t("Open details");
-    case "Tap your wishlist card to open its details.":
-      return t("Tap your wishlist card to open its details.");
-    case "Open the wishlist detail page to continue adding items.":
-      return t("Open the wishlist detail page to continue adding items.");
-    case "Add a gift idea":
-      return t("Add a gift idea");
-    case "Add item":
-      return t("Add item");
-    case "Tap + and choose New Wish.":
-      return t("Tap + and choose New Wish.");
-    case "Tap the + button and choose New Wish to add a product or gift idea.":
-      return t("Tap the + button and choose New Wish to add a product or gift idea.");
-    case "Create the item":
-      return t("Create the item");
-    case "Create item":
-      return t("Create item");
-    case "Fill the item name, then tap Create item.":
-      return t("Fill the item name, then tap Create item.");
-    case "Create the item and return to the wishlist item grid.":
-      return t("Create the item and return to the wishlist item grid.");
-    case "Share the wishlist":
-      return t("Share the wishlist");
-    case "Share":
-      return t("Share");
-    case "Tap Share to copy a share link.":
-      return t("Tap Share to copy a share link.");
-    case "Create a link friends can open to view and reserve items.":
-      return t("Create a link friends can open to view and reserve items.");
-    case "Manage sharing access":
-      return t("Manage sharing access");
-    case "Manage access":
-      return t("Manage access");
-    case "Open access settings for this wishlist.":
-      return t("Open access settings for this wishlist.");
-    case "Grant or revoke access for specific friends and groups.":
-      return t("Grant or revoke access for specific friends and groups.");
-    case "Open Friends":
-      return t("Open Friends");
-    case "Tap Friends in the tab bar.":
-      return t("Tap Friends in the tab bar.");
-    case "Open Friends directly from the wishlist detail page.":
-      return t("Open Friends directly from the wishlist detail page.");
-    case "Invite a friend":
-      return t("Invite a friend");
-    case "Add friend":
-      return t("Add friend");
-    case "Tap + and choose Invite Friend.":
-      return t("Tap + and choose Invite Friend.");
-    case "Tap the + button and choose Invite Friend to add someone.":
-      return t("Tap the + button and choose Invite Friend to add someone.");
-    case "Open friend groups":
-      return t("Open friend groups");
-    case "Friends and groups":
-      return t("Friends and groups");
-    case "Start with Friends.":
-      return t("Start with Friends.");
-    case "Friends shows everyone already connected with you.":
-      return t("Friends shows everyone already connected with you.");
-    case "Groups helps you organize friends for sharing.":
-      return t("Groups helps you organize friends for sharing.");
-    case "Move from the friends list to the groups tab.":
-      return t("Move from the friends list to the groups tab.");
-    case "Create a group":
-      return t("Create a group");
-    case "Create group":
-      return t("Create group");
-    case "Tap +, choose Friend Group, fill the name, then tap Save.":
-      return t("Tap +, choose Friend Group, fill the name, then tap Save.");
-    case "Create the group and return to the groups list.":
-      return t("Create the group and return to the groups list.");
-    case "Review friend requests":
-      return t("Review friend requests");
-    case "Requests and sent":
-      return t("Requests and sent");
-    case "Start with Requests.":
-      return t("Start with Requests.");
-    case "Requests shows people who want to connect with you.":
-      return t("Requests shows people who want to connect with you.");
-    case "Sent shows invitations you already sent. Next, head to Wishlists.":
-      return t("Sent shows invitations you already sent. Next, head to Wishlists.");
-    case "Learn where incoming and outgoing friend requests live.":
-      return t("Learn where incoming and outgoing friend requests live.");
-    case "Open Discover":
-      return t("Open Discover");
-    case "Tap Discover to explore friends' gifts.":
-      return t("Tap Discover to explore friends' gifts.");
-    case "Open Discover from the Wishlists page.":
-      return t("Open Discover from the Wishlists page.");
-    case "Explore Discover tabs":
-      return t("Explore Discover tabs");
-    case "Discover tabs":
-      return t("Discover tabs");
-    case "Wishlists shows every shared wishlist.":
-      return t("Wishlists shows every shared wishlist.");
-    case "Available shows gifts that can still be reserved.":
-      return t("Available shows gifts that can still be reserved.");
-    case "Reserved shows gifts already claimed.":
-      return t("Reserved shows gifts already claimed.");
-    case "Purchased shows gifts marked as bought.":
-      return t("Purchased shows gifts marked as bought.");
-    case "Learn what each Discover tab means and how it helps avoid duplicate gifts.":
-      return t("Learn what each Discover tab means and how it helps avoid duplicate gifts.");
-    case "Wishlists":
-      return t("Wishlists");
-    case "Wishlist":
-      return t("Wishlist");
-    case "Friends":
-      return t("Friends");
-    case "Discover":
-      return t("Discover");
-    default:
-      return text;
-  }
 }

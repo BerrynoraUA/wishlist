@@ -1,5 +1,6 @@
 import { supabase } from "@wishlist/backend/supabase/native";
 import { File } from "expo-file-system";
+import * as React from "react";
 
 export type NativePickedImage = {
   uri: string;
@@ -60,4 +61,64 @@ export async function uploadPickedImage(
 
   const { data } = supabase.storage.from(IMAGE_BUCKET).getPublicUrl(uploadData.path);
   return data.publicUrl;
+}
+
+export function useImageUploadField(prefix: "item" | "wishlist") {
+  const [pickedImage, setPickedImage] = React.useState<NativePickedImage | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+  const [isUploading, setIsUploading] = React.useState(false);
+
+  const reset = React.useCallback(() => {
+    setPickedImage(null);
+    setError(null);
+    setIsUploading(false);
+  }, []);
+
+  const onPick = React.useCallback((image: NativePickedImage) => {
+    setPickedImage(image);
+    setError(null);
+  }, []);
+
+  const onClear = React.useCallback(() => {
+    setPickedImage(null);
+    setError(null);
+  }, []);
+
+  const onError = React.useCallback((message: string | null) => {
+    setError(message);
+  }, []);
+
+  const resolveImageUrl = React.useCallback(
+    async (formUrl: string): Promise<string | null | undefined> => {
+      setError(null);
+      const existingImageUrl = formUrl.trim() || null;
+
+      if (!pickedImage) return existingImageUrl;
+
+      setIsUploading(true);
+      try {
+        return await uploadPickedImage(pickedImage, prefix);
+      } catch (uploadError) {
+        setError(uploadError instanceof Error ? uploadError.message : "Could not save image.");
+        return undefined;
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    [pickedImage, prefix],
+  );
+
+  return React.useMemo(
+    () => ({
+      pickedImage,
+      error,
+      isUploading,
+      onPick,
+      onClear,
+      onError,
+      reset,
+      resolveImageUrl,
+    }),
+    [error, isUploading, onClear, onError, onPick, pickedImage, reset, resolveImageUrl],
+  );
 }

@@ -7,9 +7,17 @@ import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
+import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { SingleImagePicker } from "@/components/ui/single-image-picker";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
 import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
@@ -22,15 +30,40 @@ import {
   cleanAdditionalLinks,
   toItemFormValues,
 } from "@/lib/items";
-import { type NativePickedImage, uploadPickedImage } from "@/lib/image-upload";
+import { useImageUploadField } from "@/lib/image-upload";
 import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
+import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Plus, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, ScrollView, View } from "react-native";
+
+type ItemFormVariant = {
+  showsProductLink: boolean;
+  productLinkPosition: "top" | "middle" | null;
+  showsDescription: boolean;
+  showsWishlistPicker: boolean;
+  scrapeDescription: boolean;
+};
+
+function getItemFormVariant(
+  mode: "create" | "edit",
+  createSource: "scratch" | "link",
+  hasWishlistId: boolean,
+): ItemFormVariant {
+  const isCreateFromLink = mode === "create" && createSource === "link";
+
+  return {
+    showsProductLink: mode === "edit" || createSource === "link",
+    productLinkPosition: isCreateFromLink ? "top" : mode === "edit" ? "middle" : null,
+    showsDescription: mode === "edit",
+    showsWishlistPicker: mode === "create" && !hasWishlistId,
+    scrapeDescription: mode === "edit",
+  };
+}
 
 export function WishlistItemCreateEditSheet({
   mode,
@@ -49,7 +82,7 @@ export function WishlistItemCreateEditSheet({
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useGT();
-  const completeCreateItemStep = useUserGuideStepCompletion(6);
+  const completeCreateItemStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.createItem);
   const { data: settings } = useSettings();
   const priorityOptions = React.useMemo(
     () => getItemPriorityOptions(t, settings?.selected_priorities),
@@ -65,19 +98,23 @@ export function WishlistItemCreateEditSheet({
   });
   const values = useWatch({ control }) as ItemFormValues;
   const [selectedWishlistId, setSelectedWishlistId] = React.useState("");
-  const needsWishlistPicker = mode === "create" && !wishlistId;
-  const targetWishlistId = wishlistId || selectedWishlistId;
-  const usesProductLink = mode === "edit" || createSource === "link";
-  const isCreateFromLink = mode === "create" && createSource === "link";
+  const form = React.useMemo(
+    () => getItemFormVariant(mode, createSource, Boolean(wishlistId)),
+    [createSource, mode, wishlistId],
+  );
+  const wishlistsQuery = useMyWishlists();
+  const selectableWishlists = React.useMemo(
+    () => (wishlistsQuery.data ?? []).filter((wishlist) => wishlist.is_owner || wishlist.can_edit),
+    [wishlistsQuery.data],
+  );
+  const targetWishlistId = wishlistId || selectedWishlistId || selectableWishlists[0]?.id || "";
   const [isScraping, setIsScraping] = React.useState(false);
-  const [pickedImage, setPickedImage] = React.useState<NativePickedImage | null>(null);
-  const [imageError, setImageError] = React.useState<string | null>(null);
-  const [isUploadingImage, setIsUploadingImage] = React.useState(false);
+  const imageUpload = useImageUploadField("item");
   const [scrapeError, setScrapeError] = React.useState<string | null>(null);
   const currentUrlRef = React.useRef("");
   const lastScrapedUrlRef = React.useRef("");
   const scrapeRequestIdRef = React.useRef(0);
-  const productLinkInvalid = usesProductLink && hasInvalidOptionalUrl(values.url);
+  const productLinkInvalid = form.showsProductLink && hasInvalidOptionalUrl(values.url);
   const imageUrlInvalid = hasInvalidOptionalUrl(values.imageUrl);
   const invalidAdditionalLinkIndexes = React.useMemo(
     () =>
@@ -91,9 +128,9 @@ export function WishlistItemCreateEditSheet({
   const hasInvalidAdditionalLinks = invalidAdditionalLinkIndexes.size > 0;
   const canSubmit =
     !isPending &&
-    !isUploadingImage &&
+    !imageUpload.isUploading &&
     values.name.trim() !== "" &&
-    (mode === "edit" || targetWishlistId !== "") &&
+    (!form.showsWishlistPicker || targetWishlistId !== "") &&
     !productLinkInvalid &&
     !imageUrlInvalid &&
     !hasInvalidAdditionalLinks;
@@ -107,13 +144,11 @@ export function WishlistItemCreateEditSheet({
       reset(nextValues);
       setSelectedWishlistId("");
       setScrapeError(null);
-      setPickedImage(null);
-      setImageError(null);
-      setIsUploadingImage(false);
+      imageUpload.reset();
       currentUrlRef.current = nextValues.url.trim();
       lastScrapedUrlRef.current = nextValues.url.trim();
     }
-  }, [createSource, item, mode, open, reset]);
+  }, [createSource, imageUpload.reset, item, mode, open, reset]);
 
   // Priority options can arrive after the sheet opens (they come from settings),
   // so defaulting can't happen in the open/reset effect above.
@@ -132,7 +167,7 @@ export function WishlistItemCreateEditSheet({
     const url = values.url.trim();
     if (
       !open ||
-      !usesProductLink ||
+      !form.showsProductLink ||
       url === "" ||
       !isValidHttpUrl(url) ||
       url === lastScrapedUrlRef.current
@@ -145,7 +180,7 @@ export function WishlistItemCreateEditSheet({
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [open, usesProductLink, values.url]);
+  }, [form.showsProductLink, open, values.url]);
 
   if (!open) return null;
 
@@ -159,7 +194,7 @@ export function WishlistItemCreateEditSheet({
     scrapeRequestIdRef.current += 1;
     setIsScraping(false);
     setScrapeError(null);
-    setPickedImage(null);
+    imageUpload.onClear();
     lastScrapedUrlRef.current = "";
     patchValues({
       url: "",
@@ -175,7 +210,7 @@ export function WishlistItemCreateEditSheet({
   }
 
   const canClearScrapedFields =
-    isCreateFromLink &&
+    form.productLinkPosition === "top" &&
     (values.url.trim() !== "" ||
       values.name.trim() !== "" ||
       values.description.trim() !== "" ||
@@ -189,8 +224,8 @@ export function WishlistItemCreateEditSheet({
     void sheetRef.current?.dismiss();
   }
 
-  const productLinkField = usesProductLink ? (
-    <View className={cn("gap-2", isCreateFromLink && "mt-2")}>
+  const productLinkField = form.showsProductLink ? (
+    <View className={cn("gap-2", form.productLinkPosition === "top" && "mt-2")}>
       <View className="flex-row items-center gap-2">
         <Controller
           control={control}
@@ -252,7 +287,7 @@ export function WishlistItemCreateEditSheet({
       const product = await scrapeProductLink(url);
       const isEmpty =
         !product.title &&
-        !(mode === "edit" && product.description) &&
+        !(form.scrapeDescription && product.description) &&
         !product.image &&
         !product.price;
 
@@ -266,11 +301,13 @@ export function WishlistItemCreateEditSheet({
       if (requestId !== scrapeRequestIdRef.current || currentUrlRef.current !== url) return;
 
       if (product.image) {
-        setPickedImage(null);
+        imageUpload.onClear();
       }
       patchValues({
         ...(product.title ? { name: product.title } : {}),
-        ...(mode === "edit" && product.description ? { description: product.description } : {}),
+        ...(form.scrapeDescription && product.description
+          ? { description: product.description }
+          : {}),
         ...(product.image ? { imageUrl: product.image } : {}),
         ...(product.price ? { price: product.price } : {}),
         ...(product.currency ? { currency: product.currency } : {}),
@@ -293,27 +330,12 @@ export function WishlistItemCreateEditSheet({
     const name = formValues.name.trim();
     if (!canSubmit) return;
 
-    setImageError(null);
-
-    let imageUrl = formValues.imageUrl.trim() || null;
-
-    if (pickedImage) {
-      setIsUploadingImage(true);
-      try {
-        imageUrl = await uploadPickedImage(pickedImage, "item");
-      } catch (uploadError) {
-        setImageError(
-          uploadError instanceof Error ? uploadError.message : t("Could not save image."),
-        );
-        return;
-      } finally {
-        setIsUploadingImage(false);
-      }
-    }
+    const imageUrl = await imageUpload.resolveImageUrl(formValues.imageUrl);
+    if (imageUrl === undefined) return;
 
     const payload = {
       name,
-      description: mode === "edit" ? formValues.description.trim() || null : null,
+      description: form.showsDescription ? formValues.description.trim() || null : null,
       price: formValues.price.trim() || null,
       priority_id: formValues.priority_id,
       image_url: imageUrl,
@@ -372,7 +394,7 @@ export function WishlistItemCreateEditSheet({
               disabled={!canSubmit}
               onPress={handleSubmit(submitForm)}
             >
-              {isPending || isUploadingImage ? (
+              {isPending || imageUpload.isUploading ? (
                 <ActivityIndicator colorClassName="accent-primary-foreground" />
               ) : null}
               <Text>{mode === "edit" ? t("Save changes") : t("Create item")}</Text>
@@ -386,7 +408,7 @@ export function WishlistItemCreateEditSheet({
         showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-5 px-5 pb-6 pt-5"
       >
-        {isCreateFromLink ? productLinkField : null}
+        {form.productLinkPosition === "top" ? productLinkField : null}
 
         <Field label={t("Name")}>
           <Controller
@@ -402,40 +424,45 @@ export function WishlistItemCreateEditSheet({
           />
         </Field>
 
-        {needsWishlistPicker ? (
+        {form.showsWishlistPicker ? (
           <Field label={t("Wishlist")}>
-            <WishlistPickerField value={selectedWishlistId} onChange={setSelectedWishlistId} />
+            <WishlistPickerField
+              value={selectedWishlistId || selectableWishlists[0]?.id || ""}
+              wishlists={selectableWishlists}
+              isLoading={wishlistsQuery.isLoading}
+              onChange={setSelectedWishlistId}
+            />
           </Field>
         ) : null}
 
-        {!isCreateFromLink ? productLinkField : null}
+        {form.productLinkPosition === "middle" ? productLinkField : null}
 
         <Field label={t("Image")}>
           <SingleImagePicker
-            previewUri={pickedImage?.uri ?? (imageUrlInvalid ? null : values.imageUrl.trim())}
+            previewUri={
+              imageUpload.pickedImage?.uri ?? (imageUrlInvalid ? null : values.imageUrl.trim())
+            }
             pickLabel={t("Choose image")}
             changeLabel={t("Change image")}
             onPick={(image) => {
-              setPickedImage(image);
+              imageUpload.onPick(image);
               patchValues({ imageUrl: "" });
-              setImageError(null);
             }}
             onClear={() => {
-              setPickedImage(null);
+              imageUpload.onClear();
               patchValues({ imageUrl: "" });
-              setImageError(null);
             }}
-            onError={setImageError}
+            onError={imageUpload.onError}
           />
           {imageUrlInvalid ? (
             <Text className="text-xs font-semibold text-destructive">{t("Enter valid Url")}</Text>
           ) : null}
-          {imageError ? (
-            <Text className="text-xs font-semibold text-destructive">{imageError}</Text>
+          {imageUpload.error ? (
+            <Text className="text-xs font-semibold text-destructive">{imageUpload.error}</Text>
           ) : null}
         </Field>
 
-        {mode === "edit" ? (
+        {form.showsDescription ? (
           <Field label={t("Description")}>
             <Controller
               control={control}
@@ -581,17 +608,16 @@ function Field({
 
 function WishlistPickerField({
   value,
+  wishlists,
+  isLoading,
   onChange,
 }: {
   value: string;
+  wishlists: Wishlist[];
+  isLoading: boolean;
   onChange: (wishlistId: string) => void;
 }) {
   const t = useGT();
-  const wishlistsQuery = useMyWishlists();
-  const wishlists = React.useMemo(
-    () => (wishlistsQuery.data ?? []).filter((wishlist) => wishlist.is_owner || wishlist.can_edit),
-    [wishlistsQuery.data],
-  );
   const options = React.useMemo<AutocompleteDropdownOption[]>(
     () =>
       wishlists.map((wishlist) => ({
@@ -604,13 +630,7 @@ function WishlistPickerField({
   );
   const selectedOption = options.find((option) => option.value === value) ?? null;
 
-  React.useEffect(() => {
-    if (!value && wishlists.length > 0) {
-      onChange(wishlists[0].id);
-    }
-  }, [onChange, value, wishlists]);
-
-  if (wishlistsQuery.isLoading) {
+  if (isLoading) {
     return (
       <View className="items-center justify-center rounded-xl border border-border-subtle bg-bg-muted p-4">
         <ActivityIndicator />
@@ -635,7 +655,6 @@ function WishlistPickerField({
       emptyText={t("No wishlists found")}
       attached
       maxVisibleOptions={4}
-      selectedIndicatorPosition="leading"
       optionClassName="min-h-12 py-3"
     />
   );
@@ -651,7 +670,7 @@ function PrioritySelector({
   onChange: (priority: ItemFormValues["priority_id"]) => void;
 }) {
   const t = useGT();
-  const options = React.useMemo<AutocompleteDropdownOption[]>(
+  const options = React.useMemo(
     () =>
       priorityOptions.map((option) => ({
         value: option.priority_id,
@@ -670,34 +689,44 @@ function PrioritySelector({
   const selectedPriority = value ? prioritiesById.get(value) : undefined;
 
   return (
-    <AutocompleteDropdown
-      value={selectedOption}
-      onValueChange={(option) => onChange(option.value)}
-      options={options}
-      placeholder={t("Search priority")}
-      emptyText={t("No priorities found")}
-      attached
-      searchable={false}
-      highlightSelectedOption={false}
-      optionClassName="min-h-10 py-2"
-      renderOptionLeading={(option) => {
-        const priority = prioritiesById.get(option.value);
-
-        return priority ? <PriorityFilterIcon priority={priority} /> : null;
+    <Select
+      value={selectedOption ?? undefined}
+      onValueChange={(option) => {
+        if (option?.value) onChange(option.value);
       }}
-      attachedContainerStyle={
-        selectedPriority
-          ? {
-              backgroundColor: `${selectedPriority.color}1f`,
-              borderColor: `${selectedPriority.color}33`,
-            }
-          : undefined
-      }
-      trailingAccessory={
-        selectedPriority ? (
-          <PriorityFilterIcon priority={selectedPriority} showBackground={false} />
-        ) : null
-      }
-    />
+    >
+      <SelectTrigger
+        className="h-10"
+        style={
+          selectedPriority
+            ? {
+                backgroundColor: `${selectedPriority.color}1f`,
+                borderColor: `${selectedPriority.color}33`,
+              }
+            : undefined
+        }
+      >
+        <View className="min-w-0 flex-1 flex-row items-center gap-2">
+          {selectedPriority ? (
+            <PriorityFilterIcon priority={selectedPriority} showBackground={false} />
+          ) : null}
+          <SelectValue className="min-w-0 flex-1" placeholder={t("Select priority")} />
+        </View>
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => {
+          const priority = prioritiesById.get(option.value);
+
+          return (
+            <SelectItem
+              key={option.value}
+              value={option.value}
+              label={option.label}
+              leading={priority ? <PriorityFilterIcon priority={priority} /> : null}
+            />
+          );
+        })}
+      </SelectContent>
+    </Select>
   );
 }

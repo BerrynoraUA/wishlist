@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { WindowOverlay } from "@/components/ui/window-overlay";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react-native";
 import * as React from "react";
@@ -11,8 +12,7 @@ import {
   Pressable,
   ScrollView,
   View,
-  type StyleProp,
-  type ViewStyle,
+  type LayoutRectangle,
 } from "react-native";
 
 export type AutocompleteDropdownOption = {
@@ -41,12 +41,6 @@ type CommonProps = {
   closeAccessibilityLabel?: string;
   hideSelectedOptions?: boolean;
   showSelectedValue?: boolean;
-  searchable?: boolean;
-  trailingAccessory?: React.ReactNode;
-  attachedContainerStyle?: StyleProp<ViewStyle>;
-  highlightSelectedOption?: boolean;
-  selectedIndicatorPosition?: "leading" | "trailing";
-  renderOptionLeading?: (option: AutocompleteDropdownOption) => React.ReactNode;
   inputProps?: Omit<
     React.ComponentProps<typeof Input>,
     "value" | "onChangeText" | "onFocus" | "onSubmitEditing" | "placeholder"
@@ -83,63 +77,43 @@ export function AutocompleteDropdown({
   closeAccessibilityLabel = "Close dropdown",
   hideSelectedOptions = false,
   showSelectedValue = true,
-  searchable = true,
-  trailingAccessory,
-  attachedContainerStyle,
-  highlightSelectedOption = true,
-  selectedIndicatorPosition = "trailing",
-  renderOptionLeading,
   inputProps,
   ...props
 }: AutocompleteDropdownProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [outsideDismissEnabled, setOutsideDismissEnabled] = React.useState(false);
+  const [triggerFrame, setTriggerFrame] = React.useState<LayoutRectangle | null>(null);
   const [query, setQuery] = React.useState("");
-  const outsideDismissTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const triggerRef = React.useRef<View>(null);
   const selectedOptions = props.multiple ? props.value : props.value ? [props.value] : [];
   const selectedValues = React.useMemo(
     () => new Set(selectedOptions.map((option) => option.value)),
     [selectedOptions],
   );
   const selectedValue = formatSelectedValue(selectedOptions);
-  const visibleValue = searchable && (isOpen || !showSelectedValue) ? query : selectedValue;
+  const visibleValue = isOpen || !showSelectedValue ? query : selectedValue;
   const matchingOptions = React.useMemo(() => {
-    const matches = searchable ? filterOptions(options, query) : options;
+    const matches = filterOptions(options, query);
     return hideSelectedOptions
       ? matches.filter((option) => !selectedValues.has(option.value))
       : matches;
-  }, [hideSelectedOptions, options, query, searchable, selectedValues]);
+  }, [hideSelectedOptions, options, query, selectedValues]);
 
-  React.useEffect(() => {
-    return () => {
-      if (outsideDismissTimeoutRef.current) clearTimeout(outsideDismissTimeoutRef.current);
-    };
-  }, []);
-
-  function clearOutsideDismissTimeout() {
-    if (!outsideDismissTimeoutRef.current) return;
-
-    clearTimeout(outsideDismissTimeoutRef.current);
-    outsideDismissTimeoutRef.current = null;
+  function measureTrigger() {
+    requestAnimationFrame(() => {
+      triggerRef.current?.measureInWindow((x, y, width, height) => {
+        setTriggerFrame({ x, y, width, height });
+      });
+    });
   }
 
   function openDropdown() {
-    clearOutsideDismissTimeout();
     setQuery("");
     onQueryChange?.("");
     setIsOpen(true);
-    // Grace period so the tap that opened the dropdown can't also land on the
-    // outside-dismiss backdrop and immediately close it again.
-    setOutsideDismissEnabled(false);
-    outsideDismissTimeoutRef.current = setTimeout(() => {
-      setOutsideDismissEnabled(true);
-      outsideDismissTimeoutRef.current = null;
-    }, 150);
+    measureTrigger();
   }
 
   function handleSelect(option: AutocompleteDropdownOption) {
-    clearOutsideDismissTimeout();
-
     if (props.multiple) {
       const nextValue = selectedValues.has(option.value)
         ? props.value.filter((item) => item.value !== option.value)
@@ -154,8 +128,8 @@ export function AutocompleteDropdown({
     props.onValueChange(option);
     setQuery("");
     onQueryChange?.("");
-    setOutsideDismissEnabled(false);
     setIsOpen(false);
+    setTriggerFrame(null);
     Keyboard.dismiss();
   }
 
@@ -178,11 +152,10 @@ export function AutocompleteDropdown({
   }
 
   function closeDropdown() {
-    clearOutsideDismissTimeout();
-    setOutsideDismissEnabled(false);
     setQuery("");
     onQueryChange?.("");
     setIsOpen(false);
+    setTriggerFrame(null);
     Keyboard.dismiss();
   }
 
@@ -204,7 +177,7 @@ export function AutocompleteDropdown({
     attached && isOpen && "rounded-b-none",
     inputClassName,
   );
-  const input = searchable ? (
+  const input = (
     <Input
       value={visibleValue}
       onFocus={openDropdown}
@@ -216,130 +189,119 @@ export function AutocompleteDropdown({
       className={inputClass}
       {...inputProps}
     />
-  ) : (
-    <Pressable
-      accessibilityRole="button"
-      onPress={isOpen ? closeDropdown : openDropdown}
+  );
+
+  const dropdown = (
+    <View
       className={cn(
-        "flex h-10 w-full min-w-0 flex-row items-center rounded-md px-3 py-1 sm:h-9",
-        inputClass,
+        "max-h-80 overflow-hidden border border-border bg-card-bg/95",
+        attached ? "rounded-b-md rounded-t-none" : "rounded-md",
+        dropdownClassName,
       )}
     >
-      <Text className={cn("text-base leading-5", selectedValue ? "text-text" : "text-text-muted")}>
-        {visibleValue || placeholder}
-      </Text>
-    </Pressable>
+      {matchingOptions.length > 0 ? (
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          nestedScrollEnabled
+          onScroll={handleDropdownScroll}
+          scrollEventThrottle={16}
+          style={maxVisibleOptions ? { maxHeight: Math.max(1, maxVisibleOptions) * 64 } : undefined}
+        >
+          {matchingOptions.map((option) => {
+            const isSelected = selectedValues.has(option.value);
+            const selectedIndicator = isSelected ? (
+              <Icon as={Check} aria-hidden={true} className="size-4 text-brand" />
+            ) : (
+              <View className="size-4" />
+            );
+
+            return (
+              <Pressable
+                key={option.value}
+                onPress={() => handleSelect(option)}
+                role="button"
+                accessibilityState={{ selected: isSelected }}
+                className={cn(
+                  "min-h-16 flex-row items-center justify-between gap-3 px-3 py-3 active:bg-accent",
+                  isSelected && "bg-accent/60",
+                  optionClassName,
+                )}
+              >
+                {option.imageUrl ? (
+                  <Avatar alt={option.label} className="size-9">
+                    <AvatarImage source={{ uri: option.imageUrl }} />
+                    <AvatarFallback>
+                      <Text className="text-xs font-bold text-text-muted">
+                        {option.label.slice(0, 2).toUpperCase()}
+                      </Text>
+                    </AvatarFallback>
+                  </Avatar>
+                ) : null}
+                <View className="min-w-0 flex-1">
+                  <Text className="font-semibold text-text">{option.label}</Text>
+                  {option.description ? (
+                    <Text className="text-sm text-text-muted">{option.description}</Text>
+                  ) : null}
+                </View>
+                <View className="flex-row items-center gap-2">
+                  {isSelected ? selectedIndicator : null}
+                  {option.trailing ? (
+                    <Text className="text-sm font-semibold text-text-muted">{option.trailing}</Text>
+                  ) : null}
+                </View>
+              </Pressable>
+            );
+          })}
+          {isLoadingMore ? (
+            <View className="h-12 items-center justify-center">
+              <ActivityIndicator colorClassName="accent-brand" size="small" />
+            </View>
+          ) : null}
+        </ScrollView>
+      ) : (
+        <Text className="px-3 py-3 text-sm text-text-muted">{emptyText}</Text>
+      )}
+    </View>
   );
 
   return (
     <View className={cn(attached ? "gap-0" : "gap-2", className)}>
-      {isOpen ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={closeAccessibilityLabel}
-          onPress={closeDropdown}
-          pointerEvents={outsideDismissEnabled ? "auto" : "none"}
-          style={{ position: "absolute", inset: -1000, zIndex: 1 }}
-        />
-      ) : null}
-      <View style={isOpen ? { position: "relative", zIndex: 2 } : undefined}>
+      <View ref={triggerRef} collapsable={false}>
         {attached ? (
           <View
             className={cn(
               "flex-row items-center border border-input bg-background pr-2 shadow-sm shadow-black/5",
               isOpen ? "rounded-t-md border-b-0" : "rounded-md",
             )}
-            style={attachedContainerStyle}
           >
             {input}
-            {trailingAccessory ? (
-              <View className="ml-2 items-center justify-center">{trailingAccessory}</View>
-            ) : null}
           </View>
         ) : (
           input
         )}
-        {isOpen ? (
-          <View
-            className={cn(
-              "max-h-80 overflow-hidden border border-border bg-card-bg/95",
-              attached ? "rounded-b-md rounded-t-none" : "rounded-md",
-              dropdownClassName,
-            )}
-          >
-            {matchingOptions.length > 0 ? (
-              <ScrollView
-                keyboardShouldPersistTaps="handled"
-                nestedScrollEnabled
-                onScroll={handleDropdownScroll}
-                scrollEventThrottle={16}
-                style={
-                  maxVisibleOptions ? { maxHeight: Math.max(1, maxVisibleOptions) * 64 } : undefined
-                }
-              >
-                {matchingOptions.map((option) => {
-                  const isSelected = selectedValues.has(option.value);
-                  const selectedIndicator = isSelected ? (
-                    <Icon as={Check} aria-hidden={true} className="size-4 text-brand" />
-                  ) : (
-                    <View className="size-4" />
-                  );
-
-                  return (
-                    <Pressable
-                      key={option.value}
-                      onPress={() => handleSelect(option)}
-                      role="button"
-                      accessibilityState={{ selected: isSelected }}
-                      className={cn(
-                        "min-h-16 flex-row items-center justify-between gap-3 px-3 py-3 active:bg-accent",
-                        isSelected && highlightSelectedOption && "bg-accent/60",
-                        optionClassName,
-                      )}
-                    >
-                      {selectedIndicatorPosition === "leading" ? selectedIndicator : null}
-                      {renderOptionLeading ? renderOptionLeading(option) : null}
-                      {option.imageUrl ? (
-                        <Avatar alt={option.label} className="size-9">
-                          <AvatarImage source={{ uri: option.imageUrl }} />
-                          <AvatarFallback>
-                            <Text className="text-xs font-bold text-text-muted">
-                              {option.label.slice(0, 2).toUpperCase()}
-                            </Text>
-                          </AvatarFallback>
-                        </Avatar>
-                      ) : null}
-                      <View className="min-w-0 flex-1">
-                        <Text className="font-semibold text-text">{option.label}</Text>
-                        {option.description ? (
-                          <Text className="text-sm text-text-muted">{option.description}</Text>
-                        ) : null}
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        {selectedIndicatorPosition === "trailing" && isSelected
-                          ? selectedIndicator
-                          : null}
-                        {option.trailing ? (
-                          <Text className="text-sm font-semibold text-text-muted">
-                            {option.trailing}
-                          </Text>
-                        ) : null}
-                      </View>
-                    </Pressable>
-                  );
-                })}
-                {isLoadingMore ? (
-                  <View className="h-12 items-center justify-center">
-                    <ActivityIndicator colorClassName="accent-brand" size="small" />
-                  </View>
-                ) : null}
-              </ScrollView>
-            ) : (
-              <Text className="px-3 py-3 text-sm text-text-muted">{emptyText}</Text>
-            )}
-          </View>
-        ) : null}
       </View>
+      {isOpen && triggerFrame ? (
+        <WindowOverlay onRequestClose={closeDropdown}>
+          <View className="absolute inset-0">
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={closeAccessibilityLabel}
+              onPress={closeDropdown}
+              className="absolute inset-0"
+            />
+            <View
+              style={{
+                left: triggerFrame.x,
+                position: "absolute",
+                top: triggerFrame.y + triggerFrame.height,
+                width: triggerFrame.width,
+              }}
+            >
+              {dropdown}
+            </View>
+          </View>
+        </WindowOverlay>
+      ) : null}
     </View>
   );
 }

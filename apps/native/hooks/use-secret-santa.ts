@@ -40,21 +40,6 @@ export const secretSantaKeys = {
   ],
 };
 
-export function useSecretSantaEvents(params: ListSecretSantaEventsParams = {}) {
-  const { user } = useAuth();
-  const normalizedParams = {
-    search: normalizeSearchQuery(params.search) || undefined,
-    limit: params.limit,
-    offset: params.offset,
-  };
-
-  return useQuery({
-    queryKey: secretSantaKeys.list(user?.id, normalizedParams),
-    queryFn: () => listSecretSantaEvents(normalizedParams),
-    enabled: Boolean(user?.id),
-  });
-}
-
 export function useInfiniteSecretSantaEvents(
   params: ListSecretSantaEventsParams,
   pageSize: number,
