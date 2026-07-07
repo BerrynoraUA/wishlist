@@ -20,13 +20,17 @@ import {
 } from "@/components/user-guide/user-guide-provider";
 import { useMyStatistics } from "@/hooks/use-wishlists";
 import { chunkRows } from "@/lib/layout";
+import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import {
   WISHLIST_VISIBILITY_ICONS,
   getWishlistAccentClass,
   getWishlistVisibilityLabels,
 } from "@/lib/wishlists";
-import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
+import {
+  wishlistCardFadeIn,
+  wishlistGridLinearTransition,
+} from "@/components/wishlists/wishlist-grid-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import type { TriggerRef } from "@rn-primitives/dropdown-menu";
 import { Link } from "expo-router";
@@ -166,9 +170,13 @@ export function WishlistList({
         onScroll={requestMeasure}
         scrollEventThrottle={1}
         ListHeaderComponent={
-          <View className="max-w-300 self-center pb-4" style={{ width: contentWidth }}>
+          <Animated.View
+            layout={wishlistGridLinearTransition.duration(motionDuration.normal)}
+            className="max-w-300 self-center pb-4"
+            style={{ width: contentWidth }}
+          >
             {ListHeaderComponent}
-          </View>
+          </Animated.View>
         }
         ListFooterComponent={
           <View className="gap-5" style={{ alignSelf: "center", width: contentWidth }}>
@@ -209,14 +217,37 @@ export function WishlistListStatsRow() {
   const { width } = useWindowDimensions();
   const { data, isError, isLoading } = useMyStatistics();
   const t = useGT();
-  const gap = 12;
-  const cardWidth = (Math.min(width - 32, 1200) - gap) / 2;
+  const [compact, setCompact] = React.useState(false);
+  const contentWidth = Math.min(width - 32, 1200);
+  const gap = compact ? 8 : 12;
+  const cardWidth = compact ? (contentWidth - gap * 3) / 4 : (contentWidth - gap) / 2;
   const stats = [
-    { label: t("Wishlists"), value: data?.wishlists_count ?? 0, icon: ListChecks },
-    { label: t("Total Items"), value: data?.total_items_count ?? 0, icon: Package },
-    { label: t("Reserved"), value: data?.reserved_items_count ?? 0, icon: LockKeyhole },
-    { label: t("Purchased"), value: data?.purchased_items_count ?? 0, icon: ShoppingBag },
+    {
+      key: "wishlists",
+      label: t("Wishlists"),
+      value: data?.wishlists_count ?? 0,
+      icon: ListChecks,
+    },
+    {
+      key: "total-items",
+      label: t("Total Items"),
+      value: data?.total_items_count ?? 0,
+      icon: Package,
+    },
+    {
+      key: "reserved",
+      label: t("Reserved"),
+      value: data?.reserved_items_count ?? 0,
+      icon: LockKeyhole,
+    },
+    {
+      key: "purchased",
+      label: t("Purchased"),
+      value: data?.purchased_items_count ?? 0,
+      icon: ShoppingBag,
+    },
   ];
+  const statsLayoutTransition = wishlistGridLinearTransition.duration(motionDuration.normal);
 
   if (isLoading) {
     return (
@@ -237,25 +268,52 @@ export function WishlistListStatsRow() {
   }
 
   return (
-    <View className="flex-row flex-wrap" style={{ gap }}>
+    <Animated.View layout={statsLayoutTransition} className="flex-row flex-wrap" style={{ gap }}>
       {stats.map((stat) => (
-        <View
-          key={stat.label}
-          className="flex-row items-center gap-3 rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm"
-          style={{ width: cardWidth }}
-        >
-          <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
-            <Icon as={stat.icon} className="size-4 text-brand" />
-          </View>
-          <View className="min-w-0 flex-1">
-            <Text className="text-2xl font-extrabold text-text">{stat.value}</Text>
-            <Text className="text-sm font-semibold text-text-muted" numberOfLines={1}>
-              {stat.label}
-            </Text>
-          </View>
-        </View>
+        <Animated.View key={stat.key} layout={statsLayoutTransition} style={{ width: cardWidth }}>
+          <AnimatedPressable
+            accessibilityRole="button"
+            accessibilityLabel={t("{label}: {value}", {
+              label: stat.label,
+              value: stat.value,
+            })}
+            accessibilityState={{ expanded: !compact }}
+            onPress={() => setCompact((current) => !current)}
+            className={cn(
+              "w-full rounded-xl border border-border-subtle bg-card-bg shadow-sm",
+              compact
+                ? "h-14 flex-row items-center justify-center gap-1.5 p-0"
+                : "flex-row items-center gap-3 p-4",
+            )}
+          >
+            <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
+              <Icon as={stat.icon} className="size-4 text-brand" />
+            </View>
+            {compact ? (
+              <Text
+                className="text-sm font-extrabold text-text"
+                numberOfLines={1}
+                style={{ fontVariant: ["tabular-nums"] }}
+              >
+                {stat.value}
+              </Text>
+            ) : (
+              <View className="min-w-0 flex-1">
+                <Text
+                  className="text-2xl font-extrabold text-text"
+                  style={{ fontVariant: ["tabular-nums"] }}
+                >
+                  {stat.value}
+                </Text>
+                <Text className="text-sm font-semibold text-text-muted" numberOfLines={1}>
+                  {stat.label}
+                </Text>
+              </View>
+            )}
+          </AnimatedPressable>
+        </Animated.View>
       ))}
-    </View>
+    </Animated.View>
   );
 }
 
