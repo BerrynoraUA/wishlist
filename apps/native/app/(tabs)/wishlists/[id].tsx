@@ -446,13 +446,7 @@ export default function WishlistDetailScreen() {
                 {itemsQuery.isError ? <InlineState message={t("Failed to load items.")} /> : null}
                 {!itemsQuery.isLoading && !itemsQuery.isError && items.length === 0 ? (
                   <InlineState
-                    mascot={
-                      filtersActive && hasAnyItems
-                        ? "magnifying-glass"
-                        : canEditWishlist
-                          ? "gift-in-hands"
-                          : "empty-hands-shrug"
-                    }
+                    mascot={filtersActive && hasAnyItems ? "magnifying-glass" : "gift-in-hands"}
                     message={
                       filtersActive && hasAnyItems
                         ? t("No items match your filters.")

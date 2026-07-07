@@ -185,6 +185,13 @@ export function WishlistList({
                 message={t("No wishlists match your filters.")}
               />
             ) : null}
+            {!query.isLoading && !query.isError && wishlists.length === 0 && !filtersActive ? (
+              <InlineState
+                width={contentWidth}
+                mascot="sad-alone"
+                message={t("No wishlists yet.")}
+              />
+            ) : null}
           </View>
         }
         extraData={{
