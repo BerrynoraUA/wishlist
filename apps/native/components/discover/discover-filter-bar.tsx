@@ -68,7 +68,7 @@ export function DiscoverFilterActions({
             ? "border-brand bg-brand-lighter dark:bg-brand-lighter"
             : HAS_LIQUID_GLASS
               ? "border-transparent bg-transparent dark:bg-transparent"
-              : "border-border-subtle bg-card-bg dark:bg-card-bg",
+              : "border-border-subtle bg-card-bg shadow-sm dark:bg-card-bg",
         )}
       >
         {!filtersOpen && HAS_LIQUID_GLASS ? (
@@ -79,19 +79,6 @@ export function DiscoverFilterActions({
           className={cn("size-4 text-text", filtersOpen && "text-brand")}
         />
       </Button>
-    </View>
-  );
-}
-
-export function DiscoverFilterHeader(props: React.ComponentProps<typeof DiscoverFilterActions>) {
-  const t = useGT();
-
-  return (
-    <View className="flex-row items-center justify-between gap-3">
-      <Text className="min-w-0 flex-1 text-xl font-extrabold tracking-tight text-text">
-        {t("Discover")}
-      </Text>
-      <DiscoverFilterActions {...props} />
     </View>
   );
 }

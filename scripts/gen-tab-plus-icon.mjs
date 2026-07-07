@@ -7,7 +7,14 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const POINT_SIZE = 35;
-const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "apps", "native", "assets", "images");
+const OUT_DIR = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "apps",
+  "native",
+  "assets",
+  "images",
+);
 
 const crcTable = Array.from({ length: 256 }, (_, n) => {
   let c = n;

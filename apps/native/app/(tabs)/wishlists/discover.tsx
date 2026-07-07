@@ -1,5 +1,5 @@
 import {
-  DiscoverFilterHeader,
+  DiscoverFilterActions,
   DiscoverFiltersPanel,
 } from "@/components/discover/discover-filter-bar";
 import { DiscoverSection } from "@/components/discover/discover-section";
@@ -49,7 +49,7 @@ export default function DiscoverScreen() {
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [selection, setSelection] = React.useState<SelectedDiscoverItem | null>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
-  const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding(2);
+  const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding(1);
 
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
@@ -204,19 +204,23 @@ export default function DiscoverScreen() {
     <View className="flex-1 bg-bg">
       <Stack.Screen options={{ title: t("Discover") }} />
       <PinnedListHeader contentWidth={contentWidth} onLayout={onHeaderLayout}>
-        <DiscoverTabs
-          value={feed.tab}
-          onChange={(value) => {
-            feed.setTab(value);
-            setSelection(null);
-          }}
-        />
-        <DiscoverFilterHeader
-          filtersOpen={filtersOpen}
-          filtersActive={feed.filtersActive}
-          onFiltersOpenChange={setFiltersOpen}
-          onResetFilters={feed.resetFilters}
-        />
+        <View className="flex-row items-center gap-3">
+          <DiscoverFilterActions
+            filtersOpen={filtersOpen}
+            filtersActive={feed.filtersActive}
+            onFiltersOpenChange={setFiltersOpen}
+            onResetFilters={feed.resetFilters}
+          />
+          <View className="min-w-0 flex-1">
+            <DiscoverTabs
+              value={feed.tab}
+              onChange={(value) => {
+                feed.setTab(value);
+                setSelection(null);
+              }}
+            />
+          </View>
+        </View>
         {renderFiltersPanel()}
       </PinnedListHeader>
       <StyledFlashList
