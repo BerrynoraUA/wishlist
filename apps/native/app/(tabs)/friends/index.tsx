@@ -33,7 +33,7 @@ import type {
 import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View, useWindowDimensions } from "react-native";
+import { ActivityIndicator, Platform, View, useWindowDimensions } from "react-native";
 
 type SheetState =
   | { type: "group"; group: FriendGroup }
@@ -44,6 +44,7 @@ type SheetState =
 type FriendEntry = FriendWithDetails | FriendGroup | FriendRequestWithDetails;
 type FriendsRow = FriendEntry[];
 const FRIENDS_PAGE_SIZE = 20;
+const IOS_HEADER_CONTENT_GAP = 16;
 
 export default function FriendsScreen() {
   const t = useGT();
@@ -246,6 +247,7 @@ export default function FriendsScreen() {
           className="flex-1"
           contentContainerClassName="pb-8"
           contentContainerStyle={{ paddingTop }}
+          ListHeaderComponent={Platform.OS === "ios" ? FriendsListTopSpacer : undefined}
           onScroll={requestMeasure}
           scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View className="h-4" />}
@@ -341,6 +343,10 @@ export default function FriendsScreen() {
       </View>
     </>
   );
+}
+
+function FriendsListTopSpacer() {
+  return <View style={{ height: IOS_HEADER_CONTENT_GAP }} />;
 }
 
 function ConfirmActionSheet({

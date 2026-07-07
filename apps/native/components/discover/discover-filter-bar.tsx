@@ -45,6 +45,22 @@ export function DiscoverFilterActions({
 
   return (
     <View className="flex-row items-center gap-2">
+      <Button
+        variant="outline"
+        size="lg"
+        accessibilityLabel={t("Show filters")}
+        accessibilityState={{ expanded: filtersOpen }}
+        onPress={() => onFiltersOpenChange(!filtersOpen)}
+        className={cn(
+          "h-11 w-11 min-w-11 shrink-0 rounded-full p-0",
+          HAS_LIQUID_GLASS
+            ? "border-border-subtle bg-transparent dark:bg-transparent"
+            : "border-border-subtle bg-card-bg shadow-sm dark:bg-card-bg",
+        )}
+      >
+        {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
+        <Icon as={SlidersHorizontal} className="size-4 text-text" />
+      </Button>
       {filtersActive ? (
         <Button
           variant="destructive"
@@ -56,29 +72,6 @@ export function DiscoverFilterActions({
           <Icon as={X} className="size-4 text-white" />
         </Button>
       ) : null}
-      <Button
-        variant="outline"
-        size="lg"
-        accessibilityLabel={t("Show filters")}
-        accessibilityState={{ expanded: filtersOpen }}
-        onPress={() => onFiltersOpenChange(!filtersOpen)}
-        className={cn(
-          "h-11 w-11 min-w-11 shrink-0 rounded-full p-0",
-          filtersOpen
-            ? "border-brand bg-brand-lighter dark:bg-brand-lighter"
-            : HAS_LIQUID_GLASS
-              ? "border-transparent bg-transparent dark:bg-transparent"
-              : "border-border-subtle bg-card-bg shadow-sm dark:bg-card-bg",
-        )}
-      >
-        {!filtersOpen && HAS_LIQUID_GLASS ? (
-          <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-        ) : null}
-        <Icon
-          as={SlidersHorizontal}
-          className={cn("size-4 text-text", filtersOpen && "text-brand")}
-        />
-      </Button>
     </View>
   );
 }
@@ -125,7 +118,7 @@ export function DiscoverFiltersPanel({
         className={cn(
           "w-full flex-row items-center gap-1 rounded-full border px-2 pl-3",
           HAS_LIQUID_GLASS
-            ? "border-transparent bg-transparent"
+            ? "border-border-subtle bg-transparent"
             : "border-border-subtle bg-card-bg shadow-sm",
         )}
       >
@@ -161,7 +154,7 @@ export function DiscoverFiltersPanel({
                   priorityIds.length > 0
                     ? "border-brand bg-brand-lighter"
                     : HAS_LIQUID_GLASS
-                      ? "border-transparent bg-transparent"
+                      ? "border-border-subtle bg-transparent"
                       : "border-border-subtle bg-card-bg",
                 )}
               >
@@ -215,7 +208,7 @@ export function DiscoverFiltersPanel({
                 className={cn(
                   "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
                   HAS_LIQUID_GLASS
-                    ? "border-transparent bg-transparent dark:bg-transparent"
+                    ? "border-border-subtle bg-transparent dark:bg-transparent"
                     : "border-border-subtle bg-card-bg dark:bg-card-bg",
                 )}
               >

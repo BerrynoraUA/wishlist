@@ -9,6 +9,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import {
+  SlideOutFilterPanel,
+  WISHLIST_FILTER_PANEL_HEIGHT,
+} from "@/components/ui/slide-out-filter-panel";
 import { Text } from "@/components/ui/text";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import {
@@ -66,7 +70,7 @@ export function WishlistFilterBar({
     search.trim() !== "" || visibility.length > 0 || sort !== DEFAULT_WISHLIST_SORT;
 
   return (
-    <View className="gap-4">
+    <View>
       <View className="flex-row items-center justify-between gap-3">
         <GuideTarget id="wishlists-discover">
           <AnimatedGradientBackgroundButton
@@ -77,29 +81,6 @@ export function WishlistFilterBar({
           />
         </GuideTarget>
         <View className="flex-row items-center justify-end gap-2">
-          <Button
-            variant="outline"
-            size="icon-lg"
-            accessibilityLabel={t("Show filters")}
-            accessibilityState={{ expanded: filtersOpen }}
-            onPress={() => onFiltersOpenChange(!filtersOpen)}
-            className={cn(
-              "shrink-0 rounded-full",
-              filtersOpen
-                ? "border-brand bg-brand-lighter dark:bg-brand-lighter"
-                : HAS_LIQUID_GLASS
-                  ? "border-transparent bg-transparent dark:bg-transparent"
-                  : "border-border-subtle bg-card-bg dark:bg-card-bg",
-            )}
-          >
-            {!filtersOpen && HAS_LIQUID_GLASS ? (
-              <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-            ) : null}
-            <Icon
-              as={SlidersHorizontal}
-              className={cn("size-4 text-text", filtersOpen && "text-brand")}
-            />
-          </Button>
           {canResetFilters ? (
             <Button
               variant="destructive"
@@ -111,131 +92,149 @@ export function WishlistFilterBar({
               <Icon as={X} className="size-4 text-white" />
             </Button>
           ) : null}
-        </View>
-      </View>
-
-      {filtersOpen ? (
-        <View className="gap-3">
-          <View
+          <Button
+            variant="outline"
+            size="icon-lg"
+            accessibilityLabel={t("Show filters")}
+            accessibilityState={{ expanded: filtersOpen }}
+            onPress={() => onFiltersOpenChange(!filtersOpen)}
             className={cn(
-              "w-full flex-row items-center gap-1 rounded-full border px-2 pl-3",
+              "shrink-0 rounded-full",
               HAS_LIQUID_GLASS
-                ? "border-transparent bg-transparent"
-                : "border-border-subtle bg-card-bg shadow-sm",
+                ? "border-border-subtle bg-transparent dark:bg-transparent"
+                : "border-border-subtle bg-card-bg dark:bg-card-bg",
             )}
           >
             {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
-            <Icon as={Search} className="size-4 text-muted-foreground/50" />
-            <Input
-              value={search}
-              onChangeText={onSearchChange}
-              placeholder={t("Search wishlists...")}
-              className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
-              returnKeyType="search"
-            />
-            {search.length > 0 ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                accessibilityLabel={t("Clear search")}
-                onPress={() => onSearchChange("")}
-                className="size-9 shrink-0 rounded-full"
-              >
-                <Icon as={X} className="size-4 text-text-muted" />
-              </Button>
-            ) : null}
-          </View>
-          <View className="w-full flex-row items-stretch gap-2">
-            <View className="min-w-0 flex-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="pill"
-                    accessibilityLabel={t("Filter by visibility")}
-                    className={cn(
-                      "w-full justify-between shadow-none",
-                      visibility.length > 0
-                        ? "border-brand bg-brand-lighter dark:bg-brand-lighter"
-                        : HAS_LIQUID_GLASS
-                          ? "border-transparent bg-transparent dark:bg-transparent"
-                          : "border-border-subtle bg-card-bg dark:bg-card-bg",
-                    )}
-                  >
-                    {visibility.length === 0 && HAS_LIQUID_GLASS ? (
-                      <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-                    ) : null}
-                    <Text
-                      className={cn(
-                        "shrink text-sm font-semibold text-text",
-                        visibility.length > 0 && "text-brand",
-                      )}
-                      numberOfLines={1}
-                    >
-                      {selectedVisibilityLabel}
-                    </Text>
-                    <Icon
-                      as={ChevronsUpDown}
-                      className={cn(
-                        "size-3.5 shrink-0 text-text",
-                        visibility.length > 0 && "text-brand",
-                      )}
-                    />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="min-w-52">
-                  {visibilityOptions.map((option) => {
-                    const VisibilityIcon = option.icon;
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={option.value}
-                        checked={visibility.includes(option.value)}
-                        closeOnPress={false}
-                        onCheckedChange={() => onVisibilityChange(option.value)}
-                      >
-                        <Icon as={VisibilityIcon} className="size-3.5 text-popover-foreground" />
-                        <Text>{option.label}</Text>
-                      </DropdownMenuCheckboxItem>
-                    );
-                  })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </View>
-            <View className="min-w-0 flex-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="pill"
-                    accessibilityLabel={t("Sort wishlists")}
-                    className={cn(
-                      "w-full justify-between shadow-none",
-                      HAS_LIQUID_GLASS
-                        ? "border-transparent bg-transparent dark:bg-transparent"
+            <Icon as={SlidersHorizontal} className="size-4 text-text" />
+          </Button>
+        </View>
+      </View>
+
+      <SlideOutFilterPanel
+        open={filtersOpen}
+        className="pb-1 pt-4"
+        maxHeight={WISHLIST_FILTER_PANEL_HEIGHT}
+      >
+        <View
+          className={cn(
+            "w-full flex-row items-center gap-1 rounded-full border px-2 pl-3",
+            HAS_LIQUID_GLASS
+              ? "border-border-subtle bg-transparent"
+              : "border-border-subtle bg-card-bg shadow-sm",
+          )}
+        >
+          {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
+          <Icon as={Search} className="size-4 text-muted-foreground/50" />
+          <Input
+            value={search}
+            onChangeText={onSearchChange}
+            placeholder={t("Search wishlists...")}
+            className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
+            returnKeyType="search"
+          />
+          {search.length > 0 ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              accessibilityLabel={t("Clear search")}
+              onPress={() => onSearchChange("")}
+              className="size-9 shrink-0 rounded-full"
+            >
+              <Icon as={X} className="size-4 text-text-muted" />
+            </Button>
+          ) : null}
+        </View>
+        <View className="w-full flex-row items-stretch gap-2">
+          <View className="min-w-0 flex-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="pill"
+                  accessibilityLabel={t("Filter by visibility")}
+                  className={cn(
+                    "w-full justify-between shadow-none",
+                    visibility.length > 0
+                      ? "border-brand bg-brand-lighter dark:bg-brand-lighter"
+                      : HAS_LIQUID_GLASS
+                        ? "border-border-subtle bg-transparent dark:bg-transparent"
                         : "border-border-subtle bg-card-bg dark:bg-card-bg",
+                  )}
+                >
+                  {visibility.length === 0 && HAS_LIQUID_GLASS ? (
+                    <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+                  ) : null}
+                  <Text
+                    className={cn(
+                      "shrink text-sm font-semibold text-text",
+                      visibility.length > 0 && "text-brand",
                     )}
+                    numberOfLines={1}
                   >
-                    {HAS_LIQUID_GLASS ? (
-                      <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-                    ) : null}
-                    <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
-                      {selectedSortLabel}
-                    </Text>
-                    <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="min-w-52">
-                  {sortOptions.map((option) => (
-                    <DropdownMenuItem key={option.value} onPress={() => onSortChange(option.value)}>
+                    {selectedVisibilityLabel}
+                  </Text>
+                  <Icon
+                    as={ChevronsUpDown}
+                    className={cn(
+                      "size-3.5 shrink-0 text-text",
+                      visibility.length > 0 && "text-brand",
+                    )}
+                  />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="min-w-52">
+                {visibilityOptions.map((option) => {
+                  const VisibilityIcon = option.icon;
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={option.value}
+                      checked={visibility.includes(option.value)}
+                      closeOnPress={false}
+                      onCheckedChange={() => onVisibilityChange(option.value)}
+                    >
+                      <Icon as={VisibilityIcon} className="size-3.5 text-popover-foreground" />
                       <Text>{option.label}</Text>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </View>
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </View>
+          <View className="min-w-0 flex-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="pill"
+                  accessibilityLabel={t("Sort wishlists")}
+                  className={cn(
+                    "w-full justify-between shadow-none",
+                    HAS_LIQUID_GLASS
+                      ? "border-border-subtle bg-transparent dark:bg-transparent"
+                      : "border-border-subtle bg-card-bg dark:bg-card-bg",
+                  )}
+                >
+                  {HAS_LIQUID_GLASS ? (
+                    <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+                  ) : null}
+                  <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
+                    {selectedSortLabel}
+                  </Text>
+                  <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="min-w-52">
+                {sortOptions.map((option) => (
+                  <DropdownMenuItem key={option.value} onPress={() => onSortChange(option.value)}>
+                    <Text>{option.label}</Text>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </View>
         </View>
-      ) : null}
+      </SlideOutFilterPanel>
     </View>
   );
 }
