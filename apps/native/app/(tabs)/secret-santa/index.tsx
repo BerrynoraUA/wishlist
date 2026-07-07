@@ -13,10 +13,11 @@ import type { SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
 import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View, useWindowDimensions } from "react-native";
+import { ActivityIndicator, Platform, View, useWindowDimensions } from "react-native";
 
 type SecretSantaRow = SecretSantaListItem[];
 type SecretSantaTab = "events" | "invites";
+const IOS_HEADER_CONTENT_GAP = 16;
 
 export default function SecretSantaScreen() {
   const t = useGT();
@@ -116,6 +117,7 @@ export default function SecretSantaScreen() {
           className="flex-1"
           contentContainerClassName="pb-8"
           contentContainerStyle={{ paddingTop }}
+          ListHeaderComponent={Platform.OS === "ios" ? SecretSantaListTopSpacer : undefined}
           ItemSeparatorComponent={() => <View className="h-4" />}
           onEndReached={loadMoreEvents}
           isLoadingMore={activeTab === "events" && query.isFetchingNextPage}
@@ -179,4 +181,8 @@ export default function SecretSantaScreen() {
       </View>
     </>
   );
+}
+
+function SecretSantaListTopSpacer() {
+  return <View style={{ height: IOS_HEADER_CONTENT_GAP }} />;
 }

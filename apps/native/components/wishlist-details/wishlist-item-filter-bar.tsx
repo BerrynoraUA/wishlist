@@ -301,9 +301,7 @@ function MultiSelectMenu({
         <AnimatedPressable
           className={cn(
             "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
-            values.length > 0
-              ? "border-brand bg-brand-lighter"
-              : "border-border-subtle bg-card-bg",
+            values.length > 0 ? "border-brand bg-brand-lighter" : "border-border-subtle bg-card-bg",
           )}
         >
           <Text
