@@ -57,21 +57,16 @@ export function scrapeTrendyol(html: string, url: string): ProductData {
 
   const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
 
-  // --- currency from page config: "currency":"UAH" or "currency":"TRY" ---
-  let currency: string | null = null;
-  const currencyMatch = html.match(/"currency"\s*:\s*"([A-Z]{3})"\s*,\s*"currencySymbol"/);
-  if (currencyMatch) {
-    currency = currencyMatch[1];
-  }
-  // Fallback: TRY for main domain
-  if (!currency) {
-    try {
-      const host = new URL(url).hostname;
-      currency = host.includes("trendyol.com") ? "TRY" : null;
-    } catch {
-      /* ignore */
-    }
-  }
+  const locale = new URL(url).pathname.split("/")[1]?.toLowerCase();
+  const localeCurrencies: Record<string, string> = {
+    uk: "UAH",
+    ro: "RON",
+    el: "EUR",
+    de: "EUR",
+    en: "AED",
+  };
+  const currencyMatch = html.match(/"currency"\s*:\s*"([A-Z]{3})"/);
+  const currency = localeCurrencies[locale] || currencyMatch?.[1] || "TRY";
 
   return {
     title: title || null,

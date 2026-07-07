@@ -37,13 +37,17 @@ export const scrapeFlipkart: ScraperMethod = (html, _url) => {
 
   // --- Price from meta description ---
   let price: string | null = null;
-  const metaDesc =
+  const metaDescriptions = [
+    $('meta[property="og:description"]').attr("content")?.trim(),
     $('meta[name="Description"]').attr("content")?.trim() ||
-    $('meta[name="description"]').attr("content")?.trim() ||
+      $('meta[name="description"]').attr("content")?.trim(),
+  ].filter((value): value is string => Boolean(value));
+  const metaDesc =
+    metaDescriptions.find((value) => /\bat\s+Rs\.\s*[\d,.]+\s+at\s+Flipkart\.com/i.test(value)) ||
     "";
 
   // "Buy ... at Rs. 2,999 at Flipkart.com"
-  const rsMatch = metaDesc.match(/Rs\.\s*([\d,]+)/);
+  const rsMatch = metaDesc.match(/\bat\s+Rs\.\s*([\d,]+(?:\.\d+)?)\s+at\s+Flipkart\.com/i);
   if (rsMatch) {
     price = rsMatch[1].replace(/,/g, "");
   }
