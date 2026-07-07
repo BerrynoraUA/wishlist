@@ -22,8 +22,16 @@ import {
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { Pressable, View } from "react-native";
-import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
+import { Platform, Pressable, View, useWindowDimensions } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  FadeOut,
+  FadeOutDown,
+  withDelay,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export type CreateAction =
@@ -38,6 +46,42 @@ type CreateMenuAction = CreateAction | "item";
 
 /** Matches the nav metrics used by the user guide (`getNavBox`). */
 const TAB_BAR_HEIGHT = 58;
+
+/** Row height (40 icon + 2×10 padding) plus the 10px stack gap. */
+const MENU_ROW_STRIDE = 70;
+/** Approximate center of the trailing "+" action button, from the right edge. */
+const IOS_PLUS_BUTTON_RIGHT_OFFSET = 40;
+
+/**
+ * On iOS the "+" lives in the tab bar's trailing action slot, so rows spring
+ * out of that bottom-right origin instead of fading up from the center.
+ */
+function iosEnteringFromPlusButton(windowWidth: number, indexFromBottom: number) {
+  const springConfig = { damping: 18, stiffness: 220, mass: 0.7 };
+  const delay = indexFromBottom * 45;
+  const fromX = windowWidth / 2 - IOS_PLUS_BUTTON_RIGHT_OFFSET;
+  // Rows are centered above the tab bar; the button center is ~70px below the
+  // bottom row's center, one stride further per row up the stack.
+  const fromY = indexFromBottom * MENU_ROW_STRIDE + 70;
+
+  return () => {
+    "worklet";
+    return {
+      initialValues: {
+        opacity: 0,
+        transform: [{ translateX: fromX }, { translateY: fromY }, { scale: 0.3 }],
+      },
+      animations: {
+        opacity: withDelay(delay, withTiming(1, { duration: 160 })),
+        transform: [
+          { translateX: withDelay(delay, withSpring(0, springConfig)) },
+          { translateY: withDelay(delay, withSpring(0, springConfig)) },
+          { scale: withDelay(delay, withSpring(1, springConfig)) },
+        ],
+      },
+    };
+  };
+}
 
 type CreateMenuEntry = {
   action: CreateMenuAction;
@@ -223,6 +267,7 @@ function CreateFloatingMenuContent({
   // them in the component that opens the menu would include the native tab bar
   // on iOS when triggered from inside a tab screen, pushing the menu up.
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
 
   const menuBottom = Math.max(insets.bottom, 8) + TAB_BAR_HEIGHT + 12;
 
@@ -248,12 +293,16 @@ function CreateFloatingMenuContent({
         {entries.map((entry, index) => (
           <Animated.View
             key={entry.action}
-            entering={FadeInDown.springify()
-              .damping(16)
-              .stiffness(240)
-              .mass(0.7)
-              .delay((entries.length - 1 - index) * 45)
-              .withInitialValues({ opacity: 0, transform: [{ translateY: 48 }] })}
+            entering={
+              Platform.OS === "ios"
+                ? iosEnteringFromPlusButton(width, entries.length - 1 - index)
+                : FadeInDown.springify()
+                    .damping(16)
+                    .stiffness(240)
+                    .mass(0.7)
+                    .delay((entries.length - 1 - index) * 45)
+                    .withInitialValues({ opacity: 0, transform: [{ translateY: 48 }] })
+            }
             exiting={FadeOutDown.duration(140).delay(index * 20)}
           >
             <AnimatedPressable
