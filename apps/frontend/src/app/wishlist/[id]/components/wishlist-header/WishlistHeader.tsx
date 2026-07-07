@@ -65,7 +65,7 @@ export function WishlistHeader({
   const router = useRouter();
   const visibilityLabels = getWishlistVisibilityLabels(t);
   const { isPro } = useSubscription();
-  const showMenu = Boolean(onEdit || onDelete);
+  const showMenu = Boolean(onEdit || onDelete || onManageAccess);
   const hasImage = Boolean(wishlist.image_url);
   const displayVisibility = getWishlistDisplayVisibility(wishlist);
   const visibility = visibilityLabels[displayVisibility];
@@ -273,23 +273,59 @@ export function WishlistHeader({
     <div className={styles.header}>
       <div className={`${styles.banner} ${styles[accent]}`}>
         <div className={styles.bannerInner}>
-          <div className={styles.heroLayout}>
-            <div className={styles.heroMain}>
-              <button
-                type="button"
-                className={`${styles.back} iconTooltipTrigger`}
-                onClick={() => router.back()}
-                aria-label={t("Back", {
-                  $id: "wishlist.header.back",
-                })}
-                data-tooltip={t("Back", {
-                  $id: "wishlist.header.back",
-                })}
-              >
-                <ArrowLeft size={18} />
-              </button>
+          <div
+            className={`${styles.heroLayout} ${
+              canAddItem || showAsideActions ? styles.hasActions : ""
+            }`.trim()}
+          >
+            <button
+              type="button"
+              className={`${styles.back} iconTooltipTrigger`}
+              onClick={() => router.back()}
+              aria-label={t("Back", {
+                $id: "wishlist.header.back",
+              })}
+              data-tooltip={t("Back", {
+                $id: "wishlist.header.back",
+              })}
+            >
+              <ArrowLeft size={18} />
+            </button>
 
-              <div className={styles.titleBlock}>
+            <div className={styles.heroMain}>
+              <div
+                className={`${styles.bannerIcon} ${canInlineEdit ? styles.bannerIconEditable : ""}`}
+                onClick={handleImageClick}
+              >
+                {uploadingImage ? (
+                  <div className={styles.imageUploading} />
+                ) : hasImage ? (
+                  <img
+                    src={wishlist.image_url as string}
+                    alt={wishlist.title}
+                    className={styles.bannerIconImage}
+                  />
+                ) : (
+                  <Gift size={26} />
+                )}
+                {canInlineEdit && !uploadingImage && (
+                  <div className={styles.imageOverlay}>
+                    <Camera size={18} />
+                  </div>
+                )}
+                {canInlineEdit && (
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    accept="image/*"
+                    className={styles.hiddenInput}
+                    onChange={handleImageChange}
+                  />
+                )}
+              </div>
+
+              <div className={styles.identity}>
+                <div className={styles.titleBlock}>
                 {editingTitle ? (
                   <input
                     ref={titleInputRef}
@@ -338,6 +374,7 @@ export function WishlistHeader({
                       {description ? (
                         <p
                           className={`${styles.description} ${canInlineEdit ? styles.editableText : ""}`}
+                          title={description}
                         >
                           {description}
                         </p>
@@ -350,6 +387,7 @@ export function WishlistHeader({
                       ) : null}
                     </div>
                   ))}
+                </div>
 
                 <div className={`${styles.badges} ${isOwner ? styles.ownerBadges : ""}`.trim()}>
                   <div className={styles.badgeWrapper} ref={visibilityPopoverRef}>
@@ -457,153 +495,119 @@ export function WishlistHeader({
               </div>
             </div>
 
-            <div className={styles.heroCenter}>
-              <div
-                className={`${styles.bannerIcon} ${canInlineEdit ? styles.bannerIconEditable : ""}`}
-                onClick={handleImageClick}
-              >
-                {uploadingImage ? (
-                  <div className={styles.imageUploading} />
-                ) : hasImage ? (
-                  <img
-                    src={wishlist.image_url as string}
-                    alt={wishlist.title}
-                    className={styles.bannerIconImage}
-                  />
-                ) : (
-                  <Gift size={28} />
-                )}
-                {canInlineEdit && !uploadingImage && (
-                  <div className={styles.imageOverlay}>
-                    <Camera size={18} />
-                  </div>
-                )}
-                {canInlineEdit && (
-                  <input
-                    ref={imageInputRef}
-                    type="file"
-                    accept="image/*"
-                    className={styles.hiddenInput}
-                    onChange={handleImageChange}
-                  />
-                )}
-              </div>
-            </div>
-
             {(canAddItem || showAsideActions) && (
               <div className={styles.heroAside}>
-                {canAddItem && (
-                  <div className={styles.addItemArea}>
-                    <Button
-                      size="sm"
-                      className={styles.addItemButton}
-                      onClick={handleAddItem}
-                      data-guide-target="wishlist-add-item"
-                      aria-label={
-                        atItemLimit
-                          ? t("Upgrade to Add", {
-                              $id: "wishlist.header.upgradeToAdd",
-                            })
-                          : t("Add Item", { $id: "wishlist.header.addItem" })
-                      }
-                      title={
-                        atItemLimit
-                          ? t("Upgrade to Add", {
-                              $id: "wishlist.header.upgradeToAdd",
-                            })
-                          : t("Add Item", { $id: "wishlist.header.addItem" })
-                      }
-                    >
-                      {atItemLimit ? (
-                        <>
-                          <Sparkles size={14} />
-                          <span className={styles.addItemButtonLabel}>
-                            {t("Upgrade to Add", {
-                              $id: "wishlist.header.upgradeToAdd",
-                            })}
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <Plus size={14} />
-                          <span className={styles.addItemButtonLabel}>
-                            {t("Add Item", { $id: "wishlist.header.addItem" })}
-                          </span>
-                          {hasAddItemDraft && <DraftBadge variant="dot" />}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                )}
+                <div className={styles.rail}>
+                  {canAddItem && (
+                    <div className={styles.addItemArea}>
+                      <Button
+                        size="sm"
+                        className={styles.addItemButton}
+                        onClick={handleAddItem}
+                        data-guide-target="wishlist-add-item"
+                        aria-label={
+                          atItemLimit
+                            ? t("Upgrade to Add", {
+                                $id: "wishlist.header.upgradeToAdd",
+                              })
+                            : t("Add Item", { $id: "wishlist.header.addItem" })
+                        }
+                        title={
+                          atItemLimit
+                            ? t("Upgrade to Add", {
+                                $id: "wishlist.header.upgradeToAdd",
+                              })
+                            : t("Add Item", { $id: "wishlist.header.addItem" })
+                        }
+                      >
+                        {atItemLimit ? (
+                          <>
+                            <Sparkles size={16} />
+                            <span className={styles.addItemButtonLabel}>
+                              {t("Upgrade to Add", {
+                                $id: "wishlist.header.upgradeToAdd",
+                              })}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Plus size={16} />
+                            <span className={styles.addItemButtonLabel}>
+                              {t("Add Item", { $id: "wishlist.header.addItem" })}
+                            </span>
+                            {hasAddItemDraft && <DraftBadge variant="dot" />}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
 
-                {showAsideActions && (
-                  <div className={styles.bannerActions}>
-                    {showAsideShare && (
+                  {showAsideShare && (
+                    <button
+                      type="button"
+                      className={`${styles.menuButton} ${styles.railAction} iconTooltipTrigger`}
+                      onClick={onShare}
+                      data-guide-target="wishlist-share"
+                      aria-label={t("Share wishlist", {
+                        $id: "wishlist.header.shareAria",
+                      })}
+                      data-tooltip={t("Share wishlist", {
+                        $id: "wishlist.header.shareTooltip",
+                      })}
+                    >
+                      <Share2 size={18} />
+                      <span className={styles.railActionLabel}>
+                        {t("Share", { $id: "wishlist.header.shareLabel" })}
+                      </span>
+                    </button>
+                  )}
+                </div>
+
+                {showMenu && (
+                  <DropdownMenu
+                    className={styles.menuAction}
+                    trigger={({ toggle }) => (
                       <button
                         type="button"
                         className={`${styles.menuButton} iconTooltipTrigger`}
-                        onClick={onShare}
-                        data-guide-target="wishlist-share"
-                        aria-label={t("Share wishlist", {
-                          $id: "wishlist.header.shareAria",
+                        onClick={toggle}
+                        aria-label={t("Wishlist actions", {
+                          $id: "wishlist.header.moreAria",
                         })}
-                        data-tooltip={t("Share wishlist", {
-                          $id: "wishlist.header.shareTooltip",
+                        data-tooltip={t("More options", {
+                          $id: "wishlist.header.moreTooltip",
                         })}
                       >
-                        <Share2 size={18} />
+                        <MoreHorizontal size={18} />
+                        {hasEditWishlistDraft && (
+                          <DraftBadge variant="dot" className={styles.menuButtonDraftDot} />
+                        )}
                       </button>
+                    )}
+                  >
+                    {onEdit && (
+                      <DropdownMenuItem variant="edit" onClick={() => onEdit()}>
+                        <span>{t("Edit", { $id: "common.edit" })}</span>
+                      </DropdownMenuItem>
                     )}
                     {onManageAccess && (
-                      <button
-                        type="button"
-                        className={`${styles.menuButton} iconTooltipTrigger`}
-                        onClick={onManageAccess}
-                        data-guide-target="wishlist-manage-access"
-                        aria-label={t("Manage wishlist access", {
-                          $id: "wishlist.header.manageAccessAria",
-                        })}
-                        data-tooltip={t("Manage access", {
-                          $id: "wishlist.header.manageAccessTooltip",
-                        })}
+                      <DropdownMenuItem
+                        icon={<KeyRound size={16} />}
+                        onClick={() => onManageAccess()}
                       >
-                        <KeyRound size={18} />
-                      </button>
+                        <span>
+                          {t("Manage access", {
+                            $id: "wishlist.header.manageAccessTooltip",
+                          })}
+                        </span>
+                      </DropdownMenuItem>
                     )}
-                    {showMenu && (
-                      <DropdownMenu
-                        trigger={({ toggle }) => (
-                          <button
-                            type="button"
-                            className={`${styles.menuButton} iconTooltipTrigger`}
-                            onClick={toggle}
-                            aria-label={t("Wishlist actions", {
-                              $id: "wishlist.header.moreAria",
-                            })}
-                            data-tooltip={t("More options", {
-                              $id: "wishlist.header.moreTooltip",
-                            })}
-                          >
-                            <MoreHorizontal size={18} />
-                            {hasEditWishlistDraft && (
-                              <DraftBadge variant="dot" className={styles.menuButtonDraftDot} />
-                            )}
-                          </button>
-                        )}
-                      >
-                        {onEdit && (
-                          <DropdownMenuItem variant="edit" onClick={() => onEdit()}>
-                            <span>{t("Edit", { $id: "common.edit" })}</span>
-                          </DropdownMenuItem>
-                        )}
-                        {onDelete && (
-                          <DropdownMenuItem variant="danger" onClick={() => onDelete()}>
-                            <span>{t("Delete", { $id: "common.delete" })}</span>
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenu>
+                    {onDelete && (
+                      <DropdownMenuItem variant="danger" onClick={() => onDelete()}>
+                        <span>{t("Delete", { $id: "common.delete" })}</span>
+                      </DropdownMenuItem>
                     )}
-                  </div>
+                  </DropdownMenu>
                 )}
               </div>
             )}

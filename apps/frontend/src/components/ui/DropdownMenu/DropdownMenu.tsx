@@ -7,9 +7,11 @@ import {
   useRef,
   useState,
   type ButtonHTMLAttributes,
+  type ComponentType,
   type MouseEvent as ReactMouseEvent,
   type ReactNode,
 } from "react";
+import { Pencil, Share2, Trash2 } from "lucide-react";
 import styles from "./DropdownMenu.module.scss";
 
 const DropdownMenuContext = createContext<{ close: () => void }>({
@@ -51,27 +53,43 @@ export function DropdownMenu({ trigger, children, align = "right", className }: 
   );
 }
 
+type Variant = "default" | "edit" | "danger" | "share" | "pin";
+
 type ItemProps = {
   children: ReactNode;
   onClick?: (e: ReactMouseEvent) => void;
-  variant?: "default" | "edit" | "danger" | "share" | "pin";
+  variant?: Variant;
+  /** Leading icon. Defaults to a sensible icon for the variant; pass `null` to omit. */
+  icon?: ReactNode;
   disabled?: boolean;
   className?: string;
 } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className" | "disabled" | "onClick">;
+
+const VARIANT_ICON: Partial<Record<Variant, ComponentType<{ size?: number }>>> = {
+  edit: Pencil,
+  danger: Trash2,
+  share: Share2,
+};
 
 export function DropdownMenuItem({
   children,
   onClick,
   variant = "default",
+  icon,
   disabled = false,
   className,
   ...props
 }: ItemProps) {
   const { close } = useContext(DropdownMenuContext);
+  const DefaultIcon = VARIANT_ICON[variant];
+  const leadingIcon =
+    icon !== undefined ? icon : DefaultIcon ? <DefaultIcon size={16} /> : null;
   return (
     <button
       type="button"
-      className={`${styles.item} ${styles[variant]} ${disabled ? styles.disabled : ""} ${className ?? ""}`}
+      className={[styles.item, styles[variant], disabled && styles.disabled, className]
+        .filter(Boolean)
+        .join(" ")}
       onClick={(e) => {
         e.stopPropagation();
         if (!disabled) {
@@ -82,6 +100,7 @@ export function DropdownMenuItem({
       disabled={disabled}
       {...props}
     >
+      {leadingIcon}
       {children}
     </button>
   );
