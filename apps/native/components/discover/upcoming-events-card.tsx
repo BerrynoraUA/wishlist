@@ -79,7 +79,6 @@ export function UpcomingEventsCard({
       {open ? (
         <BottomSheet
           ref={sheetRef}
-          dismissOnBack={false}
           onDidDismiss={() => setOpen(false)}
           header={
             <Text className="mx-5 mt-5 text-2xl font-extrabold text-text">

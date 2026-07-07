@@ -99,12 +99,7 @@ export function SecretSantaLaunchSheet({
   }
 
   return (
-    <BottomSheet
-      ref={sheetRef}
-      scrollable
-      dismissOnBack={false}
-      onDidDismiss={() => onOpenChange(false)}
-    >
+    <BottomSheet ref={sheetRef} scrollable onDidDismiss={() => onOpenChange(false)}>
       <View className="gap-5 px-5 pb-6 pt-5">
         <View className="gap-2">
           <Text className="text-xl font-extrabold text-text">{t("Launch Secret Santa")}</Text>

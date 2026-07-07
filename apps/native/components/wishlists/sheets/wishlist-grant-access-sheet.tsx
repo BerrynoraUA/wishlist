@@ -84,7 +84,6 @@ export function WishlistGrantAccessSheet({
     <BottomSheet
       ref={sheetRef}
       scrollable
-      dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}
       header={
         <Text className="mx-5 mt-5 text-lg font-extrabold text-text">{t("Grant access")}</Text>

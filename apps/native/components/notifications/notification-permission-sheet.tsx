@@ -116,7 +116,6 @@ export function NotificationPermissionSheet({ userId }: { userId: string }) {
       initialDetentAnimated
       scrollable
       scrollableOptions={{ scrollingExpandsSheet: false }}
-      dismissOnBack={false}
       onDidDismiss={handleDismissed}
       header={
         <View className="mx-5 mt-5 flex-row items-start gap-3">

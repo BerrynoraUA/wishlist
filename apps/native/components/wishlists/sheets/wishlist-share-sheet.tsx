@@ -157,7 +157,6 @@ export function WishlistShareSheet({
     <BottomSheet
       ref={sheetRef}
       detents={["auto"]}
-      dismissOnBack={false}
       cornerRadius={28}
       onDidDismiss={() => onOpenChange(false)}
       backgroundColor="#282c32"
