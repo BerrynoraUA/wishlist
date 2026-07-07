@@ -11,7 +11,7 @@ developer credentials: Aukro, Rozetka, Noon, Meesho and Lazada.
 When Next receives 403/429 or a network error from a supported API, it calls the scraper service:
 
 ```dotenv
-SCRAPLING_SERVICE_URL=http://127.0.0.1:8001
+SCRAPLING_SERVICE_URL=http://79.143.95.197:8001
 ```
 
 The Python service retries the JSON endpoint directly.

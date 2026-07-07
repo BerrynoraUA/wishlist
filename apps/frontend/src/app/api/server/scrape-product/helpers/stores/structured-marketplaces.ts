@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { emptyProduct, type ProductData, type ScraperMethod } from "../types";
+import { emptyProduct, type ScraperMethod } from "../types";
 
 const titleKeys = ["title", "name", "productName", "product_name", "displayName"];
 const priceKeys = ["salePrice", "sale_price", "currentPrice", "sellingPrice", "price"];
@@ -9,9 +9,7 @@ const idKeys = ["id", "productId", "product_id", "itemId", "item_id", "sku", "sk
 
 export const scrapeStructuredMarketplace: ScraperMethod = (html, url) => {
   const $ = cheerio.load(html);
-  const expectedIds = new Set(
-    new URL(url).pathname.toLowerCase().match(/[a-z0-9]{5,}/g) ?? [],
-  );
+  const expectedIds = new Set(new URL(url).pathname.toLowerCase().match(/[a-z0-9]{5,}/g) ?? []);
   let best: { score: number; value: Record<string, unknown> } | null = null;
 
   $("script").each((_, element) => {
@@ -85,11 +83,15 @@ function candidateScore(value: Record<string, unknown>, expected: Set<string>): 
 }
 
 function first(value: Record<string, unknown>, keys: string[]): unknown {
-  return keys.map((key) => value[key]).find((item) => item !== null && item !== undefined && item !== "");
+  return keys
+    .map((key) => value[key])
+    .find((item) => item !== null && item !== undefined && item !== "");
 }
 
 function text(value: unknown): string | null {
-  return typeof value === "string" || typeof value === "number" ? String(value).trim() || null : null;
+  return typeof value === "string" || typeof value === "number"
+    ? String(value).trim() || null
+    : null;
 }
 
 function price(value: unknown): string | null {
@@ -97,6 +99,8 @@ function price(value: unknown): string | null {
     const object = value as Record<string, unknown>;
     value = object.amount ?? object.value ?? object.price;
   }
-  const normalized = text(value)?.replace(/[^\d.,]/g, "").replace(/,/g, "");
+  const normalized = text(value)
+    ?.replace(/[^\d.,]/g, "")
+    .replace(/,/g, "");
   return normalized || null;
 }

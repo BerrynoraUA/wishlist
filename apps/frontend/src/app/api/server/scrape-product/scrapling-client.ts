@@ -48,7 +48,7 @@ export type ScraplingRequestResult = {
   diagnostics?: ScraplingDiagnostics;
 };
 
-const DEFAULT_SERVICE_URL = "http://127.0.0.1:8001";
+const DEFAULT_SERVICE_URL = "http://79.143.95.197:8001";
 const DEFAULT_TIMEOUT_MS = 60_000;
 const DEFAULT_SHADOW_SAMPLE_RATE = 0.1;
 

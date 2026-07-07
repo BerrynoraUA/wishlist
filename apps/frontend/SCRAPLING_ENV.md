@@ -5,7 +5,7 @@ scraper and can call the Python service according to the configured mode.
 
 ```dotenv
 SCRAPLING_SERVICE_MODE=fallback
-SCRAPLING_SERVICE_URL=http://127.0.0.1:8001
+SCRAPLING_SERVICE_URL=http://79.143.95.197:8001
 SCRAPLING_SERVICE_TIMEOUT_MS=20000
 SCRAPLING_SHADOW_SAMPLE_RATE=0.1
 LEGACY_SCRAPER_TIMEOUT_MS=8000
@@ -26,8 +26,8 @@ cd services/scraper
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
 ```
 
-`127.0.0.1` only works when both processes run on the same machine. A Vercel deployment requires a
-separately deployed private HTTPS Python service.
+`127.0.0.1` only works when both processes run on the same machine. A hosted frontend/backend can
+use the deployed scraper service URL, for example `http://79.143.95.197:8001`.
 
 Authentication and rate limiting are intentionally not part of this milestone. Do not expose the
 Python service publicly before both controls are implemented.

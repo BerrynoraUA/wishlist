@@ -944,10 +944,9 @@ async function fetchThroughPython(request: PythonApiRequest): Promise<{
   response: Response;
   attempts: ApiTransportAttempt[];
 }> {
-  const serviceUrl = (process.env.SCRAPLING_SERVICE_URL?.trim() || "http://127.0.0.1:8001").replace(
-    /\/$/,
-    "",
-  );
+  const serviceUrl = (
+    process.env.SCRAPLING_SERVICE_URL?.trim() || "http://79.143.95.197:8001"
+  ).replace(/\/$/, "");
   const response = await fetch(`${serviceUrl}/v1/api-fetch`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
