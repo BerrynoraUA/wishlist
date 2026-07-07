@@ -3,6 +3,7 @@ import { hasApiAdapter, scrapeWithApiAdapter } from "./api-adapters";
 import { getStoreScraper } from "./helpers/stores";
 import { emptyProduct, type ProductData } from "./helpers/types";
 import { isSafeUrl } from "./helpers/validate-url";
+import { getDomainScrapeStrategy } from "./domain-strategies";
 import {
   getScraplingMode,
   isAcceptableProduct,
@@ -129,6 +130,14 @@ export async function scrapeProductDetailed(url: string): Promise<DetailedScrape
       },
     };
   }
+  const domainStrategy = getDomainScrapeStrategy(url);
+  if (
+    domainStrategy === "scrapling_http" ||
+    domainStrategy === "scrapling_browser" ||
+    domainStrategy === "jina_reader"
+  ) {
+    return scrapeWithPreferredScrapling(url, domainStrategy);
+  }
   const mode = getScraplingMode();
   let legacyResult: LegacyScrapeResult | null = null;
   let legacyError: unknown = null;
@@ -209,6 +218,85 @@ export async function scrapeProductDetailed(url: string): Promise<DetailedScrape
     : { product: scrapling.product, diagnostics: scraplingDiagnostics };
 }
 
+async function scrapeWithPreferredScrapling(
+  url: string,
+  strategy: "scrapling_http" | "scrapling_browser" | "jina_reader",
+): Promise<DetailedScrapeProduct> {
+  const preferred = await scrapeWithScraplingResult(url, strategy);
+  if (preferred.response?.quality.accepted) {
+    return {
+      product: preferred.response.product,
+      diagnostics: toScraplingDiagnostics(preferred.response),
+    };
+  }
+
+  const fallback = await scrapeWithScraplingResult(url);
+  const preferredResponse = preferred.response;
+  const fallbackResponse = fallback.response;
+  const useFallback = Boolean(
+    fallbackResponse &&
+    (!preferredResponse ||
+      fallbackResponse.quality.accepted ||
+      fallbackResponse.quality.score > preferredResponse.quality.score),
+  );
+  const selectedResponse = useFallback ? fallbackResponse : preferredResponse;
+  if (selectedResponse) {
+    const mergedDiagnostics = mergeScraplingDiagnostics(
+      preferredResponse?.diagnostics ?? preferred.diagnostics,
+      fallbackResponse?.diagnostics ?? fallback.diagnostics,
+      useFallback ? "fallback" : "preferred",
+    );
+    return {
+      product: selectedResponse.product,
+      diagnostics: mergedDiagnostics
+        ? toScraplingDiagnosticsValue(mergedDiagnostics, selectedResponse.quality.warnings)
+        : toScraplingDiagnostics(selectedResponse),
+    };
+  }
+
+  const mergedDiagnostics = mergeScraplingDiagnostics(
+    preferred.diagnostics,
+    fallback.diagnostics,
+    fallback.diagnostics ? "fallback" : "preferred",
+  );
+  const finalResult = fallback.diagnostics ? fallback : preferred;
+  return {
+    product: null,
+    diagnostics: mergedDiagnostics ? toScraplingDiagnosticsValue(mergedDiagnostics) : undefined,
+    blocked:
+      finalResult.errorCode === "blocked" ||
+      finalResult.status === 403 ||
+      finalResult.status === 429,
+    error: finalResult.errorMessage,
+  };
+}
+
+function mergeScraplingDiagnostics(
+  preferred: ScraplingDiagnostics | undefined,
+  fallback: ScraplingDiagnostics | undefined,
+  selected: "preferred" | "fallback",
+): ScraplingDiagnostics | undefined {
+  const winner = selected === "fallback" ? fallback : preferred;
+  if (!winner) return fallback ?? preferred;
+
+  const attempts = [
+    ...(preferred?.attempts.map((attempt) => ({
+      ...attempt,
+      selected: selected === "preferred" && attempt.selected,
+    })) ?? []),
+    ...(fallback?.attempts.map((attempt) => ({
+      ...attempt,
+      selected: selected === "fallback" && attempt.selected,
+    })) ?? []),
+  ].map((attempt, index) => ({ ...attempt, sequence: index + 1 }));
+
+  return {
+    ...winner,
+    attempts,
+    elapsed_ms: (preferred?.elapsed_ms ?? 0) + (fallback?.elapsed_ms ?? 0),
+  };
+}
+
 function toScraplingDiagnostics(
   scrapling: Awaited<ReturnType<typeof scrapeWithScrapling>>,
 ): ScrapeProductDiagnostics | undefined {
@@ -255,7 +343,6 @@ function scraplingLibrary(source: string): string {
   if (source === "regex") return "Python regex";
   if (source.startsWith("api:")) return "httpx / json";
   if (source.includes("embedded_state")) return "json / lxml";
-  if (source === "jina_reader") return "Jina Reader";
   if (source.startsWith("adaptive")) return "Scrapling";
   return "lxml";
 }
@@ -356,7 +443,7 @@ async function scrapeProductLegacy(url: string): Promise<LegacyScrapeResult> {
   if (isNonProductResponse(html, url)) {
     // A number of stores return HTTP 200 for a challenge, homepage or login
     // shell. Treat it as a failed legacy fetch so fallback mode can invoke the
-    // full Scrapling browser/proxy cascade.
+    // direct HTTP and browser fallback.
     return { product: null, diagnostics };
   }
 

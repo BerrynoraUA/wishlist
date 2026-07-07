@@ -14,12 +14,7 @@ When Next receives 403/429 or a network error from a supported API, it calls the
 SCRAPLING_SERVICE_URL=http://127.0.0.1:8001
 ```
 
-The Python service first retries the JSON endpoint directly and then through the configured proxy:
-
-```dotenv
-SCRAPER_ENABLE_PROXY=true
-SCRAPER_PROXY_URL=https://user:password@proxy.example:port
-```
+The Python service retries the JSON endpoint directly.
 
 Only allowlisted marketplace API hosts and a restricted set of request headers are accepted by
-`POST /v1/api-fetch`. Browser and Jina stages are not used for API requests.
+`POST /v1/api-fetch`. Browser stages are not used for API requests.

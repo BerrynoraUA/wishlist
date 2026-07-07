@@ -12,7 +12,6 @@ from app.fetching.http import (
     ResponseTooLargeError,
     decode_response_body,
 )
-from app.proxy import ProxyOptions
 from app.security import UnsafeUrlError, validate_public_url
 
 
@@ -23,12 +22,10 @@ class BrowserFetcher:
         *,
         session_factory: Callable[..., Any] = AsyncStealthySession,
         url_validator: Callable[[str], Awaitable[None]] = validate_public_url,
-        proxy_options: ProxyOptions | None = None,
     ) -> None:
         self._settings = settings
         self._session_factory = session_factory
         self._url_validator = url_validator
-        self._proxy_options = proxy_options or ProxyOptions()
         self._manager: Any | None = None
         self._session: Any | None = None
         self._lifecycle_lock = asyncio.Lock()
@@ -42,11 +39,6 @@ class BrowserFetcher:
         async with self._lifecycle_lock:
             if self._session is not None:
                 return
-            session_options: dict[str, Any] = {}
-            if self._proxy_options.proxy is not None:
-                session_options["proxy"] = self._proxy_options.proxy
-            if self._proxy_options.proxy_rotator is not None:
-                session_options["proxy_rotator"] = self._proxy_options.proxy_rotator
             manager = self._session_factory(
                 headless=True,
                 max_pages=self._settings.browser_max_pages,
@@ -55,11 +47,6 @@ class BrowserFetcher:
                 block_ads=True,
                 timeout=self._settings.browser_timeout_ms,
                 retries=1,
-                dns_over_https=(
-                    self._settings.proxy_dns_over_https
-                    and self._proxy_options.configured
-                ),
-                **session_options,
             )
             self._session = await manager.__aenter__()
             self._manager = manager

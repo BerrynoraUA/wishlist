@@ -13,7 +13,6 @@ from app.extractors.normalization import (
 )
 from app.extractors.result import ExtractionResult
 from app.extractors.stores import get_store_profile
-from app.extractors.stores.profiles import FieldRule
 
 
 @dataclass(frozen=True, slots=True)

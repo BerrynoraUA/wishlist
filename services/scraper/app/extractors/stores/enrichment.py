@@ -181,10 +181,7 @@ def _parse_amazon_offers(body: str) -> ExtractionResult:
             "//*[contains(@class,'a-offscreen')][1]",
         ),
     )
-    if regular and current:
-        price, discount, has_discount = normalize_discount(regular, current)
-    else:
-        price, discount, has_discount = current, None, False
+    price, discount, has_discount = _discount_pair(regular, current)
 
     price_text = _text(
         document,
@@ -235,10 +232,7 @@ def _parse_asos_product(body: str) -> ExtractionResult:
     )
     current = normalize_price(current_data.get("value"))
     previous = normalize_price(previous_data.get("value"))
-    if current and previous:
-        price, discount, has_discount = normalize_discount(previous, current)
-    else:
-        price, discount, has_discount = current, None, False
+    price, discount, has_discount = _discount_pair(previous, current)
 
     return _sourced(
         ProductData(
@@ -271,10 +265,7 @@ def extract_rozetka_html(html_text: str, page_url: str) -> ExtractionResult:
             "//*[contains(@class,'price--old')][1]",
         ),
     )
-    if old and current:
-        price, discount, has_discount = normalize_discount(old, current)
-    else:
-        price, discount, has_discount = current, None, False
+    price, discount, has_discount = _discount_pair(old, current)
 
     product = ProductData(
         title=_text(
@@ -536,10 +527,7 @@ def _parse_target_product(body: str, request_url: str) -> ExtractionResult:
     price_data = product.get("price") if isinstance(product.get("price"), dict) else {}
     current = normalize_price(price_data.get("current_retail"))
     regular = normalize_price(price_data.get("reg_retail"))
-    if current and regular:
-        price, discount, has_discount = normalize_discount(regular, current)
-    else:
-        price, discount, has_discount = current, None, False
+    price, discount, has_discount = _discount_pair(regular, current)
     item = product.get("item") if isinstance(product.get("item"), dict) else {}
     enrichment = item.get("enrichment") if isinstance(item.get("enrichment"), dict) else {}
     image_info = (
@@ -609,9 +597,16 @@ def _sourced(
         for field_name, value in product.model_dump().items()
         if value not in (None, False)
     }
-    if product.has_discount:
-        sources["has_discount"] = source
     return ExtractionResult(product=product, sources=sources)
+
+
+def _discount_pair(
+    regular: str | None,
+    current: str | None,
+) -> tuple[str | None, str | None, bool]:
+    if regular and current:
+        return normalize_discount(regular, current)
+    return current, None, False
 
 
 def _document(html_text: str) -> html.HtmlElement:

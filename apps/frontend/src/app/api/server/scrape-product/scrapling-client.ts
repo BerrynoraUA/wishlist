@@ -3,6 +3,7 @@ import "server-only";
 import type { ProductData } from "./helpers/types";
 
 export type ScraplingMode = "disabled" | "shadow" | "fallback";
+export type ScraplingStrategy = "fallback" | "scrapling_http" | "scrapling_browser" | "jina_reader";
 
 type ScraplingQuality = {
   score: number;
@@ -79,7 +80,10 @@ export async function scrapeWithScrapling(url: string): Promise<ScraplingRespons
   return (await scrapeWithScraplingResult(url)).response;
 }
 
-export async function scrapeWithScraplingResult(url: string): Promise<ScraplingRequestResult> {
+export async function scrapeWithScraplingResult(
+  url: string,
+  strategy: ScraplingStrategy = "fallback",
+): Promise<ScraplingRequestResult> {
   const serviceUrl = (process.env.SCRAPLING_SERVICE_URL?.trim() || DEFAULT_SERVICE_URL).replace(
     /\/$/,
     "",
@@ -98,6 +102,7 @@ export async function scrapeWithScraplingResult(url: string): Promise<ScraplingR
         url,
         request_id: crypto.randomUUID(),
         deadline_ms: Math.max(timeoutMs - 500, 1_000),
+        strategy,
       }),
       cache: "no-store",
       signal: AbortSignal.timeout(timeoutMs),

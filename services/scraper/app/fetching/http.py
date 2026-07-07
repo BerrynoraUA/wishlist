@@ -9,7 +9,6 @@ from scrapling.fetchers import FetcherSession
 
 from app.blocking import BlockDecision, classify_block
 from app.config import Settings
-from app.proxy import ProxyOptions
 from app.security import validate_public_url
 
 
@@ -39,12 +38,10 @@ class HttpFetcher:
         *,
         session_factory: Callable[..., Any] = FetcherSession,
         url_validator: Callable[[str], Awaitable[None]] = validate_public_url,
-        proxy_options: ProxyOptions | None = None,
     ) -> None:
         self._settings = settings
         self._session_factory = session_factory
         self._url_validator = url_validator
-        self._proxy_options = proxy_options or ProxyOptions()
         self._manager: Any | None = None
         self._session: Any | None = None
         self._lifecycle_lock = asyncio.Lock()
@@ -57,11 +54,6 @@ class HttpFetcher:
         async with self._lifecycle_lock:
             if self._session is not None:
                 return
-            session_options: dict[str, Any] = {}
-            if self._proxy_options.proxy is not None:
-                session_options["proxy"] = self._proxy_options.proxy
-            if self._proxy_options.proxy_rotator is not None:
-                session_options["proxy_rotator"] = self._proxy_options.proxy_rotator
             manager = self._session_factory(
                 impersonate="chrome",
                 stealthy_headers=True,
@@ -72,7 +64,6 @@ class HttpFetcher:
                 follow_redirects="safe",
                 max_redirects=self._settings.http_max_redirects,
                 verify=True,
-                **session_options,
             )
             self._session = await manager.__aenter__()
             self._manager = manager

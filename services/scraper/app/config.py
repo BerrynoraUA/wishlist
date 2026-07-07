@@ -1,9 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated
-
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -77,22 +75,7 @@ class Settings(BaseSettings):
         validation_alias="SCRAPER_BROWSER_MAX_PAGES",
     )
     enable_browser: bool = Field(default=True, validation_alias="SCRAPER_ENABLE_BROWSER")
-    enable_proxy: bool = Field(default=False, validation_alias="SCRAPER_ENABLE_PROXY")
     enable_jina: bool = Field(default=True, validation_alias="SCRAPER_ENABLE_JINA")
-    proxy_dns_over_https: bool = Field(
-        default=False,
-        validation_alias="SCRAPER_PROXY_DNS_OVER_HTTPS",
-    )
-    proxy_url: str | None = Field(
-        default=None,
-        validation_alias="SCRAPER_PROXY_URL",
-        repr=False,
-    )
-    proxy_urls: Annotated[tuple[str, ...], NoDecode] = Field(
-        default=(),
-        validation_alias="SCRAPER_PROXY_URLS",
-        repr=False,
-    )
 
     @field_validator("host")
     @classmethod
@@ -109,29 +92,6 @@ class Settings(BaseSettings):
         if normalized not in {"critical", "error", "warning", "info", "debug"}:
             raise ValueError("unsupported log level")
         return normalized
-
-    @field_validator("proxy_url", mode="before")
-    @classmethod
-    def normalize_optional_proxy_url(cls, value: object) -> object:
-        if isinstance(value, str):
-            value = value.strip()
-            return value or None
-        return value
-
-    @field_validator("proxy_urls", mode="before")
-    @classmethod
-    def parse_proxy_urls(cls, value: object) -> object:
-        if value is None or value == "":
-            return ()
-        if isinstance(value, str):
-            return tuple(part.strip() for part in value.replace("\n", ",").split(",") if part.strip())
-        return value
-
-    @property
-    def configured_proxy_urls(self) -> tuple[str, ...]:
-        values = ((self.proxy_url,) if self.proxy_url else ()) + self.proxy_urls
-        return tuple(dict.fromkeys(values))
-
 
 @lru_cache
 def get_settings() -> Settings:

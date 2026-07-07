@@ -10,12 +10,17 @@ class StrictModel(BaseModel):
 
 
 class FetchMode(StrEnum):
-    HTTP_NO_PROXY = "http_no_proxy"
-    BROWSER_NO_PROXY = "browser_no_proxy"
-    HTTP_PROXY = "http_proxy"
-    BROWSER_PROXY = "browser_proxy"
+    SCRAPLING_HTTP = "scrapling_http"
+    SCRAPLING_BROWSER = "scrapling_browser"
     JINA_READER = "jina_reader"
     NOT_ATTEMPTED = "not_attempted"
+
+
+class ScrapeStrategy(StrEnum):
+    FALLBACK = "fallback"
+    SCRAPLING_HTTP = "scrapling_http"
+    SCRAPLING_BROWSER = "scrapling_browser"
+    JINA_READER = "jina_reader"
 
 
 class ProductData(StrictModel):
@@ -62,6 +67,7 @@ class ScrapeRequest(StrictModel):
     url: HttpUrl
     request_id: str | None = Field(default=None, min_length=1, max_length=128)
     deadline_ms: int = Field(default=59_500, ge=1_000, le=60_000)
+    strategy: ScrapeStrategy = ScrapeStrategy.FALLBACK
 
     @model_validator(mode="after")
     def reject_url_credentials(self) -> "ScrapeRequest":
@@ -155,5 +161,3 @@ class HealthResponse(StrictModel):
 class ReadinessResponse(StrictModel):
     status: str
     browser_enabled: bool
-    proxy_enabled: bool
-    proxy_configured: bool

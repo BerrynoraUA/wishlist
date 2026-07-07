@@ -11,8 +11,6 @@ def reader_url(product_url: str) -> str:
 
 
 def parse_reader_markdown(markdown: str, product_url: str) -> ExtractionResult:
-    # Reader is only trusted if the response still refers to the requested
-    # product identity. This prevents a homepage/login response being accepted.
     identifiers = _identifiers(product_url)
     lowered = markdown.lower()
     if identifiers and not any(identifier in lowered for identifier in identifiers):

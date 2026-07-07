@@ -17,6 +17,7 @@ from app.fetching.http import FetchError, FetchResult, ResponseTooLargeError
 from app.models import (
     ErrorCode,
     FetchMode,
+    ScrapeStrategy,
     ScrapeDiagnostics,
     ScrapeRequest,
     ScrapeResponse,
@@ -26,7 +27,6 @@ from app.quality import evaluate_quality
 from app.security import UnsafeUrlError
 from app.urls import canonicalize_product_url
 from app.jina import parse_reader_markdown, reader_url
-
 logger = logging.getLogger(__name__)
 
 
@@ -44,16 +44,12 @@ class ScrapeService:
         self,
         http_fetcher: HttpFetcher,
         browser_fetcher: BrowserFetcher | None = None,
-        proxy_http_fetcher: HttpFetcher | None = None,
-        proxy_browser_fetcher: BrowserFetcher | None = None,
         adaptive_extractor: AdaptiveExtractor | None = None,
         audit_logger: ScrapeAuditLogger | None = None,
-        enable_jina: bool = False,
+        enable_jina: bool = True,
     ) -> None:
         self._http_fetcher = http_fetcher
         self._browser_fetcher = browser_fetcher
-        self._proxy_http_fetcher = proxy_http_fetcher
-        self._proxy_browser_fetcher = proxy_browser_fetcher
         self._adaptive_extractor = adaptive_extractor
         self._audit_logger = audit_logger
         self._enable_jina = enable_jina
@@ -68,52 +64,43 @@ class ScrapeService:
         )
         try:
             async with asyncio.timeout(request.deadline_ms / 1000):
-                initial_mode = FetchMode.HTTP_NO_PROXY
-                initial_is_reader = False
-                try:
+                strategy = request.strategy
+                initial_is_reader = strategy == ScrapeStrategy.JINA_READER
+                if strategy == ScrapeStrategy.JINA_READER:
+                    initial_mode = FetchMode.JINA_READER
+                    fetched, selected_attempt = await trace.fetch(
+                        initial_mode,
+                        "reader",
+                        lambda: self._http_fetcher.fetch(reader_url(url)),
+                        timeout_seconds=6,
+                    )
+                elif strategy == ScrapeStrategy.SCRAPLING_BROWSER:
+                    initial_mode = FetchMode.SCRAPLING_BROWSER
+                    if self._browser_fetcher is None:
+                        raise FetchError("Browser fetcher is disabled")
                     fetched, selected_attempt = await trace.fetch(
                         initial_mode,
                         "product_page",
-                        lambda: self._http_fetcher.fetch(url),
-                        timeout_seconds=6,
+                        lambda: self._browser_fetcher.fetch(url),
+                        timeout_seconds=13,
                     )
-                except (FetchError, ResponseTooLargeError) as direct_error:
-                    recovered = None
-                    recovery_fetchers = (
-                        (FetchMode.BROWSER_NO_PROXY, self._browser_fetcher),
-                    )
-                    for recovery_mode, recovery_fetcher in recovery_fetchers:
-                        if recovery_fetcher is None:
-                            trace.skipped(
-                                recovery_mode,
-                                "product_page_recovery",
-                                "fetcher is disabled or not configured",
-                            )
-                            continue
-                        try:
-                            recovered = await trace.fetch(
-                                recovery_mode,
-                                "product_page_recovery",
-                                lambda fetcher=recovery_fetcher: fetcher.fetch(url),
-                                timeout_seconds=(
-                                    13
-                                    if recovery_mode
-                                    in {
-                                        FetchMode.BROWSER_NO_PROXY,
-                                        FetchMode.BROWSER_PROXY,
-                                    }
-                                    else 6
-                                ),
-                            )
-                            initial_mode = recovery_mode
-                            break
-                        except (FetchError, ResponseTooLargeError):
-                            continue
-                    if recovered is None:
-                        for recovery_mode, recovery_fetcher in (
-                            (FetchMode.HTTP_PROXY, self._proxy_http_fetcher),
-                            (FetchMode.BROWSER_PROXY, self._proxy_browser_fetcher),
-                        ):
+                else:
+                    initial_mode = FetchMode.SCRAPLING_HTTP
+                    try:
+                        fetched, selected_attempt = await trace.fetch(
+                            initial_mode,
+                            "product_page",
+                            lambda: self._http_fetcher.fetch(url),
+                            timeout_seconds=6,
+                        )
+                    except (FetchError, ResponseTooLargeError) as direct_error:
+                        if strategy != ScrapeStrategy.FALLBACK:
+                            raise
+                        recovered = None
+                        recovery_fetchers = (
+                            (FetchMode.SCRAPLING_BROWSER, self._browser_fetcher),
+                        )
+                        for recovery_mode, recovery_fetcher in recovery_fetchers:
                             if recovery_fetcher is None:
                                 trace.skipped(
                                     recovery_mode,
@@ -126,34 +113,31 @@ class ScrapeService:
                                     recovery_mode,
                                     "product_page_recovery",
                                     lambda fetcher=recovery_fetcher: fetcher.fetch(url),
-                                    timeout_seconds=(
-                                        13
-                                        if recovery_mode == FetchMode.BROWSER_PROXY
-                                        else 6
-                                    ),
+                                    timeout_seconds=13,
                                 )
                                 initial_mode = recovery_mode
                                 break
                             except (FetchError, ResponseTooLargeError):
                                 continue
-                    if recovered is None and self._enable_jina:
-                        try:
-                            recovered = await trace.fetch(
-                                FetchMode.JINA_READER,
-                                "reader_fallback",
-                                lambda: self._http_fetcher.fetch(reader_url(url)),
-                                timeout_seconds=6,
-                            )
-                            initial_mode = FetchMode.JINA_READER
-                            initial_is_reader = True
-                        except (FetchError, ResponseTooLargeError):
-                            pass
-                    if recovered is None:
-                        raise direct_error
-                    fetched, selected_attempt = recovered
-                possible_enrichment = build_enrichment_request(
-                    fetched.final_url,
-                    fetched.body,
+                        if recovered is None and self._enable_jina:
+                            try:
+                                recovered = await trace.fetch(
+                                    FetchMode.JINA_READER,
+                                    "reader_fallback",
+                                    lambda: self._http_fetcher.fetch(reader_url(url)),
+                                    timeout_seconds=6,
+                                )
+                                initial_mode = FetchMode.JINA_READER
+                                initial_is_reader = True
+                            except (FetchError, ResponseTooLargeError):
+                                pass
+                        if recovered is None:
+                            raise direct_error
+                        fetched, selected_attempt = recovered
+                possible_enrichment = (
+                    None
+                    if initial_is_reader
+                    else build_enrichment_request(fetched.final_url, fetched.body)
                 )
                 fetch_mode = initial_mode
                 extraction = ExtractionResult()
@@ -177,14 +161,16 @@ class ScrapeService:
                 )
 
                 should_use_browser = (
+                    strategy == ScrapeStrategy.FALLBACK
+                    and
                     not initial_is_reader
                     and self._needs_fallback(fetched, extraction)
-                    and not trace.attempted(FetchMode.BROWSER_NO_PROXY)
+                    and not trace.attempted(FetchMode.SCRAPLING_BROWSER)
                 )
                 if should_use_browser and self._browser_fetcher is not None:
                     try:
                         browser_result, browser_attempt = await trace.fetch(
-                            FetchMode.BROWSER_NO_PROXY,
+                            FetchMode.SCRAPLING_BROWSER,
                             "product_page",
                             lambda: self._browser_fetcher.fetch(
                                 url,
@@ -211,7 +197,7 @@ class ScrapeService:
                                 fetched = browser_result
                                 extraction = browser_extraction
                                 quality = browser_quality
-                                fetch_mode = FetchMode.BROWSER_NO_PROXY
+                                fetch_mode = FetchMode.SCRAPLING_BROWSER
                                 selected_attempt = browser_attempt
                         trace.parsed(
                             browser_attempt,
@@ -226,233 +212,23 @@ class ScrapeService:
 
                 elif should_use_browser:
                     trace.skipped(
-                        FetchMode.BROWSER_NO_PROXY,
+                        FetchMode.SCRAPLING_BROWSER,
                         "product_page",
                         "browser fetcher is disabled",
                     )
 
-                should_use_proxy = (
-                    self._needs_fallback(fetched, extraction)
-                    and self._proxy_http_fetcher is not None
-                    and not trace.attempted(FetchMode.HTTP_PROXY)
-                )
-                if should_use_proxy:
-                    try:
-                        proxy_result, proxy_attempt = await trace.fetch(
-                            FetchMode.HTTP_PROXY,
-                            "product_page",
-                            lambda: self._proxy_http_fetcher.fetch(url),
-                            timeout_seconds=6,
-                        )
-                        proxy_extraction = ExtractionResult()
-                        proxy_quality = evaluate_quality(proxy_extraction)
-                        if (
-                            not proxy_result.block.blocked
-                            and 200 <= proxy_result.status < 300
-                        ):
-                            proxy_extraction, proxy_quality = parse_product_html(
-                                proxy_result.body,
-                                proxy_result.final_url,
-                            )
-                            if (
-                                proxy_quality.score >= quality.score
-                                or not self._has_any_product_data(extraction)
-                            ):
-                                fetched = proxy_result
-                                extraction = proxy_extraction
-                                quality = proxy_quality
-                                fetch_mode = FetchMode.HTTP_PROXY
-                                selected_attempt = proxy_attempt
-                        trace.parsed(
-                            proxy_attempt,
-                            score=proxy_quality.score,
-                            accepted=proxy_quality.accepted,
-                            selected=selected_attempt == proxy_attempt,
-                            sources=proxy_extraction.sources,
-                        )
-                        trace.select(selected_attempt)
-
-                        if (
-                            self._needs_fallback(
-                                proxy_result,
-                                proxy_extraction,
-                            )
-                            and self._proxy_browser_fetcher is not None
-                            and not trace.attempted(FetchMode.BROWSER_PROXY)
-                        ):
-                            proxy_browser_result, proxy_browser_attempt = await trace.fetch(
-                                FetchMode.BROWSER_PROXY,
-                                "product_page",
-                                lambda: self._proxy_browser_fetcher.fetch(
-                                    url,
-                                    solve_cloudflare=(
-                                        proxy_result.block.reason
-                                        == BlockReason.CHALLENGE
-                                    ),
-                                ),
-                                timeout_seconds=13,
-                            )
-                            proxy_browser_extraction = ExtractionResult()
-                            proxy_browser_quality = evaluate_quality(
-                                proxy_browser_extraction
-                            )
-                            if (
-                                not proxy_browser_result.block.blocked
-                                and 200 <= proxy_browser_result.status < 300
-                            ):
-                                (
-                                    proxy_browser_extraction,
-                                    proxy_browser_quality,
-                                ) = parse_product_html(
-                                    proxy_browser_result.body,
-                                    proxy_browser_result.final_url,
-                                )
-                                if (
-                                    proxy_browser_quality.score >= quality.score
-                                    or not self._has_any_product_data(extraction)
-                                ):
-                                    fetched = proxy_browser_result
-                                    extraction = proxy_browser_extraction
-                                    quality = proxy_browser_quality
-                                    fetch_mode = FetchMode.BROWSER_PROXY
-                                    selected_attempt = proxy_browser_attempt
-                            trace.parsed(
-                                proxy_browser_attempt,
-                                score=proxy_browser_quality.score,
-                                accepted=proxy_browser_quality.accepted,
-                                selected=selected_attempt == proxy_browser_attempt,
-                                sources=proxy_browser_extraction.sources,
-                            )
-                            trace.select(selected_attempt)
-                        elif self._needs_fallback(proxy_result, proxy_extraction):
-                            trace.skipped(
-                                FetchMode.BROWSER_PROXY,
-                                "product_page",
-                                "proxy browser fetcher is disabled or not configured",
-                            )
-                    except (FetchError, ResponseTooLargeError):
-                        if self._proxy_browser_fetcher is not None:
-                            try:
-                                (
-                                    proxy_browser_result,
-                                    proxy_browser_attempt,
-                                ) = await trace.fetch(
-                                    FetchMode.BROWSER_PROXY,
-                                    "product_page_recovery",
-                                    lambda: self._proxy_browser_fetcher.fetch(url),
-                                    timeout_seconds=13,
-                                )
-                                proxy_browser_extraction = ExtractionResult()
-                                proxy_browser_quality = evaluate_quality(
-                                    proxy_browser_extraction
-                                )
-                                if (
-                                    not proxy_browser_result.block.blocked
-                                    and 200 <= proxy_browser_result.status < 300
-                                ):
-                                    (
-                                        proxy_browser_extraction,
-                                        proxy_browser_quality,
-                                    ) = parse_product_html(
-                                        proxy_browser_result.body,
-                                        proxy_browser_result.final_url,
-                                    )
-                                    if (
-                                        proxy_browser_quality.score >= quality.score
-                                        or not self._has_any_product_data(extraction)
-                                    ):
-                                        fetched = proxy_browser_result
-                                        extraction = proxy_browser_extraction
-                                        quality = proxy_browser_quality
-                                        fetch_mode = FetchMode.BROWSER_PROXY
-                                        selected_attempt = proxy_browser_attempt
-                                trace.parsed(
-                                    proxy_browser_attempt,
-                                    score=proxy_browser_quality.score,
-                                    accepted=proxy_browser_quality.accepted,
-                                    selected=selected_attempt == proxy_browser_attempt,
-                                    sources=proxy_browser_extraction.sources,
-                                )
-                                trace.select(selected_attempt)
-                            except (FetchError, ResponseTooLargeError):
-                                pass
-                        else:
-                            trace.skipped(
-                                FetchMode.BROWSER_PROXY,
-                                "product_page_recovery",
-                                "proxy browser fetcher is disabled or not configured",
-                            )
-                elif self._needs_fallback(fetched, extraction):
-                    trace.skipped(
-                        FetchMode.HTTP_PROXY,
-                        "product_page",
-                        "proxy fetcher is disabled or not configured",
-                    )
-                    trace.skipped(
-                        FetchMode.BROWSER_PROXY,
-                        "product_page",
-                        "proxy browser fetcher is disabled or not configured",
-                    )
-
-                if (
-                    self._needs_fallback(fetched, extraction)
-                    and self._proxy_browser_fetcher is not None
-                    and not trace.attempted(FetchMode.BROWSER_PROXY)
-                ):
-                    try:
-                        (
-                            proxy_browser_result,
-                            proxy_browser_attempt,
-                        ) = await trace.fetch(
-                            FetchMode.BROWSER_PROXY,
-                            "product_page",
-                            lambda: self._proxy_browser_fetcher.fetch(url),
-                            timeout_seconds=13,
-                        )
-                        proxy_browser_extraction = ExtractionResult()
-                        proxy_browser_quality = evaluate_quality(
-                            proxy_browser_extraction
-                        )
-                        if (
-                            not proxy_browser_result.block.blocked
-                            and 200 <= proxy_browser_result.status < 300
-                        ):
-                            (
-                                proxy_browser_extraction,
-                                proxy_browser_quality,
-                            ) = parse_product_html(
-                                proxy_browser_result.body,
-                                proxy_browser_result.final_url,
-                            )
-                            if (
-                                proxy_browser_quality.score >= quality.score
-                                or not self._has_any_product_data(extraction)
-                            ):
-                                fetched = proxy_browser_result
-                                extraction = proxy_browser_extraction
-                                quality = proxy_browser_quality
-                                fetch_mode = FetchMode.BROWSER_PROXY
-                                selected_attempt = proxy_browser_attempt
-                        trace.parsed(
-                            proxy_browser_attempt,
-                            score=proxy_browser_quality.score,
-                            accepted=proxy_browser_quality.accepted,
-                            selected=selected_attempt == proxy_browser_attempt,
-                            sources=proxy_browser_extraction.sources,
-                        )
-                        trace.select(selected_attempt)
-                    except (FetchError, ResponseTooLargeError):
-                        pass
-
-                enrichment = possible_enrichment or build_enrichment_request(
-                    fetched.final_url,
-                    fetched.body,
+                enrichment = (
+                    possible_enrichment
+                    or build_enrichment_request(fetched.final_url, fetched.body)
+                    if strategy
+                    in {ScrapeStrategy.FALLBACK, ScrapeStrategy.SCRAPLING_HTTP}
+                    else None
                 )
                 if enrichment is not None:
                     needs_browser_enrichment = False
                     try:
                         enriched_response, enrichment_attempt = await trace.fetch(
-                            FetchMode.HTTP_NO_PROXY,
+                            FetchMode.SCRAPLING_HTTP,
                             "store_enrichment",
                             lambda: self._http_fetcher.fetch(
                                 enrichment.url,
@@ -490,7 +266,7 @@ class ScrapeService:
                     if needs_browser_enrichment and self._browser_fetcher is not None:
                         try:
                             browser_enrichment, browser_enrichment_attempt = await trace.fetch(
-                                FetchMode.BROWSER_NO_PROXY,
+                                FetchMode.SCRAPLING_BROWSER,
                                 "store_enrichment",
                                 lambda: self._browser_fetcher.fetch(enrichment.url),
                                 timeout_seconds=13,
@@ -521,6 +297,8 @@ class ScrapeService:
                             pass
 
                 if (
+                    strategy == ScrapeStrategy.FALLBACK
+                    and
                     self._enable_jina
                     and self._needs_fallback(fetched, extraction)
                     and not trace.attempted(FetchMode.JINA_READER)
@@ -559,12 +337,6 @@ class ScrapeService:
                         trace.select(selected_attempt)
                     except (FetchError, ResponseTooLargeError):
                         pass
-                elif self._needs_fallback(fetched, extraction):
-                    trace.skipped(
-                        FetchMode.JINA_READER,
-                        "reader_fallback",
-                        "Jina reader is disabled",
-                    )
 
                 if (
                     self._adaptive_extractor is not None

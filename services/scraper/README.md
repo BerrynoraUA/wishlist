@@ -45,8 +45,8 @@ authentication and rate limiting.
 Every completed `/v1/scrape` call writes one JSON object per line to
 `.data/scrape-audit.jsonl`. Each event contains the request ID, sanitized product URL, attempted
 fetch modes, status and block reason for every attempt, timing, parse quality, selected mode, and
-the final outcome. Query strings, URL credentials, response HTML, product contents, and proxy
-credentials are not logged.
+the final outcome. Query strings, URL credentials, response HTML, and product contents are not
+logged.
 
 ```dotenv
 SCRAPER_AUDIT_LOG_PATH=.data/scrape-audit.jsonl
@@ -69,16 +69,40 @@ python -m pytest
 - `GET /ready`: configuration readiness.
 - `POST /v1/scrape`: fetches a public product URL with a persistent browser-impersonating HTTP
   session and returns normalized product data.
-- `POST /v1/api-fetch`: retries an allowlisted marketplace JSON API through direct HTTP and then
-  HTTP proxy. It does not use browser, HTML parsing, or Jina, and accepts only restricted headers.
+- `POST /v1/api-fetch`: fetches an allowlisted marketplace JSON API through direct HTTP. It does
+  not use browser or HTML parsing and accepts only restricted headers.
 
 The HTTP session uses Scrapling's Chrome TLS impersonation and matching browser headers. When the
 HTTP response is blocked or incomplete, the service lazily starts a shared stealth Chromium session.
-When proxy support is enabled, a confirmed block can escalate to separate proxied HTTP and browser
-sessions. One provider endpoint and a Scrapling-rotated list are both supported. Adaptive fallback
-stores validated element fingerprints in the configured SQLite file. Adaptive prices are never
-accepted without confirmation from an independent extraction source.
+Adaptive fallback stores validated element fingerprints in the configured SQLite file. Adaptive
+prices are never accepted without confirmation from an independent extraction source.
 
-`SCRAPER_ENABLE_JINA=true` enables Jina Reader only as the last tier after direct HTTP, direct
-browser, proxy HTTP and proxy browser. Its output must contain a product identifier from the
-requested URL and is logged as `jina_reader`.
+`SCRAPER_ENABLE_JINA=true` enables Jina Reader as the final fallback after Scrapling HTTP and
+Scrapling browser attempts.
+
+## Docker deploy
+
+For a Linux VPS/container deploy:
+
+```bash
+cd services/scraper
+cp .env.example .env
+docker build -t wishlane-scraper:local .
+docker volume create wishlane-scraper-data
+docker run -d \
+  --name wishlane-scraper \
+  --restart unless-stopped \
+  --init \
+  --shm-size=1g \
+  --env-file .env \
+  -e SCRAPER_HOST=0.0.0.0 \
+  -e SCRAPER_PORT=8001 \
+  -e SCRAPER_AUDIT_LOG_PATH=/app/.data/scrape-audit.jsonl \
+  -e SCRAPER_ADAPTIVE_DB_PATH=/app/.data/adaptive.db \
+  -p 127.0.0.1:8001:8001 \
+  -v wishlane-scraper-data:/app/.data \
+  wishlane-scraper:local
+```
+
+The Docker run command binds the service to `127.0.0.1:8001` on the host by default. See `DEPLOY.md`
+for the full VPS checklist.

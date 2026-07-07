@@ -161,7 +161,7 @@ export const scrapeWildberries: AsyncScraperMethod = async (_html, url) => {
       }
     }
   } catch {
-    // Keep card data; Python/Scrapling can retry the price endpoint via proxy.
+    // Keep card data; Python/Scrapling can retry the price endpoint directly.
   }
 
   const hasDiscount = Boolean(regularPrice && currentPrice && regularPrice > currentPrice);

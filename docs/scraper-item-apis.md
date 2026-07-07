@@ -102,8 +102,7 @@ Internal API-first adapters також реалізовані для:
 - Lazada PDP Modules API.
 
 Якщо Next отримує 403/429 або network error, endpoint повторюється через окремий Python
-transport: спочатку direct HTTP, потім HTTP proxy. Цей transport не запускає HTML parsing,
-browser або Jina.
+transport через direct HTTP. Цей transport не запускає HTML parsing або browser.
 
 Joom, N11, Galaxus/Digitec, Maudau, Foxtrot і Yakaboo не перемикаються на API-first без
 підтвердженого server-side контракту. Їхні відомі endpoints потребують session/auth,

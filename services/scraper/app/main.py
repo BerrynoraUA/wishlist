@@ -25,7 +25,6 @@ from app.models import (
     ScrapeRequest,
     ScrapeResponse,
 )
-from app.proxy import ProxyOptions, build_proxy_options
 from app.service import ScrapeService, ScrapeServiceError
 
 
@@ -34,23 +33,6 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     http_fetcher = HttpFetcher(settings)
     browser_fetcher = BrowserFetcher(settings) if settings.enable_browser else None
-    proxy_options = (
-        build_proxy_options(settings.configured_proxy_urls)
-        if settings.enable_proxy
-        else ProxyOptions()
-    )
-    proxy_http_fetcher = (
-        HttpFetcher(settings, proxy_options=proxy_options)
-        if settings.enable_proxy and proxy_options.configured
-        else None
-    )
-    proxy_browser_fetcher = (
-        BrowserFetcher(settings, proxy_options=proxy_options)
-        if settings.enable_proxy
-        and settings.enable_browser
-        and proxy_options.configured
-        else None
-    )
     adaptive_extractor = (
         AdaptiveExtractor(
             settings.adaptive_db_path,
@@ -66,14 +48,10 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     )
     application.state.http_fetcher = http_fetcher
     application.state.browser_fetcher = browser_fetcher
-    application.state.proxy_http_fetcher = proxy_http_fetcher
-    application.state.proxy_browser_fetcher = proxy_browser_fetcher
     application.state.audit_logger = audit_logger
     application.state.scrape_service = ScrapeService(
         http_fetcher,
         browser_fetcher,
-        proxy_http_fetcher,
-        proxy_browser_fetcher,
         adaptive_extractor,
         audit_logger,
         enable_jina=settings.enable_jina,
@@ -83,10 +61,6 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     finally:
         if browser_fetcher is not None:
             await browser_fetcher.close()
-        if proxy_browser_fetcher is not None:
-            await proxy_browser_fetcher.close()
-        if proxy_http_fetcher is not None:
-            await proxy_http_fetcher.close()
         await http_fetcher.close()
 
 
@@ -110,8 +84,6 @@ async def ready() -> ReadinessResponse:
     return ReadinessResponse(
         status="ready",
         browser_enabled=settings.enable_browser,
-        proxy_enabled=settings.enable_proxy,
-        proxy_configured=bool(settings.proxy_url or settings.proxy_urls),
     )
 
 
@@ -145,10 +117,7 @@ async def api_fetch(payload: ApiFetchRequest, request: Request) -> ApiFetchRespo
         )
 
     attempts: list[ApiFetchAttempt] = []
-    fetchers = [
-        ("python_api_http", request.app.state.http_fetcher),
-        ("python_api_proxy", request.app.state.proxy_http_fetcher),
-    ]
+    fetchers = [("python_api_http", request.app.state.http_fetcher)]
     last_response = None
     deadline = monotonic() + payload.deadline_ms / 1000
 

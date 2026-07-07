@@ -149,8 +149,6 @@ def _extract_profile(
         for field_name, value in product.model_dump().items()
         if value not in (None, False)
     }
-    if has_discount:
-        sources["has_discount"] = source_name
     return ExtractionResult(product=product, sources=sources)
 
 

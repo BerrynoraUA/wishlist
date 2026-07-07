@@ -61,10 +61,6 @@ def _remove_store_placeholders(
             extraction.sources.pop(field_name, None)
         extraction.warnings.append(f"{matched_domain.rstrip('.')}_non_product_page")
         return
-    if "aliexpress." in hostname and title in {"aliexpress", "aliexpress.com"}:
-        extraction.product.title = None
-        extraction.sources.pop("title", None)
-        extraction.warnings.append("aliexpress_placeholder_title")
     description = (extraction.product.description or "").strip()
     if "aliexpress." in hostname and description.lower().startswith("smarter shopping"):
         extraction.product.description = None

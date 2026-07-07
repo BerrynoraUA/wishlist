@@ -20,7 +20,7 @@ export type ApiAdapterResult = {
 };
 
 export type ApiTransportAttempt = {
-  mode: "next_api" | "python_api_http" | "python_api_proxy";
+  mode: "next_api" | "python_api_http";
   outcome: "received" | "blocked" | "error" | "timeout" | "skipped";
   durationMs: number;
   status?: number;
@@ -968,7 +968,7 @@ async function fetchThroughPython(request: PythonApiRequest): Promise<{
     const outcome = text(attempt?.outcome);
     if (
       !mode ||
-      !["python_api_http", "python_api_proxy"].includes(mode) ||
+      mode !== "python_api_http" ||
       !outcome ||
       !["received", "blocked", "error", "timeout", "skipped"].includes(outcome)
     ) {

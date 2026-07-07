@@ -122,8 +122,6 @@ def _product_from_json_ld(item: dict[str, Any], page_url: str) -> ExtractionResu
         for field_name, value in product.model_dump().items()
         if value not in (None, False)
     }
-    if has_discount:
-        sources["has_discount"] = "json_ld"
     return ExtractionResult(product=product, sources=sources)
 
 
@@ -289,13 +287,13 @@ def _extract_meta_and_dom(
 
     currency = _currency_for_page(
         normalize_currency(
-        meta("product:price:currency", "og:price:currency")
-        or _first_attribute_or_text(
-            document,
-            ["//*[@itemprop='priceCurrency'][1]"],
-            "content",
-        )
-        or _currency_from_text(html_text)
+            meta("product:price:currency", "og:price:currency")
+            or _first_attribute_or_text(
+                document,
+                ["//*[@itemprop='priceCurrency'][1]"],
+                "content",
+            )
+            or _currency_from_text(html_text)
         ),
         page_url,
     )
@@ -313,8 +311,6 @@ def _extract_meta_and_dom(
     for field_name, value in product.model_dump().items():
         if value not in (None, False):
             sources[field_name] = "meta_dom"
-    if has_discount:
-        sources["has_discount"] = "meta_dom"
     return ExtractionResult(product=product, sources=sources)
 
 
@@ -352,9 +348,9 @@ def _extract_regex(html_text: str, page_url: str) -> ExtractionResult:
     price = normalize_price(raw_price)
     currency = _currency_for_page(
         normalize_currency(
-        meta_content("product:price:currency")
-        or meta_content("og:price:currency")
-        or _currency_from_text(html_text)
+            meta_content("product:price:currency")
+            or meta_content("og:price:currency")
+            or _currency_from_text(html_text)
         ),
         page_url,
     )

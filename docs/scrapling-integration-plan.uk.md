@@ -219,7 +219,7 @@ Internal response:
     "warnings": []
   },
   "diagnostics": {
-    "fetchMode": "http_no_proxy",
+    "fetchMode": "scrapling_http",
     "parserSources": {
       "title": "json_ld",
       "price": "json_ld",
