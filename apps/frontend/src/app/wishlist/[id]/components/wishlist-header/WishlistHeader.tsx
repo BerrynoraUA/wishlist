@@ -326,67 +326,67 @@ export function WishlistHeader({
 
               <div className={styles.identity}>
                 <div className={styles.titleBlock}>
-                {editingTitle ? (
-                  <input
-                    ref={titleInputRef}
-                    className={styles.titleInput}
-                    value={titleDraft}
-                    onChange={(e) => setTitleDraft(e.target.value)}
-                    onKeyDown={handleTitleKeyDown}
-                    onBlur={saveTitleChange}
-                    placeholder={t("Wishlist title", {
-                      $id: "wishlist.header.titlePlaceholder",
-                    })}
-                    autoFocus
-                    disabled={isUpdatingWishlist}
-                  />
-                ) : (
-                  <div
-                    className={styles.titleRow}
-                    onDoubleClick={canInlineEdit ? startEditingTitle : undefined}
-                  >
-                    <h1 className={canInlineEdit ? styles.editableText : undefined}>
-                      {wishlist.title}
-                    </h1>
-                  </div>
-                )}
-
-                {(description || canInlineEdit) &&
-                  (editingDescription ? (
-                    <textarea
-                      ref={descriptionInputRef}
-                      className={styles.descriptionInput}
-                      value={descriptionDraft}
-                      onChange={(e) => setDescriptionDraft(e.target.value)}
-                      onKeyDown={handleDescriptionKeyDown}
-                      onBlur={saveDescriptionChange}
-                      placeholder={t("Add a short description", {
-                        $id: "wishlist.header.descPlaceholder",
+                  {editingTitle ? (
+                    <input
+                      ref={titleInputRef}
+                      className={styles.titleInput}
+                      value={titleDraft}
+                      onChange={(e) => setTitleDraft(e.target.value)}
+                      onKeyDown={handleTitleKeyDown}
+                      onBlur={saveTitleChange}
+                      placeholder={t("Wishlist title", {
+                        $id: "wishlist.header.titlePlaceholder",
                       })}
                       autoFocus
                       disabled={isUpdatingWishlist}
                     />
                   ) : (
                     <div
-                      className={styles.descriptionRow}
-                      onDoubleClick={canInlineEdit ? startEditingDescription : undefined}
+                      className={styles.titleRow}
+                      onDoubleClick={canInlineEdit ? startEditingTitle : undefined}
                     >
-                      {description ? (
-                        <p
-                          className={`${styles.description} ${canInlineEdit ? styles.editableText : ""}`}
-                          title={description}
-                        >
-                          {description}
-                        </p>
-                      ) : canInlineEdit ? (
-                        <p className={`${styles.descriptionPlaceholder} ${styles.editableText}`}>
-                          {t("Add a short description", {
-                            $id: "wishlist.header.descPlaceholderText",
-                          })}
-                        </p>
-                      ) : null}
+                      <h1 className={canInlineEdit ? styles.editableText : undefined}>
+                        {wishlist.title}
+                      </h1>
                     </div>
-                  ))}
+                  )}
+
+                  {(description || canInlineEdit) &&
+                    (editingDescription ? (
+                      <textarea
+                        ref={descriptionInputRef}
+                        className={styles.descriptionInput}
+                        value={descriptionDraft}
+                        onChange={(e) => setDescriptionDraft(e.target.value)}
+                        onKeyDown={handleDescriptionKeyDown}
+                        onBlur={saveDescriptionChange}
+                        placeholder={t("Add a short description", {
+                          $id: "wishlist.header.descPlaceholder",
+                        })}
+                        autoFocus
+                        disabled={isUpdatingWishlist}
+                      />
+                    ) : (
+                      <div
+                        className={styles.descriptionRow}
+                        onDoubleClick={canInlineEdit ? startEditingDescription : undefined}
+                      >
+                        {description ? (
+                          <p
+                            className={`${styles.description} ${canInlineEdit ? styles.editableText : ""}`}
+                            title={description}
+                          >
+                            {description}
+                          </p>
+                        ) : canInlineEdit ? (
+                          <p className={`${styles.descriptionPlaceholder} ${styles.editableText}`}>
+                            {t("Add a short description", {
+                              $id: "wishlist.header.descPlaceholderText",
+                            })}
+                          </p>
+                        ) : null}
+                      </div>
+                    ))}
                 </div>
 
                 <div className={`${styles.badges} ${isOwner ? styles.ownerBadges : ""}`.trim()}>

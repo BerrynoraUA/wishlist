@@ -82,8 +82,7 @@ export function DropdownMenuItem({
 }: ItemProps) {
   const { close } = useContext(DropdownMenuContext);
   const DefaultIcon = VARIANT_ICON[variant];
-  const leadingIcon =
-    icon !== undefined ? icon : DefaultIcon ? <DefaultIcon size={16} /> : null;
+  const leadingIcon = icon !== undefined ? icon : DefaultIcon ? <DefaultIcon size={16} /> : null;
   return (
     <button
       type="button"
