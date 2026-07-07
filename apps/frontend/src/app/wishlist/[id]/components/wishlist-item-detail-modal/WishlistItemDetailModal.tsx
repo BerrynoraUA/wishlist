@@ -224,6 +224,7 @@ export function WishlistItemDetailModal({
                     additionalLinks: item.additional_links,
                   })}
                   className={styles.saveBtn}
+                  tooltipAlign="start"
                 />
               )}
 

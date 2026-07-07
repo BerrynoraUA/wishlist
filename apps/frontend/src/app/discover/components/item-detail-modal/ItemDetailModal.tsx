@@ -247,6 +247,7 @@ export function ItemDetailModal({
                   additionalLinks: item.additional_links,
                 })}
                 className={styles.saveBtn}
+                tooltipAlign="start"
               />
 
               <div className={styles.footerRight}>

@@ -13,6 +13,12 @@ type Props = {
   className?: string;
   size?: number;
   tooltip?: string;
+  /**
+   * Anchors the tooltip to the trigger's start/end instead of centering it.
+   * Use "start" when the button sits against the left edge of an
+   * overflow-clipped container (e.g. a modal footer) so the tooltip isn't cut off.
+   */
+  tooltipAlign?: "center" | "start" | "end";
 };
 
 export function SaveToWishlistButton({
@@ -20,6 +26,7 @@ export function SaveToWishlistButton({
   className,
   size = 16,
   tooltip = "Save to my wishlist",
+  tooltipAlign = "center",
 }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -46,6 +53,7 @@ export function SaveToWishlistButton({
         }}
         aria-label={tooltip}
         data-tooltip={tooltip}
+        data-tooltip-align={tooltipAlign}
       >
         <Bookmark size={size} />
       </button>
