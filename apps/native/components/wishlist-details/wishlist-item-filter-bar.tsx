@@ -24,14 +24,10 @@ import {
   getItemStatusOptions,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { ChevronsUpDown, Search, SlidersHorizontal, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { StyleSheet, View } from "react-native";
-
-const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
-const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 9999 }];
+import { View } from "react-native";
 
 export type WishlistItemFilterState = {
   search: string;
@@ -147,29 +143,15 @@ export function WishlistItemFilterBar({
             accessibilityLabel={t("Show item filters")}
             accessibilityState={{ expanded: open }}
             onPress={() => onOpenChange(!open)}
-            className={cn(
-              "shrink-0 rounded-full",
-              HAS_LIQUID_GLASS
-                ? "border-border-subtle bg-transparent dark:bg-transparent"
-                : "border-border-subtle bg-card-bg dark:bg-card-bg",
-            )}
+            className="shrink-0 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg"
           >
-            {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
             <Icon as={SlidersHorizontal} className="size-4 text-text" />
           </Button>
         </View>
       </View>
 
       <SlideOutFilterPanel open={open} className="pb-1 pt-4" maxHeight={ITEM_FILTER_PANEL_HEIGHT}>
-        <View
-          className={cn(
-            "flex-row items-center gap-1 rounded-full border px-2 pl-3",
-            HAS_LIQUID_GLASS
-              ? "border-border-subtle bg-transparent"
-              : "border-border-subtle bg-card-bg shadow-sm",
-          )}
-        >
-          {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
+        <View className="flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
           <Icon as={Search} className="size-4 text-muted-foreground/50" />
           <Input
             value={filters.search}
@@ -234,16 +216,8 @@ export function WishlistItemFilterBar({
                   variant="outline"
                   size="pill"
                   accessibilityLabel={t("Sort items")}
-                  className={cn(
-                    "w-full justify-between shadow-none",
-                    HAS_LIQUID_GLASS
-                      ? "border-border-subtle bg-transparent dark:bg-transparent"
-                      : "border-border-subtle bg-card-bg dark:bg-card-bg",
-                  )}
+                  className="w-full justify-between border-border-subtle bg-card-bg shadow-none dark:bg-card-bg"
                 >
-                  {HAS_LIQUID_GLASS ? (
-                    <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-                  ) : null}
                   <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                     {selectedSort}
                   </Text>
@@ -329,14 +303,9 @@ function MultiSelectMenu({
             "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
             values.length > 0
               ? "border-brand bg-brand-lighter"
-              : HAS_LIQUID_GLASS
-                ? "border-border-subtle bg-transparent"
-                : "border-border-subtle bg-card-bg",
+              : "border-border-subtle bg-card-bg",
           )}
         >
-          {values.length === 0 && HAS_LIQUID_GLASS ? (
-            <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-          ) : null}
           <Text
             className={cn(
               "shrink text-sm font-semibold text-text",
