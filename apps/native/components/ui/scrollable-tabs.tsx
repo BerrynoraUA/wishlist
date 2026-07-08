@@ -9,16 +9,14 @@ import { Platform, ScrollView, StyleSheet, View, type LayoutChangeEvent } from "
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 
 // iOS renders a sliding Telegram-style capsule behind the active tab; on iOS 26+ the capsule
-// is layered with a real liquid-glass sheen. Android keeps the Material-style underline.
+// is layered with a real liquid-glass sheen.
 const IS_IOS = Platform.OS === "ios";
 const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
 const INDICATOR_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 999 }];
 
 /**
- * Vertical gap between the safe-area top inset and the top tabs. Shared by every screen
- * that renders `ScrollableTabs` so the tabs sit at the exact same position everywhere.
- * Matches the sticky headers' 16px (`pb-4`) bottom padding so the from-notch and bottom
- * margins are equal. Use as `paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP`.
+ * Vertical gap between the safe-area top inset and the top tabs. Shared by screens
+ * that render `ScrollableTabs` so the tabs sit at the exact same position everywhere.
  */
 export const SCROLLABLE_TABS_TOP_GAP = 16;
 
@@ -34,11 +32,13 @@ export function ScrollableTabs<T>({
   tabs,
   value,
   onChange,
+  align = "left",
   className,
 }: {
   tabs: ScrollableTab<T>[];
   value: T;
   onChange: (value: T) => void;
+  align?: "left" | "right";
   className?: string;
 }) {
   const scrollRef = React.useRef<ScrollView>(null);
@@ -102,15 +102,13 @@ export function ScrollableTabs<T>({
   }
 
   return (
-    <View
-      className={cn(IS_IOS ? "bg-bg" : "border-b border-border-subtle bg-bg", className)}
-      onLayout={handleViewportLayout}
-    >
+    <View className={cn("h-11", className)} onLayout={handleViewportLayout}>
       <ScrollView
         ref={scrollRef}
         horizontal
         bounces
-        contentContainerClassName={IS_IOS ? "px-2 py-1" : "px-1"}
+        contentContainerClassName={IS_IOS ? "px-2" : "px-1"}
+        contentContainerStyle={align === "right" ? styles.rightAlignedContent : undefined}
         keyboardShouldPersistTaps="handled"
         showsHorizontalScrollIndicator={false}
       >
@@ -120,8 +118,8 @@ export function ScrollableTabs<T>({
             className="absolute rounded-full border border-border-subtle bg-bg-elevated"
             style={[
               {
-                top: 6,
-                bottom: 6,
+                top: 0,
+                bottom: 0,
                 left: 0,
                 shadowColor: "#000",
                 shadowOpacity: 0.1,
@@ -202,3 +200,10 @@ export function ScrollableTabs<T>({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  rightAlignedContent: {
+    flexGrow: 1,
+    justifyContent: "flex-end",
+  },
+});

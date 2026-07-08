@@ -18,6 +18,8 @@ import {
   ArrowDown,
   Search,
   X,
+  ShieldBan,
+  CircleSlash2,
 } from "lucide-react";
 import { TEST_CASES } from "./test-urls";
 import { exportScraperResultsExcel, exportScraperResultsJson } from "./export-scraper-results";
@@ -55,6 +57,8 @@ export default function ScraperTestPage() {
   const successCount = results.filter((r) => r.status === "success").length;
   const partialCount = results.filter((r) => r.status === "partial").length;
   const failedCount = results.filter((r) => r.status === "failed").length;
+  const blockedCount = results.filter((r) => r.status === "blocked").length;
+  const unavailableCount = results.filter((r) => r.status === "unavailable").length;
 
   const runTest = useCallback(async () => {
     setState("running");
@@ -185,6 +189,10 @@ export default function ScraperTestPage() {
         return <CheckCircle2 size={14} className={styles.iconSuccess} />;
       case "partial":
         return <AlertTriangle size={14} className={styles.iconPartial} />;
+      case "blocked":
+        return <ShieldBan size={14} className={styles.iconBlocked} />;
+      case "unavailable":
+        return <CircleSlash2 size={14} className={styles.iconUnavailable} />;
       default:
         return <XCircle size={14} className={styles.iconFailed} />;
     }
@@ -196,6 +204,10 @@ export default function ScraperTestPage() {
         return "Success";
       case "partial":
         return "Partial";
+      case "blocked":
+        return "Blocked";
+      case "unavailable":
+        return "Unavailable";
       default:
         return "Failed";
     }
@@ -303,6 +315,16 @@ export default function ScraperTestPage() {
             <strong>{failedCount}</strong>
             <span>Failed</span>
           </div>
+          <div className={`${styles.statCard} ${styles.statBlocked}`}>
+            <ShieldBan size={16} />
+            <strong>{blockedCount}</strong>
+            <span>Blocked</span>
+          </div>
+          <div className={`${styles.statCard} ${styles.statUnavailable}`}>
+            <CircleSlash2 size={16} />
+            <strong>{unavailableCount}</strong>
+            <span>Unavailable</span>
+          </div>
           <div className={`${styles.statCard} ${styles.statTotal}`}>
             <Clock size={16} />
             <strong>
@@ -358,6 +380,8 @@ export default function ScraperTestPage() {
                       <option value="success">Success</option>
                       <option value="partial">Partial</option>
                       <option value="failed">Failed</option>
+                      <option value="blocked">Blocked</option>
+                      <option value="unavailable">Unavailable</option>
                     </select>
                   </div>
                 </th>
@@ -497,6 +521,8 @@ function ResultRow({
 
               {result.error && <div className={styles.errorMsg}>Error: {result.error}</div>}
 
+              {result.diagnostics && <DiagnosticsDetails diagnostics={result.diagnostics} />}
+
               {result.validations.some((v) => v.match !== null) && (
                 <div className={styles.validationGrid}>
                   <div className={styles.validationTitle}>Validation</div>
@@ -514,10 +540,10 @@ function ResultRow({
                         {!v.match && (
                           <div className={styles.validationDiff}>
                             <div className={styles.diffExpected}>
-                              <span>Expected:</span> {v.expected ?? "—"}
+                              <span>Expected:</span> {v.expected == null ? "—" : String(v.expected)}
                             </div>
                             <div className={styles.diffActual}>
-                              <span>Got:</span> {v.actual ?? "—"}
+                              <span>Got:</span> {v.actual == null ? "—" : String(v.actual)}
                             </div>
                           </div>
                         )}
@@ -549,6 +575,82 @@ function ResultRow({
         </tr>
       )}
     </>
+  );
+}
+
+function DiagnosticsDetails({
+  diagnostics,
+}: {
+  diagnostics: NonNullable<ScrapeResult["diagnostics"]>;
+}) {
+  const parserSources = Object.entries(diagnostics.parserSources);
+  return (
+    <div className={styles.diagnostics}>
+      <div className={styles.validationTitle}>Scraping pipeline</div>
+      <div className={styles.diagnosticsSummary}>
+        <span>
+          {diagnostics.engine === "legacy"
+            ? "Next / legacy"
+            : diagnostics.engine === "scrapling"
+              ? "Scrapling"
+              : diagnostics.engine === "official_api"
+                ? "Official API"
+                : "Internal API"}
+        </span>
+        {diagnostics.api && (
+          <>
+            <span>{diagnostics.api.provider}</span>
+            <span>Adapter: {diagnostics.api.adapter}</span>
+            {diagnostics.api.itemId && <span>Item: {diagnostics.api.itemId}</span>}
+          </>
+        )}
+        <span>Stopped at: {diagnostics.fetchMethod}</span>
+        {diagnostics.selectedFetchMethod && (
+          <span>Best result: {diagnostics.selectedFetchMethod}</span>
+        )}
+        <span>{diagnostics.attempts.length} attempts</span>
+      </div>
+      <div className={styles.attemptTimeline}>
+        {diagnostics.attempts.map((attempt) => (
+          <div className={styles.attemptRow} key={`${attempt.sequence}-${attempt.mode}`}>
+            <span className={styles.attemptSequence}>{attempt.sequence}</span>
+            <div className={styles.attemptDetails}>
+              <div className={styles.attemptHeading}>
+                <strong>{attempt.mode}</strong>
+                <span className={styles[`attempt_${attempt.outcome}`]}>{attempt.outcome}</span>
+                {attempt.selected && <span className={styles.attemptSelected}>selected</span>}
+              </div>
+              <div className={styles.attemptMeta}>
+                <span>{attempt.purpose}</span>
+                <span>{attempt.durationMs}ms</span>
+                {attempt.status !== undefined && <span>HTTP {attempt.status}</span>}
+                {attempt.parseScore !== undefined && <span>score {attempt.parseScore}</span>}
+              </div>
+              {(attempt.blockReason || attempt.error) && (
+                <div className={styles.attemptReason}>{attempt.blockReason ?? attempt.error}</div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+      {parserSources.length > 0 && (
+        <div className={styles.sourceGrid}>
+          <strong>Field</strong>
+          <strong>Source</strong>
+          <strong>Library</strong>
+          {parserSources.map(([field, details]) => (
+            <div className={styles.sourceRow} key={field}>
+              <span>{field}</span>
+              <span>{details.source}</span>
+              <span>{details.library}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {diagnostics.warnings && diagnostics.warnings.length > 0 && (
+        <div className={styles.diagnosticWarnings}>Warnings: {diagnostics.warnings.join(", ")}</div>
+      )}
+    </div>
   );
 }
 

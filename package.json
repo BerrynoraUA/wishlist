@@ -13,6 +13,7 @@
     "web:https": "turbo run dev:https --filter=frontend",
     "dev:https": "turbo run dev:https --filter=frontend",
     "native": "turbo run dev --filter=native",
+    "scrapling": "node services/scraper/scripts/start.mjs",
     "android": "turbo run android --filter=native",
     "ios": "turbo run ios --filter=native",
     "test": "pnpm --filter frontend test:e2e",

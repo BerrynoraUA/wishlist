@@ -10,8 +10,6 @@ import {
   extractDateFromText,
 } from "../utils";
 
-const ROZETKA_READER_URL = "https://r.jina.ai/";
-
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
@@ -113,14 +111,6 @@ function parseRozetka(html: string, url: string): ProductData {
   };
 }
 
-export async function scrapeRozetka(html: string, url: string): Promise<ProductData> {
-  const product = parseRozetka(html, url);
-  if (product.price) return product;
-
-  const response = await fetch(`${ROZETKA_READER_URL}${url}`, {
-    headers: { "X-Return-Format": "html" },
-  });
-  if (!response.ok) return product;
-
-  return parseRozetka(await response.text(), url);
+export function scrapeRozetka(html: string, url: string): ProductData {
+  return parseRozetka(html, url);
 }

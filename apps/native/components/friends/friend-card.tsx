@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import type { FriendWithDetails } from "@wishlist/backend/types/friends";
-import { ChevronRight, UserMinus } from "lucide-react-native";
+import { UserMinus } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import { Pressable, View } from "react-native";
 
@@ -67,7 +67,6 @@ export function FriendCard({
         >
           <Icon as={UserMinus} className="size-4 text-destructive" />
         </Button>
-        <Icon as={ChevronRight} className="size-5 text-text-muted" />
       </View>
     </Pressable>
   );

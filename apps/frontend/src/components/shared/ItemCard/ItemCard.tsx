@@ -216,7 +216,6 @@ export function ItemCard({
             </div>
 
             <CardInfo
-              id={id}
               name={name}
               description={description}
               formattedPrice={formattedPrice}
@@ -224,7 +223,6 @@ export function ItemCard({
               variant={variant}
               isOwner={isOwner}
               isPurchasedMode={isPurchasedMode}
-              statusLabel={statusLabel}
               reserveBtnLabel={reserveBtnLabel}
               isPurchased={isPurchased}
               isReservedState={isReservedState}

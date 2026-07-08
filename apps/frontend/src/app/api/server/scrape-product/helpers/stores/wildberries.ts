@@ -48,6 +48,19 @@ interface WBCardJson {
   media?: { photo_count?: number };
 }
 
+interface WBPriceProduct {
+  id?: number;
+  priceU?: number;
+  salePriceU?: number;
+  sizes?: Array<{
+    price?: {
+      basic?: number;
+      product?: number;
+      total?: number;
+    };
+  }>;
+}
+
 export const scrapeWildberries: AsyncScraperMethod = async (_html, url) => {
   const empty = {
     title: null,
@@ -114,14 +127,53 @@ export const scrapeWildberries: AsyncScraperMethod = async (_html, url) => {
   }
   const description = optParts.length > 0 ? optParts.join(". ") + "." : null;
 
+  let regularPrice: number | null = null;
+  let currentPrice: number | null = null;
+  try {
+    const priceUrl =
+      "https://card.wb.ru/cards/v2/detail" +
+      `?appType=1&curr=rub&dest=-1257786&lang=ru&spp=30&nm=${id}`;
+    const response = await fetch(priceUrl, {
+      headers: { Referer: "https://www.wildberries.ru/" },
+    });
+    if (response.ok) {
+      const payload = (await response.json()) as {
+        data?: { products?: WBPriceProduct[] };
+      };
+      const priceProduct = payload.data?.products?.find((product) => product.id === id);
+      const pairs =
+        priceProduct?.sizes
+          ?.map((size) => size.price)
+          .filter((price): price is { basic: number; product?: number; total?: number } =>
+            Boolean(price?.basic && (price.product || price.total)),
+          )
+          .map((price) => ({
+            regular: price.basic / 100,
+            current: (price.product || price.total || 0) / 100,
+          })) || [];
+      if (pairs.length) {
+        const cheapest = pairs.sort((left, right) => left.current - right.current)[0];
+        regularPrice = cheapest.regular;
+        currentPrice = cheapest.current;
+      } else if (priceProduct?.priceU && priceProduct.salePriceU) {
+        regularPrice = priceProduct.priceU / 100;
+        currentPrice = priceProduct.salePriceU / 100;
+      }
+    }
+  } catch {
+    // Keep card data; Python/Scrapling can retry the price endpoint directly.
+  }
+
+  const hasDiscount = Boolean(regularPrice && currentPrice && regularPrice > currentPrice);
+
   return {
     title,
     description,
     image,
-    price: null, // Price not available via CDN; card.wb.ru API is blocked
-    discount_price: null,
-    has_discount: false,
+    price: regularPrice ? String(hasDiscount ? regularPrice : currentPrice) : null,
+    discount_price: hasDiscount && currentPrice ? String(currentPrice) : null,
+    has_discount: hasDiscount,
     discount_end_date: null,
-    currency: null,
+    currency: currentPrice ? "RUB" : null,
   };
 };

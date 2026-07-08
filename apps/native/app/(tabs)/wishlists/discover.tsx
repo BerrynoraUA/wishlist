@@ -1,19 +1,19 @@
 import {
-  DiscoverFilterHeader,
+  DiscoverFilterActions,
   DiscoverFiltersPanel,
 } from "@/components/discover/discover-filter-bar";
 import { DiscoverSection } from "@/components/discover/discover-section";
-import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
 import { DiscoverTabs } from "@/components/discover/discover-tabs";
 import { ReservedItemsGrid } from "@/components/discover/reserved-items-grid";
 import { DiscoverItemDetailSheet } from "@/components/discover/sheets/discover-item-detail-sheet";
 import { UpcomingEventsCard } from "@/components/discover/upcoming-events-card";
 import { InlineState } from "@/components/shared/inline-state";
+import { FloatingBackButton } from "@/components/ui/floating-back-button";
+import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
 import {
-  InstantStickyHeaderOverlay,
-  StickyHeaderBackground,
-  useInstantStickyHeader,
-} from "@/components/ui/instant-sticky-header";
+  ITEM_FILTER_PANEL_HEIGHT,
+  SlideOutFilterPanel,
+} from "@/components/ui/slide-out-filter-panel";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import { useDiscoverFeed } from "@/hooks/use-discover-feed";
@@ -27,14 +27,13 @@ import {
 import { useAuth } from "@/providers/auth-provider";
 import type { DiscoverSection as DiscoverSectionType } from "@wishlist/backend/types/discover";
 import type { Item } from "@wishlist/backend/types/item";
+import { Stack } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View, useWindowDimensions } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type DiscoverRow =
   | DiscoverSectionType
-  | { id: "discover-header"; type: "discover-header" }
   | { id: "discover-intro"; type: "discover-intro" }
   | { id: "reserved-grid"; type: "reserved-grid" };
 
@@ -47,7 +46,6 @@ export default function DiscoverScreen() {
   const t = useGT();
   const { user } = useAuth();
   const { width } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
   const feed = useDiscoverFeed();
   const friendsQuery = useFriends();
   const toggleReservation = useToggleItemReservation();
@@ -55,7 +53,7 @@ export default function DiscoverScreen() {
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [selection, setSelection] = React.useState<SelectedDiscoverItem | null>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
-  const stickyHeader = useInstantStickyHeader({ scrollListener: requestMeasure });
+  const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
 
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
@@ -137,67 +135,10 @@ export default function DiscoverScreen() {
       ? feed.activeSections
       : [{ id: "reserved-grid", type: "reserved-grid" }];
 
-    return [
-      { id: "discover-header", type: "discover-header" },
-      { id: "discover-intro", type: "discover-intro" },
-      ...contentRows,
-    ];
-  }, [feed.activeSections, feed.sectionTab, filtersOpen]);
-
-  function renderFiltersPanel() {
-    if (!filtersOpen) return null;
-
-    return (
-      <DiscoverFiltersPanel
-        search={feed.search}
-        priorityIds={feed.priorityIds}
-        priceMin={feed.priceMin}
-        priceMax={feed.priceMax}
-        sort={feed.sort}
-        onSearchChange={feed.setSearch}
-        onPriorityToggle={feed.togglePriority}
-        onPriceMinChange={feed.setPriceMin}
-        onPriceMaxChange={feed.setPriceMax}
-        onSortChange={feed.setSort}
-      />
-    );
-  }
-
-  function renderDiscoverHeader(measure: boolean) {
-    return (
-      <View
-        className="pb-4"
-        onLayout={measure ? stickyHeader.onHeaderLayout : undefined}
-        style={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
-      >
-        {/* The floating overlay copy (measure === false) blurs the scrolling content
-            behind it; the inline copy just paints the page background. */}
-        <StickyHeaderBackground floating={!measure} />
-        <View className="gap-4 self-center" style={{ width: contentWidth }}>
-          <DiscoverTabs
-            value={feed.tab}
-            onChange={(value) => {
-              feed.setTab(value);
-              setSelection(null);
-            }}
-          />
-          <DiscoverFilterHeader
-            filtersOpen={filtersOpen}
-            filtersActive={feed.filtersActive}
-            onFiltersOpenChange={setFiltersOpen}
-            onResetFilters={feed.resetFilters}
-          />
-          {renderFiltersPanel()}
-        </View>
-      </View>
-    );
-  }
+    return [{ id: "discover-intro", type: "discover-intro" }, ...contentRows];
+  }, [feed.activeSections, feed.sectionTab]);
 
   function renderRow({ item }: { item: DiscoverRow }) {
-    if ("type" in item && item.type === "discover-header") {
-      return renderDiscoverHeader(true);
-    }
-
     if ("type" in item && item.type === "discover-intro") {
       return (
         <View className="pb-4" style={{ alignSelf: "center", width: contentWidth }}>
@@ -246,16 +187,59 @@ export default function DiscoverScreen() {
 
   return (
     <View className="flex-1 bg-bg">
+      <Stack.Screen options={{ title: t("Discover") }} />
+      <PinnedListHeader contentWidth={contentWidth} onLayout={onHeaderLayout}>
+        <View>
+          <View className="flex-row items-center gap-3">
+            <DiscoverFilterActions
+              filtersOpen={filtersOpen}
+              filtersActive={feed.filtersActive}
+              onFiltersOpenChange={setFiltersOpen}
+              onResetFilters={feed.resetFilters}
+            />
+            <View className="min-w-0 flex-1">
+              <DiscoverTabs
+                value={feed.tab}
+                onChange={(value) => {
+                  feed.setTab(value);
+                  setSelection(null);
+                }}
+              />
+            </View>
+          </View>
+          <SlideOutFilterPanel
+            open={filtersOpen}
+            className="pb-1 pt-4"
+            maxHeight={ITEM_FILTER_PANEL_HEIGHT}
+          >
+            <DiscoverFiltersPanel
+              search={feed.search}
+              priorityIds={feed.priorityIds}
+              priceMin={feed.priceMin}
+              priceMax={feed.priceMax}
+              sort={feed.sort}
+              onSearchChange={feed.setSearch}
+              onPriorityToggle={feed.togglePriority}
+              onPriceMinChange={feed.setPriceMin}
+              onPriceMaxChange={feed.setPriceMax}
+              onSortChange={feed.setSort}
+            />
+          </SlideOutFilterPanel>
+        </View>
+      </PinnedListHeader>
       <StyledFlashList
         data={rows}
         renderItem={renderRow}
         keyExtractor={(row) => ("type" in row ? row.id : row.id)}
         className="flex-1"
         contentContainerClassName="pb-8"
-        contentContainerStyle={{ paddingTop: 0 }}
-        onScroll={stickyHeader.onScroll}
+        contentContainerStyle={{ paddingTop }}
+        onScroll={requestMeasure}
         scrollEventThrottle={1}
         ItemSeparatorComponent={RowSeparator}
+        onEndReached={feed.loadMore}
+        isLoadingMore={feed.activeQuery.isFetchingNextPage}
+        getItemType={(row) => ("type" in row ? row.type : "discover-section")}
         ListFooterComponent={
           <View className="gap-4 self-center" style={{ width: contentWidth }}>
             {feed.activeQuery.isLoading ? (
@@ -285,15 +269,12 @@ export default function DiscoverScreen() {
           tab: feed.tab,
           cardWidth,
           contentWidth,
-          filtersOpen,
           gridGap,
           activeItems: feed.activeItems,
           loading: feed.activeQuery.isLoading,
         }}
       />
-      <InstantStickyHeaderOverlay ready={stickyHeader.ready} style={stickyHeader.overlayStyle}>
-        {renderDiscoverHeader(false)}
-      </InstantStickyHeaderOverlay>
+      <FloatingBackButton />
 
       {selection ? (
         <DiscoverItemDetailSheet

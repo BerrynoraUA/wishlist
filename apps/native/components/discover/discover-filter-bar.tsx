@@ -14,11 +14,10 @@ import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { useSettings } from "@/hooks/use-settings";
 import { getItemPriority, getItemPriorityOptions } from "@/lib/items";
 import { cn } from "@/lib/utils";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { ChevronsUpDown, SlidersHorizontal, Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 
 const SORT_OPTIONS = [
   { value: "default", labelKey: "Recommended" },
@@ -27,8 +26,6 @@ const SORT_OPTIONS = [
   { value: "priority-high", labelKey: "Highest priority" },
   { value: "priority-low", labelKey: "Lowest priority" },
 ] as const;
-const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
-const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 9999 }];
 
 export function DiscoverFilterActions({
   filtersOpen,
@@ -45,6 +42,16 @@ export function DiscoverFilterActions({
 
   return (
     <View className="flex-row items-center gap-2">
+      <Button
+        variant="outline"
+        size="lg"
+        accessibilityLabel={t("Show filters")}
+        accessibilityState={{ expanded: filtersOpen }}
+        onPress={() => onFiltersOpenChange(!filtersOpen)}
+        className="h-11 w-11 min-w-11 shrink-0 rounded-full border-border-subtle bg-card-bg p-0 shadow-sm dark:bg-card-bg"
+      >
+        <Icon as={SlidersHorizontal} className="size-4 text-text" />
+      </Button>
       {filtersActive ? (
         <Button
           variant="destructive"
@@ -56,42 +63,6 @@ export function DiscoverFilterActions({
           <Icon as={X} className="size-4 text-white" />
         </Button>
       ) : null}
-      <Button
-        variant="outline"
-        size="lg"
-        accessibilityLabel={t("Show filters")}
-        accessibilityState={{ expanded: filtersOpen }}
-        onPress={() => onFiltersOpenChange(!filtersOpen)}
-        className={cn(
-          "h-11 w-11 min-w-11 shrink-0 rounded-full p-0",
-          filtersOpen
-            ? "border-brand bg-brand-lighter"
-            : HAS_LIQUID_GLASS
-              ? "border-transparent bg-transparent"
-              : "border-border-subtle bg-card-bg",
-        )}
-      >
-        {!filtersOpen && HAS_LIQUID_GLASS ? (
-          <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-        ) : null}
-        <Icon
-          as={SlidersHorizontal}
-          className={cn("size-4 text-text", filtersOpen && "text-brand")}
-        />
-      </Button>
-    </View>
-  );
-}
-
-export function DiscoverFilterHeader(props: React.ComponentProps<typeof DiscoverFilterActions>) {
-  const t = useGT();
-
-  return (
-    <View className="flex-row items-center justify-between gap-3">
-      <Text className="min-w-0 flex-1 text-xl font-extrabold tracking-tight text-text">
-        {t("Discover")}
-      </Text>
-      <DiscoverFilterActions {...props} />
     </View>
   );
 }
@@ -134,21 +105,13 @@ export function DiscoverFiltersPanel({
 
   return (
     <View className="gap-3">
-      <View
-        className={cn(
-          "w-full flex-row items-center gap-1 rounded-full border px-2 pl-3",
-          HAS_LIQUID_GLASS
-            ? "border-transparent bg-transparent"
-            : "border-border-subtle bg-card-bg shadow-sm",
-        )}
-      >
-        {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
-        <Icon as={Search} className="size-4 text-text-muted" />
+      <View className="w-full flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
+        <Icon as={Search} className="size-4 text-muted-foreground/50" />
         <Input
           value={search}
           onChangeText={onSearchChange}
           placeholder={t("Search gifts or wishlists")}
-          className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
+          className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
           returnKeyType="search"
         />
         {search.length > 0 ? (
@@ -173,17 +136,12 @@ export function DiscoverFiltersPanel({
                   "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
                   priorityIds.length > 0
                     ? "border-brand bg-brand-lighter"
-                    : HAS_LIQUID_GLASS
-                      ? "border-transparent bg-transparent"
-                      : "border-border-subtle bg-card-bg",
+                    : "border-border-subtle bg-card-bg",
                 )}
               >
-                {priorityIds.length === 0 && HAS_LIQUID_GLASS ? (
-                  <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-                ) : null}
                 <Text
                   className={cn(
-                    "shrink text-sm font-semibold text-text-muted",
+                    "shrink text-sm font-semibold text-text",
                     priorityIds.length > 0 && "text-brand",
                   )}
                   numberOfLines={1}
@@ -193,7 +151,7 @@ export function DiscoverFiltersPanel({
                 <Icon
                   as={ChevronsUpDown}
                   className={cn(
-                    "size-3.5 shrink-0 text-text-muted",
+                    "size-3.5 shrink-0 text-text",
                     priorityIds.length > 0 && "text-brand",
                   )}
                 />
@@ -224,21 +182,11 @@ export function DiscoverFiltersPanel({
         <View className="min-w-0 flex-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <AnimatedPressable
-                className={cn(
-                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
-                  HAS_LIQUID_GLASS
-                    ? "border-transparent bg-transparent"
-                    : "border-border-subtle bg-card-bg",
-                )}
-              >
-                {HAS_LIQUID_GLASS ? (
-                  <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
-                ) : null}
+              <AnimatedPressable className="h-11 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3 dark:bg-card-bg">
                 <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                   {t(sortLabel)}
                 </Text>
-                <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text-muted" />
+                <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text" />
               </AnimatedPressable>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="min-w-52">
@@ -259,8 +207,8 @@ export function DiscoverFiltersPanel({
           keyboardType="decimal-pad"
           placeholder={t("Min price")}
           className={cn(
-            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg",
-            priceMin.trim() && "border-brand bg-brand-lighter text-brand",
+            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
+            priceMin.trim() && "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
           )}
         />
         <Input
@@ -269,8 +217,8 @@ export function DiscoverFiltersPanel({
           keyboardType="decimal-pad"
           placeholder={t("Max price")}
           className={cn(
-            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg",
-            priceMax.trim() && "border-brand bg-brand-lighter text-brand",
+            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
+            priceMax.trim() && "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
           )}
         />
       </View>

@@ -145,7 +145,6 @@ export function WishlistItemDetailSheet({
       <BottomSheet
         ref={sheetRef}
         detents={["auto"]}
-        dismissOnBack={false}
         onDidDismiss={onClose}
         header={
           <Text className="mx-5 mt-5 text-2xl font-extrabold leading-7 text-text">{item.name}</Text>

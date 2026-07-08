@@ -5,7 +5,6 @@ import styles from "../ItemCard.module.scss";
 import { cn } from "../utils";
 
 type CardInfoProps = {
-  id: string;
   name: string;
   description: string | null;
   formattedPrice: string;
@@ -13,7 +12,6 @@ type CardInfoProps = {
   variant: "discover" | "reserved" | "wishlist";
   isOwner: boolean;
   isPurchasedMode: boolean;
-  statusLabel: string | null;
   reserveBtnLabel: string;
   isPurchased: boolean;
   isReservedState: boolean;
@@ -61,7 +59,6 @@ function useOverflowTooltip<T extends HTMLElement>(value: string | null | undefi
 }
 
 export function CardInfo({
-  id,
   name,
   description,
   formattedPrice,
@@ -69,7 +66,6 @@ export function CardInfo({
   variant,
   isOwner,
   isPurchasedMode,
-  statusLabel,
   reserveBtnLabel,
   isPurchased,
   isReservedState,

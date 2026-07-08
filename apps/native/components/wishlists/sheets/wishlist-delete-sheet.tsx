@@ -46,12 +46,7 @@ export function WishlistDeleteSheet({
   }
 
   return (
-    <BottomSheet
-      ref={sheetRef}
-      detents={["auto"]}
-      dismissOnBack={false}
-      onDidDismiss={() => onOpenChange(false)}
-    >
+    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={() => onOpenChange(false)}>
       <View className="gap-4 px-5 pb-5 pt-5">
         <View className="gap-2">
           <Text className="text-lg font-extrabold text-text">{t("Delete Wishlist")}</Text>

@@ -109,6 +109,8 @@ export function WishlistItemCard({
                 source={{ uri: item.image_url }}
                 contentFit="cover"
                 contentPosition="center"
+                cachePolicy="memory-disk"
+                recyclingKey={item.id}
                 className={cn("absolute inset-0 size-full", isTaken && "opacity-40")}
               />
             ) : (

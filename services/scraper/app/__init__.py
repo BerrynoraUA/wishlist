@@ -1,0 +1,2 @@
+"""Wishlane scraper service."""
+

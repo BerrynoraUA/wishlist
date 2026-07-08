@@ -151,13 +151,19 @@ export function ItemPriorityBadge({
   );
 }
 
-export function PriorityFilterIcon({ priority }: { priority: ItemPriority }) {
+export function PriorityFilterIcon({
+  priority,
+  showBackground = true,
+}: {
+  priority: ItemPriority;
+  showBackground?: boolean;
+}) {
   const PriorityIcon = PRIORITY_ICONS[priority.id as keyof typeof PRIORITY_ICONS];
 
   return (
     <View
       className="size-7 items-center justify-center rounded-lg"
-      style={{ backgroundColor: `${priority.color}1f` }}
+      style={showBackground ? { backgroundColor: `${priority.color}1f` } : undefined}
     >
       {PriorityIcon ? <Icon as={PriorityIcon} className="size-3.5" color={priority.color} /> : null}
     </View>

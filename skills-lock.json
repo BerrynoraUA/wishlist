@@ -1,6 +1,18 @@
 {
   "version": 1,
   "skills": {
+    "app-store-screenshots": {
+      "source": "halt-catch-fire/skills",
+      "sourceType": "github",
+      "skillPath": "guides/design/app-store-screenshots/SKILL.md",
+      "computedHash": "06ec5e70a30794b9cb95b96830b647cef0e91eb15e703dec3bb56f9fef14a325"
+    },
+    "apple-appstore-reviewer": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/apple-appstore-reviewer/SKILL.md",
+      "computedHash": "848a1946f838e1b36f4af8b65caeea9e5bfa486d6059325520bb6124c05b0526"
+    },
     "building-native-ui": {
       "source": "expo/skills",
       "sourceType": "github",
@@ -10,6 +22,12 @@
       "source": "vercel-labs/next-skills",
       "sourceType": "github",
       "computedHash": "db85045827ebeb83ac8dbc992b69188755eeb74dcf01cbf5e694d58aa494a106"
+    },
+    "play-store-screenshots": {
+      "source": "mobile-dev-ci/play-store-screenshots",
+      "sourceType": "github",
+      "skillPath": "skills/play-store-screenshots/SKILL.md",
+      "computedHash": "e0acd772dd9ff7bbac598e81c396ae944bb80fa50bd1b5241031d34669a3ae5c"
     },
     "revenuecat": {
       "source": "revenuecat/revenuecat-skill",

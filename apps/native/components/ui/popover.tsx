@@ -1,18 +1,15 @@
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
 import { TextClassContext } from "@/components/ui/text";
+import { WindowOverlay } from "@/components/ui/window-overlay";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as PopoverPrimitive from "@rn-primitives/popover";
 import * as React from "react";
-import { Platform } from "react-native";
 import { FadeIn, FadeOut } from "react-native-reanimated";
-import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
 const Popover = PopoverPrimitive.Root;
 
 const PopoverTrigger = PopoverPrimitive.Trigger;
-
-const FullWindowOverlay = Platform.OS === "ios" ? RNFullWindowOverlay : React.Fragment;
 
 function PopoverContent({
   className,
@@ -23,9 +20,15 @@ function PopoverContent({
 }: React.ComponentProps<typeof PopoverPrimitive.Content> & {
   portalHost?: string;
 }) {
+  const { setTriggerPosition, onOpenChange } = PopoverPrimitive.useRootContext();
+  const closeFromBackPress = () => {
+    setTriggerPosition(null);
+    onOpenChange(false);
+  };
+
   return (
     <PopoverPrimitive.Portal hostName={portalHost}>
-      <FullWindowOverlay>
+      <WindowOverlay onRequestClose={closeFromBackPress}>
         <PopoverPrimitive.Overlay className="absolute inset-0">
           <NativeOnlyAnimatedView
             entering={FadeIn.duration(motionDuration.normal)}
@@ -44,7 +47,7 @@ function PopoverContent({
             </TextClassContext.Provider>
           </NativeOnlyAnimatedView>
         </PopoverPrimitive.Overlay>
-      </FullWindowOverlay>
+      </WindowOverlay>
     </PopoverPrimitive.Portal>
   );
 }

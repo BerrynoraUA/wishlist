@@ -201,11 +201,13 @@ export function setActiveNativeThemeSettingsSnapshot(
 }
 
 export function applyNativeThemeSettings(settings: CachedNativeThemeSettings) {
-  if (settings.theme !== "system") {
-    Uniwind.setTheme(
-      getNativeThemeNameForPreference(settings.theme, settings.default_accent, null),
-    );
-    Appearance.setColorScheme(settings.theme);
+  // Settings from the backend can carry a NULL theme at runtime despite the
+  // type — treat anything invalid as "system" so we never setTheme(null).
+  const theme = THEME_PREFERENCE_SET.has(settings.theme) ? settings.theme : "system";
+
+  if (theme !== "system") {
+    Uniwind.setTheme(getNativeThemeNameForPreference(theme, settings.default_accent, null));
+    Appearance.setColorScheme(theme);
     return;
   }
 

@@ -188,10 +188,10 @@ export const USER_GUIDE_STEPS: readonly UserGuideStep[] = [
     route: "/friends",
     title: "Create a group",
     listTitle: "Create group",
-    tooltip: "Click Create group to open the group modal.",
+    tooltip: "Click Create group, fill the name, then click Save.",
     targetId: "friends-create-group",
     screenDescription: "`Groups` tab visible with the `Create group` action.",
-    description: "Open the create group modal from the Groups tab.",
+    description: "Create the group and return to the groups list.",
     actionRequired: true,
   },
   {

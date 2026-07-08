@@ -27,7 +27,7 @@ export function ActionBottomSheetMessage({
   }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} dismissOnBack={false} onDidDismiss={onClose}>
+    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
       <View className="gap-4 px-5 pb-5 pt-5">
         <View className="gap-2">
           <Text className="text-lg font-extrabold text-text">{message.title}</Text>
@@ -72,7 +72,7 @@ export function ActionBottomSheetConfirm({
   }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} dismissOnBack={false} onDidDismiss={onClose}>
+    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
       <View className="gap-4 px-5 pb-5 pt-5">
         <View className="gap-2">
           <Text className="text-lg font-extrabold text-text">{title}</Text>

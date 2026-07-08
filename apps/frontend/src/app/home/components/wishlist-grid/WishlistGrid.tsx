@@ -95,6 +95,15 @@ export function WishlistGrid({
             })}
           />
         )}
+        {!isError && visibleWishlists.length === 0 && !isFiltersActive && (
+          <MascotEmptyState
+            className={styles.noResults}
+            variant="sad-alone"
+            message={t("No wishlists yet.", {
+              $id: "home.wishlistGrid.empty",
+            })}
+          />
+        )}
         {visibleWishlists.map((w) => (
           <WishlistCard
             key={w.id}

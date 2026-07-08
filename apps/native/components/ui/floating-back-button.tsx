@@ -56,7 +56,7 @@ export function FloatingBackButton({
       accessibilityLabel={accessibilityLabel ?? t("Back")}
       onPress={onPress ?? (() => router.back())}
       className={cn(
-        "absolute left-3 z-20 size-14 items-center justify-center rounded-full shadow-[0px_10px_22px_rgba(15,23,42,0.22)]",
+        "absolute left-3 z-20 size-14 items-center justify-center rounded-full",
         // Native Liquid Glass (iOS 26+) replaces the translucent CSS fill; elsewhere keep it.
         HAS_LIQUID_GLASS ? "" : "border border-glass-border bg-glass-bg",
         className,
