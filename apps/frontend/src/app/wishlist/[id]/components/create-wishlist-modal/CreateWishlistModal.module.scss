@@ -210,10 +210,118 @@
 
 /* Privacy */
 
-.privacyOptions {
+.privacySelect {
+  position: relative;
+  z-index: 3;
+}
+
+.privacyTrigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 1.5px solid var(--input-border);
+  border-radius: $radius-md;
+  padding: 10px 12px;
+  background: var(--input-bg);
+  color: $text;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.2s $ease-out,
+    box-shadow 0.2s $ease-out,
+    background 0.2s $ease-out;
+
+  &:hover {
+    border-color: var(--color-border-light);
+    background: var(--brand-alpha-06);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 4px var(--input-focus-ring);
+  }
+}
+
+.privacyTriggerOpen {
+  border-color: $brand;
+  box-shadow: 0 0 0 4px var(--input-focus-ring);
+}
+
+.privacyTriggerCopy {
+  flex: 1;
+  min-width: 0;
+
+  strong {
+    display: block;
+    font-size: var(--fs-body);
+  }
+
+  p {
+    font-size: var(--fs-caption);
+    margin: 2px 0 0;
+    color: $text-muted;
+  }
+}
+
+.privacyChevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition: transform 0.2s $ease-out;
+
+  .privacyTriggerOpen & {
+    transform: rotate(180deg);
+    color: $brand;
+  }
+}
+
+.privacyDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 35;
   display: grid;
   gap: 8px;
-  overflow: visible;
+  padding: 8px;
+  border: 1px solid var(--glass-border, var(--color-border-light));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--modal-bg) 96%, white 4%);
+  box-shadow:
+    0 24px 56px rgba(15, 23, 42, 0.18),
+    0 8px 20px rgba(15, 23, 42, 0.08);
+  animation: privacyDropdownIn 0.16s $ease-out;
+}
+
+.privacyDropdownUp {
+  top: auto;
+  bottom: calc(100% + 8px);
+  animation-name: privacyDropdownUpIn;
+}
+
+@keyframes privacyDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes privacyDropdownUpIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .accessSelectorShell {
