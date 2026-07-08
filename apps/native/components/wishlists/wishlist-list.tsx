@@ -46,7 +46,7 @@ import {
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View, useWindowDimensions } from "react-native";
+import { Pressable, View, useWindowDimensions } from "react-native";
 import Animated from "react-native-reanimated";
 
 type SheetState =
@@ -56,6 +56,7 @@ type SheetState =
   | null;
 
 type WishlistListRow = Wishlist[];
+const AnimatedPressableContainer = Animated.createAnimatedComponent(Pressable);
 
 export function WishlistList({
   query,
@@ -269,17 +270,18 @@ export function WishlistListStatsRow() {
   }
 
   return (
-    <Animated.View layout={statsLayoutTransition} className="flex-row flex-wrap" style={{ gap }}>
+    <AnimatedPressableContainer
+      accessibilityRole="button"
+      accessibilityLabel={t("Toggle wishlist stats view")}
+      accessibilityState={{ expanded: !compact }}
+      onPress={() => setCompact((current) => !current)}
+      layout={statsLayoutTransition}
+      className="flex-row flex-wrap"
+      style={{ gap }}
+    >
       {stats.map((stat) => (
         <Animated.View key={stat.key} layout={statsLayoutTransition} style={{ width: cardWidth }}>
-          <AnimatedPressable
-            accessibilityRole="button"
-            accessibilityLabel={t("{label}: {value}", {
-              label: stat.label,
-              value: stat.value,
-            })}
-            accessibilityState={{ expanded: !compact }}
-            onPress={() => setCompact((current) => !current)}
+          <View
             className={cn(
               "w-full rounded-xl border border-border-subtle bg-card-bg shadow-sm",
               compact
@@ -311,10 +313,10 @@ export function WishlistListStatsRow() {
                 </Text>
               </View>
             )}
-          </AnimatedPressable>
+          </View>
         </Animated.View>
       ))}
-    </Animated.View>
+    </AnimatedPressableContainer>
   );
 }
 
