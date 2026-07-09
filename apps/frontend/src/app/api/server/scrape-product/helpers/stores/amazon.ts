@@ -8,6 +8,7 @@ export function scrapeAmazon(html: string, url: string): ProductData {
 
   const currentPriceText = pickFirstText($, "currentPrice", [
     "#corePrice_feature_div span.a-price.apex-pricetopay-value span.a-offscreen",
+    "#corePrice_feature_div span.a-price.apex-pricetopay-value span[aria-hidden='true']",
     "#corePriceDisplay_desktop_feature_div span.a-price span.a-offscreen",
     "span.priceToPay span.a-offscreen",
     "#price_inside_buybox",
@@ -126,7 +127,10 @@ export function scrapeAmazon(html: string, url: string): ProductData {
     preview: description.slice(0, 200),
   });
 
-  const currency = extractCurrency($, html, url);
+  const currency =
+    extractAmazonPriceCurrency(currentPriceText) ||
+    extractAmazonPriceCurrency(oldPriceText) ||
+    extractCurrency($, html, url);
   logAmazon("currency", { currency });
 
   const result = {
@@ -211,6 +215,17 @@ function decodeHtmlEntities(value: string): string {
   }
 
   return cheerio.load(`<span>${value}</span>`)("span").text().trim();
+}
+
+function extractAmazonPriceCurrency(value: string): string | null {
+  const isoCode = value.match(/(?:\b([A-Z]{3})\s*\d|\d[\d\s,.]*\s*([A-Z]{3})\b)/);
+  if (isoCode) return (isoCode[1] || isoCode[2]).toUpperCase();
+
+  if (value.includes("US$") || value.includes("$")) return "USD";
+  if (value.includes("€")) return "EUR";
+  if (value.includes("£")) return "GBP";
+  if (value.includes("¥")) return "JPY";
+  return null;
 }
 
 /**

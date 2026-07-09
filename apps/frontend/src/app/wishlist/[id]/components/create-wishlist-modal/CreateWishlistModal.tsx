@@ -1,6 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGT } from "gt-next";
 import { useRouter } from "next/navigation";
@@ -99,6 +107,14 @@ function CreateWishlistForm({
   const [accessTab, setAccessTab] = useState<"friends" | "groups">("friends");
   const [accessError, setAccessError] = useState<string | null>(null);
   const [isGrantingAccess, setIsGrantingAccess] = useState(false);
+  const [privacyDropdownOpen, setPrivacyDropdownOpen] = useState(false);
+  const [privacyDropUp, setPrivacyDropUp] = useState(false);
+  const privacyDropdownRef = useRef<HTMLDivElement | null>(null);
+  const privacyMenuRef = useRef<HTMLDivElement | null>(null);
+
+  const selectedPrivacyOption =
+    privacyOptions.find((option) => option.value === privacy) ?? privacyOptions[0];
+  const SelectedPrivacyIcon = selectedPrivacyOption.icon;
 
   const {
     data: friends = [],
@@ -196,6 +212,41 @@ function CreateWishlistForm({
       if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
     };
   }, [imageObjectUrl]);
+
+  useEffect(() => {
+    if (!privacyDropdownOpen) return;
+
+    function handlePointerDown(event: PointerEvent) {
+      if (!privacyDropdownRef.current?.contains(event.target as Node)) {
+        setPrivacyDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [privacyDropdownOpen]);
+
+  useLayoutEffect(() => {
+    if (!privacyDropdownOpen) return;
+
+    const trigger = privacyDropdownRef.current;
+    const menu = privacyMenuRef.current;
+    if (!trigger || !menu) return;
+
+    const scrollContainer = trigger.closest("[data-ui-modal-content]") as HTMLElement | null;
+    const triggerRect = trigger.getBoundingClientRect();
+    const boundaryTop = scrollContainer ? scrollContainer.getBoundingClientRect().top : 0;
+    const boundaryBottom = scrollContainer
+      ? scrollContainer.getBoundingClientRect().bottom
+      : window.innerHeight;
+
+    const gap = 8;
+    const neededSpace = menu.offsetHeight + gap;
+    const spaceBelow = boundaryBottom - triggerRect.bottom;
+    const spaceAbove = triggerRect.top - boundaryTop;
+
+    setPrivacyDropUp(spaceBelow < neededSpace && spaceAbove > spaceBelow);
+  }, [privacyDropdownOpen]);
 
   useEffect(() => {
     if (privacy !== "SelectedFriends" && selectedAccessFriends.length > 0) {
@@ -443,93 +494,122 @@ function CreateWishlistForm({
         <div className={styles.section}>
           <label>{t("Privacy", { $id: "wishlist.modal.privacyLabel" })}</label>
 
-          <div className={styles.privacyOptions}>
-            {privacyOptions.map((option) => {
-              const Icon = option.icon;
+          <div ref={privacyDropdownRef} className={styles.privacySelect}>
+            <button
+              type="button"
+              className={`${styles.privacyTrigger} ${privacyDropdownOpen ? styles.privacyTriggerOpen : ""}`}
+              onClick={() => setPrivacyDropdownOpen((prev) => !prev)}
+              aria-haspopup="listbox"
+              aria-expanded={privacyDropdownOpen}
+            >
+              <div className={styles.privacyIcon}>
+                <SelectedPrivacyIcon size={18} />
+              </div>
 
-              return (
-                <div key={option.value}>
-                  {option.value === "Private" && privacy === "SelectedFriends" && (
-                    <div className={styles.accessSelectorShell}>
-                      <div className={styles.accessTabs}>
-                        <button
-                          type="button"
-                          className={`${styles.accessTab} ${accessTab === "friends" ? styles.accessTabActive : ""}`}
-                          onClick={() => setAccessTab("friends")}
-                        >
-                          {t("Friends", {
-                            $id: "wishlist.modal.access.friendsTab",
-                          })}
-                        </button>
-                        <button
-                          type="button"
-                          className={`${styles.accessTab} ${accessTab === "groups" ? styles.accessTabActive : ""}`}
-                          onClick={() => setAccessTab("groups")}
-                        >
-                          {t("Groups", {
-                            $id: "wishlist.modal.access.groupsTab",
-                          })}
-                        </button>
-                      </div>
-                      {accessTab === "friends" ? (
-                        <WishlistAccessPicker
-                          title={t("Selected friends", {
-                            $id: "wishlist.modal.access.title",
-                          })}
-                          friends={friendOptions}
-                          selected={selectedAccessFriends}
-                          onChange={(nextSelected) => {
-                            setSelectedAccessFriends(nextSelected);
-                            setAccessError(null);
-                          }}
-                          isLoading={friendsLoading}
-                          isError={friendsError}
-                          emptyLabel={t("No friends found yet.", {
-                            $id: "wishlist.modal.access.emptyFriends",
-                          })}
-                          errorLabel={t("Could not load friends right now.", {
-                            $id: "wishlist.modal.access.loadError",
-                          })}
-                        />
-                      ) : (
-                        <WishlistAccessPicker
-                          title={t("Selected groups", {
-                            $id: "wishlist.modal.access.groupsTitle",
-                          })}
-                          friends={groupOptions}
-                          selected={selectedAccessGroups}
-                          onChange={(nextSelected) => {
-                            setSelectedAccessGroups(nextSelected);
-                            setAccessError(null);
-                          }}
-                          isLoading={groupsLoading}
-                          isError={groupsError}
-                          emptyLabel={t("No groups found yet.", {
-                            $id: "wishlist.modal.access.emptyGroups",
-                          })}
-                          errorLabel={t("Could not load groups right now.", {
-                            $id: "wishlist.modal.access.groupsLoadError",
-                          })}
-                          searchPlaceholder={t("Search groups", {
-                            $id: "wishlist.modal.access.searchGroups",
-                          })}
-                          selectedLabelPrefix=""
-                        />
-                      )}
-                    </div>
-                  )}
+              <div className={styles.privacyTriggerCopy}>
+                <strong>{selectedPrivacyOption.title}</strong>
+                <p>{selectedPrivacyOption.subtitle}</p>
+              </div>
 
-                  <PrivacyCard
-                    icon={<Icon size={18} />}
-                    title={option.title}
-                    subtitle={option.subtitle}
-                    selected={privacy === option.value}
-                    onClick={() => setPrivacy(option.value)}
-                  />
-                </div>
-              );
-            })}
+              <ChevronDown size={18} className={styles.privacyChevron} aria-hidden />
+            </button>
+
+            {privacyDropdownOpen && (
+              <div
+                ref={privacyMenuRef}
+                className={`${styles.privacyDropdown} ${privacyDropUp ? styles.privacyDropdownUp : ""}`}
+                role="listbox"
+              >
+                {privacyOptions.map((option) => {
+                  const Icon = option.icon;
+
+                  return (
+                    <PrivacyCard
+                      key={option.value}
+                      icon={<Icon size={18} />}
+                      title={option.title}
+                      subtitle={option.subtitle}
+                      selected={privacy === option.value}
+                      onClick={() => {
+                        setPrivacy(option.value);
+                        setPrivacyDropdownOpen(false);
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
+
+          {privacy === "SelectedFriends" && (
+            <div className={styles.accessSelectorShell}>
+              <div className={styles.accessTabs}>
+                <button
+                  type="button"
+                  className={`${styles.accessTab} ${accessTab === "friends" ? styles.accessTabActive : ""}`}
+                  onClick={() => setAccessTab("friends")}
+                >
+                  {t("Friends", {
+                    $id: "wishlist.modal.access.friendsTab",
+                  })}
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.accessTab} ${accessTab === "groups" ? styles.accessTabActive : ""}`}
+                  onClick={() => setAccessTab("groups")}
+                >
+                  {t("Groups", {
+                    $id: "wishlist.modal.access.groupsTab",
+                  })}
+                </button>
+              </div>
+              {accessTab === "friends" ? (
+                <WishlistAccessPicker
+                  title={t("Selected friends", {
+                    $id: "wishlist.modal.access.title",
+                  })}
+                  friends={friendOptions}
+                  selected={selectedAccessFriends}
+                  onChange={(nextSelected) => {
+                    setSelectedAccessFriends(nextSelected);
+                    setAccessError(null);
+                  }}
+                  isLoading={friendsLoading}
+                  isError={friendsError}
+                  emptyLabel={t("No friends found yet.", {
+                    $id: "wishlist.modal.access.emptyFriends",
+                  })}
+                  errorLabel={t("Could not load friends right now.", {
+                    $id: "wishlist.modal.access.loadError",
+                  })}
+                />
+              ) : (
+                <WishlistAccessPicker
+                  title={t("Selected groups", {
+                    $id: "wishlist.modal.access.groupsTitle",
+                  })}
+                  friends={groupOptions}
+                  selected={selectedAccessGroups}
+                  onChange={(nextSelected) => {
+                    setSelectedAccessGroups(nextSelected);
+                    setAccessError(null);
+                  }}
+                  isLoading={groupsLoading}
+                  isError={groupsError}
+                  emptyLabel={t("No groups found yet.", {
+                    $id: "wishlist.modal.access.emptyGroups",
+                  })}
+                  errorLabel={t("Could not load groups right now.", {
+                    $id: "wishlist.modal.access.groupsLoadError",
+                  })}
+                  searchPlaceholder={t("Search groups", {
+                    $id: "wishlist.modal.access.searchGroups",
+                  })}
+                  selectedLabelPrefix=""
+                />
+              )}
+            </div>
+          )}
         </div>
 
         {accessError && <div className={styles.accessError}>{accessError}</div>}
