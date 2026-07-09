@@ -19,6 +19,9 @@ pnpm-debug.log
 
 .turbo
 apps/native/credentials.json
+apps/native/credentials/
+apps/native/*.jks
+apps/native/android/app/*.jks
 
 apps/native/*firebase-adminsdk*.json
 .pnpm-store/

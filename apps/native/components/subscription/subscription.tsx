@@ -236,7 +236,7 @@ export function Subscription({
           <View className="gap-5 px-6">
             <View className="gap-2">
               <Text className="text-3xl font-bold tracking-tight text-white">
-                {t("Wishlane Premium")}
+                {t("Wishlane Pro")}
               </Text>
               <Text className="text-base text-white/75">
                 {t("More room, smarter lists, and better sharing.")}
@@ -259,12 +259,10 @@ export function Subscription({
 
               {!isLoading && !isConfigured ? (
                 <View className="gap-2 rounded-xl border border-white/15 bg-black/35 p-4">
-                  <Text className="font-semibold text-white">{t("Premium plans unavailable")}</Text>
+                  <Text className="font-semibold text-white">{t("Pro plans unavailable")}</Text>
                   <Text selectable className="text-sm leading-5 text-white/70">
                     {error ??
-                      t(
-                        "Add the RevenueCat public SDK key for this platform to load premium plans.",
-                      )}
+                      t("Add the RevenueCat public SDK key for this platform to load Pro plans.")}
                   </Text>
                 </View>
               ) : null}
