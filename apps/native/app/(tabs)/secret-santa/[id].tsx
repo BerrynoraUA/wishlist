@@ -253,7 +253,7 @@ export default function SecretSantaDetailScreen() {
               "Are you sure you want to delete this Secret Santa event? This action cannot be undone.",
             )}
             confirmLabel={t("Delete Event")}
-            destructive
+            tone="destructive"
             isPending={deleteEvent.isPending}
             onClose={() => setSheet(null)}
             onConfirm={handleDelete}

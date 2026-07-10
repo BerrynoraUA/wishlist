@@ -26,6 +26,7 @@ export interface AnimatedGradientBackgroundButtonProps {
   isLoading?: boolean;
   onPress: () => void;
   title: string;
+  variant?: "default" | "brand";
 }
 
 const HEIGHT = 44;
@@ -38,6 +39,7 @@ export const AnimatedGradientBackgroundButton = ({
   isLoading = false,
   onPress,
   title,
+  variant = "default",
 }: AnimatedGradientBackgroundButtonProps) => {
   const transition = useSharedValue(0);
   const [outerContainerWidth, setOuterContainerWidth] = useState(0);
@@ -84,12 +86,20 @@ export const AnimatedGradientBackgroundButton = ({
         <View
           onLayout={({ nativeEvent }) => setOuterContainerWidth(nativeEvent.layout.width)}
           className={cn(
-            "h-11 overflow-hidden rounded-md bg-primary shadow-sm shadow-black/5",
+            "h-11 overflow-hidden shadow-sm shadow-black/5",
+            variant === "brand"
+              ? "rounded-lg border border-brand/25 bg-brand-lighter"
+              : "rounded-md bg-primary",
             isDisabled && animatedButtonDisabledClassName,
           )}
         >
           <Animated.View
-            className="absolute bg-linear-135 from-primary via-accent-foreground to-brand"
+            className={cn(
+              "absolute bg-linear-135",
+              variant === "brand"
+                ? "from-brand-lighter via-brand/25 to-brand-lighter"
+                : "from-primary via-accent-foreground to-brand",
+            )}
             style={[
               animatedGradientContainerStyle,
               {
@@ -100,16 +110,23 @@ export const AnimatedGradientBackgroundButton = ({
           />
           <View
             className={cn(
-              "h-11 flex-row items-center justify-center gap-2 rounded-md px-4 py-2",
-              pressed && "bg-primary/20",
+              "h-11 flex-row items-center justify-center gap-2 px-4 py-2",
+              variant === "brand" ? "rounded-lg" : "rounded-md",
+              pressed && (variant === "brand" ? "bg-brand/10" : "bg-primary/20"),
             )}
           >
             {isLoading ? (
-              <ActivityIndicator colorClassName="accent-primary-foreground" size="small" />
+              <ActivityIndicator
+                colorClassName={variant === "brand" ? "accent-brand" : "accent-primary-foreground"}
+                size="small"
+              />
             ) : (
               <>
                 {Icon}
-                <Text numberOfLines={1} className={animatedButtonTextClassName}>
+                <Text
+                  numberOfLines={1}
+                  className={variant === "brand" ? "text-brand" : animatedButtonTextClassName}
+                >
                   {title}
                 </Text>
               </>

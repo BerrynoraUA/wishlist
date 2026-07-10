@@ -1,4 +1,5 @@
 import type { TranslateFn } from "@/lib/translate-fn";
+import { getValidHttpUrl } from "@/lib/urls";
 import type { Item, ItemFormValues, ItemLink } from "@wishlist/backend/types/item";
 import { ALL_PRIORITIES, PRIORITY_IDS } from "@wishlist/backend/lib";
 
@@ -130,8 +131,11 @@ export function cleanAdditionalLinks(links: ItemLink[]) {
 }
 
 export function getItemStoreFromUrl(url: string | null | undefined) {
+  const validUrl = getValidHttpUrl(url);
+  if (!validUrl) return "";
+
   try {
-    return url ? new URL(url).hostname.replace(/^www\./, "") : "";
+    return new URL(validUrl).hostname.replace(/^www\./, "");
   } catch {
     return "";
   }

@@ -71,9 +71,10 @@ export function WishlistFilterBar({
         <GuideTarget id="wishlists-discover">
           <AnimatedGradientBackgroundButton
             accessibilityLabel={t("Discover")}
-            Icon={<Icon as={Sparkles} className="size-4 text-primary-foreground" />}
+            Icon={<Icon as={Sparkles} className="size-4 text-brand" />}
             onPress={onOpenDiscover}
             title={t("Discover")}
+            variant="brand"
           />
         </GuideTarget>
         <View className="flex-row items-center justify-end gap-2">

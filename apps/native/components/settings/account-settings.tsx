@@ -296,7 +296,7 @@ export function AccountSettings({
           "This will permanently delete your profile, wishlists, items, friend connections, notifications, and subscription. This action cannot be undone.",
         )}
         confirmLabel={t("Delete My Account")}
-        destructive
+        tone="destructive"
         isPending={deleteAccount.isPending}
         onClose={() => setDeleteOpen(false)}
         onConfirm={handleDeleteAccount}
@@ -308,7 +308,7 @@ export function AccountSettings({
           "Remove this account from saved accounts on this device? You can add it again later by signing in with Google.",
         )}
         confirmLabel={t("Remove account")}
-        destructive
+        tone="destructive"
         onClose={() => setAccountPendingRemoval(null)}
         onConfirm={() => void confirmRemoveAccount()}
       />

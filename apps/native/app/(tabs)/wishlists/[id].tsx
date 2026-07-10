@@ -350,6 +350,12 @@ export default function WishlistDetailScreen() {
                   canEditWishlist ? () => setSheet({ type: "delete", item: entry }) : undefined
                 }
                 onToggleVote={canEditWishlist ? undefined : () => toggleVote.mutate(entry.id)}
+                onToggleReserve={
+                  canEditWishlist ? undefined : () => toggleReservation.mutate(entry.id)
+                }
+                onToggleBought={canEditWishlist ? undefined : () => toggleBought.mutate(entry.id)}
+                reservePending={toggleReservation.isPending}
+                boughtPending={toggleBought.isPending}
               />
             </Animated.View>
           ))}
@@ -368,6 +374,8 @@ export default function WishlistDetailScreen() {
       profileNamesById,
       showDiscountBadge,
       toggleVote,
+      toggleReservation,
+      toggleBought,
       votesQuery.data,
       wishlist,
       t,

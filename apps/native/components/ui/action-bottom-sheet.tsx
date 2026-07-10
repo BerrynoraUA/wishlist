@@ -10,6 +10,8 @@ export type ActionBottomSheetMessagePayload = {
   message?: string;
 };
 
+export type ActionBottomSheetConfirmTone = "default" | "brand" | "success" | "destructive";
+
 export function ActionBottomSheetMessage({
   message,
   onClose,
@@ -49,7 +51,7 @@ export function ActionBottomSheetConfirm({
   message,
   confirmLabel,
   isPending,
-  destructive = false,
+  tone = "default",
   onClose,
   onConfirm,
 }: {
@@ -58,7 +60,7 @@ export function ActionBottomSheetConfirm({
   message: string;
   confirmLabel: string;
   isPending?: boolean;
-  destructive?: boolean;
+  tone?: ActionBottomSheetConfirmTone;
   onClose: () => void;
   onConfirm: () => void;
 }) {
@@ -83,12 +85,37 @@ export function ActionBottomSheetConfirm({
             <Text>{t("Cancel")}</Text>
           </Button>
           <Button
-            variant={destructive ? "destructive" : "default"}
+            variant={
+              tone === "destructive" ? "destructive" : tone === "default" ? "default" : "ghost"
+            }
             disabled={isPending}
             onPress={onConfirm}
+            className={
+              tone === "success"
+                ? "rounded-lg border border-success/35 bg-success-bg"
+                : tone === "brand"
+                  ? "rounded-lg border border-brand/25 bg-brand-lighter"
+                  : undefined
+            }
           >
-            {isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
-            <Text>{confirmLabel}</Text>
+            {isPending ? (
+              <ActivityIndicator
+                colorClassName={
+                  tone === "success"
+                    ? "accent-success"
+                    : tone === "brand"
+                      ? "accent-brand"
+                      : "accent-white"
+                }
+              />
+            ) : null}
+            <Text
+              className={
+                tone === "success" ? "text-success" : tone === "brand" ? "text-brand" : undefined
+              }
+            >
+              {confirmLabel}
+            </Text>
           </Button>
         </View>
       </View>
