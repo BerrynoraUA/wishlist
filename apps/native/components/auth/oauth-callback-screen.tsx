@@ -1,11 +1,11 @@
-import { completeOAuthSessionFromUrl } from "@/api/login";
+import { completeOAuthSessionFromUrl, getOAuthRedirectUrl, type OAuthProvider } from "@/api/login";
 import { useAuth } from "@/providers/auth-provider";
 import { useRouter } from "expo-router";
 import * as Linking from "expo-linking";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
 
-export function OAuthCallbackScreen() {
+export function OAuthCallbackScreen({ provider }: { provider: OAuthProvider }) {
   const router = useRouter();
   const url = Linking.useURL();
   const { session } = useAuth();
@@ -21,14 +21,14 @@ export function OAuthCallbackScreen() {
     if (!url || handledUrlRef.current === url) return;
 
     handledUrlRef.current = url;
-    void completeOAuthSessionFromUrl(url)
+    void completeOAuthSessionFromUrl(url, getOAuthRedirectUrl(provider))
       .then(() => {
         router.replace("/(tabs)/wishlists" as never);
       })
       .catch(() => {
         router.replace("/(auth)/sign-in" as never);
       });
-  }, [router, url]);
+  }, [provider, router, url]);
 
   return (
     <View className="flex-1 items-center justify-center bg-bg">

@@ -32,7 +32,7 @@
     "node-gyp": "^12.4.0",
     "oxfmt": "^0.45.0",
     "oxlint": "^1.60.0",
-    "supabase": "^2.90.0",
+    "supabase": "^2.109.1",
     "turbo": "^2.9.6"
   },
   "packageManager": "pnpm@11.9.0"

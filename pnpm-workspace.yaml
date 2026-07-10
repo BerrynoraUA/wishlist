@@ -5,6 +5,13 @@ packages:
 # Required for 250 character limit in local android builds
 nodeLinker: hoisted
 
+overrides:
+  "@xmldom/xmldom@<0.8.13": "0.8.13"
+  "js-yaml@>=4.0.0 <4.1.2": "4.3.0"
+  "shell-quote@<=1.8.3": "1.8.4"
+  "ws@>=7.0.0 <7.5.11": "7.5.11"
+  "ws@>=8.0.0 <8.21.0": "8.21.0"
+
 allowBuilds:
   "@parcel/watcher": true
   core-js: true

@@ -78,6 +78,12 @@
       ],
       "expo-apple-authentication",
       [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow Wishlane to securely switch between saved accounts."
+        }
+      ],
+      [
         "expo-web-browser",
         {
           "experimentalLauncherActivity": false

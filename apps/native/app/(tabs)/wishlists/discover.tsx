@@ -235,7 +235,7 @@ export default function DiscoverScreen() {
         contentContainerClassName="pb-8"
         contentContainerStyle={{ paddingTop }}
         onScroll={requestMeasure}
-        scrollEventThrottle={1}
+        scrollEventThrottle={16}
         ItemSeparatorComponent={RowSeparator}
         onEndReached={feed.loadMore}
         isLoadingMore={feed.activeQuery.isFetchingNextPage}

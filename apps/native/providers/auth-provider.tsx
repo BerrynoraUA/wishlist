@@ -3,6 +3,7 @@ import { deactivateCurrentPushToken } from "@/api/notifications";
 import { supabase } from "@wishlist/backend/supabase/native";
 import type { KnownAccountProvider } from "@wishlist/backend/types/known-accounts";
 import { upsertKnownAccount } from "@/lib/known-accounts";
+import { useQueryClient } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
@@ -61,7 +62,6 @@ async function rememberSessionAccount(session: SupabaseSession | null) {
     provider: resolveKnownAccountProvider(user.app_metadata),
     providers: resolveKnownAccountProviders(user.app_metadata),
     lastUsedAt: Date.now(),
-    accessToken: session.access_token,
     refreshToken: session.refresh_token,
     expiresAt: session.expires_at ?? null,
   });
@@ -70,24 +70,39 @@ async function rememberSessionAccount(session: SupabaseSession | null) {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<SupabaseSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const activeUserIdRef = React.useRef<string | null>(null);
 
   useEffect(() => {
-    void supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    function applySession(nextSession: SupabaseSession | null) {
+      const nextUserId = nextSession?.user.id ?? null;
+      const previousUserId = activeUserIdRef.current;
+
+      if (previousUserId && previousUserId !== nextUserId) {
+        queryClient.clear();
+      }
+
+      activeUserIdRef.current = nextUserId;
+      setSession(nextSession);
       setIsLoading(false);
-      void rememberSessionAccount(session).catch(() => {});
-    });
+      void rememberSessionAccount(nextSession).catch(() => undefined);
+    }
+
+    void supabase.auth
+      .getSession()
+      .then(({ data: { session: initialSession } }) => {
+        applySession(initialSession);
+      })
+      .catch(() => applySession(null));
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setIsLoading(false);
-      void rememberSessionAccount(session).catch(() => {});
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      applySession(nextSession);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [queryClient]);
 
   const signOut = async () => {
     await deactivateCurrentPushToken().catch(() => undefined);

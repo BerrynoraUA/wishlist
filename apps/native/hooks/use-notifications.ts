@@ -10,6 +10,8 @@ import {
   type GetNotificationsParams,
 } from "@/api/notifications";
 import { getNotificationPermissionPromptDecision } from "@/lib/notification-permission-prompt";
+import { debugError, debugLog } from "@/lib/debug-log";
+import { getSafeNotificationRoute } from "@/lib/notification-route";
 import { useAuth } from "@/providers/auth-provider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
@@ -44,8 +46,7 @@ function getExpoProjectId() {
 }
 
 function getPushUrlFromData(data: Notifications.NotificationContent["data"]) {
-  const url = data?.url;
-  return typeof url === "string" && url.startsWith("/") ? url : null;
+  return getSafeNotificationRoute(data?.url);
 }
 
 function getNotificationIdFromData(data: Notifications.NotificationContent["data"]) {
@@ -56,9 +57,7 @@ function getNotificationIdFromData(data: Notifications.NotificationContent["data
 async function ensureAndroidNotificationChannel() {
   if (process.env.EXPO_OS !== "android") return;
 
-  console.log("[push] ensuring Android notification channel", {
-    channelId: NOTIFICATION_CHANNEL_ID,
-  });
+  debugLog("[push] ensuring Android notification channel");
 
   await Notifications.setNotificationChannelAsync(NOTIFICATION_CHANNEL_ID, {
     name: "Default",
@@ -74,21 +73,13 @@ export async function getNotificationPermission() {
 
 async function getGrantedNotificationStatus(requestPermission: boolean) {
   const existingPermission = await getNotificationPermission();
-  console.log("[push] existing notification permission", {
-    status: existingPermission.status,
-    granted: existingPermission.granted,
-    canAskAgain: existingPermission.canAskAgain,
-  });
+  debugLog("[push] checked notification permission");
 
   if (existingPermission.status === "granted") return existingPermission.status;
   if (!requestPermission || !existingPermission.canAskAgain) return existingPermission.status;
 
   const requestedPermission = await Notifications.requestPermissionsAsync();
-  console.log("[push] requested notification permission", {
-    status: requestedPermission.status,
-    granted: requestedPermission.granted,
-    canAskAgain: requestedPermission.canAskAgain,
-  });
+  debugLog("[push] requested notification permission");
 
   return requestedPermission.status;
 }
@@ -105,7 +96,7 @@ export async function registerPushNotifications({
 
   const projectId = getExpoProjectId();
   if (!projectId) {
-    console.error("[push] registration stopped: Expo projectId not found");
+    debugError("[push] registration stopped: Expo projectId not found");
     return false;
   }
 
@@ -128,7 +119,7 @@ export function useRegisterPushNotifications() {
 
   React.useEffect(() => {
     if (!user?.id) {
-      console.log("[push] registration skipped: no authenticated user");
+      debugLog("[push] registration skipped: no authenticated user");
       return;
     }
 
@@ -136,23 +127,20 @@ export function useRegisterPushNotifications() {
     let cancelled = false;
 
     async function register() {
-      console.log("[push] registration started", {
-        userId,
-        platform: process.env.EXPO_OS ?? "unknown",
-      });
+      debugLog("[push] registration started");
 
       const promptDecision = await getNotificationPermissionPromptDecision(userId);
       if (promptDecision !== "allowed") {
-        console.log("[push] registration deferred until notification prompt is accepted");
+        debugLog("[push] registration deferred until notification prompt is accepted");
         return;
       }
 
       await registerPushNotifications({ requestPermission: false });
-      if (!cancelled) console.log("[push] registration check finished");
+      if (!cancelled) debugLog("[push] registration check finished");
     }
 
     void register().catch((error) => {
-      console.error("[push] registration failed", error);
+      debugError("[push] registration failed", error);
     });
 
     return () => {

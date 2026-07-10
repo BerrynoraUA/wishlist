@@ -22,6 +22,7 @@ import { AnimatedSplash, MarkAppReady } from "@/components/splash/animated-splas
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { SubscriptionProvider } from "@/providers/subscription-provider";
 import { UserGuideProvider } from "@/components/user-guide/user-guide-provider";
+import { AppStateLifecycle } from "@/components/providers/native-query-lifecycle";
 import { ThemeProvider } from "expo-router/react-navigation";
 import { PortalHost } from "@rn-primitives/portal";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
@@ -89,6 +90,7 @@ export default function RootLayout() {
           }}
         >
           <QueryClientProvider client={queryClient}>
+            <AppStateLifecycle />
             <AuthProvider>
               <SubscriptionProvider>
                 <PostHogScreenTracker />

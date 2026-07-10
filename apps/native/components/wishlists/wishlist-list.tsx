@@ -116,19 +116,7 @@ export function WishlistList({
               wishlist={entry}
               width={cardWidth}
               onOpen={isFirstWishlistCard ? completeOpenDetailStep : undefined}
-              onEdit={
-                entry.is_owner || entry.can_edit
-                  ? () => onOpenSheet({ type: "edit", wishlist: entry })
-                  : undefined
-              }
-              onAddItem={
-                entry.is_owner || entry.can_edit
-                  ? () => onOpenSheet({ type: "addItem", wishlist: entry })
-                  : undefined
-              }
-              onDelete={
-                entry.is_owner ? () => onOpenSheet({ type: "delete", wishlist: entry }) : undefined
-              }
+              onOpenSheet={onOpenSheet}
             />
           );
 
@@ -170,7 +158,7 @@ export function WishlistList({
         onEndReached={onEndReached}
         isLoadingMore={query.isFetchingNextPage}
         onScroll={requestMeasure}
-        scrollEventThrottle={1}
+        scrollEventThrottle={16}
         ListHeaderComponent={
           <Animated.View
             layout={wishlistGridLinearTransition.duration(motionDuration.normal)}
@@ -347,24 +335,21 @@ function RowSeparator() {
 function WishlistCard({
   wishlist,
   width,
-  onEdit,
-  onAddItem,
-  onDelete,
   onOpen,
+  onOpenSheet,
 }: {
   wishlist: Wishlist;
   width: number;
-  onEdit?: () => void;
-  onAddItem?: () => void;
-  onDelete?: () => void;
   onOpen?: () => void;
+  onOpenSheet: (sheet: Exclude<SheetState, null>) => void;
 }) {
   const t = useGT();
   const visibilityLabels = React.useMemo(() => getWishlistVisibilityLabels(t), [t]);
   const visibility = wishlist.visibility_type;
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[visibility];
   const itemsCount = wishlist.items_count ?? 0;
-  const showMenu = Boolean(onAddItem || onEdit || onDelete);
+  const canEdit = wishlist.is_owner || wishlist.can_edit;
+  const showMenu = canEdit;
   const isShared = wishlist.is_owner === false;
   const ownerNickname = wishlist.owner_nickname?.trim();
   const sharedLabel = ownerNickname
@@ -422,11 +407,11 @@ function WishlistCard({
                   {wishlist.title}
                 </Text>
 
-                {onAddItem ? (
+                {canEdit ? (
                   <AnimatedPressable
                     accessibilityRole="button"
                     accessibilityLabel={t("Add item")}
-                    onPress={onAddItem}
+                    onPress={() => onOpenSheet({ type: "addItem", wishlist })}
                     className="size-10 items-center justify-center rounded-full bg-brand-lighter active:bg-brand-alpha-12"
                   >
                     <Icon as={Plus} className="size-4 text-brand" />
@@ -458,13 +443,16 @@ function WishlistCard({
           </DropdownMenuTrigger>
         ) : null}
         <DropdownMenuContent className="min-w-36">
-          {onEdit ? (
-            <DropdownMenuItem onPress={onEdit}>
+          {canEdit ? (
+            <DropdownMenuItem onPress={() => onOpenSheet({ type: "edit", wishlist })}>
               <Text>{t("Edit")}</Text>
             </DropdownMenuItem>
           ) : null}
-          {onDelete ? (
-            <DropdownMenuItem variant="destructive" onPress={onDelete}>
+          {wishlist.is_owner ? (
+            <DropdownMenuItem
+              variant="destructive"
+              onPress={() => onOpenSheet({ type: "delete", wishlist })}
+            >
               <Text>{t("Delete")}</Text>
             </DropdownMenuItem>
           ) : null}

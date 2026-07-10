@@ -431,7 +431,7 @@ export default function WishlistDetailScreen() {
             className="flex-1"
             contentContainerClassName="bg-bg pb-8"
             onScroll={requestMeasure}
-            scrollEventThrottle={1}
+            scrollEventThrottle={16}
             ItemSeparatorComponent={ItemRowSeparator}
             onEndReached={loadMoreItems}
             isLoadingMore={itemsQuery.isFetchingNextPage}

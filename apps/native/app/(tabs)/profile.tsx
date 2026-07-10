@@ -71,7 +71,6 @@ export default function ProfileScreen() {
       avatarUrl: profileForSession?.avatar_url ?? null,
       provider: supportedProvider,
       providers: [supportedProvider],
-      accessToken: session.access_token,
       refreshToken: session.refresh_token,
       expiresAt: session.expires_at ?? null,
       defaultAccent: settingsForSession?.default_accent ?? null,
