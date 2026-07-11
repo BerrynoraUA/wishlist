@@ -551,7 +551,7 @@ function EventDatePicker({
                 <Text className="text-xs font-semibold text-text-muted">{value}</Text>
               ) : null}
             </View>
-            {process.env.EXPO_OS !== "android" && value ? (
+            {value ? (
               <AnimatedPressable
                 accessibilityRole="button"
                 accessibilityLabel={t("Clear event date")}

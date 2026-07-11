@@ -70,15 +70,15 @@ export function WishlistShareSheet({
       key: "copy",
       label: copied ? t("Copied") : t("Copy Link"),
       icon: Copy,
-      iconClassName: "text-white",
-      tileClassName: "bg-slate-700",
+      iconClassName: "text-text",
+      tileClassName: "bg-bg-muted",
     },
     {
       key: "more",
       label: t("More"),
       icon: MoreHorizontal,
-      iconClassName: "text-white",
-      tileClassName: "bg-slate-700",
+      iconClassName: "text-text",
+      tileClassName: "bg-bg-muted",
     },
     {
       key: "message",
@@ -159,13 +159,12 @@ export function WishlistShareSheet({
       detents={["auto"]}
       cornerRadius={28}
       onDidDismiss={() => onOpenChange(false)}
-      backgroundColor="#282c32"
     >
-      <View className="gap-5 px-4 pb-5 pt-4">
+      <View className="gap-5 px-4 pb-8 pt-4">
         <View className="flex-row items-center justify-center">
           <View className="items-center gap-1 px-12">
-            <Text className="text-xl font-extrabold text-white">{t("Share this wishlist")}</Text>
-            <Text className="text-center text-sm font-semibold text-white/70">
+            <Text className="text-xl font-extrabold text-text">{t("Share this wishlist")}</Text>
+            <Text className="text-center text-sm font-semibold text-text-muted">
               {t("Send one link so people can view ideas and reserve gifts.")}
             </Text>
           </View>
@@ -175,13 +174,13 @@ export function WishlistShareSheet({
             className="absolute right-0 size-10 items-center justify-center rounded-full"
             onPress={dismiss}
           >
-            <Icon as={X} className="size-8 text-white" />
+            <Icon as={X} className="size-8 text-text" />
           </AnimatedPressable>
         </View>
 
-        <View className="overflow-hidden rounded-[24px] bg-neutral-100">
+        <View className="overflow-hidden rounded-[24px] border border-border-subtle bg-card-bg">
           <View
-            className="items-center justify-center bg-[#fbf2e4]"
+            className="items-center justify-center bg-bg-subtle"
             style={{ height: previewImageHeight }}
           >
             {wishlist.image_url ? (
@@ -191,14 +190,14 @@ export function WishlistShareSheet({
                 className="size-full"
               />
             ) : (
-              <Text className="px-10 text-center text-lg text-neutral-600">
+              <Text className="px-10 text-center text-lg text-text-muted">
                 {t("No pictures? Maybe the wishes are simply invisible!")}
               </Text>
             )}
           </View>
 
           <View className="gap-3 p-4">
-            <Text className="text-xl font-extrabold text-neutral-900" numberOfLines={1}>
+            <Text className="text-xl font-extrabold text-text" numberOfLines={1}>
               {wishlist.title}
             </Text>
             <View className="flex-row items-center gap-3">
@@ -211,14 +210,14 @@ export function WishlistShareSheet({
                 <Icon as={Gift} className="size-7 text-white" />
               </View>
               <View className="flex-1 gap-2">
-                <View className="rounded-xl bg-white px-3 py-2">
-                  <Text className="text-sm text-neutral-700">
+                <View className="rounded-xl bg-bg-elevated px-3 py-2">
+                  <Text className="text-sm text-text-muted">
                     {t("gift ideas")}{" "}
-                    <Text className="font-extrabold text-neutral-900">{wishlist.items_count}</Text>
+                    <Text className="font-extrabold text-text">{wishlist.items_count}</Text>
                   </Text>
                 </View>
-                <View className="rounded-xl bg-white px-3 py-2">
-                  <Text className="text-sm text-neutral-700">{t("view and reserve")}</Text>
+                <View className="rounded-xl bg-bg-elevated px-3 py-2">
+                  <Text className="text-sm text-text-muted">{t("view and reserve")}</Text>
                 </View>
               </View>
             </View>
@@ -241,9 +240,7 @@ export function WishlistShareSheet({
               >
                 <Icon as={target.icon} className={cn("size-9", target.iconClassName)} />
               </AnimatedPressable>
-              <Text className="text-center text-base font-extrabold text-white">
-                {target.label}
-              </Text>
+              <Text className="text-center text-base font-extrabold text-text">{target.label}</Text>
             </View>
           ))}
         </View>

@@ -53,12 +53,12 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#ffffff",
-          "image": "./assets/images/splash.png",
-          "imageWidth": 160,
+          "image": "./assets/images/splash-mascot.png",
+          "imageWidth": 240,
           "dark": {
-            "backgroundColor": "#0C0C0F",
-            "image": "./assets/images/splash.png",
-            "imageWidth": 160
+            "backgroundColor": "#000000",
+            "image": "./assets/images/splash-mascot.png",
+            "imageWidth": 240
           }
         }
       ],
@@ -88,8 +88,7 @@
         {
           "experimentalLauncherActivity": false
         }
-      ],
-      "@react-native-community/datetimepicker"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
