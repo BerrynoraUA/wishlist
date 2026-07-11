@@ -88,13 +88,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       void rememberSessionAccount(nextSession).catch(() => undefined);
     }
 
-    void supabase.auth
-      .getSession()
-      .then(({ data: { session: initialSession } }) => {
-        applySession(initialSession);
-      })
-      .catch(() => applySession(null));
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
