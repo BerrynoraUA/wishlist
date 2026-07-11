@@ -35,10 +35,10 @@ if (!IS_ANDROID) {
 }
 
 // Must match the expo-splash-screen config in app.json exactly (light/dark bg tokens).
-const SPLASH_BACKGROUND_LIGHT = "#FAF7F8";
+const SPLASH_BACKGROUND_LIGHT = "#ffffff";
 const SPLASH_BACKGROUND_DARK = "#0C0C0F";
-const ICON_SIZE = 114;
-const ICON_SOURCE = require("@/assets/images/icon.png");
+const ICON_SIZE = 160;
+const ICON_SOURCE = require("@/assets/images/splash.png");
 
 const AppReadyContext = createContext<() => void>(() => {});
 
