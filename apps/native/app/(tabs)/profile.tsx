@@ -1,6 +1,5 @@
 import { AccountSettings } from "@/components/settings/account-settings";
 import { AppearanceSettings } from "@/components/settings/appearance-settings";
-import { CurrencySettings } from "@/components/settings/currency-settings";
 import { FeatureIdeasSettings } from "@/components/settings/feature-ideas-settings";
 import { NotificationSettings } from "@/components/settings/notification-settings";
 import { PreferencesSettings } from "@/components/settings/preferences-settings";
@@ -24,10 +23,9 @@ const SETTINGS_SECTIONS = [
   "account",
   "profile",
   "subscription",
-  "notifications",
-  "preferences",
   "appearance",
-  "currency",
+  "preferences",
+  "notifications",
   "feature-ideas",
 ] as const;
 
@@ -113,7 +111,12 @@ export default function ProfileScreen() {
       case "notifications":
         return <NotificationSettings settings={settings} />;
       case "preferences":
-        return <PreferencesSettings selectedPriorities={settings?.selected_priorities} />;
+        return (
+          <PreferencesSettings
+            selectedPriorities={settings?.selected_priorities}
+            selectedCurrency={settings?.display_currency ?? "USD"}
+          />
+        );
       case "appearance":
         return (
           <AppearanceSettings
@@ -123,8 +126,6 @@ export default function ProfileScreen() {
             setThemePreference={setThemePreference}
           />
         );
-      case "currency":
-        return <CurrencySettings selectedCurrency={settings?.display_currency ?? "USD"} />;
       case "feature-ideas":
         return <FeatureIdeasSettings />;
     }

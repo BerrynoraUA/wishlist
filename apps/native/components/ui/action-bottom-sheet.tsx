@@ -52,6 +52,8 @@ export function ActionBottomSheetConfirm({
   confirmLabel,
   isPending,
   tone = "default",
+  children,
+  confirmDisabled,
   onClose,
   onConfirm,
 }: {
@@ -61,6 +63,8 @@ export function ActionBottomSheetConfirm({
   confirmLabel: string;
   isPending?: boolean;
   tone?: ActionBottomSheetConfirmTone;
+  children?: React.ReactNode;
+  confirmDisabled?: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }) {
@@ -80,6 +84,7 @@ export function ActionBottomSheetConfirm({
           <Text className="text-lg font-extrabold text-text">{title}</Text>
           <Text className="text-sm leading-5 text-text-muted">{message}</Text>
         </View>
+        {children}
         <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="outline" disabled={isPending} onPress={handleClose}>
             <Text>{t("Cancel")}</Text>
@@ -88,7 +93,7 @@ export function ActionBottomSheetConfirm({
             variant={
               tone === "destructive" ? "destructive" : tone === "default" ? "default" : "ghost"
             }
-            disabled={isPending}
+            disabled={isPending || confirmDisabled}
             onPress={onConfirm}
             className={
               tone === "success"

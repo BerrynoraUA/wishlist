@@ -5,6 +5,7 @@ import {
   settingsDropdownTriggerClassName,
 } from "@/components/settings/settings-dropdown-styles";
 import { SettingsSection } from "@/components/settings/settings-section";
+import { CurrencySettings } from "@/components/settings/currency-settings";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -40,7 +41,13 @@ const LOCALIZED_LOCALE_LABELS: Record<string, string> = {
   uk: "Українська",
 };
 
-export function PreferencesSettings({ selectedPriorities }: { selectedPriorities?: string[] }) {
+export function PreferencesSettings({
+  selectedPriorities,
+  selectedCurrency,
+}: {
+  selectedPriorities?: string[];
+  selectedCurrency: string;
+}) {
   const t = useGT();
   const activeLocale = useLocale();
   const locales = useLocales();
@@ -103,6 +110,8 @@ export function PreferencesSettings({ selectedPriorities }: { selectedPriorities
           </DropdownMenuContent>
         </DropdownMenu>
       </View>
+
+      <CurrencySettings selectedCurrency={selectedCurrency} />
 
       <View className="gap-2">
         <View className="flex-row items-center gap-2">
