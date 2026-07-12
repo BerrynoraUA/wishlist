@@ -29,7 +29,7 @@ export async function scrapeProductLink(url: string): Promise<ScrapedProduct> {
   const response = await fetch(`${WEB_APP_URL}/api/server/scrape-product`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url }),
+    body: JSON.stringify({ url, source: "add-item" }),
   });
 
   let data: unknown = null;

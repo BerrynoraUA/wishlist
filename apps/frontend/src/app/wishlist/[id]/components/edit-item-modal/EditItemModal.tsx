@@ -426,7 +426,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
         const response = await fetch("/api/server/scrape-product", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: trimmedLink }),
+          body: JSON.stringify({ url: trimmedLink, source: "add-item" }),
         });
 
         const data = await response.json();

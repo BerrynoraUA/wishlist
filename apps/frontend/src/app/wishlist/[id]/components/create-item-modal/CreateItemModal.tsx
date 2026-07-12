@@ -340,11 +340,30 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       setLoading(true);
       setError(null);
 
+      // Wipe data autofilled from a previous scrape before running a new one, so
+      // stale fields never linger when the new link scrapes differently or fails.
+      const clearScrapedFields = () => {
+        setName("");
+        setDescription("");
+        setPrice("");
+        setDiscountPrice(null);
+        setHasDiscount(false);
+        setDiscountEndDate(null);
+        // Keep a user-uploaded image (tracked via object URL); only drop a
+        // remote image that came from a previous scrape.
+        if (!imageObjectUrlRef.current) {
+          setImageFile(null);
+          setImagePreview("");
+        }
+      };
+
+      clearScrapedFields();
+
       try {
         const response = await fetch("/api/server/scrape-product", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: trimmedLink }),
+          body: JSON.stringify({ url: trimmedLink, source: "add-item" }),
         });
 
         const data = await response.json();

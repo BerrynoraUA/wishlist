@@ -20,6 +20,9 @@ import {
   X,
   ShieldBan,
   CircleSlash2,
+  Check,
+  ThumbsDown,
+  RotateCcw,
 } from "lucide-react";
 import { TEST_CASES } from "./test-urls";
 import { exportScraperResultsExcel, exportScraperResultsJson } from "./export-scraper-results";
@@ -36,11 +39,24 @@ import type {
 import { STATUS_ORDER } from "./constants";
 import { computeStatus, getDomain, validateResult } from "./helpers";
 
+type ActiveTab = "suite" | "manual" | "unresolved";
+type ManualState = "idle" | "scraping" | "saving" | "rerunning";
+
 export default function ScraperTestPage() {
+  const [activeTab, setActiveTab] = useState<ActiveTab>("suite");
   const [state, setState] = useState<TestState>("idle");
   const [results, setResults] = useState<ScrapeResult[]>([]);
   const [expandedIdx, setExpandedIdx] = useState<string | null>(null); // keyed by url
   const [progress, setProgress] = useState(0);
+  const [manualUrl, setManualUrl] = useState("");
+  const [manualState, setManualState] = useState<ManualState>("idle");
+  const [manualResult, setManualResult] = useState<ScrapeResult | null>(null);
+  const [unresolvedResults, setUnresolvedResults] = useState<ScrapeResult[]>([]);
+  const lastManualScrapeUrlRef = useRef("");
+  const [manualMessage, setManualMessage] = useState<{
+    kind: "success" | "error" | "info";
+    text: string;
+  } | null>(null);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,6 +75,69 @@ export default function ScraperTestPage() {
   const failedCount = results.filter((r) => r.status === "failed").length;
   const blockedCount = results.filter((r) => r.status === "blocked").length;
   const unavailableCount = results.filter((r) => r.status === "unavailable").length;
+
+  const loadUnresolved = useCallback(async () => {
+    const res = await fetch("/api/admin/scraper-test", {
+      method: "GET",
+      credentials: "include",
+    });
+    const json = (await res.json()) as {
+      unresolved?: ScrapeResult[];
+      error?: string;
+    };
+
+    if (!res.ok) {
+      setManualMessage({
+        kind: "error",
+        text: json.error ?? `Could not load unresolved sites (HTTP ${res.status})`,
+      });
+      return;
+    }
+
+    setUnresolvedResults(json.unresolved ?? []);
+  }, []);
+
+  useEffect(() => {
+    void loadUnresolved();
+  }, [loadUnresolved]);
+
+  const scrapeUrl = useCallback(async (url: string, autoRecord = false): Promise<ScrapeResult> => {
+    const res = await fetch("/api/admin/scraper-test", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ urls: [url], autoRecord }),
+    });
+    const json = (await res.json()) as {
+      results?: ApiScrapeResultRow[];
+      error?: string;
+    };
+
+    if (!res.ok) {
+      return {
+        url,
+        status: "failed",
+        data: null,
+        error: json.error ?? `HTTP ${res.status}`,
+        duration: 0,
+        validations: [],
+      };
+    }
+
+    const raw = json.results?.[0];
+    if (!raw) {
+      return {
+        url,
+        status: "failed",
+        data: null,
+        error: "Empty response",
+        duration: 0,
+        validations: [],
+      };
+    }
+
+    return { ...raw, validations: [] };
+  }, []);
 
   const runTest = useCallback(async () => {
     setState("running");
@@ -125,6 +204,180 @@ export default function ScraperTestPage() {
 
     setState("done");
   }, []);
+
+  const runManualScrape = useCallback(
+    async (url: string) => {
+      setManualMessage(null);
+      setManualState("scraping");
+      try {
+        const result = await scrapeUrl(url, true);
+        setManualResult(result);
+        setExpandedIdx(result.url);
+        if (result.status === "blocked" || result.status === "failed") {
+          void loadUnresolved();
+        }
+      } catch (error) {
+        setManualMessage({
+          kind: "error",
+          text: error instanceof Error ? error.message : "Scrape failed.",
+        });
+      } finally {
+        setManualState("idle");
+      }
+    },
+    [scrapeUrl, loadUnresolved],
+  );
+
+  useEffect(() => {
+    const url = manualUrl.trim();
+    setManualMessage(null);
+
+    if (!url) {
+      lastManualScrapeUrlRef.current = "";
+      setManualResult(null);
+      return undefined;
+    }
+
+    try {
+      new URL(url);
+    } catch {
+      return undefined;
+    }
+
+    if (url === lastManualScrapeUrlRef.current) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      lastManualScrapeUrlRef.current = url;
+      void runManualScrape(url);
+    }, 600);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [manualUrl, runManualScrape]);
+
+  const approveResult = useCallback(
+    async (result: ScrapeResult) => {
+      if (!result.data) {
+        setManualMessage({ kind: "error", text: "Cannot approve an empty scrape result." });
+        return;
+      }
+
+      setManualState("saving");
+      const res = await fetch("/api/admin/scraper-test", {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: result.url, data: result.data }),
+      });
+      const json = (await res.json()) as { error?: string };
+
+      if (!res.ok) {
+        setManualMessage({
+          kind: res.status === 409 ? "info" : "error",
+          text: json.error ?? `Could not approve result (HTTP ${res.status})`,
+        });
+        setManualState("idle");
+        return;
+      }
+
+      setUnresolvedResults((current) => current.filter((item) => item.url !== result.url));
+      if (manualResult?.url === result.url) setManualResult(null);
+      setManualMessage({
+        kind: "success",
+        text: `${getDomain(result.url)} added to acceptance criteria.`,
+      });
+      setManualState("idle");
+    },
+    [manualResult?.url],
+  );
+
+  const saveUnresolvedResult = useCallback(async (result: ScrapeResult, comment?: string) => {
+    const trimmedComment = comment?.trim();
+    const unresolvedResult = {
+      ...result,
+      comment: trimmedComment || result.comment,
+    };
+    const res = await fetch("/api/admin/scraper-test", {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ result: unresolvedResult }),
+    });
+    const json = (await res.json()) as {
+      unresolved?: ScrapeResult[];
+      error?: string;
+    };
+
+    if (!res.ok) {
+      setManualMessage({
+        kind: "error",
+        text: json.error ?? `Could not save unresolved result (HTTP ${res.status})`,
+      });
+      return false;
+    }
+
+    setUnresolvedResults(json.unresolved ?? []);
+    return true;
+  }, []);
+
+  const declineResult = useCallback(
+    async (result: ScrapeResult, comment: string) => {
+      const saved = await saveUnresolvedResult(result, comment);
+      if (!saved) return;
+
+      setManualResult(null);
+      setManualMessage({
+        kind: "info",
+        text: `${getDomain(result.url)} moved to unresolved sites.`,
+      });
+      setActiveTab("unresolved");
+    },
+    [saveUnresolvedResult],
+  );
+
+  const removeUnresolvedResult = useCallback(async (result: ScrapeResult) => {
+    const res = await fetch("/api/admin/scraper-test", {
+      method: "DELETE",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: result.url }),
+    });
+    const json = (await res.json()) as {
+      unresolved?: ScrapeResult[];
+      error?: string;
+    };
+
+    if (!res.ok) {
+      setManualMessage({
+        kind: "error",
+        text: json.error ?? `Could not remove unresolved result (HTTP ${res.status})`,
+      });
+      return;
+    }
+
+    setUnresolvedResults(json.unresolved ?? []);
+  }, []);
+
+  const rerunUnresolved = useCallback(async () => {
+    if (unresolvedResults.length === 0) return;
+
+    setManualState("rerunning");
+    setManualMessage(null);
+
+    const updated: ScrapeResult[] = [];
+    for (const result of unresolvedResults) {
+      const nextResult = await scrapeUrl(result.url);
+      const nextUnresolved = { ...nextResult, comment: result.comment };
+      updated.push(nextUnresolved);
+      setUnresolvedResults([...updated, ...unresolvedResults.slice(updated.length)]);
+      await saveUnresolvedResult(nextUnresolved);
+    }
+
+    setUnresolvedResults(updated);
+    setManualState("idle");
+    setManualMessage({ kind: "success", text: "Unresolved sites rerun finished." });
+  }, [saveUnresolvedResult, scrapeUrl, unresolvedResults]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -237,14 +490,67 @@ export default function ScraperTestPage() {
 
   return (
     <div className={styles.container}>
+      <div className={styles.tabs}>
+        <button
+          type="button"
+          className={`${styles.tabBtn} ${activeTab === "suite" ? styles.tabBtnActive : ""}`}
+          onClick={() => setActiveTab("suite")}
+        >
+          Test suite
+        </button>
+        <button
+          type="button"
+          className={`${styles.tabBtn} ${activeTab === "manual" ? styles.tabBtnActive : ""}`}
+          onClick={() => setActiveTab("manual")}
+        >
+          Manual review
+        </button>
+        <button
+          type="button"
+          className={`${styles.tabBtn} ${activeTab === "unresolved" ? styles.tabBtnActive : ""}`}
+          onClick={() => setActiveTab("unresolved")}
+        >
+          Unresolved
+          {unresolvedResults.length > 0 && (
+            <span className={styles.tabCount}>{unresolvedResults.length}</span>
+          )}
+        </button>
+      </div>
+
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>Scraper Test</h1>
-          <p className={styles.subtitle}>{totalUrls} URLs to test</p>
+          <p className={styles.subtitle}>
+            {activeTab === "suite"
+              ? `${totalUrls} URLs to test`
+              : activeTab === "manual"
+                ? "Scrape one product URL"
+                : `${unresolvedResults.length} unresolved sites`}
+          </p>
         </div>
 
         <div className={styles.headerActions}>
-          {results.length > 0 && (
+          {activeTab === "unresolved" && unresolvedResults.length > 0 && (
+            <Button
+              className={styles.secondaryBtn}
+              onClick={rerunUnresolved}
+              disabled={manualState === "rerunning"}
+            >
+              {manualState === "rerunning" ? (
+                <>
+                  <Loader2 size={16} className={styles.spinner} />
+                  Rerunning
+                </>
+              ) : (
+                <>
+                  <RotateCcw size={16} />
+                  Rerun unresolved
+                </>
+              )}
+            </Button>
+          )}
+
+          {activeTab === "suite" && results.length > 0 && (
             <>
               <ExportDropdown
                 icon={<FileJson size={16} />}
@@ -271,24 +577,26 @@ export default function ScraperTestPage() {
             </>
           )}
 
-          <Button className={styles.runBtn} onClick={runTest} disabled={state === "running"}>
-            {state === "running" ? (
-              <>
-                <Loader2 size={16} className={styles.spinner} />
-                {progress}/{totalUrls}
-              </>
-            ) : (
-              <>
-                <Play size={16} />
-                {state === "done" ? "Rerun" : "Start"}
-              </>
-            )}
-          </Button>
+          {activeTab === "suite" && (
+            <Button className={styles.runBtn} onClick={runTest} disabled={state === "running"}>
+              {state === "running" ? (
+                <>
+                  <Loader2 size={16} className={styles.spinner} />
+                  {progress}/{totalUrls}
+                </>
+              ) : (
+                <>
+                  <Play size={16} />
+                  {state === "done" ? "Rerun" : "Start"}
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
       {/* Progress bar */}
-      {state === "running" && (
+      {activeTab === "suite" && state === "running" && (
         <div className={styles.progressBar}>
           <div
             className={styles.progressFill}
@@ -298,7 +606,7 @@ export default function ScraperTestPage() {
       )}
 
       {/* Stats */}
-      {results.length > 0 && (
+      {activeTab === "suite" && results.length > 0 && (
         <div className={styles.stats}>
           <div className={`${styles.statCard} ${styles.statSuccess}`}>
             <CheckCircle2 size={16} />
@@ -336,7 +644,7 @@ export default function ScraperTestPage() {
       )}
 
       {/* Table */}
-      {results.length > 0 && (
+      {activeTab === "suite" && results.length > 0 && (
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
@@ -452,10 +760,110 @@ export default function ScraperTestPage() {
         </div>
       )}
 
-      {state === "idle" && (
+      {activeTab === "suite" && state === "idle" && (
         <div className={styles.emptyState}>
           <Play size={48} className={styles.emptyIcon} />
           <p>Click &quot;Start&quot; to begin scraping verification</p>
+        </div>
+      )}
+
+      {activeTab === "manual" && (
+        <div className={styles.manualPanel}>
+          <div className={styles.manualForm}>
+            <input
+              type="url"
+              className={styles.manualInput}
+              value={manualUrl}
+              onChange={(event) => setManualUrl(event.target.value)}
+              placeholder="https://store.example/product"
+            />
+            <div className={styles.manualStatus}>
+              {manualState === "scraping" && (
+                <>
+                  <Loader2 size={16} className={styles.spinner} />
+                  Scraping
+                </>
+              )}
+            </div>
+          </div>
+
+          {manualMessage && (
+            <div
+              className={`${styles.manualMessage} ${styles[`manualMessage_${manualMessage.kind}`]}`}
+            >
+              {manualMessage.text}
+            </div>
+          )}
+
+          {manualResult && (
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <tbody>
+                  <ResultRow
+                    result={manualResult}
+                    isExpanded={expandedIdx === manualResult.url}
+                    onToggle={() => toggleExpand(manualResult.url)}
+                    statusIcon={statusIcon}
+                    statusLabel={statusLabel}
+                    actions={
+                      <ReviewActions
+                        result={manualResult}
+                        disabled={manualState === "saving"}
+                        onApprove={() => void approveResult(manualResult)}
+                        onDecline={(comment) => void declineResult(manualResult, comment)}
+                        showComment
+                      />
+                    }
+                  />
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "unresolved" && (
+        <div className={styles.manualPanel}>
+          {manualMessage && (
+            <div
+              className={`${styles.manualMessage} ${styles[`manualMessage_${manualMessage.kind}`]}`}
+            >
+              {manualMessage.text}
+            </div>
+          )}
+
+          {unresolvedResults.length > 0 ? (
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <tbody>
+                  {unresolvedResults.map((result) => (
+                    <ResultRow
+                      key={result.url}
+                      result={result}
+                      isExpanded={expandedIdx === result.url}
+                      onToggle={() => toggleExpand(result.url)}
+                      statusIcon={statusIcon}
+                      statusLabel={statusLabel}
+                      actions={
+                        <ReviewActions
+                          result={result}
+                          disabled={manualState === "saving"}
+                          onApprove={() => void approveResult(result)}
+                          onDecline={() => void removeUnresolvedResult(result)}
+                          declineLabel="Remove"
+                        />
+                      }
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className={styles.emptyState}>
+              <CheckCircle2 size={48} className={styles.emptyIcon} />
+              <p>No unresolved sites</p>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -469,12 +877,14 @@ function ResultRow({
   onToggle,
   statusIcon,
   statusLabel,
+  actions,
 }: {
   result: ScrapeResult;
   isExpanded: boolean;
   onToggle: () => void;
   statusIcon: (s: string) => React.ReactNode;
   statusLabel: (s: string) => string;
+  actions?: React.ReactNode;
 }) {
   return (
     <>
@@ -484,6 +894,11 @@ function ResultRow({
       >
         <td className={styles.td}>
           <span className={styles.siteName}>{getDomain(result.url)}</span>
+          {typeof result.requestCount === "number" && (
+            <span className={styles.requestCount} title="Requests">
+              ×{result.requestCount}
+            </span>
+          )}
         </td>
         <td className={styles.td}>
           <span className={`${styles.badge} ${styles[`badge_${result.status}`]}`}>
@@ -507,6 +922,12 @@ function ResultRow({
         <tr className={styles.expandRow}>
           <td colSpan={4} className={styles.expandCell}>
             <div className={styles.details}>
+              {actions && (
+                <div className={styles.reviewActions} onClick={(event) => event.stopPropagation()}>
+                  {actions}
+                </div>
+              )}
+
               <div className={styles.detailUrl}>
                 <a
                   href={result.url}
@@ -520,6 +941,27 @@ function ResultRow({
               </div>
 
               {result.error && <div className={styles.errorMsg}>Error: {result.error}</div>}
+
+              {(typeof result.requestCount === "number" || result.author) && (
+                <div className={styles.metaRow}>
+                  {typeof result.requestCount === "number" && (
+                    <span className={styles.metaItem}>
+                      <strong>Requests:</strong> {result.requestCount}
+                    </span>
+                  )}
+                  {result.author && (
+                    <span className={styles.metaItem}>
+                      <strong>Reported by:</strong> {result.author}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {result.comment && (
+                <div className={styles.commentBox}>
+                  <span>Comment:</span> {result.comment}
+                </div>
+              )}
 
               {result.diagnostics && <DiagnosticsDetails diagnostics={result.diagnostics} />}
 
@@ -575,6 +1017,55 @@ function ResultRow({
         </tr>
       )}
     </>
+  );
+}
+
+function ReviewActions({
+  result,
+  disabled,
+  onApprove,
+  onDecline,
+  declineLabel = "Decline",
+  showComment,
+}: {
+  result: ScrapeResult;
+  disabled: boolean;
+  onApprove: () => void;
+  onDecline: (comment: string) => void;
+  declineLabel?: string;
+  showComment?: boolean;
+}) {
+  const [comment, setComment] = useState("");
+
+  return (
+    <div className={styles.reviewActionGroup}>
+      {showComment && (
+        <input
+          className={styles.commentInput}
+          value={comment}
+          onChange={(event) => setComment(event.target.value)}
+          placeholder="Decline comment"
+        />
+      )}
+      <div className={styles.reviewActionButtons}>
+        <Button
+          className={styles.approveBtn}
+          onClick={onApprove}
+          disabled={disabled || !result.data}
+        >
+          <Check size={14} />
+          Approve
+        </Button>
+        <Button
+          className={styles.declineBtn}
+          onClick={() => onDecline(comment)}
+          disabled={disabled}
+        >
+          <ThumbsDown size={14} />
+          {declineLabel}
+        </Button>
+      </div>
+    </div>
   );
 }
 
