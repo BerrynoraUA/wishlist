@@ -21,5 +21,7 @@ export function DiscoverTabs({
     [t],
   );
 
-  return <ScrollableTabs tabs={tabs} value={value} onChange={onChange} />;
+  return (
+    <ScrollableTabs tabs={tabs} value={value} onChange={onChange} className="bg-transparent" />
+  );
 }

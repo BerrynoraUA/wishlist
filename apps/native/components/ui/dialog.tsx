@@ -1,13 +1,13 @@
 import { Icon } from "@/components/ui/icon";
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
+import { WindowOverlay } from "@/components/ui/window-overlay";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as DialogPrimitive from "@rn-primitives/dialog";
 import { X } from "lucide-react-native";
 import * as React from "react";
-import { Platform, Text, View, type ViewProps } from "react-native";
+import { Text, View, type ViewProps } from "react-native";
 import { FadeIn, FadeOut } from "react-native-reanimated";
-import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 import { useGT } from "gt-react-native";
 
 const Dialog = DialogPrimitive.Root;
@@ -18,8 +18,6 @@ const DialogPortal = DialogPrimitive.Portal;
 
 const DialogClose = DialogPrimitive.Close;
 
-const FullWindowOverlay = Platform.OS === "ios" ? RNFullWindowOverlay : React.Fragment;
-
 function DialogOverlay({
   className,
   children,
@@ -27,8 +25,10 @@ function DialogOverlay({
 }: Omit<React.ComponentProps<typeof DialogPrimitive.Overlay>, "asChild"> & {
   children?: React.ReactNode;
 }) {
+  const { onOpenChange } = DialogPrimitive.useRootContext();
+
   return (
-    <FullWindowOverlay>
+    <WindowOverlay onRequestClose={() => onOpenChange(false)}>
       <DialogPrimitive.Overlay
         className={cn(
           "absolute bottom-0 left-0 right-0 top-0 z-50 flex items-center justify-center bg-black/50 p-2",
@@ -49,7 +49,7 @@ function DialogOverlay({
           </NativeOnlyAnimatedView>
         </NativeOnlyAnimatedView>
       </DialogPrimitive.Overlay>
-    </FullWindowOverlay>
+    </WindowOverlay>
   );
 }
 function DialogContent({

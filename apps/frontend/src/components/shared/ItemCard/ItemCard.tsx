@@ -150,6 +150,10 @@ export function ItemCard({
           available: () => t("Mark as purchased", { $id: "itemCard.purchase" }),
         });
 
+        // Gray out reserved/purchased items so they read as "taken" at a
+        // glance, while the badge itself stays fully visible.
+        const isTaken = !isOwner && !!statusLabel;
+
         return (
           <div
             className={cn(
@@ -158,6 +162,7 @@ export function ItemCard({
               isPurchasedMode && styles.cardPurchased,
               accentColor && styles.cardColored,
               hasStarAccent && styles.cardStarAccent,
+              isTaken && styles.cardReserved,
             )}
             style={
               accentColor
@@ -170,6 +175,16 @@ export function ItemCard({
           >
             <div className={styles.imageWrapper}>
               <CardImage image={image} name={name} isWishlist={isWishlist} />
+
+              {isTaken && (
+                <div className={styles.reservedStamp} aria-hidden="true">
+                  <span>
+                    {isPurchased
+                      ? t("Purchased", { $id: "itemCard.purchasedStamp" })
+                      : t("Reserved", { $id: "itemCard.reservedStamp" })}
+                  </span>
+                </div>
+              )}
 
               <CardBadges
                 variant={variant}
@@ -201,7 +216,6 @@ export function ItemCard({
             </div>
 
             <CardInfo
-              id={id}
               name={name}
               description={description}
               formattedPrice={formattedPrice}
@@ -209,7 +223,6 @@ export function ItemCard({
               variant={variant}
               isOwner={isOwner}
               isPurchasedMode={isPurchasedMode}
-              statusLabel={statusLabel}
               reserveBtnLabel={reserveBtnLabel}
               isPurchased={isPurchased}
               isReservedState={isReservedState}

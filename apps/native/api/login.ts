@@ -2,8 +2,16 @@ import { supabase } from "@wishlist/backend/supabase/native";
 import * as AppleAuthentication from "expo-apple-authentication";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
+import { getOAuthAuthorizationCode } from "@/lib/oauth-callback";
 
 WebBrowser.maybeCompleteAuthSession();
+
+export type OAuthProvider = "facebook" | "google";
+
+// iOS can return the callback through openAuthSessionAsync while Android cold starts
+// deliver it to OAuthCallbackScreen, so the same authorization code may arrive twice.
+let pendingCodeExchange: { code: string; promise: Promise<void> } | null = null;
+let lastCompletedCode: string | null = null;
 
 function getErrorCode(error: unknown): string | null {
   if (!error || typeof error !== "object" || !("code" in error)) {
@@ -13,31 +21,35 @@ function getErrorCode(error: unknown): string | null {
   return String((error as { code?: unknown }).code ?? "");
 }
 
-function extractSessionParamsFromUrl(url: string) {
-  const parsedUrl = new URL(url);
-  const params = new URLSearchParams(
-    parsedUrl.hash ? parsedUrl.hash.substring(1) : parsedUrl.search.substring(1),
-  );
-
-  return {
-    accessToken: params.get("access_token"),
-    refreshToken: params.get("refresh_token"),
-  };
+export function getOAuthRedirectUrl(provider: OAuthProvider) {
+  return Linking.createURL(`${provider}-auth`);
 }
 
-export async function completeOAuthSessionFromUrl(url: string): Promise<void> {
-  const { accessToken, refreshToken } = extractSessionParamsFromUrl(url);
+export async function completeOAuthSessionFromUrl(url: string, redirectTo: string): Promise<void> {
+  const code = getOAuthAuthorizationCode(url, redirectTo);
+  if (lastCompletedCode === code) return;
 
-  if (!accessToken || !refreshToken) {
-    throw new Error("OAuth callback did not return a Supabase session.");
+  if (pendingCodeExchange) {
+    if (pendingCodeExchange.code !== code) {
+      throw new Error("Another OAuth sign-in is already being completed.");
+    }
+
+    return pendingCodeExchange.promise;
   }
 
-  const { error } = await supabase.auth.setSession({
-    access_token: accessToken,
-    refresh_token: refreshToken,
-  });
+  const promise = supabase.auth
+    .exchangeCodeForSession(code)
+    .then(({ error }) => {
+      if (error) throw error;
+      lastCompletedCode = code;
+    })
+    .finally(() => {
+      pendingCodeExchange = null;
+    });
 
-  if (error) throw error;
+  pendingCodeExchange = { code, promise };
+
+  return promise;
 }
 
 function getAppleFullName(fullName: AppleAuthentication.AppleAuthenticationFullName | null) {
@@ -91,15 +103,13 @@ export async function registerWithEmail(email: string, password: string): Promis
   }
 }
 
-export async function loginWithGoogle(): Promise<void> {
-  const redirectTo = Linking.createURL("google-auth");
+async function loginWithOAuth(provider: OAuthProvider, queryParams?: Record<string, string>) {
+  const redirectTo = getOAuthRedirectUrl(provider);
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
+    provider,
     options: {
       redirectTo,
-      queryParams: {
-        prompt: "select_account consent",
-      },
+      queryParams,
       skipBrowserRedirect: true,
     },
   });
@@ -107,45 +117,28 @@ export async function loginWithGoogle(): Promise<void> {
   if (error) throw error;
 
   if (!data.url) {
-    throw new Error("Google sign-in did not return an authorization URL.");
+    throw new Error("OAuth sign-in did not return an authorization URL.");
   }
 
   const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo, {
-    showInRecents: true,
+    showInRecents: false,
   });
 
   if (result.type !== "success") {
-    throw new Error("Google sign-in was cancelled.");
+    throw new Error("OAuth sign-in was cancelled.");
   }
 
-  await completeOAuthSessionFromUrl(result.url);
+  await completeOAuthSessionFromUrl(result.url, redirectTo);
+}
+
+export async function loginWithGoogle(): Promise<void> {
+  await loginWithOAuth("google", {
+    prompt: "select_account consent",
+  });
 }
 
 export async function loginWithFacebook(): Promise<void> {
-  const redirectTo = Linking.createURL("facebook-auth");
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "facebook",
-    options: {
-      redirectTo,
-      skipBrowserRedirect: true,
-    },
-  });
-
-  if (error) throw error;
-
-  if (!data.url) {
-    throw new Error("Facebook sign-in did not return an authorization URL.");
-  }
-
-  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo, {
-    showInRecents: true,
-  });
-
-  if (result.type !== "success") {
-    throw new Error("Facebook sign-in was cancelled.");
-  }
-
-  await completeOAuthSessionFromUrl(result.url);
+  await loginWithOAuth("facebook");
 }
 
 export async function loginWithApple(): Promise<void> {

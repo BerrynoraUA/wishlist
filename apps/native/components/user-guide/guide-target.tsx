@@ -1,6 +1,7 @@
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View, type StyleProp, type ViewStyle } from "react-native";
 
@@ -86,6 +87,7 @@ function AttachedTooltip({
 }: {
   tooltip: NonNullable<ReturnType<typeof useUserGuideTargetRegistration>["activeTooltip"]>;
 }) {
+  const t = useGT();
   const tooltipPosition =
     tooltip.placement === "top"
       ? { bottom: "100%" as const, marginBottom: 2 }
@@ -115,7 +117,7 @@ function AttachedTooltip({
           onPress={tooltip.onNext}
           className="h-8 self-end rounded-md px-3"
         >
-          <Text>{tooltip.isLastSequence ? "Done" : "Next"}</Text>
+          <Text>{tooltip.isLastSequence ? t("Done") : t("Next")}</Text>
         </Button>
       ) : null}
     </View>

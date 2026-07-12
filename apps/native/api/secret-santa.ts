@@ -1,4 +1,6 @@
 import { normalizeSearchQuery } from "@/lib/wishlists";
+import { generateSecretSantaAssignment } from "@/lib/secret-santa-assignment";
+import { removeOwnedStorageImage } from "@/lib/storage";
 import { supabase } from "@wishlist/backend/supabase/native";
 import type {
   CreateSecretSantaEventInput,
@@ -78,24 +80,6 @@ async function uploadSecretSantaImage(image: SecretSantaImageInput): Promise<str
   return data.publicUrl;
 }
 
-function getStoragePathFromPublicUrl(imageUrl: string | null | undefined) {
-  if (!imageUrl?.includes(`/storage/v1/object/public/${SECRET_SANTA_IMAGE_BUCKET}/`)) {
-    return null;
-  }
-
-  const urlParts = imageUrl.split(`/${SECRET_SANTA_IMAGE_BUCKET}/`);
-  if (urlParts.length < 2) return null;
-
-  return urlParts[1].split("?")[0] || null;
-}
-
-async function deleteSecretSantaImage(imageUrl: string | null | undefined) {
-  const path = getStoragePathFromPublicUrl(imageUrl);
-  if (!path) return;
-
-  await supabase.storage.from(SECRET_SANTA_IMAGE_BUCKET).remove([path]);
-}
-
 async function getSecretSantaImageField(eventId: string) {
   const { data, error } = await supabase
     .from("secret_santa")
@@ -135,7 +119,9 @@ export async function createSecretSantaEvent(
 
   if (error) {
     if (uploadedFile && finalImageUrl) {
-      await deleteSecretSantaImage(finalImageUrl).catch(() => undefined);
+      await removeOwnedStorageImage(SECRET_SANTA_IMAGE_BUCKET, finalImageUrl).catch(
+        () => undefined,
+      );
     }
 
     throw error;
@@ -158,6 +144,7 @@ export async function updateSecretSantaEvent(
   if (restUpdates.currency !== undefined) dbUpdates.currency = restUpdates.currency;
 
   let uploadedImageUrl: string | null = null;
+  let previousImageUrlToDelete: string | null = null;
 
   if (image || removeImage || imageUrl !== undefined) {
     const currentImageUrl = currentFields?.image_url ?? null;
@@ -181,7 +168,7 @@ export async function updateSecretSantaEvent(
     }
 
     if (shouldDeleteOldImage && currentImageUrl) {
-      await deleteSecretSantaImage(currentImageUrl).catch(() => undefined);
+      previousImageUrlToDelete = currentImageUrl;
     }
   }
 
@@ -205,10 +192,18 @@ export async function updateSecretSantaEvent(
 
   if (error) {
     if (uploadedImageUrl) {
-      await deleteSecretSantaImage(uploadedImageUrl).catch(() => undefined);
+      await removeOwnedStorageImage(SECRET_SANTA_IMAGE_BUCKET, uploadedImageUrl).catch(
+        () => undefined,
+      );
     }
 
     throw error;
+  }
+
+  if (previousImageUrlToDelete) {
+    await removeOwnedStorageImage(SECRET_SANTA_IMAGE_BUCKET, previousImageUrlToDelete).catch(
+      () => undefined,
+    );
   }
 
   return data as SecretSantaEvent;
@@ -224,7 +219,9 @@ export async function deleteSecretSantaEvent(eventId: string): Promise<void> {
   if (error) throw error;
 
   if (currentFields?.image_url) {
-    await deleteSecretSantaImage(currentFields.image_url).catch(() => undefined);
+    await removeOwnedStorageImage(SECRET_SANTA_IMAGE_BUCKET, currentFields.image_url).catch(
+      () => undefined,
+    );
   }
 }
 
@@ -252,6 +249,52 @@ export async function listSecretSantaEvents(
   if (error) throw error;
 
   return data as SecretSantaListResponse;
+}
+
+export async function inviteSecretSantaUsers(
+  eventId: string,
+  eventName: string,
+  userIds: string[],
+): Promise<void> {
+  const user = await getCurrentUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const receiverIds = userIds.filter((userId) => userId !== user.id);
+  if (receiverIds.length === 0) return;
+
+  // Mirrors what create_secret_santa_event does for invites: upsert the invite
+  // rows (re-inviting resets a declined invite) and notify each receiver.
+  const { data: invites, error } = await supabase
+    .from("secret_santa_invites")
+    .upsert(
+      receiverIds.map((receiverId) => ({
+        event_id: eventId,
+        sender_id: user.id,
+        receiver_id: receiverId,
+        status: 0,
+        responded_at: null,
+      })),
+      { onConflict: "event_id,receiver_id" },
+    )
+    .select("id, receiver_id");
+
+  if (error) throw error;
+  if (!invites || invites.length === 0) return;
+
+  const { error: notificationError } = await supabase.from("notifications").insert(
+    invites.map((invite) => ({
+      sender_id: user.id,
+      receiver_id: invite.receiver_id as string,
+      text: `You have been invited to Secret Santa "${eventName}"`,
+      icon_type: 0,
+      type: 0,
+      entity_id: invite.id as string,
+      is_read: false,
+    })),
+  );
+
+  if (notificationError) throw notificationError;
 }
 
 export async function acceptSecretSantaInvite(inviteId: string): Promise<void> {
@@ -300,42 +343,6 @@ export async function removeSecretSantaInvite(inviteId: string): Promise<void> {
   if (error) throw error;
 }
 
-export function generateSecretSantaAssignment(
-  participantIds: string[],
-  exclusions: Map<string, Set<string>>,
-  maxAttempts = 500,
-): Map<string, string> | null {
-  const participantCount = participantIds.length;
-
-  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    const available = new Set(participantIds);
-    const assignment = new Map<string, string>();
-    let valid = true;
-    const order = [...participantIds].sort(() => Math.random() - 0.5);
-
-    for (const giver of order) {
-      const candidates = [...available].filter(
-        (receiver) => receiver !== giver && !(exclusions.get(giver)?.has(receiver) ?? false),
-      );
-
-      if (candidates.length === 0) {
-        valid = false;
-        break;
-      }
-
-      const receiver = candidates[Math.floor(Math.random() * candidates.length)];
-      assignment.set(giver, receiver);
-      available.delete(receiver);
-    }
-
-    if (valid && assignment.size === participantCount) {
-      return assignment;
-    }
-  }
-
-  return null;
-}
-
 export async function launchSecretSanta(input: LaunchSecretSantaInput): Promise<void> {
   const exclusions = new Map<string, Set<string>>();
   for (const exclusion of input.exclusions) {
@@ -344,7 +351,7 @@ export async function launchSecretSanta(input: LaunchSecretSantaInput): Promise<
 
   const { data: rows, error: fetchError } = await supabase
     .from("secret_santa_participants")
-    .select("id, user_id")
+    .select("user_id")
     .eq("event_id", input.event_id);
 
   if (fetchError) throw fetchError;
@@ -359,24 +366,12 @@ export async function launchSecretSanta(input: LaunchSecretSantaInput): Promise<
     );
   }
 
-  for (const row of rows) {
-    const receiverId = assignment.get(row.user_id as string);
-    if (!receiverId) continue;
+  const { error } = await supabase.rpc("launch_secret_santa", {
+    p_event_id: input.event_id,
+    p_assignments: Array.from(assignment, ([user_id, receiver_id]) => ({ user_id, receiver_id })),
+  });
 
-    const { error: updateError } = await supabase
-      .from("secret_santa_participants")
-      .update({ receiver_id: receiverId })
-      .eq("id", row.id);
-
-    if (updateError) throw updateError;
-  }
-
-  const { error: startError } = await supabase
-    .from("secret_santa")
-    .update({ is_started: true })
-    .eq("id", input.event_id);
-
-  if (startError) throw startError;
+  if (error) throw error;
 }
 
 export async function getUserVisibleItemsByMaxPrice(

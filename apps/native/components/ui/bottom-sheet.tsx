@@ -25,6 +25,8 @@ import { useCSSVariable } from "uniwind";
 
 type ReanimatedBottomSheetProps = ComponentProps<typeof ReanimatedTrueSheet>;
 type BottomSheetDetents = NonNullable<ReanimatedBottomSheetProps["detents"]>;
+const DEFAULT_DETENTS: BottomSheetDetents = ["auto", 1];
+const DEFAULT_SCROLLABLE_DETENTS: BottomSheetDetents = [0.75, 1];
 
 export type BottomSheetRef = ComponentRef<typeof ReanimatedTrueSheet>;
 
@@ -53,13 +55,13 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
   (
     {
       children,
-      detents = ["auto"],
+      detents,
       scrollable,
       dimmed = true,
       cornerRadius = 30,
       onDidDismiss,
       autoPresent = true,
-      dismissOnBack = true,
+      dismissOnBack = false,
       header,
       footer,
       footerStyle,
@@ -80,6 +82,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
     const grabberColor = useCSSVariable("--color-border-light") as ColorValue | undefined;
 
     const calculatedFooterPadding = footer ? (footerPaddingBottom ?? 0) : undefined;
+    const resolvedDetents = detents ?? (scrollable ? DEFAULT_SCROLLABLE_DETENTS : DEFAULT_DETENTS);
 
     const [footerHeight, setFooterHeight] = useState(0);
 
@@ -152,7 +155,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
     return (
       <ReanimatedTrueSheet
         ref={sheetRef}
-        detents={detents}
+        detents={resolvedDetents}
         scrollable={scrollable}
         scrollableOptions={scrollableOptions}
         dimmed={dimmed}

@@ -56,11 +56,13 @@ export function SettingsControlsInfoRow({
 export function SettingsControlsToggleRow({
   icon,
   title,
+  subtitle,
   checked,
   onCheckedChange,
 }: {
   icon: LucideIcon;
   title: string;
+  subtitle?: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
 }) {
@@ -70,7 +72,10 @@ export function SettingsControlsToggleRow({
         <View className="size-9 items-center justify-center rounded-full bg-brand-lighter">
           <Icon as={icon} className="size-4 text-brand" />
         </View>
-        <Text className="flex-1 font-semibold text-text">{title}</Text>
+        <View className="flex-1 gap-0.5">
+          <Text className="font-semibold text-text">{title}</Text>
+          {subtitle ? <Text className="text-sm text-text-muted">{subtitle}</Text> : null}
+        </View>
       </View>
       <Switch checked={checked} onCheckedChange={onCheckedChange} />
     </View>

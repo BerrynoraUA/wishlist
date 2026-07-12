@@ -1,5 +1,9 @@
 import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@wishlist/backend/lib/currencies";
 import { supabase } from "@wishlist/backend/supabase/native";
+import {
+  type KnownAccountProvider,
+  toKnownAccountProvider,
+} from "@wishlist/backend/types/known-accounts";
 import { DEFAULT_SETTINGS } from "@wishlist/backend/types/settings";
 import type {
   UpdateProfilePayload,
@@ -197,7 +201,19 @@ export async function getSettings(): Promise<UserSettings> {
     return { user_id: user.id, ...DEFAULT_SETTINGS };
   }
 
-  return data as UserSettings;
+  return withSettingsDefaults(data);
+}
+
+// Rows created before a settings column existed (or partial upserts) can
+// hold NULLs the UserSettings type doesn't allow — fall back per column.
+function withSettingsDefaults(row: Record<string, unknown>): UserSettings {
+  const settings = { ...row };
+
+  for (const [key, fallback] of Object.entries(DEFAULT_SETTINGS)) {
+    if (settings[key] == null) settings[key] = fallback;
+  }
+
+  return settings as unknown as UserSettings;
 }
 
 export async function updateSettings(payload: UpdateSettingsPayload): Promise<UserSettings> {
@@ -215,7 +231,7 @@ export async function updateSettings(payload: UpdateSettingsPayload): Promise<Us
     .single();
 
   if (error) throw error;
-  return data as UserSettings;
+  return withSettingsDefaults(data);
 }
 
 export async function changePassword(newPassword: string): Promise<void> {
@@ -226,12 +242,12 @@ export async function changePassword(newPassword: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function getAuthProvider(): Promise<string> {
+export async function getAuthProvider(): Promise<KnownAccountProvider> {
   const user = await getCurrentUser();
 
   if (!user) return "email";
 
-  return String(user.app_metadata?.provider ?? "email");
+  return toKnownAccountProvider(String(user.app_metadata?.provider ?? "email"));
 }
 
 export async function deleteAccount(): Promise<void> {

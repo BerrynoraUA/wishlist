@@ -1,15 +1,15 @@
 import { Icon } from "@/components/ui/icon";
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
 import { TextClassContext } from "@/components/ui/text";
+import { WindowOverlay } from "@/components/ui/window-overlay";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as MenubarPrimitive from "@rn-primitives/menubar";
 import { Portal } from "@rn-primitives/portal";
 import { Check, ChevronDown, ChevronUp } from "lucide-react-native";
 import * as React from "react";
-import { Platform, Pressable, type StyleProp, Text, View, type ViewStyle } from "react-native";
+import { Pressable, type StyleProp, Text, View, type ViewStyle } from "react-native";
 import { FadeIn } from "react-native-reanimated";
-import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
 const MenubarMenu = MenubarPrimitive.Menu;
 
@@ -20,8 +20,6 @@ const MenubarPortal = MenubarPrimitive.Portal;
 const MenubarSub = MenubarPrimitive.Sub;
 
 const MenubarRadioGroup = MenubarPrimitive.RadioGroup;
-
-const FullWindowOverlay = Platform.OS === "ios" ? RNFullWindowOverlay : React.Fragment;
 
 function Menubar({
   className,
@@ -153,9 +151,15 @@ function MenubarContent({
   overlayClassName?: string;
   portalHost?: string;
 }) {
+  const { setTriggerPosition, onValueChange } = MenubarPrimitive.useRootContext();
+  const closeFromBackPress = () => {
+    setTriggerPosition(null);
+    onValueChange(undefined);
+  };
+
   return (
     <MenubarPrimitive.Portal hostName={portalHost}>
-      <FullWindowOverlay>
+      <WindowOverlay onRequestClose={closeFromBackPress}>
         <NativeOnlyAnimatedView
           entering={FadeIn.duration(motionDuration.normal)}
           className="absolute inset-0"
@@ -174,7 +178,7 @@ function MenubarContent({
             />
           </TextClassContext.Provider>
         </NativeOnlyAnimatedView>
-      </FullWindowOverlay>
+      </WindowOverlay>
     </MenubarPrimitive.Portal>
   );
 }

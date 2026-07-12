@@ -216,23 +216,8 @@ export function SecretSantaCreateEditSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={[0.85, 1]}
       scrollable
-      scrollableOptions={{ scrollingExpandsSheet: false }}
-      dismissOnBack={false}
       onDidDismiss={() => onOpenChange(false)}
-      header={
-        <View className="mx-5 mt-5 gap-1">
-          <Text className="text-lg font-extrabold text-text">
-            {mode === "edit" ? t("Edit Secret Santa Event") : t("Create Secret Santa Event")}
-          </Text>
-          <Text className="text-xs font-semibold text-text-muted">
-            {mode === "edit"
-              ? t("Update the event details without changing accepted participants.")
-              : t("Set up a gift exchange with your friends.")}
-          </Text>
-        </View>
-      }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -274,12 +259,24 @@ export function SecretSantaCreateEditSheet({
           <Text className="text-sm font-semibold text-text">{t("Event Date")}</Text>
           <DatePicker value={eventDate || null} onChange={(value) => setEventDate(value ?? "")}>
             {({ displayValue, openPicker }) => (
-              <Button variant="outline" onPress={openPicker} className="justify-between">
-                <View className="flex-row items-center gap-2">
-                  <Icon as={CalendarDays} className="size-4 text-text-muted" />
-                  <Text>{eventDate ? displayValue : t("Choose date")}</Text>
-                </View>
-              </Button>
+              <View className="flex-row gap-2">
+                <Button variant="outline" onPress={openPicker} className="flex-1 justify-between">
+                  <View className="flex-row items-center gap-2">
+                    <Icon as={CalendarDays} className="size-4 text-text-muted" />
+                    <Text>{eventDate ? displayValue : t("Choose date")}</Text>
+                  </View>
+                </Button>
+                {eventDate ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    accessibilityLabel={t("Clear event date")}
+                    onPress={() => setEventDate("")}
+                  >
+                    <Icon as={X} className="size-4 text-text-muted" />
+                  </Button>
+                ) : null}
+              </View>
             )}
           </DatePicker>
         </View>

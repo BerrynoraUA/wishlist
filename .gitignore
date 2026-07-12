@@ -11,6 +11,7 @@ pnpm-debug.log
 .env
 .env.local
 .env.*.local
+.env.db-diff
 
 # Build artifacts
 *.crx
@@ -19,6 +20,9 @@ pnpm-debug.log
 
 .turbo
 apps/native/credentials.json
+apps/native/credentials/
+apps/native/*.jks
+apps/native/android/app/*.jks
 
 apps/native/*firebase-adminsdk*.json
 .pnpm-store/

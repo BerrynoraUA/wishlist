@@ -4,10 +4,12 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 4px 0;
+  // Bottom room so the footer button's drop shadow isn't clipped. The inner
+  // .wishlistList (flex: 1; overflow-y: auto) handles scrolling, so the
+  // container itself doesn't need to clip overflow.
+  padding: 4px 0 16px;
   min-height: min(72vh, 620px);
   max-height: min(72vh, 620px);
-  overflow: hidden;
 }
 
 .scrollArea {

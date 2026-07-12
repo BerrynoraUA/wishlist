@@ -1,10 +1,12 @@
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { ItemImage } from "@/components/items/item-image";
 import { Button } from "@/components/ui/button";
-import { ActionBottomSheetConfirm } from "@/components/ui/action-bottom-sheet";
+import {
+  ActionBottomSheetConfirm,
+  type ActionBottomSheetConfirmTone,
+} from "@/components/ui/action-bottom-sheet";
 import { Icon } from "@/components/ui/icon";
-import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
-import { ItemDetailStatusBadge, ItemPriorityBadge } from "@/components/items/item-labels";
 import {
   buildReservationLabel,
   getItemPriority,
@@ -14,17 +16,10 @@ import {
   getTranslatedItemPriorityLabel,
   isDiscountActive,
 } from "@/lib/items";
+import { getValidHttpUrl } from "@/lib/urls";
 import type { Item } from "@wishlist/backend/types/item";
 import * as Clipboard from "expo-clipboard";
-import {
-  Copy,
-  ExternalLink,
-  Gift,
-  LockKeyhole,
-  Pencil,
-  ShoppingCart,
-  Trash2,
-} from "lucide-react-native";
+import { Copy, ExternalLink, LockKeyhole, Pencil, ShoppingCart, Trash2 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, Linking, Platform, View } from "react-native";
@@ -34,6 +29,7 @@ type Confirmation = {
   message: string;
   confirmLabel: string;
   isPending?: boolean;
+  tone?: ActionBottomSheetConfirmTone;
   onConfirm: () => void;
 };
 
@@ -85,6 +81,11 @@ export function WishlistItemDetailSheet({
   const priorityLabel = getTranslatedItemPriorityLabel(t, selectedItem.priority_id);
   const priority = getItemPriority(selectedItem.priority_id);
   const store = getItemStoreFromUrl(selectedItem.url);
+  const itemUrl = getValidHttpUrl(selectedItem.url) ?? "";
+  const additionalLinks = (selectedItem.additional_links ?? [])
+    .map((link) => ({ ...link, url: getValidHttpUrl(link.url) }))
+    .filter((link): link is typeof link & { url: string } => link.url !== null);
+  const hasLinks = itemUrl.length > 0 || additionalLinks.length > 0;
   const hasActiveDiscount = isDiscountActive(
     selectedItem.has_discount,
     selectedItem.discount_end_date,
@@ -107,6 +108,7 @@ export function WishlistItemDetailSheet({
       message: selectedItem.name,
       confirmLabel: reservation.isReserved ? t("Release") : t("Reserve"),
       isPending: reservePending,
+      tone: reservation.isReserved ? "default" : "brand",
       onConfirm: () => {
         setConfirmation(null);
         onToggleReserve(selectedItem.id);
@@ -120,8 +122,9 @@ export function WishlistItemDetailSheet({
     setConfirmation({
       title: reservation.isPurchased ? t("Mark as not purchased?") : t("Mark as purchased?"),
       message: selectedItem.name,
-      confirmLabel: reservation.isPurchased ? t("Undo") : t("Bought"),
+      confirmLabel: reservation.isPurchased ? t("Undo") : t("Buy"),
       isPending: boughtPending,
+      tone: reservation.isPurchased ? "destructive" : "success",
       onConfirm: () => {
         setConfirmation(null);
         onToggleBought(selectedItem.id);
@@ -142,80 +145,37 @@ export function WishlistItemDetailSheet({
 
   return (
     <>
-      <BottomSheet
-        ref={sheetRef}
-        detents={["auto"]}
-        dismissOnBack={false}
-        onDidDismiss={onClose}
-        header={
-          <Text className="mx-5 mt-5 text-2xl font-extrabold leading-7 text-text">{item.name}</Text>
-        }
-      >
+      <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
         {/* iOS sheets add their own bottom safe-area inset; only Android needs the extra padding. */}
         <View className={`gap-5 px-5 pt-5 ${Platform.OS === "ios" ? "pb-0" : "pb-4"}`}>
-          <View className="h-56 overflow-hidden rounded-2xl border border-border-subtle bg-bg-muted">
-            {item.image_url ? (
-              <StyledImage
-                source={{ uri: item.image_url }}
-                contentFit="cover"
-                className="size-full"
-              />
-            ) : (
-              <View className="flex-1 items-center justify-center">
-                <Icon as={Gift} className="size-12 text-text-light" />
-              </View>
-            )}
-          </View>
+          <ItemImage
+            item={item}
+            reservationLabel={!isOwner ? reservationLabel : null}
+            purchased={reservation.isPurchased}
+            reserved={!isOwner && reservation.isReserved}
+            priority={priority}
+            priorityLabel={priorityLabel}
+            salePercentOff={salePercentOff}
+            showDiscountPrice={hasActiveDiscount}
+            size="detail"
+          />
 
           <View className="gap-3">
+            <Text className="text-2xl font-extrabold leading-7 text-text">{item.name}</Text>
+
             {item.description ? (
               <Text className="text-sm leading-6 text-text-muted">{item.description}</Text>
             ) : null}
-
-            <View className="flex-row flex-wrap gap-2">
-              {item.price ? (
-                hasActiveDiscount && item.discount_price ? (
-                  <View className="flex-row items-center gap-2 rounded-full bg-brand-lighter px-3 py-1.5">
-                    <Text className="text-sm font-extrabold text-brand">
-                      {item.currency ? `${item.currency} ` : ""}
-                      {item.discount_price}
-                    </Text>
-                    <Text className="text-xs font-bold text-text-muted line-through">
-                      {item.currency ? `${item.currency} ` : ""}
-                      {item.price}
-                    </Text>
-                  </View>
-                ) : (
-                  <Text className="rounded-full bg-brand-lighter px-3 py-1.5 text-sm font-extrabold text-brand">
-                    {item.currency ? `${item.currency} ` : ""}
-                    {item.price}
-                  </Text>
-                )
-              ) : null}
-              {salePercentOff != null ? (
-                <Text className="rounded-full bg-danger px-3 py-1.5 text-sm font-extrabold text-white">
-                  {t("Sale -{percent}%", { percent: salePercentOff })}
-                </Text>
-              ) : null}
-              {priority && priorityLabel ? (
-                <ItemPriorityBadge priority={priority} label={priorityLabel} />
-              ) : null}
-              {reservationLabel ? (
-                <ItemDetailStatusBadge
-                  label={reservationLabel}
-                  purchased={reservation.isPurchased}
-                />
-              ) : null}
-            </View>
           </View>
 
-          {item.url || item.additional_links?.length ? (
+          {hasLinks ? (
             <View className="gap-2">
-              {item.url ? (
+              {itemUrl ? (
                 <View className="flex-row gap-2">
                   <Button
-                    variant="outline"
-                    onPress={() => openLink(item.url)}
+                    variant="ghost"
+                    size="lg"
+                    onPress={() => openLink(itemUrl)}
                     className="min-w-0 flex-1 justify-start"
                   >
                     <Icon as={ExternalLink} className="size-4 text-text" />
@@ -225,13 +185,13 @@ export function WishlistItemDetailSheet({
                     variant="outline"
                     size="icon"
                     accessibilityLabel={t("Copy link")}
-                    onPress={() => void copyLink(item.url)}
+                    onPress={() => void copyLink(itemUrl)}
                   >
                     <Icon as={Copy} className="size-4 text-text" />
                   </Button>
                 </View>
               ) : null}
-              {item.additional_links?.map((link, index) => (
+              {additionalLinks.map((link, index) => (
                 <View key={`${link.url}-${index}`} className="flex-row gap-2">
                   <Button
                     variant="outline"
@@ -289,13 +249,14 @@ export function WishlistItemDetailSheet({
               <View className="gap-2">
                 {onToggleReserve ? (
                   <Button
-                    variant="outline"
+                    variant="ghost"
+                    size="lg"
                     disabled={!reservation.canToggleReservation || reservePending}
                     onPress={confirmReservation}
                     className={
                       reservation.isReserved
-                        ? "border-brand bg-brand"
-                        : "border-brand/25 bg-brand-lighter"
+                        ? "w-full rounded-lg border border-brand bg-brand"
+                        : "w-full rounded-lg border border-brand/25 bg-brand-lighter"
                     }
                   >
                     {reservePending ? (
@@ -322,13 +283,14 @@ export function WishlistItemDetailSheet({
                 ) : null}
                 {onToggleBought ? (
                   <Button
-                    variant="outline"
+                    variant="ghost"
+                    size="lg"
                     disabled={!reservation.canToggleBought || boughtPending}
                     onPress={confirmBought}
                     className={
                       reservation.isPurchased
-                        ? "border-[#15803d] bg-[#16a34a1f]"
-                        : "border-border-subtle bg-card-bg"
+                        ? "w-full rounded-lg border border-destructive/35 bg-danger-bg"
+                        : "w-full rounded-xl border border-success/70 bg-success-bg"
                     }
                   >
                     {boughtPending ? (
@@ -336,11 +298,12 @@ export function WishlistItemDetailSheet({
                     ) : null}
                     <Icon
                       as={ShoppingCart}
-                      className="size-4"
-                      color={reservation.isPurchased ? "#15803d" : undefined}
+                      className={
+                        reservation.isPurchased ? "size-4 text-destructive" : "size-4 text-success"
+                      }
                     />
-                    <Text style={reservation.isPurchased ? { color: "#15803d" } : undefined}>
-                      {reservation.isPurchased ? t("Purchased") : t("Bought")}
+                    <Text className={reservation.isPurchased ? "text-destructive" : "text-success"}>
+                      {reservation.isPurchased ? t("Undo") : t("Buy")}
                     </Text>
                   </Button>
                 ) : null}
@@ -355,6 +318,7 @@ export function WishlistItemDetailSheet({
         message={confirmation?.message ?? ""}
         confirmLabel={confirmation?.confirmLabel ?? ""}
         isPending={confirmation?.isPending}
+        tone={confirmation?.tone}
         onClose={() => setConfirmation(null)}
         onConfirm={() => confirmation?.onConfirm()}
       />

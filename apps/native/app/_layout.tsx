@@ -18,9 +18,11 @@ import {
   writeCachedNativeThemeSettings,
 } from "@/lib/theme";
 import { upsertKnownAccount } from "@/lib/known-accounts";
+import { AnimatedSplash, MarkAppReady } from "@/components/splash/animated-splash";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { SubscriptionProvider } from "@/providers/subscription-provider";
 import { UserGuideProvider } from "@/components/user-guide/user-guide-provider";
+import { AppStateLifecycle } from "@/components/providers/native-query-lifecycle";
 import { ThemeProvider } from "expo-router/react-navigation";
 import { PortalHost } from "@rn-primitives/portal";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
@@ -69,43 +71,46 @@ export default function RootLayout() {
   const navigationTheme = useNavigationTheme(theme);
 
   return (
-    <PostHogProvider
-      apiKey={posthogEnabled ? posthogApiKey : "__POSTHOG_DISABLED__"}
-      options={{
-        host: posthogHost,
-        disabled: !posthogEnabled,
-      }}
-      autocapture={{ captureScreens: false }}
-    >
-      <GTProvider
-        config={gtConfig}
-        devApiKey={process.env.EXPO_PUBLIC_GT_DEV_API_KEY}
-        loadTranslations={loadTranslations}
-        projectId={process.env.EXPO_PUBLIC_GT_PROJECT_ID}
-        renderSettings={{
-          method: "skeleton",
+    <AnimatedSplash>
+      <PostHogProvider
+        apiKey={posthogEnabled ? posthogApiKey : "__POSTHOG_DISABLED__"}
+        options={{
+          host: posthogHost,
+          disabled: !posthogEnabled,
         }}
+        autocapture={{ captureScreens: false }}
       >
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <SubscriptionProvider>
-              <PostHogScreenTracker />
-              <ThemeProvider value={navigationTheme}>
-                <SafeAreaProvider>
-                  <ReanimatedTrueSheetProvider>
-                    <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
-                    <UserGuideProvider>
-                      <AuthGate />
-                      <PortalHost />
-                    </UserGuideProvider>
-                  </ReanimatedTrueSheetProvider>
-                </SafeAreaProvider>
-              </ThemeProvider>
-            </SubscriptionProvider>
-          </AuthProvider>
-        </QueryClientProvider>
-      </GTProvider>
-    </PostHogProvider>
+        <GTProvider
+          config={gtConfig}
+          devApiKey={process.env.EXPO_PUBLIC_GT_DEV_API_KEY}
+          loadTranslations={loadTranslations}
+          projectId={process.env.EXPO_PUBLIC_GT_PROJECT_ID}
+          renderSettings={{
+            method: "skeleton",
+          }}
+        >
+          <QueryClientProvider client={queryClient}>
+            <AppStateLifecycle />
+            <AuthProvider>
+              <SubscriptionProvider>
+                <PostHogScreenTracker />
+                <ThemeProvider value={navigationTheme}>
+                  <SafeAreaProvider>
+                    <ReanimatedTrueSheetProvider>
+                      <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
+                      <UserGuideProvider>
+                        <AuthGate />
+                        <PortalHost />
+                      </UserGuideProvider>
+                    </ReanimatedTrueSheetProvider>
+                  </SafeAreaProvider>
+                </ThemeProvider>
+              </SubscriptionProvider>
+            </AuthProvider>
+          </QueryClientProvider>
+        </GTProvider>
+      </PostHogProvider>
+    </AnimatedSplash>
   );
 }
 
@@ -132,6 +137,7 @@ function AuthGate() {
 
   return (
     <>
+      <MarkAppReady />
       <AuthRedirector />
       <RootStack initialRouteName="(auth)" />
     </>
@@ -259,7 +265,12 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <MarkAppReady />
+      {children}
+    </>
+  );
 }
 
 function PostHogScreenTracker() {

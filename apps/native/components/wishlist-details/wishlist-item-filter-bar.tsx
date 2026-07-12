@@ -1,5 +1,4 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
-import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,9 +9,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import {
+  ITEM_FILTER_PANEL_HEIGHT,
+  SlideOutFilterPanel,
+} from "@/components/ui/slide-out-filter-panel";
 import { Text } from "@/components/ui/text";
 import { PriorityFilterIcon, StatusFilterIcon } from "@/components/items/item-labels";
-import { GuideTarget } from "@/components/user-guide/guide-target";
 import { useSettings } from "@/hooks/use-settings";
 import {
   DEFAULT_ITEM_SORT,
@@ -22,7 +24,7 @@ import {
   getItemStatusOptions,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
-import { ChevronsUpDown, Plus, Search, SlidersHorizontal, X } from "lucide-react-native";
+import { ChevronsUpDown, Search, SlidersHorizontal, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
@@ -52,7 +54,6 @@ export function WishlistItemFilterBar({
   itemsCount,
   onChange,
   onReset,
-  onAddItem,
   open,
   onOpenChange,
 }: {
@@ -60,7 +61,6 @@ export function WishlistItemFilterBar({
   itemsCount: number;
   onChange: (patch: Partial<WishlistItemFilterState>) => void;
   onReset: () => void;
-  onAddItem?: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -117,160 +117,155 @@ export function WishlistItemFilterBar({
   ];
 
   return (
-    <View className="gap-4">
+    <View>
       <View className="flex-row items-center justify-between gap-3">
-        <View className="min-w-0 flex-1 flex-row items-center gap-3">
-          <Text className="text-xl font-extrabold tracking-tight text-text">
-            {itemsCount === 1 ? t("1 Item") : t("{count} Items", { count: itemsCount })}
-          </Text>
-          <Button
-            variant="outline"
-            size="lg"
-            accessibilityLabel={t("Show item filters")}
-            accessibilityState={{ expanded: open }}
-            onPress={() => onOpenChange(!open)}
-            className={cn(
-              "h-10 w-10 min-w-10 shrink-0 rounded-full border-border-subtle bg-card-bg p-0 sm:h-10 sm:w-10 sm:min-w-10",
-              open && "border-brand bg-brand-lighter",
-            )}
-          >
-            <Icon as={SlidersHorizontal} className={cn("size-4 text-text", open && "text-brand")} />
-          </Button>
+        <Text
+          className="min-w-0 flex-1 text-xl font-extrabold tracking-tight text-text"
+          numberOfLines={1}
+        >
+          {itemsCount === 1 ? t("1 Item") : t("{count} Items", { count: itemsCount })}
+        </Text>
+        <View className="shrink-0 flex-row items-center gap-3">
           {active ? (
             <Button
               variant="destructive"
-              size="icon"
+              size="icon-lg"
               accessibilityLabel={t("Clear filters")}
               onPress={onReset}
-              className="h-11 w-11 shrink-0 rounded-full"
+              className="shrink-0 rounded-full"
             >
               <Icon as={X} className="size-4 text-white" />
             </Button>
           ) : null}
+          <Button
+            variant="outline"
+            size="icon-lg"
+            accessibilityLabel={t("Show item filters")}
+            accessibilityState={{ expanded: open }}
+            onPress={() => onOpenChange(!open)}
+            className="shrink-0 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg"
+          >
+            <Icon as={SlidersHorizontal} className="size-4 text-text" />
+          </Button>
         </View>
-        {onAddItem ? (
-          <GuideTarget id="wishlist-add-item">
-            <AnimatedGradientBackgroundButton
-              accessibilityLabel={t("Add item")}
-              Icon={<Icon as={Plus} className="size-4 text-primary-foreground" />}
-              onPress={onAddItem}
-              title={t("Add Item")}
-            />
-          </GuideTarget>
-        ) : null}
       </View>
 
-      {open ? (
-        <View className="gap-3">
-          <View className="flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
-            <Icon as={Search} className="size-4 text-text-muted" />
-            <Input
-              value={filters.search}
-              onChangeText={(search) => onChange({ search })}
-              placeholder={t("Search items...")}
-              returnKeyType="search"
-              className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
-            />
-            {filters.search.length > 0 ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                accessibilityLabel={t("Clear search")}
-                onPress={() => onChange({ search: "" })}
-                className="size-9 shrink-0 rounded-full"
-              >
-                <Icon as={X} className="size-4 text-text-muted" />
-              </Button>
-            ) : null}
-          </View>
+      <SlideOutFilterPanel open={open} className="pb-1 pt-4" maxHeight={ITEM_FILTER_PANEL_HEIGHT}>
+        <View className="flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
+          <Icon as={Search} className="size-4 text-muted-foreground/50" />
+          <Input
+            value={filters.search}
+            onChangeText={(search) => onChange({ search })}
+            placeholder={t("Search items...")}
+            returnKeyType="search"
+            className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
+          />
+          {filters.search.length > 0 ? (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              accessibilityLabel={t("Clear search")}
+              onPress={() => onChange({ search: "" })}
+              className="shrink-0 rounded-full"
+            >
+              <Icon as={X} className="size-4 text-text-muted" />
+            </Button>
+          ) : null}
+        </View>
 
-          <View className="w-full flex-row items-stretch gap-2">
-            <View className="min-w-0 flex-1">
-              <MultiSelectMenu
-                label={
-                  filters.statuses.length
-                    ? t("{count} statuses", { count: filters.statuses.length })
-                    : t("Status")
-                }
-                values={filters.statuses}
-                options={itemStatusOptions.map((option) => ({
-                  value: option.value,
-                  label: option.label,
-                  leading: <StatusFilterIcon status={option.value} />,
-                }))}
-                onToggle={(value) => toggleValue("statuses", value)}
-              />
-            </View>
-            <View className="min-w-0 flex-1">
-              <MultiSelectMenu
-                label={
-                  filters.priorities.length
-                    ? t("{count} priorities", { count: filters.priorities.length })
-                    : t("Priority")
-                }
-                values={filters.priorities}
-                options={itemPriorityOptions.map((option) => ({
-                  value: option.value,
-                  label: option.label,
-                  color: option.color,
-                  leading: getItemPriority(option.value) ? (
-                    <PriorityFilterIcon priority={getItemPriority(option.value)!} />
-                  ) : undefined,
-                }))}
-                onToggle={(value) => toggleValue("priorities", value)}
-              />
-            </View>
-            <View className="min-w-0 flex-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <AnimatedPressable className="h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
-                    <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
-                      {selectedSort}
-                    </Text>
-                    <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text-muted" />
-                  </AnimatedPressable>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="min-w-52">
-                  {itemSortOptions.map((option) => (
-                    <DropdownMenuItem
-                      key={option.value}
-                      onPress={() => onChange({ sort: option.value })}
-                    >
-                      <Text>{option.label}</Text>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </View>
+        <View className="w-full flex-row items-stretch gap-2">
+          <View className="min-w-0 flex-1">
+            <MultiSelectMenu
+              label={
+                filters.statuses.length
+                  ? t("{count} statuses", { count: filters.statuses.length })
+                  : t("Status")
+              }
+              values={filters.statuses}
+              options={itemStatusOptions.map((option) => ({
+                value: option.value,
+                label: option.label,
+                leading: <StatusFilterIcon status={option.value} />,
+              }))}
+              onToggle={(value) => toggleValue("statuses", value)}
+            />
           </View>
-
-          <View className="w-full flex-row items-center justify-around gap-3">
-            <Input
-              value={filters.priceMin}
-              onChangeText={(priceMin) => onChange({ priceMin })}
-              placeholder={t("From")}
-              keyboardType="decimal-pad"
-              className={cn(
-                "h-10 w-[42%] rounded-full border-border-subtle bg-card-bg",
-                filters.priceMin.trim() && "border-brand bg-brand-lighter text-brand",
-              )}
+          <View className="min-w-0 flex-1">
+            <MultiSelectMenu
+              label={
+                filters.priorities.length
+                  ? t("{count} priorities", { count: filters.priorities.length })
+                  : t("Priority")
+              }
+              values={filters.priorities}
+              options={itemPriorityOptions.map((option) => ({
+                value: option.value,
+                label: option.label,
+                color: option.color,
+                leading: getItemPriority(option.value) ? (
+                  <PriorityFilterIcon priority={getItemPriority(option.value)!} />
+                ) : undefined,
+              }))}
+              onToggle={(value) => toggleValue("priorities", value)}
             />
-            <Input
-              value={filters.priceMax}
-              onChangeText={(priceMax) => onChange({ priceMax })}
-              placeholder={t("To")}
-              keyboardType="decimal-pad"
-              className={cn(
-                "h-10 w-[42%] rounded-full border-border-subtle bg-card-bg",
-                filters.priceMax.trim() && "border-brand bg-brand-lighter text-brand",
-              )}
-            />
+          </View>
+          <View className="min-w-0 flex-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="pill"
+                  accessibilityLabel={t("Sort items")}
+                  className="w-full justify-between border-border-subtle bg-card-bg shadow-none dark:bg-card-bg"
+                >
+                  <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
+                    {selectedSort}
+                  </Text>
+                  <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="min-w-52">
+                {itemSortOptions.map((option) => (
+                  <DropdownMenuItem
+                    key={option.value}
+                    onPress={() => onChange({ sort: option.value })}
+                  >
+                    <Text>{option.label}</Text>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </View>
         </View>
-      ) : null}
+
+        <View className="w-full flex-row items-center justify-around gap-3">
+          <Input
+            value={filters.priceMin}
+            onChangeText={(priceMin) => onChange({ priceMin })}
+            placeholder={t("From")}
+            keyboardType="decimal-pad"
+            className={cn(
+              "h-11 w-[42%] rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
+              filters.priceMin.trim() &&
+                "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
+            )}
+          />
+          <Input
+            value={filters.priceMax}
+            onChangeText={(priceMax) => onChange({ priceMax })}
+            placeholder={t("To")}
+            keyboardType="decimal-pad"
+            className={cn(
+              "h-11 w-[42%] rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
+              filters.priceMax.trim() &&
+                "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
+            )}
+          />
+        </View>
+      </SlideOutFilterPanel>
 
       {chips.length > 0 ? (
-        <View className="flex-row flex-wrap gap-2">
+        <View className="mt-4 flex-row flex-wrap gap-2">
           {chips.map((chip) => (
             <AnimatedPressable
               key={chip.key}
@@ -305,13 +300,13 @@ function MultiSelectMenu({
       <DropdownMenuTrigger asChild>
         <AnimatedPressable
           className={cn(
-            "h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
-            values.length > 0 && "border-brand bg-brand-lighter",
+            "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
+            values.length > 0 ? "border-brand bg-brand-lighter" : "border-border-subtle bg-card-bg",
           )}
         >
           <Text
             className={cn(
-              "shrink text-sm font-semibold text-text-muted",
+              "shrink text-sm font-semibold text-text",
               values.length > 0 && "text-brand",
             )}
             numberOfLines={1}
@@ -320,7 +315,7 @@ function MultiSelectMenu({
           </Text>
           <Icon
             as={ChevronsUpDown}
-            className={cn("size-3.5 shrink-0 text-text-muted", values.length > 0 && "text-brand")}
+            className={cn("size-3.5 shrink-0 text-text", values.length > 0 && "text-brand")}
           />
         </AnimatedPressable>
       </DropdownMenuTrigger>

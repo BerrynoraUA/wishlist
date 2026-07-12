@@ -1,18 +1,15 @@
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
 import { TextClassContext } from "@/components/ui/text";
+import { WindowOverlay } from "@/components/ui/window-overlay";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as TooltipPrimitive from "@rn-primitives/tooltip";
 import * as React from "react";
-import { Platform } from "react-native";
 import { FadeInDown, FadeInUp, FadeOut } from "react-native-reanimated";
-import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
 const Tooltip = TooltipPrimitive.Root;
 
 const TooltipTrigger = TooltipPrimitive.Trigger;
-
-const FullWindowOverlay = Platform.OS === "ios" ? RNFullWindowOverlay : React.Fragment;
 
 function TooltipContent({
   className,
@@ -25,7 +22,9 @@ function TooltipContent({
 }) {
   return (
     <TooltipPrimitive.Portal hostName={portalHost}>
-      <FullWindowOverlay>
+      {/* @rn-primitives/tooltip does not export its root context, so the
+          hardware back press cannot be wired up; tapping the overlay closes. */}
+      <WindowOverlay>
         <TooltipPrimitive.Overlay className="absolute inset-0">
           <NativeOnlyAnimatedView
             entering={
@@ -49,7 +48,7 @@ function TooltipContent({
             </TextClassContext.Provider>
           </NativeOnlyAnimatedView>
         </TooltipPrimitive.Overlay>
-      </FullWindowOverlay>
+      </WindowOverlay>
     </TooltipPrimitive.Portal>
   );
 }

@@ -1,7 +1,6 @@
 {
   "extends": "../../packages/backend/tsconfig/next.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "jsx": "react-jsx",
     "paths": {
       "@/*": ["./src/*"],

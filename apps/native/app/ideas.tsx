@@ -5,6 +5,7 @@ import { MascotEmptyState } from "@/components/shared/mascot-empty-state";
 import { Button } from "@/components/ui/button";
 import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Icon } from "@/components/ui/icon";
+import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { useFeatureIdeas, useToggleFeatureIdeaVote } from "@/hooks/use-feature-ideas";
@@ -18,13 +19,13 @@ import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import { ArrowLeft, Clock3, Info, Lightbulb, RefreshCw } from "lucide-react-native";
 import * as React from "react";
-import { ActivityIndicator, RefreshControl, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ActivityIndicator, RefreshControl, View, useWindowDimensions } from "react-native";
 
 export default function IdeasScreen() {
   const t = useGT();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
   const ideasQuery = useFeatureIdeas();
   const toggleVote = useToggleFeatureIdeaVote();
   const [submitOpen, setSubmitOpen] = React.useState(false);
@@ -41,8 +42,6 @@ export default function IdeasScreen() {
 
   const listHeader = (
     <View className="gap-4 pb-4">
-      <FeatureIdeasTabs value={statusFilter} onChange={setStatusFilter} />
-
       <View className="flex-row items-center justify-between gap-3">
         <View className="min-w-0 flex-1 flex-row items-center gap-3">
           <Button
@@ -92,6 +91,9 @@ export default function IdeasScreen() {
     <>
       <Stack.Screen options={{ title: t("Feature Ideas") }} />
       <View className="flex-1 bg-bg">
+        <PinnedListHeader contentWidth={width - 32} onLayout={onHeaderLayout}>
+          <FeatureIdeasTabs value={statusFilter} onChange={setStatusFilter} />
+        </PinnedListHeader>
         <StyledFlashList
           data={visibleIdeas}
           renderItem={({ item }) => (
@@ -104,7 +106,7 @@ export default function IdeasScreen() {
           keyExtractor={(item) => item.id}
           className="flex-1"
           contentContainerClassName="px-4 pb-8"
-          contentContainerStyle={{ paddingTop: insets.top + 12 }}
+          contentContainerStyle={{ paddingTop }}
           ItemSeparatorComponent={() => <View className="h-3" />}
           ListHeaderComponent={listHeader}
           ListEmptyComponent={
@@ -138,6 +140,7 @@ export default function IdeasScreen() {
               refreshing={ideasQuery.isRefetching && !ideasQuery.isLoading}
               onRefresh={() => void ideasQuery.refetch()}
               tintColor="currentColor"
+              progressViewOffset={paddingTop}
             />
           }
         />

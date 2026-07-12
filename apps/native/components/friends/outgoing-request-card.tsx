@@ -5,11 +5,6 @@ import type { FriendRequestWithDetails } from "@wishlist/backend/types/friends";
 import { useGT } from "gt-react-native";
 import { ActivityIndicator, View } from "react-native";
 
-function getInitials(request: FriendRequestWithDetails) {
-  const source = request.display_name || request.nickname || "?";
-  return source.slice(0, 1).toUpperCase();
-}
-
 export function OutgoingRequestCard({
   request,
   cancelling,
@@ -26,9 +21,7 @@ export function OutgoingRequestCard({
       <View className="flex-row items-center gap-3">
         <Avatar className="size-12" alt={request.display_name || request.nickname || t("Friend")}>
           {request.avatar_url ? <AvatarImage source={{ uri: request.avatar_url }} /> : null}
-          <AvatarFallback className="bg-brand-lighter">
-            <Text className="text-base font-extrabold text-brand">{getInitials(request)}</Text>
-          </AvatarFallback>
+          <AvatarFallback className="bg-brand-lighter" initialsClassName="text-base text-brand" />
         </Avatar>
 
         <View className="min-w-0 flex-1 gap-1">

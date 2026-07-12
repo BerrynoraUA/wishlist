@@ -8,6 +8,7 @@ import {
   toggleItemVote,
   updateItem,
 } from "@/api/items";
+import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
 import { statisticsKeys, wishlistKeys } from "@/hooks/use-wishlists";
 import { normalizeItemSearch } from "@/lib/items";
 import { useAuth } from "@/providers/auth-provider";
@@ -39,6 +40,32 @@ export function useWishlistItems(wishlistId: string, params?: ItemQueryParams) {
   return useQuery({
     queryKey: itemKeys.wishlist(user?.id, wishlistId, normalizedParams),
     queryFn: () => getWishlistItems(wishlistId, normalizedParams),
+    enabled: Boolean(user?.id && wishlistId),
+  });
+}
+
+export function useInfiniteWishlistItems(
+  wishlistId: string,
+  params: ItemQueryParams,
+  pageSize: number,
+) {
+  const { user } = useAuth();
+  const normalizedParams = {
+    ...params,
+    skip: undefined,
+    take: undefined,
+    search: normalizeItemSearch(params.search) || undefined,
+  };
+
+  return useSkipTakeInfiniteQuery({
+    queryKey: itemKeys.wishlist(user?.id, wishlistId, { ...normalizedParams, take: pageSize }),
+    fetchPage: ({ skip, take }) =>
+      getWishlistItems(wishlistId, {
+        ...normalizedParams,
+        skip,
+        take,
+      }),
+    pageSize,
     enabled: Boolean(user?.id && wishlistId),
   });
 }

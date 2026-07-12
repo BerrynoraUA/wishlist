@@ -21,6 +21,7 @@ import {
   sendFriendRequest,
   updateFriendGroup,
 } from "@/api/friends";
+import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
 import { normalizeSearchQuery } from "@/lib/wishlists";
 import { useAuth } from "@/providers/auth-provider";
 import type {
@@ -61,22 +62,32 @@ export const friendKeys = {
     [...friendKeys.all, "profiles-by-ids", authUserId ?? "anonymous", idsKey] as const,
 };
 
-export function useIncomingFriendRequests(params?: PaginationParams) {
+export function useInfiniteIncomingFriendRequests(pageSize: number) {
   const { user } = useAuth();
 
-  return useQuery({
-    queryKey: friendKeys.incoming(user?.id, params),
-    queryFn: () => getIncomingFriendRequests(params),
+  return useSkipTakeInfiniteQuery({
+    queryKey: friendKeys.incoming(user?.id, { take: pageSize }),
+    fetchPage: ({ skip, take }) =>
+      getIncomingFriendRequests({
+        skip,
+        take,
+      }),
+    pageSize,
     enabled: Boolean(user?.id),
   });
 }
 
-export function useOutgoingFriendRequests(params?: PaginationParams) {
+export function useInfiniteOutgoingFriendRequests(pageSize: number) {
   const { user } = useAuth();
 
-  return useQuery({
-    queryKey: friendKeys.outgoing(user?.id, params),
-    queryFn: () => getOutgoingFriendRequests(params),
+  return useSkipTakeInfiniteQuery({
+    queryKey: friendKeys.outgoing(user?.id, { take: pageSize }),
+    fetchPage: ({ skip, take }) =>
+      getOutgoingFriendRequests({
+        skip,
+        take,
+      }),
+    pageSize,
     enabled: Boolean(user?.id),
   });
 }
@@ -145,6 +156,28 @@ export function useFriends(params?: PaginationParams) {
   });
 }
 
+export function useInfiniteFriends(params: PaginationParams, pageSize: number) {
+  const { user } = useAuth();
+  const normalizedParams = React.useMemo(
+    () => ({
+      search: normalizeSearchQuery(params.search) || undefined,
+    }),
+    [params.search],
+  );
+
+  return useSkipTakeInfiniteQuery({
+    queryKey: friendKeys.list(user?.id, { ...normalizedParams, take: pageSize }),
+    fetchPage: ({ skip, take }) =>
+      getFriends({
+        ...normalizedParams,
+        skip,
+        take,
+      }),
+    pageSize,
+    enabled: Boolean(user?.id),
+  });
+}
+
 export function useFriendGroups(params?: PaginationParams) {
   const { user } = useAuth();
   const normalizedParams = React.useMemo(
@@ -162,6 +195,28 @@ export function useFriendGroups(params?: PaginationParams) {
   return useQuery({
     queryKey: friendKeys.groupList(user?.id, normalizedParams),
     queryFn: () => getFriendGroups(normalizedParams),
+    enabled: Boolean(user?.id),
+  });
+}
+
+export function useInfiniteFriendGroups(params: PaginationParams, pageSize: number) {
+  const { user } = useAuth();
+  const normalizedParams = React.useMemo(
+    () => ({
+      search: normalizeSearchQuery(params.search) || undefined,
+    }),
+    [params.search],
+  );
+
+  return useSkipTakeInfiniteQuery({
+    queryKey: friendKeys.groupList(user?.id, { ...normalizedParams, take: pageSize }),
+    fetchPage: ({ skip, take }) =>
+      getFriendGroups({
+        ...normalizedParams,
+        skip,
+        take,
+      }),
+    pageSize,
     enabled: Boolean(user?.id),
   });
 }
@@ -250,7 +305,7 @@ export function useUpdateFriendGroup() {
   return useMutation({
     mutationFn: ({ groupId, payload }: { groupId: string; payload: FriendGroupPayload }) =>
       updateFriendGroup(groupId, payload),
-    onSuccess: async (_data, variables) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: friendKeys.groups() });
       await queryClient.invalidateQueries({ queryKey: friendKeys.groupMembersRoot() });
     },
@@ -337,7 +392,7 @@ export function useGrantWishlistGroupAccess() {
   return useMutation({
     mutationFn: ({ wishlistId, groupId }: { wishlistId: string; groupId: string }) =>
       grantWishlistGroupAccess(wishlistId, groupId),
-    onSuccess: async (_data, variables) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({
         queryKey: ["wishlist-access-list"],
@@ -357,7 +412,7 @@ export function useRevokeWishlistGroupAccess() {
   return useMutation({
     mutationFn: ({ wishlistId, groupId }: { wishlistId: string; groupId: string }) =>
       revokeWishlistGroupAccess(wishlistId, groupId),
-    onSuccess: async (_data, variables) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({
         queryKey: ["wishlist-access-list"],

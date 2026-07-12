@@ -3,10 +3,7 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { DiscoverItemCard } from "@/components/discover/discover-item-card";
 import { formatDiscoverDate, normalizeDiscoverItem } from "@/lib/discover";
-import type {
-  DiscoverItem,
-  DiscoverSection as DiscoverSectionType,
-} from "@wishlist/backend/types/discover";
+import type { DiscoverSection as DiscoverSectionType } from "@wishlist/backend/types/discover";
 import type { Item } from "@wishlist/backend/types/item";
 import { CalendarDays, Gift } from "lucide-react-native";
 import { useGT } from "gt-react-native";
@@ -31,8 +28,14 @@ export function DiscoverSection({
   onOpenItem: (item: Item, reservedByName?: string | null) => void;
 }) {
   const t = useGT();
-  const items = React.useMemo(() => section.items.map(normalizeDiscoverItem), [section.items]);
-  const initials = section.owner.trim().slice(0, 2).toUpperCase() || "?";
+  const items = React.useMemo(
+    () =>
+      section.items.map((source) => ({
+        item: normalizeDiscoverItem(source),
+        reservedByName: source.reservedByName ?? null,
+      })),
+    [section.items],
+  );
   const visibleDate = formatDiscoverDate(section.date);
 
   return (
@@ -42,9 +45,7 @@ export function DiscoverSection({
           {avatarUrl || section.avatar_url ? (
             <AvatarImage source={{ uri: avatarUrl ?? section.avatar_url ?? "" }} />
           ) : null}
-          <AvatarFallback>
-            <Text className="text-sm font-extrabold text-text-muted">{initials}</Text>
-          </AvatarFallback>
+          <AvatarFallback initialsClassName="text-sm" />
         </Avatar>
         <View className="min-w-0 flex-1">
           <Text className="text-base font-extrabold text-text" numberOfLines={1}>
@@ -65,11 +66,7 @@ export function DiscoverSection({
 
       {items.length > 0 ? (
         <View className="flex-row flex-wrap" style={{ gap: gridGap }}>
-          {items.map((item) => {
-            const reservedByName =
-              section.items.find((entry: DiscoverItem) => entry.id === item.id)?.reservedByName ??
-              null;
-
+          {items.map(({ item, reservedByName }) => {
             return (
               <DiscoverItemCard
                 key={item.id}

@@ -56,7 +56,7 @@ export function SubmitFeatureIdeaSheet({
   }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} dismissOnBack={false} onDidDismiss={onClose}>
+    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
       <View className="px-5 pb-6 pt-5">
         <View className="gap-4">
           <View className="gap-1">

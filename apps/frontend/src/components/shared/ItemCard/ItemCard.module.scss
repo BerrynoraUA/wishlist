@@ -34,6 +34,62 @@
   }
 }
 
+/* Reserved/purchased: grayed out and static (still clickable), badge stays vivid. */
+.card.cardReserved {
+  cursor: default;
+
+  &:hover,
+  &:active {
+    transform: none;
+    box-shadow: none;
+  }
+
+  &:hover .imageWrapper img {
+    transform: none;
+  }
+
+  .imageFrame img,
+  .placeholder {
+    filter: grayscale(1);
+    opacity: 0.55;
+  }
+
+  .info {
+    strong,
+    .description,
+    .price,
+    .store {
+      opacity: 0.5;
+    }
+  }
+}
+
+/* Big diagonal "Reserved"/"Purchased" stamp across the image. */
+.reservedStamp {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: $radius-lg $radius-lg 0 0;
+  pointer-events: none;
+
+  span {
+    width: 170%;
+    padding: 6px 0;
+    text-align: center;
+    transform: rotate(-20deg);
+    background: rgba(17, 24, 39, 0.72);
+    color: var(--color-brand);
+    font-size: clamp(15px, 13cqw, 30px);
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+}
+
 .cardColored {
   border-color: color-mix(in srgb, var(--card-accent-color) 70%, transparent) !important;
   box-shadow: 0 16px 36px color-mix(in srgb, var(--card-accent-color) 30%, transparent);
@@ -81,6 +137,7 @@
   background: var(--gradient-placeholder);
   overflow: visible;
   border-radius: $radius-lg $radius-lg 0 0;
+  container-type: inline-size;
 
   img {
     display: block;

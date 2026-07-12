@@ -11,18 +11,24 @@ import { useAcceptSecretSantaInvite, useDeclineSecretSantaInvite } from "@/hooks
 import { useDeleteNotification } from "@/hooks/use-notifications";
 import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 
-// Notification type: 0 = Secret Santa, 1/3/4/5 = wishlist-related, 2 = Friends
-function getNotificationHref(n: Notification): string | null {
+// Every notification routes somewhere. Type map: 0 = Secret Santa,
+// 1/3/4/5/7/8 = wishlist-related, 2 = Friends, 6 = Added to a friend group.
+function getNotificationHref(n: Notification): string {
   switch (n.type) {
-    case 1:
-    case 3:
-    case 4:
-    case 5:
-      return n.entity_id ? `/wishlist/${n.entity_id}` : null;
-    case 2:
+    case 0: // Secret Santa invite — entity_id is the invite, not the event, so go to the list
+      return "/secret-santa";
+    case 1: // item reserved
+    case 3: // item bought
+    case 4: // new wishlist
+    case 5: // upcoming event
+    case 7: // wishlist access granted
+    case 8: // reserved item updated
+      return n.entity_id ? `/wishlist/${n.entity_id}` : "/home";
+    case 2: // friend request / friends
+    case 6: // added to a friend group
       return "/friends";
     default:
-      return null;
+      return "/home";
   }
 }
 
@@ -166,7 +172,7 @@ export function NotificationsPanel({
                     <span>{formatNotificationTime(n.created_at, t)}</span>
                   </div>
                   {isInvite && (
-                    <div className={styles.inviteActions}>
+                    <div className={styles.inviteActions} onClick={(e) => e.stopPropagation()}>
                       <Button
                         variant="success"
                         size="sm"

@@ -1,10 +1,13 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Icon } from "@/components/ui/icon";
+import { useHideBackButton } from "@/hooks/use-hide-back-button";
 import { cn } from "@/lib/utils";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import { ChevronLeft } from "lucide-react-native";
 import * as React from "react";
+import { StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type FloatingBackButtonProps = {
@@ -18,6 +21,8 @@ type FloatingBackButtonProps = {
 const IOS_TAB_BAR_CLEARANCE = 45;
 /** Android's tab bar is opaque and outside the screen, so a small inset is enough. */
 const ANDROID_BOTTOM = 45;
+const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
+const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 9999 }];
 
 /**
  * Shared floating "back" button used on detail screens.
@@ -38,6 +43,9 @@ export function FloatingBackButton({
   const t = useGT();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [hidden] = useHideBackButton();
+
+  if (hidden) return null;
 
   const bottom =
     process.env.EXPO_OS === "ios" ? insets.bottom + IOS_TAB_BAR_CLEARANCE : ANDROID_BOTTOM;
@@ -48,11 +56,14 @@ export function FloatingBackButton({
       accessibilityLabel={accessibilityLabel ?? t("Back")}
       onPress={onPress ?? (() => router.back())}
       className={cn(
-        "absolute left-3 z-20 size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg shadow-[0px_10px_22px_rgba(15,23,42,0.22)]",
+        "absolute left-3 z-20 size-14 items-center justify-center rounded-full",
+        // Native Liquid Glass (iOS 26+) replaces the translucent CSS fill; elsewhere keep it.
+        HAS_LIQUID_GLASS ? "" : "border border-glass-border bg-glass-bg",
         className,
       )}
       style={{ bottom }}
     >
+      {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
       <Icon as={ChevronLeft} className="size-7 text-text" />
     </AnimatedPressable>
   );

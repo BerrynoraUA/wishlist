@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Lock, LockOpen, ShoppingCart } from "lucide-react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
@@ -25,7 +25,7 @@ type ActionMeta = {
   confirmLabel: string;
   confirmVariant: "primary" | "secondary" | "danger" | "success" | "accent";
   toneClass: string;
-  icon: typeof Heart;
+  icon: typeof ShoppingCart;
 };
 
 export function ActionConfirmModal({
@@ -55,7 +55,7 @@ export function ActionConfirmModal({
           confirmLabel: t("Reserve", { $id: "action.reserve.confirm" }),
           confirmVariant: "primary",
           toneClass: "reserve",
-          icon: Heart,
+          icon: LockOpen,
         };
       case "unreserve":
         return {
@@ -71,7 +71,7 @@ export function ActionConfirmModal({
           confirmLabel: t("Release", { $id: "action.unreserve.confirm" }),
           confirmVariant: "danger",
           toneClass: "unreserve",
-          icon: Heart,
+          icon: Lock,
         };
       case "purchase":
         return {
@@ -87,7 +87,7 @@ export function ActionConfirmModal({
           confirmLabel: t("Mark purchased", {
             $id: "action.purchase.confirm",
           }),
-          confirmVariant: "success",
+          confirmVariant: "primary",
           toneClass: "purchase",
           icon: ShoppingCart,
         };

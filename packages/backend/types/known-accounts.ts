@@ -15,6 +15,15 @@ export type KnownAccount = {
   themePreference?: "light" | "dark" | "system" | null;
 };
 
+const SUPPORTED_AUTH_PROVIDERS = ["email", "google", "apple", "facebook"] as const;
+
+/** Narrow a raw auth-provider string to a known provider, defaulting to "email". */
+export function toKnownAccountProvider(raw: string): KnownAccountProvider {
+  return (SUPPORTED_AUTH_PROVIDERS as readonly string[]).includes(raw)
+    ? (raw as KnownAccountProvider)
+    : "email";
+}
+
 export const KNOWN_ACCOUNTS_STORAGE_KEY = "wishlist:known-accounts:v1";
 export const KNOWN_ACCOUNTS_CHANGE_EVENT = "wishlist:known-accounts-change";
 export const KNOWN_ACCOUNTS_LIMIT = 5;

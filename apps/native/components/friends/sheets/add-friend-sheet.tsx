@@ -85,12 +85,7 @@ export function AddFriendSheet({
   const canSearch = debouncedQuery.length >= 3;
 
   return (
-    <BottomSheet
-      ref={sheetRef}
-      detents={["auto"]}
-      dismissOnBack={false}
-      onDidDismiss={() => onOpenChange(false)}
-    >
+    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={() => onOpenChange(false)}>
       <View className="gap-5 px-5 pb-5 pt-5">
         <View className="gap-2">
           <Text className="text-lg font-extrabold text-text">{t("Invite friends")}</Text>
@@ -117,7 +112,7 @@ export function AddFriendSheet({
         <View className="gap-3">
           <Text className="text-xs font-extrabold uppercase text-text-muted">{t("Or search")}</Text>
           <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
-            <Icon as={Search} className="size-4 text-text-muted" />
+            <Icon as={Search} className="size-4 text-muted-foreground/50" />
             <Input
               value={query}
               onChangeText={(value) => {
@@ -126,7 +121,7 @@ export function AddFriendSheet({
               }}
               placeholder={t("username")}
               autoCapitalize="none"
-              className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none"
+              className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
               returnKeyType="search"
             />
             {query.length > 0 ? (

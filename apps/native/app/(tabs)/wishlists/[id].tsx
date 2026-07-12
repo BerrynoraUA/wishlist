@@ -1,13 +1,8 @@
 import { InlineState } from "@/components/shared/inline-state";
-import { Button } from "@/components/ui/button";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
-import {
-  InstantStickyHeaderOverlay,
-  useInstantStickyHeader,
-} from "@/components/ui/instant-sticky-header";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
 import { WishlistItemDetailSheet } from "@/components/wishlist-details/sheets/wishlist-item-detail-sheet";
 import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheets/wishlist-item-create-edit-sheet";
@@ -17,6 +12,7 @@ import {
   useUserGuideStepCompletion,
   useUserGuideTargetRegistration,
 } from "@/components/user-guide/user-guide-provider";
+import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import {
   wishlistItemFilterBarHasActiveFilters,
   WishlistItemFilterBar,
@@ -29,11 +25,14 @@ import {
   ShareFeedbackSheet,
   type ShareFeedback,
 } from "@/components/wishlists/sheets/share-feedback-sheet";
+import { WishlistShareSheet } from "@/components/wishlists/sheets/wishlist-share-sheet";
 import { WishlistGrantAccessSheet } from "@/components/wishlists/sheets/wishlist-grant-access-sheet";
 import { createWishlistShareToken } from "@/api/share";
 import { useCheckFriendship, useProfilesByIds } from "@/hooks/use-friends";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import {
   useItemVotes,
+  useInfiniteWishlistItems,
   useToggleItemBought,
   useToggleItemReservation,
   useToggleItemVote,
@@ -53,14 +52,13 @@ import {
 } from "@/lib/items";
 import { chunkRows } from "@/lib/layout";
 import { cn } from "@/lib/utils";
-import { getWishlistAccentClass, paginationFlags } from "@/lib/wishlists";
+import { getWishlistAccentClass } from "@/lib/wishlists";
 import type { Item } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View, useWindowDimensions } from "react-native";
-import * as Clipboard from "expo-clipboard";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -74,7 +72,6 @@ const EMPTY_FILTERS: WishlistItemFilterState = {
 };
 
 type SheetState =
-  | { type: "create" }
   | { type: "edit"; item: Item }
   | { type: "detail"; item: Item }
   | { type: "delete"; item: Item }
@@ -99,12 +96,13 @@ export default function WishlistDetailScreen() {
   const wishlistQuery = useWishlistById(wishlistId);
   const wishlist = wishlistQuery.data;
   const currentUser = useCurrentUserId();
-  const [page, setPage] = React.useState(1);
   const [filters, setFilters] = React.useState<WishlistItemFilterState>(EMPTY_FILTERS);
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const [shareFeedback, setShareFeedback] = React.useState<ShareFeedback>(null);
+  const [shareLink, setShareLink] = React.useState<string | null>(null);
+  const [shareWishlist, setShareWishlist] = React.useState<Wishlist | null>(null);
   const [shareGuideCompletionPending, setShareGuideCompletionPending] = React.useState(false);
   const canEditWishlist = Boolean(wishlist?.is_owner || wishlist?.can_edit);
   const friendshipCheckUserId =
@@ -130,8 +128,6 @@ export default function WishlistDetailScreen() {
     }
 
     return {
-      skip: (page - 1) * WISHLIST_ITEMS_PAGE_SIZE,
-      take: WISHLIST_ITEMS_PAGE_SIZE,
       search: debouncedSearch,
       sort: filters.sort,
       statuses,
@@ -139,21 +135,25 @@ export default function WishlistDetailScreen() {
       priceMin: parseOptionalNumber(filters.priceMin),
       priceMax: parseOptionalNumber(filters.priceMax),
     };
-  }, [debouncedSearch, filters, page]);
+  }, [debouncedSearch, filters]);
 
-  const itemsQuery = useWishlistItems(wishlistId, itemQueryParams);
+  const itemsQuery = useInfiniteWishlistItems(
+    wishlistId,
+    itemQueryParams,
+    WISHLIST_ITEMS_PAGE_SIZE,
+  );
   const allItemsQuery = useWishlistItems(wishlistId, { skip: 0, take: 1 });
-  const items = itemsQuery.data ?? [];
+  const { items, loadMore: loadMoreItems } = useInfiniteListData(itemsQuery);
   const itemIds = React.useMemo(() => items.map((item) => item.id), [items]);
   const votesQuery = useItemVotes(itemIds);
   const toggleVote = useToggleItemVote(itemIds);
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
-  const completeOpenItemStep = useUserGuideStepCompletion(5);
-  const completeShareStep = useUserGuideStepCompletion(7);
-  const completeManageAccessStep = useUserGuideStepCompletion(8);
+  const completeShareStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.shareWishlist);
+  const completeManageAccessStep = useUserGuideStepCompletion(
+    USER_GUIDE_STEP_IDS.manageWishlistAccess,
+  );
   const { requestMeasure } = useUserGuideTargetRegistration();
-  const stickyHeader = useInstantStickyHeader({ scrollListener: requestMeasure });
   const reservedByIds = React.useMemo(
     () => [
       ...new Set(items.map((item) => item.reserved_by).filter((value): value is string => !!value)),
@@ -172,7 +172,6 @@ export default function WishlistDetailScreen() {
   }, [profilesQuery.data, t]);
   const filtersActive = wishlistItemFilterBarHasActiveFilters(filters);
   const hasAnyItems = (allItemsQuery.data?.length ?? 0) > 0;
-  const pagination = paginationFlags(page, items.length, WISHLIST_ITEMS_PAGE_SIZE);
   const contentWidth = Math.min(width - 32, 1200);
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;
@@ -190,16 +189,14 @@ export default function WishlistDetailScreen() {
 
   function updateFilters(patch: Partial<WishlistItemFilterState>) {
     setFilters((current) => ({ ...current, ...patch }));
-    setPage(1);
   }
 
   function resetFilters() {
     setFilters(EMPTY_FILTERS);
     setDebouncedSearch("");
-    setPage(1);
   }
 
-  async function handleShareWishlist() {
+  const handleShareWishlist = React.useCallback(async () => {
     if (!wishlist) return;
     try {
       const token = await createWishlistShareToken(wishlist.id);
@@ -208,14 +205,9 @@ export default function WishlistDetailScreen() {
         "",
       );
       const link = `${baseUrl}/share?token=${encodeURIComponent(token)}`;
-      await Clipboard.setStringAsync(link);
+      setShareWishlist(wishlist);
+      setShareLink(link);
       setShareGuideCompletionPending(true);
-      setShareFeedback({
-        variant: "success",
-        title: t("Link copied"),
-        description: t("Wishlist share link is ready to send."),
-        link,
-      });
     } catch (error) {
       setShareFeedback({
         variant: "error",
@@ -224,7 +216,7 @@ export default function WishlistDetailScreen() {
       });
       setShareGuideCompletionPending(false);
     }
-  }
+  }, [t, wishlist]);
 
   function handleToggleSelectedReservation(itemId: string) {
     if (sheet?.type !== "detail" || sheet.item.id !== itemId) return;
@@ -280,27 +272,15 @@ export default function WishlistDetailScreen() {
     });
   }
 
-  function renderFilterHeader(measure: boolean) {
+  function renderFilterHeader() {
     return (
-      <View
-        className="z-2 bg-bg pb-4"
-        onLayout={measure ? stickyHeader.onHeaderLayout : undefined}
-        style={{ paddingTop: insets.top + 8 }}
-      >
+      <View className="z-2 bg-bg pb-4 pt-4">
         <View className="max-w-300 self-center" style={{ width: contentWidth }}>
           <WishlistItemFilterBar
             filters={filters}
             itemsCount={wishlist?.items_count ?? 0}
             onChange={updateFilters}
             onReset={resetFilters}
-            onAddItem={
-              canEditWishlist
-                ? () => {
-                    completeOpenItemStep();
-                    setSheet({ type: "create" });
-                  }
-                : undefined
-            }
             open={filtersOpen}
             onOpenChange={setFiltersOpen}
           />
@@ -313,7 +293,7 @@ export default function WishlistDetailScreen() {
     ({ item }: { item: WishlistItemListRow }) =>
       "type" in item && item.type === "header" ? (
         wishlist ? (
-          <View onLayout={stickyHeader.onAnchorLayout}>
+          <View>
             <WishlistItemHeader
               wishlist={wishlist}
               isOwner={wishlist.is_owner}
@@ -337,14 +317,13 @@ export default function WishlistDetailScreen() {
           </View>
         ) : null
       ) : "type" in item ? (
-        renderFilterHeader(true)
+        renderFilterHeader()
       ) : (
         <View
           className="flex-row"
           style={{
             alignSelf: "center",
             gap: gridGap,
-            opacity: itemsQuery.isFetching ? 0.6 : 1,
             width: contentWidth,
           }}
         >
@@ -371,6 +350,12 @@ export default function WishlistDetailScreen() {
                   canEditWishlist ? () => setSheet({ type: "delete", item: entry }) : undefined
                 }
                 onToggleVote={canEditWishlist ? undefined : () => toggleVote.mutate(entry.id)}
+                onToggleReserve={
+                  canEditWishlist ? undefined : () => toggleReservation.mutate(entry.id)
+                }
+                onToggleBought={canEditWishlist ? undefined : () => toggleBought.mutate(entry.id)}
+                reservePending={toggleReservation.isPending}
+                boughtPending={toggleBought.isPending}
               />
             </Animated.View>
           ))}
@@ -384,17 +369,17 @@ export default function WishlistDetailScreen() {
       filters,
       filtersOpen,
       gridGap,
+      handleShareWishlist,
       insets.top,
-      itemsQuery.isFetching,
       profileNamesById,
       showDiscountBadge,
       toggleVote,
+      toggleReservation,
+      toggleBought,
       votesQuery.data,
       wishlist,
       t,
       completeManageAccessStep,
-      completeOpenItemStep,
-      completeShareStep,
     ],
   );
 
@@ -445,9 +430,12 @@ export default function WishlistDetailScreen() {
             }
             className="flex-1"
             contentContainerClassName="bg-bg pb-8"
-            onScroll={stickyHeader.onScroll}
-            scrollEventThrottle={1}
+            onScroll={requestMeasure}
+            scrollEventThrottle={16}
             ItemSeparatorComponent={ItemRowSeparator}
+            onEndReached={loadMoreItems}
+            isLoadingMore={itemsQuery.isFetchingNextPage}
+            getItemType={(row) => ("type" in row ? row.type : "item-row")}
             ListFooterComponent={
               <View
                 className="gap-5"
@@ -461,38 +449,13 @@ export default function WishlistDetailScreen() {
                 {itemsQuery.isError ? <InlineState message={t("Failed to load items.")} /> : null}
                 {!itemsQuery.isLoading && !itemsQuery.isError && items.length === 0 ? (
                   <InlineState
-                    mascot={
-                      filtersActive && hasAnyItems
-                        ? "magnifying-glass"
-                        : canEditWishlist
-                          ? "gift-in-hands"
-                          : "empty-hands-shrug"
-                    }
+                    mascot={filtersActive && hasAnyItems ? "magnifying-glass" : "gift-in-hands"}
                     message={
                       filtersActive && hasAnyItems
                         ? t("No items match your filters.")
                         : t("No items yet.")
                     }
                   />
-                ) : null}
-                {pagination.showPagination ? (
-                  <View className="flex-row items-center justify-center gap-2 pt-1">
-                    <Button
-                      variant="outline"
-                      disabled={!pagination.hasPrevPage}
-                      onPress={() => setPage((current) => Math.max(1, current - 1))}
-                    >
-                      <Text>{t("Previous")}</Text>
-                    </Button>
-                    <Text className="px-2 text-sm font-bold text-text-muted">{page}</Text>
-                    <Button
-                      variant="outline"
-                      disabled={!pagination.hasNextPage}
-                      onPress={() => setPage((current) => current + 1)}
-                    >
-                      <Text>{t("Next")}</Text>
-                    </Button>
-                  </View>
                 ) : null}
               </View>
             }
@@ -502,21 +465,15 @@ export default function WishlistDetailScreen() {
               filters,
               filtersOpen,
               gridGap,
-              isFetching: itemsQuery.isFetching,
             }}
           />
         )}
-        {wishlist ? (
-          <InstantStickyHeaderOverlay ready={stickyHeader.ready} style={stickyHeader.overlayStyle}>
-            {renderFilterHeader(false)}
-          </InstantStickyHeaderOverlay>
-        ) : null}
         <FloatingBackButton />
         <WishlistItemCreateEditSheet
-          mode={sheet?.type === "edit" ? "edit" : "create"}
+          mode="edit"
           wishlistId={wishlistId}
           item={sheet?.type === "edit" ? sheet.item : undefined}
-          open={sheet?.type === "create" || sheet?.type === "edit"}
+          open={sheet?.type === "edit"}
           onOpenChange={(open) => {
             if (!open) setSheet(null);
           }}
@@ -550,10 +507,19 @@ export default function WishlistDetailScreen() {
           feedback={shareFeedback}
           onOpenChange={(open) => {
             if (!open) {
-              const shouldCompleteShareStep =
-                shareGuideCompletionPending && shareFeedback?.variant === "success";
-
               setShareFeedback(null);
+            }
+          }}
+        />
+        <WishlistShareSheet
+          wishlist={shareWishlist}
+          link={shareLink}
+          onOpenChange={(open) => {
+            if (!open) {
+              const shouldCompleteShareStep = shareGuideCompletionPending;
+
+              setShareWishlist(null);
+              setShareLink(null);
               setShareGuideCompletionPending(false);
 
               if (shouldCompleteShareStep) {

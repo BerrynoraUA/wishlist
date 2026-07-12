@@ -3,10 +3,10 @@ import {
   ActionBottomSheetMessage,
   type ActionBottomSheetMessagePayload,
 } from "@/components/ui/action-bottom-sheet";
-import { StyledImage } from "@/components/ui/styled-image";
 import { StyledPressable } from "@/components/ui/styled-pressable";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SettingsControlsLabeledInput } from "@/components/settings/settings-controls";
 import { SettingsSection } from "@/components/settings/settings-section";
 import {
@@ -164,7 +164,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
 
   return (
     <>
-      <SettingsSection title={t("Profile")} icon={UserRound} defaultOpen>
+      <SettingsSection id="profile" title={t("Profile")} icon={UserRound} defaultOpen>
         <View className="flex-row items-center gap-3">
           <StyledPressable
             accessibilityRole="button"
@@ -175,25 +175,13 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
             onPress={handlePickAvatar}
             className="size-14 overflow-hidden rounded-full active:opacity-80"
           >
-            {profile?.avatar_url ? (
-              <StyledImage
-                accessible={false}
-                importantForAccessibility="no-hide-descendants"
-                source={{ uri: profile.avatar_url }}
-                contentFit="cover"
-                className="size-14 rounded-full bg-muted"
-              />
-            ) : (
-              <View
-                accessible={false}
-                importantForAccessibility="no-hide-descendants"
-                className="size-14 items-center justify-center rounded-full bg-brand"
-              >
-                <Text className="text-xl font-bold text-white">
-                  {(profile?.display_name ?? profile?.nickname ?? "U").charAt(0).toUpperCase()}
-                </Text>
-              </View>
-            )}
+            <Avatar
+              alt={profile?.display_name ?? profile?.nickname ?? t("Your profile")}
+              className="size-14"
+            >
+              {profile?.avatar_url ? <AvatarImage source={{ uri: profile.avatar_url }} /> : null}
+              <AvatarFallback className="bg-brand" initialsClassName="text-xl text-white" />
+            </Avatar>
           </StyledPressable>
           <View className="flex-1 gap-2">
             <View>

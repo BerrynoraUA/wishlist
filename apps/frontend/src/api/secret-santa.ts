@@ -303,7 +303,7 @@ export async function launchSecretSanta(input: LaunchSecretSantaInput): Promise<
 
   const { data: rows, error: fetchErr } = await supabaseBrowser
     .from("secret_santa_participants")
-    .select("id, user_id")
+    .select("user_id")
     .eq("event_id", input.event_id);
 
   if (fetchErr) throw fetchErr;
@@ -318,24 +318,12 @@ export async function launchSecretSanta(input: LaunchSecretSantaInput): Promise<
     );
   }
 
-  for (const row of rows) {
-    const receiverId = assignment.get(row.user_id as string);
-    if (!receiverId) continue;
+  const { error } = await supabaseBrowser.rpc("launch_secret_santa", {
+    p_event_id: input.event_id,
+    p_assignments: Array.from(assignment, ([user_id, receiver_id]) => ({ user_id, receiver_id })),
+  });
 
-    const { error: updateErr } = await supabaseBrowser
-      .from("secret_santa_participants")
-      .update({ receiver_id: receiverId })
-      .eq("id", row.id);
-
-    if (updateErr) throw updateErr;
-  }
-
-  const { error: startErr } = await supabaseBrowser
-    .from("secret_santa")
-    .update({ is_started: true })
-    .eq("id", input.event_id);
-
-  if (startErr) throw startErr;
+  if (error) throw error;
 }
 
 export async function getUserVisibleItemsByMaxPrice(

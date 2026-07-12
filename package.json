@@ -24,6 +24,7 @@
     "ref": "pnpm lint:fix && pnpm format:fix",
     "check-types": "turbo run check-types",
     "db:types": "pnpm exec supabase gen types typescript --local > packages/backend/db-types/database.ts",
+    "db:diff": "node scripts/db-diff.mjs",
     "translate": "turbo run translate --filter=frontend --filter=native",
     "clean": "pnpm -r exec -- node -e \"const fs=require('fs');try{fs.rmSync('node_modules',{recursive:true,force:true});console.log('Deleted node_modules')}catch(e){}\" && node -e \"const fs=require('fs');try{fs.rmSync('node_modules',{recursive:true,force:true});console.log('Deleted root node_modules')}catch(e){}\" && pnpm store prune"
   },
@@ -31,7 +32,7 @@
     "node-gyp": "^12.4.0",
     "oxfmt": "^0.45.0",
     "oxlint": "^1.60.0",
-    "supabase": "^2.90.0",
+    "supabase": "^2.109.1",
     "turbo": "^2.9.6"
   },
   "packageManager": "pnpm@11.9.0"
