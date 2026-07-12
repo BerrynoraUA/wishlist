@@ -6,6 +6,7 @@ import {
   SecretSantaReceiverCard,
 } from "@/components/secret-santa/secret-santa-detail-sections";
 import { SecretSantaCreateEditSheet } from "@/components/secret-santa/sheets/secret-santa-create-edit-sheet";
+import { SecretSantaInviteSheet } from "@/components/secret-santa/sheets/secret-santa-invite-sheet";
 import { SecretSantaLaunchSheet } from "@/components/secret-santa/sheets/secret-santa-launch-sheet";
 import { InlineState } from "@/components/shared/inline-state";
 import {
@@ -23,17 +24,31 @@ import {
   useSecretSantaDetails,
 } from "@/hooks/use-secret-santa";
 import { useCurrentUserId } from "@/hooks/use-user";
-import { MIN_PARTICIPANTS_TO_LAUNCH, buildSecretSantaJoinUrl } from "@/lib/secret-santa";
+import {
+  MIN_PARTICIPANTS_TO_LAUNCH,
+  buildSecretSantaJoinUrl,
+  getSecretSantaPersonName,
+} from "@/lib/secret-santa";
 import { cn } from "@/lib/utils";
 import { getWishlistAccentClass } from "@/lib/wishlists";
+import type {
+  SecretSantaPendingInvite,
+  SecretSantaPerson,
+} from "@wishlist/backend/types/secret-santa";
 import * as Clipboard from "expo-clipboard";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, ScrollView, View, useWindowDimensions } from "react-native";
+import { ActivityIndicator, ScrollView, Share, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-type SheetState = "edit" | "launch" | "delete" | null;
+type SheetState = "edit" | "invite" | "launch" | "delete" | null;
+
+type RemoveTarget = {
+  kind: "participant" | "invite";
+  id: string;
+  name: string;
+};
 
 export default function SecretSantaDetailScreen() {
   const t = useGT();
@@ -48,7 +63,7 @@ export default function SecretSantaDetailScreen() {
   const removeInvite = useRemoveSecretSantaInvite();
   const deleteEvent = useDeleteSecretSantaEvent();
   const [sheet, setSheet] = React.useState<SheetState>(null);
-  const [copied, setCopied] = React.useState(false);
+  const [removeTarget, setRemoveTarget] = React.useState<RemoveTarget | null>(null);
   const [message, setMessage] = React.useState<ActionBottomSheetMessagePayload | null>(null);
 
   const contentWidth = Math.min(width - 32, 900);
@@ -61,21 +76,59 @@ export default function SecretSantaDetailScreen() {
   const canLaunch =
     pendingInvites.length === 0 && participants.length >= MIN_PARTICIPANTS_TO_LAUNCH;
 
-  React.useEffect(() => {
-    if (!copied) return;
-    const timeout = setTimeout(() => setCopied(false), 2000);
-    return () => clearTimeout(timeout);
-  }, [copied]);
+  async function shareInviteLink() {
+    if (!eventId) return;
+
+    const url = buildSecretSantaJoinUrl(eventId);
+    const inviteMessage = t('Join our Secret Santa "{name}" on Wishlane!', {
+      name: data?.name ?? t("Secret Santa"),
+    });
+
+    try {
+      if (process.env.EXPO_OS === "ios") {
+        await Share.share({ message: inviteMessage, url });
+      } else {
+        await Share.share({ message: `${inviteMessage}\n${url}` });
+      }
+    } catch {
+      // The user dismissed the share sheet or no share target is available.
+    }
+  }
 
   async function copyInviteLink() {
     if (!eventId) return;
 
     try {
       await Clipboard.setStringAsync(buildSecretSantaJoinUrl(eventId));
-      setCopied(true);
       setMessage({ title: t("Link copied"), message: t("Invite link copied to clipboard.") });
     } catch {
       setMessage({ title: t("Copy failed"), message: t("Failed to copy invite link.") });
+    }
+  }
+
+  function requestRemove(person: SecretSantaPerson | SecretSantaPendingInvite) {
+    setRemoveTarget(
+      "invite_id" in person
+        ? { kind: "invite", id: person.invite_id, name: getSecretSantaPersonName(person, t) }
+        : { kind: "participant", id: person.id, name: getSecretSantaPersonName(person, t) },
+    );
+  }
+
+  function handleRemoveConfirm() {
+    if (!removeTarget) return;
+
+    const callbacks = {
+      onSuccess: () => setRemoveTarget(null),
+      onError: (error: Error) => {
+        setRemoveTarget(null);
+        setMessage({ title: t("Remove failed"), message: error.message });
+      },
+    };
+
+    if (removeTarget.kind === "invite") {
+      removeInvite.mutate({ eventId, inviteId: removeTarget.id }, callbacks);
+    } else {
+      removeParticipant.mutate({ eventId, userId: removeTarget.id }, callbacks);
     }
   }
 
@@ -136,7 +189,7 @@ export default function SecretSantaDetailScreen() {
                   event={data}
                   totalPeople={totalPeople}
                   isOwner={isOwner}
-                  copied={copied}
+                  onInvite={isOwner ? () => setSheet("invite") : shareInviteLink}
                   onCopyLink={copyInviteLink}
                   onEdit={() => setSheet("edit")}
                   onDelete={() => setSheet("delete")}
@@ -149,16 +202,17 @@ export default function SecretSantaDetailScreen() {
                       {data.my_receiver ? (
                         <SecretSantaReceiverCard receiver={data.my_receiver} />
                       ) : null}
+                      <SecretSantaGiftSuggestions
+                        receiverId={data.my_receiver?.id}
+                        budget={data.budget}
+                        currency={data.currency}
+                      />
                       <SecretSantaPeopleSection
                         title={t("Participants")}
                         emptyText={t("No participants have accepted yet.")}
                         emptyMascot="sad-alone"
                         people={participants}
-                      />
-                      <SecretSantaGiftSuggestions
-                        receiverId={data.my_receiver?.id}
-                        budget={data.budget}
-                        currency={data.currency}
+                        ownerId={data.owner_id ?? undefined}
                       />
                     </>
                   ) : isOwner ? (
@@ -168,41 +222,15 @@ export default function SecretSantaDetailScreen() {
                         pendingInvitesCount={pendingInvites.length}
                         participantsCount={participants.length}
                         onLaunch={() => setSheet("launch")}
+                        onInvite={() => setSheet("invite")}
                       />
                       <SecretSantaPeopleSection
-                        title={t("Participants")}
-                        emptyText={t("No participants have accepted yet.")}
+                        title={t("People")}
+                        emptyText={t("No one has joined yet. Invite friends to get started.")}
                         emptyMascot="sad-alone"
-                        people={participants}
-                        onRemove={(userId) => {
-                          removeParticipant.mutate(
-                            { eventId, userId },
-                            {
-                              onError: (error) =>
-                                setMessage({
-                                  title: t("Remove failed"),
-                                  message: error.message,
-                                }),
-                            },
-                          );
-                        }}
-                      />
-                      <SecretSantaPeopleSection
-                        title={t("Pending invites")}
-                        emptyText={t("No pending invites.")}
-                        people={pendingInvites}
-                        onRemove={(inviteId) => {
-                          removeInvite.mutate(
-                            { eventId, inviteId },
-                            {
-                              onError: (error) =>
-                                setMessage({
-                                  title: t("Remove failed"),
-                                  message: error.message,
-                                }),
-                            },
-                          );
-                        }}
+                        people={[...participants, ...pendingInvites]}
+                        ownerId={data.owner_id ?? undefined}
+                        onRemove={requestRemove}
                       />
                     </>
                   ) : (
@@ -211,6 +239,7 @@ export default function SecretSantaDetailScreen() {
                       emptyText={t("No participants have accepted yet.")}
                       emptyMascot="sad-alone"
                       people={participants}
+                      ownerId={data.owner_id ?? undefined}
                     />
                   )}
                 </View>
@@ -231,6 +260,26 @@ export default function SecretSantaDetailScreen() {
             onOpenChange={(open) => {
               if (!open) setSheet(null);
             }}
+          />
+          <SecretSantaInviteSheet
+            open={sheet === "invite"}
+            eventId={eventId}
+            eventName={data.name}
+            excludedUserIds={[
+              ...participants.map((person) => person.id),
+              ...pendingInvites.map((person) => person.id),
+            ]}
+            onOpenChange={(open) => {
+              if (!open) setSheet(null);
+            }}
+            onShareLink={shareInviteLink}
+            onCopyLink={copyInviteLink}
+            onInvited={() =>
+              setMessage({
+                title: t("Invites sent"),
+                message: t("Your friends will get a notification to join."),
+              })
+            }
           />
           <SecretSantaLaunchSheet
             open={sheet === "launch"}
@@ -257,6 +306,18 @@ export default function SecretSantaDetailScreen() {
             isPending={deleteEvent.isPending}
             onClose={() => setSheet(null)}
             onConfirm={handleDelete}
+          />
+          <ActionBottomSheetConfirm
+            open={Boolean(removeTarget)}
+            title={removeTarget?.kind === "invite" ? t("Remove invite") : t("Remove participant")}
+            message={t("Remove {name} from this Secret Santa?", {
+              name: removeTarget?.name ?? "",
+            })}
+            confirmLabel={t("Remove")}
+            tone="destructive"
+            isPending={removeParticipant.isPending || removeInvite.isPending}
+            onClose={() => setRemoveTarget(null)}
+            onConfirm={handleRemoveConfirm}
           />
         </>
       ) : null}

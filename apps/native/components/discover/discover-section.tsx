@@ -36,7 +36,6 @@ export function DiscoverSection({
       })),
     [section.items],
   );
-  const initials = section.owner.trim().slice(0, 2).toUpperCase() || "?";
   const visibleDate = formatDiscoverDate(section.date);
 
   return (
@@ -46,9 +45,7 @@ export function DiscoverSection({
           {avatarUrl || section.avatar_url ? (
             <AvatarImage source={{ uri: avatarUrl ?? section.avatar_url ?? "" }} />
           ) : null}
-          <AvatarFallback>
-            <Text className="text-sm font-extrabold text-text-muted">{initials}</Text>
-          </AvatarFallback>
+          <AvatarFallback initialsClassName="text-sm" />
         </Avatar>
         <View className="min-w-0 flex-1">
           <Text className="text-base font-extrabold text-text" numberOfLines={1}>

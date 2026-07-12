@@ -34,7 +34,9 @@ type CommonProps = {
   dropdownClassName?: string;
   optionClassName?: string;
   attached?: boolean;
+  alwaysShowOptions?: boolean;
   maxVisibleOptions?: number;
+  isLoading?: boolean;
   isLoadingMore?: boolean;
   onEndReached?: () => void;
   onQueryChange?: (query: string) => void;
@@ -70,7 +72,9 @@ export function AutocompleteDropdown({
   dropdownClassName,
   optionClassName,
   attached = false,
+  alwaysShowOptions = false,
   maxVisibleOptions,
+  isLoading = false,
   isLoadingMore = false,
   onEndReached,
   onQueryChange,
@@ -91,6 +95,7 @@ export function AutocompleteDropdown({
   );
   const selectedValue = formatSelectedValue(selectedOptions);
   const visibleValue = isOpen || !showSelectedValue ? query : selectedValue;
+  const showDropdown = isOpen || alwaysShowOptions;
   const matchingOptions = React.useMemo(() => {
     const matches = filterOptions(options, query);
     return hideSelectedOptions
@@ -174,7 +179,7 @@ export function AutocompleteDropdown({
 
   const inputClass = cn(
     attached && "flex-1 border-0 bg-transparent shadow-none",
-    attached && isOpen && "rounded-b-none",
+    attached && showDropdown && "rounded-b-none",
     inputClassName,
   );
   const input = (
@@ -199,7 +204,11 @@ export function AutocompleteDropdown({
         dropdownClassName,
       )}
     >
-      {matchingOptions.length > 0 ? (
+      {isLoading && matchingOptions.length === 0 ? (
+        <View className="h-16 items-center justify-center">
+          <ActivityIndicator colorClassName="accent-brand" size="small" />
+        </View>
+      ) : matchingOptions.length > 0 ? (
         <ScrollView
           keyboardShouldPersistTaps="handled"
           nestedScrollEnabled
@@ -227,16 +236,10 @@ export function AutocompleteDropdown({
                   optionClassName,
                 )}
               >
-                {option.imageUrl ? (
-                  <Avatar alt={option.label} className="size-9">
-                    <AvatarImage source={{ uri: option.imageUrl }} />
-                    <AvatarFallback>
-                      <Text className="text-xs font-bold text-text-muted">
-                        {option.label.slice(0, 2).toUpperCase()}
-                      </Text>
-                    </AvatarFallback>
-                  </Avatar>
-                ) : null}
+                <Avatar alt={option.label} className="size-9">
+                  {option.imageUrl ? <AvatarImage source={{ uri: option.imageUrl }} /> : null}
+                  <AvatarFallback />
+                </Avatar>
                 <View className="min-w-0 flex-1">
                   <Text className="font-semibold text-text">{option.label}</Text>
                   {option.description ? (
@@ -271,7 +274,7 @@ export function AutocompleteDropdown({
           <View
             className={cn(
               "flex-row items-center border border-input bg-background pr-2 shadow-sm shadow-black/5",
-              isOpen ? "rounded-t-md border-b-0" : "rounded-md",
+              showDropdown ? "rounded-t-md border-b-0" : "rounded-md",
             )}
           >
             {input}
@@ -280,7 +283,8 @@ export function AutocompleteDropdown({
           input
         )}
       </View>
-      {isOpen && triggerFrame ? (
+      {alwaysShowOptions && attached ? dropdown : null}
+      {isOpen && !alwaysShowOptions && triggerFrame ? (
         <WindowOverlay onRequestClose={closeDropdown}>
           <View className="absolute inset-0">
             <Pressable

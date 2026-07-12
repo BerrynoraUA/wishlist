@@ -90,8 +90,7 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
   // Scale needed for the visible mascot, rather than its transparent canvas,
   // to fly past every screen edge.
   const zoomScale =
-    (Math.hypot(width, height) / (ICON_WIDTH * (MASCOT_VISIBLE_WIDTH / MASCOT_SOURCE_WIDTH))) *
-    1.4;
+    (Math.hypot(width, height) / (ICON_WIDTH * (MASCOT_VISIBLE_WIDTH / MASCOT_SOURCE_WIDTH))) * 1.4;
 
   // Single teardown path: stop every running animation (the pulse loop repeats
   // forever otherwise), make sure the app content is at rest, then drop the
@@ -166,7 +165,16 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
         withTiming(1, { duration: 520, easing: Easing.out(Easing.cubic) }),
       );
     }
-  }, [revealRequested, backdropOpacity, contentScale, finish, iconOpacity, iconScale, pulse, zoomScale]);
+  }, [
+    revealRequested,
+    backdropOpacity,
+    contentScale,
+    finish,
+    iconOpacity,
+    iconScale,
+    pulse,
+    zoomScale,
+  ]);
 
   const contentStyle = useAnimatedStyle(() => ({
     transform: [{ scale: contentScale.value }],

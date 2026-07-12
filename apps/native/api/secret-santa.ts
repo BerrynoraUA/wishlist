@@ -251,6 +251,52 @@ export async function listSecretSantaEvents(
   return data as SecretSantaListResponse;
 }
 
+export async function inviteSecretSantaUsers(
+  eventId: string,
+  eventName: string,
+  userIds: string[],
+): Promise<void> {
+  const user = await getCurrentUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const receiverIds = userIds.filter((userId) => userId !== user.id);
+  if (receiverIds.length === 0) return;
+
+  // Mirrors what create_secret_santa_event does for invites: upsert the invite
+  // rows (re-inviting resets a declined invite) and notify each receiver.
+  const { data: invites, error } = await supabase
+    .from("secret_santa_invites")
+    .upsert(
+      receiverIds.map((receiverId) => ({
+        event_id: eventId,
+        sender_id: user.id,
+        receiver_id: receiverId,
+        status: 0,
+        responded_at: null,
+      })),
+      { onConflict: "event_id,receiver_id" },
+    )
+    .select("id, receiver_id");
+
+  if (error) throw error;
+  if (!invites || invites.length === 0) return;
+
+  const { error: notificationError } = await supabase.from("notifications").insert(
+    invites.map((invite) => ({
+      sender_id: user.id,
+      receiver_id: invite.receiver_id as string,
+      text: `You have been invited to Secret Santa "${eventName}"`,
+      icon_type: 0,
+      type: 0,
+      entity_id: invite.id as string,
+      is_read: false,
+    })),
+  );
+
+  if (notificationError) throw notificationError;
+}
+
 export async function acceptSecretSantaInvite(inviteId: string): Promise<void> {
   const { error } = await supabase.rpc("accept_secret_santa_invite", {
     p_invite_id: inviteId,

@@ -7,11 +7,6 @@ import { UserMinus } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import { Pressable, View } from "react-native";
 
-function getInitials(friend: FriendWithDetails) {
-  const source = friend.display_name || friend.nickname || "?";
-  return source.slice(0, 1).toUpperCase();
-}
-
 export function FriendCard({
   friend,
   onOpen,
@@ -32,9 +27,7 @@ export function FriendCard({
     >
       <Avatar className="size-12" alt={friend.display_name || friend.nickname || t("Friend")}>
         {friend.avatar_url ? <AvatarImage source={{ uri: friend.avatar_url }} /> : null}
-        <AvatarFallback className="bg-brand-lighter">
-          <Text className="text-base font-extrabold text-brand">{getInitials(friend)}</Text>
-        </AvatarFallback>
+        <AvatarFallback className="bg-brand-lighter" initialsClassName="text-base text-brand" />
       </Avatar>
 
       <View className="min-w-0 flex-1 gap-1">
