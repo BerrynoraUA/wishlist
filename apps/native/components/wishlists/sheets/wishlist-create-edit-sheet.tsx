@@ -147,6 +147,7 @@ export function WishlistCreateEditSheet({
     try {
       if (mode === "edit" && wishlist) {
         await updateMutation.mutateAsync({ id: wishlist.id, values: valuesToSave });
+        await imageUpload.commitPendingUpload(wishlist.image_url);
         await selectedAccess.syncAfterSave(wishlist.id, formValues.visibility);
 
         handleClose();
@@ -154,10 +155,12 @@ export function WishlistCreateEditSheet({
       }
 
       const createdWishlist = await createMutation.mutateAsync(valuesToSave);
+      await imageUpload.commitPendingUpload();
       await selectedAccess.grantSelectedAccess(createdWishlist.id);
       completeCreateWishlistStep();
       handleClose();
     } catch (submitError) {
+      await imageUpload.discardPendingUpload();
       selectedAccess.setError(
         submitError instanceof Error ? submitError.message : t("Could not save selected access."),
       );
@@ -548,7 +551,7 @@ function EventDatePicker({
                 <Text className="text-xs font-semibold text-text-muted">{value}</Text>
               ) : null}
             </View>
-            {process.env.EXPO_OS !== "android" && value ? (
+            {value ? (
               <AnimatedPressable
                 accessibilityRole="button"
                 accessibilityLabel={t("Clear event date")}

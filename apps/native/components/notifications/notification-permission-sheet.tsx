@@ -12,6 +12,7 @@ import {
   getNotificationPermissionPromptDecision,
   setNotificationPermissionPromptDecision,
 } from "@/lib/notification-permission-prompt";
+import { debugError } from "@/lib/debug-log";
 import { Bell, ShieldCheck } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
@@ -41,12 +42,6 @@ export function NotificationPermissionSheet({ userId }: { userId: string }) {
       const nextEligible =
         promptDecision === null && (permission.status === "granted" || permission.canAskAgain);
 
-      console.log("[push] pre-permission prompt state", {
-        status: permission.status,
-        canAskAgain: permission.canAskAgain,
-        promptDecision,
-        eligible: nextEligible,
-      });
       setEligible(nextEligible);
     });
 
@@ -92,7 +87,7 @@ export function NotificationPermissionSheet({ userId }: { userId: string }) {
     try {
       await registerPushNotifications({ requestPermission: true });
     } catch (registrationError) {
-      console.error("[push] registration after pre-permission prompt failed", registrationError);
+      debugError("[push] registration after pre-permission prompt failed", registrationError);
     }
   }
 

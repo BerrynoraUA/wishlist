@@ -10,6 +10,7 @@ import { supabase } from "@wishlist/backend/supabase/native";
 import type { KnownAccount } from "@wishlist/backend/types/known-accounts";
 import type { ThemePreference } from "@wishlist/backend/types/settings";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
+import * as LocalAuthentication from "expo-local-authentication";
 
 function isThemePreference(value: unknown): value is ThemePreference {
   return value === "light" || value === "dark" || value === "system";
@@ -34,20 +35,6 @@ async function readStoredThemeSettings(account: KnownAccount) {
   );
 }
 
-async function trySetSession(account: KnownAccount) {
-  if (!account.refreshToken || !account.accessToken) return null;
-  try {
-    const { data, error } = await supabase.auth.setSession({
-      access_token: account.accessToken,
-      refresh_token: account.refreshToken,
-    });
-    if (error || !data.session) return null;
-    return data.session;
-  } catch {
-    return null;
-  }
-}
-
 async function tryRefreshSession(account: KnownAccount) {
   if (!account.refreshToken) return null;
   try {
@@ -61,18 +48,38 @@ async function tryRefreshSession(account: KnownAccount) {
   }
 }
 
+async function authenticateAccountSwitch() {
+  const [hasHardware, isEnrolled] = await Promise.all([
+    LocalAuthentication.hasHardwareAsync(),
+    LocalAuthentication.isEnrolledAsync(),
+  ]);
+  if (!hasHardware || !isEnrolled) return;
+
+  const result = await LocalAuthentication.authenticateAsync({
+    promptMessage: "Confirm account switch",
+    cancelLabel: "Cancel",
+    fallbackLabel: "Use device passcode",
+    disableDeviceFallback: false,
+  });
+  if (!result.success) throw new Error("Account switch cancelled.");
+}
+
 export async function switchAccount(account: KnownAccount) {
-  const targetThemeSettings = await readStoredThemeSettings(account).catch(() =>
-    getKnownAccountThemeSettings(account),
+  await authenticateAccountSwitch();
+  const storedTargetAccount = await getKnownAccount(account.userId);
+  if (!storedTargetAccount) throw new Error("Saved account credentials are unavailable.");
+
+  const targetThemeSettings = await readStoredThemeSettings(storedTargetAccount).catch(() =>
+    getKnownAccountThemeSettings(storedTargetAccount),
   );
   if (targetThemeSettings) {
     applyNativeThemeSettings(targetThemeSettings);
   }
 
-  const session = (await trySetSession(account)) ?? (await tryRefreshSession(account));
+  const session = await tryRefreshSession(storedTargetAccount);
 
   if (!session) {
-    await removeKnownAccount(account.userId);
+    await removeKnownAccount(storedTargetAccount.userId);
     await deactivateCurrentPushToken().catch(() => {});
     await supabase.auth.signOut().catch(() => {});
     await loginWithGoogle();
@@ -91,20 +98,19 @@ export async function switchAccount(account: KnownAccount) {
 
   await upsertKnownAccount({
     userId: session.user.id,
-    email: session.user.email ?? account.email,
-    displayName: storedAccount?.displayName ?? account.displayName ?? null,
-    avatarUrl: storedAccount?.avatarUrl ?? account.avatarUrl ?? null,
+    email: session.user.email ?? storedTargetAccount.email,
+    displayName: storedAccount?.displayName ?? storedTargetAccount.displayName ?? null,
+    avatarUrl: storedAccount?.avatarUrl ?? storedTargetAccount.avatarUrl ?? null,
     provider: "google",
     providers: ["google"],
     lastUsedAt: Date.now(),
-    accessToken: session.access_token,
     refreshToken: session.refresh_token,
     expiresAt: session.expires_at ?? null,
-    defaultAccent: storedAccount?.defaultAccent ?? account.defaultAccent ?? null,
+    defaultAccent: storedAccount?.defaultAccent ?? storedTargetAccount.defaultAccent ?? null,
     themePreference:
       storedThemeSettings?.theme ??
       storedAccount?.themePreference ??
-      account.themePreference ??
+      storedTargetAccount.themePreference ??
       null,
   });
 }

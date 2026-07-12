@@ -200,11 +200,16 @@ const SUPABASE_BIN = resolveSupabaseBin();
 
 function dump({ label, dbUrl, file, schema, data }) {
   if (!SUPABASE_BIN) {
-    throw new Error("Could not find the supabase CLI binary. Run `pnpm install` at the repo root first.");
+    throw new Error(
+      "Could not find the supabase CLI binary. Run `pnpm install` at the repo root first.",
+    );
   }
 
   const args = ["db", "dump", "--db-url", dbUrl, "-f", file];
-  for (const s of schema.split(",").map((v) => v.trim()).filter(Boolean)) {
+  for (const s of schema
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean)) {
     args.push("-s", s);
   }
   if (data) args.push("--data-only");
@@ -248,8 +253,20 @@ function main() {
   // Set process.exitCode (not process.exit) so the finally block always runs —
   // process.exit() terminates immediately and would skip cleanup.
   try {
-    dump({ label: "staging", dbUrl: stagingUrl, file: stagingFile, schema: opts.schema, data: opts.data });
-    dump({ label: "production", dbUrl: prodUrl, file: prodFile, schema: opts.schema, data: opts.data });
+    dump({
+      label: "staging",
+      dbUrl: stagingUrl,
+      file: stagingFile,
+      schema: opts.schema,
+      data: opts.data,
+    });
+    dump({
+      label: "production",
+      dbUrl: prodUrl,
+      file: prodFile,
+      schema: opts.schema,
+      data: opts.data,
+    });
 
     console.log("\n=== diff (staging → production) ===\n");
     // git diff --no-index gives a colored unified diff on a TTY and returns

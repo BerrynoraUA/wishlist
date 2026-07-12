@@ -52,19 +52,19 @@ export function useInfiniteListData<T, TPage>(
   query: InfiniteListQuery<T[] | TPage>,
   getPageItems?: (page: TPage) => T[],
 ) {
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = query;
   const items = React.useMemo(
     () =>
-      query.data?.pages.flatMap((page) =>
-        getPageItems ? getPageItems(page as TPage) : (page as T[]),
-      ) ?? [],
-    [getPageItems, query.data],
+      data?.pages.flatMap((page) => (getPageItems ? getPageItems(page as TPage) : (page as T[]))) ??
+      [],
+    [data, getPageItems],
   );
 
   const loadMore = React.useCallback(() => {
-    if (query.hasNextPage && !query.isFetchingNextPage) {
-      void query.fetchNextPage();
+    if (hasNextPage && !isFetchingNextPage) {
+      void fetchNextPage();
     }
-  }, [query]);
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return { items, loadMore };
 }

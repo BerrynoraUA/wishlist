@@ -1,4 +1,4 @@
-import { generateSecretSantaAssignment } from "@/api/secret-santa";
+import { generateSecretSantaAssignment } from "@/lib/secret-santa-assignment";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -56,7 +56,7 @@ export function SecretSantaLaunchSheet({
       exclusionMap.set(exclusion.user_id, new Set(exclusion.excluded_ids));
     }
 
-    return generateSecretSantaAssignment(ids, exclusionMap, 200)
+    return generateSecretSantaAssignment(ids, exclusionMap)
       ? null
       : t("These exclusions make a valid assignment impossible.");
   }, [exclusionList, participants, t]);

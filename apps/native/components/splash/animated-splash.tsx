@@ -34,11 +34,27 @@ if (!IS_ANDROID) {
   void SplashScreen.preventAutoHideAsync().catch(() => {});
 }
 
-// Must match the expo-splash-screen config in app.json exactly (light/dark bg tokens).
-const SPLASH_BACKGROUND_LIGHT = "#FAF7F8";
-const SPLASH_BACKGROUND_DARK = "#0C0C0F";
-const ICON_SIZE = 114;
-const ICON_SOURCE = require("@/assets/images/icon.png");
+// Must match the expo-splash-screen config in app.json exactly (light/dark
+// backgrounds), so the native -> JS handoff is pixel-identical.
+const SPLASH_BACKGROUND_LIGHT = "#ffffff";
+const SPLASH_BACKGROUND_DARK = "#000000";
+// splash-mascot.png source canvas. The native splash renders it at imageWidth
+// (app.json) and derives height from this aspect ratio, so the overlay must
+// derive its height the same way or the mascot visibly resizes at handoff.
+const MASCOT_SOURCE_WIDTH = 486;
+const MASCOT_SOURCE_HEIGHT = 568;
+// Opaque mascot pixels inside the transparent canvas.
+const MASCOT_VISIBLE_WIDTH = 438;
+// Keep in sync with imageWidth in app.json.
+const ICON_WIDTH = 240;
+const ICON_HEIGHT = ICON_WIDTH * (MASCOT_SOURCE_HEIGHT / MASCOT_SOURCE_WIDTH);
+const ICON_SOURCE = require("@/assets/images/splash-mascot.png");
+
+// Safety net in case the image onDisplay event never fires.
+const NATIVE_SPLASH_FALLBACK_MS = 600;
+// Last-resort failsafe: never leave the overlay covering the app,
+// even if the ready signal or an animation callback never arrives.
+const OVERLAY_FAILSAFE_MS = 15000;
 
 const AppReadyContext = createContext<() => void>(() => {});
 
@@ -63,7 +79,6 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
   const splashBackground = useRef(
     Appearance.getColorScheme() === "dark" ? SPLASH_BACKGROUND_DARK : SPLASH_BACKGROUND_LIGHT,
   ).current;
-
   const pulse = useSharedValue(1);
   const iconScale = useSharedValue(1);
   const iconOpacity = useSharedValue(1);
@@ -72,8 +87,23 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
   // react-native-screens tree breaks rendering there (react-native-screens#2856).
   const contentScale = useSharedValue(IS_ANDROID ? 1 : 1.04);
 
-  // Scale needed for the icon to fly past every screen edge.
-  const zoomScale = (Math.hypot(width, height) / ICON_SIZE) * 1.4;
+  // Scale needed for the visible mascot, rather than its transparent canvas,
+  // to fly past every screen edge.
+  const zoomScale =
+    (Math.hypot(width, height) / (ICON_WIDTH * (MASCOT_VISIBLE_WIDTH / MASCOT_SOURCE_WIDTH))) * 1.4;
+
+  // Single teardown path: stop every running animation (the pulse loop repeats
+  // forever otherwise), make sure the app content is at rest, then drop the
+  // overlay. Safe to call from any exit — normal reveal or failsafe.
+  const finish = useCallback(() => {
+    cancelAnimation(pulse);
+    cancelAnimation(iconScale);
+    cancelAnimation(iconOpacity);
+    cancelAnimation(backdropOpacity);
+    cancelAnimation(contentScale);
+    contentScale.value = 1;
+    setDone(true);
+  }, [backdropOpacity, contentScale, iconOpacity, iconScale, pulse]);
 
   const nativeSplashHidden = useRef(false);
   const hideNativeSplash = useCallback(() => {
@@ -82,6 +112,9 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
     if (!IS_ANDROID) {
       void SplashScreen.hideAsync().catch(() => {});
     }
+    // Skip the idle phase if the reveal already began (fast boots): starting
+    // the pulse now would fight the zoom and never get cancelled again.
+    if (revealStarted.current) return;
     // Idle heartbeat: a soft breathing pulse while the app boots.
     pulse.value = withRepeat(
       withSequence(
@@ -94,18 +127,15 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
 
   const markReady = useCallback(() => setRevealRequested(true), []);
 
-  // Safety net in case the image onDisplay event never fires.
   useEffect(() => {
-    const timeout = setTimeout(hideNativeSplash, 600);
+    const timeout = setTimeout(hideNativeSplash, NATIVE_SPLASH_FALLBACK_MS);
     return () => clearTimeout(timeout);
   }, [hideNativeSplash]);
 
-  // Last-resort failsafe: never leave the overlay covering the app,
-  // even if the ready signal or an animation callback never arrives.
   useEffect(() => {
-    const timeout = setTimeout(() => setDone(true), 15000);
+    const timeout = setTimeout(finish, OVERLAY_FAILSAFE_MS);
     return () => clearTimeout(timeout);
-  }, []);
+  }, [finish]);
 
   useEffect(() => {
     if (!revealRequested || revealStarted.current) return;
@@ -125,7 +155,7 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
     backdropOpacity.value = withDelay(
       300,
       withTiming(0, { duration: 420, easing: Easing.out(Easing.cubic) }, (finished) => {
-        if (finished) runOnJS(setDone)(true);
+        if (finished) runOnJS(finish)();
       }),
     );
     // The page underneath settles from a slight over-scale, like an app launch.
@@ -135,7 +165,16 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
         withTiming(1, { duration: 520, easing: Easing.out(Easing.cubic) }),
       );
     }
-  }, [revealRequested, backdropOpacity, contentScale, iconOpacity, iconScale, pulse, zoomScale]);
+  }, [
+    revealRequested,
+    backdropOpacity,
+    contentScale,
+    finish,
+    iconOpacity,
+    iconScale,
+    pulse,
+    zoomScale,
+  ]);
 
   const contentStyle = useAnimatedStyle(() => ({
     transform: [{ scale: contentScale.value }],
@@ -172,8 +211,9 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
             >
               <Animated.View style={iconStyle}>
                 <Image
+                  accessibilityLabel="Wishlane mascot holding a gift"
                   source={ICON_SOURCE}
-                  style={{ width: ICON_SIZE, height: ICON_SIZE }}
+                  style={{ width: ICON_WIDTH, height: ICON_HEIGHT }}
                   contentFit="contain"
                   onDisplay={hideNativeSplash}
                 />

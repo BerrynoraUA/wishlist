@@ -1,4 +1,6 @@
 import { createMMKV } from "react-native-mmkv";
+import { getSupabaseStoragePath } from "@/lib/storage-url";
+import { supabase } from "@wishlist/backend/supabase/native";
 
 /**
  * On-device, synchronous key-value store for local app preferences.
@@ -13,3 +15,9 @@ export const PREFERENCE_KEYS = {
   /** When `true`, the floating back button on detail screens is hidden. */
   hideBackButton: "preferences.hideBackButton",
 } as const;
+
+export async function removeOwnedStorageImage(bucket: string, imageUrl: string | null | undefined) {
+  const path = getSupabaseStoragePath(imageUrl, bucket);
+  if (!path) return;
+  await supabase.storage.from(bucket).remove([path]);
+}

@@ -5,6 +5,7 @@ import {
   deleteSecretSantaEvent,
   getSecretSantaDetails,
   getUserVisibleItemsByMaxPrice,
+  inviteSecretSantaUsers,
   joinSecretSantaEvent,
   launchSecretSanta,
   listSecretSantaEvents,
@@ -105,6 +106,25 @@ export function useDeleteSecretSantaEvent() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
       queryClient.removeQueries({ queryKey: ["secret-santa", "detail"], exact: false });
+    },
+  });
+}
+
+export function useInviteSecretSantaUsers() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      eventId,
+      eventName,
+      userIds,
+    }: {
+      eventId: string;
+      eventName: string;
+      userIds: string[];
+    }) => inviteSecretSantaUsers(eventId, eventName, userIds),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
     },
   });
 }

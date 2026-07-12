@@ -16,6 +16,7 @@
     "./supabase/browser": "./supabase/browser.ts",
     "./supabase/native": "./supabase/native.ts",
     "./supabase/server": "./supabase/server.ts",
+    "./supabase/shared": "./supabase/shared.ts",
     "./types": "./types/index.ts",
     "./types/discover": "./types/discover.ts",
     "./types/feature-ideas": "./types/feature-ideas.ts",

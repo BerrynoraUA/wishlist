@@ -12,6 +12,7 @@ import {
 } from "@/components/settings/settings-controls";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useKnownAccounts } from "@/hooks/use-known-accounts";
 import { useAuthProvider, useChangePassword, useDeleteAccount } from "@/hooks/use-settings";
 import { switchAccount } from "@/lib/account-switch";
@@ -52,6 +53,7 @@ export function AccountSettings({
   const values = useWatch({ control }) as PasswordFormValues;
   const [message, setMessage] = React.useState<ActionBottomSheetMessagePayload | null>(null);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [deleteEmail, setDeleteEmail] = React.useState("");
   const [accountPendingRemoval, setAccountPendingRemoval] = React.useState<KnownAccount | null>(
     null,
   );
@@ -99,6 +101,11 @@ export function AccountSettings({
         setMessage({ title: t("Delete account failed"), message: error.message });
       },
     });
+  }
+
+  function closeDeleteConfirmation() {
+    setDeleteEmail("");
+    setDeleteOpen(false);
   }
 
   async function handleSwitchAccount(account: KnownAccount) {
@@ -296,11 +303,26 @@ export function AccountSettings({
           "This will permanently delete your profile, wishlists, items, friend connections, notifications, and subscription. This action cannot be undone.",
         )}
         confirmLabel={t("Delete My Account")}
-        destructive
+        tone="destructive"
         isPending={deleteAccount.isPending}
-        onClose={() => setDeleteOpen(false)}
+        confirmDisabled={!email || deleteEmail !== email}
+        onClose={closeDeleteConfirmation}
         onConfirm={handleDeleteAccount}
-      />
+      >
+        <View className="gap-2">
+          <Text className="text-sm font-semibold text-text">
+            {t("Type {email} to confirm", { email })}
+          </Text>
+          <Input
+            value={deleteEmail}
+            onChangeText={setDeleteEmail}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            placeholder={email}
+          />
+        </View>
+      </ActionBottomSheetConfirm>
       <ActionBottomSheetConfirm
         open={!!accountPendingRemoval}
         title={t("Remove saved account")}
@@ -308,7 +330,7 @@ export function AccountSettings({
           "Remove this account from saved accounts on this device? You can add it again later by signing in with Google.",
         )}
         confirmLabel={t("Remove account")}
-        destructive
+        tone="destructive"
         onClose={() => setAccountPendingRemoval(null)}
         onConfirm={() => void confirmRemoveAccount()}
       />

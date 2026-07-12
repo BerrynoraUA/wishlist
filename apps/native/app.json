@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "wishlane",
+    "name": "Wishlane",
     "slug": "wishlane",
     "version": "1.0.0",
     "runtimeVersion": {
@@ -25,6 +25,10 @@
     "android": {
       "package": "com.berrynora.wishlane",
       "googleServicesFile": "./google-services.json",
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -48,13 +52,13 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#FAF7F8",
-          "image": "./assets/images/icon.png",
-          "imageWidth": 114,
+          "backgroundColor": "#ffffff",
+          "image": "./assets/images/splash-mascot.png",
+          "imageWidth": 240,
           "dark": {
-            "backgroundColor": "#0C0C0F",
-            "image": "./assets/images/icon.png",
-            "imageWidth": 114
+            "backgroundColor": "#000000",
+            "image": "./assets/images/splash-mascot.png",
+            "imageWidth": 240
           }
         }
       ],
@@ -74,12 +78,17 @@
       ],
       "expo-apple-authentication",
       [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow Wishlane to securely switch between saved accounts."
+        }
+      ],
+      [
         "expo-web-browser",
         {
           "experimentalLauncherActivity": false
         }
-      ],
-      "@react-native-community/datetimepicker"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

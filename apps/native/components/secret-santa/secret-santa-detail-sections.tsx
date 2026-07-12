@@ -27,6 +27,7 @@ import type {
   VisibleItem,
 } from "@wishlist/backend/types/secret-santa";
 import {
+  ArrowUpRight,
   CalendarDays,
   CircleCheck,
   Clock3,
@@ -35,19 +36,36 @@ import {
   Image as ImageIcon,
   MoreHorizontal,
   Pencil,
+  Share2,
   Sparkles,
   Trash2,
   Users,
   UserMinus,
 } from "lucide-react-native";
 import { useGT, useLocale } from "gt-react-native";
-import { ActivityIndicator, Pressable, View } from "react-native";
+import { ActivityIndicator, Linking, Pressable, View } from "react-native";
+import type { LucideIcon } from "lucide-react-native";
+
+function HeroChip({ icon, label }: { icon: LucideIcon; label: string }) {
+  return (
+    <View className="flex-row items-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3 py-1.5">
+      <Icon as={icon} className="size-3.5 text-white" />
+      <Text className="text-xs font-bold text-white" numberOfLines={1}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
+function formatSecretSantaPeopleCount(count: number, t: ReturnType<typeof useGT>) {
+  return count === 1 ? t("1 person") : t("{count} people", { count });
+}
 
 export function SecretSantaDetailHero({
   event,
   totalPeople,
   isOwner,
-  copied,
+  onInvite,
   onCopyLink,
   onEdit,
   onDelete,
@@ -56,7 +74,7 @@ export function SecretSantaDetailHero({
   event: SecretSantaDetails;
   totalPeople: number;
   isOwner: boolean;
-  copied: boolean;
+  onInvite: () => void;
   onCopyLink: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -85,14 +103,16 @@ export function SecretSantaDetailHero({
 
       <View className="gap-4 px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
         <View className="flex-row items-center justify-end gap-2">
-          <AnimatedPressable
-            accessibilityRole="button"
-            accessibilityLabel={copied ? t("Invite link copied") : t("Copy invite")}
-            onPress={onCopyLink}
-            className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-          >
-            <Icon as={Copy} className="size-4 text-white" />
-          </AnimatedPressable>
+          {!event.is_started ? (
+            <AnimatedPressable
+              accessibilityRole="button"
+              accessibilityLabel={t("Invite people")}
+              onPress={onInvite}
+              className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+            >
+              <Icon as={Share2} className="size-4 text-white" />
+            </AnimatedPressable>
+          ) : null}
 
           {isOwner ? (
             <DropdownMenu>
@@ -110,6 +130,12 @@ export function SecretSantaDetailHero({
                   <Icon as={Pencil} className="size-4 text-popover-foreground" />
                   <Text>{t("Edit")}</Text>
                 </DropdownMenuItem>
+                {!event.is_started ? (
+                  <DropdownMenuItem onPress={onCopyLink}>
+                    <Icon as={Copy} className="size-4 text-popover-foreground" />
+                    <Text>{t("Copy invite link")}</Text>
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuItem
                   onPress={onDelete}
                   className="active:bg-danger-bg dark:active:bg-danger-bg/90"
@@ -127,25 +153,13 @@ export function SecretSantaDetailHero({
             {event.name}
           </Text>
 
-          <View className="flex-row gap-2">
-            <View className="h-9 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
-              <Icon as={CalendarDays} className="size-3.5 text-white" />
-              <Text className="text-xs font-bold text-white" numberOfLines={1}>
-                {formatSecretSantaDate(event.event_date, locale ?? "en")}
-              </Text>
-            </View>
-            <View className="h-9 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
-              <Icon as={Gift} className="size-3.5 text-white" />
-              <Text className="text-xs font-bold text-white" numberOfLines={1}>
-                {formatSecretSantaBudget(event.budget, event.currency)}
-              </Text>
-            </View>
-            <View className="h-9 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
-              <Icon as={Users} className="size-3.5 text-white" />
-              <Text className="text-xs font-bold text-white" numberOfLines={1}>
-                {t("{count} people", { count: totalPeople })}
-              </Text>
-            </View>
+          <View className="flex-row flex-wrap gap-2">
+            <HeroChip
+              icon={CalendarDays}
+              label={formatSecretSantaDate(event.event_date, locale ?? "en")}
+            />
+            <HeroChip icon={Gift} label={formatSecretSantaBudget(event.budget, event.currency)} />
+            <HeroChip icon={Users} label={formatSecretSantaPeopleCount(totalPeople, t)} />
           </View>
         </View>
       </View>
@@ -158,6 +172,7 @@ export function SecretSantaPeopleSection({
   description,
   emptyText,
   people,
+  ownerId,
   onRemove,
   emptyMascot,
 }: {
@@ -165,7 +180,8 @@ export function SecretSantaPeopleSection({
   description?: string;
   emptyText: string;
   people: Array<SecretSantaPerson | SecretSantaPendingInvite>;
-  onRemove?: (id: string) => void;
+  ownerId?: string;
+  onRemove?: (person: SecretSantaPerson | SecretSantaPendingInvite) => void;
   emptyMascot?: MascotVariant;
 }) {
   const t = useGT();
@@ -173,7 +189,17 @@ export function SecretSantaPeopleSection({
   return (
     <View className="gap-3 rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm">
       <View className="gap-1">
-        <Text className="text-lg font-extrabold text-text">{title}</Text>
+        <View className="flex-row items-baseline justify-between gap-2">
+          <Text className="text-lg font-extrabold text-text">{title}</Text>
+          {people.length > 0 ? (
+            <Text
+              className="text-sm font-bold text-text-muted"
+              style={{ fontVariant: ["tabular-nums"] }}
+            >
+              {people.length}
+            </Text>
+          ) : null}
+        </View>
         {description ? (
           <Text className="text-sm leading-5 text-text-muted">{description}</Text>
         ) : null}
@@ -189,9 +215,10 @@ export function SecretSantaPeopleSection({
         <View className="gap-2">
           {people.map((person) => {
             const key = "invite_id" in person ? person.invite_id : person.id;
+            const isPendingInvite = "invite_id" in person;
+            const isOrganizer = !isPendingInvite && Boolean(ownerId) && person.id === ownerId;
             const subtitle =
-              person.nickname ??
-              ("invite_id" in person ? t("Invitation pending") : t("Wishlane member"));
+              person.nickname ?? (isPendingInvite ? t("Invitation pending") : t("Wishlane member"));
 
             return (
               <View key={key} className="flex-row items-center gap-3 rounded-xl bg-bg-subtle p-3">
@@ -204,17 +231,26 @@ export function SecretSantaPeopleSection({
                     {person.nickname ? `@${subtitle}` : subtitle}
                   </Text>
                 </View>
-                {"invite_id" in person ? (
+                {isPendingInvite ? (
                   <View className="rounded-full bg-info-bg px-2 py-1">
                     <Text className="text-[11px] font-extrabold text-info">{t("Pending")}</Text>
                   </View>
                 ) : null}
-                {onRemove ? (
+                {isOrganizer ? (
+                  <View className="rounded-full bg-bg-muted px-2 py-1">
+                    <Text className="text-[11px] font-extrabold text-text-muted">
+                      {t("Organizer")}
+                    </Text>
+                  </View>
+                ) : null}
+                {onRemove && !isOrganizer ? (
                   <Button
                     variant="ghost"
                     size="icon"
-                    accessibilityLabel={t("Remove")}
-                    onPress={() => onRemove(key)}
+                    accessibilityLabel={t("Remove {name}", {
+                      name: getSecretSantaPersonName(person, t),
+                    })}
+                    onPress={() => onRemove(person)}
                     className="rounded-full"
                   >
                     <Icon as={UserMinus} className="size-4 text-destructive" />
@@ -258,66 +294,67 @@ export function SecretSantaLaunchCard({
   pendingInvitesCount,
   participantsCount,
   onLaunch,
+  onInvite,
 }: {
   canLaunch: boolean;
   pendingInvitesCount: number;
   participantsCount: number;
   onLaunch: () => void;
+  onInvite: () => void;
 }) {
   const t = useGT();
-  const hasEnoughParticipants = participantsCount >= MIN_PARTICIPANTS_TO_LAUNCH;
-  const allInvitesAnswered = pendingInvitesCount === 0;
   const missingParticipants = Math.max(MIN_PARTICIPANTS_TO_LAUNCH - participantsCount, 0);
-  const launchLabel = !hasEnoughParticipants
-    ? t("Need {count} more participant", { count: missingParticipants })
-    : !allInvitesAnswered
-      ? t("Waiting for pending invites")
-      : t("Launch Secret Santa");
+  const status = canLaunch
+    ? t("Everyone is in. Draw names when you're ready!")
+    : missingParticipants > 0
+      ? missingParticipants === 1
+        ? t("You need 1 more participant before you can draw names.")
+        : t("You need {count} more participants before you can draw names.", {
+            count: missingParticipants,
+          })
+      : pendingInvitesCount === 1
+        ? t("Waiting on 1 invite to be answered.")
+        : t("Waiting on {count} invites to be answered.", { count: pendingInvitesCount });
 
   return (
-    <View className="gap-3 rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm">
-      <View className="gap-1">
+    <View className="gap-4 rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm">
+      <View className="gap-1.5">
         <Text className="text-lg font-extrabold text-text">{t("Ready to draw?")}</Text>
-      </View>
-      <View className="gap-2 rounded-lg bg-bg-muted p-3">
         <View className="flex-row items-center gap-2">
           <Icon
-            as={hasEnoughParticipants ? CircleCheck : Users}
-            className={hasEnoughParticipants ? "size-4 text-success" : "size-4 text-destructive"}
+            as={canLaunch ? CircleCheck : missingParticipants > 0 ? Users : Clock3}
+            className={canLaunch ? "size-4 text-success" : "size-4 text-text-muted"}
           />
-          <Text
-            className={
-              hasEnoughParticipants
-                ? "flex-1 text-sm font-semibold text-text"
-                : "flex-1 text-sm font-semibold text-destructive"
-            }
-          >
-            {t("{current}/{required} accepted participants", {
-              current: participantsCount,
-              required: MIN_PARTICIPANTS_TO_LAUNCH,
-            })}
-          </Text>
-        </View>
-        <View className="flex-row items-center gap-2">
-          <Icon
-            as={allInvitesAnswered ? CircleCheck : Clock3}
-            className={allInvitesAnswered ? "size-4 text-success" : "size-4 text-brand"}
-          />
-          <Text className="flex-1 text-sm font-semibold text-text">
-            {allInvitesAnswered
-              ? t("All invitations answered")
-              : t("{count} pending invites", { count: pendingInvitesCount })}
-          </Text>
+          <Text className="flex-1 text-sm leading-5 text-text-muted">{status}</Text>
         </View>
       </View>
-      <Button
-        disabled={!canLaunch}
-        accessibilityHint={!canLaunch ? launchLabel : undefined}
-        onPress={onLaunch}
-      >
-        <Icon as={Sparkles} className="size-4 text-primary-foreground" />
-        <Text>{launchLabel}</Text>
-      </Button>
+
+      <View className="flex-row gap-2">
+        <Button
+          variant={canLaunch ? "outline" : "default"}
+          className="min-w-0 flex-1"
+          onPress={onInvite}
+        >
+          <Icon
+            as={Share2}
+            className={canLaunch ? "size-4 text-text" : "size-4 text-primary-foreground"}
+          />
+          <Text numberOfLines={1}>{t("Invite friends")}</Text>
+        </Button>
+        <Button
+          variant={canLaunch ? "default" : "outline"}
+          className="min-w-0 flex-1"
+          disabled={!canLaunch}
+          accessibilityHint={!canLaunch ? status : undefined}
+          onPress={onLaunch}
+        >
+          <Icon
+            as={Sparkles}
+            className={canLaunch ? "size-4 text-primary-foreground" : "size-4 text-text-muted"}
+          />
+          <Text numberOfLines={1}>{t("Draw names")}</Text>
+        </Button>
+      </View>
     </View>
   );
 }
@@ -372,9 +409,18 @@ export function SecretSantaGiftSuggestions({
 function GiftSuggestionRow({ item }: { item: VisibleItem }) {
   const price =
     item.has_discount && item.discount_price ? item.discount_price : (item.price ?? null);
+  const url = item.url;
 
   return (
-    <Pressable className="flex-row items-center gap-3 rounded-xl bg-bg-subtle p-3 active:bg-brand-lighter">
+    <Pressable
+      accessibilityRole={url ? "link" : undefined}
+      disabled={!url}
+      onPress={url ? () => void Linking.openURL(url).catch(() => {}) : undefined}
+      className={cn(
+        "flex-row items-center gap-3 rounded-xl bg-bg-subtle p-3",
+        url && "active:bg-brand-lighter",
+      )}
+    >
       <View className="size-14 items-center justify-center overflow-hidden rounded-xl bg-bg-muted">
         {item.image_url ? (
           <StyledImage source={{ uri: item.image_url }} contentFit="cover" className="size-full" />
@@ -390,12 +436,15 @@ function GiftSuggestionRow({ item }: { item: VisibleItem }) {
           {item.wishlist_title}
         </Text>
       </View>
-      {price ? (
-        <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
-          {item.currency ? `${item.currency} ` : ""}
-          {price}
-        </Text>
-      ) : null}
+      <View className="items-end gap-1">
+        {price ? (
+          <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
+            {item.currency ? `${item.currency} ` : ""}
+            {price}
+          </Text>
+        ) : null}
+        {url ? <Icon as={ArrowUpRight} className="size-3.5 text-text-muted" /> : null}
+      </View>
     </Pressable>
   );
 }

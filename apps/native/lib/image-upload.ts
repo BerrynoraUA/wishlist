@@ -1,6 +1,7 @@
 import { supabase } from "@wishlist/backend/supabase/native";
 import { File } from "expo-file-system";
 import * as React from "react";
+import { removeOwnedStorageImage } from "@/lib/storage";
 
 export type NativePickedImage = {
   uri: string;
@@ -67,11 +68,13 @@ export function useImageUploadField(prefix: "item" | "wishlist") {
   const [pickedImage, setPickedImage] = React.useState<NativePickedImage | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
+  const pendingUploadUrlRef = React.useRef<string | null>(null);
 
   const reset = React.useCallback(() => {
     setPickedImage(null);
     setError(null);
     setIsUploading(false);
+    pendingUploadUrlRef.current = null;
   }, []);
 
   const onPick = React.useCallback((image: NativePickedImage) => {
@@ -97,7 +100,9 @@ export function useImageUploadField(prefix: "item" | "wishlist") {
 
       setIsUploading(true);
       try {
-        return await uploadPickedImage(pickedImage, prefix);
+        const uploadedUrl = await uploadPickedImage(pickedImage, prefix);
+        pendingUploadUrlRef.current = uploadedUrl;
+        return uploadedUrl;
       } catch (uploadError) {
         setError(uploadError instanceof Error ? uploadError.message : "Could not save image.");
         return undefined;
@@ -107,6 +112,21 @@ export function useImageUploadField(prefix: "item" | "wishlist") {
     },
     [pickedImage, prefix],
   );
+
+  const discardPendingUpload = React.useCallback(async () => {
+    // After resolveImageUrl uploads a file, call exactly one of discard or commit.
+    const pendingUploadUrl = pendingUploadUrlRef.current;
+    pendingUploadUrlRef.current = null;
+    await removeOwnedStorageImage(IMAGE_BUCKET, pendingUploadUrl).catch(() => undefined);
+  }, []);
+
+  const commitPendingUpload = React.useCallback(async (previousImageUrl?: string | null) => {
+    // Commit preserves the new upload and removes the previous image after saving.
+    const pendingUploadUrl = pendingUploadUrlRef.current;
+    pendingUploadUrlRef.current = null;
+    if (!pendingUploadUrl || pendingUploadUrl === previousImageUrl) return;
+    await removeOwnedStorageImage(IMAGE_BUCKET, previousImageUrl).catch(() => undefined);
+  }, []);
 
   return React.useMemo(
     () => ({
@@ -118,7 +138,20 @@ export function useImageUploadField(prefix: "item" | "wishlist") {
       onError,
       reset,
       resolveImageUrl,
+      discardPendingUpload,
+      commitPendingUpload,
     }),
-    [error, isUploading, onClear, onError, onPick, pickedImage, reset, resolveImageUrl],
+    [
+      commitPendingUpload,
+      discardPendingUpload,
+      error,
+      isUploading,
+      onClear,
+      onError,
+      onPick,
+      pickedImage,
+      reset,
+      resolveImageUrl,
+    ],
   );
 }

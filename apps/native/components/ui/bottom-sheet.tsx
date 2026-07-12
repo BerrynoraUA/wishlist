@@ -61,7 +61,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
       cornerRadius = 30,
       onDidDismiss,
       autoPresent = true,
-      dismissOnBack = true,
+      dismissOnBack = false,
       header,
       footer,
       footerStyle,

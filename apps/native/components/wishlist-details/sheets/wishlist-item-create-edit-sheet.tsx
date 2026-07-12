@@ -351,7 +351,11 @@ export function WishlistItemCreateEditSheet({
       updateMutation.mutate(
         { id: item.id, updates: payload },
         {
-          onSuccess: handleClose,
+          onSuccess: () => {
+            void imageUpload.commitPendingUpload(item.image_url);
+            handleClose();
+          },
+          onError: () => void imageUpload.discardPendingUpload(),
         },
       );
       return;
@@ -364,9 +368,11 @@ export function WishlistItemCreateEditSheet({
       },
       {
         onSuccess: () => {
+          void imageUpload.commitPendingUpload();
           completeCreateItemStep();
           handleClose();
         },
+        onError: () => void imageUpload.discardPendingUpload(),
       },
     );
   }

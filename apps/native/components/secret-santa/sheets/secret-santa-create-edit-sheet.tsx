@@ -259,12 +259,24 @@ export function SecretSantaCreateEditSheet({
           <Text className="text-sm font-semibold text-text">{t("Event Date")}</Text>
           <DatePicker value={eventDate || null} onChange={(value) => setEventDate(value ?? "")}>
             {({ displayValue, openPicker }) => (
-              <Button variant="outline" onPress={openPicker} className="justify-between">
-                <View className="flex-row items-center gap-2">
-                  <Icon as={CalendarDays} className="size-4 text-text-muted" />
-                  <Text>{eventDate ? displayValue : t("Choose date")}</Text>
-                </View>
-              </Button>
+              <View className="flex-row gap-2">
+                <Button variant="outline" onPress={openPicker} className="flex-1 justify-between">
+                  <View className="flex-row items-center gap-2">
+                    <Icon as={CalendarDays} className="size-4 text-text-muted" />
+                    <Text>{eventDate ? displayValue : t("Choose date")}</Text>
+                  </View>
+                </Button>
+                {eventDate ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    accessibilityLabel={t("Clear event date")}
+                    onPress={() => setEventDate("")}
+                  >
+                    <Icon as={X} className="size-4 text-text-muted" />
+                  </Button>
+                ) : null}
+              </View>
             )}
           </DatePicker>
         </View>

@@ -27,7 +27,6 @@ export const FeatureIdeaCard = React.memo(function FeatureIdeaCard({
   const locale = useLocale();
   const [expanded, setExpanded] = React.useState(false);
   const authorName = idea.user_display_name ?? t("Anonymous");
-  const initial = authorName.charAt(0).toUpperCase();
   const date = new Intl.DateTimeFormat(locale, DATE_FORMAT_OPTIONS).format(
     new Date(idea.created_at),
   );
@@ -58,9 +57,7 @@ export const FeatureIdeaCard = React.memo(function FeatureIdeaCard({
         <View className="flex-row items-center gap-2">
           <Avatar alt={authorName} className="size-6">
             {idea.user_avatar_url ? <AvatarImage source={{ uri: idea.user_avatar_url }} /> : null}
-            <AvatarFallback>
-              <Text className="text-[10px] font-extrabold text-text-muted">{initial}</Text>
-            </AvatarFallback>
+            <AvatarFallback initialsClassName="text-[10px]" />
           </Avatar>
           <Text className="min-w-0 flex-1 text-xs font-semibold text-text-muted" numberOfLines={1}>
             {authorName}

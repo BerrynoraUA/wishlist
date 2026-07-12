@@ -27,27 +27,18 @@ async function getCurrentUser() {
     error,
   } = await supabase.auth.getUser();
 
-  if (error) {
-    console.error("[push] failed to load Supabase user", error);
-    throw error;
-  }
+  if (error) throw error;
 
   return user;
 }
 
 async function getNotificationDeviceId() {
   const existingDeviceId = await SecureStore.getItemAsync(PUSH_DEVICE_ID_STORAGE_KEY);
-  if (existingDeviceId) {
-    console.log("[push] using existing notification device id", {
-      deviceId: existingDeviceId,
-    });
-    return existingDeviceId;
-  }
+  if (existingDeviceId) return existingDeviceId;
 
   const deviceId = createDeviceId();
-  await SecureStore.setItemAsync(PUSH_DEVICE_ID_STORAGE_KEY, deviceId);
-  console.log("[push] created notification device id", {
-    deviceId,
+  await SecureStore.setItemAsync(PUSH_DEVICE_ID_STORAGE_KEY, deviceId, {
+    keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
   });
   return deviceId;
 }
@@ -57,14 +48,8 @@ export async function getStoredExpoPushToken() {
 }
 
 export async function registerPushToken(input: RegisterPushTokenInput): Promise<void> {
-  console.log("[push] Supabase token registration started", {
-    platform: input.platform,
-    tokenPrefix: input.expoPushToken.slice(0, 24),
-  });
-
   const user = await getCurrentUser();
   if (!user) {
-    console.error("[push] Supabase token registration stopped: not authenticated");
     throw new Error("Not authenticated");
   }
 
@@ -81,37 +66,20 @@ export async function registerPushToken(input: RegisterPushTokenInput): Promise<
     updated_at: new Date().toISOString(),
   };
 
-  console.log("[push] upserting Supabase push token", {
-    userId: payload.user_id,
-    platform: payload.platform,
-    deviceId: payload.device_id,
-    appVersion: payload.app_version,
-    tokenPrefix: payload.expo_push_token.slice(0, 24),
-  });
-
   const { error } = await supabase
     .from("notification_push_tokens")
     .upsert(payload, { onConflict: "expo_push_token" });
 
-  if (error) {
-    console.error("[push] Supabase push token upsert failed", error);
-    throw error;
-  }
+  if (error) throw error;
 
-  await SecureStore.setItemAsync(PUSH_TOKEN_STORAGE_KEY, input.expoPushToken);
-  console.log("[push] Supabase push token upsert succeeded");
+  await SecureStore.setItemAsync(PUSH_TOKEN_STORAGE_KEY, input.expoPushToken, {
+    keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
+  });
 }
 
 export async function deactivatePushToken(expoPushToken: string): Promise<void> {
-  console.log("[push] deactivating Supabase push token", {
-    tokenPrefix: expoPushToken.slice(0, 24),
-  });
-
   const user = await getCurrentUser();
-  if (!user) {
-    console.log("[push] deactivate skipped: no authenticated user");
-    return;
-  }
+  if (!user) return;
 
   const { error } = await supabase
     .from("notification_push_tokens")
@@ -122,20 +90,11 @@ export async function deactivatePushToken(expoPushToken: string): Promise<void> 
     .eq("user_id", user.id)
     .eq("expo_push_token", expoPushToken);
 
-  if (error) {
-    console.error("[push] Supabase push token deactivate failed", error);
-    throw error;
-  }
-
-  console.log("[push] Supabase push token deactivate succeeded");
+  if (error) throw error;
 }
 
 export async function deactivateCurrentPushToken(): Promise<void> {
   const expoPushToken = await getStoredExpoPushToken();
-
-  console.log("[push] deactivate current token requested", {
-    hasStoredToken: Boolean(expoPushToken),
-  });
 
   if (expoPushToken) {
     await deactivatePushToken(expoPushToken);

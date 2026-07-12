@@ -1,11 +1,11 @@
 import { PriorityFilterIcon } from "@/components/items/item-labels";
-import { SettingsControlsToggleRow } from "@/components/settings/settings-controls";
 import {
   settingsDropdownContentClassName,
   settingsDropdownOptionClassName,
   settingsDropdownTriggerClassName,
 } from "@/components/settings/settings-dropdown-styles";
 import { SettingsSection } from "@/components/settings/settings-section";
+import { CurrencySettings } from "@/components/settings/currency-settings";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
+import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { useHideBackButton } from "@/hooks/use-hide-back-button";
 import { useUpdateSettings } from "@/hooks/use-settings";
@@ -27,6 +28,7 @@ import {
   Check,
   ChevronDown,
   ChevronLeft,
+  EyeOff,
   Languages,
   ListFilter,
   SlidersHorizontal,
@@ -39,7 +41,13 @@ const LOCALIZED_LOCALE_LABELS: Record<string, string> = {
   uk: "Українська",
 };
 
-export function PreferencesSettings({ selectedPriorities }: { selectedPriorities?: string[] }) {
+export function PreferencesSettings({
+  selectedPriorities,
+  selectedCurrency,
+}: {
+  selectedPriorities?: string[];
+  selectedCurrency: string;
+}) {
   const t = useGT();
   const activeLocale = useLocale();
   const locales = useLocales();
@@ -102,6 +110,8 @@ export function PreferencesSettings({ selectedPriorities }: { selectedPriorities
           </DropdownMenuContent>
         </DropdownMenu>
       </View>
+
+      <CurrencySettings selectedCurrency={selectedCurrency} />
 
       <View className="gap-2">
         <View className="flex-row items-center gap-2">
@@ -167,13 +177,59 @@ export function PreferencesSettings({ selectedPriorities }: { selectedPriorities
         </View>
       </View>
 
-      <SettingsControlsToggleRow
-        icon={ChevronLeft}
-        title={t("Hide back button")}
-        subtitle={hideBackButtonDescription}
-        checked={hideBackButton}
-        onCheckedChange={setHideBackButton}
-      />
+      <View
+        className={cn(
+          "gap-4 overflow-hidden rounded-xl border p-4 shadow-sm",
+          hideBackButton
+            ? "border-brand/30 bg-brand-lighter shadow-brand/10"
+            : "border-border-subtle bg-card-bg shadow-black/5",
+        )}
+      >
+        <View className="flex-row items-start justify-between gap-4">
+          <View className="min-w-0 flex-1 gap-3">
+            <View className="flex-row items-center gap-3">
+              <View
+                className={cn(
+                  "size-11 items-center justify-center rounded-full",
+                  hideBackButton
+                    ? "bg-linear-135 from-brand via-accent to-secondary"
+                    : "bg-bg-muted",
+                )}
+              >
+                <Icon
+                  as={hideBackButton ? EyeOff : ChevronLeft}
+                  className={cn("size-5", hideBackButton ? "text-white" : "text-brand")}
+                />
+              </View>
+              <View className="min-w-0 flex-1">
+                <Text className="font-semibold text-text">{t("Hide back button")}</Text>
+                <Text className="text-xs font-semibold uppercase text-text-muted">
+                  {hideBackButton ? t("Gesture navigation") : t("Button visible")}
+                </Text>
+              </View>
+            </View>
+            <Text className="text-sm leading-5 text-text-muted">{hideBackButtonDescription}</Text>
+          </View>
+          <Switch checked={hideBackButton} onCheckedChange={setHideBackButton} />
+        </View>
+
+        <View className="h-16 overflow-hidden rounded-xl border border-border-subtle bg-bg-subtle">
+          <View className="absolute inset-x-3 bottom-3 h-3 rounded-full bg-border-subtle" />
+          <View
+            className={cn(
+              "absolute bottom-4 left-4 size-10 items-center justify-center rounded-full border border-glass-border bg-glass-bg",
+              hideBackButton && "opacity-25",
+            )}
+          >
+            <Icon as={ChevronLeft} className="size-5 text-text" />
+          </View>
+          {hideBackButton ? (
+            <View className="absolute bottom-4 left-4 size-10 items-center justify-center rounded-full border border-dashed border-brand/50 bg-brand-lighter/70">
+              <Icon as={EyeOff} className="size-4 text-brand" />
+            </View>
+          ) : null}
+        </View>
+      </View>
     </SettingsSection>
   );
 }
