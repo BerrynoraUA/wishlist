@@ -35,6 +35,7 @@ type CommonProps = {
   optionClassName?: string;
   attached?: boolean;
   alwaysShowOptions?: boolean;
+  optionsPosition?: "above" | "below";
   maxVisibleOptions?: number;
   isLoading?: boolean;
   isLoadingMore?: boolean;
@@ -43,6 +44,7 @@ type CommonProps = {
   closeAccessibilityLabel?: string;
   hideSelectedOptions?: boolean;
   showSelectedValue?: boolean;
+  inputAccessory?: React.ReactNode;
   inputProps?: Omit<
     React.ComponentProps<typeof Input>,
     "value" | "onChangeText" | "onFocus" | "onSubmitEditing" | "placeholder"
@@ -73,6 +75,7 @@ export function AutocompleteDropdown({
   optionClassName,
   attached = false,
   alwaysShowOptions = false,
+  optionsPosition = "below",
   maxVisibleOptions,
   isLoading = false,
   isLoadingMore = false,
@@ -81,6 +84,7 @@ export function AutocompleteDropdown({
   closeAccessibilityLabel = "Close dropdown",
   hideSelectedOptions = false,
   showSelectedValue = true,
+  inputAccessory,
   inputProps,
   ...props
 }: AutocompleteDropdownProps) {
@@ -96,6 +100,7 @@ export function AutocompleteDropdown({
   const selectedValue = formatSelectedValue(selectedOptions);
   const visibleValue = isOpen || !showSelectedValue ? query : selectedValue;
   const showDropdown = isOpen || alwaysShowOptions;
+  const showOptionsAbove = alwaysShowOptions && optionsPosition === "above";
   const matchingOptions = React.useMemo(() => {
     const matches = filterOptions(options, query);
     return hideSelectedOptions
@@ -179,7 +184,8 @@ export function AutocompleteDropdown({
 
   const inputClass = cn(
     attached && "flex-1 border-0 bg-transparent shadow-none",
-    attached && showDropdown && "rounded-b-none",
+    attached && showDropdown && (showOptionsAbove ? "rounded-t-none" : "rounded-b-none"),
+    attached && showOptionsAbove && inputAccessory && "rounded-br-none",
     inputClassName,
   );
   const input = (
@@ -200,7 +206,11 @@ export function AutocompleteDropdown({
     <View
       className={cn(
         "max-h-80 overflow-hidden border border-border bg-card-bg/95",
-        attached ? "rounded-b-md rounded-t-none" : "rounded-md",
+        attached
+          ? showOptionsAbove
+            ? "rounded-b-none rounded-t-md"
+            : "rounded-b-md rounded-t-none"
+          : "rounded-md",
         dropdownClassName,
       )}
     >
@@ -269,21 +279,28 @@ export function AutocompleteDropdown({
 
   return (
     <View className={cn(attached ? "gap-0" : "gap-2", className)}>
+      {alwaysShowOptions && attached && showOptionsAbove ? dropdown : null}
       <View ref={triggerRef} collapsable={false}>
         {attached ? (
           <View
             className={cn(
-              "flex-row items-center border border-input bg-background pr-2 shadow-sm shadow-black/5",
-              showDropdown ? "rounded-t-md border-b-0" : "rounded-md",
+              "flex-row items-center border border-input bg-background shadow-sm shadow-black/5",
+              inputAccessory ? "overflow-hidden pr-0" : "pr-2",
+              showDropdown
+                ? showOptionsAbove
+                  ? "rounded-b-md border-t-0"
+                  : "rounded-t-md border-b-0"
+                : "rounded-md",
             )}
           >
             {input}
+            {inputAccessory}
           </View>
         ) : (
           input
         )}
       </View>
-      {alwaysShowOptions && attached ? dropdown : null}
+      {alwaysShowOptions && attached && !showOptionsAbove ? dropdown : null}
       {isOpen && !alwaysShowOptions && triggerFrame ? (
         <WindowOverlay onRequestClose={closeDropdown}>
           <View className="absolute inset-0">

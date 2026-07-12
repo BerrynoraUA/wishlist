@@ -11,7 +11,7 @@ import { useInviteSecretSantaUsers } from "@/hooks/use-secret-santa";
 import { Copy, Share2, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
 const FRIENDS_PAGE_SIZE = 10;
 
@@ -99,88 +99,15 @@ export function SecretSantaInviteSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
+      detents={["auto", 0.75, 1]}
       onDidDismiss={() => onOpenChange(false)}
       footer={
-        <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
-          <Button
-            className="min-w-0 flex-1"
-            variant="outline"
-            disabled={inviteUsers.isPending}
-            onPress={closeSheet}
-          >
-            <Text>{t("Cancel")}</Text>
-          </Button>
-          <Button
-            className="min-w-0 flex-1"
-            disabled={inviteUsers.isPending || selected.length === 0}
-            onPress={submit}
-          >
-            {inviteUsers.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
-            <Text>{inviteUsers.isPending ? t("Sending...") : t("Send invites")}</Text>
-          </Button>
-        </View>
-      }
-    >
-      <ScrollView
-        className="max-h-full"
-        contentContainerClassName="gap-5 px-5 pb-6 pt-5"
-        keyboardShouldPersistTaps="handled"
-        nestedScrollEnabled
-        showsVerticalScrollIndicator={false}
-      >
-        <View className="gap-1">
-          <Text className="text-xl font-extrabold text-text">{t("Invite friends")}</Text>
-          <Text className="text-sm leading-5 text-text-muted">
-            {t("Share the link with anyone, or invite friends directly.")}
-          </Text>
-        </View>
-
-        <View className="flex-row gap-2">
-          <Button className="min-w-0 flex-1" variant="outline" onPress={handleShareLink}>
-            <Icon as={Share2} className="size-4 text-text" />
-            <Text>{t("Share invite link")}</Text>
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            accessibilityLabel={t("Copy invite link")}
-            onPress={handleCopyLink}
-          >
-            <Icon as={Copy} className="size-4 text-text" />
-          </Button>
-        </View>
-
-        <View className="gap-2">
-          <View className="gap-1">
-            <Text className="font-bold text-text">{t("Invite friends directly")}</Text>
-            <Text className="text-sm text-text-muted">
-              {t("Search by name or username, then choose one or more friends.")}
-            </Text>
-          </View>
-          {selected.length > 0 ? (
-            <View className="flex-row flex-wrap gap-2 pt-1">
-              {selected.map((friend) => (
-                <Button
-                  key={friend.value}
-                  variant="secondary"
-                  size="sm"
-                  accessibilityLabel={t("Remove {name}", { name: friend.label })}
-                  onPress={() =>
-                    setSelected((current) => current.filter((item) => item.value !== friend.value))
-                  }
-                  className="rounded-full"
-                >
-                  <Text>{friend.label}</Text>
-                  <Icon as={X} className="size-3.5 text-text" />
-                </Button>
-              ))}
-            </View>
-          ) : null}
+        <View className="w-full gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <AutocompleteDropdown
             multiple
             attached
             alwaysShowOptions
+            optionsPosition="above"
             options={friendOptions}
             value={selected}
             onValueChange={setSelected}
@@ -205,12 +132,64 @@ export function SecretSantaInviteSheet({
                 ? t('No friends match "{search}".', { search: search.trim() })
                 : t("No friends to invite.")
             }
+            inputAccessory={
+              <Button
+                className="h-10 rounded-none px-3"
+                disabled={inviteUsers.isPending || selected.length === 0}
+                onPress={submit}
+              >
+                {inviteUsers.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
+                <Text>{t("Send")}</Text>
+              </Button>
+            }
             inputProps={{ autoCapitalize: "words", autoCorrect: false }}
           />
+          <View className="flex-row items-center rounded-xl bg-bg-subtle px-2">
+            <Button
+              className="h-11 min-w-0 flex-1 justify-start px-2"
+              variant="ghost"
+              onPress={handleShareLink}
+            >
+              <Icon as={Share2} className="size-5 text-text" />
+              <Text className="text-base">{t("Share invite link")}</Text>
+            </Button>
+            <View className="h-6 w-px bg-border-subtle" />
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              accessibilityLabel={t("Copy invite link")}
+              onPress={handleCopyLink}
+            >
+              <Icon as={Copy} className="size-5 text-text" />
+            </Button>
+          </View>
         </View>
-
-        {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
-      </ScrollView>
+      }
+    >
+      {selected.length > 0 || error ? (
+        <View className="gap-5 px-5 pb-6 pt-5">
+          {selected.length > 0 ? (
+            <View className="flex-row flex-wrap gap-2 pt-1">
+              {selected.map((friend) => (
+                <Button
+                  key={friend.value}
+                  variant="secondary"
+                  size="sm"
+                  accessibilityLabel={t("Remove {name}", { name: friend.label })}
+                  onPress={() =>
+                    setSelected((current) => current.filter((item) => item.value !== friend.value))
+                  }
+                  className="rounded-full"
+                >
+                  <Text>{friend.label}</Text>
+                  <Icon as={X} className="size-3.5 text-text" />
+                </Button>
+              ))}
+            </View>
+          ) : null}
+          {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
+        </View>
+      ) : null}
     </BottomSheet>
   );
 }
