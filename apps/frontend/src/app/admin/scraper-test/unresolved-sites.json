@@ -1,0 +1,1104 @@
+[
+  {
+    "url": "https://www.etsy.com/listing/1203260093/black-rose-iron-on-patch-sew-flower?ls=r&external=1&ref_group_id=hp_content_grouping_gqc_v3__609222936925&ref=hp_content_grouping-1-3&sr_prefetch=1&pf_from=home&pro=1&sts=1&content_source=afb42ec9a040bbe11bf409842c4d773b%253ALTc18e3c6859f887f73835c7201e8966a709a46c4f&logging_key=afb42ec9a040bbe11bf409842c4d773b%3ALTc18e3c6859f887f73835c7201e8966a709a46c4f",
+    "status": "blocked",
+    "error": "Product page could not be accessed",
+    "data": {
+      "title": "etsy.com",
+      "description": null,
+      "image": null,
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": null
+    },
+    "duration": 4018,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "jina_reader",
+      "selectedFetchMethod": "jina_reader",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 993,
+          "status": 403,
+          "blockReason": "http_status",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 2,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 141,
+          "status": 403,
+          "blockReason": "http_status",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 3,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 792,
+          "status": 403,
+          "blockReason": "http_status",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 4,
+          "mode": "jina_reader",
+          "purpose": "reader_fallback",
+          "outcome": "received",
+          "durationMs": 1552,
+          "status": 200,
+          "parseScore": 25,
+          "parseAccepted": false,
+          "selected": true
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "jina_reader",
+          "library": "lxml"
+        }
+      },
+      "warnings": []
+    },
+    "validations": []
+  },
+  {
+    "url": "https://www.worten.pt/produtos/calcado-de-seguranca-sparco-impulse-milton-esd-s1ps-sr-fo-tamanho-43-mrkean-8033280556129",
+    "status": "blocked",
+    "error": "Product page could not be accessed",
+    "data": {
+      "title": "www.worten.pt",
+      "description": null,
+      "image": null,
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": null
+    },
+    "duration": 16457,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "scrapling_browser",
+      "selectedFetchMethod": "scrapling_browser",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 486,
+          "status": 403,
+          "blockReason": "challenge",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": true
+        },
+        {
+          "sequence": 2,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 89,
+          "status": 403,
+          "blockReason": "challenge",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 3,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "timeout",
+          "durationMs": 13031,
+          "error": "scrapling_browser timed out",
+          "selected": false
+        },
+        {
+          "sequence": 4,
+          "mode": "jina_reader",
+          "purpose": "reader_fallback",
+          "outcome": "blocked",
+          "durationMs": 2604,
+          "status": 200,
+          "blockReason": "challenge",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "adaptive:seed",
+          "library": "Scrapling"
+        }
+      },
+      "warnings": []
+    },
+    "validations": []
+  },
+  {
+    "url": "https://www.pttavm.com/apple-airpods-pro-3-nesil-apple-turkiye-garantili-p-1462157482",
+    "status": "blocked",
+    "error": "Product page could not be accessed",
+    "data": {
+      "title": "Sorry, you have been blocked",
+      "description": null,
+      "image": null,
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": null
+    },
+    "duration": 13655,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "jina_reader",
+      "selectedFetchMethod": "scrapling_http",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 114,
+          "status": 403,
+          "blockReason": "challenge",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": true
+        },
+        {
+          "sequence": 2,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 7359,
+          "status": 200,
+          "blockReason": "challenge",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 3,
+          "mode": "jina_reader",
+          "purpose": "reader_fallback",
+          "outcome": "timeout",
+          "durationMs": 6001,
+          "error": "jina_reader timed out",
+          "selected": false
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "adaptive:seed",
+          "library": "Scrapling"
+        }
+      },
+      "warnings": []
+    },
+    "validations": []
+  },
+  {
+    "url": "https://pinduoduo.com/home/sale",
+    "status": "blocked",
+    "error": "Product page could not be accessed",
+    "data": {
+      "title": "拼多多 新电商开创者",
+      "description": "拼多多作为新电商开创者，致力于将娱乐社交的元素融入电商运营中，通过“社交+电商”的模式，让更多的用户带着乐趣分享实惠，享受全新的共享式购物体验。",
+      "image": null,
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": "TRY"
+    },
+    "duration": 1947,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "scrapling_http",
+      "selectedFetchMethod": "scrapling_http",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 1029,
+          "status": 200,
+          "parseScore": 40,
+          "parseAccepted": false,
+          "selected": true
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "meta_dom",
+          "library": "lxml"
+        },
+        "description": {
+          "source": "meta_dom",
+          "library": "lxml"
+        },
+        "currency": {
+          "source": "meta_dom",
+          "library": "lxml"
+        }
+      },
+      "warnings": []
+    },
+    "validations": [],
+    "comment": "fix parsing"
+  },
+  {
+    "url": "https://www.smythstoys.com/uk/en-gb/outdoor/sports-and-equipment/football/kick-about-interactive-football-training-game/p/235359",
+    "status": "blocked",
+    "error": "Product page could not be accessed",
+    "data": {
+      "title": "Pardon Our Interruption",
+      "description": null,
+      "image": null,
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": "TRY"
+    },
+    "duration": 439,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "scrapling_http",
+      "selectedFetchMethod": "scrapling_http",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 162,
+          "status": 200,
+          "parseScore": 35,
+          "parseAccepted": false,
+          "selected": true
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "meta_dom",
+          "library": "lxml"
+        },
+        "currency": {
+          "source": "meta_dom",
+          "library": "lxml"
+        }
+      },
+      "warnings": []
+    },
+    "validations": [],
+    "comment": "fix parsing"
+  },
+  {
+    "url": "https://www.smzdm.com/p/178128662/",
+    "status": "blocked",
+    "error": "No product data could be extracted",
+    "data": null,
+    "duration": 13766,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "jina_reader",
+      "selectedFetchMethod": "scrapling_browser",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 1035,
+          "status": 202,
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 2,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 4517,
+          "status": 200,
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": true
+        },
+        {
+          "sequence": 3,
+          "mode": "jina_reader",
+          "purpose": "reader_fallback",
+          "outcome": "timeout",
+          "durationMs": 6000,
+          "error": "jina_reader timed out",
+          "selected": false
+        }
+      ],
+      "parserSources": {},
+      "warnings": []
+    },
+    "validations": [],
+    "comment": "fix parsing"
+  },
+  {
+    "url": "https://www.bedbathandbeyond.com/Home-Garden/Slumber-Solutions-Choose-Your-Comfort-14-inch-King-size-Gel-Memory-Foam-Mattress/8600148/product.html?refccid=S7MUPIDEZIGJM72AZ34BZ52X6M&searchidx=0",
+    "status": "partial",
+    "data": {
+      "title": "URL Source: https://www.bedbathandbeyond.com/Home-Garden/Slumber-Solutions-Choose-Your-Comfort-14-inch-King-size-Gel-Memory-Foam-Mattress/8600148/product.html?refccid=S7MUPIDEZIGJM72AZ34BZ52X6M&searchidx=0",
+      "description": null,
+      "image": "https://www.akamai.com/site/ko/images/logo/akamai-logo1.svg",
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": null
+    },
+    "missingFields": [
+      "price"
+    ],
+    "duration": 3105,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "jina_reader",
+      "selectedFetchMethod": "jina_reader",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 190,
+          "status": 200,
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 2,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 753,
+          "status": 200,
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 3,
+          "mode": "jina_reader",
+          "purpose": "reader_fallback",
+          "outcome": "received",
+          "durationMs": 1925,
+          "status": 200,
+          "parseScore": 45,
+          "parseAccepted": false,
+          "selected": true
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "jina_reader",
+          "library": "lxml"
+        },
+        "image": {
+          "source": "jina_reader",
+          "library": "lxml"
+        }
+      },
+      "warnings": []
+    },
+    "validations": [],
+    "comment": "Пофиксить парсинг"
+  },
+  {
+    "url": "https://www.ria.com/uk/klyuch-sigma-nabor-rojkovo-nakydnyh-8sht-6-234673634.html",
+    "status": "success",
+    "data": {
+      "title": "Ключ Sigma набір рожково-накидних 8шт 6-19мм CrV satine (6010111) (234673634) - RIA.com",
+      "description": "Продаю на RIA.com - Ключ Sigma набір рожково-накидних 8шт 6-19мм CrV satine (6010111), ціна - 473 грн. Продавець: Newtrend. Швидка та безпечна купівля товарів.",
+      "image": "https://cdn.riastatic.com/photosnew/general/adv_photo/klyuch-sigma-nabor-rojkovo-nakydnyh-8sht-6__33781017m.jpg",
+      "price": "473473",
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": "UAH"
+    },
+    "missingFields": [],
+    "duration": 409,
+    "diagnostics": {
+      "engine": "legacy",
+      "fetchMethod": "direct_http",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "direct_http",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 0,
+          "selected": true
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "html_meta_dom",
+          "library": "Cheerio"
+        },
+        "description": {
+          "source": "html_meta_dom",
+          "library": "Cheerio"
+        },
+        "image": {
+          "source": "html_meta_dom",
+          "library": "Cheerio"
+        },
+        "price": {
+          "source": "html_meta_dom",
+          "library": "Cheerio"
+        },
+        "currency": {
+          "source": "html_meta_dom",
+          "library": "Cheerio"
+        }
+      }
+    },
+    "validations": [],
+    "comment": "ціна неправильна"
+  },
+  {
+    "url": "https://www.bigw.com.au/product/dyson-v8-advanced-stick-vacuum/p/6073357",
+    "status": "blocked",
+    "error": "Product page could not be accessed",
+    "data": {
+      "title": "Access Denied",
+      "description": null,
+      "image": null,
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": null
+    },
+    "duration": 2929,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "jina_reader",
+      "selectedFetchMethod": "scrapling_http",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 228,
+          "status": 403,
+          "blockReason": "access_denied",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": true
+        },
+        {
+          "sequence": 2,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 1013,
+          "status": 403,
+          "blockReason": "access_denied",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 3,
+          "mode": "jina_reader",
+          "purpose": "reader_fallback",
+          "outcome": "received",
+          "durationMs": 1414,
+          "status": 200,
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "adaptive:seed",
+          "library": "Scrapling"
+        }
+      },
+      "warnings": [
+        "blocked_or_placeholder_title"
+      ]
+    },
+    "validations": []
+  },
+  {
+    "url": "https://www.takealot.com/water-resistant-winter-dog-jacket-100-polyester-fleece/PLID95471440",
+    "status": "success",
+    "data": {
+      "title": "Water Resistant Winter Dog Jacket 100% Polyester Fleece",
+      "description": "South Africa's leading online store. Fast, reliable delivery to your door. Many ways to pay. Shop anything you can imagine: TVs, laptops, cellphones, kitchen appliances, toys, books, beauty & more. Shop the mobile app anytime, anywhere.",
+      "image": "https://media.takealot.com/covers_images/ab3787f0d2f64c93910769adf929e329/s-xlpreview.file",
+      "price": "514514",
+      "discount_price": "198198",
+      "has_discount": true,
+      "discount_end_date": null,
+      "currency": "USD"
+    },
+    "missingFields": [],
+    "duration": 8620,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "scrapling_browser",
+      "selectedFetchMethod": "scrapling_browser",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 1077,
+          "status": 200,
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 2,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 92,
+          "status": 403,
+          "blockReason": "challenge",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 3,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 6725,
+          "status": 200,
+          "parseScore": 90,
+          "parseAccepted": true,
+          "selected": true
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "store:takealot",
+          "library": "lxml"
+        },
+        "description": {
+          "source": "store:takealot",
+          "library": "lxml"
+        },
+        "image": {
+          "source": "meta_dom",
+          "library": "lxml"
+        },
+        "price": {
+          "source": "meta_dom",
+          "library": "lxml"
+        },
+        "discount_price": {
+          "source": "meta_dom",
+          "library": "lxml"
+        },
+        "currency": {
+          "source": "meta_dom",
+          "library": "lxml"
+        },
+        "has_discount": {
+          "source": "meta_dom",
+          "library": "lxml"
+        }
+      },
+      "warnings": []
+    },
+    "validations": []
+  },
+  {
+    "url": "https://booth.pm/en/items/8528675",
+    "status": "partial",
+    "data": {
+      "title": null,
+      "description": null,
+      "image": "https://booth.pximg.net/c/48x48/users/5439237/icon_image/45797548-9960-437b-9d1d-fddc9bfd3028_base_resized.jpg",
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": null
+    },
+    "missingFields": [
+      "title",
+      "price"
+    ],
+    "duration": 17448,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "jina_reader",
+      "selectedFetchMethod": "scrapling_http",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 1877,
+          "status": 200,
+          "blockReason": "challenge",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": true
+        },
+        {
+          "sequence": 2,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 8135,
+          "status": 200,
+          "blockReason": "challenge",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 3,
+          "mode": "jina_reader",
+          "purpose": "reader_fallback",
+          "outcome": "timeout",
+          "durationMs": 6000,
+          "error": "jina_reader timed out",
+          "selected": false
+        }
+      ],
+      "parserSources": {
+        "image": {
+          "source": "adaptive:seed",
+          "library": "Scrapling"
+        }
+      },
+      "warnings": []
+    },
+    "validations": []
+  },
+  {
+    "url": "https://www.dhgate.com/product/tiempo-maestro-ligera-elite-fg-infra-redx/1110499349.html?dspm=pcen.hp.topranking.3.izWWiOkPxDbRNH3KpTVU&resource_id=1110499349&scm_id=undefined&skuId=1534775607047536649",
+    "status": "success",
+    "data": {
+      "title": "Tiempo Maestro Ligera Elite FG Infra Redx Jor R11... From Factory Sagocycad01, Bulk &Price; | DHgate.Com",
+      "description": "Embrace rugged style with tiempo maestro ligera elite fg infra-redx jor r11 football shoes amazon -.... Discover durable basket uggs, perfect for outdoor adventures and fashion-forward looks.",
+      "image": "https://img4.dhresource.com/0x0/f3/albu/bw/o/08/f7bd3ca6-ed28-4226-a951-e9de8c095c43.jpg",
+      "price": "28.25",
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": "USD"
+    },
+    "missingFields": [],
+    "duration": 1094,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "scrapling_http",
+      "selectedFetchMethod": "scrapling_http",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 822,
+          "status": 200,
+          "parseScore": 90,
+          "parseAccepted": true,
+          "selected": true
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "json_ld",
+          "library": "json / lxml"
+        },
+        "description": {
+          "source": "json_ld",
+          "library": "json / lxml"
+        },
+        "image": {
+          "source": "json_ld",
+          "library": "json / lxml"
+        },
+        "price": {
+          "source": "json_ld",
+          "library": "json / lxml"
+        },
+        "currency": {
+          "source": "json_ld",
+          "library": "json / lxml"
+        }
+      },
+      "warnings": [
+        "adaptive_title_conflict",
+        "adaptive_description_conflict"
+      ]
+    },
+    "validations": []
+  },
+  {
+    "url": "https://www.canadiantire.ca/en/pdp/coleman-316-marine-series-hard-cooler-white-120-qt-0854287p.html",
+    "status": "blocked",
+    "error": "Product page could not be accessed",
+    "data": {
+      "title": "General PDP Template",
+      "description": null,
+      "image": null,
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": "AUD"
+    },
+    "duration": 1273,
+    "diagnostics": {
+      "engine": "legacy",
+      "fetchMethod": "direct_http",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "direct_http",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 0,
+          "selected": true
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "html_meta_dom",
+          "library": "Cheerio"
+        },
+        "currency": {
+          "source": "html_meta_dom",
+          "library": "Cheerio"
+        }
+      }
+    },
+    "validations": []
+  },
+  {
+    "url": "https://www.elcorteingles.es/supermercado/B001018384600377-campofrio-finissimas-pechuga-de-pavo-cocida-en-lonchas-sin-gluten-sin-lactosa-envase-165-g/",
+    "status": "blocked",
+    "error": "Product page could not be accessed",
+    "data": {
+      "title": "Challenge Validation",
+      "description": null,
+      "image": null,
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": null
+    },
+    "duration": 6756,
+    "diagnostics": {
+      "engine": "legacy",
+      "fetchMethod": "direct_http",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "direct_http",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 0,
+          "selected": true
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "html_meta_dom",
+          "library": "Cheerio"
+        }
+      }
+    },
+    "validations": []
+  },
+  {
+    "url": "https://www.argos.co.uk/product/3798742?rec=HP:topSlider:P1:PPIall:bestsellers:3798742:X3weukhsloPsiYv3eGr9:2:full",
+    "status": "blocked",
+    "error": "Product page could not be accessed",
+    "data": {
+      "title": "Access Denied",
+      "description": null,
+      "image": null,
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": null
+    },
+    "duration": 2527,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "jina_reader",
+      "selectedFetchMethod": "scrapling_http",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 236,
+          "status": 403,
+          "blockReason": "access_denied",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": true
+        },
+        {
+          "sequence": 2,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 653,
+          "status": 403,
+          "blockReason": "access_denied",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 3,
+          "mode": "jina_reader",
+          "purpose": "reader_fallback",
+          "outcome": "received",
+          "durationMs": 1294,
+          "status": 200,
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "adaptive:seed",
+          "library": "Scrapling"
+        }
+      },
+      "warnings": [
+        "blocked_or_placeholder_title"
+      ]
+    },
+    "validations": []
+  },
+  {
+    "url": "https://www.bol.com/nl/nl/p/livin-aquabot-zwembadrobot-zwembad-stofzuiger-geschikt-voor-zwembaden-tot-100m2-reinigt-bodem-en-wanden-krachtige-borstel-2-5-uur-reiniging-draadloos-incl-naviclean-technology-grijs/9300000187809005/?cid=1783541180807-7439133584623",
+    "status": "blocked",
+    "error": "Product page could not be accessed",
+    "data": {
+      "title": "IP address 34.34.225.155 is blocked",
+      "description": null,
+      "image": null,
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": null
+    },
+    "duration": 2608,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "jina_reader",
+      "selectedFetchMethod": "jina_reader",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "jina_reader",
+          "purpose": "reader",
+          "outcome": "received",
+          "durationMs": 1417,
+          "status": 200,
+          "parseScore": 25,
+          "parseAccepted": false,
+          "selected": true
+        },
+        {
+          "sequence": 2,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 227,
+          "status": 403,
+          "blockReason": "http_status",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 3,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 459,
+          "status": 403,
+          "blockReason": "http_status",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 4,
+          "mode": "jina_reader",
+          "purpose": "reader_fallback",
+          "outcome": "received",
+          "durationMs": 273,
+          "status": 200,
+          "parseScore": 25,
+          "parseAccepted": false,
+          "selected": false
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "jina_reader",
+          "library": "lxml"
+        }
+      },
+      "warnings": []
+    },
+    "validations": []
+  },
+  {
+    "url": "https://www.dns-shop.ru/product/232aa9f9b9a11b80/materinskaa-plata-msi-mpg-b550-gaming-plus/",
+    "status": "blocked",
+    "error": "Target website blocked the request (http_status)",
+    "data": null,
+    "duration": 7508,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "jina_reader",
+      "selectedFetchMethod": "scrapling_http",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 172,
+          "status": 401,
+          "blockReason": "http_status",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": true
+        },
+        {
+          "sequence": 2,
+          "mode": "scrapling_browser",
+          "purpose": "product_page",
+          "outcome": "blocked",
+          "durationMs": 1081,
+          "status": 401,
+          "blockReason": "http_status",
+          "parseScore": 0,
+          "parseAccepted": false,
+          "selected": false
+        },
+        {
+          "sequence": 3,
+          "mode": "jina_reader",
+          "purpose": "reader_fallback",
+          "outcome": "timeout",
+          "durationMs": 5999,
+          "error": "jina_reader timed out",
+          "selected": false
+        }
+      ],
+      "parserSources": {},
+      "warnings": []
+    },
+    "validations": []
+  },
+  {
+    "url": "https://market.yandex.ru/card/smartfon-apple-iphone-16-128-gb-dual-nano-sim-rozovyy-pink/103542478752?do-waremd5=oDB7oT0ijt52ue2vMgaQAw&cpc=SAIvee0cvxIByVMAteyYRBJ9tfnEfPYxWM19BIafEY7XfDxDz60JbTpZVtFgb2_bPWUUxNfd7QdjKwvXBMcbiH1SyYBE5l3FloNgqwqQ3EEmfcBduBgrzeaanok5NAa_ewnrPnXreRTtxLmITthBkiQH_DzaKjksqtYN9RDP9WiUnZo4cyT7t4tzATfP9xBbQJPWI1yqq4_BOj89P1o3xaXs7qBxysn4h438voqfzcXEfVkNHX7C4wxFhXx8E2fgNxY3ESIVrA_FL5-XD2tzGAE4TPhE2hXxHIUWaSYTaE-HMONwcNFYPFBC0fXkeZVz5T4mMgmM6lh-ToAL6a4M767rHcpez-pe6GJRlXjI-lQ5XXfk1tcldugrxjstSZb1UBPTX1xxMjSAm7k_4-jf-m5372a6DS4TmYo8rVgBdJHI-1BRSZcdfuyK-lAYCacnfqMN9ZMgVK3-wLyyoqyusGZpAeLl1h8yU9WB8C5LDqW_BLSlaP_xJ79yZC1EfeSSe1noJ2IYC3U5XpBX7JC1NQ%2C%2C&ogV=-12",
+    "status": "partial",
+    "data": {
+      "title": "Yandex",
+      "description": "Finds everything",
+      "image": "https://yastatic.net/s3/home-static/_/90/9034470dfcb0bea0db29a281007b8a38.png",
+      "price": null,
+      "discount_price": null,
+      "has_discount": false,
+      "discount_end_date": null,
+      "currency": null
+    },
+    "missingFields": [
+      "price"
+    ],
+    "duration": 1424,
+    "diagnostics": {
+      "engine": "scrapling",
+      "fetchMethod": "scrapling_http",
+      "selectedFetchMethod": "scrapling_http",
+      "attempts": [
+        {
+          "sequence": 1,
+          "mode": "scrapling_http",
+          "purpose": "product_page",
+          "outcome": "received",
+          "durationMs": 215,
+          "status": 200,
+          "parseScore": 50,
+          "parseAccepted": false,
+          "selected": true
+        }
+      ],
+      "parserSources": {
+        "title": {
+          "source": "meta_dom",
+          "library": "lxml"
+        },
+        "description": {
+          "source": "meta_dom",
+          "library": "lxml"
+        },
+        "image": {
+          "source": "meta_dom",
+          "library": "lxml"
+        }
+      },
+      "warnings": [
+        "adaptive_title_conflict"
+      ]
+    },
+    "validations": []
+  }
+]

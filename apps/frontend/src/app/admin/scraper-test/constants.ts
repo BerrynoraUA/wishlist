@@ -56,11 +56,16 @@ export interface ScrapeResult {
   url: string;
   status: ScraperStatus;
   data: ProductData | null;
+  comment?: string;
   error?: string;
   missingFields?: string[];
   duration: number;
   validations: FieldValidation[];
   diagnostics?: ScrapeDiagnostics;
+  /** Number of times this site has been reported as unresolved. */
+  requestCount?: number;
+  /** Email of the user who first reported this site. */
+  author?: string;
 }
 
 /** Shape of each entry in POST /api/admin/scraper-test `results`. */

@@ -93,7 +93,7 @@
   },
   {
     "url": "https://www.trendyol.com/uk/deepsence/chorna-oversayz-basketbolna-futbolka-p-1128135535?boutiqueId=61",
-    "verified_at": "2026-06-30",
+    "verified_at": "2026-07-06",
     "locale": "uk-UA",
     "variant": "Product 1128135535, boutique 61",
     "expected": {
@@ -104,8 +104,7 @@
       "has_discount": false,
       "image": "https://cdn.dsmcdn.com/ty1848/prod/QC_PREP/20260403/18/da3481d0-5039-355f-a715-d4c94a0a0b9d/1_org_zoom.jpg",
       "description": "З Trendyol.com ви можете придбати Чорна оверсайз баскетбольна футболка бренду DEEPSENCE за вигідними знижками. Обирайте стиль вже сьогодні!"
-    },
-    "verified_at": "2026-07-06"
+    }
   },
   {
     "url": "https://www.target.com/p/shark-rocket-ultra-light-corded-stick-vacuum/-/A-95006512?preselect=94779672#lnk=sametab",
@@ -1489,5 +1488,382 @@
       "description": null
     },
     "verified_at": "2026-07-06"
+  },
+  {
+    "url": "https://www.walmart.com/ip/Ascent-100-Whey-Mint-Chocolate-Chip-Whey-Protein-Powder/16352906698?athAsset=eyJhdGhjcGlkIjoiMTYzNTI5MDY2OTgiLCJhdGhzdGlkIjoiQ1MwMjAiLCJhdGhhbmNpZCI6Ikl0ZW1DYXJvdXNlbCIsImF0aHJrIjowLjB9&athena=true&athbdg=L1700",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Ascent 100% Whey Protein Powder, Gluten Free, Mint Chocolate Chip, 25 Servings - Walmart.com",
+      "price": "39.19",
+      "discount_price": null,
+      "currency": "USD",
+      "has_discount": false,
+      "image": "https://i5.walmartimages.com/seo/Ascent-100-Whey-Mint-Chocolate-Chip-Whey-Protein-Powder_93ca6df8-7a4a-492f-a72f-77d2c120ee8d.4d05d4e4e9a341539d418ad658f6476c.jpeg",
+      "description": "Buy Ascent 100% Whey Protein Powder, Gluten Free, Mint Chocolate Chip, 25 Servings at Walmart.com"
+    }
+  },
+  {
+    "url": "https://item.rakuten.co.jp/antiqua-a/clb-0003/",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "�ڳ�ŷ�Ծ�ۥѡ����� �ȥåץ� Ĺµ ��ǥ����� ��� ���å� ����̵�����᡼�����Բġ�261B�ۡ�antiqua�ʥ���ƥ�����",
+      "price": "6930",
+      "discount_price": null,
+      "currency": "JPY",
+      "has_discount": false,
+      "image": "https://shop.r10s.jp/antiqua-a/cabinet/henkou7/251231s/clb-0003.jpg",
+      "description": "���å��ѡ����� Ĺµ �������å� ������ �������� ��100 ���ȥ饤�� ����֥�� �� ��ä��� �ա��� ���åץѡ����� �� ���åȥ� Ω�δ� �ա��ǥ��� ���åץ��å� ���ѡ����� �ȥåץ� Ĺµ ��ǥ����� ��� ���å� ����̵�����᡼�����Բġ�261B��"
+    }
+  },
+  {
+    "url": "https://www.alibaba.com/product-detail/Air-Shipping-Fast-Sea-Freight-Shipping_1601196404013.html?spm=a2700.product_home_fy25.just_for_you.4.2ce267af9Fax4Z&priceId=6330dc995f0c4244b26ab95138011de0",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Air Shipping Fast Sea Freight Shipping China Door to Door Logistics Service Freight Forwarder Shipping Agent to Usa Uk Canada",
+      "price": "0.4",
+      "discount_price": null,
+      "currency": "USD",
+      "has_discount": false,
+      "image": "https://sc04.alicdn.com/kf/Hb386b74434e44379a554f3e7440b6387n.jpg",
+      "description": "Air Shipping Fast Sea Freight Shipping China Door To Door Logistics Service Freight Forwarder Shipping Agent To Usa Uk Canada , Find Complete Details about Air Shipping Fast Sea Freight Shipping China Door To Door Logistics Service Freight Forwarder Shipping Agent To Usa Uk Canada from Shenzhen CDT International Logistics Co., Ltd Supplier or Manufacturer on Alibaba.com"
+    }
+  },
+  {
+    "url": "https://go.olx.com.br/grande-goiania-e-anapolis/moveis/sofas-e-poltronas/sofa-retratil-e-reclinavel-em-suede-marrom-2-30-metros-de-largura-1513830093?rec=u&custom_tag=homefeed&gallery_id=top_21020&tab_id=tudo&is_fallback=false&page=home&lis=homefeed%7CNA%7Ctop_21020%7C0",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Sofá Retrátil e Reclinável em Suede Marrom - 2,30 Metros de Largura",
+      "price": "1800",
+      "discount_price": null,
+      "currency": "BRL",
+      "has_discount": false,
+      "image": "https://img.olx.com.br/images/30/303610296764398.jpg",
+      "description": "Sofá extremamente confortável com assentos retráteis e encosto reclinável em várias posições. Tecido em suede texturizado na cor marrom claro/fendi, super macio ao toque. Estrutura e espumas firmes.<br> Medida: 2,30 metros de largura.<br>Comprado na Loja Vitória Móveis em Minas Geais. <br>? INFORMAÇÃO IMPORTANTE: Item disponível para retirada exclusivamente na última semana de Julho."
+    }
+  },
+  {
+    "url": "https://www.indiamart.com/proddetail/tk503-usb-to-rs485-plc-programming-cable-usb-2856584225091.html",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "TK503 USB TO RS485  PLC Programming Cable, USB",
+      "price": "1900",
+      "discount_price": null,
+      "currency": "INR",
+      "has_discount": false,
+      "image": "https://5.imimg.com/data5/SELLER/Default/2025/6/520786352/OG/ST/UY/12873145/tk503-usb-to-rs485-plc-programming-cable-usb-500x500.jpg",
+      "description": "Support system: WIN7(34/64bit) / XP / VISTAUSAGE: Suitable for ABB  AC500 &amp; ECO Series PLC like PM564,PM554,PM573 etc.,"
+    }
+  },
+  {
+    "url": "https://www.shopsy.in/vrlooks-men-self-design-casual-maroon-black-shirt/p/itm1a4d255f1d886?pid=XSRHGQ4GRUYEKVSK&lid=LSTXSRHGQ4GRUYEKVSKHKWHZH&marketplace=FLIPKART&store=clo%2Fash%2Faxc%2Fmmk%2Fkp7",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "VRLOOKS Men Self Design Casual Maroon, Black Shirt",
+      "price": "376",
+      "discount_price": null,
+      "currency": "INR",
+      "has_discount": false,
+      "image": "http://rukmini1.flixcart.com/image/1500/1500/xif0q/shopsy-shirt/n/o/v/m-popcorn-full-black-maroon-w-s-textile-original-imahjgffemrcgwgm.jpeg?q=70",
+      "description": "Buy VRLOOKS Men Self Design Casual Maroon, Black Shirt for Rs.999 online. VRLOOKS Men Self Design Casual Maroon, Black Shirt at best prices with FREE shipping & cash on delivery. Only Genuine Products. 30 Day Replacement Guarantee."
+    }
+  },
+  {
+    "url": "https://www.magazineluiza.com.br/porta-tempero-de-vidro-10-pecas-brinox-lock-stock/p/240128700/ud/port/?seller_id=magazineluiza",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Porta-tempero de Vidro 10 Peças Brinox",
+      "price": "28.90",
+      "discount_price": null,
+      "currency": "BRL",
+      "has_discount": false,
+      "image": "https://a-static.mlcdn.com.br/450pxx450px/porta-tempero-de-vidro-10-pecas-brinox-lock-stock/magazineluiza/240128700/ad5bd42997fc802543f82673241c26af.jpg",
+      "description": "Para você que está projetando ou renovando os utensílios da cozinha, precisa pensar em itens que ofereçam beleza e praticidade. Na hora de preparar os alimentos, ter esses itens a disposição, faz toda a diferença nos resultados e deixa o ambiente ainda mais aconchegante.\nA Brinox apresenta o porta-tempero Lock & Stock.\nIdeal para deixá-lo na mesa, é composto por 10 peças (9 potes de vidro com tampa e 1 suporte giratório).\nOs potes são fabricados em vidro com tampa com rosca simples e o suporte giratório em polipropileno."
+    }
+  },
+  {
+    "url": "https://www.action.com/fr-lu/p/3222028/fils-scoobytastic/",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Fils Scoobytastic",
+      "price": "0.84",
+      "discount_price": null,
+      "currency": "EUR",
+      "has_discount": false,
+      "image": "https://asset.action.com/image/upload/t_digital_product_image/w_1200/3222028_8721352292609-110_01_rhwajb.webp",
+      "description": "40 pièces | Diverses couleurs. Couleur: Multicolor. Âge: Dès 6 ans. Quantité: 40 pièces . Numéro de l'article: 3222028"
+    }
+  },
+  {
+    "url": "https://www.momoshop.com.tw/product/7742923",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "【Sodastream】CO2交換旋轉鋼瓶425g-3入組(您須有3支空鋼瓶 僅適用旋轉機種) - momo購物網 - 好評推薦 -2026年7月",
+      "price": "1260",
+      "discount_price": null,
+      "currency": "TWD",
+      "has_discount": false,
+      "image": "https://i4.momoshop.com.tw/1760969342/goodsimg/0007/742/923/7742923_R_m.webp",
+      "description": "僅Sodastream空瓶可換, 空瓶數缺少將補額外費用, 空鋼瓶需紙箱包裝交與司機"
+    }
+  },
+  {
+    "url": "https://www.johnlewis.com/triumph-comfort-glam-push-up-bra/black/p113624750",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "TriumphComfort Glam Push-Up Bra, Black",
+      "price": "44.00",
+      "discount_price": null,
+      "currency": "GBP",
+      "has_discount": false,
+      "image": "https://media.johnlewiscontent.com/i/JohnLewis/009999195?fmt=auto&$background-off-white$&$rsp-pdp-port-640$",
+      "description": "Buy Triumph Comfort Glam Push-Up Bra from our Bras range at John Lewis & Partners. Free Delivery on orders over £50."
+    }
+  },
+  {
+    "url": "https://www.91mobiles.com/xiaomi-redmi-turbo-5-price-in-india",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Xiaomi Redmi Turbo 5",
+      "price": "37999",
+      "discount_price": null,
+      "currency": "INR",
+      "has_discount": false,
+      "image": "https://www.91-img.com/pictures/170299-v4-xiaomi-redmi-turbo-5-mobile-phone-hres-1.jpg",
+      "description": "Discover the full specifications of Xiaomi Redmi Turbo 5 Mobile Phone, including MediaTek Dimensity 8500 Ultra, 8 GB /12 GB RAM, 50 MP + 8 MP Dual Rear Camera, 20 MP Front Camera, 7540 mAh battery & 6.59 inches (16.74 cm) display."
+    }
+  },
+  {
+    "url": "https://www.willhaben.at/iad/kaufen-und-verkaufen/d/sneakers-gr-34-1690985552",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Sneakers gr 34",
+      "price": "23",
+      "discount_price": null,
+      "currency": "EUR",
+      "has_discount": false,
+      "image": "https://cache.willhaben.at/mmo/2/169/098/5552_-1746538798.jpg",
+      "description": "Sneakers gr 34. 12.705.245 Angebote. Günstig kaufen und gratis inserieren auf willhaben - der größte Marktplatz Österreichs."
+    }
+  },
+  {
+    "url": "https://www.falabella.com.pe/falabella-pe/product/21427655/xiaomi-redmi-buds-8-lite-black/21427655",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Audífonos Bluetooth Xiaomi Redmi Buds 8 Lite",
+      "price": "89",
+      "discount_price": null,
+      "currency": "PEN",
+      "has_discount": false,
+      "image": "https://media.falabella.com/falabellaPE/21427655_1/public",
+      "description": "Audífonos Bluetooth Xiaomi Redmi Buds 8 Lite"
+    }
+  },
+  {
+    "url": "https://www.currys.co.uk/products/apple-macbook-air-13.6-2026-m5-1-tb-ssd-ram-16-gb-starlight-10292804.html",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "APPLE MacBook Air 13.6\" (2026) - M5, 1 TB SSD, RAM 16 GB, Starlight",
+      "price": "1599",
+      "discount_price": null,
+      "currency": "GBP",
+      "has_discount": false,
+      "image": "https://media.currys.biz/i/currysprod/10292804?$l-large$&fmt=auto",
+      "description": "Please note:- MacBook Air (13-inch) comes with a USB C to MagSafe 3 charging cable, but does not include a power adapter. A USB C power adapter or other USB PD power source that can provide 30W or higher is required to charge this device. For optimal charging, Apple recommends pairing this Mac with the Apple 30W USB C Power Adapter, or the 70W USB C Power Adapter to take advantage of fast charge (charging up to 50% in 30 minutes).- Apple Intelligence is available in beta. Some features may not be available in all regions or languages. For feature and language availability and system requirements, see support.apple.com/en-gb/121115.Built for speed, the MacBook Air 13” with M5 keeps up with everything you throw at it. The M5 Chip steps things up with faster performance, smooth multitasking and plenty of power for AI-driven apps. When you need a little extra brainpower, Apple Intelligence helps you write, create and shape ideas. Advanced privacy protections are built in, so your personal data stays exactly that - personal. And with a battery that goes the distance – up to 18 hours - you can work, watch and wander without constantly checking for the nearest plug.Good to know- Supercharged by M5 — With its faster CPU and unified memory, M5 delivers even more performance and fluidity across apps, making multitasking and creative workflows smooth and responsive. A powerful Neural Engine and next-generation GPU with Neural Accelerators give you a powerful platform for AI.- Apple Intelligence — Apple Intelligence is the personal intelligence system that helps you write, express yourself and get things done effortlessly. With groundbreaking privacy protections, it gives you peace of mind that no one else can access your data — not even Apple.- Up to 18 hours of battery life — MacBook Air delivers incredible battery life with amazing performance, so you can power through a full day of work or class without worrying about plugging in.- A brilliant 13.6 inch display — The Liquid Retina display supports 1 billion colours. Photos and videos pop with rich contrast and sharp detail, and text appears super crisp.- 12MP Center Stage Camera — Automatically stay in frame during video calls with Centre Stage, or share a top-down view of your workspace with Desk View. And with a three-mic array and four-speaker sound system with Spatial Audio and Dolby Atmos, everything sounds great.- Connect it all — MacBook Air features two Thunderbolt 4 ports, a MagSafe charging port, a headphone jack — as well as the Apple N1 wireless chip for Wi Fi 7 and Bluetooth 6. And it supports up to two external displays.- MacOS runs apps fast — All your go-to apps run lightning fast in macOS, including built-in apps like FaceTime and Messages. Plus, built-in virus protection and free software updates help keep your Mac running smoothly and securely.- If you love iPhone, you'll love Mac — Mac works like magic with your other Apple devices. View and control what's on your iPhone from your Mac with iPhone Mirroring. Copy something on iPhone and paste it on Mac. Send texts with Messages from your Mac, or use your Mac to answer FaceTime calls."
+    }
+  },
+  {
+    "url": "https://www.lidl.de/p/vale-2x-solarmodul-full-black-bifacial-430-wp-solarmodule/p100391293#list=Deal_Of_The_Day",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "2x Solarmodul, Full Black, bifacial, 430 Wp Solarmodule",
+      "price": "159",
+      "discount_price": null,
+      "currency": "EUR",
+      "has_discount": false,
+      "image": "https://www.lidl.de/assets/gcpb27ae413b626428f988f4673a3c10323.jpg",
+      "description": "2x Solarmodul, Full Black, bifacial, 430 Wp Solarmodule - 159€ (08.07.2026)"
+    }
+  },
+  {
+    "url": "https://www.mvideo.ru/products/umnaya-klimaticheskaya-stanciya-dorfhaus-umnyi-klimaticheskii-kompleks-vozduhoohladitel-401600077",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "URL Source: https://www.mvideo.ru/products/umnaya-klimaticheskaya-stanciya-dorfhaus-umnyi-klimaticheskii-kompleks-vozduhoohladitel-401600077",
+      "price": null,
+      "discount_price": null,
+      "currency": null,
+      "has_discount": false,
+      "image": null,
+      "description": null
+    }
+  },
+  {
+    "url": "https://evergreen163.en.made-in-china.com/product/oESrupbTJPch/China-ABS-House-Mini-PP-Aluminum-Polo-Price-Wholesale-President-Luggages-Trolley-Foldable-Hand-Carry-on-Sky-Smart-Leather-Lightweight-Suitcase-Travel-Bag-Luggage.html",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "ABS House Mini PP Aluminum Polo Price Wholesale President Luggages Trolley Foldable Hand Carry on Sky Smart Leather Lightweight Suitcase Travel Bag Luggage",
+      "price": "18.38",
+      "discount_price": null,
+      "currency": "USD",
+      "has_discount": false,
+      "image": "https://image.made-in-china.com/2f0j00DKlkYsMGljcO/ABS-House-Mini-PP-Aluminum-Polo-Price-Wholesale-President-Luggages-Trolley-Foldable-Hand-Carry-on-Sky-Smart-Leather-Lightweight-Suitcase-Travel-Bag-Luggage.webp",
+      "description": "ABS House Mini PP Aluminum Polo Price Wholesale President Luggages Trolley Foldable Hand Carry on Sky Smart Leather Lightweight Suitcase Travel Bag Luggage, Find Details and Price about Travel Bag Luggage President Luggage from ABS House Mini PP Aluminum Polo Price Wholesale President Luggages Trolley Foldable Hand Carry on Sky Smart Leather Lightweight Suitcase Travel Bag Luggage - Guangzhou Evergreen Leather Goods Co., Ltd."
+    }
+  },
+  {
+    "url": "https://pc.bazos.cz/inzerat/221075292/macpro-2019-16c-96gb-ram-8tb-ssd-2xvega-ii-2x8tb-hdd.php",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "MacPro 2019 16C, 96GB RAM, 8TB SSD, 2xVega II, 2x8TB HDD - Praha 9",
+      "price": null,
+      "discount_price": null,
+      "currency": "RUB",
+      "has_discount": false,
+      "image": "https://www.bazos.cz/img/1/292/221075292.jpg?t=1783540780",
+      "description": "Inzerát č. 221075292: MacPro 2019 16C, 96GB RAM, 8TB SSD, 2xVega II, 2x8TB HDD, Cena: 109 000 Kč, Lokalita: Praha 9. Popis: Top sestava pro práci s."
+    }
+  },
+  {
+    "url": "https://www.myer.com.au/p/blaq-calvin-chelsea-boot-black",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Calvin Chelsea Boot Black",
+      "price": "77.97",
+      "discount_price": null,
+      "currency": "AUD",
+      "has_discount": false,
+      "image": "https://myer-media.com.au/wcsstore/MyerCatalogAssetStore/images/40/205/3824/100/4/293213140/293213140_1_720x928.jpg",
+      "description": "The classic  Chelsea Boot  is one that's versatile enough for many occasions. Effortlessly sleek and fitted, it's a stylish boot suited for wearing with confidence at any hour, whether for business or pleasure. The contrasted inner lining adds a special touch that elevates these boots above the rest.     Features:    Pull-on design  Colour contrast inner lining  Also available in brown      Style no. BLFW26006"
+    }
+  },
+  {
+    "url": "https://www.cashify.in/buy-refurbished-mobile-phones/renewed-samsung-galaxy-z-flip-7-fe/sale/163411",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Samsung Galaxy Z Flip7 FE 5G - Refurbished",
+      "price": "64299",
+      "discount_price": null,
+      "currency": "INR",
+      "has_discount": false,
+      "image": "https://s3n.cashify.in/cashify/store/product/2dbb23180404423db1845a88d0ead7be.jpg",
+      "description": "Buy Refurbished and Second Hand Samsung Galaxy Z Flip7 FE 5G online in India at best price! Get benefits like 6 months warranty, easy EMI, and more."
+    }
+  },
+  {
+    "url": "https://www.dillards.com/p/polo-ralph-lauren-classic-fit-solid-mesh-polo-shirt/501116145",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Polo Ralph Lauren Classic Fit Solid Cotton Mesh Polo Shirt",
+      "price": "118.00",
+      "discount_price": "59.00",
+      "currency": "USD",
+      "has_discount": true,
+      "image": "https://dimg.dillards.com/is/image/DillardsZoom/main/polo-ralph-lauren-classic-fit-solid-mesh-polo-shirt/00000000_zi_ef3cae55-5770-4c6b-ac6d-5d8ac2b9ee12.jpg",
+      "description": "From Polo Ralph Lauren, this polo shirt features:  Classic fit  Ribbed polo collar  Short sleeves with ribbed armbands  2-button placket  Signature embroidered \"Pony\" on the left side of chest  Uneven vented hem&nbsp;  Pullover construction  Collar and armbands are constructed to retain their fit  Cotton  Machine wash/tumble dry  Imported.  *Also available in Boys' and Baby Boys' sizing"
+    }
+  },
+  {
+    "url": "https://www.clasohlson.com/se/Exibel-retro-minikamera-med-blixt-och-mikrofon,-USB-C/p/40-1172-2",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Exibel retro minikamera med blixt och mikrofon, USB-C",
+      "price": "299",
+      "discount_price": null,
+      "currency": "SEK",
+      "has_discount": false,
+      "image": "https://images.clasohlson.com/medias/sys_master/h4b/h8c/68855875305502.jpg",
+      "description": "Retro digitalkamera i miniformat – får plats i jeansfickan eller på nyckelringen. Exibel minikamera med greppvänlig läderstruktur – liknar en systemkamera till utseendet. Kompakt nyckelringskamera – fånga spontana ögonblick hemma, på resor eller festivaler. Laddas via USB-C (kabel säljs separat). Plats för microSD-kort upp till 64 GB (minneskort säljs separat)."
+    }
+  },
+  {
+    "url": "https://www.very.co.uk/estee-lauder-advanced-night-repair-serum-synchronized-multi-recovery-complex-50ml/1601327130.prd",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Estee Lauder Advanced Night Repair Serum Synchronized Multi-Recovery Complex 50ml",
+      "price": "89.00",
+      "discount_price": null,
+      "currency": "GBP",
+      "has_discount": false,
+      "image": "https://media.very.co.uk/i/very/X5TTX_SQ1_0000000099_N_A_SLf.jpg?$200x200_socialshare$",
+      "description": "A bestselling face serum with Night Peptide technology that helps hydrate, strengthen and visibly renew skin. Buyers Notes Transform the look of your skin with Estée Lauder's iconic Advanced Night Repair Serum. Powered by exclusive Chronolux™ Power Signal Technology and patented Tripeptide-32 this advanced serum delivers 72-hour hydration while helping to reduce the appearance of lines dullness and uneven tone. Skin looks smoother stronger and more radiant with a healthy well-rested glow. Why You'll Love It Helps visibly improve radiance smoothness and skin clarity Delivers 72-hour hydration Helps reduce the appearance of lines and wrinkles Supports a firmer more resilient-looking complexion Helps improve the look of uneven skin tone Leaves skin looking refreshed luminous and well-rested Suitable for all skin types and skin tones Formula Facts Powered by exclusive Chronolux™ Power Signal Technology Features patented Tripeptide-32 Enriched with Hyaluronic Acid for lasting hydration Helps support skin's natural renewal process Provides antioxidant protection against environmental stressors Helps defend against pollution blue light and other daily aggressors Developed through 40 years of Night Science research The Experience Lightweight fast-absorbing serum texture Layers seamlessly into your skincare routine Oil-free formula Leaves skin feeling hydrated soft and comfortable Suitable for morning and evening use Non-acnegenic and non-comedogenic How To Use Apply morning and evening to clean skin before moisturiser Use one full dropper for face and neck Smooth gently over skin until absorbed Massage using upward outward motions Follow with your eye treatment and moisturiser About the brand:  Estée Lauder skincare is built on decades of pioneering research and innovation. Featuring iconic collections including Advanced Night Repair and Revitalizing Supreme+ these results-driven formulas are designed to support hydration radiance firmness and visible signs of ageing. From daily moisturisers and targeted serums to luxury treatment products this collection brings science-led skincare expertise to every routine."
+    }
+  },
+  {
+    "url": "https://www.tradeindia.com/products/frp-square-cooling-tower-c5486236.html",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "FRP Square cooling tower",
+      "price": "25000",
+      "discount_price": null,
+      "currency": "INR",
+      "has_discount": false,
+      "image": "https://cpimg.tistatic.com/05486236/b/6/FRP-Square-cooling-tower.jpg",
+      "description": "FRP Square cooling tower"
+    }
+  },
+  {
+    "url": "https://www.citilink.ru/product/43-televizor-starwind-sw-led43ug405-4k-ultra-hd-chernyi-smart-tv-yaos-1877336/",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "43\" Телевизор StarWind SW-LED43UG405 4K Ultra HD, СМАРТ ТВ, YaOS, черный",
+      "price": "19990",
+      "discount_price": null,
+      "currency": "RUB",
+      "has_discount": false,
+      "image": "https://cdn.citilink.ru/UNQK73GQ6oQDrEv4opOz3he5b1ByZYvKWj1V6Trt2dw/resizing_type:fit/gravity:sm/width:55/height:55/plain/product-images/9e445e69-2475-43a0-b603-230feff6adc0.jpg",
+      "description": "<p>Телевизор StarWind SW-LED43UG405 с диагональю 43\" подходит для просмотра фильмов, сериалов и игр в разрешении 4K Ultra HD. Он ориентирован на пользователей, которым важна чёткая картинка и доступ к современным онлайн-сервисам благодаря встроенному Smart TV на базе операционной системы YaOS. Модель сочетает функциональность и удобство использования в домашних условиях.</p> <h2>Насколько качественное изображение и комфортен ли просмотр?</h2> <p>Экран с разрешением 3840x2160 пикселей и соотношением сторон 16:9 создаёт детализированную картинку с поддержкой технологии HDR10 для расширенного динамического диапазона. Яркость экрана достигает 220 кд/м², а контрастность 5000:1 усиливает глубину чёрного цвета. Матрица VA с LED-подсветкой Direct LED обеспечивает широкие углы обзора 178° по горизонтали и вертикали. Частота обновления 60 Гц и время отклика 6.5 мс создают условия для плавного воспроизведения динамичных сцен и игр.</p> <h2>Что умеет Smart TV и насколько удобен доступ к контенту?</h2> <p>Телевизор работает на операционной системе YaOS с поддержкой Smart TV, открывая доступ к онлайн-платформам и приложениям. Встроенный Wi-Fi и Ethernet-порт обеспечивают подключение к интернету для потоковой передачи видео. Голосовой помощник Алиса активируется кнопкой на Bluetooth-пульте и помогает быстро находить фильмы, музыку и сериалы. Поддержка цифровых тюнеров DVB-T, DVB-T2, DVB-C, DVB-S и DVB-S2 расширяет возможности приёма эфирного, кабельного и спутникового телевидения.</p> <h2>Как выглядит телевизор и насколько он удобен в использовании?</h2> <p>Модель выполнена в чёрном глянцевом корпусе с безрамочным дизайном, что делает изображение более эффектным и вписывает устройство в современный интерьер. Подставка с ножками по бокам создаёт устойчивость, а крепление на стену по стандарту VESA расширяет варианты размещения. Для подключения внешних устройств предусмотрены три HDMI 2.0 с поддержкой HDMI ARC и HDMI-CEC, два USB Type-A для мультимедийных накопителей, а также композитный вход, коаксиальный S/PDIF, разъём для наушников и слот CI+/PCMCIA. Встроенный Bluetooth даёт возможность синхронизировать телевизор с беспроводными аксессуарами.</p> <h2>Насколько хорош звук и какие дополнительные функции доступны?</h2> <p>Звуковая система состоит из двух динамиков мощностью по 8 Вт каждый, поддерживающих декодеры Dolby Digital и Dolby Digital Plus. Это создаёт объёмное звучание в формате 2.0, подходящее для просмотра фильмов и прослушивания музыки. Телевизор записывает видео на USB-накопители, расширяя возможности использования. Поддержка различных форматов видео, аудио и изображений позволяет воспроизводить контент с внешних носителей без дополнительных конвертаций.</p> <h2>Советы по выбору телевизора</h2> <p>Как выбрать подходящий по цене и качеству телевизор среди всего представленного многообразия? Опирайтесь на наши советы, которые точно облегчат ваш выбор.</p> <ul> <li><strong>Чтобы изображение было комфортным для глаз</strong>, выбирайте диагональ в зависимости от площади комнаты: кухня — до 32 дюймов, спальня — 32-43 дюйма, гостиная — 50-65 дюймов, а в домашний кинотеатр выбирайте диагональ не менее 70 дюймов. Также можно ориентироваться на расстояние просмотра: если расстояние от зрителя до экрана 2-3 м, оптимальна диагональ 43–55 дюймов, 3-4 м — 55-65 дюймов.</li> <li><strong>Для чёткого изображения на большом экране</strong> отдавайте предпочтение разрешению 4K. Для диагоналей до 43 дюймов достаточно Full HD.</li> <li><strong>Если планируете смотреть фильмы и играть в игры</strong>, важна частота обновления экрана. Чем она выше, тем комфортнее восприятие движущихся объектов. Для фильмов достаточно частоты обновления 60 Гц, для игр и динамичного контента лучше выбрать 120 Гц и выше.</li> <li><strong>Чтобы получить максимально качественное изображение</strong>, рассмотрите типы матриц по своим предпочтениям: OLED даёт глубокий чёрный цвет и высокий контраст, QLED — яркое и насыщенное изображение, LED — оптимальный баланс цены и качества.</li> <li><strong>Для доступа к ТВ-каналам без антенны, а также стриминговым сервисам и приложениям без дополнительных приставок</strong>, выбирайте модель с функцией Smart TV (нужен доступ в интернет).</li> <li><strong>Чтобы улучшить качество картинки</strong>, ищите поддержку HDR10 или Dolby Vision — они усиливают визуальные впечатления за счёт увеличения контрастности, цветопередачи и яркости.</li> </ul>"
+    }
+  },
+  {
+    "url": "https://www.lightinthebox.com/en/p/men-s-retro-t-shirt-with-things-used-to-be-better-i-m-from-the-old-days-cassette-graphic-nostalgia-short-sleeve-funny-tee_p16305227.html",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "Men's Retro T-Shirt with 'Things Used To Be Better' & 'I'm From The Old Days' Cassette Graphic, Nostalgia Short Sleeve Funny Tee 2026 - €9.19",
+      "price": "9.19",
+      "discount_price": null,
+      "currency": "EUR",
+      "has_discount": false,
+      "image": "https://litb-cgis.rightinthebox.com/images/640x640/202505/bps/product/inc/vajwev1748591858998.jpg?fmt=webp&v=1",
+      "description": "\"€9.19 - Men's Retro T-Shirt with 'Things Used To Be Better' & 'I'm From The Old Days' Cassette Graphic, Nostalgia Short Sleeve Funny Tee 2026. Shop for cheap Music & Instrument Graphic T shirts online? Buy at lightinthebox.com on sale today! \""
+    }
+  },
+  {
+    "url": "https://www.hema.nl/wonen-slapen/badkamer/handdoeken/handdoeken---hotel-extra-zacht-zeegroen-2000000081.html",
+    "verified_at": "2026-07-08",
+    "expected": {
+      "title": "handdoeken - hotel extra zacht zeegroen - HEMA",
+      "price": "3",
+      "discount_price": null,
+      "currency": "USD",
+      "has_discount": false,
+      "image": "https://static.hema.nl/dw/image/v2/BBRK_PRD/on/demandware.static/-/Sites-HEMA-master-catalog/default/dw6932c876/product/2000000081_01_001.jpg?sw=600&sfrm=png&bgcolor=FFFFFF",
+      "description": "handdoeken - hotel extra zacht zeegroen nodig? Op hema.nl vind je alles om het leven leuker én makkelijker te maken. Gratis thuisbezorgd vanaf 30.-"
+    }
+  },
+  {
+    "url": "https://www.tchibo.de/products/101021766644/3-4-sportleggings-activepower?article_id=133856907870",
+    "verified_at": "2026-07-09",
+    "expected": {
+      "title": "3/4-Sportleggings »ActivePower«, Alloverprint",
+      "price": "17.99",
+      "discount_price": null,
+      "currency": "EUR",
+      "has_discount": false,
+      "image": "https://www.tchibo.de/img/ggAI2UPs/900/image.webp",
+      "description": "3/4-Sportleggings »ActivePower«, Alloverprint online kaufen ✚ Kostenloser Versand ✓ Retoure ✚ 10% Newsletter Rabatt | 220450"
+    }
+  },
+  {
+    "url": "https://www.kruidvat.nl/kruidvat-solait-kids-spf50-sunspray/p/4059525",
+    "verified_at": "2026-07-09",
+    "expected": {
+      "title": "Kruidvat Solait Kids SPF50+ Sunspray",
+      "price": "9.49",
+      "discount_price": null,
+      "currency": "EUR",
+      "has_discount": false,
+      "image": "https://media.kruidvat.nl/medias/sys_master/prd-images/hba/h85/44808101953566/prd-front-4059525-1_1020x1020/prd-front-4059525-1-1020x1020.jpg",
+      "description": "250ml"
+    }
   }
 ]
