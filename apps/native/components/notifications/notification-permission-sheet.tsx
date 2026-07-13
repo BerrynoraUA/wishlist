@@ -176,5 +176,8 @@ function getPreferences(
     notify_reservations: settings?.notify_reservations ?? true,
     notify_new_wishlists: settings?.notify_new_wishlists ?? true,
     notify_upcoming_events: settings?.notify_upcoming_events ?? true,
+    notify_group_added: settings?.notify_group_added ?? true,
+    notify_wishlist_access: settings?.notify_wishlist_access ?? true,
+    notify_reserved_item_updates: settings?.notify_reserved_item_updates ?? true,
   };
 }

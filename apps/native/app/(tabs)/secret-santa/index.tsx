@@ -102,7 +102,9 @@ export default function SecretSantaScreen() {
             contentWidth={contentWidth}
             onOpen={() => setActiveTab("events")}
           >
-            <ScrollableTabs tabs={tabs} value={activeTab} onChange={setActiveTab} align="right" />
+            <View style={{ transform: [{ translateX: -10 }] }}>
+              <ScrollableTabs tabs={tabs} value={activeTab} onChange={setActiveTab} align="right" />
+            </View>
           </ExpandingSearchHeader>
         </PinnedListHeader>
         <StyledFlashList

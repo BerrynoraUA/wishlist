@@ -3,6 +3,7 @@ const UUID_PATTERN =
 const ALLOWED_NOTIFICATION_ROUTES = [
   /^\/friends$/,
   /^\/secret-santa$/,
+  /^\/wishlists$/,
   new RegExp(`^/wishlists/${UUID_PATTERN}$`),
 ];
 

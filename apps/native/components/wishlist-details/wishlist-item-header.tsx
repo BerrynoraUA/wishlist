@@ -145,8 +145,8 @@ export function WishlistItemHeader({
       <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
         {hasButtonsRow || hasActionsMenu ? (
           <View
-            className="absolute right-4 z-10 flex-row items-center justify-end gap-2"
-            style={{ top: topInset + 8 }}
+            className="absolute z-10 flex-row items-center justify-end gap-2"
+            style={{ right: 64, top: topInset + 8 }}
           >
             {onShare ? (
               <GuideTarget id="wishlist-share">

@@ -86,11 +86,7 @@ async function handleScrape(request: NextRequest, url: string, source: string | 
   // Blocked/failed scrapes (including placeholder-only pages that carry just a
   // junk title like the bare domain) are not usable product data — surface them
   // as an error instead of autofilling junk. `partial` still returns 200.
-  if (
-    !scraped.product ||
-    classified.status === "blocked" ||
-    classified.status === "failed"
-  ) {
+  if (!scraped.product || classified.status === "blocked" || classified.status === "failed") {
     return NextResponse.json(
       { error: classified.error ?? "Could not extract any product data" },
       { status: 404, headers: corsHeaders },

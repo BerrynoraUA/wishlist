@@ -2,7 +2,11 @@ import "server-only";
 
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { sendUnresolvedAlert } from "@/lib/notify-email";
-import type { ProductData, ScrapeResult, ScrapeDiagnostics } from "@/app/admin/scraper-test/constants";
+import type {
+  ProductData,
+  ScrapeResult,
+  ScrapeDiagnostics,
+} from "@/app/admin/scraper-test/constants";
 import { getComparableDomain, ensureUrlScheme } from "./classify";
 
 const TABLE = "unresolved_scraper_sites";
@@ -56,7 +60,10 @@ export async function listUnresolved(): Promise<ScrapeResult[]> {
 }
 
 interface UpsertInput {
-  result: Pick<ScrapeResult, "url" | "status" | "data" | "diagnostics" | "missingFields" | "error" | "duration">;
+  result: Pick<
+    ScrapeResult,
+    "url" | "status" | "data" | "diagnostics" | "missingFields" | "error" | "duration"
+  >;
   author: string | null;
   comment?: string | null;
   increment: boolean;
@@ -151,9 +158,7 @@ export async function removeUnresolved(url: string): Promise<ScrapeResult[]> {
   const supabase = getSupabaseAdmin();
 
   const query = supabase.from(TABLE).delete();
-  const { error } = domain
-    ? await query.eq("domain", domain)
-    : await query.eq("url", url);
+  const { error } = domain ? await query.eq("domain", domain) : await query.eq("url", url);
 
   if (error) {
     console.error("[unresolved-store] removeUnresolved failed:", error);

@@ -377,9 +377,7 @@
       "discount_end_date": null,
       "currency": null
     },
-    "missingFields": [
-      "price"
-    ],
+    "missingFields": ["price"],
     "duration": 3105,
     "diagnostics": {
       "engine": "scrapling",
@@ -551,9 +549,7 @@
           "library": "Scrapling"
         }
       },
-      "warnings": [
-        "blocked_or_placeholder_title"
-      ]
+      "warnings": ["blocked_or_placeholder_title"]
     },
     "validations": []
   },
@@ -659,10 +655,7 @@
       "discount_end_date": null,
       "currency": null
     },
-    "missingFields": [
-      "title",
-      "price"
-    ],
+    "missingFields": ["title", "price"],
     "duration": 17448,
     "diagnostics": {
       "engine": "scrapling",
@@ -767,10 +760,7 @@
           "library": "json / lxml"
         }
       },
-      "warnings": [
-        "adaptive_title_conflict",
-        "adaptive_description_conflict"
-      ]
+      "warnings": ["adaptive_title_conflict", "adaptive_description_conflict"]
     },
     "validations": []
   },
@@ -914,9 +904,7 @@
           "library": "Scrapling"
         }
       },
-      "warnings": [
-        "blocked_or_placeholder_title"
-      ]
+      "warnings": ["blocked_or_placeholder_title"]
     },
     "validations": []
   },
@@ -1060,9 +1048,7 @@
       "discount_end_date": null,
       "currency": null
     },
-    "missingFields": [
-      "price"
-    ],
+    "missingFields": ["price"],
     "duration": 1424,
     "diagnostics": {
       "engine": "scrapling",
@@ -1095,9 +1081,7 @@
           "library": "lxml"
         }
       },
-      "warnings": [
-        "adaptive_title_conflict"
-      ]
+      "warnings": ["adaptive_title_conflict"]
     },
     "validations": []
   }

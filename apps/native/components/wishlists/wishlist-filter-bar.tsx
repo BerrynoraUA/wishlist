@@ -77,7 +77,7 @@ export function WishlistFilterBar({
             variant="brand"
           />
         </GuideTarget>
-        <View className="flex-row items-center justify-end gap-2">
+        <View className="flex-row items-center justify-end gap-2 pr-14">
           {canResetFilters ? (
             <Button
               variant="destructive"
