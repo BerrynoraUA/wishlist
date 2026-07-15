@@ -42,7 +42,7 @@ export function SecretSantaEventCard({
               className="absolute inset-0 size-full"
             />
           ) : (
-            <Icon as={Gift} className="size-10 text-brand" />
+            <Icon as={Gift} className="size-10 text-white/85" />
           )}
           {event.is_owner ? (
             <View className="absolute right-3 top-3 rounded-full border border-white/35 bg-white/25 px-2 py-1">

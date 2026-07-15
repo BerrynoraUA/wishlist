@@ -34,7 +34,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react-native";
 import * as React from "react";
-import { Platform, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 
 const LOCALIZED_LOCALE_LABELS: Record<string, string> = {
   en: "English",
@@ -62,11 +62,6 @@ export function PreferencesSettings({
   const priorities =
     selectedPriorities ??
     ALL_PRIORITIES.filter((priority) => priority.is_free).map((priority) => priority.id);
-  const hideBackButtonDescription =
-    Platform.OS === "ios"
-      ? t("With the button hidden, slide left from the edge of the screen to go back.")
-      : t("With the button hidden, use the universal back gesture to go back.");
-
   function togglePriority(id: string) {
     const next = priorities.includes(id)
       ? priorities.filter((priorityId) => priorityId !== id)
@@ -186,7 +181,7 @@ export function PreferencesSettings({
         )}
       >
         <View className="flex-row items-start justify-between gap-4">
-          <View className="min-w-0 flex-1 gap-3">
+          <View className="min-w-0 flex-1">
             <View className="flex-row items-center gap-3">
               <View
                 className={cn(
@@ -208,26 +203,8 @@ export function PreferencesSettings({
                 </Text>
               </View>
             </View>
-            <Text className="text-sm leading-5 text-text-muted">{hideBackButtonDescription}</Text>
           </View>
           <Switch checked={hideBackButton} onCheckedChange={setHideBackButton} />
-        </View>
-
-        <View className="h-16 overflow-hidden rounded-xl border border-border-subtle bg-bg-subtle">
-          <View className="absolute inset-x-3 bottom-3 h-3 rounded-full bg-border-subtle" />
-          <View
-            className={cn(
-              "absolute bottom-4 left-4 size-10 items-center justify-center rounded-full border border-glass-border bg-glass-bg",
-              hideBackButton && "opacity-25",
-            )}
-          >
-            <Icon as={ChevronLeft} className="size-5 text-text" />
-          </View>
-          {hideBackButton ? (
-            <View className="absolute bottom-4 left-4 size-10 items-center justify-center rounded-full border border-dashed border-brand/50 bg-brand-lighter/70">
-              <Icon as={EyeOff} className="size-4 text-brand" />
-            </View>
-          ) : null}
         </View>
       </View>
     </SettingsSection>

@@ -206,7 +206,7 @@ function SwatchPicker<T extends WishlistAccent | WishlistColorIndex>({
         optionHeight={SWATCH_OPTION_HEIGHT}
         optionHeightClassName="h-19"
         rowClassName="gap-1"
-        optionClassName="flex-col items-center justify-center border-0 bg-transparent px-0.5 py-0 shadow-none"
+        optionClassName="flex-col items-center justify-center border-0 bg-transparent px-0 py-0 shadow-none"
         indicatorClassName={cn(
           "rounded-xl border bg-brand-lighter/35 shadow-sm shadow-brand/20",
           selectedAccent.selectedBorderClassName,

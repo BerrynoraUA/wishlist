@@ -48,7 +48,7 @@ import type { LucideIcon } from "lucide-react-native";
 
 function HeroChip({ icon, label }: { icon: LucideIcon; label: string }) {
   return (
-    <View className="flex-row items-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3 py-1.5">
+    <View className="h-9 min-w-0 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
       <Icon as={icon} className="size-3.5 text-white" />
       <Text className="text-xs font-bold text-white" numberOfLines={1}>
         {label}
@@ -82,6 +82,11 @@ export function SecretSantaDetailHero({
 }) {
   const t = useGT();
   const locale = useLocale();
+  const hasInviteAction = !event.is_started;
+  const hasActionsMenu = isOwner;
+  const headerActionsCount = Number(hasInviteAction) + Number(hasActionsMenu);
+  const headerActionsRightPadding =
+    headerActionsCount >= 2 ? "pr-20" : headerActionsCount === 1 ? "pr-12" : "";
 
   return (
     <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
@@ -92,68 +97,72 @@ export function SecretSantaDetailHero({
           contentFit="cover"
           className="absolute inset-0 size-full"
         />
-      ) : (
-        <View className="absolute inset-0 items-center justify-center">
-          <View className="size-16 items-center justify-center rounded-full border border-white/30 bg-white/20">
-            <Icon as={Gift} className="size-8 text-white" />
-          </View>
-        </View>
-      )}
+      ) : null}
       <View className="absolute inset-0 bg-black/25" />
 
-      <View className="gap-4 px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
-        <View className="flex-row items-center justify-end gap-2">
-          {!event.is_started ? (
-            <AnimatedPressable
-              accessibilityRole="button"
-              accessibilityLabel={t("Invite people")}
-              onPress={onInvite}
-              className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-            >
-              <Icon as={Share2} className="size-4 text-white" />
-            </AnimatedPressable>
-          ) : null}
+      <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
+        {headerActionsCount > 0 ? (
+          <View
+            className="absolute z-10 flex-row items-center justify-end gap-2"
+            style={{ right: 64, top: topInset + 8 }}
+          >
+            {hasInviteAction ? (
+              <AnimatedPressable
+                accessibilityRole="button"
+                accessibilityLabel={t("Invite people")}
+                onPress={onInvite}
+                className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+              >
+                <Icon as={Share2} className="size-4 text-white" />
+              </AnimatedPressable>
+            ) : null}
 
-          {isOwner ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <AnimatedPressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t("Secret Santa actions")}
-                  className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-                >
-                  <Icon as={MoreHorizontal} className="size-4 text-white" />
-                </AnimatedPressable>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="min-w-44">
-                <DropdownMenuItem onPress={onEdit}>
-                  <Icon as={Pencil} className="size-4 text-popover-foreground" />
-                  <Text>{t("Edit")}</Text>
-                </DropdownMenuItem>
-                {!event.is_started ? (
-                  <DropdownMenuItem onPress={onCopyLink}>
-                    <Icon as={Copy} className="size-4 text-popover-foreground" />
-                    <Text>{t("Copy invite link")}</Text>
+            {hasActionsMenu ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <AnimatedPressable
+                    accessibilityRole="button"
+                    accessibilityLabel={t("Secret Santa actions")}
+                    className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+                  >
+                    <Icon as={MoreHorizontal} className="size-4 text-white" />
+                  </AnimatedPressable>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="min-w-44">
+                  <DropdownMenuItem onPress={onEdit}>
+                    <Icon as={Pencil} className="size-4 text-popover-foreground" />
+                    <Text>{t("Edit")}</Text>
                   </DropdownMenuItem>
-                ) : null}
-                <DropdownMenuItem
-                  onPress={onDelete}
-                  className="active:bg-danger-bg dark:active:bg-danger-bg/90"
-                >
-                  <Icon as={Trash2} className="size-4 text-destructive" />
-                  <Text className="text-destructive">{t("Delete")}</Text>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : null}
-        </View>
+                  {!event.is_started ? (
+                    <DropdownMenuItem onPress={onCopyLink}>
+                      <Icon as={Copy} className="size-4 text-popover-foreground" />
+                      <Text>{t("Copy invite link")}</Text>
+                    </DropdownMenuItem>
+                  ) : null}
+                  <DropdownMenuItem
+                    onPress={onDelete}
+                    className="active:bg-danger-bg dark:active:bg-danger-bg/90"
+                  >
+                    <Icon as={Trash2} className="size-4 text-destructive" />
+                    <Text className="text-destructive">{t("Delete")}</Text>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : null}
+          </View>
+        ) : null}
 
-        <View className="min-h-24 justify-end gap-3">
-          <Text className="text-[21px] font-extrabold leading-6 text-white" numberOfLines={2}>
-            {event.name}
-          </Text>
+        <View className="gap-4">
+          <View
+            className={cn("min-w-0", headerActionsCount > 0 && headerActionsRightPadding)}
+            style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
+          >
+            <Text className="text-[21px] font-extrabold leading-6 text-white" numberOfLines={2}>
+              {event.name}
+            </Text>
+          </View>
 
-          <View className="flex-row flex-wrap gap-2">
+          <View className="w-full flex-row items-center gap-2">
             <HeroChip
               icon={CalendarDays}
               label={formatSecretSantaDate(event.event_date, locale ?? "en")}

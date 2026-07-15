@@ -51,6 +51,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
   const [nicknameStatus, setNicknameStatus] = React.useState<
     "idle" | "checking" | "available" | "taken"
   >("idle");
+  const latestNicknameRef = React.useRef("");
 
   React.useEffect(() => {
     if (!profile) return;
@@ -66,22 +67,29 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
 
   React.useEffect(() => {
     const trimmedNickname = values.nickname.trim();
+    latestNicknameRef.current = trimmedNickname;
 
     if (!trimmedNickname || trimmedNickname.length < 3 || trimmedNickname === profile?.nickname) {
       setNicknameStatus("idle");
       return;
     }
 
-    setNicknameStatus("checking");
+    setNicknameStatus((current) => (current === "checking" ? current : "checking"));
     const timeout = setTimeout(() => {
       checkNickname.mutate(trimmedNickname, {
-        onSuccess: (available) => setNicknameStatus(available ? "available" : "taken"),
-        onError: () => setNicknameStatus("idle"),
+        onSuccess: (available) => {
+          if (latestNicknameRef.current !== trimmedNickname) return;
+          setNicknameStatus(available ? "available" : "taken");
+        },
+        onError: () => {
+          if (latestNicknameRef.current !== trimmedNickname) return;
+          setNicknameStatus("idle");
+        },
       });
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [checkNickname, values.nickname, profile?.nickname]);
+  }, [values.nickname, profile?.nickname]);
 
   const trimmedDisplayName = values.displayName.trim();
   const trimmedNickname = values.nickname.trim();
@@ -111,8 +119,14 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
       },
       {
         onSuccess: () => setMessage({ title: t("Saved"), message: t("Profile updated.") }),
-        onError: (error) =>
-          setMessage({ title: t("Profile update failed"), message: error.message }),
+        onError: (error) => {
+          if (isNicknameDuplicateError(error)) {
+            setNicknameStatus("taken");
+            return;
+          }
+
+          setMessage({ title: t("Profile update failed"), message: error.message });
+        },
       },
     );
   }
@@ -310,4 +324,14 @@ function parseProfileNumber(value: string) {
   if (!value) return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function isNicknameDuplicateError(error: Error) {
+  const code = "code" in error ? String(error.code) : "";
+  const message = error.message.toLowerCase();
+
+  return (
+    code === "23505" &&
+    (message.includes("profiles_nickname_unique") || message.includes("nickname"))
+  );
 }

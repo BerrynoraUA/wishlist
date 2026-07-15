@@ -93,6 +93,7 @@ export default function FriendsScreen() {
   const deleteGroup = useDeleteFriendGroup();
 
   const contentWidth = Math.min(width - 32, 900);
+  const headerSearchWidth = Math.max(contentWidth - 56, 0);
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
@@ -208,7 +209,7 @@ export default function FriendsScreen() {
               search={search}
               onChangeSearch={handleSearchChange}
               placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
-              contentWidth={contentWidth}
+              contentWidth={headerSearchWidth}
             >
               <FriendsTabs
                 value={tab}
