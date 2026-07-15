@@ -212,7 +212,9 @@ function NotificationsSheet({
                 <Button
                   className="min-w-0 flex-1 rounded-full"
                   variant="secondary"
-                  disabled={isLoading || notifications.every((notification) => notification.is_read)}
+                  disabled={
+                    isLoading || notifications.every((notification) => notification.is_read)
+                  }
                   onPress={onReadAll}
                 >
                   <Icon as={Check} className="size-4 text-secondary-foreground" />

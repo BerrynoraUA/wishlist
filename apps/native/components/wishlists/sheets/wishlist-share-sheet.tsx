@@ -7,13 +7,7 @@ import { cn } from "@/lib/utils";
 import { getWishlistAccentClass } from "@/lib/wishlists";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { useGT } from "gt-react-native";
-import {
-  Copy,
-  Gift,
-  MoreHorizontal,
-  X,
-  type LucideIcon,
-} from "lucide-react-native";
+import { Copy, Gift, MoreHorizontal, X, type LucideIcon } from "lucide-react-native";
 import * as React from "react";
 import { Linking, Platform, Share, useWindowDimensions, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
@@ -225,7 +219,10 @@ export function WishlistShareSheet({
 
         <View className="gap-y-7">
           {targetRows.map((row) => (
-            <View key={row.map((target) => target.key).join("-")} className="flex-row justify-between">
+            <View
+              key={row.map((target) => target.key).join("-")}
+              className="flex-row justify-between"
+            >
               {row.map((target) => (
                 <View key={target.key} className="w-16 items-center gap-2">
                   <AnimatedPressable
@@ -292,9 +289,7 @@ function ShareBrandIcon({ target }: { target: ShareTarget }) {
         </Svg>
       );
     case "story":
-      return (
-        <StyledImage source={INSTAGRAM_ICON_SOURCE} contentFit="cover" className="size-16" />
-      );
+      return <StyledImage source={INSTAGRAM_ICON_SOURCE} contentFit="cover" className="size-16" />;
     case "telegram":
       return (
         <Svg width={64} height={64} viewBox="0 0 64 64" fill="none">
