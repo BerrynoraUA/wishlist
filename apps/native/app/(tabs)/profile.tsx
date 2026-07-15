@@ -1,6 +1,7 @@
 import { AccountSettings } from "@/components/settings/account-settings";
 import { AppearanceSettings } from "@/components/settings/appearance-settings";
 import { FeatureIdeasSettings } from "@/components/settings/feature-ideas-settings";
+import { LegalSettings } from "@/components/settings/legal-settings";
 import { NotificationSettings } from "@/components/settings/notification-settings";
 import { PreferencesSettings } from "@/components/settings/preferences-settings";
 import { ProfileSettings } from "@/components/settings/profile-settings";
@@ -27,6 +28,7 @@ const SETTINGS_SECTIONS = [
   "preferences",
   "notifications",
   "feature-ideas",
+  "legal",
 ] as const;
 
 type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
@@ -128,6 +130,8 @@ export default function ProfileScreen() {
         );
       case "feature-ideas":
         return <FeatureIdeasSettings />;
+      case "legal":
+        return <LegalSettings />;
     }
   }
 

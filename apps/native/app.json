@@ -45,7 +45,9 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Wishlane to choose a profile image from your library."
+          "photosPermission": "Allow Wishlane to choose a profile image from your library.",
+          "cameraPermission": false,
+          "microphonePermission": false
         }
       ],
       "expo-secure-store",
