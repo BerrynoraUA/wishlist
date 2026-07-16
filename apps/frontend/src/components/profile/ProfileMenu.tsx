@@ -8,6 +8,7 @@ import {
   Crown,
   Settings,
   Lightbulb,
+  Bug,
   Languages,
   ChevronDown,
   Check,
@@ -326,6 +327,18 @@ export function ProfileMenu({ onOpen }: Props) {
           >
             <Lightbulb size={16} />
             <span>{t("Request a Feature", { $id: "profile.requestFeature" })}</span>
+          </button>
+
+          <button
+            type="button"
+            className={styles.menuItemSub}
+            onClick={() => {
+              setOpen(false);
+              router.push("/bugs");
+            }}
+          >
+            <Bug size={16} />
+            <span>{t("Report a Bug", { $id: "profile.reportBug" })}</span>
           </button>
 
           <button
