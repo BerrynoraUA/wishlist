@@ -5,7 +5,6 @@ import {
   useNotificationResponseObserver,
   useRegisterPushNotifications,
 } from "@/hooks/use-notifications";
-import { NotificationsMenu } from "@/components/notifications/notifications-menu";
 import { NotificationPermissionSheet } from "@/components/notifications/notification-permission-sheet";
 import { useSettings } from "@/hooks/use-settings";
 import {
@@ -132,7 +131,6 @@ function AuthGate() {
         <AuthRedirector />
         <NotificationPushBootstrap />
         <RootStack initialRouteName="(tabs)" />
-        <NotificationsMenu />
       </AuthenticatedThemeGate>
     );
   }

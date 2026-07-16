@@ -3,13 +3,13 @@ import {
   CalendarDays,
   Gift,
   ListPlus,
-  PartyPopper,
   RefreshCw,
   Share2,
   UserPlus,
   Users,
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
+import { Image } from "react-native";
 
 export type NotificationPreferences = {
   notify_friend_requests: boolean;
@@ -41,7 +41,13 @@ export function NotificationPreferenceToggles({
         onCheckedChange={(value) => onChange("notify_friend_requests", value)}
       />
       <SettingsControlsToggleRow
-        icon={PartyPopper}
+        iconContent={
+          <Image
+            source={require("@/assets/images/secret-santa-tab.png")}
+            className="size-5"
+            tintColorClassName="accent-brand"
+          />
+        }
         title={t("Secret Santa Invites")}
         subtitle={t("When someone invites you to a Secret Santa event")}
         checked={preferences.notify_secret_santa}

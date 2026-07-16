@@ -19,7 +19,15 @@ import {
 import { getValidHttpUrl } from "@/lib/urls";
 import type { Item } from "@wishlist/backend/types/item";
 import * as Clipboard from "expo-clipboard";
-import { Copy, ExternalLink, LockKeyhole, Pencil, ShoppingCart, Trash2 } from "lucide-react-native";
+import {
+  Bookmark,
+  Copy,
+  ExternalLink,
+  LockKeyhole,
+  Pencil,
+  ShoppingCart,
+  Trash2,
+} from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, Linking, Platform, View } from "react-native";
@@ -43,6 +51,7 @@ export function WishlistItemDetailSheet({
   onClose,
   onEdit,
   onDelete,
+  onSaveToWishlist,
   onToggleReserve,
   onToggleBought,
 }: {
@@ -55,6 +64,7 @@ export function WishlistItemDetailSheet({
   onClose: () => void;
   onEdit?: (item: Item) => void;
   onDelete?: (item: Item) => void;
+  onSaveToWishlist?: (item: Item) => void;
   onToggleReserve?: (itemId: string) => void;
   onToggleBought?: (itemId: string) => void;
 }) {
@@ -247,6 +257,20 @@ export function WishlistItemDetailSheet({
               </View>
             ) : (
               <View className="gap-2">
+                {onSaveToWishlist ? (
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full"
+                    onPress={() => {
+                      onSaveToWishlist(item);
+                      handleClose();
+                    }}
+                  >
+                    <Icon as={Bookmark} className="size-4 text-text" />
+                    <Text>{t("Save to wishlist")}</Text>
+                  </Button>
+                ) : null}
                 {onToggleReserve ? (
                   <Button
                     variant="ghost"

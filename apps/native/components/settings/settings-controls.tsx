@@ -55,12 +55,14 @@ export function SettingsControlsInfoRow({
 
 export function SettingsControlsToggleRow({
   icon,
+  iconContent,
   title,
   subtitle,
   checked,
   onCheckedChange,
 }: {
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  iconContent?: React.ReactNode;
   title: string;
   subtitle?: string;
   checked: boolean;
@@ -70,7 +72,7 @@ export function SettingsControlsToggleRow({
     <View className="flex-row items-center justify-between gap-3">
       <View className="flex-1 flex-row items-center gap-3">
         <View className="size-9 items-center justify-center rounded-full bg-brand-lighter">
-          <Icon as={icon} className="size-4 text-brand" />
+          {iconContent ?? (icon ? <Icon as={icon} className="size-4 text-brand" /> : null)}
         </View>
         <View className="flex-1 gap-0.5">
           <Text className="font-semibold text-text">{title}</Text>

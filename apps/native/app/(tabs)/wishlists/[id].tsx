@@ -6,6 +6,7 @@ import { Text } from "@/components/ui/text";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
 import { WishlistItemDetailSheet } from "@/components/wishlist-details/sheets/wishlist-item-detail-sheet";
 import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheets/wishlist-item-create-edit-sheet";
+import { SaveItemToWishlistsSheet } from "@/components/wishlist-details/sheets/save-item-to-wishlists-sheet";
 import { WishlistItemHeader } from "@/components/wishlist-details/wishlist-item-header";
 import { WishlistItemCard } from "@/components/wishlist-details/wishlist-item-card";
 import {
@@ -74,6 +75,7 @@ const EMPTY_FILTERS: WishlistItemFilterState = {
 type SheetState =
   | { type: "edit"; item: Item }
   | { type: "detail"; item: Item }
+  | { type: "save"; item: Item }
   | { type: "delete"; item: Item }
   | { type: "editWishlist"; wishlist: Wishlist }
   | { type: "deleteWishlist"; wishlist: Wishlist }
@@ -542,8 +544,15 @@ export default function WishlistDetailScreen() {
           onClose={() => setSheet(null)}
           onEdit={canEditWishlist ? (item) => setSheet({ type: "edit", item }) : undefined}
           onDelete={canEditWishlist ? (item) => setSheet({ type: "delete", item }) : undefined}
+          onSaveToWishlist={
+            canEditWishlist ? undefined : (item) => setSheet({ type: "save", item })
+          }
           onToggleReserve={handleToggleSelectedReservation}
           onToggleBought={handleToggleSelectedBought}
+        />
+        <SaveItemToWishlistsSheet
+          item={sheet?.type === "save" ? sheet.item : null}
+          onClose={() => setSheet(null)}
         />
         <WishlistItemDeleteSheet
           item={sheet?.type === "delete" ? sheet.item : null}

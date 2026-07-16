@@ -1,4 +1,5 @@
 import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
+import { NotificationsMenu } from "@/components/notifications/notifications-menu";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,10 +22,34 @@ import {
   getWishlistVisibilityOptions,
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
+import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { ChevronsUpDown, Search, SlidersHorizontal, Sparkles, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
+import Animated, { FadeIn, FadeOut, Keyframe } from "react-native-reanimated";
+
+const resetButtonEntering = new Keyframe({
+  0: {
+    opacity: 0,
+    transform: [{ translateX: 48 }, { scale: 0.9 }],
+  },
+  100: {
+    opacity: 1,
+    transform: [{ translateX: 0 }, { scale: 1 }],
+  },
+}).duration(motionDuration.normal);
+
+const resetButtonExiting = new Keyframe({
+  0: {
+    opacity: 1,
+    transform: [{ translateX: 0 }, { scale: 1 }],
+  },
+  100: {
+    opacity: 0,
+    transform: [{ translateX: 48 }, { scale: 0.9 }],
+  },
+}).duration(motionDuration.fast);
 
 export function WishlistFilterBar({
   search,
@@ -50,6 +75,7 @@ export function WishlistFilterBar({
   onFiltersOpenChange: (open: boolean) => void;
 }) {
   const t = useGT();
+  const reduceMotion = useReducedMotion();
   const sortOptions = React.useMemo(() => getWishlistSortOptions(t), [t]);
   const visibilityOptions = React.useMemo(() => getWishlistVisibilityOptions(t), [t]);
 
@@ -77,28 +103,45 @@ export function WishlistFilterBar({
             variant="brand"
           />
         </GuideTarget>
-        <View className="flex-row items-center justify-end gap-2 pr-14">
-          {canResetFilters ? (
+        <View className="flex-row items-center justify-end gap-2">
+          <View className="relative -m-1 flex-row items-center gap-1 rounded-full p-1">
+            {canResetFilters ? (
+              <Animated.View
+                pointerEvents="none"
+                entering={reduceMotion ? undefined : FadeIn.duration(motionDuration.fast)}
+                exiting={reduceMotion ? undefined : FadeOut.duration(motionDuration.fast)}
+                className="absolute inset-0 rounded-full border border-border-subtle bg-card-bg/80 dark:bg-card-bg/80"
+              />
+            ) : null}
+            {canResetFilters ? (
+              <Animated.View
+                entering={reduceMotion ? undefined : resetButtonEntering}
+                exiting={reduceMotion ? undefined : resetButtonExiting}
+                className="z-10"
+              >
+                <Button
+                  variant="destructive"
+                  size="icon-lg"
+                  accessibilityLabel={t("Clear filters")}
+                  onPress={onResetFilters}
+                  className="rounded-full"
+                >
+                  <Icon as={X} className="size-4 text-white" />
+                </Button>
+              </Animated.View>
+            ) : null}
             <Button
-              variant="destructive"
+              variant="outline"
               size="icon-lg"
-              accessibilityLabel={t("Clear filters")}
-              onPress={onResetFilters}
-              className="shrink-0 rounded-full"
+              accessibilityLabel={t("Show filters")}
+              accessibilityState={{ expanded: filtersOpen }}
+              onPress={() => onFiltersOpenChange(!filtersOpen)}
+              className="z-10 shrink-0 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg"
             >
-              <Icon as={X} className="size-4 text-white" />
+              <Icon as={SlidersHorizontal} className="size-4 text-text" />
             </Button>
-          ) : null}
-          <Button
-            variant="outline"
-            size="icon-lg"
-            accessibilityLabel={t("Show filters")}
-            accessibilityState={{ expanded: filtersOpen }}
-            onPress={() => onFiltersOpenChange(!filtersOpen)}
-            className="shrink-0 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg"
-          >
-            <Icon as={SlidersHorizontal} className="size-4 text-text" />
-          </Button>
+          </View>
+          <NotificationsMenu />
         </View>
       </View>
 

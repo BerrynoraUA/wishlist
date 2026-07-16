@@ -2,6 +2,7 @@ import { CreateMenuHost } from "@/components/create/create-menu";
 import { getThemeMode, useNavigationTheme } from "@/lib/theme";
 import { useAuth } from "@/providers/auth-provider";
 import { useUserGuide } from "@/components/user-guide/user-guide-provider";
+import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { Redirect, usePathname } from "expo-router";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useGT } from "gt-react-native";
@@ -17,6 +18,7 @@ export default function TabsLayout() {
   const { session } = useAuth();
   const pathname = usePathname();
   const { handleTabPress } = useUserGuide();
+  const { data: unreadCount = 0 } = useUnreadNotificationsCount();
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
   const navigationTheme = useNavigationTheme(theme);
@@ -24,6 +26,7 @@ export default function TabsLayout() {
   const primaryColor =
     typeof navigationTheme.colors.primary === "string" ? navigationTheme.colors.primary : "#208aef";
   const selectedTabBackground = themeMode === "dark" ? `${primaryColor}24` : `${primaryColor}18`;
+  const unreadBadge = unreadCount > 99 ? "99+" : String(unreadCount);
 
   if (!session) {
     return <Redirect href={"/(auth)/sign-in" as never} />;
@@ -37,6 +40,8 @@ export default function TabsLayout() {
     <CreateMenuHost open={createOpen} onOpenChange={setCreateOpen}>
       <NativeTabs
         backgroundColor={navigationTheme.colors.card}
+        badgeBackgroundColor={navigationTheme.colors.notification}
+        badgeTextColor="#ffffff"
         blurEffect={themeMode === "dark" ? "systemMaterialDark" : "systemMaterialLight"}
         disableTransparentOnScrollEdge
         indicatorColor={selectedTabBackground}
@@ -51,6 +56,9 @@ export default function TabsLayout() {
         >
           <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
           <NativeTabs.Trigger.Label>{t("Wishlists")}</NativeTabs.Trigger.Label>
+          {unreadCount > 0 ? (
+            <NativeTabs.Trigger.Badge>{unreadBadge}</NativeTabs.Trigger.Badge>
+          ) : null}
         </NativeTabs.Trigger>
         <NativeTabs.Trigger
           name="secret-santa"

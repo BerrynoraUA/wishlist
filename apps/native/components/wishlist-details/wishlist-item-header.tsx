@@ -8,6 +8,7 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import { usePatchWishlist } from "@/hooks/use-wishlists";
@@ -74,10 +75,9 @@ export function WishlistItemHeader({
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[visibility];
   const eventDate = wishlist.event_date;
   const canInlineEdit = isOwner;
-  const hasButtonsRow = Boolean(onShare || (isOwner && onManageAccess));
-  const hasActionsMenu = Boolean(onEdit || onDelete);
-  const headerActionsCount =
-    Number(Boolean(onShare)) + Number(Boolean(isOwner && onManageAccess)) + Number(hasActionsMenu);
+  const hasButtonsRow = Boolean(onShare);
+  const hasActionsMenu = Boolean((isOwner && onManageAccess) || onEdit || onDelete);
+  const headerActionsCount = Number(Boolean(onShare)) + Number(hasActionsMenu);
   const headerActionsRightPadding =
     headerActionsCount >= 3 ? "pr-32" : headerActionsCount === 2 ? "pr-20" : "pr-12";
   React.useEffect(() => {
@@ -138,6 +138,103 @@ export function WishlistItemHeader({
     });
   }
 
+  const titleContent = editingTitle ? (
+    <Controller
+      control={control}
+      name="title"
+      render={({ field: { onChange, value } }) => (
+        <Input
+          autoFocus
+          value={value}
+          onChangeText={onChange}
+          onBlur={saveTitle}
+          returnKeyType="done"
+          onSubmitEditing={saveTitle}
+          multiline
+          className="h-20 items-start py-3 text-xl font-extrabold"
+          textAlignVertical="top"
+        />
+      )}
+    />
+  ) : (
+    <AnimatedPressable
+      disabled={!canInlineEdit}
+      accessibilityRole={canInlineEdit ? "button" : "text"}
+      accessibilityLabel={canInlineEdit ? t("Edit wishlist title") : displayTitle}
+      onPress={() => setEditingTitle(true)}
+    >
+      <Text className="text-[21px] font-extrabold leading-6 text-white" numberOfLines={2}>
+        {displayTitle}
+      </Text>
+    </AnimatedPressable>
+  );
+
+  const descriptionContent = editingDescription ? (
+    <Controller
+      control={control}
+      name="description"
+      render={({ field: { onChange, value } }) => (
+        <Input
+          autoFocus
+          value={value}
+          onChangeText={onChange}
+          onBlur={saveDescription}
+          multiline
+          className="mt-2 h-20 items-start py-3 text-sm"
+          textAlignVertical="top"
+        />
+      )}
+    />
+  ) : wishlist.description || canInlineEdit ? (
+    <AnimatedPressable
+      disabled={!canInlineEdit}
+      accessibilityRole={canInlineEdit ? "button" : "text"}
+      accessibilityLabel={t("Edit wishlist description")}
+      onPress={() => setEditingDescription(true)}
+    >
+      <Text className="mt-2 text-sm leading-5 text-white/80" numberOfLines={3}>
+        {wishlist.description || t("Add a short description")}
+      </Text>
+    </AnimatedPressable>
+  ) : null;
+
+  const actionsMenu = hasActionsMenu ? (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <AnimatedPressable
+          accessibilityRole="button"
+          accessibilityLabel={t("Wishlist actions")}
+          className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+        >
+          <Icon as={MoreHorizontal} className="size-4 text-white" />
+        </AnimatedPressable>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="min-w-48">
+        {isOwner && onManageAccess ? (
+          <DropdownMenuItem onPress={onManageAccess}>
+            <Icon as={KeyRound} className="size-4 text-popover-foreground" />
+            <Text>{t("Manage access")}</Text>
+          </DropdownMenuItem>
+        ) : null}
+        {onEdit ? (
+          <DropdownMenuItem onPress={onEdit}>
+            <Icon as={Pencil} className="size-4 text-popover-foreground" />
+            <Text>{t("Edit")}</Text>
+          </DropdownMenuItem>
+        ) : null}
+        {onDelete ? (
+          <DropdownMenuItem
+            onPress={onDelete}
+            className="active:bg-danger-bg dark:active:bg-danger-bg/90"
+          >
+            <Icon as={Trash2} className="size-4 text-destructive" />
+            <Text className="text-destructive">{t("Delete")}</Text>
+          </DropdownMenuItem>
+        ) : null}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : null;
+
   return (
     <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
       <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
@@ -145,8 +242,8 @@ export function WishlistItemHeader({
       <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
         {hasButtonsRow || hasActionsMenu ? (
           <View
-            className="absolute z-10 flex-row items-center justify-end gap-2"
-            style={{ right: 64, top: topInset + 8 }}
+            className="absolute right-4 z-10 flex-row items-center justify-end gap-2"
+            style={{ top: topInset + 8 }}
           >
             {onShare ? (
               <GuideTarget id="wishlist-share">
@@ -162,116 +259,52 @@ export function WishlistItemHeader({
             ) : null}
 
             {isOwner && onManageAccess ? (
-              <GuideTarget id="wishlist-manage-access">
-                <AnimatedPressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t("Manage wishlist access")}
-                  onPress={onManageAccess}
-                  className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-                >
-                  <Icon as={KeyRound} className="size-4 text-white" />
-                </AnimatedPressable>
-              </GuideTarget>
-            ) : null}
-
-            {hasActionsMenu ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <AnimatedPressable
-                    accessibilityRole="button"
-                    accessibilityLabel={t("Wishlist actions")}
-                    className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-                  >
-                    <Icon as={MoreHorizontal} className="size-4 text-white" />
-                  </AnimatedPressable>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="min-w-44">
-                  {onEdit ? (
-                    <DropdownMenuItem onPress={onEdit}>
-                      <Icon as={Pencil} className="size-4 text-popover-foreground" />
-                      <Text>{t("Edit")}</Text>
-                    </DropdownMenuItem>
-                  ) : null}
-                  {onDelete ? (
-                    <DropdownMenuItem
-                      onPress={onDelete}
-                      className="active:bg-danger-bg dark:active:bg-danger-bg/90"
-                    >
-                      <Icon as={Trash2} className="size-4 text-destructive" />
-                      <Text className="text-destructive">{t("Delete")}</Text>
-                    </DropdownMenuItem>
-                  ) : null}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : null}
+              <GuideTarget id="wishlist-manage-access">{actionsMenu}</GuideTarget>
+            ) : (
+              actionsMenu
+            )}
           </View>
         ) : null}
 
         <View className="gap-4">
-          <View
-            className={cn("min-w-0", headerActionsCount > 0 && headerActionsRightPadding)}
-            style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
-          >
-            {editingTitle ? (
-              <Controller
-                control={control}
-                name="title"
-                render={({ field: { onChange, value } }) => (
-                  <Input
-                    autoFocus
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={saveTitle}
-                    returnKeyType="done"
-                    onSubmitEditing={saveTitle}
-                    multiline
-                    className="h-20 items-start py-3 text-xl font-extrabold"
-                    textAlignVertical="top"
-                  />
+          {wishlist.image_url ? (
+            <View className="flex-row items-start gap-3">
+              <View className="mt-2 size-24 shrink-0 overflow-hidden rounded-2xl border border-white/35 bg-white/15">
+                <StyledImage
+                  source={{ uri: wishlist.image_url }}
+                  contentFit="cover"
+                  cachePolicy="memory-disk"
+                  recyclingKey={wishlist.id}
+                  className="size-full"
+                />
+              </View>
+              <View className="min-w-0 flex-1" style={{ minHeight: 104 }}>
+                <View
+                  className={cn(
+                    headerActionsCount > 0 && "min-h-9 justify-center",
+                    headerActionsCount > 0 && headerActionsRightPadding,
+                  )}
+                  style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
+                >
+                  {titleContent}
+                </View>
+                {descriptionContent}
+              </View>
+            </View>
+          ) : (
+            <View className="min-w-0">
+              <View
+                className={cn(
+                  headerActionsCount > 0 && "min-h-9 justify-center",
+                  headerActionsCount > 0 && headerActionsRightPadding,
                 )}
-              />
-            ) : (
-              <AnimatedPressable
-                disabled={!canInlineEdit}
-                accessibilityRole={canInlineEdit ? "button" : "text"}
-                accessibilityLabel={canInlineEdit ? t("Edit wishlist title") : displayTitle}
-                onPress={() => setEditingTitle(true)}
+                style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
               >
-                <Text className="text-[21px] font-extrabold leading-6 text-white" numberOfLines={2}>
-                  {displayTitle}
-                </Text>
-              </AnimatedPressable>
-            )}
-
-            {editingDescription ? (
-              <Controller
-                control={control}
-                name="description"
-                render={({ field: { onChange, value } }) => (
-                  <Input
-                    autoFocus
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={saveDescription}
-                    multiline
-                    className="mt-2 h-20 items-start py-3 text-sm"
-                    textAlignVertical="top"
-                  />
-                )}
-              />
-            ) : wishlist.description || canInlineEdit ? (
-              <AnimatedPressable
-                disabled={!canInlineEdit}
-                accessibilityRole={canInlineEdit ? "button" : "text"}
-                accessibilityLabel={t("Edit wishlist description")}
-                onPress={() => setEditingDescription(true)}
-              >
-                <Text className="mt-2 text-sm leading-5 text-white/80" numberOfLines={3}>
-                  {wishlist.description || t("Add a short description")}
-                </Text>
-              </AnimatedPressable>
-            ) : null}
-          </View>
+                {titleContent}
+              </View>
+              {descriptionContent}
+            </View>
+          )}
 
           <DatePicker
             value={eventDate}
