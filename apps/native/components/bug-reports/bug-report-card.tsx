@@ -98,9 +98,7 @@ function StatusBadge({ status }: { status: BugReportStatus }) {
     return (
       <View className="self-start flex-row items-center gap-1 rounded-full border border-info/30 bg-info-bg px-2 py-1 dark:border-info/60 dark:bg-info/30">
         <Icon as={Code2} className="size-3 text-info dark:text-white" />
-        <Text className="text-[11px] font-bold text-info dark:text-white">
-          {t("In Progress")}
-        </Text>
+        <Text className="text-[11px] font-bold text-info dark:text-white">{t("In Progress")}</Text>
       </View>
     );
   }

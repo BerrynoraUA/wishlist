@@ -264,48 +264,62 @@ export function WishlistItemHeader({
   return (
     <>
       <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
-      <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
-      <View className="absolute inset-0 bg-black/20" />
-      <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
-        {hasButtonsRow || hasActionsMenu ? (
-          <View
-            className="absolute right-4 z-10 flex-row items-center justify-end gap-2"
-            style={{ top: topInset + 8 }}
-          >
-            {onShare ? (
-              <GuideTarget id="wishlist-share">
-                <AnimatedPressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t("Share wishlist")}
-                  onPress={onShare}
-                  className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-                >
-                  <Icon as={Share2} className="size-4 text-white" />
-                </AnimatedPressable>
-              </GuideTarget>
-            ) : null}
+        <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
+        <View className="absolute inset-0 bg-black/20" />
+        <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
+          {hasButtonsRow || hasActionsMenu ? (
+            <View
+              className="absolute right-4 z-10 flex-row items-center justify-end gap-2"
+              style={{ top: topInset + 8 }}
+            >
+              {onShare ? (
+                <GuideTarget id="wishlist-share">
+                  <AnimatedPressable
+                    accessibilityRole="button"
+                    accessibilityLabel={t("Share wishlist")}
+                    onPress={onShare}
+                    className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+                  >
+                    <Icon as={Share2} className="size-4 text-white" />
+                  </AnimatedPressable>
+                </GuideTarget>
+              ) : null}
 
-            {isOwner && onManageAccess ? (
-              <GuideTarget id="wishlist-manage-access">{actionsMenu}</GuideTarget>
-            ) : (
-              actionsMenu
-            )}
-          </View>
-        ) : null}
+              {isOwner && onManageAccess ? (
+                <GuideTarget id="wishlist-manage-access">{actionsMenu}</GuideTarget>
+              ) : (
+                actionsMenu
+              )}
+            </View>
+          ) : null}
 
-        <View className="gap-4">
-          {wishlist.image_url ? (
-            <View className="flex-row items-start gap-3">
-              <View className="mt-2 size-24 shrink-0 overflow-hidden rounded-2xl border border-white/35 bg-white/15">
-                <StyledImage
-                  source={{ uri: wishlist.image_url }}
-                  contentFit="cover"
-                  cachePolicy="memory-disk"
-                  recyclingKey={wishlist.id}
-                  className="size-full"
-                />
+          <View className="gap-4">
+            {wishlist.image_url ? (
+              <View className="flex-row items-start gap-3">
+                <View className="mt-2 size-24 shrink-0 overflow-hidden rounded-2xl border border-white/35 bg-white/15">
+                  <StyledImage
+                    source={{ uri: wishlist.image_url }}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    recyclingKey={wishlist.id}
+                    className="size-full"
+                  />
+                </View>
+                <View className="min-w-0 flex-1" style={{ minHeight: 104 }}>
+                  <View
+                    className={cn(
+                      headerActionsCount > 0 && "min-h-9 justify-center",
+                      headerActionsCount > 0 && headerActionsRightPadding,
+                    )}
+                    style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
+                  >
+                    {titleContent}
+                  </View>
+                  {descriptionContent}
+                </View>
               </View>
-              <View className="min-w-0 flex-1" style={{ minHeight: 104 }}>
+            ) : (
+              <View className="min-w-0">
                 <View
                   className={cn(
                     headerActionsCount > 0 && "min-h-9 justify-center",
@@ -317,105 +331,91 @@ export function WishlistItemHeader({
                 </View>
                 {descriptionContent}
               </View>
-            </View>
-          ) : (
-            <View className="min-w-0">
-              <View
-                className={cn(
-                  headerActionsCount > 0 && "min-h-9 justify-center",
-                  headerActionsCount > 0 && headerActionsRightPadding,
-                )}
-                style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
-              >
-                {titleContent}
-              </View>
-              {descriptionContent}
-            </View>
-          )}
+            )}
 
-          <DatePicker
-            value={eventDate}
-            onChange={updateEventDate}
-            iosContainerClassName="overflow-hidden rounded-xl border border-border-subtle bg-card-bg"
-          >
-            {({ displayValue, openPicker }) => (
-              <View className="w-full flex-row items-center gap-2">
-                {canInlineEdit ? (
-                  <View className="flex-1">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <AnimatedPressable className="h-9 w-full flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
-                          <Icon as={VisibilityIcon} className="size-3.5 text-white" />
+            <DatePicker
+              value={eventDate}
+              onChange={updateEventDate}
+              iosContainerClassName="overflow-hidden rounded-xl border border-border-subtle bg-card-bg"
+            >
+              {({ displayValue, openPicker }) => (
+                <View className="w-full flex-row items-center gap-2">
+                  {canInlineEdit ? (
+                    <View className="flex-1">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <AnimatedPressable className="h-9 w-full flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
+                            <Icon as={VisibilityIcon} className="size-3.5 text-white" />
+                            <Text className="text-xs font-bold text-white" numberOfLines={1}>
+                              {visibilityLabels[visibility]}
+                            </Text>
+                            <Icon as={ChevronDown} className="size-3 text-white/80" />
+                          </AnimatedPressable>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="min-w-48">
+                          {visibilityOptions.map((option) => (
+                            <DropdownMenuItem
+                              key={option.value}
+                              onPress={() => updateVisibility(option.visibility)}
+                            >
+                              <Icon as={option.icon} className="size-4 text-popover-foreground" />
+                              <Text>{option.label}</Text>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </View>
+                  ) : (
+                    <View className="h-9 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
+                      <Icon as={VisibilityIcon} className="size-3.5 text-white" />
+                      <Text className="text-xs font-bold text-white" numberOfLines={1}>
+                        {visibilityLabels[visibility]}
+                      </Text>
+                    </View>
+                  )}
+
+                  {eventDate || canInlineEdit ? (
+                    eventDate && canInlineEdit ? (
+                      <View className="h-9 flex-1 flex-row items-center rounded-full border border-white/35 bg-white/25 pl-3 pr-1">
+                        <AnimatedPressable
+                          accessibilityRole="button"
+                          accessibilityLabel={t("Wishlist event date")}
+                          onPress={openPicker}
+                          className="h-9 flex-1 flex-row items-center justify-center gap-1.5 pr-2"
+                        >
+                          <Icon as={Calendar} className="size-3.5 text-white" />
                           <Text className="text-xs font-bold text-white" numberOfLines={1}>
-                            {visibilityLabels[visibility]}
+                            {displayValue}
                           </Text>
-                          <Icon as={ChevronDown} className="size-3 text-white/80" />
                         </AnimatedPressable>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="min-w-48">
-                        {visibilityOptions.map((option) => (
-                          <DropdownMenuItem
-                            key={option.value}
-                            onPress={() => updateVisibility(option.visibility)}
-                          >
-                            <Icon as={option.icon} className="size-4 text-popover-foreground" />
-                            <Text>{option.label}</Text>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </View>
-                ) : (
-                  <View className="h-9 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
-                    <Icon as={VisibilityIcon} className="size-3.5 text-white" />
-                    <Text className="text-xs font-bold text-white" numberOfLines={1}>
-                      {visibilityLabels[visibility]}
-                    </Text>
-                  </View>
-                )}
-
-                {eventDate || canInlineEdit ? (
-                  eventDate && canInlineEdit ? (
-                    <View className="h-9 flex-1 flex-row items-center rounded-full border border-white/35 bg-white/25 pl-3 pr-1">
+                        <AnimatedPressable
+                          accessibilityRole="button"
+                          accessibilityLabel={t("Clear date")}
+                          onPress={() => updateEventDate(null)}
+                          className="size-8 items-center justify-center rounded-full"
+                        >
+                          <Icon as={X} className="size-3.5 text-white/75" />
+                        </AnimatedPressable>
+                      </View>
+                    ) : (
                       <AnimatedPressable
-                        accessibilityRole="button"
-                        accessibilityLabel={t("Wishlist event date")}
-                        onPress={openPicker}
-                        className="h-9 flex-1 flex-row items-center justify-center gap-1.5 pr-2"
+                        accessibilityRole={canInlineEdit ? "button" : "text"}
+                        accessibilityLabel={eventDate ? t("Wishlist event date") : t("Add date")}
+                        onPress={canInlineEdit ? openPicker : undefined}
+                        className="h-9 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3"
                       >
                         <Icon as={Calendar} className="size-3.5 text-white" />
                         <Text className="text-xs font-bold text-white" numberOfLines={1}>
-                          {displayValue}
+                          {eventDate ? displayValue : t("Add date")}
                         </Text>
                       </AnimatedPressable>
-                      <AnimatedPressable
-                        accessibilityRole="button"
-                        accessibilityLabel={t("Clear date")}
-                        onPress={() => updateEventDate(null)}
-                        className="size-8 items-center justify-center rounded-full"
-                      >
-                        <Icon as={X} className="size-3.5 text-white/75" />
-                      </AnimatedPressable>
-                    </View>
-                  ) : (
-                    <AnimatedPressable
-                      accessibilityRole={canInlineEdit ? "button" : "text"}
-                      accessibilityLabel={eventDate ? t("Wishlist event date") : t("Add date")}
-                      onPress={canInlineEdit ? openPicker : undefined}
-                      className="h-9 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3"
-                    >
-                      <Icon as={Calendar} className="size-3.5 text-white" />
-                      <Text className="text-xs font-bold text-white" numberOfLines={1}>
-                        {eventDate ? displayValue : t("Add date")}
-                      </Text>
-                    </AnimatedPressable>
-                  )
-                ) : null}
-              </View>
-            )}
-          </DatePicker>
+                    )
+                  ) : null}
+                </View>
+              )}
+            </DatePicker>
+          </View>
         </View>
-      </View>
       </View>
       {detailsOpen ? (
         <WishlistDetailsSheet wishlist={wishlist} onClose={() => setDetailsOpen(false)} />

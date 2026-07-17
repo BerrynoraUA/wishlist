@@ -375,12 +375,7 @@ function ConfirmActionSheet({
           >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <Button
-            className="flex-1"
-            variant="destructive"
-            disabled={isPending}
-            onPress={onConfirm}
-          >
+          <Button className="flex-1" variant="destructive" disabled={isPending} onPress={onConfirm}>
             {isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
             <Text>{confirmLabel}</Text>
           </Button>
