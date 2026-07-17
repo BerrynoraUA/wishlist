@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./api/bug-reports": "./api/bug-reports.ts",
     "./api/feature-ideas": "./api/feature-ideas.ts",
     "./db-types": "./db-types/index.ts",
     "./lib": "./lib/index.ts",
@@ -18,6 +19,7 @@
     "./supabase/server": "./supabase/server.ts",
     "./supabase/shared": "./supabase/shared.ts",
     "./types": "./types/index.ts",
+    "./types/bug-reports": "./types/bug-reports.ts",
     "./types/discover": "./types/discover.ts",
     "./types/feature-ideas": "./types/feature-ideas.ts",
     "./types/friends": "./types/friends.ts",
