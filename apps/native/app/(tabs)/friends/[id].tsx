@@ -71,17 +71,17 @@ export default function FriendWishlistsScreen() {
           isLoadingMore={wishlistsQuery.isFetchingNextPage}
           ListHeaderComponent={
             <View className="gap-5 self-center pb-5" style={{ width: contentWidth }}>
-              <View className="flex-row items-start justify-between gap-3">
-                <View className="min-w-0 flex-1 gap-1">
+              <View className="flex-row items-center justify-between gap-3">
+                <View className="min-w-0 flex-1">
                   <Text className="text-2xl font-extrabold text-text">
                     {t("Friend's Wishlists")}
                   </Text>
-                  <Text className="text-sm font-semibold text-text-muted">
-                    {wishlists.length === 1
-                      ? t("{count} wishlist", { count: wishlists.length })
-                      : t("{count} wishlists", { count: wishlists.length })}
-                  </Text>
                 </View>
+                <Text className="shrink-0 text-sm font-semibold text-text-muted">
+                  {wishlists.length === 1
+                    ? t("{count} wishlist", { count: wishlists.length })
+                    : t("{count} wishlists", { count: wishlists.length })}
+                </Text>
               </View>
             </View>
           }

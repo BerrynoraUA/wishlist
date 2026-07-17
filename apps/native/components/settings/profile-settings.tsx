@@ -197,24 +197,13 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
               <AvatarFallback className="bg-brand" initialsClassName="text-xl text-white" />
             </Avatar>
           </StyledPressable>
-          <View className="flex-1 gap-2">
-            <View>
-              <Text className="font-semibold text-text">
-                {profile?.display_name ?? t("Your profile")}
-              </Text>
-              <Text className="text-sm text-text-muted">
-                {profile?.nickname ? `@${profile.nickname}` : t("Choose a nickname")}
-              </Text>
-            </View>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={uploadAvatar.isPending}
-              onPress={handlePickAvatar}
-              className="self-start"
-            >
-              <Text>{uploadAvatar.isPending ? t("Uploading...") : t("Change photo")}</Text>
-            </Button>
+          <View className="flex-1 justify-center">
+            <Text className="font-semibold text-text">
+              {profile?.display_name ?? t("Your profile")}
+            </Text>
+            <Text className="text-sm text-text-muted">
+              {profile?.nickname ? `@${profile.nickname}` : t("Choose a nickname")}
+            </Text>
           </View>
         </View>
 

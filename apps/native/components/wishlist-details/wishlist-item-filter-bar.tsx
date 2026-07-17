@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { FilterActions } from "@/components/ui/filter-actions";
 import {
   ITEM_FILTER_PANEL_HEIGHT,
   SlideOutFilterPanel,
@@ -24,7 +25,7 @@ import {
   getItemStatusOptions,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
-import { ChevronsUpDown, Search, SlidersHorizontal, X } from "lucide-react-native";
+import { ChevronsUpDown, Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
@@ -125,29 +126,14 @@ export function WishlistItemFilterBar({
         >
           {itemsCount === 1 ? t("1 Item") : t("{count} Items", { count: itemsCount })}
         </Text>
-        <View className="shrink-0 flex-row items-center gap-3">
-          {active ? (
-            <Button
-              variant="destructive"
-              size="icon-lg"
-              accessibilityLabel={t("Clear filters")}
-              onPress={onReset}
-              className="shrink-0 rounded-full"
-            >
-              <Icon as={X} className="size-4 text-white" />
-            </Button>
-          ) : null}
-          <Button
-            variant="outline"
-            size="icon-lg"
-            accessibilityLabel={t("Show item filters")}
-            accessibilityState={{ expanded: open }}
-            onPress={() => onOpenChange(!open)}
-            className="shrink-0 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg"
-          >
-            <Icon as={SlidersHorizontal} className="size-4 text-text" />
-          </Button>
-        </View>
+        <FilterActions
+          active={active}
+          open={open}
+          filterAccessibilityLabel={t("Show item filters")}
+          clearAccessibilityLabel={t("Clear filters")}
+          onOpenChange={onOpenChange}
+          onReset={onReset}
+        />
       </View>
 
       <SlideOutFilterPanel open={open} className="pb-1 pt-4" maxHeight={ITEM_FILTER_PANEL_HEIGHT}>

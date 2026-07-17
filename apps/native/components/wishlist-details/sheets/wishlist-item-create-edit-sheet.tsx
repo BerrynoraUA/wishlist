@@ -49,6 +49,13 @@ type ItemFormVariant = {
   scrapeDescription: boolean;
 };
 
+const EXPANDED_DESCRIPTION_MIN_LENGTH = 160;
+
+function shouldExpandDescriptionInput(value: string | null | undefined) {
+  const description = value?.trim() ?? "";
+  return description.length >= EXPANDED_DESCRIPTION_MIN_LENGTH || description.includes("\n");
+}
+
 function getItemFormVariant(
   mode: "create" | "edit",
   createSource: "scratch" | "link",
@@ -97,6 +104,7 @@ export function WishlistItemCreateEditSheet({
     defaultValues: EMPTY_ITEM_FORM,
   });
   const values = useWatch({ control }) as ItemFormValues;
+  const descriptionInputExpanded = shouldExpandDescriptionInput(values.description);
   const [selectedWishlistId, setSelectedWishlistId] = React.useState("");
   const form = React.useMemo(
     () => getItemFormVariant(mode, createSource, Boolean(wishlistId)),
@@ -381,6 +389,7 @@ export function WishlistItemCreateEditSheet({
     <BottomSheet
       ref={sheetRef}
       scrollable
+      detents={[0.75, 0.94]}
       onDidDismiss={() => onOpenChange(false)}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
@@ -475,9 +484,13 @@ export function WishlistItemCreateEditSheet({
                 <Input
                   value={value}
                   onChangeText={onChange}
+                  onFocus={() => void sheetRef.current?.resize(1)}
                   placeholder={t("Add details, size, color...")}
                   multiline
-                  className="h-24 items-start py-3"
+                  className={cn(
+                    "items-start py-3",
+                    descriptionInputExpanded ? "h-48" : "h-24",
+                  )}
                   textAlignVertical="top"
                 />
               )}

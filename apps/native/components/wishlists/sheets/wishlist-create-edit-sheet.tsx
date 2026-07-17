@@ -58,6 +58,13 @@ type VisibilitySelectorValue =
   | "friends"
   | "public";
 
+const EXPANDED_DESCRIPTION_MIN_LENGTH = 160;
+
+function shouldExpandDescriptionInput(value: string | null | undefined) {
+  const description = value?.trim() ?? "";
+  return description.length >= EXPANDED_DESCRIPTION_MIN_LENGTH || description.includes("\n");
+}
+
 export function WishlistCreateEditSheet({
   mode,
   open,
@@ -70,6 +77,7 @@ export function WishlistCreateEditSheet({
   onOpenChange: (open: boolean) => void;
 }) {
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const [descriptionFocused, setDescriptionFocused] = React.useState(false);
   const t = useGT();
   const completeCreateWishlistStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.createWishlist);
   const visibilityOptions = React.useMemo(() => getWishlistVisibilityOptions(t), [t]);
@@ -82,6 +90,8 @@ export function WishlistCreateEditSheet({
     defaultValues: EMPTY_WISHLIST_FORM,
   });
   const values = useWatch({ control }) as WishlistFormValues;
+  const descriptionInputExpanded =
+    descriptionFocused || shouldExpandDescriptionInput(values.description);
   const setSelectedAccessVisibility = React.useCallback(
     (visibility: WishlistVisibility) => setValue("visibility", visibility),
     [setValue],
@@ -173,6 +183,7 @@ export function WishlistCreateEditSheet({
     <BottomSheet
       ref={sheetRef}
       scrollable
+      detents={[0.75, 0.94]}
       onDidDismiss={() => onOpenChange(false)}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
@@ -222,9 +233,17 @@ export function WishlistCreateEditSheet({
               <Input
                 value={value}
                 onChangeText={onChange}
+                onFocus={() => {
+                  setDescriptionFocused(true);
+                  void sheetRef.current?.resize(1);
+                }}
+                onBlur={() => setDescriptionFocused(false)}
                 placeholder={t("A short note about this wishlist")}
                 multiline
-                className="h-24 items-start py-3"
+                className={cn(
+                  "items-start py-3",
+                  descriptionInputExpanded ? "h-48" : "h-24",
+                )}
                 textAlignVertical="top"
               />
             )}
@@ -352,6 +371,7 @@ export function WishlistCreateEditSheet({
             aspect={[16, 9]}
             pickLabel={t("Choose cover image")}
             changeLabel={t("Change image")}
+            showChangeButton={mode !== "edit"}
             onPick={(image) => {
               imageUpload.onPick(image);
             }}

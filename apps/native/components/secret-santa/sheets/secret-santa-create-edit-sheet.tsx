@@ -217,6 +217,7 @@ export function SecretSantaCreateEditSheet({
     <BottomSheet
       ref={sheetRef}
       scrollable
+      detents={[0.75, 0.94]}
       onDidDismiss={() => onOpenChange(false)}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">

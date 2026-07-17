@@ -55,29 +55,37 @@ export function SettingsControlsInfoRow({
 
 export function SettingsControlsToggleRow({
   icon,
+  iconContent,
   title,
   subtitle,
   checked,
   onCheckedChange,
+  switchStaticColors,
 }: {
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  iconContent?: React.ReactNode;
   title: string;
   subtitle?: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
+  switchStaticColors?: boolean;
 }) {
   return (
     <View className="flex-row items-center justify-between gap-3">
       <View className="flex-1 flex-row items-center gap-3">
         <View className="size-9 items-center justify-center rounded-full bg-brand-lighter">
-          <Icon as={icon} className="size-4 text-brand" />
+          {iconContent ?? (icon ? <Icon as={icon} className="size-4 text-brand" /> : null)}
         </View>
         <View className="flex-1 gap-0.5">
           <Text className="font-semibold text-text">{title}</Text>
           {subtitle ? <Text className="text-sm text-text-muted">{subtitle}</Text> : null}
         </View>
       </View>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+      <Switch
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+        staticColors={switchStaticColors}
+      />
     </View>
   );
 }

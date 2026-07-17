@@ -14,6 +14,8 @@ export const preferencesStorage = createMMKV({ id: "wishlist.preferences" });
 export const PREFERENCE_KEYS = {
   /** When `true`, the floating back button on detail screens is hidden. */
   hideBackButton: "preferences.hideBackButton",
+  /** When `true`, the Feature Ideas intro card is hidden. */
+  featureIdeasIntroDismissed: "preferences.featureIdeasIntroDismissed",
 } as const;
 
 export async function removeOwnedStorageImage(bucket: string, imageUrl: string | null | undefined) {

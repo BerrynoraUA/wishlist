@@ -1,5 +1,6 @@
 import { getThemeMode, useNavigationTheme } from "@/lib/theme";
 import { useUserGuide } from "@/components/user-guide/user-guide-provider";
+import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useGT } from "gt-react-native";
 import { useUniwind } from "uniwind";
@@ -11,16 +12,20 @@ type IosTabBarProps = {
 export function IosTabBar({ onCreatePress }: IosTabBarProps) {
   const t = useGT();
   const { handleTabPress } = useUserGuide();
+  const { data: unreadCount = 0 } = useUnreadNotificationsCount();
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
   const navigationTheme = useNavigationTheme(theme);
   const primaryColor =
     typeof navigationTheme.colors.primary === "string" ? navigationTheme.colors.primary : "#208aef";
   const selectedTabBackground = themeMode === "dark" ? `${primaryColor}24` : `${primaryColor}18`;
+  const unreadBadge = unreadCount > 99 ? "99+" : String(unreadCount);
 
   return (
     <NativeTabs
       backgroundColor={navigationTheme.colors.card}
+      badgeBackgroundColor={navigationTheme.colors.notification}
+      badgeTextColor="#ffffff"
       blurEffect={themeMode === "dark" ? "systemMaterialDark" : "systemMaterialLight"}
       disableTransparentOnScrollEdge
       indicatorColor={selectedTabBackground}
@@ -35,6 +40,7 @@ export function IosTabBar({ onCreatePress }: IosTabBarProps) {
       >
         <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
         <NativeTabs.Trigger.Label>{t("Wishlists")}</NativeTabs.Trigger.Label>
+        {unreadCount > 0 ? <NativeTabs.Trigger.Badge>{unreadBadge}</NativeTabs.Trigger.Badge> : null}
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         name="secret-santa"

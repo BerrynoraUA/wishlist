@@ -180,7 +180,7 @@ export function PreferencesSettings({
             : "border-border-subtle bg-card-bg shadow-black/5",
         )}
       >
-        <View className="flex-row items-start justify-between gap-4">
+        <View className="flex-row items-center justify-between gap-4">
           <View className="min-w-0 flex-1">
             <View className="flex-row items-center gap-3">
               <View

@@ -39,37 +39,7 @@ export const FeatureIdeaCard = React.memo(function FeatureIdeaCard({
       onPress={() => setExpanded((current) => !current)}
       className="gap-3 rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm"
     >
-      <View className="gap-3">
-        <View className="gap-2">
-          <Text className="text-base font-extrabold leading-5 text-text" numberOfLines={2}>
-            {idea.title}
-          </Text>
-          <StatusBadge status={idea.status} />
-        </View>
-
-        <Text
-          className="text-sm leading-5 text-text-muted"
-          numberOfLines={expanded ? undefined : 3}
-        >
-          {idea.description}
-        </Text>
-
-        <View className="flex-row items-center gap-2">
-          <Avatar alt={authorName} className="size-6">
-            {idea.user_avatar_url ? <AvatarImage source={{ uri: idea.user_avatar_url }} /> : null}
-            <AvatarFallback initialsClassName="text-[10px]" />
-          </Avatar>
-          <Text className="min-w-0 flex-1 text-xs font-semibold text-text-muted" numberOfLines={1}>
-            {authorName}
-          </Text>
-          <Text className="text-xs text-text-light">{date}</Text>
-        </View>
-      </View>
-
-      <View className="flex-row items-center justify-between border-t border-border-subtle pt-3">
-        <Text className="text-xs font-semibold text-text-light">
-          {expanded ? t("Tap to collapse") : t("Tap to read more")}
-        </Text>
+      <View className="flex-row items-start gap-3">
         <AnimatedPressable
           accessibilityRole="button"
           accessibilityLabel={t("Vote for {title}", { title: idea.title })}
@@ -81,8 +51,8 @@ export const FeatureIdeaCard = React.memo(function FeatureIdeaCard({
           }}
           className={
             idea.has_voted
-              ? "h-9 flex-row items-center justify-center gap-1 rounded-full border border-brand/30 bg-brand-lighter px-3"
-              : "h-9 flex-row items-center justify-center gap-1 rounded-full border border-border bg-bg-subtle px-3"
+              ? "h-9 shrink-0 flex-row items-center justify-center gap-1 rounded-full border border-brand/30 bg-brand-lighter px-3"
+              : "h-9 shrink-0 flex-row items-center justify-center gap-1 rounded-full border border-border bg-bg-subtle px-3"
           }
         >
           <Icon
@@ -100,6 +70,28 @@ export const FeatureIdeaCard = React.memo(function FeatureIdeaCard({
             {idea.votes_count}
           </Text>
         </AnimatedPressable>
+
+        <View className="min-w-0 flex-1 pt-1.5">
+          <Text className="text-base font-extrabold leading-5 text-text" numberOfLines={2}>
+            {idea.title}
+          </Text>
+        </View>
+        <StatusBadge status={idea.status} />
+      </View>
+
+      <Text className="text-sm leading-5 text-text-muted" numberOfLines={expanded ? undefined : 3}>
+        {idea.description}
+      </Text>
+
+      <View className="flex-row items-center gap-2 border-t border-border-subtle pt-3">
+        <Avatar alt={authorName} className="size-6">
+          {idea.user_avatar_url ? <AvatarImage source={{ uri: idea.user_avatar_url }} /> : null}
+          <AvatarFallback initialsClassName="text-[10px]" />
+        </Avatar>
+        <Text className="min-w-0 flex-1 text-xs font-semibold text-text-muted" numberOfLines={1}>
+          {authorName}
+        </Text>
+        <Text className="text-xs text-text-light">{date}</Text>
       </View>
     </AnimatedPressable>
   );
@@ -112,26 +104,31 @@ function StatusBadge({ status }: { status: FeatureIdeaStatus }) {
       ? {
           label: t("Approved"),
           icon: Sparkles,
-          className: "border-brand/20 bg-brand-lighter text-brand",
+          containerClassName:
+            "border-brand/30 bg-brand-lighter dark:border-brand/60 dark:bg-brand/30",
+          contentClassName: "text-brand dark:text-white",
         }
       : status === "in_development"
         ? {
             label: t("In Development"),
             icon: Code2,
-            className: "border-info/20 bg-info-bg text-info",
+            containerClassName: "border-info/30 bg-info-bg dark:border-info/60 dark:bg-info/30",
+            contentClassName: "text-info dark:text-white",
           }
         : {
             label: t("Done"),
             icon: CheckCircle2,
-            className: "border-success/20 bg-success-bg text-success",
+            containerClassName:
+              "border-success/30 bg-success-bg dark:border-success/60 dark:bg-success/30",
+            contentClassName: "text-success dark:text-white",
           };
 
   return (
     <View
-      className={`self-start flex-row items-center gap-1 rounded-full border px-2 py-1 ${config.className}`}
+      className={`self-start flex-row items-center gap-1 rounded-full border px-2 py-1 ${config.containerClassName}`}
     >
-      <Icon as={config.icon} className="size-3 text-current" />
-      <Text className="text-[11px] font-bold text-current">{config.label}</Text>
+      <Icon as={config.icon} className={`size-3 ${config.contentClassName}`} />
+      <Text className={`text-[11px] font-bold ${config.contentClassName}`}>{config.label}</Text>
     </View>
   );
 }

@@ -1,6 +1,7 @@
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { cn } from "@/lib/utils";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -85,8 +86,8 @@ export function ActionBottomSheetConfirm({
           <Text className="text-sm leading-5 text-text-muted">{message}</Text>
         </View>
         {children}
-        <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button variant="outline" disabled={isPending} onPress={handleClose}>
+        <View className="flex-row gap-2">
+          <Button className="flex-1" variant="outline" disabled={isPending} onPress={handleClose}>
             <Text>{t("Cancel")}</Text>
           </Button>
           <Button
@@ -95,13 +96,14 @@ export function ActionBottomSheetConfirm({
             }
             disabled={isPending || confirmDisabled}
             onPress={onConfirm}
-            className={
+            className={cn(
+              "flex-1",
               tone === "success"
                 ? "rounded-lg border border-success/35 bg-success-bg"
                 : tone === "brand"
                   ? "rounded-lg border border-brand/25 bg-brand-lighter"
-                  : undefined
-            }
+                  : undefined,
+            )}
           >
             {isPending ? (
               <ActivityIndicator

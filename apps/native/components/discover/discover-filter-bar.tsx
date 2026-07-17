@@ -9,12 +9,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { FilterActions } from "@/components/ui/filter-actions";
 import { Text } from "@/components/ui/text";
 import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { useSettings } from "@/hooks/use-settings";
 import { getItemPriority, getItemPriorityOptions } from "@/lib/items";
 import { cn } from "@/lib/utils";
-import { ChevronsUpDown, SlidersHorizontal, Search, X } from "lucide-react-native";
+import { ChevronsUpDown, Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
@@ -41,29 +42,14 @@ export function DiscoverFilterActions({
   const t = useGT();
 
   return (
-    <View className="flex-row items-center gap-2">
-      <Button
-        variant="outline"
-        size="lg"
-        accessibilityLabel={t("Show filters")}
-        accessibilityState={{ expanded: filtersOpen }}
-        onPress={() => onFiltersOpenChange(!filtersOpen)}
-        className="h-11 w-11 min-w-11 shrink-0 rounded-full border-border-subtle bg-card-bg p-0 shadow-sm dark:bg-card-bg"
-      >
-        <Icon as={SlidersHorizontal} className="size-4 text-text" />
-      </Button>
-      {filtersActive ? (
-        <Button
-          variant="destructive"
-          size="icon"
-          accessibilityLabel={t("Clear filters")}
-          onPress={onResetFilters}
-          className="h-11 w-11 shrink-0 rounded-full"
-        >
-          <Icon as={X} className="size-4 text-white" />
-        </Button>
-      ) : null}
-    </View>
+    <FilterActions
+      active={filtersActive}
+      open={filtersOpen}
+      filterAccessibilityLabel={t("Show filters")}
+      clearAccessibilityLabel={t("Clear filters")}
+      onOpenChange={onFiltersOpenChange}
+      onReset={onResetFilters}
+    />
   );
 }
 

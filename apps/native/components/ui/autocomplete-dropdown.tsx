@@ -9,8 +9,10 @@ import * as React from "react";
 import {
   ActivityIndicator,
   Keyboard,
+  Platform,
   Pressable,
   ScrollView,
+  StatusBar,
   View,
   type LayoutRectangle,
 } from "react-native";
@@ -35,6 +37,7 @@ type CommonProps = {
   optionClassName?: string;
   attached?: boolean;
   alwaysShowOptions?: boolean;
+  inlineOptions?: boolean;
   optionsPosition?: "above" | "below";
   maxVisibleOptions?: number;
   isLoading?: boolean;
@@ -75,6 +78,7 @@ export function AutocompleteDropdown({
   optionClassName,
   attached = false,
   alwaysShowOptions = false,
+  inlineOptions = false,
   optionsPosition = "below",
   maxVisibleOptions,
   isLoading = false,
@@ -120,7 +124,7 @@ export function AutocompleteDropdown({
     setQuery("");
     onQueryChange?.("");
     setIsOpen(true);
-    measureTrigger();
+    if (!inlineOptions) measureTrigger();
   }
 
   function handleSelect(option: AutocompleteDropdownOption) {
@@ -300,8 +304,9 @@ export function AutocompleteDropdown({
           input
         )}
       </View>
+      {isOpen && inlineOptions ? dropdown : null}
       {alwaysShowOptions && attached && !showOptionsAbove ? dropdown : null}
-      {isOpen && !alwaysShowOptions && triggerFrame ? (
+      {isOpen && !inlineOptions && !alwaysShowOptions && triggerFrame ? (
         <WindowOverlay onRequestClose={closeDropdown}>
           <View className="absolute inset-0">
             <Pressable
@@ -314,7 +319,10 @@ export function AutocompleteDropdown({
               style={{
                 left: triggerFrame.x,
                 position: "absolute",
-                top: triggerFrame.y + triggerFrame.height,
+                top:
+                  triggerFrame.y +
+                  triggerFrame.height +
+                  (Platform.OS === "android" ? (StatusBar.currentHeight ?? 0) : 0),
                 width: triggerFrame.width,
               }}
             >

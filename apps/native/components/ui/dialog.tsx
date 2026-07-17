@@ -107,12 +107,7 @@ function DialogHeader({ className, ...props }: ViewProps) {
 }
 
 function DialogFooter({ className, ...props }: ViewProps) {
-  return (
-    <View
-      className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
-      {...props}
-    />
-  );
+  return <View className={cn("flex flex-row gap-2", className)} {...props} />;
 }
 
 function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {

@@ -5,7 +5,6 @@ import {
   useNotificationResponseObserver,
   useRegisterPushNotifications,
 } from "@/hooks/use-notifications";
-import { NotificationsMenu } from "@/components/notifications/notifications-menu";
 import { NotificationPermissionSheet } from "@/components/notifications/notification-permission-sheet";
 import { useSettings } from "@/hooks/use-settings";
 import {
@@ -132,7 +131,6 @@ function AuthGate() {
         <AuthRedirector />
         <NotificationPushBootstrap />
         <RootStack initialRouteName="(tabs)" />
-        <NotificationsMenu />
       </AuthenticatedThemeGate>
     );
   }
@@ -152,6 +150,7 @@ function RootStack({ initialRouteName }: { initialRouteName: "(auth)" | "(tabs)"
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="ideas" />
+      <Stack.Screen name="bugs" />
       <Stack.Screen name="subscription" />
     </Stack>
   );
@@ -165,7 +164,10 @@ function AuthRedirector() {
 
   useEffect(() => {
     const isAuthenticatedRoute =
-      rootSegment === "(tabs)" || rootSegment === "ideas" || rootSegment === "subscription";
+      rootSegment === "(tabs)" ||
+      rootSegment === "ideas" ||
+      rootSegment === "bugs" ||
+      rootSegment === "subscription";
 
     if (session && !isAuthenticatedRoute) {
       router.replace("/(tabs)/wishlists" as never);

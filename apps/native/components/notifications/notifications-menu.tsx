@@ -15,14 +15,12 @@ import {
 } from "@/hooks/use-notifications";
 import { useAcceptSecretSantaInvite, useDeclineSecretSantaInvite } from "@/hooks/use-secret-santa";
 import { getSafeNotificationRoute } from "@/lib/notification-route";
-import { Portal } from "@rn-primitives/portal";
 import type { Notification } from "@wishlist/backend/types";
 import { router } from "expo-router";
 import { useGT } from "gt-react-native";
 import { Bell, Check, Trash2, X } from "lucide-react-native";
 import * as React from "react";
-import { ActivityIndicator, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ActivityIndicator, Image, View } from "react-native";
 
 type InviteAction = "accept" | "decline";
 const DOUBLE_TAP_DELAY_MS = 320;
@@ -70,7 +68,6 @@ function formatNotificationTime(
 
 export function NotificationsMenu() {
   const t = useGT();
-  const insets = useSafeAreaInsets();
   const [open, setOpen] = React.useState(false);
   const previousUnreadCountRef = React.useRef<number | null>(null);
 
@@ -113,31 +110,23 @@ export function NotificationsMenu() {
 
   return (
     <>
-      <Portal name="notifications-menu-button">
-        <View
-          className="absolute"
-          pointerEvents="box-none"
-          style={{ right: 12, top: insets.top + 8, zIndex: 8500 }}
-        >
-          <AnimatedPressable
-            accessibilityRole="button"
-            accessibilityLabel={t("Notifications")}
-            accessibilityState={{ expanded: open }}
-            hitSlop={8}
-            onPress={() => setOpen(true)}
-            className="size-11 items-center justify-center rounded-full border border-border-subtle bg-card-bg shadow-[0px_8px_18px_rgba(15,23,42,0.18)]"
-          >
-            <Icon as={Bell} className="size-5 text-text" />
-            {unreadCount > 0 ? (
-              <View className="absolute -right-1 -top-1 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5">
-                <Text className="text-[10px] font-extrabold leading-3 text-white">
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </Text>
-              </View>
-            ) : null}
-          </AnimatedPressable>
-        </View>
-      </Portal>
+      <AnimatedPressable
+        accessibilityRole="button"
+        accessibilityLabel={t("Notifications")}
+        accessibilityState={{ expanded: open }}
+        hitSlop={8}
+        onPress={() => setOpen(true)}
+        className="size-11 shrink-0 items-center justify-center rounded-full border border-border-subtle bg-card-bg shadow-[0px_8px_18px_rgba(15,23,42,0.18)]"
+      >
+        <Icon as={Bell} className="size-5 text-text" />
+        {unreadCount > 0 ? (
+          <View className="absolute -right-1 -top-1 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5">
+            <Text className="text-[10px] font-extrabold leading-3 text-white">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </Text>
+          </View>
+        ) : null}
+      </AnimatedPressable>
 
       <NotificationsSheet
         open={open}
@@ -354,13 +343,21 @@ function NotificationRow({
       }
     >
       <View className="flex-row gap-3">
-        <View
-          className={
-            notification.is_read
-              ? "mt-1.5 size-2 rounded-full bg-border"
-              : "mt-1.5 size-2 rounded-full bg-brand"
-          }
-        />
+        {notification.type === 0 ? (
+          <Image
+            source={require("@/assets/images/secret-santa-tab.png")}
+            className="size-6"
+            tintColorClassName={notification.is_read ? "accent-text-muted" : "accent-brand"}
+          />
+        ) : (
+          <View
+            className={
+              notification.is_read
+                ? "mt-1.5 size-2 rounded-full bg-border"
+                : "mt-1.5 size-2 rounded-full bg-brand"
+            }
+          />
+        )}
         <View className="min-w-0 flex-1 gap-1">
           <Text className="text-sm font-bold leading-5 text-text">{notification.text}</Text>
           <Text className="text-xs font-semibold text-text-muted">

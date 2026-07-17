@@ -156,7 +156,7 @@ export function WishlistShareSheet({
       cornerRadius={28}
       onDidDismiss={() => onOpenChange(false)}
     >
-      <View className="gap-5 px-4 pb-8 pt-4">
+      <View className="gap-5 px-4 pb-8 pt-8">
         <View className="flex-row items-center justify-center">
           <View className="items-center gap-1 px-12">
             <Text className="text-xl font-extrabold text-text">{t("Share this wishlist")}</Text>
@@ -221,10 +221,10 @@ export function WishlistShareSheet({
           {targetRows.map((row) => (
             <View
               key={row.map((target) => target.key).join("-")}
-              className="flex-row justify-between"
+              className="flex-row justify-center gap-x-8"
             >
               {row.map((target) => (
-                <View key={target.key} className="w-16 items-center gap-2">
+                <View key={target.key} className="w-20 items-center gap-2">
                   <AnimatedPressable
                     accessibilityRole="button"
                     accessibilityLabel={target.label}
@@ -242,7 +242,10 @@ export function WishlistShareSheet({
                       <Icon as={target.icon} className={cn("size-9", target.iconClassName)} />
                     ) : null}
                   </AnimatedPressable>
-                  <Text className="text-center text-base font-extrabold text-text">
+                  <Text
+                    className="text-center text-base font-extrabold text-text"
+                    numberOfLines={1}
+                  >
                     {target.label}
                   </Text>
                 </View>

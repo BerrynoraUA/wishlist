@@ -1,4 +1,5 @@
 import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
+import { NotificationsMenu } from "@/components/notifications/notifications-menu";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { FilterActions } from "@/components/ui/filter-actions";
 import {
   SlideOutFilterPanel,
   WISHLIST_FILTER_PANEL_HEIGHT,
@@ -21,7 +23,7 @@ import {
   getWishlistVisibilityOptions,
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
-import { ChevronsUpDown, Search, SlidersHorizontal, Sparkles, X } from "lucide-react-native";
+import { ChevronsUpDown, Search, Sparkles, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
@@ -77,28 +79,16 @@ export function WishlistFilterBar({
             variant="brand"
           />
         </GuideTarget>
-        <View className="flex-row items-center justify-end gap-2 pr-14">
-          {canResetFilters ? (
-            <Button
-              variant="destructive"
-              size="icon-lg"
-              accessibilityLabel={t("Clear filters")}
-              onPress={onResetFilters}
-              className="shrink-0 rounded-full"
-            >
-              <Icon as={X} className="size-4 text-white" />
-            </Button>
-          ) : null}
-          <Button
-            variant="outline"
-            size="icon-lg"
-            accessibilityLabel={t("Show filters")}
-            accessibilityState={{ expanded: filtersOpen }}
-            onPress={() => onFiltersOpenChange(!filtersOpen)}
-            className="shrink-0 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg"
-          >
-            <Icon as={SlidersHorizontal} className="size-4 text-text" />
-          </Button>
+        <View className="flex-row items-center justify-end gap-2">
+          <FilterActions
+            active={canResetFilters}
+            open={filtersOpen}
+            filterAccessibilityLabel={t("Show filters")}
+            clearAccessibilityLabel={t("Clear filters")}
+            onOpenChange={onFiltersOpenChange}
+            onReset={onResetFilters}
+          />
+          <NotificationsMenu />
         </View>
       </View>
 

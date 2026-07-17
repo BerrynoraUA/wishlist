@@ -93,7 +93,6 @@ export default function FriendsScreen() {
   const deleteGroup = useDeleteFriendGroup();
 
   const contentWidth = Math.min(width - 32, 900);
-  const headerSearchWidth = Math.max(contentWidth - 56, 0);
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
@@ -209,7 +208,7 @@ export default function FriendsScreen() {
               search={search}
               onChangeSearch={handleSearchChange}
               placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
-              contentWidth={headerSearchWidth}
+              contentWidth={contentWidth}
             >
               <FriendsTabs
                 value={tab}
@@ -367,15 +366,21 @@ function ConfirmActionSheet({
           <Text className="text-sm text-text-muted">{description}</Text>
         </View>
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
-        <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <View className="flex-row gap-2">
           <Button
+            className="flex-1"
             variant="outline"
             disabled={isPending}
             onPress={() => void sheetRef.current?.dismiss()}
           >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <Button variant="destructive" disabled={isPending} onPress={onConfirm}>
+          <Button
+            className="flex-1"
+            variant="destructive"
+            disabled={isPending}
+            onPress={onConfirm}
+          >
             {isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
             <Text>{confirmLabel}</Text>
           </Button>
