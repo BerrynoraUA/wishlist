@@ -1,8 +1,6 @@
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { createServerClient } from "@wishlist/backend/supabase/server";
 import { scrapeProductDetailed } from "@/app/api/server/scrape-product/scraper";
 import {
   classifyScrape,
@@ -16,6 +14,7 @@ import {
   saveUnresolvedComment,
 } from "@/app/api/server/scrape-product/unresolved-store";
 import type { ProductData, ScrapeResult } from "@/app/admin/scraper-test/constants";
+import { getAdminEmailAccess } from "@/lib/admin-email-access";
 
 export const maxDuration = 300;
 
@@ -41,52 +40,41 @@ interface AcceptanceCriteriaEntry {
 
 interface AuthContext {
   authorized: boolean;
+  authenticated: boolean;
   email: string | null;
 }
 
 async function getAuthContext(request: NextRequest): Promise<AuthContext> {
   const authHeader = request.headers.get("Authorization");
   if (Boolean(ADMIN_SECRET) && authHeader === `Bearer ${ADMIN_SECRET}`) {
-    return { authorized: true, email: null };
+    return { authorized: true, authenticated: true, email: null };
   }
 
-  const cookieStore = await cookies();
-  const supabase = createServerClient({
-    getAll() {
-      return cookieStore.getAll();
-    },
-    setAll(cookiesToSet) {
-      cookiesToSet.forEach(({ name, value, options }) => {
-        try {
-          cookieStore.set(name, value, options);
-        } catch {
-          // ignore when cookies cannot be mutated in this context
-        }
-      });
-    },
-  });
+  return getAdminEmailAccess();
+}
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return { authorized: Boolean(user), email: user?.email ?? null };
+function unauthorizedResponse(context: AuthContext) {
+  return NextResponse.json(
+    { error: context.authenticated ? "Forbidden" : "Unauthorized" },
+    { status: context.authenticated ? 403 : 401 },
+  );
 }
 
 export async function GET(request: NextRequest) {
-  const { authorized } = await getAuthContext(request);
-  if (!authorized) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authContext = await getAuthContext(request);
+  if (!authContext.authorized) {
+    return unauthorizedResponse(authContext);
   }
 
   return NextResponse.json({ unresolved: await listUnresolved() });
 }
 
 export async function POST(request: NextRequest) {
-  const { authorized, email } = await getAuthContext(request);
-  if (!authorized) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authContext = await getAuthContext(request);
+  if (!authContext.authorized) {
+    return unauthorizedResponse(authContext);
   }
+  const { email } = authContext;
 
   const { urls, autoRecord } = (await request.json()) as {
     urls: string[];
@@ -141,10 +129,11 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const { authorized, email } = await getAuthContext(request);
-  if (!authorized) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authContext = await getAuthContext(request);
+  if (!authContext.authorized) {
+    return unauthorizedResponse(authContext);
   }
+  const { email } = authContext;
 
   const { result } = (await request.json()) as { result?: ScrapeResult };
 
@@ -162,9 +151,9 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const { authorized } = await getAuthContext(request);
-  if (!authorized) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authContext = await getAuthContext(request);
+  if (!authContext.authorized) {
+    return unauthorizedResponse(authContext);
   }
 
   const { url, data } = (await request.json()) as {
@@ -213,9 +202,9 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const { authorized } = await getAuthContext(request);
-  if (!authorized) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authContext = await getAuthContext(request);
+  if (!authContext.authorized) {
+    return unauthorizedResponse(authContext);
   }
 
   const { url } = (await request.json()) as { url?: string };
