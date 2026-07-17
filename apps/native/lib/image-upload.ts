@@ -22,9 +22,15 @@ function getImageExtension(fileName: string | null | undefined, mimeType: string
   return mimeType.split("/")[1]?.split("+")[0] ?? "jpg";
 }
 
-export async function uploadPickedImage(
+export async function uploadPickedImageToBucket(
   image: NativePickedImage,
-  pathPrefix: "item" | "wishlist",
+  {
+    bucket,
+    pathPrefix,
+  }: {
+    bucket: string;
+    pathPrefix: string;
+  },
 ): Promise<string> {
   const {
     data: { user },
@@ -50,18 +56,23 @@ export async function uploadPickedImage(
   const path = `${user.id}/${pathPrefix}-${Date.now()}-${randomString}.${extension}`;
   const bytes = await file.arrayBuffer();
 
-  const { data: uploadData, error } = await supabase.storage
-    .from(IMAGE_BUCKET)
-    .upload(path, bytes, {
-      contentType,
-      cacheControl: "3600",
-      upsert: false,
-    });
+  const { data: uploadData, error } = await supabase.storage.from(bucket).upload(path, bytes, {
+    contentType,
+    cacheControl: "3600",
+    upsert: false,
+  });
 
   if (error) throw error;
 
-  const { data } = supabase.storage.from(IMAGE_BUCKET).getPublicUrl(uploadData.path);
+  const { data } = supabase.storage.from(bucket).getPublicUrl(uploadData.path);
   return data.publicUrl;
+}
+
+export async function uploadPickedImage(
+  image: NativePickedImage,
+  pathPrefix: "item" | "wishlist",
+): Promise<string> {
+  return uploadPickedImageToBucket(image, { bucket: IMAGE_BUCKET, pathPrefix });
 }
 
 export function useImageUploadField(prefix: "item" | "wishlist") {
