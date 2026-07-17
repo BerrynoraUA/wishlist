@@ -50,6 +50,7 @@ export function SaveItemToWishlistsSheet({
   }, [item?.id]);
 
   if (!item) return null;
+  const itemToSave = item;
 
   async function handleSave() {
     if (selectedWishlistIds.length === 0 || isSaving) return;
@@ -61,17 +62,17 @@ export function SaveItemToWishlistsSheet({
         selectedWishlistIds.map((wishlistId) =>
           createItem.mutateAsync({
             wishlist_id: wishlistId,
-            name: item.name,
-            description: item.description,
-            price: item.price,
-            image_url: item.image_url,
-            url: item.url,
-            priority_id: item.priority_id,
-            discount_price: item.discount_price,
-            has_discount: item.has_discount,
-            discount_end_date: item.discount_end_date,
-            currency: item.currency,
-            additional_links: item.additional_links,
+            name: itemToSave.name,
+            description: itemToSave.description,
+            price: itemToSave.price,
+            image_url: itemToSave.image_url,
+            url: itemToSave.url,
+            priority_id: itemToSave.priority_id,
+            discount_price: itemToSave.discount_price,
+            has_discount: itemToSave.has_discount,
+            discount_end_date: itemToSave.discount_end_date,
+            currency: itemToSave.currency,
+            additional_links: itemToSave.additional_links,
           }),
         ),
       );
