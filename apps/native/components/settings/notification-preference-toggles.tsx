@@ -38,6 +38,7 @@ export function NotificationPreferenceToggles({
         title={t("Friend Requests")}
         subtitle={t("When someone sends you a friend request")}
         checked={preferences.notify_friend_requests}
+        switchStaticColors
         onCheckedChange={(value) => onChange("notify_friend_requests", value)}
       />
       <SettingsControlsToggleRow
@@ -51,6 +52,7 @@ export function NotificationPreferenceToggles({
         title={t("Secret Santa Invites")}
         subtitle={t("When someone invites you to a Secret Santa event")}
         checked={preferences.notify_secret_santa}
+        switchStaticColors
         onCheckedChange={(value) => onChange("notify_secret_santa", value)}
       />
       <SettingsControlsToggleRow
@@ -58,6 +60,7 @@ export function NotificationPreferenceToggles({
         title={t("Item Reservations")}
         subtitle={t("When a friend reserves an item from your wishlist")}
         checked={preferences.notify_reservations}
+        switchStaticColors
         onCheckedChange={(value) => onChange("notify_reservations", value)}
       />
       <SettingsControlsToggleRow
@@ -65,6 +68,7 @@ export function NotificationPreferenceToggles({
         title={t("New Wishlists")}
         subtitle={t("When a friend creates a public or friends-only wishlist")}
         checked={preferences.notify_new_wishlists}
+        switchStaticColors
         onCheckedChange={(value) => onChange("notify_new_wishlists", value)}
       />
       <SettingsControlsToggleRow
@@ -72,6 +76,7 @@ export function NotificationPreferenceToggles({
         title={t("Upcoming Events")}
         subtitle={t("When a friend's wishlist event is coming up")}
         checked={preferences.notify_upcoming_events}
+        switchStaticColors
         onCheckedChange={(value) => onChange("notify_upcoming_events", value)}
       />
       <SettingsControlsToggleRow
@@ -79,6 +84,7 @@ export function NotificationPreferenceToggles({
         title={t("Group Invitations")}
         subtitle={t("When someone adds you to a friend group")}
         checked={preferences.notify_group_added}
+        switchStaticColors
         onCheckedChange={(value) => onChange("notify_group_added", value)}
       />
       <SettingsControlsToggleRow
@@ -86,6 +92,7 @@ export function NotificationPreferenceToggles({
         title={t("Wishlist Access")}
         subtitle={t("When someone shares a wishlist with you")}
         checked={preferences.notify_wishlist_access}
+        switchStaticColors
         onCheckedChange={(value) => onChange("notify_wishlist_access", value)}
       />
       <SettingsControlsToggleRow
@@ -93,6 +100,7 @@ export function NotificationPreferenceToggles({
         title={t("Reserved Item Updates")}
         subtitle={t("When an item you reserved is updated")}
         checked={preferences.notify_reserved_item_updates}
+        switchStaticColors
         onCheckedChange={(value) => onChange("notify_reserved_item_updates", value)}
       />
     </>

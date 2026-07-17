@@ -366,15 +366,21 @@ function ConfirmActionSheet({
           <Text className="text-sm text-text-muted">{description}</Text>
         </View>
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
-        <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <View className="flex-row gap-2">
           <Button
+            className="flex-1"
             variant="outline"
             disabled={isPending}
             onPress={() => void sheetRef.current?.dismiss()}
           >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <Button variant="destructive" disabled={isPending} onPress={onConfirm}>
+          <Button
+            className="flex-1"
+            variant="destructive"
+            disabled={isPending}
+            onPress={onConfirm}
+          >
             {isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
             <Text>{confirmLabel}</Text>
           </Button>

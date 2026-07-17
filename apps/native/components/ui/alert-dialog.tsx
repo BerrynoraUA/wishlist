@@ -75,12 +75,7 @@ function AlertDialogHeader({ className, ...props }: ViewProps) {
 }
 
 function AlertDialogFooter({ className, ...props }: ViewProps) {
-  return (
-    <View
-      className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
-      {...props}
-    />
-  );
+  return <View className={cn("flex flex-row gap-2", className)} {...props} />;
 }
 
 function AlertDialogTitle({
@@ -113,7 +108,10 @@ function AlertDialogAction({
 }: React.ComponentProps<typeof AlertDialogPrimitive.Action>) {
   return (
     <TextClassContext.Provider value={buttonTextVariants({ className })}>
-      <AlertDialogPrimitive.Action className={cn(buttonVariants(), className)} {...props} />
+      <AlertDialogPrimitive.Action
+        className={cn(buttonVariants(), "flex-1", className)}
+        {...props}
+      />
     </TextClassContext.Provider>
   );
 }
@@ -125,7 +123,7 @@ function AlertDialogCancel({
   return (
     <TextClassContext.Provider value={buttonTextVariants({ className, variant: "outline" })}>
       <AlertDialogPrimitive.Cancel
-        className={cn(buttonVariants({ variant: "outline" }), className)}
+        className={cn(buttonVariants({ variant: "outline" }), "flex-1", className)}
         {...props}
       />
     </TextClassContext.Provider>

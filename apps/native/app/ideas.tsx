@@ -15,21 +15,27 @@ import {
   type IdeaStatusFilter,
   sortIdeasByVotes,
 } from "@/lib/feature-ideas";
+import { PREFERENCE_KEYS, preferencesStorage } from "@/lib/storage";
 import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
-import { ArrowLeft, Clock3, Info, Lightbulb, RefreshCw } from "lucide-react-native";
+import { ArrowLeft, Clock3, Info, Lightbulb, RefreshCw, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, RefreshControl, View, useWindowDimensions } from "react-native";
+import { useMMKVBoolean } from "react-native-mmkv";
 
 export default function IdeasScreen() {
   const t = useGT();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
+  const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding(2);
   const ideasQuery = useFeatureIdeas();
   const toggleVote = useToggleFeatureIdeaVote();
   const [submitOpen, setSubmitOpen] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
+  const [introDismissed, setIntroDismissed] = useMMKVBoolean(
+    PREFERENCE_KEYS.featureIdeasIntroDismissed,
+    preferencesStorage,
+  );
   const [statusFilter, setStatusFilter] = React.useState<IdeaStatusFilter>(
     DEFAULT_IDEA_STATUS_FILTER,
   );
@@ -42,46 +48,43 @@ export default function IdeasScreen() {
 
   const listHeader = (
     <View className="gap-4 pb-4">
-      <View className="flex-row items-center justify-between gap-3">
-        <View className="min-w-0 flex-1 flex-row items-center gap-3">
+      {!introDismissed ? (
+        <View className="flex-row items-start gap-3 rounded-xl border border-info/20 bg-info-bg p-4">
+          <Icon as={Info} className="mt-0.5 size-5 shrink-0 text-info" />
+          <Text className="min-w-0 flex-1 text-sm leading-5 text-text">
+            {t(
+              "Share feature ideas for this app and vote for the ones you like. The most popular ideas help us decide what to build next.",
+            )}
+          </Text>
           <Button
             variant="ghost"
-            size="icon"
-            accessibilityLabel={t("Back")}
-            onPress={() => router.back()}
-            className="rounded-full"
+            size="icon-sm"
+            accessibilityLabel={t("Dismiss")}
+            onPress={() => setIntroDismissed(true)}
+            className="-mr-2 -mt-2 rounded-full"
           >
-            <Icon as={ArrowLeft} className="size-5 text-text" />
+            <Icon as={X} className="size-4 text-info" />
           </Button>
-          <Text className="min-w-0 flex-1 text-xl font-extrabold text-text" numberOfLines={1}>
-            {t("Feature Ideas")}
-          </Text>
         </View>
-        <AnimatedGradientBackgroundButton
-          accessibilityLabel={t("Submit Idea")}
-          Icon={<Icon as={Lightbulb} className="size-4 text-primary-foreground" />}
-          onPress={() => setSubmitOpen(true)}
-          title={t("Submit Idea")}
-        />
-      </View>
-
-      <View className="flex-row gap-3 rounded-xl border border-info/20 bg-info-bg p-4">
-        <Icon as={Info} className="mt-0.5 size-5 shrink-0 text-info" />
-        <Text className="min-w-0 flex-1 text-sm leading-5 text-text">
-          {t(
-            "Share feature ideas for this app and vote for the ones you like. The most popular ideas help us decide what to build next.",
-          )}
-        </Text>
-      </View>
+      ) : null}
 
       {submitted ? (
-        <View className="flex-row gap-3 rounded-xl border border-brand/20 bg-brand-lighter p-4">
+        <View className="flex-row items-start gap-3 rounded-xl border border-brand/20 bg-brand-lighter p-4">
           <Icon as={Clock3} className="mt-0.5 size-5 shrink-0 text-brand" />
           <Text className="min-w-0 flex-1 text-sm leading-5 text-text">
             {t(
               "Thanks! Your idea has been submitted and is awaiting review. It will appear here once approved.",
             )}
           </Text>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            accessibilityLabel={t("Dismiss")}
+            onPress={() => setSubmitted(false)}
+            className="-mr-2 -mt-2 rounded-full"
+          >
+            <Icon as={X} className="size-4 text-brand" />
+          </Button>
         </View>
       ) : null}
     </View>
@@ -92,6 +95,28 @@ export default function IdeasScreen() {
       <Stack.Screen options={{ title: t("Feature Ideas") }} />
       <View className="flex-1 bg-bg">
         <PinnedListHeader contentWidth={width - 32} onLayout={onHeaderLayout}>
+          <View className="flex-row items-center justify-between gap-3">
+            <View className="min-w-0 flex-1 flex-row items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                accessibilityLabel={t("Back")}
+                onPress={() => router.back()}
+                className="rounded-full"
+              >
+                <Icon as={ArrowLeft} className="size-5 text-text" />
+              </Button>
+              <Text className="min-w-0 flex-1 text-xl font-extrabold text-text" numberOfLines={1}>
+                {t("Feature Ideas")}
+              </Text>
+            </View>
+            <AnimatedGradientBackgroundButton
+              accessibilityLabel={t("Submit Idea")}
+              Icon={<Icon as={Lightbulb} className="size-4 text-primary-foreground" />}
+              onPress={() => setSubmitOpen(true)}
+              title={t("Submit Idea")}
+            />
+          </View>
           <FeatureIdeasTabs value={statusFilter} onChange={setStatusFilter} />
         </PinnedListHeader>
         <StyledFlashList

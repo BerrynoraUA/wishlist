@@ -87,17 +87,13 @@ export function SecretSantaDetailHero({
   const headerActionsCount = Number(hasInviteAction) + Number(hasActionsMenu);
   const headerActionsRightPadding =
     headerActionsCount >= 2 ? "pr-20" : headerActionsCount === 1 ? "pr-12" : "";
+  const eventDateLabel = formatSecretSantaDate(event.event_date, locale ?? "en");
+  const budgetLabel = formatSecretSantaBudget(event.budget, event.currency);
+  const peopleCountLabel = formatSecretSantaPeopleCount(totalPeople, t);
 
   return (
     <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
       <View className={cn("absolute inset-0", getWishlistAccentClass(null))} />
-      {event.image_url ? (
-        <StyledImage
-          source={{ uri: event.image_url }}
-          contentFit="cover"
-          className="absolute inset-0 size-full"
-        />
-      ) : null}
       <View className="absolute inset-0 bg-black/25" />
 
       <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
@@ -153,22 +149,54 @@ export function SecretSantaDetailHero({
         ) : null}
 
         <View className="gap-4">
-          <View
-            className={cn("min-w-0", headerActionsCount > 0 && headerActionsRightPadding)}
-            style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
-          >
-            <Text className="text-[21px] font-extrabold leading-6 text-white" numberOfLines={2}>
-              {event.name}
-            </Text>
-          </View>
+          {event.image_url ? (
+            <View className="flex-row items-start gap-3">
+              <View className="mt-2 size-24 shrink-0 overflow-hidden rounded-2xl border border-white/35 bg-white/15">
+                <StyledImage
+                  source={{ uri: event.image_url }}
+                  contentFit="cover"
+                  cachePolicy="memory-disk"
+                  recyclingKey={event.id}
+                  className="size-full"
+                />
+              </View>
+              <View className="min-w-0 flex-1" style={{ minHeight: 104 }}>
+                <View
+                  className={cn(
+                    headerActionsCount > 0 && "min-h-9 justify-center",
+                    headerActionsCount > 0 && headerActionsRightPadding,
+                  )}
+                  style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
+                >
+                  <Text
+                    className="text-[21px] font-extrabold leading-6 text-white"
+                    numberOfLines={3}
+                  >
+                    {event.name}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <View>
+              <View
+                className={cn("min-w-0", headerActionsCount > 0 && headerActionsRightPadding)}
+                style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
+              >
+                <Text
+                  className="text-[21px] font-extrabold leading-6 text-white"
+                  numberOfLines={2}
+                >
+                  {event.name}
+                </Text>
+              </View>
+            </View>
+          )}
 
           <View className="w-full flex-row items-center gap-2">
-            <HeroChip
-              icon={CalendarDays}
-              label={formatSecretSantaDate(event.event_date, locale ?? "en")}
-            />
-            <HeroChip icon={Gift} label={formatSecretSantaBudget(event.budget, event.currency)} />
-            <HeroChip icon={Users} label={formatSecretSantaPeopleCount(totalPeople, t)} />
+            <HeroChip icon={CalendarDays} label={eventDateLabel} />
+            <HeroChip icon={Gift} label={budgetLabel} />
+            <HeroChip icon={Users} label={peopleCountLabel} />
           </View>
         </View>
       </View>

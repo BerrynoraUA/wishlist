@@ -5,6 +5,7 @@ import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateFeatureIdea } from "@/hooks/use-feature-ideas";
 import { IDEA_DESCRIPTION_MAX_LENGTH, IDEA_TITLE_MAX_LENGTH } from "@/lib/feature-ideas";
+import { cn } from "@/lib/utils";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -23,6 +24,8 @@ export function SubmitFeatureIdeaSheet({
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
+  const [titleError, setTitleError] = React.useState<string | null>(null);
+  const [descriptionError, setDescriptionError] = React.useState<string | null>(null);
   const createIdea = useCreateFeatureIdea();
   const trimmedTitle = title.trim();
   const trimmedDescription = description.trim();
@@ -36,6 +39,14 @@ export function SubmitFeatureIdeaSheet({
   }
 
   function handleSubmit() {
+    const nextTitleError = trimmedTitle ? null : t("Title is required.");
+    const nextDescriptionError = trimmedDescription ? null : t("Description is required.");
+    setTitleError(nextTitleError);
+    setDescriptionError(nextDescriptionError);
+    if (nextTitleError || nextDescriptionError) {
+      return;
+    }
+
     if (!canSubmit) return;
 
     setError(null);
@@ -45,6 +56,8 @@ export function SubmitFeatureIdeaSheet({
         onSuccess: () => {
           setTitle("");
           setDescription("");
+          setTitleError(null);
+          setDescriptionError(null);
           onSubmitted();
           void sheetRef.current?.dismiss();
         },
@@ -72,12 +85,17 @@ export function SubmitFeatureIdeaSheet({
             </View>
             <Input
               value={title}
-              onChangeText={setTitle}
+              onChangeText={(value) => {
+                setTitle(value);
+                if (value.trim()) setTitleError(null);
+              }}
               placeholder={t("e.g. Dark mode calendar view")}
               maxLength={IDEA_TITLE_MAX_LENGTH}
               editable={!createIdea.isPending}
               returnKeyType="next"
+              className={cn(titleError && "border-destructive")}
             />
+            {titleError ? <Text className="text-xs text-destructive">{titleError}</Text> : null}
           </View>
 
           <View className="gap-2">
@@ -89,12 +107,18 @@ export function SubmitFeatureIdeaSheet({
             </View>
             <Textarea
               value={description}
-              onChangeText={setDescription}
+              onChangeText={(value) => {
+                setDescription(value);
+                if (value.trim()) setDescriptionError(null);
+              }}
               placeholder={t("Describe your idea and why it would be useful...")}
               maxLength={IDEA_DESCRIPTION_MAX_LENGTH}
               editable={!createIdea.isPending}
-              className="min-h-24"
+              className={cn("min-h-24 text-text", descriptionError && "border-destructive")}
             />
+            {descriptionError ? (
+              <Text className="text-xs text-destructive">{descriptionError}</Text>
+            ) : null}
           </View>
 
           {error ? (
@@ -109,7 +133,7 @@ export function SubmitFeatureIdeaSheet({
             <Button variant="outline" disabled={createIdea.isPending} onPress={handleClose}>
               <Text>{t("Cancel")}</Text>
             </Button>
-            <Button disabled={!canSubmit} onPress={handleSubmit}>
+            <Button disabled={createIdea.isPending} onPress={handleSubmit}>
               {createIdea.isPending ? (
                 <ActivityIndicator colorClassName="accent-primary-foreground" />
               ) : null}

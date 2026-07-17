@@ -1,3 +1,4 @@
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
@@ -17,6 +18,7 @@ export function SingleImagePicker({
   onPick,
   onClear,
   onError,
+  showChangeButton = true,
 }: {
   previewUri?: string | null;
   aspect?: [number, number];
@@ -25,6 +27,7 @@ export function SingleImagePicker({
   onPick: (image: NativePickedImage) => void;
   onClear: () => void;
   onError: (message: string) => void;
+  showChangeButton?: boolean;
 }) {
   const t = useGT();
 
@@ -71,6 +74,12 @@ export function SingleImagePicker({
               contentFit="cover"
               className="absolute inset-0 size-full"
             />
+            <AnimatedPressable
+              accessibilityRole="button"
+              accessibilityLabel={changeLabel}
+              onPress={pickImage}
+              className="absolute inset-0"
+            />
             <Button
               variant="secondary"
               size="icon"
@@ -88,7 +97,7 @@ export function SingleImagePicker({
           </Button>
         )}
       </View>
-      {previewUri ? (
+      {previewUri && showChangeButton ? (
         <Button variant="outline" onPress={pickImage} className="self-start">
           <Icon as={Camera} className="size-4 text-text" />
           <Text>{changeLabel}</Text>

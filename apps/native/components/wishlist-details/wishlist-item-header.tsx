@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { GuideTarget } from "@/components/user-guide/guide-target";
+import { WishlistDetailsSheet } from "@/components/wishlist-details/sheets/wishlist-details-sheet";
 import { usePatchWishlist } from "@/hooks/use-wishlists";
 import {
   WISHLIST_VISIBILITY_ICONS,
@@ -69,8 +70,10 @@ export function WishlistItemHeader({
   });
   const [editingTitle, setEditingTitle] = React.useState(false);
   const [editingDescription, setEditingDescription] = React.useState(false);
+  const [detailsOpen, setDetailsOpen] = React.useState(false);
   const [displayTitle, setDisplayTitle] = React.useState(wishlist.title);
   const optimisticTitleRef = React.useRef<string | null>(null);
+  const longPressTriggeredRef = React.useRef(false);
   const visibility = wishlist.visibility_type;
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[visibility];
   const eventDate = wishlist.event_date;
@@ -138,6 +141,27 @@ export function WishlistItemHeader({
     });
   }
 
+  function prepareHeaderPress() {
+    longPressTriggeredRef.current = false;
+  }
+
+  function openDetails() {
+    if (longPressTriggeredRef.current) return;
+    setDetailsOpen(true);
+  }
+
+  function startTitleEditing() {
+    if (!canInlineEdit) return;
+    longPressTriggeredRef.current = true;
+    setEditingTitle(true);
+  }
+
+  function startDescriptionEditing() {
+    if (!canInlineEdit) return;
+    longPressTriggeredRef.current = true;
+    setEditingDescription(true);
+  }
+
   const titleContent = editingTitle ? (
     <Controller
       control={control}
@@ -158,10 +182,11 @@ export function WishlistItemHeader({
     />
   ) : (
     <AnimatedPressable
-      disabled={!canInlineEdit}
-      accessibilityRole={canInlineEdit ? "button" : "text"}
-      accessibilityLabel={canInlineEdit ? t("Edit wishlist title") : displayTitle}
-      onPress={() => setEditingTitle(true)}
+      accessibilityRole="button"
+      accessibilityLabel={t("Open wishlist details")}
+      onPressIn={prepareHeaderPress}
+      onPress={openDetails}
+      onLongPress={canInlineEdit ? startTitleEditing : undefined}
     >
       <Text className="text-[21px] font-extrabold leading-6 text-white" numberOfLines={2}>
         {displayTitle}
@@ -187,10 +212,11 @@ export function WishlistItemHeader({
     />
   ) : wishlist.description || canInlineEdit ? (
     <AnimatedPressable
-      disabled={!canInlineEdit}
-      accessibilityRole={canInlineEdit ? "button" : "text"}
-      accessibilityLabel={t("Edit wishlist description")}
-      onPress={() => setEditingDescription(true)}
+      accessibilityRole="button"
+      accessibilityLabel={t("Open wishlist details")}
+      onPressIn={prepareHeaderPress}
+      onPress={openDetails}
+      onLongPress={canInlineEdit ? startDescriptionEditing : undefined}
     >
       <Text className="mt-2 text-sm leading-5 text-white/80" numberOfLines={3}>
         {wishlist.description || t("Add a short description")}
@@ -236,7 +262,8 @@ export function WishlistItemHeader({
   ) : null;
 
   return (
-    <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
+    <>
+      <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
       <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
       <View className="absolute inset-0 bg-black/20" />
       <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
@@ -389,6 +416,10 @@ export function WishlistItemHeader({
           </DatePicker>
         </View>
       </View>
-    </View>
+      </View>
+      {detailsOpen ? (
+        <WishlistDetailsSheet wishlist={wishlist} onClose={() => setDetailsOpen(false)} />
+      ) : null}
+    </>
   );
 }

@@ -60,6 +60,7 @@ export function SettingsControlsToggleRow({
   subtitle,
   checked,
   onCheckedChange,
+  switchStaticColors,
 }: {
   icon?: LucideIcon;
   iconContent?: React.ReactNode;
@@ -67,6 +68,7 @@ export function SettingsControlsToggleRow({
   subtitle?: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
+  switchStaticColors?: boolean;
 }) {
   return (
     <View className="flex-row items-center justify-between gap-3">
@@ -79,7 +81,11 @@ export function SettingsControlsToggleRow({
           {subtitle ? <Text className="text-sm text-text-muted">{subtitle}</Text> : null}
         </View>
       </View>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+      <Switch
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+        staticColors={switchStaticColors}
+      />
     </View>
   );
 }
