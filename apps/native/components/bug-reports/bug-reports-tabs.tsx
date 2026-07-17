@@ -23,4 +23,3 @@ export function BugReportsTabs({
 
   return <ScrollableTabs tabs={tabs} value={value} onChange={onChange} />;
 }
-

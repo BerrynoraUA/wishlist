@@ -40,7 +40,9 @@ export function IosTabBar({ onCreatePress }: IosTabBarProps) {
       >
         <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
         <NativeTabs.Trigger.Label>{t("Wishlists")}</NativeTabs.Trigger.Label>
-        {unreadCount > 0 ? <NativeTabs.Trigger.Badge>{unreadBadge}</NativeTabs.Trigger.Badge> : null}
+        {unreadCount > 0 ? (
+          <NativeTabs.Trigger.Badge>{unreadBadge}</NativeTabs.Trigger.Badge>
+        ) : null}
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         name="secret-santa"

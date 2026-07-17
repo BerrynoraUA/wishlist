@@ -1,7 +1,9 @@
 import { CreateMenuHost } from "@/components/create/create-menu";
 import { AndroidTabBar, type AndroidTabBarProps } from "@/components/navigation/android-tab-bar";
 import { IosTabBar } from "@/components/navigation/ios-tab-bar";
+import { useNavigationTheme } from "@/lib/theme";
 import { useAuth } from "@/providers/auth-provider";
+import { useUserGuide } from "@/components/user-guide/user-guide-provider";
 import { Redirect, Tabs, usePathname } from "expo-router";
 import * as React from "react";
 import { Platform } from "react-native";
