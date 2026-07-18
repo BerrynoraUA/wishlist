@@ -183,10 +183,7 @@ export function SecretSantaDetailHero({
                 className={cn("min-w-0", headerActionsCount > 0 && headerActionsRightPadding)}
                 style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
               >
-                <Text
-                  className="text-[21px] font-extrabold leading-6 text-white"
-                  numberOfLines={2}
-                >
+                <Text className="text-[21px] font-extrabold leading-6 text-white" numberOfLines={2}>
                   {event.name}
                 </Text>
               </View>

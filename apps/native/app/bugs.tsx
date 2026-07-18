@@ -29,9 +29,8 @@ export default function BugsScreen() {
   const [reportOpen, setReportOpen] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
   const [introDismissed, setIntroDismissed] = React.useState(false);
-  const [statusFilter, setStatusFilter] = React.useState<BugStatusFilter>(
-    DEFAULT_BUG_STATUS_FILTER,
-  );
+  const [statusFilter, setStatusFilter] =
+    React.useState<BugStatusFilter>(DEFAULT_BUG_STATUS_FILTER);
   const reports = reportsQuery.data ?? [];
   const visibleReports = React.useMemo(
     () => filterBugsByStatus(reports, statusFilter),

@@ -3,12 +3,18 @@ import { logout, loginWithGoogle, loginWithApple, loginWithFacebook } from "@/ap
 import { getKnownAccount, removeKnownAccount, upsertKnownAccount } from "@/lib/known-accounts";
 import type { KnownAccount, KnownAccountProvider } from "@/types/known-accounts";
 import {
-  RESOLVED_THEME_COOKIE_NAME,
+  ACCENT_COOKIE_NAME,
+  THEME_COOKIE_NAME,
   buildAccentCookie,
+  buildResolvedThemeCookie,
+  buildThemeCookie,
   getAccentInlineStyles,
-  parseResolvedTheme,
+  parseAccentCookie,
+  parseThemePreference,
+  resolveThemePreference,
   type ResolvedTheme,
 } from "@/lib/theme";
+import type { ThemePreference } from "@/types/settings";
 
 type SwitchHandlers = {
   onRedirect: (href: string) => void;
@@ -92,46 +98,80 @@ function readCookie(name: string): string | null {
   return null;
 }
 
-function currentResolvedTheme(): ResolvedTheme {
-  const fromCookie = parseResolvedTheme(readCookie(RESOLVED_THEME_COOKIE_NAME));
-  if (fromCookie) return fromCookie;
-  if (typeof document !== "undefined") {
-    const attr = document.documentElement.getAttribute("data-theme");
-    if (attr === "light" || attr === "dark") return attr;
-  }
-  if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    return "dark";
-  }
-  return "light";
+type AccountAppearance = {
+  theme: ThemePreference;
+  accent: number;
+};
+
+const INSTANT_THEME_CLASS = "account-switching-theme";
+
+function currentAppearance(): AccountAppearance {
+  return {
+    theme: parseThemePreference(readCookie(THEME_COOKIE_NAME)) ?? "system",
+    accent: parseAccentCookie(readCookie(ACCENT_COOKIE_NAME)),
+  };
 }
 
-function applyAccentSynchronously(accent: number) {
+function knownAccountAppearance(
+  account: Pick<KnownAccount, "defaultAccent" | "themePreference"> | undefined,
+  fallback: AccountAppearance,
+): AccountAppearance {
+  return {
+    theme: parseThemePreference(account?.themePreference) ?? fallback.theme,
+    accent:
+      typeof account?.defaultAccent === "number" &&
+      account.defaultAccent >= 0 &&
+      account.defaultAccent <= 4
+        ? account.defaultAccent
+        : fallback.accent,
+  };
+}
+
+function applyAppearanceSynchronously({ theme, accent }: AccountAppearance) {
   if (typeof document === "undefined") return;
-  document.cookie = buildAccentCookie(accent);
-  const resolvedTheme = currentResolvedTheme();
-  const styles = getAccentInlineStyles(accent, resolvedTheme);
   const root = document.documentElement;
+  root.classList.add(INSTANT_THEME_CLASS);
+
+  const systemTheme: ResolvedTheme =
+    typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  const resolvedTheme = resolveThemePreference(theme, systemTheme);
+
+  document.cookie = buildThemeCookie(theme);
+  document.cookie = buildResolvedThemeCookie(resolvedTheme);
+  document.cookie = buildAccentCookie(accent);
+  const styles = getAccentInlineStyles(accent, resolvedTheme);
+  root.setAttribute("data-theme", resolvedTheme);
+  root.style.colorScheme = resolvedTheme;
   for (const [name, value] of Object.entries(styles)) {
     root.style.setProperty(name, value);
   }
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      root.classList.remove(INSTANT_THEME_CLASS);
+    });
+  });
 }
 
 export async function switchAccount(account: KnownAccount, { onRedirect }: SwitchHandlers) {
+  const previousAppearance = currentAppearance();
+  const targetAppearance = knownAccountAppearance(account, previousAppearance);
+  applyAppearanceSynchronously(targetAppearance);
+
   const session = (await trySetSession(account)) ?? (await tryRefreshSession(account));
 
   if (!session) {
+    applyAppearanceSynchronously(previousAppearance);
     removeKnownAccount(account.userId);
     await fallbackToLogin(account, onRedirect);
     return;
   }
 
-  // Apply the target account's accent synchronously so the upcoming full
-  // reload paints with the correct brand color from the first frame
-  // (before the new user's settings query resolves).
-  const storedAccent = getKnownAccount(session.user.id)?.defaultAccent;
-  const targetAccent =
-    typeof storedAccent === "number" && storedAccent >= 0 && storedAccent <= 4 ? storedAccent : 0;
-  applyAccentSynchronously(targetAccent);
+  const storedAccount = getKnownAccount(session.user.id);
+  const confirmedAppearance = knownAccountAppearance(storedAccount, targetAppearance);
+  applyAppearanceSynchronously(confirmedAppearance);
 
   upsertKnownAccount({
     userId: session.user.id,
@@ -141,6 +181,8 @@ export async function switchAccount(account: KnownAccount, { onRedirect }: Switc
     accessToken: session.access_token,
     refreshToken: session.refresh_token,
     expiresAt: session.expires_at ?? null,
+    defaultAccent: confirmedAppearance.accent,
+    themePreference: confirmedAppearance.theme,
   });
 
   if (typeof window !== "undefined") {

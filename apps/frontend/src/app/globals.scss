@@ -316,6 +316,17 @@ body {
     color 0.3s ease;
 }
 
+html.account-switching-theme,
+html.account-switching-theme *,
+html.account-switching-theme *::before,
+html.account-switching-theme *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
 img {
   max-width: 100%;
   display: block;

@@ -12,4 +12,3 @@ export function uploadBugScreenshot(image: NativePickedImage): Promise<string> {
     pathPrefix: "bug",
   });
 }
-
