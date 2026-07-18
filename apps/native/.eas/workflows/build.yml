@@ -2,7 +2,7 @@ name: Native Build
 
 defaults:
   tools:
-    node: 22.11.0
+    node: 22.14.0
     corepack: true
     pnpm: 11.9.0
 
