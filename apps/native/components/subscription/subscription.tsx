@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { openLegalPage } from "@/lib/legal-links";
 import { cn } from "@/lib/utils";
 import { useSubscriptionManager } from "@/providers/subscription-provider";
 import { useGT } from "gt-react-native";
@@ -66,7 +67,7 @@ function getSavingsBadge(plan: PurchasesPackage, packages: PurchasesPackage[], t
   const monthlyYearlyPrice = monthly?.product.price ? monthly.product.price * 12 : null;
 
   if (!monthlyYearlyPrice || monthlyYearlyPrice <= plan.product.price) {
-    return t("SAVE {percent}%", { percent: 50 });
+    return null;
   }
 
   const savings = Math.round((1 - plan.product.price / monthlyYearlyPrice) * 100);
@@ -341,6 +342,27 @@ export function Subscription({
                   </Text>
                 </Pressable>
               ) : null}
+
+              <View className="gap-1.5">
+                <Text className="text-center text-xs leading-4 text-white/60">
+                  {t(
+                    "Subscriptions renew automatically until canceled. Cancel anytime in your {store} account settings.",
+                    { store: process.env.EXPO_OS === "ios" ? "App Store" : "Google Play" },
+                  )}
+                </Text>
+                <View className="flex-row items-center justify-center gap-5">
+                  <Pressable hitSlop={8} onPress={() => void openLegalPage("terms-of-service")}>
+                    <Text className="text-xs font-medium text-white/70 underline">
+                      {t("Terms of Use")}
+                    </Text>
+                  </Pressable>
+                  <Pressable hitSlop={8} onPress={() => void openLegalPage("privacy-policy")}>
+                    <Text className="text-xs font-medium text-white/70 underline">
+                      {t("Privacy Policy")}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
             </View>
           </View>
         </View>
