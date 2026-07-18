@@ -19,22 +19,12 @@
     },
     "staging": {
       "extends": "base",
+      "distribution": "store",
       "channel": "staging",
       "environment": "preview",
       "autoIncrement": true,
       "android": {
-        "distribution": "internal",
-        "buildType": "apk"
-      }
-    },
-    "staging": {
-      "extends": "base",
-      "channel": "staging",
-      "environment": "preview",
-      "autoIncrement": true,
-      "android": {
-        "distribution": "internal",
-        "buildType": "apk"
+        "buildType": "app-bundle"
       }
     },
     "production": {
@@ -47,11 +37,15 @@
   "submit": {
     "production": {
       "android": {
-        "track": "internal"
+        "track": "production"
       },
       "ios": {}
     },
     "staging": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "completed"
+      },
       "ios": {}
     }
   }
