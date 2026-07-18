@@ -240,10 +240,7 @@ export function WishlistCreateEditSheet({
                 onBlur={() => setDescriptionFocused(false)}
                 placeholder={t("A short note about this wishlist")}
                 multiline
-                className={cn(
-                  "items-start py-3",
-                  descriptionInputExpanded ? "h-48" : "h-24",
-                )}
+                className={cn("items-start py-3", descriptionInputExpanded ? "h-48" : "h-24")}
                 textAlignVertical="top"
               />
             )}

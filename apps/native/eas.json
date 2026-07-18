@@ -17,12 +17,13 @@
         "buildType": "apk"
       }
     },
-    "preview": {
+    "staging": {
       "extends": "base",
-      "distribution": "internal",
-      "channel": "preview",
+      "channel": "staging",
       "environment": "preview",
+      "autoIncrement": true,
       "android": {
+        "distribution": "internal",
         "buildType": "apk"
       }
     },
@@ -38,6 +39,9 @@
       "android": {
         "track": "internal"
       },
+      "ios": {}
+    },
+    "staging": {
       "ios": {}
     }
   }

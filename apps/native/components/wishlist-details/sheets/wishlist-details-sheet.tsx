@@ -2,10 +2,7 @@ import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
-import {
-  WISHLIST_VISIBILITY_ICONS,
-  getWishlistVisibilityLabels,
-} from "@/lib/wishlists";
+import { WISHLIST_VISIBILITY_ICONS, getWishlistVisibilityLabels } from "@/lib/wishlists";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { CalendarDays, FileText, ListChecks } from "lucide-react-native";
 import { useGT, useLocale } from "gt-react-native";

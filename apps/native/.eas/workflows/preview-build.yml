@@ -23,17 +23,17 @@ jobs:
   build_android:
     name: Build Android Preview
     type: build
-    environment: preview
+    environment: development
     params:
       platform: android
-      profile: preview
+      profile: development
       message: Preview build from ${{ github.ref_name }}
 
   build_ios:
     name: Build iOS Preview
     type: build
-    environment: preview
+    environment: development
     params:
       platform: ios
-      profile: preview
+      profile: development
       message: Preview build from ${{ github.ref_name }}

@@ -11,4 +11,3 @@ export default async function ScraperTestLayout({ children }: { children: ReactN
 
   return children;
 }
-
