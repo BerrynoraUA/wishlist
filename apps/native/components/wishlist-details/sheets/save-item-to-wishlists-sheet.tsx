@@ -50,7 +50,6 @@ export function SaveItemToWishlistsSheet({
   }, [item?.id]);
 
   if (!item) return null;
-  const itemToSave = item;
 
   async function handleSave() {
     const itemToSave = item;
