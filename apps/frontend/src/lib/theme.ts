@@ -6,6 +6,14 @@ export const THEME_COOKIE_NAME = "bn_theme";
 export const RESOLVED_THEME_COOKIE_NAME = "bn_resolved_theme";
 export const ACCENT_COOKIE_NAME = "bn_accent";
 export const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+export const DEFAULT_THEME_PREFERENCE: ThemePreference = "system";
+export const DEFAULT_ACCENT = 0;
+export const INSTANT_THEME_CLASS = "account-switching-theme";
+
+export type ThemeAndAccent = {
+  theme: ThemePreference;
+  accent: number;
+};
 
 export function parseThemePreference(value: string | null | undefined): ThemePreference | null {
   if (value === "light" || value === "dark" || value === "system") {
@@ -34,6 +42,12 @@ export function resolveThemePreference(
   systemTheme: ResolvedTheme,
 ): ResolvedTheme {
   return theme === "system" ? systemTheme : theme;
+}
+
+export function getSystemResolvedTheme(): ResolvedTheme {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 }
 
 export function getInitialResolvedTheme(
@@ -119,6 +133,30 @@ export function getAccentInlineStyles(
     "--gradient-header": `linear-gradient(135deg, ${bg} 0%, ${t.r} 50%, ${t.l} 100%)`,
     "--gradient-hero": `linear-gradient(135deg, ${bg}, ${t.r}, ${t.l})`,
   };
+}
+
+export function applyThemeAndAccentSynchronously({ theme, accent }: ThemeAndAccent) {
+  if (typeof document === "undefined") return;
+  const root = document.documentElement;
+  root.classList.add(INSTANT_THEME_CLASS);
+
+  const resolvedTheme = resolveThemePreference(theme, getSystemResolvedTheme());
+  document.cookie = buildThemeCookie(theme);
+  document.cookie = buildResolvedThemeCookie(resolvedTheme);
+  document.cookie = buildAccentCookie(accent);
+
+  root.setAttribute("data-theme", resolvedTheme);
+  root.style.colorScheme = resolvedTheme;
+  const styles = getAccentInlineStyles(accent, resolvedTheme);
+  for (const [name, value] of Object.entries(styles)) {
+    root.style.setProperty(name, value);
+  }
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      root.classList.remove(INSTANT_THEME_CLASS);
+    });
+  });
 }
 
 export function buildThemeInitScript(): string {
