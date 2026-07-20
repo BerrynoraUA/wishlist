@@ -130,7 +130,7 @@ export async function switchAccount(account: KnownAccount, { onRedirect }: Switc
   }
 
   const storedAccount = getKnownAccount(session.user.id);
-  const confirmedAppearance = knownAccountAppearance(storedAccount, targetAppearance);
+  const confirmedAppearance = knownAccountAppearance(storedAccount ?? undefined, targetAppearance);
   applyThemeAndAccentSynchronously(confirmedAppearance);
 
   upsertKnownAccount({

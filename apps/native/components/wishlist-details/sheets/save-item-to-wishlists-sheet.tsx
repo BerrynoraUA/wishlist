@@ -50,10 +50,10 @@ export function SaveItemToWishlistsSheet({
   }, [item?.id]);
 
   if (!item) return null;
-  const itemToSave = item;
 
   async function handleSave() {
-    if (selectedWishlistIds.length === 0 || isSaving) return;
+    const itemToSave = item;
+    if (!itemToSave || selectedWishlistIds.length === 0 || isSaving) return;
 
     setIsSaving(true);
     setSaveError(null);

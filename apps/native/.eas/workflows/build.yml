@@ -13,36 +13,29 @@ on:
         type: choice
         required: true
         description: EAS build profile to use.
-        default: preview
+        default: development
         options:
           - development
-          - preview
+          - staging
           - production
-      environment:
-        type: environment
-        required: true
-        description: EAS environment variables to use.
-        default: preview
 
 concurrency:
   cancel_in_progress: true
-  group: ${{ workflow.filename }}-${{ github.ref }}-${{ inputs.profile || 'preview' }}
+  group: ${{ workflow.filename }}-${{ github.ref }}
 
 jobs:
   build_android:
     name: Build Android
     type: build
-    environment: ${{ inputs.environment || 'preview' }}
     params:
       platform: android
-      profile: ${{ inputs.profile || 'preview' }}
+      profile: ${{ inputs.profile || 'development' }}
       message: Build from ${{ github.ref_name }}
 
   build_ios:
     name: Build iOS
     type: build
-    environment: ${{ inputs.environment || 'preview' }}
     params:
       platform: ios
-      profile: ${{ inputs.profile || 'preview' }}
+      profile: ${{ inputs.profile || 'development' }}
       message: Build from ${{ github.ref_name }}
