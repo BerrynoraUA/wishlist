@@ -49,11 +49,26 @@ type ItemFormVariant = {
   scrapeDescription: boolean;
 };
 
-const EXPANDED_DESCRIPTION_MIN_LENGTH = 160;
+const DESCRIPTION_INPUT_MIN_HEIGHT = 96;
+const DESCRIPTION_INPUT_MAX_HEIGHT = 192;
+const DESCRIPTION_INPUT_VERTICAL_OFFSET = 12;
 
-function shouldExpandDescriptionInput(value: string | null | undefined) {
-  const description = value?.trim() ?? "";
-  return description.length >= EXPANDED_DESCRIPTION_MIN_LENGTH || description.includes("\n");
+function clampDescriptionInputHeight(height: number) {
+  return Math.max(
+    DESCRIPTION_INPUT_MIN_HEIGHT,
+    Math.min(DESCRIPTION_INPUT_MAX_HEIGHT, Math.ceil(height)),
+  );
+}
+
+function estimateDescriptionInputHeight(value: string | null | undefined) {
+  const description = value ?? "";
+  if (!description.trim()) return DESCRIPTION_INPUT_MIN_HEIGHT;
+
+  const estimatedLineCount = description
+    .split("\n")
+    .reduce((count, line) => count + Math.max(1, Math.ceil(line.length / 34)), 0);
+
+  return clampDescriptionInputHeight(estimatedLineCount * 22 + DESCRIPTION_INPUT_VERTICAL_OFFSET);
 }
 
 function getItemFormVariant(
@@ -104,7 +119,9 @@ export function WishlistItemCreateEditSheet({
     defaultValues: EMPTY_ITEM_FORM,
   });
   const values = useWatch({ control }) as ItemFormValues;
-  const descriptionInputExpanded = shouldExpandDescriptionInput(values.description);
+  const [descriptionInputHeight, setDescriptionInputHeight] = React.useState(
+    DESCRIPTION_INPUT_MIN_HEIGHT,
+  );
   const [selectedWishlistId, setSelectedWishlistId] = React.useState("");
   const form = React.useMemo(
     () => getItemFormVariant(mode, createSource, Boolean(wishlistId)),
@@ -150,6 +167,7 @@ export function WishlistItemCreateEditSheet({
           ? toItemFormValues(item ?? undefined)
           : { ...EMPTY_ITEM_FORM, priority_id: null };
       reset(nextValues);
+      setDescriptionInputHeight(estimateDescriptionInputHeight(nextValues.description));
       setSelectedWishlistId("");
       setScrapeError(null);
       imageUpload.reset();
@@ -487,7 +505,15 @@ export function WishlistItemCreateEditSheet({
                   onFocus={() => void sheetRef.current?.resize(1)}
                   placeholder={t("Add details, size, color...")}
                   multiline
-                  className={cn("items-start py-3", descriptionInputExpanded ? "h-48" : "h-24")}
+                  onContentSizeChange={(event) => {
+                    setDescriptionInputHeight(
+                      clampDescriptionInputHeight(
+                        event.nativeEvent.contentSize.height + DESCRIPTION_INPUT_VERTICAL_OFFSET,
+                      ),
+                    );
+                  }}
+                  className="items-start py-3"
+                  style={{ height: descriptionInputHeight }}
                   textAlignVertical="top"
                 />
               )}

@@ -195,11 +195,20 @@ export function AddFriendSheet({
           <Text className="text-sm font-semibold text-success">{t("Invite sent!")}</Text>
         ) : null}
 
-        <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button variant="outline" disabled={sendRequest.isPending} onPress={handleClose}>
+        <View className="flex-row gap-2">
+          <Button
+            className="flex-1"
+            variant="outline"
+            disabled={sendRequest.isPending}
+            onPress={handleClose}
+          >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <Button disabled={selected.length === 0 || sendRequest.isPending} onPress={handleInvite}>
+          <Button
+            className="flex-1"
+            disabled={selected.length === 0 || sendRequest.isPending}
+            onPress={handleInvite}
+          >
             {sendRequest.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
             <Text>{sendRequest.isPending ? t("Inviting...") : t("Invite")}</Text>
           </Button>

@@ -129,11 +129,16 @@ export function SubmitFeatureIdeaSheet({
             </View>
           ) : null}
 
-          <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button variant="outline" disabled={createIdea.isPending} onPress={handleClose}>
+          <View className="flex-row gap-2">
+            <Button
+              className="flex-1"
+              variant="outline"
+              disabled={createIdea.isPending}
+              onPress={handleClose}
+            >
               <Text>{t("Cancel")}</Text>
             </Button>
-            <Button disabled={createIdea.isPending} onPress={handleSubmit}>
+            <Button className="flex-1" disabled={createIdea.isPending} onPress={handleSubmit}>
               {createIdea.isPending ? (
                 <ActivityIndicator colorClassName="accent-primary-foreground" />
               ) : null}

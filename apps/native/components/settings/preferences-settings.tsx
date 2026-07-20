@@ -39,6 +39,13 @@ import { Pressable, View } from "react-native";
 const LOCALIZED_LOCALE_LABELS: Record<string, string> = {
   en: "English",
   uk: "Українська",
+  de: "Deutsch",
+  es: "Español",
+  fr: "Français",
+  ja: "日本語",
+  it: "Italiano",
+  pt: "Português",
+  zh: "中文",
 };
 
 export function PreferencesSettings({

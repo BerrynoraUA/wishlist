@@ -58,11 +58,26 @@ type VisibilitySelectorValue =
   | "friends"
   | "public";
 
-const EXPANDED_DESCRIPTION_MIN_LENGTH = 160;
+const DESCRIPTION_INPUT_MIN_HEIGHT = 96;
+const DESCRIPTION_INPUT_MAX_HEIGHT = 192;
+const DESCRIPTION_INPUT_VERTICAL_OFFSET = 12;
 
-function shouldExpandDescriptionInput(value: string | null | undefined) {
-  const description = value?.trim() ?? "";
-  return description.length >= EXPANDED_DESCRIPTION_MIN_LENGTH || description.includes("\n");
+function clampDescriptionInputHeight(height: number) {
+  return Math.max(
+    DESCRIPTION_INPUT_MIN_HEIGHT,
+    Math.min(DESCRIPTION_INPUT_MAX_HEIGHT, Math.ceil(height)),
+  );
+}
+
+function estimateDescriptionInputHeight(value: string | null | undefined) {
+  const description = value ?? "";
+  if (!description.trim()) return DESCRIPTION_INPUT_MIN_HEIGHT;
+
+  const estimatedLineCount = description
+    .split("\n")
+    .reduce((count, line) => count + Math.max(1, Math.ceil(line.length / 34)), 0);
+
+  return clampDescriptionInputHeight(estimatedLineCount * 22 + DESCRIPTION_INPUT_VERTICAL_OFFSET);
 }
 
 export function WishlistCreateEditSheet({
@@ -77,7 +92,6 @@ export function WishlistCreateEditSheet({
   onOpenChange: (open: boolean) => void;
 }) {
   const sheetRef = React.useRef<BottomSheetRef>(null);
-  const [descriptionFocused, setDescriptionFocused] = React.useState(false);
   const t = useGT();
   const completeCreateWishlistStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.createWishlist);
   const visibilityOptions = React.useMemo(() => getWishlistVisibilityOptions(t), [t]);
@@ -90,8 +104,9 @@ export function WishlistCreateEditSheet({
     defaultValues: EMPTY_WISHLIST_FORM,
   });
   const values = useWatch({ control }) as WishlistFormValues;
-  const descriptionInputExpanded =
-    descriptionFocused || shouldExpandDescriptionInput(values.description);
+  const [descriptionInputHeight, setDescriptionInputHeight] = React.useState(
+    DESCRIPTION_INPUT_MIN_HEIGHT,
+  );
   const setSelectedAccessVisibility = React.useCallback(
     (visibility: WishlistVisibility) => setValue("visibility", visibility),
     [setValue],
@@ -114,6 +129,7 @@ export function WishlistCreateEditSheet({
 
     reset(toWishlistFormValues(wishlist));
     imageUpload.reset();
+    setDescriptionInputHeight(estimateDescriptionInputHeight(wishlist?.description));
   }, [imageUpload.reset, mode, open, reset, wishlist]);
 
   if (!open) return null;
@@ -234,13 +250,19 @@ export function WishlistCreateEditSheet({
                 value={value}
                 onChangeText={onChange}
                 onFocus={() => {
-                  setDescriptionFocused(true);
                   void sheetRef.current?.resize(1);
                 }}
-                onBlur={() => setDescriptionFocused(false)}
                 placeholder={t("A short note about this wishlist")}
                 multiline
-                className={cn("items-start py-3", descriptionInputExpanded ? "h-48" : "h-24")}
+                onContentSizeChange={(event) => {
+                  setDescriptionInputHeight(
+                    clampDescriptionInputHeight(
+                      event.nativeEvent.contentSize.height + DESCRIPTION_INPUT_VERTICAL_OFFSET,
+                    ),
+                  );
+                }}
+                className="items-start py-3"
+                style={{ height: descriptionInputHeight }}
                 textAlignVertical="top"
               />
             )}

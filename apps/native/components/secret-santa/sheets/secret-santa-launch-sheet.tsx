@@ -208,11 +208,20 @@ export function SecretSantaLaunchSheet({
           </View>
         ) : null}
 
-        <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button variant="outline" disabled={launch.isPending} onPress={closeSheet}>
+        <View className="flex-row gap-2">
+          <Button
+            className="flex-1"
+            variant="outline"
+            disabled={launch.isPending}
+            onPress={closeSheet}
+          >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <Button disabled={Boolean(validationError) || launch.isPending} onPress={handleLaunch}>
+          <Button
+            className="flex-1"
+            disabled={Boolean(validationError) || launch.isPending}
+            onPress={handleLaunch}
+          >
             {launch.isPending ? (
               <ActivityIndicator colorClassName="accent-white" />
             ) : (

@@ -17,11 +17,11 @@ export function FeatureIdeasSettings() {
         <Text className="text-sm leading-5 text-text-muted">
           {t("Share ideas, vote for features, or tell us when something breaks.")}
         </Text>
-        <Button onPress={() => router.push("/ideas")}>
+        <Button onPress={() => router.push("/(tabs)/profile/ideas" as never)}>
           <Icon as={Lightbulb} className="size-4 text-primary-foreground" />
           <Text>{t("Request a Feature")}</Text>
         </Button>
-        <Button variant="outline" onPress={() => router.push("/bugs")}>
+        <Button variant="outline" onPress={() => router.push("/(tabs)/profile/bugs" as never)}>
           <Icon as={Bug} className="size-4 text-text" />
           <Text>{t("Report a Bug")}</Text>
         </Button>
