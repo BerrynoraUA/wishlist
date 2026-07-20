@@ -1,7 +1,7 @@
 {
   "$schema": "https://assets.gtx.dev/config-schema.json",
   "defaultLocale": "en",
-  "locales": ["en", "uk", "de", "es", "fr", "ja", "it", "pt", "zh"],
+  "locales": ["en", "uk", "de", "es", "fr", "ja", "it", "pt", "zh", "pl", "ko", "nl"],
   "files": {
     "gt": {
       "output": "content/[locale].json"

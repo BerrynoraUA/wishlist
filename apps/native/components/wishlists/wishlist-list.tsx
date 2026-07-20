@@ -188,6 +188,7 @@ export function WishlistList({
                 width={contentWidth}
                 mascot="sad-alone"
                 message={t("No wishlists yet.")}
+                pointToCreateButton
               />
             ) : null}
           </View>

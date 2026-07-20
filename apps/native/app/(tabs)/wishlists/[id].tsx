@@ -457,6 +457,7 @@ export default function WishlistDetailScreen() {
                         ? t("No items match your filters.")
                         : t("No items yet.")
                     }
+                    pointToCreateButton={!(filtersActive && hasAnyItems)}
                   />
                 ) : null}
               </View>

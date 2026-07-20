@@ -46,6 +46,9 @@ const LOCALIZED_LOCALE_LABELS: Record<string, string> = {
   it: "Italiano",
   pt: "Português",
   zh: "中文",
+  pl: "Polski",
+  ko: "한국어",
+  nl: "Nederlands",
 };
 
 export function PreferencesSettings({

@@ -262,6 +262,7 @@ export default function FriendsScreen() {
                           ? t("No sent requests.")
                           : t("No friends yet.")
                   }
+                  pointToCreateButton={!debouncedSearch && (tab === "friends" || tab === "groups")}
                 />
               ) : null}
             </View>

@@ -159,6 +159,7 @@ export default function SecretSantaScreen() {
                       ? t("No Secret Santa events match your search.")
                       : t("No Secret Santa events yet. Create one to get started!")
                   }
+                  pointToCreateButton={!debouncedSearch}
                 />
               ) : null}
             </View>
