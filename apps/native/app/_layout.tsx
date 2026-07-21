@@ -161,9 +161,7 @@ function AuthRedirector() {
   const rootSegment = segments[0];
 
   useEffect(() => {
-    const isAuthenticatedRoute =
-      rootSegment === "(tabs)" ||
-      rootSegment === "subscription";
+    const isAuthenticatedRoute = rootSegment === "(tabs)" || rootSegment === "subscription";
 
     if (session && !isAuthenticatedRoute) {
       router.replace("/(tabs)/wishlists" as never);
