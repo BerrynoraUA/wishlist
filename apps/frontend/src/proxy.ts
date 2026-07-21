@@ -10,6 +10,7 @@ const gtLocaleMiddleware = createNextMiddleware({
 const PUBLIC_ROUTES = new Set([
   "/",
   "/login",
+  "/pricing",
   "/privacy-policy",
   "/refund-policy",
   "/register",
