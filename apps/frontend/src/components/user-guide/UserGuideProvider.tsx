@@ -48,6 +48,10 @@ type GuideHighlightBox = {
   tooltipPlacement: "top" | "bottom";
 };
 
+// Temporarily disabled on web. Flip to true to re-enable the user guide.
+
+const USER_GUIDE_ENABLED = false;
+
 const UserGuideContext = createContext<UserGuideContextValue>({
   active: false,
   completedStep: 0,
@@ -181,7 +185,11 @@ function boxesEqual(a: GuideHighlightBox | null, b: GuideHighlightBox | null): b
 
 export function UserGuideProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const shouldLoadGuide = pathname !== "/" && pathname !== "/login" && pathname !== "/register";
+  const shouldLoadGuide =
+    USER_GUIDE_ENABLED &&
+    pathname !== "/" &&
+    pathname !== "/login" &&
+    pathname !== "/register";
   const { data: profile } = useProfile({ enabled: shouldLoadGuide });
   const updateGuideStep = useUpdateUserGuideStep();
   const [confirmCloseOpen, setConfirmCloseOpen] = useState(false);
@@ -193,7 +201,8 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
   const highlightScrollTimerRef = useRef<number | null>(null);
 
   const completedStep = normalizeCompletedStep(profile?.userGuideStep);
-  const active = Boolean(profile) && completedStep < USER_GUIDE_COMPLETE_STEP;
+  const active =
+    USER_GUIDE_ENABLED && Boolean(profile) && completedStep < USER_GUIDE_COMPLETE_STEP;
   const currentStep = active ? (getUserGuideStep(completedStep + 1) ?? null) : null;
   const currentSegment = currentStep ? (getUserGuideSegmentForStep(currentStep.id) ?? null) : null;
   const routeMatchesCurrentSegment = Boolean(
