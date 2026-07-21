@@ -46,12 +46,7 @@ export function WishlistDeleteSheet({
   }
 
   return (
-    <BottomSheet
-      ref={sheetRef}
-      detents={["auto"]}
-      dismissOnBack={false}
-      onDidDismiss={() => onOpenChange(false)}
-    >
+    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={() => onOpenChange(false)}>
       <View className="gap-4 px-5 pb-5 pt-5">
         <View className="gap-2">
           <Text className="text-lg font-extrabold text-text">{t("Delete Wishlist")}</Text>
@@ -66,11 +61,21 @@ export function WishlistDeleteSheet({
           <Text className="text-sm font-semibold text-destructive">{mutation.error.message}</Text>
         ) : null}
 
-        <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button variant="outline" disabled={mutation.isPending} onPress={handleClose}>
+        <View className="flex-row gap-2">
+          <Button
+            className="flex-1"
+            variant="outline"
+            disabled={mutation.isPending}
+            onPress={handleClose}
+          >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <Button variant="destructive" disabled={mutation.isPending} onPress={handleDelete}>
+          <Button
+            className="flex-1"
+            variant="destructive"
+            disabled={mutation.isPending}
+            onPress={handleDelete}
+          >
             {mutation.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
             <Icon as={Trash2} className="size-4 text-white" />
             <Text>{t("Delete Wishlist")}</Text>

@@ -1,21 +1,19 @@
 import { buttonTextVariants, buttonVariants } from "@/components/ui/button";
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
 import { TextClassContext } from "@/components/ui/text";
+import { WindowOverlay } from "@/components/ui/window-overlay";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as AlertDialogPrimitive from "@rn-primitives/alert-dialog";
 import * as React from "react";
-import { Platform, View, type ViewProps } from "react-native";
+import { View, type ViewProps } from "react-native";
 import { FadeIn, FadeOut } from "react-native-reanimated";
-import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
 const AlertDialog = AlertDialogPrimitive.Root;
 
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
 
 const AlertDialogPortal = AlertDialogPrimitive.Portal;
-
-const FullWindowOverlay = Platform.OS === "ios" ? RNFullWindowOverlay : React.Fragment;
 
 function AlertDialogOverlay({
   className,
@@ -24,8 +22,10 @@ function AlertDialogOverlay({
 }: Omit<React.ComponentProps<typeof AlertDialogPrimitive.Overlay>, "asChild"> & {
   children?: React.ReactNode;
 }) {
+  const { onOpenChange } = AlertDialogPrimitive.useRootContext();
+
   return (
-    <FullWindowOverlay>
+    <WindowOverlay onRequestClose={() => onOpenChange(false)}>
       <AlertDialogPrimitive.Overlay
         className={cn(
           "absolute bottom-0 left-0 right-0 top-0 z-50 flex items-center justify-center bg-black/50 p-2",
@@ -40,7 +40,7 @@ function AlertDialogOverlay({
           <>{children}</>
         </NativeOnlyAnimatedView>
       </AlertDialogPrimitive.Overlay>
-    </FullWindowOverlay>
+    </WindowOverlay>
   );
 }
 
@@ -75,12 +75,7 @@ function AlertDialogHeader({ className, ...props }: ViewProps) {
 }
 
 function AlertDialogFooter({ className, ...props }: ViewProps) {
-  return (
-    <View
-      className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
-      {...props}
-    />
-  );
+  return <View className={cn("flex flex-row gap-2", className)} {...props} />;
 }
 
 function AlertDialogTitle({
@@ -113,7 +108,10 @@ function AlertDialogAction({
 }: React.ComponentProps<typeof AlertDialogPrimitive.Action>) {
   return (
     <TextClassContext.Provider value={buttonTextVariants({ className })}>
-      <AlertDialogPrimitive.Action className={cn(buttonVariants(), className)} {...props} />
+      <AlertDialogPrimitive.Action
+        className={cn(buttonVariants(), "flex-1", className)}
+        {...props}
+      />
     </TextClassContext.Provider>
   );
 }
@@ -125,7 +123,7 @@ function AlertDialogCancel({
   return (
     <TextClassContext.Provider value={buttonTextVariants({ className, variant: "outline" })}>
       <AlertDialogPrimitive.Cancel
-        className={cn(buttonVariants({ variant: "outline" }), className)}
+        className={cn(buttonVariants({ variant: "outline" }), "flex-1", className)}
         {...props}
       />
     </TextClassContext.Provider>

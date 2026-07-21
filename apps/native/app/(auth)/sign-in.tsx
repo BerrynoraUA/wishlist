@@ -1,11 +1,11 @@
 import { loginWithApple, loginWithFacebook, loginWithGoogle } from "@/api/login";
-import { AuthWishlistBackground } from "@/components/auth/auth-wishlist-background";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
+import { Image } from "expo-image";
 import { Redirect, useRouter } from "expo-router";
-import { GiftIcon, MailIcon } from "lucide-react-native";
+import { MailIcon } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
@@ -51,18 +51,23 @@ export default function SignInScreen() {
       contentInsetAdjustmentBehavior="automatic"
     >
       <View className="relative min-h-full flex-1 overflow-hidden bg-[#16111f]">
-        <AuthWishlistBackground />
+        <View className="absolute inset-0 bg-linear-[160deg,#16111f_0%,#321633_56%,#641c50_100%]" />
         <View className="min-h-full flex-1 justify-center px-7 py-safe-offset-8">
-          <View className="w-full max-w-[420px] self-center">
-            <View className="mb-9 items-center gap-4">
-              <View className="size-16 items-center justify-center rounded-full bg-white/95">
-                <Icon as={GiftIcon} className="size-8 text-[#c0267e]" />
+          <View className="w-full max-w-105 self-center">
+            <View className="mb-9 items-center">
+              <View className="mb-4 items-center justify-center">
+                <Image
+                  accessibilityLabel={t("Happy Wishlane mascot pointing to sign-in options")}
+                  contentFit="contain"
+                  source={require("@/assets/images/mascot/happy-pointing-down.png")}
+                  style={{ height: 232, width: 232 }}
+                />
               </View>
-              <View className="items-center gap-2">
-                <Text className="text-center text-[34px] font-extrabold leading-10 text-white">
+              <View className="items-center gap-1.5">
+                <Text className="text-center text-[36px] font-extrabold leading-10 tracking-tight text-white">
                   {t("Wishlane")}
                 </Text>
-                <Text className="text-center text-xl font-bold leading-7 text-white">
+                <Text className="max-w-80 text-center text-lg font-semibold leading-6 text-white/88">
                   {t("Gifts your people actually want")}
                 </Text>
               </View>

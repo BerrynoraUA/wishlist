@@ -13,6 +13,7 @@ export type ItemCardData = {
   priority: ItemCardPriority;
   colorIndex: number | null;
   discountPrice: string | number | null;
+  discountEndDate: string | null;
   currency: string | null;
   status: number | null;
   isReserved: boolean;

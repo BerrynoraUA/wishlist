@@ -1,4 +1,4 @@
-import { generateSecretSantaAssignment } from "@/api/secret-santa";
+import { generateSecretSantaAssignment } from "@/lib/secret-santa-assignment";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -56,7 +56,7 @@ export function SecretSantaLaunchSheet({
       exclusionMap.set(exclusion.user_id, new Set(exclusion.excluded_ids));
     }
 
-    return generateSecretSantaAssignment(ids, exclusionMap, 200)
+    return generateSecretSantaAssignment(ids, exclusionMap)
       ? null
       : t("These exclusions make a valid assignment impossible.");
   }, [exclusionList, participants, t]);
@@ -99,13 +99,7 @@ export function SecretSantaLaunchSheet({
   }
 
   return (
-    <BottomSheet
-      ref={sheetRef}
-      detents={[0.85, 1]}
-      scrollable
-      dismissOnBack={false}
-      onDidDismiss={() => onOpenChange(false)}
-    >
+    <BottomSheet ref={sheetRef} scrollable onDidDismiss={() => onOpenChange(false)}>
       <View className="gap-5 px-5 pb-6 pt-5">
         <View className="gap-2">
           <Text className="text-xl font-extrabold text-text">{t("Launch Secret Santa")}</Text>
@@ -214,11 +208,20 @@ export function SecretSantaLaunchSheet({
           </View>
         ) : null}
 
-        <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button variant="outline" disabled={launch.isPending} onPress={closeSheet}>
+        <View className="flex-row gap-2">
+          <Button
+            className="flex-1"
+            variant="outline"
+            disabled={launch.isPending}
+            onPress={closeSheet}
+          >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <Button disabled={Boolean(validationError) || launch.isPending} onPress={handleLaunch}>
+          <Button
+            className="flex-1"
+            disabled={Boolean(validationError) || launch.isPending}
+            onPress={handleLaunch}
+          >
             {launch.isPending ? (
               <ActivityIndicator colorClassName="accent-white" />
             ) : (

@@ -24,8 +24,6 @@ export type WishlistVisibilityOption = {
   label: string;
   icon: LucideIcon;
   visibility: WishlistVisibility;
-  surfaceClassName: string;
-  itemClassName: string;
 };
 
 export function getWishlistVisibilityOptions(t: TranslateFn): WishlistVisibilityOption[] {
@@ -35,32 +33,24 @@ export function getWishlistVisibilityOptions(t: TranslateFn): WishlistVisibility
       label: t("Public"),
       icon: Globe,
       visibility: WishlistVisibility.Public,
-      surfaceClassName: "bg-success-bg",
-      itemClassName: "mb-1 last:mb-0 active:bg-success-bg/85 dark:active:bg-success-bg/90",
     },
     {
       value: "friends",
       label: t("Friends only"),
       icon: Users,
       visibility: WishlistVisibility.FriendsOnly,
-      surfaceClassName: "bg-info-bg",
-      itemClassName: "mb-1 last:mb-0 active:bg-info-bg/85 dark:active:bg-info-bg/90",
     },
     {
       value: "selected-friends",
       label: t("Selected friends"),
       icon: UserCheck,
       visibility: WishlistVisibility.SelectedFriends,
-      surfaceClassName: "bg-brand-alpha-12",
-      itemClassName: "mb-1 last:mb-0 active:bg-brand-alpha-20",
     },
     {
       value: "private",
       label: t("Private"),
       icon: Lock,
       visibility: WishlistVisibility.Private,
-      surfaceClassName: "bg-danger-bg",
-      itemClassName: "mb-1 last:mb-0 active:bg-danger-bg/85 dark:active:bg-danger-bg/90",
     },
   ];
 }
@@ -146,15 +136,6 @@ export const EMPTY_WISHLIST_FORM: WishlistFormValues = {
 
 export function normalizeSearchQuery(value?: string) {
   return value?.trim().replace(/\s+/g, " ") ?? "";
-}
-
-export function paginationFlags(page: number, itemsCount: number, pageSize: number) {
-  return {
-    hasNextPage: itemsCount === pageSize,
-    hasPrevPage: page > 1,
-    showPagination: itemsCount === pageSize || page > 1,
-    totalForPagination: itemsCount === pageSize ? page + 1 : page,
-  };
 }
 
 export function hasActiveFilters(search: string, visibility: string[]) {

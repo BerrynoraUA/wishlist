@@ -79,7 +79,7 @@ export default function WishlistItemsPage() {
   const friendshipCheckUserId =
     !isOwner && !!currentUserId && !!wishlist?.user_id ? wishlist.user_id : "";
   const { data: isFriend = false } = useCheckFriendship(friendshipCheckUserId);
-  const showDiscountBadge = !isOwner && isFriend;
+  const showDiscountBadge = isOwner || isFriend;
 
   const { hasNextPage, hasPrevPage, totalForPagination } = paginationFlags(
     page,
@@ -160,7 +160,7 @@ export default function WishlistItemsPage() {
 
           {!itemsLoading && !hasAnyItems && !isFiltersActive && (
             <MascotEmptyState
-              variant={canEditWishlist ? "gift-in-hands" : "empty-hands-shrug"}
+              variant="gift-in-hands"
               message={t("No items yet.", { $id: "wishlist.page.noItems" })}
             />
           )}

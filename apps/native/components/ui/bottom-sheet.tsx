@@ -13,7 +13,6 @@ import {
 } from "react";
 import {
   Keyboard,
-  Platform,
   View,
   type ColorValue,
   type GestureResponderEvent,
@@ -21,12 +20,13 @@ import {
   TextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ReanimatedTrueSheet } from "@lodev09/react-native-true-sheet/reanimated";
 import { useCSSVariable } from "uniwind";
 
 type ReanimatedBottomSheetProps = ComponentProps<typeof ReanimatedTrueSheet>;
 type BottomSheetDetents = NonNullable<ReanimatedBottomSheetProps["detents"]>;
+const DEFAULT_DETENTS: BottomSheetDetents = ["auto", 1];
+const DEFAULT_SCROLLABLE_DETENTS: BottomSheetDetents = [0.75, 1];
 
 export type BottomSheetRef = ComponentRef<typeof ReanimatedTrueSheet>;
 
@@ -55,13 +55,13 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
   (
     {
       children,
-      detents = ["auto"],
+      detents,
       scrollable,
       dimmed = true,
       cornerRadius = 30,
       onDidDismiss,
       autoPresent = true,
-      dismissOnBack = true,
+      dismissOnBack = false,
       header,
       footer,
       footerStyle,
@@ -78,16 +78,11 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
   ) => {
     const router = useRouter();
     const sheetRef = useRef<BottomSheetRef>(null);
-    const insets = useSafeAreaInsets();
-    /** Sheet height already includes bottom safe area on iPad; avoid double inset. */
-    const isIPad = Platform.OS === "ios" && Platform.isPad;
-    const footerBottomSafeInset = isIPad ? 0 : insets.bottom;
     const sheetBackground = useCSSVariable("--color-bg-elevated") as ColorValue | undefined;
     const grabberColor = useCSSVariable("--color-border-light") as ColorValue | undefined;
 
-    const calculatedFooterPadding = footer
-      ? Math.max(footerPaddingBottom ?? 0, footerBottomSafeInset)
-      : undefined;
+    const calculatedFooterPadding = footer ? (footerPaddingBottom ?? 0) : undefined;
+    const resolvedDetents = detents ?? (scrollable ? DEFAULT_SCROLLABLE_DETENTS : DEFAULT_DETENTS);
 
     const [footerHeight, setFooterHeight] = useState(0);
 
@@ -160,7 +155,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
     return (
       <ReanimatedTrueSheet
         ref={sheetRef}
-        detents={detents}
+        detents={resolvedDetents}
         scrollable={scrollable}
         scrollableOptions={scrollableOptions}
         dimmed={dimmed}

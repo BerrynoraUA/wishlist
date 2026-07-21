@@ -185,7 +185,13 @@ export function ItemDetailModal({
                 <span className={`${styles.priority} ${styles[priorityKey]}`}>{priorityLabel}</span>
               )}
               {reserveStatusLabel && (
-                <span className={styles.reservedBadge}>{reserveStatusLabel}</span>
+                <span
+                  className={`${styles.reservedBadge} ${
+                    reservationState.isPurchased ? styles.purchasedBadge : ""
+                  }`}
+                >
+                  {reserveStatusLabel}
+                </span>
               )}
             </div>
 
@@ -241,6 +247,7 @@ export function ItemDetailModal({
                   additionalLinks: item.additional_links,
                 })}
                 className={styles.saveBtn}
+                tooltipAlign="start"
               />
 
               <div className={styles.footerRight}>

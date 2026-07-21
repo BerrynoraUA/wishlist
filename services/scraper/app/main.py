@@ -1,0 +1,288 @@
+from contextlib import asynccontextmanager
+from collections.abc import AsyncIterator
+from uuid import uuid4
+from time import monotonic
+import asyncio
+from urllib.parse import urlparse
+
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+
+from app.adaptive import AdaptiveExtractor
+from app.audit import ScrapeAuditLogger, ScrapeAuditTrace
+from app.config import get_settings
+from app.fetching import BrowserFetcher, HttpFetcher
+from app.models import (
+    ErrorCode,
+    ApiFetchAttempt,
+    ApiFetchRequest,
+    ApiFetchResponse,
+    ErrorDetail,
+    ErrorResponse,
+    HealthResponse,
+    ReadinessResponse,
+    ScrapeRequest,
+    ScrapeResponse,
+)
+from app.service import ScrapeService, ScrapeServiceError
+
+
+@asynccontextmanager
+async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+    settings = get_settings()
+    http_fetcher = HttpFetcher(settings)
+    browser_fetcher = BrowserFetcher(settings) if settings.enable_browser else None
+    adaptive_extractor = (
+        AdaptiveExtractor(
+            settings.adaptive_db_path,
+            settings.adaptive_match_percentage,
+        )
+        if settings.enable_adaptive
+        else None
+    )
+    audit_logger = ScrapeAuditLogger(
+        settings.audit_log_path,
+        settings.audit_log_max_bytes,
+        settings.audit_log_backups,
+    )
+    application.state.http_fetcher = http_fetcher
+    application.state.browser_fetcher = browser_fetcher
+    application.state.audit_logger = audit_logger
+    application.state.scrape_service = ScrapeService(
+        http_fetcher,
+        browser_fetcher,
+        adaptive_extractor,
+        audit_logger,
+        enable_jina=settings.enable_jina,
+    )
+    try:
+        yield
+    finally:
+        if browser_fetcher is not None:
+            await browser_fetcher.close()
+        await http_fetcher.close()
+
+
+app = FastAPI(
+    title="Wishlane Scraper",
+    version="0.1.0",
+    docs_url="/docs",
+    redoc_url=None,
+    lifespan=lifespan,
+)
+
+
+@app.get("/health", response_model=HealthResponse)
+async def health() -> HealthResponse:
+    return HealthResponse(status="ok")
+
+
+@app.get("/ready", response_model=ReadinessResponse)
+async def ready() -> ReadinessResponse:
+    settings = get_settings()
+    return ReadinessResponse(
+        status="ready",
+        browser_enabled=settings.enable_browser,
+    )
+
+
+API_HOSTS = {
+    "api.ebay.com",
+    "openapi.etsy.com",
+    "api.discogs.com",
+    "api.gunbroker.com",
+    "api.bol.com",
+    "api-sg.aliexpress.com",
+    "aukro.cz",
+    "www.bestbuy.ca",
+    "www.digitec.ch",
+    "www.galaxus.ch",
+    "rozetka.com.ua",
+    "www.rozetka.com.ua",
+    "www.noon.com",
+    "www.meesho.com",
+    "www.lazada.co.th",
+}
+
+
+@app.post("/v1/api-fetch", response_model=ApiFetchResponse)
+async def api_fetch(payload: ApiFetchRequest, request: Request) -> ApiFetchResponse:
+    url = str(payload.url)
+    hostname = (urlparse(url).hostname or "").lower()
+    if hostname not in API_HOSTS:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "API hostname is not allowlisted"},
+        )
+
+    attempts: list[ApiFetchAttempt] = []
+    fetchers = [("python_api_http", request.app.state.http_fetcher)]
+    last_response = None
+    deadline = monotonic() + payload.deadline_ms / 1000
+
+    for mode, fetcher in fetchers:
+        if fetcher is None:
+            attempts.append(
+                ApiFetchAttempt(
+                    mode=mode,
+                    outcome="skipped",
+                    duration_ms=0,
+                    error="not_configured",
+                )
+            )
+            continue
+        remaining = deadline - monotonic()
+        if remaining <= 0:
+            attempts.append(
+                ApiFetchAttempt(
+                    mode=mode,
+                    outcome="timeout",
+                    duration_ms=0,
+                    error="deadline_exceeded",
+                )
+            )
+            break
+        started = monotonic()
+        try:
+            response = await asyncio.wait_for(
+                fetcher.fetch(
+                    url,
+                    headers=payload.headers,
+                    method=payload.method,
+                    body=payload.body,
+                ),
+                timeout=remaining,
+            )
+            last_response = response
+            blocked = response.status in {403, 429} or response.block.blocked
+            attempts.append(
+                ApiFetchAttempt(
+                    mode=mode,
+                    outcome="blocked" if blocked else "received",
+                    duration_ms=int((monotonic() - started) * 1000),
+                    status=response.status,
+                )
+            )
+            if not blocked:
+                break
+        except TimeoutError:
+            attempts.append(
+                ApiFetchAttempt(
+                    mode=mode,
+                    outcome="timeout",
+                    duration_ms=int((monotonic() - started) * 1000),
+                    error="request_timeout",
+                )
+            )
+        except Exception:
+            attempts.append(
+                ApiFetchAttempt(
+                    mode=mode,
+                    outcome="error",
+                    duration_ms=int((monotonic() - started) * 1000),
+                    error="request_failed",
+                )
+            )
+
+    if last_response is None:
+        return JSONResponse(
+            status_code=502,
+            content={
+                "status": 502,
+                "body": "",
+                "fetch_mode": attempts[-1].mode if attempts else "not_attempted",
+                "attempts": [attempt.model_dump(mode="json") for attempt in attempts],
+            },
+        )
+    return ApiFetchResponse(
+        status=last_response.status,
+        body=last_response.body,
+        fetch_mode=attempts[-1].mode,
+        attempts=attempts,
+    )
+
+
+@app.post(
+    "/v1/scrape",
+    response_model=ScrapeResponse,
+    responses={
+        400: {"model": ErrorResponse},
+        422: {"model": ErrorResponse},
+        502: {"model": ErrorResponse},
+        504: {"model": ErrorResponse},
+    },
+)
+async def scrape(payload: ScrapeRequest, request: Request) -> ScrapeResponse:
+    service: ScrapeService = request.app.state.scrape_service
+    return await service.scrape(payload)
+
+
+@app.exception_handler(ScrapeServiceError)
+async def handle_scrape_error(
+    _request: Request,
+    error: ScrapeServiceError,
+) -> JSONResponse:
+    body = ErrorResponse(
+        error=ErrorDetail(
+            code=error.code,
+            message=error.message,
+            request_id=error.request_id,
+            diagnostics=error.diagnostics,
+        )
+    )
+    return JSONResponse(
+        status_code=error.status_code,
+        content=body.model_dump(mode="json"),
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def handle_validation_error(
+    request: Request,
+    error: RequestValidationError,
+) -> JSONResponse:
+    if request.url.path != "/v1/scrape":
+        return JSONResponse(status_code=422, content={"detail": error.errors()})
+
+    body = error.body if isinstance(error.body, dict) else {}
+    request_id_value = body.get("request_id")
+    request_id = (
+        request_id_value
+        if isinstance(request_id_value, str) and request_id_value
+        else str(uuid4())
+    )
+    url_value = body.get("url")
+    url = url_value if isinstance(url_value, str) else ""
+    deadline_value = body.get("deadline_ms")
+    deadline_ms = deadline_value if isinstance(deadline_value, int) else 59_500
+    audit_logger: ScrapeAuditLogger | None = getattr(
+        request.app.state,
+        "audit_logger",
+        None,
+    )
+    if audit_logger is not None:
+        trace = ScrapeAuditTrace(
+            request_id=request_id,
+            url=url,
+            deadline_ms=deadline_ms,
+        )
+        try:
+            await audit_logger.write(
+                trace.finish(
+                    outcome="invalid_request",
+                    error_code=ErrorCode.INVALID_REQUEST.value,
+                    error_message="Request validation failed",
+                )
+            )
+        except Exception:
+            pass
+
+    response = ErrorResponse(
+        error=ErrorDetail(
+            code=ErrorCode.INVALID_REQUEST,
+            message="Request validation failed",
+            request_id=request_id,
+        )
+    )
+    return JSONResponse(status_code=422, content=response.model_dump(mode="json"))

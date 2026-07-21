@@ -1,80 +1,72 @@
-import { getThemeMode, useNavigationTheme } from "@/lib/theme";
+import { CreateMenuHost } from "@/components/create/create-menu";
+import { AndroidTabBar, type AndroidTabBarProps } from "@/components/navigation/android-tab-bar";
+import { IosTabBar } from "@/components/navigation/ios-tab-bar";
+import { useNavigationTheme } from "@/lib/theme";
 import { useAuth } from "@/providers/auth-provider";
 import { useUserGuide } from "@/components/user-guide/user-guide-provider";
-import { Redirect } from "expo-router";
-import { NativeTabs } from "expo-router/unstable-native-tabs";
-import { useGT } from "gt-react-native";
+import { Redirect, Tabs, usePathname } from "expo-router";
+import * as React from "react";
+import { Platform } from "react-native";
 import { useUniwind } from "uniwind";
 
+export const unstable_settings = {
+  initialRouteName: "wishlists",
+};
+
 export default function TabsLayout() {
-  const t = useGT();
   const { session } = useAuth();
-  const { handleTabPress } = useUserGuide();
-  const { theme } = useUniwind();
-  const themeMode = getThemeMode(theme);
-  const navigationTheme = useNavigationTheme(theme);
-  const primaryColor =
-    typeof navigationTheme.colors.primary === "string" ? navigationTheme.colors.primary : "#208aef";
-  const selectedTabBackground = themeMode === "dark" ? `${primaryColor}24` : `${primaryColor}18`;
+  const pathname = usePathname();
+  const [createOpen, setCreateOpen] = React.useState(false);
 
   if (!session) {
     return <Redirect href={"/(auth)/sign-in" as never} />;
   }
 
+  if (pathname === "/") {
+    return <Redirect href={"/(tabs)/wishlists" as never} />;
+  }
+
   return (
-    <NativeTabs
-      backgroundColor={navigationTheme.colors.card}
-      blurEffect={themeMode === "dark" ? "systemMaterialDark" : "systemMaterialLight"}
-      disableTransparentOnScrollEdge
-      indicatorColor={selectedTabBackground}
-      labelVisibilityMode="labeled"
-      tintColor={navigationTheme.colors.primary}
+    <CreateMenuHost open={createOpen} onOpenChange={setCreateOpen}>
+      {Platform.OS === "ios" ? (
+        <IosTabBar onCreatePress={() => setCreateOpen(true)} />
+      ) : (
+        <AndroidTabs onCreatePress={() => setCreateOpen(true)} />
+      )}
+    </CreateMenuHost>
+  );
+}
+
+/**
+ * Android uses JS tabs with a fully custom tab bar (floating pill, raised
+ * gradient Create button) instead of the generic Material 3 native bar.
+ */
+function AndroidTabs({ onCreatePress }: { onCreatePress: () => void }) {
+  const { handleTabPress } = useUserGuide();
+  const { theme } = useUniwind();
+  const navigationTheme = useNavigationTheme(theme);
+
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        sceneStyle: { backgroundColor: navigationTheme.colors.background },
+      }}
+      tabBar={(props) => (
+        <AndroidTabBar
+          state={props.state as AndroidTabBarProps["state"]}
+          navigation={props.navigation as unknown as AndroidTabBarProps["navigation"]}
+          onCreatePress={onCreatePress}
+          onTabPress={handleTabPress}
+        />
+      )}
     >
-      <NativeTabs.Trigger
-        name="wishlists"
-        listeners={{
-          tabPress: () => handleTabPress("wishlists"),
-        }}
-      >
-        <NativeTabs.Trigger.Icon sf="gift.fill" md="featured_seasonal_and_gifts" />
-        <NativeTabs.Trigger.Label>{t("Wishlists")}</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger
-        name="discover"
-        listeners={{
-          tabPress: () => handleTabPress("discover"),
-        }}
-      >
-        <NativeTabs.Trigger.Icon sf="sparkles" md="explore" />
-        <NativeTabs.Trigger.Label>{t("Discover")}</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger
-        name="secret-santa"
-        listeners={{
-          tabPress: () => handleTabPress("secret-santa"),
-        }}
-      >
-        <NativeTabs.Trigger.Icon sf="party.popper.fill" md="card_giftcard" />
-        <NativeTabs.Trigger.Label>{t("Secret Santa")}</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger
-        name="friends"
-        listeners={{
-          tabPress: () => handleTabPress("friends"),
-        }}
-      >
-        <NativeTabs.Trigger.Icon sf="person.2.fill" md="group" />
-        <NativeTabs.Trigger.Label>{t("Friends")}</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger
-        name="profile"
-        listeners={{
-          tabPress: () => handleTabPress("profile"),
-        }}
-      >
-        <NativeTabs.Trigger.Icon sf="person.crop.circle" md="account_circle" />
-        <NativeTabs.Trigger.Label>{t("Profile")}</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-    </NativeTabs>
+      <Tabs.Screen name="wishlists" />
+      <Tabs.Screen name="secret-santa" />
+      <Tabs.Screen name="create" />
+      <Tabs.Screen name="friends" />
+      <Tabs.Screen name="profile" />
+      <Tabs.Screen name="index" />
+    </Tabs>
   );
 }

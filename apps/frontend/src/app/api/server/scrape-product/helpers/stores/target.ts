@@ -5,8 +5,9 @@ import { extractNumericPrice, extractImage, extractDescription } from "../utils"
 /**
  * Target.com — ціни зберігаються в __TGT_DATA__ JSON, не в DOM-елементах.
  */
-export function scrapeTarget(html: string, url: string): ProductData {
+export async function scrapeTarget(html: string, url: string): Promise<ProductData> {
   const $ = cheerio.load(html);
+  const selectedTcin = new URL(url).searchParams.get("preselect");
 
   // --- title ---
   let title =
@@ -26,26 +27,39 @@ export function scrapeTarget(html: string, url: string): ProductData {
   let currentPrice: string | null = null;
   let oldPrice: string | null = null;
 
-  // current_retail or current_retail_min
-  const currentMatch = html.match(/"current_retail(?:_min)?"\s*:\s*([\d.]+)/);
+  const scopedHtml = selectedTcin
+    ? [...html.matchAll(new RegExp(selectedTcin, "g"))]
+        .map(({ index = 0 }) => html.slice(Math.max(0, index - 8000), index + 8000))
+        .join("\n")
+    : "";
+
+  currentPrice = extractNumericPrice(
+    $('[data-test="product-price"], [data-test="product-price-primary"]').first().text().trim(),
+  );
+
+  // Product state must be scoped to the TCIN selected by `preselect`.
+  const currentMatch = scopedHtml.match(/"current_retail(?:_min)?"\s*:\s*([\d.]+)/);
   if (currentMatch) {
     currentPrice = extractNumericPrice(currentMatch[1]);
   }
   // formatted_current_price fallback
   if (!currentPrice) {
-    const fmtMatch = html.match(/"formatted_current_price"\s*:\s*"([^"]+)"/);
+    const fmtMatch = scopedHtml.match(/"formatted_current_price"\s*:\s*"([^"]+)"/);
     if (fmtMatch) {
       currentPrice = extractNumericPrice(fmtMatch[1]);
     }
   }
 
   // reg_retail or reg_retail_max (original price)
-  const regMatch = html.match(/"reg_retail(?:_max)?"\s*:\s*([\d.]+)/);
+  oldPrice = extractNumericPrice(
+    $('[data-test="product-regular-price"], [class*="strikethrough"]').first().text().trim(),
+  );
+  const regMatch = scopedHtml.match(/"reg_retail(?:_max)?"\s*:\s*([\d.]+)/);
   if (regMatch) {
     oldPrice = extractNumericPrice(regMatch[1]);
   }
   if (!oldPrice) {
-    const fmtRegMatch = html.match(/"formatted_comparison_price"\s*:\s*"([^"]+)"/);
+    const fmtRegMatch = scopedHtml.match(/"formatted_comparison_price"\s*:\s*"([^"]+)"/);
     if (fmtRegMatch) {
       oldPrice = extractNumericPrice(fmtRegMatch[1]);
     }
@@ -61,7 +75,7 @@ export function scrapeTarget(html: string, url: string): ProductData {
 
   const hasDiscount = Boolean(oldPrice && currentPrice && oldPrice !== currentPrice);
 
-  return {
+  const product: ProductData = {
     title: title || null,
     description: description || null,
     image: image || null,
@@ -69,6 +83,57 @@ export function scrapeTarget(html: string, url: string): ProductData {
     discount_price: hasDiscount ? currentPrice : null,
     has_discount: hasDiscount,
     discount_end_date: null,
-    currency: "USD",
+    currency: currentPrice ? "USD" : null,
   };
+
+  const apiKey = html.match(/apiKey(?:\\?")?\s*:\\?"([a-f0-9]{32,})/i)?.[1];
+  if (!selectedTcin || !apiKey) return product;
+
+  try {
+    const endpoint =
+      "https://redsky.target.com/redsky_aggregations/v1/web/pdp_client_v1" +
+      `?key=${apiKey}&tcin=${selectedTcin}` +
+      "&store_id=3991&pricing_store_id=3991&has_pricing_store_id=true";
+    const response = await fetch(endpoint, { headers: { Referer: url } });
+    if (!response.ok) return product;
+    const payload: unknown = await response.json();
+
+    const findSelected = (value: unknown): Record<string, unknown> | null => {
+      if (!value || typeof value !== "object") return null;
+      if (Array.isArray(value)) {
+        for (const child of value) {
+          const found = findSelected(child);
+          if (found) return found;
+        }
+        return null;
+      }
+      const record = value as Record<string, unknown>;
+      if (
+        String(record.tcin) === selectedTcin &&
+        record.price &&
+        typeof record.price === "object"
+      ) {
+        return record;
+      }
+      for (const child of Object.values(record)) {
+        const found = findSelected(child);
+        if (found) return found;
+      }
+      return null;
+    };
+
+    const selectedProduct = findSelected(payload);
+    const priceData = selectedProduct?.price as Record<string, unknown> | undefined;
+    const apiCurrent = extractNumericPrice(String(priceData?.current_retail ?? ""));
+    const apiRegular = extractNumericPrice(String(priceData?.reg_retail ?? ""));
+    if (!apiCurrent) return product;
+    const apiHasDiscount = Boolean(apiRegular && parseFloat(apiRegular) > parseFloat(apiCurrent));
+    product.price = apiHasDiscount ? apiRegular : apiCurrent;
+    product.discount_price = apiHasDiscount ? apiCurrent : null;
+    product.has_discount = apiHasDiscount;
+    product.currency = "USD";
+    return product;
+  } catch {
+    return product;
+  }
 }

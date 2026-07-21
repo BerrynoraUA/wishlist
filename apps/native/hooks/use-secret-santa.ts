@@ -5,6 +5,7 @@ import {
   deleteSecretSantaEvent,
   getSecretSantaDetails,
   getUserVisibleItemsByMaxPrice,
+  inviteSecretSantaUsers,
   joinSecretSantaEvent,
   launchSecretSanta,
   listSecretSantaEvents,
@@ -21,7 +22,7 @@ import type {
   ListSecretSantaEventsParams,
   UpdateSecretSantaEventInput,
 } from "@wishlist/backend/types/secret-santa";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const secretSantaKeys = {
   all: ["secret-santa"] as const,
@@ -40,17 +41,26 @@ export const secretSantaKeys = {
   ],
 };
 
-export function useSecretSantaEvents(params: ListSecretSantaEventsParams = {}) {
+export function useInfiniteSecretSantaEvents(
+  params: ListSecretSantaEventsParams,
+  pageSize: number,
+) {
   const { user } = useAuth();
   const normalizedParams = {
     search: normalizeSearchQuery(params.search) || undefined,
-    limit: params.limit,
-    offset: params.offset,
   };
 
-  return useQuery({
-    queryKey: secretSantaKeys.list(user?.id, normalizedParams),
-    queryFn: () => listSecretSantaEvents(normalizedParams),
+  return useInfiniteQuery({
+    queryKey: secretSantaKeys.list(user?.id, { ...normalizedParams, limit: pageSize }),
+    queryFn: ({ pageParam }) =>
+      listSecretSantaEvents({
+        ...normalizedParams,
+        limit: pageSize,
+        offset: pageParam * pageSize,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      lastPage.offset + lastPage.items.length < lastPage.total ? lastPageParam + 1 : undefined,
     enabled: Boolean(user?.id),
   });
 }
@@ -96,6 +106,25 @@ export function useDeleteSecretSantaEvent() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
       queryClient.removeQueries({ queryKey: ["secret-santa", "detail"], exact: false });
+    },
+  });
+}
+
+export function useInviteSecretSantaUsers() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      eventId,
+      eventName,
+      userIds,
+    }: {
+      eventId: string;
+      eventName: string;
+      userIds: string[];
+    }) => inviteSecretSantaUsers(eventId, eventName, userIds),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
     },
   });
 }

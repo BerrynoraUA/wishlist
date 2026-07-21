@@ -1,4 +1,6 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { ItemImage } from "@/components/items/item-image";
+import { ActionBottomSheetConfirm } from "@/components/ui/action-bottom-sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,20 +8,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
-import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import {
   buildReservationLabel,
+  getItemPriority,
   getItemReservationState,
   getItemStoreFromUrl,
   getSalePercentOff,
   getTranslatedItemPriorityLabel,
+  isDiscountActive,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
+import { getValidHttpUrl } from "@/lib/urls";
 import type { Item } from "@wishlist/backend/types/item";
 import type { TriggerRef } from "@rn-primitives/dropdown-menu";
 import * as Clipboard from "expo-clipboard";
-import { Gift, Heart, PackageCheck } from "lucide-react-native";
+import { Heart, LockKeyhole, ShoppingCart } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
@@ -37,6 +41,10 @@ export function WishlistItemCard({
   onEdit,
   onDelete,
   onToggleVote,
+  onToggleReserve,
+  onToggleBought,
+  reservePending = false,
+  boughtPending = false,
 }: {
   item: Item;
   width: number;
@@ -50,6 +58,10 @@ export function WishlistItemCard({
   onEdit?: () => void;
   onDelete?: () => void;
   onToggleVote?: () => void;
+  onToggleReserve?: () => void;
+  onToggleBought?: () => void;
+  reservePending?: boolean;
+  boughtPending?: boolean;
 }) {
   const t = useGT();
   const reservation = getItemReservationState({
@@ -65,21 +77,43 @@ export function WishlistItemCard({
     },
     t,
   );
+  // Owners never see reservation status on their own wishlist (keep the
+  // surprise). For everyone else, gray out reserved/purchased items so they
+  // read as "taken" at a glance; purchases use the image ribbon only.
+  const showReservation = !isOwner && reservation.isReserved;
+  const isTaken = !isOwner && Boolean(reservationLabel);
   const priorityLabel = getTranslatedItemPriorityLabel(t, item.priority_id);
+  const priority = getItemPriority(item.priority_id);
   const store = getItemStoreFromUrl(item.url);
-  const itemUrl = item.url?.trim() ?? "";
+  const itemUrl = getValidHttpUrl(item.url) ?? "";
   const showCopyLink = itemUrl.length > 0;
+  const hasWebsiteLink = Boolean(store);
   const showMenu = Boolean(showCopyLink || (isOwner && (onEdit || onDelete)));
+  const hasActiveDiscount = isDiscountActive(item.has_discount, item.discount_end_date);
   const salePercentOff = getSalePercentOff(
     item.price,
     item.discount_price,
-    showDiscountBadge && item.has_discount,
+    showDiscountBadge && hasActiveDiscount,
   );
+  const canReserve = !isOwner && Boolean(onToggleReserve && reservation.canToggleReservation);
+  const canBuy = !isOwner && Boolean(onToggleBought && reservation.canToggleBought);
   const menuTriggerRef = React.useRef<TriggerRef>(null);
+  const [reservationConfirmationOpen, setReservationConfirmationOpen] = React.useState(false);
+  const [purchaseConfirmationOpen, setPurchaseConfirmationOpen] = React.useState(false);
 
   async function handleCopyLink() {
     if (!itemUrl) return;
     await Clipboard.setStringAsync(itemUrl);
+  }
+
+  function confirmBought() {
+    if (!reservation.canToggleBought || !onToggleBought) return;
+    setPurchaseConfirmationOpen(true);
+  }
+
+  function confirmReservation() {
+    if (!reservation.canToggleReservation || !onToggleReserve) return;
+    setReservationConfirmationOpen(true);
   }
 
   return (
@@ -90,121 +124,156 @@ export function WishlistItemCard({
           accessibilityLabel={t('Open "{name}"', { name: item.name })}
           onPress={onPress}
           onLongPress={showMenu ? () => menuTriggerRef.current?.open() : undefined}
-          pressedScale={0.98}
+          pressedScale={isTaken ? 1 : 0.98}
           className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
         >
-          <View className="relative aspect-square w-full min-h-0 items-center justify-center overflow-hidden bg-bg-muted">
-            {item.image_url ? (
-              <StyledImage
-                source={{ uri: item.image_url }}
-                contentFit="cover"
-                contentPosition="center"
-                className="absolute inset-0 size-full"
-              />
-            ) : (
-              <Icon as={Gift} className="size-10 text-text-light" />
-            )}
-
-            {reservationLabel ? (
-              <View
-                className={cn(
-                  "absolute left-2 top-2 rounded-full px-2 py-1",
-                  reservation.isPurchased ? "bg-success-bg" : "bg-card-bg/90",
-                )}
-              >
+          <ItemImage
+            item={item}
+            reservationLabel={isTaken ? reservationLabel : null}
+            purchased={reservation.isPurchased}
+            reserved={showReservation}
+            priority={priority}
+            priorityLabel={priorityLabel}
+            salePercentOff={salePercentOff}
+            showDiscountPrice={hasActiveDiscount}
+            size="card"
+          />
+          <View className="gap-2 p-3">
+            <View className="gap-0.5">
+              <View className="flex-row items-center gap-2">
                 <Text
                   className={cn(
-                    "text-[11px] font-extrabold",
-                    reservation.isPurchased ? "text-success" : "text-text-muted",
+                    "min-w-0 flex-1 text-sm font-extrabold text-text",
+                    isTaken && "opacity-50",
                   )}
                   numberOfLines={1}
                 >
-                  {reservationLabel}
-                </Text>
-              </View>
-            ) : null}
-
-            {salePercentOff != null ? (
-              <View className="absolute right-2 top-2 rounded-full bg-danger px-2 py-1">
-                <Text className="text-[11px] font-extrabold text-white">
-                  {t("Sale -{percent}%", { percent: salePercentOff })}
-                </Text>
-              </View>
-            ) : null}
-          </View>
-
-          <View className="gap-2 p-3">
-            <View className="min-h-10 flex-row items-start gap-2">
-              <View className="min-w-0 flex-1">
-                <Text className="text-sm font-extrabold leading-5 text-text" numberOfLines={2}>
                   {item.name}
                 </Text>
-                {store ? (
-                  <Text className="mt-0.5 text-xs font-semibold text-text-muted" numberOfLines={1}>
-                    {store}
-                  </Text>
-                ) : null}
-              </View>
-            </View>
-
-            <View className="flex-row items-center justify-between gap-2">
-              <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-1.5">
-                {item.price ? (
-                  item.has_discount && item.discount_price ? (
-                    <>
-                      <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
-                        {item.currency ? `${item.currency} ` : ""}
-                        {item.discount_price}
-                      </Text>
-                      <Text
-                        className="text-xs font-bold text-text-muted line-through"
-                        numberOfLines={1}
-                      >
-                        {item.currency ? `${item.currency} ` : ""}
-                        {item.price}
-                      </Text>
-                    </>
-                  ) : (
-                    <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
-                      {item.currency ? `${item.currency} ` : ""}
-                      {item.price}
-                    </Text>
-                  )
-                ) : null}
-                {priorityLabel ? (
-                  <Text className="rounded-full bg-bg-subtle px-2 py-1 text-[11px] font-bold text-text-muted">
-                    {priorityLabel}
-                  </Text>
-                ) : null}
-              </View>
-
-              {!isOwner && onToggleVote ? (
-                <AnimatedPressable
-                  accessibilityRole="button"
-                  accessibilityLabel={hasVoted ? t("Remove vote") : t("Vote for item")}
-                  onPress={(event) => {
-                    event.stopPropagation();
-                    onToggleVote();
-                  }}
-                  className={cn(
-                    "flex-row items-center gap-1 rounded-full px-2 py-1",
-                    hasVoted ? "bg-brand-lighter" : "bg-bg-subtle",
-                  )}
-                >
-                  <Icon
-                    as={Heart}
-                    className={cn("size-3.5", hasVoted ? "text-brand" : "text-text-muted")}
-                  />
-                  <Text
-                    className={cn("text-xs font-bold", hasVoted ? "text-brand" : "text-text-muted")}
+                {!isOwner && onToggleVote ? (
+                  <AnimatedPressable
+                    accessibilityRole="button"
+                    accessibilityLabel={hasVoted ? t("Remove vote") : t("Vote for item")}
+                    onPress={(event) => {
+                      event.stopPropagation();
+                      onToggleVote();
+                    }}
+                    className={cn(
+                      "flex-row items-center gap-1 rounded-full px-2 py-1",
+                      hasVoted ? "bg-brand-lighter" : "bg-bg-subtle",
+                    )}
                   >
-                    {voteCount}
-                  </Text>
-                </AnimatedPressable>
-              ) : reservation.isPurchased ? (
-                <Icon as={PackageCheck} className="size-4 text-success" />
+                    <Icon
+                      as={Heart}
+                      className={cn("size-3.5", hasVoted ? "text-brand" : "text-text-muted")}
+                    />
+                    <Text
+                      className={cn(
+                        "text-xs font-bold",
+                        hasVoted ? "text-brand" : "text-text-muted",
+                      )}
+                    >
+                      {voteCount}
+                    </Text>
+                  </AnimatedPressable>
+                ) : null}
+              </View>
+              {hasWebsiteLink ? (
+                <View className="flex-row items-center justify-between gap-2">
+                  {store ? (
+                    <Text
+                      className={cn(
+                        "min-w-0 flex-1 text-xs font-semibold text-text-muted",
+                        isTaken && "opacity-50",
+                      )}
+                      numberOfLines={1}
+                    >
+                      {store}
+                    </Text>
+                  ) : (
+                    <View className="min-w-0 flex-1" />
+                  )}
+                </View>
               ) : null}
             </View>
+
+            {canReserve || canBuy ? (
+              <View className="flex-row gap-2">
+                {canReserve ? (
+                  <AnimatedPressable
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      reservation.isReserved ? t("Release reservation") : t("Reserve this gift")
+                    }
+                    disabled={reservePending}
+                    onPress={(event) => {
+                      event.stopPropagation();
+                      confirmReservation();
+                    }}
+                    className={cn(
+                      "min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border px-3 py-3",
+                      reservation.isReserved
+                        ? "border-brand bg-brand"
+                        : "border-brand/25 bg-brand-lighter",
+                    )}
+                  >
+                    <Icon
+                      as={LockKeyhole}
+                      className={cn(
+                        "size-4",
+                        reservation.isReserved ? "text-primary-foreground" : "text-brand",
+                      )}
+                    />
+                    <Text
+                      numberOfLines={1}
+                      className={cn(
+                        "text-sm font-extrabold",
+                        reservation.isReserved ? "text-primary-foreground" : "text-brand",
+                      )}
+                    >
+                      {reservation.isReserved ? t("Release") : t("Reserve")}
+                    </Text>
+                  </AnimatedPressable>
+                ) : null}
+
+                {canBuy ? (
+                  <AnimatedPressable
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      reservation.isPurchased ? t("Mark as not purchased") : t("Mark as purchased")
+                    }
+                    disabled={boughtPending}
+                    onPress={(event) => {
+                      event.stopPropagation();
+                      confirmBought();
+                    }}
+                    className={cn(
+                      "min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border px-3 py-3",
+                      reservation.isPurchased
+                        ? "border-destructive/35 bg-danger-bg"
+                        : "border-success/35 bg-success-bg",
+                    )}
+                  >
+                    <Icon
+                      as={ShoppingCart}
+                      className={cn(
+                        "size-4",
+                        reservation.isPurchased ? "text-destructive" : "text-success",
+                      )}
+                    />
+                    <Text
+                      numberOfLines={1}
+                      className={cn(
+                        "text-sm font-extrabold",
+                        reservation.isPurchased ? "text-destructive" : "text-success",
+                      )}
+                    >
+                      {reservation.isPurchased ? t("Undo") : t("Buy")}
+                    </Text>
+                  </AnimatedPressable>
+                ) : null}
+              </View>
+            ) : null}
           </View>
         </AnimatedPressable>
         {showMenu ? (
@@ -212,7 +281,7 @@ export function WishlistItemCard({
             <AnimatedPressable
               ref={menuTriggerRef}
               pointerEvents="none"
-              className="absolute right-3 top-[144px] size-8 opacity-0"
+              className="absolute right-3 top-36 size-8 opacity-0"
             />
           </DropdownMenuTrigger>
         ) : null}
@@ -234,6 +303,32 @@ export function WishlistItemCard({
           ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
+      <ActionBottomSheetConfirm
+        open={reservationConfirmationOpen}
+        title={reservation.isReserved ? t("Release reservation?") : t("Reserve this gift?")}
+        message={item.name}
+        confirmLabel={reservation.isReserved ? t("Release") : t("Reserve")}
+        isPending={reservePending}
+        tone={reservation.isReserved ? "default" : "brand"}
+        onClose={() => setReservationConfirmationOpen(false)}
+        onConfirm={() => {
+          setReservationConfirmationOpen(false);
+          onToggleReserve?.();
+        }}
+      />
+      <ActionBottomSheetConfirm
+        open={purchaseConfirmationOpen}
+        title={reservation.isPurchased ? t("Mark as not purchased?") : t("Mark as purchased?")}
+        message={item.name}
+        confirmLabel={reservation.isPurchased ? t("Undo") : t("Buy")}
+        isPending={boughtPending}
+        tone={reservation.isPurchased ? "destructive" : "success"}
+        onClose={() => setPurchaseConfirmationOpen(false)}
+        onConfirm={() => {
+          setPurchaseConfirmationOpen(false);
+          onToggleBought?.();
+        }}
+      />
     </View>
   );
 }

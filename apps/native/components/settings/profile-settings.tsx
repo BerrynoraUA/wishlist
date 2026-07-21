@@ -3,10 +3,10 @@ import {
   ActionBottomSheetMessage,
   type ActionBottomSheetMessagePayload,
 } from "@/components/ui/action-bottom-sheet";
-import { StyledImage } from "@/components/ui/styled-image";
 import { StyledPressable } from "@/components/ui/styled-pressable";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SettingsControlsLabeledInput } from "@/components/settings/settings-controls";
 import { SettingsSection } from "@/components/settings/settings-section";
 import {
@@ -51,6 +51,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
   const [nicknameStatus, setNicknameStatus] = React.useState<
     "idle" | "checking" | "available" | "taken"
   >("idle");
+  const latestNicknameRef = React.useRef("");
 
   React.useEffect(() => {
     if (!profile) return;
@@ -66,22 +67,29 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
 
   React.useEffect(() => {
     const trimmedNickname = values.nickname.trim();
+    latestNicknameRef.current = trimmedNickname;
 
     if (!trimmedNickname || trimmedNickname.length < 3 || trimmedNickname === profile?.nickname) {
       setNicknameStatus("idle");
       return;
     }
 
-    setNicknameStatus("checking");
+    setNicknameStatus((current) => (current === "checking" ? current : "checking"));
     const timeout = setTimeout(() => {
       checkNickname.mutate(trimmedNickname, {
-        onSuccess: (available) => setNicknameStatus(available ? "available" : "taken"),
-        onError: () => setNicknameStatus("idle"),
+        onSuccess: (available) => {
+          if (latestNicknameRef.current !== trimmedNickname) return;
+          setNicknameStatus(available ? "available" : "taken");
+        },
+        onError: () => {
+          if (latestNicknameRef.current !== trimmedNickname) return;
+          setNicknameStatus("idle");
+        },
       });
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [checkNickname, values.nickname, profile?.nickname]);
+  }, [values.nickname, profile?.nickname]);
 
   const trimmedDisplayName = values.displayName.trim();
   const trimmedNickname = values.nickname.trim();
@@ -111,8 +119,14 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
       },
       {
         onSuccess: () => setMessage({ title: t("Saved"), message: t("Profile updated.") }),
-        onError: (error) =>
-          setMessage({ title: t("Profile update failed"), message: error.message }),
+        onError: (error) => {
+          if (isNicknameDuplicateError(error)) {
+            setNicknameStatus("taken");
+            return;
+          }
+
+          setMessage({ title: t("Profile update failed"), message: error.message });
+        },
       },
     );
   }
@@ -164,7 +178,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
 
   return (
     <>
-      <SettingsSection title={t("Profile")} icon={UserRound} defaultOpen>
+      <SettingsSection id="profile" title={t("Profile")} icon={UserRound} defaultOpen>
         <View className="flex-row items-center gap-3">
           <StyledPressable
             accessibilityRole="button"
@@ -175,44 +189,21 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
             onPress={handlePickAvatar}
             className="size-14 overflow-hidden rounded-full active:opacity-80"
           >
-            {profile?.avatar_url ? (
-              <StyledImage
-                accessible={false}
-                importantForAccessibility="no-hide-descendants"
-                source={{ uri: profile.avatar_url }}
-                contentFit="cover"
-                className="size-14 rounded-full bg-muted"
-              />
-            ) : (
-              <View
-                accessible={false}
-                importantForAccessibility="no-hide-descendants"
-                className="size-14 items-center justify-center rounded-full bg-brand"
-              >
-                <Text className="text-xl font-bold text-white">
-                  {(profile?.display_name ?? profile?.nickname ?? "U").charAt(0).toUpperCase()}
-                </Text>
-              </View>
-            )}
-          </StyledPressable>
-          <View className="flex-1 gap-2">
-            <View>
-              <Text className="font-semibold text-text">
-                {profile?.display_name ?? t("Your profile")}
-              </Text>
-              <Text className="text-sm text-text-muted">
-                {profile?.nickname ? `@${profile.nickname}` : t("Choose a nickname")}
-              </Text>
-            </View>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={uploadAvatar.isPending}
-              onPress={handlePickAvatar}
-              className="self-start"
+            <Avatar
+              alt={profile?.display_name ?? profile?.nickname ?? t("Your profile")}
+              className="size-14"
             >
-              <Text>{uploadAvatar.isPending ? t("Uploading...") : t("Change photo")}</Text>
-            </Button>
+              {profile?.avatar_url ? <AvatarImage source={{ uri: profile.avatar_url }} /> : null}
+              <AvatarFallback className="bg-brand" initialsClassName="text-xl text-white" />
+            </Avatar>
+          </StyledPressable>
+          <View className="flex-1 justify-center">
+            <Text className="font-semibold text-text">
+              {profile?.display_name ?? t("Your profile")}
+            </Text>
+            <Text className="text-sm text-text-muted">
+              {profile?.nickname ? `@${profile.nickname}` : t("Choose a nickname")}
+            </Text>
           </View>
         </View>
 
@@ -322,4 +313,14 @@ function parseProfileNumber(value: string) {
   if (!value) return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function isNicknameDuplicateError(error: Error) {
+  const code = "code" in error ? String(error.code) : "";
+  const message = error.message.toLowerCase();
+
+  return (
+    code === "23505" &&
+    (message.includes("profiles_nickname_unique") || message.includes("nickname"))
+  );
 }

@@ -1,14 +1,14 @@
 import { Icon } from "@/components/ui/icon";
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
 import { TextClassContext } from "@/components/ui/text";
+import { WindowOverlay } from "@/components/ui/window-overlay";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as ContextMenuPrimitive from "@rn-primitives/context-menu";
 import { Check, ChevronDown, ChevronUp } from "lucide-react-native";
 import * as React from "react";
-import { Platform, type StyleProp, Text, View, type ViewStyle } from "react-native";
+import { type StyleProp, Text, View, type ViewStyle } from "react-native";
 import { FadeIn } from "react-native-reanimated";
-import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
 const ContextMenu = ContextMenuPrimitive.Root;
 const ContextMenuTrigger = ContextMenuPrimitive.Trigger;
@@ -69,8 +69,6 @@ function ContextMenuSubContent({
   );
 }
 
-const FullWindowOverlay = Platform.OS === "ios" ? RNFullWindowOverlay : React.Fragment;
-
 function ContextMenuContent({
   className,
   overlayClassName,
@@ -82,9 +80,15 @@ function ContextMenuContent({
   overlayClassName?: string;
   portalHost?: string;
 }) {
+  const { setPressPosition, onOpenChange } = ContextMenuPrimitive.useRootContext();
+  const closeFromBackPress = () => {
+    setPressPosition(null);
+    onOpenChange(false);
+  };
+
   return (
     <ContextMenuPrimitive.Portal hostName={portalHost}>
-      <FullWindowOverlay>
+      <WindowOverlay onRequestClose={closeFromBackPress}>
         <ContextMenuPrimitive.Overlay
           className={cn("absolute inset-0", overlayClassName)}
           style={overlayStyle}
@@ -101,7 +105,7 @@ function ContextMenuContent({
             </TextClassContext.Provider>
           </NativeOnlyAnimatedView>
         </ContextMenuPrimitive.Overlay>
-      </FullWindowOverlay>
+      </WindowOverlay>
     </ContextMenuPrimitive.Portal>
   );
 }

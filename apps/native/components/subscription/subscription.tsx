@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { openLegalPage } from "@/lib/legal-links";
 import { cn } from "@/lib/utils";
 import { useSubscriptionManager } from "@/providers/subscription-provider";
 import { useGT } from "gt-react-native";
@@ -9,6 +10,7 @@ import React from "react";
 import { ActivityIndicator, ImageBackground, Pressable, View } from "react-native";
 import { PACKAGE_TYPE, type PurchasesPackage } from "react-native-purchases";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import type { TranslateFn } from "@/lib/translate-fn";
 
 const background = require("@/assets/images/subscription-premium-bg.png");
 
@@ -19,55 +21,57 @@ const PREMIUM_FEATURES = [
   "Custom colors & priorities",
 ] as const;
 
-function getPlanName(plan: PurchasesPackage) {
+function getPlanName(plan: PurchasesPackage, t: TranslateFn) {
   switch (plan.packageType) {
     case PACKAGE_TYPE.ANNUAL:
-      return "Yearly";
+      return t("Yearly");
     case PACKAGE_TYPE.MONTHLY:
-      return "Monthly";
+      return t("Monthly");
     case PACKAGE_TYPE.LIFETIME:
-      return "Lifetime";
+      return t("Lifetime");
     default:
       return plan.product.title;
   }
 }
 
-function getPlanDetail(plan: PurchasesPackage) {
+function getPlanDetail(plan: PurchasesPackage, t: TranslateFn) {
   switch (plan.packageType) {
     case PACKAGE_TYPE.ANNUAL:
       return plan.product.pricePerMonthString
-        ? `${plan.product.pricePerMonthString} per month`
-        : "Best value";
+        ? t("{price} per month", { price: plan.product.pricePerMonthString })
+        : t("Best value");
     case PACKAGE_TYPE.MONTHLY:
-      return "Billed monthly";
+      return t("Billed monthly");
     case PACKAGE_TYPE.LIFETIME:
-      return "One-time purchase";
+      return t("One-time purchase");
     default:
       return plan.product.description;
   }
 }
 
-function getPlanSuffix(plan: PurchasesPackage) {
+function getPlanPeriod(plan: PurchasesPackage, t: TranslateFn) {
   switch (plan.packageType) {
     case PACKAGE_TYPE.ANNUAL:
-      return " / year";
+      return t("year");
     case PACKAGE_TYPE.MONTHLY:
-      return " / month";
+      return t("month");
     default:
-      return "";
+      return null;
   }
 }
 
-function getSavingsBadge(plan: PurchasesPackage, packages: PurchasesPackage[]) {
+function getSavingsBadge(plan: PurchasesPackage, packages: PurchasesPackage[], t: TranslateFn) {
   if (plan.packageType !== PACKAGE_TYPE.ANNUAL) return null;
 
   const monthly = packages.find((candidate) => candidate.packageType === PACKAGE_TYPE.MONTHLY);
   const monthlyYearlyPrice = monthly?.product.price ? monthly.product.price * 12 : null;
 
-  if (!monthlyYearlyPrice || monthlyYearlyPrice <= plan.product.price) return "SAVE 50%";
+  if (!monthlyYearlyPrice || monthlyYearlyPrice <= plan.product.price) {
+    return null;
+  }
 
   const savings = Math.round((1 - plan.product.price / monthlyYearlyPrice) * 100);
-  return savings > 0 ? `SAVE ${savings}%` : null;
+  return savings > 0 ? t("SAVE {percent}%", { percent: savings }) : null;
 }
 
 function PlanOption({
@@ -83,6 +87,9 @@ function PlanOption({
   savingsBadge: string | null;
   onPress: () => void;
 }) {
+  const t = useGT();
+  const planPeriod = getPlanPeriod(plan, t);
+
   return (
     <Pressable
       accessibilityRole="radio"
@@ -91,7 +98,7 @@ function PlanOption({
     >
       <View
         className={cn(
-          "min-h-[62px] flex-row items-center gap-3 rounded-xl border bg-black/35 px-4 py-3",
+          "min-h-15.5 flex-row items-center gap-3 rounded-xl border bg-black/35 px-4 py-3",
           isCurrent
             ? "border-success bg-success/15"
             : isSelected
@@ -109,7 +116,7 @@ function PlanOption({
         </View>
         <View className="min-w-0 flex-1">
           <View className="flex-row items-center gap-2">
-            <Text className="font-semibold text-white">{getPlanName(plan)}</Text>
+            <Text className="font-semibold text-white">{getPlanName(plan, t)}</Text>
             {savingsBadge ? (
               <View className="rounded-full bg-white px-2 py-0.5">
                 <Text className="text-[10px] font-bold text-black">{savingsBadge}</Text>
@@ -117,12 +124,14 @@ function PlanOption({
             ) : null}
           </View>
           <Text className="text-xs text-white/60">
-            {isCurrent ? "Current plan" : getPlanDetail(plan)}
+            {isCurrent ? t("Current plan") : getPlanDetail(plan, t)}
           </Text>
         </View>
         <Text className="shrink-0 font-semibold text-white">
           {plan.product.priceString}
-          <Text className="text-xs font-normal text-white/60">{getPlanSuffix(plan)}</Text>
+          {planPeriod ? (
+            <Text className="text-xs font-normal text-white/60"> / {planPeriod}</Text>
+          ) : null}
         </Text>
       </View>
     </Pressable>
@@ -228,7 +237,7 @@ export function Subscription({
           <View className="gap-5 px-6">
             <View className="gap-2">
               <Text className="text-3xl font-bold tracking-tight text-white">
-                {t("Wishlane Premium")}
+                {t("Wishlane Pro")}
               </Text>
               <Text className="text-base text-white/75">
                 {t("More room, smarter lists, and better sharing.")}
@@ -251,12 +260,10 @@ export function Subscription({
 
               {!isLoading && !isConfigured ? (
                 <View className="gap-2 rounded-xl border border-white/15 bg-black/35 p-4">
-                  <Text className="font-semibold text-white">{t("Premium plans unavailable")}</Text>
+                  <Text className="font-semibold text-white">{t("Pro plans unavailable")}</Text>
                   <Text selectable className="text-sm leading-5 text-white/70">
                     {error ??
-                      t(
-                        "Add the RevenueCat public SDK key for this platform to load premium plans.",
-                      )}
+                      t("Add the RevenueCat public SDK key for this platform to load Pro plans.")}
                   </Text>
                 </View>
               ) : null}
@@ -280,7 +287,7 @@ export function Subscription({
                     plan={plan}
                     isSelected={isSelected}
                     isCurrent={isCurrent}
-                    savingsBadge={getSavingsBadge(plan, packages)}
+                    savingsBadge={getSavingsBadge(plan, packages, t)}
                     onPress={() => selectPackage(plan.identifier)}
                   />
                 );
@@ -335,6 +342,27 @@ export function Subscription({
                   </Text>
                 </Pressable>
               ) : null}
+
+              <View className="gap-1.5">
+                <Text className="text-center text-xs leading-4 text-white/60">
+                  {t(
+                    "Subscriptions renew automatically until canceled. Cancel anytime in your {store} account settings.",
+                    { store: process.env.EXPO_OS === "ios" ? "App Store" : "Google Play" },
+                  )}
+                </Text>
+                <View className="flex-row items-center justify-center gap-5">
+                  <Pressable hitSlop={8} onPress={() => void openLegalPage("terms-of-service")}>
+                    <Text className="text-xs font-medium text-white/70 underline">
+                      {t("Terms of Use")}
+                    </Text>
+                  </Pressable>
+                  <Pressable hitSlop={8} onPress={() => void openLegalPage("privacy-policy")}>
+                    <Text className="text-xs font-medium text-white/70 underline">
+                      {t("Privacy Policy")}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
             </View>
           </View>
         </View>

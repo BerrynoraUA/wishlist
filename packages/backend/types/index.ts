@@ -37,7 +37,9 @@ export interface NotificationPushToken {
   updated_at: string;
 }
 
+export * from "./bug-reports";
 export * from "./discover";
+export * from "./feature-ideas";
 export * from "./friends";
 export * from "./item";
 export * from "./priority";

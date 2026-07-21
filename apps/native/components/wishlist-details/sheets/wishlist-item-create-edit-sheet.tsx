@@ -1,49 +1,110 @@
 import { scrapeProductLink } from "@/api/scrape-product";
+import {
+  AutocompleteDropdown,
+  type AutocompleteDropdownOption,
+} from "@/components/ui/autocomplete-dropdown";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
+import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
-import { StyledImage } from "@/components/ui/styled-image";
+import { SingleImagePicker } from "@/components/ui/single-image-picker";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
+import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
+import { useMyWishlists } from "@/hooks/use-wishlists";
 import { useSettings } from "@/hooks/use-settings";
 import {
-  SlidingOptionSelector,
-  type SlidingOption,
-  type SlidingOptionRenderProps,
-} from "@/components/ui/sliding-option-selector";
-import {
   EMPTY_ITEM_FORM,
+  getItemPriority,
   getItemPriorityOptions,
   cleanAdditionalLinks,
   toItemFormValues,
 } from "@/lib/items";
+import { useImageUploadField } from "@/lib/image-upload";
 import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
+import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Plus, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 
+type ItemFormVariant = {
+  showsProductLink: boolean;
+  productLinkPosition: "top" | "middle" | null;
+  showsDescription: boolean;
+  showsWishlistPicker: boolean;
+  scrapeDescription: boolean;
+};
+
+const DESCRIPTION_INPUT_MIN_HEIGHT = 96;
+const DESCRIPTION_INPUT_MAX_HEIGHT = 192;
+const DESCRIPTION_INPUT_VERTICAL_OFFSET = 12;
+
+function clampDescriptionInputHeight(height: number) {
+  return Math.max(
+    DESCRIPTION_INPUT_MIN_HEIGHT,
+    Math.min(DESCRIPTION_INPUT_MAX_HEIGHT, Math.ceil(height)),
+  );
+}
+
+function estimateDescriptionInputHeight(value: string | null | undefined) {
+  const description = value ?? "";
+  if (!description.trim()) return DESCRIPTION_INPUT_MIN_HEIGHT;
+
+  const estimatedLineCount = description
+    .split("\n")
+    .reduce((count, line) => count + Math.max(1, Math.ceil(line.length / 34)), 0);
+
+  return clampDescriptionInputHeight(estimatedLineCount * 22 + DESCRIPTION_INPUT_VERTICAL_OFFSET);
+}
+
+function getItemFormVariant(
+  mode: "create" | "edit",
+  createSource: "scratch" | "link",
+  hasWishlistId: boolean,
+): ItemFormVariant {
+  const isCreateFromLink = mode === "create" && createSource === "link";
+
+  return {
+    showsProductLink: mode === "edit" || createSource === "link",
+    productLinkPosition: isCreateFromLink ? "top" : mode === "edit" ? "middle" : null,
+    showsDescription: mode === "edit",
+    showsWishlistPicker: mode === "create" && !hasWishlistId,
+    scrapeDescription: mode === "edit",
+  };
+}
+
 export function WishlistItemCreateEditSheet({
   mode,
+  createSource = "link",
   wishlistId,
   item,
   open,
   onOpenChange,
 }: {
   mode: "create" | "edit";
-  wishlistId: string;
+  createSource?: "scratch" | "link";
+  /** When omitted in create mode, the sheet shows a wishlist picker. */
+  wishlistId?: string;
   item?: Item | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useGT();
-  const completeCreateItemStep = useUserGuideStepCompletion(6);
+  const completeCreateItemStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.createItem);
   const { data: settings } = useSettings();
   const priorityOptions = React.useMemo(
     () => getItemPriorityOptions(t, settings?.selected_priorities),
@@ -58,12 +119,27 @@ export function WishlistItemCreateEditSheet({
     defaultValues: EMPTY_ITEM_FORM,
   });
   const values = useWatch({ control }) as ItemFormValues;
+  const [descriptionInputHeight, setDescriptionInputHeight] = React.useState(
+    DESCRIPTION_INPUT_MIN_HEIGHT,
+  );
+  const [selectedWishlistId, setSelectedWishlistId] = React.useState("");
+  const form = React.useMemo(
+    () => getItemFormVariant(mode, createSource, Boolean(wishlistId)),
+    [createSource, mode, wishlistId],
+  );
+  const wishlistsQuery = useMyWishlists();
+  const selectableWishlists = React.useMemo(
+    () => (wishlistsQuery.data ?? []).filter((wishlist) => wishlist.is_owner || wishlist.can_edit),
+    [wishlistsQuery.data],
+  );
+  const targetWishlistId = wishlistId || selectedWishlistId || selectableWishlists[0]?.id || "";
   const [isScraping, setIsScraping] = React.useState(false);
+  const imageUpload = useImageUploadField("item");
   const [scrapeError, setScrapeError] = React.useState<string | null>(null);
   const currentUrlRef = React.useRef("");
   const lastScrapedUrlRef = React.useRef("");
   const scrapeRequestIdRef = React.useRef(0);
-  const productLinkInvalid = hasInvalidOptionalUrl(values.url);
+  const productLinkInvalid = form.showsProductLink && hasInvalidOptionalUrl(values.url);
   const imageUrlInvalid = hasInvalidOptionalUrl(values.imageUrl);
   const invalidAdditionalLinkIndexes = React.useMemo(
     () =>
@@ -77,20 +153,37 @@ export function WishlistItemCreateEditSheet({
   const hasInvalidAdditionalLinks = invalidAdditionalLinkIndexes.size > 0;
   const canSubmit =
     !isPending &&
+    !imageUpload.isUploading &&
     values.name.trim() !== "" &&
+    (!form.showsWishlistPicker || targetWishlistId !== "") &&
     !productLinkInvalid &&
     !imageUrlInvalid &&
     !hasInvalidAdditionalLinks;
 
   React.useEffect(() => {
     if (open) {
-      const nextValues = mode === "edit" ? toItemFormValues(item ?? undefined) : EMPTY_ITEM_FORM;
+      const nextValues =
+        mode === "edit"
+          ? toItemFormValues(item ?? undefined)
+          : { ...EMPTY_ITEM_FORM, priority_id: null };
       reset(nextValues);
+      setDescriptionInputHeight(estimateDescriptionInputHeight(nextValues.description));
+      setSelectedWishlistId("");
       setScrapeError(null);
+      imageUpload.reset();
       currentUrlRef.current = nextValues.url.trim();
       lastScrapedUrlRef.current = nextValues.url.trim();
     }
-  }, [item, mode, open, reset]);
+  }, [createSource, imageUpload.reset, item, mode, open, reset]);
+
+  // Priority options can arrive after the sheet opens (they come from settings),
+  // so defaulting can't happen in the open/reset effect above.
+  React.useEffect(() => {
+    if (!open || mode !== "create" || priorityOptions.length === 0) return;
+    if (priorityOptions.some((option) => option.priority_id === values.priority_id)) return;
+
+    setValue("priority_id", priorityOptions[0].priority_id);
+  }, [mode, open, priorityOptions, setValue, values.priority_id]);
 
   React.useEffect(() => {
     currentUrlRef.current = values.url.trim();
@@ -98,14 +191,22 @@ export function WishlistItemCreateEditSheet({
 
   React.useEffect(() => {
     const url = values.url.trim();
-    if (!open || url === "" || !isValidHttpUrl(url) || url === lastScrapedUrlRef.current) return;
+    if (
+      !open ||
+      !form.showsProductLink ||
+      url === "" ||
+      !isValidHttpUrl(url) ||
+      url === lastScrapedUrlRef.current
+    ) {
+      return;
+    }
 
     const timeoutId = setTimeout(() => {
       void handleScrape(url);
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [open, values.url]);
+  }, [form.showsProductLink, open, values.url]);
 
   if (!open) return null;
 
@@ -119,6 +220,7 @@ export function WishlistItemCreateEditSheet({
     scrapeRequestIdRef.current += 1;
     setIsScraping(false);
     setScrapeError(null);
+    imageUpload.onClear();
     lastScrapedUrlRef.current = "";
     patchValues({
       url: "",
@@ -134,7 +236,7 @@ export function WishlistItemCreateEditSheet({
   }
 
   const canClearScrapedFields =
-    mode === "create" &&
+    form.productLinkPosition === "top" &&
     (values.url.trim() !== "" ||
       values.name.trim() !== "" ||
       values.description.trim() !== "" ||
@@ -147,6 +249,52 @@ export function WishlistItemCreateEditSheet({
   function handleClose() {
     void sheetRef.current?.dismiss();
   }
+
+  const productLinkField = form.showsProductLink ? (
+    <View className={cn("gap-2", form.productLinkPosition === "top" && "mt-2")}>
+      <View className="flex-row items-center gap-2">
+        <Controller
+          control={control}
+          name="url"
+          render={({ field: { onChange, value } }) => (
+            <Input
+              value={value}
+              onChangeText={(url) => {
+                onChange(url);
+                if (scrapeError) setScrapeError(null);
+              }}
+              placeholder={t("Product URL")}
+              autoCapitalize="none"
+              keyboardType="url"
+              returnKeyType="done"
+              className={cn(
+                "min-w-0 flex-1 border-primary",
+                productLinkInvalid && "border-destructive",
+              )}
+            />
+          )}
+        />
+        {canClearScrapedFields ? (
+          <Button
+            variant="destructive"
+            size="icon"
+            disabled={isScraping || isPending}
+            onPress={clearProductLinkAndScraperFields}
+            accessibilityLabel={t("Clear product link and autofill")}
+          >
+            <Icon as={X} className="size-4 text-white" />
+          </Button>
+        ) : null}
+      </View>
+      {productLinkInvalid ? (
+        <Text className="text-sm font-semibold text-destructive">{t("Enter valid Url")}</Text>
+      ) : isScraping ? (
+        <Text className="text-sm font-semibold text-text-muted">{t("Searching...")}</Text>
+      ) : scrapeError ? (
+        <Text className="text-sm font-semibold text-destructive">{scrapeError}</Text>
+      ) : null}
+    </View>
+  ) : null;
 
   async function handleScrape(url: string) {
     if (!url) return;
@@ -163,7 +311,11 @@ export function WishlistItemCreateEditSheet({
 
     try {
       const product = await scrapeProductLink(url);
-      const isEmpty = !product.title && !product.description && !product.image && !product.price;
+      const isEmpty =
+        !product.title &&
+        !(form.scrapeDescription && product.description) &&
+        !product.image &&
+        !product.price;
 
       if (isEmpty) {
         if (requestId === scrapeRequestIdRef.current && currentUrlRef.current === url) {
@@ -174,9 +326,14 @@ export function WishlistItemCreateEditSheet({
 
       if (requestId !== scrapeRequestIdRef.current || currentUrlRef.current !== url) return;
 
+      if (product.image) {
+        imageUpload.onClear();
+      }
       patchValues({
         ...(product.title ? { name: product.title } : {}),
-        ...(product.description ? { description: product.description } : {}),
+        ...(form.scrapeDescription && product.description
+          ? { description: product.description }
+          : {}),
         ...(product.image ? { imageUrl: product.image } : {}),
         ...(product.price ? { price: product.price } : {}),
         ...(product.currency ? { currency: product.currency } : {}),
@@ -195,16 +352,19 @@ export function WishlistItemCreateEditSheet({
     }
   }
 
-  function submitForm(formValues: ItemFormValues) {
+  async function submitForm(formValues: ItemFormValues) {
     const name = formValues.name.trim();
     if (!canSubmit) return;
 
+    const imageUrl = await imageUpload.resolveImageUrl(formValues.imageUrl);
+    if (imageUrl === undefined) return;
+
     const payload = {
       name,
-      description: formValues.description.trim() || null,
+      description: form.showsDescription ? formValues.description.trim() || null : null,
       price: formValues.price.trim() || null,
       priority_id: formValues.priority_id,
-      image_url: formValues.imageUrl.trim() || null,
+      image_url: imageUrl,
       url: formValues.url.trim() || null,
       currency: formValues.currency.trim() || null,
       discount_price: formValues.discountPrice.trim() || null,
@@ -217,7 +377,11 @@ export function WishlistItemCreateEditSheet({
       updateMutation.mutate(
         { id: item.id, updates: payload },
         {
-          onSuccess: handleClose,
+          onSuccess: () => {
+            void imageUpload.commitPendingUpload(item.image_url);
+            handleClose();
+          },
+          onError: () => void imageUpload.discardPendingUpload(),
         },
       );
       return;
@@ -225,14 +389,16 @@ export function WishlistItemCreateEditSheet({
 
     createMutation.mutate(
       {
-        wishlist_id: wishlistId,
+        wishlist_id: targetWishlistId,
         ...payload,
       },
       {
         onSuccess: () => {
+          void imageUpload.commitPendingUpload();
           completeCreateItemStep();
           handleClose();
         },
+        onError: () => void imageUpload.discardPendingUpload(),
       },
     );
   }
@@ -240,16 +406,9 @@ export function WishlistItemCreateEditSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={[1]}
       scrollable
-      scrollableOptions={{ scrollingExpandsSheet: false }}
-      dismissOnBack={false}
+      detents={[0.75, 0.94]}
       onDidDismiss={() => onOpenChange(false)}
-      header={
-        <Text className="mx-5 mt-5 text-lg font-extrabold text-text">
-          {mode === "edit" ? t("Edit Item") : t("Create Item")}
-        </Text>
-      }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -266,7 +425,9 @@ export function WishlistItemCreateEditSheet({
               disabled={!canSubmit}
               onPress={handleSubmit(submitForm)}
             >
-              {isPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
+              {isPending || imageUpload.isUploading ? (
+                <ActivityIndicator colorClassName="accent-primary-foreground" />
+              ) : null}
               <Text>{mode === "edit" ? t("Save changes") : t("Create item")}</Text>
             </Button>
           </GuideTarget>
@@ -278,79 +439,7 @@ export function WishlistItemCreateEditSheet({
         showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-5 px-5 pb-6 pt-5"
       >
-        <Field label={t("Product link")}>
-          <View className="gap-2">
-            <View className="flex-row items-center gap-2">
-              <Controller
-                control={control}
-                name="url"
-                render={({ field: { onChange, value } }) => (
-                  <Input
-                    value={value}
-                    onChangeText={(url) => {
-                      onChange(url);
-                      if (scrapeError) setScrapeError(null);
-                    }}
-                    placeholder={t("Paste a product URL")}
-                    autoCapitalize="none"
-                    keyboardType="url"
-                    returnKeyType="done"
-                    className={cn("min-w-0 flex-1", productLinkInvalid && "border-destructive")}
-                  />
-                )}
-              />
-              {canClearScrapedFields ? (
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  disabled={isScraping || isPending}
-                  onPress={clearProductLinkAndScraperFields}
-                  accessibilityLabel={t("Clear product link and autofill")}
-                >
-                  <Icon as={X} className="size-4 text-white" />
-                </Button>
-              ) : null}
-            </View>
-            {productLinkInvalid ? (
-              <Text className="text-sm font-semibold text-destructive">{t("Enter valid Url")}</Text>
-            ) : isScraping ? (
-              <Text className="text-sm font-semibold text-text-muted">{t("Searching...")}</Text>
-            ) : scrapeError ? (
-              <Text className="text-sm font-semibold text-destructive">{scrapeError}</Text>
-            ) : null}
-          </View>
-        </Field>
-
-        <Field label={t("Image URL")}>
-          <View className="gap-3">
-            {values.imageUrl.trim() && !imageUrlInvalid ? (
-              <View className="h-40 overflow-hidden rounded-xl border border-border-subtle bg-bg-muted">
-                <StyledImage
-                  source={{ uri: values.imageUrl.trim() }}
-                  contentFit="cover"
-                  className="size-full"
-                />
-              </View>
-            ) : null}
-            <Controller
-              control={control}
-              name="imageUrl"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder={t("https://...")}
-                  autoCapitalize="none"
-                  keyboardType="url"
-                  className={imageUrlInvalid ? "border-destructive" : undefined}
-                />
-              )}
-            />
-            {imageUrlInvalid ? (
-              <Text className="text-xs font-semibold text-destructive">{t("Enter valid Url")}</Text>
-            ) : null}
-          </View>
-        </Field>
+        {form.productLinkPosition === "top" ? productLinkField : null}
 
         <Field label={t("Name")}>
           <Controller
@@ -366,22 +455,71 @@ export function WishlistItemCreateEditSheet({
           />
         </Field>
 
-        <Field label={t("Description")}>
-          <Controller
-            control={control}
-            name="description"
-            render={({ field: { onChange, value } }) => (
-              <Input
-                value={value}
-                onChangeText={onChange}
-                placeholder={t("Add details, size, color...")}
-                multiline
-                className="h-24 items-start py-3"
-                textAlignVertical="top"
-              />
-            )}
+        {form.showsWishlistPicker ? (
+          <Field label={t("Wishlist")}>
+            <WishlistPickerField
+              value={selectedWishlistId || selectableWishlists[0]?.id || ""}
+              wishlists={selectableWishlists}
+              isLoading={wishlistsQuery.isLoading}
+              onChange={setSelectedWishlistId}
+            />
+          </Field>
+        ) : null}
+
+        {form.productLinkPosition === "middle" ? productLinkField : null}
+
+        <Field label={t("Image")}>
+          <SingleImagePicker
+            previewUri={
+              imageUpload.pickedImage?.uri ?? (imageUrlInvalid ? null : values.imageUrl.trim())
+            }
+            pickLabel={t("Choose image")}
+            changeLabel={t("Change image")}
+            onPick={(image) => {
+              imageUpload.onPick(image);
+              patchValues({ imageUrl: "" });
+            }}
+            onClear={() => {
+              imageUpload.onClear();
+              patchValues({ imageUrl: "" });
+            }}
+            onError={imageUpload.onError}
           />
+          {imageUrlInvalid ? (
+            <Text className="text-xs font-semibold text-destructive">{t("Enter valid Url")}</Text>
+          ) : null}
+          {imageUpload.error ? (
+            <Text className="text-xs font-semibold text-destructive">{imageUpload.error}</Text>
+          ) : null}
         </Field>
+
+        {form.showsDescription ? (
+          <Field label={t("Description")}>
+            <Controller
+              control={control}
+              name="description"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  value={value}
+                  onChangeText={onChange}
+                  onFocus={() => void sheetRef.current?.resize(1)}
+                  placeholder={t("Add details, size, color...")}
+                  multiline
+                  onContentSizeChange={(event) => {
+                    setDescriptionInputHeight(
+                      clampDescriptionInputHeight(
+                        event.nativeEvent.contentSize.height + DESCRIPTION_INPUT_VERTICAL_OFFSET,
+                      ),
+                    );
+                  }}
+                  className="items-start py-3"
+                  style={{ height: descriptionInputHeight }}
+                  textAlignVertical="top"
+                />
+              )}
+            />
+          </Field>
+        ) : null}
 
         <View className="flex-row gap-2">
           <Field label={t("Currency")} className="w-24">
@@ -426,46 +564,6 @@ export function WishlistItemCreateEditSheet({
               />
             )}
           />
-        </Field>
-
-        <Field label={t("Discount")}>
-          <View className="gap-2">
-            <Button
-              variant={values.hasDiscount ? "default" : "outline"}
-              onPress={() => patchValues({ hasDiscount: !values.hasDiscount })}
-            >
-              <Text>{values.hasDiscount ? t("Discount enabled") : t("Enable discount")}</Text>
-            </Button>
-            {values.hasDiscount ? (
-              <View className="flex-row gap-2">
-                <Controller
-                  control={control}
-                  name="discountPrice"
-                  render={({ field: { onChange, value } }) => (
-                    <Input
-                      value={value}
-                      onChangeText={onChange}
-                      placeholder={t("Sale price")}
-                      keyboardType="decimal-pad"
-                      className="min-w-0 flex-1"
-                    />
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name="discountEndDate"
-                  render={({ field: { onChange, value } }) => (
-                    <Input
-                      value={value}
-                      onChangeText={onChange}
-                      placeholder={t("YYYY-MM-DD")}
-                      className="min-w-0 flex-1"
-                    />
-                  )}
-                />
-              </View>
-            ) : null}
-          </View>
         </Field>
 
         <Field label={t("Additional links")}>
@@ -548,6 +646,60 @@ function Field({
   );
 }
 
+function WishlistPickerField({
+  value,
+  wishlists,
+  isLoading,
+  onChange,
+}: {
+  value: string;
+  wishlists: Wishlist[];
+  isLoading: boolean;
+  onChange: (wishlistId: string) => void;
+}) {
+  const t = useGT();
+  const options = React.useMemo<AutocompleteDropdownOption[]>(
+    () =>
+      wishlists.map((wishlist) => ({
+        value: wishlist.id,
+        label: wishlist.title,
+        trailing: t("{count} items", { count: wishlist.items_count ?? 0 }),
+        imageUrl: wishlist.image_url,
+      })),
+    [t, wishlists],
+  );
+  const selectedOption = options.find((option) => option.value === value) ?? null;
+
+  if (isLoading) {
+    return (
+      <View className="items-center justify-center rounded-xl border border-border-subtle bg-bg-muted p-4">
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (wishlists.length === 0) {
+    return (
+      <Text className="text-sm font-semibold text-text-muted">
+        {t("Create a wishlist first to add wishes to it.")}
+      </Text>
+    );
+  }
+
+  return (
+    <AutocompleteDropdown
+      value={selectedOption}
+      onValueChange={(option) => onChange(option.value)}
+      options={options}
+      placeholder={t("Search wishlists")}
+      emptyText={t("No wishlists found")}
+      attached
+      maxVisibleOptions={4}
+      optionClassName="min-h-12 py-3"
+    />
+  );
+}
+
 function PrioritySelector({
   priorityOptions,
   value,
@@ -557,39 +709,64 @@ function PrioritySelector({
   value: ItemFormValues["priority_id"];
   onChange: (priority: ItemFormValues["priority_id"]) => void;
 }) {
-  const rows = React.useMemo((): SlidingOption<string | null>[][] => {
-    const options: SlidingOption<string | null>[] = priorityOptions.map((option) => ({
-      value: option.priority_id,
-      children: ({ selected }: SlidingOptionRenderProps) => (
-        <View className="w-full min-w-0 flex-row items-center justify-start gap-2 px-2">
-          <View className="size-2.5 rounded-full" style={{ backgroundColor: option.color }} />
-          <Text
-            className={cn("min-w-0 text-sm font-bold text-text", selected && "text-brand")}
-            numberOfLines={1}
-          >
-            {option.label}
-          </Text>
-        </View>
+  const t = useGT();
+  const options = React.useMemo(
+    () =>
+      priorityOptions.map((option) => ({
+        value: option.priority_id,
+        label: option.label,
+      })),
+    [priorityOptions],
+  );
+  const selectedOption = options.find((option) => option.value === value) ?? null;
+  const prioritiesById = React.useMemo(
+    () =>
+      new Map(
+        priorityOptions.map((option) => [option.priority_id, getItemPriority(option.priority_id)]),
       ),
-    }));
-
-    const nextRows: SlidingOption<string | null>[][] = [];
-    for (let index = 0; index < options.length; index += 2) {
-      nextRows.push(options.slice(index, index + 2));
-    }
-
-    return nextRows;
-  }, [priorityOptions]);
+    [priorityOptions],
+  );
+  const selectedPriority = value ? prioritiesById.get(value) : undefined;
 
   return (
-    <SlidingOptionSelector<string | null>
-      rows={rows}
-      value={value}
-      onChange={(nextValue) => onChange(nextValue === value ? null : nextValue)}
-      optionHeight={46}
-      optionHeightClassName="h-[46px]"
-      optionClassName="rounded-xl px-3"
-      indicatorClassName="rounded-lg border border-brand bg-brand-lighter"
-    />
+    <Select
+      value={selectedOption ?? undefined}
+      onValueChange={(option) => {
+        if (option?.value) onChange(option.value);
+      }}
+    >
+      <SelectTrigger
+        className="h-10"
+        style={
+          selectedPriority
+            ? {
+                backgroundColor: `${selectedPriority.color}1f`,
+                borderColor: `${selectedPriority.color}33`,
+              }
+            : undefined
+        }
+      >
+        <View className="min-w-0 flex-1 flex-row items-center gap-2">
+          {selectedPriority ? (
+            <PriorityFilterIcon priority={selectedPriority} showBackground={false} />
+          ) : null}
+          <SelectValue className="min-w-0 flex-1" placeholder={t("Select priority")} />
+        </View>
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => {
+          const priority = prioritiesById.get(option.value);
+
+          return (
+            <SelectItem
+              key={option.value}
+              value={option.value}
+              label={option.label}
+              leading={priority ? <PriorityFilterIcon priority={priority} /> : null}
+            />
+          );
+        })}
+      </SelectContent>
+    </Select>
   );
 }

@@ -316,6 +316,17 @@ body {
     color 0.3s ease;
 }
 
+html.account-switching-theme,
+html.account-switching-theme *,
+html.account-switching-theme *::before,
+html.account-switching-theme *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
 img {
   max-width: 100%;
   display: block;
@@ -515,6 +526,33 @@ a {
 
   :where(.iconTooltipTrigger:hover, .iconTooltipTrigger:focus-visible)::after {
     transform: translate(-50%, 0);
+  }
+
+  /* Edge-aware alignment: anchor the tooltip bubble to the trigger's start/end
+     instead of centering it, so it isn't clipped by an overflow-hidden container
+     (e.g. modal content) when the trigger sits against a left/right edge. The
+     arrow stays centered on the trigger. */
+  :where(.iconTooltipTrigger[data-tooltip-align="start"])::after {
+    left: 0;
+    transform: translate(0, 6px);
+  }
+  :where(
+    .iconTooltipTrigger[data-tooltip-align="start"]:hover,
+    .iconTooltipTrigger[data-tooltip-align="start"]:focus-visible
+  )::after {
+    transform: translate(0, 0);
+  }
+
+  :where(.iconTooltipTrigger[data-tooltip-align="end"])::after {
+    left: auto;
+    right: 0;
+    transform: translate(0, 6px);
+  }
+  :where(
+    .iconTooltipTrigger[data-tooltip-align="end"]:hover,
+    .iconTooltipTrigger[data-tooltip-align="end"]:focus-visible
+  )::after {
+    transform: translate(0, 0);
   }
 }
 

@@ -37,6 +37,7 @@ export function ProfileSettings() {
 
   const fileRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const latestNicknameRef = useRef("");
 
   // Sync form with loaded profile
   useEffect(() => {
@@ -55,17 +56,23 @@ export function ProfileSettings() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     const trimmedNickname = nickname.trim();
+    latestNicknameRef.current = trimmedNickname;
 
     if (!trimmedNickname || trimmedNickname.length < 3 || trimmedNickname === profile?.nickname) {
       setNicknameStatus("idle");
       return;
     }
 
-    setNicknameStatus("checking");
+    setNicknameStatus((current) => (current === "checking" ? current : "checking"));
     debounceRef.current = setTimeout(() => {
       checkNickname.mutate(trimmedNickname, {
         onSuccess: (available) => {
+          if (latestNicknameRef.current !== trimmedNickname) return;
           setNicknameStatus(available ? "available" : "taken");
+        },
+        onError: () => {
+          if (latestNicknameRef.current !== trimmedNickname) return;
+          setNicknameStatus("idle");
         },
       });
     }, 500);
@@ -124,13 +131,22 @@ export function ProfileSettings() {
   function handleSave() {
     if (hasProfileValidationError || !hasProfileChanges) return;
 
-    updateProfile.mutate({
-      display_name: trimmedDisplayName,
-      nickname: trimmedNickname,
-      height: parseProfileNumber(trimmedHeight),
-      shoe_size: parseProfileNumber(trimmedShoeSize),
-      bio: trimmedBio || null,
-    });
+    updateProfile.mutate(
+      {
+        display_name: trimmedDisplayName,
+        nickname: trimmedNickname,
+        height: parseProfileNumber(trimmedHeight),
+        shoe_size: parseProfileNumber(trimmedShoeSize),
+        bio: trimmedBio || null,
+      },
+      {
+        onError: (error) => {
+          if (isNicknameDuplicateError(error)) {
+            setNicknameStatus("taken");
+          }
+        },
+      },
+    );
   }
 
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -357,4 +373,14 @@ function parseProfileNumber(value: string) {
   if (!value) return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function isNicknameDuplicateError(error: Error) {
+  const code = "code" in error ? String(error.code) : "";
+  const message = error.message.toLowerCase();
+
+  return (
+    code === "23505" &&
+    (message.includes("profiles_nickname_unique") || message.includes("nickname"))
+  );
 }

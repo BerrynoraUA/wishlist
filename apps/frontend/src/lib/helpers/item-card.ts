@@ -36,8 +36,6 @@ type PurchaseActionLabelFactory = {
   available: () => string;
 };
 
-type PriorityLabelFactory = Record<ItemCardPriorityKey, string>;
-
 type SaveItemInput = {
   name: string;
   description?: string | null;
@@ -139,6 +137,17 @@ export function getSalePercentOff(
   return Math.min(99, rounded);
 }
 
+export function isDiscountActive(
+  hasDiscount: boolean,
+  discountEndDate: string | null | undefined,
+): boolean {
+  if (!hasDiscount) return false;
+  if (!discountEndDate) return true;
+
+  const endTime = Date.parse(discountEndDate);
+  return Number.isNaN(endTime) || endTime > Date.now();
+}
+
 export function getItemPriorityKey(priority: ItemCardPriorityInput): ItemCardPriorityKey | null {
   if (priority == null) return null;
 
@@ -189,15 +198,15 @@ export function buildReservationStatusLabel(
   reservedByName: string | null | undefined,
   labels: ReservationStatusLabelFactory,
 ): string | null {
+  // Privacy: never reveal who reserved/purchased an item. Only the actor
+  // sees "by you"; everyone else sees the generic status.
   if (state.isPurchased) {
     if (state.reservedByMe) return labels.purchasedByYou();
-    if (reservedByName) return labels.purchasedByName(reservedByName);
     return labels.purchased();
   }
 
   if (!state.isReserved) return null;
   if (state.reservedByMe) return labels.reservedByYou();
-  if (reservedByName) return labels.reservedByName(reservedByName);
   return labels.reserved();
 }
 

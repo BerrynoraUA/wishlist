@@ -9,7 +9,7 @@ import { scrapeAmazon } from "./amazon";
 import { scrapeAliExpress } from "./aliexpress";
 import { scrapeAvrora } from "./avrora";
 import { scrapeOctopus } from "./octopus";
-import { scrapeHoroshop } from "./horoshop";
+import { scrapeHoroshop, scrapeLelekan } from "./horoshop";
 import { scrapeTarget } from "./target";
 import { scrapeTrendyol } from "./trendyol";
 import { scrapeHepsiburada } from "./hepsiburada";
@@ -24,6 +24,11 @@ import { scrapeMiinto } from "./miinto";
 import { scrapeFlipkart } from "./flipkart";
 import { scrapeRubylane } from "./rubylane";
 import { scrapeWildberries } from "./wildberries";
+import { scrapeUaTao } from "./uatao";
+import { scrapeZalando } from "./zalando";
+import { scrapeStructuredMarketplace } from "./structured-marketplaces";
+import { scrapeSidelineSwap } from "./sidelineswap";
+import { scrapeVestiaire } from "./vestiaire";
 
 /**
  * Реєстр магазинів: домен → скрапер.
@@ -35,6 +40,16 @@ const storeRegistry: {
   scraper: ScraperMethod | AsyncScraperMethod;
   async?: boolean;
 }[] = [
+  { pattern: "lamoda.ru", scraper: scrapeStructuredMarketplace },
+  { pattern: "lazada.", scraper: scrapeStructuredMarketplace },
+  { pattern: "meesho.com", scraper: scrapeStructuredMarketplace },
+  { pattern: "overstock.com", scraper: scrapeStructuredMarketplace },
+  { pattern: "emag.", scraper: scrapeStructuredMarketplace },
+  { pattern: "takealot.com", scraper: scrapeStructuredMarketplace },
+  { pattern: "cdiscount.com", scraper: scrapeStructuredMarketplace },
+  { pattern: "farfetch.com", scraper: scrapeStructuredMarketplace },
+  { pattern: "sidelineswap.com", scraper: scrapeSidelineSwap },
+  { pattern: "vestiairecollective.com", scraper: scrapeVestiaire },
   { pattern: "rozetka.com.ua", scraper: scrapeRozetka },
   { pattern: "epicentrk.ua", scraper: scrapeEpicentr },
   { pattern: "foxtrot.com.ua", scraper: scrapeFoxtrot },
@@ -48,7 +63,8 @@ const storeRegistry: {
   { pattern: "bujobox.com.ua", scraper: scrapeHoroshop },
   { pattern: "hobymonster.com.ua", scraper: scrapeHoroshop },
   { pattern: "leleka.camp", scraper: scrapeHoroshop },
-  { pattern: "target.com", scraper: scrapeTarget },
+  { pattern: "lelekan.com.ua", scraper: scrapeLelekan, async: true },
+  { pattern: "target.com", scraper: scrapeTarget, async: true },
   { pattern: "trendyol.com", scraper: scrapeTrendyol },
   { pattern: "hepsiburada.com", scraper: scrapeHepsiburada },
   { pattern: "n11.com", scraper: scrapeN11 },
@@ -62,19 +78,23 @@ const storeRegistry: {
   { pattern: "flipkart.com", scraper: scrapeFlipkart },
   { pattern: "rubylane.com", scraper: scrapeRubylane },
   { pattern: "wildberries.ru", scraper: scrapeWildberries, async: true },
+  { pattern: "ua-tao.com", scraper: scrapeUaTao },
+  { pattern: "zalando.", scraper: scrapeZalando },
 ];
 
 /**
  * Повертає скрапер для конкретного магазину за URL, або null якщо невідомий домен.
  */
-export function getStoreScraper(
-  url: string,
-): { scraper: ScraperMethod | AsyncScraperMethod; async: boolean } | null {
+export function getStoreScraper(url: string): {
+  scraper: ScraperMethod | AsyncScraperMethod;
+  async: boolean;
+  pattern: string;
+} | null {
   const domain = new URL(url).hostname.toLowerCase();
 
   for (const entry of storeRegistry) {
     if (domain.includes(entry.pattern)) {
-      return { scraper: entry.scraper, async: entry.async ?? false };
+      return { scraper: entry.scraper, async: entry.async ?? false, pattern: entry.pattern };
     }
   }
 

@@ -1,13 +1,9 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { getSettings } from "@/api/settings";
 import {
-  RESOLVED_THEME_COOKIE_NAME,
-  THEME_COOKIE_NAME,
-  THEME_COOKIE_MAX_AGE,
-  buildAccentCookie,
-  getAccentInlineStyles,
-  parseResolvedTheme,
-  resolveThemePreference,
+  DEFAULT_ACCENT,
+  DEFAULT_THEME_PREFERENCE,
+  applyThemeAndAccentSynchronously,
 } from "@/lib/theme";
 
 const AUTH_REDIRECT_COOKIE = "bn_auth_redirect_to";
@@ -17,14 +13,11 @@ function persistAuthRedirect(target?: string) {
   document.cookie = `${AUTH_REDIRECT_COOKIE}=${encodeURIComponent(safeTarget)}; Path=/; Max-Age=600; SameSite=Lax`;
 }
 
-function readCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const prefix = `${name}=`;
-  for (const part of document.cookie.split(";")) {
-    const trimmed = part.trim();
-    if (trimmed.startsWith(prefix)) return trimmed.slice(prefix.length);
-  }
-  return null;
+function applyDefaultAppearanceForNewAccount() {
+  applyThemeAndAccentSynchronously({
+    theme: DEFAULT_THEME_PREFERENCE,
+    accent: DEFAULT_ACCENT,
+  });
 }
 
 async function primeThemeAndAccentFromSettings(): Promise<void> {
@@ -37,27 +30,10 @@ async function primeThemeAndAccentFromSettings(): Promise<void> {
         ? settings.default_accent
         : 0;
 
-    const theme = settings.theme ?? "system";
-    const systemResolved =
-      parseResolvedTheme(readCookie(RESOLVED_THEME_COOKIE_NAME)) ??
-      (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light");
-    const resolvedTheme =
-      theme === "light" || theme === "dark" ? theme : resolveThemePreference(theme, systemResolved);
-
-    if (typeof document !== "undefined") {
-      document.cookie = `${THEME_COOKIE_NAME}=${theme}; Path=/; Max-Age=${THEME_COOKIE_MAX_AGE}; SameSite=Lax`;
-      document.cookie = `${RESOLVED_THEME_COOKIE_NAME}=${resolvedTheme}; Path=/; Max-Age=${THEME_COOKIE_MAX_AGE}; SameSite=Lax`;
-      document.cookie = buildAccentCookie(accent);
-      const root = document.documentElement;
-      root.setAttribute("data-theme", resolvedTheme);
-      root.style.colorScheme = resolvedTheme;
-      const styles = getAccentInlineStyles(accent, resolvedTheme);
-      for (const [name, value] of Object.entries(styles)) {
-        root.style.setProperty(name, value);
-      }
-    }
+    applyThemeAndAccentSynchronously({
+      theme: settings.theme ?? DEFAULT_THEME_PREFERENCE,
+      accent,
+    });
   } catch {
     // Ignore — SSR/user settings unavailable will fall back to existing cookie.
   }
@@ -97,6 +73,7 @@ export async function logout(): Promise<void> {
 }
 
 export async function loginWithGoogle(redirectTo?: string): Promise<void> {
+  applyDefaultAppearanceForNewAccount();
   persistAuthRedirect(redirectTo);
   const callback = `${window.location.origin}/auth/callback`;
 
@@ -114,6 +91,7 @@ export async function loginWithGoogle(redirectTo?: string): Promise<void> {
 }
 
 export async function loginWithApple(redirectTo?: string): Promise<void> {
+  applyDefaultAppearanceForNewAccount();
   persistAuthRedirect(redirectTo);
   const callback = `${window.location.origin}/auth/callback`;
 
@@ -128,6 +106,7 @@ export async function loginWithApple(redirectTo?: string): Promise<void> {
 }
 
 export async function loginWithFacebook(redirectTo?: string): Promise<void> {
+  applyDefaultAppearanceForNewAccount();
   persistAuthRedirect(redirectTo);
   const callback = `${window.location.origin}/auth/callback`;
 

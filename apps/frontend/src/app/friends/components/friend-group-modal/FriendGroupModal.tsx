@@ -111,11 +111,15 @@ export function FriendGroupModal({ open, group, friends, isSaving, onClose, onSu
         </div>
 
         <div className={styles.field}>
-          <label>{t("Description", { $id: "friends.groups.modal.description" })}</label>
+          <label>
+            {t("Description (optional)", {
+              $id: "friends.groups.modal.description",
+            })}
+          </label>
           <textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder={t("Optional note", {
+            placeholder={t("Add details, size, color...", {
               $id: "friends.groups.modal.descriptionPlaceholder",
             })}
           />

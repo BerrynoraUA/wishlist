@@ -10,7 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button/Button";
 import { Modal } from "@/components/ui/Modal/Modal";
@@ -73,24 +73,6 @@ function hrefToPathname(href: string): string {
   } catch {
     return href.split("?")[0] || href;
   }
-}
-
-function isGuideBypassPath(pathname: string): boolean {
-  return (
-    pathname === "/" ||
-    pathname === "/login" ||
-    pathname === "/register" ||
-    pathname === "/share" ||
-    pathname.startsWith("/auth/")
-  );
-}
-
-function getFallbackPath(segment: UserGuideSegment | null): string {
-  if (!segment) return "/home";
-  if (segment.route !== "/wishlist/[id]") return segment.fallbackPath;
-
-  if (typeof window === "undefined") return segment.fallbackPath;
-  return window.sessionStorage.getItem(USER_GUIDE_LAST_WISHLIST_PATH_KEY) ?? segment.fallbackPath;
 }
 
 function getGuideTarget(step: UserGuideStep): HTMLElement | null {
@@ -203,13 +185,12 @@ function boxesEqual(a: GuideHighlightBox | null, b: GuideHighlightBox | null): b
 
 export function UserGuideProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const shouldLoadGuide =
     USER_GUIDE_ENABLED &&
     pathname !== "/" &&
     pathname !== "/login" &&
     pathname !== "/register";
-  const { data: profile, isLoading } = useProfile({ enabled: shouldLoadGuide });
+  const { data: profile } = useProfile({ enabled: shouldLoadGuide });
   const updateGuideStep = useUpdateUserGuideStep();
   const [confirmCloseOpen, setConfirmCloseOpen] = useState(false);
   const [highlightBox, setHighlightBox] = useState<GuideHighlightBox | null>(null);
@@ -238,24 +219,6 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
       window.sessionStorage.setItem(USER_GUIDE_LAST_WISHLIST_PATH_KEY, pathname);
     }
   }, [pathname]);
-
-  useEffect(() => {
-    if (isLoading || !active || !currentSegment || routeMatchesCurrentSegment) return;
-    if (isGuideBypassPath(pathname)) return;
-    if (currentStep?.id === 4 && pathname.startsWith("/wishlist/")) return;
-    if (currentStep?.targetId === "nav-friends" && pathname === "/friends") return;
-    if (currentStep?.targetId === "nav-discover" && pathname === "/discover") return;
-
-    router.replace(getFallbackPath(currentSegment));
-  }, [
-    active,
-    currentSegment,
-    currentStep,
-    isLoading,
-    pathname,
-    routeMatchesCurrentSegment,
-    router,
-  ]);
 
   const completeStep = useCallback(
     (step: number) => {
@@ -295,18 +258,7 @@ export function UserGuideProvider({ children }: { children: ReactNode }) {
     setSequenceIndex((value) => Math.min(value + 1, currentStep.sequenceTargets!.length - 1));
   }, [completeStep, currentStep, sequenceIndex]);
 
-  const canNavigateTo = useCallback(
-    (href: string) => {
-      if (!active || !currentSegment) return true;
-      const nextPathname = hrefToPathname(href);
-      if (isGuideBypassPath(nextPathname)) return true;
-      if (currentStep?.id === 4 && nextPathname.startsWith("/wishlist/")) return true;
-      if (currentStep?.targetId === "nav-friends" && nextPathname === "/friends") return true;
-      if (currentStep?.targetId === "nav-discover" && nextPathname === "/discover") return true;
-      return matchesUserGuideRoute(nextPathname, currentSegment.route);
-    },
-    [active, currentSegment, currentStep],
-  );
+  const canNavigateTo = useCallback(() => true, []);
 
   const handleFinishGuide = useCallback(() => {
     updateGuideStep.mutate(USER_GUIDE_COMPLETE_STEP, {

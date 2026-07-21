@@ -158,8 +158,14 @@ export function WishlistItemDetailModal({
               {priorityKey && priorityLabel && (
                 <span className={`${styles.priority} ${styles[priorityKey]}`}>{priorityLabel}</span>
               )}
-              {reserveStatusLabel && (
-                <span className={styles.reservedBadge}>{reserveStatusLabel}</span>
+              {!isOwner && reserveStatusLabel && (
+                <span
+                  className={`${styles.reservedBadge} ${
+                    reservationState.isPurchased ? styles.purchasedBadge : ""
+                  }`}
+                >
+                  {reserveStatusLabel}
+                </span>
               )}
             </div>
 
@@ -218,6 +224,7 @@ export function WishlistItemDetailModal({
                     additionalLinks: item.additional_links,
                   })}
                   className={styles.saveBtn}
+                  tooltipAlign="start"
                 />
               )}
 

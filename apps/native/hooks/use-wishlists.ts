@@ -15,12 +15,9 @@ import {
   revokeWishlistAccess,
   updateWishlist,
 } from "@/api/wishlists";
+import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
 import { normalizeSearchQuery } from "@/lib/wishlists";
-import type {
-  DiscoverQueryParams,
-  DiscoverSection,
-  ReservedItem,
-} from "@wishlist/backend/types/discover";
+import type { DiscoverQueryParams } from "@wishlist/backend/types/discover";
 import { useAuth } from "@/providers/auth-provider";
 import type {
   WishlistFormValues,
@@ -73,6 +70,31 @@ export function useMyWishlists(params?: WishlistQueryParams) {
   });
 }
 
+export function useInfiniteMyWishlists(params: WishlistQueryParams, pageSize: number) {
+  const { user } = useAuth();
+  const normalizedParams = React.useMemo(
+    () => ({
+      ...params,
+      skip: undefined,
+      take: undefined,
+      search: normalizeSearchQuery(params.search) || undefined,
+    }),
+    [params.search, params.sort, params.visibilityTypes],
+  );
+
+  return useSkipTakeInfiniteQuery({
+    queryKey: wishlistKeys.my(user?.id, { ...normalizedParams, take: pageSize }),
+    fetchPage: ({ skip, take }) =>
+      getMyWishlists({
+        ...normalizedParams,
+        skip,
+        take,
+      }),
+    pageSize,
+    enabled: Boolean(user?.id),
+  });
+}
+
 export function useMyStatistics() {
   const { user } = useAuth();
 
@@ -83,18 +105,31 @@ export function useMyStatistics() {
   });
 }
 
-export function useFriendWishlists(userId: string, params?: WishlistQueryParams) {
+export function useInfiniteFriendWishlists(
+  userId: string,
+  params: WishlistQueryParams,
+  pageSize: number,
+) {
   const { user } = useAuth();
-  const normalizedParams = params
-    ? {
-        ...params,
-        search: normalizeSearchQuery(params.search) || undefined,
-      }
-    : undefined;
+  const normalizedParams = React.useMemo(
+    () => ({
+      ...params,
+      skip: undefined,
+      take: undefined,
+      search: normalizeSearchQuery(params.search) || undefined,
+    }),
+    [params.search, params.sort, params.visibilityTypes],
+  );
 
-  return useQuery({
-    queryKey: wishlistKeys.friend(user?.id, userId, normalizedParams),
-    queryFn: () => getFriendWishlists(userId, normalizedParams),
+  return useSkipTakeInfiniteQuery({
+    queryKey: wishlistKeys.friend(user?.id, userId, { ...normalizedParams, take: pageSize }),
+    fetchPage: ({ skip, take }) =>
+      getFriendWishlists(userId, {
+        ...normalizedParams,
+        skip,
+        take,
+      }),
+    pageSize,
     enabled: Boolean(user?.id && userId),
   });
 }
@@ -124,46 +159,86 @@ function useNormalizedDiscoverParams(params?: DiscoverQueryParams) {
   );
 }
 
-export function useFriendsWishlistsDiscoverAll(params?: DiscoverQueryParams, enabled = true) {
+export function useInfiniteFriendsWishlistsDiscoverAll(
+  params: DiscoverQueryParams,
+  pageSize: number,
+  enabled = true,
+) {
   const { user } = useAuth();
   const normalizedParams = useNormalizedDiscoverParams(params);
 
-  return useQuery<DiscoverSection[]>({
-    queryKey: wishlistKeys.discoverAll(user?.id, normalizedParams),
-    queryFn: () => getFriendsWishlistsDiscoverAll(normalizedParams),
+  return useSkipTakeInfiniteQuery({
+    queryKey: wishlistKeys.discoverAll(user?.id, { ...normalizedParams, take: pageSize }),
+    fetchPage: ({ skip, take }) =>
+      getFriendsWishlistsDiscoverAll({
+        ...normalizedParams,
+        skip,
+        take,
+      }),
+    pageSize,
     enabled: Boolean(user?.id) && enabled,
   });
 }
 
-export function useFriendsWishlistsDiscover(params?: DiscoverQueryParams, enabled = true) {
+export function useInfiniteFriendsWishlistsDiscover(
+  params: DiscoverQueryParams,
+  pageSize: number,
+  enabled = true,
+) {
   const { user } = useAuth();
   const normalizedParams = useNormalizedDiscoverParams(params);
 
-  return useQuery<DiscoverSection[]>({
-    queryKey: wishlistKeys.discoverAvailable(user?.id, normalizedParams),
-    queryFn: () => getFriendsWishlistsDiscover(normalizedParams),
+  return useSkipTakeInfiniteQuery({
+    queryKey: wishlistKeys.discoverAvailable(user?.id, { ...normalizedParams, take: pageSize }),
+    fetchPage: ({ skip, take }) =>
+      getFriendsWishlistsDiscover({
+        ...normalizedParams,
+        skip,
+        take,
+      }),
+    pageSize,
     enabled: Boolean(user?.id) && enabled,
   });
 }
 
-export function useFriendsWishlistsReservedByMe(params?: DiscoverQueryParams, enabled = true) {
+export function useInfiniteFriendsWishlistsReservedByMe(
+  params: DiscoverQueryParams,
+  pageSize: number,
+  enabled = true,
+) {
   const { user } = useAuth();
   const normalizedParams = useNormalizedDiscoverParams(params);
 
-  return useQuery<ReservedItem[]>({
-    queryKey: wishlistKeys.discoverReserved(user?.id, normalizedParams),
-    queryFn: () => getFriendsWishlistsReservedByMe(normalizedParams),
+  return useSkipTakeInfiniteQuery({
+    queryKey: wishlistKeys.discoverReserved(user?.id, { ...normalizedParams, take: pageSize }),
+    fetchPage: ({ skip, take }) =>
+      getFriendsWishlistsReservedByMe({
+        ...normalizedParams,
+        skip,
+        take,
+      }),
+    pageSize,
     enabled: Boolean(user?.id) && enabled,
   });
 }
 
-export function useFriendsWishlistsPurchasedByMe(params?: DiscoverQueryParams, enabled = true) {
+export function useInfiniteFriendsWishlistsPurchasedByMe(
+  params: DiscoverQueryParams,
+  pageSize: number,
+  enabled = true,
+) {
   const { user } = useAuth();
   const normalizedParams = useNormalizedDiscoverParams(params);
 
-  return useQuery<ReservedItem[]>({
-    queryKey: wishlistKeys.discoverPurchased(user?.id, normalizedParams),
-    queryFn: () => getFriendsWishlistsPurchasedByMe(normalizedParams),
+  return useSkipTakeInfiniteQuery({
+    queryKey: wishlistKeys.discoverPurchased(user?.id, { ...normalizedParams, take: pageSize }),
+    fetchPage: ({ skip, take }) =>
+      getFriendsWishlistsPurchasedByMe({
+        ...normalizedParams,
+        skip,
+        take,
+      }),
+    pageSize,
     enabled: Boolean(user?.id) && enabled,
   });
 }
@@ -252,7 +327,7 @@ export function useGrantWishlistAccess() {
       grantedToUserId: string;
       accessType: 0 | 1 | 2 | 3;
     }) => grantWishlistAccess(wishlistId, grantedToUserId, accessType),
-    onSuccess: async (_data, variables) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({
         queryKey: ["friends-without-wishlist-access"],
@@ -272,7 +347,7 @@ export function useRevokeWishlistAccess() {
   return useMutation({
     mutationFn: ({ wishlistId, targetUserId }: { wishlistId: string; targetUserId: string }) =>
       revokeWishlistAccess(wishlistId, targetUserId),
-    onSuccess: async (_data, variables) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["friends-without-wishlist-access"],
         exact: false,

@@ -1,14 +1,13 @@
-import { AnimatedPressable } from "@/components/ui/animated-pressable";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
-import { Button } from "@/components/ui/button";
+import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { Icon } from "@/components/ui/icon";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
-import { useRemoveFriend } from "@/hooks/use-friends";
-import { useFriendWishlists } from "@/hooks/use-wishlists";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
+import { useInfiniteFriendWishlists } from "@/hooks/use-wishlists";
 import { chunkRows } from "@/lib/layout";
 import {
+  WISHLIST_PAGE_SIZE,
   WISHLIST_VISIBILITY_ICONS,
   getWishlistAccentClass,
   getWishlistVisibilityLabels,
@@ -16,7 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, Gift, UserMinus } from "lucide-react-native";
+import { Gift } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, Pressable, View, useWindowDimensions } from "react-native";
@@ -29,21 +28,13 @@ export default function FriendWishlistsScreen() {
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const friendId = Array.isArray(id) ? (id[0] ?? "") : (id ?? "");
-  const wishlistsQuery = useFriendWishlists(friendId);
-  const removeFriend = useRemoveFriend();
-  const [removeOpen, setRemoveOpen] = React.useState(false);
-  const wishlists = wishlistsQuery.data ?? [];
+  const wishlistsQuery = useInfiniteFriendWishlists(friendId, {}, WISHLIST_PAGE_SIZE);
+  const { items: wishlists, loadMore: loadMoreWishlists } = useInfiniteListData(wishlistsQuery);
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
   const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
-
-  function handleRemoveFriend() {
-    removeFriend.mutate(friendId, {
-      onSuccess: () => router.replace("/friends" as never),
-    });
-  }
 
   return (
     <>
@@ -73,31 +64,24 @@ export default function FriendWishlistsScreen() {
           )}
           keyExtractor={(row: Wishlist[]) => row.map((wishlist) => wishlist.id).join(":")}
           className="flex-1"
-          contentInsetAdjustmentBehavior="automatic"
           contentContainerClassName="pb-8"
           contentContainerStyle={{ paddingTop: insets.top + 24 }}
           ItemSeparatorComponent={() => <View className="h-4" />}
+          onEndReached={loadMoreWishlists}
+          isLoadingMore={wishlistsQuery.isFetchingNextPage}
           ListHeaderComponent={
             <View className="gap-5 self-center pb-5" style={{ width: contentWidth }}>
-              <View className="flex-row items-start justify-between gap-3">
-                <View className="min-w-0 flex-1 gap-1">
+              <View className="flex-row items-center justify-between gap-3">
+                <View className="min-w-0 flex-1">
                   <Text className="text-2xl font-extrabold text-text">
                     {t("Friend's Wishlists")}
                   </Text>
-                  <Text className="text-sm font-semibold text-text-muted">
-                    {wishlists.length === 1
-                      ? t("{count} wishlist", { count: wishlists.length })
-                      : t("{count} wishlists", { count: wishlists.length })}
-                  </Text>
                 </View>
-                <Button
-                  variant="destructive"
-                  onPress={() => setRemoveOpen(true)}
-                  className="rounded-full"
-                >
-                  <Icon as={UserMinus} className="size-4 text-white" />
-                  <Text>{t("Remove")}</Text>
-                </Button>
+                <Text className="shrink-0 text-sm font-semibold text-text-muted">
+                  {wishlists.length === 1
+                    ? t("{count} wishlist", { count: wishlists.length })
+                    : t("{count} wishlists", { count: wishlists.length })}
+                </Text>
               </View>
             </View>
           }
@@ -123,22 +107,7 @@ export default function FriendWishlistsScreen() {
           extraData={{ cardWidth, contentWidth, gridGap }}
         />
 
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={t("Back")}
-          onPress={() => router.back()}
-          className="absolute bottom-3 left-3 z-20 size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
-        >
-          <Icon as={ChevronLeft} className="size-7 text-text" />
-        </AnimatedPressable>
-
-        <RemoveFriendSheet
-          open={removeOpen}
-          isPending={removeFriend.isPending}
-          error={removeFriend.error?.message}
-          onOpenChange={setRemoveOpen}
-          onConfirm={handleRemoveFriend}
-        />
+        <FloatingBackButton />
       </View>
     </>
   );
@@ -163,7 +132,7 @@ function FriendWishlistCard({
       onPress={onPress}
       className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm active:scale-[0.99]"
     >
-      <View className="h-[120px] items-center justify-center overflow-hidden">
+      <View className="h-30 items-center justify-center overflow-hidden">
         <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
         {wishlist.image_url ? (
           <StyledImage
@@ -196,58 +165,5 @@ function FriendWishlistCard({
         </View>
       </View>
     </Pressable>
-  );
-}
-
-function RemoveFriendSheet({
-  open,
-  isPending,
-  error,
-  onOpenChange,
-  onConfirm,
-}: {
-  open: boolean;
-  isPending: boolean;
-  error?: string;
-  onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
-}) {
-  const t = useGT();
-  const sheetRef = React.useRef<BottomSheetRef>(null);
-
-  if (!open) return null;
-
-  return (
-    <BottomSheet
-      ref={sheetRef}
-      detents={["auto"]}
-      dismissOnBack={false}
-      onDidDismiss={() => onOpenChange(false)}
-    >
-      <View className="gap-4 px-5 pb-5 pt-5">
-        <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">{t("Remove Friend")}</Text>
-          <Text className="text-sm text-text-muted">
-            {t(
-              "Are you sure you want to remove this friend? You will need to send a new friend request to reconnect.",
-            )}
-          </Text>
-        </View>
-        {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
-        <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button
-            variant="outline"
-            disabled={isPending}
-            onPress={() => void sheetRef.current?.dismiss()}
-          >
-            <Text>{t("Cancel")}</Text>
-          </Button>
-          <Button variant="destructive" disabled={isPending} onPress={onConfirm}>
-            {isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
-            <Text>{t("Remove Friend")}</Text>
-          </Button>
-        </View>
-      </View>
-    </BottomSheet>
   );
 }

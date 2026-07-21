@@ -1,4 +1,4 @@
-export type ScraperStatus = "success" | "partial" | "failed";
+export type ScraperStatus = "success" | "partial" | "failed" | "blocked" | "unavailable";
 export type TestState = "idle" | "running" | "done";
 export type SortField = "site" | "status" | "duration";
 export type SortDir = "asc" | "desc";
@@ -17,20 +17,55 @@ export interface ProductData {
 
 export interface FieldValidation {
   field: string;
-  expected: string | null;
-  actual: string | null;
+  expected: string | boolean | null;
+  actual: string | boolean | null;
   /** null = not validated (expected is null) */
   match: boolean | null;
+}
+
+export interface ScrapeDiagnostics {
+  engine: "legacy" | "scrapling" | "official_api" | "internal_api";
+  fetchMethod: string;
+  selectedFetchMethod?: string;
+  attempts: FetchAttempt[];
+  parserSources: Record<string, { source: string; library: string }>;
+  warnings?: string[];
+  api?: {
+    provider: string;
+    apiKind: "official" | "internal";
+    adapter: string;
+    itemId?: string;
+  };
+}
+
+export interface FetchAttempt {
+  sequence: number;
+  mode: string;
+  purpose: string;
+  outcome: "received" | "blocked" | "error" | "timeout" | "skipped";
+  durationMs: number;
+  status?: number;
+  blockReason?: string;
+  error?: string;
+  parseScore?: number;
+  parseAccepted?: boolean;
+  selected?: boolean;
 }
 
 export interface ScrapeResult {
   url: string;
   status: ScraperStatus;
   data: ProductData | null;
+  comment?: string;
   error?: string;
   missingFields?: string[];
   duration: number;
   validations: FieldValidation[];
+  diagnostics?: ScrapeDiagnostics;
+  /** Number of times this site has been reported as unresolved. */
+  requestCount?: number;
+  /** Email of the user who first reported this site. */
+  author?: string;
 }
 
 /** Shape of each entry in POST /api/admin/scraper-test `results`. */
@@ -41,6 +76,7 @@ export interface ApiScrapeResultRow {
   error?: string;
   missingFields?: string[];
   duration: number;
+  diagnostics?: ScrapeDiagnostics;
 }
 
 /**
@@ -50,4 +86,6 @@ export const STATUS_ORDER: Record<string, number> = {
   success: 0,
   partial: 1,
   failed: 2,
+  blocked: 3,
+  unavailable: 4,
 };

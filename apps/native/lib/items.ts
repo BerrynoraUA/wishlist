@@ -1,4 +1,5 @@
 import type { TranslateFn } from "@/lib/translate-fn";
+import { getValidHttpUrl } from "@/lib/urls";
 import type { Item, ItemFormValues, ItemLink } from "@wishlist/backend/types/item";
 import { ALL_PRIORITIES, PRIORITY_IDS } from "@wishlist/backend/lib";
 
@@ -71,6 +72,12 @@ export function getTranslatedItemPriorityLabel(
   return priority ? t(priority.name) : null;
 }
 
+export function getItemPriority(priorityId: string | null | undefined) {
+  return ALL_PRIORITIES.find(
+    (priority) => priority.id === priorityId || priority.name === priorityId,
+  );
+}
+
 export const EMPTY_ITEM_FORM: ItemFormValues = {
   name: "",
   description: "",
@@ -124,8 +131,11 @@ export function cleanAdditionalLinks(links: ItemLink[]) {
 }
 
 export function getItemStoreFromUrl(url: string | null | undefined) {
+  const validUrl = getValidHttpUrl(url);
+  if (!validUrl) return "";
+
   try {
-    return url ? new URL(url).hostname.replace(/^www\./, "") : "";
+    return new URL(validUrl).hostname.replace(/^www\./, "");
   } catch {
     return "";
   }
@@ -168,6 +178,14 @@ export function getSalePercentOff(
   return Math.min(99, rounded);
 }
 
+export function isDiscountActive(hasDiscount: boolean, discountEndDate: string | null | undefined) {
+  if (!hasDiscount) return false;
+  if (!discountEndDate) return true;
+
+  const endTime = Date.parse(discountEndDate);
+  return Number.isNaN(endTime) || endTime > Date.now();
+}
+
 export function getItemReservationState({
   status,
   reservedBy,
@@ -194,6 +212,32 @@ export function getItemReservationState({
   };
 }
 
+export function optimisticallyToggleItemReservation(item: Item, currentUserId: string): Item {
+  const releasing = item.status === 1 && item.reserved_by === currentUserId;
+
+  return {
+    ...item,
+    status: releasing ? 0 : 1,
+    reserved_by: releasing ? null : currentUserId,
+  };
+}
+
+export function optimisticallyToggleItemBought(item: Item, currentUserId: string): Item {
+  return {
+    ...item,
+    status: item.status === 2 ? 1 : 2,
+    reserved_by: currentUserId,
+  };
+}
+
+export function updateItemIfSelected(
+  item: Item,
+  selectedItemId: string,
+  update: (selectedItem: Item) => Item,
+): Item {
+  return item.id === selectedItemId ? update(item) : item;
+}
+
 export function buildReservationLabel(
   args: {
     isPurchased: boolean;
@@ -203,16 +247,16 @@ export function buildReservationLabel(
   },
   t: TranslateFn,
 ) {
-  const { isPurchased, isReserved, reservedByMe, reservedByName } = args;
+  const { isPurchased, isReserved, reservedByMe } = args;
 
+  // Privacy: never reveal who reserved/purchased an item. Only the actor
+  // sees "by you"; everyone else sees the generic status.
   if (isPurchased) {
     if (reservedByMe) return t("Purchased by you");
-    if (reservedByName) return t("Purchased by {name}", { name: reservedByName });
     return t("Purchased");
   }
 
   if (!isReserved) return null;
   if (reservedByMe) return t("Reserved by you");
-  if (reservedByName) return t("Reserved by {name}", { name: reservedByName });
   return t("Reserved");
 }

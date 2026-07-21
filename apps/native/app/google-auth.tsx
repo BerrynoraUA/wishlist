@@ -1,3 +1,5 @@
 import { OAuthCallbackScreen } from "@/components/auth/oauth-callback-screen";
 
-export default OAuthCallbackScreen;
+export default function GoogleOAuthCallback() {
+  return <OAuthCallbackScreen provider="google" />;
+}

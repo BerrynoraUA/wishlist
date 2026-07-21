@@ -25,13 +25,15 @@ import * as ImagePicker from "expo-image-picker";
 import { Camera, CalendarDays, ImagePlus, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 
 type SheetMode = "create" | "edit";
 
 type SelectedImage = SecretSantaImageInput & {
   previewUri: string;
 };
+
+const PARTICIPANT_PAGE_SIZE = 10;
 
 export function SecretSantaCreateEditSheet({
   mode,
@@ -49,7 +51,13 @@ export function SecretSantaCreateEditSheet({
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const { data: settings } = useSettings();
-  const friendsQuery = useFriends({ take: 50 });
+  const [participantSearch, setParticipantSearch] = React.useState("");
+  const deferredParticipantSearch = React.useDeferredValue(participantSearch);
+  const [participantTake, setParticipantTake] = React.useState(PARTICIPANT_PAGE_SIZE);
+  const friendsQuery = useFriends({
+    take: participantTake,
+    search: deferredParticipantSearch,
+  });
   const createEvent = useCreateSecretSantaEvent();
   const updateEvent = useUpdateSecretSantaEvent();
   const currencyOptions = React.useMemo(() => getSecretSantaCurrencyOptions(), []);
@@ -77,6 +85,8 @@ export function SecretSantaCreateEditSheet({
     setImageUrl(event?.image_url ?? "");
     setRemoveImage(false);
     setParticipants([]);
+    setParticipantSearch("");
+    setParticipantTake(PARTICIPANT_PAGE_SIZE);
     setError(null);
   }, [defaultCurrency, event, open]);
 
@@ -86,6 +96,7 @@ export function SecretSantaCreateEditSheet({
       label: friend.display_name || friend.nickname || t("Friend"),
       description: friend.nickname ? `@${friend.nickname}` : undefined,
       keywords: [friend.display_name, friend.nickname].filter(Boolean) as string[],
+      imageUrl: friend.avatar_url,
     }));
   }, [friendsQuery.data, t]);
 
@@ -205,23 +216,41 @@ export function SecretSantaCreateEditSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={[0.85, 1]}
       scrollable
-      dismissOnBack={false}
+      detents={[0.75, 0.94]}
       onDidDismiss={() => onOpenChange(false)}
-    >
-      <View className="gap-5 px-5 pb-6 pt-5">
-        <View className="gap-1">
-          <Text className="text-xl font-extrabold text-text">
-            {mode === "edit" ? t("Edit Secret Santa Event") : t("Create Secret Santa Event")}
-          </Text>
-          <Text className="text-sm leading-5 text-text-muted">
-            {mode === "edit"
-              ? t("Update the event details without changing accepted participants.")
-              : t("Set up a gift exchange with your friends.")}
-          </Text>
+      footer={
+        <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
+          <Button
+            className="min-w-0 flex-1"
+            variant="outline"
+            disabled={isSaving}
+            onPress={closeSheet}
+          >
+            <Text>{t("Cancel")}</Text>
+          </Button>
+          <Button className="min-w-0 flex-1" disabled={isSaving} onPress={submit}>
+            {isSaving ? <ActivityIndicator colorClassName="accent-white" /> : null}
+            <Text>
+              {isSaving
+                ? mode === "edit"
+                  ? t("Saving...")
+                  : t("Creating...")
+                : mode === "edit"
+                  ? t("Save Changes")
+                  : t("Create Event")}
+            </Text>
+          </Button>
         </View>
-
+      }
+    >
+      <ScrollView
+        className="max-h-full"
+        contentContainerClassName="gap-5 px-5 pb-6 pt-5"
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled
+        showsVerticalScrollIndicator={false}
+      >
         <View className="gap-2">
           <Text className="text-sm font-semibold text-text">{t("Event Name")}</Text>
           <Input value={name} onChangeText={setName} placeholder={t("Family Gift Exchange")} />
@@ -231,12 +260,24 @@ export function SecretSantaCreateEditSheet({
           <Text className="text-sm font-semibold text-text">{t("Event Date")}</Text>
           <DatePicker value={eventDate || null} onChange={(value) => setEventDate(value ?? "")}>
             {({ displayValue, openPicker }) => (
-              <Button variant="outline" onPress={openPicker} className="justify-between">
-                <View className="flex-row items-center gap-2">
-                  <Icon as={CalendarDays} className="size-4 text-text-muted" />
-                  <Text>{eventDate ? displayValue : t("Choose date")}</Text>
-                </View>
-              </Button>
+              <View className="flex-row gap-2">
+                <Button variant="outline" onPress={openPicker} className="flex-1 justify-between">
+                  <View className="flex-row items-center gap-2">
+                    <Icon as={CalendarDays} className="size-4 text-text-muted" />
+                    <Text>{eventDate ? displayValue : t("Choose date")}</Text>
+                  </View>
+                </Button>
+                {eventDate ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    accessibilityLabel={t("Clear event date")}
+                    onPress={() => setEventDate("")}
+                  >
+                    <Icon as={X} className="size-4 text-text-muted" />
+                  </Button>
+                ) : null}
+              </View>
             )}
           </DatePicker>
         </View>
@@ -303,12 +344,51 @@ export function SecretSantaCreateEditSheet({
             <Text className="text-sm font-semibold text-text">{t("Participants")}</Text>
             <AutocompleteDropdown
               multiple
+              attached
               options={friendOptions}
               value={participants}
               onValueChange={setParticipants}
+              onQueryChange={(query) => {
+                setParticipantSearch(query);
+                setParticipantTake(PARTICIPANT_PAGE_SIZE);
+              }}
+              onEndReached={() => {
+                if (
+                  !friendsQuery.isFetching &&
+                  (friendsQuery.data?.length ?? 0) >= participantTake
+                ) {
+                  setParticipantTake((current) => current + PARTICIPANT_PAGE_SIZE);
+                }
+              }}
+              isLoadingMore={friendsQuery.isFetching && participantTake > PARTICIPANT_PAGE_SIZE}
+              maxVisibleOptions={2}
+              closeAccessibilityLabel={t("Close participant search")}
+              hideSelectedOptions
+              showSelectedValue={false}
               placeholder={t("Search friends")}
               emptyText={friendsQuery.isLoading ? t("Loading friends...") : t("No friends to add.")}
             />
+            {participants.length > 0 ? (
+              <View className="flex-row flex-wrap gap-2 pt-1">
+                {participants.map((participant) => (
+                  <Button
+                    key={participant.value}
+                    variant="secondary"
+                    size="sm"
+                    accessibilityLabel={t("Remove {name}", { name: participant.label })}
+                    onPress={() =>
+                      setParticipants((current) =>
+                        current.filter((item) => item.value !== participant.value),
+                      )
+                    }
+                    className="rounded-full"
+                  >
+                    <Text>{participant.description ?? participant.label}</Text>
+                    <Icon as={X} className="size-3.5 text-text" />
+                  </Button>
+                ))}
+              </View>
+            ) : null}
           </View>
         ) : null}
 
@@ -322,25 +402,7 @@ export function SecretSantaCreateEditSheet({
         ) : null}
 
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
-
-        <View className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button variant="outline" disabled={isSaving} onPress={closeSheet}>
-            <Text>{t("Cancel")}</Text>
-          </Button>
-          <Button disabled={isSaving} onPress={submit}>
-            {isSaving ? <ActivityIndicator colorClassName="accent-white" /> : null}
-            <Text>
-              {isSaving
-                ? mode === "edit"
-                  ? t("Saving...")
-                  : t("Creating...")
-                : mode === "edit"
-                  ? t("Save Changes")
-                  : t("Create Event")}
-            </Text>
-          </Button>
-        </View>
-      </View>
+      </ScrollView>
     </BottomSheet>
   );
 }

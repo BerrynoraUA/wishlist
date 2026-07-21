@@ -9,11 +9,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { FilterActions } from "@/components/ui/filter-actions";
 import { Text } from "@/components/ui/text";
+import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { useSettings } from "@/hooks/use-settings";
-import { getItemPriorityOptions } from "@/lib/items";
+import { getItemPriority, getItemPriorityOptions } from "@/lib/items";
 import { cn } from "@/lib/utils";
-import { ChevronsUpDown, SlidersHorizontal, Search, X } from "lucide-react-native";
+import { ChevronsUpDown, Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
@@ -40,48 +42,14 @@ export function DiscoverFilterActions({
   const t = useGT();
 
   return (
-    <View className="flex-row items-center gap-2">
-      {filtersActive ? (
-        <Button
-          variant="destructive"
-          size="icon"
-          accessibilityLabel={t("Clear filters")}
-          onPress={onResetFilters}
-          className="h-10 w-10 shrink-0 rounded-full"
-        >
-          <Icon as={X} className="size-4 text-white" />
-        </Button>
-      ) : null}
-      <Button
-        variant="outline"
-        size="lg"
-        accessibilityLabel={t("Show filters")}
-        accessibilityState={{ expanded: filtersOpen }}
-        onPress={() => onFiltersOpenChange(!filtersOpen)}
-        className={cn(
-          "h-10 w-10 min-w-10 shrink-0 rounded-full border-border-subtle bg-card-bg p-0",
-          filtersOpen && "border-brand bg-brand-lighter",
-        )}
-      >
-        <Icon
-          as={SlidersHorizontal}
-          className={cn("size-4 text-text", filtersOpen && "text-brand")}
-        />
-      </Button>
-    </View>
-  );
-}
-
-export function DiscoverFilterHeader(props: React.ComponentProps<typeof DiscoverFilterActions>) {
-  const t = useGT();
-
-  return (
-    <View className="flex-row items-center justify-between gap-3">
-      <Text className="min-w-0 flex-1 text-xl font-extrabold tracking-tight text-text">
-        {t("Discover")}
-      </Text>
-      <DiscoverFilterActions {...props} />
-    </View>
+    <FilterActions
+      active={filtersActive}
+      open={filtersOpen}
+      filterAccessibilityLabel={t("Show filters")}
+      clearAccessibilityLabel={t("Clear filters")}
+      onOpenChange={onFiltersOpenChange}
+      onReset={onResetFilters}
+    />
   );
 }
 
@@ -124,12 +92,12 @@ export function DiscoverFiltersPanel({
   return (
     <View className="gap-3">
       <View className="w-full flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
-        <Icon as={Search} className="size-4 text-text-muted" />
+        <Icon as={Search} className="size-4 text-muted-foreground/50" />
         <Input
           value={search}
           onChangeText={onSearchChange}
           placeholder={t("Search gifts or wishlists")}
-          className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none"
+          className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
           returnKeyType="search"
         />
         {search.length > 0 ? (
@@ -151,13 +119,15 @@ export function DiscoverFiltersPanel({
             <DropdownMenuTrigger asChild>
               <AnimatedPressable
                 className={cn(
-                  "h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3",
-                  priorityIds.length > 0 && "border-brand bg-brand-lighter",
+                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
+                  priorityIds.length > 0
+                    ? "border-brand bg-brand-lighter"
+                    : "border-border-subtle bg-card-bg",
                 )}
               >
                 <Text
                   className={cn(
-                    "shrink text-sm font-semibold text-text-muted",
+                    "shrink text-sm font-semibold text-text",
                     priorityIds.length > 0 && "text-brand",
                   )}
                   numberOfLines={1}
@@ -167,7 +137,7 @@ export function DiscoverFiltersPanel({
                 <Icon
                   as={ChevronsUpDown}
                   className={cn(
-                    "size-3.5 shrink-0 text-text-muted",
+                    "size-3.5 shrink-0 text-text",
                     priorityIds.length > 0 && "text-brand",
                   )}
                 />
@@ -179,12 +149,13 @@ export function DiscoverFiltersPanel({
                   key={option.value}
                   checked={priorityIds.includes(option.value)}
                   closeOnPress={false}
+                  className="min-h-11 rounded-xl pl-11"
                   leading={
-                    <View
-                      className="size-3 rounded-full"
-                      style={{ backgroundColor: option.color }}
-                    />
+                    getItemPriority(option.value) ? (
+                      <PriorityFilterIcon priority={getItemPriority(option.value)!} />
+                    ) : undefined
                   }
+                  leadingClassName="size-7"
                   onCheckedChange={() => onPriorityToggle(option.value)}
                 >
                   <Text>{option.label}</Text>
@@ -197,11 +168,11 @@ export function DiscoverFiltersPanel({
         <View className="min-w-0 flex-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <AnimatedPressable className="h-10 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
+              <AnimatedPressable className="h-11 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3 dark:bg-card-bg">
                 <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                   {t(sortLabel)}
                 </Text>
-                <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text-muted" />
+                <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text" />
               </AnimatedPressable>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="min-w-52">
@@ -221,14 +192,20 @@ export function DiscoverFiltersPanel({
           onChangeText={onPriceMinChange}
           keyboardType="decimal-pad"
           placeholder={t("Min price")}
-          className="min-w-0 flex-1 rounded-full"
+          className={cn(
+            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
+            priceMin.trim() && "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
+          )}
         />
         <Input
           value={priceMax}
           onChangeText={onPriceMaxChange}
           keyboardType="decimal-pad"
           placeholder={t("Max price")}
-          className="min-w-0 flex-1 rounded-full"
+          className={cn(
+            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
+            priceMax.trim() && "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
+          )}
         />
       </View>
     </View>

@@ -1,18 +1,15 @@
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
 import { TextClassContext } from "@/components/ui/text";
+import { WindowOverlay } from "@/components/ui/window-overlay";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as HoverCardPrimitive from "@rn-primitives/hover-card";
 import * as React from "react";
-import { Platform } from "react-native";
 import { FadeIn, FadeOut } from "react-native-reanimated";
-import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
 const HoverCard = HoverCardPrimitive.Root;
 
 const HoverCardTrigger = HoverCardPrimitive.Trigger;
-
-const FullWindowOverlay = Platform.OS === "ios" ? RNFullWindowOverlay : React.Fragment;
 
 function HoverCardContent({
   className,
@@ -20,9 +17,15 @@ function HoverCardContent({
   sideOffset = 4,
   ...props
 }: React.ComponentProps<typeof HoverCardPrimitive.Content>) {
+  const { setTriggerPosition, onOpenChange } = HoverCardPrimitive.useRootContext();
+  const closeFromBackPress = () => {
+    setTriggerPosition(null);
+    onOpenChange(false);
+  };
+
   return (
     <HoverCardPrimitive.Portal>
-      <FullWindowOverlay>
+      <WindowOverlay onRequestClose={closeFromBackPress}>
         <HoverCardPrimitive.Overlay className="absolute inset-0">
           <NativeOnlyAnimatedView
             entering={FadeIn.duration(motionDuration.normal)}
@@ -41,7 +44,7 @@ function HoverCardContent({
             </TextClassContext.Provider>
           </NativeOnlyAnimatedView>
         </HoverCardPrimitive.Overlay>
-      </FullWindowOverlay>
+      </WindowOverlay>
     </HoverCardPrimitive.Portal>
   );
 }

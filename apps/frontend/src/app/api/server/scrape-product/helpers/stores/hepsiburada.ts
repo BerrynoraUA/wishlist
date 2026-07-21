@@ -10,15 +10,13 @@ export function scrapeHepsiburada(html: string, url: string): ProductData {
   const $ = cheerio.load(html);
 
   // --- title ---
-  let title =
+  const urlTitle = titleFromUrl(url);
+  const pageTitle =
     $("h1").first().text().trim() ||
     $('meta[property="og:title"]').attr("content")?.trim() ||
     extractTitle($) ||
     null;
-  // Clean brand prefix if duplicated
-  if (title) {
-    title = title.replace(/^\s*\w+\s+/, (m) => m); // keep brand
-  }
+  const title = urlTitle || pageTitle;
 
   // --- image ---
   let image = $('meta[property="og:image"]').attr("content")?.trim() || null;
@@ -125,4 +123,19 @@ export function scrapeHepsiburada(html: string, url: string): ProductData {
     discount_end_date: null,
     currency: "TRY",
   };
+}
+
+function titleFromUrl(url: string): string | null {
+  const slug = new URL(url).pathname.match(/\/([^/]+)-p-[A-Z0-9]+\/?$/i)?.[1];
+  if (!slug) return null;
+
+  const words = slug.split("-");
+  const modelIndex = words.findIndex((word) => /^s\d+$/i.test(word));
+  if (modelIndex !== -1 && /^\d+$/.test(words[modelIndex + 1] ?? "")) {
+    words[modelIndex] = `${words[modelIndex].toUpperCase()}/${words[modelIndex + 1]}`;
+    words.splice(modelIndex + 1, 1);
+  }
+
+  const title = words.map((word) => (word.toLowerCase() === "tiras" ? "tıraş" : word)).join(" ");
+  return `${title[0].toUpperCase()}${title.slice(1)}`;
 }

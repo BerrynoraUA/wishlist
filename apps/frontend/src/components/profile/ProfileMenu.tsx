@@ -8,6 +8,7 @@ import {
   Crown,
   Settings,
   Lightbulb,
+  Bug,
   Languages,
   ChevronDown,
   Check,
@@ -26,6 +27,11 @@ import { useKnownAccounts } from "@/hooks/use-known-accounts";
 import { upsertKnownAccount } from "@/lib/known-accounts";
 import { switchAccount } from "@/lib/account-switch";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
+import {
+  DEFAULT_ACCENT,
+  DEFAULT_THEME_PREFERENCE,
+  applyThemeAndAccentSynchronously,
+} from "@/lib/theme";
 import type { KnownAccount } from "@/types/known-accounts";
 
 type Props = {
@@ -144,6 +150,10 @@ export function ProfileMenu({ onOpen }: Props) {
   }
 
   function handleAddAccount() {
+    applyThemeAndAccentSynchronously({
+      theme: DEFAULT_THEME_PREFERENCE,
+      accent: DEFAULT_ACCENT,
+    });
     setOpen(false);
     router.push(getAddAccountHref());
   }
@@ -326,6 +336,18 @@ export function ProfileMenu({ onOpen }: Props) {
           >
             <Lightbulb size={16} />
             <span>{t("Request a Feature", { $id: "profile.requestFeature" })}</span>
+          </button>
+
+          <button
+            type="button"
+            className={styles.menuItemSub}
+            onClick={() => {
+              setOpen(false);
+              router.push("/bugs");
+            }}
+          >
+            <Bug size={16} />
+            <span>{t("Report a Bug", { $id: "profile.reportBug" })}</span>
           </button>
 
           <button

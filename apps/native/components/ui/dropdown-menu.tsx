@@ -1,14 +1,14 @@
 import { Icon } from "@/components/ui/icon";
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
 import { TextClassContext } from "@/components/ui/text";
+import { WindowOverlay } from "@/components/ui/window-overlay";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as DropdownMenuPrimitive from "@rn-primitives/dropdown-menu";
 import { Check, ChevronDown, ChevronUp } from "lucide-react-native";
 import * as React from "react";
-import { Platform, type StyleProp, Text, View, type ViewStyle } from "react-native";
+import { type StyleProp, Text, View, type ViewStyle } from "react-native";
 import { FadeIn } from "react-native-reanimated";
-import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -66,7 +66,7 @@ function DropdownMenuSubContent({
     <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
       <DropdownMenuPrimitive.SubContent
         className={cn(
-          "bg-popover border-border overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
+          "bg-card-bg/95 border-border overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
           className,
         )}
         {...props}
@@ -74,8 +74,6 @@ function DropdownMenuSubContent({
     </NativeOnlyAnimatedView>
   );
 }
-
-const FullWindowOverlay = Platform.OS === "ios" ? RNFullWindowOverlay : React.Fragment;
 
 function DropdownMenuContent({
   className,
@@ -89,7 +87,12 @@ function DropdownMenuContent({
   overlayClassName?: string;
   portalHost?: string;
 }) {
-  const { triggerPosition } = DropdownMenuPrimitive.useRootContext();
+  const { triggerPosition, setTriggerPosition, onOpenChange } =
+    DropdownMenuPrimitive.useRootContext();
+  const closeFromBackPress = () => {
+    setTriggerPosition(null);
+    onOpenChange(false);
+  };
   const contentStyle =
     triggerPosition?.width != null
       ? ([style, { minWidth: triggerPosition.width }] as unknown as React.ComponentProps<
@@ -99,7 +102,7 @@ function DropdownMenuContent({
 
   return (
     <DropdownMenuPrimitive.Portal hostName={portalHost}>
-      <FullWindowOverlay>
+      <WindowOverlay onRequestClose={closeFromBackPress}>
         <DropdownMenuPrimitive.Overlay
           className={cn("absolute inset-0", overlayClassName)}
           style={overlayStyle}
@@ -108,7 +111,7 @@ function DropdownMenuContent({
             <TextClassContext.Provider value="text-popover-foreground">
               <DropdownMenuPrimitive.Content
                 className={cn(
-                  "bg-popover border-border min-w-[8rem] overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
+                  "bg-card-bg/95 border-border min-w-[8rem] overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
                   className,
                 )}
                 style={contentStyle}
@@ -117,7 +120,7 @@ function DropdownMenuContent({
             </TextClassContext.Provider>
           </NativeOnlyAnimatedView>
         </DropdownMenuPrimitive.Overlay>
-      </FullWindowOverlay>
+      </WindowOverlay>
     </DropdownMenuPrimitive.Portal>
   );
 }
@@ -157,10 +160,12 @@ function DropdownMenuCheckboxItem({
   className,
   children,
   leading,
+  leadingClassName,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem> & {
   children?: React.ReactNode;
   leading?: React.ReactNode;
+  leadingClassName?: string;
 }) {
   return (
     <TextClassContext.Provider value="text-sm text-popover-foreground select-none group-active:text-accent-foreground">
@@ -172,7 +177,12 @@ function DropdownMenuCheckboxItem({
         )}
         {...props}
       >
-        <View className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <View
+          className={cn(
+            "absolute left-2 flex h-3.5 w-3.5 items-center justify-center",
+            leadingClassName,
+          )}
+        >
           {leading ?? (
             <DropdownMenuPrimitive.ItemIndicator>
               <Icon

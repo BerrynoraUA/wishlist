@@ -238,10 +238,14 @@ export function ThemeProvider({
     getCurrentUser()
       .then((user) => {
         if (!user?.id) return;
-        upsertKnownAccount({ userId: user.id, defaultAccent: settings.default_accent });
+        upsertKnownAccount({
+          userId: user.id,
+          defaultAccent: settings.default_accent,
+          themePreference: settings.theme,
+        });
       })
       .catch(() => {});
-  }, [settings?.default_accent]);
+  }, [settings?.default_accent, settings?.theme]);
 
   const value = useMemo<AppThemeContextValue>(
     () => ({

@@ -7,7 +7,7 @@ import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
 import { Redirect, useRouter } from "expo-router";
-import { ChevronLeftIcon, EyeIcon, EyeOffIcon, GiftIcon } from "lucide-react-native";
+import { ChevronLeftIcon, EyeIcon, EyeOffIcon } from "lucide-react-native";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -111,14 +111,8 @@ export default function EmailAuthScreen() {
 
           <View className="min-h-full flex-1 px-5 py-safe-offset-5">
             <View className="flex-1 justify-center pb-16">
-              <Animated.View
-                className="w-full max-w-[440px] self-center"
-                layout={formLayoutTransition}
-              >
+              <Animated.View className="w-full max-w-110 self-center" layout={formLayoutTransition}>
                 <Animated.View className="mb-7 items-center gap-3" layout={formLayoutTransition}>
-                  <View className="size-14 items-center justify-center rounded-full bg-white/95">
-                    <Icon as={GiftIcon} className="size-7 text-[#c0267e]" />
-                  </View>
                   <View className="min-h-11 w-full flex-row items-center justify-center gap-2">
                     <Pressable
                       accessibilityLabel={t("Back")}
@@ -337,7 +331,7 @@ function PasswordToggle({
       className="absolute right-3 top-0 h-13 items-center justify-center px-2"
       onPress={onPress}
     >
-      <Icon as={visible ? EyeOffIcon : EyeIcon} className="size-[18px] text-white/58" />
+      <Icon as={visible ? EyeOffIcon : EyeIcon} className="size-4.5 text-white/58" />
     </Pressable>
   );
 }

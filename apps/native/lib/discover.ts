@@ -58,7 +58,10 @@ export function normalizeReservedItem(item: ReservedItem, currentUserId?: string
 }
 
 export function getDaysUntil(dateValue: string) {
-  const eventDate = new Date(dateValue);
+  const dateKey = dateValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const eventDate = dateKey
+    ? new Date(Number(dateKey[1]), Number(dateKey[2]) - 1, Number(dateKey[3]))
+    : new Date(dateValue);
   if (Number.isNaN(eventDate.getTime())) return null;
 
   const today = new Date();
@@ -74,11 +77,15 @@ export function getDaysUntil(dateValue: string) {
 
 export function formatDiscoverDate(dateValue?: string) {
   if (!dateValue) return "";
-  const date = new Date(dateValue);
+  const dateKey = dateValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const date = dateKey
+    ? new Date(Date.UTC(Number(dateKey[1]), Number(dateKey[2]) - 1, Number(dateKey[3]), 12))
+    : new Date(dateValue);
   if (Number.isNaN(date.getTime())) return "";
 
   return new Intl.DateTimeFormat(undefined, {
     month: "short",
     day: "numeric",
+    timeZone: dateKey ? "UTC" : undefined,
   }).format(date);
 }

@@ -1,11 +1,9 @@
-import DateTimePicker, {
-  DateTimePickerAndroid,
-  type DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+import DateTimePicker, { type DateTimePickerChangeEvent } from "@expo/ui/community/datetime-picker";
 import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
-import { View, type ColorValue } from "react-native";
-import { useCSSVariable } from "uniwind";
+import { View } from "react-native";
+import { useUniwind, useCSSVariable } from "uniwind";
+import { getThemeMode } from "@/lib/theme";
 
 type DatePickerRenderProps = {
   displayValue: string;
@@ -48,13 +46,12 @@ function formatDateFieldValue(date: Date) {
 export function DatePicker({ value, onChange, children, iosContainerClassName }: DatePickerProps) {
   const t = useGT();
   const locale = useLocale();
+  const { theme } = useUniwind();
   const [iosPickerOpen, setIosPickerOpen] = React.useState(false);
+  const [androidPickerOpen, setAndroidPickerOpen] = React.useState(false);
   const date = React.useMemo(() => parseDateFieldValue(value) ?? new Date(), [value]);
-  const datePickerPrimaryColor = useCSSVariable("--color-primary") as ColorValue | undefined;
-  const datePickerMutedColor = useCSSVariable("--color-text-muted") as ColorValue | undefined;
-  const datePickerDestructiveColor = useCSSVariable("--color-destructive") as
-    | ColorValue
-    | undefined;
+  const datePickerAccentColor = useCSSVariable("--color-primary") as string | undefined;
+  const themeVariant = getThemeMode(theme);
   const displayValue = React.useMemo(
     () =>
       `${date.getDate()} ${new Intl.DateTimeFormat(locale ?? "en", {
@@ -63,29 +60,14 @@ export function DatePicker({ value, onChange, children, iosContainerClassName }:
     [date, locale],
   );
 
-  function handleDateChange(event: DateTimePickerEvent, selectedDate?: Date) {
-    if (event.type === "neutralButtonPressed") {
-      onChange(null);
-      return;
-    }
-    if (event.type === "dismissed" || !selectedDate) return;
-
+  function handleDateValueChange(_: DateTimePickerChangeEvent, selectedDate: Date) {
     onChange(formatDateFieldValue(selectedDate));
+    setAndroidPickerOpen(false);
   }
 
   function openPicker() {
     if (process.env.EXPO_OS === "android") {
-      DateTimePickerAndroid.open({
-        value: date,
-        mode: "date",
-        display: "calendar",
-        positiveButton: { label: t("OK"), textColor: datePickerPrimaryColor },
-        negativeButton: { label: t("Cancel"), textColor: datePickerMutedColor },
-        neutralButton: value
-          ? { label: t("Clear"), textColor: datePickerDestructiveColor }
-          : undefined,
-        onChange: handleDateChange,
-      });
+      setAndroidPickerOpen(true);
       return;
     }
 
@@ -96,13 +78,27 @@ export function DatePicker({ value, onChange, children, iosContainerClassName }:
     <>
       {children({ displayValue, openPicker })}
 
+      {process.env.EXPO_OS === "android" && androidPickerOpen ? (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          accentColor={datePickerAccentColor}
+          positiveButton={{ label: t("OK") }}
+          negativeButton={{ label: t("Cancel") }}
+          onValueChange={handleDateValueChange}
+          onDismiss={() => setAndroidPickerOpen(false)}
+        />
+      ) : null}
+
       {process.env.EXPO_OS === "ios" && iosPickerOpen ? (
         <View className={iosContainerClassName}>
           <DateTimePicker
             value={date}
             mode="date"
             display="inline"
-            onChange={handleDateChange}
+            accentColor={datePickerAccentColor}
+            themeVariant={themeVariant}
+            onValueChange={handleDateValueChange}
             style={{ alignSelf: "stretch" }}
           />
         </View>

@@ -5,8 +5,7 @@
   },
   "build": {
     "base": {
-      "node": "22.14.0",
-      "pnpm": "11.9.0"
+      "node": "22.14.0"
     },
     "development": {
       "extends": "base",
@@ -18,13 +17,14 @@
         "buildType": "apk"
       }
     },
-    "preview": {
+    "staging": {
       "extends": "base",
-      "distribution": "internal",
-      "channel": "preview",
+      "distribution": "store",
+      "channel": "staging",
       "environment": "preview",
+      "autoIncrement": true,
       "android": {
-        "buildType": "apk"
+        "buildType": "app-bundle"
       }
     },
     "production": {
@@ -37,7 +37,14 @@
   "submit": {
     "production": {
       "android": {
-        "track": "internal"
+        "track": "production"
+      },
+      "ios": {}
+    },
+    "staging": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "completed"
       },
       "ios": {}
     }

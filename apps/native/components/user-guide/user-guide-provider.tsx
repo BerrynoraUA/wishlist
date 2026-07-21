@@ -12,10 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useProfile, useUpdateUserGuideStep } from "@/hooks/use-settings";
+import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { useAuth } from "@/providers/auth-provider";
 import { Portal } from "@rn-primitives/portal";
-import { usePathname, useRouter } from "expo-router";
+import { usePathname } from "expo-router";
+import { useGT } from "gt-react-native";
 import { X } from "lucide-react-native";
 import * as React from "react";
 import {
@@ -31,7 +33,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   USER_GUIDE_COMPLETE_STEP,
   getUserGuideSegmentForStep,
+  getUserGuideSegments,
   getUserGuideStep,
+  getUserGuideSteps,
   matchesUserGuideRoute,
   type UserGuideSegment,
   type UserGuideStep,
@@ -97,10 +101,11 @@ const UserGuideTargetRegistrationContext = React.createContext<UserGuideTargetRe
   requestMeasure: () => {},
 });
 
+// Order must match the tab bar: wishlists, secret santa, create, friends, profile.
 const NAV_TARGETS = [
   "nav-wishlists",
-  "nav-discover",
   "nav-secret-santa",
+  "nav-create",
   "nav-friends",
   "nav-profile",
 ] as const;
@@ -111,10 +116,6 @@ const GUIDE_TOOLTIP_COMPACT_HEIGHT = 44;
 function normalizeCompletedStep(step: number | null | undefined): number {
   if (!Number.isFinite(step)) return 0;
   return Math.max(0, Math.min(USER_GUIDE_COMPLETE_STEP, Number(step)));
-}
-
-function isGuideBypassPath(pathname: string): boolean {
-  return pathname === "/" || pathname === "/sign-in" || pathname === "/email-auth";
 }
 
 function boxesEqual(a: GuideHighlightBox | null, b: GuideHighlightBox | null): boolean {
@@ -137,8 +138,8 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 export function UserGuideProvider({ children }: { children: React.ReactNode }) {
+  const t = useGT();
   const pathname = usePathname();
-  const router = useRouter();
   const { user } = useAuth();
   const profileQuery = useProfile();
   const updateGuideStep = useUpdateUserGuideStep();
@@ -151,11 +152,15 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
   const [confirmCloseOpen, setConfirmCloseOpen] = React.useState(false);
   const [sequenceIndex, setSequenceIndex] = React.useState(0);
   const [instantHighlight, setInstantHighlight] = React.useState(false);
+  const guideSteps = React.useMemo(() => getUserGuideSteps(t), [t]);
+  const guideSegments = React.useMemo(() => getUserGuideSegments(t), [t]);
 
   const completedStep = normalizeCompletedStep(profileQuery.data?.userGuideStep);
   const active = Boolean(user?.id && profileQuery.data) && completedStep < USER_GUIDE_COMPLETE_STEP;
-  const currentStep = active ? (getUserGuideStep(completedStep + 1) ?? null) : null;
-  const currentSegment = currentStep ? (getUserGuideSegmentForStep(currentStep.id) ?? null) : null;
+  const currentStep = active ? (getUserGuideStep(guideSteps, completedStep + 1) ?? null) : null;
+  const currentSegment = currentStep
+    ? (getUserGuideSegmentForStep(guideSegments, currentStep.id) ?? null)
+    : null;
   const routeMatchesCurrentSegment = Boolean(
     currentSegment && matchesUserGuideRoute(pathname, currentSegment.route),
   );
@@ -168,7 +173,7 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
       const localStep = sequenceIndex + 1;
       const total = currentStep.sequenceTargets.length;
       return {
-        label: `Step ${localStep} of ${total}`,
+        label: t("Step {current} of {total}", { current: localStep, total }),
         percent: Math.max(0, Math.min(100, (localStep / total) * 100)),
       };
     }
@@ -177,25 +182,14 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
     const localStep = currentIndex === -1 ? 1 : currentIndex + 1;
     const total = currentSegment.stepIds.length;
     return {
-      label: `Step ${localStep} of ${total}`,
+      label: t("Step {current} of {total}", { current: localStep, total }),
       percent: Math.max(0, Math.min(100, (localStep / total) * 100)),
     };
-  }, [currentSegment, currentStep, sequenceIndex]);
+  }, [currentSegment, currentStep, sequenceIndex, t]);
 
   React.useEffect(() => {
     setSequenceIndex(0);
   }, [currentStep?.id]);
-
-  React.useEffect(() => {
-    if (!active || !currentSegment || routeMatchesCurrentSegment || isGuideBypassPath(pathname)) {
-      return;
-    }
-    if (currentStep?.id === 4 && pathname.startsWith("/wishlists/")) return;
-    if (currentStep?.targetId === "nav-friends" && pathname === "/friends") return;
-    if (currentStep?.targetId === "nav-discover" && pathname === "/discover") return;
-
-    router.replace(currentSegment.fallbackPath as never);
-  }, [active, currentSegment, currentStep, pathname, routeMatchesCurrentSegment, router]);
 
   const getNavBox = React.useCallback(
     (targetId: string): LayoutRectangle | null => {
@@ -203,7 +197,7 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
       if (index < 0) return null;
 
       const tabWidth = width / NAV_TARGETS.length;
-      const tabHeight = 58;
+      const tabHeight = NAV_TAB_BAR_HEIGHT;
       const pillWidth = Math.min(72, tabWidth - 16);
       const bottom = Math.max(insets.bottom, 8);
       return {
@@ -341,10 +335,17 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
 
   const completeStep = React.useCallback(
     (step: number) => {
-      if (!active || step <= completedStep || step > USER_GUIDE_COMPLETE_STEP) return;
+      if (
+        !active ||
+        step !== currentStep?.id ||
+        step <= completedStep ||
+        step > USER_GUIDE_COMPLETE_STEP
+      ) {
+        return;
+      }
       updateGuideStep.mutate(step);
     },
-    [active, completedStep, updateGuideStep],
+    [active, completedStep, currentStep?.id, updateGuideStep],
   );
 
   const completeCurrentStep = React.useCallback(() => {
@@ -380,9 +381,6 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
     (name: string) => {
       if (!currentStep) return;
       if (name === "friends" && currentStep.targetId === "nav-friends") {
-        completeStep(currentStep.id);
-      }
-      if (name === "discover" && currentStep.targetId === "nav-discover") {
         completeStep(currentStep.id);
       }
     },
@@ -513,11 +511,7 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
                 </>
               ) : null}
               <GuideCard
-                bottomRight={
-                  pathname === "/friends" ||
-                  pathname === "/discover" ||
-                  pathname.startsWith("/wishlists/")
-                }
+                bottomRight={pathname === "/friends" || pathname.startsWith("/wishlists/")}
                 lowerCenter={pathname === "/wishlists"}
                 segmentTitle={currentSegment.title}
                 stepTitle={currentStep.title}
@@ -533,17 +527,17 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
         <AlertDialog open={confirmCloseOpen} onOpenChange={setConfirmCloseOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Finish user guide?</AlertDialogTitle>
+              <AlertDialogTitle>{t("Finish user guide?")}</AlertDialogTitle>
               <AlertDialogDescription>
-                You can continue using Wishlane without guide steps.
+                {t("You can continue using Wishlane without guide steps.")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>
-                <Text>Cancel</Text>
+                <Text>{t("Cancel")}</Text>
               </AlertDialogCancel>
               <AlertDialogAction onPress={handleFinishGuide}>
-                <Text>Finish guide</Text>
+                <Text>{t("Finish guide")}</Text>
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -614,6 +608,7 @@ function GuideTooltip({
   text: string;
   verticalOffset?: number;
 }) {
+  const t = useGT();
   const insets = useSafeAreaInsets();
   const { height, width } = useWindowDimensions();
   const placement = footerAnchor ? "top" : (placementOverride ?? box.tooltipPlacement);
@@ -636,13 +631,13 @@ function GuideTooltip({
   const arrowLeft = clamp(box.x + box.width / 2 - tooltipLeft - 6, 18, GUIDE_TOOLTIP_WIDTH - 30);
   const arrowClassName =
     placement === "top"
-      ? "absolute -bottom-[5px] size-3 rotate-45 border-b border-r border-border bg-card-bg"
-      : "absolute -top-[5px] size-3 rotate-45 border-l border-t border-border bg-card-bg";
+      ? "absolute -bottom-1.25 size-3 rotate-45 border-b border-r border-border bg-card-bg"
+      : "absolute -top-1.25 size-3 rotate-45 border-l border-t border-border bg-card-bg";
   const footerTooltipBottom = Math.max(insets.bottom + 88, 96);
 
   return (
     <Pressable
-      className="absolute w-[230px] gap-2 rounded-lg border border-border bg-card-bg px-3 py-2"
+      className="absolute w-57.5 gap-2 rounded-lg border border-border bg-card-bg px-3 py-2"
       style={
         footerAnchor
           ? { bottom: footerTooltipBottom, left: tooltipLeft, zIndex: 10000 }
@@ -658,7 +653,7 @@ function GuideTooltip({
           onPress={onNext}
           className="h-8 self-end rounded-md px-3"
         >
-          <Text>{isLastSequence ? "Done" : "Next"}</Text>
+          <Text>{isLastSequence ? t("Done") : t("Next")}</Text>
         </Button>
       ) : null}
     </Pressable>
@@ -686,6 +681,7 @@ function GuideCard({
   segmentTitle: string;
   stepTitle: string;
 }) {
+  const t = useGT();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const cardWidth = Math.min(width - 48, bottomRight ? 280 : 300);
@@ -724,7 +720,7 @@ function GuideCard({
         <Button
           variant="outline"
           size="icon"
-          accessibilityLabel="Close user guide"
+          accessibilityLabel={t("Close user guide")}
           onPress={onClose}
           className="size-8 rounded-md"
         >
@@ -739,7 +735,7 @@ function GuideCard({
           {stepTitle}
         </Text>
         <Button variant="secondary" size="sm" disabled={pending} onPress={onSkip}>
-          <Text>Skip</Text>
+          <Text>{t("Skip")}</Text>
         </Button>
       </View>
     </Pressable>
