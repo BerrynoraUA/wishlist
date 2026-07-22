@@ -182,9 +182,21 @@ export function AndroidTabBar({
 
   return (
     <View
-      className="bg-bg px-3"
-      style={{ paddingTop: FAB_OVERHANG + 4, paddingBottom: Math.max(insets.bottom, 8) }}
+      className="px-3"
+      style={{
+        position: "absolute",
+        right: 0,
+        bottom: 0,
+        left: 0,
+        paddingTop: FAB_OVERHANG + 4,
+        paddingBottom: Math.max(insets.bottom, 8),
+      }}
     >
+      <View
+        pointerEvents="none"
+        className="absolute inset-x-0 bottom-0 bg-bg/95"
+        style={{ top: FAB_OVERHANG + 4 }}
+      />
       <View
         className="flex-row rounded-full border border-border-subtle bg-card shadow-[0px_6px_18px_rgba(15,23,42,0.16)]"
         style={{ height: NAV_TAB_BAR_HEIGHT }}

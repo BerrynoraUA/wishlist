@@ -6,14 +6,10 @@ import {
 } from "@/components/settings/settings-dropdown-styles";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { CurrencySettings } from "@/components/settings/currency-settings";
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  AutocompleteDropdown,
+  type AutocompleteDropdownOption,
+} from "@/components/ui/autocomplete-dropdown";
 import { Icon } from "@/components/ui/icon";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
@@ -49,6 +45,32 @@ const LOCALIZED_LOCALE_LABELS: Record<string, string> = {
   pl: "Polski",
   ko: "한국어",
   nl: "Nederlands",
+  ru: "Русский",
+  hi: "हिन्दी",
+  tr: "Türkçe",
+  vi: "Tiếng Việt",
+  th: "ไทย",
+  id: "Bahasa Indonesia",
+  cs: "Čeština",
+  sk: "Slovenčina",
+  hu: "Magyar",
+  ro: "Română",
+  bg: "Български",
+  el: "Ελληνικά",
+  sv: "Svenska",
+  da: "Dansk",
+  nb: "Norsk bokmål",
+  fi: "Suomi",
+  hr: "Hrvatski",
+  sr: "Српски",
+  sl: "Slovenščina",
+  lt: "Lietuvių",
+  lv: "Latviešu",
+  et: "Eesti",
+  bn: "বাংলা",
+  ms: "Bahasa Melayu",
+  fil: "Filipino",
+  "zh-Hant": "繁體中文",
 };
 
 export function PreferencesSettings({
@@ -68,7 +90,17 @@ export function PreferencesSettings({
   const [prioritiesExpanded, setPrioritiesExpanded] = React.useState(false);
 
   const localeCode = activeLocale ?? locales[0] ?? "en";
-  const activeLocaleDisplay = LOCALIZED_LOCALE_LABELS[localeCode] ?? localeCode;
+  const localeOptions = React.useMemo<AutocompleteDropdownOption[]>(
+    () =>
+      locales.map((code) => ({
+        value: code,
+        label: LOCALIZED_LOCALE_LABELS[code] ?? code,
+        displayValue: LOCALIZED_LOCALE_LABELS[code] ?? code,
+        keywords: [code],
+      })),
+    [locales],
+  );
+  const selectedLocaleOption = localeOptions.find((option) => option.value === localeCode) ?? null;
   const priorities =
     selectedPriorities ??
     ALL_PRIORITIES.filter((priority) => priority.is_free).map((priority) => priority.id);
@@ -88,32 +120,13 @@ export function PreferencesSettings({
           <Icon as={Languages} className="size-4 text-brand" />
           <Text className="text-sm font-semibold text-text">{t("Language")}</Text>
         </View>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(settingsDropdownTriggerClassName, "justify-between")}
-            >
-              <Text className="font-semibold text-text">{activeLocaleDisplay}</Text>
-              <Icon as={ChevronDown} className="size-4 text-text-muted" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className={cn(settingsDropdownContentClassName, "w-72")}>
-            <DropdownMenuRadioGroup value={localeCode} onValueChange={(value) => setLocale(value)}>
-              {locales.map((code) => (
-                <DropdownMenuRadioItem
-                  key={code}
-                  value={code}
-                  className={settingsDropdownOptionClassName}
-                >
-                  <Text className="text-sm font-semibold text-popover-foreground">
-                    {LOCALIZED_LOCALE_LABELS[code] ?? code}
-                  </Text>
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <AutocompleteDropdown
+          value={selectedLocaleOption}
+          onValueChange={(option) => setLocale(option.value)}
+          options={localeOptions}
+          placeholder={t("Search language")}
+          emptyText={t("No languages found")}
+        />
       </View>
 
       <CurrencySettings selectedCurrency={selectedCurrency} />

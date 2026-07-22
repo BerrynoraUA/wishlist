@@ -6,6 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  useDropdownMenuPreview,
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -21,9 +22,8 @@ import {
 import { cn } from "@/lib/utils";
 import { getValidHttpUrl } from "@/lib/urls";
 import type { Item } from "@wishlist/backend/types/item";
-import type { TriggerRef } from "@rn-primitives/dropdown-menu";
 import * as Clipboard from "expo-clipboard";
-import { Heart, LockKeyhole, ShoppingCart } from "lucide-react-native";
+import { Copy, Heart, LockKeyhole, Pencil, ShoppingCart, Trash2 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
@@ -97,7 +97,7 @@ export function WishlistItemCard({
   );
   const canReserve = !isOwner && Boolean(onToggleReserve && reservation.canToggleReservation);
   const canBuy = !isOwner && Boolean(onToggleBought && reservation.canToggleBought);
-  const menuTriggerRef = React.useRef<TriggerRef>(null);
+  const menuPreview = useDropdownMenuPreview();
   const [reservationConfirmationOpen, setReservationConfirmationOpen] = React.useState(false);
   const [purchaseConfirmationOpen, setPurchaseConfirmationOpen] = React.useState(false);
 
@@ -118,187 +118,194 @@ export function WishlistItemCard({
 
   return (
     <View style={{ width }}>
-      <DropdownMenu className="relative">
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={t('Open "{name}"', { name: item.name })}
-          onPress={onPress}
-          onLongPress={showMenu ? () => menuTriggerRef.current?.open() : undefined}
-          pressedScale={isTaken ? 1 : 0.98}
-          className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
-        >
-          <ItemImage
-            item={item}
-            reservationLabel={isTaken ? reservationLabel : null}
-            purchased={reservation.isPurchased}
-            reserved={showReservation}
-            priority={priority}
-            priorityLabel={priorityLabel}
-            salePercentOff={salePercentOff}
-            showDiscountPrice={hasActiveDiscount}
-            size="card"
-          />
-          <View className="gap-2 p-3">
-            <View className="gap-0.5">
-              <View className="flex-row items-center gap-2">
-                <Text
-                  className={cn(
-                    "min-w-0 flex-1 text-sm font-extrabold text-text",
-                    isTaken && "opacity-50",
-                  )}
-                  numberOfLines={1}
-                >
-                  {item.name}
-                </Text>
-                {!isOwner && onToggleVote ? (
-                  <AnimatedPressable
-                    accessibilityRole="button"
-                    accessibilityLabel={hasVoted ? t("Remove vote") : t("Vote for item")}
-                    onPress={(event) => {
-                      event.stopPropagation();
-                      onToggleVote();
-                    }}
+      <DropdownMenu className="relative" onOpenChange={menuPreview.onOpenChange}>
+        <View ref={menuPreview.cardRef} collapsable={false}>
+          <AnimatedPressable
+            accessibilityRole="button"
+            accessibilityLabel={t('Open "{name}"', { name: item.name })}
+            onPress={onPress}
+            onLongPress={showMenu ? menuPreview.openMenu : undefined}
+            pressedScale={isTaken ? 1 : 0.98}
+            className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
+          >
+            <ItemImage
+              item={item}
+              reservationLabel={isTaken ? reservationLabel : null}
+              purchased={reservation.isPurchased}
+              reserved={showReservation}
+              priority={priority}
+              priorityLabel={priorityLabel}
+              salePercentOff={salePercentOff}
+              showDiscountPrice={hasActiveDiscount}
+              size="card"
+            />
+            <View className="gap-2 p-3">
+              <View className="gap-0.5">
+                <View className="flex-row items-center gap-2">
+                  <Text
                     className={cn(
-                      "flex-row items-center gap-1 rounded-full px-2 py-1",
-                      hasVoted ? "bg-brand-lighter" : "bg-bg-subtle",
+                      "min-w-0 flex-1 text-sm font-extrabold text-text",
+                      isTaken && "opacity-50",
                     )}
+                    numberOfLines={1}
                   >
-                    <Icon
-                      as={Heart}
-                      className={cn("size-3.5", hasVoted ? "text-brand" : "text-text-muted")}
-                    />
-                    <Text
+                    {item.name}
+                  </Text>
+                  {!isOwner && onToggleVote ? (
+                    <AnimatedPressable
+                      accessibilityRole="button"
+                      accessibilityLabel={hasVoted ? t("Remove vote") : t("Vote for item")}
+                      onPress={(event) => {
+                        event.stopPropagation();
+                        onToggleVote();
+                      }}
                       className={cn(
-                        "text-xs font-bold",
-                        hasVoted ? "text-brand" : "text-text-muted",
+                        "flex-row items-center gap-1 rounded-full px-2 py-1",
+                        hasVoted ? "bg-brand-lighter" : "bg-bg-subtle",
                       )}
                     >
-                      {voteCount}
-                    </Text>
-                  </AnimatedPressable>
+                      <Icon
+                        as={Heart}
+                        className={cn("size-3.5", hasVoted ? "text-brand" : "text-text-muted")}
+                      />
+                      <Text
+                        className={cn(
+                          "text-xs font-bold",
+                          hasVoted ? "text-brand" : "text-text-muted",
+                        )}
+                      >
+                        {voteCount}
+                      </Text>
+                    </AnimatedPressable>
+                  ) : null}
+                </View>
+                {hasWebsiteLink ? (
+                  <View className="flex-row items-center justify-between gap-2">
+                    {store ? (
+                      <Text
+                        className={cn(
+                          "min-w-0 flex-1 text-xs font-semibold text-text-muted",
+                          isTaken && "opacity-50",
+                        )}
+                        numberOfLines={1}
+                      >
+                        {store}
+                      </Text>
+                    ) : (
+                      <View className="min-w-0 flex-1" />
+                    )}
+                  </View>
                 ) : null}
               </View>
-              {hasWebsiteLink ? (
-                <View className="flex-row items-center justify-between gap-2">
-                  {store ? (
-                    <Text
+
+              {canReserve || canBuy ? (
+                <View className="flex-row gap-2">
+                  {canReserve ? (
+                    <AnimatedPressable
+                      accessibilityRole="button"
+                      accessibilityLabel={
+                        reservation.isReserved ? t("Release reservation") : t("Reserve this gift")
+                      }
+                      disabled={reservePending}
+                      onPress={(event) => {
+                        event.stopPropagation();
+                        confirmReservation();
+                      }}
                       className={cn(
-                        "min-w-0 flex-1 text-xs font-semibold text-text-muted",
-                        isTaken && "opacity-50",
+                        "min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border px-3 py-3",
+                        reservation.isReserved
+                          ? "border-brand bg-brand"
+                          : "border-brand/25 bg-brand-lighter",
                       )}
-                      numberOfLines={1}
                     >
-                      {store}
-                    </Text>
-                  ) : (
-                    <View className="min-w-0 flex-1" />
-                  )}
+                      <Icon
+                        as={LockKeyhole}
+                        className={cn(
+                          "size-4",
+                          reservation.isReserved ? "text-primary-foreground" : "text-brand",
+                        )}
+                      />
+                      <Text
+                        numberOfLines={1}
+                        className={cn(
+                          "text-sm font-extrabold",
+                          reservation.isReserved ? "text-primary-foreground" : "text-brand",
+                        )}
+                      >
+                        {reservation.isReserved ? t("Release") : t("Reserve")}
+                      </Text>
+                    </AnimatedPressable>
+                  ) : null}
+
+                  {canBuy ? (
+                    <AnimatedPressable
+                      accessibilityRole="button"
+                      accessibilityLabel={
+                        reservation.isPurchased
+                          ? t("Mark as not purchased")
+                          : t("Mark as purchased")
+                      }
+                      disabled={boughtPending}
+                      onPress={(event) => {
+                        event.stopPropagation();
+                        confirmBought();
+                      }}
+                      className={cn(
+                        "min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border px-3 py-3",
+                        reservation.isPurchased
+                          ? "border-destructive/35 bg-danger-bg"
+                          : "border-success/35 bg-success-bg",
+                      )}
+                    >
+                      <Icon
+                        as={ShoppingCart}
+                        className={cn(
+                          "size-4",
+                          reservation.isPurchased ? "text-destructive" : "text-success",
+                        )}
+                      />
+                      <Text
+                        numberOfLines={1}
+                        className={cn(
+                          "text-sm font-extrabold",
+                          reservation.isPurchased ? "text-destructive" : "text-success",
+                        )}
+                      >
+                        {reservation.isPurchased ? t("Undo") : t("Buy")}
+                      </Text>
+                    </AnimatedPressable>
+                  ) : null}
                 </View>
               ) : null}
             </View>
-
-            {canReserve || canBuy ? (
-              <View className="flex-row gap-2">
-                {canReserve ? (
-                  <AnimatedPressable
-                    accessibilityRole="button"
-                    accessibilityLabel={
-                      reservation.isReserved ? t("Release reservation") : t("Reserve this gift")
-                    }
-                    disabled={reservePending}
-                    onPress={(event) => {
-                      event.stopPropagation();
-                      confirmReservation();
-                    }}
-                    className={cn(
-                      "min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border px-3 py-3",
-                      reservation.isReserved
-                        ? "border-brand bg-brand"
-                        : "border-brand/25 bg-brand-lighter",
-                    )}
-                  >
-                    <Icon
-                      as={LockKeyhole}
-                      className={cn(
-                        "size-4",
-                        reservation.isReserved ? "text-primary-foreground" : "text-brand",
-                      )}
-                    />
-                    <Text
-                      numberOfLines={1}
-                      className={cn(
-                        "text-sm font-extrabold",
-                        reservation.isReserved ? "text-primary-foreground" : "text-brand",
-                      )}
-                    >
-                      {reservation.isReserved ? t("Release") : t("Reserve")}
-                    </Text>
-                  </AnimatedPressable>
-                ) : null}
-
-                {canBuy ? (
-                  <AnimatedPressable
-                    accessibilityRole="button"
-                    accessibilityLabel={
-                      reservation.isPurchased ? t("Mark as not purchased") : t("Mark as purchased")
-                    }
-                    disabled={boughtPending}
-                    onPress={(event) => {
-                      event.stopPropagation();
-                      confirmBought();
-                    }}
-                    className={cn(
-                      "min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border px-3 py-3",
-                      reservation.isPurchased
-                        ? "border-destructive/35 bg-danger-bg"
-                        : "border-success/35 bg-success-bg",
-                    )}
-                  >
-                    <Icon
-                      as={ShoppingCart}
-                      className={cn(
-                        "size-4",
-                        reservation.isPurchased ? "text-destructive" : "text-success",
-                      )}
-                    />
-                    <Text
-                      numberOfLines={1}
-                      className={cn(
-                        "text-sm font-extrabold",
-                        reservation.isPurchased ? "text-destructive" : "text-success",
-                      )}
-                    >
-                      {reservation.isPurchased ? t("Undo") : t("Buy")}
-                    </Text>
-                  </AnimatedPressable>
-                ) : null}
-              </View>
-            ) : null}
-          </View>
-        </AnimatedPressable>
+          </AnimatedPressable>
+        </View>
         {showMenu ? (
           <DropdownMenuTrigger asChild>
             <AnimatedPressable
-              ref={menuTriggerRef}
+              ref={menuPreview.triggerRef}
               pointerEvents="none"
-              className="absolute right-3 top-36 size-8 opacity-0"
+              className="absolute inset-0 opacity-0"
             />
           </DropdownMenuTrigger>
         ) : null}
-        <DropdownMenuContent className="min-w-36">
+        <DropdownMenuContent backdrop="blur" preview={menuPreview.preview} sideOffset={10}>
           {showCopyLink ? (
-            <DropdownMenuItem onPress={handleCopyLink}>
-              <Text>{t("Copy link")}</Text>
+            <DropdownMenuItem layout="action" onPress={handleCopyLink}>
+              <Text className="flex-1">{t("Copy link")}</Text>
+              <Icon as={Copy} className="ml-auto size-4 text-text-muted" />
             </DropdownMenuItem>
           ) : null}
           {onEdit ? (
-            <DropdownMenuItem onPress={onEdit}>
-              <Text>{t("Edit")}</Text>
+            <DropdownMenuItem layout="action" onPress={onEdit}>
+              <Text className="flex-1">{t("Edit")}</Text>
+              <Icon as={Pencil} className="ml-auto size-4 text-text-muted" />
             </DropdownMenuItem>
           ) : null}
           {onDelete ? (
-            <DropdownMenuItem variant="destructive" onPress={onDelete}>
-              <Text>{t("Delete")}</Text>
+            <DropdownMenuItem layout="action" variant="destructive" onPress={onDelete}>
+              <Text className="flex-1">{t("Delete")}</Text>
+              <Icon as={Trash2} className="ml-auto size-4 text-destructive" />
             </DropdownMenuItem>
           ) : null}
         </DropdownMenuContent>

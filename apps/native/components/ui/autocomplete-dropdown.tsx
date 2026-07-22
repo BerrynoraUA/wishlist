@@ -1,21 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Icon } from "@/components/ui/icon";
-import { Input } from "@/components/ui/input";
+import { INPUT_CLASS_NAME, Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { WindowOverlay } from "@/components/ui/window-overlay";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react-native";
 import * as React from "react";
-import {
-  ActivityIndicator,
-  Keyboard,
-  Platform,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  View,
-  type LayoutRectangle,
-} from "react-native";
+import { ActivityIndicator, Keyboard, Pressable, ScrollView, TextInput, View } from "react-native";
 
 export type AutocompleteDropdownOption = {
   value: string;
@@ -85,7 +76,6 @@ export function AutocompleteDropdown({
   isLoadingMore = false,
   onEndReached,
   onQueryChange,
-  closeAccessibilityLabel = "Close dropdown",
   hideSelectedOptions = false,
   showSelectedValue = true,
   inputAccessory,
@@ -93,9 +83,15 @@ export function AutocompleteDropdown({
   ...props
 }: AutocompleteDropdownProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [triggerFrame, setTriggerFrame] = React.useState<LayoutRectangle | null>(null);
   const [query, setQuery] = React.useState("");
   const triggerRef = React.useRef<View>(null);
+  const sheetRef = React.useRef<BottomSheetRef>(null);
+  const searchInputRef = React.useRef<TextInput>(null);
+  // The inline (`inlineOptions`) and always-shown (`alwaysShowOptions`) variants render the
+  // option list right next to the trigger. Every other case ("overlay") used to float the list
+  // below the input, where the keyboard covered it — those now open as a bottom sheet instead:
+  // options scroll on top, the search field is pinned in the footer above the keyboard.
+  const usesSheet = !inlineOptions && !alwaysShowOptions;
   const selectedOptions = props.multiple ? props.value : props.value ? [props.value] : [];
   const selectedValues = React.useMemo(
     () => new Set(selectedOptions.map((option) => option.value)),
@@ -103,6 +99,7 @@ export function AutocompleteDropdown({
   );
   const selectedValue = formatSelectedValue(selectedOptions);
   const visibleValue = isOpen || !showSelectedValue ? query : selectedValue;
+  const triggerValue = showSelectedValue ? selectedValue : "";
   const showDropdown = isOpen || alwaysShowOptions;
   const showOptionsAbove = alwaysShowOptions && optionsPosition === "above";
   const matchingOptions = React.useMemo(() => {
@@ -112,19 +109,10 @@ export function AutocompleteDropdown({
       : matches;
   }, [hideSelectedOptions, options, query, selectedValues]);
 
-  function measureTrigger() {
-    requestAnimationFrame(() => {
-      triggerRef.current?.measureInWindow((x, y, width, height) => {
-        setTriggerFrame({ x, y, width, height });
-      });
-    });
-  }
-
   function openDropdown() {
     setQuery("");
     onQueryChange?.("");
     setIsOpen(true);
-    if (!inlineOptions) measureTrigger();
   }
 
   function handleSelect(option: AutocompleteDropdownOption) {
@@ -142,8 +130,13 @@ export function AutocompleteDropdown({
     props.onValueChange(option);
     setQuery("");
     onQueryChange?.("");
+
+    if (usesSheet) {
+      sheetRef.current?.dismiss();
+      return;
+    }
+
     setIsOpen(false);
-    setTriggerFrame(null);
     Keyboard.dismiss();
   }
 
@@ -165,12 +158,10 @@ export function AutocompleteDropdown({
     onQueryChange?.(value);
   }
 
-  function closeDropdown() {
+  function handleSheetDismiss() {
     setQuery("");
     onQueryChange?.("");
     setIsOpen(false);
-    setTriggerFrame(null);
-    Keyboard.dismiss();
   }
 
   function handleDropdownScroll(event: {
@@ -186,12 +177,61 @@ export function AutocompleteDropdown({
     if (distanceFromEnd <= 24) onEndReached?.();
   }
 
+  const optionRows = matchingOptions.map((option) => {
+    const isSelected = selectedValues.has(option.value);
+
+    return (
+      <Pressable
+        key={option.value}
+        onPress={() => handleSelect(option)}
+        role="button"
+        accessibilityState={{ selected: isSelected }}
+        className={cn(
+          "min-h-16 flex-row items-center justify-between gap-3 px-3 py-3 active:bg-bg-subtle",
+          isSelected && "bg-brand-lighter dark:bg-brand-lighter",
+          optionClassName,
+        )}
+      >
+        <Avatar alt={option.label} className="size-9">
+          {option.imageUrl ? <AvatarImage source={{ uri: option.imageUrl }} /> : null}
+          <AvatarFallback />
+        </Avatar>
+        <View className="min-w-0 flex-1">
+          <Text className={cn("font-semibold text-text", isSelected && "text-brand")}>
+            {option.label}
+          </Text>
+          {option.description ? (
+            <Text className="text-sm text-text-muted">{option.description}</Text>
+          ) : null}
+        </View>
+        <View className="flex-row items-center gap-2">
+          {isSelected ? <Icon as={Check} aria-hidden={true} className="size-4 text-brand" /> : null}
+          {option.trailing ? (
+            <Text
+              className={cn("text-sm font-semibold text-text-muted", isSelected && "text-brand")}
+            >
+              {option.trailing}
+            </Text>
+          ) : null}
+        </View>
+      </Pressable>
+    );
+  });
+
+  const loadingMoreIndicator = isLoadingMore ? (
+    <View className="h-12 items-center justify-center">
+      <ActivityIndicator colorClassName="accent-brand" size="small" />
+    </View>
+  ) : null;
+
   const inputClass = cn(
     attached && "flex-1 border-0 bg-transparent shadow-none",
     attached && showDropdown && (showOptionsAbove ? "rounded-t-none" : "rounded-b-none"),
     attached && showOptionsAbove && inputAccessory && "rounded-br-none",
     inputClassName,
   );
+
+  // Editable search field (inline/always-shown trigger, or the sheet footer).
   const input = (
     <Input
       value={visibleValue}
@@ -230,50 +270,8 @@ export function AutocompleteDropdown({
           scrollEventThrottle={16}
           style={maxVisibleOptions ? { maxHeight: Math.max(1, maxVisibleOptions) * 64 } : undefined}
         >
-          {matchingOptions.map((option) => {
-            const isSelected = selectedValues.has(option.value);
-            const selectedIndicator = isSelected ? (
-              <Icon as={Check} aria-hidden={true} className="size-4 text-brand" />
-            ) : (
-              <View className="size-4" />
-            );
-
-            return (
-              <Pressable
-                key={option.value}
-                onPress={() => handleSelect(option)}
-                role="button"
-                accessibilityState={{ selected: isSelected }}
-                className={cn(
-                  "min-h-16 flex-row items-center justify-between gap-3 px-3 py-3 active:bg-accent",
-                  isSelected && "bg-accent/60",
-                  optionClassName,
-                )}
-              >
-                <Avatar alt={option.label} className="size-9">
-                  {option.imageUrl ? <AvatarImage source={{ uri: option.imageUrl }} /> : null}
-                  <AvatarFallback />
-                </Avatar>
-                <View className="min-w-0 flex-1">
-                  <Text className="font-semibold text-text">{option.label}</Text>
-                  {option.description ? (
-                    <Text className="text-sm text-text-muted">{option.description}</Text>
-                  ) : null}
-                </View>
-                <View className="flex-row items-center gap-2">
-                  {isSelected ? selectedIndicator : null}
-                  {option.trailing ? (
-                    <Text className="text-sm font-semibold text-text-muted">{option.trailing}</Text>
-                  ) : null}
-                </View>
-              </Pressable>
-            );
-          })}
-          {isLoadingMore ? (
-            <View className="h-12 items-center justify-center">
-              <ActivityIndicator colorClassName="accent-brand" size="small" />
-            </View>
-          ) : null}
+          {optionRows}
+          {loadingMoreIndicator}
         </ScrollView>
       ) : (
         <Text className="px-3 py-3 text-sm text-text-muted">{emptyText}</Text>
@@ -281,55 +279,110 @@ export function AutocompleteDropdown({
     </View>
   );
 
+  const {
+    placeholderClassName: footerPlaceholderClassName,
+    className: footerClassName,
+    ...footerInputProps
+  } = inputProps ?? {};
+
+  // Read-only field that shows the current selection and opens the sheet on press.
+  const sheetTrigger = (
+    <Input
+      value={triggerValue}
+      editable={false}
+      pointerEvents="none"
+      placeholder={placeholder}
+      className={cn(inputClass, "opacity-100")}
+      {...inputProps}
+    />
+  );
+
   return (
     <View className={cn(attached ? "gap-0" : "gap-2", className)}>
       {alwaysShowOptions && attached && showOptionsAbove ? dropdown : null}
       <View ref={triggerRef} collapsable={false}>
         {attached ? (
-          <View
-            className={cn(
-              "flex-row items-center border border-input bg-background shadow-sm shadow-black/5",
-              inputAccessory ? "overflow-hidden pr-0" : "pr-2",
-              showDropdown
-                ? showOptionsAbove
-                  ? "rounded-b-md border-t-0"
-                  : "rounded-t-md border-b-0"
-                : "rounded-md",
-            )}
-          >
-            {input}
-            {inputAccessory}
-          </View>
+          usesSheet ? (
+            <View className="flex-row items-center rounded-md border border-input bg-background pr-2 shadow-sm shadow-black/5">
+              <Pressable onPress={openDropdown} className="flex-1">
+                {sheetTrigger}
+              </Pressable>
+            </View>
+          ) : (
+            <View
+              className={cn(
+                "flex-row items-center border border-input bg-background shadow-sm shadow-black/5",
+                inputAccessory ? "overflow-hidden pr-0" : "pr-2",
+                showDropdown
+                  ? showOptionsAbove
+                    ? "rounded-b-md border-t-0"
+                    : "rounded-t-md border-b-0"
+                  : "rounded-md",
+              )}
+            >
+              {input}
+              {inputAccessory}
+            </View>
+          )
+        ) : usesSheet ? (
+          <Pressable onPress={openDropdown}>{sheetTrigger}</Pressable>
         ) : (
           input
         )}
       </View>
       {isOpen && inlineOptions ? dropdown : null}
       {alwaysShowOptions && attached && !showOptionsAbove ? dropdown : null}
-      {isOpen && !inlineOptions && !alwaysShowOptions && triggerFrame ? (
-        <WindowOverlay onRequestClose={closeDropdown}>
-          <View className="absolute inset-0">
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={closeAccessibilityLabel}
-              onPress={closeDropdown}
-              className="absolute inset-0"
-            />
-            <View
-              style={{
-                left: triggerFrame.x,
-                position: "absolute",
-                top:
-                  triggerFrame.y +
-                  triggerFrame.height +
-                  (Platform.OS === "android" ? (StatusBar.currentHeight ?? 0) : 0),
-                width: triggerFrame.width,
-              }}
-            >
-              {dropdown}
+      {isOpen && usesSheet ? (
+        <BottomSheet
+          ref={sheetRef}
+          scrollable
+          detents={[0.9]}
+          onDidPresent={() => searchInputRef.current?.focus()}
+          onDidDismiss={handleSheetDismiss}
+          footer={
+            <View className="px-4 pt-3">
+              <TextInput
+                ref={searchInputRef}
+                value={query}
+                onChangeText={handleQueryChange}
+                onSubmitEditing={handleSubmit}
+                placeholder={placeholder}
+                autoCorrect={false}
+                returnKeyType="search"
+                className={cn(
+                  INPUT_CLASS_NAME,
+                  "placeholder:text-muted-foreground/50",
+                  footerClassName,
+                )}
+                placeholderTextColorClassName={cn(
+                  "accent-muted-foreground/50",
+                  footerPlaceholderClassName,
+                )}
+                {...footerInputProps}
+              />
             </View>
-          </View>
-        </WindowOverlay>
+          }
+        >
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            onScroll={handleDropdownScroll}
+            scrollEventThrottle={16}
+            contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16, paddingVertical: 8 }}
+          >
+            {isLoading && matchingOptions.length === 0 ? (
+              <View className="h-16 items-center justify-center">
+                <ActivityIndicator colorClassName="accent-brand" size="small" />
+              </View>
+            ) : matchingOptions.length > 0 ? (
+              <>
+                {optionRows}
+                {loadingMoreIndicator}
+              </>
+            ) : (
+              <Text className="px-1 py-6 text-center text-sm text-text-muted">{emptyText}</Text>
+            )}
+          </ScrollView>
+        </BottomSheet>
       ) : null}
     </View>
   );

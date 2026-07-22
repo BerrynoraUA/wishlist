@@ -6,6 +6,7 @@ import {
   useRegisterPushNotifications,
 } from "@/hooks/use-notifications";
 import { NotificationPermissionSheet } from "@/components/notifications/notification-permission-sheet";
+import { AppBlurTarget } from "@/components/ui/app-blur-target";
 import { useSettings } from "@/hooks/use-settings";
 import {
   applyNativeThemeSettings,
@@ -24,7 +25,6 @@ import { SubscriptionProvider } from "@/providers/subscription-provider";
 import { UserGuideProvider } from "@/components/user-guide/user-guide-provider";
 import { AppStateLifecycle } from "@/components/providers/native-query-lifecycle";
 import { ThemeProvider } from "expo-router/react-navigation";
-import { PortalHost } from "@rn-primitives/portal";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
 import { PostHogEventProperties } from "@posthog/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -99,8 +99,9 @@ export default function RootLayout() {
                     <ReanimatedTrueSheetProvider>
                       <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
                       <UserGuideProvider>
-                        <AuthGate />
-                        <PortalHost />
+                        <AppBlurTarget>
+                          <AuthGate />
+                        </AppBlurTarget>
                       </UserGuideProvider>
                     </ReanimatedTrueSheetProvider>
                   </SafeAreaProvider>
@@ -161,9 +162,7 @@ function AuthRedirector() {
   const rootSegment = segments[0];
 
   useEffect(() => {
-    const isAuthenticatedRoute =
-      rootSegment === "(tabs)" ||
-      rootSegment === "subscription";
+    const isAuthenticatedRoute = rootSegment === "(tabs)" || rootSegment === "subscription";
 
     if (session && !isAuthenticatedRoute) {
       router.replace("/(tabs)/wishlists" as never);

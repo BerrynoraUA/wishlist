@@ -111,6 +111,33 @@ export function AddFriendSheet({
 
         <View className="gap-3">
           <Text className="text-xs font-extrabold uppercase text-text-muted">{t("Or search")}</Text>
+          {query.trim().length > 0 ? (
+            canSearch ? (
+              <View className="max-h-56 gap-2">
+                {search.isFetching && visibleResults.length === 0 ? (
+                  <View className="items-center py-3">
+                    <ActivityIndicator colorClassName="accent-brand" />
+                  </View>
+                ) : null}
+                {!search.isFetching && visibleResults.length === 0 ? (
+                  <Text className="text-sm font-semibold text-text-muted">{t("No matches")}</Text>
+                ) : null}
+                {visibleResults.map((profile) => (
+                  <Button
+                    key={profile.id}
+                    variant="outline"
+                    onPress={() => handleSelect(profile)}
+                    className="justify-start rounded-xl"
+                  >
+                    <Text className="font-bold text-text">@{profile.nickname}</Text>
+                  </Button>
+                ))}
+              </View>
+            ) : (
+              <Text className="text-sm text-text-muted">{t("Type at least 3 characters.")}</Text>
+            )
+          ) : null}
+
           <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
             <Icon as={Search} className="size-4 text-muted-foreground/50" />
             <Input
@@ -159,31 +186,6 @@ export function AddFriendSheet({
               ))}
             </View>
           ) : null}
-
-          {canSearch ? (
-            <View className="max-h-56 gap-2">
-              {search.isFetching && visibleResults.length === 0 ? (
-                <View className="items-center py-3">
-                  <ActivityIndicator colorClassName="accent-brand" />
-                </View>
-              ) : null}
-              {!search.isFetching && visibleResults.length === 0 ? (
-                <Text className="text-sm font-semibold text-text-muted">{t("No matches")}</Text>
-              ) : null}
-              {visibleResults.map((profile) => (
-                <Button
-                  key={profile.id}
-                  variant="outline"
-                  onPress={() => handleSelect(profile)}
-                  className="justify-start rounded-xl"
-                >
-                  <Text className="font-bold text-text">@{profile.nickname}</Text>
-                </Button>
-              ))}
-            </View>
-          ) : (
-            <Text className="text-sm text-text-muted">{t("Type at least 3 characters.")}</Text>
-          )}
         </View>
 
         {sendRequest.error ? (

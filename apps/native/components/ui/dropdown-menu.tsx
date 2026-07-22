@@ -1,3 +1,4 @@
+import { useAppBlurTarget } from "@/components/ui/app-blur-target";
 import { Icon } from "@/components/ui/icon";
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
 import { TextClassContext } from "@/components/ui/text";
@@ -5,10 +6,13 @@ import { WindowOverlay } from "@/components/ui/window-overlay";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as DropdownMenuPrimitive from "@rn-primitives/dropdown-menu";
+import type { TriggerRef } from "@rn-primitives/dropdown-menu";
+import { BlurView } from "expo-blur";
 import { Check, ChevronDown, ChevronUp } from "lucide-react-native";
 import * as React from "react";
-import { type StyleProp, Text, View, type ViewStyle } from "react-native";
-import { FadeIn } from "react-native-reanimated";
+import { type StyleProp, Text, View, type ViewStyle, useWindowDimensions } from "react-native";
+import Animated, { FadeIn, FadeInUp } from "react-native-reanimated";
+import { captureRef, releaseCapture } from "react-native-view-shot";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -21,6 +25,54 @@ const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
 const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 
 const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
+
+type DropdownMenuPreview = {
+  height: number;
+  pageX: number;
+  pageY: number;
+  uri: string;
+  width: number;
+};
+
+function measureView(view: View) {
+  return new Promise<Omit<DropdownMenuPreview, "uri">>((resolve) => {
+    view.measure((_x, _y, width, height, pageX, pageY) => {
+      resolve({ height, pageX, pageY, width });
+    });
+  });
+}
+
+function useDropdownMenuPreview() {
+  const cardRef = React.useRef<View>(null);
+  const triggerRef = React.useRef<TriggerRef>(null);
+  const [preview, setPreview] = React.useState<DropdownMenuPreview | null>(null);
+
+  const openMenu = React.useCallback(async () => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    try {
+      const [layout, uri] = await Promise.all([
+        measureView(card),
+        captureRef(card, { format: "png", quality: 1, result: "tmpfile" }),
+      ]);
+      setPreview({ ...layout, uri });
+      requestAnimationFrame(() => triggerRef.current?.open());
+    } catch {
+      triggerRef.current?.open();
+    }
+  }, []);
+
+  const onOpenChange = React.useCallback((open: boolean) => {
+    if (open) return;
+    setPreview((current) => {
+      if (current) releaseCapture(current.uri);
+      return null;
+    });
+  }, []);
+
+  return { cardRef, onOpenChange, openMenu, preview, triggerRef };
+}
 
 function DropdownMenuSubTrigger({
   className,
@@ -77,50 +129,131 @@ function DropdownMenuSubContent({
 
 function DropdownMenuContent({
   className,
+  backdrop = "none",
   overlayClassName,
   overlayStyle,
   portalHost,
+  preview,
+  side,
+  sideOffset,
   style,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content> & {
+  backdrop?: "none" | "blur";
   overlayStyle?: StyleProp<ViewStyle>;
   overlayClassName?: string;
   portalHost?: string;
+  preview?: DropdownMenuPreview | null;
 }) {
-  const { triggerPosition, setTriggerPosition, onOpenChange } =
+  const blurTarget = useAppBlurTarget();
+  const { height: windowHeight } = useWindowDimensions();
+  const { triggerPosition, contentLayout, setTriggerPosition, onOpenChange } =
     DropdownMenuPrimitive.useRootContext();
   const closeFromBackPress = () => {
     setTriggerPosition(null);
     onOpenChange(false);
   };
+  const previewLift = preview ? Math.min(28, Math.max(16, preview.pageY - 12)) : 0;
+  const contentHeight = contentLayout?.height ?? 128;
+  const blurMenuSideOffset = sideOffset ?? 10;
+  const liftedPreviewTop = preview ? preview.pageY - previewLift : (triggerPosition?.pageY ?? 0);
+  const liftedPreviewBottom = preview
+    ? liftedPreviewTop + preview.height
+    : triggerPosition
+      ? triggerPosition.pageY + triggerPosition.height
+      : 0;
+  const availableBelow = windowHeight - liftedPreviewBottom;
+  const availableAbove = liftedPreviewTop;
+  const shouldOpenAbove =
+    backdrop === "blur" &&
+    Boolean(preview) &&
+    availableBelow < contentHeight + blurMenuSideOffset &&
+    availableAbove > availableBelow;
+  const resolvedSide = side ?? (shouldOpenAbove ? "top" : "bottom");
+  const actionMenuWidth =
+    triggerPosition?.width != null ? Math.min(Math.max(triggerPosition.width - 56, 176), 224) : 176;
   const contentStyle =
     triggerPosition?.width != null
-      ? ([style, { minWidth: triggerPosition.width }] as unknown as React.ComponentProps<
-          typeof DropdownMenuPrimitive.Content
-        >["style"])
+      ? ([
+          style,
+          backdrop === "blur"
+            ? {
+                width: actionMenuWidth,
+                transform: [{ translateY: -previewLift }],
+              }
+            : { minWidth: triggerPosition.width },
+        ] as unknown as React.ComponentProps<typeof DropdownMenuPrimitive.Content>["style"])
       : (style ?? undefined);
+
+  const overlay = (
+    <DropdownMenuPrimitive.Overlay
+      className={cn("absolute inset-0", overlayClassName)}
+      style={overlayStyle}
+    >
+      {backdrop === "blur" ? (
+        <NativeOnlyAnimatedView
+          pointerEvents="none"
+          entering={FadeIn.duration(motionDuration.normal)}
+          style={{ position: "absolute", inset: 0 }}
+        >
+          <BlurView
+            blurTarget={blurTarget ?? undefined}
+            blurMethod="dimezisBlurView"
+            blurReductionFactor={1.8}
+            intensity={82}
+            tint="dark"
+            style={{ position: "absolute", inset: 0 }}
+          />
+          <View className="absolute inset-0 bg-black/25" />
+        </NativeOnlyAnimatedView>
+      ) : null}
+      {backdrop === "blur" && preview ? (
+        <Animated.View
+          pointerEvents="none"
+          entering={FadeInUp.springify().damping(20).stiffness(240)}
+          style={{
+            position: "absolute",
+            top: preview.pageY - previewLift,
+            left: preview.pageX,
+            width: preview.width,
+            height: preview.height,
+            borderRadius: 12,
+            borderCurve: "continuous",
+            boxShadow: "0 14px 36px rgba(0, 0, 0, 0.34)",
+          }}
+        >
+          <Animated.Image
+            source={{ uri: preview.uri }}
+            resizeMode="stretch"
+            style={{ width: "100%", height: "100%", borderRadius: 12 }}
+          />
+        </Animated.View>
+      ) : null}
+      <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
+        <TextClassContext.Provider value="text-popover-foreground">
+          <DropdownMenuPrimitive.Content
+            className={cn(
+              "bg-card-bg/95 border-border min-w-[8rem] overflow-hidden rounded-xl border p-1 shadow-xl shadow-black/15",
+              backdrop === "blur" && "rounded-2xl border-white/10 bg-[#121219]/96 p-2",
+              className,
+            )}
+            style={contentStyle}
+            side={backdrop === "blur" ? resolvedSide : side}
+            sideOffset={backdrop === "blur" ? blurMenuSideOffset : sideOffset}
+            {...props}
+          />
+        </TextClassContext.Provider>
+      </NativeOnlyAnimatedView>
+    </DropdownMenuPrimitive.Overlay>
+  );
 
   return (
     <DropdownMenuPrimitive.Portal hostName={portalHost}>
-      <WindowOverlay onRequestClose={closeFromBackPress}>
-        <DropdownMenuPrimitive.Overlay
-          className={cn("absolute inset-0", overlayClassName)}
-          style={overlayStyle}
-        >
-          <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
-            <TextClassContext.Provider value="text-popover-foreground">
-              <DropdownMenuPrimitive.Content
-                className={cn(
-                  "bg-card-bg/95 border-border min-w-[8rem] overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5",
-                  className,
-                )}
-                style={contentStyle}
-                {...props}
-              />
-            </TextClassContext.Provider>
-          </NativeOnlyAnimatedView>
-        </DropdownMenuPrimitive.Overlay>
-      </WindowOverlay>
+      {backdrop === "blur" ? (
+        overlay
+      ) : (
+        <WindowOverlay onRequestClose={closeFromBackPress}>{overlay}</WindowOverlay>
+      )}
     </DropdownMenuPrimitive.Portal>
   );
 }
@@ -128,11 +261,13 @@ function DropdownMenuContent({
 function DropdownMenuItem({
   className,
   inset,
+  layout = "default",
   variant,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & {
   className?: string;
   inset?: boolean;
+  layout?: "default" | "action";
   variant?: "default" | "destructive";
 }) {
   return (
@@ -144,7 +279,8 @@ function DropdownMenuItem({
     >
       <DropdownMenuPrimitive.Item
         className={cn(
-          "active:bg-accent group relative flex flex-row items-center gap-2 rounded-sm px-2 py-2 sm:py-1.5",
+          "active:bg-accent group relative min-h-11 flex-row items-center gap-3 rounded-lg px-3 py-2 sm:py-1.5",
+          layout === "action" && "min-h-12 rounded-xl px-3.5",
           variant === "destructive" && "active:bg-destructive/10 dark:active:bg-destructive/20",
           props.disabled && "opacity-50",
           inset && "pl-8",
@@ -283,4 +419,5 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  useDropdownMenuPreview,
 };

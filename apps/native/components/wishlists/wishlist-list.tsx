@@ -6,6 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  useDropdownMenuPreview,
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
@@ -33,7 +34,6 @@ import {
   wishlistGridLinearTransition,
 } from "@/components/wishlists/wishlist-grid-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
-import type { TriggerRef } from "@rn-primitives/dropdown-menu";
 import { Link } from "expo-router";
 import {
   Gift,
@@ -41,8 +41,10 @@ import {
   ListChecks,
   LockKeyhole,
   Package,
+  Pencil,
   Plus,
   ShoppingBag,
+  Trash2,
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
@@ -356,105 +358,113 @@ function WishlistCard({
   const sharedLabel = ownerNickname
     ? t("Shared by @{nickname}", { nickname: ownerNickname })
     : t("Shared wishlist");
-  const menuTriggerRef = React.useRef<TriggerRef>(null);
+  const menuPreview = useDropdownMenuPreview();
   return (
     <Animated.View entering={wishlistCardFadeIn} style={{ width }}>
-      <DropdownMenu className="relative">
-        <Link href={{ pathname: "/wishlists/[id]", params: { id: wishlist.id } }} asChild>
-          <AnimatedPressable
-            accessibilityRole="button"
-            accessibilityLabel={t('Open "{title}"', {
-              title: wishlist.title,
-            })}
-            onLongPress={showMenu ? () => menuTriggerRef.current?.open() : undefined}
-            onPress={onOpen}
-            className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
-            pressedScale={0.98}
-          >
-            <View className="h-30 items-center justify-center overflow-hidden">
-              <View
-                className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))}
-              />
-              {wishlist.image_url ? (
-                <StyledImage
-                  source={{ uri: wishlist.image_url }}
-                  contentFit="cover"
-                  cachePolicy="memory-disk"
-                  recyclingKey={wishlist.id}
-                  className="absolute inset-0 size-full"
+      <DropdownMenu className="relative" onOpenChange={menuPreview.onOpenChange}>
+        <View ref={menuPreview.cardRef} collapsable={false}>
+          <Link href={{ pathname: "/wishlists/[id]", params: { id: wishlist.id } }} asChild>
+            <AnimatedPressable
+              accessibilityRole="button"
+              accessibilityLabel={t('Open "{title}"', {
+                title: wishlist.title,
+              })}
+              onLongPress={showMenu ? menuPreview.openMenu : undefined}
+              onPress={onOpen}
+              className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
+              pressedScale={0.98}
+            >
+              <View className="h-30 items-center justify-center overflow-hidden">
+                <View
+                  className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))}
                 />
-              ) : (
-                <Icon as={Gift} className="size-10 text-white/85" />
-              )}
-              <View className="absolute inset-0 bg-black/10" />
-              {isShared ? (
-                <Badge
-                  variant="secondary"
-                  className="absolute left-3 top-3 flex-row border-white/30 bg-white/80"
-                  accessibilityLabel={sharedLabel}
-                >
-                  <Icon as={Link2} className="size-3 text-text" />
-                  <Text className="text-xs font-bold text-text">{t("Shared")}</Text>
-                </Badge>
-              ) : null}
-            </View>
-
-            <View className="gap-3 px-4 pb-4 pt-3">
-              <View className="min-h-11 flex-row items-start justify-between gap-3">
-                <Text
-                  className="flex-1 text-[15px] font-bold leading-5 text-text"
-                  numberOfLines={2}
-                >
-                  {wishlist.title}
-                </Text>
-
-                {canEdit ? (
-                  <AnimatedPressable
-                    accessibilityRole="button"
-                    accessibilityLabel={t("Add item")}
-                    onPress={() => onOpenSheet({ type: "addItem", wishlist })}
-                    className="size-10 items-center justify-center rounded-full bg-brand-lighter active:bg-brand-alpha-12"
+                {wishlist.image_url ? (
+                  <StyledImage
+                    source={{ uri: wishlist.image_url }}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    recyclingKey={wishlist.id}
+                    className="absolute inset-0 size-full"
+                  />
+                ) : (
+                  <Icon as={Gift} className="size-10 text-white/85" />
+                )}
+                <View className="absolute inset-0 bg-black/10" />
+                {isShared ? (
+                  <Badge
+                    variant="secondary"
+                    className="absolute left-3 top-3 flex-row border-white/30 bg-white/80"
+                    accessibilityLabel={sharedLabel}
                   >
-                    <Icon as={Plus} className="size-4 text-brand" />
-                  </AnimatedPressable>
+                    <Icon as={Link2} className="size-3 text-text" />
+                    <Text className="text-xs font-bold text-text">{t("Shared")}</Text>
+                  </Badge>
                 ) : null}
               </View>
 
-              <View className="flex-row items-center justify-between gap-3">
-                <Text className="text-sm font-semibold text-text-muted">
-                  {itemsCount === 1 ? t("1 item") : t("{count} items", { count: itemsCount })}
-                </Text>
-                <View className="flex-row items-center gap-1.5">
-                  <Icon as={VisibilityIcon} className="size-3.5 text-text-muted" />
-                  <Text className="text-sm font-semibold text-text-muted">
-                    {visibilityLabels[visibility]}
+              <View className="gap-3 px-4 pb-4 pt-3">
+                <View className="min-h-11 flex-row items-start justify-between gap-3">
+                  <Text
+                    className="flex-1 text-[15px] font-bold leading-5 text-text"
+                    numberOfLines={2}
+                  >
+                    {wishlist.title}
                   </Text>
+
+                  {canEdit ? (
+                    <AnimatedPressable
+                      accessibilityRole="button"
+                      accessibilityLabel={t("Add item")}
+                      onPress={() => onOpenSheet({ type: "addItem", wishlist })}
+                      className="size-10 items-center justify-center rounded-full bg-brand-lighter active:bg-brand-alpha-12"
+                    >
+                      <Icon as={Plus} className="size-4 text-brand" />
+                    </AnimatedPressable>
+                  ) : null}
+                </View>
+
+                <View className="flex-row items-center justify-between gap-3">
+                  <Text className="text-sm font-semibold text-text-muted">
+                    {itemsCount === 1 ? t("1 item") : t("{count} items", { count: itemsCount })}
+                  </Text>
+                  <View className="flex-row items-center gap-1.5">
+                    <Icon as={VisibilityIcon} className="size-3.5 text-text-muted" />
+                    <Text className="text-sm font-semibold text-text-muted">
+                      {visibilityLabels[visibility]}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          </AnimatedPressable>
-        </Link>
+            </AnimatedPressable>
+          </Link>
+        </View>
         {showMenu ? (
           <DropdownMenuTrigger asChild>
             <AnimatedPressable
-              ref={menuTriggerRef}
+              ref={menuPreview.triggerRef}
               pointerEvents="none"
-              className="absolute right-4 top-33 size-10 opacity-0"
+              className="absolute inset-0 opacity-0"
             />
           </DropdownMenuTrigger>
         ) : null}
-        <DropdownMenuContent className="min-w-36">
+        <DropdownMenuContent backdrop="blur" preview={menuPreview.preview} sideOffset={10}>
           {canEdit ? (
-            <DropdownMenuItem onPress={() => onOpenSheet({ type: "edit", wishlist })}>
-              <Text>{t("Edit")}</Text>
+            <DropdownMenuItem
+              layout="action"
+              onPress={() => onOpenSheet({ type: "edit", wishlist })}
+            >
+              <Text className="flex-1">{t("Edit")}</Text>
+              <Icon as={Pencil} className="ml-auto size-4 text-text-muted" />
             </DropdownMenuItem>
           ) : null}
           {wishlist.is_owner ? (
             <DropdownMenuItem
+              layout="action"
               variant="destructive"
               onPress={() => onOpenSheet({ type: "delete", wishlist })}
             >
-              <Text>{t("Delete")}</Text>
+              <Text className="flex-1">{t("Delete")}</Text>
+              <Icon as={Trash2} className="ml-auto size-4 text-destructive" />
             </DropdownMenuItem>
           ) : null}
         </DropdownMenuContent>

@@ -2,7 +2,7 @@
  * FormatJS / Intl polyfills required by General Translation (`isValidLocale`, etc.).
  * The `gt-react-native` Babel plugin injects these into `expo-router/entry`, but that
  * file often is not transformed for Metro, so we load polyfills here before any GT import.
- * Keep language-level locale data in sync with GT locales (`en`/`uk`/`de`/`es`/`fr`/`ja`/`it`/`pt`/`zh`/`pl`/`ko`/`nl` cover `en-US`/`uk`/`de`/`es`/`fr`/`ja`/`it`/`pt`/`zh`/`pl`/`ko`/`nl`).
+ * Keep language-level locale data in sync with GT locales (`en`/`uk`/`de`/`es`/`fr`/`ja`/`it`/`pt`/`zh`/`pl`/`ko`/`nl`/`ru`/`hi`/`tr`/`vi`/`th`/`id`/`cs`/`sk`/`hu`/`ro`/`bg`/`el`/`sv`/`da`/`nb`/`fi`/`hr`/`sr` cover `en-US`/`uk`/`de`/`es`/`fr`/`ja`/`it`/`pt`/`zh`/`pl`/`ko`/`nl`/`ru`/`hi`/`tr`/`vi`/`th`/`id`/`cs`/`sk`/`hu`/`ro`/`bg`/`el`/`sv`/`da`/`nb`/`fi`/`hr`/`sr`).
  */
 import "@formatjs/intl-getcanonicallocales/polyfill";
 import "@formatjs/intl-locale/polyfill";
@@ -19,6 +19,32 @@ import "@formatjs/intl-displaynames/locale-data/zh";
 import "@formatjs/intl-displaynames/locale-data/pl";
 import "@formatjs/intl-displaynames/locale-data/ko";
 import "@formatjs/intl-displaynames/locale-data/nl";
+import "@formatjs/intl-displaynames/locale-data/ru";
+import "@formatjs/intl-displaynames/locale-data/hi";
+import "@formatjs/intl-displaynames/locale-data/tr";
+import "@formatjs/intl-displaynames/locale-data/vi";
+import "@formatjs/intl-displaynames/locale-data/th";
+import "@formatjs/intl-displaynames/locale-data/id";
+import "@formatjs/intl-displaynames/locale-data/cs";
+import "@formatjs/intl-displaynames/locale-data/sk";
+import "@formatjs/intl-displaynames/locale-data/hu";
+import "@formatjs/intl-displaynames/locale-data/ro";
+import "@formatjs/intl-displaynames/locale-data/bg";
+import "@formatjs/intl-displaynames/locale-data/el";
+import "@formatjs/intl-displaynames/locale-data/sv";
+import "@formatjs/intl-displaynames/locale-data/da";
+import "@formatjs/intl-displaynames/locale-data/nb";
+import "@formatjs/intl-displaynames/locale-data/fi";
+import "@formatjs/intl-displaynames/locale-data/hr";
+import "@formatjs/intl-displaynames/locale-data/sr";
+import "@formatjs/intl-displaynames/locale-data/sl";
+import "@formatjs/intl-displaynames/locale-data/lt";
+import "@formatjs/intl-displaynames/locale-data/lv";
+import "@formatjs/intl-displaynames/locale-data/et";
+import "@formatjs/intl-displaynames/locale-data/bn";
+import "@formatjs/intl-displaynames/locale-data/ms";
+import "@formatjs/intl-displaynames/locale-data/fil";
+import "@formatjs/intl-displaynames/locale-data/zh-Hant";
 import "@formatjs/intl-pluralrules/polyfill-force";
 import "@formatjs/intl-numberformat/polyfill";
 import "@formatjs/intl-datetimeformat/polyfill";
@@ -37,6 +63,33 @@ import "@formatjs/intl-pluralrules/locale-data/zh";
 import "@formatjs/intl-pluralrules/locale-data/pl";
 import "@formatjs/intl-pluralrules/locale-data/ko";
 import "@formatjs/intl-pluralrules/locale-data/nl";
+import "@formatjs/intl-pluralrules/locale-data/ru";
+import "@formatjs/intl-pluralrules/locale-data/hi";
+import "@formatjs/intl-pluralrules/locale-data/tr";
+import "@formatjs/intl-pluralrules/locale-data/vi";
+import "@formatjs/intl-pluralrules/locale-data/th";
+import "@formatjs/intl-pluralrules/locale-data/id";
+import "@formatjs/intl-pluralrules/locale-data/cs";
+import "@formatjs/intl-pluralrules/locale-data/sk";
+import "@formatjs/intl-pluralrules/locale-data/hu";
+import "@formatjs/intl-pluralrules/locale-data/ro";
+import "@formatjs/intl-pluralrules/locale-data/bg";
+import "@formatjs/intl-pluralrules/locale-data/el";
+import "@formatjs/intl-pluralrules/locale-data/sv";
+import "@formatjs/intl-pluralrules/locale-data/da";
+import "@formatjs/intl-pluralrules/locale-data/nb";
+import "@formatjs/intl-pluralrules/locale-data/fi";
+import "@formatjs/intl-pluralrules/locale-data/hr";
+import "@formatjs/intl-pluralrules/locale-data/sr";
+import "@formatjs/intl-pluralrules/locale-data/sl";
+import "@formatjs/intl-pluralrules/locale-data/lt";
+import "@formatjs/intl-pluralrules/locale-data/lv";
+import "@formatjs/intl-pluralrules/locale-data/et";
+import "@formatjs/intl-pluralrules/locale-data/bn";
+import "@formatjs/intl-pluralrules/locale-data/ms";
+import "@formatjs/intl-pluralrules/locale-data/fil";
+// zh-Hant: no separate plural-rules data file (Chinese has a single "other" plural
+// category regardless of script variant) — the "zh" import above already covers it.
 import "@formatjs/intl-numberformat/locale-data/en";
 import "@formatjs/intl-numberformat/locale-data/uk";
 import "@formatjs/intl-numberformat/locale-data/de";
@@ -49,4 +102,30 @@ import "@formatjs/intl-numberformat/locale-data/zh";
 import "@formatjs/intl-numberformat/locale-data/pl";
 import "@formatjs/intl-numberformat/locale-data/ko";
 import "@formatjs/intl-numberformat/locale-data/nl";
+import "@formatjs/intl-numberformat/locale-data/ru";
+import "@formatjs/intl-numberformat/locale-data/hi";
+import "@formatjs/intl-numberformat/locale-data/tr";
+import "@formatjs/intl-numberformat/locale-data/vi";
+import "@formatjs/intl-numberformat/locale-data/th";
+import "@formatjs/intl-numberformat/locale-data/id";
+import "@formatjs/intl-numberformat/locale-data/cs";
+import "@formatjs/intl-numberformat/locale-data/sk";
+import "@formatjs/intl-numberformat/locale-data/hu";
+import "@formatjs/intl-numberformat/locale-data/ro";
+import "@formatjs/intl-numberformat/locale-data/bg";
+import "@formatjs/intl-numberformat/locale-data/el";
+import "@formatjs/intl-numberformat/locale-data/sv";
+import "@formatjs/intl-numberformat/locale-data/da";
+import "@formatjs/intl-numberformat/locale-data/nb";
+import "@formatjs/intl-numberformat/locale-data/fi";
+import "@formatjs/intl-numberformat/locale-data/hr";
+import "@formatjs/intl-numberformat/locale-data/sr";
+import "@formatjs/intl-numberformat/locale-data/sl";
+import "@formatjs/intl-numberformat/locale-data/lt";
+import "@formatjs/intl-numberformat/locale-data/lv";
+import "@formatjs/intl-numberformat/locale-data/et";
+import "@formatjs/intl-numberformat/locale-data/bn";
+import "@formatjs/intl-numberformat/locale-data/ms";
+import "@formatjs/intl-numberformat/locale-data/fil";
+import "@formatjs/intl-numberformat/locale-data/zh-Hant";
 // ... repeat for each locale and polyfill
