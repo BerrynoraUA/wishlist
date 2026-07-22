@@ -1,0 +1,343 @@
+@use "@/styles/variables" as *;
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 24px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: $text;
+  text-decoration: none;
+}
+
+.brandIcon {
+  color: $brand;
+  font-size: 22px;
+}
+
+.signIn {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  color: $text-muted;
+  text-decoration: none;
+  transition: color 0.2s $ease-out;
+
+  &:hover {
+    color: $brand;
+  }
+}
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 24px 64px;
+}
+
+.intro {
+  text-align: center;
+  margin: 24px 0 32px;
+}
+
+.title {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: $text;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 17px;
+  color: $text-muted;
+  line-height: 1.5;
+  margin: 12px 0 0;
+}
+
+/* ── Billing toggle ── */
+.toggle {
+  display: inline-flex;
+  margin: 0 auto 36px;
+  padding: 4px;
+  border-radius: $radius-pill;
+  background: var(--color-bg-subtle);
+  border: 1.5px solid var(--color-border-light);
+  gap: 4px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.toggleOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: $radius-pill;
+  background: transparent;
+  color: $text-muted;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s $ease-out;
+}
+
+.toggleActive {
+  background: var(--card-bg);
+  color: $text;
+  box-shadow: var(--shadow-sm);
+}
+
+.saveBadge {
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
+  color: $brand;
+  background: var(--color-brand-lighter);
+  padding: 2px 8px;
+  border-radius: $radius-pill;
+}
+
+/* ── Cards ── */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+  border-radius: $radius-lg;
+  border: 1.5px solid var(--color-border-light);
+  background: var(--card-bg);
+}
+
+.proCard {
+  border-color: var(--color-pro-border);
+  box-shadow: var(--shadow-brand);
+}
+
+.popularBadge {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border-radius: $radius-pill;
+  background: $brand;
+  color: #fff;
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+.cardHeader {
+  margin-bottom: 20px;
+}
+
+.planName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 22px;
+  font-weight: var(--fw-bold);
+  color: $text;
+  margin: 0;
+}
+
+.sparkle {
+  color: $brand;
+}
+
+.planDesc {
+  font-size: var(--fs-body);
+  color: $text-muted;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+.priceBlock {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.priceAmount {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: $text;
+}
+
+.pricePeriod {
+  font-size: var(--fs-body);
+  color: $text-muted;
+}
+
+.billedAs {
+  flex-basis: 100%;
+  font-size: var(--fs-caption);
+  color: $text-muted;
+}
+
+/* ── CTA (link styled as button) ── */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: $radius-md;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s $ease-out;
+  margin-bottom: 24px;
+}
+
+.ctaPrimary {
+  background: $brand;
+  color: #fff;
+  border: 1.5px solid $brand;
+
+  &:hover {
+    background: $brand-dark;
+    border-color: $brand-dark;
+  }
+}
+
+.ctaSecondary {
+  background: transparent;
+  color: $text;
+  border: 1.5px solid var(--color-border);
+
+  &:hover {
+    border-color: $brand;
+    color: $brand;
+  }
+}
+
+/* ── Feature list ── */
+.featureList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-body);
+  color: $text;
+}
+
+.featureDisabled {
+  color: $text-muted;
+}
+
+.featureHighlight {
+  font-weight: var(--fw-semibold);
+}
+
+.checkIcon {
+  flex-shrink: 0;
+  color: $brand;
+}
+
+.xIcon {
+  flex-shrink: 0;
+  color: $text-muted;
+  opacity: 0.6;
+}
+
+.finePrint {
+  max-width: 560px;
+  margin: 32px auto 0;
+  text-align: center;
+  font-size: var(--fs-caption);
+  color: $text-muted;
+  line-height: 1.6;
+}
+
+/* ── Footer ── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+  border-top: 1.5px solid var(--color-border-light);
+  font-size: var(--fs-caption);
+  color: $text-muted;
+}
+
+.footerLinks {
+  display: flex;
+  gap: 20px;
+
+  a {
+    color: $text-muted;
+    text-decoration: none;
+    transition: color 0.2s $ease-out;
+
+    &:hover {
+      color: $brand;
+    }
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .title {
+    font-size: 30px;
+  }
+
+  .proCard {
+    order: -1;
+  }
+}

@@ -31,6 +31,7 @@ export function AppShell({
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/share" ||
+    pathname === "/pricing" ||
     PUBLIC_DOCUMENT_PATHS.includes(pathname);
 
   return (
