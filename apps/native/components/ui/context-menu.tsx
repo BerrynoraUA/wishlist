@@ -41,7 +41,7 @@ function ContextMenuSubTrigger({
           "active:bg-accent group flex flex-row items-center justify-between rounded-sm px-2 py-2 sm:py-1.5",
           className,
           open && "bg-accent mb-1",
-          inset && "pl-8",
+          inset && "ps-8",
         )}
         {...props}
       >
@@ -132,7 +132,7 @@ function ContextMenuItem({
           "active:bg-accent group relative flex flex-row items-center gap-2 rounded-sm px-2 py-2 sm:py-1.5",
           variant === "destructive" && "active:bg-destructive/10 dark:active:bg-destructive/20",
           props.disabled && "opacity-50",
-          inset && "pl-8",
+          inset && "ps-8",
           className,
         )}
         {...props}
@@ -152,13 +152,13 @@ function ContextMenuCheckboxItem({
     <TextClassContext.Provider value="text-sm text-popover-foreground select-none group-active:text-accent-foreground">
       <ContextMenuPrimitive.CheckboxItem
         className={cn(
-          "active:bg-accent group relative flex flex-row items-center gap-2 rounded-sm py-2 pl-8 pr-2 sm:py-1.5",
+          "active:bg-accent group relative flex flex-row items-center gap-2 rounded-sm py-2 ps-8 pe-2 sm:py-1.5",
           props.disabled && "opacity-50",
           className,
         )}
         {...props}
       >
-        <View className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <View className="absolute start-2 flex h-3.5 w-3.5 items-center justify-center">
           <ContextMenuPrimitive.ItemIndicator>
             <Icon as={Check} className="size-4 text-popover-foreground" />
           </ContextMenuPrimitive.ItemIndicator>
@@ -180,13 +180,13 @@ function ContextMenuRadioItem({
     <TextClassContext.Provider value="text-sm text-popover-foreground select-none group-active:text-accent-foreground">
       <ContextMenuPrimitive.RadioItem
         className={cn(
-          "active:bg-accent group relative flex flex-row items-center gap-2 rounded-sm py-2 pl-8 pr-2 sm:py-1.5",
+          "active:bg-accent group relative flex flex-row items-center gap-2 rounded-sm py-2 ps-8 pe-2 sm:py-1.5",
           props.disabled && "opacity-50",
           className,
         )}
         {...props}
       >
-        <View className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <View className="absolute start-2 flex h-3.5 w-3.5 items-center justify-center">
           <ContextMenuPrimitive.ItemIndicator>
             <View className="bg-foreground h-2 w-2 rounded-full" />
           </ContextMenuPrimitive.ItemIndicator>
@@ -209,7 +209,7 @@ function ContextMenuLabel({
     <ContextMenuPrimitive.Label
       className={cn(
         "text-foreground px-2 py-2 text-sm font-medium sm:py-1.5",
-        inset && "pl-8",
+        inset && "ps-8",
         className,
       )}
       {...props}
@@ -232,7 +232,7 @@ function ContextMenuSeparator({
 function ContextMenuShortcut({ className, ...props }: React.ComponentProps<typeof Text>) {
   return (
     <Text
-      className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)}
+      className={cn("text-muted-foreground ms-auto text-xs tracking-widest", className)}
       {...props}
     />
   );

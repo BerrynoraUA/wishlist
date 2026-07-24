@@ -319,7 +319,7 @@ export function SecretSantaCreateEditSheet({
                   size="icon"
                   accessibilityLabel={t("Remove image")}
                   onPress={clearImage}
-                  className="absolute right-3 top-3 rounded-full"
+                  className="absolute end-3 top-3 rounded-full"
                 >
                   <Icon as={X} className="size-4 text-text" />
                 </Button>

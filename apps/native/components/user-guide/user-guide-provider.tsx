@@ -631,8 +631,8 @@ function GuideTooltip({
   const arrowLeft = clamp(box.x + box.width / 2 - tooltipLeft - 6, 18, GUIDE_TOOLTIP_WIDTH - 30);
   const arrowClassName =
     placement === "top"
-      ? "absolute -bottom-1.25 size-3 rotate-45 border-b border-r border-border bg-card-bg"
-      : "absolute -top-1.25 size-3 rotate-45 border-l border-t border-border bg-card-bg";
+      ? "absolute -bottom-1.25 size-3 rotate-45 border-b border-e border-border bg-card-bg"
+      : "absolute -top-1.25 size-3 rotate-45 border-s border-t border-border bg-card-bg";
   const footerTooltipBottom = Math.max(insets.bottom + 88, 96);
 
   return (

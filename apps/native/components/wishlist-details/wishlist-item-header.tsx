@@ -82,7 +82,7 @@ export function WishlistItemHeader({
   const hasActionsMenu = Boolean((isOwner && onManageAccess) || onEdit || onDelete);
   const headerActionsCount = Number(Boolean(onShare)) + Number(hasActionsMenu);
   const headerActionsRightPadding =
-    headerActionsCount >= 3 ? "pr-32" : headerActionsCount === 2 ? "pr-20" : "pr-12";
+    headerActionsCount >= 3 ? "pe-32" : headerActionsCount === 2 ? "pe-20" : "pe-12";
   React.useEffect(() => {
     if (!editingTitle && optimisticTitleRef.current === null) {
       setValue("title", wishlist.title);
@@ -269,7 +269,7 @@ export function WishlistItemHeader({
         <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
           {hasButtonsRow || hasActionsMenu ? (
             <View
-              className="absolute right-4 z-10 flex-row items-center justify-end gap-2"
+              className="absolute end-4 z-10 flex-row items-center justify-end gap-2"
               style={{ top: topInset + 8 }}
             >
               {onShare ? (
@@ -376,12 +376,12 @@ export function WishlistItemHeader({
 
                   {eventDate || canInlineEdit ? (
                     eventDate && canInlineEdit ? (
-                      <View className="h-9 flex-1 flex-row items-center rounded-full border border-white/35 bg-white/25 pl-3 pr-1">
+                      <View className="h-9 flex-1 flex-row items-center rounded-full border border-white/35 bg-white/25 ps-3 pe-1">
                         <AnimatedPressable
                           accessibilityRole="button"
                           accessibilityLabel={t("Wishlist event date")}
                           onPress={openPicker}
-                          className="h-9 flex-1 flex-row items-center justify-center gap-1.5 pr-2"
+                          className="h-9 flex-1 flex-row items-center justify-center gap-1.5 pe-2"
                         >
                           <Icon as={Calendar} className="size-3.5 text-white" />
                           <Text className="text-xs font-bold text-white" numberOfLines={1}>

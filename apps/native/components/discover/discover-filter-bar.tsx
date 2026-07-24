@@ -91,7 +91,7 @@ export function DiscoverFiltersPanel({
 
   return (
     <View className="gap-3">
-      <View className="w-full flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
+      <View className="w-full flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 ps-3 shadow-sm">
         <Icon as={Search} className="size-4 text-muted-foreground/50" />
         <Input
           value={search}
@@ -149,7 +149,7 @@ export function DiscoverFiltersPanel({
                   key={option.value}
                   checked={priorityIds.includes(option.value)}
                   closeOnPress={false}
-                  className="min-h-11 rounded-xl pl-11"
+                  className="min-h-11 rounded-xl ps-11"
                   leading={
                     getItemPriority(option.value) ? (
                       <PriorityFilterIcon priority={getItemPriority(option.value)!} />

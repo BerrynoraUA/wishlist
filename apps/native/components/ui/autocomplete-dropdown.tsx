@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { Flag } from "@/components/ui/flag";
 import { Icon } from "@/components/ui/icon";
 import { INPUT_CLASS_NAME, Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -16,6 +17,8 @@ export type AutocompleteDropdownOption = {
   trailing?: string;
   keywords?: string[];
   imageUrl?: string | null;
+  /** ISO 3166-1 alpha-2 country code; renders a circular flag in the leading slot. */
+  flagCountry?: string | null;
 };
 
 type CommonProps = {
@@ -93,6 +96,8 @@ export function AutocompleteDropdown({
   // options scroll on top, the search field is pinned in the footer above the keyboard.
   const usesSheet = !inlineOptions && !alwaysShowOptions;
   const selectedOptions = props.multiple ? props.value : props.value ? [props.value] : [];
+  const selectedFlagCountry =
+    !props.multiple && selectedOptions.length === 1 ? (selectedOptions[0].flagCountry ?? null) : null;
   const selectedValues = React.useMemo(
     () => new Set(selectedOptions.map((option) => option.value)),
     [selectedOptions],
@@ -192,10 +197,14 @@ export function AutocompleteDropdown({
           optionClassName,
         )}
       >
-        <Avatar alt={option.label} className="size-9">
-          {option.imageUrl ? <AvatarImage source={{ uri: option.imageUrl }} /> : null}
-          <AvatarFallback />
-        </Avatar>
+        {option.flagCountry ? (
+          <Flag country={option.flagCountry} size={36} />
+        ) : (
+          <Avatar alt={option.label} className="size-9">
+            {option.imageUrl ? <AvatarImage source={{ uri: option.imageUrl }} /> : null}
+            <AvatarFallback />
+          </Avatar>
+        )}
         <View className="min-w-0 flex-1">
           <Text className={cn("font-semibold text-text", isSelected && "text-brand")}>
             {option.label}
@@ -286,7 +295,21 @@ export function AutocompleteDropdown({
   } = inputProps ?? {};
 
   // Read-only field that shows the current selection and opens the sheet on press.
-  const sheetTrigger = (
+  const sheetTrigger = selectedFlagCountry ? (
+    <View className="relative justify-center">
+      <Input
+        value={triggerValue}
+        editable={false}
+        pointerEvents="none"
+        placeholder={placeholder}
+        className={cn(inputClass, "opacity-100 ps-11")}
+        {...inputProps}
+      />
+      <View pointerEvents="none" className="absolute bottom-0 start-3 top-0 justify-center">
+        <Flag country={selectedFlagCountry} size={24} />
+      </View>
+    </View>
+  ) : (
     <Input
       value={triggerValue}
       editable={false}
@@ -303,7 +326,7 @@ export function AutocompleteDropdown({
       <View ref={triggerRef} collapsable={false}>
         {attached ? (
           usesSheet ? (
-            <View className="flex-row items-center rounded-md border border-input bg-background pr-2 shadow-sm shadow-black/5">
+            <View className="flex-row items-center rounded-md border border-input bg-background pe-2 shadow-sm shadow-black/5">
               <Pressable onPress={openDropdown} className="flex-1">
                 {sheetTrigger}
               </Pressable>
@@ -312,7 +335,7 @@ export function AutocompleteDropdown({
             <View
               className={cn(
                 "flex-row items-center border border-input bg-background shadow-sm shadow-black/5",
-                inputAccessory ? "overflow-hidden pr-0" : "pr-2",
+                inputAccessory ? "overflow-hidden pe-0" : "pe-2",
                 showDropdown
                   ? showOptionsAbove
                     ? "rounded-b-md border-t-0"

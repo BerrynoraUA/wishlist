@@ -45,6 +45,10 @@ import "@formatjs/intl-displaynames/locale-data/bn";
 import "@formatjs/intl-displaynames/locale-data/ms";
 import "@formatjs/intl-displaynames/locale-data/fil";
 import "@formatjs/intl-displaynames/locale-data/zh-Hant";
+import "@formatjs/intl-displaynames/locale-data/ar";
+import "@formatjs/intl-displaynames/locale-data/he";
+import "@formatjs/intl-displaynames/locale-data/fa";
+import "@formatjs/intl-displaynames/locale-data/ur";
 import "@formatjs/intl-pluralrules/polyfill-force";
 import "@formatjs/intl-numberformat/polyfill";
 import "@formatjs/intl-datetimeformat/polyfill";
@@ -90,6 +94,10 @@ import "@formatjs/intl-pluralrules/locale-data/ms";
 import "@formatjs/intl-pluralrules/locale-data/fil";
 // zh-Hant: no separate plural-rules data file (Chinese has a single "other" plural
 // category regardless of script variant) — the "zh" import above already covers it.
+import "@formatjs/intl-pluralrules/locale-data/ar";
+import "@formatjs/intl-pluralrules/locale-data/he";
+import "@formatjs/intl-pluralrules/locale-data/fa";
+import "@formatjs/intl-pluralrules/locale-data/ur";
 import "@formatjs/intl-numberformat/locale-data/en";
 import "@formatjs/intl-numberformat/locale-data/uk";
 import "@formatjs/intl-numberformat/locale-data/de";
@@ -128,4 +136,8 @@ import "@formatjs/intl-numberformat/locale-data/bn";
 import "@formatjs/intl-numberformat/locale-data/ms";
 import "@formatjs/intl-numberformat/locale-data/fil";
 import "@formatjs/intl-numberformat/locale-data/zh-Hant";
+import "@formatjs/intl-numberformat/locale-data/ar";
+import "@formatjs/intl-numberformat/locale-data/he";
+import "@formatjs/intl-numberformat/locale-data/fa";
+import "@formatjs/intl-numberformat/locale-data/ur";
 // ... repeat for each locale and polyfill

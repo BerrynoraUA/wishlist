@@ -86,7 +86,7 @@ export function SecretSantaDetailHero({
   const hasActionsMenu = isOwner;
   const headerActionsCount = Number(hasInviteAction) + Number(hasActionsMenu);
   const headerActionsRightPadding =
-    headerActionsCount >= 2 ? "pr-20" : headerActionsCount === 1 ? "pr-12" : "";
+    headerActionsCount >= 2 ? "pe-20" : headerActionsCount === 1 ? "pe-12" : "";
   const eventDateLabel = formatSecretSantaDate(event.event_date, locale ?? "en");
   const budgetLabel = formatSecretSantaBudget(event.budget, event.currency);
   const peopleCountLabel = formatSecretSantaPeopleCount(totalPeople, t);
@@ -99,7 +99,7 @@ export function SecretSantaDetailHero({
       <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
         {headerActionsCount > 0 ? (
           <View
-            className="absolute right-4 z-10 flex-row items-center justify-end gap-2"
+            className="absolute end-4 z-10 flex-row items-center justify-end gap-2"
             style={{ top: topInset + 8 }}
           >
             {hasInviteAction ? (

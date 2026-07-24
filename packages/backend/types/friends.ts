@@ -34,6 +34,8 @@ export interface PublicProfile {
 export interface ProfileSearchResult {
   id: string;
   nickname: string;
+  display_name?: string | null;
+  avatar_url?: string | null;
 }
 
 export interface FriendWithDetails {

@@ -31,7 +31,7 @@ function DialogOverlay({
     <WindowOverlay onRequestClose={() => onOpenChange(false)}>
       <DialogPrimitive.Overlay
         className={cn(
-          "absolute bottom-0 left-0 right-0 top-0 z-50 flex items-center justify-center bg-black/50 p-2",
+          "absolute bottom-0 start-0 end-0 top-0 z-50 flex items-center justify-center bg-black/50 p-2",
           className,
         )}
         {...props}
@@ -87,7 +87,7 @@ function DialogContent({
           >
             <>{children}</>
             <DialogPrimitive.Close
-              className="absolute right-4 top-4 rounded opacity-70 active:opacity-100"
+              className="absolute end-4 top-4 rounded opacity-70 active:opacity-100"
               hitSlop={12}
             >
               <Icon as={X} className="text-accent-foreground size-4 shrink-0" />

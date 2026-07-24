@@ -94,8 +94,8 @@ function AttachedTooltip({
       : { marginTop: 2, top: "100%" as const };
   const arrowClassName =
     tooltip.placement === "top"
-      ? "absolute -bottom-1.25 size-3 rotate-45 border-b border-r border-border bg-card-bg"
-      : "absolute -top-1.25 size-3 rotate-45 border-l border-t border-border bg-card-bg";
+      ? "absolute -bottom-1.25 size-3 rotate-45 border-b border-e border-border bg-card-bg"
+      : "absolute -top-1.25 size-3 rotate-45 border-s border-t border-border bg-card-bg";
 
   return (
     <View

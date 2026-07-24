@@ -1,13 +1,55 @@
 import { cn } from "@/lib/utils";
-import type { LucideIcon, LucideProps } from "lucide-react-native";
+import {
+  ArrowLeft,
+  ArrowLeftRight,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  CornerDownLeft,
+  CornerDownRight,
+  CornerUpLeft,
+  CornerUpRight,
+  type LucideIcon,
+  type LucideProps,
+  MoveLeft,
+  MoveRight,
+} from "lucide-react-native";
+import { I18nManager } from "react-native";
 import { withUniwind } from "uniwind";
 
 type IconProps = LucideProps & {
   as: LucideIcon;
 };
 
-function IconImpl({ as: IconComponent, ...props }: IconProps) {
-  return <IconComponent {...props} />;
+/**
+ * Icons whose meaning is a horizontal direction (navigation, disclosure). They
+ * are mirrored under RTL — a glyph transform the layout engine can't do on its
+ * own. Purely iconographic arrows (external-link, send, undo) are intentionally
+ * excluded to avoid odd-looking flips.
+ */
+const RTL_MIRRORED_ICONS: ReadonlySet<LucideIcon> = new Set([
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  ArrowLeft,
+  ArrowRight,
+  ArrowLeftRight,
+  MoveLeft,
+  MoveRight,
+  CornerUpLeft,
+  CornerUpRight,
+  CornerDownLeft,
+  CornerDownRight,
+]);
+
+const RTL_MIRROR_STYLE = { transform: [{ scaleX: -1 }] } as const;
+
+function IconImpl({ as: IconComponent, style, ...props }: IconProps) {
+  const mirrored = I18nManager.isRTL && RTL_MIRRORED_ICONS.has(IconComponent);
+  return <IconComponent {...props} style={mirrored ? [style, RTL_MIRROR_STYLE] : style} />;
 }
 
 const StyledIcon = withUniwind(IconImpl, {
