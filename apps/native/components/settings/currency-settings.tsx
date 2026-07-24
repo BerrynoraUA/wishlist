@@ -5,6 +5,7 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useUpdateSettings } from "@/hooks/use-settings";
+import { countryForCurrency } from "@/lib/locale-flags";
 import { SUPPORTED_CURRENCIES, type SupportedCurrency } from "@wishlist/backend/lib/currencies";
 import { CircleDollarSign } from "lucide-react-native";
 import * as React from "react";
@@ -59,5 +60,6 @@ function currencyToOption(currency: SupportedCurrency): AutocompleteDropdownOpti
     displayValue: `${currency.code} - ${currency.label} (${currency.symbol})`,
     description: currency.label,
     trailing: currency.symbol,
+    flagCountry: countryForCurrency(currency.code),
   };
 }

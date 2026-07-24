@@ -293,19 +293,19 @@ export function WishlistItemCard({
           {showCopyLink ? (
             <DropdownMenuItem layout="action" onPress={handleCopyLink}>
               <Text className="flex-1">{t("Copy link")}</Text>
-              <Icon as={Copy} className="ml-auto size-4 text-text-muted" />
+              <Icon as={Copy} className="ms-auto size-4 text-text-muted" />
             </DropdownMenuItem>
           ) : null}
           {onEdit ? (
             <DropdownMenuItem layout="action" onPress={onEdit}>
               <Text className="flex-1">{t("Edit")}</Text>
-              <Icon as={Pencil} className="ml-auto size-4 text-text-muted" />
+              <Icon as={Pencil} className="ms-auto size-4 text-text-muted" />
             </DropdownMenuItem>
           ) : null}
           {onDelete ? (
             <DropdownMenuItem layout="action" variant="destructive" onPress={onDelete}>
               <Text className="flex-1">{t("Delete")}</Text>
-              <Icon as={Trash2} className="ml-auto size-4 text-destructive" />
+              <Icon as={Trash2} className="ms-auto size-4 text-destructive" />
             </DropdownMenuItem>
           ) : null}
         </DropdownMenuContent>

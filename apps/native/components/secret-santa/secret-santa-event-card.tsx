@@ -8,6 +8,7 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
+import { TEXT_END_CLASS } from "@/lib/rtl";
 import { formatSecretSantaBudget, formatSecretSantaDate } from "@/lib/secret-santa";
 import { cn } from "@/lib/utils";
 import { getWishlistAccentClass } from "@/lib/wishlists";
@@ -61,7 +62,7 @@ export function SecretSantaEventCard({
                 <Icon as={Gift} className="size-10 text-white/85" />
               )}
               {event.is_owner ? (
-                <View className="absolute right-3 top-3 rounded-full border border-white/35 bg-white/25 px-2 py-1">
+                <View className="absolute end-3 top-3 rounded-full border border-white/35 bg-white/25 px-2 py-1">
                   <Text className="text-[11px] font-extrabold text-white">{t("Owner")}</Text>
                 </View>
               ) : null}
@@ -80,13 +81,13 @@ export function SecretSantaEventCard({
                 <View className="max-w-[48%] shrink-0 items-end gap-1.5">
                   <View className="flex-row items-center justify-end gap-1.5">
                     <Icon as={CalendarDays} className="size-4 text-text-muted" />
-                    <Text className="text-right text-sm text-text-muted" numberOfLines={1}>
+                    <Text className={cn(TEXT_END_CLASS, "text-sm text-text-muted")} numberOfLines={1}>
                       {formatSecretSantaDate(event.event_date, locale ?? "en")}
                     </Text>
                   </View>
                   <View className="flex-row items-center justify-end gap-1.5">
                     <Icon as={Users} className="size-4 text-text-muted" />
-                    <Text className="text-right text-sm text-text-muted" numberOfLines={1}>
+                    <Text className={cn(TEXT_END_CLASS, "text-sm text-text-muted")} numberOfLines={1}>
                       {t("{count} participants", { count: event.participants_count })}
                     </Text>
                   </View>
@@ -108,13 +109,13 @@ export function SecretSantaEventCard({
           {onEdit ? (
             <DropdownMenuItem layout="action" onPress={onEdit}>
               <Text className="flex-1">{t("Edit")}</Text>
-              <Icon as={Pencil} className="ml-auto size-4 text-text-muted" />
+              <Icon as={Pencil} className="ms-auto size-4 text-text-muted" />
             </DropdownMenuItem>
           ) : null}
           {onDelete ? (
             <DropdownMenuItem layout="action" variant="destructive" onPress={onDelete}>
               <Text className="flex-1">{t("Delete")}</Text>
-              <Icon as={Trash2} className="ml-auto size-4 text-destructive" />
+              <Icon as={Trash2} className="ms-auto size-4 text-destructive" />
             </DropdownMenuItem>
           ) : null}
         </DropdownMenuContent>

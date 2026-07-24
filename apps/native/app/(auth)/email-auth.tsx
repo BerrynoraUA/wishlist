@@ -174,7 +174,7 @@ export default function EmailAuthScreen() {
                         render={({ field: { onChange, value } }) => (
                           <AuthInput
                             autoComplete={isLogin ? "current-password" : "new-password"}
-                            className="pr-12"
+                            className="pe-12"
                             onChangeText={onChange}
                             placeholder={t("Password")}
                             secureTextEntry={!showPassword}
@@ -206,7 +206,7 @@ export default function EmailAuthScreen() {
                           render={({ field: { onChange, value } }) => (
                             <AuthInput
                               autoComplete="new-password"
-                              className="pr-12"
+                              className="pe-12"
                               onChangeText={onChange}
                               placeholder={t("Confirm password")}
                               secureTextEntry={!showConfirmPassword}
@@ -328,7 +328,7 @@ function PasswordToggle({
     <Pressable
       accessibilityLabel={label}
       accessibilityRole="button"
-      className="absolute right-3 top-0 h-13 items-center justify-center px-2"
+      className="absolute end-3 top-0 h-13 items-center justify-center px-2"
       onPress={onPress}
     >
       <Icon as={visible ? EyeOffIcon : EyeIcon} className="size-4.5 text-white/58" />

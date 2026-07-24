@@ -119,11 +119,11 @@ export function FriendGroupCard({
       <DropdownMenuContent backdrop="blur" preview={menuPreview.preview} sideOffset={10}>
         <DropdownMenuItem layout="action" onPress={() => onEdit(group)}>
           <Text className="flex-1">{t("Edit")}</Text>
-          <Icon as={Pencil} className="ml-auto size-4 text-text-muted" />
+          <Icon as={Pencil} className="ms-auto size-4 text-text-muted" />
         </DropdownMenuItem>
         <DropdownMenuItem layout="action" variant="destructive" onPress={() => onDelete(group)}>
           <Text className="flex-1">{t("Delete")}</Text>
-          <Icon as={Trash2} className="ml-auto size-4 text-destructive" />
+          <Icon as={Trash2} className="ms-auto size-4 text-destructive" />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

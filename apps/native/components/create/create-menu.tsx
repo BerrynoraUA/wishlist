@@ -291,7 +291,7 @@ function CreateFloatingMenuContent({
         />
       </Animated.View>
       <View
-        className="absolute left-0 right-0 items-center gap-2.5"
+        className="absolute start-0 end-0 items-center gap-2.5"
         pointerEvents="box-none"
         style={{ bottom: menuBottom }}
       >
@@ -314,7 +314,7 @@ function CreateFloatingMenuContent({
               accessibilityRole="button"
               accessibilityLabel={entry.label}
               onPress={() => onSelect(entry)}
-              className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg py-2.5 pl-2.5 pr-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
+              className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg py-2.5 ps-2.5 pe-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
             >
               <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
                 <Icon as={entry.icon} className="size-5 text-brand" />

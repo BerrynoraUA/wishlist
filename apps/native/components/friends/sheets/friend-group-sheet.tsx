@@ -265,7 +265,7 @@ export function FriendGroupSheet({
                     {label}
                   </Text>
                   {active ? (
-                    <Icon as={Check} className="ml-auto size-4 text-primary-foreground" />
+                    <Icon as={Check} className="ms-auto size-4 text-primary-foreground" />
                   ) : null}
                 </Button>
               );

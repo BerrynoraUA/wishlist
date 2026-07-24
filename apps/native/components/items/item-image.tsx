@@ -86,8 +86,8 @@ export function ItemImage({
       {reserved && reservationLabel ? (
         <View
           className={cn(
-            "absolute left-2 top-2 z-10 max-w-[70%]",
-            isDetail && "left-3 top-3 max-w-[80%]",
+            "absolute start-2 top-2 z-10 max-w-[70%]",
+            isDetail && "start-3 top-3 max-w-[80%]",
           )}
         >
           <ItemStatusBadge
@@ -100,8 +100,8 @@ export function ItemImage({
 
       <View
         className={cn(
-          "absolute right-2 top-2 z-10 items-end gap-1.5",
-          isDetail && "right-3 top-3 max-w-[45%]",
+          "absolute end-2 top-2 z-10 items-end gap-1.5",
+          isDetail && "end-3 top-3 max-w-[45%]",
         )}
       >
         {salePercentOff != null ? (
@@ -117,8 +117,8 @@ export function ItemImage({
       {item.price ? (
         <View
           className={cn(
-            "absolute bottom-2 right-2 z-10 flex-row items-center gap-1 rounded-full border border-brand/30 bg-card-bg/95 px-2.5 py-1",
-            isDetail && "bottom-3 right-3 gap-2 px-3 py-1.5",
+            "absolute bottom-2 end-2 z-10 flex-row items-center gap-1 rounded-full border border-brand/30 bg-card-bg/95 px-2.5 py-1",
+            isDetail && "bottom-3 end-3 gap-2 px-3 py-1.5",
           )}
         >
           {showDiscountPrice && item.discount_price ? (

@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { useHideBackButton } from "@/hooks/use-hide-back-button";
 import { useUpdateSettings } from "@/hooks/use-settings";
+import { countryForLocale } from "@/lib/locale-flags";
 import type { TranslateFn } from "@/lib/translate-fn";
 import { cn } from "@/lib/utils";
 import { useSubscriptionManager } from "@/providers/subscription-provider";
@@ -71,6 +72,10 @@ const LOCALIZED_LOCALE_LABELS: Record<string, string> = {
   ms: "Bahasa Melayu",
   fil: "Filipino",
   "zh-Hant": "繁體中文",
+  ar: "العربية",
+  he: "עברית",
+  fa: "فارسی",
+  ur: "اردو",
 };
 
 export function PreferencesSettings({
@@ -97,6 +102,7 @@ export function PreferencesSettings({
         label: LOCALIZED_LOCALE_LABELS[code] ?? code,
         displayValue: LOCALIZED_LOCALE_LABELS[code] ?? code,
         keywords: [code],
+        flagCountry: countryForLocale(code),
       })),
     [locales],
   );

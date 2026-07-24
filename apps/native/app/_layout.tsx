@@ -30,13 +30,15 @@ import { PostHogEventProperties } from "@posthog/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useGlobalSearchParams, usePathname, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { GTProvider } from "gt-react-native";
-import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
+import { GTProvider, useLocale } from "gt-react-native";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
-import { ActivityIndicator, Appearance, View } from "react-native";
+import { ActivityIndicator, Appearance, DevSettings, View } from "react-native";
+import * as Updates from "expo-updates";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useUniwind } from "uniwind";
 import { DEFAULT_SETTINGS } from "@wishlist/backend/types/settings";
+import { syncLayoutDirection } from "@/lib/rtl";
 import gtConfig from "../gt.config.json";
 import { loadTranslations } from "../loadTranslations";
 
@@ -89,6 +91,7 @@ export default function RootLayout() {
             method: "skeleton",
           }}
         >
+          <RtlDirectionGate />
           <QueryClientProvider client={queryClient}>
             <AppStateLifecycle />
             <AuthProvider>
@@ -113,6 +116,41 @@ export default function RootLayout() {
       </PostHogProvider>
     </AnimatedSplash>
   );
+}
+
+/**
+ * Keeps the native layout direction in sync with the active locale. Switching
+ * across the LTR/RTL boundary requires a reload for React Native to re-lay out,
+ * so this reloads once when needed. Inert while all shipped locales are LTR.
+ */
+function RtlDirectionGate() {
+  const locale = useLocale();
+  const reloadedRef = useRef(false);
+
+  useEffect(() => {
+    if (reloadedRef.current) return;
+    if (!syncLayoutDirection(locale)) return;
+    reloadedRef.current = true;
+    void reloadForLayoutDirection();
+  }, [locale]);
+
+  return null;
+}
+
+async function reloadForLayoutDirection() {
+  try {
+    if (__DEV__) {
+      DevSettings.reload();
+      return;
+    }
+    await Updates.reloadAsync();
+  } catch {
+    try {
+      DevSettings.reload();
+    } catch {
+      // Nothing else to try — the new direction applies on the next manual launch.
+    }
+  }
 }
 
 function AuthGate() {

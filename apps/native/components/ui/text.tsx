@@ -13,7 +13,7 @@ const textVariants = cva("text-text text-base", {
       h3: "text-2xl font-semibold tracking-tight",
       h4: "text-xl font-semibold tracking-tight",
       p: "mt-3 leading-7 sm:mt-6",
-      blockquote: "mt-4 border-l-2 pl-3 italic sm:mt-6 sm:pl-6",
+      blockquote: "mt-4 border-s-2 ps-3 italic sm:mt-6 sm:ps-6",
       code: cn("bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold"),
       lead: "text-text text-xl",
       large: "text-lg font-semibold",

@@ -151,7 +151,7 @@ export function SlidingOptionSelector<T>({
       {selectedOptionWidth > 0 ? (
         <Animated.View
           pointerEvents="none"
-          className={cn("absolute left-0 top-0", indicatorClassName)}
+          className={cn("absolute start-0 top-0", indicatorClassName)}
           style={[{ height: optionHeight }, indicatorStyle]}
         />
       ) : null}

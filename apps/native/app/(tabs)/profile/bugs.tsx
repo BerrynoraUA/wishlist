@@ -52,7 +52,7 @@ export default function BugsScreen() {
             size="icon-sm"
             accessibilityLabel={t("Dismiss")}
             onPress={() => setIntroDismissed(true)}
-            className="-mr-2 -mt-2 rounded-full"
+            className="-me-2 -mt-2 rounded-full"
           >
             <Icon as={X} className="size-4 text-info" />
           </Button>
@@ -72,7 +72,7 @@ export default function BugsScreen() {
             size="icon-sm"
             accessibilityLabel={t("Dismiss")}
             onPress={() => setSubmitted(false)}
-            className="-mr-2 -mt-2 rounded-full"
+            className="-me-2 -mt-2 rounded-full"
           >
             <Icon as={X} className="size-4 text-brand" />
           </Button>

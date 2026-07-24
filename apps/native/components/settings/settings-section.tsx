@@ -88,7 +88,7 @@ export function SettingsSection({
               <Text className="text-title font-bold text-text">{title}</Text>
             </View>
             {headerAction ? (
-              <View className="absolute right-0 top-1/2 -translate-y-1/2">{headerAction}</View>
+              <View className="absolute end-0 top-1/2 -translate-y-1/2">{headerAction}</View>
             ) : null}
           </View>
         </AccordionTrigger>

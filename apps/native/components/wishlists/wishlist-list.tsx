@@ -393,7 +393,7 @@ function WishlistCard({
                 {isShared ? (
                   <Badge
                     variant="secondary"
-                    className="absolute left-3 top-3 flex-row border-white/30 bg-white/80"
+                    className="absolute start-3 top-3 flex-row border-white/30 bg-white/80"
                     accessibilityLabel={sharedLabel}
                   >
                     <Icon as={Link2} className="size-3 text-text" />
@@ -454,7 +454,7 @@ function WishlistCard({
               onPress={() => onOpenSheet({ type: "edit", wishlist })}
             >
               <Text className="flex-1">{t("Edit")}</Text>
-              <Icon as={Pencil} className="ml-auto size-4 text-text-muted" />
+              <Icon as={Pencil} className="ms-auto size-4 text-text-muted" />
             </DropdownMenuItem>
           ) : null}
           {wishlist.is_owner ? (
@@ -464,7 +464,7 @@ function WishlistCard({
               onPress={() => onOpenSheet({ type: "delete", wishlist })}
             >
               <Text className="flex-1">{t("Delete")}</Text>
-              <Icon as={Trash2} className="ml-auto size-4 text-destructive" />
+              <Icon as={Trash2} className="ms-auto size-4 text-destructive" />
             </DropdownMenuItem>
           ) : null}
         </DropdownMenuContent>

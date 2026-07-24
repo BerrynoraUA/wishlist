@@ -223,6 +223,8 @@ export async function searchProfilesByNickname({
   return ((data ?? []) as FriendAccessRow[]).map((row) => ({
     id: row.id ?? "",
     nickname: row.nickname ?? "unknown",
+    display_name: row.display_name ?? null,
+    avatar_url: row.avatar_url ?? null,
   }));
 }
 
@@ -368,6 +370,8 @@ export async function getFriendsWithoutWishlistAccess({
   return ((data ?? []) as FriendAccessRow[]).map((row) => ({
     id: row.id ?? "",
     nickname: row.nickname ?? "unknown",
+    display_name: row.display_name ?? null,
+    avatar_url: row.avatar_url ?? null,
   }));
 }
 

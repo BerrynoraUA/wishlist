@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -5,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useSearchProfilesByNickname, useSendFriendRequest } from "@/hooks/use-friends";
 import { useCurrentUserId } from "@/hooks/use-user";
+import { cn } from "@/lib/utils";
 import type { ProfileSearchResult } from "@wishlist/backend/types/friends";
 import * as Clipboard from "expo-clipboard";
 import { Copy, Search, X } from "lucide-react-native";
@@ -127,9 +129,36 @@ export function AddFriendSheet({
                     key={profile.id}
                     variant="outline"
                     onPress={() => handleSelect(profile)}
-                    className="justify-start rounded-xl"
+                    className="h-auto justify-start gap-3 rounded-xl py-2"
                   >
-                    <Text className="font-bold text-text">@{profile.nickname}</Text>
+                    <Avatar
+                      className="size-9"
+                      alt={profile.display_name || profile.nickname || t("Friend")}
+                    >
+                      {profile.avatar_url ? (
+                        <AvatarImage source={{ uri: profile.avatar_url }} />
+                      ) : null}
+                      <AvatarFallback
+                        className="bg-brand-lighter"
+                        initialsClassName="text-sm text-brand"
+                      />
+                    </Avatar>
+                    <View className="min-w-0 flex-1">
+                      {profile.display_name ? (
+                        <Text className="font-bold text-text" numberOfLines={1}>
+                          {profile.display_name}
+                        </Text>
+                      ) : null}
+                      <Text
+                        className={cn(
+                          "text-text-muted",
+                          profile.display_name ? "text-sm" : "font-bold text-text",
+                        )}
+                        numberOfLines={1}
+                      >
+                        @{profile.nickname}
+                      </Text>
+                    </View>
                   </Button>
                 ))}
               </View>
@@ -178,8 +207,18 @@ export function AddFriendSheet({
                   onPress={() =>
                     setSelected((current) => current.filter((item) => item.id !== profile.id))
                   }
-                  className="rounded-full"
+                  className="gap-2 rounded-full ps-1.5"
                 >
+                  <Avatar
+                    className="size-6"
+                    alt={profile.display_name || profile.nickname || t("Friend")}
+                  >
+                    {profile.avatar_url ? <AvatarImage source={{ uri: profile.avatar_url }} /> : null}
+                    <AvatarFallback
+                      className="bg-brand-lighter"
+                      initialsClassName="text-[10px] text-brand"
+                    />
+                  </Avatar>
                   <Text>@{profile.nickname}</Text>
                   <Icon as={X} className="size-3.5 text-text" />
                 </Button>

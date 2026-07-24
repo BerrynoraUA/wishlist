@@ -164,7 +164,7 @@ export function WishlistShareSheet({
           <AnimatedPressable
             accessibilityRole="button"
             accessibilityLabel={t("Close")}
-            className="absolute right-0 size-10 items-center justify-center rounded-full"
+            className="absolute end-0 size-10 items-center justify-center rounded-full"
             onPress={dismiss}
           >
             <Icon as={X} className="size-8 text-text" />

@@ -41,6 +41,10 @@ const translations: Record<string, Record<string, unknown>> = {
   ms: require("@/content/ms.json"),
   fil: require("@/content/fil.json"),
   "zh-Hant": require("@/content/zh-Hant.json"),
+  ar: require("@/content/ar.json"),
+  he: require("@/content/he.json"),
+  fa: require("@/content/fa.json"),
+  ur: require("@/content/ur.json"),
 };
 
 export async function loadTranslations(locale: string) {

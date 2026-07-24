@@ -97,7 +97,7 @@ export function WishlistFilterBar({
         className="pb-1 pt-4"
         maxHeight={WISHLIST_FILTER_PANEL_HEIGHT}
       >
-        <View className="w-full flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
+        <View className="w-full flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 ps-3 shadow-sm">
           <Icon as={Search} className="size-4 text-muted-foreground/50" />
           <Input
             value={search}

@@ -120,7 +120,7 @@ export function NotificationsMenu() {
       >
         <Icon as={Bell} className="size-5 text-text" />
         {unreadCount > 0 ? (
-          <View className="absolute -right-1 -top-1 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5">
+          <View className="absolute -end-1 -top-1 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5">
             <Text className="text-[10px] font-extrabold leading-3 text-white">
               {unreadCount > 99 ? "99+" : unreadCount}
             </Text>
@@ -367,7 +367,7 @@ function NotificationRow({
       </View>
 
       {isInvite ? (
-        <View className="ml-5 flex-row gap-2">
+        <View className="ms-5 flex-row gap-2">
           <Button
             className="min-w-0 flex-1 rounded-full"
             size="sm"
