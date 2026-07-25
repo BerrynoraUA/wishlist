@@ -213,7 +213,9 @@ export function AddFriendSheet({
                     className="size-6"
                     alt={profile.display_name || profile.nickname || t("Friend")}
                   >
-                    {profile.avatar_url ? <AvatarImage source={{ uri: profile.avatar_url }} /> : null}
+                    {profile.avatar_url ? (
+                      <AvatarImage source={{ uri: profile.avatar_url }} />
+                    ) : null}
                     <AvatarFallback
                       className="bg-brand-lighter"
                       initialsClassName="text-[10px] text-brand"

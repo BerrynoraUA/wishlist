@@ -81,13 +81,19 @@ export function SecretSantaEventCard({
                 <View className="max-w-[48%] shrink-0 items-end gap-1.5">
                   <View className="flex-row items-center justify-end gap-1.5">
                     <Icon as={CalendarDays} className="size-4 text-text-muted" />
-                    <Text className={cn(TEXT_END_CLASS, "text-sm text-text-muted")} numberOfLines={1}>
+                    <Text
+                      className={cn(TEXT_END_CLASS, "text-sm text-text-muted")}
+                      numberOfLines={1}
+                    >
                       {formatSecretSantaDate(event.event_date, locale ?? "en")}
                     </Text>
                   </View>
                   <View className="flex-row items-center justify-end gap-1.5">
                     <Icon as={Users} className="size-4 text-text-muted" />
-                    <Text className={cn(TEXT_END_CLASS, "text-sm text-text-muted")} numberOfLines={1}>
+                    <Text
+                      className={cn(TEXT_END_CLASS, "text-sm text-text-muted")}
+                      numberOfLines={1}
+                    >
                       {t("{count} participants", { count: event.participants_count })}
                     </Text>
                   </View>
