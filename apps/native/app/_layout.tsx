@@ -30,7 +30,7 @@ import { PostHogEventProperties } from "@posthog/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useGlobalSearchParams, usePathname, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { GTProvider, useLocale } from "gt-react-native";
+import { GTProvider, useLocale, useSetLocale } from "gt-react-native";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { ActivityIndicator, Appearance, DevSettings, View } from "react-native";
@@ -234,6 +234,9 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
   const [themeApplied, setThemeApplied] = useState(false);
   const themeSettings = settings ?? cachedSettings ?? DEFAULT_SETTINGS;
   const ready = Boolean(settings || cachedSettings || settingsError);
+  const locale = useLocale();
+  const setLocale = useSetLocale();
+  const localeSyncedRef = useRef(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -267,8 +270,20 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
       userId,
       defaultAccent: settings.default_accent,
       themePreference: settings.theme,
+      preferredLocale: settings.preferred_locale,
     }).catch(() => {});
   }, [userId, settings]);
+
+  // Sync the UI language to the account's preferred_locale once per mount. This component
+  // remounts (key={session.user.id} in AuthGate) on every account switch, so the ref
+  // naturally resets — matching the once-per-load guard used on web.
+  useEffect(() => {
+    if (localeSyncedRef.current) return;
+    if (!settings?.preferred_locale) return;
+    localeSyncedRef.current = true;
+    if (settings.preferred_locale === locale) return;
+    setLocale(settings.preferred_locale);
+  }, [settings?.preferred_locale, locale, setLocale]);
 
   useLayoutEffect(() => {
     if (!ready) return;

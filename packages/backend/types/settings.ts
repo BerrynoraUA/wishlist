@@ -34,6 +34,11 @@ export interface UserSettings {
   default_wishlist_color: WishlistColorIndex;
   display_currency: string;
   selected_priorities: string[];
+  /**
+   * The user's chosen UI language (GT locale code). Persisted so the server/other clients
+   * know which language to render this user's notifications in. `null` until first set.
+   */
+  preferred_locale: string | null;
 }
 
 export type ThemePreference = "light" | "dark" | "system";
@@ -71,4 +76,5 @@ export const DEFAULT_SETTINGS: Omit<UserSettings, "user_id"> = {
   default_wishlist_color: 0,
   display_currency: "USD",
   selected_priorities: [PRIORITY_IDS.LOW, PRIORITY_IDS.MEDIUM, PRIORITY_IDS.HIGH],
+  preferred_locale: null,
 };

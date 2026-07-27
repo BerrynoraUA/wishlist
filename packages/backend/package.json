@@ -12,6 +12,7 @@
     "./lib/currencies": "./lib/currencies.ts",
     "./lib/filter-helpers": "./lib/filter-helpers.ts",
     "./lib/posthog-person-from-supabase": "./lib/posthog-person-from-supabase.ts",
+    "./notifications/templates": "./notifications/templates.ts",
     "./supabase": "./supabase/index.ts",
     "./supabase/admin": "./supabase/admin.ts",
     "./supabase/browser": "./supabase/browser.ts",

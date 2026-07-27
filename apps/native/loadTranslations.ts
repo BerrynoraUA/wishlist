@@ -15,7 +15,6 @@ const translations: Record<string, Record<string, unknown>> = {
   pl: require("@/content/pl.json"),
   ko: require("@/content/ko.json"),
   nl: require("@/content/nl.json"),
-  ru: require("@/content/ru.json"),
   hi: require("@/content/hi.json"),
   tr: require("@/content/tr.json"),
   vi: require("@/content/vi.json"),

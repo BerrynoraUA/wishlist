@@ -19,7 +19,6 @@ const LOCALE_TO_COUNTRY: Record<string, string> = {
   pl: "pl",
   ko: "kr",
   nl: "nl",
-  ru: "ru",
   hi: "in",
   tr: "tr",
   vi: "vn",

@@ -5,6 +5,15 @@ import { CreateItemParams, UpdateItemParams } from "./types/item";
 import { getCurrentSession } from "./user";
 import { deletePublicImage, uploadPublicImage } from "@/lib/helpers/storage-image";
 import { isStarCardColorIndex, STAR_CARD_COLOR_INDEX } from "@/lib/item-colors";
+import { createLocalizedNotification } from "@/lib/create-notification";
+
+/** Extra fields the toggle RPCs return alongside the item, used to notify the owner. */
+type ToggleItemResult = {
+  owner_id?: string | null;
+  wishlist_id?: string | null;
+  is_reserved_by_me?: boolean;
+  is_bought_by_me?: boolean;
+};
 
 const ITEM_IMAGE_BUCKET = "items";
 const MAX_STAR_ITEMS_PER_WISHLIST = 3;
@@ -229,6 +238,16 @@ export async function toggleItemReservation(itemId: string): Promise<Item> {
     throw new Error(error.message || "Failed to toggle reservation");
   }
 
+  const result = data as ToggleItemResult;
+  if (result?.is_reserved_by_me && result.owner_id) {
+    void createLocalizedNotification({
+      receiverId: result.owner_id,
+      key: "item_reserved",
+      vars: {},
+      entityId: result.wishlist_id ?? null,
+    });
+  }
+
   return data as Item;
 }
 
@@ -240,6 +259,16 @@ export async function toggleItemBought(itemId: string): Promise<Item> {
   if (error) {
     console.error("Error toggling item bought status:", error);
     throw new Error(error.message || "Failed to toggle item bought status");
+  }
+
+  const result = data as ToggleItemResult;
+  if (result?.is_bought_by_me && result.owner_id) {
+    void createLocalizedNotification({
+      receiverId: result.owner_id,
+      key: "item_bought",
+      vars: {},
+      entityId: result.wishlist_id ?? null,
+    });
   }
 
   return data as Item;

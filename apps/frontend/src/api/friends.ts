@@ -1,6 +1,10 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
 import { getCurrentSession } from "./user";
+import {
+  createLocalizedNotification,
+  createLocalizedNotifications,
+} from "@/lib/create-notification";
 import type {
   FriendRequest,
   FriendWithDetails,
@@ -73,23 +77,48 @@ export async function sendFriendRequest(receiverId: string): Promise<FriendReque
 
   if (error) throw error;
 
+  void createLocalizedNotification({
+    receiverId,
+    key: "friend_request",
+    vars: {},
+    entityId: session.user.id,
+  });
+
   return data;
 }
 
 export async function acceptFriendRequest(requestId: string): Promise<void> {
-  const { error } = await supabaseBrowser.rpc("accept_friend_request", {
+  const { data, error } = await supabaseBrowser.rpc("accept_friend_request", {
     p_request_id: requestId,
   });
 
   if (error) throw error;
+
+  const requesterId = data as string | null;
+  if (requesterId) {
+    void createLocalizedNotification({
+      receiverId: requesterId,
+      key: "friend_accepted",
+      vars: {},
+    });
+  }
 }
 
 export async function rejectFriendRequest(requestId: string): Promise<void> {
-  const { error } = await supabaseBrowser.rpc("reject_friend_request", {
+  const { data, error } = await supabaseBrowser.rpc("reject_friend_request", {
     p_request_id: requestId,
   });
 
   if (error) throw error;
+
+  const requesterId = data as string | null;
+  if (requesterId) {
+    void createLocalizedNotification({
+      receiverId: requesterId,
+      key: "friend_declined",
+      vars: {},
+    });
+  }
 }
 
 export async function cancelFriendRequest(requestId: string): Promise<void> {
@@ -289,6 +318,10 @@ export async function createFriendGroup(payload: FriendGroupPayload) {
   });
 
   if (error) throw error;
+
+  const groupId = (data as { id?: string } | null)?.id ?? null;
+  notifyGroupMembersAdded(groupId, payload.name, payload.memberIds);
+
   return data;
 }
 
@@ -303,7 +336,31 @@ export async function updateFriendGroup(groupId: string, payload: FriendGroupPay
   });
 
   if (error) throw error;
+
+  notifyGroupMembersAdded(groupId, payload.name, payload.memberIds);
+
   return data;
+}
+
+/**
+ * Notifies each group member that they were added. create_notification() dedupes by
+ * (receiver, group) and skips self, so re-sending on update is safe.
+ */
+function notifyGroupMembersAdded(
+  groupId: string | null,
+  groupName: string,
+  memberIds: string[] | undefined,
+) {
+  if (!groupId || !memberIds?.length) return;
+
+  void createLocalizedNotifications(
+    memberIds.map((receiverId) => ({
+      receiverId,
+      key: "group_added" as const,
+      vars: { group: groupName },
+      entityId: groupId,
+    })),
+  );
 }
 
 export async function deleteFriendGroup(groupId: string) {

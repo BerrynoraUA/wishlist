@@ -1,5 +1,6 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { getCurrentUser } from "./user";
+import { notifySecretSantaInvites } from "@/lib/create-notification";
 import {
   CreateSecretSantaEventInput,
   LaunchSecretSantaInput,
@@ -82,7 +83,10 @@ export async function createSecretSantaEvent(
     throw error;
   }
 
-  return data as SecretSantaEvent;
+  const event = data as SecretSantaEvent;
+  void notifySecretSantaInvites(event.id, restInput.name, restInput.invited_user_ids ?? []);
+
+  return event;
 }
 
 export async function updateSecretSantaEvent(

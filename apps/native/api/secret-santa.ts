@@ -1,4 +1,5 @@
 import { normalizeSearchQuery } from "@/lib/wishlists";
+import { notifySecretSantaInvites } from "@/lib/create-notification";
 import { generateSecretSantaAssignment } from "@/lib/secret-santa-assignment";
 import { removeOwnedStorageImage } from "@/lib/storage";
 import { supabase } from "@wishlist/backend/supabase/native";
@@ -127,7 +128,10 @@ export async function createSecretSantaEvent(
     throw error;
   }
 
-  return data as SecretSantaEvent;
+  const event = data as SecretSantaEvent;
+  void notifySecretSantaInvites(event.id, restInput.name, restInput.invited_user_ids ?? []);
+
+  return event;
 }
 
 export async function updateSecretSantaEvent(

@@ -1,6 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useLocale } from "gt-next";
+import { useSetLocale } from "gt-next/client";
 import { getCurrentUser } from "@/api/user";
 import { upsertKnownAccount } from "@/lib/known-accounts";
 import {
@@ -203,6 +205,9 @@ export function ThemeProvider({
 }) {
   const { data: settings } = useSettings();
   const { mutate: mutateSettings } = useUpdateSettings();
+  const locale = useLocale();
+  const setLocale = useSetLocale();
+  const localeSyncedRef = useRef(false);
   const [pendingPersistedTheme, setPendingPersistedTheme] = useState<ThemePreference | null>(null);
   const [temporaryTheme, setTemporaryTheme] = useState<ResolvedTheme | null>(null);
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(initialResolvedTheme);
@@ -242,10 +247,22 @@ export function ThemeProvider({
           userId: user.id,
           defaultAccent: settings.default_accent,
           themePreference: settings.theme,
+          preferredLocale: settings.preferred_locale,
         });
       })
       .catch(() => {});
-  }, [settings?.default_accent, settings?.theme]);
+  }, [settings?.default_accent, settings?.theme, settings?.preferred_locale]);
+
+  // Sync the UI language to the account's preferred_locale once per page load — mirrors
+  // theme/accent, but only on the first mismatch so it doesn't fight a manual switch made
+  // later in the same session (that switch already updates settings.preferred_locale itself).
+  useEffect(() => {
+    if (localeSyncedRef.current) return;
+    if (!settings?.preferred_locale) return;
+    localeSyncedRef.current = true;
+    if (settings.preferred_locale === locale) return;
+    setLocale(settings.preferred_locale);
+  }, [settings?.preferred_locale, locale, setLocale]);
 
   const value = useMemo<AppThemeContextValue>(
     () => ({

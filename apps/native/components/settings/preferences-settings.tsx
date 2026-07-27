@@ -46,7 +46,6 @@ const LOCALIZED_LOCALE_LABELS: Record<string, string> = {
   pl: "Polski",
   ko: "한국어",
   nl: "Nederlands",
-  ru: "Русский",
   hi: "हिन्दी",
   tr: "Türkçe",
   vi: "Tiếng Việt",
@@ -128,7 +127,11 @@ export function PreferencesSettings({
         </View>
         <AutocompleteDropdown
           value={selectedLocaleOption}
-          onValueChange={(option) => setLocale(option.value)}
+          onValueChange={(option) => {
+            setLocale(option.value);
+            // Persist so notifications for this user can be rendered in their language.
+            updateSettings.mutate({ preferred_locale: option.value });
+          }}
           options={localeOptions}
           placeholder={t("Search language")}
           emptyText={t("No languages found")}

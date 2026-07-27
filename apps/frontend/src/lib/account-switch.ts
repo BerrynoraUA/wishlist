@@ -10,6 +10,7 @@ import {
   parseThemePreference,
   type ThemeAndAccent,
 } from "@/lib/theme";
+import { applyLocaleSynchronously, readLocaleCookie } from "@/lib/locale-cookie";
 
 type SwitchHandlers = {
   onRedirect: (href: string) => void;
@@ -115,15 +116,28 @@ function knownAccountAppearance(
   };
 }
 
+function knownAccountLocale(
+  account: Pick<KnownAccount, "preferredLocale"> | undefined,
+  fallback: string | null,
+): string | null {
+  return account?.preferredLocale && account.preferredLocale.length > 0
+    ? account.preferredLocale
+    : fallback;
+}
+
 export async function switchAccount(account: KnownAccount, { onRedirect }: SwitchHandlers) {
   const previousAppearance = currentAppearance();
+  const previousLocale = readLocaleCookie();
   const targetAppearance = knownAccountAppearance(account, previousAppearance);
+  const targetLocale = knownAccountLocale(account, previousLocale);
   applyThemeAndAccentSynchronously(targetAppearance);
+  applyLocaleSynchronously(targetLocale);
 
   const session = (await trySetSession(account)) ?? (await tryRefreshSession(account));
 
   if (!session) {
     applyThemeAndAccentSynchronously(previousAppearance);
+    applyLocaleSynchronously(previousLocale);
     removeKnownAccount(account.userId);
     await fallbackToLogin(account, onRedirect);
     return;
@@ -131,7 +145,9 @@ export async function switchAccount(account: KnownAccount, { onRedirect }: Switc
 
   const storedAccount = getKnownAccount(session.user.id);
   const confirmedAppearance = knownAccountAppearance(storedAccount ?? undefined, targetAppearance);
+  const confirmedLocale = knownAccountLocale(storedAccount ?? undefined, targetLocale);
   applyThemeAndAccentSynchronously(confirmedAppearance);
+  applyLocaleSynchronously(confirmedLocale);
 
   upsertKnownAccount({
     userId: session.user.id,
@@ -143,6 +159,7 @@ export async function switchAccount(account: KnownAccount, { onRedirect }: Switc
     expiresAt: session.expires_at ?? null,
     defaultAccent: confirmedAppearance.accent,
     themePreference: confirmedAppearance.theme,
+    preferredLocale: confirmedLocale,
   });
 
   if (typeof window !== "undefined") {
