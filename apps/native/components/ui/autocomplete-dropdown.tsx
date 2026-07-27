@@ -97,7 +97,9 @@ export function AutocompleteDropdown({
   const usesSheet = !inlineOptions && !alwaysShowOptions;
   const selectedOptions = props.multiple ? props.value : props.value ? [props.value] : [];
   const selectedFlagCountry =
-    !props.multiple && selectedOptions.length === 1 ? (selectedOptions[0].flagCountry ?? null) : null;
+    !props.multiple && selectedOptions.length === 1
+      ? (selectedOptions[0].flagCountry ?? null)
+      : null;
   const selectedValues = React.useMemo(
     () => new Set(selectedOptions.map((option) => option.value)),
     [selectedOptions],

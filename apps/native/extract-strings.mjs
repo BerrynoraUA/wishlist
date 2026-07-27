@@ -130,8 +130,5 @@ for (const [hash, str] of Object.entries(hashOverrides)) {
   map[hash] = str;
 }
 
-fs.writeFileSync(
-  path.join(ROOT, "..", "..", "full-en-map.json"),
-  JSON.stringify(map, null, 2),
-);
+fs.writeFileSync(path.join(ROOT, "..", "..", "full-en-map.json"), JSON.stringify(map, null, 2));
 console.log("Extracted", Object.keys(map).length, "unique keys");
