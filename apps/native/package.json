@@ -9,6 +9,8 @@
     "ios": "expo run:ios",
     "gt:translate": "gt translate",
     "translate": "gt translate",
+    "store:metadata": "node store/build-store-metadata.js",
+    "store:metadata:check": "node store/build-store-metadata.js --check",
     "check-types": "tsc --noEmit",
     "test": "vitest run"
   },

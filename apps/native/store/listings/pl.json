@@ -1,0 +1,73 @@
+{
+  "bcp47": "pl",
+  "title": "Wishlane: listy życzeń",
+  "appleName": "Wishlane",
+  "subtitle": "Listy życzeń i prezenty",
+  "shortDescription": "Twórz listy życzeń, udostępniaj je znajomym i rezerwuj prezenty w tajemnicy.",
+  "promoText": "Wklej dowolny link, stwórz piękną listę życzeń i udostępnij ją znajomym. Prezenty rezerwują w tajemnicy – nikt nie kupi tego samego i niespodzianka zostaje niespodzianką.",
+  "keywords": [
+    "lista życzeń",
+    "prezent",
+    "urodziny",
+    "święta",
+    "mikołajki",
+    "pomysły na prezent",
+    "zakupy"
+  ],
+  "intro": [
+    "Wishlane zamienia pytanie „no dobra, co ty właściwie chcesz?” w coś, co cieszy wszystkich.",
+    "Twórz piękne listy życzeń, udostępniaj je bliskim i pozwól im rezerwować prezenty w tajemnicy – nikt nie kupi tego samego dwa razy i żadna niespodzianka się nie wyda."
+  ],
+  "sections": [
+    {
+      "heading": "Lista życzeń w kilka sekund",
+      "body": "Wklej dowolny link do produktu, a Wishlane sam uzupełni tytuł, opis, zdjęcie i cenę. Nazwij listę, wybierz kolor, ustaw datę wydarzenia i gotowe."
+    },
+    {
+      "heading": "Udostępniaj na swoich zasadach",
+      "body": "Każda lista może być publiczna, tylko dla znajomych albo całkowicie prywatna. Wyślij link komu chcesz lub dodaj znajomych po nazwie użytkownika – zobaczysz ich listy, a oni twoje."
+    },
+    {
+      "heading": "Rezerwuj prezenty w tajemnicy",
+      "body": "Zarezerwuj rzecz z listy znajomego – pozostali zobaczą, że jest już zajęta, ale autor listy nigdy się o tym nie dowie. Żadnych powtórzonych prezentów i zepsutych niespodzianek."
+    },
+    {
+      "heading": "Mikołajki bez chaosu",
+      "body": "Stwórz grupę, zaproś wszystkich jednym linkiem i pozwól Wishlane przeprowadzić losowanie. Każdy widzi listę życzeń wylosowanej osoby, więc prezenty naprawdę trafiają."
+    },
+    {
+      "heading": "Odkrywaj, czego pragną inni",
+      "body": "Przeglądaj publiczne listy znajomych, sprawdzaj nadchodzące urodziny i wydarzenia z odliczaniem i nigdy więcej nie przychodź z pustymi rękami."
+    },
+    {
+      "heading": "Bądź na bieżąco",
+      "body": "Otrzymuj powiadomienia, gdy znajomy doda listę, wyśle ci zaproszenie albo zarezerwuje coś z twojej listy."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Nielimitowane listy i pozycje, dostęp dla współautorów na listach współdzielonych, alerty o obniżkach cen oraz własne kolory i priorytety."
+    }
+  ],
+  "closing": "Wishlane jest darmowy na start – bez karty, konfiguracja w niecałą minutę. Dostępny w ponad 40 językach.",
+  "subscriptionHeading": "Warunki subskrypcji",
+  "subscriptionApple": "Wishlane Premium to subskrypcja odnawiana automatycznie w cyklu miesięcznym lub rocznym. Płatność zostanie pobrana z konta Apple ID po potwierdzeniu zakupu. Subskrypcja odnawia się automatycznie, o ile automatyczne odnawianie nie zostanie wyłączone co najmniej 24 godziny przed końcem bieżącego okresu. Subskrypcją możesz zarządzać lub anulować ją w dowolnym momencie w ustawieniach konta Apple ID.",
+  "subscriptionGoogle": "Wishlane Premium to subskrypcja odnawiana automatycznie w cyklu miesięcznym lub rocznym. Płatność zostanie pobrana z konta Google Play po potwierdzeniu zakupu. Subskrypcja odnawia się automatycznie, o ile automatyczne odnawianie nie zostanie wyłączone co najmniej 24 godziny przed końcem bieżącego okresu. Subskrypcją możesz zarządzać lub anulować ją w dowolnym momencie w sklepie Google Play.",
+  "footer": [
+    "Pytania lub uwagi? support@wishlane.net",
+    "Polityka prywatności: https://wishlane.net/privacy-policy",
+    "Regulamin: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Pierwsze wydanie Wishlane.",
+  "changelogBullets": [
+    "Listy życzeń z kolorami, priorytetami i datami",
+    "Wklej link do produktu, resztę uzupełnimy",
+    "Listy publiczne, dla znajomych lub prywatne",
+    "Rezerwuj prezenty na listach znajomych w tajemnicy",
+    "Grupa mikołajkowa z automatycznym losowaniem",
+    "Listy znajomych i nadchodzące wydarzenia"
+  ],
+  "permissions": {
+    "photos": "Zezwól aplikacji Wishlane na wybranie zdjęcia profilowego z galerii.",
+    "faceId": "Zezwól aplikacji Wishlane na bezpieczne przełączanie zapisanych kont."
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "bcp47": "ro",
+  "title": "Wishlane: liste de dorințe",
+  "appleName": "Wishlane",
+  "subtitle": "Liste de dorințe și cadouri",
+  "shortDescription": "Creează liste de dorințe, împarte-le cu prietenii și rezervă cadouri în secret.",
+  "promoText": "Lipește orice link, creează o listă frumoasă și trimite-o prietenilor. Ei rezervă cadourile în secret: nimeni nu cumpără la fel, nicio surpriză nu se strică.",
+  "keywords": [
+    "listă de dorințe",
+    "cadou",
+    "zi de naștere",
+    "crăciun",
+    "moș anonim",
+    "idei de cadouri",
+    "cumpărături"
+  ],
+  "intro": [
+    "Wishlane transformă întrebarea „și tu ce vrei, de fapt?” în ceva ce toată lumea savurează.",
+    "Creează liste de dorințe frumoase, împarte-le cu oamenii care contează și lasă-i să rezerve cadourile în secret: nimeni nu cumpără același lucru de două ori și nicio surpriză nu se strică."
+  ],
+  "sections": [
+    {
+      "heading": "O listă în câteva secunde",
+      "body": "Lipește orice link de produs, iar Wishlane completează titlul, descrierea, imaginea și prețul. Dă un nume listei, alege o culoare, setează data evenimentului și gata."
+    },
+    {
+      "heading": "Împarte cum vrei tu",
+      "body": "Fiecare listă poate fi publică, doar pentru prieteni sau complet privată. Trimite linkul oricui sau conectează-te cu prietenii după numele de utilizator: tu le vezi listele, ei pe ale tale."
+    },
+    {
+      "heading": "Rezervă cadouri în secret",
+      "body": "Rezervă un produs din lista unui prieten: ceilalți văd că e deja luat, dar proprietarul listei nu află niciodată. Fără cadouri duble, fără surprize stricate."
+    },
+    {
+      "heading": "Moș Anonim, organizat",
+      "body": "Creează un grup, invită pe toată lumea cu un singur link și lasă Wishlane să facă extragerea. Fiecare vede lista de dorințe a persoanei extrase, așa că darurile chiar nimeresc."
+    },
+    {
+      "heading": "Descoperă ce își doresc ceilalți",
+      "body": "Răsfoiește listele publice ale prietenilor, urmărește zilele de naștere și evenimentele apropiate cu numărătoare inversă și nu mai ajunge niciodată cu mâna goală."
+    },
+    {
+      "heading": "Fii la curent",
+      "body": "Primești notificări când un prieten adaugă o listă, îți trimite o cerere sau rezervă ceva din lista ta."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Liste și produse nelimitate, acces de colaborator pe listele partajate, alerte la scăderi de preț, culori și priorități personalizate."
+    }
+  ],
+  "closing": "Wishlane e gratuit la start: fără card, configurare în mai puțin de un minut. Disponibil în peste 40 de limbi.",
+  "subscriptionHeading": "Condițiile abonamentului",
+  "subscriptionApple": "Wishlane Premium este un abonament cu reînnoire automată, lunar sau anual. Plata este debitată din contul tău Apple ID la confirmarea achiziției. Abonamentul se reînnoiește automat dacă reînnoirea automată nu este dezactivată cu cel puțin 24 de ore înainte de finalul perioadei curente. Îl poți gestiona sau anula oricând din setările contului Apple ID.",
+  "subscriptionGoogle": "Wishlane Premium este un abonament cu reînnoire automată, lunar sau anual. Plata este debitată din contul tău Google Play la confirmarea achiziției. Abonamentul se reînnoiește automat dacă reînnoirea automată nu este dezactivată cu cel puțin 24 de ore înainte de finalul perioadei curente. Îl poți gestiona sau anula oricând din Magazinul Google Play.",
+  "footer": [
+    "Întrebări sau sugestii? support@wishlane.net",
+    "Politica de confidențialitate: https://wishlane.net/privacy-policy",
+    "Termeni și condiții: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Prima versiune Wishlane.",
+  "changelogBullets": [
+    "Liste cu culori, priorități și date",
+    "Lipești un link, noi completăm detaliile",
+    "Liste publice, doar pentru prieteni sau private",
+    "Rezervi cadouri în secret pe listele prietenilor",
+    "Grup Moș Anonim cu extragere automată",
+    "Listele prietenilor și evenimente apropiate"
+  ],
+  "permissions": {
+    "photos": "Permite-i lui Wishlane să aleagă o poză de profil din biblioteca ta.",
+    "faceId": "Permite-i lui Wishlane să comute în siguranță între conturile salvate."
+  }
+}

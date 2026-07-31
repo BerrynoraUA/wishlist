@@ -1,0 +1,72 @@
+{
+  "bcp47": "lv",
+  "title": "Wishlane: vēlmju saraksti",
+  "appleName": "Wishlane",
+  "subtitle": "Vēlmju saraksti un dāvanas",
+  "shortDescription": "Veidojiet vēlmju sarakstus, dalieties ar draugiem, rezervējiet dāvanas slepeni.",
+  "promoText": "Ielīmējiet jebkuru saiti, izveidojiet skaistu vēlmju sarakstu un padalieties ar draugiem. Dāvanas viņi rezervē slepeni – neviens nenopērk to pašu un neviens pārsteigums netiek sabojāts.",
+  "keywords": [
+    "vēlmju saraksts",
+    "dāvana",
+    "dzimšanas diena",
+    "ziemassvētki",
+    "slepenais Ziemassvētku vecītis",
+    "dāvanu idejas"
+  ],
+  "intro": [
+    "Wishlane pārvērš jautājumu „nu tad ko tu īsti vēlies?” par kaut ko, kas patīk visiem.",
+    "Veidojiet skaistus vēlmju sarakstus, dalieties ar sev svarīgajiem cilvēkiem un ļaujiet viņiem slepeni rezervēt dāvanas – neviens nenopērk vienu un to pašu divreiz un neviens pārsteigums netiek sabojāts."
+  ],
+  "sections": [
+    {
+      "heading": "Vēlmju saraksts dažās sekundēs",
+      "body": "Ielīmējiet jebkura produkta saiti, un Wishlane jūsu vietā aizpildīs nosaukumu, aprakstu, attēlu un cenu. Nosauciet sarakstu, izvēlieties krāsu, norādiet notikuma datumu – un viss ir gatavs."
+    },
+    {
+      "heading": "Dalieties pēc saviem noteikumiem",
+      "body": "Katrs saraksts var būt publisks, tikai draugiem vai pilnīgi privāts. Nosūtiet saiti jebkuram vai pievienojiet draugus pēc lietotājvārda – jūs redzat viņu sarakstus, viņi jūsējos."
+    },
+    {
+      "heading": "Rezervējiet dāvanas slepeni",
+      "body": "Rezervējiet lietu drauga sarakstā: visi pārējie redz, ka tā jau ir paņemta, bet saraksta īpašnieks to nekad neuzzina. Nekādu dubultu dāvanu un sabojātu pārsteigumu."
+    },
+    {
+      "heading": "Slepenais Ziemassvētku vecītis, sakārtots",
+      "body": "Izveidojiet grupu, uzaiciniet visus ar vienu saiti un ļaujiet Wishlane veikt izlozi. Katrs redz izlozētā cilvēka vēlmju sarakstu, tāpēc dāvanas tiešām trāpa."
+    },
+    {
+      "heading": "Uzziniet, ko vēlas citi",
+      "body": "Pārlūkojiet draugu publiskos vēlmju sarakstus, sekojiet gaidāmajām dzimšanas dienām un notikumiem ar atpakaļskaitīšanu un nekad vairs neierodieties tukšām rokām."
+    },
+    {
+      "heading": "Esiet lietas kursā",
+      "body": "Saņemiet paziņojumu, kad draugs pievieno vēlmju sarakstu, nosūta jums pieprasījumu vai rezervē kaut ko no jūsu saraksta."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Neierobežoti saraksti un lietas, līdzautoru piekļuve koplietotiem sarakstiem, brīdinājumi par cenu kritumu, kā arī pašu izvēlētas krāsas un prioritātes."
+    }
+  ],
+  "closing": "Wishlane sākumā ir bez maksas – bez kartes, iestatīšana mazāk nekā minūtē. Pieejams vairāk nekā 40 valodās.",
+  "subscriptionHeading": "Abonementa noteikumi",
+  "subscriptionApple": "Wishlane Premium ir automātiski atjaunojams abonements uz mēnesi vai gadu. Maksa tiek iekasēta no jūsu Apple ID, apstiprinot pirkumu. Abonements atjaunojas automātiski, ja vien automātiskā atjaunošana netiek izslēgta vismaz 24 stundas pirms pašreizējā perioda beigām. To jebkurā laikā varat pārvaldīt vai atcelt sava Apple ID konta iestatījumos.",
+  "subscriptionGoogle": "Wishlane Premium ir automātiski atjaunojams abonements uz mēnesi vai gadu. Maksa tiek iekasēta no jūsu Google Play konta, apstiprinot pirkumu. Abonements atjaunojas automātiski, ja vien automātiskā atjaunošana netiek izslēgta vismaz 24 stundas pirms pašreizējā perioda beigām. To jebkurā laikā varat pārvaldīt vai atcelt veikalā Google Play.",
+  "footer": [
+    "Jautājumi vai atsauksmes? support@wishlane.net",
+    "Privātuma politika: https://wishlane.net/privacy-policy",
+    "Lietošanas noteikumi: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Pirmā Wishlane versija.",
+  "changelogBullets": [
+    "Vēlmju saraksti ar krāsām, prioritātēm un datumiem",
+    "Ielīmējiet saiti – detaļas aizpildīsim mēs",
+    "Saraksti publiski, tikai draugiem vai privāti",
+    "Slepena dāvanu rezervēšana draugu sarakstos",
+    "Slepenā Ziemassvētku vecīša grupa ar automātisku izlozi",
+    "Draugu saraksti un gaidāmie notikumi"
+  ],
+  "permissions": {
+    "photos": "Atļaujiet Wishlane izvēlēties profila attēlu no jūsu bibliotēkas.",
+    "faceId": "Atļaujiet Wishlane droši pārslēgties starp saglabātajiem kontiem."
+  }
+}

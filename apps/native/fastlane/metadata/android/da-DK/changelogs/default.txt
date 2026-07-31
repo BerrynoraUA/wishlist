@@ -1,0 +1,8 @@
+Den første version af Wishlane.
+
+- Ønskelister med farver, prioriteter og datoer
+- Indsæt et produktlink, så udfylder vi detaljerne
+- Lister offentlige, kun for venner eller private
+- Reservér gaver i hemmelighed på venners lister
+- Pakkelegsgruppe med automatisk lodtrækning
+- Venners lister og kommende begivenheder

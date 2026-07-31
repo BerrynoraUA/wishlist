@@ -1,0 +1,8 @@
+Prva izdaja Wishlana.
+
+- Seznami želja z barvami, prednostmi in datumi
+- Prilepite povezavo, podrobnosti izpolnimo mi
+- Seznami javni, samo za prijatelje ali zasebni
+- Skrivna rezervacija daril na seznamih prijateljev
+- Skupina Skrivni Božiček s samodejnim žrebom
+- Seznami prijateljev in prihajajoči dogodki

@@ -1,0 +1,8 @@
+De eerste versie van Wishlane.
+
+- Lijstjes met kleuren, prioriteiten en datums
+- Plak een productlink en wij vullen de rest in
+- Lijstjes openbaar, voor vrienden of privé
+- Reserveer cadeaus in het geheim
+- Secret Santa-groep met automatische loting
+- Lijstjes van vrienden en aankomende gelegenheden

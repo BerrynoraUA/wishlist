@@ -1,0 +1,8 @@
+Pirmoji „Wishlane“ versija.
+
+- Norų sąrašai su spalvomis, prioritetais ir datomis
+- Įklijuokite nuorodą – detales užpildysime mes
+- Sąrašai vieši, tik draugams arba privatūs
+- Slaptas dovanų rezervavimas draugų sąrašuose
+- Slaptojo Kalėdų Senelio grupė su automatiniais burtais
+- Draugų sąrašai ir artėjančios šventės

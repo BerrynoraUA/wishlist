@@ -1,0 +1,76 @@
+{
+  "bcp47": "en",
+  "title": "Wishlane: Wishlists & Gifts",
+  "appleName": "Wishlane",
+  "subtitle": "Wishlists, shared beautifully",
+  "shortDescription": "Create wishlists, share them with friends, and reserve gifts in secret.",
+  "promoText": "Paste any link, build a beautiful wishlist, and share it with friends. They reserve gifts in secret - so nobody buys the same present and no surprise gets spoiled.",
+  "keywords": [
+    "wishlist",
+    "gift",
+    "registry",
+    "birthday",
+    "christmas",
+    "secret santa",
+    "gift ideas",
+    "wish list",
+    "presents",
+    "shopping"
+  ],
+  "intro": [
+    "Wishlane turns \"so, what do you actually want?\" into something everyone enjoys.",
+    "Create beautiful wishlists, share them with the people who matter, and let them reserve gifts in secret - so nobody buys the same thing twice and no surprise gets spoiled."
+  ],
+  "sections": [
+    {
+      "heading": "Create a wishlist in seconds",
+      "body": "Paste any product link and Wishlane fills in the title, description, image and price for you. Name your list, pick an accent colour, set an event date, and you're done."
+    },
+    {
+      "heading": "Share on your terms",
+      "body": "Every wishlist is public, friends-only, or completely private. Send a link to anyone, or connect with friends by username - you'll see their lists, they'll see yours."
+    },
+    {
+      "heading": "Reserve gifts secretly",
+      "body": "Reserve an item on a friend's list and everyone else can see it's taken - but the owner never finds out. No duplicate presents, no ruined surprises."
+    },
+    {
+      "heading": "Secret Santa, organised",
+      "body": "Create a group, invite everyone with a single link, and let Wishlane run the draw. Each person sees their match's wishlist, so the gifts actually land."
+    },
+    {
+      "heading": "Discover what people want",
+      "body": "Browse your friends' public wishlists, see upcoming birthdays and events with countdowns, and never show up empty-handed again."
+    },
+    {
+      "heading": "Stay in the loop",
+      "body": "Get notified when a friend adds a wishlist, sends you a request, or reserves something from yours."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Upgrade for unlimited lists and items, collaborator access on shared lists, sale alerts that track price drops, and custom colours and priorities."
+    }
+  ],
+  "closing": "Wishlane is free to start - no credit card, set up in under a minute. Available in 40+ languages.",
+  "subscriptionHeading": "Subscription terms",
+  "subscriptionApple": "Wishlane Premium is an auto-renewing subscription offered monthly or yearly. Payment is charged to your Apple ID at confirmation of purchase. Your subscription renews automatically unless auto-renew is turned off at least 24 hours before the end of the current period. You can manage or cancel your subscription in your Apple ID account settings at any time.",
+  "subscriptionGoogle": "Wishlane Premium is an auto-renewing subscription offered monthly or yearly. Payment is charged to your Google Play account at confirmation of purchase. Your subscription renews automatically unless auto-renew is turned off at least 24 hours before the end of the current period. You can manage or cancel your subscription in the Google Play Store at any time.",
+  "footer": [
+    "Questions or feedback? support@wishlane.net",
+    "Privacy Policy: https://wishlane.net/privacy-policy",
+    "Terms of Service: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "The first release of Wishlane.",
+  "changelogBullets": [
+    "Create wishlists with colours, priorities and dates",
+    "Paste a product link and we fill in the details",
+    "Share lists publicly, with friends, or privately",
+    "Reserve gifts on friends' lists in secret",
+    "Run a Secret Santa group with an automatic draw",
+    "Discover friends' lists and upcoming events"
+  ],
+  "permissions": {
+    "photos": "Allow Wishlane to choose a profile image from your library.",
+    "faceId": "Allow Wishlane to securely switch between saved accounts."
+  }
+}

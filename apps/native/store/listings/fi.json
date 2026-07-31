@@ -1,0 +1,72 @@
+{
+  "bcp47": "fi",
+  "title": "Wishlane: toivelistat",
+  "appleName": "Wishlane",
+  "subtitle": "Toivelistat, kauniisti jaettu",
+  "shortDescription": "Luo toivelistoja, jaa ne kavereille ja varaa lahjoja salaa.",
+  "promoText": "Liitä mikä tahansa linkki, luo kaunis toivelista ja jaa se kavereille. He varaavat lahjat salaa – kukaan ei osta samaa eikä yksikään yllätys paljastu.",
+  "keywords": [
+    "toivelista",
+    "lahja",
+    "syntymäpäivä",
+    "joulu",
+    "salainen joulupukki",
+    "lahjaideat"
+  ],
+  "intro": [
+    "Wishlane muuttaa kysymyksen ”no mitä sä oikeasti haluat?” kaikille mukavaksi hetkeksi.",
+    "Luo kauniita toivelistoja, jaa ne sinulle tärkeille ihmisille ja anna heidän varata lahjat salaa – kukaan ei osta samaa kahdesti eikä yksikään yllätys mene pilalle."
+  ],
+  "sections": [
+    {
+      "heading": "Toivelista sekunneissa",
+      "body": "Liitä mikä tahansa tuotelinkki, niin Wishlane täyttää otsikon, kuvauksen, kuvan ja hinnan puolestasi. Nimeä lista, valitse väri, aseta tapahtuman päivä – valmista tuli."
+    },
+    {
+      "heading": "Jaa omilla ehdoillasi",
+      "body": "Jokainen lista voi olla julkinen, vain kavereille tai täysin yksityinen. Lähetä linkki kenelle tahansa tai lisää kavereita käyttäjänimellä – sinä näet heidän listansa, he sinun."
+    },
+    {
+      "heading": "Varaa lahjat salaa",
+      "body": "Varaa tuote kaverin listalta: muut näkevät sen olevan varattu, mutta listan omistaja ei saa koskaan tietää. Ei kaksoislahjoja eikä pilalle menneitä yllätyksiä."
+    },
+    {
+      "heading": "Salainen joulupukki järjestyksessä",
+      "body": "Luo ryhmä, kutsu kaikki yhdellä linkillä ja anna Wishlanen hoitaa arvonta. Jokainen näkee arpomansa henkilön toivelistan, joten lahjat osuvat oikeaan."
+    },
+    {
+      "heading": "Näe mitä muut toivovat",
+      "body": "Selaa kaveriesi julkisia toivelistoja, seuraa tulevia syntymäpäiviä ja juhlia lähtölaskennalla äläkä saavu enää koskaan tyhjin käsin."
+    },
+    {
+      "heading": "Pysy kärryillä",
+      "body": "Saat ilmoituksen, kun kaveri lisää toivelistan, lähettää sinulle pyynnön tai varaa jotain sinun listaltasi."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Rajattomasti listoja ja tuotteita, muokkausoikeus jaetuille listoille, hälytykset hinnanlaskuista sekä omat värit ja tärkeysjärjestykset."
+    }
+  ],
+  "closing": "Wishlanen aloittaminen on ilmaista – ei korttia, käyttöönotto alle minuutissa. Saatavilla yli 40 kielellä.",
+  "subscriptionHeading": "Tilausehdot",
+  "subscriptionApple": "Wishlane Premium on automaattisesti uusiutuva tilaus, joka on tarjolla kuukausittain tai vuosittain. Maksu veloitetaan Apple ID -tunnukseltasi oston vahvistuksen yhteydessä. Tilaus uusiutuu automaattisesti, ellei automaattista uusimista poisteta käytöstä vähintään 24 tuntia ennen kuluvan jakson päättymistä. Voit hallita tai peruuttaa tilauksen milloin tahansa Apple ID -tilisi asetuksissa.",
+  "subscriptionGoogle": "Wishlane Premium on automaattisesti uusiutuva tilaus, joka on tarjolla kuukausittain tai vuosittain. Maksu veloitetaan Google Play -tililtäsi oston vahvistuksen yhteydessä. Tilaus uusiutuu automaattisesti, ellei automaattista uusimista poisteta käytöstä vähintään 24 tuntia ennen kuluvan jakson päättymistä. Voit hallita tai peruuttaa tilauksen milloin tahansa Google Play Kaupassa.",
+  "footer": [
+    "Kysyttävää tai palautetta? support@wishlane.net",
+    "Tietosuojakäytäntö: https://wishlane.net/privacy-policy",
+    "Käyttöehdot: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Wishlanen ensimmäinen versio.",
+  "changelogBullets": [
+    "Toivelistat väreillä, tärkeysjärjestyksellä ja päivillä",
+    "Liitä tuotelinkki, me täytämme tiedot",
+    "Listat julkisina, kavereille tai yksityisinä",
+    "Varaa lahjoja salaa kaverien listoilta",
+    "Salaisen joulupukin ryhmä automaattisella arvonnalla",
+    "Kaverien listat ja tulevat juhlat"
+  ],
+  "permissions": {
+    "photos": "Salli Wishlanen valita profiilikuva kirjastostasi.",
+    "faceId": "Salli Wishlanen vaihtaa turvallisesti tallennettujen tilien välillä."
+  }
+}

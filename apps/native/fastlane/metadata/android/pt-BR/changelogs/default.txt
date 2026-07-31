@@ -1,0 +1,8 @@
+A primeira versão do Wishlane.
+
+- Listas com cores, prioridades e datas
+- Cole um link e preenchemos os detalhes
+- Listas públicas, só para amigos ou privadas
+- Reserve presentes em segredo nas listas de amigos
+- Grupo de amigo secreto com sorteio automático
+- Listas dos amigos e eventos chegando

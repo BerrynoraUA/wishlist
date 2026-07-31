@@ -1,0 +1,8 @@
+Wishlanen ensimmäinen versio.
+
+- Toivelistat väreillä, tärkeysjärjestyksellä ja päivillä
+- Liitä tuotelinkki, me täytämme tiedot
+- Listat julkisina, kavereille tai yksityisinä
+- Varaa lahjoja salaa kaverien listoilta
+- Salaisen joulupukin ryhmä automaattisella arvonnalla
+- Kaverien listat ja tulevat juhlat

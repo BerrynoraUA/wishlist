@@ -1,0 +1,73 @@
+{
+  "bcp47": "tr",
+  "title": "Wishlane: dilek listeleri",
+  "appleName": "Wishlane",
+  "subtitle": "Dilek listeleri ve hediyeler",
+  "shortDescription": "Dilek listeleri oluşturun, arkadaşlarınızla paylaşın, hediyeleri gizlice ayırın.",
+  "promoText": "Herhangi bir bağlantıyı yapıştırın, şık bir dilek listesi oluşturun ve paylaşın. Arkadaşlarınız hediyeleri gizlice ayırır: aynı hediye alınmaz, sürpriz bozulmaz.",
+  "keywords": [
+    "dilek listesi",
+    "hediye",
+    "doğum günü",
+    "yılbaşı",
+    "gizli kardeş",
+    "hediye fikirleri",
+    "alışveriş"
+  ],
+  "intro": [
+    "Wishlane, \"e sen aslında ne istiyorsun?\" sorusunu herkesin keyif aldığı bir şeye dönüştürür.",
+    "Şık dilek listeleri oluşturun, sizin için önemli olan kişilerle paylaşın ve hediyeleri gizlice ayırmalarına izin verin: kimse aynı şeyi iki kez almaz ve hiçbir sürpriz bozulmaz."
+  ],
+  "sections": [
+    {
+      "heading": "Saniyeler içinde dilek listesi",
+      "body": "Herhangi bir ürün bağlantısını yapıştırın; Wishlane başlığı, açıklamayı, görseli ve fiyatı sizin için doldursun. Listeye ad verin, bir renk seçin, etkinlik tarihini girin ve bitti."
+    },
+    {
+      "heading": "Paylaşım kuralını siz koyun",
+      "body": "Her liste herkese açık, yalnızca arkadaşlara açık veya tamamen gizli olabilir. Dilediğinize bağlantı gönderin ya da kullanıcı adıyla arkadaş ekleyin: siz onların listelerini, onlar sizinkini görür."
+    },
+    {
+      "heading": "Hediyeleri gizlice ayırın",
+      "body": "Bir arkadaşınızın listesindeki ürünü ayırın; diğer herkes o ürünün alındığını görür ama listenin sahibi asla öğrenmez. Ne aynı hediye ne de bozulan sürpriz."
+    },
+    {
+      "heading": "Gizli kardeş, düzenli",
+      "body": "Bir grup oluşturun, tek bağlantıyla herkesi davet edin ve çekilişi Wishlane yapsın. Herkes eşleştiği kişinin dilek listesini görür, böylece hediyeler tam isabet eder."
+    },
+    {
+      "heading": "Kimin ne istediğini keşfedin",
+      "body": "Arkadaşlarınızın herkese açık listelerine göz atın, yaklaşan doğum günlerini ve özel günleri geri sayımla görün ve bir daha asla eli boş gitmeyin."
+    },
+    {
+      "heading": "Gelişmelerden haberdar olun",
+      "body": "Bir arkadaşınız liste eklediğinde, size istek gönderdiğinde ya da listenizden bir şey ayırdığında bildirim alın."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Sınırsız liste ve ürün, paylaşılan listelerde ortak düzenleme, fiyat düşüşlerini bildiren indirim uyarıları, özel renkler ve öncelikler."
+    }
+  ],
+  "closing": "Wishlane'e başlamak ücretsiz: kredi kartı yok, kurulum bir dakikadan kısa. 40'tan fazla dilde kullanılabilir.",
+  "subscriptionHeading": "Abonelik koşulları",
+  "subscriptionApple": "Wishlane Premium, aylık veya yıllık sunulan otomatik yenilenen bir aboneliktir. Ödeme, satın alma onayında Apple Kimliğinizden tahsil edilir. Mevcut dönemin bitiminden en az 24 saat önce otomatik yenileme kapatılmazsa abonelik kendiliğinden yenilenir. Aboneliğinizi istediğiniz zaman Apple Kimliği hesap ayarlarınızdan yönetebilir veya iptal edebilirsiniz.",
+  "subscriptionGoogle": "Wishlane Premium, aylık veya yıllık sunulan otomatik yenilenen bir aboneliktir. Ödeme, satın alma onayında Google Play hesabınızdan tahsil edilir. Mevcut dönemin bitiminden en az 24 saat önce otomatik yenileme kapatılmazsa abonelik kendiliğinden yenilenir. Aboneliğinizi istediğiniz zaman Google Play Store'dan yönetebilir veya iptal edebilirsiniz.",
+  "footer": [
+    "Soru ya da görüşleriniz için: support@wishlane.net",
+    "Gizlilik Politikası: https://wishlane.net/privacy-policy",
+    "Hizmet Koşulları: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Wishlane'in ilk sürümü.",
+  "changelogBullets": [
+    "Renkler, öncelikler ve tarihlerle dilek listeleri",
+    "Ürün bağlantısını yapıştırın, detayları biz dolduralım",
+    "Listeler herkese açık, arkadaşlara özel veya gizli",
+    "Arkadaş listelerinde hediyeleri gizlice ayırma",
+    "Otomatik çekilişli gizli kardeş grubu",
+    "Arkadaş listeleri ve yaklaşan özel günler"
+  ],
+  "permissions": {
+    "photos": "Wishlane'in kitaplığınızdan bir profil fotoğrafı seçmesine izin verin.",
+    "faceId": "Wishlane'in kayıtlı hesaplar arasında güvenle geçiş yapmasına izin verin."
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "bcp47": "hr",
+  "title": "Wishlane: liste želja",
+  "appleName": "Wishlane",
+  "subtitle": "Liste želja i darovi",
+  "shortDescription": "Stvarajte liste želja, dijelite ih s prijateljima i tajno rezervirajte darove.",
+  "promoText": "Zalijepite poveznicu, stvorite lijepu listu želja i podijelite je s prijateljima. Darove rezerviraju tajno – nitko ne kupuje isto i iznenađenje ostaje tajna.",
+  "keywords": [
+    "lista želja",
+    "dar",
+    "rođendan",
+    "božić",
+    "tajni Djed Božićnjak",
+    "ideje za darove"
+  ],
+  "intro": [
+    "Wishlane pretvara pitanje „pa što zapravo želiš?” u nešto u čemu svi uživaju.",
+    "Stvarajte lijepe liste želja, dijelite ih s ljudima do kojih vam je stalo i pustite ih da tajno rezerviraju darove – nitko ne kupuje istu stvar dvaput i nijedno iznenađenje nije pokvareno."
+  ],
+  "sections": [
+    {
+      "heading": "Lista želja u nekoliko sekundi",
+      "body": "Zalijepite poveznicu bilo kojeg proizvoda i Wishlane će umjesto vas ispuniti naslov, opis, sliku i cijenu. Imenujte listu, odaberite boju, postavite datum događaja i gotovi ste."
+    },
+    {
+      "heading": "Dijelite po svojim pravilima",
+      "body": "Svaka lista može biti javna, samo za prijatelje ili posve privatna. Pošaljite poveznicu bilo kome ili dodajte prijatelje po korisničkom imenu – vi vidite njihove liste, oni vaše."
+    },
+    {
+      "heading": "Tajno rezervirajte darove",
+      "body": "Rezervirajte stavku na prijateljevoj listi: svi ostali vide da je zauzeta, ali vlasnik liste to nikada ne saznaje. Nema dvostrukih darova ni pokvarenih iznenađenja."
+    },
+    {
+      "heading": "Tajni Djed Božićnjak, organizirano",
+      "body": "Stvorite grupu, pozovite sve jednom poveznicom i prepustite izvlačenje Wishlaneu. Svatko vidi listu želja osobe koju je izvukao pa darovi doista pogađaju."
+    },
+    {
+      "heading": "Otkrijte što drugi žele",
+      "body": "Pregledavajte javne liste prijatelja, pratite nadolazeće rođendane i događaje s odbrojavanjem i nikada više ne dolazite praznih ruku."
+    },
+    {
+      "heading": "Budite u toku",
+      "body": "Primit ćete obavijest kada prijatelj doda listu želja, pošalje vam zahtjev ili rezervira nešto s vaše liste."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Neograničene liste i stavke, pristup suradnicima na dijeljenim listama, upozorenja o padu cijena te vlastite boje i prioriteti."
+    }
+  ],
+  "closing": "Wishlane je za početak besplatan – bez kartice, postavljanje u manje od minute. Dostupan na više od 40 jezika.",
+  "subscriptionHeading": "Uvjeti pretplate",
+  "subscriptionApple": "Wishlane Premium automatski je obnavljajuća pretplata, mjesečna ili godišnja. Plaćanje se naplaćuje s vašeg Apple ID-a pri potvrdi kupnje. Pretplata se automatski obnavlja osim ako se automatsko obnavljanje ne isključi najmanje 24 sata prije kraja tekućeg razdoblja. Možete je u svakom trenutku urediti ili otkazati u postavkama Apple ID računa.",
+  "subscriptionGoogle": "Wishlane Premium automatski je obnavljajuća pretplata, mjesečna ili godišnja. Plaćanje se naplaćuje s vašeg Google Play računa pri potvrdi kupnje. Pretplata se automatski obnavlja osim ako se automatsko obnavljanje ne isključi najmanje 24 sata prije kraja tekućeg razdoblja. Možete je u svakom trenutku urediti ili otkazati u trgovini Google Play.",
+  "footer": [
+    "Pitanja ili povratne informacije? support@wishlane.net",
+    "Pravila o privatnosti: https://wishlane.net/privacy-policy",
+    "Uvjeti korištenja: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Prvo izdanje Wishlanea.",
+  "changelogBullets": [
+    "Liste želja s bojama, prioritetima i datumima",
+    "Zalijepite poveznicu, detalje ispunjavamo mi",
+    "Liste javne, samo za prijatelje ili privatne",
+    "Tajna rezervacija darova na listama prijatelja",
+    "Grupa Tajni Djed Božićnjak s automatskim izvlačenjem",
+    "Liste prijatelja i nadolazeći događaji"
+  ],
+  "permissions": {
+    "photos": "Dopustite Wishlaneu da odabere profilnu sliku iz vaše biblioteke.",
+    "faceId": "Dopustite Wishlaneu sigurno prebacivanje između spremljenih računa."
+  }
+}

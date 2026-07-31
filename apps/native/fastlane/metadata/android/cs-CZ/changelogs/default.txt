@@ -1,0 +1,8 @@
+První vydání Wishlane.
+
+- Seznamy přání s barvami, prioritami a daty
+- Vložte odkaz na produkt a detaily doplníme
+- Seznamy veřejné, jen pro přátele nebo soukromé
+- Tajná rezervace dárků v seznamech přátel
+- Skupina Tajný Ježíšek s automatickým losováním
+- Seznamy přátel a nadcházející události

@@ -1,0 +1,4 @@
+{
+  "NSPhotoLibraryUsageDescription": "ライブラリからプロフィール画像を選ぶために Wishlane に写真へのアクセスを許可してください。",
+  "NSFaceIDUsageDescription": "保存済みアカウントを安全に切り替えるために Wishlane に許可してください。"
+}

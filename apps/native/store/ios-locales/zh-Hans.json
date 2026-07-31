@@ -1,0 +1,4 @@
+{
+  "NSPhotoLibraryUsageDescription": "允许 Wishlane 从您的相册中选择头像。",
+  "NSFaceIDUsageDescription": "允许 Wishlane 在已保存的账户之间安全切换。"
+}

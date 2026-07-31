@@ -1,0 +1,73 @@
+{
+  "bcp47": "cs",
+  "title": "Wishlane: seznamy přání",
+  "appleName": "Wishlane",
+  "subtitle": "Seznamy přání a dárky",
+  "shortDescription": "Vytvářejte seznamy přání, sdílejte je s přáteli a tajně rezervujte dárky.",
+  "promoText": "Vložte jakýkoli odkaz, vytvořte krásný seznam přání a sdílejte ho s přáteli. Dárky rezervují tajně – nikdo nekoupí to samé a žádné překvapení se neprozradí.",
+  "keywords": [
+    "seznam přání",
+    "dárek",
+    "narozeniny",
+    "vánoce",
+    "tajný ježíšek",
+    "tipy na dárky",
+    "nákupy"
+  ],
+  "intro": [
+    "Wishlane promění otázku „tak co si vlastně přeješ?“ v něco, co baví všechny.",
+    "Vytvářejte krásné seznamy přání, sdílejte je s lidmi, na kterých vám záleží, a nechte je tajně rezervovat dárky – nikdo nekoupí to samé dvakrát a žádné překvapení se nezkazí."
+  ],
+  "sections": [
+    {
+      "heading": "Seznam přání za pár vteřin",
+      "body": "Vložte odkaz na jakýkoli produkt a Wishlane za vás doplní název, popis, obrázek i cenu. Pojmenujte seznam, vyberte barvu, nastavte datum události a je hotovo."
+    },
+    {
+      "heading": "Sdílejte podle sebe",
+      "body": "Každý seznam může být veřejný, jen pro přátele, nebo zcela soukromý. Pošlete odkaz komukoli, nebo se s přáteli propojte přes uživatelské jméno – uvidíte jejich seznamy, oni ty vaše."
+    },
+    {
+      "heading": "Rezervujte dárky tajně",
+      "body": "Rezervujte položku ze seznamu kamaráda – ostatní uvidí, že je zabraná, ale majitel seznamu se to nikdy nedozví. Žádné dvojité dárky, žádná zkažená překvapení."
+    },
+    {
+      "heading": "Tajný Ježíšek bez starostí",
+      "body": "Vytvořte skupinu, pozvěte všechny jediným odkazem a losování nechte na Wishlane. Každý vidí seznam přání toho, koho si vylosoval, takže dárky opravdu sedí."
+    },
+    {
+      "heading": "Objevte, co si kdo přeje",
+      "body": "Procházejte veřejné seznamy přátel, sledujte blížící se narozeniny a události s odpočtem a nikdy už nepřicházejte s prázdnou."
+    },
+    {
+      "heading": "Mějte přehled",
+      "body": "Dostanete upozornění, když někdo přidá seznam přání, pošle vám žádost nebo si něco rezervuje z toho vašeho."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Neomezené seznamy a položky, přístup spolupracovníků u sdílených seznamů, upozornění na zlevnění a vlastní barvy i priority."
+    }
+  ],
+  "closing": "Wishlane je na začátek zdarma – bez karty, nastavení do jedné minuty. K dispozici ve více než 40 jazycích.",
+  "subscriptionHeading": "Podmínky předplatného",
+  "subscriptionApple": "Wishlane Premium je automaticky obnovované předplatné, měsíční nebo roční. Platba se strhne z vašeho Apple ID při potvrzení nákupu. Předplatné se automaticky obnoví, pokud automatické obnovení nevypnete alespoň 24 hodin před koncem aktuálního období. Spravovat nebo zrušit ho můžete kdykoli v nastavení účtu Apple ID.",
+  "subscriptionGoogle": "Wishlane Premium je automaticky obnovované předplatné, měsíční nebo roční. Platba se strhne z vašeho účtu Google Play při potvrzení nákupu. Předplatné se automaticky obnoví, pokud automatické obnovení nevypnete alespoň 24 hodin před koncem aktuálního období. Spravovat nebo zrušit ho můžete kdykoli v Obchodě Google Play.",
+  "footer": [
+    "Dotazy nebo připomínky? support@wishlane.net",
+    "Zásady ochrany osobních údajů: https://wishlane.net/privacy-policy",
+    "Podmínky používání: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "První vydání Wishlane.",
+  "changelogBullets": [
+    "Seznamy přání s barvami, prioritami a daty",
+    "Vložte odkaz na produkt a detaily doplníme",
+    "Seznamy veřejné, jen pro přátele nebo soukromé",
+    "Tajná rezervace dárků v seznamech přátel",
+    "Skupina Tajný Ježíšek s automatickým losováním",
+    "Seznamy přátel a nadcházející události"
+  ],
+  "permissions": {
+    "photos": "Povolte Wishlane vybrat profilový obrázek z vaší knihovny.",
+    "faceId": "Povolte Wishlane bezpečně přepínat mezi uloženými účty."
+  }
+}

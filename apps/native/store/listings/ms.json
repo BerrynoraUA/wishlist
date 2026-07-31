@@ -1,0 +1,73 @@
+{
+  "bcp47": "ms",
+  "title": "Wishlane: senarai hajat",
+  "appleName": "Wishlane",
+  "subtitle": "Senarai hajat dan hadiah",
+  "shortDescription": "Cipta senarai hajat, kongsi dengan rakan dan tempah hadiah secara rahsia.",
+  "promoText": "Tampal mana-mana pautan, cipta senarai hajat yang cantik dan kongsikannya. Rakan menempah hadiah secara rahsia: tiada hadiah berulang dan tiada kejutan yang terbongkar.",
+  "keywords": [
+    "senarai hajat",
+    "hadiah",
+    "hari jadi",
+    "krismas",
+    "secret santa",
+    "idea hadiah",
+    "beli-belah"
+  ],
+  "intro": [
+    "Wishlane menukar soalan \"jadi, apa yang kamu nak sebenarnya?\" kepada sesuatu yang semua orang nikmati.",
+    "Cipta senarai hajat yang cantik, kongsikannya dengan orang yang penting bagi anda dan biarkan mereka menempah hadiah secara rahsia: tiada siapa membeli benda yang sama dua kali dan tiada kejutan yang rosak."
+  ],
+  "sections": [
+    {
+      "heading": "Senarai hajat dalam beberapa saat",
+      "body": "Tampal mana-mana pautan produk dan Wishlane akan mengisi tajuk, penerangan, gambar serta harga untuk anda. Namakan senarai, pilih warna, tetapkan tarikh acara dan siap."
+    },
+    {
+      "heading": "Kongsi ikut cara anda",
+      "body": "Setiap senarai boleh menjadi awam, khusus rakan sahaja atau sepenuhnya peribadi. Hantar pautan kepada sesiapa, atau tambah rakan melalui nama pengguna: anda lihat senarai mereka, mereka lihat senarai anda."
+    },
+    {
+      "heading": "Tempah hadiah secara rahsia",
+      "body": "Tempah item pada senarai rakan: orang lain nampak item itu sudah diambil, tetapi pemilik senarai tidak akan tahu. Tiada hadiah berulang, tiada kejutan yang rosak."
+    },
+    {
+      "heading": "Secret Santa, tersusun",
+      "body": "Cipta kumpulan, jemput semua orang dengan satu pautan dan biarkan Wishlane membuat cabutan. Setiap orang melihat senarai hajat pasangannya, jadi hadiah benar-benar kena pada tempatnya."
+    },
+    {
+      "heading": "Terokai apa yang orang mahu",
+      "body": "Layari senarai hajat awam rakan anda, lihat hari jadi dan acara akan datang dengan kiraan detik, dan jangan datang dengan tangan kosong lagi."
+    },
+    {
+      "heading": "Sentiasa dimaklumkan",
+      "body": "Dapatkan pemberitahuan apabila rakan menambah senarai hajat, menghantar permintaan atau menempah sesuatu daripada senarai anda."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Senarai dan item tanpa had, akses kolaborator pada senarai dikongsi, amaran jualan apabila harga turun, serta warna dan keutamaan tersuai."
+    }
+  ],
+  "closing": "Wishlane percuma untuk bermula: tiada kad kredit, siap dalam masa kurang seminit. Tersedia dalam lebih 40 bahasa.",
+  "subscriptionHeading": "Terma langganan",
+  "subscriptionApple": "Wishlane Premium ialah langganan pembaharuan automatik, bulanan atau tahunan. Bayaran dicaj ke Apple ID anda semasa pengesahan pembelian. Langganan diperbaharui secara automatik melainkan pembaharuan automatik dimatikan sekurang-kurangnya 24 jam sebelum tempoh semasa tamat. Anda boleh mengurus atau membatalkannya bila-bila masa dalam tetapan akaun Apple ID.",
+  "subscriptionGoogle": "Wishlane Premium ialah langganan pembaharuan automatik, bulanan atau tahunan. Bayaran dicaj ke akaun Google Play anda semasa pengesahan pembelian. Langganan diperbaharui secara automatik melainkan pembaharuan automatik dimatikan sekurang-kurangnya 24 jam sebelum tempoh semasa tamat. Anda boleh mengurus atau membatalkannya bila-bila masa dalam Gedung Google Play.",
+  "footer": [
+    "Ada soalan atau maklum balas? support@wishlane.net",
+    "Dasar Privasi: https://wishlane.net/privacy-policy",
+    "Terma Perkhidmatan: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Keluaran pertama Wishlane.",
+  "changelogBullets": [
+    "Senarai hajat dengan warna, keutamaan dan tarikh",
+    "Tampal pautan produk, kami isikan butirannya",
+    "Senarai awam, khusus rakan atau peribadi",
+    "Tempah hadiah secara rahsia pada senarai rakan",
+    "Kumpulan Secret Santa dengan cabutan automatik",
+    "Senarai rakan dan acara akan datang"
+  ],
+  "permissions": {
+    "photos": "Benarkan Wishlane memilih gambar profil daripada pustaka anda.",
+    "faceId": "Benarkan Wishlane bertukar antara akaun tersimpan dengan selamat."
+  }
+}
