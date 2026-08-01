@@ -20,9 +20,11 @@
     "@formatjs/intl-datetimeformat": "6.18.2",
     "@formatjs/intl-displaynames": "~6.8.13",
     "@formatjs/intl-getcanonicallocales": "2.5.6",
+    "@formatjs/intl-listformat": "7.7.13",
     "@formatjs/intl-locale": "4.2.13",
     "@formatjs/intl-numberformat": "8.15.6",
     "@formatjs/intl-pluralrules": "5.4.6",
+    "@formatjs/intl-relativetimeformat": "11.4.13",
     "@lodev09/react-native-true-sheet": "^3.10.1",
     "@posthog/core": "1.25.2",
     "@react-native-community/netinfo": "12.0.1",
@@ -108,6 +110,7 @@
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@types/react": "~19.2.10",
+    "generaltranslation": "^8.2.2",
     "gt": "^2.14.10",
     "typescript": "~6.0.3",
     "vitest": "^4.1.10"

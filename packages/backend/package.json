@@ -34,7 +34,8 @@
     "./types/wishlist": "./types/wishlist.ts"
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
@@ -44,6 +45,7 @@
     "server-only": "0.0.1"
   },
   "devDependencies": {
-    "@types/node": "^20.19.39"
+    "@types/node": "^20.19.39",
+    "vitest": "^4.1.10"
   }
 }

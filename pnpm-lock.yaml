@@ -109,6 +109,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.3(@types/react@19.2.14)
+      generaltranslation:
+        specifier: ^8.2.2
+        version: 8.2.2
       gtx-cli:
         specifier: ^2.14.4
         version: 2.14.12
@@ -136,6 +139,9 @@ importers:
       '@formatjs/intl-getcanonicallocales':
         specifier: 2.5.6
         version: 2.5.6
+      '@formatjs/intl-listformat':
+        specifier: 7.7.13
+        version: 7.7.13
       '@formatjs/intl-locale':
         specifier: 4.2.13
         version: 4.2.13
@@ -145,6 +151,9 @@ importers:
       '@formatjs/intl-pluralrules':
         specifier: 5.4.6
         version: 5.4.6
+      '@formatjs/intl-relativetimeformat':
+        specifier: 11.4.13
+        version: 11.4.13
       '@lodev09/react-native-true-sheet':
         specifier: ^3.10.1
         version: 3.10.1(@react-navigation/native@7.2.2(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native-reanimated@4.3.1(react-native-worklets@0.8.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native-worklets@0.8.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
@@ -395,6 +404,9 @@ importers:
       '@types/react':
         specifier: ~19.2.10
         version: 19.2.14
+      generaltranslation:
+        specifier: ^8.2.2
+        version: 8.2.2
       gt:
         specifier: ^2.14.10
         version: 2.14.12(@babel/core@7.29.0)
@@ -426,6 +438,9 @@ importers:
       '@types/node':
         specifier: ^20.19.39
         version: 20.19.39
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@20.19.39)(vite@8.1.4(@types/node@20.19.39)(esbuild@0.27.7)(jiti@2.6.1)(sass@1.99.0)(terser@5.48.0)(yaml@2.9.0))
 
 packages:
 
@@ -7990,10 +8005,10 @@ snapshots:
 
   '@expo/config@56.0.10(typescript@6.0.3)':
     dependencies:
-      '@expo/config-plugins': 56.0.10(typescript@6.0.3)
+      '@expo/config-plugins': 56.0.13(typescript@6.0.3)
       '@expo/config-types': 56.0.7
       '@expo/json-file': 10.2.0
-      '@expo/require-utils': 56.1.3(typescript@6.0.3)
+      '@expo/require-utils': 56.1.5(typescript@6.0.3)
       deepmerge: 4.3.1
       getenv: 2.0.0
       glob: 13.0.6
@@ -8101,7 +8116,7 @@ snapshots:
       '@expo/env': 2.3.0
       '@expo/json-file': 10.2.0
       '@expo/metro': 56.0.0
-      '@expo/require-utils': 56.1.3(typescript@6.0.3)
+      '@expo/require-utils': 56.1.5(typescript@6.0.3)
       '@expo/spawn-async': 1.8.0
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/remapping': 2.3.5

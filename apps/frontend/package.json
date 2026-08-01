@@ -49,6 +49,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "generaltranslation": "^8.2.2",
     "gtx-cli": "^2.14.4",
     "sass": "^1.97.3",
     "typescript": "5.9.3"

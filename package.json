@@ -17,6 +17,7 @@
     "android": "turbo run android --filter=native",
     "ios": "turbo run ios --filter=native",
     "test": "pnpm --filter frontend test:e2e",
+    "test:unit": "turbo run test",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions --fix-dangerously",
     "format": "oxfmt --check",

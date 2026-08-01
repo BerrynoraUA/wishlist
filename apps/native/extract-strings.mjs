@@ -8,12 +8,17 @@
  * explicitly in `extras`/`hashOverrides` below. If extraction ever reports missing
  * keys again, cross-reference content/{locale}.json across a few languages to
  * reconstruct the English original, then add it here.
+ *
+ * Run: node apps/native/extract-strings.mjs
  */
 import fs from "fs";
 import path from "path";
+import url from "url";
 import { hashSource } from "generaltranslation/id";
 
-const ROOT = path.resolve(process.cwd());
+// Resolved from this file rather than process.cwd() so the script scans the native app
+// (and writes the map to the repo root) no matter which directory it is invoked from.
+const ROOT = path.dirname(url.fileURLToPath(import.meta.url));
 const exts = new Set([".ts", ".tsx"]);
 let files = [];
 function walk(dir) {
