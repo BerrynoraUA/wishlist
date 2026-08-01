@@ -39,7 +39,9 @@
       "android": {
         "track": "production"
       },
-      "ios": {}
+      "ios": {
+        "metadataPath": "store.config.js"
+      }
     },
     "staging": {
       "android": {

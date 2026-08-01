@@ -1,0 +1,73 @@
+{
+  "bcp47": "it",
+  "title": "Wishlane: liste dei desideri",
+  "appleName": "Wishlane",
+  "subtitle": "Liste dei desideri e regali",
+  "shortDescription": "Crea liste dei desideri, condividile e prenota i regali in segreto.",
+  "promoText": "Incolla un link, crea una bella lista dei desideri e condividila. Gli amici prenotano i regali in segreto: niente doppioni e nessuna sorpresa rovinata.",
+  "keywords": [
+    "lista desideri",
+    "regalo",
+    "compleanno",
+    "natale",
+    "babbo natale segreto",
+    "idee regalo",
+    "shopping"
+  ],
+  "intro": [
+    "Wishlane trasforma il «ma tu cosa vuoi davvero?» in un momento piacevole per tutti.",
+    "Crea liste dei desideri bellissime, condividile con le persone che contano e lascia che prenotino i regali in segreto: nessuno compra la stessa cosa due volte e nessuna sorpresa viene rovinata."
+  ],
+  "sections": [
+    {
+      "heading": "Una lista in pochi secondi",
+      "body": "Incolla un link a un prodotto e Wishlane compila titolo, descrizione, immagine e prezzo per te. Dai un nome alla lista, scegli un colore, imposta la data dell'evento e hai finito."
+    },
+    {
+      "heading": "Condividi come vuoi tu",
+      "body": "Ogni lista può essere pubblica, solo per amici o del tutto privata. Invia un link a chiunque oppure aggiungi gli amici per nome utente: vedrai le loro liste e loro le tue."
+    },
+    {
+      "heading": "Prenota i regali in segreto",
+      "body": "Prenota un articolo sulla lista di un amico: tutti gli altri vedranno che è già preso, ma chi ha creato la lista non lo scoprirà mai. Niente regali doppi, niente sorprese rovinate."
+    },
+    {
+      "heading": "Babbo Natale segreto, organizzato",
+      "body": "Crea un gruppo, invita tutti con un solo link e lascia che Wishlane faccia l'estrazione. Ognuno vede la lista di chi gli è stato assegnato, così i regali fanno centro."
+    },
+    {
+      "heading": "Scopri cosa desiderano gli altri",
+      "body": "Sfoglia le liste pubbliche dei tuoi amici, tieni d'occhio compleanni ed eventi in arrivo con il conto alla rovescia e non presentarti mai più a mani vuote."
+    },
+    {
+      "heading": "Resta aggiornato",
+      "body": "Ricevi una notifica quando un amico aggiunge una lista, ti invia una richiesta o prenota qualcosa dalla tua."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Liste e articoli illimitati, accesso per collaboratori sulle liste condivise, avvisi sui cali di prezzo e colori e priorità personalizzati."
+    }
+  ],
+  "closing": "Wishlane è gratis per iniziare: nessuna carta di credito, tutto pronto in meno di un minuto. Disponibile in oltre 40 lingue.",
+  "subscriptionHeading": "Condizioni dell'abbonamento",
+  "subscriptionApple": "Wishlane Premium è un abbonamento con rinnovo automatico, mensile o annuale. Il pagamento viene addebitato sul tuo ID Apple alla conferma dell'acquisto. L'abbonamento si rinnova automaticamente a meno che il rinnovo non venga disattivato almeno 24 ore prima della fine del periodo in corso. Puoi gestirlo o annullarlo in qualsiasi momento nelle impostazioni del tuo account ID Apple.",
+  "subscriptionGoogle": "Wishlane Premium è un abbonamento con rinnovo automatico, mensile o annuale. Il pagamento viene addebitato sul tuo account Google Play alla conferma dell'acquisto. L'abbonamento si rinnova automaticamente a meno che il rinnovo non venga disattivato almeno 24 ore prima della fine del periodo in corso. Puoi gestirlo o annullarlo in qualsiasi momento nel Google Play Store.",
+  "footer": [
+    "Domande o suggerimenti? support@wishlane.net",
+    "Informativa sulla privacy: https://wishlane.net/privacy-policy",
+    "Termini di servizio: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "La prima versione di Wishlane.",
+  "changelogBullets": [
+    "Liste con colori, priorità e date",
+    "Incolla un link e compiliamo noi i dettagli",
+    "Liste pubbliche, solo per amici o private",
+    "Prenota regali in segreto sulle liste degli amici",
+    "Gruppo Babbo Natale segreto con estrazione automatica",
+    "Liste degli amici ed eventi in arrivo"
+  ],
+  "permissions": {
+    "photos": "Consenti a Wishlane di scegliere un'immagine del profilo dalla tua libreria.",
+    "faceId": "Consenti a Wishlane di passare in modo sicuro da un account salvato all'altro."
+  }
+}

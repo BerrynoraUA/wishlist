@@ -1,0 +1,8 @@
+Prima versiune Wishlane.
+
+- Liste cu culori, priorități și date
+- Lipești un link, noi completăm detaliile
+- Liste publice, doar pentru prieteni sau private
+- Rezervi cadouri în secret pe listele prietenilor
+- Grup Moș Anonim cu extragere automată
+- Listele prietenilor și evenimente apropiate

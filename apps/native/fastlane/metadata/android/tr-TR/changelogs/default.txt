@@ -1,0 +1,8 @@
+Wishlane'in ilk sürümü.
+
+- Renkler, öncelikler ve tarihlerle dilek listeleri
+- Ürün bağlantısını yapıştırın, detayları biz dolduralım
+- Listeler herkese açık, arkadaşlara özel veya gizli
+- Arkadaş listelerinde hediyeleri gizlice ayırma
+- Otomatik çekilişli gizli kardeş grubu
+- Arkadaş listeleri ve yaklaşan özel günler

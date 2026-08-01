@@ -1,0 +1,8 @@
+Pirmā Wishlane versija.
+
+- Vēlmju saraksti ar krāsām, prioritātēm un datumiem
+- Ielīmējiet saiti – detaļas aizpildīsim mēs
+- Saraksti publiski, tikai draugiem vai privāti
+- Slepena dāvanu rezervēšana draugu sarakstos
+- Slepenā Ziemassvētku vecīša grupa ar automātisku izlozi
+- Draugu saraksti un gaidāmie notikumi

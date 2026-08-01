@@ -1,0 +1,73 @@
+{
+  "bcp47": "de",
+  "title": "Wishlane: Wunschlisten",
+  "appleName": "Wishlane",
+  "subtitle": "Wunschlisten, schön geteilt",
+  "shortDescription": "Wunschlisten erstellen, mit Freunden teilen und Geschenke heimlich reservieren.",
+  "promoText": "Link einfügen, schöne Wunschliste erstellen und mit Freunden teilen. Sie reservieren Geschenke heimlich – niemand kauft dasselbe, keine Überraschung wird verraten.",
+  "keywords": [
+    "wunschliste",
+    "geschenk",
+    "geburtstag",
+    "weihnachten",
+    "wichteln",
+    "geschenkideen",
+    "shopping"
+  ],
+  "intro": [
+    "Wishlane macht aus „Was wünschst du dir eigentlich?“ etwas, das allen Spaß macht.",
+    "Erstelle schöne Wunschlisten, teile sie mit den Menschen, die dir wichtig sind, und lass sie Geschenke heimlich reservieren – so kauft niemand dasselbe zweimal und keine Überraschung wird verdorben."
+  ],
+  "sections": [
+    {
+      "heading": "Wunschliste in Sekunden",
+      "body": "Füge einen beliebigen Produktlink ein und Wishlane ergänzt Titel, Beschreibung, Bild und Preis automatisch. Liste benennen, Farbe wählen, Datum setzen – fertig."
+    },
+    {
+      "heading": "Teilen, wie du willst",
+      "body": "Jede Wunschliste ist öffentlich, nur für Freunde oder komplett privat. Sende einen Link an alle oder verbinde dich per Benutzername mit Freunden – du siehst ihre Listen, sie deine."
+    },
+    {
+      "heading": "Geschenke heimlich reservieren",
+      "body": "Reserviere einen Eintrag auf der Liste einer Freundin oder eines Freundes: Alle anderen sehen, dass er vergeben ist – nur die Besitzerin oder der Besitzer erfährt es nie. Keine doppelten Geschenke, keine verratenen Überraschungen."
+    },
+    {
+      "heading": "Wichteln, organisiert",
+      "body": "Gruppe erstellen, alle mit einem Link einladen und Wishlane die Auslosung übernehmen lassen. Jede Person sieht die Wunschliste ihres Loses – so treffen die Geschenke ins Schwarze."
+    },
+    {
+      "heading": "Entdecke, was andere wollen",
+      "body": "Stöbere in den öffentlichen Wunschlisten deiner Freunde, sieh anstehende Geburtstage und Anlässe mit Countdown und stehe nie wieder mit leeren Händen da."
+    },
+    {
+      "heading": "Immer auf dem Laufenden",
+      "body": "Erhalte eine Benachrichtigung, wenn jemand eine Wunschliste anlegt, dir eine Anfrage schickt oder etwas aus deiner Liste reserviert."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Unbegrenzte Listen und Einträge, Mitbearbeitung geteilter Listen, Preisalarme bei Rabatten sowie eigene Farben und Prioritäten."
+    }
+  ],
+  "closing": "Wishlane ist kostenlos nutzbar – keine Kreditkarte, in unter einer Minute eingerichtet. In über 40 Sprachen verfügbar.",
+  "subscriptionHeading": "Abo-Bedingungen",
+  "subscriptionApple": "Wishlane Premium ist ein automatisch verlängerbares Abo, monatlich oder jährlich. Die Zahlung wird bei Kaufbestätigung deiner Apple-ID belastet. Das Abo verlängert sich automatisch, sofern die automatische Verlängerung nicht mindestens 24 Stunden vor Ende des laufenden Zeitraums deaktiviert wird. Du kannst dein Abo jederzeit in den Einstellungen deiner Apple-ID verwalten oder kündigen.",
+  "subscriptionGoogle": "Wishlane Premium ist ein automatisch verlängerbares Abo, monatlich oder jährlich. Die Zahlung wird bei Kaufbestätigung deinem Google-Play-Konto belastet. Das Abo verlängert sich automatisch, sofern die automatische Verlängerung nicht mindestens 24 Stunden vor Ende des laufenden Zeitraums deaktiviert wird. Du kannst dein Abo jederzeit im Google Play Store verwalten oder kündigen.",
+  "footer": [
+    "Fragen oder Feedback? support@wishlane.net",
+    "Datenschutzerklärung: https://wishlane.net/privacy-policy",
+    "Nutzungsbedingungen: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Die erste Version von Wishlane.",
+  "changelogBullets": [
+    "Wunschlisten mit Farben, Prioritäten und Daten",
+    "Produktlink einfügen, Details werden ergänzt",
+    "Listen öffentlich, für Freunde oder privat teilen",
+    "Geschenke heimlich reservieren",
+    "Wichtelgruppe mit automatischer Auslosung",
+    "Listen von Freunden und anstehende Anlässe"
+  ],
+  "permissions": {
+    "photos": "Erlaube Wishlane, ein Profilbild aus deiner Mediathek auszuwählen.",
+    "faceId": "Erlaube Wishlane, sicher zwischen gespeicherten Konten zu wechseln."
+  }
+}

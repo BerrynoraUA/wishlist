@@ -1,0 +1,73 @@
+{
+  "bcp47": "vi",
+  "title": "Wishlane: danh sách ước",
+  "appleName": "Wishlane",
+  "subtitle": "Danh sách ước và quà tặng",
+  "shortDescription": "Tạo danh sách ước, chia sẻ với bạn bè và bí mật giữ chỗ món quà.",
+  "promoText": "Dán bất kỳ liên kết nào, tạo danh sách ước thật đẹp rồi chia sẻ với bạn bè. Họ giữ chỗ quà trong bí mật: không ai tặng trùng, không bất ngờ nào bị lộ.",
+  "keywords": [
+    "danh sách ước",
+    "quà tặng",
+    "sinh nhật",
+    "giáng sinh",
+    "secret santa",
+    "ý tưởng quà",
+    "mua sắm"
+  ],
+  "intro": [
+    "Wishlane biến câu hỏi \"rốt cuộc bạn muốn gì?\" thành điều ai cũng thấy vui.",
+    "Tạo những danh sách ước thật đẹp, chia sẻ với người quan trọng và để họ bí mật giữ chỗ món quà: không ai mua trùng và không bất ngờ nào bị phá hỏng."
+  ],
+  "sections": [
+    {
+      "heading": "Tạo danh sách trong vài giây",
+      "body": "Dán bất kỳ liên kết sản phẩm nào và Wishlane sẽ tự điền tên, mô tả, hình ảnh và giá. Đặt tên danh sách, chọn màu, thêm ngày diễn ra sự kiện là xong."
+    },
+    {
+      "heading": "Chia sẻ theo ý bạn",
+      "body": "Mỗi danh sách có thể công khai, chỉ bạn bè hoặc hoàn toàn riêng tư. Gửi liên kết cho bất kỳ ai, hoặc kết bạn bằng tên người dùng: bạn thấy danh sách của họ, họ thấy của bạn."
+    },
+    {
+      "heading": "Bí mật giữ chỗ món quà",
+      "body": "Giữ chỗ một món trong danh sách của bạn bè: những người khác thấy món đó đã có người nhận, còn chủ danh sách thì không bao giờ biết. Không quà trùng, không bất ngờ bị lộ."
+    },
+    {
+      "heading": "Secret Santa gọn gàng",
+      "body": "Tạo nhóm, mời mọi người bằng một liên kết duy nhất và để Wishlane bốc thăm. Mỗi người xem được danh sách ước của người mình bốc trúng nên món quà luôn đúng ý."
+    },
+    {
+      "heading": "Khám phá điều mọi người mong",
+      "body": "Xem danh sách công khai của bạn bè, theo dõi sinh nhật và sự kiện sắp tới kèm đếm ngược, để không bao giờ đến tay không nữa."
+    },
+    {
+      "heading": "Luôn cập nhật",
+      "body": "Nhận thông báo khi bạn bè thêm danh sách, gửi lời mời hoặc giữ chỗ món gì đó trong danh sách của bạn."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Danh sách và món đồ không giới hạn, quyền cộng tác trên danh sách chia sẻ, cảnh báo giảm giá, cùng màu sắc và mức ưu tiên tùy chỉnh."
+    }
+  ],
+  "closing": "Wishlane miễn phí khi bắt đầu: không cần thẻ, cài đặt dưới một phút. Hỗ trợ hơn 40 ngôn ngữ.",
+  "subscriptionHeading": "Điều khoản đăng ký",
+  "subscriptionApple": "Wishlane Premium là gói đăng ký tự động gia hạn theo tháng hoặc theo năm. Khoản thanh toán sẽ được tính vào Apple ID của bạn khi xác nhận mua. Gói đăng ký tự động gia hạn trừ khi bạn tắt tự động gia hạn ít nhất 24 giờ trước khi kỳ hiện tại kết thúc. Bạn có thể quản lý hoặc hủy đăng ký bất cứ lúc nào trong phần cài đặt tài khoản Apple ID.",
+  "subscriptionGoogle": "Wishlane Premium là gói đăng ký tự động gia hạn theo tháng hoặc theo năm. Khoản thanh toán sẽ được tính vào tài khoản Google Play của bạn khi xác nhận mua. Gói đăng ký tự động gia hạn trừ khi bạn tắt tự động gia hạn ít nhất 24 giờ trước khi kỳ hiện tại kết thúc. Bạn có thể quản lý hoặc hủy đăng ký bất cứ lúc nào trong Cửa hàng Google Play.",
+  "footer": [
+    "Câu hỏi hoặc góp ý? support@wishlane.net",
+    "Chính sách quyền riêng tư: https://wishlane.net/privacy-policy",
+    "Điều khoản dịch vụ: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Phiên bản đầu tiên của Wishlane.",
+  "changelogBullets": [
+    "Danh sách ước có màu, mức ưu tiên và ngày",
+    "Dán liên kết sản phẩm, chúng tôi điền chi tiết",
+    "Danh sách công khai, chỉ bạn bè hoặc riêng tư",
+    "Bí mật giữ chỗ quà trong danh sách của bạn bè",
+    "Nhóm Secret Santa với bốc thăm tự động",
+    "Khám phá danh sách bạn bè và sự kiện sắp tới"
+  ],
+  "permissions": {
+    "photos": "Cho phép Wishlane chọn ảnh đại diện từ thư viện của bạn.",
+    "faceId": "Cho phép Wishlane chuyển đổi an toàn giữa các tài khoản đã lưu."
+  }
+}

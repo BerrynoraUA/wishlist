@@ -1,0 +1,8 @@
+A Wishlane első kiadása.
+
+- Kívánságlisták színekkel, prioritással, dátummal
+- Illessz be egy terméklinket, a többit kitöltjük
+- Nyilvános, barátoknak szóló vagy privát listák
+- Titkos ajándékfoglalás a barátok listáin
+- Titkos Mikulás csoport automatikus sorsolással
+- Barátok listái és közelgő események
