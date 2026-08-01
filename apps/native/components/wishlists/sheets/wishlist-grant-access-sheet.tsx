@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { MascotEmptyState } from "@/components/shared/mascot-empty-state";
 import { useFriendsWithoutWishlistAccess, useWishlistAccessList } from "@/hooks/use-friends";
+import { useProGate } from "@/hooks/use-pro-gate";
 import { useGrantWishlistAccess, useRevokeWishlistAccess } from "@/hooks/use-wishlists";
 import type { ProfileSearchResult } from "@wishlist/backend/types/friends";
-import { Check, Search, Shield, SquarePen, X } from "lucide-react-native";
+import { Check, Lock, Search, Shield, SquarePen, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -32,6 +33,7 @@ export function WishlistGrantAccessSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const { isGated, openPaywall } = useProGate();
   const { control, handleSubmit, reset, setValue } = useForm<GrantAccessFormValues>({
     defaultValues: {
       query: "",
@@ -77,6 +79,44 @@ export function WishlistGrantAccessSheet({
       {
         onSuccess: handleClose,
       },
+    );
+  }
+
+  if (isGated) {
+    return (
+      <BottomSheet
+        ref={sheetRef}
+        onDidDismiss={() => onOpenChange(false)}
+        footer={
+          <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
+            <Button className="min-w-0 flex-1" variant="outline" onPress={handleClose}>
+              <Text>{t("Cancel")}</Text>
+            </Button>
+            <Button className="min-w-0 flex-1" onPress={openPaywall}>
+              <Icon as={Lock} className="size-4 text-primary-foreground" />
+              <Text>{t("Upgrade to Pro")}</Text>
+            </Button>
+          </View>
+        }
+      >
+        <View className="items-center gap-4 px-5 py-8">
+          <View className="size-14 items-center justify-center rounded-full bg-brand-lighter">
+            <Icon as={Lock} className="size-6 text-brand" />
+          </View>
+          <View className="items-center gap-2">
+            <Text className="text-center text-xl font-extrabold text-text">
+              {t("Collaborative wishlists")}
+            </Text>
+            <Text className="text-center text-sm text-text-muted">
+              {t("Granting view or edit access to other people is available only on the Pro plan.")}
+            </Text>
+          </View>
+          <View className="w-full gap-1 rounded-xl border border-border-subtle bg-bg-subtle p-3">
+            <Text className="text-xs font-bold uppercase text-text-muted">{t("Wishlist")}</Text>
+            <Text className="font-extrabold text-text">{wishlistTitle}</Text>
+          </View>
+        </View>
+      </BottomSheet>
     );
   }
 

@@ -14,11 +14,11 @@ import { Icon } from "@/components/ui/icon";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { useHideBackButton } from "@/hooks/use-hide-back-button";
+import { useProGate } from "@/hooks/use-pro-gate";
 import { useUpdateSettings } from "@/hooks/use-settings";
 import { countryForLocale } from "@/lib/locale-flags";
 import type { TranslateFn } from "@/lib/translate-fn";
 import { cn } from "@/lib/utils";
-import { useSubscriptionManager } from "@/providers/subscription-provider";
 import { ALL_PRIORITIES } from "@wishlist/backend/lib";
 import { useGT, useLocale, useLocales, useSetLocale } from "gt-react-native";
 import {
@@ -89,8 +89,10 @@ export function PreferencesSettings({
   const locales = useLocales();
   const setLocale = useSetLocale();
   const updateSettings = useUpdateSettings();
-  const { isPro } = useSubscriptionManager();
+  const { isPro, openPaywall } = useProGate();
   const [hideBackButton, setHideBackButton] = useHideBackButton();
+  const showBackButton = !hideBackButton;
+  const [localeError, setLocaleError] = React.useState<string | null>(null);
   const [prioritiesExpanded, setPrioritiesExpanded] = React.useState(false);
 
   const localeCode = activeLocale ?? locales[0] ?? "en";
@@ -109,7 +111,31 @@ export function PreferencesSettings({
   const priorities =
     selectedPriorities ??
     ALL_PRIORITIES.filter((priority) => priority.is_free).map((priority) => priority.id);
+
+  async function selectLocale(option: AutocompleteDropdownOption) {
+    if (option.value === localeCode) return;
+
+    setLocaleError(null);
+
+    try {
+      // RTL changes reload the native app. Persist first so the reload cannot
+      // interrupt the request and restore the previous locale from Supabase.
+      await updateSettings.mutateAsync({ preferred_locale: option.value });
+      setLocale(option.value);
+    } catch (error) {
+      setLocaleError(
+        error instanceof Error ? error.message : t("Could not save the selected language."),
+      );
+    }
+  }
+
   function togglePriority(id: string) {
+    const priority = ALL_PRIORITIES.find((item) => item.id === id);
+    if (!isPro && priority && !priority.is_free) {
+      openPaywall();
+      return;
+    }
+
     const next = priorities.includes(id)
       ? priorities.filter((priorityId) => priorityId !== id)
       : [...priorities, id];
@@ -127,15 +153,16 @@ export function PreferencesSettings({
         </View>
         <AutocompleteDropdown
           value={selectedLocaleOption}
-          onValueChange={(option) => {
-            setLocale(option.value);
-            // Persist so notifications for this user can be rendered in their language.
-            updateSettings.mutate({ preferred_locale: option.value });
-          }}
+          onValueChange={(option) => void selectLocale(option)}
           options={localeOptions}
           placeholder={t("Search language")}
           emptyText={t("No languages found")}
         />
+        {localeError ? (
+          <Text selectable className="text-sm font-semibold text-destructive">
+            {localeError}
+          </Text>
+        ) : null}
       </View>
 
       <CurrencySettings selectedCurrency={selectedCurrency} />
@@ -173,9 +200,16 @@ export function PreferencesSettings({
                   accessibilityRole="checkbox"
                   accessibilityState={{
                     checked: priorities.includes(priority.id),
-                    disabled: priorities.length === 1 && priorities.includes(priority.id),
+                    disabled:
+                      priorities.length === 1 &&
+                      priorities.includes(priority.id) &&
+                      (isPro || priority.is_free),
                   }}
-                  disabled={priorities.length === 1 && priorities.includes(priority.id)}
+                  disabled={
+                    priorities.length === 1 &&
+                    priorities.includes(priority.id) &&
+                    (isPro || priority.is_free)
+                  }
                   onPress={() => togglePriority(priority.id)}
                   className={cn(
                     settingsDropdownOptionClassName,
@@ -207,7 +241,7 @@ export function PreferencesSettings({
       <View
         className={cn(
           "gap-4 overflow-hidden rounded-xl border p-4 shadow-sm",
-          hideBackButton
+          showBackButton
             ? "border-brand/30 bg-brand-lighter shadow-brand/10"
             : "border-border-subtle bg-card-bg shadow-black/5",
         )}
@@ -218,25 +252,28 @@ export function PreferencesSettings({
               <View
                 className={cn(
                   "size-11 items-center justify-center rounded-full",
-                  hideBackButton
+                  showBackButton
                     ? "bg-linear-135 from-brand via-accent to-secondary"
                     : "bg-bg-muted",
                 )}
               >
                 <Icon
-                  as={hideBackButton ? EyeOff : ChevronLeft}
-                  className={cn("size-5", hideBackButton ? "text-white" : "text-brand")}
+                  as={showBackButton ? ChevronLeft : EyeOff}
+                  className={cn("size-5", showBackButton ? "text-white" : "text-text-muted")}
                 />
               </View>
               <View className="min-w-0 flex-1">
-                <Text className="font-semibold text-text">{t("Hide back button")}</Text>
+                <Text className="font-semibold text-text">{t("Show back button")}</Text>
                 <Text className="text-xs font-semibold uppercase text-text-muted">
-                  {hideBackButton ? t("Gesture navigation") : t("Button visible")}
+                  {showBackButton ? t("Button visible") : t("Gesture navigation")}
                 </Text>
               </View>
             </View>
           </View>
-          <Switch checked={hideBackButton} onCheckedChange={setHideBackButton} />
+          <Switch
+            checked={showBackButton}
+            onCheckedChange={(visible) => setHideBackButton(!visible)}
+          />
         </View>
       </View>
     </SettingsSection>

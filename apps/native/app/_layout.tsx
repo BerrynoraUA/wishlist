@@ -279,8 +279,9 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
   // naturally resets — matching the once-per-load guard used on web.
   useEffect(() => {
     if (localeSyncedRef.current) return;
-    if (!settings?.preferred_locale) return;
+    if (!settings) return;
     localeSyncedRef.current = true;
+    if (!settings.preferred_locale) return;
     if (settings.preferred_locale === locale) return;
     setLocale(settings.preferred_locale);
   }, [settings?.preferred_locale, locale, setLocale]);

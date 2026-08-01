@@ -31,6 +31,7 @@ import { WishlistGrantAccessSheet } from "@/components/wishlists/sheets/wishlist
 import { createWishlistShareToken } from "@/api/share";
 import { useCheckFriendship, useProfilesByIds } from "@/hooks/use-friends";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
+import { useProGate } from "@/hooks/use-pro-gate";
 import {
   useItemVotes,
   useInfiniteWishlistItems,
@@ -90,6 +91,7 @@ type WishlistItemListRow =
 export default function WishlistDetailScreen() {
   const t = useGT();
   const router = useRouter();
+  const { isGated, openPaywall } = useProGate();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
@@ -309,11 +311,16 @@ export default function WishlistDetailScreen() {
               onManageAccess={
                 wishlist.is_owner
                   ? () => {
+                      if (isGated) {
+                        openPaywall();
+                        return;
+                      }
                       completeManageAccessStep();
                       setSheet({ type: "grantAccess", wishlist });
                     }
                   : undefined
               }
+              manageAccessLocked={isGated}
               topInset={insets.top}
             />
           </View>
@@ -373,6 +380,8 @@ export default function WishlistDetailScreen() {
       gridGap,
       handleShareWishlist,
       insets.top,
+      isGated,
+      openPaywall,
       profileNamesById,
       showDiscountBadge,
       toggleVote,

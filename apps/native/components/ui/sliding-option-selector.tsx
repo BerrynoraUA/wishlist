@@ -81,12 +81,10 @@ export function SlidingOptionSelector<T>({
       : 0;
   const indicatorX = useSharedValue(0);
   const indicatorY = useSharedValue(0);
-  const indicatorWidth = useSharedValue(0);
   const didPositionIndicator = React.useRef(false);
 
   React.useEffect(() => {
     if (selectedPosition === null) {
-      indicatorWidth.value = 0;
       didPositionIndicator.current = false;
       return;
     }
@@ -97,33 +95,21 @@ export function SlidingOptionSelector<T>({
     if (!didPositionIndicator.current || selectedOptionWidth === 0 || reduceMotion) {
       indicatorX.value = targetX;
       indicatorY.value = targetY;
-      indicatorWidth.value = selectedOptionWidth;
       didPositionIndicator.current = selectedOptionWidth > 0;
       return;
     }
 
     indicatorX.value = withSpring(targetX, motionSpring.navPill);
     indicatorY.value = withSpring(targetY, motionSpring.navPill);
-    indicatorWidth.value = withSpring(selectedOptionWidth, motionSpring.navPill);
-  }, [
-    indicatorWidth,
-    indicatorX,
-    indicatorY,
-    optionHeight,
-    reduceMotion,
-    selectedOptionWidth,
-    selectedPosition,
-  ]);
+  }, [indicatorX, indicatorY, optionHeight, reduceMotion, selectedOptionWidth, selectedPosition]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
-    width: indicatorWidth.value,
     transform: [{ translateX: indicatorX.value }, { translateY: indicatorY.value }],
   }));
 
   function handleLayout(event: LayoutChangeEvent) {
     const nextWidth = event.nativeEvent.layout.width;
     if (selectedPosition === null) {
-      indicatorWidth.value = 0;
       didPositionIndicator.current = false;
       setRowWidth((current) => (current === nextWidth ? current : nextWidth));
       return;
@@ -139,7 +125,6 @@ export function SlidingOptionSelector<T>({
       indicatorX.value =
         selectedPosition.columnIndex * (nextSelectedOptionWidth + SLIDING_SELECTOR_GAP);
       indicatorY.value = selectedPosition.rowIndex * (optionHeight + SLIDING_SELECTOR_GAP);
-      indicatorWidth.value = nextSelectedOptionWidth;
       didPositionIndicator.current = true;
     }
 
@@ -152,7 +137,7 @@ export function SlidingOptionSelector<T>({
         <Animated.View
           pointerEvents="none"
           className={cn("absolute start-0 top-0", indicatorClassName)}
-          style={[{ height: optionHeight }, indicatorStyle]}
+          style={[{ height: optionHeight, width: selectedOptionWidth }, indicatorStyle]}
         />
       ) : null}
 

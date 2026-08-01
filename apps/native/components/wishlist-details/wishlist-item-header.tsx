@@ -25,6 +25,7 @@ import {
   Calendar,
   ChevronDown,
   KeyRound,
+  Lock,
   MoreHorizontal,
   Pencil,
   Share2,
@@ -48,6 +49,7 @@ export function WishlistItemHeader({
   onDelete,
   onShare,
   onManageAccess,
+  manageAccessLocked = false,
   topInset = 0,
 }: {
   wishlist: Wishlist;
@@ -56,6 +58,7 @@ export function WishlistItemHeader({
   onDelete?: () => void;
   onShare?: () => void;
   onManageAccess?: () => void;
+  manageAccessLocked?: boolean;
   topInset?: number;
 }) {
   const t = useGT();
@@ -238,8 +241,14 @@ export function WishlistItemHeader({
       <DropdownMenuContent className="min-w-48">
         {isOwner && onManageAccess ? (
           <DropdownMenuItem onPress={onManageAccess}>
-            <Icon as={KeyRound} className="size-4 text-popover-foreground" />
+            <Icon
+              as={manageAccessLocked ? Lock : KeyRound}
+              className="size-4 text-popover-foreground"
+            />
             <Text>{t("Manage access")}</Text>
+            {manageAccessLocked ? (
+              <Text className="ms-auto text-xs font-bold text-brand">{t("Pro")}</Text>
+            ) : null}
           </DropdownMenuItem>
         ) : null}
         {onEdit ? (

@@ -12,7 +12,7 @@ import * as Clipboard from "expo-clipboard";
 import { Copy, Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 
 export function AddFriendSheet({
   open,
@@ -98,14 +98,21 @@ export function AddFriendSheet({
 
         <View className="gap-2">
           <Text className="text-sm font-bold text-text">{t("Your invite link")}</Text>
-          <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 py-2">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t("Copy invite link")}
+            accessibilityState={{ disabled: !inviteLink }}
+            disabled={!inviteLink}
+            onPress={() => void handleCopy()}
+            className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 py-2 active:opacity-70 disabled:opacity-50"
+          >
             <Text className="min-w-0 flex-1 text-sm text-text-muted" numberOfLines={1}>
               {inviteLink || "..."}
             </Text>
-            <Button size="icon" variant="ghost" disabled={!inviteLink} onPress={handleCopy}>
+            <View className="size-10 items-center justify-center rounded-full">
               <Icon as={Copy} className="size-4 text-text" />
-            </Button>
-          </View>
+            </View>
+          </Pressable>
           {copied ? (
             <Text className="text-sm font-semibold text-success">{t("Copied")}</Text>
           ) : null}
@@ -115,7 +122,13 @@ export function AddFriendSheet({
           <Text className="text-xs font-extrabold uppercase text-text-muted">{t("Or search")}</Text>
           {query.trim().length > 0 ? (
             canSearch ? (
-              <View className="max-h-56 gap-2">
+              <ScrollView
+                className="max-h-56"
+                contentContainerClassName="gap-2"
+                keyboardShouldPersistTaps="handled"
+                nestedScrollEnabled
+                showsVerticalScrollIndicator={visibleResults.length > 3}
+              >
                 {search.isFetching && visibleResults.length === 0 ? (
                   <View className="items-center py-3">
                     <ActivityIndicator colorClassName="accent-brand" />
@@ -161,7 +174,7 @@ export function AddFriendSheet({
                     </View>
                   </Button>
                 ))}
-              </View>
+              </ScrollView>
             ) : (
               <Text className="text-sm text-text-muted">{t("Type at least 3 characters.")}</Text>
             )
