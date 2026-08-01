@@ -1,4 +1,10 @@
 {
-  "NSPhotoLibraryUsageDescription": "Дозвольте Wishlane обрати фото профілю з вашої галереї.",
-  "NSFaceIDUsageDescription": "Дозвольте Wishlane безпечно перемикатися між збереженими акаунтами."
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Дозвольте Wishlane обрати фото профілю з вашої галереї.",
+    "NSFaceIDUsageDescription": "Дозвольте Wishlane безпечно перемикатися між збереженими акаунтами."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
 }

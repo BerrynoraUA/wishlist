@@ -1,4 +1,10 @@
 {
-  "NSPhotoLibraryUsageDescription": "Consenti a Wishlane di scegliere un'immagine del profilo dalla tua libreria.",
-  "NSFaceIDUsageDescription": "Consenti a Wishlane di passare in modo sicuro da un account salvato all'altro."
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Consenti a Wishlane di scegliere un'immagine del profilo dalla tua libreria.",
+    "NSFaceIDUsageDescription": "Consenti a Wishlane di passare in modo sicuro da un account salvato all'altro."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
 }

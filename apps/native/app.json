@@ -62,6 +62,7 @@
       "bundleIdentifier": "com.berrynora.wishlane",
       "usesAppleSignIn": true,
       "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true,
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -113,7 +114,54 @@
           "launchMode": "most-recent"
         }
       ],
-      "expo-localization",
+      [
+        "expo-localization",
+        {
+          "supportedLocales": [
+            "en",
+            "uk",
+            "de",
+            "es",
+            "fr",
+            "ja",
+            "it",
+            "pt-BR",
+            "zh-Hans",
+            "pl",
+            "ko",
+            "nl",
+            "hi",
+            "tr",
+            "vi",
+            "th",
+            "id",
+            "cs",
+            "sk",
+            "hu",
+            "ro",
+            "bg",
+            "el",
+            "sv",
+            "da",
+            "nb",
+            "fi",
+            "hr",
+            "sr",
+            "sl",
+            "lt",
+            "lv",
+            "et",
+            "bn",
+            "ms",
+            "fil",
+            "zh-Hant",
+            "ar",
+            "he",
+            "fa",
+            "ur"
+          ]
+        }
+      ],
       [
         "expo-notifications",
         {

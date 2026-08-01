@@ -1,4 +1,10 @@
 {
-  "NSPhotoLibraryUsageDescription": "Izinkan Wishlane memilih foto profil dari galerimu.",
-  "NSFaceIDUsageDescription": "Izinkan Wishlane berpindah antar akun tersimpan dengan aman."
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Izinkan Wishlane memilih foto profil dari galerimu.",
+    "NSFaceIDUsageDescription": "Izinkan Wishlane berpindah antar akun tersimpan dengan aman."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
 }

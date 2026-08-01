@@ -1,4 +1,10 @@
 {
-  "NSPhotoLibraryUsageDescription": "‏Wishlane کو اپنی لائبریری سے پروفائل تصویر منتخب کرنے کی اجازت دیں۔",
-  "NSFaceIDUsageDescription": "‏Wishlane کو محفوظ شدہ اکاؤنٹس کے درمیان محفوظ طریقے سے بدلنے کی اجازت دیں۔"
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "‏Wishlane کو اپنی لائبریری سے پروفائل تصویر منتخب کرنے کی اجازت دیں۔",
+    "NSFaceIDUsageDescription": "‏Wishlane کو محفوظ شدہ اکاؤنٹس کے درمیان محفوظ طریقے سے بدلنے کی اجازت دیں۔"
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
 }

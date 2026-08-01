@@ -1,4 +1,10 @@
 {
-  "NSPhotoLibraryUsageDescription": "به Wishlane اجازه دهید عکس نمایه را از کتابخانهٔ شما انتخاب کند.",
-  "NSFaceIDUsageDescription": "به Wishlane اجازه دهید به‌صورت امن بین حساب‌های ذخیره‌شده جابه‌جا شود."
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "به Wishlane اجازه دهید عکس نمایه را از کتابخانهٔ شما انتخاب کند.",
+    "NSFaceIDUsageDescription": "به Wishlane اجازه دهید به‌صورت امن بین حساب‌های ذخیره‌شده جابه‌جا شود."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
 }

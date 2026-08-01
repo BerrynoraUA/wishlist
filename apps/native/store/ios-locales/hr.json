@@ -1,4 +1,10 @@
 {
-  "NSPhotoLibraryUsageDescription": "Dopustite Wishlaneu da odabere profilnu sliku iz vaše biblioteke.",
-  "NSFaceIDUsageDescription": "Dopustite Wishlaneu sigurno prebacivanje između spremljenih računa."
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Dopustite Wishlaneu da odabere profilnu sliku iz vaše biblioteke.",
+    "NSFaceIDUsageDescription": "Dopustite Wishlaneu sigurno prebacivanje između spremljenih računa."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
 }

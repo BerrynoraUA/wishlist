@@ -1,4 +1,10 @@
 {
-  "NSPhotoLibraryUsageDescription": "Permite-i lui Wishlane să aleagă o poză de profil din biblioteca ta.",
-  "NSFaceIDUsageDescription": "Permite-i lui Wishlane să comute în siguranță între conturile salvate."
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Permite-i lui Wishlane să aleagă o poză de profil din biblioteca ta.",
+    "NSFaceIDUsageDescription": "Permite-i lui Wishlane să comute în siguranță între conturile salvate."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
 }

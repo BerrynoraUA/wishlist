@@ -56,13 +56,19 @@ for (const appLocale of APP_LOCALES) {
   writeFile(path.join(playDir, "full_description.txt"), `${renderPlayDescription(listing)}\n`);
   writeFile(path.join(playDir, "changelogs", "default.txt"), `${renderChangelog(listing)}\n`);
 
-  const iosStrings = {
-    NSPhotoLibraryUsageDescription: listing.permissions.photos,
-    NSFaceIDUsageDescription: listing.permissions.faceId,
+  const nativeStrings = {
+    ios: {
+      CFBundleDisplayName: listing.appleName,
+      NSPhotoLibraryUsageDescription: listing.permissions.photos,
+      NSFaceIDUsageDescription: listing.permissions.faceId,
+    },
+    android: {
+      app_name: listing.appleName,
+    },
   };
   writeFile(
     path.join(IOS_LOCALES_DIR, `${IOS_LOCALES[appLocale]}.json`),
-    `${JSON.stringify(iosStrings, null, 2)}\n`,
+    `${JSON.stringify(nativeStrings, null, 2)}\n`,
   );
 }
 

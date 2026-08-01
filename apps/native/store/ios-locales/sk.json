@@ -1,4 +1,10 @@
 {
-  "NSPhotoLibraryUsageDescription": "Povoľte Wishlane vybrať profilový obrázok z vašej knižnice.",
-  "NSFaceIDUsageDescription": "Povoľte Wishlane bezpečne prepínať medzi uloženými účtami."
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Povoľte Wishlane vybrať profilový obrázok z vašej knižnice.",
+    "NSFaceIDUsageDescription": "Povoľte Wishlane bezpečne prepínať medzi uloženými účtami."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
 }

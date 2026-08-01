@@ -1,4 +1,10 @@
 {
-  "NSPhotoLibraryUsageDescription": "Επιτρέψτε στο Wishlane να επιλέξει φωτογραφία προφίλ από τη βιβλιοθήκη σας.",
-  "NSFaceIDUsageDescription": "Επιτρέψτε στο Wishlane να εναλλάσσεται με ασφάλεια μεταξύ αποθηκευμένων λογαριασμών."
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Επιτρέψτε στο Wishlane να επιλέξει φωτογραφία προφίλ από τη βιβλιοθήκη σας.",
+    "NSFaceIDUsageDescription": "Επιτρέψτε στο Wishlane να εναλλάσσεται με ασφάλεια μεταξύ αποθηκευμένων λογαριασμών."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
 }

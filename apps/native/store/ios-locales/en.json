@@ -1,4 +1,10 @@
 {
-  "NSPhotoLibraryUsageDescription": "Allow Wishlane to choose a profile image from your library.",
-  "NSFaceIDUsageDescription": "Allow Wishlane to securely switch between saved accounts."
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Allow Wishlane to choose a profile image from your library.",
+    "NSFaceIDUsageDescription": "Allow Wishlane to securely switch between saved accounts."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
 }

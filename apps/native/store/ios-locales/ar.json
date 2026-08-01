@@ -1,4 +1,10 @@
 {
-  "NSPhotoLibraryUsageDescription": "اسمح لـ Wishlane باختيار صورة الملف الشخصي من مكتبتك.",
-  "NSFaceIDUsageDescription": "اسمح لـ Wishlane بالتبديل بأمان بين الحسابات المحفوظة."
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "اسمح لـ Wishlane باختيار صورة الملف الشخصي من مكتبتك.",
+    "NSFaceIDUsageDescription": "اسمح لـ Wishlane بالتبديل بأمان بين الحسابات المحفوظة."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
 }

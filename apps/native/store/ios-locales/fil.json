@@ -1,4 +1,10 @@
 {
-  "NSPhotoLibraryUsageDescription": "Payagan ang Wishlane na pumili ng profile photo mula sa iyong library.",
-  "NSFaceIDUsageDescription": "Payagan ang Wishlane na ligtas na maglipat sa pagitan ng mga naka-save na account."
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Payagan ang Wishlane na pumili ng profile photo mula sa iyong library.",
+    "NSFaceIDUsageDescription": "Payagan ang Wishlane na ligtas na maglipat sa pagitan ng mga naka-save na account."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
 }
