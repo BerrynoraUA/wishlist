@@ -1,6 +1,6 @@
-# Wishlane 1.0 — Store Release Checklist
+# Wishlane — Store Release Checklist
 
-App: **Wishlane** · `com.berrynora.wishlane` · version `1.0.0`
+App: **Wishlane** · `com.berrynora.wishlane` · version from `expo.version` in `app.json`
 Generated 2026-07-25. Source of truth for the listing copy is `store/listings/<locale>.json` — one
 file per locale the app ships, covering both stores. See §11.
 
@@ -234,7 +234,7 @@ npx eas-cli submit --platform android --profile production
 will prompt if one is missing. Android already has a finished production build (build 8) that can
 be submitted without rebuilding.
 
-`store.config.js` targets Apple version `1.0` to match the existing App Store Connect record.
+`store.config.js` targets the same three-component marketing version as the native build.
 `release.automaticRelease` is `false` — the build stays held after approval so you can release it
 manually, with `phasedRelease` on for a 7-day staged rollout. Flip `automaticRelease` to `true` if
 you would rather it go live the moment review passes.

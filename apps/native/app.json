@@ -2,9 +2,9 @@
   "expo": {
     "name": "Wishlane",
     "slug": "wishlane",
-    "version": "0.0.2",
+    "version": "0.1.0",
     "runtimeVersion": {
-      "policy": "appVersion"
+      "policy": "fingerprint"
     },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
