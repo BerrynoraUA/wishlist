@@ -181,7 +181,10 @@
         {
           "experimentalLauncherActivity": false
         }
-      ]
+      ],
+      "expo-font",
+      "expo-sharing",
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true,
