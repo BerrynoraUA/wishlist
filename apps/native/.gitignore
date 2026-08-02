@@ -31,6 +31,10 @@ yarn-error.*
 # local env files
 .env*.local
 
+# `eas metadata:pull` snapshot of whatever App Store Connect currently holds. It is a
+# diffing aid, never an input - store.config.js is the source of truth for the listing.
+store.config.json
+
 # typescript
 *.tsbuildinfo
 

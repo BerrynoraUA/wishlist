@@ -11,6 +11,8 @@
     "translate": "gt translate",
     "store:metadata": "node store/build-store-metadata.js",
     "store:metadata:check": "node store/build-store-metadata.js --check",
+    "store:apple:push": "eas metadata:push --profile production",
+    "store:apple:pull": "eas metadata:pull --profile production",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
     "workflow:build": "eas workflow:run .eas/workflows/build.yml",

@@ -7,6 +7,12 @@ const {
   checkLimits,
 } = require("./store/listings");
 
+// `apple.version` must name the App Store version the metadata belongs to, and that is
+// whatever CFBundleShortVersionString the build carried up. `autoIncrement` only bumps
+// the build number, so the marketing version still comes from app.json - read it from
+// there rather than repeating it here, where it silently rots one release later.
+const { version } = require("./app.json").expo;
+
 // App Review credentials are secrets and must never be committed. They are read from
 // .env.store.local, which is covered by the `.env*.local` rule in .gitignore.
 try {
@@ -61,10 +67,27 @@ function required(name) {
   return value;
 }
 
+/**
+ * App Store Connect wants E.164 and rejects the whole upload if it does not get it,
+ * so catch a malformed number here rather than after the metadata is half pushed.
+ * The rule is deliberately loose - only what E.164 itself fixes: a leading `+`, a
+ * non-zero country code, and 8-15 digits in total.
+ */
+function phone(name) {
+  const value = required(name).trim();
+  if (!/^\+[1-9]\d{7,14}$/.test(value)) {
+    throw new Error(
+      `${name} is "${value}", which App Store Connect will reject. Use E.164: a leading "+", ` +
+        "country code, then the subscriber number, with no spaces or dashes (for example +353871234567).",
+    );
+  }
+  return value;
+}
+
 module.exports = {
   configVersion: 0,
   apple: {
-    version: "1.0",
+    version,
     copyright: "2026 BerryNora",
     release: {
       automaticRelease: false,
@@ -75,7 +98,7 @@ module.exports = {
       firstName: "Valerii",
       lastName: "Inshyn",
       email: "support@wishlane.net",
-      phone: required("APPLE_REVIEW_PHONE"),
+      phone: phone("APPLE_REVIEW_PHONE"),
       demoRequired: true,
       demoUsername: required("APPLE_DEMO_USERNAME"),
       demoPassword: required("APPLE_DEMO_PASSWORD"),

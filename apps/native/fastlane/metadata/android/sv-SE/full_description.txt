@@ -26,7 +26,7 @@ Obegränsat med listor och saker, redigeringsbehörighet på delade listor, pris
 Wishlane är gratis att börja med – inget kort, klart på under en minut. Finns på över 40 språk.
 
 <b>Prenumerationsvillkor</b>
-Wishlane Premium är en prenumeration som förnyas automatiskt, per månad eller per år. Betalningen dras från ditt Google Play-konto när köpet bekräftas. Prenumerationen förnyas automatiskt om inte automatisk förnyelse stängs av minst 24 timmar före den aktuella periodens slut. Du kan hantera eller säga upp den när som helst i Google Play Butik.
+Wishlane Premium är en prenumeration som förnyas automatiskt, per månad eller per år. Beloppet dras från ditt Google Play-konto när köpet bekräftas. Prenumerationen förnyas automatiskt om inte automatisk förnyelse stängs av minst 24 timmar före den aktuella periodens slut. Du kan hantera eller säga upp den när som helst i Google Play Butik.
 
 Frågor eller feedback? support@wishlane.net
 Integritetspolicy: https://wishlane.net/privacy-policy
