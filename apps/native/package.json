@@ -12,7 +12,19 @@
     "store:metadata": "node store/build-store-metadata.js",
     "store:metadata:check": "node store/build-store-metadata.js --check",
     "check-types": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "workflow:build": "eas workflow:run .eas/workflows/build.yml",
+    "workflow:build:staging": "eas workflow:run .eas/workflows/build.yml --input profile=staging",
+    "workflow:build:production": "eas workflow:run .eas/workflows/build.yml --input profile=production",
+    "workflow:development": "eas workflow:run .eas/workflows/development-build.yml",
+    "workflow:preview": "eas workflow:run .eas/workflows/preview-build.yml",
+    "workflow:staging": "eas workflow:run .eas/workflows/staging-deploy.yml",
+    "workflow:production": "eas workflow:run .eas/workflows/production-build.yml",
+    "workflow:release": "eas workflow:run .eas/workflows/release-build.yml",
+    "workflow:runs": "eas workflow:runs",
+    "workflow:view": "eas workflow:view",
+    "workflow:logs": "eas workflow:logs",
+    "workflow:cancel": "eas workflow:cancel"
   },
   "dependencies": {
     "@expo/metro-runtime": "56.0.16",

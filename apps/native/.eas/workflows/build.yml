@@ -6,18 +6,20 @@ defaults:
     corepack: true
     pnpm: 11.9.0
 
-# on:
-#   workflow_dispatch:
-#     inputs:
-#       profile:
-#         type: choice
-#         required: true
-#         description: EAS build profile to use.
-#         default: development
-#         options:
-#           - development
-#           - staging
-#           - production
+# Manual-only: workflow_dispatch never fires automatically, and the inputs
+# block must stay declared for `${{ inputs.profile }}` to resolve.
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        type: choice
+        required: true
+        description: EAS build profile to use.
+        default: development
+        options:
+          - development
+          - staging
+          - production
 
 concurrency:
   cancel_in_progress: true
