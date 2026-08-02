@@ -2,7 +2,7 @@
   "expo": {
     "name": "Wishlane",
     "slug": "wishlane",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "runtimeVersion": {
       "policy": "appVersion"
     },
