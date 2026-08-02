@@ -3,7 +3,6 @@ name: Native Build
 defaults:
   tools:
     node: 22.14.0
-    corepack: true
     pnpm: 11.9.0
 
 # Manual-only: workflow_dispatch never fires automatically, and the inputs
