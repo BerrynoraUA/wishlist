@@ -29,6 +29,7 @@ export function IosTabBar({ onCreatePress }: IosTabBarProps) {
       blurEffect={themeMode === "dark" ? "systemMaterialDark" : "systemMaterialLight"}
       disableTransparentOnScrollEdge
       indicatorColor={selectedTabBackground}
+      labelStyle={{ fontSize: 10 }}
       labelVisibilityMode="labeled"
       tintColor={navigationTheme.colors.primary}
     >
