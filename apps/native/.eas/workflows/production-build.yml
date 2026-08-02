@@ -6,13 +6,13 @@ defaults:
     corepack: true
     pnpm: 11.9.0
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - apps/native/**
-      - "!**/*.md"
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - apps/native/**
+#       - "!**/*.md"
 
 concurrency:
   cancel_in_progress: true

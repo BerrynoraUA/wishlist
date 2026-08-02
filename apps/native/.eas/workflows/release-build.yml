@@ -6,12 +6,12 @@ defaults:
     corepack: true
     pnpm: 11.9.0
 
-on:
-  push:
-    tags:
-      - native-v*
-    paths:
-      - apps/native/**
+# on:
+#   push:
+#     tags:
+#       - native-v*
+#     paths:
+#       - apps/native/**
 
 concurrency:
   cancel_in_progress: true
