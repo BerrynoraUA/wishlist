@@ -40,6 +40,7 @@
         "track": "production"
       },
       "ios": {
+        "ascAppId": "6792105704",
         "metadataPath": "store.config.js"
       }
     },
@@ -48,7 +49,9 @@
         "track": "internal",
         "releaseStatus": "completed"
       },
-      "ios": {}
+      "ios": {
+        "ascAppId": "6792105704"
+      }
     }
   }
 }
