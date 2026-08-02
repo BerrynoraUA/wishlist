@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { formatDiscoverDate } from "@/lib/discover";
+import { useProGate } from "@/hooks/use-pro-gate";
 import { shareCalendarEvents } from "@/lib/calendar-export";
 import { cn } from "@/lib/utils";
 import type { FriendUpcomingWishlist } from "@wishlist/backend/types/discover";
 import { useRouter } from "expo-router";
-import { CalendarDays, ChevronLeft, ChevronRight, Download, Gift } from "lucide-react-native";
+import { CalendarDays, ChevronLeft, ChevronRight, Download, Gift, Lock } from "lucide-react-native";
 import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
@@ -31,6 +32,7 @@ export function EventsCalendarSheet({
   const t = useGT();
   const locale = useLocale();
   const router = useRouter();
+  const { isGated, openPaywall } = useProGate();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const sortedEvents = React.useMemo(
     () =>
@@ -87,6 +89,10 @@ export function EventsCalendarSheet({
 
   async function handleExport() {
     if (isExporting || sortedEvents.length === 0) return;
+    if (isGated) {
+      openPaywall();
+      return;
+    }
 
     setIsExporting(true);
     setExportError(null);
@@ -149,7 +155,7 @@ export function EventsCalendarSheet({
             {isExporting ? (
               <ActivityIndicator colorClassName="accent-brand" size="small" />
             ) : (
-              <Icon as={Download} className="size-4 text-brand" />
+              <Icon as={isGated ? Lock : Download} className="size-4 text-brand" />
             )}
             <Text className="text-brand">{t("Export")}</Text>
           </Button>

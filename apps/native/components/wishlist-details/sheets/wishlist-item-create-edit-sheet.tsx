@@ -21,7 +21,8 @@ import {
 import { Text } from "@/components/ui/text";
 import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
-import { useMyWishlists } from "@/hooks/use-wishlists";
+import { useProGate } from "@/hooks/use-pro-gate";
+import { useMyWishlists, useWishlistById } from "@/hooks/use-wishlists";
 import { useSettings } from "@/hooks/use-settings";
 import {
   EMPTY_ITEM_FORM,
@@ -35,7 +36,8 @@ import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
-import { Plus, X } from "lucide-react-native";
+import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
+import { Lock, Plus, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -104,6 +106,7 @@ export function WishlistItemCreateEditSheet({
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useGT();
+  const { isGated, isPro, openPaywall } = useProGate();
   const completeCreateItemStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.createItem);
   const { data: settings } = useSettings();
   const priorityOptions = React.useMemo(
@@ -128,11 +131,15 @@ export function WishlistItemCreateEditSheet({
     [createSource, mode, wishlistId],
   );
   const wishlistsQuery = useMyWishlists();
+  const wishlistDetailQuery = useWishlistById(wishlistId ?? "");
   const selectableWishlists = React.useMemo(
     () => (wishlistsQuery.data ?? []).filter((wishlist) => wishlist.is_owner || wishlist.can_edit),
     [wishlistsQuery.data],
   );
   const targetWishlistId = wishlistId || selectedWishlistId || selectableWishlists[0]?.id || "";
+  const targetWishlist =
+    wishlistDetailQuery.data ??
+    selectableWishlists.find((wishlist) => wishlist.id === targetWishlistId);
   const [isScraping, setIsScraping] = React.useState(false);
   const imageUpload = useImageUploadField("item");
   const [scrapeError, setScrapeError] = React.useState<string | null>(null);
@@ -179,11 +186,11 @@ export function WishlistItemCreateEditSheet({
   // Priority options can arrive after the sheet opens (they come from settings),
   // so defaulting can't happen in the open/reset effect above.
   React.useEffect(() => {
-    if (!open || mode !== "create" || priorityOptions.length === 0) return;
+    if (!open || mode !== "create" || !isPro || priorityOptions.length === 0) return;
     if (priorityOptions.some((option) => option.priority_id === values.priority_id)) return;
 
     setValue("priority_id", priorityOptions[0].priority_id);
-  }, [mode, open, priorityOptions, setValue, values.priority_id]);
+  }, [isPro, mode, open, priorityOptions, setValue, values.priority_id]);
 
   React.useEffect(() => {
     currentUrlRef.current = values.url.trim();
@@ -355,6 +362,14 @@ export function WishlistItemCreateEditSheet({
   async function submitForm(formValues: ItemFormValues) {
     const name = formValues.name.trim();
     if (!canSubmit) return;
+    if (
+      mode === "create" &&
+      isGated &&
+      (targetWishlist?.items_count ?? 0) >= FREE_LIMITS.maxItemsPerWishlist
+    ) {
+      openPaywall();
+      return;
+    }
 
     const imageUrl = await imageUpload.resolveImageUrl(formValues.imageUrl);
     if (imageUrl === undefined) return;
@@ -363,14 +378,15 @@ export function WishlistItemCreateEditSheet({
       name,
       description: form.showsDescription ? formValues.description.trim() || null : null,
       price: formValues.price.trim() || null,
-      priority_id: formValues.priority_id,
+      priority_id: mode === "create" && isGated ? null : formValues.priority_id,
       image_url: imageUrl,
       url: formValues.url.trim() || null,
       currency: formValues.currency.trim() || null,
       discount_price: formValues.discountPrice.trim() || null,
       has_discount: formValues.hasDiscount,
       discount_end_date: formValues.discountEndDate.trim() || null,
-      additional_links: cleanAdditionalLinks(formValues.additionalLinks),
+      additional_links:
+        mode === "create" && isGated ? [] : cleanAdditionalLinks(formValues.additionalLinks),
     };
 
     if (mode === "edit" && item) {
@@ -552,80 +568,101 @@ export function WishlistItemCreateEditSheet({
           </Field>
         </View>
 
-        <Field label={t("Priority")}>
-          <Controller
-            control={control}
-            name="priority_id"
-            render={({ field: { onChange, value } }) => (
-              <PrioritySelector
-                priorityOptions={priorityOptions}
-                value={value}
-                onChange={onChange}
-              />
-            )}
-          />
-        </Field>
+        {isGated ? (
+          <ProFeatureButton label={t("Pro: Set item priority")} onPress={openPaywall} />
+        ) : (
+          <Field label={t("Priority")}>
+            <Controller
+              control={control}
+              name="priority_id"
+              render={({ field: { onChange, value } }) => (
+                <PrioritySelector
+                  priorityOptions={priorityOptions}
+                  value={value}
+                  onChange={onChange}
+                />
+              )}
+            />
+          </Field>
+        )}
 
-        <Field label={t("Additional links")}>
-          <View className="gap-2">
-            {values.additionalLinks.map((link, index) => (
-              <View key={index} className="gap-1">
-                <View className="flex-row gap-2">
-                  <Controller
-                    control={control}
-                    name={`additionalLinks.${index}.url`}
-                    render={({ field: { onChange, value } }) => (
-                      <Input
-                        value={value}
-                        onChangeText={onChange}
-                        placeholder={t("https://...")}
-                        autoCapitalize="none"
-                        keyboardType="url"
-                        className={cn(
-                          "min-w-0 flex-1",
-                          invalidAdditionalLinkIndexes.has(index) && "border-destructive",
-                        )}
-                      />
-                    )}
-                  />
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onPress={() =>
-                      patchValues({
-                        additionalLinks: values.additionalLinks.filter(
-                          (_, itemIndex) => itemIndex !== index,
-                        ),
-                      })
-                    }
-                  >
-                    <Icon as={X} className="size-4 text-text-muted" />
-                  </Button>
+        {isGated ? (
+          <ProFeatureButton label={t("Pro: Add multiple links")} onPress={openPaywall} />
+        ) : (
+          <Field label={t("Additional links")}>
+            <View className="gap-2">
+              {values.additionalLinks.map((link, index) => (
+                <View key={index} className="gap-1">
+                  <View className="flex-row gap-2">
+                    <Controller
+                      control={control}
+                      name={`additionalLinks.${index}.url`}
+                      render={({ field: { onChange, value } }) => (
+                        <Input
+                          value={value}
+                          onChangeText={onChange}
+                          placeholder={t("https://...")}
+                          autoCapitalize="none"
+                          keyboardType="url"
+                          className={cn(
+                            "min-w-0 flex-1",
+                            invalidAdditionalLinkIndexes.has(index) && "border-destructive",
+                          )}
+                        />
+                      )}
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onPress={() =>
+                        patchValues({
+                          additionalLinks: values.additionalLinks.filter(
+                            (_, itemIndex) => itemIndex !== index,
+                          ),
+                        })
+                      }
+                    >
+                      <Icon as={X} className="size-4 text-text-muted" />
+                    </Button>
+                  </View>
+                  {invalidAdditionalLinkIndexes.has(index) ? (
+                    <Text className="text-xs font-semibold text-destructive">
+                      {t("Enter valid Url")}
+                    </Text>
+                  ) : null}
                 </View>
-                {invalidAdditionalLinkIndexes.has(index) ? (
-                  <Text className="text-xs font-semibold text-destructive">
-                    {t("Enter valid Url")}
-                  </Text>
-                ) : null}
-              </View>
-            ))}
-            <Button
-              variant="outline"
-              onPress={() =>
-                patchValues({ additionalLinks: [...values.additionalLinks, { url: "" }] })
-              }
-            >
-              <Icon as={Plus} className="size-4 text-text" />
-              <Text>{t("Add another link")}</Text>
-            </Button>
-          </View>
-        </Field>
+              ))}
+              <Button
+                variant="outline"
+                onPress={() =>
+                  patchValues({ additionalLinks: [...values.additionalLinks, { url: "" }] })
+                }
+              >
+                <Icon as={Plus} className="size-4 text-text" />
+                <Text>{t("Add another link")}</Text>
+              </Button>
+            </View>
+          </Field>
+        )}
 
         {error ? (
           <Text className="text-sm font-semibold text-destructive">{error.message}</Text>
         ) : null}
       </ScrollView>
     </BottomSheet>
+  );
+}
+
+function ProFeatureButton({ label, onPress }: { label: string; onPress: () => void }) {
+  return (
+    <Button
+      variant="outline"
+      onPress={onPress}
+      className="justify-start border-brand/30 bg-brand-lighter"
+    >
+      <Icon as={Lock} className="size-4 text-brand" />
+      <Text className="font-bold text-brand">{label}</Text>
+    </Button>
   );
 }
 

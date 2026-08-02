@@ -1,4 +1,5 @@
 export const NAV_TAB_BAR_HEIGHT = 58;
+export const NAV_TAB_BAR_BACKDROP_OFFSET = 4;
 
 export function chunkRows<T>(items: readonly T[], columns: number): T[][] {
   const rows: T[][] = [];

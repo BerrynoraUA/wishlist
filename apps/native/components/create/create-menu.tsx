@@ -9,6 +9,9 @@ import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheet
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { useCreateFriendGroup, useFriends } from "@/hooks/use-friends";
+import { useProGate } from "@/hooks/use-pro-gate";
+import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
+import { useMyStatistics, useWishlistById } from "@/hooks/use-wishlists";
 import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
 import { isWishlistDetailPath } from "@/lib/routes";
 import { Portal } from "@rn-primitives/portal";
@@ -36,6 +39,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
 
 export type CreateAction =
   | "item-scratch"
@@ -121,9 +125,30 @@ export function CreateMenuHost({
   const [action, setAction] = React.useState<CreateAction | null>(null);
   const [itemMenuOpen, setItemMenuOpen] = React.useState(false);
   const contextualWishlistId = useContextualWishlistId();
+  const { isGated, openPaywall } = useProGate();
+  const statisticsQuery = useMyStatistics();
+  const contextualWishlistQuery = useWishlistById(contextualWishlistId ?? "");
+  const secretSantaQuery = useInfiniteSecretSantaEvents({}, 1);
 
   function handleSelect(entry: CreateMenuEntry) {
     onOpenChange(false);
+    const wishlistLimitReached =
+      (statisticsQuery.data?.wishlists_count ?? 0) >= FREE_LIMITS.maxWishlists;
+    const itemLimitReached =
+      (contextualWishlistQuery.data?.items_count ?? 0) >= FREE_LIMITS.maxItemsPerWishlist;
+    const eventLimitReached =
+      (secretSantaQuery.data?.pages[0]?.total ?? 0) >= FREE_LIMITS.maxSecretSantaEvents;
+
+    if (
+      isGated &&
+      ((entry.action === "wishlist" && wishlistLimitReached) ||
+        (entry.action === "item" && Boolean(contextualWishlistId) && itemLimitReached) ||
+        (entry.action === "secret-santa" && eventLimitReached))
+    ) {
+      openPaywall();
+      return;
+    }
+
     if (entry.guideStep !== undefined) completeStep(entry.guideStep);
     if (entry.action === "item") {
       setItemMenuOpen(true);

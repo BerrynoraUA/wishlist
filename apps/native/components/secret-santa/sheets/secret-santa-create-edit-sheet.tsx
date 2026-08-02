@@ -10,7 +10,12 @@ import { Input } from "@/components/ui/input";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { useFriends } from "@/hooks/use-friends";
-import { useCreateSecretSantaEvent, useUpdateSecretSantaEvent } from "@/hooks/use-secret-santa";
+import { useProGate } from "@/hooks/use-pro-gate";
+import {
+  useCreateSecretSantaEvent,
+  useInfiniteSecretSantaEvents,
+  useUpdateSecretSantaEvent,
+} from "@/hooks/use-secret-santa";
 import { useSettings } from "@/hooks/use-settings";
 import {
   SECRET_SANTA_MAX_IMAGE_BYTES,
@@ -21,6 +26,7 @@ import type {
   SecretSantaDetails,
   SecretSantaImageInput,
 } from "@wishlist/backend/types/secret-santa";
+import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
 import * as ImagePicker from "expo-image-picker";
 import { Camera, CalendarDays, ImagePlus, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
@@ -49,6 +55,7 @@ export function SecretSantaCreateEditSheet({
   onSaved?: () => void;
 }) {
   const t = useGT();
+  const { isGated, openPaywall } = useProGate();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const { data: settings } = useSettings();
   const [participantSearch, setParticipantSearch] = React.useState("");
@@ -60,6 +67,7 @@ export function SecretSantaCreateEditSheet({
   });
   const createEvent = useCreateSecretSantaEvent();
   const updateEvent = useUpdateSecretSantaEvent();
+  const eventsQuery = useInfiniteSecretSantaEvents({}, 1);
   const currencyOptions = React.useMemo(() => getSecretSantaCurrencyOptions(), []);
   const defaultCurrency = settings?.display_currency ?? "USD";
   const [name, setName] = React.useState(event?.name ?? "");
@@ -150,6 +158,15 @@ export function SecretSantaCreateEditSheet({
 
   function submit() {
     const parsedBudget = Number(budget);
+
+    if (
+      mode === "create" &&
+      isGated &&
+      (eventsQuery.data?.pages[0]?.total ?? 0) >= FREE_LIMITS.maxSecretSantaEvents
+    ) {
+      openPaywall();
+      return;
+    }
 
     if (!name.trim()) {
       setError(t("Event name is required."));

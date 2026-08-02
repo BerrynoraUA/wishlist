@@ -5,9 +5,18 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { SecretSantaPersonAvatar } from "@/components/secret-santa/secret-santa-person-avatar";
 import { useLaunchSecretSanta } from "@/hooks/use-secret-santa";
+import { useProGate } from "@/hooks/use-pro-gate";
 import { MIN_PARTICIPANTS_TO_LAUNCH, getSecretSantaPersonName } from "@/lib/secret-santa";
 import type { SecretSantaExclusion, SecretSantaPerson } from "@wishlist/backend/types/secret-santa";
-import { AlertTriangle, Ban, ChevronDown, ChevronUp, Sparkles, Users } from "lucide-react-native";
+import {
+  AlertTriangle,
+  Ban,
+  ChevronDown,
+  ChevronUp,
+  Lock,
+  Sparkles,
+  Users,
+} from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, Pressable, View } from "react-native";
@@ -28,6 +37,7 @@ export function SecretSantaLaunchSheet({
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const launch = useLaunchSecretSanta();
+  const { isGated, openPaywall } = useProGate();
   const [exclusions, setExclusions] = React.useState<Record<string, Set<string>>>({});
   const [expandedId, setExpandedId] = React.useState<string | null>(null);
 
@@ -87,7 +97,7 @@ export function SecretSantaLaunchSheet({
     launch.mutate(
       {
         event_id: eventId,
-        exclusions: exclusionList,
+        exclusions: isGated ? [] : exclusionList,
       },
       {
         onSuccess: () => {
@@ -110,87 +120,110 @@ export function SecretSantaLaunchSheet({
                 {t("{count} people", { count: participants.length })}
               </Text>
             </View>
-            <View className="flex-row items-center gap-1 rounded-full bg-bg-subtle px-2 py-1">
-              <Icon as={Ban} className="size-3.5 text-text-muted" />
-              <Text className="text-xs font-extrabold text-text-muted">
-                {t("Optional exclusions")}
-              </Text>
-            </View>
+            {!isGated ? (
+              <View className="flex-row items-center gap-1 rounded-full bg-bg-subtle px-2 py-1">
+                <Icon as={Ban} className="size-3.5 text-text-muted" />
+                <Text className="text-xs font-extrabold text-text-muted">
+                  {t("Optional exclusions")}
+                </Text>
+              </View>
+            ) : null}
           </View>
         </View>
 
-        <View className="gap-3">
-          {participants.map((giver) => {
-            const isExpanded = expandedId === giver.id;
-            const excluded = exclusions[giver.id] ?? new Set<string>();
-            const others = participants.filter((person) => person.id !== giver.id);
+        {isGated ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={openPaywall}
+            className="items-center gap-3 rounded-xl border border-brand/30 bg-brand-lighter p-5 active:opacity-80"
+          >
+            <View className="size-11 items-center justify-center rounded-full bg-brand">
+              <Icon as={Lock} className="size-5 text-white" />
+            </View>
+            <View className="items-center gap-1">
+              <Text className="text-center text-base font-extrabold text-text">
+                {t("Secret Santa exclusions are a Pro feature")}
+              </Text>
+              <Text className="text-center text-sm text-text-muted">
+                {t("Upgrade to control who each participant cannot draw.")}
+              </Text>
+            </View>
+            <Text className="font-extrabold text-brand">{t("Upgrade to Pro")}</Text>
+          </Pressable>
+        ) : (
+          <View className="gap-3">
+            {participants.map((giver) => {
+              const isExpanded = expandedId === giver.id;
+              const excluded = exclusions[giver.id] ?? new Set<string>();
+              const others = participants.filter((person) => person.id !== giver.id);
 
-            return (
-              <View
-                key={giver.id}
-                className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg"
-              >
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() => setExpandedId(isExpanded ? null : giver.id)}
-                  className="flex-row items-center gap-3 p-3 active:bg-bg-subtle"
+              return (
+                <View
+                  key={giver.id}
+                  className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg"
                 >
-                  <SecretSantaPersonAvatar person={giver} />
-                  <View className="min-w-0 flex-1">
-                    <Text className="font-extrabold text-text" numberOfLines={1}>
-                      {getSecretSantaPersonName(giver, t)}
-                    </Text>
-                    {excluded.size > 0 ? (
-                      <Text className="text-xs text-text-muted">
-                        {t("{count} exclusions", { count: excluded.size })}
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => setExpandedId(isExpanded ? null : giver.id)}
+                    className="flex-row items-center gap-3 p-3 active:bg-bg-subtle"
+                  >
+                    <SecretSantaPersonAvatar person={giver} />
+                    <View className="min-w-0 flex-1">
+                      <Text className="font-extrabold text-text" numberOfLines={1}>
+                        {getSecretSantaPersonName(giver, t)}
                       </Text>
-                    ) : null}
-                  </View>
-                  <Icon
-                    as={isExpanded ? ChevronUp : ChevronDown}
-                    className="size-4 text-text-muted"
-                  />
-                </Pressable>
+                      {excluded.size > 0 ? (
+                        <Text className="text-xs text-text-muted">
+                          {t("{count} exclusions", { count: excluded.size })}
+                        </Text>
+                      ) : null}
+                    </View>
+                    <Icon
+                      as={isExpanded ? ChevronUp : ChevronDown}
+                      className="size-4 text-text-muted"
+                    />
+                  </Pressable>
 
-                {isExpanded ? (
-                  <View className="flex-row flex-wrap gap-2 border-t border-border-subtle p-3">
-                    {others.map((other) => {
-                      const isExcluded = excluded.has(other.id);
+                  {isExpanded ? (
+                    <View className="flex-row flex-wrap gap-2 border-t border-border-subtle p-3">
+                      {others.map((other) => {
+                        const isExcluded = excluded.has(other.id);
 
-                      return (
-                        <Pressable
-                          key={other.id}
-                          accessibilityRole="button"
-                          accessibilityState={{ selected: isExcluded }}
-                          onPress={() => toggleExclusion(giver.id, other.id)}
-                          className={
-                            isExcluded
-                              ? "flex-row items-center gap-2 rounded-full bg-danger-bg px-2 py-1.5"
-                              : "flex-row items-center gap-2 rounded-full bg-bg-subtle px-2 py-1.5 active:bg-brand-lighter"
-                          }
-                        >
-                          <SecretSantaPersonAvatar person={other} sizeClassName="size-6" />
-                          <Text
+                        return (
+                          <Pressable
+                            key={other.id}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: isExcluded }}
+                            onPress={() => toggleExclusion(giver.id, other.id)}
                             className={
                               isExcluded
-                                ? "text-xs font-bold text-destructive"
-                                : "text-xs font-bold text-text"
+                                ? "flex-row items-center gap-2 rounded-full bg-danger-bg px-2 py-1.5"
+                                : "flex-row items-center gap-2 rounded-full bg-bg-subtle px-2 py-1.5 active:bg-brand-lighter"
                             }
                           >
-                            {getSecretSantaPersonName(other, t)}
-                          </Text>
-                          {isExcluded ? (
-                            <Icon as={Ban} className="size-3 text-destructive" />
-                          ) : null}
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                ) : null}
-              </View>
-            );
-          })}
-        </View>
+                            <SecretSantaPersonAvatar person={other} sizeClassName="size-6" />
+                            <Text
+                              className={
+                                isExcluded
+                                  ? "text-xs font-bold text-destructive"
+                                  : "text-xs font-bold text-text"
+                              }
+                            >
+                              {getSecretSantaPersonName(other, t)}
+                            </Text>
+                            {isExcluded ? (
+                              <Icon as={Ban} className="size-3 text-destructive" />
+                            ) : null}
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  ) : null}
+                </View>
+              );
+            })}
+          </View>
+        )}
 
         {validationError ? (
           <View className="flex-row items-start gap-2 rounded-xl bg-danger-bg p-3">

@@ -1,7 +1,7 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
-import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
+import { NAV_TAB_BAR_BACKDROP_OFFSET, NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
 import { useReducedMotion } from "@/lib/motion";
 import { NATIVE_ACCENTS, getThemeAccent } from "@/lib/theme";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,8 @@ import { useCSSVariable, useUniwind } from "uniwind";
 /** Headroom above the pill so the raised Create button can overhang it. */
 const FAB_OVERHANG = 14;
 const FAB_SIZE = 52;
+const TAB_BAR_TOP_PADDING = FAB_OVERHANG + 4;
+const BACKDROP_TOP = TAB_BAR_TOP_PADDING + NAV_TAB_BAR_HEIGHT / 2 + NAV_TAB_BAR_BACKDROP_OFFSET;
 const INDICATOR_VERTICAL_INSET = 7;
 const INDICATOR_SPRING = { damping: 18, stiffness: 220, mass: 0.7 };
 
@@ -188,14 +190,14 @@ export function AndroidTabBar({
         right: 0,
         bottom: 0,
         left: 0,
-        paddingTop: FAB_OVERHANG + 4,
+        paddingTop: TAB_BAR_TOP_PADDING,
         paddingBottom: Math.max(insets.bottom, 8),
       }}
     >
       <View
         pointerEvents="none"
         className="absolute inset-x-0 bottom-0 bg-bg/95"
-        style={{ top: FAB_OVERHANG + 4 }}
+        style={{ top: BACKDROP_TOP }}
       />
       <View
         className="flex-row rounded-full border border-border-subtle bg-card shadow-[0px_6px_18px_rgba(15,23,42,0.16)]"

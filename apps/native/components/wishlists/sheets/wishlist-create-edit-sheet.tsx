@@ -16,7 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
-import { useCreateWishlist, useUpdateWishlist } from "@/hooks/use-wishlists";
+import { useCreateWishlist, useMyStatistics, useUpdateWishlist } from "@/hooks/use-wishlists";
+import { useProGate } from "@/hooks/use-pro-gate";
 import {
   EMPTY_WISHLIST_FORM,
   getWishlistAccentOptions,
@@ -35,11 +36,13 @@ import {
 } from "@/components/ui/sliding-option-selector";
 import type { WishlistAccessUser } from "@wishlist/backend/types/friends";
 import {
+  WishlistAccent,
   WishlistVisibility,
   type Wishlist,
   type WishlistFormValues,
 } from "@wishlist/backend/types/wishlist";
-import { CalendarDays, Check, X } from "lucide-react-native";
+import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
+import { CalendarDays, Check, Lock, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -93,11 +96,13 @@ export function WishlistCreateEditSheet({
 }) {
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const t = useGT();
+  const { isGated, openPaywall } = useProGate();
   const completeCreateWishlistStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.createWishlist);
   const visibilityOptions = React.useMemo(() => getWishlistVisibilityOptions(t), [t]);
   const accentOptions = React.useMemo(() => getWishlistAccentOptions(t), [t]);
   const createMutation = useCreateWishlist();
   const updateMutation = useUpdateWishlist();
+  const statisticsQuery = useMyStatistics();
   const isPending = createMutation.isPending || updateMutation.isPending;
   const error = createMutation.error ?? updateMutation.error;
   const { control, handleSubmit, reset, setValue } = useForm<WishlistFormValues>({
@@ -127,10 +132,13 @@ export function WishlistCreateEditSheet({
   React.useEffect(() => {
     if (!open) return;
 
-    reset(toWishlistFormValues(wishlist));
+    const nextValues = toWishlistFormValues(wishlist);
+    reset(
+      mode === "create" && isGated ? { ...nextValues, accent: WishlistAccent.Pink } : nextValues,
+    );
     imageUpload.reset();
     setDescriptionInputHeight(estimateDescriptionInputHeight(wishlist?.description));
-  }, [imageUpload.reset, mode, open, reset, wishlist]);
+  }, [imageUpload.reset, isGated, mode, open, reset, wishlist]);
 
   if (!open) return null;
 
@@ -161,6 +169,14 @@ export function WishlistCreateEditSheet({
 
   async function submitForm(formValues: WishlistFormValues) {
     if (!canSubmit) return;
+    if (
+      mode === "create" &&
+      isGated &&
+      (statisticsQuery.data?.wishlists_count ?? 0) >= FREE_LIMITS.maxWishlists
+    ) {
+      openPaywall();
+      return;
+    }
 
     selectedAccess.setError(null);
     selectedAccess.setIsSaving(false);
@@ -369,7 +385,18 @@ export function WishlistCreateEditSheet({
             control={control}
             name="accent"
             render={({ field: { onChange, value } }) => (
-              <AccentSelector accentOptions={accentOptions} value={value} onChange={onChange} />
+              <AccentSelector
+                accentOptions={accentOptions}
+                value={value}
+                onChange={(accent) => {
+                  if (isGated && accent !== WishlistAccent.Pink) {
+                    openPaywall();
+                    return;
+                  }
+                  onChange(accent);
+                }}
+                isGated={isGated}
+              />
             )}
           />
         </Field>
@@ -518,10 +545,12 @@ function AccentSelector({
   accentOptions,
   value,
   onChange,
+  isGated,
 }: {
   accentOptions: ReturnType<typeof getWishlistAccentOptions>;
   value: WishlistFormValues["accent"];
   onChange: (accent: WishlistFormValues["accent"]) => void;
+  isGated: boolean;
 }) {
   const t = useGT();
   const rows = React.useMemo(() => {
@@ -531,7 +560,17 @@ function AccentSelector({
       surfaceClassName: "bg-transparent",
       children: ({ selected }: SlidingOptionRenderProps) => (
         <>
-          <View className={cn("size-4 rounded-full", getWishlistAccentClass(option.value))} />
+          <View
+            className={cn(
+              "size-4 items-center justify-center rounded-full",
+              getWishlistAccentClass(option.value),
+              isGated && option.value !== WishlistAccent.Pink && "opacity-55",
+            )}
+          >
+            {isGated && option.value !== WishlistAccent.Pink ? (
+              <Icon as={Lock} className="size-2.5 text-white" />
+            ) : null}
+          </View>
           <Text
             className={cn("text-sm font-semibold text-text-muted", selected && "text-brand")}
             numberOfLines={1}
@@ -543,7 +582,7 @@ function AccentSelector({
     }));
 
     return [options.slice(0, 3), options.slice(3)];
-  }, [accentOptions, t]);
+  }, [accentOptions, isGated, t]);
 
   return (
     <SlidingOptionSelector
