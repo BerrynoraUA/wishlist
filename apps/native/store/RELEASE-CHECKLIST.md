@@ -8,16 +8,16 @@ file per locale the app ships, covering both stores. See §11.
 
 ## 1. What is automated vs. manual
 
-|                                            | App Store Connect                   | Google Play                                  |
-| ------------------------------------------ | ----------------------------------- | -------------------------------------------- |
+|                                            | App Store Connect                               | Google Play                                              |
+| ------------------------------------------ | ----------------------------------------------- | -------------------------------------------------------- |
 | Listing text (name, description, keywords) | **Automated** — `eas metadata:push`, 31 locales | Manual paste (or `fastlane supply` — see §6), 41 locales |
-| Categories, URLs, copyright                | **Automated**                       | Manual                                       |
-| Age rating / content rating                | **Automated** (advisory block)      | Manual (IARC questionnaire)                  |
-| App Review / App Access demo login         | **Automated**                       | Manual                                       |
-| Privacy declarations                       | Manual (App Privacy)                | Manual (Data safety)                         |
-| Screenshots, icon, feature graphic         | Manual                              | Manual                                       |
-| In-app purchases                           | Manual (or RevenueCat)              | Manual (or RevenueCat)                       |
-| Binary upload                              | **Automated** — `eas submit`        | **Automated** — `eas submit`                 |
+| Categories, URLs, copyright                | **Automated**                                   | Manual                                                   |
+| Age rating / content rating                | **Automated** (advisory block)                  | Manual (IARC questionnaire)                              |
+| App Review / App Access demo login         | **Automated**                                   | Manual                                                   |
+| Privacy declarations                       | Manual (App Privacy)                            | Manual (Data safety)                                     |
+| Screenshots, icon, feature graphic         | Manual                                          | Manual                                                   |
+| In-app purchases                           | Manual (or RevenueCat)                          | Manual (or RevenueCat)                                   |
+| Binary upload                              | **Automated** — `eas submit`                    | **Automated** — `eas submit`                             |
 
 EAS Metadata is Apple-only; there is no Google Play equivalent in EAS.
 
@@ -259,10 +259,10 @@ pnpm --filter native store:metadata:check   # CI guard: fails if stale or over a
 
 That script writes, and `store/listings.js` renders:
 
-| Output                                     | Consumed by                                            |
-| ------------------------------------------ | ------------------------------------------------------ |
-| `fastlane/metadata/android/<playLocale>/…` | Play Console / `fastlane supply` — all 41 locales       |
-| `store/ios-locales/<iosLocale>.json`       | `expo.locales` in `app.json` → `InfoPlist.strings`      |
+| Output                                          | Consumed by                                        |
+| ----------------------------------------------- | -------------------------------------------------- |
+| `fastlane/metadata/android/<playLocale>/…`      | Play Console / `fastlane supply` — all 41 locales  |
+| `store/ios-locales/<iosLocale>.json`            | `expo.locales` in `app.json` → `InfoPlist.strings` |
 | _(in memory)_ `apple.info` in `store.config.js` | `eas metadata:push` — the 31 App Store locales     |
 
 Edit the listing JSON, never the generated files — the `--check` run will flag any drift.

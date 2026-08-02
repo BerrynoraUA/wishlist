@@ -38,9 +38,9 @@ describe("notification templates", () => {
     expect(renderNotificationText("item_reserved", { name: "Anna" }, "de")).toBe(
       "Anna hat deinen Artikel reserviert",
     );
-    expect(
-      renderNotificationText("group_added", { name: "Bob", group: "Family" }, "uk"),
-    ).toBe('Bob додав вас до групи "Family"');
+    expect(renderNotificationText("group_added", { name: "Bob", group: "Family" }, "uk")).toBe(
+      'Bob додав вас до групи "Family"',
+    );
   });
 
   it("every translation keeps the exact placeholders of its English source", () => {

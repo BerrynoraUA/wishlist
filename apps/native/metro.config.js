@@ -9,8 +9,7 @@ const config = getDefaultConfig(__dirname);
 // `zh-Hant` file — so the generated import fails to resolve. Chinese has a single
 // "other" plural category regardless of script, so `zh` is the correct data.
 const LOCALE_DATA_ALIASES = {
-  "@formatjs/intl-pluralrules/locale-data/zh-Hant":
-    "@formatjs/intl-pluralrules/locale-data/zh",
+  "@formatjs/intl-pluralrules/locale-data/zh-Hant": "@formatjs/intl-pluralrules/locale-data/zh",
 };
 
 const baseResolveRequest = config.resolver.resolveRequest;

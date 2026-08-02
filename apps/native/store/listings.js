@@ -19,10 +19,47 @@ const LISTINGS_DIR = path.join(__dirname, "listings");
 
 /** App locales, in the order they appear in `gt.config.json`. */
 const APP_LOCALES = [
-  "en", "uk", "de", "es", "fr", "ja", "it", "pt", "zh", "pl", "ko", "nl",
-  "hi", "tr", "vi", "th", "id", "cs", "sk", "hu", "ro", "bg", "el", "sv",
-  "da", "nb", "fi", "hr", "sr", "sl", "lt", "lv", "et", "bn", "ms", "fil",
-  "zh-Hant", "ar", "he", "fa", "ur",
+  "en",
+  "uk",
+  "de",
+  "es",
+  "fr",
+  "ja",
+  "it",
+  "pt",
+  "zh",
+  "pl",
+  "ko",
+  "nl",
+  "hi",
+  "tr",
+  "vi",
+  "th",
+  "id",
+  "cs",
+  "sk",
+  "hu",
+  "ro",
+  "bg",
+  "el",
+  "sv",
+  "da",
+  "nb",
+  "fi",
+  "hr",
+  "sr",
+  "sl",
+  "lt",
+  "lv",
+  "et",
+  "bn",
+  "ms",
+  "fil",
+  "zh-Hant",
+  "ar",
+  "he",
+  "fa",
+  "ur",
 ];
 
 /**
@@ -209,7 +246,9 @@ function renderBody(listing, { heading, subscription }) {
     blocks.push(`${heading(section.heading)}\n${section.body}`);
   }
   blocks.push(listing.closing);
-  blocks.push(`${heading(listing.subscriptionHeading)}\n${subscription}\n\n${renderPrice(listing)}`);
+  blocks.push(
+    `${heading(listing.subscriptionHeading)}\n${subscription}\n\n${renderPrice(listing)}`,
+  );
   blocks.push(listing.footer.join("\n"));
   return blocks.join("\n\n");
 }

@@ -29,7 +29,11 @@ for (const [locale, entries] of Object.entries(patch)) {
       changed++;
     }
   }
-  const sorted = Object.fromEntries(Object.keys(current).sort().map((k) => [k, current[k]]));
+  const sorted = Object.fromEntries(
+    Object.keys(current)
+      .sort()
+      .map((k) => [k, current[k]]),
+  );
   fs.writeFileSync(file, JSON.stringify(sorted, null, 2) + "\n");
 }
 console.log(`merged ${changed} translations into ${Object.keys(patch).length} locale files`);

@@ -79,7 +79,9 @@ if (problems.length > 0) {
 }
 
 if (stale.length > 0) {
-  console.error("Generated store metadata is out of date. Run `node store/build-store-metadata.js`:");
+  console.error(
+    "Generated store metadata is out of date. Run `node store/build-store-metadata.js`:",
+  );
   for (const file of stale) console.error(`  ${file}`);
   process.exit(1);
 }
