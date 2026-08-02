@@ -52,6 +52,7 @@
   "subscriptionHeading": "Abonelik koşulları",
   "subscriptionApple": "Wishlane Premium, aylık veya yıllık sunulan otomatik yenilenen bir aboneliktir. Ödeme, satın alma onayında Apple Kimliğinizden tahsil edilir. Mevcut dönemin bitiminden en az 24 saat önce otomatik yenileme kapatılmazsa abonelik kendiliğinden yenilenir. Aboneliğinizi istediğiniz zaman Apple Kimliği hesap ayarlarınızdan yönetebilir veya iptal edebilirsiniz.",
   "subscriptionGoogle": "Wishlane Premium, aylık veya yıllık sunulan otomatik yenilenen bir aboneliktir. Ödeme, satın alma onayında Google Play hesabınızdan tahsil edilir. Mevcut dönemin bitiminden en az 24 saat önce otomatik yenileme kapatılmazsa abonelik kendiliğinden yenilenir. Aboneliğinizi istediğiniz zaman Google Play Store'dan yönetebilir veya iptal edebilirsiniz.",
+  "subscriptionPrice": "Wishlane Premium aylık {monthly} veya yıllık {yearly}. Fiyatlar ABD doları cinsindendir ve bölgeye göre değişebilir.",
   "footer": [
     "Soru ya da görüşleriniz için: support@wishlane.net",
     "Gizlilik Politikası: https://wishlane.net/privacy-policy",

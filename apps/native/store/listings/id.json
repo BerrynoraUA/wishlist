@@ -53,6 +53,7 @@
   "subscriptionHeading": "Ketentuan langganan",
   "subscriptionApple": "Wishlane Premium adalah langganan perpanjangan otomatis, bulanan atau tahunan. Pembayaran dibebankan ke Apple ID kamu saat pembelian dikonfirmasi. Langganan diperpanjang otomatis kecuali perpanjangan otomatis dimatikan setidaknya 24 jam sebelum periode berjalan berakhir. Kamu bisa mengelola atau membatalkannya kapan saja di pengaturan akun Apple ID.",
   "subscriptionGoogle": "Wishlane Premium adalah langganan perpanjangan otomatis, bulanan atau tahunan. Pembayaran dibebankan ke akun Google Play kamu saat pembelian dikonfirmasi. Langganan diperpanjang otomatis kecuali perpanjangan otomatis dimatikan setidaknya 24 jam sebelum periode berjalan berakhir. Kamu bisa mengelola atau membatalkannya kapan saja di Google Play Store.",
+  "subscriptionPrice": "Wishlane Premium seharga {monthly} per bulan atau {yearly} per tahun. Harga dalam dolar AS dan dapat berbeda menurut wilayah.",
   "footer": [
     "Ada pertanyaan atau masukan? support@wishlane.net",
     "Kebijakan Privasi: https://wishlane.net/privacy-policy",

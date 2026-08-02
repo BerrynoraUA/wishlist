@@ -52,6 +52,7 @@
   "subscriptionHeading": "サブスクリプションについて",
   "subscriptionApple": "Wishlane Premium は月額または年額の自動更新サブスクリプションです。購入確定時に Apple ID に課金されます。現在の期間終了の24時間前までに自動更新をオフにしない限り、サブスクリプションは自動的に更新されます。管理・解約は Apple ID のアカウント設定からいつでも行えます。",
   "subscriptionGoogle": "Wishlane Premium は月額または年額の自動更新サブスクリプションです。購入確定時に Google Play アカウントに課金されます。現在の期間終了の24時間前までに自動更新をオフにしない限り、サブスクリプションは自動的に更新されます。管理・解約は Google Play ストアからいつでも行えます。",
+  "subscriptionPrice": "Wishlane Premium は月額 {monthly}、年額 {yearly} です。価格は米ドル表示で、地域によって異なる場合があります。",
   "footer": [
     "ご質問・ご意見は support@wishlane.net まで",
     "プライバシーポリシー: https://wishlane.net/privacy-policy",

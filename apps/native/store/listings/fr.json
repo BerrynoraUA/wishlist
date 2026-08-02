@@ -52,6 +52,7 @@
   "subscriptionHeading": "Conditions d'abonnement",
   "subscriptionApple": "Wishlane Premium est un abonnement à renouvellement automatique, mensuel ou annuel. Le paiement est débité de votre identifiant Apple à la confirmation de l'achat. L'abonnement se renouvelle automatiquement sauf si le renouvellement automatique est désactivé au moins 24 heures avant la fin de la période en cours. Vous pouvez le gérer ou le résilier à tout moment dans les réglages de votre compte Apple.",
   "subscriptionGoogle": "Wishlane Premium est un abonnement à renouvellement automatique, mensuel ou annuel. Le paiement est débité de votre compte Google Play à la confirmation de l'achat. L'abonnement se renouvelle automatiquement sauf si le renouvellement automatique est désactivé au moins 24 heures avant la fin de la période en cours. Vous pouvez le gérer ou le résilier à tout moment dans le Google Play Store.",
+  "subscriptionPrice": "Wishlane Premium coûte {monthly} par mois ou {yearly} par an. Les prix sont indiqués en dollars américains et peuvent varier selon la région.",
   "footer": [
     "Questions ou retours ? support@wishlane.net",
     "Politique de confidentialité : https://wishlane.net/privacy-policy",

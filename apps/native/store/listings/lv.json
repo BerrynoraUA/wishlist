@@ -51,6 +51,7 @@
   "subscriptionHeading": "Abonementa noteikumi",
   "subscriptionApple": "Wishlane Premium ir automātiski atjaunojams abonements uz mēnesi vai gadu. Maksa tiek iekasēta no jūsu Apple ID, apstiprinot pirkumu. Abonements atjaunojas automātiski, ja vien automātiskā atjaunošana netiek izslēgta vismaz 24 stundas pirms pašreizējā perioda beigām. To jebkurā laikā varat pārvaldīt vai atcelt sava Apple ID konta iestatījumos.",
   "subscriptionGoogle": "Wishlane Premium ir automātiski atjaunojams abonements uz mēnesi vai gadu. Maksa tiek iekasēta no jūsu Google Play konta, apstiprinot pirkumu. Abonements atjaunojas automātiski, ja vien automātiskā atjaunošana netiek izslēgta vismaz 24 stundas pirms pašreizējā perioda beigām. To jebkurā laikā varat pārvaldīt vai atcelt veikalā Google Play.",
+  "subscriptionPrice": "Wishlane Premium maksā {monthly} mēnesī vai {yearly} gadā. Cenas ir norādītas ASV dolāros un var atšķirties atkarībā no reģiona.",
   "footer": [
     "Jautājumi vai atsauksmes? support@wishlane.net",
     "Privātuma politika: https://wishlane.net/privacy-policy",

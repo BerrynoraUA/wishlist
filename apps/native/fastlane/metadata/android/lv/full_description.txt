@@ -28,6 +28,8 @@ Wishlane sākumā ir bez maksas – bez kartes, iestatīšana mazāk nekā minū
 <b>Abonementa noteikumi</b>
 Wishlane Premium ir automātiski atjaunojams abonements uz mēnesi vai gadu. Maksa tiek iekasēta no jūsu Google Play konta, apstiprinot pirkumu. Abonements atjaunojas automātiski, ja vien automātiskā atjaunošana netiek izslēgta vismaz 24 stundas pirms pašreizējā perioda beigām. To jebkurā laikā varat pārvaldīt vai atcelt veikalā Google Play.
 
+Wishlane Premium maksā $3.99 mēnesī vai $24.99 gadā. Cenas ir norādītas ASV dolāros un var atšķirties atkarībā no reģiona.
+
 Jautājumi vai atsauksmes? support@wishlane.net
 Privātuma politika: https://wishlane.net/privacy-policy
 Lietošanas noteikumi: https://wishlane.net/terms-of-service

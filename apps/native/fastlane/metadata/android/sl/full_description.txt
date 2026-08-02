@@ -28,6 +28,8 @@ Wishlane je za začetek brezplačen – brez kartice, nastavitev v manj kot minu
 <b>Pogoji naročnine</b>
 Wishlane Premium je samodejno obnavljajoča se naročnina, mesečna ali letna. Plačilo se ob potrditvi nakupa obračuna z vašega računa Google Play. Naročnina se samodejno obnovi, razen če samodejnega obnavljanja ne izklopite vsaj 24 ur pred koncem tekočega obdobja. Naročnino lahko kadar koli urejate ali prekličete v trgovini Google Play.
 
+Wishlane Premium stane $3.99 na mesec ali $24.99 na leto. Cene so v ameriških dolarjih in se lahko razlikujejo glede na regijo.
+
 Vprašanja ali povratne informacije? support@wishlane.net
 Pravilnik o zasebnosti: https://wishlane.net/privacy-policy
 Pogoji uporabe: https://wishlane.net/terms-of-service

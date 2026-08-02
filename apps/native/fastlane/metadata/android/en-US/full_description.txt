@@ -28,6 +28,8 @@ Wishlane is free to start - no credit card, set up in under a minute. Available 
 <b>Subscription terms</b>
 Wishlane Premium is an auto-renewing subscription offered monthly or yearly. Payment is charged to your Google Play account at confirmation of purchase. Your subscription renews automatically unless auto-renew is turned off at least 24 hours before the end of the current period. You can manage or cancel your subscription in the Google Play Store at any time.
 
+Wishlane Premium costs $3.99 per month or $24.99 per year. Prices are in US dollars and vary by region.
+
 Questions or feedback? support@wishlane.net
 Privacy Policy: https://wishlane.net/privacy-policy
 Terms of Service: https://wishlane.net/terms-of-service

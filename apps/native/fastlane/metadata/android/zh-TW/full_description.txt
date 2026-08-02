@@ -28,6 +28,8 @@ Wishlane 免費上手——不需信用卡，一分鐘內即可設定完成。�
 <b>訂閱條款</b>
 Wishlane 進階版為按月或按年自動續訂的訂閱項目。確認購買後將透過您的 Google Play 帳戶收取費用。除非在目前訂閱期結束前至少 24 小時關閉自動續訂，否則訂閱將自動續期。您可隨時在 Google Play 商店中管理或取消訂閱。
 
+Wishlane Premium 每月 $3.99，每年 $24.99。價格以美元顯示，可能因地區而異。
+
 有問題或建議？support@wishlane.net
 隱私權政策：https://wishlane.net/privacy-policy
 服務條款：https://wishlane.net/terms-of-service

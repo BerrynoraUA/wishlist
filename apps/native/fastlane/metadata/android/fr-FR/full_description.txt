@@ -28,6 +28,8 @@ Wishlane est gratuit au départ : sans carte bancaire et prêt en moins d'une mi
 <b>Conditions d'abonnement</b>
 Wishlane Premium est un abonnement à renouvellement automatique, mensuel ou annuel. Le paiement est débité de votre compte Google Play à la confirmation de l'achat. L'abonnement se renouvelle automatiquement sauf si le renouvellement automatique est désactivé au moins 24 heures avant la fin de la période en cours. Vous pouvez le gérer ou le résilier à tout moment dans le Google Play Store.
 
+Wishlane Premium coûte $3.99 par mois ou $24.99 par an. Les prix sont indiqués en dollars américains et peuvent varier selon la région.
+
 Questions ou retours ? support@wishlane.net
 Politique de confidentialité : https://wishlane.net/privacy-policy
 Conditions d'utilisation : https://wishlane.net/terms-of-service

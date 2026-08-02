@@ -52,6 +52,7 @@
   "subscriptionHeading": "Warunki subskrypcji",
   "subscriptionApple": "Wishlane Premium to subskrypcja odnawiana automatycznie w cyklu miesięcznym lub rocznym. Płatność zostanie pobrana z konta Apple ID po potwierdzeniu zakupu. Subskrypcja odnawia się automatycznie, o ile automatyczne odnawianie nie zostanie wyłączone co najmniej 24 godziny przed końcem bieżącego okresu. Subskrypcją możesz zarządzać lub anulować ją w dowolnym momencie w ustawieniach konta Apple ID.",
   "subscriptionGoogle": "Wishlane Premium to subskrypcja odnawiana automatycznie w cyklu miesięcznym lub rocznym. Płatność zostanie pobrana z konta Google Play po potwierdzeniu zakupu. Subskrypcja odnawia się automatycznie, o ile automatyczne odnawianie nie zostanie wyłączone co najmniej 24 godziny przed końcem bieżącego okresu. Subskrypcją możesz zarządzać lub anulować ją w dowolnym momencie w sklepie Google Play.",
+  "subscriptionPrice": "Wishlane Premium kosztuje {monthly} miesięcznie lub {yearly} rocznie. Ceny podano w dolarach amerykańskich i mogą się różnić w zależności od regionu.",
   "footer": [
     "Pytania lub uwagi? support@wishlane.net",
     "Polityka prywatności: https://wishlane.net/privacy-policy",

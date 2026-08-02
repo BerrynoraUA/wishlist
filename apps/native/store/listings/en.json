@@ -55,6 +55,7 @@
   "subscriptionHeading": "Subscription terms",
   "subscriptionApple": "Wishlane Premium is an auto-renewing subscription offered monthly or yearly. Payment is charged to your Apple ID at confirmation of purchase. Your subscription renews automatically unless auto-renew is turned off at least 24 hours before the end of the current period. You can manage or cancel your subscription in your Apple ID account settings at any time.",
   "subscriptionGoogle": "Wishlane Premium is an auto-renewing subscription offered monthly or yearly. Payment is charged to your Google Play account at confirmation of purchase. Your subscription renews automatically unless auto-renew is turned off at least 24 hours before the end of the current period. You can manage or cancel your subscription in the Google Play Store at any time.",
+  "subscriptionPrice": "Wishlane Premium costs {monthly} per month or {yearly} per year. Prices are in US dollars and vary by region.",
   "footer": [
     "Questions or feedback? support@wishlane.net",
     "Privacy Policy: https://wishlane.net/privacy-policy",

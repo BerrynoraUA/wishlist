@@ -52,6 +52,7 @@
   "subscriptionHeading": "Abo-Bedingungen",
   "subscriptionApple": "Wishlane Premium ist ein automatisch verlängerbares Abo, monatlich oder jährlich. Die Zahlung wird bei Kaufbestätigung deiner Apple-ID belastet. Das Abo verlängert sich automatisch, sofern die automatische Verlängerung nicht mindestens 24 Stunden vor Ende des laufenden Zeitraums deaktiviert wird. Du kannst dein Abo jederzeit in den Einstellungen deiner Apple-ID verwalten oder kündigen.",
   "subscriptionGoogle": "Wishlane Premium ist ein automatisch verlängerbares Abo, monatlich oder jährlich. Die Zahlung wird bei Kaufbestätigung deinem Google-Play-Konto belastet. Das Abo verlängert sich automatisch, sofern die automatische Verlängerung nicht mindestens 24 Stunden vor Ende des laufenden Zeitraums deaktiviert wird. Du kannst dein Abo jederzeit im Google Play Store verwalten oder kündigen.",
+  "subscriptionPrice": "Wishlane Premium kostet {monthly} pro Monat oder {yearly} pro Jahr. Die Preise sind in US-Dollar angegeben und können je nach Region abweichen.",
   "footer": [
     "Fragen oder Feedback? support@wishlane.net",
     "Datenschutzerklärung: https://wishlane.net/privacy-policy",

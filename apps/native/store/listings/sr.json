@@ -51,6 +51,7 @@
   "subscriptionHeading": "Услови претплате",
   "subscriptionApple": "Wishlane Premium је претплата која се аутоматски обнавља, месечно или годишње. Плаћање се наплаћује са вашег Apple ID налога при потврди куповине. Претплата се аутоматски обнавља осим ако се аутоматско обнављање не искључи најмање 24 сата пре краја текућег периода. Можете је у сваком тренутку уредити или отказати у подешавањима Apple ID налога.",
   "subscriptionGoogle": "Wishlane Premium је претплата која се аутоматски обнавља, месечно или годишње. Плаћање се наплаћује са вашег Google Play налога при потврди куповине. Претплата се аутоматски обнавља осим ако се аутоматско обнављање не искључи најмање 24 сата пре краја текућег периода. Можете је у сваком тренутку уредити или отказати у продавници Google Play.",
+  "subscriptionPrice": "Wishlane Premium košta {monthly} mesečno ili {yearly} godišnje. Cene su u američkim dolarima i mogu da se razlikuju u zavisnosti od regiona.",
   "footer": [
     "Питања или сугестије? support@wishlane.net",
     "Политика приватности: https://wishlane.net/privacy-policy",

@@ -28,6 +28,8 @@ Wishlane jest darmowy na start – bez karty, konfiguracja w niecałą minutę. 
 <b>Warunki subskrypcji</b>
 Wishlane Premium to subskrypcja odnawiana automatycznie w cyklu miesięcznym lub rocznym. Płatność zostanie pobrana z konta Google Play po potwierdzeniu zakupu. Subskrypcja odnawia się automatycznie, o ile automatyczne odnawianie nie zostanie wyłączone co najmniej 24 godziny przed końcem bieżącego okresu. Subskrypcją możesz zarządzać lub anulować ją w dowolnym momencie w sklepie Google Play.
 
+Wishlane Premium kosztuje $3.99 miesięcznie lub $24.99 rocznie. Ceny podano w dolarach amerykańskich i mogą się różnić w zależności od regionu.
+
 Pytania lub uwagi? support@wishlane.net
 Polityka prywatności: https://wishlane.net/privacy-policy
 Regulamin: https://wishlane.net/terms-of-service

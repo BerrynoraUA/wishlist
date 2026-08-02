@@ -52,6 +52,7 @@
   "subscriptionHeading": "Abonnementsvilkår",
   "subscriptionApple": "Wishlane Premium er et abonnement med automatisk fornyelse, månedlig eller årlig. Beløpet belastes Apple-ID-en din når kjøpet bekreftes. Abonnementet fornyes automatisk med mindre automatisk fornyelse slås av minst 24 timer før inneværende periode er over. Du kan når som helst administrere eller si opp abonnementet i innstillingene for Apple-ID-kontoen din.",
   "subscriptionGoogle": "Wishlane Premium er et abonnement med automatisk fornyelse, månedlig eller årlig. Beløpet belastes Google Play-kontoen din når kjøpet bekreftes. Abonnementet fornyes automatisk med mindre automatisk fornyelse slås av minst 24 timer før inneværende periode er over. Du kan når som helst administrere eller si opp abonnementet i Google Play-butikken.",
+  "subscriptionPrice": "Wishlane Premium koster {monthly} per måned eller {yearly} per år. Prisene er i amerikanske dollar og kan variere fra region til region.",
   "footer": [
     "Spørsmål eller tilbakemeldinger? support@wishlane.net",
     "Personvernerklæring: https://wishlane.net/privacy-policy",

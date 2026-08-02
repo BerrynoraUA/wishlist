@@ -53,6 +53,7 @@
   "subscriptionHeading": "订阅条款",
   "subscriptionApple": "Wishlane 高级版为按月或按年自动续期订阅。确认购买后将通过您的 Apple ID 收取费用。除非在当前订阅期结束前至少 24 小时关闭自动续期，否则订阅将自动续期。您可随时在 Apple ID 账户设置中管理或取消订阅。",
   "subscriptionGoogle": "Wishlane 高级版为按月或按年自动续期订阅。确认购买后将通过您的 Google Play 账号收取费用。除非在当前订阅期结束前至少 24 小时关闭自动续期，否则订阅将自动续期。您可随时在 Google Play 商店中管理或取消订阅。",
+  "subscriptionPrice": "Wishlane Premium 每月 {monthly}，每年 {yearly}。价格以美元显示，可能因地区而异。",
   "footer": [
     "有问题或建议？support@wishlane.net",
     "隐私政策：https://wishlane.net/privacy-policy",

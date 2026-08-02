@@ -28,6 +28,8 @@ Libre ang simula sa Wishlane: walang credit card, wala pang isang minuto ang set
 <b>Mga tuntunin ng subscription</b>
 Ang Wishlane Premium ay awtomatikong nagre-renew na subscription, buwanan o taunan. Sisingilin ang bayad sa iyong Google Play account sa pagkumpirma ng pagbili. Awtomatikong nagre-renew ang subscription maliban kung i-off ang auto-renew nang hindi bababa sa 24 oras bago matapos ang kasalukuyang panahon. Puwede mong pamahalaan o kanselahin ito anumang oras sa Google Play Store.
 
+Ang Wishlane Premium ay nagkakahalaga ng $3.99 kada buwan o $24.99 kada taon. Ang mga presyo ay nasa US dollar at maaaring mag-iba depende sa rehiyon.
+
 May tanong o feedback? support@wishlane.net
 Patakaran sa Privacy: https://wishlane.net/privacy-policy
 Mga Tuntunin ng Serbisyo: https://wishlane.net/terms-of-service

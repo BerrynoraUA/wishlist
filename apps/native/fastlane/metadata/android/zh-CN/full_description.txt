@@ -28,6 +28,8 @@ Wishlane 免费上手——无需信用卡，一分钟内即可设置完成。�
 <b>订阅条款</b>
 Wishlane 高级版为按月或按年自动续期订阅。确认购买后将通过您的 Google Play 账号收取费用。除非在当前订阅期结束前至少 24 小时关闭自动续期，否则订阅将自动续期。您可随时在 Google Play 商店中管理或取消订阅。
 
+Wishlane Premium 每月 $3.99，每年 $24.99。价格以美元显示，可能因地区而异。
+
 有问题或建议？support@wishlane.net
 隐私政策：https://wishlane.net/privacy-policy
 服务条款：https://wishlane.net/terms-of-service

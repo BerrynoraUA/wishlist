@@ -95,8 +95,8 @@ module.exports = {
     },
     categories: ["LIFESTYLE", "SHOPPING"],
     review: {
-      firstName: "Valerii",
-      lastName: "Inshyn",
+      firstName: "Roman",
+      lastName: "Yatskovyna",
       email: "support@wishlane.net",
       phone: phone("APPLE_REVIEW_PHONE"),
       demoRequired: true,

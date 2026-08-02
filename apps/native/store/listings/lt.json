@@ -51,6 +51,7 @@
   "subscriptionHeading": "Prenumeratos sąlygos",
   "subscriptionApple": "„Wishlane Premium“ yra automatiškai atsinaujinanti mėnesio arba metų prenumerata. Mokestis nuskaitomas iš jūsų „Apple ID“ patvirtinus pirkimą. Prenumerata atsinaujina automatiškai, nebent automatinis atnaujinimas išjungiamas bent 24 valandas iki dabartinio laikotarpio pabaigos. Ją bet kada galite tvarkyti ar atšaukti „Apple ID“ paskyros nustatymuose.",
   "subscriptionGoogle": "„Wishlane Premium“ yra automatiškai atsinaujinanti mėnesio arba metų prenumerata. Mokestis nuskaitomas iš jūsų „Google Play“ paskyros patvirtinus pirkimą. Prenumerata atsinaujina automatiškai, nebent automatinis atnaujinimas išjungiamas bent 24 valandas iki dabartinio laikotarpio pabaigos. Ją bet kada galite tvarkyti ar atšaukti „Google Play“ parduotuvėje.",
+  "subscriptionPrice": "„Wishlane Premium“ kainuoja {monthly} per mėnesį arba {yearly} per metus. Kainos nurodytos JAV doleriais ir gali skirtis priklausomai nuo regiono.",
   "footer": [
     "Klausimai ar atsiliepimai? support@wishlane.net",
     "Privatumo politika: https://wishlane.net/privacy-policy",

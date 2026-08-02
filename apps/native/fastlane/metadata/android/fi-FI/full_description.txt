@@ -28,6 +28,8 @@ Wishlanen aloittaminen on ilmaista – ei korttia, käyttöönotto alle minuutis
 <b>Tilausehdot</b>
 Wishlane Premium on automaattisesti uusiutuva tilaus, joka on tarjolla kuukausittain tai vuosittain. Maksu veloitetaan Google Play -tililtäsi oston vahvistuksen yhteydessä. Tilaus uusiutuu automaattisesti, ellei automaattista uusimista poisteta käytöstä vähintään 24 tuntia ennen kuluvan jakson päättymistä. Voit hallita tai peruuttaa tilauksen milloin tahansa Google Play Kaupassa.
 
+Wishlane Premium maksaa $3.99 kuukaudessa tai $24.99 vuodessa. Hinnat on ilmoitettu Yhdysvaltain dollareina ja ne voivat vaihdella alueittain.
+
 Kysyttävää tai palautetta? support@wishlane.net
 Tietosuojakäytäntö: https://wishlane.net/privacy-policy
 Käyttöehdot: https://wishlane.net/terms-of-service

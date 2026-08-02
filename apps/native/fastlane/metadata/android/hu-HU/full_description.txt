@@ -28,6 +28,8 @@ A Wishlane ingyen indul – bankkártya nélkül, egy percen belül beállíthat
 <b>Előfizetési feltételek</b>
 A Wishlane Premium automatikusan megújuló, havi vagy éves előfizetés. A díjat a vásárlás megerősítésekor terheljük a Google Play-fiókodra. Az előfizetés automatikusan megújul, hacsak az automatikus megújítást nem kapcsolod ki legalább 24 órával az aktuális időszak vége előtt. Bármikor kezelheted vagy lemondhatod a Google Play Áruházban.
 
+A Wishlane Premium ára $3.99 havonta vagy $24.99 évente. Az árak amerikai dollárban értendők, és régiónként eltérhetnek.
+
 Kérdés vagy visszajelzés? support@wishlane.net
 Adatvédelmi irányelvek: https://wishlane.net/privacy-policy
 Felhasználási feltételek: https://wishlane.net/terms-of-service

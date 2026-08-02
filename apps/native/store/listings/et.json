@@ -51,6 +51,7 @@
   "subscriptionHeading": "Tellimuse tingimused",
   "subscriptionApple": "Wishlane Premium on automaatselt uuenev tellimus kuu või aasta kaupa. Makse võetakse ostu kinnitamisel sinu Apple ID-lt. Tellimus uueneb automaatselt, kui automaatset uuendamist ei lülitata välja vähemalt 24 tundi enne käimasoleva perioodi lõppu. Saad seda igal ajal hallata või tühistada oma Apple ID konto seadetes.",
   "subscriptionGoogle": "Wishlane Premium on automaatselt uuenev tellimus kuu või aasta kaupa. Makse võetakse ostu kinnitamisel sinu Google Play kontolt. Tellimus uueneb automaatselt, kui automaatset uuendamist ei lülitata välja vähemalt 24 tundi enne käimasoleva perioodi lõppu. Saad seda igal ajal hallata või tühistada Google Play poes.",
+  "subscriptionPrice": "Wishlane Premium maksab {monthly} kuus või {yearly} aastas. Hinnad on USA dollarites ja võivad piirkonniti erineda.",
   "footer": [
     "Küsimused või tagasiside? support@wishlane.net",
     "Privaatsuspoliitika: https://wishlane.net/privacy-policy",

@@ -52,6 +52,7 @@
   "subscriptionHeading": "Điều khoản đăng ký",
   "subscriptionApple": "Wishlane Premium là gói đăng ký tự động gia hạn theo tháng hoặc theo năm. Khoản thanh toán sẽ được tính vào Apple ID của bạn khi xác nhận mua. Gói đăng ký tự động gia hạn trừ khi bạn tắt tự động gia hạn ít nhất 24 giờ trước khi kỳ hiện tại kết thúc. Bạn có thể quản lý hoặc hủy đăng ký bất cứ lúc nào trong phần cài đặt tài khoản Apple ID.",
   "subscriptionGoogle": "Wishlane Premium là gói đăng ký tự động gia hạn theo tháng hoặc theo năm. Khoản thanh toán sẽ được tính vào tài khoản Google Play của bạn khi xác nhận mua. Gói đăng ký tự động gia hạn trừ khi bạn tắt tự động gia hạn ít nhất 24 giờ trước khi kỳ hiện tại kết thúc. Bạn có thể quản lý hoặc hủy đăng ký bất cứ lúc nào trong Cửa hàng Google Play.",
+  "subscriptionPrice": "Wishlane Premium có giá {monthly} mỗi tháng hoặc {yearly} mỗi năm. Giá được hiển thị bằng đô la Mỹ và có thể thay đổi theo khu vực.",
   "footer": [
     "Câu hỏi hoặc góp ý? support@wishlane.net",
     "Chính sách quyền riêng tư: https://wishlane.net/privacy-policy",

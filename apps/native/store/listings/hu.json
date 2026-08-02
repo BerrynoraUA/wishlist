@@ -52,6 +52,7 @@
   "subscriptionHeading": "Előfizetési feltételek",
   "subscriptionApple": "A Wishlane Premium automatikusan megújuló, havi vagy éves előfizetés. A díjat a vásárlás megerősítésekor terheljük az Apple ID-dra. Az előfizetés automatikusan megújul, hacsak az automatikus megújítást nem kapcsolod ki legalább 24 órával az aktuális időszak vége előtt. Bármikor kezelheted vagy lemondhatod az Apple ID fiókbeállításaidban.",
   "subscriptionGoogle": "A Wishlane Premium automatikusan megújuló, havi vagy éves előfizetés. A díjat a vásárlás megerősítésekor terheljük a Google Play-fiókodra. Az előfizetés automatikusan megújul, hacsak az automatikus megújítást nem kapcsolod ki legalább 24 órával az aktuális időszak vége előtt. Bármikor kezelheted vagy lemondhatod a Google Play Áruházban.",
+  "subscriptionPrice": "A Wishlane Premium ára {monthly} havonta vagy {yearly} évente. Az árak amerikai dollárban értendők, és régiónként eltérhetnek.",
   "footer": [
     "Kérdés vagy visszajelzés? support@wishlane.net",
     "Adatvédelmi irányelvek: https://wishlane.net/privacy-policy",

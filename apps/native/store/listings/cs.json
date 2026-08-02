@@ -52,6 +52,7 @@
   "subscriptionHeading": "Podmínky předplatného",
   "subscriptionApple": "Wishlane Premium je automaticky obnovované předplatné, měsíční nebo roční. Platba se strhne z vašeho Apple ID při potvrzení nákupu. Předplatné se automaticky obnoví, pokud automatické obnovení nevypnete alespoň 24 hodin před koncem aktuálního období. Spravovat nebo zrušit ho můžete kdykoli v nastavení účtu Apple ID.",
   "subscriptionGoogle": "Wishlane Premium je automaticky obnovované předplatné, měsíční nebo roční. Platba se strhne z vašeho účtu Google Play při potvrzení nákupu. Předplatné se automaticky obnoví, pokud automatické obnovení nevypnete alespoň 24 hodin před koncem aktuálního období. Spravovat nebo zrušit ho můžete kdykoli v Obchodě Google Play.",
+  "subscriptionPrice": "Wishlane Premium stojí {monthly} měsíčně nebo {yearly} ročně. Ceny jsou uvedeny v amerických dolarech a mohou se lišit podle regionu.",
   "footer": [
     "Dotazy nebo připomínky? support@wishlane.net",
     "Zásady ochrany osobních údajů: https://wishlane.net/privacy-policy",

@@ -28,6 +28,8 @@ Wishlane は無料で始められます。クレジットカード不要、設�
 <b>サブスクリプションについて</b>
 Wishlane Premium は月額または年額の自動更新サブスクリプションです。購入確定時に Google Play アカウントに課金されます。現在の期間終了の24時間前までに自動更新をオフにしない限り、サブスクリプションは自動的に更新されます。管理・解約は Google Play ストアからいつでも行えます。
 
+Wishlane Premium は月額 $3.99、年額 $24.99 です。価格は米ドル表示で、地域によって異なる場合があります。
+
 ご質問・ご意見は support@wishlane.net まで
 プライバシーポリシー: https://wishlane.net/privacy-policy
 利用規約: https://wishlane.net/terms-of-service

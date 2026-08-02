@@ -157,6 +157,23 @@ const IOS_LOCALES = {
   ur: "ur",
 };
 
+/**
+ * Wishlane Premium pricing, as it appears in the store listings.
+ *
+ * The in-app paywall does not use these - RevenueCat hands the SDK the localized,
+ * currency-correct price from StoreKit/Play Billing at runtime. Store listings are
+ * static text uploaded ahead of install, so Apple guideline 3.1.2 pricing has to be
+ * written in by hand. Keeping the numbers here means a price change is a two-line
+ * edit rather than 41 re-translated sentences.
+ *
+ * These must stay in step with the real product prices in App Store Connect and
+ * Play Console; nothing verifies that automatically.
+ */
+const PRICES = {
+  monthly: "$3.99",
+  yearly: "$24.99",
+};
+
 /** Store-enforced character limits. Exceeding any of these is a hard upload error. */
 const LIMITS = {
   appleTitle: 30,
@@ -179,13 +196,20 @@ function loadAllListings() {
   return Object.fromEntries(APP_LOCALES.map((locale) => [locale, loadListing(locale)]));
 }
 
+/** Fills the {monthly} and {yearly} placeholders in a listing's price sentence. */
+function renderPrice(listing) {
+  return listing.subscriptionPrice
+    .replace("{monthly}", PRICES.monthly)
+    .replace("{yearly}", PRICES.yearly);
+}
+
 function renderBody(listing, { heading, subscription }) {
   const blocks = [...listing.intro];
   for (const section of listing.sections) {
     blocks.push(`${heading(section.heading)}\n${section.body}`);
   }
   blocks.push(listing.closing);
-  blocks.push(`${heading(listing.subscriptionHeading)}\n${subscription}`);
+  blocks.push(`${heading(listing.subscriptionHeading)}\n${subscription}\n\n${renderPrice(listing)}`);
   blocks.push(listing.footer.join("\n"));
   return blocks.join("\n\n");
 }
@@ -241,8 +265,10 @@ module.exports = {
   PLAY_LOCALES,
   IOS_LOCALES,
   LIMITS,
+  PRICES,
   loadListing,
   loadAllListings,
+  renderPrice,
   renderAppleDescription,
   renderPlayDescription,
   renderChangelog,

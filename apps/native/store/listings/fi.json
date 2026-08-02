@@ -51,6 +51,7 @@
   "subscriptionHeading": "Tilausehdot",
   "subscriptionApple": "Wishlane Premium on automaattisesti uusiutuva tilaus, joka on tarjolla kuukausittain tai vuosittain. Maksu veloitetaan Apple ID -tunnukseltasi oston vahvistuksen yhteydessä. Tilaus uusiutuu automaattisesti, ellei automaattista uusimista poisteta käytöstä vähintään 24 tuntia ennen kuluvan jakson päättymistä. Voit hallita tai peruuttaa tilauksen milloin tahansa Apple ID -tilisi asetuksissa.",
   "subscriptionGoogle": "Wishlane Premium on automaattisesti uusiutuva tilaus, joka on tarjolla kuukausittain tai vuosittain. Maksu veloitetaan Google Play -tililtäsi oston vahvistuksen yhteydessä. Tilaus uusiutuu automaattisesti, ellei automaattista uusimista poisteta käytöstä vähintään 24 tuntia ennen kuluvan jakson päättymistä. Voit hallita tai peruuttaa tilauksen milloin tahansa Google Play Kaupassa.",
+  "subscriptionPrice": "Wishlane Premium maksaa {monthly} kuukaudessa tai {yearly} vuodessa. Hinnat on ilmoitettu Yhdysvaltain dollareina ja ne voivat vaihdella alueittain.",
   "footer": [
     "Kysyttävää tai palautetta? support@wishlane.net",
     "Tietosuojakäytäntö: https://wishlane.net/privacy-policy",

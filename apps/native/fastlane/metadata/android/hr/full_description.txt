@@ -28,6 +28,8 @@ Wishlane je za početak besplatan – bez kartice, postavljanje u manje od minut
 <b>Uvjeti pretplate</b>
 Wishlane Premium automatski je obnavljajuća pretplata, mjesečna ili godišnja. Plaćanje se naplaćuje s vašeg Google Play računa pri potvrdi kupnje. Pretplata se automatski obnavlja osim ako se automatsko obnavljanje ne isključi najmanje 24 sata prije kraja tekućeg razdoblja. Možete je u svakom trenutku urediti ili otkazati u trgovini Google Play.
 
+Wishlane Premium košta $3.99 mjesečno ili $24.99 godišnje. Cijene su u američkim dolarima i mogu se razlikovati ovisno o regiji.
+
 Pitanja ili povratne informacije? support@wishlane.net
 Pravila o privatnosti: https://wishlane.net/privacy-policy
 Uvjeti korištenja: https://wishlane.net/terms-of-service

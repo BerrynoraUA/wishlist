@@ -28,6 +28,8 @@ Neriboti sąrašai ir prekės, bendraautorių prieiga bendruose sąrašuose, pra
 <b>Prenumeratos sąlygos</b>
 „Wishlane Premium“ yra automatiškai atsinaujinanti mėnesio arba metų prenumerata. Mokestis nuskaitomas iš jūsų „Google Play“ paskyros patvirtinus pirkimą. Prenumerata atsinaujina automatiškai, nebent automatinis atnaujinimas išjungiamas bent 24 valandas iki dabartinio laikotarpio pabaigos. Ją bet kada galite tvarkyti ar atšaukti „Google Play“ parduotuvėje.
 
+„Wishlane Premium“ kainuoja $3.99 per mėnesį arba $24.99 per metus. Kainos nurodytos JAV doleriais ir gali skirtis priklausomai nuo regiono.
+
 Klausimai ar atsiliepimai? support@wishlane.net
 Privatumo politika: https://wishlane.net/privacy-policy
 Naudojimo sąlygos: https://wishlane.net/terms-of-service
