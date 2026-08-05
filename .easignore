@@ -67,5 +67,7 @@ apps/native/expo-env.d.ts
 .github
 .vscode
 apps/frontend
-services
-supabase
+# Anchored: unanchored names match a directory at ANY depth, and a bare
+# "supabase" also removed packages/backend/supabase/, breaking the bundle.
+/services/
+/supabase/
