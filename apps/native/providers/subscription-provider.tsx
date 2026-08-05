@@ -1,6 +1,7 @@
 import { syncSubscription } from "@/api/subscription";
 import { subscriptionKeys, useSubscriptionStatus } from "@/hooks/use-subscription";
 import { configureRevenueCat } from "@/lib/revenuecat";
+import { useAppReady } from "@/components/splash/animated-splash";
 import { useAuth } from "@/providers/auth-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import Purchases, {
@@ -32,6 +33,12 @@ interface SubscriptionContextValue {
   hasManageableSubscription: boolean;
   isConfigured: boolean;
   isPro: boolean;
+  /**
+   * Whether the server has actually told us the plan yet. `isPro` is `false` before that,
+   * which is indistinguishable from a genuine free account — anything that gates on Pro
+   * must check this too, or it will paywall a subscriber during startup.
+   */
+  isStatusResolved: boolean;
   expiresAt: string | null;
   isLoading: boolean;
   state: PurchaseState;
@@ -117,9 +124,13 @@ async function getProductChangeInfo(
 
 export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const subscriptionStatus = useSubscriptionStatus();
+  const appReady = useAppReady();
+  // Nothing on the first screen reads Pro status — every `useProGate` consumer acts at tap
+  // time — so keep this request out of the launch window.
+  const subscriptionStatus = useSubscriptionStatus({ enabled: appReady });
   const {
     expiresAt,
+    isFetched: isStatusResolved,
     isLoading: isSubscriptionLoading,
     isPro,
     refetch: refetchSubscriptionStatus,
@@ -290,6 +301,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       hasManageableSubscription,
       isConfigured,
       isPro,
+      isStatusResolved,
       expiresAt,
       isLoading: state === "loading" || isSubscriptionLoading,
       state,
@@ -316,6 +328,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       hasExternalSubscription,
       hasManageableSubscription,
       isPro,
+      isStatusResolved,
       isSubscriptionLoading,
     ],
   );

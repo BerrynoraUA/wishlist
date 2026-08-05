@@ -153,7 +153,7 @@ function getCachedThemeSettingsKey(userId: string) {
   return `${THEME_SETTINGS_STORE_KEY_PREFIX}${userId}`;
 }
 
-function isCachedNativeThemeSettings(value: unknown): value is CachedNativeThemeSettings {
+export function isCachedNativeThemeSettings(value: unknown): value is CachedNativeThemeSettings {
   if (!value || typeof value !== "object") return false;
   const candidate = value as Partial<CachedNativeThemeSettings>;
 

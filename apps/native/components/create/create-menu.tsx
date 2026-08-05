@@ -112,6 +112,22 @@ function useContextualWishlistId() {
   return routeId || undefined;
 }
 
+/**
+ * Current data for a query, waiting for the first fetch if it has not landed yet.
+ * Resolves to `undefined` rather than throwing when the fetch fails.
+ */
+async function settledData<TData>(query: {
+  data: TData | undefined;
+  refetch: () => Promise<{ data: TData | undefined }>;
+}): Promise<TData | undefined> {
+  if (query.data !== undefined) return query.data;
+
+  return query
+    .refetch()
+    .then((result) => result.data)
+    .catch(() => undefined);
+}
+
 export function CreateMenuHost({
   open,
   onOpenChange,
@@ -126,25 +142,29 @@ export function CreateMenuHost({
   const [itemMenuOpen, setItemMenuOpen] = React.useState(false);
   const contextualWishlistId = useContextualWishlistId();
   const { isGated, openPaywall } = useProGate();
-  const statisticsQuery = useMyStatistics();
-  const contextualWishlistQuery = useWishlistById(contextualWishlistId ?? "");
-  const secretSantaQuery = useInfiniteSecretSantaEvents({}, 1);
 
-  function handleSelect(entry: CreateMenuEntry) {
+  // This host is mounted for the entire session — expo-router evaluates every `_layout`
+  // eagerly to read `unstable_settings`, so it is on the cold-start path — but the three
+  // queries below only exist to evaluate free-tier limits when a row is tapped. Latch on
+  // first open rather than tracking `open` directly, so they stay warm afterwards instead
+  // of being torn down and refetched every time the menu closes.
+  const [limitsEnabled, setLimitsEnabled] = React.useState(false);
+  const menuVisible = open || itemMenuOpen;
+
+  React.useEffect(() => {
+    if (menuVisible) setLimitsEnabled(true);
+  }, [menuVisible]);
+
+  const statisticsQuery = useMyStatistics({ enabled: limitsEnabled });
+  const contextualWishlistQuery = useWishlistById(contextualWishlistId ?? "", {
+    enabled: limitsEnabled,
+  });
+  const secretSantaQuery = useInfiniteSecretSantaEvents({}, 1, { enabled: limitsEnabled });
+
+  async function handleSelect(entry: CreateMenuEntry) {
     onOpenChange(false);
-    const wishlistLimitReached =
-      (statisticsQuery.data?.wishlists_count ?? 0) >= FREE_LIMITS.maxWishlists;
-    const itemLimitReached =
-      (contextualWishlistQuery.data?.items_count ?? 0) >= FREE_LIMITS.maxItemsPerWishlist;
-    const eventLimitReached =
-      (secretSantaQuery.data?.pages[0]?.total ?? 0) >= FREE_LIMITS.maxSecretSantaEvents;
 
-    if (
-      isGated &&
-      ((entry.action === "wishlist" && wishlistLimitReached) ||
-        (entry.action === "item" && Boolean(contextualWishlistId) && itemLimitReached) ||
-        (entry.action === "secret-santa" && eventLimitReached))
-    ) {
+    if (isGated && (await isLimitReached(entry))) {
       openPaywall();
       return;
     }
@@ -155,6 +175,32 @@ export function CreateMenuHost({
       return;
     }
     setAction(entry.action);
+  }
+
+  /**
+   * The limit queries start when the menu opens, so a fast tap can arrive before they
+   * resolve. Await the in-flight fetch instead of reading `undefined` as zero, which let a
+   * free account past the limit. A fetch that genuinely fails still falls through to zero —
+   * blocking creation while offline would be a worse trade than the occasional bypass.
+   */
+  async function isLimitReached(entry: CreateMenuEntry) {
+    switch (entry.action) {
+      case "wishlist": {
+        const data = await settledData(statisticsQuery);
+        return (data?.wishlists_count ?? 0) >= FREE_LIMITS.maxWishlists;
+      }
+      case "item": {
+        if (!contextualWishlistId) return false;
+        const data = await settledData(contextualWishlistQuery);
+        return (data?.items_count ?? 0) >= FREE_LIMITS.maxItemsPerWishlist;
+      }
+      case "secret-santa": {
+        const data = await settledData(secretSantaQuery);
+        return (data?.pages[0]?.total ?? 0) >= FREE_LIMITS.maxSecretSantaEvents;
+      }
+      default:
+        return false;
+    }
   }
 
   function handleItemSelect(source: ItemCreateSource) {

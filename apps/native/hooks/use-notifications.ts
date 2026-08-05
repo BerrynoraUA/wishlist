@@ -114,10 +114,12 @@ export async function registerPushNotifications({
   return true;
 }
 
-export function useRegisterPushNotifications() {
+export function useRegisterPushNotifications({ enabled = true }: { enabled?: boolean } = {}) {
   const { user } = useAuth();
 
   React.useEffect(() => {
+    if (!enabled) return;
+
     if (!user?.id) {
       debugLog("[push] registration skipped: no authenticated user");
       return;
@@ -146,7 +148,7 @@ export function useRegisterPushNotifications() {
     return () => {
       cancelled = true;
     };
-  }, [user?.id]);
+  }, [enabled, user?.id]);
 }
 
 export function useNotificationResponseObserver() {

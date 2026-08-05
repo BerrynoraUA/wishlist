@@ -10,7 +10,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "wishlane",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": ["assets/images/**/*"],
     "updates": {
       "url": "https://u.expo.dev/50371ce7-ec58-411c-ab43-d42fce223c68"
     },

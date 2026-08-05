@@ -12,7 +12,7 @@ import { PACKAGE_TYPE, type PurchasesPackage } from "react-native-purchases";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { TranslateFn } from "@/lib/translate-fn";
 
-const background = require("@/assets/images/subscription-premium-bg.png");
+const background = require("@/assets/images/subscription-premium-bg.jpg");
 
 const PREMIUM_FEATURES = [
   "Unlimited lists & items",

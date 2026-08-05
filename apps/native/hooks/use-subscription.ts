@@ -9,12 +9,12 @@ export const subscriptionKeys = {
     [...subscriptionKeys.all, "status", userId ?? "anonymous"] as const,
 };
 
-export function useSubscriptionStatus() {
+export function useSubscriptionStatus({ enabled = true }: { enabled?: boolean } = {}) {
   const { user } = useAuth();
   const query = useQuery({
     queryKey: subscriptionKeys.status(user?.id),
     queryFn: getSubscriptionStatus,
-    enabled: Boolean(user?.id),
+    enabled: enabled && Boolean(user?.id),
     staleTime: 5 * 60 * 1000,
   });
 

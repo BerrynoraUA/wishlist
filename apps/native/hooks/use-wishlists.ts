@@ -95,13 +95,13 @@ export function useInfiniteMyWishlists(params: WishlistQueryParams, pageSize: nu
   });
 }
 
-export function useMyStatistics() {
+export function useMyStatistics({ enabled = true }: { enabled?: boolean } = {}) {
   const { user } = useAuth();
 
   return useQuery({
     queryKey: statisticsKeys.my(user?.id),
     queryFn: getMyStatistics,
-    enabled: Boolean(user?.id),
+    enabled: enabled && Boolean(user?.id),
   });
 }
 
@@ -292,13 +292,13 @@ export function usePatchWishlist() {
   });
 }
 
-export function useWishlistById(wishlistId: string) {
+export function useWishlistById(wishlistId: string, { enabled = true }: { enabled?: boolean } = {}) {
   const { user } = useAuth();
 
   return useQuery({
     queryKey: wishlistKeys.detail(user?.id, wishlistId),
     queryFn: () => getWishlistById(wishlistId),
-    enabled: Boolean(user?.id && wishlistId),
+    enabled: enabled && Boolean(user?.id && wishlistId),
   });
 }
 

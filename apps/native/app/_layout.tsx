@@ -19,7 +19,12 @@ import {
   writeCachedNativeThemeSettings,
 } from "@/lib/theme";
 import { upsertKnownAccount } from "@/lib/known-accounts";
-import { AnimatedSplash, MarkAppReady } from "@/components/splash/animated-splash";
+import {
+  readBootLastUserId,
+  readBootThemeSettings,
+  writeBootThemeSettings,
+} from "@/lib/boot-cache";
+import { AnimatedSplash, MarkAppReady, useAppReady } from "@/components/splash/animated-splash";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { SubscriptionProvider } from "@/providers/subscription-provider";
 import { UserGuideProvider } from "@/components/user-guide/user-guide-provider";
@@ -54,6 +59,13 @@ const posthogHost = (process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posth
 );
 const posthogEnabled = Boolean(posthogApiKey);
 
+// Apply the last session's theme before the first render, so the pre-auth and pre-settings
+// spinners below come up in the right theme and accent instead of flashing default light.
+// Skipped on a first-ever launch (nothing cached), and harmless when stale —
+// `AuthenticatedThemeGate` re-applies from the real settings as soon as it has them.
+const bootThemeSettings = readBootThemeSettings(readBootLastUserId());
+if (bootThemeSettings) applyNativeThemeSettings(bootThemeSettings);
+
 export default function RootLayout() {
   const [queryClient] = useState(
     () =>
@@ -79,6 +91,11 @@ export default function RootLayout() {
         options={{
           host: posthogHost,
           disabled: !posthogEnabled,
+          // Batch harder than the defaults: analytics should not be sending requests
+          // while the app is still starting up and competing for the network.
+          flushAt: 20,
+          flushInterval: 30_000,
+          preloadFeatureFlags: false,
         }}
         autocapture={{ captureScreens: false }}
       >
@@ -234,7 +251,13 @@ function AuthRedirector() {
 
 function NotificationPushBootstrap() {
   const { user } = useAuth();
-  useRegisterPushNotifications();
+  const appReady = useAppReady();
+
+  // Token registration is a permission check, an Expo push-token round trip and a POST,
+  // none of which the first screen needs — hold them until the splash is gone.
+  useRegisterPushNotifications({ enabled: appReady });
+  // Stays eager: this replays the notification that launched the app, and deferring it
+  // can drop that initial response entirely.
   useNotificationResponseObserver();
 
   return user?.id ? <NotificationPermissionSheet userId={user.id} /> : null;
@@ -243,7 +266,12 @@ function NotificationPushBootstrap() {
 function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
   const { session } = useAuth();
   const userId = session?.user.id;
-  const initialSnapshot = userId ? getActiveNativeThemeSettingsSnapshot(userId) : null;
+  // Read synchronously, during the first render: the MMKV cache is what keeps the network
+  // `useSettings()` query off the first-paint path. The in-memory snapshot wins when
+  // present (it is the most recent), but it is always null on a cold start.
+  const initialSnapshot = userId
+    ? (getActiveNativeThemeSettingsSnapshot(userId) ?? readBootThemeSettings(userId))
+    : null;
   const { data: settings, error: settingsError } = useSettings();
   const [cachedSettings, setCachedSettings] = useState<CachedNativeThemeSettings | null>(
     () => initialSnapshot,
@@ -260,10 +288,17 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
 
     let active = true;
 
-    setCachedSettings(getActiveNativeThemeSettingsSnapshot(userId));
+    setCachedSettings(
+      getActiveNativeThemeSettingsSnapshot(userId) ?? readBootThemeSettings(userId),
+    );
+
+    // Migration path for users upgrading from the SecureStore-only cache, who have no
+    // MMKV copy yet. Never downgrades a value we already have. Remove this — along with
+    // read/writeCachedNativeThemeSettings in lib/theme.ts — one release after ship.
     void readCachedNativeThemeSettings(userId)
       .then((nextSettings) => {
-        if (active) setCachedSettings(nextSettings);
+        if (!active || !nextSettings) return;
+        setCachedSettings((current) => current ?? nextSettings);
       })
       .catch(() => {});
 
@@ -281,6 +316,7 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
     };
 
     setActiveNativeThemeSettingsSnapshot(userId, nextSettings);
+    writeBootThemeSettings(userId, nextSettings);
     void writeCachedNativeThemeSettings(userId, nextSettings).catch(() => {});
 
     void upsertKnownAccount({
