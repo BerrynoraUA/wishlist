@@ -33,8 +33,6 @@ apps/native/*firebase-adminsdk*.json
 .pnpm-store/
 .pnpm-debug.log*
 
-# Local tooling state and version-control metadata are not build inputs.
-.git
 .fallow
 
 # Native projects are generated from app.json during EAS Build (CNG).
