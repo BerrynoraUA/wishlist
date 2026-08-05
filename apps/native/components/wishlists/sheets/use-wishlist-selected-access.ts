@@ -63,41 +63,62 @@ export function useWishlistSelectedAccess({
     transform: [{ translateY: panelTranslateY.value }, { scaleY: panelScaleY.value }],
   }));
 
+  // The host sheet renders `null` while closed but still runs this hook, so without a
+  // gate every wishlist screen fetches four full friend/group lists it will not show.
+  const queriesEnabled = open && canManage;
+
   const {
     data: friends = [],
     isLoading: friendsLoading,
     isError: friendsError,
-  } = useFriends({
-    skip: 0,
-    take: 100,
-  });
+  } = useFriends(
+    {
+      skip: 0,
+      take: 100,
+    },
+    { enabled: queriesEnabled },
+  );
   const {
     data: groups = [],
     isLoading: groupsLoading,
     isError: groupsError,
-  } = useFriendGroups({
-    skip: 0,
-    take: 100,
-  });
+  } = useFriendGroups(
+    {
+      skip: 0,
+      take: 100,
+    },
+    { enabled: queriesEnabled },
+  );
   const {
     data: friendsWithoutAccess = [],
     isLoading: friendsWithoutAccessLoading,
     isError: friendsWithoutAccessError,
-  } = useFriendsWithoutWishlistAccess({
-    wishlistId,
-    skip: 0,
-    take: 100,
-  });
+  } = useFriendsWithoutWishlistAccess(
+    {
+      wishlistId,
+      skip: 0,
+      take: 100,
+    },
+    { enabled: queriesEnabled },
+  );
   const {
     data: groupsWithoutAccess = [],
     isLoading: groupsWithoutAccessLoading,
     isError: groupsWithoutAccessError,
-  } = useFriendGroupsWithoutWishlistAccess({
+  } = useFriendGroupsWithoutWishlistAccess(
+    {
+      wishlistId,
+      skip: 0,
+      take: 100,
+    },
+    { enabled: queriesEnabled },
+  );
+  const { data: accessList = [], isLoading: accessListLoading } = useWishlistAccessList(
     wishlistId,
-    skip: 0,
-    take: 100,
-  });
-  const { data: accessList = [], isLoading: accessListLoading } = useWishlistAccessList(wishlistId);
+    {
+      enabled: queriesEnabled,
+    },
+  );
 
   const friendOptions = React.useMemo<WishlistAccessOption[]>(() => {
     if (mode === "edit") {

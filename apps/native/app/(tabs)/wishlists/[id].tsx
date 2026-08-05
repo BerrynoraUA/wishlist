@@ -52,7 +52,7 @@ import {
   optimisticallyToggleItemReservation,
   updateItemIfSelected,
 } from "@/lib/items";
-import { chunkRows } from "@/lib/layout";
+import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import { getWishlistAccentClass } from "@/lib/wishlists";
 import type { Item } from "@wishlist/backend/types/item";
@@ -93,6 +93,7 @@ export default function WishlistDetailScreen() {
   const router = useRouter();
   const { isGated, openPaywall } = useProGate();
   const insets = useSafeAreaInsets();
+  const paddingBottom = useTabBarContentPadding();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const rawId = Array.isArray(id) ? (id[0] ?? "") : (id ?? "");
@@ -440,7 +441,8 @@ export default function WishlistDetailScreen() {
               "type" in row ? row.id : row.map((entry) => entry.id).join(":")
             }
             className="flex-1"
-            contentContainerClassName="bg-bg pb-8"
+            contentContainerClassName="bg-bg"
+            contentContainerStyle={{ paddingBottom }}
             onScroll={requestMeasure}
             scrollEventThrottle={16}
             ItemSeparatorComponent={ItemRowSeparator}

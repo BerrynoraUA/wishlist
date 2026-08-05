@@ -15,7 +15,7 @@ import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useDeleteSecretSantaEvent, useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { SECRET_SANTA_PAGE_SIZE } from "@/lib/secret-santa";
-import { chunkRows } from "@/lib/layout";
+import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
 import type { SecretSantaDetails, SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
 import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
@@ -39,6 +39,7 @@ export default function SecretSantaScreen() {
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const [message, setMessage] = React.useState<ActionBottomSheetMessagePayload | null>(null);
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
+  const paddingBottom = useTabBarContentPadding();
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
@@ -153,8 +154,7 @@ export default function SecretSantaScreen() {
           renderItem={renderRow}
           keyExtractor={(row) => row.map((event) => event.id).join(":")}
           className="flex-1"
-          contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop }}
+          contentContainerStyle={{ paddingTop, paddingBottom }}
           ItemSeparatorComponent={() => <View className="h-4" />}
           onEndReached={loadMoreEvents}
           isLoadingMore={activeTab === "events" && query.isFetchingNextPage}

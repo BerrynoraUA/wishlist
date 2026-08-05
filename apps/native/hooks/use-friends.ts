@@ -38,6 +38,9 @@ type PaginationParams = {
   search?: string;
 };
 
+/** Lets a caller keep a query idle while the UI that needs it is not on screen. */
+type QueryGate = { enabled?: boolean };
+
 export const friendKeys = {
   all: ["friends"] as const,
   lists: () => [...friendKeys.all, "list"] as const,
@@ -135,7 +138,7 @@ export function useSearchProfilesByNickname(query: string, params?: PaginationPa
   });
 }
 
-export function useFriends(params?: PaginationParams) {
+export function useFriends(params?: PaginationParams, { enabled = true }: QueryGate = {}) {
   const { user } = useAuth();
   const normalizedParams = React.useMemo(
     () =>
@@ -152,7 +155,7 @@ export function useFriends(params?: PaginationParams) {
   return useQuery({
     queryKey: friendKeys.list(user?.id, normalizedParams),
     queryFn: () => getFriends(normalizedParams),
-    enabled: Boolean(user?.id),
+    enabled: enabled && Boolean(user?.id),
   });
 }
 
@@ -178,7 +181,7 @@ export function useInfiniteFriends(params: PaginationParams, pageSize: number) {
   });
 }
 
-export function useFriendGroups(params?: PaginationParams) {
+export function useFriendGroups(params?: PaginationParams, { enabled = true }: QueryGate = {}) {
   const { user } = useAuth();
   const normalizedParams = React.useMemo(
     () =>
@@ -195,7 +198,7 @@ export function useFriendGroups(params?: PaginationParams) {
   return useQuery({
     queryKey: friendKeys.groupList(user?.id, normalizedParams),
     queryFn: () => getFriendGroups(normalizedParams),
-    enabled: Boolean(user?.id),
+    enabled: enabled && Boolean(user?.id),
   });
 }
 
@@ -324,7 +327,10 @@ export function useDeleteFriendGroup() {
   });
 }
 
-export function useFriendsWithoutWishlistAccess(params: GetFriendsWithoutWishlistAccessParams) {
+export function useFriendsWithoutWishlistAccess(
+  params: GetFriendsWithoutWishlistAccessParams,
+  { enabled = true }: QueryGate = {},
+) {
   const { user } = useAuth();
   const { wishlistId, search, skip = 0, take = 20 } = params;
   const normalizedSearch = normalizeSearchQuery(search) || undefined;
@@ -345,12 +351,13 @@ export function useFriendsWithoutWishlistAccess(params: GetFriendsWithoutWishlis
         skip,
         take,
       }),
-    enabled: Boolean(user?.id && wishlistId),
+    enabled: enabled && Boolean(user?.id && wishlistId),
   });
 }
 
 export function useFriendGroupsWithoutWishlistAccess(
   params: GetFriendsWithoutWishlistAccessParams,
+  { enabled = true }: QueryGate = {},
 ) {
   const { user } = useAuth();
   const { wishlistId, search, skip = 0, take = 20 } = params;
@@ -372,17 +379,17 @@ export function useFriendGroupsWithoutWishlistAccess(
         skip,
         take,
       }),
-    enabled: Boolean(user?.id && wishlistId),
+    enabled: enabled && Boolean(user?.id && wishlistId),
   });
 }
 
-export function useWishlistAccessList(wishlistId?: string) {
+export function useWishlistAccessList(wishlistId?: string, { enabled = true }: QueryGate = {}) {
   const { user } = useAuth();
 
   return useQuery({
     queryKey: ["wishlist-access-list", user?.id ?? "anonymous", wishlistId],
     queryFn: () => getWishlistAccessList(wishlistId!),
-    enabled: Boolean(user?.id && wishlistId),
+    enabled: enabled && Boolean(user?.id && wishlistId),
   });
 }
 

@@ -27,7 +27,7 @@ export function GuideTarget({
   tooltipVerticalOffset?: number;
 }) {
   const ref = React.useRef<View>(null);
-  const { activeTargetId, activeTooltip, registerTarget, requestMeasure } =
+  const { activeTargetId, activeTooltip, registerTarget, requestInstantMeasure } =
     useUserGuideTargetRegistration();
   const active = activeTargetId === id;
   const tooltip = active ? activeTooltip : null;
@@ -58,7 +58,7 @@ export function GuideTarget({
       ref={ref}
       collapsable={false}
       className="relative"
-      onLayout={requestMeasure}
+      onLayout={requestInstantMeasure}
       pointerEvents="box-none"
       style={style}
     >

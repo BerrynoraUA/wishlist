@@ -16,6 +16,12 @@ export const PREFERENCE_KEYS = {
   hideBackButton: "preferences.hideBackButton",
   /** When `true`, the Feature Ideas intro card is hidden. */
   featureIdeasIntroDismissed: "preferences.featureIdeasIntroDismissed",
+  /**
+   * Per-user mirror of `profile.userGuideStep` reaching the final step. Read
+   * synchronously at mount so the user guide can skip initialising entirely; the
+   * profile stays the source of truth.
+   */
+  userGuideCompleted: (userId: string) => `preferences.userGuideCompleted.${userId}`,
 } as const;
 
 export async function removeOwnedStorageImage(bucket: string, imageUrl: string | null | undefined) {

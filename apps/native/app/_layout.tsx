@@ -1,4 +1,4 @@
-import "@/polyfills/gtIntlPolyfills";
+import { ensureIntlLocale } from "@/polyfills/gtIntlPolyfills";
 import "@/global.css";
 
 import {
@@ -91,6 +91,7 @@ export default function RootLayout() {
             method: "skeleton",
           }}
         >
+          <IntlLocaleGate />
           <RtlDirectionGate />
           <QueryClientProvider client={queryClient}>
             <AppStateLifecycle />
@@ -101,11 +102,9 @@ export default function RootLayout() {
                   <SafeAreaProvider>
                     <ReanimatedTrueSheetProvider>
                       <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
-                      <UserGuideProvider>
-                        <AppBlurTarget>
-                          <AuthGate />
-                        </AppBlurTarget>
-                      </UserGuideProvider>
+                      <AppBlurTarget>
+                        <AuthGate />
+                      </AppBlurTarget>
                     </ReanimatedTrueSheetProvider>
                   </SafeAreaProvider>
                 </ThemeProvider>
@@ -116,6 +115,20 @@ export default function RootLayout() {
       </PostHogProvider>
     </AnimatedSplash>
   );
+}
+
+/**
+ * Loads Intl locale data for the active locale. The module primes itself with the
+ * device locale, but GT may resolve to a stored preference instead, and the user can
+ * switch languages at runtime. Runs during render rather than in an effect so no
+ * sibling ever formats against a locale whose data has not been installed. Rendered
+ * before every other GTProvider child for the same reason.
+ */
+function IntlLocaleGate() {
+  const locale = useLocale();
+  ensureIntlLocale(locale);
+
+  return null;
 }
 
 /**
@@ -169,7 +182,11 @@ function AuthGate() {
       <AuthenticatedThemeGate key={session.user.id}>
         <AuthRedirector />
         <NotificationPushBootstrap />
-        <RootStack initialRouteName="(tabs)" />
+        {/* Inside the per-account subtree so the guide reads the right account's state,
+            and never mounts at all on the auth screens. */}
+        <UserGuideProvider>
+          <RootStack initialRouteName="(tabs)" />
+        </UserGuideProvider>
       </AuthenticatedThemeGate>
     );
   }

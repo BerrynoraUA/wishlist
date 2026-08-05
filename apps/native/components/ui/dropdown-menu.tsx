@@ -26,6 +26,15 @@ const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 
 const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 
+/**
+ * The lifted card and the menu under it have to read as one object, so both enter on the
+ * same spring. Fading the menu in while the card springs leaves the two visibly detached:
+ * the card travels, the menu just appears where it will end up.
+ *
+ * A fresh builder per call — Reanimated mutates these descriptors when configured.
+ */
+const attachedEntering = () => FadeInUp.springify().damping(20).stiffness(240);
+
 type DropdownMenuPreview = {
   height: number;
   pageX: number;
@@ -210,7 +219,7 @@ function DropdownMenuContent({
       {backdrop === "blur" && preview ? (
         <Animated.View
           pointerEvents="none"
-          entering={FadeInUp.springify().damping(20).stiffness(240)}
+          entering={attachedEntering()}
           style={{
             position: "absolute",
             top: preview.pageY - previewLift,
@@ -229,7 +238,9 @@ function DropdownMenuContent({
           />
         </Animated.View>
       ) : null}
-      <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
+      <NativeOnlyAnimatedView
+        entering={preview ? attachedEntering() : FadeIn.duration(motionDuration.normal)}
+      >
         <TextClassContext.Provider value="text-popover-foreground">
           <DropdownMenuPrimitive.Content
             className={cn(

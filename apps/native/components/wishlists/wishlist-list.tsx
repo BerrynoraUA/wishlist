@@ -21,7 +21,7 @@ import {
 } from "@/components/user-guide/user-guide-provider";
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { useMyStatistics } from "@/hooks/use-wishlists";
-import { chunkRows } from "@/lib/layout";
+import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import {
@@ -95,6 +95,7 @@ export function WishlistList({
   );
   const { requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
+  const paddingBottom = useTabBarContentPadding();
   const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
   const data = React.useMemo<WishlistListRow[]>(
     () => (query.isLoading ? [] : rows),
@@ -154,8 +155,7 @@ export function WishlistList({
         renderItem={renderRow}
         keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
         className="flex-1"
-        contentContainerClassName="pb-8"
-        contentContainerStyle={{ paddingTop }}
+        contentContainerStyle={{ paddingTop, paddingBottom }}
         ItemSeparatorComponent={RowSeparator}
         onEndReached={onEndReached}
         isLoadingMore={query.isFetchingNextPage}

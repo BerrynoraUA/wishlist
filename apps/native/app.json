@@ -182,9 +182,17 @@
           "experimentalLauncherActivity": false
         }
       ],
+      [
+        "react-native-share",
+        {
+          "ios": ["instagram", "instagram-stories"],
+          "android": ["com.instagram.android"]
+        }
+      ],
       "expo-font",
       "expo-sharing",
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true,

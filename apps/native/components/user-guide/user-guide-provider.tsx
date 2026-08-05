@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useProfile, useUpdateUserGuideStep } from "@/hooks/use-settings";
+import { PREFERENCE_KEYS, preferencesStorage } from "@/lib/storage";
 import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { useAuth } from "@/providers/auth-provider";
@@ -81,7 +82,10 @@ type UserGuideTargetRegistrationValue = {
     text: string;
   } | null;
   registerTarget: (id: string, target: RegisteredTarget) => () => void;
+  /** Frame-coalesced. Safe to call from high-frequency events such as `onScroll`. */
   requestMeasure: () => void;
+  /** Measures synchronously and suppresses the move animation. For layout changes. */
+  requestInstantMeasure: () => void;
 };
 
 const UserGuideContext = React.createContext<UserGuideContextValue>({
@@ -99,6 +103,7 @@ const UserGuideTargetRegistrationContext = React.createContext<UserGuideTargetRe
   activeTooltip: null,
   registerTarget: () => () => {},
   requestMeasure: () => {},
+  requestInstantMeasure: () => {},
 });
 
 // Order must match the tab bar: wishlists, secret santa, create, friends, profile.
@@ -137,7 +142,31 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(value, max));
 }
 
+/**
+ * Skips the guide machinery outright for users who already finished it — no profile
+ * query, no translated step config, no measuring, no overlay. Both contexts default to
+ * inert values, so everything downstream keeps working without a provider.
+ *
+ * The decision is latched at mount and deliberately never re-read. Flipping it later
+ * would swap the element type rendered here and remount the entire app below it, which
+ * costs far more than the guide ever does. Mounting inside the per-account subtree in
+ * `app/_layout.tsx` means each account gets a fresh, correct decision.
+ */
 export function UserGuideProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const userId = user?.id;
+  const [skip] = React.useState(
+    () =>
+      Boolean(userId) &&
+      preferencesStorage.getBoolean(PREFERENCE_KEYS.userGuideCompleted(userId!)) === true,
+  );
+
+  if (skip) return <>{children}</>;
+
+  return <ActiveUserGuideProvider>{children}</ActiveUserGuideProvider>;
+}
+
+function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
   const t = useGT();
   const pathname = usePathname();
   const { user } = useAuth();
@@ -166,6 +195,20 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
   );
   const activeSequenceTarget = currentStep?.sequenceTargets?.[sequenceIndex] ?? null;
   const activeTargetId = activeSequenceTarget?.targetId ?? currentStep?.targetId ?? null;
+  // There is nothing to follow once the guide is done, which is the state almost every
+  // session is in. Measuring is driven by onScroll/onLayout across the app, so without
+  // this the whole tree keeps paying for a guide that will never show.
+  const trackingHighlight = Boolean(
+    active && currentStep && routeMatchesCurrentSegment && activeTargetId,
+  );
+
+  // Mirror completion on-device so the next launch can skip this provider entirely.
+  const userId = user?.id;
+  React.useEffect(() => {
+    if (!userId || !profileQuery.data) return;
+    if (completedStep < USER_GUIDE_COMPLETE_STEP) return;
+    preferencesStorage.set(PREFERENCE_KEYS.userGuideCompleted(userId), true);
+  }, [completedStep, profileQuery.data, userId]);
 
   const progress = React.useMemo(() => {
     if (!currentSegment || !currentStep) return { label: "", percent: 0 };
@@ -291,14 +334,16 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
   ]);
 
   const requestMeasure = React.useCallback(() => {
+    if (!trackingHighlight) return;
     if (measureFrameRef.current !== null) return;
     measureFrameRef.current = requestAnimationFrame(() => {
       measureFrameRef.current = null;
       updateHighlightNow();
     });
-  }, [updateHighlightNow]);
+  }, [trackingHighlight, updateHighlightNow]);
 
   const requestInstantMeasure = React.useCallback(() => {
+    if (!trackingHighlight) return;
     if (measureFrameRef.current !== null) {
       cancelAnimationFrame(measureFrameRef.current);
       measureFrameRef.current = null;
@@ -306,7 +351,14 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
     setInstantHighlight(true);
     updateHighlightNow();
     setTimeout(() => setInstantHighlight(false), 120);
-  }, [updateHighlightNow]);
+  }, [trackingHighlight, updateHighlightNow]);
+
+  // `requestMeasure` clears the box as part of measuring, but it now bails out before
+  // that when tracking stops, so drop any box left over from the previous step here.
+  React.useEffect(() => {
+    if (trackingHighlight) return;
+    setHighlightBox((current) => (current === null ? current : null));
+  }, [trackingHighlight]);
 
   React.useEffect(() => {
     requestMeasure();
@@ -345,7 +397,9 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
       }
       updateGuideStep.mutate(step);
     },
-    [active, completedStep, currentStep?.id, updateGuideStep],
+    // `mutate` is stable; depending on the whole mutation object would rebuild this
+    // callback on every render, and it reaches list `renderItem`s through the context.
+    [active, completedStep, currentStep?.id, updateGuideStep.mutate],
   );
 
   const completeCurrentStep = React.useCallback(() => {
@@ -391,7 +445,7 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
     updateGuideStep.mutate(USER_GUIDE_COMPLETE_STEP, {
       onSuccess: () => setConfirmCloseOpen(false),
     });
-  }, [updateGuideStep]);
+  }, [updateGuideStep.mutate]);
 
   React.useEffect(() => {
     if (active && progress.label) {
@@ -460,9 +514,17 @@ export function UserGuideProvider({ children }: { children: React.ReactNode }) {
       activeTargetId: shouldRenderGuide ? activeTargetId : null,
       activeTooltip: activeTargetTooltip,
       registerTarget,
-      requestMeasure: requestInstantMeasure,
+      requestMeasure,
+      requestInstantMeasure,
     }),
-    [activeTargetId, activeTargetTooltip, registerTarget, requestInstantMeasure, shouldRenderGuide],
+    [
+      activeTargetId,
+      activeTargetTooltip,
+      registerTarget,
+      requestInstantMeasure,
+      requestMeasure,
+      shouldRenderGuide,
+    ],
   );
 
   return (

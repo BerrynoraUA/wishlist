@@ -5,7 +5,7 @@ import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useInfiniteFriendWishlists } from "@/hooks/use-wishlists";
-import { chunkRows } from "@/lib/layout";
+import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
 import {
   WISHLIST_PAGE_SIZE,
   WISHLIST_VISIBILITY_ICONS,
@@ -25,6 +25,7 @@ export default function FriendWishlistsScreen() {
   const t = useGT();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const paddingBottom = useTabBarContentPadding();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const friendId = Array.isArray(id) ? (id[0] ?? "") : (id ?? "");
@@ -64,8 +65,7 @@ export default function FriendWishlistsScreen() {
           )}
           keyExtractor={(row: Wishlist[]) => row.map((wishlist) => wishlist.id).join(":")}
           className="flex-1"
-          contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop: insets.top + 24 }}
+          contentContainerStyle={{ paddingTop: insets.top + 24, paddingBottom }}
           ItemSeparatorComponent={() => <View className="h-4" />}
           onEndReached={loadMoreWishlists}
           isLoadingMore={wishlistsQuery.isFetchingNextPage}

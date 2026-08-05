@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/slide-out-filter-panel";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
+import { useTabBarContentPadding } from "@/lib/layout";
 import { useDiscoverFeed } from "@/hooks/use-discover-feed";
 import { useFriends } from "@/hooks/use-friends";
 import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
@@ -54,6 +55,7 @@ export default function DiscoverScreen() {
   const [selection, setSelection] = React.useState<SelectedDiscoverItem | null>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
+  const paddingBottom = useTabBarContentPadding();
 
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
@@ -232,8 +234,7 @@ export default function DiscoverScreen() {
         renderItem={renderRow}
         keyExtractor={(row) => ("type" in row ? row.id : row.id)}
         className="flex-1"
-        contentContainerClassName="pb-8"
-        contentContainerStyle={{ paddingTop }}
+        contentContainerStyle={{ paddingTop, paddingBottom }}
         onScroll={requestMeasure}
         scrollEventThrottle={16}
         ItemSeparatorComponent={RowSeparator}

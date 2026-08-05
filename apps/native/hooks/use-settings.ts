@@ -9,7 +9,6 @@ import {
   getSettings,
   updateProfile,
   updateSettings,
-  uploadProfileAvatar,
 } from "@/api/settings";
 import {
   applyNativeThemeSettings,
@@ -105,21 +104,6 @@ export function useUpdateUserGuideStep() {
         queryKey: profileKey,
         refetchType: "active",
       });
-    },
-  });
-}
-
-export function useUploadProfileAvatar() {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-
-  return useMutation({
-    mutationFn: uploadProfileAvatar,
-    onSuccess: (profile) => {
-      queryClient.setQueryData(settingsKeys.profile(user?.id), profile);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: settingsKeys.profile(user?.id) });
     },
   });
 }

@@ -9,12 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SettingsControlsLabeledInput } from "@/components/settings/settings-controls";
 import { SettingsSection } from "@/components/settings/settings-section";
-import {
-  useCheckNickname,
-  useProfile,
-  useUpdateProfile,
-  useUploadProfileAvatar,
-} from "@/hooks/use-settings";
+import { useCheckNickname, useProfile, useUpdateProfile } from "@/hooks/use-settings";
+import { useImageUploadField } from "@/lib/image-upload";
 import * as ImagePicker from "expo-image-picker";
 import * as React from "react";
 import { UserRound } from "lucide-react-native";
@@ -35,7 +31,7 @@ type ProfileFormValues = {
 export function ProfileSettings({ profile }: { profile: ReturnType<typeof useProfile>["data"] }) {
   const t = useGT();
   const updateProfile = useUpdateProfile();
-  const uploadAvatar = useUploadProfileAvatar();
+  const avatarUpload = useImageUploadField("avatar");
   const checkNickname = useCheckNickname();
   const { control, handleSubmit, reset, setValue } = useForm<ProfileFormValues>({
     defaultValues: {
@@ -91,6 +87,8 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
     return () => clearTimeout(timeout);
   }, [values.nickname, profile?.nickname]);
 
+  // Picked image wins over the stored one so a fresh choice is visible before it is saved.
+  const avatarPreviewUri = avatarUpload.pickedImage?.uri ?? profile?.avatar_url ?? null;
   const trimmedDisplayName = values.displayName.trim();
   const trimmedNickname = values.nickname.trim();
   const displayNameError = React.useMemo(() => {
@@ -106,8 +104,25 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
     return null;
   }, [trimmedNickname, nicknameStatus, t]);
 
-  function submitForm(formValues: ProfileFormValues) {
+  async function submitForm(formValues: ProfileFormValues) {
     if (displayNameError || nicknameError) return;
+
+    const previousAvatarUrl = profile?.avatar_url ?? null;
+    let avatarUrl: string | null | undefined;
+
+    if (avatarUpload.pickedImage) {
+      // Waits on the background upload started when the image was picked; usually already
+      // resolved. `undefined` means it failed and the error is on the field.
+      avatarUrl = await avatarUpload.resolveImageUrl(previousAvatarUrl ?? "");
+
+      if (avatarUrl === undefined) {
+        setMessage({
+          title: t("Image upload failed"),
+          message: avatarUpload.error ?? t("Could not save image."),
+        });
+        return;
+      }
+    }
 
     updateProfile.mutate(
       {
@@ -116,10 +131,20 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
         height: parseProfileNumber(formValues.height.trim()),
         shoe_size: parseProfileNumber(formValues.shoeSize.trim()),
         bio: formValues.bio.trim() || null,
+        // Only sent when the user picked a new image, so saving other fields never
+        // touches the existing avatar.
+        ...(avatarUrl !== undefined && { avatar_url: avatarUrl }),
       },
       {
-        onSuccess: () => setMessage({ title: t("Saved"), message: t("Profile updated.") }),
+        onSuccess: () => {
+          void avatarUpload.commitPendingUpload(previousAvatarUrl);
+          // The picked image stays as the preview on purpose: `useUpdateProfile` only
+          // invalidates, so clearing it here would flash the old avatar until the refetch.
+          setMessage({ title: t("Saved"), message: t("Profile updated.") });
+        },
         onError: (error) => {
+          void avatarUpload.discardPendingUpload();
+
           if (isNicknameDuplicateError(error)) {
             setNicknameStatus("taken");
             return;
@@ -145,6 +170,10 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsEditing: true,
+      // Round crop overlay, matching how the avatar is rendered. Android only — iOS's
+      // native crop UI is always a square and exposes no option for this. `aspect` still
+      // has to be 1:1, otherwise the oval comes out as an ellipse.
+      shape: "oval",
       aspect: [1, 1],
       quality: 0.85,
     });
@@ -163,17 +192,13 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
       return;
     }
 
-    uploadAvatar.mutate(
-      {
-        uri: asset.uri,
-        mimeType: asset.mimeType,
-        fileName: asset.fileName,
-      },
-      {
-        onSuccess: () => setMessage({ title: t("Saved"), message: t("Profile image updated.") }),
-        onError: (error) => setMessage({ title: t("Image upload failed"), message: error.message }),
-      },
-    );
+    // Shows immediately and uploads in the background. Nothing is written to the profile
+    // until Save, so backing out of the screen leaves the current avatar untouched.
+    avatarUpload.onPick({
+      uri: asset.uri,
+      mimeType: asset.mimeType,
+      fileName: asset.fileName,
+    });
   }
 
   return (
@@ -182,10 +207,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
         <View className="flex-row items-center gap-3">
           <StyledPressable
             accessibilityRole="button"
-            accessibilityLabel={
-              uploadAvatar.isPending ? t("Uploading profile photo") : t("Change profile photo")
-            }
-            disabled={uploadAvatar.isPending}
+            accessibilityLabel={t("Change profile photo")}
             onPress={handlePickAvatar}
             className="size-14 overflow-hidden rounded-full active:opacity-80"
           >
@@ -193,7 +215,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
               alt={profile?.display_name ?? profile?.nickname ?? t("Your profile")}
               className="size-14"
             >
-              {profile?.avatar_url ? <AvatarImage source={{ uri: profile.avatar_url }} /> : null}
+              {avatarPreviewUri ? <AvatarImage source={{ uri: avatarPreviewUri }} /> : null}
               <AvatarFallback className="bg-brand" initialsClassName="text-xl text-white" />
             </Avatar>
           </StyledPressable>
@@ -296,8 +318,15 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
             )}
           />
         </View>
-        <Button disabled={updateProfile.isPending} onPress={handleSubmit(submitForm)}>
-          <Text>{updateProfile.isPending ? t("Saving...") : t("Save Changes")}</Text>
+        <Button
+          disabled={updateProfile.isPending || avatarUpload.isUploading}
+          onPress={handleSubmit(submitForm)}
+        >
+          <Text>
+            {updateProfile.isPending || avatarUpload.isUploading
+              ? t("Saving...")
+              : t("Save Changes")}
+          </Text>
         </Button>
       </SettingsSection>
       <ActionBottomSheetMessage message={message} onClose={() => setMessage(null)} />

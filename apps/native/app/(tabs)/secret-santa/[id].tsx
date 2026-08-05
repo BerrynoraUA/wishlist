@@ -15,6 +15,7 @@ import {
   type ActionBottomSheetMessagePayload,
 } from "@/components/ui/action-bottom-sheet";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
+import { useTabBarContentPadding } from "@/lib/layout";
 import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledImage } from "@/components/ui/styled-image";
 import {
@@ -57,6 +58,7 @@ export default function SecretSantaDetailScreen() {
   const eventId = String(params.id ?? "");
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const paddingBottom = useTabBarContentPadding(32);
   const { data: currentUserId = "" } = useCurrentUserId();
   const detailsQuery = useSecretSantaDetails(eventId);
   const removeParticipant = useRemoveSecretSantaParticipant();
@@ -163,10 +165,7 @@ export default function SecretSantaDetailScreen() {
             <View className="absolute inset-0 bg-black/25" />
           </ScreenTopBackdrop>
         ) : null}
-        <ScrollView
-          className="flex-1"
-          contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
-        >
+        <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom }}>
           <View className="gap-5 bg-bg">
             {detailsQuery.isLoading ? (
               <View

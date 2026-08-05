@@ -2,7 +2,7 @@ import { useCreateButtonCenter } from "@/lib/create-button-box";
 import { Portal } from "@rn-primitives/portal";
 import { useFocusEffect } from "expo-router";
 import * as React from "react";
-import { View, type View as RNView } from "react-native";
+import { useWindowDimensions, View, type View as RNView } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useCSSVariable } from "uniwind";
 
@@ -10,10 +10,28 @@ function cssColor(value: unknown, fallback: string) {
   return typeof value === "string" ? value : fallback;
 }
 
-/** Gap between the arrow tip and the top of the "+" button so it doesn't touch it. */
-const BUTTON_CLEARANCE = 47;
+// Clearances are taken as a share of the space actually left between the card and the
+// button, then clamped. Fixed pixel gaps ate the whole run on short screens — the line
+// collapsed under its own minimum-length guard and vanished — while leaving the curve
+// stranded far above the button on tall ones.
+// The line has to read as joining two objects, so both gaps stay small and fixed — it is
+// the span between them that absorbs the screen size. Scaling the gaps with the free
+// space instead leaves the curve hanging in the middle, attached to neither end.
 /** Gap below the card's bottom border before the line begins. */
-const CARD_CLEARANCE = 65;
+const CARD_CLEARANCE = 14;
+/** Radius of the "+" button; the tip must never come closer than this to its centre. */
+const CREATE_BUTTON_RADIUS = 26;
+/** Gap between the arrow tip and the button's edge. */
+const BUTTON_CLEARANCE = CREATE_BUTTON_RADIUS + 14;
+/** Hard floor once the gaps are being squeezed, so the tip never sits on the button. */
+const BUTTON_CLEARANCE_FLOOR = CREATE_BUTTON_RADIUS + 6;
+
+/** Below this the curve reads as a stub rather than a pointer, so it is dropped. */
+const MIN_LINE_LENGTH = 40;
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
 
 type Rect = { x: number; y: number; width: number; height: number };
 
@@ -61,9 +79,11 @@ export function CreateButtonPointer({ children }: { children: React.ReactNode })
  * Smooth S-curve through a midpoint: bows out to one side on the way down,
  * then swings back to arrive at the endpoint heading straight down.
  */
-function buildCurvePath(x1: number, y1: number, x2: number, y2: number) {
+function buildCurvePath(x1: number, y1: number, x2: number, y2: number, maxAmp: number) {
   const dy = y2 - y1;
-  const amp = Math.min(72, Math.max(32, dy * 0.16));
+  // Bow scales with the run instead of a fixed floor, so a short line stays a gentle
+  // bend rather than a wide swing, and never bows past the edge of the screen.
+  const amp = clamp(dy * 0.16, 12, maxAmp);
   const midX = (x1 + x2) / 2;
   const midY = y1 + dy * 0.55;
 
@@ -86,14 +106,22 @@ function buildCurvePath(x1: number, y1: number, x2: number, y2: number) {
 
 function PointerLine({ anchor, button }: { anchor: Rect; button: { x: number; y: number } }) {
   const color = cssColor(useCSSVariable("--color-text-muted"), "#94a3b8");
+  const { width } = useWindowDimensions();
   const startX = anchor.x + anchor.width / 2;
-  const startY = anchor.y + anchor.height + CARD_CLEARANCE;
   const endX = button.x;
-  const endY = button.y - BUTTON_CLEARANCE;
 
-  if (endY - startY < 48) return null;
+  // Both gaps hold their intended size while the space allows it, and only shrink —
+  // together, so the line stays centred between the two — once it does not.
+  const available = button.y - (anchor.y + anchor.height);
+  const squeeze = clamp(available / (CARD_CLEARANCE + BUTTON_CLEARANCE + MIN_LINE_LENGTH), 0, 1);
+  const startY = anchor.y + anchor.height + CARD_CLEARANCE * squeeze;
+  const endY = button.y - Math.max(BUTTON_CLEARANCE * squeeze, BUTTON_CLEARANCE_FLOOR);
 
-  const { d, lastControl } = buildCurvePath(startX, startY, endX, endY);
+  if (endY - startY < MIN_LINE_LENGTH) return null;
+
+  // Keep the bow inside the screen: it swings left of the start and right of the midpoint.
+  const maxAmp = clamp(Math.min(startX, width - Math.max(startX, endX)) * 0.6, 12, 72);
+  const { d, lastControl } = buildCurvePath(startX, startY, endX, endY, maxAmp);
   const angle = Math.atan2(endY - lastControl.y, endX - lastControl.x);
   const wingLength = 9;
   const leftWing = angle + (Math.PI * 3) / 4;
