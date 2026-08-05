@@ -31,7 +31,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Camera, CalendarDays, ImagePlus, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, ScrollView, useWindowDimensions, View } from "react-native";
 
 type SheetMode = "create" | "edit";
 
@@ -40,6 +40,10 @@ type SelectedImage = SecretSantaImageInput & {
 };
 
 const PARTICIPANT_PAGE_SIZE = 10;
+/** Used for the very first frame, before the form has reported its height. */
+const INITIAL_SHEET_DETENT = 0.75;
+const MIN_SHEET_DETENT = 0.4;
+const MAX_SHEET_DETENT = 0.94;
 
 export function SecretSantaCreateEditSheet({
   mode,
@@ -57,6 +61,23 @@ export function SecretSantaCreateEditSheet({
   const t = useGT();
   const { isGated, openPaywall } = useProGate();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const { height: windowHeight } = useWindowDimensions();
+  const [contentHeight, setContentHeight] = React.useState(0);
+  const [footerHeight, setFooterHeight] = React.useState(0);
+  // A single detent sized to the form, so the sheet can neither open with dead space
+  // under a short form nor be dragged past its own content. `auto` is not an option here:
+  // TrueSheet cannot measure content it is also clipping, so `scrollable` rules it out.
+  // Rounded to whole percents so typing in the description does not retrigger a resize
+  // on every keystroke.
+  const contentDetent =
+    contentHeight > 0
+      ? Math.round(
+          Math.min(
+            MAX_SHEET_DETENT,
+            Math.max(MIN_SHEET_DETENT, (contentHeight + footerHeight) / windowHeight),
+          ) * 100,
+        ) / 100
+      : INITIAL_SHEET_DETENT;
   const { data: settings } = useSettings();
   const [participantSearch, setParticipantSearch] = React.useState("");
   const deferredParticipantSearch = React.useDeferredValue(participantSearch);
@@ -234,10 +255,13 @@ export function SecretSantaCreateEditSheet({
     <BottomSheet
       ref={sheetRef}
       scrollable
-      detents={[0.75, 0.94]}
+      detents={[contentDetent]}
       onDidDismiss={() => onOpenChange(false)}
       footer={
-        <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
+        <View
+          onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}
+          className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3"
+        >
           <Button
             className="min-w-0 flex-1"
             variant="outline"
@@ -266,6 +290,7 @@ export function SecretSantaCreateEditSheet({
         contentContainerClassName="gap-5 px-5 pb-6 pt-5"
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled
+        onContentSizeChange={(_width, height) => setContentHeight(height)}
         showsVerticalScrollIndicator={false}
       >
         <View className="gap-2">

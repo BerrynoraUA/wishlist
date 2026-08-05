@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Icon } from "@/components/ui/icon";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
+import { useTabBarContentPadding } from "@/lib/layout";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { useFeatureIdeas, useToggleFeatureIdeaVote } from "@/hooks/use-feature-ideas";
@@ -28,6 +29,7 @@ export default function IdeasScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding(2);
+  const paddingBottom = useTabBarContentPadding();
   const ideasQuery = useFeatureIdeas();
   const toggleVote = useToggleFeatureIdeaVote();
   const [submitOpen, setSubmitOpen] = React.useState(false);
@@ -130,8 +132,8 @@ export default function IdeasScreen() {
           )}
           keyExtractor={(item) => item.id}
           className="flex-1"
-          contentContainerClassName="px-4 pb-8"
-          contentContainerStyle={{ paddingTop }}
+          contentContainerClassName="px-4"
+          contentContainerStyle={{ paddingTop, paddingBottom }}
           ItemSeparatorComponent={() => <View className="h-3" />}
           ListHeaderComponent={listHeader}
           ListEmptyComponent={

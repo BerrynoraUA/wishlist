@@ -25,7 +25,7 @@ import {
   useUpdateFriendGroup,
 } from "@/hooks/use-friends";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
-import { chunkRows } from "@/lib/layout";
+import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
 import type {
   FriendGroup,
   FriendRequestWithDetails,
@@ -56,6 +56,7 @@ export default function FriendsScreen() {
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
+  const paddingBottom = useTabBarContentPadding();
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
@@ -235,8 +236,7 @@ export default function FriendsScreen() {
           renderItem={renderRow}
           keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
           className="flex-1"
-          contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop }}
+          contentContainerStyle={{ paddingTop, paddingBottom }}
           onScroll={requestMeasure}
           scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View className="h-4" />}

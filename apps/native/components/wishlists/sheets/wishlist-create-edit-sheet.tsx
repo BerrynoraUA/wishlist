@@ -24,6 +24,7 @@ import {
   getWishlistVisibilityOptions,
   getWishlistAccentClass,
   toWishlistFormValues,
+  WISHLIST_GROUP_ICON,
   type WishlistVisibilityOption,
 } from "@/lib/wishlists";
 import type { TranslateFn } from "@/lib/translate-fn";
@@ -108,7 +109,11 @@ export function WishlistCreateEditSheet({
   const { control, handleSubmit, reset, setValue } = useForm<WishlistFormValues>({
     defaultValues: EMPTY_WISHLIST_FORM,
   });
-  const values = useWatch({ control }) as WishlistFormValues;
+  // Watch per field rather than the whole form: a bare `useWatch({ control })` re-renders
+  // this sheet on every keystroke in the description too, which nothing here reads.
+  const title = useWatch({ control, name: "title" });
+  const visibility = useWatch({ control, name: "visibility" });
+  const imageUrl = useWatch({ control, name: "imageUrl" });
   const [descriptionInputHeight, setDescriptionInputHeight] = React.useState(
     DESCRIPTION_INPUT_MIN_HEIGHT,
   );
@@ -120,15 +125,12 @@ export function WishlistCreateEditSheet({
     mode,
     open,
     wishlist,
-    visibility: values.visibility,
+    visibility,
     setVisibility: setSelectedAccessVisibility,
   });
   const imageUpload = useImageUploadField("wishlist");
   const canSubmit =
-    !isPending &&
-    !selectedAccess.isSaving &&
-    !imageUpload.isUploading &&
-    values.title.trim() !== "";
+    !isPending && !selectedAccess.isSaving && !imageUpload.isUploading && title.trim() !== "";
   React.useEffect(() => {
     if (!open) return;
 
@@ -289,7 +291,7 @@ export function WishlistCreateEditSheet({
           <VisibilitySelector
             t={t}
             visibilityOptions={visibilityOptions}
-            value={values.visibility}
+            value={visibility}
             selectedAccessTarget={selectedAccess.target}
             onChange={handleVisibilityChange}
           />
@@ -413,7 +415,7 @@ export function WishlistCreateEditSheet({
 
         <Field label={t("Cover Image")}>
           <SingleImagePicker
-            previewUri={imageUpload.pickedImage?.uri ?? values.imageUrl}
+            previewUri={imageUpload.pickedImage?.uri ?? imageUrl}
             aspect={[16, 9]}
             pickLabel={t("Choose cover image")}
             changeLabel={t("Change image")}
@@ -491,7 +493,7 @@ function VisibilitySelector({
       {
         value: "selected-groups",
         label: t("Selected groups"),
-        icon: friendsOption.icon,
+        icon: WISHLIST_GROUP_ICON,
         visibility: WishlistVisibility.SelectedFriends,
         selectedAccessTarget: "groups",
       },
@@ -789,10 +791,16 @@ function WishlistAccessPicker({
                     key={`${target.target_type ?? "user"}-${revokeTargetId}`}
                     className="min-h-12 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-bg-elevated px-3"
                   >
+                    {/* A group and a friend are otherwise indistinguishable here — both
+                        rows are just a circle and a name. */}
                     <View className="size-8 items-center justify-center rounded-full bg-bg-muted">
-                      <Text className="text-xs font-extrabold text-text-muted">
-                        {target.nickname[0]?.toUpperCase() ?? "?"}
-                      </Text>
+                      {target.target_type === "group" ? (
+                        <Icon as={WISHLIST_GROUP_ICON} className="size-4 text-text-muted" />
+                      ) : (
+                        <Text className="text-xs font-extrabold text-text-muted">
+                          {target.nickname[0]?.toUpperCase() ?? "?"}
+                        </Text>
+                      )}
                     </View>
                     <Text className="min-w-0 flex-1 font-semibold text-text">
                       {target.nickname}

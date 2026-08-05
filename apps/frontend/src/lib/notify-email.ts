@@ -2,7 +2,7 @@ import "server-only";
 
 import nodemailer, { type Transporter } from "nodemailer";
 
-const DEFAULT_RECIPIENT = "artemhushan0@gmail.com";
+const DEFAULT_RECIPIENT = "support@berrynora.com";
 
 let transporter: Transporter | null = null;
 

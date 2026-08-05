@@ -1,7 +1,13 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
-import { NAV_TAB_BAR_BACKDROP_OFFSET, NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
+import {
+  NAV_TAB_BAR_BACKDROP_OFFSET,
+  NAV_TAB_BAR_FAB_OVERHANG,
+  NAV_TAB_BAR_HEIGHT,
+  NAV_TAB_BAR_MIN_BOTTOM_INSET,
+  NAV_TAB_BAR_TOP_PADDING,
+} from "@/lib/layout";
 import { useReducedMotion } from "@/lib/motion";
 import { NATIVE_ACCENTS, getThemeAccent } from "@/lib/theme";
 import { cn } from "@/lib/utils";
@@ -14,10 +20,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { useCSSVariable, useUniwind } from "uniwind";
 
-/** Headroom above the pill so the raised Create button can overhang it. */
-const FAB_OVERHANG = 14;
+const FAB_OVERHANG = NAV_TAB_BAR_FAB_OVERHANG;
 const FAB_SIZE = 52;
-const TAB_BAR_TOP_PADDING = FAB_OVERHANG + 4;
+const TAB_BAR_TOP_PADDING = NAV_TAB_BAR_TOP_PADDING;
 const BACKDROP_TOP = TAB_BAR_TOP_PADDING + NAV_TAB_BAR_HEIGHT / 2 + NAV_TAB_BAR_BACKDROP_OFFSET;
 const INDICATOR_VERTICAL_INSET = 7;
 const INDICATOR_SPRING = { damping: 18, stiffness: 220, mass: 0.7 };
@@ -191,7 +196,7 @@ export function AndroidTabBar({
         bottom: 0,
         left: 0,
         paddingTop: TAB_BAR_TOP_PADDING,
-        paddingBottom: Math.max(insets.bottom, 8),
+        paddingBottom: Math.max(insets.bottom, NAV_TAB_BAR_MIN_BOTTOM_INSET),
       }}
     >
       <View

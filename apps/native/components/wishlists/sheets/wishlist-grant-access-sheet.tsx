@@ -178,6 +178,10 @@ export function WishlistGrantAccessSheet({
                       value={value}
                       onChangeText={onChange}
                       placeholder={t("Search among your friends")}
+                      autoCapitalize="none"
+                      // Looks up other people, so no autofill — and no yellow overlay for it.
+                      autoComplete="off"
+                      importantForAutofill="no"
                       className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
                       returnKeyType="search"
                     />
@@ -191,7 +195,7 @@ export function WishlistGrantAccessSheet({
                     onPress={() => setValue("query", "")}
                     className="size-9 shrink-0 rounded-full"
                   >
-                    <Icon as={X} className="size-4 text-text-muted" />
+                    <Icon as={X} className="size-4 text-destructive" />
                   </Button>
                 ) : null}
               </View>

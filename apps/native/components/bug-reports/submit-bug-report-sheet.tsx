@@ -7,7 +7,7 @@ import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateBugReport } from "@/hooks/use-bug-reports";
 import { BUG_DESCRIPTION_MAX_LENGTH, BUG_TITLE_MAX_LENGTH } from "@/lib/bug-reports";
-import type { NativePickedImage } from "@/lib/image-upload";
+import { useImageUploadField } from "@/lib/image-upload";
 import { cn } from "@/lib/utils";
 import { useGT } from "gt-react-native";
 import { Bug, ImagePlus } from "lucide-react-native";
@@ -27,8 +27,7 @@ export function SubmitBugReportSheet({
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [screenshot, setScreenshot] = React.useState<NativePickedImage | null>(null);
-  const [screenshotError, setScreenshotError] = React.useState<string | null>(null);
+  const screenshotUpload = useImageUploadField("bug");
   const [error, setError] = React.useState<string | null>(null);
   const [titleError, setTitleError] = React.useState<string | null>(null);
   const [descriptionError, setDescriptionError] = React.useState<string | null>(null);
@@ -46,14 +45,13 @@ export function SubmitBugReportSheet({
   function resetForm() {
     setTitle("");
     setDescription("");
-    setScreenshot(null);
-    setScreenshotError(null);
+    screenshotUpload.reset();
     setError(null);
     setTitleError(null);
     setDescriptionError(null);
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     const nextTitleError = trimmedTitle ? null : t("Title is required.");
     const nextDescriptionError = trimmedDescription ? null : t("Description is required.");
     setTitleError(nextTitleError);
@@ -61,8 +59,12 @@ export function SubmitBugReportSheet({
     if (nextTitleError || nextDescriptionError || createReport.isPending) return;
 
     setError(null);
+    // Resolves the background upload started when the screenshot was picked.
+    const screenshotUrl = await screenshotUpload.resolveImageUrl("");
+    if (screenshotUrl === undefined) return;
+
     createReport.mutate(
-      { title: trimmedTitle, description: trimmedDescription, screenshot },
+      { title: trimmedTitle, description: trimmedDescription, screenshotUrl },
       {
         onSuccess: () => {
           resetForm();
@@ -143,23 +145,17 @@ export function SubmitBugReportSheet({
               <Text className="text-xs text-text-light">{t("Optional")}</Text>
             </View>
             <SingleImagePicker
-              previewUri={screenshot?.uri}
+              previewUri={screenshotUpload.pickedImage?.uri}
               aspect={[16, 9]}
               pickLabel={t("Attach a screenshot")}
               changeLabel={t("Change screenshot")}
-              onPick={(image) => {
-                setScreenshot(image);
-                setScreenshotError(null);
-              }}
-              onClear={() => {
-                setScreenshot(null);
-                setScreenshotError(null);
-              }}
-              onError={setScreenshotError}
+              onPick={screenshotUpload.onPick}
+              onClear={screenshotUpload.onClear}
+              onError={screenshotUpload.onError}
               showChangeButton={false}
             />
-            {screenshotError ? (
-              <Text className="text-xs text-destructive">{screenshotError}</Text>
+            {screenshotUpload.error ? (
+              <Text className="text-xs text-destructive">{screenshotUpload.error}</Text>
             ) : (
               <View className="flex-row items-center gap-1">
                 <Icon as={ImagePlus} className="size-3.5 text-text-light" />

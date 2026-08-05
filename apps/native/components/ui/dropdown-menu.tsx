@@ -26,6 +26,15 @@ const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 
 const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 
+/**
+ * The lifted card and the menu under it have to read as one object, so both enter on the
+ * same spring. Fading the menu in while the card springs leaves the two visibly detached:
+ * the card travels, the menu just appears where it will end up.
+ *
+ * A fresh builder per call — Reanimated mutates these descriptors when configured.
+ */
+const attachedEntering = () => FadeInUp.springify().damping(20).stiffness(240);
+
 type DropdownMenuPreview = {
   height: number;
   pageX: number;
@@ -127,7 +136,26 @@ function DropdownMenuSubContent({
   );
 }
 
+/**
+ * Tail joining the menu to the card above (or below) it. A square rotated 45° with two
+ * borders, matching the tooltip carets in the user guide: its fill is the menu's own
+ * colour, so the half that overlaps the panel is invisible and only the tip shows.
+ */
+function DropdownMenuCaret({ side }: { side: "top" | "bottom" }) {
+  return (
+    <View
+      pointerEvents="none"
+      className={cn(
+        "absolute -ms-1.5 size-3 rotate-45 border-white/10 bg-[#121219]",
+        side === "top" ? "-bottom-1.5 border-b border-e" : "-top-1.5 border-s border-t",
+      )}
+      style={{ start: "50%" }}
+    />
+  );
+}
+
 function DropdownMenuContent({
+  children,
   className,
   backdrop = "none",
   overlayClassName,
@@ -153,6 +181,9 @@ function DropdownMenuContent({
     setTriggerPosition(null);
     onOpenChange(false);
   };
+  // The caret is what ties the menu to the lifted card; without it the two read as
+  // separate surfaces that happen to sit near each other.
+  const hasCaret = backdrop === "blur" && Boolean(preview);
   const previewLift = preview ? Math.min(28, Math.max(16, preview.pageY - 12)) : 0;
   const contentHeight = contentLayout?.height ?? 128;
   const blurMenuSideOffset = sideOffset ?? 10;
@@ -210,7 +241,7 @@ function DropdownMenuContent({
       {backdrop === "blur" && preview ? (
         <Animated.View
           pointerEvents="none"
-          entering={FadeInUp.springify().damping(20).stiffness(240)}
+          entering={attachedEntering()}
           style={{
             position: "absolute",
             top: preview.pageY - previewLift,
@@ -229,19 +260,34 @@ function DropdownMenuContent({
           />
         </Animated.View>
       ) : null}
-      <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
+      <NativeOnlyAnimatedView
+        entering={preview ? attachedEntering() : FadeIn.duration(motionDuration.normal)}
+      >
         <TextClassContext.Provider value="text-popover-foreground">
           <DropdownMenuPrimitive.Content
             className={cn(
-              "bg-card-bg/95 border-border min-w-[8rem] overflow-hidden rounded-xl border p-1 shadow-xl shadow-black/15",
+              "bg-card-bg/95 border-border min-w-[8rem] rounded-xl border p-1 shadow-xl shadow-black/15",
               backdrop === "blur" && "rounded-2xl border-white/10 bg-[#121219]/96 p-2",
+              // The caret has to overhang the edge, so a menu with one cannot clip.
+              !hasCaret && "overflow-hidden",
               className,
             )}
             style={contentStyle}
             side={backdrop === "blur" ? resolvedSide : side}
             sideOffset={backdrop === "blur" ? blurMenuSideOffset : sideOffset}
             {...props}
-          />
+          >
+            {hasCaret ? (
+              <>
+                <DropdownMenuCaret side={resolvedSide} />
+                {/* The primitive also accepts a Pressable-style render callback, which
+                    no menu here uses — items are always plain elements. */}
+                {children as React.ReactNode}
+              </>
+            ) : (
+              children
+            )}
+          </DropdownMenuPrimitive.Content>
         </TextClassContext.Provider>
       </NativeOnlyAnimatedView>
     </DropdownMenuPrimitive.Overlay>

@@ -190,6 +190,10 @@ export function AddFriendSheet({
               }}
               placeholder={t("username")}
               autoCapitalize="none"
+              // Searches for someone else's handle, so the platform must not offer to fill
+              // the user's own — and must not tint the field yellow to advertise it.
+              autoComplete="off"
+              importantForAutofill="no"
               className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
               returnKeyType="search"
             />
@@ -205,7 +209,7 @@ export function AddFriendSheet({
                 }}
                 className="size-9 shrink-0 rounded-full"
               >
-                <Icon as={X} className="size-4 text-text-muted" />
+                <Icon as={X} className="size-4 text-destructive" />
               </Button>
             ) : null}
           </View>

@@ -1,4 +1,4 @@
-import { Globe, Lock, UserCheck, Users, type LucideIcon } from "lucide-react-native";
+import { Globe, Lock, UserCheck, Users, UsersRound, type LucideIcon } from "lucide-react-native";
 import type { TranslateFn } from "@/lib/translate-fn";
 import {
   WishlistAccent,
@@ -86,6 +86,16 @@ export function getWishlistVisibilityLabels(t: TranslateFn): Record<WishlistVisi
     [WishlistVisibility.SelectedFriends]: t("Selected friends"),
   };
 }
+
+/**
+ * Friend groups sit right next to individual friends in the access UI, so they cannot
+ * reuse `Users` — that already means "all my friends" on the visibility list.
+ *
+ * `UsersRound` is the one alternative that still reads as people: a bold rounded figure
+ * with a second behind it, against the thinner two-figure `Users`. An abstract "set"
+ * glyph distinguishes them better but stops looking like friends altogether.
+ */
+export const WISHLIST_GROUP_ICON: LucideIcon = UsersRound;
 
 export const WISHLIST_VISIBILITY_ICONS: Record<WishlistVisibility, LucideIcon> = {
   [WishlistVisibility.Public]: Globe,

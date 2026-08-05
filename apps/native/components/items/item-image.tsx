@@ -36,8 +36,10 @@ export function ItemImage({
   return (
     <View
       className={cn(
-        "relative items-center justify-center overflow-hidden bg-bg-muted",
-        isDetail ? "h-56 rounded-2xl border border-border-subtle" : "aspect-square w-full min-h-0",
+        // Square in both sizes so the detail sheet shows the image at the same height as
+        // the card in the list, instead of cropping it into a short strip.
+        "relative aspect-square items-center justify-center overflow-hidden bg-bg-muted",
+        isDetail ? "rounded-2xl border border-border-subtle" : "w-full min-h-0",
       )}
     >
       {item.image_url ? (

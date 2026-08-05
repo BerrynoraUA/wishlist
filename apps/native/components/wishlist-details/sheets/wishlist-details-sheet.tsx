@@ -7,7 +7,7 @@ import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { CalendarDays, FileText, ListChecks } from "lucide-react-native";
 import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, useWindowDimensions, View } from "react-native";
 
 export function WishlistDetailsSheet({
   wishlist,
@@ -18,7 +18,11 @@ export function WishlistDetailsSheet({
 }) {
   const t = useGT();
   const locale = useLocale();
+  const { height } = useWindowDimensions();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  // Caps how much of the sheet a long description may claim, so the title, cover and
+  // meta row always stay visible without the sheet outgrowing the screen.
+  const descriptionMaxHeight = Math.round(height * 0.3);
   const visibilityLabels = React.useMemo(() => getWishlistVisibilityLabels(t), [t]);
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[wishlist.visibility_type];
   const eventDate = React.useMemo(
@@ -29,16 +33,16 @@ export function WishlistDetailsSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={["auto", 0.9]}
+      // `auto` must not be combined with `scrollable` — auto-sizing measures the content,
+      // a scrollable sheet clips it, and the sheet ends up padded out to a fixed height
+      // with empty space under short content. The description scrolls inside its own box
+      // instead, which keeps the sheet hugging whatever is actually there.
+      detents={["auto"]}
       initialDetentIndex={0}
       initialDetentAnimated
       onDidDismiss={onClose}
     >
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        showsVerticalScrollIndicator={false}
-        contentContainerClassName="gap-5 px-5 pb-8 pt-5"
-      >
+      <View className="gap-5 px-5 pb-8 pt-5">
         <View className="gap-2">
           <View className="flex-row items-center gap-2">
             <View className="size-9 items-center justify-center rounded-full bg-brand-lighter">
@@ -68,9 +72,18 @@ export function WishlistDetailsSheet({
             <Icon as={FileText} className="size-4 text-brand" />
             <Text className="text-sm font-bold text-text">{t("Description")}</Text>
           </View>
-          <Text selectable className="text-sm leading-6 text-text-muted">
-            {wishlist.description || t("No description")}
-          </Text>
+          {/* Only this box scrolls, and only once the text outruns it — a short
+              description still collapses to its own height. */}
+          <ScrollView
+            style={{ maxHeight: descriptionMaxHeight }}
+            showsVerticalScrollIndicator
+            nestedScrollEnabled
+            contentContainerClassName="pb-1"
+          >
+            <Text selectable className="text-sm leading-6 text-text-muted">
+              {wishlist.description || t("No description")}
+            </Text>
+          </ScrollView>
         </View>
 
         <View className="flex-row gap-2">
@@ -100,7 +113,7 @@ export function WishlistDetailsSheet({
             </View>
           ) : null}
         </View>
-      </ScrollView>
+      </View>
     </BottomSheet>
   );
 }

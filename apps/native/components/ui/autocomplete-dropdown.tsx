@@ -5,7 +5,8 @@ import { Icon } from "@/components/ui/icon";
 import { INPUT_CLASS_NAME, Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react-native";
+import { Button } from "@/components/ui/button";
+import { Check, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Keyboard, Pressable, ScrollView, TextInput, View } from "react-native";
 
@@ -39,6 +40,7 @@ type CommonProps = {
   onEndReached?: () => void;
   onQueryChange?: (query: string) => void;
   closeAccessibilityLabel?: string;
+  clearAccessibilityLabel?: string;
   hideSelectedOptions?: boolean;
   showSelectedValue?: boolean;
   inputAccessory?: React.ReactNode;
@@ -79,6 +81,7 @@ export function AutocompleteDropdown({
   isLoadingMore = false,
   onEndReached,
   onQueryChange,
+  clearAccessibilityLabel,
   hideSelectedOptions = false,
   showSelectedValue = true,
   inputAccessory,
@@ -242,19 +245,34 @@ export function AutocompleteDropdown({
     inputClassName,
   );
 
-  // Editable search field (inline/always-shown trigger, or the sheet footer).
+  // Editable search field (inline/always-shown trigger, or the sheet footer). The clear
+  // button is overlaid rather than placed beside the field so the input keeps its full
+  // width and the rounding `inputClass` applies when the dropdown is attached.
   const input = (
-    <Input
-      value={visibleValue}
-      onFocus={openDropdown}
-      onChangeText={handleQueryChange}
-      onSubmitEditing={handleSubmit}
-      placeholder={placeholder}
-      autoCorrect={false}
-      returnKeyType="search"
-      className={inputClass}
-      {...inputProps}
-    />
+    <View className="relative justify-center">
+      <Input
+        value={visibleValue}
+        onFocus={openDropdown}
+        onChangeText={handleQueryChange}
+        onSubmitEditing={handleSubmit}
+        placeholder={placeholder}
+        autoCorrect={false}
+        returnKeyType="search"
+        className={cn(inputClass, visibleValue.length > 0 && "pe-10")}
+        {...inputProps}
+      />
+      {visibleValue.length > 0 ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          accessibilityLabel={clearAccessibilityLabel}
+          onPress={() => handleQueryChange("")}
+          className="absolute end-1 size-8 rounded-full"
+        >
+          <Icon as={X} className="size-4 text-destructive" />
+        </Button>
+      ) : null}
+    </View>
   );
 
   const dropdown = (

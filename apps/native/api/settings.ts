@@ -12,10 +12,7 @@ import type {
   UserSettings,
 } from "@wishlist/backend/types/settings";
 import type { PublicProfile } from "@wishlist/backend/types/friends";
-import { File } from "expo-file-system";
 
-const AVATAR_BUCKET = "avatars";
-const MAX_AVATAR_UPLOAD_BYTES = 5 * 1024 * 1024;
 const PROFILE_SELECT =
   "id, display_name, nickname, bio, height, shoe_size, avatar_url, userGuideStep, created_at";
 
@@ -58,103 +55,6 @@ export async function updateProfile(payload: UpdateProfilePayload): Promise<User
 
   if (error) throw error;
   return data as UserProfile;
-}
-
-export async function uploadProfileAvatar({
-  uri,
-  mimeType,
-  fileName,
-}: {
-  uri: string;
-  mimeType?: string | null;
-  fileName?: string | null;
-}): Promise<UserProfile> {
-  const user = await getCurrentUser();
-
-  if (!user) throw new Error("Not authenticated");
-
-  let previousAvatarUrl: string | null = null;
-  try {
-    const currentProfile = await getProfile();
-    previousAvatarUrl = currentProfile.avatar_url;
-  } catch {}
-
-  const file = new File(uri);
-  const contentType = mimeType || file.type || "image/jpeg";
-
-  if (!contentType.startsWith("image/")) {
-    throw new Error("File must be an image");
-  }
-
-  if (file.size > MAX_AVATAR_UPLOAD_BYTES) {
-    throw new Error("Avatar image size must be less than 5MB");
-  }
-
-  const extension = getAvatarExtension(fileName, contentType);
-  const randomString = Math.random().toString(36).slice(2, 15);
-  const path = `${user.id}/${Date.now()}-${randomString}.${extension}`;
-  const bytes = await file.arrayBuffer();
-
-  const { data: uploadData, error } = await supabase.storage
-    .from(AVATAR_BUCKET)
-    .upload(path, bytes, {
-      contentType,
-      cacheControl: "3600",
-      upsert: false,
-    });
-
-  if (error) throw error;
-
-  const { data } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(uploadData.path);
-  const profile = await updateProfile({ avatar_url: data.publicUrl });
-
-  if (
-    previousAvatarUrl &&
-    previousAvatarUrl !== data.publicUrl &&
-    isSupabaseAvatarUrl(previousAvatarUrl)
-  ) {
-    await deleteAvatarImage(previousAvatarUrl);
-  }
-
-  return profile;
-}
-
-function getAvatarExtension(fileName: string | null | undefined, mimeType: string) {
-  const fileExtension = fileName?.split(".").pop()?.toLowerCase();
-
-  if (fileExtension && /^[a-z0-9]+$/.test(fileExtension)) {
-    return fileExtension;
-  }
-
-  return mimeType.split("/")[1]?.split("+")[0] ?? "jpg";
-}
-
-function isSupabaseAvatarUrl(url: string): boolean {
-  return url.includes(`/storage/v1/object/public/${AVATAR_BUCKET}/`);
-}
-
-function getStoragePathFromPublicUrl(url: string): string | null {
-  if (!isSupabaseAvatarUrl(url)) {
-    return null;
-  }
-
-  const urlParts = url.split(`/${AVATAR_BUCKET}/`);
-  if (urlParts.length < 2) {
-    return null;
-  }
-
-  const path = urlParts[1].split("?")[0];
-  return path || null;
-}
-
-async function deleteAvatarImage(avatarUrl: string): Promise<void> {
-  const path = getStoragePathFromPublicUrl(avatarUrl);
-
-  if (!path) {
-    return;
-  }
-
-  await supabase.storage.from(AVATAR_BUCKET).remove([path]);
 }
 
 export async function checkNicknameAvailable(nickname: string): Promise<boolean> {
