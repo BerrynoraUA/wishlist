@@ -10,6 +10,7 @@ import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-p
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { ClearableInput } from "@/components/ui/clearable-input";
 import { SingleImagePicker } from "@/components/ui/single-image-picker";
 import {
   Select,
@@ -37,7 +38,7 @@ import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
-import { Lock, Plus, X } from "lucide-react-native";
+import { Lock, Plus } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -259,40 +260,27 @@ export function WishlistItemCreateEditSheet({
 
   const productLinkField = form.showsProductLink ? (
     <View className={cn("gap-2", form.productLinkPosition === "top" && "mt-2")}>
-      <View className="flex-row items-center gap-2">
-        <Controller
-          control={control}
-          name="url"
-          render={({ field: { onChange, value } }) => (
-            <Input
-              value={value}
-              onChangeText={(url) => {
-                onChange(url);
-                if (scrapeError) setScrapeError(null);
-              }}
-              placeholder={t("Product URL")}
-              autoCapitalize="none"
-              keyboardType="url"
-              returnKeyType="done"
-              className={cn(
-                "min-w-0 flex-1 border-primary",
-                productLinkInvalid && "border-destructive",
-              )}
-            />
-          )}
-        />
-        {canClearScrapedFields ? (
-          <Button
-            variant="destructive"
-            size="icon"
-            disabled={isScraping || isPending}
-            onPress={clearProductLinkAndScraperFields}
-            accessibilityLabel={t("Clear product link and autofill")}
-          >
-            <Icon as={X} className="size-4 text-white" />
-          </Button>
-        ) : null}
-      </View>
+      <Controller
+        control={control}
+        name="url"
+        render={({ field: { onChange, value } }) => (
+          <ClearableInput
+            value={value}
+            onChangeText={(url) => {
+              onChange(url);
+              if (scrapeError) setScrapeError(null);
+            }}
+            placeholder={t("Product URL")}
+            autoCapitalize="none"
+            keyboardType="url"
+            returnKeyType="done"
+            containerClassName={cn("border-primary", productLinkInvalid && "border-destructive")}
+            showClear={canClearScrapedFields && !isScraping && !isPending}
+            onClear={clearProductLinkAndScraperFields}
+            clearLabel={t("Clear product link and autofill")}
+          />
+        )}
+      />
       {productLinkInvalid ? (
         <Text className="text-sm font-semibold text-destructive">{t("Enter valid Url")}</Text>
       ) : isScraping ? (
@@ -593,38 +581,31 @@ export function WishlistItemCreateEditSheet({
             <View className="gap-2">
               {values.additionalLinks.map((link, index) => (
                 <View key={index} className="gap-1">
-                  <View className="flex-row gap-2">
-                    <Controller
-                      control={control}
-                      name={`additionalLinks.${index}.url`}
-                      render={({ field: { onChange, value } }) => (
-                        <Input
-                          value={value}
-                          onChangeText={onChange}
-                          placeholder={t("https://...")}
-                          autoCapitalize="none"
-                          keyboardType="url"
-                          className={cn(
-                            "min-w-0 flex-1",
-                            invalidAdditionalLinkIndexes.has(index) && "border-destructive",
-                          )}
-                        />
-                      )}
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onPress={() =>
-                        patchValues({
-                          additionalLinks: values.additionalLinks.filter(
-                            (_, itemIndex) => itemIndex !== index,
-                          ),
-                        })
-                      }
-                    >
-                      <Icon as={X} className="size-4 text-text-muted" />
-                    </Button>
-                  </View>
+                  <Controller
+                    control={control}
+                    name={`additionalLinks.${index}.url`}
+                    render={({ field: { onChange, value } }) => (
+                      <ClearableInput
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder={t("https://...")}
+                        autoCapitalize="none"
+                        keyboardType="url"
+                        invalid={invalidAdditionalLinkIndexes.has(index)}
+                        // Removes the whole row rather than just blanking it — an empty
+                        // link field is not something the user would want left behind.
+                        showClear
+                        onClear={() =>
+                          patchValues({
+                            additionalLinks: values.additionalLinks.filter(
+                              (_, itemIndex) => itemIndex !== index,
+                            ),
+                          })
+                        }
+                        clearLabel={t("Remove link")}
+                      />
+                    )}
+                  />
                   {invalidAdditionalLinkIndexes.has(index) ? (
                     <Text className="text-xs font-semibold text-destructive">
                       {t("Enter valid Url")}

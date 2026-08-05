@@ -24,6 +24,7 @@ import {
   getWishlistVisibilityOptions,
   getWishlistAccentClass,
   toWishlistFormValues,
+  WISHLIST_GROUP_ICON,
   type WishlistVisibilityOption,
 } from "@/lib/wishlists";
 import type { TranslateFn } from "@/lib/translate-fn";
@@ -492,7 +493,7 @@ function VisibilitySelector({
       {
         value: "selected-groups",
         label: t("Selected groups"),
-        icon: friendsOption.icon,
+        icon: WISHLIST_GROUP_ICON,
         visibility: WishlistVisibility.SelectedFriends,
         selectedAccessTarget: "groups",
       },
@@ -790,10 +791,16 @@ function WishlistAccessPicker({
                     key={`${target.target_type ?? "user"}-${revokeTargetId}`}
                     className="min-h-12 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-bg-elevated px-3"
                   >
+                    {/* A group and a friend are otherwise indistinguishable here — both
+                        rows are just a circle and a name. */}
                     <View className="size-8 items-center justify-center rounded-full bg-bg-muted">
-                      <Text className="text-xs font-extrabold text-text-muted">
-                        {target.nickname[0]?.toUpperCase() ?? "?"}
-                      </Text>
+                      {target.target_type === "group" ? (
+                        <Icon as={WISHLIST_GROUP_ICON} className="size-4 text-text-muted" />
+                      ) : (
+                        <Text className="text-xs font-extrabold text-text-muted">
+                          {target.nickname[0]?.toUpperCase() ?? "?"}
+                        </Text>
+                      )}
                     </View>
                     <Text className="min-w-0 flex-1 font-semibold text-text">
                       {target.nickname}
