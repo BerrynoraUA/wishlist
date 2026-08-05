@@ -14,7 +14,7 @@ type PolicyPageProps = {
 };
 
 const LAST_UPDATED = "June 1, 2026";
-const SUPPORT_EMAIL = "berrynora.ua@gmail.com";
+const SUPPORT_EMAIL = "support@berrynora.com";
 
 export function PolicyPage({ title, intro, sections }: PolicyPageProps) {
   return (
