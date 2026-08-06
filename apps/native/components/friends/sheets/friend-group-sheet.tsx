@@ -1,8 +1,8 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -10,6 +10,7 @@ import {
   type SlidingOptionRenderProps,
 } from "@/components/ui/sliding-option-selector";
 import { useFriendGroupMembers } from "@/hooks/use-friends";
+import { FRIEND_GROUP_ICON_OPTIONS } from "@/lib/friend-groups";
 import { NATIVE_ACCENTS } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import type {
@@ -17,7 +18,6 @@ import type {
   FriendGroupPayload,
   FriendWithDetails,
 } from "@wishlist/backend/types/friends";
-import { Gift, Heart, Search, Star, Users, X, type LucideIcon } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
@@ -26,13 +26,6 @@ import { ActivityIndicator, ScrollView, View } from "react-native";
 const COLOR_OPTIONS = ["pink", "blue", "peach", "mint", "lavender"] as const;
 
 type GroupColor = (typeof COLOR_OPTIONS)[number];
-
-const ICON_OPTIONS: { value: string; icon: LucideIcon }[] = [
-  { value: "users", icon: Users },
-  { value: "heart", icon: Heart },
-  { value: "star", icon: Star },
-  { value: "gift", icon: Gift },
-];
 
 /**
  * The same gradient swatches the wishlist accent picker uses. Group colours are named
@@ -65,7 +58,7 @@ export function FriendGroupSheet({
   const [color, setColor] = React.useState<(typeof COLOR_OPTIONS)[number]>("pink");
   const [icon, setIcon] = React.useState("users");
   const [query, setQuery] = React.useState("");
-  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const [members, setMembers] = React.useState<PeoplePickerItem[]>([]);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -75,25 +68,35 @@ export function FriendGroupSheet({
     setColor(COLOR_OPTIONS.find((option) => option === group?.color) ?? "pink");
     setIcon(group?.icon ?? "users");
     setQuery("");
-    setSelectedIds(new Set());
+    setMembers([]);
     setError(null);
   }, [group, open]);
 
   React.useEffect(() => {
     if (!open || !group || !membersQuery.data) return;
-    setSelectedIds(new Set(membersQuery.data.map((member) => member.id)));
-  }, [group, membersQuery.data, open]);
+    setMembers(
+      membersQuery.data.map((member) => ({
+        id: member.id,
+        name: member.display_name || member.nickname || t("Friend"),
+        subtitle: member.nickname ? `@${member.nickname}` : null,
+        avatarUrl: member.avatar_url,
+      })),
+    );
+  }, [group, membersQuery.data, open, t]);
+
+  const friendItems = React.useMemo<PeoplePickerItem[]>(
+    () =>
+      friends.map((friend) => ({
+        id: friend.friend_id,
+        name: friend.display_name || friend.nickname || t("Friend"),
+        subtitle: friend.nickname ? `@${friend.nickname}` : null,
+        searchText: friend.nickname,
+        avatarUrl: friend.avatar_url,
+      })),
+    [friends, t],
+  );
 
   if (!open) return null;
-
-  function toggleMember(friendId: string) {
-    setSelectedIds((current) => {
-      const next = new Set(current);
-      if (next.has(friendId)) next.delete(friendId);
-      else next.add(friendId);
-      return next;
-    });
-  }
 
   function handleClose() {
     void sheetRef.current?.dismiss();
@@ -110,27 +113,13 @@ export function FriendGroupSheet({
         description: description.trim() || null,
         color,
         icon,
-        memberIds: Array.from(selectedIds),
+        memberIds: members.map((member) => member.id),
       });
       handleClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : t("Failed to save group."));
     }
   }
-
-  const normalizedQuery = query.trim().toLowerCase();
-  const friendOptions =
-    normalizedQuery.length < 3
-      ? friends
-      : friends.filter((friend) => {
-          const nickname = friend.nickname?.toLowerCase() ?? "";
-          const displayName = friend.display_name?.toLowerCase() ?? "";
-          return nickname.includes(normalizedQuery) || displayName.includes(normalizedQuery);
-        });
-  // Picked members move out of the list and into chips, matching the invite sheet. The
-  // chips ignore the search box so a member never disappears while filtering.
-  const unselectedFriends = friendOptions.filter((friend) => !selectedIds.has(friend.friend_id));
-  const selectedFriends = friends.filter((friend) => selectedIds.has(friend.friend_id));
 
   return (
     <BottomSheet
@@ -193,7 +182,7 @@ export function FriendGroupSheet({
         <View className="gap-1.5">
           <Text className="text-sm font-bold text-text">{t("Icon")}</Text>
           <View className="flex-row flex-wrap gap-2">
-            {ICON_OPTIONS.map((option) => {
+            {FRIEND_GROUP_ICON_OPTIONS.map((option) => {
               const GroupIcon = option.icon;
               const selected = icon === option.value;
               return (
@@ -215,119 +204,20 @@ export function FriendGroupSheet({
           </View>
         </View>
 
-        {/* Laid out exactly like the friend search in `AddFriendSheet`: a plain section,
-            results above the field, no surrounding card. */}
-        <View className="gap-3">
-          <View className="flex-row items-center justify-between gap-3">
-            <Text className="text-xs font-extrabold uppercase text-text-muted">{t("Members")}</Text>
-            <Text className="text-sm font-semibold text-text-muted">
-              {t("{count} selected", { count: selectedIds.size })}
-            </Text>
-          </View>
-          {group && membersQuery.isLoading ? (
-            <View className="items-center py-3">
-              <ActivityIndicator colorClassName="accent-brand" />
-            </View>
-          ) : unselectedFriends.length > 0 ? (
-            <ScrollView
-              className="max-h-56"
-              contentContainerClassName="gap-2"
-              keyboardShouldPersistTaps="handled"
-              nestedScrollEnabled
-              showsVerticalScrollIndicator={unselectedFriends.length > 3}
-            >
-              {unselectedFriends.map((friend) => {
-                const name = friend.display_name || friend.nickname || t("Friend");
-                return (
-                  <Button
-                    key={friend.friend_id}
-                    variant="outline"
-                    onPress={() => toggleMember(friend.friend_id)}
-                    className="h-auto justify-start gap-3 rounded-xl py-2"
-                  >
-                    <Avatar className="size-9" alt={name}>
-                      {friend.avatar_url ? (
-                        <AvatarImage source={{ uri: friend.avatar_url }} />
-                      ) : null}
-                      <AvatarFallback
-                        className="bg-brand-lighter"
-                        initialsClassName="text-sm text-brand"
-                      />
-                    </Avatar>
-                    <View className="min-w-0 flex-1">
-                      <Text className="font-bold text-text" numberOfLines={1}>
-                        {name}
-                      </Text>
-                      {friend.nickname ? (
-                        <Text className="text-sm text-text-muted" numberOfLines={1}>
-                          @{friend.nickname}
-                        </Text>
-                      ) : null}
-                    </View>
-                  </Button>
-                );
-              })}
-            </ScrollView>
-          ) : (
-            <Text className="text-sm font-semibold text-text-muted">{t("No friends found.")}</Text>
-          )}
-
-          <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
-            <Icon as={Search} className="size-4 text-muted-foreground/50" />
-            <Input
-              value={query}
-              onChangeText={setQuery}
-              placeholder={t("Search friends")}
-              autoCapitalize="none"
-              // Looks up other people, so no autofill — and no yellow overlay for it.
-              autoComplete="off"
-              importantForAutofill="no"
-              className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
-              returnKeyType="search"
-            />
-            {query.length > 0 ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                accessibilityLabel={t("Clear search")}
-                onPress={() => setQuery("")}
-                className="size-9 shrink-0 rounded-full"
-              >
-                <Icon as={X} className="size-4 text-destructive" />
-              </Button>
-            ) : null}
-          </View>
-
-          {selectedFriends.length > 0 ? (
-            <View className="flex-row flex-wrap gap-2">
-              {selectedFriends.map((friend) => {
-                const name = friend.display_name || friend.nickname || t("Friend");
-                return (
-                  <Button
-                    key={friend.friend_id}
-                    variant="secondary"
-                    size="sm"
-                    accessibilityLabel={t("Remove {name}", { name })}
-                    onPress={() => toggleMember(friend.friend_id)}
-                    className="gap-2 rounded-full ps-1.5"
-                  >
-                    <Avatar className="size-6" alt={name}>
-                      {friend.avatar_url ? (
-                        <AvatarImage source={{ uri: friend.avatar_url }} />
-                      ) : null}
-                      <AvatarFallback
-                        className="bg-brand-lighter"
-                        initialsClassName="text-[10px] text-brand"
-                      />
-                    </Avatar>
-                    <Text>{name}</Text>
-                    <Icon as={X} className="size-3.5 text-text" />
-                  </Button>
-                );
-              })}
-            </View>
-          ) : null}
-        </View>
+        <PeoplePickerField
+          label={t("Members")}
+          title={t("Add members")}
+          addLabel={t("Add members")}
+          localFilter
+          items={friendItems}
+          selected={members}
+          onChange={setMembers}
+          query={query}
+          onQueryChange={setQuery}
+          searchPlaceholder={t("Search friends")}
+          emptyLabel={t("No friends found.")}
+          isLoading={Boolean(group) && membersQuery.isLoading}
+        />
 
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
       </ScrollView>

@@ -7,6 +7,11 @@ import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import {
+  PeopleAvatar,
+  PeoplePickerField,
+  type PeoplePickerItem,
+} from "@/components/ui/people-picker";
 import { SingleImagePicker } from "@/components/ui/single-image-picker";
 import {
   Select,
@@ -43,7 +48,7 @@ import {
   type WishlistFormValues,
 } from "@wishlist/backend/types/wishlist";
 import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
-import { CalendarDays, Check, Lock, X } from "lucide-react-native";
+import { CalendarDays, Lock, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -52,7 +57,6 @@ import Animated, { LinearTransition } from "react-native-reanimated";
 import {
   useWishlistSelectedAccess,
   type SelectedAccessTarget,
-  type WishlistAccessOption,
 } from "./use-wishlist-selected-access";
 
 type VisibilitySelectorValue =
@@ -304,6 +308,7 @@ export function WishlistCreateEditSheet({
               {selectedAccess.target === "friends" ? (
                 <WishlistAccessPicker
                   title={t("Selected friends")}
+                  addLabel={t("Add friends")}
                   options={selectedAccess.friendOptions}
                   selected={selectedAccess.selectedFriends}
                   onChange={(nextSelected) => {
@@ -342,6 +347,7 @@ export function WishlistCreateEditSheet({
               ) : (
                 <WishlistAccessPicker
                   title={t("Selected groups")}
+                  addLabel={t("Add groups")}
                   options={selectedAccess.groupOptions}
                   selected={selectedAccess.selectedGroups}
                   onChange={(nextSelected) => {
@@ -653,6 +659,7 @@ function EventDatePicker({
 
 function WishlistAccessPicker({
   title,
+  addLabel,
   options,
   selected,
   onChange,
@@ -668,9 +675,10 @@ function WishlistAccessPicker({
   searchPlaceholder,
 }: {
   title: string;
-  options: WishlistAccessOption[];
-  selected: WishlistAccessOption[];
-  onChange: (options: WishlistAccessOption[]) => void;
+  addLabel: string;
+  options: PeoplePickerItem[];
+  selected: PeoplePickerItem[];
+  onChange: (options: PeoplePickerItem[]) => void;
   isLoading: boolean;
   isError: boolean;
   emptyLabel: string;
@@ -684,86 +692,25 @@ function WishlistAccessPicker({
 }) {
   const t = useGT();
   const [query, setQuery] = React.useState("");
-  const selectedIds = React.useMemo(() => new Set(selected.map((item) => item.id)), [selected]);
-  const filteredOptions = React.useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    if (normalizedQuery.length < 3) return options;
-    return options.filter((option) => option.nickname.toLowerCase().includes(normalizedQuery));
-  }, [options, query]);
-
-  function toggleOption(option: WishlistAccessOption) {
-    if (selectedIds.has(option.id)) {
-      onChange(selected.filter((item) => item.id !== option.id));
-      return;
-    }
-
-    onChange([...selected, option]);
-  }
 
   return (
     <View className="gap-3">
-      <View className="flex-row items-center justify-between gap-2">
-        <Text className="text-sm font-bold text-text">{title}</Text>
-        {selected.length > 0 ? (
-          <View className="rounded-full bg-brand-lighter px-2 py-1">
-            <Text className="text-xs font-bold text-brand">
-              {t("{count} selected", { count: selected.length })}
-            </Text>
-          </View>
-        ) : null}
-      </View>
-
-      <Input
-        value={query}
-        onChangeText={setQuery}
-        placeholder={searchPlaceholder}
-        autoCapitalize="none"
+      <PeoplePickerField
+        label={title}
+        title={addLabel}
+        addLabel={addLabel}
+        localFilter
+        items={options}
+        selected={selected}
+        onChange={onChange}
+        query={query}
+        onQueryChange={setQuery}
+        searchPlaceholder={searchPlaceholder}
+        emptyLabel={emptyLabel}
+        errorLabel={errorLabel}
+        isLoading={isLoading}
+        isError={isError}
       />
-
-      <View className="gap-2">
-        {isLoading ? (
-          <Text className="rounded-lg bg-bg-muted p-3 text-sm font-semibold text-text-muted">
-            {t("Loading...")}
-          </Text>
-        ) : null}
-        {!isLoading && isError ? (
-          <Text className="rounded-lg bg-bg-muted p-3 text-sm font-semibold text-destructive">
-            {errorLabel}
-          </Text>
-        ) : null}
-        {!isLoading && !isError && filteredOptions.length === 0 ? (
-          <Text className="rounded-lg bg-bg-muted p-3 text-sm font-semibold text-text-muted">
-            {emptyLabel}
-          </Text>
-        ) : null}
-        {!isLoading && !isError
-          ? filteredOptions.map((option) => {
-              const active = selectedIds.has(option.id);
-
-              return (
-                <Button
-                  key={option.id}
-                  variant="ghost"
-                  className={cn(
-                    "min-h-12 justify-start rounded-lg border border-border-subtle bg-bg-elevated px-3",
-                    active && "border-brand bg-brand-lighter",
-                  )}
-                  onPress={() => toggleOption(option)}
-                >
-                  <View className="size-8 items-center justify-center rounded-full bg-bg-muted">
-                    <Text className="text-xs font-extrabold text-text-muted">
-                      {option.nickname[0]?.toUpperCase() ?? "?"}
-                    </Text>
-                  </View>
-                  <Text className={cn("min-w-0 flex-1 font-semibold", active && "text-brand")}>
-                    {option.nickname}
-                  </Text>
-                  {active ? <Icon as={Check} className="size-4 text-brand" /> : null}
-                </Button>
-              );
-            })
-          : null}
-      </View>
 
       {existingAccessTitle ? (
         <View className="gap-2 border-t border-border-subtle pt-3">
@@ -791,17 +738,18 @@ function WishlistAccessPicker({
                     key={`${target.target_type ?? "user"}-${revokeTargetId}`}
                     className="min-h-12 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-bg-elevated px-3"
                   >
-                    {/* A group and a friend are otherwise indistinguishable here — both
-                        rows are just a circle and a name. */}
-                    <View className="size-8 items-center justify-center rounded-full bg-bg-muted">
-                      {target.target_type === "group" ? (
-                        <Icon as={WISHLIST_GROUP_ICON} className="size-4 text-text-muted" />
-                      ) : (
-                        <Text className="text-xs font-extrabold text-text-muted">
-                          {target.nickname[0]?.toUpperCase() ?? "?"}
-                        </Text>
-                      )}
-                    </View>
+                    {/* Same leading slot as the picker above, so a row that was just
+                        granted access does not change shape once it moves down here. */}
+                    <PeopleAvatar
+                      className="size-8"
+                      item={{
+                        name: target.nickname,
+                        group:
+                          target.target_type === "group"
+                            ? { icon: target.icon ?? "users", color: target.color ?? "pink" }
+                            : undefined,
+                      }}
+                    />
                     <Text className="min-w-0 flex-1 font-semibold text-text">
                       {target.nickname}
                     </Text>

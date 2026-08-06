@@ -1,12 +1,10 @@
-import {
-  AutocompleteDropdown,
-  type AutocompleteDropdownOption,
-} from "@/components/ui/autocomplete-dropdown";
+import { AutocompleteDropdown } from "@/components/ui/autocomplete-dropdown";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { useFriends } from "@/hooks/use-friends";
@@ -98,7 +96,7 @@ export function SecretSantaCreateEditSheet({
   const [image, setImage] = React.useState<SelectedImage | null>(null);
   const [imageUrl, setImageUrl] = React.useState(event?.image_url ?? "");
   const [removeImage, setRemoveImage] = React.useState(false);
-  const [participants, setParticipants] = React.useState<AutocompleteDropdownOption[]>([]);
+  const [participants, setParticipants] = React.useState<PeoplePickerItem[]>([]);
   const [error, setError] = React.useState<string | null>(null);
   const isSaving = createEvent.isPending || updateEvent.isPending;
   const selectedCurrencyOption =
@@ -119,13 +117,12 @@ export function SecretSantaCreateEditSheet({
     setError(null);
   }, [defaultCurrency, event, open]);
 
-  const friendOptions = React.useMemo<AutocompleteDropdownOption[]>(() => {
+  const friendOptions = React.useMemo<PeoplePickerItem[]>(() => {
     return (friendsQuery.data ?? []).map((friend) => ({
-      value: friend.friend_id,
-      label: friend.display_name || friend.nickname || t("Friend"),
-      description: friend.nickname ? `@${friend.nickname}` : undefined,
-      keywords: [friend.display_name, friend.nickname].filter(Boolean) as string[],
-      imageUrl: friend.avatar_url,
+      id: friend.friend_id,
+      name: friend.display_name || friend.nickname || t("Friend"),
+      subtitle: friend.nickname ? `@${friend.nickname}` : null,
+      avatarUrl: friend.avatar_url,
     }));
   }, [friendsQuery.data, t]);
 
@@ -239,7 +236,7 @@ export function SecretSantaCreateEditSheet({
         currency,
         image,
         imageUrl: image ? null : imageUrl || null,
-        invited_user_ids: participants.map((participant) => participant.value),
+        invited_user_ids: participants.map((participant) => participant.id),
       },
       {
         onSuccess: () => {
@@ -382,56 +379,28 @@ export function SecretSantaCreateEditSheet({
         </View>
 
         {mode === "create" ? (
-          <View className="gap-2">
-            <Text className="text-sm font-semibold text-text">{t("Participants")}</Text>
-            <AutocompleteDropdown
-              multiple
-              attached
-              options={friendOptions}
-              value={participants}
-              onValueChange={setParticipants}
-              onQueryChange={(query) => {
-                setParticipantSearch(query);
-                setParticipantTake(PARTICIPANT_PAGE_SIZE);
-              }}
-              onEndReached={() => {
-                if (
-                  !friendsQuery.isFetching &&
-                  (friendsQuery.data?.length ?? 0) >= participantTake
-                ) {
-                  setParticipantTake((current) => current + PARTICIPANT_PAGE_SIZE);
-                }
-              }}
-              isLoadingMore={friendsQuery.isFetching && participantTake > PARTICIPANT_PAGE_SIZE}
-              maxVisibleOptions={2}
-              closeAccessibilityLabel={t("Close participant search")}
-              hideSelectedOptions
-              showSelectedValue={false}
-              placeholder={t("Search friends")}
-              emptyText={friendsQuery.isLoading ? t("Loading friends...") : t("No friends to add.")}
-            />
-            {participants.length > 0 ? (
-              <View className="flex-row flex-wrap gap-2 pt-1">
-                {participants.map((participant) => (
-                  <Button
-                    key={participant.value}
-                    variant="secondary"
-                    size="sm"
-                    accessibilityLabel={t("Remove {name}", { name: participant.label })}
-                    onPress={() =>
-                      setParticipants((current) =>
-                        current.filter((item) => item.value !== participant.value),
-                      )
-                    }
-                    className="rounded-full"
-                  >
-                    <Text>{participant.description ?? participant.label}</Text>
-                    <Icon as={X} className="size-3.5 text-text" />
-                  </Button>
-                ))}
-              </View>
-            ) : null}
-          </View>
+          <PeoplePickerField
+            label={t("Participants")}
+            title={t("Add participants")}
+            addLabel={t("Add participants")}
+            items={friendOptions}
+            selected={participants}
+            onChange={setParticipants}
+            query={participantSearch}
+            onQueryChange={(query) => {
+              setParticipantSearch(query);
+              setParticipantTake(PARTICIPANT_PAGE_SIZE);
+            }}
+            onEndReached={() => {
+              if (!friendsQuery.isFetching && (friendsQuery.data?.length ?? 0) >= participantTake) {
+                setParticipantTake((current) => current + PARTICIPANT_PAGE_SIZE);
+              }
+            }}
+            isLoading={friendsQuery.isLoading}
+            isFetchingMore={friendsQuery.isFetching && participantTake > PARTICIPANT_PAGE_SIZE}
+            searchPlaceholder={t("Search friends")}
+            emptyLabel={t("No friends to add.")}
+          />
         ) : null}
 
         {mode === "edit" && event?.participants.length ? (

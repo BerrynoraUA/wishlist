@@ -8,10 +8,10 @@ as `SubscriptionPlan.Free` and `SubscriptionPlan.Pro`.
 
 ## Pricing
 
-| Interval | Price | Notes |
-| --- | --- | --- |
-| Monthly | $2.99 | |
-| Yearly | $19.99 | 44% cheaper than 12 monthly payments |
+| Interval | Price  | Notes                                |
+| -------- | ------ | ------------------------------------ |
+| Monthly  | $2.99  |                                      |
+| Yearly   | $19.99 | 44% cheaper than 12 monthly payments |
 
 Source: `PRICING` in [`packages/backend/types/subscription.ts`](../packages/backend/types/subscription.ts).
 The savings percentage is computed, not hard-coded.
@@ -26,11 +26,11 @@ contains one.
 
 ## Quotas
 
-| Limit | Free | Pro |
-| --- | --- | --- |
-| Wishlists | 5 | Unlimited |
-| Items per wishlist | 10 | Unlimited |
-| Secret Santa events | 1 | Unlimited |
+| Limit               | Free | Pro       |
+| ------------------- | ---- | --------- |
+| Wishlists           | 5    | Unlimited |
+| Items per wishlist  | 10   | Unlimited |
+| Secret Santa events | 1    | Unlimited |
 
 Source: `FREE_LIMITS` in [`packages/backend/types/subscription.ts`](../packages/backend/types/subscription.ts).
 
@@ -44,16 +44,16 @@ instead of the create form:
 
 ## Feature matrix
 
-| Feature | Free | Pro |
-| --- | --- | --- |
-| Wishlist accent colour | Pink only | All five accents |
-| Default accent colour (settings) | Pink only | All five |
-| Default wishlist colour (settings) | First swatch only | All five |
-| Item priorities | 3 of 10 | All 10 |
-| Additional links on an item | — | Yes |
-| Manage access / collaborative wishlists | — | Yes |
-| Secret Santa exclusions | — | Yes |
-| Events calendar export (`.ics`) | — | Yes |
+| Feature                                 | Free              | Pro              |
+| --------------------------------------- | ----------------- | ---------------- |
+| Wishlist accent colour                  | Pink only         | All five accents |
+| Default accent colour (settings)        | Pink only         | All five         |
+| Default wishlist colour (settings)      | First swatch only | All five         |
+| Item priorities                         | 3 of 10           | All 10           |
+| Additional links on an item             | —                 | Yes              |
+| Manage access / collaborative wishlists | —                 | Yes              |
+| Secret Santa exclusions                 | —                 | Yes              |
+| Events calendar export (`.ics`)         | —                 | Yes              |
 
 ### Accent and wishlist colours
 
@@ -71,8 +71,8 @@ value is somehow present in the form.
 Ten priorities ship in [`packages/backend/lib/priorities.ts`](../packages/backend/lib/priorities.ts),
 flagged by `is_free`.
 
-| Free | Pro |
-| --- | --- |
+| Free                       | Pro                                                                         |
+| -------------------------- | --------------------------------------------------------------------------- |
 | 🟢 Low, 🟡 Medium, 🔴 High | 🔥 Urgent, ⚡ Critical, 💜 Epic, 👑 Legendary, 🌊 Mythic, Celestial, Divine |
 
 On a Free account the whole Priority field in the item sheet is replaced by a
@@ -91,8 +91,8 @@ Opening **Manage access** from a wishlist's detail screen shows a paywall sheet 
 ([`wishlist-grant-access-sheet.tsx`](../apps/native/components/wishlists/sheets/wishlist-grant-access-sheet.tsx)).
 The action is also rendered with a lock in the wishlist header.
 
-> **Inconsistency worth a product decision.** Picking *Selected friends* or *Selected
-> groups* while creating or editing a wishlist is **not** gated — see
+> **Inconsistency worth a product decision.** Picking _Selected friends_ or _Selected
+> groups_ while creating or editing a wishlist is **not** gated — see
 > [`use-wishlist-selected-access.ts`](../apps/native/components/wishlists/sheets/use-wishlist-selected-access.ts).
 > So a Free user can grant access at creation time but cannot manage it afterwards.
 > Either both should be gated or neither.

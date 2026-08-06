@@ -12,6 +12,7 @@ import {
   useRevokeWishlistAccess,
   wishlistKeys,
 } from "@/hooks/use-wishlists";
+import type { PeoplePickerItem } from "@/components/ui/people-picker";
 import { SELECTED_FRIENDS_ACCESS_TYPE, SELECTED_GROUPS_ACCESS_TYPE } from "@/lib/wishlists";
 import { motionDuration } from "@/lib/motion";
 import { useQueryClient } from "@tanstack/react-query";
@@ -19,11 +20,6 @@ import { WishlistVisibility, type Wishlist } from "@wishlist/backend/types/wishl
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-
-export type WishlistAccessOption = {
-  id: string;
-  nickname: string;
-};
 
 export type SelectedAccessTarget = "friends" | "groups";
 
@@ -46,8 +42,8 @@ export function useWishlistSelectedAccess({
   const revokeAccess = useRevokeWishlistAccess();
   const grantGroupAccess = useGrantWishlistGroupAccess();
   const revokeGroupAccess = useRevokeWishlistGroupAccess();
-  const [selectedFriends, setSelectedFriends] = React.useState<WishlistAccessOption[]>([]);
-  const [selectedGroups, setSelectedGroups] = React.useState<WishlistAccessOption[]>([]);
+  const [selectedFriends, setSelectedFriends] = React.useState<PeoplePickerItem[]>([]);
+  const [selectedGroups, setSelectedGroups] = React.useState<PeoplePickerItem[]>([]);
   const [target, setTarget] = React.useState<SelectedAccessTarget>("friends");
   const [error, setError] = React.useState<string | null>(null);
   const [isSaving, setIsSaving] = React.useState(false);
@@ -120,32 +116,40 @@ export function useWishlistSelectedAccess({
     },
   );
 
-  const friendOptions = React.useMemo<WishlistAccessOption[]>(() => {
+  const friendOptions = React.useMemo<PeoplePickerItem[]>(() => {
     if (mode === "edit") {
       return friendsWithoutAccess.map((friend) => ({
         id: friend.id,
-        nickname: friend.nickname,
+        name: friend.display_name || friend.nickname,
+        subtitle: friend.display_name ? `@${friend.nickname}` : null,
+        searchText: friend.nickname,
+        avatarUrl: friend.avatar_url,
       }));
     }
 
     return friends
+      .filter((friend) => Boolean(friend.friend_id))
       .map((friend) => ({
         id: friend.friend_id,
-        nickname: friend.nickname ?? friend.display_name ?? t("friend"),
-      }))
-      .filter((friend) => Boolean(friend.id));
+        name: friend.display_name || friend.nickname || t("friend"),
+        subtitle: friend.nickname ? `@${friend.nickname}` : null,
+        searchText: friend.nickname,
+        avatarUrl: friend.avatar_url,
+      }));
   }, [friends, friendsWithoutAccess, mode, t]);
 
-  const groupOptions = React.useMemo<WishlistAccessOption[]>(() => {
+  const groupOptions = React.useMemo<PeoplePickerItem[]>(() => {
     const source = mode === "edit" ? groupsWithoutAccess : groups;
 
     return source
+      .filter((group) => Boolean(group.id))
       .map((group) => ({
         id: group.id,
-        nickname: group.name,
-      }))
-      .filter((group) => Boolean(group.id));
-  }, [groups, groupsWithoutAccess, mode]);
+        name: group.name,
+        subtitle: t("{count} members", { count: group.member_count }),
+        group: { icon: group.icon, color: group.color },
+      }));
+  }, [groups, groupsWithoutAccess, mode, t]);
 
   const specificAccessList = React.useMemo(
     () =>

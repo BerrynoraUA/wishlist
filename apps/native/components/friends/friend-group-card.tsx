@@ -8,44 +8,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { getFriendGroupColorClass, getFriendGroupIcon } from "@/lib/friend-groups";
 import { cn } from "@/lib/utils";
 import type { FriendGroup } from "@wishlist/backend/types/friends";
-import {
-  Gift,
-  Heart,
-  MoreHorizontal,
-  Pencil,
-  Star,
-  Trash2,
-  Users,
-  type LucideIcon,
-} from "lucide-react-native";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import { View } from "react-native";
-
-const GROUP_ICONS: Record<string, LucideIcon> = {
-  users: Users,
-  heart: Heart,
-  star: Star,
-  gift: Gift,
-};
-
-const GROUP_COLOR_CLASS: Record<string, { icon: string; surface: string }> = {
-  pink: { icon: "text-pink-700 dark:text-pink-200", surface: "bg-pink-100 dark:bg-pink-950/50" },
-  peach: {
-    icon: "text-orange-700 dark:text-orange-200",
-    surface: "bg-orange-100 dark:bg-orange-950/50",
-  },
-  blue: { icon: "text-sky-700 dark:text-sky-200", surface: "bg-sky-100 dark:bg-sky-950/50" },
-  lavender: {
-    icon: "text-violet-700 dark:text-violet-200",
-    surface: "bg-violet-100 dark:bg-violet-950/50",
-  },
-  mint: {
-    icon: "text-emerald-700 dark:text-emerald-200",
-    surface: "bg-emerald-100 dark:bg-emerald-950/50",
-  },
-};
 
 export function FriendGroupCard({
   group,
@@ -58,8 +26,8 @@ export function FriendGroupCard({
 }) {
   const t = useGT();
   const menuPreview = useDropdownMenuPreview();
-  const GroupIcon = GROUP_ICONS[group.icon] ?? Users;
-  const colorClassName = GROUP_COLOR_CLASS[group.color] ?? GROUP_COLOR_CLASS.pink;
+  const GroupIcon = getFriendGroupIcon(group.icon);
+  const colorClassName = getFriendGroupColorClass(group.color);
 
   return (
     <DropdownMenu className="relative" onOpenChange={menuPreview.onOpenChange}>

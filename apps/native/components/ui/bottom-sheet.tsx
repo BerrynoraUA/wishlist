@@ -44,6 +44,7 @@ export interface BottomSheetProps extends Omit<
   onDidDismiss?: () => void;
   autoPresent?: boolean;
   dismissOnBack?: boolean;
+  dismissKeyboardOnTouch?: boolean;
   header?: ReanimatedBottomSheetProps["header"];
   footer?: ReanimatedBottomSheetProps["footer"];
   footerStyle?: ReanimatedBottomSheetProps["footerStyle"];
@@ -62,6 +63,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
       onDidDismiss,
       autoPresent = true,
       dismissOnBack = false,
+      dismissKeyboardOnTouch = true,
       header,
       footer,
       footerStyle,
@@ -135,7 +137,15 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
       void sheetRef.current?.present();
     }, [autoPresent, libraryPresentsOnMount]);
 
-    const handleSheetTouchCapture = (event: GestureResponderEvent) => {
+    const handleSheetTouch = (event: GestureResponderEvent) => {
+      // Nested sheets remain in their parent's React tree even though TrueSheet presents
+      // them in a separate native container. Stop opted-out touches here so they cannot
+      // bubble to an ancestor sheet that still dismisses the keyboard by default.
+      if (!dismissKeyboardOnTouch) {
+        event.stopPropagation();
+        return false;
+      }
+
       const focusedInput = TextInput.State.currentlyFocusedInput?.();
 
       if (focusedInput && event.target !== focusedInput) {
@@ -170,13 +180,15 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         }}
         initialDetentIndex={initialDetentIndex}
         initialDetentAnimated={initialDetentAnimated}
-        onTouchEndCapture={handleSheetTouchCapture}
+        onTouchEnd={handleSheetTouch}
         onDidDismiss={handleDidDismiss}
         className={className}
         {...props}
       >
         {bodyMarginBottom > 0 ? (
-          <View style={{ marginBottom: bodyMarginBottom }}>{children}</View>
+          <View style={{ flexGrow: scrollable ? 1 : undefined, marginBottom: bodyMarginBottom }}>
+            {children}
+          </View>
         ) : (
           children
         )}

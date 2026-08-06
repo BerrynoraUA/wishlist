@@ -3,6 +3,9 @@ import { TextInput } from "react-native";
 
 type InputProps = React.ComponentProps<typeof TextInput> & {
   placeholderClassName?: string;
+  // React 19 hands `ref` to function components as a plain prop, but React Native's
+  // `TextInputProps` still does not declare it.
+  ref?: React.Ref<TextInput>;
 };
 
 export const INPUT_CLASS_NAME =
