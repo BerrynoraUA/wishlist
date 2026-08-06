@@ -292,7 +292,10 @@ export function usePatchWishlist() {
   });
 }
 
-export function useWishlistById(wishlistId: string, { enabled = true }: { enabled?: boolean } = {}) {
+export function useWishlistById(
+  wishlistId: string,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
   const { user } = useAuth();
 
   return useQuery({

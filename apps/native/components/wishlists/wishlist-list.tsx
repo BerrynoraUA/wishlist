@@ -22,17 +22,14 @@ import {
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { useMyStatistics } from "@/hooks/use-wishlists";
 import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
-import { motionDuration } from "@/lib/motion";
+import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import {
   WISHLIST_VISIBILITY_ICONS,
   getWishlistAccentClass,
   getWishlistVisibilityLabels,
 } from "@/lib/wishlists";
-import {
-  wishlistCardFadeIn,
-  wishlistGridLinearTransition,
-} from "@/components/wishlists/wishlist-grid-animations";
+import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Link } from "expo-router";
 import {
@@ -40,6 +37,7 @@ import {
   Link2,
   ListChecks,
   LockKeyhole,
+  type LucideIcon,
   Package,
   Pencil,
   Plus,
@@ -48,8 +46,23 @@ import {
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { Pressable, View, useWindowDimensions } from "react-native";
-import Animated from "react-native-reanimated";
+import {
+  I18nManager,
+  type LayoutChangeEvent,
+  Pressable,
+  type TextStyle,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import Animated, {
+  Easing,
+  Extrapolation,
+  interpolate,
+  type SharedValue,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 type SheetState =
   | { type: "edit"; wishlist: Wishlist }
@@ -162,13 +175,9 @@ export function WishlistList({
         onScroll={requestMeasure}
         scrollEventThrottle={16}
         ListHeaderComponent={
-          <Animated.View
-            layout={wishlistGridLinearTransition.duration(motionDuration.normal)}
-            className="max-w-300 self-center pb-4"
-            style={{ width: contentWidth }}
-          >
+          <View className="max-w-300 self-center pb-4" style={{ width: contentWidth }}>
             {ListHeaderComponent}
-          </Animated.View>
+          </View>
         }
         ListFooterComponent={
           <View className="gap-5" style={{ alignSelf: "center", width: contentWidth }}>
@@ -206,15 +215,39 @@ export function WishlistList({
   );
 }
 
+const STATS_EXPANDED_GAP = 12;
+const STATS_COMPACT_GAP = 8;
+const STATS_COMPACT_HEIGHT = 56;
+const STATS_EXPANDED_HEIGHT_FALLBACK = 84;
+/**
+ * Slot each card lands in once the 2x2 grid folds into a single row. The fold
+ * is mirror-symmetric: the top row spreads out to the edges while the bottom
+ * row rises diagonally into the middle, so no two cards cross paths.
+ */
+const STATS_COMPACT_SLOTS = [0, 3, 1, 2];
+const STATS_FOLD_EASING = Easing.bezier(0.25, 1, 0.5, 1);
+const TABULAR_NUMS: TextStyle = { fontVariant: ["tabular-nums"] };
+
+type StatEntry = {
+  key: string;
+  label: string;
+  value: number;
+  icon: LucideIcon;
+};
+
 export function WishlistListStatsRow() {
   const { width } = useWindowDimensions();
   const { data, isError, isLoading } = useMyStatistics();
   const t = useGT();
+  const reducedMotion = useReducedMotion();
+  const progress = useSharedValue(0);
   const [compact, setCompact] = React.useState(false);
+  const [expandedHeight, setExpandedHeight] = React.useState(STATS_EXPANDED_HEIGHT_FALLBACK);
   const contentWidth = Math.min(width - 32, 1200);
-  const gap = compact ? 8 : 12;
-  const cardWidth = compact ? (contentWidth - gap * 3) / 4 : (contentWidth - gap) / 2;
-  const stats = [
+  const expandedWidth = (contentWidth - STATS_EXPANDED_GAP) / 2;
+  const compactWidth = (contentWidth - STATS_COMPACT_GAP * 3) / 4;
+  const expandedGridHeight = expandedHeight * 2 + STATS_EXPANDED_GAP;
+  const stats: StatEntry[] = [
     {
       key: "wishlists",
       label: t("Wishlists"),
@@ -240,13 +273,38 @@ export function WishlistListStatsRow() {
       icon: ShoppingBag,
     },
   ];
-  const statsLayoutTransition = wishlistGridLinearTransition.duration(motionDuration.normal);
+
+  // The grid is exactly as tall as the cards it holds at every point of the
+  // fold, so shrinking it pulls the list content below up in the same frame.
+  const gridStyle = useAnimatedStyle(
+    () => ({
+      height: expandedGridHeight + (STATS_COMPACT_HEIGHT - expandedGridHeight) * progress.value,
+    }),
+    [expandedGridHeight],
+  );
+
+  const handleExpandedHeight = React.useCallback((height: number) => {
+    setExpandedHeight((current) => (Math.abs(current - height) > 0.5 ? height : current));
+  }, []);
+
+  const toggle = React.useCallback(() => {
+    const next = !compact;
+    setCompact(next);
+    progress.value = withTiming(next ? 1 : 0, {
+      duration: reducedMotion ? 0 : motionDuration.normal,
+      easing: STATS_FOLD_EASING,
+    });
+  }, [compact, progress, reducedMotion]);
 
   if (isLoading) {
     return (
-      <View className="flex-row flex-wrap" style={{ gap }}>
+      <View className="flex-row flex-wrap" style={{ gap: STATS_EXPANDED_GAP }}>
         {[0, 1, 2, 3].map((item) => (
-          <Skeleton key={item} className="h-24 rounded-xl" style={{ width: cardWidth }} />
+          <Skeleton
+            key={item}
+            className="rounded-xl"
+            style={{ width: expandedWidth, height: expandedHeight }}
+          />
         ))}
       </View>
     );
@@ -265,49 +323,120 @@ export function WishlistListStatsRow() {
       accessibilityRole="button"
       accessibilityLabel={t("Toggle wishlist stats view")}
       accessibilityState={{ expanded: !compact }}
-      onPress={() => setCompact((current) => !current)}
-      layout={statsLayoutTransition}
-      className="flex-row flex-wrap"
-      style={{ gap }}
+      onPress={toggle}
+      style={gridStyle}
     >
-      {stats.map((stat) => (
-        <Animated.View key={stat.key} layout={statsLayoutTransition} style={{ width: cardWidth }}>
-          <View
-            className={cn(
-              "w-full rounded-xl border border-border-subtle bg-card-bg shadow-sm",
-              compact
-                ? "h-14 flex-row items-center justify-center gap-1.5 p-0"
-                : "flex-row items-center gap-3 p-4",
-            )}
-          >
-            <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
-              <Icon as={stat.icon} className="size-4 text-brand" />
-            </View>
-            {compact ? (
-              <Text
-                className="text-sm font-extrabold text-text"
-                numberOfLines={1}
-                style={{ fontVariant: ["tabular-nums"] }}
-              >
-                {stat.value}
-              </Text>
-            ) : (
-              <View className="min-w-0 flex-1">
-                <Text
-                  className="text-2xl font-extrabold text-text"
-                  style={{ fontVariant: ["tabular-nums"] }}
-                >
-                  {stat.value}
-                </Text>
-                <Text className="text-sm font-semibold text-text-muted" numberOfLines={1}>
-                  {stat.label}
-                </Text>
-              </View>
-            )}
-          </View>
-        </Animated.View>
+      {stats.map((stat, index) => (
+        <StatCard
+          key={stat.key}
+          stat={stat}
+          index={index}
+          compact={compact}
+          progress={progress}
+          expandedWidth={expandedWidth}
+          expandedHeight={expandedHeight}
+          compactWidth={compactWidth}
+          onExpandedHeight={index === 0 ? handleExpandedHeight : undefined}
+        />
       ))}
     </AnimatedPressableContainer>
+  );
+}
+
+/**
+ * Cards are absolutely positioned at their expanded slot and driven entirely by
+ * one shared value: the box interpolates its own size, and the two content
+ * layouts are pre-laid out at fixed sizes and cross-faded, so a fold never
+ * re-measures text.
+ */
+function StatCard({
+  stat,
+  index,
+  compact,
+  progress,
+  expandedWidth,
+  expandedHeight,
+  compactWidth,
+  onExpandedHeight,
+}: {
+  stat: StatEntry;
+  index: number;
+  compact: boolean;
+  progress: SharedValue<number>;
+  expandedWidth: number;
+  expandedHeight: number;
+  compactWidth: number;
+  onExpandedHeight?: (height: number) => void;
+}) {
+  const expandedX = index % 2 === 0 ? 0 : expandedWidth + STATS_EXPANDED_GAP;
+  const expandedY = index < 2 ? 0 : expandedHeight + STATS_EXPANDED_GAP;
+  const compactX = STATS_COMPACT_SLOTS[index] * (compactWidth + STATS_COMPACT_GAP);
+  const travelX = (compactX - expandedX) * (I18nManager.isRTL ? -1 : 1);
+
+  const boxStyle = useAnimatedStyle(() => {
+    const value = progress.value;
+    return {
+      width: expandedWidth + (compactWidth - expandedWidth) * value,
+      height: expandedHeight + (STATS_COMPACT_HEIGHT - expandedHeight) * value,
+      transform: [{ translateX: travelX * value }, { translateY: -expandedY * value }],
+    };
+  }, [compactWidth, expandedHeight, expandedWidth, expandedY, travelX]);
+
+  const expandedContentStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(progress.value, [0, 0.45], [1, 0], Extrapolation.CLAMP),
+  }));
+
+  const compactContentStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(progress.value, [0.55, 1], [0, 1], Extrapolation.CLAMP),
+  }));
+
+  const handleLayout = React.useCallback(
+    (event: LayoutChangeEvent) => onExpandedHeight?.(event.nativeEvent.layout.height),
+    [onExpandedHeight],
+  );
+
+  return (
+    <Animated.View
+      className="absolute overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
+      style={[{ top: expandedY, insetInlineStart: expandedX }, boxStyle]}
+    >
+      <Animated.View
+        accessibilityElementsHidden={compact}
+        importantForAccessibility={compact ? "no-hide-descendants" : "yes"}
+        className="absolute start-0 top-0 flex-row items-center gap-3 p-4"
+        onLayout={onExpandedHeight ? handleLayout : undefined}
+        style={[{ width: expandedWidth }, expandedContentStyle]}
+      >
+        <StatIcon icon={stat.icon} />
+        <View className="min-w-0 flex-1">
+          <Text className="text-2xl font-extrabold text-text" style={TABULAR_NUMS}>
+            {stat.value}
+          </Text>
+          <Text className="text-sm font-semibold text-text-muted" numberOfLines={1}>
+            {stat.label}
+          </Text>
+        </View>
+      </Animated.View>
+      <Animated.View
+        accessibilityElementsHidden={!compact}
+        importantForAccessibility={compact ? "yes" : "no-hide-descendants"}
+        className="absolute start-0 top-0 flex-row items-center justify-center gap-1.5"
+        style={[{ width: compactWidth, height: STATS_COMPACT_HEIGHT }, compactContentStyle]}
+      >
+        <StatIcon icon={stat.icon} />
+        <Text className="text-sm font-extrabold text-text" numberOfLines={1} style={TABULAR_NUMS}>
+          {stat.value}
+        </Text>
+      </Animated.View>
+    </Animated.View>
+  );
+}
+
+function StatIcon({ icon }: { icon: LucideIcon }) {
+  return (
+    <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
+      <Icon as={icon} className="size-4 text-brand" />
+    </View>
   );
 }
 
