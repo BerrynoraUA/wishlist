@@ -130,11 +130,7 @@ export function EventsCalendarSheet({
       onDidDismiss={onClose}
       scrollableOptions={{ scrollingExpandsSheet: false }}
     >
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        showsVerticalScrollIndicator={false}
-        contentContainerClassName="gap-4 px-4 pb-8 pt-4"
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="gap-4 px-4 pt-4">
         <View className="flex-row items-center gap-3">
           <View className="size-11 items-center justify-center rounded-full bg-brand-lighter">
             <Icon as={CalendarDays} className="size-5 text-brand" />

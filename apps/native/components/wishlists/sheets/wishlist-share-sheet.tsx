@@ -236,7 +236,7 @@ export function WishlistShareSheet({
       cornerRadius={28}
       onDidDismiss={() => onOpenChange(false)}
     >
-      <View className="gap-5 px-4 pb-8 pt-8">
+      <View className="gap-5 px-4 pt-8">
         <View className="flex-row items-center justify-center">
           <View className="items-center gap-1 px-12">
             <Text className="text-xl font-extrabold text-text">{t("Share this wishlist")}</Text>

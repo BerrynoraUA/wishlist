@@ -30,7 +30,7 @@ import {
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, Linking, Platform, View } from "react-native";
+import { ActivityIndicator, Linking, View } from "react-native";
 
 type Confirmation = {
   title: string;
@@ -156,8 +156,7 @@ export function WishlistItemDetailSheet({
   return (
     <>
       <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
-        {/* iOS sheets add their own bottom safe-area inset; only Android needs the extra padding. */}
-        <View className={`gap-5 px-5 pt-5 ${Platform.OS === "ios" ? "pb-0" : "pb-4"}`}>
+        <View className="gap-5 px-5 pt-5">
           <ItemImage
             item={item}
             reservationLabel={!isOwner ? reservationLabel : null}

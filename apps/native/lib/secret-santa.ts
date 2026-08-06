@@ -1,5 +1,5 @@
 import type { TranslateFn } from "@/lib/translate-fn";
-import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from "@wishlist/backend/lib/currencies";
+import { normalizeCurrencyCode } from "@wishlist/backend/lib/currencies";
 
 export const SECRET_SANTA_PAGE_SIZE = 20;
 export const MIN_PARTICIPANTS_TO_LAUNCH = 2;
@@ -20,16 +20,6 @@ export function formatSecretSantaBudget(budget: number, currency: string | null 
 export function buildSecretSantaJoinUrl(eventId: string) {
   const baseUrl = (process.env.EXPO_PUBLIC_WEB_URL ?? "https://wishlane.net").replace(/\/$/, "");
   return `${baseUrl}/secret-santa/join?event=${eventId}`;
-}
-
-export function getSecretSantaCurrencyOptions() {
-  return SUPPORTED_CURRENCIES.map((currency) => ({
-    value: currency.code,
-    label: currency.code,
-    displayValue: currency.code,
-    description: currency.label,
-    trailing: currency.symbol,
-  }));
 }
 
 export function getSecretSantaPersonName(

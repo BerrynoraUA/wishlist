@@ -1,6 +1,6 @@
-import { AutocompleteDropdown } from "@/components/ui/autocomplete-dropdown";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { CurrencyPicker } from "@/components/ui/currency-picker";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
@@ -15,11 +15,7 @@ import {
   useUpdateSecretSantaEvent,
 } from "@/hooks/use-secret-santa";
 import { useSettings } from "@/hooks/use-settings";
-import {
-  SECRET_SANTA_MAX_IMAGE_BYTES,
-  getSecretSantaCurrencyOptions,
-  getSecretSantaPersonName,
-} from "@/lib/secret-santa";
+import { SECRET_SANTA_MAX_IMAGE_BYTES, getSecretSantaPersonName } from "@/lib/secret-santa";
 import type {
   SecretSantaDetails,
   SecretSantaImageInput,
@@ -62,9 +58,9 @@ export function SecretSantaCreateEditSheet({
   const { height: windowHeight } = useWindowDimensions();
   const [contentHeight, setContentHeight] = React.useState(0);
   const [footerHeight, setFooterHeight] = React.useState(0);
-  // A single detent sized to the form, so the sheet can neither open with dead space
-  // under a short form nor be dragged past its own content. `auto` is not an option here:
-  // TrueSheet cannot measure content it is also clipping, so `scrollable` rules it out.
+  // Edit mode remains scrollable and uses a single detent sized to the form, so the sheet
+  // can neither open with dead space nor be dragged past its content. Creation uses the
+  // native `auto` detent instead.
   // Rounded to whole percents so typing in the description does not retrigger a resize
   // on every keystroke.
   const contentDetent =
@@ -87,7 +83,6 @@ export function SecretSantaCreateEditSheet({
   const createEvent = useCreateSecretSantaEvent();
   const updateEvent = useUpdateSecretSantaEvent();
   const eventsQuery = useInfiniteSecretSantaEvents({}, 1);
-  const currencyOptions = React.useMemo(() => getSecretSantaCurrencyOptions(), []);
   const defaultCurrency = settings?.display_currency ?? "USD";
   const [name, setName] = React.useState(event?.name ?? "");
   const [eventDate, setEventDate] = React.useState(event?.event_date?.slice(0, 10) ?? "");
@@ -99,9 +94,6 @@ export function SecretSantaCreateEditSheet({
   const [participants, setParticipants] = React.useState<PeoplePickerItem[]>([]);
   const [error, setError] = React.useState<string | null>(null);
   const isSaving = createEvent.isPending || updateEvent.isPending;
-  const selectedCurrencyOption =
-    currencyOptions.find((option) => option.value === currency) ?? currencyOptions[0];
-
   React.useEffect(() => {
     if (!open) return;
     setName(event?.name ?? "");
@@ -251,8 +243,8 @@ export function SecretSantaCreateEditSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
-      detents={[contentDetent]}
+      scrollable={mode === "edit"}
+      detents={mode === "create" ? ["auto"] : [contentDetent]}
       onDidDismiss={() => onOpenChange(false)}
       footer={
         <View
@@ -322,7 +314,7 @@ export function SecretSantaCreateEditSheet({
         </View>
 
         <View className="flex-row gap-3">
-          <View className="min-w-0 flex-1 gap-2">
+          <View className="min-w-0 basis-0 flex-1 gap-2">
             <Text className="text-sm font-semibold text-text">{t("Budget")}</Text>
             <Input
               value={budget}
@@ -331,15 +323,9 @@ export function SecretSantaCreateEditSheet({
               placeholder="25"
             />
           </View>
-          <View className="w-32 gap-2">
+          <View className="min-w-0 basis-0 flex-1 gap-2">
             <Text className="text-sm font-semibold text-text">{t("Currency")}</Text>
-            <AutocompleteDropdown
-              options={currencyOptions}
-              value={selectedCurrencyOption}
-              onValueChange={(option) => setCurrency(option.value)}
-              placeholder={t("Currency")}
-              emptyText={t("No currencies found.")}
-            />
+            <CurrencyPicker value={currency} onValueChange={setCurrency} />
           </View>
         </View>
 

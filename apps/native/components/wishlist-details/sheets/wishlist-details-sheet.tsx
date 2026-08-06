@@ -42,7 +42,7 @@ export function WishlistDetailsSheet({
       initialDetentAnimated
       onDidDismiss={onClose}
     >
-      <View className="gap-5 px-5 pb-8 pt-5">
+      <View className="gap-5 px-5 pt-5">
         <View className="gap-2">
           <View className="flex-row items-center gap-2">
             <View className="size-9 items-center justify-center rounded-full bg-brand-lighter">

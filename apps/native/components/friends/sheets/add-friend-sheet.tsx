@@ -96,8 +96,32 @@ export function AddFriendSheet({
   const isSearching = trimmedQuery !== debouncedQuery || (search.isFetching && !search.data);
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={() => onOpenChange(false)}>
-      <View className="gap-5 px-5 pb-5 pt-5">
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={() => onOpenChange(false)}
+      footer={
+        <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
+          <Button
+            className="min-w-0 flex-1"
+            variant="outline"
+            disabled={sendRequest.isPending}
+            onPress={handleClose}
+          >
+            <Text>{t("Cancel")}</Text>
+          </Button>
+          <Button
+            className="min-w-0 flex-1"
+            disabled={selected.length === 0 || sendRequest.isPending}
+            onPress={handleInvite}
+          >
+            {sendRequest.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
+            <Text>{sendRequest.isPending ? t("Inviting...") : t("Invite")}</Text>
+          </Button>
+        </View>
+      }
+    >
+      <View className="gap-5 px-5 pb-4 pt-5">
         <View className="gap-2">
           <Text className="text-lg font-extrabold text-text">{t("Invite friends")}</Text>
           <Text className="text-sm text-text-muted">
@@ -154,25 +178,6 @@ export function AddFriendSheet({
         {success ? (
           <Text className="text-sm font-semibold text-success">{t("Invite sent!")}</Text>
         ) : null}
-
-        <View className="flex-row gap-2">
-          <Button
-            className="flex-1"
-            variant="outline"
-            disabled={sendRequest.isPending}
-            onPress={handleClose}
-          >
-            <Text>{t("Cancel")}</Text>
-          </Button>
-          <Button
-            className="flex-1"
-            disabled={selected.length === 0 || sendRequest.isPending}
-            onPress={handleInvite}
-          >
-            {sendRequest.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
-            <Text>{sendRequest.isPending ? t("Inviting...") : t("Invite")}</Text>
-          </Button>
-        </View>
       </View>
     </BottomSheet>
   );

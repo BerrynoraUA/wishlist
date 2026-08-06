@@ -197,8 +197,8 @@ export function AutocompleteDropdown({
         role="button"
         accessibilityState={{ selected: isSelected }}
         className={cn(
-          "min-h-16 flex-row items-center justify-between gap-3 px-3 py-3 active:bg-bg-subtle",
-          isSelected && "bg-brand-lighter dark:bg-brand-lighter",
+          "min-h-16 flex-row items-center justify-between gap-3 rounded-xl border border-transparent px-3 py-3 active:bg-bg-subtle",
+          isSelected && "border-brand bg-brand-lighter",
           optionClassName,
         )}
       >
@@ -383,7 +383,7 @@ export function AutocompleteDropdown({
           onDidPresent={() => searchInputRef.current?.focus()}
           onDidDismiss={handleSheetDismiss}
           footer={
-            <View className="px-4 pt-3">
+            <View className="px-4 pb-3 pt-3">
               <TextInput
                 ref={searchInputRef}
                 value={query}
@@ -410,7 +410,12 @@ export function AutocompleteDropdown({
             keyboardShouldPersistTaps="handled"
             onScroll={handleDropdownScroll}
             scrollEventThrottle={16}
-            contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16, paddingVertical: 8 }}
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingHorizontal: 16,
+              paddingTop: 16,
+              paddingBottom: 8,
+            }}
           >
             {isLoading && matchingOptions.length === 0 ? (
               <View className="h-16 items-center justify-center">

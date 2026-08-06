@@ -80,7 +80,7 @@ export function SubmitBugReportSheet({
 
   return (
     <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
-      <View className="px-5 pb-6 pt-5">
+      <View className="px-5 pt-5">
         <View className="gap-4">
           <View className="flex-row items-start gap-3">
             <View className="size-10 items-center justify-center rounded-full bg-destructive/10">

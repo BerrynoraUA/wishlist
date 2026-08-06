@@ -174,7 +174,7 @@ function NotificationsSheet({
       initialDetentIndex={0}
       onDidDismiss={onClose}
     >
-      <View className="px-5 pb-6 pt-4">
+      <View className="px-5 pt-4">
         <View className="gap-4">
           <View className="gap-3">
             <View className="flex-row items-start justify-between gap-3">

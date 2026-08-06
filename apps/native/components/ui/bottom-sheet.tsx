@@ -13,6 +13,7 @@ import {
 } from "react";
 import {
   Keyboard,
+  useWindowDimensions,
   View,
   type ColorValue,
   type GestureResponderEvent,
@@ -22,6 +23,7 @@ import {
 import { useRouter } from "expo-router";
 import { ReanimatedTrueSheet } from "@lodev09/react-native-true-sheet/reanimated";
 import { useCSSVariable } from "uniwind";
+import { useBottomSafeAreaPadding } from "@/lib/layout";
 
 type ReanimatedBottomSheetProps = ComponentProps<typeof ReanimatedTrueSheet>;
 type BottomSheetDetents = NonNullable<ReanimatedBottomSheetProps["detents"]>;
@@ -32,7 +34,14 @@ export type BottomSheetRef = ComponentRef<typeof ReanimatedTrueSheet>;
 
 export interface BottomSheetProps extends Omit<
   ReanimatedBottomSheetProps,
-  "children" | "detents" | "footerStyle" | "onDidDismiss"
+  | "children"
+  | "detents"
+  | "footerOptions"
+  | "footerStyle"
+  | "insetAdjustment"
+  | "maxContentWidth"
+  | "onDidDismiss"
+  | "presentation"
 > {
   children?: ReactNode;
   detents?: BottomSheetDetents;
@@ -48,7 +57,6 @@ export interface BottomSheetProps extends Omit<
   header?: ReanimatedBottomSheetProps["header"];
   footer?: ReanimatedBottomSheetProps["footer"];
   footerStyle?: ReanimatedBottomSheetProps["footerStyle"];
-  footerPaddingBottom?: number;
   backgroundColor?: ColorValue;
 }
 
@@ -67,7 +75,6 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
       header,
       footer,
       footerStyle,
-      footerPaddingBottom = 15,
       backgroundColor,
       grabberOptions,
       className,
@@ -82,8 +89,9 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
     const sheetRef = useRef<BottomSheetRef>(null);
     const sheetBackground = useCSSVariable("--color-bg-elevated") as ColorValue | undefined;
     const grabberColor = useCSSVariable("--color-border-light") as ColorValue | undefined;
+    const bottomSafeAreaPadding = useBottomSafeAreaPadding();
+    const { width: windowWidth } = useWindowDimensions();
 
-    const calculatedFooterPadding = footer ? (footerPaddingBottom ?? 0) : undefined;
     const resolvedDetents = detents ?? (scrollable ? DEFAULT_SCROLLABLE_DETENTS : DEFAULT_DETENTS);
 
     const [footerHeight, setFooterHeight] = useState(0);
@@ -112,10 +120,10 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         className="w-full"
         collapsable={false}
         onLayout={handleFooterLayout}
-        style={[
-          { backgroundColor: backgroundColor ?? sheetBackground },
-          calculatedFooterPadding !== undefined && { paddingBottom: calculatedFooterPadding },
-        ]}
+        style={{
+          backgroundColor: backgroundColor ?? sheetBackground,
+          paddingBottom: bottomSafeAreaPadding,
+        }}
       >
         {footerChild}
       </View>
@@ -165,13 +173,18 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
     return (
       <ReanimatedTrueSheet
         ref={sheetRef}
+        {...props}
         detents={resolvedDetents}
         scrollable={scrollable}
         scrollableOptions={scrollableOptions}
+        presentation="page"
+        maxContentWidth={windowWidth}
+        insetAdjustment="automatic"
         dimmed={dimmed}
         cornerRadius={cornerRadius}
         header={header}
         footer={footerWithMeasure}
+        footerOptions={{ keyboardOffset: -bottomSafeAreaPadding }}
         footerStyle={footerStyle}
         backgroundColor={backgroundColor ?? sheetBackground}
         grabberOptions={{
@@ -183,15 +196,17 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         onTouchEnd={handleSheetTouch}
         onDidDismiss={handleDidDismiss}
         className={className}
-        {...props}
       >
-        {bodyMarginBottom > 0 ? (
-          <View style={{ flexGrow: scrollable ? 1 : undefined, marginBottom: bodyMarginBottom }}>
-            {children}
-          </View>
-        ) : (
-          children
-        )}
+        <View
+          style={{
+            flexGrow: scrollable ? 1 : undefined,
+            marginBottom: bodyMarginBottom,
+            paddingBottom: footer ? 0 : bottomSafeAreaPadding,
+            width: "100%",
+          }}
+        >
+          {children}
+        </View>
       </ReanimatedTrueSheet>
     );
   },

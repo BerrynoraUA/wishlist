@@ -5,8 +5,8 @@ import {
   NAV_TAB_BAR_BACKDROP_OFFSET,
   NAV_TAB_BAR_FAB_OVERHANG,
   NAV_TAB_BAR_HEIGHT,
-  NAV_TAB_BAR_MIN_BOTTOM_INSET,
   NAV_TAB_BAR_TOP_PADDING,
+  useBottomSafeAreaPadding,
 } from "@/lib/layout";
 import { useReducedMotion } from "@/lib/motion";
 import { NATIVE_ACCENTS, getThemeAccent } from "@/lib/theme";
@@ -16,7 +16,6 @@ import { Plus } from "lucide-react-native";
 import * as React from "react";
 import { Image, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { useCSSVariable, useUniwind } from "uniwind";
 
@@ -110,7 +109,7 @@ export function AndroidTabBar({
   onTabPress,
 }: AndroidTabBarProps) {
   const t = useGT();
-  const insets = useSafeAreaInsets();
+  const bottomSafeAreaPadding = useBottomSafeAreaPadding();
   const reduceMotion = useReducedMotion();
   const { theme } = useUniwind();
   const accent = getThemeAccent(theme);
@@ -196,7 +195,7 @@ export function AndroidTabBar({
         bottom: 0,
         left: 0,
         paddingTop: TAB_BAR_TOP_PADDING,
-        paddingBottom: Math.max(insets.bottom, NAV_TAB_BAR_MIN_BOTTOM_INSET),
+        paddingBottom: bottomSafeAreaPadding,
       }}
     >
       <View

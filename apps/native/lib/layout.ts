@@ -10,6 +10,13 @@ export const NAV_TAB_BAR_MIN_BOTTOM_INSET = 8;
 /** Breathing room between the last row and the tab bar. */
 const CONTENT_BOTTOM_SPACING = 16;
 
+/** The shared window-edge clearance used by bottom tabs and native sheets. */
+export function useBottomSafeAreaPadding() {
+  const insets = useSafeAreaInsets();
+
+  return Math.max(insets.bottom, NAV_TAB_BAR_MIN_BOTTOM_INSET);
+}
+
 /**
  * Bottom padding a scrolling screen needs so its last row is not left under the tab bar.
  *
@@ -18,16 +25,11 @@ const CONTENT_BOTTOM_SPACING = 16;
  * scroll insets itself — padding it here would just leave a gap.
  */
 export function useTabBarContentPadding(spacing = CONTENT_BOTTOM_SPACING) {
-  const insets = useSafeAreaInsets();
+  const bottomSafeAreaPadding = useBottomSafeAreaPadding();
 
   if (process.env.EXPO_OS !== "android") return spacing;
 
-  return (
-    NAV_TAB_BAR_TOP_PADDING +
-    NAV_TAB_BAR_HEIGHT +
-    Math.max(insets.bottom, NAV_TAB_BAR_MIN_BOTTOM_INSET) +
-    spacing
-  );
+  return NAV_TAB_BAR_TOP_PADDING + NAV_TAB_BAR_HEIGHT + bottomSafeAreaPadding + spacing;
 }
 
 export function chunkRows<T>(items: readonly T[], columns: number): T[][] {
