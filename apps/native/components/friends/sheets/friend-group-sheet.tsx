@@ -1,4 +1,8 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import {
+  BottomSheet,
+  BottomSheetScrollView,
+  type BottomSheetRef,
+} from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
@@ -20,7 +24,7 @@ import type {
 } from "@wishlist/backend/types/friends";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
 // Ordered like the wishlist accent picker so the two read as the same control.
 const COLOR_OPTIONS = ["pink", "blue", "peach", "mint", "lavender"] as const;
@@ -126,6 +130,7 @@ export function FriendGroupSheet({
       ref={sheetRef}
       scrollable={Boolean(group)}
       detents={group ? undefined : ["auto"]}
+      footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
@@ -148,9 +153,9 @@ export function FriendGroupSheet({
         </View>
       }
     >
-      <ScrollView
+      <BottomSheetScrollView
         className="max-h-full"
-        contentContainerClassName="gap-3 px-5 pb-4 pt-4"
+        contentContainerClassName="gap-3 px-5 pt-4"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -182,27 +187,7 @@ export function FriendGroupSheet({
 
         <View className="gap-1.5">
           <Text className="text-sm font-bold text-text">{t("Icon")}</Text>
-          <View className="flex-row flex-wrap gap-2">
-            {FRIEND_GROUP_ICON_OPTIONS.map((option) => {
-              const GroupIcon = option.icon;
-              const selected = icon === option.value;
-              return (
-                <Button
-                  key={option.value}
-                  size="icon"
-                  variant={selected ? "default" : "outline"}
-                  accessibilityLabel={option.value}
-                  onPress={() => setIcon(option.value)}
-                  className="rounded-full"
-                >
-                  <Icon
-                    as={GroupIcon}
-                    className={cn("size-4", selected ? "text-primary-foreground" : "text-text")}
-                  />
-                </Button>
-              );
-            })}
-          </View>
+          <GroupIconSelector value={icon} onChange={setIcon} />
         </View>
 
         <PeoplePickerField
@@ -221,8 +206,46 @@ export function FriendGroupSheet({
         />
 
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
-      </ScrollView>
+      </BottomSheetScrollView>
     </BottomSheet>
+  );
+}
+
+function GroupIconSelector({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (icon: string) => void;
+}) {
+  const rows = React.useMemo(
+    () => [
+      FRIEND_GROUP_ICON_OPTIONS.map((option) => {
+        const GroupIcon = option.icon;
+
+        return {
+          value: option.value,
+          accessibilityLabel: option.value,
+          surfaceClassName: "bg-transparent",
+          children: ({ selected }: SlidingOptionRenderProps) => (
+            <Icon as={GroupIcon} className={cn("size-4 text-text", selected && "text-brand")} />
+          ),
+        };
+      }),
+    ],
+    [],
+  );
+
+  return (
+    <SlidingOptionSelector
+      rows={rows}
+      value={value}
+      onChange={onChange}
+      optionHeight={40}
+      optionHeightClassName="h-10"
+      optionClassName="rounded-full px-0"
+      indicatorClassName="rounded-full border border-brand bg-brand-lighter"
+    />
   );
 }
 

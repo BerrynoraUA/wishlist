@@ -1,5 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import {
+  BottomSheet,
+  BottomSheetScrollView,
+  type BottomSheetRef,
+} from "@/components/ui/bottom-sheet";
 import { Flag } from "@/components/ui/flag";
 import { Icon } from "@/components/ui/icon";
 import { INPUT_CLASS_NAME, Input } from "@/components/ui/input";
@@ -380,6 +384,7 @@ export function AutocompleteDropdown({
           ref={sheetRef}
           scrollable
           detents={[0.9]}
+          footerInsetMode="scroll-content"
           onDidPresent={() => searchInputRef.current?.focus()}
           onDidDismiss={handleSheetDismiss}
           footer={
@@ -406,7 +411,7 @@ export function AutocompleteDropdown({
             </View>
           }
         >
-          <ScrollView
+          <BottomSheetScrollView
             keyboardShouldPersistTaps="handled"
             onScroll={handleDropdownScroll}
             scrollEventThrottle={16}
@@ -414,7 +419,6 @@ export function AutocompleteDropdown({
               flexGrow: 1,
               paddingHorizontal: 16,
               paddingTop: 16,
-              paddingBottom: 8,
             }}
           >
             {isLoading && matchingOptions.length === 0 ? (
@@ -429,7 +433,7 @@ export function AutocompleteDropdown({
             ) : (
               <Text className="px-1 py-6 text-center text-sm text-text-muted">{emptyText}</Text>
             )}
-          </ScrollView>
+          </BottomSheetScrollView>
         </BottomSheet>
       ) : null}
     </View>

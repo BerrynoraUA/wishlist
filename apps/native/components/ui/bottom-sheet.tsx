@@ -1,9 +1,11 @@
 import {
+  createContext,
   createElement,
   forwardRef,
   isValidElement,
   useEffect,
   useImperativeHandle,
+  useContext,
   useRef,
   useState,
   type ComponentProps,
@@ -13,6 +15,7 @@ import {
 } from "react";
 import {
   Keyboard,
+  ScrollView,
   useWindowDimensions,
   View,
   type ColorValue,
@@ -29,8 +32,29 @@ type ReanimatedBottomSheetProps = ComponentProps<typeof ReanimatedTrueSheet>;
 type BottomSheetDetents = NonNullable<ReanimatedBottomSheetProps["detents"]>;
 const DEFAULT_DETENTS: BottomSheetDetents = ["auto", 1];
 const DEFAULT_SCROLLABLE_DETENTS: BottomSheetDetents = [0.75, 1];
+const FOOTER_CONTENT_GAP = 12;
 
 export type BottomSheetRef = ComponentRef<typeof ReanimatedTrueSheet>;
+
+const FooterContentInsetContext = createContext(0);
+
+/** Scroll view that keeps its final content clear of a BottomSheet footer. */
+export const BottomSheetScrollView = forwardRef<
+  ComponentRef<typeof ScrollView>,
+  ComponentProps<typeof ScrollView>
+>(({ contentContainerStyle, ...props }, ref) => {
+  const footerContentInset = useContext(FooterContentInsetContext);
+
+  return (
+    <ScrollView
+      ref={ref}
+      contentContainerStyle={[contentContainerStyle, { paddingBottom: footerContentInset }]}
+      {...props}
+    />
+  );
+});
+
+BottomSheetScrollView.displayName = "BottomSheetScrollView";
 
 export interface BottomSheetProps extends Omit<
   ReanimatedBottomSheetProps,
@@ -57,6 +81,8 @@ export interface BottomSheetProps extends Omit<
   header?: ReanimatedBottomSheetProps["header"];
   footer?: ReanimatedBottomSheetProps["footer"];
   footerStyle?: ReanimatedBottomSheetProps["footerStyle"];
+  /** Use with BottomSheetScrollView when the footer inset must scroll with the content. */
+  footerInsetMode?: "container" | "scroll-content";
   backgroundColor?: ColorValue;
 }
 
@@ -75,6 +101,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
       header,
       footer,
       footerStyle,
+      footerInsetMode = "container",
       backgroundColor,
       grabberOptions,
       className,
@@ -95,14 +122,9 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
     const resolvedDetents = detents ?? (scrollable ? DEFAULT_SCROLLABLE_DETENTS : DEFAULT_DETENTS);
 
     const [footerHeight, setFooterHeight] = useState(0);
-
-    useEffect(() => {
-      if (!footer) {
-        setFooterHeight(0);
-      }
-    }, [footer]);
-
-    const bodyMarginBottom = footer ? footerHeight : 0;
+    const footerControlHeight = Math.max(0, footerHeight - bottomSafeAreaPadding);
+    const footerContentInset = footer ? footerControlHeight + FOOTER_CONTENT_GAP : 0;
+    const scrollContentHandlesFooterInset = footerInsetMode === "scroll-content";
 
     const handleFooterLayout = (event: LayoutChangeEvent) => {
       setFooterHeight(event.nativeEvent.layout.height);
@@ -115,7 +137,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
           ? footer
           : createElement(footer as ComponentType<object>);
 
-    const footerWithMeasure = footerChild ? (
+    const resolvedFooter = footerChild ? (
       <View
         className="w-full"
         collapsable={false}
@@ -183,7 +205,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         dimmed={dimmed}
         cornerRadius={cornerRadius}
         header={header}
-        footer={footerWithMeasure}
+        footer={resolvedFooter}
         footerOptions={{ keyboardOffset: -bottomSafeAreaPadding }}
         footerStyle={footerStyle}
         backgroundColor={backgroundColor ?? sheetBackground}
@@ -200,12 +222,22 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         <View
           style={{
             flexGrow: scrollable ? 1 : undefined,
-            marginBottom: bodyMarginBottom,
-            paddingBottom: footer ? 0 : bottomSafeAreaPadding,
+            marginBottom:
+              footer && !scrollable && !scrollContentHandlesFooterInset ? footerContentInset : 0,
+            paddingBottom:
+              footer && scrollable && !scrollContentHandlesFooterInset
+                ? footerContentInset
+                : footer
+                  ? 0
+                  : bottomSafeAreaPadding,
             width: "100%",
           }}
         >
-          {children}
+          <FooterContentInsetContext.Provider
+            value={scrollContentHandlesFooterInset ? footerContentInset : 0}
+          >
+            {children}
+          </FooterContentInsetContext.Provider>
         </View>
       </ReanimatedTrueSheet>
     );

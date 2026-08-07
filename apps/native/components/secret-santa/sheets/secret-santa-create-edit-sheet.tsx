@@ -1,4 +1,8 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import {
+  BottomSheet,
+  BottomSheetScrollView,
+  type BottomSheetRef,
+} from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { CurrencyPicker } from "@/components/ui/currency-picker";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -25,7 +29,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Camera, CalendarDays, ImagePlus, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, ScrollView, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, useWindowDimensions, View } from "react-native";
 
 type SheetMode = "create" | "edit";
 
@@ -57,7 +61,6 @@ export function SecretSantaCreateEditSheet({
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const { height: windowHeight } = useWindowDimensions();
   const [contentHeight, setContentHeight] = React.useState(0);
-  const [footerHeight, setFooterHeight] = React.useState(0);
   // Edit mode remains scrollable and uses a single detent sized to the form, so the sheet
   // can neither open with dead space nor be dragged past its content. Creation uses the
   // native `auto` detent instead.
@@ -66,10 +69,8 @@ export function SecretSantaCreateEditSheet({
   const contentDetent =
     contentHeight > 0
       ? Math.round(
-          Math.min(
-            MAX_SHEET_DETENT,
-            Math.max(MIN_SHEET_DETENT, (contentHeight + footerHeight) / windowHeight),
-          ) * 100,
+          Math.min(MAX_SHEET_DETENT, Math.max(MIN_SHEET_DETENT, contentHeight / windowHeight)) *
+            100,
         ) / 100
       : INITIAL_SHEET_DETENT;
   const { data: settings } = useSettings();
@@ -245,12 +246,10 @@ export function SecretSantaCreateEditSheet({
       ref={sheetRef}
       scrollable={mode === "edit"}
       detents={mode === "create" ? ["auto"] : [contentDetent]}
+      footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
       footer={
-        <View
-          onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}
-          className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3"
-        >
+        <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
             className="min-w-0 flex-1"
             variant="outline"
@@ -274,9 +273,9 @@ export function SecretSantaCreateEditSheet({
         </View>
       }
     >
-      <ScrollView
+      <BottomSheetScrollView
         className="max-h-full"
-        contentContainerClassName="gap-5 px-5 pb-6 pt-5"
+        contentContainerClassName="gap-5 px-5 pt-5"
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled
         onContentSizeChange={(_width, height) => setContentHeight(height)}
@@ -399,7 +398,7 @@ export function SecretSantaCreateEditSheet({
         ) : null}
 
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
-      </ScrollView>
+      </BottomSheetScrollView>
     </BottomSheet>
   );
 }

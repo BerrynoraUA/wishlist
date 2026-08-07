@@ -99,7 +99,7 @@ export function WishlistGrantAccessSheet({
           </View>
         }
       >
-        <View className="items-center gap-4 px-5 py-8">
+        <View className="items-center gap-4 px-5 pt-8">
           <View className="size-14 items-center justify-center rounded-full bg-brand-lighter">
             <Icon as={Lock} className="size-6 text-brand" />
           </View>

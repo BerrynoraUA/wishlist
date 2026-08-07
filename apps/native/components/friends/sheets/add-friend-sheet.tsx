@@ -5,6 +5,7 @@ import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people
 import { Text } from "@/components/ui/text";
 import { useSearchProfilesByNickname, useSendFriendRequest } from "@/hooks/use-friends";
 import { useCurrentUserId } from "@/hooks/use-user";
+import { cn } from "@/lib/utils";
 import * as Clipboard from "expo-clipboard";
 import { Copy } from "lucide-react-native";
 import { useGT } from "gt-react-native";
@@ -121,7 +122,7 @@ export function AddFriendSheet({
         </View>
       }
     >
-      <View className="gap-5 px-5 pb-4 pt-5">
+      <View className="gap-5 px-5 pt-5">
         <View className="gap-2">
           <Text className="text-lg font-extrabold text-text">{t("Invite friends")}</Text>
           <Text className="text-sm text-text-muted">
@@ -130,25 +131,30 @@ export function AddFriendSheet({
         </View>
 
         <View className="gap-2">
-          <Text className="text-sm font-bold text-text">{t("Your invite link")}</Text>
+          <View className="flex-row items-center justify-between gap-3">
+            <Text className="text-sm font-bold text-text">{t("Your invite link")}</Text>
+            {copied ? (
+              <Text className="text-sm font-semibold text-success">{t("Copied")}</Text>
+            ) : null}
+          </View>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t("Copy invite link")}
             accessibilityState={{ disabled: !inviteLink }}
             disabled={!inviteLink}
             onPress={() => void handleCopy()}
-            className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 py-2 active:opacity-70 disabled:opacity-50"
+            className={cn(
+              "flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 py-2 active:opacity-70 disabled:opacity-50",
+              copied && "border-success",
+            )}
           >
             <Text className="min-w-0 flex-1 text-sm text-text-muted" numberOfLines={1}>
               {inviteLink || "..."}
             </Text>
             <View className="size-10 items-center justify-center rounded-full">
-              <Icon as={Copy} className="size-4 text-text" />
+              <Icon as={Copy} className={cn("size-4 text-text", copied && "text-success")} />
             </View>
           </Pressable>
-          {copied ? (
-            <Text className="text-sm font-semibold text-success">{t("Copied")}</Text>
-          ) : null}
         </View>
 
         <PeoplePickerField

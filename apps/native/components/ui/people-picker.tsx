@@ -115,7 +115,7 @@ export function PeoplePickerField({
     <View className={cn("gap-3", className)}>
       {label ? (
         <View className="flex-row items-center justify-between gap-3">
-          <Text className="text-xs font-extrabold uppercase text-text-muted">{label}</Text>
+          <Text className="text-sm font-bold text-text">{label}</Text>
           {selected.length > 0 ? (
             <Text className="text-sm font-semibold text-text-muted">
               {t("{count} selected", { count: selected.length })}
@@ -299,7 +299,7 @@ function PeoplePickerSheet({
         // the search field and the actions all stay reachable while typing.
         // Its measured height stays fixed while only the surface moves; this avoids the
         // native footer resize that otherwise makes the pinned controls jitter.
-        <View className="relative w-full gap-3 overflow-hidden px-5 pt-3">
+        <View className="relative w-full gap-3 overflow-hidden px-5 pb-3 pt-3">
           <Animated.View
             pointerEvents="none"
             className="absolute inset-0 border-t border-border-subtle bg-bg-elevated"
@@ -361,7 +361,7 @@ function PeoplePickerSheet({
         )}
         keyExtractor={(item) => item.id}
         className="flex-1"
-        contentContainerClassName="px-5 pb-4"
+        contentContainerClassName="px-5"
         keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={PickerRowSeparator}

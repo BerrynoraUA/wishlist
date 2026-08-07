@@ -1,5 +1,9 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import {
+  BottomSheet,
+  BottomSheetScrollView,
+  type BottomSheetRef,
+} from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
@@ -52,7 +56,7 @@ import { CalendarDays, Lock, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import Animated, { LinearTransition } from "react-native-reanimated";
 import {
   useWishlistSelectedAccess,
@@ -222,6 +226,7 @@ export function WishlistCreateEditSheet({
       ref={sheetRef}
       scrollable
       detents={[0.75, 0.94]}
+      footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
@@ -248,10 +253,10 @@ export function WishlistCreateEditSheet({
         </View>
       }
     >
-      <ScrollView
+      <BottomSheetScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="gap-5 px-5 pb-6 pt-5"
+        contentContainerClassName="gap-5 px-5 pt-5"
       >
         <Field label={t("Name")}>
           <Controller
@@ -446,7 +451,7 @@ export function WishlistCreateEditSheet({
         {selectedAccess.error ? (
           <Text className="text-sm font-semibold text-destructive">{selectedAccess.error}</Text>
         ) : null}
-      </ScrollView>
+      </BottomSheetScrollView>
     </BottomSheet>
   );
 }

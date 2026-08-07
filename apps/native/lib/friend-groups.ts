@@ -1,13 +1,22 @@
-import { Gift, Heart, Star, Users, type LucideIcon } from "lucide-react-native";
+import { Briefcase, Gift, Heart, Home, Star, Users, type LucideIcon } from "lucide-react-native";
 
 /** Icon keys a friend group can be saved with. */
-export const FRIEND_GROUP_ICON_VALUES = ["users", "heart", "star", "gift"] as const;
+export const FRIEND_GROUP_ICON_VALUES = [
+  "users",
+  "heart",
+  "star",
+  "gift",
+  "home",
+  "briefcase",
+] as const;
 
 const FRIEND_GROUP_ICONS: Record<string, LucideIcon> = {
   users: Users,
   heart: Heart,
   star: Star,
   gift: Gift,
+  home: Home,
+  briefcase: Briefcase,
 };
 
 const FRIEND_GROUP_COLOR_CLASS: Record<string, { icon: string; surface: string }> = {

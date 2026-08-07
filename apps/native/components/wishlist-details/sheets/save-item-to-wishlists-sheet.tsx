@@ -110,7 +110,7 @@ export function SaveItemToWishlistsSheet({
         </View>
       }
     >
-      <View className="gap-4 px-5 pb-4 pt-4">
+      <View className="gap-4 px-5 pt-4">
         <View className="items-center gap-1.5">
           <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
             <Icon as={Bookmark} className="size-5 text-brand" />
