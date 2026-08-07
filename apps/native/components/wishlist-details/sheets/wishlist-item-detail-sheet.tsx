@@ -1,4 +1,8 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import {
+  BottomSheet,
+  BottomSheetScrollView,
+  type BottomSheetRef,
+} from "@/components/ui/bottom-sheet";
 import { ItemImage } from "@/components/items/item-image";
 import { Button } from "@/components/ui/button";
 import {
@@ -134,7 +138,7 @@ export function WishlistItemDetailSheet({
       message: selectedItem.name,
       confirmLabel: reservation.isPurchased ? t("Undo") : t("Buy"),
       isPending: boughtPending,
-      tone: reservation.isPurchased ? "destructive" : "success",
+      tone: reservation.isPurchased ? "destructive" : "buy",
       onConfirm: () => {
         setConfirmation(null);
         onToggleBought(selectedItem.id);
@@ -153,10 +157,138 @@ export function WishlistItemDetailSheet({
     await Clipboard.setStringAsync(link);
   }
 
+  // Actions stay visible but are locked when the viewer can't perform them. "Undo" only
+  // appears for a purchase this viewer made — someone else's purchase shows a locked "Buy".
+  const canReserve = reservation.canToggleReservation;
+  const canBuy = reservation.canToggleBought;
+  const canUndoPurchase = reservation.isPurchased && canBuy;
+  const reservedByMe = reservation.isReserved && reservation.reservedByMe;
+  // A purchased gift is reserved too, so both buttons report the state they are locked in.
+  const showAsReserved = reservation.isReserved || reservation.isPurchased;
+  const ownerActions = isOwner ? Boolean(onEdit) || Boolean(onDelete) : false;
+  const guestActions =
+    !isOwner && (Boolean(onSaveToWishlist) || Boolean(onToggleReserve) || Boolean(onToggleBought));
+  const hasActions = ownerActions || guestActions;
+
+  const actions = !hasActions ? null : (
+    <View className="w-full gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
+      {isOwner ? (
+        <View className="flex-row gap-2">
+          {onEdit ? (
+            <Button
+              className="min-w-0 flex-1"
+              onPress={() => {
+                onEdit(selectedItem);
+                handleClose();
+              }}
+            >
+              <Icon as={Pencil} className="size-4 text-primary-foreground" />
+              <Text>{t("Edit")}</Text>
+            </Button>
+          ) : null}
+          {onDelete ? (
+            <Button
+              variant="destructive"
+              className="min-w-0 flex-1"
+              onPress={() => {
+                onDelete(selectedItem);
+                handleClose();
+              }}
+            >
+              <Icon as={Trash2} className="size-4 text-white" />
+              <Text>{t("Delete")}</Text>
+            </Button>
+          ) : null}
+        </View>
+      ) : (
+        <>
+          {onSaveToWishlist ? (
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onPress={() => {
+                onSaveToWishlist(selectedItem);
+                handleClose();
+              }}
+            >
+              <Icon as={Bookmark} className="size-4 text-text" />
+              <Text>{t("Save to wishlist")}</Text>
+            </Button>
+          ) : null}
+          {onToggleReserve ? (
+            <Button
+              variant="ghost"
+              size="lg"
+              disabled={!canReserve || reservePending}
+              onPress={confirmReservation}
+              className={
+                reservedByMe
+                  ? "w-full rounded-lg border border-brand bg-brand"
+                  : "w-full rounded-lg border border-brand/25 bg-brand-lighter"
+              }
+            >
+              {reservePending ? (
+                <ActivityIndicator colorClassName="accent-primary-foreground" />
+              ) : null}
+              <Icon
+                as={LockKeyhole}
+                className={reservedByMe ? "size-4 text-primary-foreground" : "size-4 text-brand"}
+              />
+              <Text className={reservedByMe ? "text-primary-foreground" : "text-brand"}>
+                {reservedByMe
+                  ? t("Release reservation")
+                  : showAsReserved
+                    ? t("Reserved")
+                    : t("Reserve this gift")}
+              </Text>
+            </Button>
+          ) : null}
+          {onToggleBought ? (
+            <Button
+              variant="ghost"
+              size="lg"
+              disabled={!canBuy || boughtPending}
+              onPress={confirmBought}
+              className={
+                canUndoPurchase
+                  ? "w-full rounded-lg border border-destructive/35 bg-danger-bg"
+                  : "w-full rounded-xl border border-buy/70 bg-buy-bg"
+              }
+            >
+              {boughtPending ? (
+                <ActivityIndicator colorClassName="accent-primary-foreground" />
+              ) : null}
+              <Icon
+                as={ShoppingCart}
+                className={canUndoPurchase ? "size-4 text-destructive" : "size-4 text-buy"}
+              />
+              <Text className={canUndoPurchase ? "text-destructive" : "text-buy"}>
+                {canUndoPurchase ? t("Undo") : reservation.isPurchased ? t("Purchased") : t("Buy")}
+              </Text>
+            </Button>
+          ) : null}
+        </>
+      )}
+    </View>
+  );
+
   return (
     <>
-      <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
-        <View className="gap-5 px-5 pt-5">
+      <BottomSheet
+        ref={sheetRef}
+        scrollable
+        // "auto" keeps the sheet as tall as its content — no empty gap under a short item —
+        // and only starts scrolling once the content outgrows the screen.
+        detents={["auto", 0.94]}
+        footerInsetMode="scroll-content"
+        onDidDismiss={onClose}
+        footer={actions ?? undefined}
+      >
+        <BottomSheetScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerClassName="gap-5 px-5 pt-5"
+        >
           <ItemImage
             item={item}
             reservationLabel={!isOwner ? reservationLabel : null}
@@ -224,116 +356,7 @@ export function WishlistItemDetailSheet({
               ))}
             </View>
           ) : null}
-
-          <View className="gap-2">
-            {isOwner ? (
-              <View className="flex-row gap-2">
-                {onEdit ? (
-                  <Button
-                    className="min-w-0 flex-1"
-                    onPress={() => {
-                      onEdit(item);
-                      handleClose();
-                    }}
-                  >
-                    <Icon as={Pencil} className="size-4 text-primary-foreground" />
-                    <Text>{t("Edit")}</Text>
-                  </Button>
-                ) : null}
-                {onDelete ? (
-                  <Button
-                    variant="destructive"
-                    className="min-w-0 flex-1"
-                    onPress={() => {
-                      onDelete(item);
-                      handleClose();
-                    }}
-                  >
-                    <Icon as={Trash2} className="size-4 text-white" />
-                    <Text>{t("Delete")}</Text>
-                  </Button>
-                ) : null}
-              </View>
-            ) : (
-              <View className="gap-2">
-                {onSaveToWishlist ? (
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full"
-                    onPress={() => {
-                      onSaveToWishlist(item);
-                      handleClose();
-                    }}
-                  >
-                    <Icon as={Bookmark} className="size-4 text-text" />
-                    <Text>{t("Save to wishlist")}</Text>
-                  </Button>
-                ) : null}
-                {onToggleReserve ? (
-                  <Button
-                    variant="ghost"
-                    size="lg"
-                    disabled={!reservation.canToggleReservation || reservePending}
-                    onPress={confirmReservation}
-                    className={
-                      reservation.isReserved
-                        ? "w-full rounded-lg border border-brand bg-brand"
-                        : "w-full rounded-lg border border-brand/25 bg-brand-lighter"
-                    }
-                  >
-                    {reservePending ? (
-                      <ActivityIndicator colorClassName="accent-primary-foreground" />
-                    ) : null}
-                    <Icon
-                      as={LockKeyhole}
-                      className={
-                        reservation.isReserved
-                          ? "size-4 text-primary-foreground"
-                          : "size-4 text-brand"
-                      }
-                    />
-                    <Text
-                      className={reservation.isReserved ? "text-primary-foreground" : "text-brand"}
-                    >
-                      {!reservation.isReserved
-                        ? t("Reserve this gift")
-                        : reservation.reservedByMe
-                          ? t("Release reservation")
-                          : t("Reserved")}
-                    </Text>
-                  </Button>
-                ) : null}
-                {onToggleBought ? (
-                  <Button
-                    variant="ghost"
-                    size="lg"
-                    disabled={!reservation.canToggleBought || boughtPending}
-                    onPress={confirmBought}
-                    className={
-                      reservation.isPurchased
-                        ? "w-full rounded-lg border border-destructive/35 bg-danger-bg"
-                        : "w-full rounded-xl border border-success/70 bg-success-bg"
-                    }
-                  >
-                    {boughtPending ? (
-                      <ActivityIndicator colorClassName="accent-primary-foreground" />
-                    ) : null}
-                    <Icon
-                      as={ShoppingCart}
-                      className={
-                        reservation.isPurchased ? "size-4 text-destructive" : "size-4 text-success"
-                      }
-                    />
-                    <Text className={reservation.isPurchased ? "text-destructive" : "text-success"}>
-                      {reservation.isPurchased ? t("Undo") : t("Buy")}
-                    </Text>
-                  </Button>
-                ) : null}
-              </View>
-            )}
-          </View>
-        </View>
+        </BottomSheetScrollView>
       </BottomSheet>
       <ActionBottomSheetConfirm
         open={Boolean(confirmation)}

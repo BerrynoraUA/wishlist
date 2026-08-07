@@ -254,21 +254,21 @@ export function WishlistItemCard({
                         "min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border px-3 py-3",
                         reservation.isPurchased
                           ? "border-destructive/35 bg-danger-bg"
-                          : "border-success/35 bg-success-bg",
+                          : "border-buy/35 bg-buy-bg",
                       )}
                     >
                       <Icon
                         as={ShoppingCart}
                         className={cn(
                           "size-4",
-                          reservation.isPurchased ? "text-destructive" : "text-success",
+                          reservation.isPurchased ? "text-destructive" : "text-buy",
                         )}
                       />
                       <Text
                         numberOfLines={1}
                         className={cn(
                           "text-sm font-extrabold",
-                          reservation.isPurchased ? "text-destructive" : "text-success",
+                          reservation.isPurchased ? "text-destructive" : "text-buy",
                         )}
                       >
                         {reservation.isPurchased ? t("Undo") : t("Buy")}
@@ -329,7 +329,7 @@ export function WishlistItemCard({
         message={item.name}
         confirmLabel={reservation.isPurchased ? t("Undo") : t("Buy")}
         isPending={boughtPending}
-        tone={reservation.isPurchased ? "destructive" : "success"}
+        tone={reservation.isPurchased ? "destructive" : "buy"}
         onClose={() => setPurchaseConfirmationOpen(false)}
         onConfirm={() => {
           setPurchaseConfirmationOpen(false);

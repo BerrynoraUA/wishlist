@@ -11,7 +11,13 @@ export type ActionBottomSheetMessagePayload = {
   message?: string;
 };
 
-export type ActionBottomSheetConfirmTone = "default" | "brand" | "success" | "destructive";
+/** "buy" is the purchase action: green like success, but rose when the accent itself is green. */
+export type ActionBottomSheetConfirmTone =
+  | "default"
+  | "brand"
+  | "success"
+  | "buy"
+  | "destructive";
 
 export function ActionBottomSheetMessage({
   message,
@@ -100,9 +106,11 @@ export function ActionBottomSheetConfirm({
               "flex-1",
               tone === "success"
                 ? "rounded-lg border border-success/35 bg-success-bg"
-                : tone === "brand"
-                  ? "rounded-lg border border-brand/25 bg-brand-lighter"
-                  : undefined,
+                : tone === "buy"
+                  ? "rounded-lg border border-buy/35 bg-buy-bg"
+                  : tone === "brand"
+                    ? "rounded-lg border border-brand/25 bg-brand-lighter"
+                    : undefined,
             )}
           >
             {isPending ? (
@@ -110,15 +118,23 @@ export function ActionBottomSheetConfirm({
                 colorClassName={
                   tone === "success"
                     ? "accent-success"
-                    : tone === "brand"
-                      ? "accent-brand"
-                      : "accent-white"
+                    : tone === "buy"
+                      ? "accent-buy"
+                      : tone === "brand"
+                        ? "accent-brand"
+                        : "accent-white"
                 }
               />
             ) : null}
             <Text
               className={
-                tone === "success" ? "text-success" : tone === "brand" ? "text-brand" : undefined
+                tone === "success"
+                  ? "text-success"
+                  : tone === "buy"
+                    ? "text-buy"
+                    : tone === "brand"
+                      ? "text-brand"
+                      : undefined
               }
             >
               {confirmLabel}

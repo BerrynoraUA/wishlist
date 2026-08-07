@@ -620,10 +620,7 @@ function EventDatePicker({
   const t = useGT();
 
   return (
-    <DatePicker
-      value={value || null}
-      onChange={(nextValue) => onChange(nextValue ?? "")}
-    >
+    <DatePicker value={value || null} onChange={(nextValue) => onChange(nextValue ?? "")}>
       {({ displayValue, openPicker }) => (
         <View className="gap-2">
           <AnimatedPressable

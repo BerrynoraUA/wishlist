@@ -68,6 +68,8 @@
     --theme-light-color-danger-bg: oklch(0.9705 0.0129 17.38);
     --theme-light-color-success: oklch(0.6271 0.1699 149.214);
     --theme-light-color-success-bg: oklch(0.9819 0.0181 155.826);
+    --theme-light-color-buy-rose: oklch(0.5473 0.2022 351.459);
+    --theme-light-color-buy-rose-bg: oklch(0.9714 0.0141 343.198);
     --theme-light-color-info: oklch(0.5461 0.2152 262.881);
     --theme-light-color-info-bg: oklch(0.9705 0.0142 254.604);
     --theme-light-color-chart-1: oklch(0.7253 0.1752 349.761);
@@ -220,6 +222,8 @@
     --theme-dark-color-danger-bg: oklch(0.2303 0.0393 20.545);
     --theme-dark-color-success: oklch(0.7227 0.192 149.579);
     --theme-dark-color-success-bg: oklch(0.2638 0.044 151.788);
+    --theme-dark-color-buy-rose: oklch(0.6504 0.1928 349.803);
+    --theme-dark-color-buy-rose-bg: oklch(0.2234 0.0453 345.399);
     --theme-dark-color-info: oklch(0.6231 0.188 259.815);
     --theme-dark-color-info-bg: oklch(0.2319 0.0352 264.526);
     --theme-dark-color-chart-1: oklch(0.7253 0.1752 349.761);
@@ -368,6 +372,8 @@
       --color-danger-bg: var(--theme-light-color-danger-bg);
       --color-success: var(--theme-light-color-success);
       --color-success-bg: var(--theme-light-color-success-bg);
+      --color-buy: var(--theme-light-color-success);
+      --color-buy-bg: var(--theme-light-color-success-bg);
       --color-info: var(--theme-light-color-info);
       --color-info-bg: var(--theme-light-color-info-bg);
       --color-chart-1: var(--theme-light-color-chart-1);
@@ -447,6 +453,8 @@
       --color-danger-bg: var(--theme-dark-color-danger-bg);
       --color-success: var(--theme-dark-color-success);
       --color-success-bg: var(--theme-dark-color-success-bg);
+      --color-buy: var(--theme-dark-color-success);
+      --color-buy-bg: var(--theme-dark-color-success-bg);
       --color-info: var(--theme-dark-color-info);
       --color-info-bg: var(--theme-dark-color-info-bg);
       --color-chart-1: var(--theme-dark-color-chart-1);
@@ -526,6 +534,8 @@
       --color-danger-bg: var(--theme-light-color-danger-bg);
       --color-success: var(--theme-light-color-success);
       --color-success-bg: var(--theme-light-color-success-bg);
+      --color-buy: var(--theme-light-color-success);
+      --color-buy-bg: var(--theme-light-color-success-bg);
       --color-info: var(--theme-light-color-info);
       --color-info-bg: var(--theme-light-color-info-bg);
       --color-chart-1: var(--theme-light-color-chart-1);
@@ -642,6 +652,8 @@
       --color-danger-bg: var(--theme-dark-color-danger-bg);
       --color-success: var(--theme-dark-color-success);
       --color-success-bg: var(--theme-dark-color-success-bg);
+      --color-buy: var(--theme-dark-color-success);
+      --color-buy-bg: var(--theme-dark-color-success-bg);
       --color-info: var(--theme-dark-color-info);
       --color-info-bg: var(--theme-dark-color-info-bg);
       --color-chart-1: var(--theme-dark-color-chart-1);
@@ -758,6 +770,8 @@
       --color-danger-bg: var(--theme-light-color-danger-bg);
       --color-success: var(--theme-light-color-success);
       --color-success-bg: var(--theme-light-color-success-bg);
+      --color-buy: var(--theme-light-color-success);
+      --color-buy-bg: var(--theme-light-color-success-bg);
       --color-info: var(--theme-light-color-info);
       --color-info-bg: var(--theme-light-color-info-bg);
       --color-chart-1: var(--theme-light-color-chart-1);
@@ -874,6 +888,8 @@
       --color-danger-bg: var(--theme-dark-color-danger-bg);
       --color-success: var(--theme-dark-color-success);
       --color-success-bg: var(--theme-dark-color-success-bg);
+      --color-buy: var(--theme-dark-color-success);
+      --color-buy-bg: var(--theme-dark-color-success-bg);
       --color-info: var(--theme-dark-color-info);
       --color-info-bg: var(--theme-dark-color-info-bg);
       --color-chart-1: var(--theme-dark-color-chart-1);
@@ -990,6 +1006,8 @@
       --color-danger-bg: var(--theme-light-color-danger-bg);
       --color-success: var(--theme-light-color-success);
       --color-success-bg: var(--theme-light-color-success-bg);
+      --color-buy: var(--theme-light-color-buy-rose);
+      --color-buy-bg: var(--theme-light-color-buy-rose-bg);
       --color-info: var(--theme-light-color-info);
       --color-info-bg: var(--theme-light-color-info-bg);
       --color-chart-1: var(--theme-light-color-chart-1);
@@ -1106,6 +1124,8 @@
       --color-danger-bg: var(--theme-dark-color-danger-bg);
       --color-success: var(--theme-dark-color-success);
       --color-success-bg: var(--theme-dark-color-success-bg);
+      --color-buy: var(--theme-dark-color-buy-rose);
+      --color-buy-bg: var(--theme-dark-color-buy-rose-bg);
       --color-info: var(--theme-dark-color-info);
       --color-info-bg: var(--theme-dark-color-info-bg);
       --color-chart-1: var(--theme-dark-color-chart-1);
@@ -1222,6 +1242,8 @@
       --color-danger-bg: var(--theme-light-color-danger-bg);
       --color-success: var(--theme-light-color-success);
       --color-success-bg: var(--theme-light-color-success-bg);
+      --color-buy: var(--theme-light-color-success);
+      --color-buy-bg: var(--theme-light-color-success-bg);
       --color-info: var(--theme-light-color-info);
       --color-info-bg: var(--theme-light-color-info-bg);
       --color-chart-1: var(--theme-light-color-chart-1);
@@ -1338,6 +1360,8 @@
       --color-danger-bg: var(--theme-dark-color-danger-bg);
       --color-success: var(--theme-dark-color-success);
       --color-success-bg: var(--theme-dark-color-success-bg);
+      --color-buy: var(--theme-dark-color-success);
+      --color-buy-bg: var(--theme-dark-color-success-bg);
       --color-info: var(--theme-dark-color-info);
       --color-info-bg: var(--theme-dark-color-info-bg);
       --color-chart-1: var(--theme-dark-color-chart-1);

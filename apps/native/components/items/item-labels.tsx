@@ -62,6 +62,9 @@ const PRIORITY_PALETTE = {
   },
 } as const;
 
+/** Shared height so sale / priority / status pills on an item image line up exactly. */
+export const CARD_BADGE_HEIGHT = 26;
+
 export function ItemStatusBadge({
   label,
   purchased,
@@ -76,13 +79,14 @@ export function ItemStatusBadge({
 
   return (
     <View
-      className="max-w-full flex-row items-center rounded-full border"
+      className="max-w-full flex-row items-center justify-center rounded-full border"
       style={{
         backgroundColor: palette.backgroundColor,
         borderColor: palette.borderColor,
         gap: compact ? 0 : 6,
-        paddingHorizontal: compact ? 5 : 10,
-        paddingVertical: compact ? 5 : 6,
+        height: CARD_BADGE_HEIGHT,
+        paddingHorizontal: compact ? 0 : 10,
+        width: compact ? CARD_BADGE_HEIGHT : undefined,
       }}
     >
       <Icon as={icon} className="size-3.5" color={palette.color} />
@@ -130,13 +134,14 @@ export function ItemPriorityBadge({
 
   return (
     <View
-      className="flex-row items-center rounded-full border"
+      className="flex-row items-center justify-center rounded-full border"
       style={{
         backgroundColor: palette.backgroundColor,
         borderColor: palette.borderColor,
         gap: 6,
-        paddingHorizontal: compact ? 8 : 10,
-        paddingVertical: compact ? 4 : 6,
+        height: compact ? CARD_BADGE_HEIGHT : undefined,
+        paddingHorizontal: 10,
+        paddingVertical: compact ? 0 : 6,
       }}
     >
       {PriorityIcon ? <Icon as={PriorityIcon} className="size-3" color={palette.color} /> : null}

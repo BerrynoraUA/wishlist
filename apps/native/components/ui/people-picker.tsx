@@ -496,8 +496,9 @@ function SelectedPerson({
         className="p-0.5"
       >
         <PeopleAvatar item={item} className="size-12" />
-        <View className="absolute end-0 top-0 size-5 items-center justify-center rounded-full border-2 border-bg-elevated bg-destructive/10">
-          <Icon as={X} className="size-2.5 text-destructive" />
+        {/* Solid fill: a translucent badge disappeared against colored group tiles. */}
+        <View className="absolute end-0 top-0 size-5 items-center justify-center rounded-full border-2 border-bg-elevated bg-destructive">
+          <Icon as={X} className="size-3 text-white" />
         </View>
       </AnimatedPressable>
       <Text className="text-center text-[11px] font-semibold text-text-muted" numberOfLines={1}>

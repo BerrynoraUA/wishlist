@@ -1,7 +1,11 @@
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
-import { ItemPriorityBadge, ItemStatusBadge } from "@/components/items/item-labels";
+import {
+  CARD_BADGE_HEIGHT,
+  ItemPriorityBadge,
+  ItemStatusBadge,
+} from "@/components/items/item-labels";
 import { cn } from "@/lib/utils";
 import type { Item } from "@wishlist/backend/types/item";
 import { Gift } from "lucide-react-native";
@@ -107,9 +111,14 @@ export function ItemImage({
         )}
       >
         {salePercentOff != null ? (
-          <Text className="rounded-full border border-danger bg-danger-bg px-2 py-1 text-[11px] font-extrabold text-danger">
-            {t("Sale -{percent}%", { percent: salePercentOff })}
-          </Text>
+          <View
+            className="items-center justify-center rounded-full border border-danger bg-danger-bg px-2.5"
+            style={{ height: CARD_BADGE_HEIGHT }}
+          >
+            <Text className="text-[11px] font-extrabold text-danger">
+              {t("Sale -{percent}%", { percent: salePercentOff })}
+            </Text>
+          </View>
         ) : null}
         {priority && priorityLabel ? (
           <ItemPriorityBadge priority={priority} label={priorityLabel} compact context="card" />

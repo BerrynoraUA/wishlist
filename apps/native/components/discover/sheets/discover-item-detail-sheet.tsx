@@ -1,4 +1,8 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import {
+  BottomSheet,
+  BottomSheetScrollView,
+  type BottomSheetRef,
+} from "@/components/ui/bottom-sheet";
 import { ItemImage } from "@/components/items/item-image";
 import {
   ActionBottomSheetConfirm,
@@ -110,7 +114,7 @@ export function DiscoverItemDetailSheet({
       message: selectedItem.name,
       confirmLabel: reservation.isPurchased ? t("Undo") : t("Buy"),
       isPending: boughtPending,
-      tone: reservation.isPurchased ? "destructive" : "success",
+      tone: reservation.isPurchased ? "destructive" : "buy",
       onConfirm: () => {
         setConfirmation(null);
         onToggleBought(selectedItem.id);
@@ -118,10 +122,80 @@ export function DiscoverItemDetailSheet({
     });
   }
 
+  // Actions stay visible but are locked when the viewer can't perform them. "Undo" only
+  // appears for a purchase this viewer made — someone else's purchase shows a locked "Buy".
+  const canReserve = reservation.canToggleReservation;
+  const canBuy = reservation.canToggleBought;
+  const canUndoPurchase = reservation.isPurchased && canBuy;
+  const reservedByMe = reservation.isReserved && reservation.reservedByMe;
+  // A purchased gift is reserved too, so both buttons report the state they are locked in.
+  const showAsReserved = reservation.isReserved || reservation.isPurchased;
+
+  const actions = (
+    <View className="w-full gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
+      <Button
+        variant="ghost"
+        size="lg"
+        disabled={!canReserve || reservePending}
+        onPress={confirmReservation}
+        className={
+          reservedByMe
+            ? "w-full rounded-lg border border-brand bg-brand"
+            : "w-full rounded-lg border border-brand/25 bg-brand-lighter"
+        }
+      >
+        {reservePending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
+        <Icon
+          as={LockKeyhole}
+          className={reservedByMe ? "size-4 text-primary-foreground" : "size-4 text-brand"}
+        />
+        <Text className={reservedByMe ? "text-primary-foreground" : "text-brand"}>
+          {reservedByMe
+            ? t("Release reservation")
+            : showAsReserved
+              ? t("Reserved")
+              : t("Reserve this gift")}
+        </Text>
+      </Button>
+      <Button
+        variant="ghost"
+        size="lg"
+        disabled={!canBuy || boughtPending}
+        onPress={confirmBought}
+        className={
+          canUndoPurchase
+            ? "w-full rounded-lg border border-destructive/35 bg-danger-bg"
+            : "w-full rounded-xl border border-buy/70 bg-buy-bg"
+        }
+      >
+        {boughtPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
+        <Icon
+          as={ShoppingCart}
+          className={canUndoPurchase ? "size-4 text-destructive" : "size-4 text-buy"}
+        />
+        <Text className={canUndoPurchase ? "text-destructive" : "text-buy"}>
+          {canUndoPurchase ? t("Undo") : reservation.isPurchased ? t("Purchased") : t("Buy")}
+        </Text>
+      </Button>
+    </View>
+  );
+
   return (
     <>
-      <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
-        <View className="gap-5 px-5 pt-5">
+      <BottomSheet
+        ref={sheetRef}
+        scrollable
+        // "auto" keeps the sheet as tall as its content — no empty gap under a short item —
+        // and only starts scrolling once the content outgrows the screen.
+        detents={["auto", 0.94]}
+        footerInsetMode="scroll-content"
+        onDidDismiss={onClose}
+        footer={actions}
+      >
+        <BottomSheetScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerClassName="gap-5 px-5 pt-5"
+        >
           <ItemImage
             item={item}
             reservationLabel={reservationLabel}
@@ -179,62 +253,7 @@ export function DiscoverItemDetailSheet({
               ))}
             </View>
           ) : null}
-
-          <View className="gap-2">
-            <Button
-              variant="ghost"
-              size="lg"
-              disabled={!reservation.canToggleReservation || reservePending}
-              onPress={confirmReservation}
-              className={
-                reservation.isReserved
-                  ? "w-full rounded-lg border border-brand bg-brand"
-                  : "w-full rounded-lg border border-brand/25 bg-brand-lighter"
-              }
-            >
-              {reservePending ? (
-                <ActivityIndicator colorClassName="accent-primary-foreground" />
-              ) : null}
-              <Icon
-                as={LockKeyhole}
-                className={
-                  reservation.isReserved ? "size-4 text-primary-foreground" : "size-4 text-brand"
-                }
-              />
-              <Text className={reservation.isReserved ? "text-primary-foreground" : "text-brand"}>
-                {!reservation.isReserved
-                  ? t("Reserve this gift")
-                  : reservation.reservedByMe
-                    ? t("Release reservation")
-                    : t("Reserved")}
-              </Text>
-            </Button>
-            <Button
-              variant="ghost"
-              size="lg"
-              disabled={!reservation.canToggleBought || boughtPending}
-              onPress={confirmBought}
-              className={
-                reservation.isPurchased
-                  ? "w-full rounded-lg border border-destructive/35 bg-danger-bg"
-                  : "w-full rounded-xl border border-success/70 bg-success-bg"
-              }
-            >
-              {boughtPending ? (
-                <ActivityIndicator colorClassName="accent-primary-foreground" />
-              ) : null}
-              <Icon
-                as={ShoppingCart}
-                className={
-                  reservation.isPurchased ? "size-4 text-destructive" : "size-4 text-success"
-                }
-              />
-              <Text className={reservation.isPurchased ? "text-destructive" : "text-success"}>
-                {reservation.isPurchased ? t("Undo") : t("Buy")}
-              </Text>
-            </Button>
-          </View>
-        </View>
+        </BottomSheetScrollView>
       </BottomSheet>
       <ActionBottomSheetConfirm
         open={Boolean(confirmation)}

@@ -59,8 +59,10 @@ export default function DiscoverScreen() {
 
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
-  const columns = width >= 820 ? 3 : 2;
-  const cardWidth = (contentWidth - gridGap * (columns - 1)) / columns;
+  // Sections scroll horizontally, so cards are sized to show ~1.5 per screen as a scroll hint.
+  const sectionCardWidth = Math.min(300, Math.max(200, contentWidth * 0.62));
+  // Reserved / purchased are a single column: one full-width card per row, scrolling down.
+  const reservedCardWidth = contentWidth;
   const friends = friendsQuery.data ?? [];
 
   function handleToggleSelectedReservation(itemId: string) {
@@ -158,8 +160,8 @@ export default function DiscoverScreen() {
         <View style={{ alignSelf: "center", width: contentWidth }}>
           <ReservedItemsGrid
             items={feed.activeItems}
-            columns={columns}
-            cardWidth={cardWidth}
+            columns={1}
+            cardWidth={reservedCardWidth}
             gridGap={gridGap}
             currentUserId={user?.id}
             purchased={feed.tab === "purchased"}
@@ -174,7 +176,7 @@ export default function DiscoverScreen() {
       <View style={{ alignSelf: "center", width: contentWidth }}>
         <DiscoverSection
           section={item}
-          cardWidth={cardWidth}
+          cardWidth={sectionCardWidth}
           gridGap={gridGap}
           currentUserId={user?.id}
           avatarUrl={
@@ -268,7 +270,8 @@ export default function DiscoverScreen() {
         }
         extraData={{
           tab: feed.tab,
-          cardWidth,
+          sectionCardWidth,
+          reservedCardWidth,
           contentWidth,
           gridGap,
           activeItems: feed.activeItems,
