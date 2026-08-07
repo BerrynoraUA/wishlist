@@ -342,11 +342,7 @@ export function WishlistItemHeader({
               </View>
             )}
 
-            <DatePicker
-              value={eventDate}
-              onChange={updateEventDate}
-              iosContainerClassName="overflow-hidden rounded-xl border border-border-subtle bg-card-bg"
-            >
+            <DatePicker value={eventDate} onChange={updateEventDate}>
               {({ displayValue, openPicker }) => (
                 <View className="w-full flex-row items-center gap-2">
                   {canInlineEdit ? (

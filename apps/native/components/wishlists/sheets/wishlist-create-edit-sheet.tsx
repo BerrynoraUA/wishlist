@@ -623,7 +623,6 @@ function EventDatePicker({
     <DatePicker
       value={value || null}
       onChange={(nextValue) => onChange(nextValue ?? "")}
-      iosContainerClassName="mt-2 overflow-hidden rounded-xl border border-border-subtle bg-bg-subtle"
     >
       {({ displayValue, openPicker }) => (
         <View className="gap-2">
