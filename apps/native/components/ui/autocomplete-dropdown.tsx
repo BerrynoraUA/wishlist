@@ -96,7 +96,6 @@ export function AutocompleteDropdown({
   const [query, setQuery] = React.useState("");
   const triggerRef = React.useRef<View>(null);
   const sheetRef = React.useRef<BottomSheetRef>(null);
-  const searchInputRef = React.useRef<TextInput>(null);
   // The inline (`inlineOptions`) and always-shown (`alwaysShowOptions`) variants render the
   // option list right next to the trigger. Every other case ("overlay") used to float the list
   // below the input, where the keyboard covered it — those now open as a bottom sheet instead:
@@ -391,12 +390,10 @@ export function AutocompleteDropdown({
           scrollable
           detents={[0.9]}
           footerInsetMode="scroll-content"
-          onDidPresent={() => searchInputRef.current?.focus()}
           onDidDismiss={handleSheetDismiss}
           footer={
-            <View className="px-4 pb-3 pt-3">
+            <View className="w-full px-5 pb-3 pt-3">
               <TextInput
-                ref={searchInputRef}
                 value={query}
                 onChangeText={handleQueryChange}
                 onSubmitEditing={handleSubmit}
@@ -423,8 +420,8 @@ export function AutocompleteDropdown({
             scrollEventThrottle={16}
             contentContainerStyle={{
               flexGrow: 1,
-              paddingHorizontal: 16,
-              paddingTop: 16,
+              paddingHorizontal: 20,
+              paddingTop: 20,
             }}
           >
             {isLoading && matchingOptions.length === 0 ? (
