@@ -430,7 +430,6 @@ export function WishlistCreateEditSheet({
             aspect={[16, 9]}
             pickLabel={t("Choose cover image")}
             changeLabel={t("Change image")}
-            showChangeButton={mode !== "edit"}
             onPick={(image) => {
               imageUpload.onPick(image);
             }}

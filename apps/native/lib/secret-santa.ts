@@ -3,7 +3,6 @@ import { normalizeCurrencyCode } from "@wishlist/backend/lib/currencies";
 
 export const SECRET_SANTA_PAGE_SIZE = 20;
 export const MIN_PARTICIPANTS_TO_LAUNCH = 2;
-export const SECRET_SANTA_MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 export function formatSecretSantaDate(dateStr: string, locale = "en") {
   return new Date(`${dateStr}T00:00:00`).toLocaleDateString(locale, {
