@@ -44,7 +44,8 @@ import { resolveSupportedCurrency } from "@wishlist/backend/lib/currencies";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
-import { Lock, Plus } from "lucide-react-native";
+import * as Clipboard from "expo-clipboard";
+import { ClipboardPaste, Lock, Plus } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -264,6 +265,18 @@ export function WishlistItemCreateEditSheet({
     void sheetRef.current?.dismiss();
   }
 
+  async function pasteProductLink() {
+    const clipboardText = (await Clipboard.getStringAsync()).trim();
+
+    if (!clipboardText) {
+      setScrapeError(t("Clipboard is empty."));
+      return;
+    }
+
+    setScrapeError(null);
+    patchValues({ url: clipboardText });
+  }
+
   const productLinkField = form.showsProductLink ? (
     <View className={cn("gap-2", form.productLinkPosition === "top" && "mt-2")}>
       <Controller
@@ -284,6 +297,18 @@ export function WishlistItemCreateEditSheet({
             showClear={canClearScrapedFields && !isScraping && !isPending}
             onClear={clearProductLinkAndScraperFields}
             clearLabel={t("Clear product link and autofill")}
+            trailing={
+              value.trim() === "" ? (
+                <Button
+                  variant="ghost"
+                  onPress={() => void pasteProductLink()}
+                  className="-me-1.5 h-8 shrink-0 gap-1.5 rounded-full px-2.5"
+                >
+                  <Icon as={ClipboardPaste} className="size-4 text-brand" />
+                  <Text className="text-sm font-semibold text-brand">{t("Paste")}</Text>
+                </Button>
+              ) : null
+            }
           />
         )}
       />
