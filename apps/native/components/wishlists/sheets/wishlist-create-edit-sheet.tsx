@@ -533,7 +533,7 @@ function VisibilitySelector({
         onChange(nextOption.visibility, nextOption.selectedAccessTarget);
       }}
     >
-      <SelectTrigger className="h-10 rounded-lg border-border-subtle bg-bg-subtle sm:h-9">
+      <SelectTrigger className="h-10 rounded-lg border-border-subtle sm:h-9">
         <View className="min-w-0 flex-1 flex-row items-center gap-2">
           {SelectedIcon ? <Icon as={SelectedIcon} className="size-4 text-text-muted" /> : null}
           <SelectValue className="min-w-0 flex-1" placeholder={t("Select visibility")} />
@@ -626,7 +626,7 @@ function EventDatePicker({
             accessibilityRole="button"
             accessibilityLabel={t("Select event date")}
             onPress={openPicker}
-            className="h-10 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-bg-subtle px-3 sm:h-9"
+            className="h-10 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-background px-3 sm:h-9 dark:bg-input/30"
           >
             <Icon as={CalendarDays} className="size-4 text-text-muted" />
             <View className="min-w-0 flex-1">
