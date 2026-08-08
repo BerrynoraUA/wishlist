@@ -12,12 +12,7 @@ export type ActionBottomSheetMessagePayload = {
 };
 
 /** "buy" is the purchase action: green like success, but rose when the accent itself is green. */
-export type ActionBottomSheetConfirmTone =
-  | "default"
-  | "brand"
-  | "success"
-  | "buy"
-  | "destructive";
+export type ActionBottomSheetConfirmTone = "default" | "brand" | "success" | "buy" | "destructive";
 
 export function ActionBottomSheetMessage({
   message,

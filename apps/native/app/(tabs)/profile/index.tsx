@@ -63,7 +63,7 @@ export default function ProfileScreen() {
   const contentBottomPadding =
     process.env.EXPO_OS === "android"
       ? NAV_TAB_BAR_HEIGHT / 2 + NAV_TAB_BAR_BACKDROP_OFFSET + SETTINGS_BOTTOM_SPACING
-      : SETTINGS_BOTTOM_SPACING;
+      : insets.bottom + SETTINGS_BOTTOM_SPACING;
 
   function setThemePreference(value: ThemePreference) {
     updateSettings.mutate({ theme: value });

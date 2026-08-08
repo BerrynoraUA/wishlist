@@ -20,16 +20,24 @@ export function useBottomSafeAreaPadding() {
 /**
  * Bottom padding a scrolling screen needs so its last row is not left under the tab bar.
  *
- * Only Android needs it: that bar is a floating pill drawn over the content, so nothing
- * insets the list automatically. iOS renders a real `NativeTabs` bar, which adjusts
- * scroll insets itself — padding it here would just leave a gap.
+ * Both bars are drawn over the content, and neither insets a list on its own. iOS could
+ * do it natively, but only for the first scroll view in the first descendant chain of the
+ * tab screen — screens that render a `PinnedListHeader` or a backdrop first silently miss
+ * out. `IosTabBar` therefore opts every tab out of it (`disableAutomaticContentInsets`) and
+ * both platforms pad here instead: the translucent iOS bar is part of the screen's bottom
+ * safe-area inset, while the Android pill is a plain floating view we measure ourselves.
  */
 export function useTabBarContentPadding(spacing = CONTENT_BOTTOM_SPACING) {
-  const bottomSafeAreaPadding = useBottomSafeAreaPadding();
+  const insets = useSafeAreaInsets();
 
-  if (process.env.EXPO_OS !== "android") return spacing;
+  if (process.env.EXPO_OS !== "android") return insets.bottom + spacing;
 
-  return NAV_TAB_BAR_TOP_PADDING + NAV_TAB_BAR_HEIGHT + bottomSafeAreaPadding + spacing;
+  return (
+    NAV_TAB_BAR_TOP_PADDING +
+    NAV_TAB_BAR_HEIGHT +
+    Math.max(insets.bottom, NAV_TAB_BAR_MIN_BOTTOM_INSET) +
+    spacing
+  );
 }
 
 export function chunkRows<T>(items: readonly T[], columns: number): T[][] {
