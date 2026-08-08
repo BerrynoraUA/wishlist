@@ -65,15 +65,7 @@ const PRIORITY_PALETTE = {
 /** Shared height so sale / priority / status pills on an item image line up exactly. */
 export const CARD_BADGE_HEIGHT = 26;
 
-export function ItemStatusBadge({
-  label,
-  purchased,
-  compact = false,
-}: {
-  label: string;
-  purchased: boolean;
-  compact?: boolean;
-}) {
+export function ItemStatusBadge({ label, purchased }: { label: string; purchased: boolean }) {
   const palette = useItemStatusPalette(purchased ? "purchased" : "reserved");
   const icon = purchased ? ShoppingCart : LockKeyhole;
 
@@ -83,22 +75,19 @@ export function ItemStatusBadge({
       style={{
         backgroundColor: palette.backgroundColor,
         borderColor: palette.borderColor,
-        gap: compact ? 0 : 6,
+        gap: 6,
         height: CARD_BADGE_HEIGHT,
-        paddingHorizontal: compact ? 0 : 10,
-        width: compact ? CARD_BADGE_HEIGHT : undefined,
+        paddingHorizontal: 10,
       }}
     >
       <Icon as={icon} className="size-3.5" color={palette.color} />
-      {!compact ? (
-        <Text
-          className="min-w-0 shrink text-[11px] font-bold"
-          numberOfLines={1}
-          style={{ color: palette.color }}
-        >
-          {label}
-        </Text>
-      ) : null}
+      <Text
+        className="min-w-0 shrink text-[11px] font-bold"
+        numberOfLines={1}
+        style={{ color: palette.color }}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
