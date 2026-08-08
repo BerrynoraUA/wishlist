@@ -13,9 +13,9 @@ import { formatSecretSantaBudget, formatSecretSantaDate } from "@/lib/secret-san
 import { cn } from "@/lib/utils";
 import { getWishlistAccentClass } from "@/lib/wishlists";
 import type { SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
-import { CalendarDays, Gift, Pencil, Trash2, Users } from "lucide-react-native";
+import { CalendarDays, Pencil, Trash2, Users } from "lucide-react-native";
 import { useGT, useLocale } from "gt-react-native";
-import { Pressable, View } from "react-native";
+import { Image, Pressable, View } from "react-native";
 
 export function SecretSantaEventCard({
   event,
@@ -59,7 +59,11 @@ export function SecretSantaEventCard({
                   className="absolute inset-0 size-full"
                 />
               ) : (
-                <Icon as={Gift} className="size-10 text-white/85" />
+                <Image
+                  source={require("@/assets/images/secret-santa-tab.png")}
+                  className="size-10 opacity-85"
+                  tintColorClassName="accent-white"
+                />
               )}
               {event.is_owner ? (
                 <View className="absolute end-3 top-3 rounded-full border border-white/35 bg-white/25 px-2 py-1">
