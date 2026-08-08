@@ -9,6 +9,7 @@ import {
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { CurrencyPicker } from "@/components/ui/currency-picker";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
@@ -39,6 +40,7 @@ import {
 import { useImageUploadField } from "@/lib/image-upload";
 import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
+import { resolveSupportedCurrency } from "@wishlist/backend/lib/currencies";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
@@ -328,6 +330,7 @@ export function WishlistItemCreateEditSheet({
       if (product.image) {
         imageUpload.onClear();
       }
+      const scrapedCurrency = resolveSupportedCurrency(product.currency);
       patchValues({
         ...(product.title ? { name: product.title } : {}),
         ...(form.scrapeDescription && product.description
@@ -335,7 +338,9 @@ export function WishlistItemCreateEditSheet({
           : {}),
         ...(product.image ? { imageUrl: product.image } : {}),
         ...(product.price ? { price: product.price } : {}),
-        ...(product.currency ? { currency: product.currency } : {}),
+        // The scraper can report a symbol or a currency we don't offer; keep the current
+        // selection in that case rather than autofilling something we can't represent.
+        ...(scrapedCurrency ? { currency: scrapedCurrency } : {}),
         discountPrice: product.discount_price ?? "",
         hasDiscount: product.has_discount,
         discountEndDate: product.discount_end_date ?? "",
@@ -530,22 +535,8 @@ export function WishlistItemCreateEditSheet({
           </Field>
         ) : null}
 
-        <View className="flex-row gap-2">
-          <Field label={t("Currency")} className="w-24">
-            <Controller
-              control={control}
-              name="currency"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder={t("USD")}
-                  autoCapitalize="characters"
-                />
-              )}
-            />
-          </Field>
-          <Field label={t("Price")} className="min-w-0 flex-1">
+        <View className="flex-row gap-3">
+          <Field label={t("Price")} className="min-w-0 basis-0 flex-1">
             <Controller
               control={control}
               name="price"
@@ -556,6 +547,15 @@ export function WishlistItemCreateEditSheet({
                   placeholder={t("199")}
                   keyboardType="decimal-pad"
                 />
+              )}
+            />
+          </Field>
+          <Field label={t("Currency")} className="min-w-0 basis-0 flex-1">
+            <Controller
+              control={control}
+              name="currency"
+              render={({ field: { onChange, value } }) => (
+                <CurrencyPicker value={value} onValueChange={onChange} />
               )}
             />
           </Field>
