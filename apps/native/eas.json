@@ -27,6 +27,16 @@
         "buildType": "app-bundle"
       }
     },
+    "beta": {
+      "extends": "base",
+      "distribution": "store",
+      "channel": "beta",
+      "environment": "production",
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      }
+    },
     "production": {
       "extends": "base",
       "channel": "production",
@@ -47,6 +57,15 @@
     "staging": {
       "android": {
         "track": "internal",
+        "releaseStatus": "completed"
+      },
+      "ios": {
+        "ascAppId": "6792105704"
+      }
+    },
+    "beta": {
+      "android": {
+        "track": "beta",
         "releaseStatus": "completed"
       },
       "ios": {
