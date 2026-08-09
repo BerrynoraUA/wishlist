@@ -1,6 +1,5 @@
 import { InlineState } from "@/components/shared/inline-state";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
-import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
@@ -53,8 +52,6 @@ import {
   updateItemIfSelected,
 } from "@/lib/items";
 import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
-import { cn } from "@/lib/utils";
-import { getWishlistAccentClass } from "@/lib/wishlists";
 import type { Item } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -408,14 +405,6 @@ export default function WishlistDetailScreen() {
     <>
       <Stack.Screen options={{ title: wishlist?.title ?? t("Wishlist") }} />
       <View className="flex-1 bg-bg">
-        {wishlist ? (
-          <ScreenTopBackdrop>
-            <View
-              className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))}
-            />
-            <View className="absolute inset-0 bg-black/20" />
-          </ScreenTopBackdrop>
-        ) : null}
         {wishlistQuery.isLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />

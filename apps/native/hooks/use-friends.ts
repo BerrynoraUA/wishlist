@@ -22,6 +22,11 @@ import {
   updateFriendGroup,
 } from "@/api/friends";
 import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
+import {
+  friendKeys,
+  type FriendPaginationParams as PaginationParams,
+} from "@/lib/friend-query-keys";
+import { wishlistKeys } from "@/lib/wishlist-query-keys";
 import { normalizeSearchQuery } from "@/lib/wishlists";
 import { useAuth } from "@/providers/auth-provider";
 import type {
@@ -30,40 +35,11 @@ import type {
 } from "@wishlist/backend/types/friends";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
-import { wishlistKeys } from "./use-wishlists";
-
-type PaginationParams = {
-  skip?: number;
-  take?: number;
-  search?: string;
-};
 
 /** Lets a caller keep a query idle while the UI that needs it is not on screen. */
 type QueryGate = { enabled?: boolean };
 
-export const friendKeys = {
-  all: ["friends"] as const,
-  lists: () => [...friendKeys.all, "list"] as const,
-  list: (authUserId: string | null | undefined, params?: PaginationParams) =>
-    [...friendKeys.lists(), authUserId ?? "anonymous", params] as const,
-  requests: () => [...friendKeys.all, "requests"] as const,
-  incoming: (authUserId: string | null | undefined, params?: PaginationParams) =>
-    [...friendKeys.requests(), "incoming", authUserId ?? "anonymous", params] as const,
-  outgoing: (authUserId: string | null | undefined, params?: PaginationParams) =>
-    [...friendKeys.requests(), "outgoing", authUserId ?? "anonymous", params] as const,
-  search: (authUserId: string | null | undefined, query: string, params?: PaginationParams) =>
-    [...friendKeys.all, "search", authUserId ?? "anonymous", query, params] as const,
-  groups: () => [...friendKeys.all, "groups"] as const,
-  groupList: (authUserId: string | null | undefined, params?: PaginationParams) =>
-    [...friendKeys.groups(), authUserId ?? "anonymous", params] as const,
-  groupMembers: (authUserId: string | null | undefined, groupId?: string) =>
-    [...friendKeys.groups(), "members", authUserId ?? "anonymous", groupId] as const,
-  groupMembersRoot: () => [...friendKeys.groups(), "members"] as const,
-  check: (authUserId: string | null | undefined, userId: string) =>
-    [...friendKeys.all, "check", authUserId ?? "anonymous", userId] as const,
-  profilesByIds: (authUserId: string | null | undefined, idsKey: string) =>
-    [...friendKeys.all, "profiles-by-ids", authUserId ?? "anonymous", idsKey] as const,
-};
+export { friendKeys } from "@/lib/friend-query-keys";
 
 export function useInfiniteIncomingFriendRequests(pageSize: number) {
   const { user } = useAuth();
@@ -169,7 +145,7 @@ export function useInfiniteFriends(params: PaginationParams, pageSize: number) {
   );
 
   return useSkipTakeInfiniteQuery({
-    queryKey: friendKeys.list(user?.id, { ...normalizedParams, take: pageSize }),
+    queryKey: friendKeys.infiniteList(user?.id, { ...normalizedParams, take: pageSize }),
     fetchPage: ({ skip, take }) =>
       getFriends({
         ...normalizedParams,
@@ -212,7 +188,10 @@ export function useInfiniteFriendGroups(params: PaginationParams, pageSize: numb
   );
 
   return useSkipTakeInfiniteQuery({
-    queryKey: friendKeys.groupList(user?.id, { ...normalizedParams, take: pageSize }),
+    queryKey: friendKeys.infiniteGroupList(user?.id, {
+      ...normalizedParams,
+      take: pageSize,
+    }),
     fetchPage: ({ skip, take }) =>
       getFriendGroups({
         ...normalizedParams,
