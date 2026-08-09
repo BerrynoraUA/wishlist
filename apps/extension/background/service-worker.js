@@ -86,6 +86,134 @@ async function refreshSession(refreshToken) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Wishlist import                                                    */
+/* ------------------------------------------------------------------ */
+
+const IMPORT_SOURCES = {
+  gowish: {
+    label: "GoWish",
+    urls: ["https://gowish.com/*", "https://www.gowish.com/*"],
+    homepage: "https://gowish.com/",
+    scrapeMessage: "GOWISH_SCRAPE",
+  },
+  rewish: {
+    label: "ReWish",
+    urls: ["https://rewish.io/*", "https://www.rewish.io/*"],
+    homepage: "https://rewish.io/",
+    scrapeMessage: "REWISH_SCRAPE",
+  },
+  wishpicks: {
+    label: "WishPicks",
+    urls: ["https://wishpicks.com/*", "https://www.wishpicks.com/*"],
+    homepage: "https://wishpicks.com/",
+    scrapeMessage: "WISHPICKS_SCRAPE",
+  },
+  wishlistcom: {
+    label: "WishList.com",
+    urls: ["https://wishlist.com/*", "https://www.wishlist.com/*"],
+    homepage: "https://www.wishlist.com/",
+    scrapeMessage: "WISHLISTCOM_SCRAPE",
+  },
+  mywishlistonline: {
+    label: "My Wishlist",
+    urls: ["https://mywishlist.online/*"],
+    homepage: "https://mywishlist.online/home",
+    scrapeMessage: "MYWISHLISTONLINE_SCRAPE",
+  },
+};
+
+async function sbFetch(session, path, options = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${session.access_token}`,
+      ...options.headers,
+    },
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Supabase request failed: ${body || res.status}`);
+  }
+
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+/**
+ * Copy scraped wishlists into the signed-in user's account.
+ *
+ * Rows carry the source id in `external_id` (namespaced as `<source>:<id>`), and
+ * the unique indexes on (user_id, external_id) / (wishlist_id, external_id) let
+ * the insert skip what a previous run already brought over. Existing rows are
+ * never overwritten, so a repeated import only tops lists up and leaves local
+ * edits alone.
+ */
+async function importWishlists(session, source, scraped) {
+  const existing = await sbFetch(
+    session,
+    `wishlist?user_id=eq.${session.user.id}&external_id=not.is.null&select=id,external_id`,
+  );
+  const idByExternalId = new Map(existing.map((wl) => [wl.external_id, wl.id]));
+
+  let wishlistsCreated = 0;
+  let itemsAdded = 0;
+  let itemsSkipped = 0;
+
+  for (const [index, list] of scraped.entries()) {
+    const externalId = `${source}:${list.id}`;
+    let wishlistId = idByExternalId.get(externalId);
+
+    if (!wishlistId) {
+      const [created] = await sbFetch(session, "wishlist", {
+        method: "POST",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify({
+          user_id: session.user.id,
+          external_id: externalId,
+          title: list.title,
+          description: list.description,
+          image_url: list.image_url,
+          event_date: list.event_date,
+          visibility_type: list.is_public ? 2 : 0,
+          accent_type: index % 5,
+        }),
+      });
+      wishlistId = created.id;
+      wishlistsCreated++;
+    }
+
+    const rows = list.items.map((item) => ({
+      wishlist_id: wishlistId,
+      external_id: `${source}:${item.id}`,
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      currency: item.currency,
+      image_url: item.image_url,
+      url: item.url,
+      status: 0,
+    }));
+
+    // Chunked so a large list doesn't hit request size limits.
+    for (let i = 0; i < rows.length; i += 50) {
+      const chunk = rows.slice(i, i + 50);
+      const inserted = await sbFetch(session, "item?on_conflict=wishlist_id,external_id", {
+        method: "POST",
+        headers: { Prefer: "return=representation,resolution=ignore-duplicates" },
+        body: JSON.stringify(chunk),
+      });
+      itemsAdded += inserted.length;
+      itemsSkipped += chunk.length - inserted.length;
+    }
+  }
+
+  return { success: true, wishlistsCreated, itemsAdded, itemsSkipped };
+}
+
+/* ------------------------------------------------------------------ */
 /*  Message handler                                                    */
 /* ------------------------------------------------------------------ */
 
@@ -316,6 +444,50 @@ async function handleMessage(msg) {
       }
 
       return { success: true, item: (await res.json())[0] };
+    }
+
+    /* ────────── Import wishlists from another service ────────── */
+
+    case "GET_IMPORT_SOURCES": {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+      const sources = Object.entries(IMPORT_SOURCES).map(([id, config]) => ({
+        id,
+        label: config.label,
+        // Lets the popup lead with the service the user is already looking at.
+        isCurrentSite: config.urls.some((pattern) => {
+          // Match pattern → regex; a trailing `/*` also covers the bare origin.
+          const expr = pattern.replace(/[.]/g, "\\.").replace(/\/\*$/, "(/.*)?");
+          return new RegExp(`^${expr}$`).test(tab?.url || "");
+        }),
+      }));
+
+      return { sources };
+    }
+
+    case "IMPORT_SOURCE": {
+      const session = await getSession();
+      if (!session) throw new Error("Not authenticated");
+
+      const { source } = msg.payload;
+      const config = IMPORT_SOURCES[source];
+      if (!config) throw new Error(`Unknown import source: ${source}`);
+
+      const [tab] = await chrome.tabs.query({ url: config.urls });
+
+      if (!tab?.id) {
+        await chrome.tabs.create({ url: config.homepage });
+        return { needsSourceTab: true, label: config.label };
+      }
+
+      const scraped = await chrome.tabs
+        .sendMessage(tab.id, { type: config.scrapeMessage })
+        .catch(() => {
+          throw new Error(`Reload the ${config.label} tab, then try importing again.`);
+        });
+      if (scraped?.error) throw new Error(scraped.error);
+
+      return await importWishlists(session, source, scraped.wishlists || []);
     }
 
     default:
