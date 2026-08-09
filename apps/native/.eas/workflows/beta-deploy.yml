@@ -1,0 +1,60 @@
+name: Native Beta Deploy
+
+defaults:
+  tools:
+    node: 22.14.0
+    pnpm: 11.9.0
+
+# Public-tester channel: new features built against the PRODUCTION environment
+# (production Supabase, production RevenueCat) but distributed to testers only —
+# TestFlight and Play open testing. Never touches the Play production track;
+# that stays with release-build.yml.
+#
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - apps/native/**
+#       - "!**/*.md"
+
+concurrency:
+  cancel_in_progress: true
+  group: ${{ workflow.filename }}-${{ github.ref }}
+
+jobs:
+  build_ios:
+    name: Build iOS Beta
+    type: build
+    environment: production
+    params:
+      platform: ios
+      profile: beta
+      message: Beta build from ${{ github.ref_name }}
+
+  submit_ios:
+    name: Submit to TestFlight
+    needs: [build_ios]
+    type: submit
+    environment: production
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}
+      profile: beta
+
+  build_android:
+    name: Build Android Beta
+    type: build
+    environment: production
+    params:
+      platform: android
+      profile: beta
+      message: Beta build from ${{ github.ref_name }}
+
+  submit_android:
+    name: Submit to Google Play Open Testing
+    needs: [build_android]
+    type: submit
+    environment: production
+    params:
+      build_id: ${{ needs.build_android.outputs.build_id }}
+      profile: beta

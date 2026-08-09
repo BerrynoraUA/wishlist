@@ -10,7 +10,7 @@ import { INPUT_CLASS_NAME, Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react-native";
+import { Check, ChevronRight, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Keyboard, Pressable, ScrollView, TextInput, View } from "react-native";
 
@@ -243,7 +243,10 @@ export function AutocompleteDropdown({
   ) : null;
 
   const inputClass = cn(
-    attached && "flex-1 border-0 bg-transparent shadow-none",
+    // `dark:bg-transparent` has to be spelled out: the input's own `dark:bg-input/30` is a
+    // different variant than `bg-transparent`, so it would otherwise survive the merge and
+    // paint a lighter box that stops short of the wrapper's border in dark mode.
+    attached && "flex-1 border-0 bg-transparent shadow-none dark:bg-transparent",
     attached && showDropdown && (showOptionsAbove ? "rounded-t-none" : "rounded-b-none"),
     attached && showOptionsAbove && inputAccessory && "rounded-br-none",
     inputClassName,
@@ -350,15 +353,18 @@ export function AutocompleteDropdown({
       <View ref={triggerRef} collapsable={false}>
         {attached ? (
           usesSheet ? (
-            <View className="flex-row items-center rounded-md border border-input bg-background pe-2 shadow-sm shadow-black/5">
-              <Pressable onPress={openDropdown} className="flex-1">
-                {sheetTrigger}
-              </Pressable>
-            </View>
+            <Pressable
+              onPress={openDropdown}
+              role="button"
+              className="flex-row items-center gap-2 rounded-md border border-input bg-background pe-3 shadow-sm shadow-black/5 dark:bg-input/30"
+            >
+              <View className="min-w-0 flex-1">{sheetTrigger}</View>
+              <Icon as={ChevronRight} className="size-4 shrink-0 text-text-muted" />
+            </Pressable>
           ) : (
             <View
               className={cn(
-                "flex-row items-center border border-input bg-background shadow-sm shadow-black/5",
+                "flex-row items-center border border-input bg-background shadow-sm shadow-black/5 dark:bg-input/30",
                 inputAccessory ? "overflow-hidden pe-0" : "pe-2",
                 showDropdown
                   ? showOptionsAbove

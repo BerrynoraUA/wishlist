@@ -35,6 +35,7 @@ export function IosTabBar({ onCreatePress }: IosTabBarProps) {
     >
       <NativeTabs.Trigger
         name="wishlists"
+        disableAutomaticContentInsets
         listeners={{
           tabPress: () => handleTabPress("wishlists"),
         }}
@@ -47,6 +48,7 @@ export function IosTabBar({ onCreatePress }: IosTabBarProps) {
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         name="secret-santa"
+        disableAutomaticContentInsets
         listeners={{
           tabPress: () => handleTabPress("secret-santa"),
         }}
@@ -85,6 +87,7 @@ export function IosTabBar({ onCreatePress }: IosTabBarProps) {
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         name="friends"
+        disableAutomaticContentInsets
         listeners={{
           tabPress: () => handleTabPress("friends"),
         }}
@@ -94,6 +97,7 @@ export function IosTabBar({ onCreatePress }: IosTabBarProps) {
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         name="profile"
+        disableAutomaticContentInsets
         listeners={{
           tabPress: () => handleTabPress("profile"),
         }}

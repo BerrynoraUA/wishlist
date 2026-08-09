@@ -152,7 +152,6 @@ export function SubmitBugReportSheet({
               onPick={screenshotUpload.onPick}
               onClear={screenshotUpload.onClear}
               onError={screenshotUpload.onError}
-              showChangeButton={false}
             />
             {screenshotUpload.error ? (
               <Text className="text-xs text-destructive">{screenshotUpload.error}</Text>

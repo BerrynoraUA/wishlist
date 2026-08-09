@@ -5,7 +5,7 @@ import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { MAX_IMAGE_UPLOAD_BYTES, type NativePickedImage } from "@/lib/image-upload";
 import * as ImagePicker from "expo-image-picker";
-import { Camera, ImagePlus, X } from "lucide-react-native";
+import { ImagePlus, Pencil, X } from "lucide-react-native";
 import * as React from "react";
 import { View } from "react-native";
 import { useGT } from "gt-react-native";
@@ -18,7 +18,6 @@ export function SingleImagePicker({
   onPick,
   onClear,
   onError,
-  showChangeButton = true,
 }: {
   previewUri?: string | null;
   aspect?: [number, number];
@@ -27,7 +26,6 @@ export function SingleImagePicker({
   onPick: (image: NativePickedImage) => void;
   onClear: () => void;
   onError: (message: string) => void;
-  showChangeButton?: boolean;
 }) {
   const t = useGT();
 
@@ -81,13 +79,22 @@ export function SingleImagePicker({
               className="absolute inset-0"
             />
             <Button
-              variant="secondary"
+              variant="destructive"
               size="icon"
               accessibilityLabel={t("Remove image")}
               onPress={onClear}
-              className="absolute end-3 top-3 rounded-full"
+              className="absolute end-3 top-3 rounded-full bg-destructive/85 dark:bg-destructive/85"
             >
-              <Icon as={X} className="size-4 text-text" />
+              <Icon as={X} className="size-4 text-white" />
+            </Button>
+            <Button
+              variant="secondary"
+              size="icon"
+              accessibilityLabel={changeLabel}
+              onPress={pickImage}
+              className="absolute bottom-3 end-3 rounded-full bg-secondary/85"
+            >
+              <Icon as={Pencil} className="size-4 text-text" />
             </Button>
           </View>
         ) : (
@@ -97,12 +104,6 @@ export function SingleImagePicker({
           </Button>
         )}
       </View>
-      {previewUri && showChangeButton ? (
-        <Button variant="outline" onPress={pickImage} className="self-start">
-          <Icon as={Camera} className="size-4 text-text" />
-          <Text>{changeLabel}</Text>
-        </Button>
-      ) : null}
     </View>
   );
 }

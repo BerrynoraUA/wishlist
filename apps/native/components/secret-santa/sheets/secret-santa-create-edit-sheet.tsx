@@ -9,7 +9,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
-import { StyledImage } from "@/components/ui/styled-image";
+import { SingleImagePicker } from "@/components/ui/single-image-picker";
 import { Text } from "@/components/ui/text";
 import { useFriends } from "@/hooks/use-friends";
 import { useProGate } from "@/hooks/use-pro-gate";
@@ -19,14 +19,14 @@ import {
   useUpdateSecretSantaEvent,
 } from "@/hooks/use-secret-santa";
 import { useSettings } from "@/hooks/use-settings";
-import { SECRET_SANTA_MAX_IMAGE_BYTES, getSecretSantaPersonName } from "@/lib/secret-santa";
+import type { NativePickedImage } from "@/lib/image-upload";
+import { getSecretSantaPersonName } from "@/lib/secret-santa";
 import type {
   SecretSantaDetails,
   SecretSantaImageInput,
 } from "@wishlist/backend/types/secret-santa";
 import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
-import * as ImagePicker from "expo-image-picker";
-import { Camera, CalendarDays, ImagePlus, X } from "lucide-react-native";
+import { CalendarDays, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, useWindowDimensions, View } from "react-native";
@@ -121,37 +121,8 @@ export function SecretSantaCreateEditSheet({
 
   if (!open) return null;
 
-  async function pickImage() {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (!permission.granted) {
-      setError(t("Allow photo library access to choose an image."));
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 0.85,
-    });
-
-    if (result.canceled) return;
-
-    const asset = result.assets[0];
-    if (!asset) return;
-
-    if (asset.fileSize && asset.fileSize > SECRET_SANTA_MAX_IMAGE_BYTES) {
-      setError(t("Choose an image that is 5 MB or less."));
-      return;
-    }
-
-    setImage({
-      uri: asset.uri,
-      mimeType: asset.mimeType,
-      fileName: asset.fileName,
-      previewUri: asset.uri,
-    });
+  function pickImage(picked: NativePickedImage) {
+    setImage({ ...picked, previewUri: picked.uri });
     setImageUrl("");
     setRemoveImage(false);
     setError(null);
@@ -330,37 +301,15 @@ export function SecretSantaCreateEditSheet({
 
         <View className="gap-2">
           <Text className="text-sm font-semibold text-text">{t("Cover Image")}</Text>
-          <View className="overflow-hidden rounded-xl border border-border-subtle bg-bg-muted">
-            {image?.previewUri || imageUrl ? (
-              <View className="relative h-40">
-                <StyledImage
-                  source={{ uri: image?.previewUri ?? imageUrl }}
-                  contentFit="cover"
-                  className="absolute inset-0 size-full"
-                />
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  accessibilityLabel={t("Remove image")}
-                  onPress={clearImage}
-                  className="absolute end-3 top-3 rounded-full"
-                >
-                  <Icon as={X} className="size-4 text-text" />
-                </Button>
-              </View>
-            ) : (
-              <Button variant="ghost" onPress={pickImage} className="h-32 flex-col gap-2">
-                <Icon as={ImagePlus} className="size-7 text-brand" />
-                <Text>{t("Choose cover image")}</Text>
-              </Button>
-            )}
-          </View>
-          {image?.previewUri || imageUrl ? (
-            <Button variant="outline" onPress={pickImage} className="self-start">
-              <Icon as={Camera} className="size-4 text-text" />
-              <Text>{t("Change image")}</Text>
-            </Button>
-          ) : null}
+          <SingleImagePicker
+            previewUri={image?.previewUri ?? imageUrl}
+            aspect={[16, 9]}
+            pickLabel={t("Choose cover image")}
+            changeLabel={t("Change image")}
+            onPick={pickImage}
+            onClear={clearImage}
+            onError={setError}
+          />
         </View>
 
         {mode === "create" ? (

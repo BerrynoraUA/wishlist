@@ -20,6 +20,7 @@ export function ClearableInput({
   leading,
   onClear,
   showClear,
+  trailing,
   value,
   ...props
 }: React.ComponentProps<typeof Input> & {
@@ -32,6 +33,8 @@ export function ClearableInput({
   onClear: () => void;
   /** Defaults to "whenever there is something to clear". */
   showClear?: boolean;
+  /** Rendered in the clear button's place while there is nothing to clear. */
+  trailing?: React.ReactNode;
 }) {
   const canClear = showClear ?? Boolean(value);
 
@@ -62,7 +65,9 @@ export function ClearableInput({
         >
           <Icon as={X} className="size-4 text-destructive" />
         </Button>
-      ) : null}
+      ) : (
+        trailing
+      )}
     </View>
   );
 }

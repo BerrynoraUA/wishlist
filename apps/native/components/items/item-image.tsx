@@ -89,18 +89,10 @@ export function ItemImage({
         </View>
       ) : null}
 
-      {reserved && reservationLabel ? (
-        <View
-          className={cn(
-            "absolute start-2 top-2 z-10 max-w-[70%]",
-            isDetail && "start-3 top-3 max-w-[80%]",
-          )}
-        >
-          <ItemStatusBadge
-            label={reservationLabel}
-            purchased={isDetail ? false : purchased}
-            compact={!isDetail && salePercentOff != null}
-          />
+      {/* Cards rely on the diagonal ribbon alone; the status pill only shows in the detail sheet. */}
+      {isDetail && reserved && reservationLabel ? (
+        <View className="absolute start-3 top-3 z-10 max-w-[80%]">
+          <ItemStatusBadge label={reservationLabel} purchased={false} />
         </View>
       ) : null}
 
