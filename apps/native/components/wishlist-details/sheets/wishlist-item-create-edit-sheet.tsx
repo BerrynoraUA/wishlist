@@ -104,6 +104,7 @@ export function WishlistItemCreateEditSheet({
   createSource = "link",
   wishlistId,
   item,
+  initialUrl,
   open,
   onOpenChange,
 }: {
@@ -112,6 +113,8 @@ export function WishlistItemCreateEditSheet({
   /** When omitted in create mode, the sheet shows a wishlist picker. */
   wishlistId?: string;
   item?: Item | null;
+  /** Create-mode product link to open with, scraped as soon as the sheet appears. */
+  initialUrl?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -189,7 +192,7 @@ export function WishlistItemCreateEditSheet({
       const nextValues =
         mode === "edit"
           ? toItemFormValues(item ?? undefined)
-          : { ...EMPTY_ITEM_FORM, priority_id: null };
+          : { ...EMPTY_ITEM_FORM, priority_id: null, url: initialUrl ?? "" };
       reset(nextValues);
       setDescriptionInputHeight(estimateDescriptionInputHeight(nextValues.description));
       setSelectedWishlist(null);
@@ -197,9 +200,11 @@ export function WishlistItemCreateEditSheet({
       setScrapeError(null);
       imageUpload.reset();
       currentUrlRef.current = nextValues.url.trim();
-      lastScrapedUrlRef.current = nextValues.url.trim();
+      // An existing item's link has already produced the values in the form, but a create-mode
+      // link has not — leaving this empty is what lets the scrape effect pick up `initialUrl`.
+      lastScrapedUrlRef.current = mode === "edit" ? nextValues.url.trim() : "";
     }
-  }, [createSource, imageUpload.reset, item, mode, open, reset]);
+  }, [createSource, imageUpload.reset, initialUrl, item, mode, open, reset]);
 
   React.useEffect(() => {
     if (

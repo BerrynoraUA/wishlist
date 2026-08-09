@@ -31,6 +31,7 @@ import { UserGuideProvider } from "@/components/user-guide/user-guide-provider";
 import { AppStateLifecycle } from "@/components/providers/native-query-lifecycle";
 import { ThemeProvider } from "expo-router/react-navigation";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
+import { ShareIntentProvider } from "expo-share-intent";
 import { PostHogEventProperties } from "@posthog/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useGlobalSearchParams, usePathname, useRouter, useSegments } from "expo-router";
@@ -85,52 +86,56 @@ export default function RootLayout() {
   const navigationTheme = useNavigationTheme(theme);
 
   return (
-    <AnimatedSplash>
-      <PostHogProvider
-        apiKey={posthogEnabled ? posthogApiKey : "__POSTHOG_DISABLED__"}
-        options={{
-          host: posthogHost,
-          disabled: !posthogEnabled,
-          // Batch harder than the defaults: analytics should not be sending requests
-          // while the app is still starting up and competing for the network.
-          flushAt: 20,
-          flushInterval: 30_000,
-          preloadFeatureFlags: false,
-        }}
-        autocapture={{ captureScreens: false }}
-      >
-        <GTProvider
-          config={gtConfig}
-          devApiKey={process.env.EXPO_PUBLIC_GT_DEV_API_KEY}
-          loadTranslations={loadTranslations}
-          projectId={process.env.EXPO_PUBLIC_GT_PROJECT_ID}
-          renderSettings={{
-            method: "skeleton",
+    // Outermost so a share received before sign-in survives the auth screens: the provider
+    // holds the intent until `CreateMenuHost` mounts and consumes it.
+    <ShareIntentProvider>
+      <AnimatedSplash>
+        <PostHogProvider
+          apiKey={posthogEnabled ? posthogApiKey : "__POSTHOG_DISABLED__"}
+          options={{
+            host: posthogHost,
+            disabled: !posthogEnabled,
+            // Batch harder than the defaults: analytics should not be sending requests
+            // while the app is still starting up and competing for the network.
+            flushAt: 20,
+            flushInterval: 30_000,
+            preloadFeatureFlags: false,
           }}
+          autocapture={{ captureScreens: false }}
         >
-          <IntlLocaleGate />
-          <RtlDirectionGate />
-          <QueryClientProvider client={queryClient}>
-            <AppStateLifecycle />
-            <AuthProvider>
-              <SubscriptionProvider>
-                <PostHogScreenTracker />
-                <ThemeProvider value={navigationTheme}>
-                  <SafeAreaProvider>
-                    <ReanimatedTrueSheetProvider>
-                      <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
-                      <AppBlurTarget>
-                        <AuthGate />
-                      </AppBlurTarget>
-                    </ReanimatedTrueSheetProvider>
-                  </SafeAreaProvider>
-                </ThemeProvider>
-              </SubscriptionProvider>
-            </AuthProvider>
-          </QueryClientProvider>
-        </GTProvider>
-      </PostHogProvider>
-    </AnimatedSplash>
+          <GTProvider
+            config={gtConfig}
+            devApiKey={process.env.EXPO_PUBLIC_GT_DEV_API_KEY}
+            loadTranslations={loadTranslations}
+            projectId={process.env.EXPO_PUBLIC_GT_PROJECT_ID}
+            renderSettings={{
+              method: "skeleton",
+            }}
+          >
+            <IntlLocaleGate />
+            <RtlDirectionGate />
+            <QueryClientProvider client={queryClient}>
+              <AppStateLifecycle />
+              <AuthProvider>
+                <SubscriptionProvider>
+                  <PostHogScreenTracker />
+                  <ThemeProvider value={navigationTheme}>
+                    <SafeAreaProvider>
+                      <ReanimatedTrueSheetProvider>
+                        <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
+                        <AppBlurTarget>
+                          <AuthGate />
+                        </AppBlurTarget>
+                      </ReanimatedTrueSheetProvider>
+                    </SafeAreaProvider>
+                  </ThemeProvider>
+                </SubscriptionProvider>
+              </AuthProvider>
+            </QueryClientProvider>
+          </GTProvider>
+        </PostHogProvider>
+      </AnimatedSplash>
+    </ShareIntentProvider>
   );
 }
 

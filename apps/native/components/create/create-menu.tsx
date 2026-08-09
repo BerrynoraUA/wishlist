@@ -14,7 +14,9 @@ import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { useMyStatistics, useWishlistById } from "@/hooks/use-wishlists";
 import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
 import { isWishlistDetailPath } from "@/lib/routes";
+import { extractSharedProductUrl } from "@/lib/share-intent";
 import { Portal } from "@rn-primitives/portal";
+import { useShareIntentContext } from "expo-share-intent";
 import { useGlobalSearchParams, usePathname } from "expo-router";
 import {
   Gift,
@@ -140,8 +142,21 @@ export function CreateMenuHost({
   const { completeStep } = useUserGuide();
   const [action, setAction] = React.useState<CreateAction | null>(null);
   const [itemMenuOpen, setItemMenuOpen] = React.useState(false);
+  const [sharedUrl, setSharedUrl] = React.useState<string | null>(null);
   const contextualWishlistId = useContextualWishlistId();
   const { isGated, openPaywall } = useProGate();
+  const { hasShareIntent, shareIntent, resetShareIntent } = useShareIntentContext();
+
+  // This host only mounts behind the auth gate, so a link shared while signed out sits in the
+  // provider and lands here the moment the tabs come up after sign-in. Text with no link still
+  // opens the sheet — on an empty form, rather than the app appearing to do nothing.
+  React.useEffect(() => {
+    if (!hasShareIntent) return;
+
+    setSharedUrl(extractSharedProductUrl(shareIntent));
+    setAction("item-link");
+    resetShareIntent();
+  }, [hasShareIntent, resetShareIntent, shareIntent]);
 
   // This host is mounted for the entire session — expo-router evaluates every `_layout`
   // eagerly to read `unstable_settings`, so it is on the cold-start path — but the three
@@ -209,7 +224,10 @@ export function CreateMenuHost({
   }
 
   function closeAction(openState: boolean) {
-    if (!openState) setAction(null);
+    if (!openState) {
+      setAction(null);
+      setSharedUrl(null);
+    }
   }
 
   return (
@@ -230,6 +248,7 @@ export function CreateMenuHost({
         mode="create"
         createSource={action === "item-link" ? "link" : "scratch"}
         wishlistId={contextualWishlistId}
+        initialUrl={sharedUrl ?? undefined}
         open={action === "item-scratch" || action === "item-link"}
         onOpenChange={closeAction}
       />

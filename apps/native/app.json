@@ -192,7 +192,19 @@
       "expo-font",
       "expo-sharing",
       "expo-status-bar",
-      "expo-build-properties"
+      "expo-build-properties",
+      [
+        "expo-share-intent",
+        {
+          "iosShareExtensionName": "Wishlane",
+          "iosActivationRules": {
+            "NSExtensionActivationSupportsWebURLWithMaxCount": 1,
+            "NSExtensionActivationSupportsWebPageWithMaxCount": 1,
+            "NSExtensionActivationSupportsText": true
+          },
+          "androidIntentFilters": ["text/*"]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
