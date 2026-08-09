@@ -8,7 +8,7 @@ import { useUserGuide } from "@/components/user-guide/user-guide-provider";
 import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheets/wishlist-item-create-edit-sheet";
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
-import { useCreateFriendGroup, useFriends } from "@/hooks/use-friends";
+import { useCreateFriendGroup } from "@/hooks/use-friends";
 import { useProGate } from "@/hooks/use-pro-gate";
 import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { useMyStatistics, useWishlistById } from "@/hooks/use-wishlists";
@@ -403,14 +403,12 @@ function CreateFloatingMenuContent({
 
 function CreateFriendGroupSheet({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
   const { completeStep } = useUserGuide();
-  const friendsQuery = useFriends();
   const createGroup = useCreateFriendGroup();
 
   return (
     <FriendGroupSheet
       open
       group={null}
-      friends={friendsQuery.data ?? []}
       isSaving={createGroup.isPending}
       onOpenChange={onOpenChange}
       onSubmit={(payload) =>

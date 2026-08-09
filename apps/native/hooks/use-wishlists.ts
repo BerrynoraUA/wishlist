@@ -17,6 +17,7 @@ import {
 } from "@/api/wishlists";
 import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
 import { normalizeSearchQuery } from "@/lib/wishlists";
+import { friendKeys } from "@/lib/friend-query-keys";
 import { statisticsKeys, wishlistKeys } from "@/lib/wishlist-query-keys";
 import type { DiscoverQueryParams } from "@wishlist/backend/types/discover";
 import { useAuth } from "@/providers/auth-provider";
@@ -28,25 +29,11 @@ import type {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 
-export { statisticsKeys, wishlistKeys } from "@/lib/wishlist-query-keys";
-
-export function useMyWishlists(params?: WishlistQueryParams) {
-  const { user } = useAuth();
-  const normalizedParams = params
-    ? {
-        ...params,
-        search: normalizeSearchQuery(params.search) || undefined,
-      }
-    : undefined;
-
-  return useQuery({
-    queryKey: wishlistKeys.my(user?.id, normalizedParams),
-    queryFn: () => getMyWishlists(normalizedParams),
-    enabled: Boolean(user?.id),
-  });
-}
-
-export function useInfiniteMyWishlists(params: WishlistQueryParams, pageSize: number) {
+export function useInfiniteMyWishlists(
+  params: WishlistQueryParams,
+  pageSize: number,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
   const { user } = useAuth();
   const normalizedParams = React.useMemo(
     () => ({
@@ -59,7 +46,7 @@ export function useInfiniteMyWishlists(params: WishlistQueryParams, pageSize: nu
   );
 
   return useSkipTakeInfiniteQuery({
-    queryKey: wishlistKeys.infiniteMy(user?.id, { ...normalizedParams, take: pageSize }),
+    queryKey: wishlistKeys.my(user?.id, { ...normalizedParams, take: pageSize }),
     fetchPage: ({ skip, take }) =>
       getMyWishlists({
         ...normalizedParams,
@@ -67,7 +54,7 @@ export function useInfiniteMyWishlists(params: WishlistQueryParams, pageSize: nu
         take,
       }),
     pageSize,
-    enabled: Boolean(user?.id),
+    enabled: enabled && Boolean(user?.id),
   });
 }
 
@@ -309,8 +296,7 @@ export function useGrantWishlistAccess() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({
-        queryKey: ["friends-without-wishlist-access"],
-        exact: false,
+        queryKey: friendKeys.withoutWishlistAccess(),
       });
       await queryClient.invalidateQueries({
         queryKey: ["wishlist-access-list"],
@@ -328,8 +314,7 @@ export function useRevokeWishlistAccess() {
       revokeWishlistAccess(wishlistId, targetUserId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ["friends-without-wishlist-access"],
-        exact: false,
+        queryKey: friendKeys.withoutWishlistAccess(),
       });
       await queryClient.invalidateQueries({
         queryKey: ["wishlist-access-list"],

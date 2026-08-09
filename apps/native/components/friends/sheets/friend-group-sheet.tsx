@@ -13,21 +13,19 @@ import {
   SlidingOptionSelector,
   type SlidingOptionRenderProps,
 } from "@/components/ui/sliding-option-selector";
-import { useFriendGroupMembers } from "@/hooks/use-friends";
+import { useFriendGroupMembers, useInfiniteFriends } from "@/hooks/use-friends";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { FRIEND_GROUP_ICON_OPTIONS } from "@/lib/friend-groups";
 import { NATIVE_ACCENTS } from "@/lib/theme";
 import { cn } from "@/lib/utils";
-import type {
-  FriendGroup,
-  FriendGroupPayload,
-  FriendWithDetails,
-} from "@wishlist/backend/types/friends";
+import type { FriendGroup, FriendGroupPayload } from "@wishlist/backend/types/friends";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
 
 // Ordered like the wishlist accent picker so the two read as the same control.
 const COLOR_OPTIONS = ["pink", "blue", "peach", "mint", "lavender"] as const;
+const FRIENDS_PAGE_SIZE = 20;
 
 type GroupColor = (typeof COLOR_OPTIONS)[number];
 
@@ -42,14 +40,12 @@ const COLOR_CLASS = Object.fromEntries(
 export function FriendGroupSheet({
   open,
   group,
-  friends,
   isSaving,
   onOpenChange,
   onSubmit,
 }: {
   open: boolean;
   group: FriendGroup | null;
-  friends: FriendWithDetails[];
   isSaving: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (payload: FriendGroupPayload) => Promise<void>;
@@ -62,6 +58,11 @@ export function FriendGroupSheet({
   const [color, setColor] = React.useState<(typeof COLOR_OPTIONS)[number]>("pink");
   const [icon, setIcon] = React.useState("users");
   const [query, setQuery] = React.useState("");
+  const deferredQuery = React.useDeferredValue(query);
+  const friendsQuery = useInfiniteFriends({ search: deferredQuery }, FRIENDS_PAGE_SIZE, {
+    enabled: open,
+  });
+  const { items: friends, loadMore: loadMoreFriends } = useInfiniteListData(friendsQuery);
   const [members, setMembers] = React.useState<PeoplePickerItem[]>([]);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -194,7 +195,6 @@ export function FriendGroupSheet({
           label={t("Members")}
           title={t("Add members")}
           addLabel={t("Add members")}
-          localFilter
           items={friendItems}
           selected={members}
           onChange={setMembers}
@@ -202,7 +202,10 @@ export function FriendGroupSheet({
           onQueryChange={setQuery}
           searchPlaceholder={t("Search friends")}
           emptyLabel={t("No friends found.")}
-          isLoading={Boolean(group) && membersQuery.isLoading}
+          isLoading={friendsQuery.isLoading || (Boolean(group) && membersQuery.isLoading)}
+          isError={friendsQuery.isError || membersQuery.isError}
+          isFetchingMore={friendsQuery.isFetchingNextPage}
+          onEndReached={loadMoreFriends}
         />
 
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}

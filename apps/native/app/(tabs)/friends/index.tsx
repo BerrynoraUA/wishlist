@@ -282,7 +282,6 @@ export default function FriendsScreen() {
           <FriendGroupSheet
             open
             group={sheet.group}
-            friends={friends}
             isSaving={updateGroup.isPending}
             onOpenChange={(open) => {
               if (!open) {

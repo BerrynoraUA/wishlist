@@ -37,7 +37,6 @@ import {
   useToggleItemBought,
   useToggleItemReservation,
   useToggleItemVote,
-  useWishlistItems,
 } from "@/hooks/use-items";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useWishlistById } from "@/hooks/use-wishlists";
@@ -144,7 +143,6 @@ export default function WishlistDetailScreen() {
     itemQueryParams,
     WISHLIST_ITEMS_PAGE_SIZE,
   );
-  const allItemsQuery = useWishlistItems(wishlistId, { skip: 0, take: 1 });
   const { items, loadMore: loadMoreItems } = useInfiniteListData(itemsQuery);
   const itemIds = React.useMemo(() => items.map((item) => item.id), [items]);
   const votesQuery = useItemVotes(itemIds);
@@ -173,7 +171,7 @@ export default function WishlistDetailScreen() {
     return new Map(entries);
   }, [profilesQuery.data, t]);
   const filtersActive = wishlistItemFilterBarHasActiveFilters(filters);
-  const hasAnyItems = (allItemsQuery.data?.length ?? 0) > 0;
+  const hasAnyItems = (wishlist?.items_count ?? 0) > 0;
   const contentWidth = Math.min(width - 32, 1200);
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;

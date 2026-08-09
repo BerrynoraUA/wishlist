@@ -38,8 +38,10 @@ import * as React from "react";
 
 /** Lets a caller keep a query idle while the UI that needs it is not on screen. */
 type QueryGate = { enabled?: boolean };
-
-export { friendKeys } from "@/lib/friend-query-keys";
+type WishlistAccessQueryParams = Pick<
+  GetFriendsWithoutWishlistAccessParams,
+  "wishlistId" | "search"
+>;
 
 export function useInfiniteIncomingFriendRequests(pageSize: number) {
   const { user } = useAuth();
@@ -114,28 +116,11 @@ export function useSearchProfilesByNickname(query: string, params?: PaginationPa
   });
 }
 
-export function useFriends(params?: PaginationParams, { enabled = true }: QueryGate = {}) {
-  const { user } = useAuth();
-  const normalizedParams = React.useMemo(
-    () =>
-      params
-        ? {
-            skip: params.skip,
-            take: params.take,
-            search: normalizeSearchQuery(params.search) || undefined,
-          }
-        : undefined,
-    [params?.search, params?.skip, params?.take],
-  );
-
-  return useQuery({
-    queryKey: friendKeys.list(user?.id, normalizedParams),
-    queryFn: () => getFriends(normalizedParams),
-    enabled: enabled && Boolean(user?.id),
-  });
-}
-
-export function useInfiniteFriends(params: PaginationParams, pageSize: number) {
+export function useInfiniteFriends(
+  params: PaginationParams,
+  pageSize: number,
+  { enabled = true }: QueryGate = {},
+) {
   const { user } = useAuth();
   const normalizedParams = React.useMemo(
     () => ({
@@ -145,7 +130,7 @@ export function useInfiniteFriends(params: PaginationParams, pageSize: number) {
   );
 
   return useSkipTakeInfiniteQuery({
-    queryKey: friendKeys.infiniteList(user?.id, { ...normalizedParams, take: pageSize }),
+    queryKey: friendKeys.list(user?.id, { ...normalizedParams, take: pageSize }),
     fetchPage: ({ skip, take }) =>
       getFriends({
         ...normalizedParams,
@@ -153,32 +138,15 @@ export function useInfiniteFriends(params: PaginationParams, pageSize: number) {
         take,
       }),
     pageSize,
-    enabled: Boolean(user?.id),
-  });
-}
-
-export function useFriendGroups(params?: PaginationParams, { enabled = true }: QueryGate = {}) {
-  const { user } = useAuth();
-  const normalizedParams = React.useMemo(
-    () =>
-      params
-        ? {
-            skip: params.skip,
-            take: params.take,
-            search: normalizeSearchQuery(params.search) || undefined,
-          }
-        : undefined,
-    [params?.search, params?.skip, params?.take],
-  );
-
-  return useQuery({
-    queryKey: friendKeys.groupList(user?.id, normalizedParams),
-    queryFn: () => getFriendGroups(normalizedParams),
     enabled: enabled && Boolean(user?.id),
   });
 }
 
-export function useInfiniteFriendGroups(params: PaginationParams, pageSize: number) {
+export function useInfiniteFriendGroups(
+  params: PaginationParams,
+  pageSize: number,
+  { enabled = true }: QueryGate = {},
+) {
   const { user } = useAuth();
   const normalizedParams = React.useMemo(
     () => ({
@@ -188,7 +156,7 @@ export function useInfiniteFriendGroups(params: PaginationParams, pageSize: numb
   );
 
   return useSkipTakeInfiniteQuery({
-    queryKey: friendKeys.infiniteGroupList(user?.id, {
+    queryKey: friendKeys.groupList(user?.id, {
       ...normalizedParams,
       take: pageSize,
     }),
@@ -199,7 +167,7 @@ export function useInfiniteFriendGroups(params: PaginationParams, pageSize: numb
         take,
       }),
     pageSize,
-    enabled: Boolean(user?.id),
+    enabled: enabled && Boolean(user?.id),
   });
 }
 
@@ -306,58 +274,54 @@ export function useDeleteFriendGroup() {
   });
 }
 
-export function useFriendsWithoutWishlistAccess(
-  params: GetFriendsWithoutWishlistAccessParams,
+export function useInfiniteFriendsWithoutWishlistAccess(
+  params: WishlistAccessQueryParams,
+  pageSize: number,
   { enabled = true }: QueryGate = {},
 ) {
   const { user } = useAuth();
-  const { wishlistId, search, skip = 0, take = 20 } = params;
+  const { wishlistId, search } = params;
   const normalizedSearch = normalizeSearchQuery(search) || undefined;
 
-  return useQuery({
-    queryKey: [
-      "friends-without-wishlist-access",
-      user?.id ?? "anonymous",
-      wishlistId,
-      normalizedSearch ?? "",
-      skip,
-      take,
-    ],
-    queryFn: () =>
+  return useSkipTakeInfiniteQuery({
+    queryKey: friendKeys.friendsWithoutWishlistAccess(user?.id, wishlistId, {
+      search: normalizedSearch,
+      take: pageSize,
+    }),
+    fetchPage: ({ skip, take }) =>
       getFriendsWithoutWishlistAccess({
         wishlistId,
         search: normalizedSearch,
         skip,
         take,
       }),
+    pageSize,
     enabled: enabled && Boolean(user?.id && wishlistId),
   });
 }
 
-export function useFriendGroupsWithoutWishlistAccess(
-  params: GetFriendsWithoutWishlistAccessParams,
+export function useInfiniteFriendGroupsWithoutWishlistAccess(
+  params: WishlistAccessQueryParams,
+  pageSize: number,
   { enabled = true }: QueryGate = {},
 ) {
   const { user } = useAuth();
-  const { wishlistId, search, skip = 0, take = 20 } = params;
+  const { wishlistId, search } = params;
   const normalizedSearch = normalizeSearchQuery(search) || undefined;
 
-  return useQuery({
-    queryKey: [
-      "friend-groups-without-wishlist-access",
-      user?.id ?? "anonymous",
-      wishlistId,
-      normalizedSearch ?? "",
-      skip,
-      take,
-    ],
-    queryFn: () =>
+  return useSkipTakeInfiniteQuery({
+    queryKey: friendKeys.groupsWithoutWishlistAccess(user?.id, wishlistId, {
+      search: normalizedSearch,
+      take: pageSize,
+    }),
+    fetchPage: ({ skip, take }) =>
       getFriendGroupsWithoutWishlistAccess({
         wishlistId,
         search: normalizedSearch,
         skip,
         take,
       }),
+    pageSize,
     enabled: enabled && Boolean(user?.id && wishlistId),
   });
 }
@@ -385,8 +349,7 @@ export function useGrantWishlistGroupAccess() {
         exact: false,
       });
       await queryClient.invalidateQueries({
-        queryKey: ["friend-groups-without-wishlist-access"],
-        exact: false,
+        queryKey: friendKeys.withoutWishlistAccess(),
       });
     },
   });
@@ -405,8 +368,7 @@ export function useRevokeWishlistGroupAccess() {
         exact: false,
       });
       await queryClient.invalidateQueries({
-        queryKey: ["friend-groups-without-wishlist-access"],
-        exact: false,
+        queryKey: friendKeys.withoutWishlistAccess(),
       });
     },
   });

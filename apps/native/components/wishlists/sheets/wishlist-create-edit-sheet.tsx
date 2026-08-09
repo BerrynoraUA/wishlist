@@ -320,16 +320,12 @@ export function WishlistCreateEditSheet({
                     selectedAccess.setSelectedFriends(nextSelected);
                     selectedAccess.setError(null);
                   }}
-                  isLoading={
-                    mode === "edit"
-                      ? selectedAccess.friendsWithoutAccessLoading
-                      : selectedAccess.friendsLoading
-                  }
-                  isError={
-                    mode === "edit"
-                      ? selectedAccess.friendsWithoutAccessError
-                      : selectedAccess.friendsError
-                  }
+                  query={selectedAccess.friendQuery}
+                  onQueryChange={selectedAccess.setFriendQuery}
+                  isLoading={selectedAccess.friendsLoading}
+                  isError={selectedAccess.friendsError}
+                  isFetchingMore={selectedAccess.friendsFetchingMore}
+                  onEndReached={selectedAccess.loadMoreFriends}
                   emptyLabel={
                     mode === "edit"
                       ? t("All available friends already have access.")
@@ -359,16 +355,12 @@ export function WishlistCreateEditSheet({
                     selectedAccess.setSelectedGroups(nextSelected);
                     selectedAccess.setError(null);
                   }}
-                  isLoading={
-                    mode === "edit"
-                      ? selectedAccess.groupsWithoutAccessLoading
-                      : selectedAccess.groupsLoading
-                  }
-                  isError={
-                    mode === "edit"
-                      ? selectedAccess.groupsWithoutAccessError
-                      : selectedAccess.groupsError
-                  }
+                  query={selectedAccess.groupQuery}
+                  onQueryChange={selectedAccess.setGroupQuery}
+                  isLoading={selectedAccess.groupsLoading}
+                  isError={selectedAccess.groupsError}
+                  isFetchingMore={selectedAccess.groupsFetchingMore}
+                  onEndReached={selectedAccess.loadMoreGroups}
                   emptyLabel={
                     mode === "edit"
                       ? t("All available groups already have access.")
@@ -660,8 +652,12 @@ function WishlistAccessPicker({
   options,
   selected,
   onChange,
+  query,
+  onQueryChange,
   isLoading,
   isError,
+  isFetchingMore,
+  onEndReached,
   emptyLabel,
   errorLabel,
   existingAccess = [],
@@ -676,8 +672,12 @@ function WishlistAccessPicker({
   options: PeoplePickerItem[];
   selected: PeoplePickerItem[];
   onChange: (options: PeoplePickerItem[]) => void;
+  query: string;
+  onQueryChange: (query: string) => void;
   isLoading: boolean;
   isError: boolean;
+  isFetchingMore: boolean;
+  onEndReached: () => void;
   emptyLabel: string;
   errorLabel: string;
   existingAccess?: WishlistAccessUser[];
@@ -688,7 +688,6 @@ function WishlistAccessPicker({
   searchPlaceholder: string;
 }) {
   const t = useGT();
-  const [query, setQuery] = React.useState("");
 
   return (
     <View className="gap-3">
@@ -696,17 +695,18 @@ function WishlistAccessPicker({
         label={title}
         title={addLabel}
         addLabel={addLabel}
-        localFilter
         items={options}
         selected={selected}
         onChange={onChange}
         query={query}
-        onQueryChange={setQuery}
+        onQueryChange={onQueryChange}
         searchPlaceholder={searchPlaceholder}
         emptyLabel={emptyLabel}
         errorLabel={errorLabel}
         isLoading={isLoading}
         isError={isError}
+        isFetchingMore={isFetchingMore}
+        onEndReached={onEndReached}
       />
 
       {existingAccessTitle ? (

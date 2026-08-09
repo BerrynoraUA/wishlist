@@ -26,9 +26,10 @@ import {
 } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
 import { PriorityFilterIcon } from "@/components/items/item-labels";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
 import { useProGate } from "@/hooks/use-pro-gate";
-import { useMyWishlists, useWishlistById } from "@/hooks/use-wishlists";
+import { useInfiniteMyWishlists, useWishlistById } from "@/hooks/use-wishlists";
 import { useSettings } from "@/hooks/use-settings";
 import {
   EMPTY_ITEM_FORM,
@@ -40,6 +41,7 @@ import {
 import { useImageUploadField } from "@/lib/image-upload";
 import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
+import { WISHLIST_PAGE_SIZE } from "@/lib/wishlists";
 import { resolveSupportedCurrency } from "@wishlist/backend/lib/currencies";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
@@ -133,21 +135,28 @@ export function WishlistItemCreateEditSheet({
   const [descriptionInputHeight, setDescriptionInputHeight] = React.useState(
     DESCRIPTION_INPUT_MIN_HEIGHT,
   );
-  const [selectedWishlistId, setSelectedWishlistId] = React.useState("");
+  const [selectedWishlist, setSelectedWishlist] = React.useState<Wishlist | null>(null);
   const form = React.useMemo(
     () => getItemFormVariant(mode, createSource, Boolean(wishlistId)),
     [createSource, mode, wishlistId],
   );
-  const wishlistsQuery = useMyWishlists();
-  const wishlistDetailQuery = useWishlistById(wishlistId ?? "");
-  const selectableWishlists = React.useMemo(
-    () => (wishlistsQuery.data ?? []).filter((wishlist) => wishlist.is_owner || wishlist.can_edit),
-    [wishlistsQuery.data],
+  const [wishlistSearch, setWishlistSearch] = React.useState("");
+  const deferredWishlistSearch = React.useDeferredValue(wishlistSearch);
+  const wishlistsQuery = useInfiniteMyWishlists(
+    { search: deferredWishlistSearch },
+    WISHLIST_PAGE_SIZE,
+    { enabled: open && form.showsWishlistPicker },
   );
-  const targetWishlistId = wishlistId || selectedWishlistId || selectableWishlists[0]?.id || "";
-  const targetWishlist =
-    wishlistDetailQuery.data ??
-    selectableWishlists.find((wishlist) => wishlist.id === targetWishlistId);
+  const { items: wishlists, loadMore: loadMoreWishlists } = useInfiniteListData(wishlistsQuery);
+  const wishlistDetailQuery = useWishlistById(wishlistId ?? "");
+  const selectableWishlists = React.useMemo(() => {
+    const available = wishlists.filter((wishlist) => wishlist.is_owner || wishlist.can_edit);
+    return selectedWishlist && !available.some((wishlist) => wishlist.id === selectedWishlist.id)
+      ? [selectedWishlist, ...available]
+      : available;
+  }, [selectedWishlist, wishlists]);
+  const targetWishlistId = wishlistId || selectedWishlist?.id || "";
+  const targetWishlist = wishlistDetailQuery.data ?? selectedWishlist ?? selectableWishlists[0];
   const [isScraping, setIsScraping] = React.useState(false);
   const imageUpload = useImageUploadField("item");
   const [scrapeError, setScrapeError] = React.useState<string | null>(null);
@@ -183,13 +192,34 @@ export function WishlistItemCreateEditSheet({
           : { ...EMPTY_ITEM_FORM, priority_id: null };
       reset(nextValues);
       setDescriptionInputHeight(estimateDescriptionInputHeight(nextValues.description));
-      setSelectedWishlistId("");
+      setSelectedWishlist(null);
+      setWishlistSearch("");
       setScrapeError(null);
       imageUpload.reset();
       currentUrlRef.current = nextValues.url.trim();
       lastScrapedUrlRef.current = nextValues.url.trim();
     }
   }, [createSource, imageUpload.reset, item, mode, open, reset]);
+
+  React.useEffect(() => {
+    if (
+      !open ||
+      !form.showsWishlistPicker ||
+      selectedWishlist ||
+      deferredWishlistSearch ||
+      selectableWishlists.length === 0
+    ) {
+      return;
+    }
+
+    setSelectedWishlist(selectableWishlists[0]);
+  }, [
+    deferredWishlistSearch,
+    form.showsWishlistPicker,
+    open,
+    selectableWishlists,
+    selectedWishlist,
+  ]);
 
   // Priority options can arrive after the sheet opens (they come from settings),
   // so defaulting can't happen in the open/reset effect above.
@@ -497,10 +527,14 @@ export function WishlistItemCreateEditSheet({
         {form.showsWishlistPicker ? (
           <Field label={t("Wishlist")}>
             <WishlistPickerField
-              value={selectedWishlistId || selectableWishlists[0]?.id || ""}
+              value={selectedWishlist?.id ?? ""}
               wishlists={selectableWishlists}
+              query={wishlistSearch}
               isLoading={wishlistsQuery.isLoading}
-              onChange={setSelectedWishlistId}
+              isLoadingMore={wishlistsQuery.isFetchingNextPage}
+              onEndReached={loadMoreWishlists}
+              onQueryChange={setWishlistSearch}
+              onChange={setSelectedWishlist}
             />
           </Field>
         ) : null}
@@ -697,13 +731,21 @@ function Field({
 function WishlistPickerField({
   value,
   wishlists,
+  query,
   isLoading,
+  isLoadingMore,
+  onEndReached,
+  onQueryChange,
   onChange,
 }: {
   value: string;
   wishlists: Wishlist[];
+  query: string;
   isLoading: boolean;
-  onChange: (wishlistId: string) => void;
+  isLoadingMore: boolean;
+  onEndReached: () => void;
+  onQueryChange: (query: string) => void;
+  onChange: (wishlist: Wishlist) => void;
 }) {
   const t = useGT();
   const options = React.useMemo<AutocompleteDropdownOption[]>(
@@ -711,6 +753,7 @@ function WishlistPickerField({
       wishlists.map((wishlist) => ({
         value: wishlist.id,
         label: wishlist.title,
+        keywords: wishlist.description ? [wishlist.description] : undefined,
         trailing: t("{count} items", { count: wishlist.items_count ?? 0 }),
         imageUrl: wishlist.image_url,
       })),
@@ -718,32 +761,25 @@ function WishlistPickerField({
   );
   const selectedOption = options.find((option) => option.value === value) ?? null;
 
-  if (isLoading) {
-    return (
-      <View className="items-center justify-center rounded-xl border border-border-subtle bg-bg-muted p-4">
-        <ActivityIndicator />
-      </View>
-    );
-  }
-
-  if (wishlists.length === 0) {
-    return (
-      <Text className="text-sm font-semibold text-text-muted">
-        {t("Create a wishlist first to add wishes to it.")}
-      </Text>
-    );
-  }
-
   return (
     <AutocompleteDropdown
       value={selectedOption}
-      onValueChange={(option) => onChange(option.value)}
+      onValueChange={(option) => {
+        const wishlist = wishlists.find((candidate) => candidate.id === option.value);
+        if (wishlist) onChange(wishlist);
+      }}
       options={options}
       placeholder={t("Search wishlists")}
-      emptyText={t("No wishlists found")}
+      emptyText={
+        query.trim() ? t("No wishlists found") : t("Create a wishlist first to add wishes to it.")
+      }
       attached
       maxVisibleOptions={4}
       optionClassName="min-h-12 py-3"
+      isLoading={isLoading}
+      isLoadingMore={isLoadingMore}
+      onEndReached={onEndReached}
+      onQueryChange={onQueryChange}
     />
   );
 }

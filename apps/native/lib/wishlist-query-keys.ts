@@ -4,9 +4,7 @@ import type { WishlistQueryParams } from "@wishlist/backend/types/wishlist";
 export const wishlistKeys = {
   all: ["wishlists"] as const,
   my: (authUserId: string | null | undefined, params?: WishlistQueryParams) =>
-    [...wishlistKeys.all, "my", "finite", authUserId ?? "anonymous", params] as const,
-  infiniteMy: (authUserId: string | null | undefined, params?: WishlistQueryParams) =>
-    [...wishlistKeys.all, "my", "infinite", authUserId ?? "anonymous", params] as const,
+    [...wishlistKeys.all, "my", authUserId ?? "anonymous", params] as const,
   friend: (authUserId: string | null | undefined, userId: string, params?: WishlistQueryParams) =>
     [...wishlistKeys.all, "friend", authUserId ?? "anonymous", userId, params] as const,
   discoverAll: (authUserId: string | null | undefined, params?: DiscoverQueryParams) =>

@@ -1,18 +1,17 @@
 import {
-  useFriendGroups,
-  useFriendGroupsWithoutWishlistAccess,
-  useFriends,
-  useFriendsWithoutWishlistAccess,
   useGrantWishlistGroupAccess,
+  useInfiniteFriendGroups,
+  useInfiniteFriendGroupsWithoutWishlistAccess,
+  useInfiniteFriends,
+  useInfiniteFriendsWithoutWishlistAccess,
   useRevokeWishlistGroupAccess,
   useWishlistAccessList,
 } from "@/hooks/use-friends";
-import {
-  useGrantWishlistAccess,
-  useRevokeWishlistAccess,
-  wishlistKeys,
-} from "@/hooks/use-wishlists";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
+import { useGrantWishlistAccess, useRevokeWishlistAccess } from "@/hooks/use-wishlists";
 import type { PeoplePickerItem } from "@/components/ui/people-picker";
+import { friendKeys } from "@/lib/friend-query-keys";
+import { wishlistKeys } from "@/lib/wishlist-query-keys";
 import { SELECTED_FRIENDS_ACCESS_TYPE, SELECTED_GROUPS_ACCESS_TYPE } from "@/lib/wishlists";
 import { motionDuration } from "@/lib/motion";
 import { useQueryClient } from "@tanstack/react-query";
@@ -22,6 +21,7 @@ import * as React from "react";
 import { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
 export type SelectedAccessTarget = "friends" | "groups";
+const ACCESS_PAGE_SIZE = 20;
 
 export function useWishlistSelectedAccess({
   mode,
@@ -45,6 +45,10 @@ export function useWishlistSelectedAccess({
   const [selectedFriends, setSelectedFriends] = React.useState<PeoplePickerItem[]>([]);
   const [selectedGroups, setSelectedGroups] = React.useState<PeoplePickerItem[]>([]);
   const [target, setTarget] = React.useState<SelectedAccessTarget>("friends");
+  const [friendQuery, setFriendQuery] = React.useState("");
+  const [groupQuery, setGroupQuery] = React.useState("");
+  const deferredFriendQuery = React.useDeferredValue(friendQuery);
+  const deferredGroupQuery = React.useDeferredValue(groupQuery);
   const [error, setError] = React.useState<string | null>(null);
   const [isSaving, setIsSaving] = React.useState(false);
   const [panelMounted, setPanelMounted] = React.useState(false);
@@ -59,62 +63,40 @@ export function useWishlistSelectedAccess({
     transform: [{ translateY: panelTranslateY.value }, { scaleY: panelScaleY.value }],
   }));
 
-  // The host sheet renders `null` while closed but still runs this hook, so without a
-  // gate every wishlist screen fetches four full friend/group lists it will not show.
+  // The host sheet renders `null` while closed but still runs this hook, so queries stay
+  // idle until the visible picker needs them.
   const queriesEnabled = open && canManage;
 
-  const {
-    data: friends = [],
-    isLoading: friendsLoading,
-    isError: friendsError,
-  } = useFriends(
-    {
-      skip: 0,
-      take: 100,
-    },
-    { enabled: queriesEnabled },
+  const friendsQuery = useInfiniteFriends({ search: deferredFriendQuery }, ACCESS_PAGE_SIZE, {
+    enabled: queriesEnabled && mode === "create" && target === "friends",
+  });
+  const groupsQuery = useInfiniteFriendGroups({ search: deferredGroupQuery }, ACCESS_PAGE_SIZE, {
+    enabled: queriesEnabled && mode === "create" && target === "groups",
+  });
+  const friendsWithoutAccessQuery = useInfiniteFriendsWithoutWishlistAccess(
+    { wishlistId, search: deferredFriendQuery },
+    ACCESS_PAGE_SIZE,
+    { enabled: queriesEnabled && mode === "edit" && target === "friends" },
   );
-  const {
-    data: groups = [],
-    isLoading: groupsLoading,
-    isError: groupsError,
-  } = useFriendGroups(
-    {
-      skip: 0,
-      take: 100,
-    },
-    { enabled: queriesEnabled },
+  const groupsWithoutAccessQuery = useInfiniteFriendGroupsWithoutWishlistAccess(
+    { wishlistId, search: deferredGroupQuery },
+    ACCESS_PAGE_SIZE,
+    { enabled: queriesEnabled && mode === "edit" && target === "groups" },
   );
-  const {
-    data: friendsWithoutAccess = [],
-    isLoading: friendsWithoutAccessLoading,
-    isError: friendsWithoutAccessError,
-  } = useFriendsWithoutWishlistAccess(
-    {
-      wishlistId,
-      skip: 0,
-      take: 100,
-    },
-    { enabled: queriesEnabled },
-  );
-  const {
-    data: groupsWithoutAccess = [],
-    isLoading: groupsWithoutAccessLoading,
-    isError: groupsWithoutAccessError,
-  } = useFriendGroupsWithoutWishlistAccess(
-    {
-      wishlistId,
-      skip: 0,
-      take: 100,
-    },
-    { enabled: queriesEnabled },
-  );
+  const { items: friends, loadMore: loadMoreFriends } = useInfiniteListData(friendsQuery);
+  const { items: groups, loadMore: loadMoreGroups } = useInfiniteListData(groupsQuery);
+  const { items: friendsWithoutAccess, loadMore: loadMoreFriendsWithoutAccess } =
+    useInfiniteListData(friendsWithoutAccessQuery);
+  const { items: groupsWithoutAccess, loadMore: loadMoreGroupsWithoutAccess } =
+    useInfiniteListData(groupsWithoutAccessQuery);
   const { data: accessList = [], isLoading: accessListLoading } = useWishlistAccessList(
     wishlistId,
     {
-      enabled: queriesEnabled,
+      enabled: queriesEnabled && mode === "edit",
     },
   );
+  const activeFriendsQuery = mode === "edit" ? friendsWithoutAccessQuery : friendsQuery;
+  const activeGroupsQuery = mode === "edit" ? groupsWithoutAccessQuery : groupsQuery;
 
   const friendOptions = React.useMemo<PeoplePickerItem[]>(() => {
     if (mode === "edit") {
@@ -173,6 +155,8 @@ export function useWishlistSelectedAccess({
     setSelectedFriends([]);
     setSelectedGroups([]);
     setTarget("friends");
+    setFriendQuery("");
+    setGroupQuery("");
     setError(null);
     setIsSaving(false);
   }, [open]);
@@ -237,12 +221,7 @@ export function useWishlistSelectedAccess({
   const invalidateAccessQueries = React.useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
     await queryClient.invalidateQueries({
-      queryKey: ["friends-without-wishlist-access"],
-      exact: false,
-    });
-    await queryClient.invalidateQueries({
-      queryKey: ["friend-groups-without-wishlist-access"],
-      exact: false,
+      queryKey: friendKeys.withoutWishlistAccess(),
     });
     await queryClient.invalidateQueries({
       queryKey: ["wishlist-access-list"],
@@ -370,20 +349,24 @@ export function useWishlistSelectedAccess({
     panelAnimatedStyle,
     target,
     setTarget,
+    friendQuery,
+    setFriendQuery,
+    groupQuery,
+    setGroupQuery,
     selectedFriends,
     setSelectedFriends,
     selectedGroups,
     setSelectedGroups,
     friendOptions,
     groupOptions,
-    friendsLoading,
-    friendsError,
-    groupsLoading,
-    groupsError,
-    friendsWithoutAccessLoading,
-    friendsWithoutAccessError,
-    groupsWithoutAccessLoading,
-    groupsWithoutAccessError,
+    friendsLoading: activeFriendsQuery.isLoading,
+    friendsError: activeFriendsQuery.isError,
+    friendsFetchingMore: activeFriendsQuery.isFetchingNextPage,
+    loadMoreFriends: mode === "edit" ? loadMoreFriendsWithoutAccess : loadMoreFriends,
+    groupsLoading: activeGroupsQuery.isLoading,
+    groupsError: activeGroupsQuery.isError,
+    groupsFetchingMore: activeGroupsQuery.isFetchingNextPage,
+    loadMoreGroups: mode === "edit" ? loadMoreGroupsWithoutAccess : loadMoreGroups,
     accessListLoading,
     specificAccessList,
     groupAccessList,

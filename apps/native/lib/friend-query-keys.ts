@@ -8,9 +8,7 @@ export const friendKeys = {
   all: ["friends"] as const,
   lists: () => [...friendKeys.all, "list"] as const,
   list: (authUserId: string | null | undefined, params?: FriendPaginationParams) =>
-    [...friendKeys.lists(), "finite", authUserId ?? "anonymous", params] as const,
-  infiniteList: (authUserId: string | null | undefined, params?: FriendPaginationParams) =>
-    [...friendKeys.lists(), "infinite", authUserId ?? "anonymous", params] as const,
+    [...friendKeys.lists(), authUserId ?? "anonymous", params] as const,
   requests: () => [...friendKeys.all, "requests"] as const,
   incoming: (authUserId: string | null | undefined, params?: FriendPaginationParams) =>
     [...friendKeys.requests(), "incoming", authUserId ?? "anonymous", params] as const,
@@ -20,12 +18,35 @@ export const friendKeys = {
     [...friendKeys.all, "search", authUserId ?? "anonymous", query, params] as const,
   groups: () => [...friendKeys.all, "groups"] as const,
   groupList: (authUserId: string | null | undefined, params?: FriendPaginationParams) =>
-    [...friendKeys.groups(), "finite", authUserId ?? "anonymous", params] as const,
-  infiniteGroupList: (authUserId: string | null | undefined, params?: FriendPaginationParams) =>
-    [...friendKeys.groups(), "infinite", authUserId ?? "anonymous", params] as const,
+    [...friendKeys.groups(), "list", authUserId ?? "anonymous", params] as const,
   groupMembers: (authUserId: string | null | undefined, groupId?: string) =>
     [...friendKeys.groups(), "members", authUserId ?? "anonymous", groupId] as const,
   groupMembersRoot: () => [...friendKeys.groups(), "members"] as const,
+  withoutWishlistAccess: () => [...friendKeys.all, "without-wishlist-access"] as const,
+  friendsWithoutWishlistAccess: (
+    authUserId: string | null | undefined,
+    wishlistId: string,
+    params?: FriendPaginationParams,
+  ) =>
+    [
+      ...friendKeys.withoutWishlistAccess(),
+      "friends",
+      authUserId ?? "anonymous",
+      wishlistId,
+      params,
+    ] as const,
+  groupsWithoutWishlistAccess: (
+    authUserId: string | null | undefined,
+    wishlistId: string,
+    params?: FriendPaginationParams,
+  ) =>
+    [
+      ...friendKeys.withoutWishlistAccess(),
+      "groups",
+      authUserId ?? "anonymous",
+      wishlistId,
+      params,
+    ] as const,
   check: (authUserId: string | null | undefined, userId: string) =>
     [...friendKeys.all, "check", authUserId ?? "anonymous", userId] as const,
   profilesByIds: (authUserId: string | null | undefined, idsKey: string) =>

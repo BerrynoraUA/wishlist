@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
 import { Text } from "@/components/ui/text";
-import { useFriends } from "@/hooks/use-friends";
+import { useInfiniteFriends } from "@/hooks/use-friends";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useInviteSecretSantaUsers } from "@/hooks/use-secret-santa";
 import { Copy, Share2 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
@@ -42,7 +43,10 @@ export function SecretSantaInviteSheet({
   const inviteUsers = useInviteSecretSantaUsers();
   const [query, setQuery] = React.useState("");
   const deferredQuery = React.useDeferredValue(query);
-  const friendsQuery = useFriends({ take: FRIENDS_PAGE_SIZE, search: deferredQuery });
+  const friendsQuery = useInfiniteFriends({ search: deferredQuery }, FRIENDS_PAGE_SIZE, {
+    enabled: open,
+  });
+  const { items: friends, loadMore: loadMoreFriends } = useInfiniteListData(friendsQuery);
   const [selected, setSelected] = React.useState<PeoplePickerItem[]>([]);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -55,7 +59,7 @@ export function SecretSantaInviteSheet({
 
   const results = React.useMemo<PeoplePickerItem[]>(
     () =>
-      (friendsQuery.data ?? [])
+      friends
         .filter((friend) => !excludedUserIds.includes(friend.friend_id))
         .map((friend) => ({
           id: friend.friend_id,
@@ -63,7 +67,7 @@ export function SecretSantaInviteSheet({
           subtitle: friend.nickname ? `@${friend.nickname}` : null,
           avatarUrl: friend.avatar_url,
         })),
-    [excludedUserIds, friendsQuery.data, t],
+    [excludedUserIds, friends, t],
   );
 
   if (!open) return null;
@@ -141,6 +145,9 @@ export function SecretSantaInviteSheet({
           onQueryChange={setQuery}
           searchPlaceholder={t("Search friends")}
           isLoading={friendsQuery.isLoading}
+          isError={friendsQuery.isError}
+          isFetchingMore={friendsQuery.isFetchingNextPage}
+          onEndReached={loadMoreFriends}
           emptyLabel={
             query.trim()
               ? t('No friends match "{search}".', { search: query.trim() })

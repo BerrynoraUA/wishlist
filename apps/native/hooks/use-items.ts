@@ -21,24 +21,6 @@ import type {
 } from "@wishlist/backend/types/item";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export { itemKeys } from "@/lib/item-query-keys";
-
-export function useWishlistItems(wishlistId: string, params?: ItemQueryParams) {
-  const { user } = useAuth();
-  const normalizedParams = params
-    ? {
-        ...params,
-        search: normalizeItemSearch(params.search) || undefined,
-      }
-    : undefined;
-
-  return useQuery({
-    queryKey: itemKeys.wishlist(user?.id, wishlistId, normalizedParams),
-    queryFn: () => getWishlistItems(wishlistId, normalizedParams),
-    enabled: Boolean(user?.id && wishlistId),
-  });
-}
-
 export function useInfiniteWishlistItems(
   wishlistId: string,
   params: ItemQueryParams,
@@ -53,7 +35,7 @@ export function useInfiniteWishlistItems(
   };
 
   return useSkipTakeInfiniteQuery({
-    queryKey: itemKeys.infiniteWishlist(user?.id, wishlistId, {
+    queryKey: itemKeys.wishlist(user?.id, wishlistId, {
       ...normalizedParams,
       take: pageSize,
     }),
