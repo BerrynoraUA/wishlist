@@ -29,6 +29,7 @@ import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { SubscriptionProvider } from "@/providers/subscription-provider";
 import { UserGuideProvider } from "@/components/user-guide/user-guide-provider";
 import { AppStateLifecycle } from "@/components/providers/native-query-lifecycle";
+import { ScraperSandbox } from "@/components/scraper/scraper-sandbox";
 import { ThemeProvider } from "expo-router/react-navigation";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
 import { PostHogEventProperties } from "@posthog/core";
@@ -375,6 +376,10 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
     <>
       <MarkAppReady />
       {children}
+      {/* Hidden WebViews used by the on-device product scraper. Mounted once
+          per session, inside the authenticated tree — scraping only ever
+          happens while adding or editing an item. */}
+      <ScraperSandbox />
     </>
   );
 }
