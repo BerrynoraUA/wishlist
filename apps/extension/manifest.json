@@ -29,6 +29,31 @@
       "matches": ["<all_urls>"],
       "js": ["content/extractor.js"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://gowish.com/*", "https://www.gowish.com/*"],
+      "js": ["content/gowish-import.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://rewish.io/*", "https://www.rewish.io/*"],
+      "js": ["content/rewish-import.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://wishpicks.com/*", "https://www.wishpicks.com/*"],
+      "js": ["content/wishpicks-import.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://wishlist.com/*", "https://www.wishlist.com/*"],
+      "js": ["content/wishlistcom-import.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://mywishlist.online/*"],
+      "js": ["content/mywishlistonline-import.js"],
+      "run_at": "document_idle"
     }
   ]
 }

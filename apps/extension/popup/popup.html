@@ -123,6 +123,51 @@
         </button>
       </div>
 
+      <!-- Import from another wishlist service -->
+      <div class="import-block">
+        <button id="import-primary" class="import-card hidden">
+          <span id="import-primary-badge" class="import-badge"></span>
+          <span class="import-card-text">
+            <span id="import-primary-title" class="import-card-title"></span>
+            <span class="import-card-sub">Copy your wishlists over</span>
+          </span>
+          <svg
+            class="import-card-arrow"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </button>
+
+        <button id="import-toggle" class="import-toggle" type="button">
+          <span id="import-toggle-label">Import from another service</span>
+          <svg
+            class="import-chevron"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+
+        <div id="import-list" class="import-list hidden"></div>
+        <div id="import-status" class="import-status hidden"></div>
+      </div>
+
       <!-- Product preview -->
       <div id="product-card" class="product-card">
         <div class="product-image-wrap">

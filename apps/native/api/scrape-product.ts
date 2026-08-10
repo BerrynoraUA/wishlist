@@ -1,3 +1,5 @@
+import { type ClientScrapeOutcome, scrapeProductOnDevice } from "@/lib/scraper/client-scraper";
+
 export type ScrapedProduct = {
   title: string | null;
   description: string | null;
@@ -25,7 +27,20 @@ function getErrorMessage(data: unknown) {
   return "Could not fetch product data";
 }
 
-export async function scrapeProductLink(url: string): Promise<ScrapedProduct> {
+function normalizeProduct(product: Partial<ScrapedProduct>): ScrapedProduct {
+  return {
+    title: product.title ?? null,
+    description: product.description ?? null,
+    image: product.image ?? null,
+    price: product.price ?? null,
+    discount_price: product.discount_price ?? null,
+    has_discount: product.has_discount ?? false,
+    discount_end_date: product.discount_end_date ?? null,
+    currency: product.currency ?? null,
+  };
+}
+
+async function scrapeProductOnServer(url: string): Promise<ScrapedProduct> {
   const response = await fetch(`${WEB_APP_URL}/api/server/scrape-product`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -43,16 +58,31 @@ export async function scrapeProductLink(url: string): Promise<ScrapedProduct> {
     throw new Error(getErrorMessage(data));
   }
 
-  const product = data && typeof data === "object" ? (data as Partial<ScrapedProduct>) : {};
+  return normalizeProduct(
+    data && typeof data === "object" ? (data as Partial<ScrapedProduct>) : {},
+  );
+}
 
-  return {
-    title: product.title ?? null,
-    description: product.description ?? null,
-    image: product.image ?? null,
-    price: product.price ?? null,
-    discount_price: product.discount_price ?? null,
-    has_discount: product.has_discount ?? false,
-    discount_end_date: product.discount_end_date ?? null,
-    currency: product.currency ?? null,
-  };
+/** Scrapes on the device first, falling back to the server silently. */
+export async function scrapeProductLink(url: string): Promise<ScrapedProduct> {
+  let clientOutcome: ClientScrapeOutcome | null = null;
+  try {
+    clientOutcome = await scrapeProductOnDevice(url);
+  } catch {
+    clientOutcome = null;
+  }
+
+  if (clientOutcome?.accepted) {
+    return normalizeProduct(clientOutcome.product);
+  }
+
+  try {
+    return await scrapeProductOnServer(url);
+  } catch (error) {
+    // A partial on-device result still beats showing the user nothing.
+    if (clientOutcome && (clientOutcome.product.title || clientOutcome.product.image)) {
+      return normalizeProduct(clientOutcome.product);
+    }
+    throw error;
+  }
 }

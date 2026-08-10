@@ -1,0 +1,23 @@
+{
+  "name": "@wishlist/scraper-core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./browser-entry": "./src/browser-entry.ts",
+    "./types": "./src/types.ts"
+  },
+  "scripts": {
+    "build:bundle": "node scripts/build-browser-bundle.mjs",
+    "build:bundle:check": "node scripts/build-browser-bundle.mjs --check",
+    "check-types": "tsc --noEmit && node scripts/build-browser-bundle.mjs --check",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.39",
+    "esbuild": "^0.25.12",
+    "jsdom": "^26.1.0",
+    "vitest": "^4.1.10"
+  }
+}
