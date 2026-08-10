@@ -196,7 +196,7 @@
       [
         "expo-share-intent",
         {
-          "iosShareExtensionName": "Wishlane",
+          "iosShareExtensionName": "Wishlane Share",
           "iosActivationRules": {
             "NSExtensionActivationSupportsWebURLWithMaxCount": 1,
             "NSExtensionActivationSupportsWebPageWithMaxCount": 1,
