@@ -1,4 +1,4 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
@@ -31,14 +31,16 @@ export function ActionBottomSheetMessage({
   }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
-      <View className="gap-4 px-5 pt-5">
-        <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">{message.title}</Text>
-          {message.message ? (
-            <Text className="text-sm leading-5 text-text-muted">{message.message}</Text>
-          ) : null}
-        </View>
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={onClose}
+      header={<BottomSheetHeader title={message.title} />}
+    >
+      <View className="gap-4 px-5">
+        {message.message ? (
+          <Text className="text-sm leading-5 text-text-muted">{message.message}</Text>
+        ) : null}
         <Button onPress={handleClose}>
           <Text>{t("OK")}</Text>
         </Button>
@@ -80,12 +82,14 @@ export function ActionBottomSheetConfirm({
   }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
-      <View className="gap-4 px-5 pt-5">
-        <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">{title}</Text>
-          <Text className="text-sm leading-5 text-text-muted">{message}</Text>
-        </View>
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={onClose}
+      header={<BottomSheetHeader title={title} />}
+    >
+      <View className="gap-4 px-5">
+        <Text className="text-sm leading-5 text-text-muted">{message}</Text>
         {children}
         <View className="flex-row gap-2">
           <Button className="flex-1" variant="outline" disabled={isPending} onPress={handleClose}>

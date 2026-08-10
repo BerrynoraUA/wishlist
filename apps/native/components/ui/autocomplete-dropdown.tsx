@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   BottomSheet,
+  BottomSheetHeader,
   BottomSheetScrollView,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
@@ -29,6 +30,8 @@ export type AutocompleteDropdownOption = {
 type CommonProps = {
   options: AutocompleteDropdownOption[];
   placeholder?: string;
+  /** Title of the sheet the overlay variant opens in; falls back to `placeholder`. */
+  sheetTitle?: string;
   emptyText?: string;
   className?: string;
   inputClassName?: string;
@@ -71,6 +74,7 @@ type AutocompleteDropdownProps = SingleSelectProps | MultiSelectProps;
 export function AutocompleteDropdown({
   options,
   placeholder,
+  sheetTitle,
   emptyText,
   className,
   inputClassName,
@@ -391,6 +395,7 @@ export function AutocompleteDropdown({
           detents={[0.9]}
           footerInsetMode="scroll-content"
           onDidDismiss={handleSheetDismiss}
+          header={<BottomSheetHeader title={sheetTitle ?? placeholder ?? ""} />}
           footer={
             <View className="w-full px-5 pb-3 pt-3">
               <TextInput
@@ -421,7 +426,6 @@ export function AutocompleteDropdown({
             contentContainerStyle={{
               flexGrow: 1,
               paddingHorizontal: 20,
-              paddingTop: 20,
             }}
           >
             {isLoading && matchingOptions.length === 0 ? (

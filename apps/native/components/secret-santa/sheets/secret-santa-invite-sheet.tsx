@@ -1,4 +1,4 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
@@ -102,15 +102,13 @@ export function SecretSantaInviteSheet({
   }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={() => onOpenChange(false)}>
-      <View className="gap-5 px-5 pt-5">
-        <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">{t("Invite friends")}</Text>
-          <Text className="text-sm text-text-muted">
-            {t("Share the invite link or pick someone from your friends.")}
-          </Text>
-        </View>
-
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={() => onOpenChange(false)}
+      header={<BottomSheetHeader title={t("Invite friends")} />}
+    >
+      <View className="gap-5 px-5">
         <View className="gap-2">
           <Text className="text-sm font-bold text-text">{t("Invite link")}</Text>
           <View className="flex-row items-center rounded-full border border-border-subtle bg-card-bg px-2">

@@ -1,4 +1,4 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -129,34 +129,29 @@ export function EventsCalendarSheet({
       detents={[0.9, 1]}
       onDidDismiss={onClose}
       scrollableOptions={{ scrollingExpandsSheet: false }}
+      header={
+        <BottomSheetHeader
+          title={t("Events calendar")}
+          action={
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isExporting}
+              onPress={() => void handleExport()}
+              className="rounded-full"
+            >
+              {isExporting ? (
+                <ActivityIndicator colorClassName="accent-brand" size="small" />
+              ) : (
+                <Icon as={isGated ? Lock : Download} className="size-4 text-brand" />
+              )}
+              <Text className="text-brand">{t("Export")}</Text>
+            </Button>
+          }
+        />
+      }
     >
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="gap-4 px-4 pt-4">
-        <View className="flex-row items-center gap-3">
-          <View className="size-11 items-center justify-center rounded-full bg-brand-lighter">
-            <Icon as={CalendarDays} className="size-5 text-brand" />
-          </View>
-          <View className="min-w-0 flex-1">
-            <Text className="text-xl font-extrabold text-text">{t("Events calendar")}</Text>
-            <Text className="text-sm text-text-muted">
-              {t("{count} upcoming events", { count: sortedEvents.length })}
-            </Text>
-          </View>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={isExporting}
-            onPress={() => void handleExport()}
-            className="rounded-full"
-          >
-            {isExporting ? (
-              <ActivityIndicator colorClassName="accent-brand" size="small" />
-            ) : (
-              <Icon as={isGated ? Lock : Download} className="size-4 text-brand" />
-            )}
-            <Text className="text-brand">{t("Export")}</Text>
-          </Button>
-        </View>
-
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="gap-4 px-4">
         <View className="rounded-2xl border border-border-subtle bg-card-bg p-3 shadow-sm">
           <View className="mb-3 flex-row items-center justify-between">
             <Button

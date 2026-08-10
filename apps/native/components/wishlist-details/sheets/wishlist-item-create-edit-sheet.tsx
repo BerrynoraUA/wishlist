@@ -5,6 +5,7 @@ import {
 } from "@/components/ui/autocomplete-dropdown";
 import {
   BottomSheet,
+  BottomSheetHeader,
   BottomSheetScrollView,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
@@ -483,6 +484,7 @@ export function WishlistItemCreateEditSheet({
       detents={[0.75, 0.94]}
       footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
+      header={<BottomSheetHeader title={mode === "edit" ? t("Edit item") : t("Add an item")} />}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -511,7 +513,7 @@ export function WishlistItemCreateEditSheet({
       <BottomSheetScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="gap-5 px-5 pt-5"
+        contentContainerClassName="gap-5 px-5"
       >
         {form.productLinkPosition === "top" ? productLinkField : null}
 
@@ -775,6 +777,7 @@ function WishlistPickerField({
       }}
       options={options}
       placeholder={t("Search wishlists")}
+      sheetTitle={t("Select a wishlist")}
       emptyText={
         query.trim() ? t("No wishlists found") : t("Create a wishlist first to add wishes to it.")
       }

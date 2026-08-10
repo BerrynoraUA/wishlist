@@ -1,4 +1,4 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
@@ -235,22 +235,23 @@ export function WishlistShareSheet({
       detents={["auto"]}
       cornerRadius={28}
       onDidDismiss={() => onOpenChange(false)}
+      header={
+        <BottomSheetHeader
+          title={t("Share this wishlist")}
+          action={
+            <AnimatedPressable
+              accessibilityRole="button"
+              accessibilityLabel={t("Close")}
+              className="size-10 items-center justify-center rounded-full"
+              onPress={dismiss}
+            >
+              <Icon as={X} className="size-6 text-text" />
+            </AnimatedPressable>
+          }
+        />
+      }
     >
-      <View className="gap-5 px-4 pt-8">
-        <View className="flex-row items-center justify-center">
-          <View className="items-center gap-1 px-12">
-            <Text className="text-xl font-extrabold text-text">{t("Share this wishlist")}</Text>
-          </View>
-          <AnimatedPressable
-            accessibilityRole="button"
-            accessibilityLabel={t("Close")}
-            className="absolute end-0 size-10 items-center justify-center rounded-full"
-            onPress={dismiss}
-          >
-            <Icon as={X} className="size-8 text-text" />
-          </AnimatedPressable>
-        </View>
-
+      <View className="gap-5 px-4">
         <View
           ref={previewRef}
           collapsable={false}

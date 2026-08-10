@@ -1,4 +1,4 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
@@ -93,6 +93,7 @@ export function WishlistGrantAccessSheet({
       <BottomSheet
         ref={sheetRef}
         onDidDismiss={() => onOpenChange(false)}
+        header={<BottomSheetHeader title={t("Collaborative wishlists")} />}
         footer={
           <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
             <Button className="min-w-0 flex-1" variant="outline" onPress={handleClose}>
@@ -105,18 +106,13 @@ export function WishlistGrantAccessSheet({
           </View>
         }
       >
-        <View className="items-center gap-4 px-5 pt-8">
+        <View className="items-center gap-4 px-5">
           <View className="size-14 items-center justify-center rounded-full bg-brand-lighter">
             <Icon as={Lock} className="size-6 text-brand" />
           </View>
-          <View className="items-center gap-2">
-            <Text className="text-center text-xl font-extrabold text-text">
-              {t("Collaborative wishlists")}
-            </Text>
-            <Text className="text-center text-sm text-text-muted">
-              {t("Granting view or edit access to other people is available only on the Pro plan.")}
-            </Text>
-          </View>
+          <Text className="text-center text-sm text-text-muted">
+            {t("Granting view or edit access to other people is available only on the Pro plan.")}
+          </Text>
           <View className="w-full gap-1 rounded-xl border border-border-subtle bg-bg-subtle p-3">
             <Text className="text-xs font-bold uppercase text-text-muted">{t("Wishlist")}</Text>
             <Text className="font-extrabold text-text">{wishlistTitle}</Text>
@@ -131,9 +127,7 @@ export function WishlistGrantAccessSheet({
       ref={sheetRef}
       scrollable
       onDidDismiss={() => onOpenChange(false)}
-      header={
-        <Text className="mx-5 mt-5 text-lg font-extrabold text-text">{t("Grant access")}</Text>
-      }
+      header={<BottomSheetHeader title={t("Grant access")} />}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button className="min-w-0 flex-1" variant="outline" onPress={handleClose}>
@@ -152,7 +146,7 @@ export function WishlistGrantAccessSheet({
         </View>
       }
     >
-      <View className="gap-5 px-5 pt-5">
+      <View className="gap-5 px-5">
         <View className="gap-2 rounded-xl border border-border-subtle bg-bg-subtle p-3">
           <Text className="text-xs font-bold uppercase text-text-muted">{t("Wishlist")}</Text>
           <Text className="text-base font-extrabold text-text">{wishlistTitle}</Text>

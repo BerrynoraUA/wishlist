@@ -1,5 +1,6 @@
 import {
   BottomSheet,
+  BottomSheetHeader,
   BottomSheetScrollView,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
@@ -220,6 +221,9 @@ export function SecretSantaCreateEditSheet({
       detents={mode === "create" ? ["auto"] : [contentDetent]}
       footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
+      header={
+        <BottomSheetHeader title={mode === "edit" ? t("Edit event") : t("Create an event")} />
+      }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -247,7 +251,7 @@ export function SecretSantaCreateEditSheet({
     >
       <BottomSheetScrollView
         className="max-h-full"
-        contentContainerClassName="gap-5 px-5 pt-5"
+        contentContainerClassName="gap-5 px-5"
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled
         onContentSizeChange={(_width, height) => setContentHeight(height)}

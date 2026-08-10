@@ -2,7 +2,7 @@ import {
   AutocompleteDropdown,
   type AutocompleteDropdownOption,
 } from "@/components/ui/autocomplete-dropdown";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -12,7 +12,7 @@ import { useInfiniteMyWishlists } from "@/hooks/use-wishlists";
 import { WISHLIST_PAGE_SIZE } from "@/lib/wishlists";
 import type { Item } from "@wishlist/backend/types/item";
 import { Image } from "expo-image";
-import { Bookmark, Gift, X } from "lucide-react-native";
+import { Gift, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -101,6 +101,7 @@ export function SaveItemToWishlistsSheet({
       ref={sheetRef}
       detents={["auto"]}
       onDidDismiss={onClose}
+      header={<BottomSheetHeader title={t("Save to wishlist")} />}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -122,16 +123,10 @@ export function SaveItemToWishlistsSheet({
         </View>
       }
     >
-      <View className="gap-4 px-5 pt-4">
-        <View className="items-center gap-1.5">
-          <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
-            <Icon as={Bookmark} className="size-5 text-brand" />
-          </View>
-          <Text className="text-xl font-extrabold text-text">{t("Save to wishlist")}</Text>
-          <Text className="text-center text-sm text-text-muted">
-            {t("Choose one or more wishlists you want to add this item to")}
-          </Text>
-        </View>
+      <View className="gap-4 px-5">
+        <Text className="text-center text-sm text-text-muted">
+          {t("Choose one or more wishlists you want to add this item to")}
+        </Text>
 
         <View className="flex-row items-center gap-3 rounded-xl border border-border-subtle bg-bg-muted p-2.5">
           {item.image_url ? (

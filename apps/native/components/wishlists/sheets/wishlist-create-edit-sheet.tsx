@@ -1,6 +1,7 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import {
   BottomSheet,
+  BottomSheetHeader,
   BottomSheetScrollView,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
@@ -228,6 +229,9 @@ export function WishlistCreateEditSheet({
       detents={[0.75, 0.94]}
       footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
+      header={
+        <BottomSheetHeader title={mode === "edit" ? t("Edit wishlist") : t("Create a wishlist")} />
+      }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -256,7 +260,7 @@ export function WishlistCreateEditSheet({
       <BottomSheetScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="gap-5 px-5 pt-5"
+        contentContainerClassName="gap-5 px-5"
       >
         <Field label={t("Name")}>
           <Controller

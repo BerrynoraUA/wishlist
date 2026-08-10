@@ -1,5 +1,6 @@
 import {
   BottomSheet,
+  BottomSheetHeader,
   BottomSheetScrollView,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
@@ -283,11 +284,12 @@ export function WishlistItemDetailSheet({
         detents={["auto", 0.94]}
         footerInsetMode="scroll-content"
         onDidDismiss={onClose}
+        header={<BottomSheetHeader title={t("Item details")} />}
         footer={actions ?? undefined}
       >
         <BottomSheetScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerClassName="gap-5 px-5 pt-5"
+          contentContainerClassName="gap-5 px-5"
         >
           <ItemImage
             item={item}

@@ -1,4 +1,4 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -69,13 +69,14 @@ export function SubmitFeatureIdeaSheet({
   }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
-      <View className="px-5 pt-5">
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={onClose}
+      header={<BottomSheetHeader title={t("Submit a Feature Idea")} />}
+    >
+      <View className="px-5">
         <View className="gap-4">
-          <View className="gap-1">
-            <Text className="text-lg font-extrabold text-text">{t("Submit a Feature Idea")}</Text>
-          </View>
-
           <View className="gap-2">
             <View className="flex-row items-center justify-between">
               <Text className="text-sm font-bold text-text">{t("Title")}</Text>

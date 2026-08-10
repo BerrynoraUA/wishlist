@@ -5,7 +5,7 @@ import { OutgoingRequestCard } from "@/components/friends/outgoing-request-card"
 import { RequestCard } from "@/components/friends/request-card";
 import { FriendGroupSheet } from "@/components/friends/sheets/friend-group-sheet";
 import { InlineState } from "@/components/shared/inline-state";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { ExpandingSearchHeader } from "@/components/ui/expanding-search-header";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
@@ -359,12 +359,14 @@ function ConfirmActionSheet({
   if (!open) return null;
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={() => onOpenChange(false)}>
-      <View className="gap-4 px-5 pt-5">
-        <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">{title}</Text>
-          <Text className="text-sm text-text-muted">{description}</Text>
-        </View>
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={() => onOpenChange(false)}
+      header={<BottomSheetHeader title={title} />}
+    >
+      <View className="gap-4 px-5">
+        <Text className="text-sm text-text-muted">{description}</Text>
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
         <View className="flex-row gap-2">
           <Button

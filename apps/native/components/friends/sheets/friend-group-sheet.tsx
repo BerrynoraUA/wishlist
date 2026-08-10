@@ -1,5 +1,6 @@
 import {
   BottomSheet,
+  BottomSheetHeader,
   BottomSheetScrollView,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
@@ -133,6 +134,7 @@ export function FriendGroupSheet({
       detents={group ? undefined : ["auto"]}
       footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
+      header={<BottomSheetHeader title={group ? t("Edit group") : t("Create a group")} />}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -156,7 +158,7 @@ export function FriendGroupSheet({
     >
       <BottomSheetScrollView
         className="max-h-full"
-        contentContainerClassName="gap-3 px-5 pt-4"
+        contentContainerClassName="gap-3 px-5"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
