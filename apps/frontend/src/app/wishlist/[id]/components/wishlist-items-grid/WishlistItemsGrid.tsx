@@ -12,6 +12,7 @@ import { LayoutGrid, LayoutList } from "lucide-react";
 type Props = {
   items: Item[];
   isOwner?: boolean;
+  showOwnerReservation?: boolean;
   showDiscountBadge?: boolean;
   onToggleReserve?: (id: string) => void;
   onToggleBought?: (id: string) => void;
@@ -26,6 +27,7 @@ type Props = {
 export function WishlistItemsGrid({
   items,
   isOwner = false,
+  showOwnerReservation = false,
   showDiscountBadge = false,
   onToggleReserve,
   onToggleBought,
@@ -139,6 +141,7 @@ export function WishlistItemsGrid({
             )}
             variant="wishlist"
             isOwner={isOwner}
+            showOwnerReservation={showOwnerReservation}
             showDiscountBadge={showDiscountBadge}
             onToggleReserve={onToggleReserve}
             onToggleBought={onToggleBought}
@@ -152,6 +155,7 @@ export function WishlistItemsGrid({
                 onClose={onClose}
                 item={item}
                 isOwner={isOwner}
+                showOwnerReservation={showOwnerReservation}
                 onToggleReserve={onToggleReserve}
                 onToggleBought={onToggleBought}
                 reservedByName={

@@ -4,9 +4,10 @@ import { Text } from "@/components/ui/text";
 import {
   CARD_BADGE_HEIGHT,
   ItemPriorityBadge,
-  ItemStatusBadge,
+  ItemPriorityMedallion,
 } from "@/components/items/item-labels";
 import { cn } from "@/lib/utils";
+import { isStarPriorityId } from "@wishlist/backend/lib";
 import type { Item } from "@wishlist/backend/types/item";
 import { Gift } from "lucide-react-native";
 import { useGT } from "gt-react-native";
@@ -15,8 +16,9 @@ import { View } from "react-native";
 export function ItemImage({
   item,
   reservationLabel,
+  stampLabel,
+  overlayAction,
   purchased,
-  reserved,
   priority,
   priorityLabel,
   salePercentOff,
@@ -25,8 +27,11 @@ export function ItemImage({
 }: {
   item: Item;
   reservationLabel?: string | null;
+  /** Overrides the ribbon text, e.g. with a revealed reserver name. */
+  stampLabel?: string | null;
+  /** Control pinned to the top-start corner, e.g. the reveal toggle. */
+  overlayAction?: React.ReactNode;
   purchased: boolean;
-  reserved: boolean;
   priority: ReturnType<typeof import("@/lib/items").getItemPriority>;
   priorityLabel?: string | null;
   salePercentOff?: number | null;
@@ -78,21 +83,24 @@ export function ItemImage({
             style={{ transform: [{ rotate: "-20deg" }] }}
           >
             <Text
+              numberOfLines={1}
               className={cn(
-                "font-extrabold uppercase tracking-widest text-brand",
-                isDetail ? "text-xl" : "text-lg",
+                "font-extrabold",
+                // Purchased reads green; reserved keeps the brand colour.
+                purchased ? "text-[#86efac]" : "text-brand",
+                stampLabel ? "px-3 text-sm" : "uppercase tracking-widest",
+                !stampLabel && (isDetail ? "text-xl" : "text-lg"),
               )}
             >
-              {purchased ? t("Purchased") : t("Reserved")}
+              {stampLabel ?? (purchased ? t("Purchased") : t("Reserved"))}
             </Text>
           </View>
         </View>
       ) : null}
 
-      {/* Cards rely on the diagonal ribbon alone; the status pill only shows in the detail sheet. */}
-      {isDetail && reserved && reservationLabel ? (
-        <View className="absolute start-3 top-3 z-10 max-w-[80%]">
-          <ItemStatusBadge label={reservationLabel} purchased={false} />
+      {overlayAction ? (
+        <View className={cn("absolute z-10", isDetail ? "start-3 top-3" : "start-2 top-2")}>
+          {overlayAction}
         </View>
       ) : null}
 
@@ -116,6 +124,15 @@ export function ItemImage({
           <ItemPriorityBadge priority={priority} label={priorityLabel} compact context="card" />
         ) : null}
       </View>
+
+      {/* Only Stare gets a medallion, and on a card it hangs off the bottom edge
+          of the whole card (see the card components) — here it shows in the
+          detail sheet, where the image is the full-width hero. */}
+      {priority && isDetail && isStarPriorityId(priority.id) ? (
+        <View className="absolute inset-x-0 bottom-3 z-10 items-center">
+          <ItemPriorityMedallion priority={priority} label={priorityLabel} size="detail" />
+        </View>
+      ) : null}
 
       {item.price ? (
         <View

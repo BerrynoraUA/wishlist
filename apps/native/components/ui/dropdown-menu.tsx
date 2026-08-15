@@ -1,3 +1,4 @@
+import { hapticLongPress, hapticSelection } from "@/lib/haptics";
 import { useAppBlurTarget } from "@/components/ui/app-blur-target";
 import { Icon } from "@/components/ui/icon";
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
@@ -59,6 +60,8 @@ function useDropdownMenuPreview() {
   const openMenu = React.useCallback(async () => {
     const card = cardRef.current;
     if (!card) return;
+
+    hapticLongPress();
 
     try {
       const [layout, uri] = await Promise.all([
@@ -309,6 +312,7 @@ function DropdownMenuItem({
   inset,
   layout = "default",
   variant,
+  onPress,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & {
   className?: string;
@@ -316,6 +320,11 @@ function DropdownMenuItem({
   layout?: "default" | "action";
   variant?: "default" | "destructive";
 }) {
+  function handlePress(event: Parameters<NonNullable<typeof onPress>>[0]) {
+    hapticSelection();
+    onPress?.(event);
+  }
+
   return (
     <TextClassContext.Provider
       value={cn(
@@ -332,6 +341,7 @@ function DropdownMenuItem({
           inset && "ps-8",
           className,
         )}
+        onPress={handlePress}
         {...props}
       />
     </TextClassContext.Provider>

@@ -12,7 +12,17 @@ export const PRIORITY_IDS = {
   MYTHIC: "11111111-0000-0000-0000-000000000008",
   CELESTIAL: "11111111-0000-0000-0000-000000000009",
   DIVINE: "11111111-0000-0000-0000-000000000010",
+  STAR: "11111111-0000-0000-0000-000000000011",
 } as const;
+
+// Stare items float to the top of the default ordering and are capped per
+// wishlist — the DB functions match on this id directly, so keep it in sync
+// with the migration seed.
+export const STAR_PRIORITY_ID = PRIORITY_IDS.STAR;
+
+export function isStarPriorityId(priorityId: string | null | undefined) {
+  return priorityId === STAR_PRIORITY_ID;
+}
 
 export const ALL_PRIORITIES: ItemPriority[] = [
   {
@@ -95,4 +105,21 @@ export const ALL_PRIORITIES: ItemPriority[] = [
     sort_order: 10,
     is_free: false,
   },
+  {
+    id: PRIORITY_IDS.STAR,
+    name: "Stare",
+    color: "#c0267e",
+    emoji: "⭐",
+    sort_order: 11,
+    is_free: true,
+  },
 ];
+
+/**
+ * CSS colour to paint a priority with. Stare follows the user's chosen accent
+ * (`--color-brand`) the way the old star card did, so it stays blue for a blue
+ * accent instead of the fixed pink stored in the DB.
+ */
+export function getPriorityCssColor(priority: Pick<ItemPriority, "id" | "color">): string {
+  return isStarPriorityId(priority.id) ? "var(--color-brand)" : priority.color;
+}

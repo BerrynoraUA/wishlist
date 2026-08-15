@@ -12,7 +12,7 @@ import {
   SortSelect,
 } from "@/components/ui/FilterSortBar";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
-import { ALL_PRIORITIES } from "@/lib/priorities";
+import { ALL_PRIORITIES, getPriorityCssColor } from "@/lib/priorities";
 import { useDiscoverFilters } from "../../hooks/use-discover-filters";
 import styles from "./DiscoverFilterBar.module.scss";
 
@@ -52,7 +52,7 @@ export function DiscoverFilterBar() {
           icon: (
             <span
               className={styles.priorityFilterIcon}
-              style={{ "--priority-color": priority.color } as CSSProperties}
+              style={{ "--priority-color": getPriorityCssColor(priority) } as CSSProperties}
             >
               {Icon && <Icon size={14} strokeWidth={2.5} />}
             </span>

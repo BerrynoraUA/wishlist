@@ -28,7 +28,6 @@ function toWishlistItem(item: VisibleItem): Item {
     price: item.price,
     priority_id: item.priority_id ?? null,
     priority_name: item.priority_name ?? null,
-    color_index: item.color_index ?? null,
     image_url: item.image_url,
     url: item.url,
     created_at: item.created_at,

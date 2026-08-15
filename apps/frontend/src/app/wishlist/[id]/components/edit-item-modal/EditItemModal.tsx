@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGT } from "gt-next";
-import { Check, Loader2, Plus, X, Lock, Star } from "lucide-react";
+import { Check, Loader2, Plus, X, Lock } from "lucide-react";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
@@ -20,9 +20,8 @@ import type { UpdateItemParams } from "@/api/types/item";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { validateImageUploadFile } from "@/lib/image-upload";
 import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
-import { ALL_PRIORITIES } from "@/lib/priorities";
+import { ALL_PRIORITIES, getPriorityCssColor } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
-import { isStarCardColorIndex, ITEM_COLORS, STAR_CARD_COLOR_INDEX } from "@/lib/item-colors";
 import styles from "../create-item-modal/CreateItemModal.module.scss";
 
 type Props = {
@@ -36,7 +35,6 @@ type EditItemDraft = {
   description: string;
   price: string;
   priority: string | null;
-  colorIndex: number | null;
   link: string;
   additionalLinks: ItemLink[];
   imagePreview: string;
@@ -53,7 +51,6 @@ type RestoredEditItemFields = {
   price: boolean;
   currency: boolean;
   priority: boolean;
-  colorIndex: boolean;
 };
 
 const EMPTY_RESTORED_EDIT_ITEM_FIELDS: RestoredEditItemFields = {
@@ -65,7 +62,6 @@ const EMPTY_RESTORED_EDIT_ITEM_FIELDS: RestoredEditItemFields = {
   price: false,
   currency: false,
   priority: false,
-  colorIndex: false,
 };
 
 export function EditItemModal({ open, onClose, item }: Props) {
@@ -120,7 +116,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
         leading: (
           <span
             className={styles.prioritySelectIcon}
-            style={{ "--priority-color": p.color } as React.CSSProperties}
+            style={{ "--priority-color": getPriorityCssColor(p) } as React.CSSProperties}
           >
             {Icon && <Icon size={14} strokeWidth={2.5} />}
           </span>
@@ -139,7 +135,6 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       description: item.description ?? "",
       price: item.price ?? "",
       priority: item.priority_id ?? null,
-      colorIndex: item.color_index ?? null,
       link: item.url ?? "",
       additionalLinks: item.additional_links ?? [],
       imagePreview: item.image_url ?? "",
@@ -152,8 +147,6 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
   const [description, setDescription] = useState(item.description ?? "");
   const [price, setPrice] = useState(item.price ?? "");
   const [priority, setPriority] = useState<string | null>(item.priority_id ?? null);
-  const [colorIndex, setColorIndex] = useState<number | null>(item.color_index ?? null);
-  const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [link, setLink] = useState(item.url ?? "");
   const [additionalLinks, setAdditionalLinks] = useState<ItemLink[]>(item.additional_links ?? []);
   const [imagePreview, setImagePreview] = useState(item.image_url ?? "");
@@ -179,25 +172,13 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       description,
       price,
       priority,
-      colorIndex,
       link,
       additionalLinks,
       imagePreview: imageFile ? "" : imagePreview,
       currency,
       hadLocalImage: Boolean(imageFile),
     }),
-    [
-      additionalLinks,
-      currency,
-      colorIndex,
-      description,
-      imageFile,
-      imagePreview,
-      link,
-      name,
-      price,
-      priority,
-    ],
+    [additionalLinks, currency, description, imageFile, imagePreview, link, name, price, priority],
   );
 
   const isMeaningfulDraft = useCallback(
@@ -211,7 +192,6 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
         draft.description.trim() !== initialDraft.description.trim() ||
         draft.price.trim() !== initialDraft.price.trim() ||
         draft.priority !== initialDraft.priority ||
-        draft.colorIndex !== initialDraft.colorIndex ||
         draft.link.trim() !== initialDraft.link.trim() ||
         draft.currency !== initialDraft.currency ||
         draft.imagePreview !== initialDraft.imagePreview ||
@@ -234,7 +214,6 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       price: draft.price.trim() !== initialDraft.price.trim(),
       currency: draft.currency !== initialDraft.currency,
       priority: draft.priority !== initialDraft.priority,
-      colorIndex: draft.colorIndex !== initialDraft.colorIndex,
     }),
     [initialDraft],
   );
@@ -245,8 +224,6 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       setDescription(draft.description);
       setPrice(draft.price);
       setPriority(draft.priority);
-      setColorIndex(draft.colorIndex);
-      setColorPickerOpen(false);
       setLink(draft.link);
       setAdditionalLinks(draft.additionalLinks);
       if (imageObjectUrl) {
@@ -293,7 +270,6 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       price.trim() !== initialPrice ||
       link.trim() !== initialLink ||
       priority !== initialPriority ||
-      colorIndex !== (item.color_index ?? null) ||
       currency !== initialCurrency ||
       Boolean(imageFile) ||
       imagePreview !== initialImage ||
@@ -301,7 +277,6 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
     );
   }, [
     additionalLinks,
-    colorIndex,
     currency,
     description,
     imageFile,
@@ -351,8 +326,6 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
     setDescription(initialDraft.description);
     setPrice(initialDraft.price);
     setPriority(initialDraft.priority);
-    setColorIndex(initialDraft.colorIndex);
-    setColorPickerOpen(false);
     setLink(initialDraft.link);
     setAdditionalLinks(initialDraft.additionalLinks);
     if (imageObjectUrl) {
@@ -395,7 +368,6 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       url: link.trim() || null,
       additional_links: validAdditionalLinks,
       priority_id: priorityValue,
-      color_index: colorIndex,
       currency,
       ...(imageFile ? { image: imageFile } : { image_url: imagePreview || null }),
     };
@@ -720,7 +692,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
           </div>
         </div>
 
-        <div className={styles.priorityColorRow}>
+        <div className={styles.priorityRow}>
           {canUsePriority && (
             <div
               className={`${styles.field} ${isDraftRestored && restoredFields.priority ? styles.draftField : ""}`.trim()}
@@ -738,79 +710,6 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
               />
             </div>
           )}
-
-          <div
-            className={`${styles.field} ${styles.compactColorField}`}
-            onBlur={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-                setColorPickerOpen(false);
-              }
-            }}
-          >
-            <label>{t("Card Color", { $id: "item.modal.colorLabelShort" })}</label>
-            <button
-              type="button"
-              className={styles.colorTrigger}
-              style={
-                {
-                  "--selected-color":
-                    colorIndex === null
-                      ? "var(--color-border-light)"
-                      : isStarCardColorIndex(colorIndex)
-                        ? "var(--color-brand)"
-                        : ITEM_COLORS[colorIndex]?.color,
-                } as React.CSSProperties
-              }
-              onClick={() => setColorPickerOpen((value) => !value)}
-              aria-expanded={colorPickerOpen}
-              aria-haspopup="grid"
-              aria-label={t("Card Color", {
-                $id: "item.modal.colorLabelShort",
-              })}
-            >
-              <span className={styles.colorTriggerSwatch}>
-                {isStarCardColorIndex(colorIndex) && <Star size={12} fill="currentColor" />}
-              </span>
-            </button>
-
-            {colorPickerOpen && (
-              <div className={styles.colorPopover}>
-                <button
-                  type="button"
-                  className={`${styles.colorSwatch} ${styles.colorSwatchNone} ${colorIndex === null ? styles.colorSwatchActive : ""}`}
-                  onClick={() => {
-                    setColorIndex(null);
-                    setColorPickerOpen(false);
-                  }}
-                  title={t("No color", { $id: "item.modal.colorNone" })}
-                />
-                <button
-                  type="button"
-                  className={`${styles.colorSwatch} ${styles.colorSwatchStar} ${isStarCardColorIndex(colorIndex) ? styles.colorSwatchActive : ""}`}
-                  onClick={() => {
-                    setColorIndex(STAR_CARD_COLOR_INDEX);
-                    setColorPickerOpen(false);
-                  }}
-                  title={t("Star", { $id: "item.modal.colorStar" })}
-                >
-                  <Star size={13} fill="currentColor" />
-                </button>
-                {ITEM_COLORS.map((c, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    className={`${styles.colorSwatch} ${colorIndex === idx ? styles.colorSwatchActive : ""}`}
-                    style={{ "--swatch-color": c.color } as React.CSSProperties}
-                    onClick={() => {
-                      setColorIndex(idx);
-                      setColorPickerOpen(false);
-                    }}
-                    title={c.label}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
         </div>
 
         <div className={styles.footer}>

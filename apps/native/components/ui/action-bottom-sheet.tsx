@@ -1,6 +1,7 @@
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { hapticSuccess, hapticWarning } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { useGT } from "gt-react-native";
 import * as React from "react";
@@ -78,6 +79,17 @@ export function ActionBottomSheetConfirm({
   function handleClose() {
     void sheetRef.current?.dismiss();
   }
+  function handleConfirm() {
+    // Destructive steps get the sharper pattern so they feel different from a
+    // reserve or a purchase landing.
+    if (tone === "destructive") {
+      hapticWarning();
+    } else {
+      hapticSuccess();
+    }
+
+    onConfirm();
+  }
 
   return (
     <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
@@ -96,7 +108,7 @@ export function ActionBottomSheetConfirm({
               tone === "destructive" ? "destructive" : tone === "default" ? "default" : "ghost"
             }
             disabled={isPending || confirmDisabled}
-            onPress={onConfirm}
+            onPress={handleConfirm}
             className={cn(
               "flex-1",
               tone === "success"

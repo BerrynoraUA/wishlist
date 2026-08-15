@@ -1,3 +1,4 @@
+import { hapticSelection } from "@/lib/haptics";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import { motionSpring, useReducedMotion } from "@/lib/motion";
@@ -152,7 +153,10 @@ export function SlidingOptionSelector<T>({
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
                 accessibilityLabel={option.accessibilityLabel}
-                onPress={() => onChange(option.value)}
+                onPress={() => {
+                  hapticSelection();
+                  onChange(option.value);
+                }}
                 className={cn(
                   "z-10 flex-1 flex-row items-center justify-center border border-border-subtle",
                   optionHeightClassName,

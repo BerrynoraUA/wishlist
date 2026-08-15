@@ -1,3 +1,4 @@
+import { hapticSelection } from "@/lib/haptics";
 import { BugReportCard } from "@/components/bug-reports/bug-report-card";
 import { BugReportsTabs } from "@/components/bug-reports/bug-reports-tabs";
 import { SubmitBugReportSheet } from "@/components/bug-reports/submit-bug-report-sheet";
@@ -150,7 +151,10 @@ export default function BugsScreen() {
           refreshControl={
             <RefreshControl
               refreshing={reportsQuery.isRefetching && !reportsQuery.isLoading}
-              onRefresh={() => void reportsQuery.refetch()}
+              onRefresh={() => {
+                hapticSelection();
+                void reportsQuery.refetch();
+              }}
               tintColor="currentColor"
               progressViewOffset={paddingTop}
             />

@@ -9,6 +9,7 @@ import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheet
 import { SaveItemToWishlistsSheet } from "@/components/wishlist-details/sheets/save-item-to-wishlists-sheet";
 import { WishlistItemHeader } from "@/components/wishlist-details/wishlist-item-header";
 import { WishlistItemCard } from "@/components/wishlist-details/wishlist-item-card";
+import { useShowOwnReservations } from "@/hooks/use-own-reservations";
 import {
   useUserGuideStepCompletion,
   useUserGuideTargetRegistration,
@@ -182,6 +183,9 @@ export default function WishlistDetailScreen() {
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
   const showDiscountBadge = !canEditWishlist && Boolean(friendshipQuery.data);
+  const canSeeOwnReservations = useShowOwnReservations();
+  // Owner only, not editors: the preference is about your own wishlists.
+  const showOwnerReservation = Boolean(wishlist?.is_owner) && canSeeOwnReservations;
   const itemRows = React.useMemo(() => chunkRows(items, columns), [columns, items]);
   const itemListData = React.useMemo<WishlistItemListRow[]>(
     () => [
@@ -349,6 +353,7 @@ export default function WishlistDetailScreen() {
                 currentUserId={currentUser.data}
                 isOwner={canEditWishlist}
                 showDiscountBadge={showDiscountBadge}
+                showOwnerReservation={showOwnerReservation}
                 reservedByName={
                   entry.reserved_by ? profileNamesById.get(entry.reserved_by) : undefined
                 }
@@ -546,6 +551,7 @@ export default function WishlistDetailScreen() {
           item={sheet?.type === "detail" ? sheet.item : null}
           currentUserId={currentUser.data}
           isOwner={canEditWishlist}
+          showOwnerReservation={showOwnerReservation}
           reservedByName={
             sheet?.type === "detail" && sheet.item.reserved_by
               ? profileNamesById.get(sheet.item.reserved_by)

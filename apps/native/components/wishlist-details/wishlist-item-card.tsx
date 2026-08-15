@@ -1,5 +1,6 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { ItemImage } from "@/components/items/item-image";
+import { ItemPriorityMedallion, useItemCardBorderStyle } from "@/components/items/item-labels";
 import { ActionBottomSheetConfirm } from "@/components/ui/action-bottom-sheet";
 import {
   DropdownMenu,
@@ -19,11 +20,22 @@ import {
   getTranslatedItemPriorityLabel,
   isDiscountActive,
 } from "@/lib/items";
+import { hapticToggle } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { getValidHttpUrl } from "@/lib/urls";
+import { isStarPriorityId } from "@wishlist/backend/lib";
 import type { Item } from "@wishlist/backend/types/item";
 import * as Clipboard from "expo-clipboard";
-import { Copy, Heart, LockKeyhole, Pencil, ShoppingCart, Trash2 } from "lucide-react-native";
+import {
+  Copy,
+  Eye,
+  EyeOff,
+  Heart,
+  LockKeyhole,
+  Pencil,
+  ShoppingCart,
+  Trash2,
+} from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
@@ -34,6 +46,7 @@ export function WishlistItemCard({
   currentUserId,
   isOwner,
   showDiscountBadge,
+  showOwnerReservation = false,
   reservedByName,
   voteCount,
   hasVoted,
@@ -51,6 +64,7 @@ export function WishlistItemCard({
   currentUserId: string;
   isOwner: boolean;
   showDiscountBadge: boolean;
+  showOwnerReservation?: boolean;
   reservedByName?: string | null;
   voteCount: number;
   hasVoted: boolean;
@@ -64,6 +78,7 @@ export function WishlistItemCard({
   boughtPending?: boolean;
 }) {
   const t = useGT();
+  const [reserverRevealed, setReserverRevealed] = React.useState(false);
   const reservation = getItemReservationState({
     status: item.status,
     reservedBy: item.reserved_by,
@@ -76,14 +91,17 @@ export function WishlistItemCard({
       reservedByName,
     },
     t,
+    { revealName: reserverRevealed },
   );
   // Owners never see reservation status on their own wishlist (keep the
   // surprise). For everyone else, gray out reserved/purchased items so they
   // read as "taken" at a glance; purchases use the image ribbon only.
-  const showReservation = !isOwner && reservation.isReserved;
-  const isTaken = !isOwner && Boolean(reservationLabel);
+  // Owners only see the ribbon once they opt into the spoiler.
+  const isTaken = Boolean(reservationLabel) && (!isOwner || showOwnerReservation);
+  const canRevealReserver = showOwnerReservation && isTaken && Boolean(reservedByName);
   const priorityLabel = getTranslatedItemPriorityLabel(t, item.priority_id);
   const priority = getItemPriority(item.priority_id);
+  const cardBorderStyle = useItemCardBorderStyle(priority);
   const store = getItemStoreFromUrl(item.url);
   const itemUrl = getValidHttpUrl(item.url) ?? "";
   const showCopyLink = itemUrl.length > 0;
@@ -127,12 +145,32 @@ export function WishlistItemCard({
             onLongPress={showMenu ? menuPreview.openMenu : undefined}
             pressedScale={isTaken ? 1 : 0.98}
             className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
+            // The priority is what tints the card — no separate item colour.
+            style={cardBorderStyle}
           >
             <ItemImage
               item={item}
               reservationLabel={isTaken ? reservationLabel : null}
+              stampLabel={reserverRevealed ? reservedByName : null}
+              overlayAction={
+                canRevealReserver ? (
+                  <AnimatedPressable
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      reserverRevealed ? t("Hide who reserved this") : t("Show who reserved this")
+                    }
+                    onPress={(event) => {
+                      event.stopPropagation();
+                      setReserverRevealed((value) => !value);
+                    }}
+                    hitSlop={8}
+                    className="size-9 items-center justify-center rounded-full border border-border-subtle bg-card-bg shadow-sm"
+                  >
+                    <Icon as={reserverRevealed ? EyeOff : Eye} className="size-5 text-text-muted" />
+                  </AnimatedPressable>
+                ) : null
+              }
               purchased={reservation.isPurchased}
-              reserved={showReservation}
               priority={priority}
               priorityLabel={priorityLabel}
               salePercentOff={salePercentOff}
@@ -157,6 +195,7 @@ export function WishlistItemCard({
                       accessibilityLabel={hasVoted ? t("Remove vote") : t("Vote for item")}
                       onPress={(event) => {
                         event.stopPropagation();
+                        hapticToggle(!hasVoted);
                         onToggleVote();
                       }}
                       className={cn(
@@ -279,6 +318,14 @@ export function WishlistItemCard({
               ) : null}
             </View>
           </AnimatedPressable>
+
+          {/* Hangs off the bottom edge, centred — same placement as the web card.
+              It sits outside the pressable, which clips its own overflow. */}
+          {priority && isStarPriorityId(priority.id) ? (
+            <View className="absolute inset-x-0 -bottom-3.5 z-10 items-center" pointerEvents="none">
+              <ItemPriorityMedallion priority={priority} label={priorityLabel} />
+            </View>
+          ) : null}
         </View>
         {showMenu ? (
           <DropdownMenuTrigger asChild>

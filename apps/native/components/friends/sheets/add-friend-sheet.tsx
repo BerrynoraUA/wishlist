@@ -1,3 +1,4 @@
+import { hapticSuccess } from "@/lib/haptics";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -72,6 +73,7 @@ export function AddFriendSheet({
   async function handleCopy() {
     if (!inviteLink) return;
     await Clipboard.setStringAsync(inviteLink);
+    hapticSuccess();
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }

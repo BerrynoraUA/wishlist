@@ -35,6 +35,11 @@ export interface UserSettings {
   display_currency: string;
   selected_priorities: string[];
   /**
+   * Pro-only opt-in. When true, the owner of a wishlist sees whether their own
+   * items have been reserved or bought — off by default to keep the surprise.
+   */
+  show_own_reservations: boolean;
+  /**
    * The user's chosen UI language (GT locale code). Persisted so the server/other clients
    * know which language to render this user's notifications in. `null` until first set.
    */
@@ -76,5 +81,6 @@ export const DEFAULT_SETTINGS: Omit<UserSettings, "user_id"> = {
   default_wishlist_color: 0,
   display_currency: "USD",
   selected_priorities: [PRIORITY_IDS.LOW, PRIORITY_IDS.MEDIUM, PRIORITY_IDS.HIGH],
+  show_own_reservations: false,
   preferred_locale: null,
 };

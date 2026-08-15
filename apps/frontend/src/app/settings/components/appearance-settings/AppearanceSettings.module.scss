@@ -299,3 +299,55 @@
 .priorityShowMoreIconOpen {
   transform: rotate(180deg);
 }
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggleRowIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-md;
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border-light);
+  display: grid;
+  place-items: center;
+  color: $text-muted;
+  flex-shrink: 0;
+  transition:
+    background 0.25s $ease-out,
+    border-color 0.25s $ease-out,
+    color 0.25s $ease-out;
+}
+
+.toggleRowIconOn {
+  background: var(--color-brand-light);
+  border-color: $brand;
+  color: $brand;
+}
+
+// Both glyphs share one grid cell so the eye reads as opening and closing
+// rather than as two icons swapping places.
+.toggleRowGlyph {
+  grid-area: 1 / 1;
+  transition:
+    opacity 0.2s $ease-out,
+    transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toggleRowGlyphHidden {
+  opacity: 0;
+  transform: scale(0.55);
+}
+
+.toggleRowLabel {
+  font-weight: var(--fw-semibold);
+}
+
+@media (max-width: 640px) {
+  .toggleRow {
+    gap: 10px;
+  }
+}

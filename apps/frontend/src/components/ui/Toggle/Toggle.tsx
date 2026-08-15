@@ -5,9 +5,10 @@ type Props = {
   onChange: (checked: boolean) => void;
   disabled?: boolean;
   label?: string;
+  labelClassName?: string;
 };
 
-export function Toggle({ checked, onChange, disabled = false, label }: Props) {
+export function Toggle({ checked, onChange, disabled = false, label, labelClassName }: Props) {
   return (
     <label className={`${styles.toggle} ${disabled ? styles.disabled : ""}`}>
       <button
@@ -21,7 +22,7 @@ export function Toggle({ checked, onChange, disabled = false, label }: Props) {
       >
         <span className={styles.thumb} />
       </button>
-      {label && <span className={styles.label}>{label}</span>}
+      {label && <span className={`${styles.label} ${labelClassName ?? ""}`}>{label}</span>}
     </label>
   );
 }

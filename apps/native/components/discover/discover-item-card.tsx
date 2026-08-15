@@ -1,5 +1,6 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { ItemImage } from "@/components/items/item-image";
+import { ItemPriorityMedallion, useItemCardBorderStyle } from "@/components/items/item-labels";
 import { Text } from "@/components/ui/text";
 import {
   buildReservationLabel,
@@ -10,6 +11,7 @@ import {
   getTranslatedItemPriorityLabel,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
+import { isStarPriorityId } from "@wishlist/backend/lib";
 import type { Item } from "@wishlist/backend/types/item";
 import { useGT } from "gt-react-native";
 import { View } from "react-native";
@@ -39,6 +41,7 @@ export function DiscoverItemCard({
   const reservationLabel = buildReservationLabel({ ...reservation, reservedByName }, t);
   const priorityLabel = getTranslatedItemPriorityLabel(t, item.priority_id) ?? item.priority_name;
   const priority = getItemPriority(item.priority_id ?? item.priority_name);
+  const cardBorderStyle = useItemCardBorderStyle(priority);
   const store = getItemStoreFromUrl(item.url);
   const salePercentOff = getSalePercentOff(item.price, item.discount_price, item.has_discount);
   const isTaken = Boolean(reservationLabel);
@@ -51,13 +54,13 @@ export function DiscoverItemCard({
         onPress={onPress}
         pressedScale={0.98}
         className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
-        style={purchasedMode ? { borderColor: "rgba(22, 163, 74, 0.18)" } : undefined}
+        // Purchased state wins, otherwise the priority tints the card.
+        style={purchasedMode ? { borderColor: "rgba(22, 163, 74, 0.18)" } : cardBorderStyle}
       >
         <ItemImage
           item={item}
           reservationLabel={reservationLabel}
           purchased={reservation.isPurchased}
-          reserved={reservation.isReserved}
           priority={priority}
           priorityLabel={priorityLabel}
           salePercentOff={salePercentOff}
@@ -87,6 +90,13 @@ export function DiscoverItemCard({
           </View>
         </View>
       </AnimatedPressable>
+
+      {/* Hangs off the bottom edge, centred — same placement as the web card. */}
+      {priority && isStarPriorityId(priority.id) ? (
+        <View className="absolute inset-x-0 -bottom-3.5 z-10 items-center" pointerEvents="none">
+          <ItemPriorityMedallion priority={priority} label={priorityLabel} />
+        </View>
+      ) : null}
     </View>
   );
 }

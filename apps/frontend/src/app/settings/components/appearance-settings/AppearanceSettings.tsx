@@ -3,9 +3,11 @@
 import { useMemo, useState } from "react";
 import { useGT } from "gt-next";
 import { useRouter } from "next/navigation";
-import { Sun, Moon, Monitor, Check, Lock, ChevronDown } from "lucide-react";
+import { Sun, Moon, Monitor, Check, Lock, ChevronDown, Eye, EyeOff } from "lucide-react";
 import styles from "./AppearanceSettings.module.scss";
 import { SettingsSection } from "../settings-section/SettingsSection";
+import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
+import { Toggle } from "@/components/ui/Toggle/Toggle";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { useSubscription } from "@/hooks/use-subscription";
 import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
@@ -14,7 +16,7 @@ import type { ThemePreference, WishlistColorIndex } from "@/types/settings";
 import { useAppTheme } from "@/providers";
 import { CurrencySettings } from "../currency-settings/CurrencySettings";
 import { getWishlistAccentSwatches, getWishlistColorSwatches } from "@/lib/constants/wishlist";
-import { ALL_PRIORITIES, PRIORITY_IDS } from "@/lib/priorities";
+import { ALL_PRIORITIES, getPriorityCssColor, PRIORITY_IDS } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
 
 export function AppearanceSettings() {
@@ -28,11 +30,14 @@ export function AppearanceSettings() {
   const isAccentGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
   const isWishlistColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
   const isPriorityGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
+  const isOwnReservationsGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
+  const showsOwnReservations = !isOwnReservationsGated && Boolean(settings?.show_own_reservations);
 
   const selectedPriorities = settings?.selected_priorities ?? [
     PRIORITY_IDS.LOW,
     PRIORITY_IDS.MEDIUM,
     PRIORITY_IDS.HIGH,
+    PRIORITY_IDS.STAR,
   ];
 
   function handlePriorityToggle(id: string, isFree: boolean) {
@@ -45,6 +50,14 @@ export function AppearanceSettings() {
       : [...selectedPriorities, id];
     if (next.length === 0) return;
     updateSettings.mutate({ selected_priorities: next });
+  }
+
+  function handleOwnReservations(value: boolean) {
+    if (isOwnReservationsGated) {
+      router.push("/subscription");
+      return;
+    }
+    updateSettings.mutate({ show_own_reservations: value });
   }
 
   function handleTheme(theme: ThemePreference) {
@@ -137,7 +150,7 @@ export function AppearanceSettings() {
       >
         <span
           className={styles.priorityRowIcon}
-          style={{ "--priority-color": p.color } as React.CSSProperties}
+          style={{ "--priority-color": getPriorityCssColor(p) } as React.CSSProperties}
         >
           {Icon && <Icon size={14} strokeWidth={2.5} />}
         </span>
@@ -262,6 +275,44 @@ export function AppearanceSettings() {
       </SettingsSection>
 
       <CurrencySettings />
+
+      <SettingsSection
+        title={t("Reservations On Your Wishlists", {
+          $id: "settings.appearance.ownReservationsSectionTitle",
+        })}
+        description={t("Off by default so gifts stay a surprise.", {
+          $id: "settings.appearance.ownReservationsSectionDescription",
+        })}
+      >
+        <div className={styles.toggleRow}>
+          <div
+            className={`${styles.toggleRowIcon} ${showsOwnReservations ? styles.toggleRowIconOn : ""}`}
+            aria-hidden="true"
+          >
+            <Eye
+              size={16}
+              className={`${styles.toggleRowGlyph} ${
+                showsOwnReservations ? "" : styles.toggleRowGlyphHidden
+              }`}
+            />
+            <EyeOff
+              size={16}
+              className={`${styles.toggleRowGlyph} ${
+                showsOwnReservations ? styles.toggleRowGlyphHidden : ""
+              }`}
+            />
+          </div>
+          <Toggle
+            checked={showsOwnReservations}
+            onChange={handleOwnReservations}
+            label={t("Show reserved and purchased items", {
+              $id: "settings.appearance.ownReservationsToggleLabel",
+            })}
+            labelClassName={styles.toggleRowLabel}
+          />
+          {isOwnReservationsGated && <ProBadge size="sm" />}
+        </div>
+      </SettingsSection>
 
       <SettingsSection
         title={t("Item Priorities", {

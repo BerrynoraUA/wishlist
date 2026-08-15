@@ -1091,27 +1091,26 @@ $font-serif: "Playfair Display", Georgia, serif;
   color: $text;
 }
 
+/* Matches the app: priority is an icon medallion, never a pill. */
 .discoverCardPriority {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: $radius-pill;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--card-bg);
+  border: 2px solid currentcolor;
 }
 
 .discoverCardPriorityHigh {
-  background: #fef2f2;
   color: #dc2626;
 }
 
 .discoverCardPriorityMed {
-  background: #fef3c7;
   color: #d97706;
 }
 
 .discoverCardPriorityLow {
-  background: #f0fdf4;
   color: #16a34a;
 }
 

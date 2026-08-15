@@ -15,7 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { useHideBackButton } from "@/hooks/use-hide-back-button";
 import { useProGate } from "@/hooks/use-pro-gate";
-import { useUpdateSettings } from "@/hooks/use-settings";
+import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { countryForLocale } from "@/lib/locale-flags";
 import type { TranslateFn } from "@/lib/translate-fn";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,9 @@ import {
   Check,
   ChevronDown,
   ChevronLeft,
+  Eye,
   EyeOff,
+  Lock,
   Languages,
   ListFilter,
   SlidersHorizontal,
@@ -92,6 +94,9 @@ export function PreferencesSettings({
   const { isPro, openPaywall } = useProGate();
   const [hideBackButton, setHideBackButton] = useHideBackButton();
   const showBackButton = !hideBackButton;
+  const { data: settings } = useSettings();
+  const showsOwnReservations = isPro && Boolean(settings?.show_own_reservations);
+  const ownReservationsIcon = !isPro ? Lock : showsOwnReservations ? Eye : EyeOff;
   const [localeError, setLocaleError] = React.useState<string | null>(null);
   const [prioritiesExpanded, setPrioritiesExpanded] = React.useState(false);
 
@@ -273,6 +278,53 @@ export function PreferencesSettings({
           <Switch
             checked={showBackButton}
             onCheckedChange={(visible) => setHideBackButton(!visible)}
+          />
+        </View>
+      </View>
+
+      <View
+        className={cn(
+          "gap-4 overflow-hidden rounded-xl border p-4 shadow-sm",
+          showsOwnReservations
+            ? "border-brand/30 bg-brand-lighter shadow-brand/10"
+            : "border-border-subtle bg-card-bg shadow-black/5",
+        )}
+      >
+        <View className="flex-row items-center justify-between gap-4">
+          <View className="min-w-0 flex-1">
+            <View className="flex-row items-center gap-3">
+              <View
+                className={cn(
+                  "size-11 items-center justify-center rounded-full",
+                  showsOwnReservations
+                    ? "bg-linear-135 from-brand via-accent to-secondary"
+                    : "bg-bg-muted",
+                )}
+              >
+                <Icon
+                  as={ownReservationsIcon}
+                  className={cn("size-5", showsOwnReservations ? "text-white" : "text-text-muted")}
+                />
+              </View>
+              <View className="min-w-0 flex-1">
+                <Text className="font-semibold text-text">
+                  {t("Show reserved and purchased items")}
+                </Text>
+                <Text className="text-xs font-semibold uppercase text-text-muted">
+                  {showsOwnReservations ? t("Spoilers on") : t("Surprise kept")}
+                </Text>
+              </View>
+            </View>
+          </View>
+          <Switch
+            checked={showsOwnReservations}
+            onCheckedChange={(value) => {
+              if (!isPro) {
+                openPaywall();
+                return;
+              }
+              updateSettings.mutate({ show_own_reservations: value });
+            }}
           />
         </View>
       </View>

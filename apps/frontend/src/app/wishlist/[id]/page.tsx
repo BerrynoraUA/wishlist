@@ -22,6 +22,7 @@ import { ShareFeedbackModal } from "@/components/ui/ShareFeedbackModal/ShareFeed
 import { useUserGuideStepCompletion } from "@/components/user-guide/UserGuideProvider";
 import styles from "./WishlistPage.module.scss";
 import { useCheckFriendship } from "@/hooks/use-friends";
+import { useShowOwnReservations } from "@/hooks/use-own-reservations";
 import { useWishlistItemFilters } from "./hooks/use-wishlist-item-filters";
 import { WishlistItemFilters } from "./components/wishlist-item-filters/WishlistItemFilters";
 import { useWishlistPageModals } from "./hooks/use-wishlist-page-modals";
@@ -80,6 +81,7 @@ export default function WishlistItemsPage() {
     !isOwner && !!currentUserId && !!wishlist?.user_id ? wishlist.user_id : "";
   const { data: isFriend = false } = useCheckFriendship(friendshipCheckUserId);
   const showDiscountBadge = isOwner || isFriend;
+  const showOwnReservations = useShowOwnReservations();
 
   const { hasNextPage, hasPrevPage, totalForPagination } = paginationFlags(
     page,
@@ -179,6 +181,7 @@ export default function WishlistItemsPage() {
               <WishlistItemsGrid
                 items={visibleItems}
                 isOwner={canEditWishlist}
+                showOwnerReservation={isOwner && showOwnReservations}
                 showDiscountBadge={showDiscountBadge}
                 onToggleReserve={(itemId) => toggleReservation.mutate(itemId)}
                 onToggleBought={(itemId) => toggleBought.mutate(itemId)}

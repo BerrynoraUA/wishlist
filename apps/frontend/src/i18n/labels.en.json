@@ -917,15 +917,6 @@
   "item.modal.additionalLinkPlaceholder": {
     "en": "Additional link URL"
   },
-  "item.modal.colorLabelShort": {
-    "en": "Card Color"
-  },
-  "item.modal.colorNone": {
-    "en": "No color"
-  },
-  "item.modal.colorStar": {
-    "en": "Star"
-  },
   "item.modal.create.imageLabel": {
     "en": "Image (drag & drop or click)"
   },

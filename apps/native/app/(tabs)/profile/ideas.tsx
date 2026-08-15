@@ -1,3 +1,4 @@
+import { hapticSelection } from "@/lib/haptics";
 import { FeatureIdeaCard } from "@/components/feature-ideas/feature-idea-card";
 import { FeatureIdeasTabs } from "@/components/feature-ideas/feature-ideas-tabs";
 import { SubmitFeatureIdeaSheet } from "@/components/feature-ideas/submit-feature-idea-sheet";
@@ -165,7 +166,10 @@ export default function IdeasScreen() {
           refreshControl={
             <RefreshControl
               refreshing={ideasQuery.isRefetching && !ideasQuery.isLoading}
-              onRefresh={() => void ideasQuery.refetch()}
+              onRefresh={() => {
+                hapticSelection();
+                void ideasQuery.refetch();
+              }}
               tintColor="currentColor"
               progressViewOffset={paddingTop}
             />

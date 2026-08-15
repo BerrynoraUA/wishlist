@@ -1,3 +1,4 @@
+import { hapticSuccess } from "@/lib/haptics";
 import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Icon } from "@/components/ui/icon";
@@ -204,6 +205,7 @@ export function WishlistShareSheet({
     switch (target) {
       case "copy":
         await Clipboard.setStringAsync(activeLink);
+        hapticSuccess();
         setCopied(true);
         return;
       case "whatsapp":

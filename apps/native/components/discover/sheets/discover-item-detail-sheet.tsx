@@ -200,7 +200,6 @@ export function DiscoverItemDetailSheet({
             item={item}
             reservationLabel={reservationLabel}
             purchased={reservation.isPurchased}
-            reserved={reservation.isReserved}
             priority={priority}
             priorityLabel={priorityLabel}
             salePercentOff={salePercentOff}

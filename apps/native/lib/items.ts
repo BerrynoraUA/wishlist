@@ -246,17 +246,19 @@ export function buildReservationLabel(
     reservedByName?: string | null;
   },
   t: TranslateFn,
+  // Naming the giver is a spoiler, so it only happens when the wishlist owner
+  // asks for it item by item. Everyone else always sees the generic status.
+  { revealName = false }: { revealName?: boolean } = {},
 ) {
-  const { isPurchased, isReserved, reservedByMe } = args;
+  const { isPurchased, isReserved, reservedByMe, reservedByName } = args;
+  const named = revealName && reservedByName ? reservedByName : null;
 
-  // Privacy: never reveal who reserved/purchased an item. Only the actor
-  // sees "by you"; everyone else sees the generic status.
   if (isPurchased) {
     if (reservedByMe) return t("Purchased by you");
-    return t("Purchased");
+    return named ? t("Purchased by {name}", { name: named }) : t("Purchased");
   }
 
   if (!isReserved) return null;
   if (reservedByMe) return t("Reserved by you");
-  return t("Reserved");
+  return named ? t("Reserved by {name}", { name: named }) : t("Reserved");
 }

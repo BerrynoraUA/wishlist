@@ -1,6 +1,6 @@
 import { Clock3, Globe, Lock, PackageCheck, PackageOpen, Users } from "lucide-react";
 import { WishlistVisibility } from "@/types/wishlist";
-import { ALL_PRIORITIES } from "@/lib/priorities";
+import { ALL_PRIORITIES, getPriorityCssColor } from "@/lib/priorities";
 
 // ─── Priority Bar Icons ────────────────────────────────────
 function PriorityBars({ count, color }: { count: number; color: string }) {
@@ -65,7 +65,7 @@ export const ITEM_PRIORITY_OPTIONS = [...ALL_PRIORITIES]
   .map((p) => ({
     value: p.id,
     label: `${p.emoji} ${p.name}`,
-    icon: <PriorityBars count={Math.min(p.sort_order, 3)} color={p.color} />,
+    icon: <PriorityBars count={Math.min(p.sort_order, 3)} color={getPriorityCssColor(p)} />,
   }));
 
 export const ITEM_PRIORITY_LABELS: Record<string, string> = Object.fromEntries(

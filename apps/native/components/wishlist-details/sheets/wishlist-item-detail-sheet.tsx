@@ -27,6 +27,8 @@ import {
   Bookmark,
   Copy,
   ExternalLink,
+  Eye,
+  EyeOff,
   LockKeyhole,
   Pencil,
   ShoppingCart,
@@ -34,7 +36,7 @@ import {
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, Linking, View } from "react-native";
+import { ActivityIndicator, Linking, Pressable, View } from "react-native";
 
 type Confirmation = {
   title: string;
@@ -49,6 +51,7 @@ export function WishlistItemDetailSheet({
   item,
   currentUserId,
   isOwner,
+  showOwnerReservation = false,
   reservedByName,
   reservePending,
   boughtPending,
@@ -62,6 +65,7 @@ export function WishlistItemDetailSheet({
   item: Item | null;
   currentUserId: string;
   isOwner: boolean;
+  showOwnerReservation?: boolean;
   reservedByName?: string | null;
   reservePending?: boolean;
   boughtPending?: boolean;
@@ -75,6 +79,7 @@ export function WishlistItemDetailSheet({
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const [confirmation, setConfirmation] = React.useState<Confirmation | null>(null);
+  const [reserverRevealed, setReserverRevealed] = React.useState(false);
 
   if (!item) return null;
   const selectedItem = item;
@@ -91,7 +96,11 @@ export function WishlistItemDetailSheet({
       reservedByName,
     },
     t,
+    { revealName: reserverRevealed },
   );
+  // Owners only see the ribbon once they opt into the spoiler.
+  const showStatusStamp = Boolean(reservationLabel) && (!isOwner || showOwnerReservation);
+  const canRevealReserver = showOwnerReservation && showStatusStamp && Boolean(reservedByName);
   const priorityLabel = getTranslatedItemPriorityLabel(t, selectedItem.priority_id);
   const priority = getItemPriority(selectedItem.priority_id);
   const store = getItemStoreFromUrl(selectedItem.url);
@@ -291,9 +300,24 @@ export function WishlistItemDetailSheet({
         >
           <ItemImage
             item={item}
-            reservationLabel={!isOwner ? reservationLabel : null}
+            reservationLabel={showStatusStamp ? reservationLabel : null}
+            stampLabel={reserverRevealed ? reservedByName : null}
+            overlayAction={
+              canRevealReserver ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    reserverRevealed ? t("Hide who reserved this") : t("Show who reserved this")
+                  }
+                  onPress={() => setReserverRevealed((value) => !value)}
+                  hitSlop={8}
+                  className="size-9 items-center justify-center rounded-full border border-border-subtle bg-card-bg shadow-sm"
+                >
+                  <Icon as={reserverRevealed ? EyeOff : Eye} className="size-5 text-text-muted" />
+                </Pressable>
+              ) : null
+            }
             purchased={reservation.isPurchased}
-            reserved={!isOwner && reservation.isReserved}
             priority={priority}
             priorityLabel={priorityLabel}
             salePercentOff={salePercentOff}
