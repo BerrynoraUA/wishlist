@@ -16,8 +16,6 @@ import {
 } from "@/components/ui/action-bottom-sheet";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { useTabBarContentPadding } from "@/lib/layout";
-import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
-import { StyledImage } from "@/components/ui/styled-image";
 import {
   useDeleteSecretSantaEvent,
   useRemoveSecretSantaInvite,
@@ -30,8 +28,6 @@ import {
   buildSecretSantaJoinUrl,
   getSecretSantaPersonName,
 } from "@/lib/secret-santa";
-import { cn } from "@/lib/utils";
-import { getWishlistAccentClass } from "@/lib/wishlists";
 import type {
   SecretSantaPendingInvite,
   SecretSantaPerson,
@@ -152,19 +148,6 @@ export default function SecretSantaDetailScreen() {
     <>
       <Stack.Screen options={{ title: data?.name ?? t("Secret Santa") }} />
       <View className="flex-1 bg-bg">
-        {data ? (
-          <ScreenTopBackdrop>
-            <View className={cn("absolute inset-0", getWishlistAccentClass(null))} />
-            {data.image_url ? (
-              <StyledImage
-                source={{ uri: data.image_url }}
-                contentFit="cover"
-                className="absolute inset-0 w-full"
-              />
-            ) : null}
-            <View className="absolute inset-0 bg-black/25" />
-          </ScreenTopBackdrop>
-        ) : null}
         <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom }}>
           <View className="gap-5 bg-bg">
             {detailsQuery.isLoading ? (

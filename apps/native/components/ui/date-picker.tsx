@@ -3,7 +3,7 @@ import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
 import { useUniwind, useCSSVariable } from "uniwind";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { getThemeMode } from "@/lib/theme";
@@ -133,12 +133,7 @@ function IosDatePickerSheet({
       ref={sheetRef}
       detents={[0.55]}
       onDidDismiss={onClose}
-      header={
-        // `pt-5` clears the grabber, matching the other sheets that use a fixed header.
-        <View className="px-5 pb-3 pt-5">
-          <Text className="text-lg font-extrabold text-text">{t("Select a date")}</Text>
-        </View>
-      }
+      header={<BottomSheetHeader title={t("Select a date")} />}
       footer={
         <View className="w-full flex-row items-stretch gap-2 px-5 pb-3 pt-3">
           <Button

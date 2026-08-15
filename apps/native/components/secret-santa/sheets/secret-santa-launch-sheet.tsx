@@ -1,5 +1,5 @@
 import { generateSecretSantaAssignment } from "@/lib/secret-santa-assignment";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -109,26 +109,28 @@ export function SecretSantaLaunchSheet({
   }
 
   return (
-    <BottomSheet ref={sheetRef} scrollable onDidDismiss={() => onOpenChange(false)}>
-      <View className="gap-5 px-5 pt-5">
-        <View className="gap-2">
-          <Text className="text-xl font-extrabold text-text">{t("Launch Secret Santa")}</Text>
-          <View className="flex-row flex-wrap gap-2">
-            <View className="flex-row items-center gap-1 rounded-full bg-brand-lighter px-2 py-1">
-              <Icon as={Users} className="size-3.5 text-brand" />
-              <Text className="text-xs font-extrabold text-brand">
-                {t("{count} people", { count: participants.length })}
+    <BottomSheet
+      ref={sheetRef}
+      scrollable
+      onDidDismiss={() => onOpenChange(false)}
+      header={<BottomSheetHeader title={t("Launch Secret Santa")} />}
+    >
+      <View className="gap-5 px-5">
+        <View className="flex-row flex-wrap gap-2">
+          <View className="flex-row items-center gap-1 rounded-full bg-brand-lighter px-2 py-1">
+            <Icon as={Users} className="size-3.5 text-brand" />
+            <Text className="text-xs font-extrabold text-brand">
+              {t("{count} people", { count: participants.length })}
+            </Text>
+          </View>
+          {!isGated ? (
+            <View className="flex-row items-center gap-1 rounded-full bg-bg-subtle px-2 py-1">
+              <Icon as={Ban} className="size-3.5 text-text-muted" />
+              <Text className="text-xs font-extrabold text-text-muted">
+                {t("Optional exclusions")}
               </Text>
             </View>
-            {!isGated ? (
-              <View className="flex-row items-center gap-1 rounded-full bg-bg-subtle px-2 py-1">
-                <Icon as={Ban} className="size-3.5 text-text-muted" />
-                <Text className="text-xs font-extrabold text-text-muted">
-                  {t("Optional exclusions")}
-                </Text>
-              </View>
-            ) : null}
-          </View>
+          ) : null}
         </View>
 
         {isGated ? (

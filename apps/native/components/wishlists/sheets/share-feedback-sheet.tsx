@@ -1,4 +1,4 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useGT } from "gt-react-native";
@@ -29,20 +29,23 @@ export function ShareFeedbackSheet({
   }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={() => onOpenChange(false)}>
-      <View className="gap-4 px-5 pt-5">
-        <View className="gap-2">
-          <Text
-            className={
-              feedback.variant === "success"
-                ? "text-lg font-extrabold text-success"
-                : "text-lg font-extrabold text-destructive"
-            }
-          >
-            {feedback.title}
-          </Text>
-          <Text className="text-sm text-text-muted">{feedback.description}</Text>
-        </View>
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={() => onOpenChange(false)}
+      header={<BottomSheetHeader title={feedback.title} />}
+    >
+      <View className="gap-4 px-5">
+        {/* The title is now plain header chrome, so the outcome reads from this line. */}
+        <Text
+          className={
+            feedback.variant === "success"
+              ? "text-sm font-semibold text-success"
+              : "text-sm font-semibold text-destructive"
+          }
+        >
+          {feedback.description}
+        </Text>
 
         {feedback.link ? (
           <View className="rounded-xl border border-border-subtle bg-bg-subtle p-3">

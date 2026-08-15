@@ -23,16 +23,19 @@ import {
   type LayoutChangeEvent,
   TextInput,
 } from "react-native";
+import { initialWindowMetrics } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ReanimatedTrueSheet } from "@lodev09/react-native-true-sheet/reanimated";
 import { useCSSVariable } from "uniwind";
-import { useBottomSafeAreaPadding } from "@/lib/layout";
+import { Text } from "@/components/ui/text";
+import { NAV_TAB_BAR_MIN_BOTTOM_INSET } from "@/lib/layout";
 
 type ReanimatedBottomSheetProps = ComponentProps<typeof ReanimatedTrueSheet>;
 type BottomSheetDetents = NonNullable<ReanimatedBottomSheetProps["detents"]>;
 const DEFAULT_DETENTS: BottomSheetDetents = ["auto", 1];
 const DEFAULT_SCROLLABLE_DETENTS: BottomSheetDetents = [0.75, 1];
 const FOOTER_CONTENT_GAP = 12;
+const FOOTER_MIN_BOTTOM_PADDING = 12;
 
 export type BottomSheetRef = ComponentRef<typeof ReanimatedTrueSheet>;
 
@@ -55,6 +58,42 @@ export const BottomSheetScrollView = forwardRef<
 });
 
 BottomSheetScrollView.displayName = "BottomSheetScrollView";
+
+/**
+ * The one header every sheet gets: fixed above the content, a single centered line naming
+ * what the sheet does. Deliberately has no room for a subtitle — sheets that need to explain
+ * themselves do it in their content, so the chrome stays identical everywhere.
+ *
+ * Pass it to `BottomSheet`'s `header` prop, never as a child.
+ */
+export function BottomSheetHeader({ title, action }: { title: string; action?: ReactNode }) {
+  // A trailing action would pull the title off-centre, so it is mirrored by an invisible
+  // copy on the leading side — the two slots always measure the same, whatever the action is.
+  const actionSpacer = action ? (
+    <View
+      className="opacity-0"
+      pointerEvents="none"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      {action}
+    </View>
+  ) : null;
+
+  return (
+    // `pt-5` clears the grabber.
+    <View className="flex-row items-center gap-2 px-5 pb-3 pt-5">
+      {actionSpacer}
+      <Text
+        numberOfLines={1}
+        className="min-w-0 flex-1 text-center text-lg font-extrabold text-text"
+      >
+        {title}
+      </Text>
+      {action}
+    </View>
+  );
+}
 
 export interface BottomSheetProps extends Omit<
   ReanimatedBottomSheetProps,
@@ -116,13 +155,18 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
     const sheetRef = useRef<BottomSheetRef>(null);
     const sheetBackground = useCSSVariable("--color-bg-elevated") as ColorValue | undefined;
     const grabberColor = useCSSVariable("--color-border-light") as ColorValue | undefined;
-    const bottomSafeAreaPadding = useBottomSafeAreaPadding();
+    // A sheet can remain in a tab screen's React tree after TrueSheet presents it in a
+    // window-level native container. The contextual inset then includes the iOS tab bar,
+    // so use the physical window inset for sheet layout instead.
+    const bottomSafeAreaInset = initialWindowMetrics?.insets.bottom ?? 0;
+    const bottomSafeAreaPadding = Math.max(bottomSafeAreaInset, NAV_TAB_BAR_MIN_BOTTOM_INSET);
     const { width: windowWidth } = useWindowDimensions();
 
     const resolvedDetents = detents ?? (scrollable ? DEFAULT_SCROLLABLE_DETENTS : DEFAULT_DETENTS);
 
     const [footerHeight, setFooterHeight] = useState(0);
-    const footerControlHeight = Math.max(0, footerHeight - bottomSafeAreaPadding);
+    const footerBottomPadding = Math.max(bottomSafeAreaInset, FOOTER_MIN_BOTTOM_PADDING);
+    const footerControlHeight = Math.max(0, footerHeight - footerBottomPadding);
     const footerContentInset = footer ? footerControlHeight + FOOTER_CONTENT_GAP : 0;
     const scrollContentHandlesFooterInset = footerInsetMode === "scroll-content";
 
@@ -144,7 +188,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         onLayout={handleFooterLayout}
         style={{
           backgroundColor: backgroundColor ?? sheetBackground,
-          paddingBottom: bottomSafeAreaPadding,
+          paddingBottom: footerBottomPadding,
         }}
       >
         {footerChild}
@@ -206,7 +250,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         cornerRadius={cornerRadius}
         header={header}
         footer={resolvedFooter}
-        footerOptions={{ keyboardOffset: -bottomSafeAreaPadding }}
+        footerOptions={{ keyboardOffset: -bottomSafeAreaInset }}
         footerStyle={footerStyle}
         backgroundColor={backgroundColor ?? sheetBackground}
         grabberOptions={{

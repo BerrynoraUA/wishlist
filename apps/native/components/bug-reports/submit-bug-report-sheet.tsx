@@ -1,4 +1,4 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
@@ -79,19 +79,19 @@ export function SubmitBugReportSheet({
   }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
-      <View className="px-5 pt-5">
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={onClose}
+      header={<BottomSheetHeader title={t("Report a Bug")} />}
+    >
+      <View className="px-5">
         <View className="gap-4">
           <View className="flex-row items-start gap-3">
-            <View className="size-10 items-center justify-center rounded-full bg-destructive/10">
-              <Icon as={Bug} className="size-5 text-destructive" />
-            </View>
-            <View className="flex-1 gap-1">
-              <Text className="text-lg font-extrabold text-text">{t("Report a Bug")}</Text>
-              <Text className="text-sm leading-5 text-text-muted">
-                {t("Tell us what happened, and we will look into it.")}
-              </Text>
-            </View>
+            <Icon as={Bug} className="mt-0.5 size-4 text-destructive" />
+            <Text className="min-w-0 flex-1 text-sm leading-5 text-text-muted">
+              {t("Tell us what happened, and we will look into it.")}
+            </Text>
           </View>
 
           <View className="gap-2">

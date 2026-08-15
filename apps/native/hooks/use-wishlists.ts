@@ -17,6 +17,8 @@ import {
 } from "@/api/wishlists";
 import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
 import { normalizeSearchQuery } from "@/lib/wishlists";
+import { friendKeys } from "@/lib/friend-query-keys";
+import { statisticsKeys, wishlistKeys } from "@/lib/wishlist-query-keys";
 import type { DiscoverQueryParams } from "@wishlist/backend/types/discover";
 import { useAuth } from "@/providers/auth-provider";
 import type {
@@ -27,50 +29,11 @@ import type {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 
-export const wishlistKeys = {
-  all: ["wishlists"] as const,
-  my: (authUserId: string | null | undefined, params?: WishlistQueryParams) =>
-    [...wishlistKeys.all, "my", authUserId ?? "anonymous", params] as const,
-  friend: (authUserId: string | null | undefined, userId: string, params?: WishlistQueryParams) =>
-    [...wishlistKeys.all, "friend", authUserId ?? "anonymous", userId, params] as const,
-  discoverAll: (authUserId: string | null | undefined, params?: DiscoverQueryParams) =>
-    [...wishlistKeys.all, "discover", "all", authUserId ?? "anonymous", params] as const,
-  discoverAvailable: (authUserId: string | null | undefined, params?: DiscoverQueryParams) =>
-    [...wishlistKeys.all, "discover", "available", authUserId ?? "anonymous", params] as const,
-  discoverReserved: (authUserId: string | null | undefined, params?: DiscoverQueryParams) =>
-    [...wishlistKeys.all, "discover", "reserved", authUserId ?? "anonymous", params] as const,
-  discoverPurchased: (authUserId: string | null | undefined, params?: DiscoverQueryParams) =>
-    [...wishlistKeys.all, "discover", "purchased", authUserId ?? "anonymous", params] as const,
-  discoverUpcoming: (authUserId: string | null | undefined) =>
-    [...wishlistKeys.all, "discover", "upcoming", authUserId ?? "anonymous"] as const,
-  detailRoot: (id: string) => [...wishlistKeys.all, "detail", id] as const,
-  detail: (authUserId: string | null | undefined, id: string) =>
-    [...wishlistKeys.detailRoot(id), authUserId ?? "anonymous"] as const,
-};
-
-export const statisticsKeys = {
-  all: ["statistics"] as const,
-  my: (authUserId: string | null | undefined) =>
-    [...statisticsKeys.all, "my", authUserId ?? "anonymous"] as const,
-};
-
-export function useMyWishlists(params?: WishlistQueryParams) {
-  const { user } = useAuth();
-  const normalizedParams = params
-    ? {
-        ...params,
-        search: normalizeSearchQuery(params.search) || undefined,
-      }
-    : undefined;
-
-  return useQuery({
-    queryKey: wishlistKeys.my(user?.id, normalizedParams),
-    queryFn: () => getMyWishlists(normalizedParams),
-    enabled: Boolean(user?.id),
-  });
-}
-
-export function useInfiniteMyWishlists(params: WishlistQueryParams, pageSize: number) {
+export function useInfiniteMyWishlists(
+  params: WishlistQueryParams,
+  pageSize: number,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
   const { user } = useAuth();
   const normalizedParams = React.useMemo(
     () => ({
@@ -91,7 +54,7 @@ export function useInfiniteMyWishlists(params: WishlistQueryParams, pageSize: nu
         take,
       }),
     pageSize,
-    enabled: Boolean(user?.id),
+    enabled: enabled && Boolean(user?.id),
   });
 }
 
@@ -333,8 +296,7 @@ export function useGrantWishlistAccess() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({
-        queryKey: ["friends-without-wishlist-access"],
-        exact: false,
+        queryKey: friendKeys.withoutWishlistAccess(),
       });
       await queryClient.invalidateQueries({
         queryKey: ["wishlist-access-list"],
@@ -352,8 +314,7 @@ export function useRevokeWishlistAccess() {
       revokeWishlistAccess(wishlistId, targetUserId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ["friends-without-wishlist-access"],
-        exact: false,
+        queryKey: friendKeys.withoutWishlistAccess(),
       });
       await queryClient.invalidateQueries({
         queryKey: ["wishlist-access-list"],

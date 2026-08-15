@@ -1,10 +1,14 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { MascotEmptyState } from "@/components/shared/mascot-empty-state";
-import { useFriendsWithoutWishlistAccess, useWishlistAccessList } from "@/hooks/use-friends";
+import {
+  useInfiniteFriendsWithoutWishlistAccess,
+  useWishlistAccessList,
+} from "@/hooks/use-friends";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useProGate } from "@/hooks/use-pro-gate";
 import { useGrantWishlistAccess, useRevokeWishlistAccess } from "@/hooks/use-wishlists";
 import type { ProfileSearchResult } from "@wishlist/backend/types/friends";
@@ -19,6 +23,8 @@ type GrantAccessFormValues = {
   selectedFriend: ProfileSearchResult | null;
   accessType: 0 | 1;
 };
+
+const FRIENDS_PAGE_SIZE = 20;
 
 export function WishlistGrantAccessSheet({
   open,
@@ -42,13 +48,14 @@ export function WishlistGrantAccessSheet({
     },
   });
   const values = useWatch({ control }) as GrantAccessFormValues;
-  const friendsQuery = useFriendsWithoutWishlistAccess({
-    wishlistId,
-    search: values.query,
-    skip: 0,
-    take: 100,
-  });
-  const accessListQuery = useWishlistAccessList(wishlistId);
+  const deferredQuery = React.useDeferredValue(values.query);
+  const friendsQuery = useInfiniteFriendsWithoutWishlistAccess(
+    { wishlistId, search: deferredQuery },
+    FRIENDS_PAGE_SIZE,
+    { enabled: open && !isGated },
+  );
+  const { items: friends, loadMore: loadMoreFriends } = useInfiniteListData(friendsQuery);
+  const accessListQuery = useWishlistAccessList(wishlistId, { enabled: open && !isGated });
   const grantAccess = useGrantWishlistAccess();
   const revokeAccess = useRevokeWishlistAccess();
 
@@ -60,7 +67,6 @@ export function WishlistGrantAccessSheet({
 
   if (!open) return null;
 
-  const friends = friendsQuery.data ?? [];
   const accessList = accessListQuery.data ?? [];
 
   function handleClose() {
@@ -87,6 +93,7 @@ export function WishlistGrantAccessSheet({
       <BottomSheet
         ref={sheetRef}
         onDidDismiss={() => onOpenChange(false)}
+        header={<BottomSheetHeader title={t("Collaborative wishlists")} />}
         footer={
           <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
             <Button className="min-w-0 flex-1" variant="outline" onPress={handleClose}>
@@ -99,18 +106,13 @@ export function WishlistGrantAccessSheet({
           </View>
         }
       >
-        <View className="items-center gap-4 px-5 pt-8">
+        <View className="items-center gap-4 px-5">
           <View className="size-14 items-center justify-center rounded-full bg-brand-lighter">
             <Icon as={Lock} className="size-6 text-brand" />
           </View>
-          <View className="items-center gap-2">
-            <Text className="text-center text-xl font-extrabold text-text">
-              {t("Collaborative wishlists")}
-            </Text>
-            <Text className="text-center text-sm text-text-muted">
-              {t("Granting view or edit access to other people is available only on the Pro plan.")}
-            </Text>
-          </View>
+          <Text className="text-center text-sm text-text-muted">
+            {t("Granting view or edit access to other people is available only on the Pro plan.")}
+          </Text>
           <View className="w-full gap-1 rounded-xl border border-border-subtle bg-bg-subtle p-3">
             <Text className="text-xs font-bold uppercase text-text-muted">{t("Wishlist")}</Text>
             <Text className="font-extrabold text-text">{wishlistTitle}</Text>
@@ -125,9 +127,7 @@ export function WishlistGrantAccessSheet({
       ref={sheetRef}
       scrollable
       onDidDismiss={() => onOpenChange(false)}
-      header={
-        <Text className="mx-5 mt-5 text-lg font-extrabold text-text">{t("Grant access")}</Text>
-      }
+      header={<BottomSheetHeader title={t("Grant access")} />}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button className="min-w-0 flex-1" variant="outline" onPress={handleClose}>
@@ -146,7 +146,7 @@ export function WishlistGrantAccessSheet({
         </View>
       }
     >
-      <View className="gap-5 px-5 pt-5">
+      <View className="gap-5 px-5">
         <View className="gap-2 rounded-xl border border-border-subtle bg-bg-subtle p-3">
           <Text className="text-xs font-bold uppercase text-text-muted">{t("Wishlist")}</Text>
           <Text className="text-base font-extrabold text-text">{wishlistTitle}</Text>
@@ -209,16 +209,28 @@ export function WishlistGrantAccessSheet({
                     {t("No matching friends found.")}
                   </Text>
                 ) : (
-                  friends.map((friend) => (
-                    <Button
-                      key={friend.id}
-                      variant="ghost"
-                      className="justify-start rounded-none border-b border-border-subtle px-4"
-                      onPress={() => setValue("selectedFriend", friend)}
-                    >
-                      <Text>@{friend.nickname}</Text>
-                    </Button>
-                  ))
+                  <>
+                    {friends.map((friend) => (
+                      <Button
+                        key={friend.id}
+                        variant="ghost"
+                        className="justify-start rounded-none border-b border-border-subtle px-4"
+                        onPress={() => setValue("selectedFriend", friend)}
+                      >
+                        <Text>@{friend.nickname}</Text>
+                      </Button>
+                    ))}
+                    {friendsQuery.hasNextPage ? (
+                      <Button
+                        variant="ghost"
+                        disabled={friendsQuery.isFetchingNextPage}
+                        onPress={loadMoreFriends}
+                      >
+                        {friendsQuery.isFetchingNextPage ? <ActivityIndicator /> : null}
+                        <Text>{t("Load more")}</Text>
+                      </Button>
+                    ) : null}
+                  </>
                 )}
               </View>
             </>

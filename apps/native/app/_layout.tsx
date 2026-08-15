@@ -32,6 +32,7 @@ import { AppStateLifecycle } from "@/components/providers/native-query-lifecycle
 import { ScraperSandbox } from "@/components/scraper/scraper-sandbox";
 import { ThemeProvider } from "expo-router/react-navigation";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
+import { ShareIntentProvider } from "expo-share-intent";
 import { PostHogEventProperties } from "@posthog/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useGlobalSearchParams, usePathname, useRouter, useSegments } from "expo-router";
@@ -39,7 +40,7 @@ import { StatusBar } from "expo-status-bar";
 import { GTProvider, useLocale, useSetLocale } from "gt-react-native";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
-import { ActivityIndicator, Appearance, DevSettings, View } from "react-native";
+import { ActivityIndicator, DevSettings, useColorScheme, View } from "react-native";
 import * as Updates from "expo-updates";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useUniwind } from "uniwind";
@@ -86,52 +87,56 @@ export default function RootLayout() {
   const navigationTheme = useNavigationTheme(theme);
 
   return (
-    <AnimatedSplash>
-      <PostHogProvider
-        apiKey={posthogEnabled ? posthogApiKey : "__POSTHOG_DISABLED__"}
-        options={{
-          host: posthogHost,
-          disabled: !posthogEnabled,
-          // Batch harder than the defaults: analytics should not be sending requests
-          // while the app is still starting up and competing for the network.
-          flushAt: 20,
-          flushInterval: 30_000,
-          preloadFeatureFlags: false,
-        }}
-        autocapture={{ captureScreens: false }}
-      >
-        <GTProvider
-          config={gtConfig}
-          devApiKey={process.env.EXPO_PUBLIC_GT_DEV_API_KEY}
-          loadTranslations={loadTranslations}
-          projectId={process.env.EXPO_PUBLIC_GT_PROJECT_ID}
-          renderSettings={{
-            method: "skeleton",
+    // Outermost so a share received before sign-in survives the auth screens: the provider
+    // holds the intent until `CreateMenuHost` mounts and consumes it.
+    <ShareIntentProvider>
+      <AnimatedSplash>
+        <PostHogProvider
+          apiKey={posthogEnabled ? posthogApiKey : "__POSTHOG_DISABLED__"}
+          options={{
+            host: posthogHost,
+            disabled: !posthogEnabled,
+            // Batch harder than the defaults: analytics should not be sending requests
+            // while the app is still starting up and competing for the network.
+            flushAt: 20,
+            flushInterval: 30_000,
+            preloadFeatureFlags: false,
           }}
+          autocapture={{ captureScreens: false }}
         >
-          <IntlLocaleGate />
-          <RtlDirectionGate />
-          <QueryClientProvider client={queryClient}>
-            <AppStateLifecycle />
-            <AuthProvider>
-              <SubscriptionProvider>
-                <PostHogScreenTracker />
-                <ThemeProvider value={navigationTheme}>
-                  <SafeAreaProvider>
-                    <ReanimatedTrueSheetProvider>
-                      <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
-                      <AppBlurTarget>
-                        <AuthGate />
-                      </AppBlurTarget>
-                    </ReanimatedTrueSheetProvider>
-                  </SafeAreaProvider>
-                </ThemeProvider>
-              </SubscriptionProvider>
-            </AuthProvider>
-          </QueryClientProvider>
-        </GTProvider>
-      </PostHogProvider>
-    </AnimatedSplash>
+          <GTProvider
+            config={gtConfig}
+            devApiKey={process.env.EXPO_PUBLIC_GT_DEV_API_KEY}
+            loadTranslations={loadTranslations}
+            projectId={process.env.EXPO_PUBLIC_GT_PROJECT_ID}
+            renderSettings={{
+              method: "skeleton",
+            }}
+          >
+            <IntlLocaleGate />
+            <RtlDirectionGate />
+            <QueryClientProvider client={queryClient}>
+              <AppStateLifecycle />
+              <AuthProvider>
+                <SubscriptionProvider>
+                  <PostHogScreenTracker />
+                  <ThemeProvider value={navigationTheme}>
+                    <SafeAreaProvider>
+                      <ReanimatedTrueSheetProvider>
+                        <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
+                        <AppBlurTarget>
+                          <AuthGate />
+                        </AppBlurTarget>
+                      </ReanimatedTrueSheetProvider>
+                    </SafeAreaProvider>
+                  </ThemeProvider>
+                </SubscriptionProvider>
+              </AuthProvider>
+            </QueryClientProvider>
+          </GTProvider>
+        </PostHogProvider>
+      </AnimatedSplash>
+    </ShareIntentProvider>
   );
 }
 
@@ -266,6 +271,7 @@ function NotificationPushBootstrap() {
 
 function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
   const { session } = useAuth();
+  const systemColorScheme = useColorScheme();
   const userId = session?.user.id;
   // Read synchronously, during the first render: the MMKV cache is what keeps the network
   // `useSettings()` query off the first-paint path. The in-memory snapshot wins when
@@ -342,27 +348,9 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
 
   useLayoutEffect(() => {
     if (!ready) return;
-    applyNativeThemeSettings(themeSettings);
+    applyNativeThemeSettings(themeSettings, systemColorScheme);
     setThemeApplied(true);
-  }, [ready, themeSettings]);
-
-  useEffect(() => {
-    if (!ready || themeSettings.theme !== "system") return;
-    const timeout = setTimeout(() => {
-      applyNativeThemeSettings(themeSettings);
-    }, 0);
-
-    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-      if (colorScheme === "light" || colorScheme === "dark") {
-        applyNativeThemeSettings(themeSettings);
-      }
-    });
-
-    return () => {
-      clearTimeout(timeout);
-      subscription.remove();
-    };
-  }, [ready, themeSettings]);
+  }, [ready, systemColorScheme, themeSettings]);
 
   if (!ready || !themeApplied) {
     return (

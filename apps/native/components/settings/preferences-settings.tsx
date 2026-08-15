@@ -161,6 +161,7 @@ export function PreferencesSettings({
           onValueChange={(option) => void selectLocale(option)}
           options={localeOptions}
           placeholder={t("Search language")}
+          sheetTitle={t("Select a language")}
           emptyText={t("No languages found")}
         />
         {localeError ? (

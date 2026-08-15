@@ -1,5 +1,6 @@
 import {
   BottomSheet,
+  BottomSheetHeader,
   BottomSheetScrollView,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
@@ -11,7 +12,8 @@ import { Input } from "@/components/ui/input";
 import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
 import { SingleImagePicker } from "@/components/ui/single-image-picker";
 import { Text } from "@/components/ui/text";
-import { useFriends } from "@/hooks/use-friends";
+import { useInfiniteFriends } from "@/hooks/use-friends";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useProGate } from "@/hooks/use-pro-gate";
 import {
   useCreateSecretSantaEvent,
@@ -76,11 +78,12 @@ export function SecretSantaCreateEditSheet({
   const { data: settings } = useSettings();
   const [participantSearch, setParticipantSearch] = React.useState("");
   const deferredParticipantSearch = React.useDeferredValue(participantSearch);
-  const [participantTake, setParticipantTake] = React.useState(PARTICIPANT_PAGE_SIZE);
-  const friendsQuery = useFriends({
-    take: participantTake,
-    search: deferredParticipantSearch,
-  });
+  const friendsQuery = useInfiniteFriends(
+    { search: deferredParticipantSearch },
+    PARTICIPANT_PAGE_SIZE,
+    { enabled: open && mode === "create" },
+  );
+  const { items: friends, loadMore: loadMoreFriends } = useInfiniteListData(friendsQuery);
   const createEvent = useCreateSecretSantaEvent();
   const updateEvent = useUpdateSecretSantaEvent();
   const eventsQuery = useInfiniteSecretSantaEvents({}, 1);
@@ -106,18 +109,17 @@ export function SecretSantaCreateEditSheet({
     setRemoveImage(false);
     setParticipants([]);
     setParticipantSearch("");
-    setParticipantTake(PARTICIPANT_PAGE_SIZE);
     setError(null);
   }, [defaultCurrency, event, open]);
 
   const friendOptions = React.useMemo<PeoplePickerItem[]>(() => {
-    return (friendsQuery.data ?? []).map((friend) => ({
+    return friends.map((friend) => ({
       id: friend.friend_id,
       name: friend.display_name || friend.nickname || t("Friend"),
       subtitle: friend.nickname ? `@${friend.nickname}` : null,
       avatarUrl: friend.avatar_url,
     }));
-  }, [friendsQuery.data, t]);
+  }, [friends, t]);
 
   if (!open) return null;
 
@@ -219,6 +221,9 @@ export function SecretSantaCreateEditSheet({
       detents={mode === "create" ? ["auto"] : [contentDetent]}
       footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
+      header={
+        <BottomSheetHeader title={mode === "edit" ? t("Edit event") : t("Create an event")} />
+      }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -246,7 +251,7 @@ export function SecretSantaCreateEditSheet({
     >
       <BottomSheetScrollView
         className="max-h-full"
-        contentContainerClassName="gap-5 px-5 pt-5"
+        contentContainerClassName="gap-5 px-5"
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled
         onContentSizeChange={(_width, height) => setContentHeight(height)}
@@ -321,17 +326,11 @@ export function SecretSantaCreateEditSheet({
             selected={participants}
             onChange={setParticipants}
             query={participantSearch}
-            onQueryChange={(query) => {
-              setParticipantSearch(query);
-              setParticipantTake(PARTICIPANT_PAGE_SIZE);
-            }}
-            onEndReached={() => {
-              if (!friendsQuery.isFetching && (friendsQuery.data?.length ?? 0) >= participantTake) {
-                setParticipantTake((current) => current + PARTICIPANT_PAGE_SIZE);
-              }
-            }}
+            onQueryChange={setParticipantSearch}
+            onEndReached={loadMoreFriends}
             isLoading={friendsQuery.isLoading}
-            isFetchingMore={friendsQuery.isFetching && participantTake > PARTICIPANT_PAGE_SIZE}
+            isError={friendsQuery.isError}
+            isFetchingMore={friendsQuery.isFetchingNextPage}
             searchPlaceholder={t("Search friends")}
             emptyLabel={t("No friends to add.")}
           />

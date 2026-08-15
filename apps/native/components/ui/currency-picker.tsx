@@ -25,6 +25,7 @@ export function CurrencyPicker({
       onValueChange={(option) => onValueChange(option.value)}
       options={CURRENCY_OPTIONS}
       placeholder={t("Search currency")}
+      sheetTitle={t("Select a currency")}
       emptyText={t("No currencies found")}
       inputProps={{ autoCapitalize: "characters" }}
     />

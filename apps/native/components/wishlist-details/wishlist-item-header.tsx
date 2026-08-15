@@ -8,6 +8,7 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { GuideTarget } from "@/components/user-guide/guide-target";
@@ -272,9 +273,11 @@ export function WishlistItemHeader({
 
   return (
     <>
-      <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
-        <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
-        <View className="absolute inset-0 bg-black/20" />
+      <View className="w-full self-stretch border-b border-border-subtle">
+        <ScreenTopBackdrop>
+          <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
+          <View className="absolute inset-0 bg-black/20" />
+        </ScreenTopBackdrop>
         <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
           {hasButtonsRow || hasActionsMenu ? (
             <View

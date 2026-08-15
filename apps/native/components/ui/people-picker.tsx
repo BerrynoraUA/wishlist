@@ -1,6 +1,6 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
@@ -275,24 +275,25 @@ function PeoplePickerSheet({
       onDidPresent={autoFocusSearch ? () => searchInputRef.current?.focus() : undefined}
       onDidDismiss={onClose}
       header={
-        // `pt-5` clears the grabber, matching the other sheets that use a fixed header.
-        <View className="flex-row items-center justify-between gap-3 px-5 pb-3 pt-5">
-          <Text className="text-lg font-extrabold text-text">{title}</Text>
-          {!single && draft.length > 0 ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              accessibilityLabel={t("Clear selection")}
-              onPress={() => setDraft([])}
-              className="h-8 rounded-full px-2"
-            >
-              <Text className="text-xs font-bold text-brand">
-                {t("{count} selected", { count: draft.length })}
-              </Text>
-              <Icon as={X} className="size-3 text-brand" />
-            </Button>
-          ) : null}
-        </View>
+        <BottomSheetHeader
+          title={title}
+          action={
+            !single && draft.length > 0 ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                accessibilityLabel={t("Clear selection")}
+                onPress={() => setDraft([])}
+                className="h-8 rounded-full px-2"
+              >
+                <Text className="text-xs font-bold text-brand">
+                  {t("{count} selected", { count: draft.length })}
+                </Text>
+                <Icon as={X} className="size-3 text-brand" />
+              </Button>
+            ) : null
+          }
+        />
       }
       footer={
         // TrueSheet lifts the whole footer above the keyboard, so the running selection,

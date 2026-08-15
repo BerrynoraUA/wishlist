@@ -1,10 +1,10 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { WISHLIST_VISIBILITY_ICONS, getWishlistVisibilityLabels } from "@/lib/wishlists";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
-import { CalendarDays, FileText, ListChecks } from "lucide-react-native";
+import { CalendarDays, FileText } from "lucide-react-native";
 import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
 import { ScrollView, useWindowDimensions, View } from "react-native";
@@ -41,19 +41,12 @@ export function WishlistDetailsSheet({
       initialDetentIndex={0}
       initialDetentAnimated
       onDidDismiss={onClose}
+      header={<BottomSheetHeader title={t("Wishlist details")} />}
     >
-      <View className="gap-5 px-5 pt-5">
-        <View className="gap-2">
-          <View className="flex-row items-center gap-2">
-            <View className="size-9 items-center justify-center rounded-full bg-brand-lighter">
-              <Icon as={ListChecks} className="size-4 text-brand" />
-            </View>
-            <Text className="text-sm font-bold text-text-muted">{t("Wishlist details")}</Text>
-          </View>
-          <Text selectable className="text-2xl font-extrabold leading-8 text-text">
-            {wishlist.title}
-          </Text>
-        </View>
+      <View className="gap-5 px-5">
+        <Text selectable className="text-2xl font-extrabold leading-8 text-text">
+          {wishlist.title}
+        </Text>
 
         {wishlist.image_url ? (
           <View className="aspect-video w-full overflow-hidden rounded-2xl border border-border-subtle bg-bg-muted">

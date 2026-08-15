@@ -18,7 +18,6 @@ import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import { useTabBarContentPadding } from "@/lib/layout";
 import { useDiscoverFeed } from "@/hooks/use-discover-feed";
-import { useFriends } from "@/hooks/use-friends";
 import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
 import {
   optimisticallyToggleItemBought,
@@ -48,7 +47,6 @@ export default function DiscoverScreen() {
   const { user } = useAuth();
   const { width } = useWindowDimensions();
   const feed = useDiscoverFeed();
-  const friendsQuery = useFriends();
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
   const [filtersOpen, setFiltersOpen] = React.useState(false);
@@ -63,7 +61,6 @@ export default function DiscoverScreen() {
   const sectionCardWidth = Math.min(300, Math.max(200, contentWidth * 0.62));
   // Reserved / purchased are a single column: one full-width card per row, scrolling down.
   const reservedCardWidth = contentWidth;
-  const friends = friendsQuery.data ?? [];
 
   function handleToggleSelectedReservation(itemId: string) {
     if (!selection || selection.item.id !== itemId || !user?.id) return;
@@ -125,15 +122,6 @@ export default function DiscoverScreen() {
     setSelection({ item, reservedByName });
   }
 
-  const avatarByKey = React.useMemo(() => {
-    const map = new Map<string, string | null>();
-    for (const friend of friends) {
-      map.set(friend.friend_id, friend.avatar_url ?? null);
-      if (friend.nickname) map.set(friend.nickname, friend.avatar_url ?? null);
-    }
-    return map;
-  }, [friends]);
-
   const rows = React.useMemo<DiscoverRow[]>(() => {
     const contentRows: DiscoverRow[] = feed.sectionTab
       ? feed.activeSections
@@ -179,9 +167,7 @@ export default function DiscoverScreen() {
           cardWidth={sectionCardWidth}
           gridGap={gridGap}
           currentUserId={user?.id}
-          avatarUrl={
-            item.friend_id ? avatarByKey.get(item.friend_id) : avatarByKey.get(item.username)
-          }
+          avatarUrl={item.avatar_url}
           headerAccessory={null}
           onOpenItem={openItem}
         />

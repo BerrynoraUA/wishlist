@@ -2,15 +2,17 @@ import {
   AutocompleteDropdown,
   type AutocompleteDropdownOption,
 } from "@/components/ui/autocomplete-dropdown";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useCreateItem } from "@/hooks/use-items";
-import { useMyWishlists } from "@/hooks/use-wishlists";
+import { useInfiniteMyWishlists } from "@/hooks/use-wishlists";
+import { WISHLIST_PAGE_SIZE } from "@/lib/wishlists";
 import type { Item } from "@wishlist/backend/types/item";
 import { Image } from "expo-image";
-import { Bookmark, Gift, X } from "lucide-react-native";
+import { Gift, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -24,28 +26,38 @@ export function SaveItemToWishlistsSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
-  const wishlistsQuery = useMyWishlists({ take: 100 });
   const createItem = useCreateItem();
-  const [selectedWishlistIds, setSelectedWishlistIds] = React.useState<string[]>([]);
+  const [wishlistSearch, setWishlistSearch] = React.useState("");
+  const deferredWishlistSearch = React.useDeferredValue(wishlistSearch);
+  const wishlistsQuery = useInfiniteMyWishlists(
+    { search: deferredWishlistSearch },
+    WISHLIST_PAGE_SIZE,
+    { enabled: Boolean(item) },
+  );
+  const { items: wishlists, loadMore: loadMoreWishlists } = useInfiniteListData(wishlistsQuery);
+  const [selectedWishlists, setSelectedWishlists] = React.useState<AutocompleteDropdownOption[]>(
+    [],
+  );
   const [isSaving, setIsSaving] = React.useState(false);
   const [saveError, setSaveError] = React.useState<Error | null>(null);
 
   const options = React.useMemo<AutocompleteDropdownOption[]>(
     () =>
-      (wishlistsQuery.data ?? [])
+      wishlists
         .filter((wishlist) => wishlist.is_owner || wishlist.can_edit)
         .map((wishlist) => ({
           value: wishlist.id,
           label: wishlist.title,
+          keywords: wishlist.description ? [wishlist.description] : undefined,
           trailing: t("{count} items", { count: wishlist.items_count ?? 0 }),
           imageUrl: wishlist.image_url,
         })),
-    [t, wishlistsQuery.data],
+    [t, wishlists],
   );
-  const selectedOptions = options.filter((option) => selectedWishlistIds.includes(option.value));
 
   React.useEffect(() => {
-    setSelectedWishlistIds([]);
+    setSelectedWishlists([]);
+    setWishlistSearch("");
     setSaveError(null);
   }, [item?.id]);
 
@@ -53,15 +65,15 @@ export function SaveItemToWishlistsSheet({
 
   async function handleSave() {
     const itemToSave = item;
-    if (!itemToSave || selectedWishlistIds.length === 0 || isSaving) return;
+    if (!itemToSave || selectedWishlists.length === 0 || isSaving) return;
 
     setIsSaving(true);
     setSaveError(null);
     try {
       await Promise.all(
-        selectedWishlistIds.map((wishlistId) =>
+        selectedWishlists.map((wishlist) =>
           createItem.mutateAsync({
-            wishlist_id: wishlistId,
+            wishlist_id: wishlist.value,
             name: itemToSave.name,
             description: itemToSave.description,
             price: itemToSave.price,
@@ -89,6 +101,7 @@ export function SaveItemToWishlistsSheet({
       ref={sheetRef}
       detents={["auto"]}
       onDidDismiss={onClose}
+      header={<BottomSheetHeader title={t("Save to wishlist")} />}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -101,7 +114,7 @@ export function SaveItemToWishlistsSheet({
           </Button>
           <Button
             className="min-w-0 flex-1"
-            disabled={selectedWishlistIds.length === 0 || isSaving}
+            disabled={selectedWishlists.length === 0 || isSaving}
             onPress={() => void handleSave()}
           >
             {isSaving ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
@@ -110,16 +123,10 @@ export function SaveItemToWishlistsSheet({
         </View>
       }
     >
-      <View className="gap-4 px-5 pt-4">
-        <View className="items-center gap-1.5">
-          <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
-            <Icon as={Bookmark} className="size-5 text-brand" />
-          </View>
-          <Text className="text-xl font-extrabold text-text">{t("Save to wishlist")}</Text>
-          <Text className="text-center text-sm text-text-muted">
-            {t("Choose one or more wishlists you want to add this item to")}
-          </Text>
-        </View>
+      <View className="gap-4 px-5">
+        <Text className="text-center text-sm text-text-muted">
+          {t("Choose one or more wishlists you want to add this item to")}
+        </Text>
 
         <View className="flex-row items-center gap-3 rounded-xl border border-border-subtle bg-bg-muted p-2.5">
           {item.image_url ? (
@@ -145,44 +152,40 @@ export function SaveItemToWishlistsSheet({
           </View>
         </View>
 
-        {wishlistsQuery.isLoading ? (
-          <View className="items-center justify-center rounded-xl border border-border-subtle bg-bg-muted p-4">
-            <ActivityIndicator />
-          </View>
-        ) : options.length === 0 ? (
-          <Text className="text-center text-sm font-semibold text-text-muted">
-            {t("Create a wishlist first to add wishes to it.")}
-          </Text>
-        ) : (
-          <AutocompleteDropdown
-            multiple
-            value={selectedOptions}
-            onValueChange={(nextOptions) =>
-              setSelectedWishlistIds(nextOptions.map((option) => option.value))
-            }
-            options={options}
-            placeholder={t("Search wishlists")}
-            emptyText={t("No wishlists found")}
-            attached
-            inlineOptions
-            maxVisibleOptions={5}
-            optionClassName="min-h-12 py-3"
-            hideSelectedOptions
-            showSelectedValue={false}
-          />
-        )}
+        <AutocompleteDropdown
+          multiple
+          value={selectedWishlists}
+          onValueChange={setSelectedWishlists}
+          options={options}
+          placeholder={t("Search wishlists")}
+          emptyText={
+            wishlistSearch.trim()
+              ? t("No wishlists found")
+              : t("Create a wishlist first to add wishes to it.")
+          }
+          attached
+          inlineOptions
+          maxVisibleOptions={5}
+          optionClassName="min-h-12 py-3"
+          hideSelectedOptions
+          showSelectedValue={false}
+          isLoading={wishlistsQuery.isLoading}
+          isLoadingMore={wishlistsQuery.isFetchingNextPage}
+          onEndReached={loadMoreWishlists}
+          onQueryChange={setWishlistSearch}
+        />
 
-        {selectedOptions.length > 0 ? (
+        {selectedWishlists.length > 0 ? (
           <View className="flex-row flex-wrap gap-2">
-            {selectedOptions.map((wishlist) => (
+            {selectedWishlists.map((wishlist) => (
               <Button
                 key={wishlist.value}
                 variant="ghost"
                 size="sm"
                 accessibilityLabel={t("Remove {name}", { name: wishlist.label })}
                 onPress={() =>
-                  setSelectedWishlistIds((current) =>
-                    current.filter((wishlistId) => wishlistId !== wishlist.value),
+                  setSelectedWishlists((current) =>
+                    current.filter((option) => option.value !== wishlist.value),
                   )
                 }
                 className="rounded-full border border-brand bg-brand-lighter active:bg-brand-alpha-20"

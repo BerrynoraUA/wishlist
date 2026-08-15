@@ -1,5 +1,5 @@
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { hapticSuccess } from "@/lib/haptics";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
@@ -103,6 +103,7 @@ export function AddFriendSheet({
       ref={sheetRef}
       detents={["auto"]}
       onDidDismiss={() => onOpenChange(false)}
+      header={<BottomSheetHeader title={t("Invite friends")} />}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -124,14 +125,7 @@ export function AddFriendSheet({
         </View>
       }
     >
-      <View className="gap-5 px-5 pt-5">
-        <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">{t("Invite friends")}</Text>
-          <Text className="text-sm text-text-muted">
-            {t("Share your invite link or look up a friend by handle.")}
-          </Text>
-        </View>
-
+      <View className="gap-5 px-5">
         <View className="gap-2">
           <View className="flex-row items-center justify-between gap-3">
             <Text className="text-sm font-bold text-text">{t("Your invite link")}</Text>

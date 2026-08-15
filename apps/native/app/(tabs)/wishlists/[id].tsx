@@ -1,6 +1,5 @@
 import { InlineState } from "@/components/shared/inline-state";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
-import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
@@ -39,7 +38,6 @@ import {
   useToggleItemBought,
   useToggleItemReservation,
   useToggleItemVote,
-  useWishlistItems,
 } from "@/hooks/use-items";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useWishlistById } from "@/hooks/use-wishlists";
@@ -54,8 +52,6 @@ import {
   updateItemIfSelected,
 } from "@/lib/items";
 import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
-import { cn } from "@/lib/utils";
-import { getWishlistAccentClass } from "@/lib/wishlists";
 import type { Item } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -148,7 +144,6 @@ export default function WishlistDetailScreen() {
     itemQueryParams,
     WISHLIST_ITEMS_PAGE_SIZE,
   );
-  const allItemsQuery = useWishlistItems(wishlistId, { skip: 0, take: 1 });
   const { items, loadMore: loadMoreItems } = useInfiniteListData(itemsQuery);
   const itemIds = React.useMemo(() => items.map((item) => item.id), [items]);
   const votesQuery = useItemVotes(itemIds);
@@ -177,7 +172,7 @@ export default function WishlistDetailScreen() {
     return new Map(entries);
   }, [profilesQuery.data, t]);
   const filtersActive = wishlistItemFilterBarHasActiveFilters(filters);
-  const hasAnyItems = (allItemsQuery.data?.length ?? 0) > 0;
+  const hasAnyItems = (wishlist?.items_count ?? 0) > 0;
   const contentWidth = Math.min(width - 32, 1200);
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;
@@ -413,14 +408,6 @@ export default function WishlistDetailScreen() {
     <>
       <Stack.Screen options={{ title: wishlist?.title ?? t("Wishlist") }} />
       <View className="flex-1 bg-bg">
-        {wishlist ? (
-          <ScreenTopBackdrop>
-            <View
-              className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))}
-            />
-            <View className="absolute inset-0 bg-black/20" />
-          </ScreenTopBackdrop>
-        ) : null}
         {wishlistQuery.isLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />

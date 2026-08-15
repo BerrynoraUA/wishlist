@@ -4,6 +4,7 @@ import {
 } from "@/components/settings/notification-preference-toggles";
 import {
   BottomSheet,
+  BottomSheetHeader,
   BottomSheetScrollView,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
@@ -117,19 +118,7 @@ export function NotificationPermissionSheet({ userId }: { userId: string }) {
       footerInsetMode="scroll-content"
       scrollableOptions={{ scrollingExpandsSheet: false }}
       onDidDismiss={handleDismissed}
-      header={
-        <View className="mx-5 mt-5 flex-row items-start gap-3">
-          <View className="size-11 items-center justify-center rounded-full bg-brand-lighter">
-            <Icon as={Bell} className="size-5 text-brand" />
-          </View>
-          <View className="min-w-0 flex-1 gap-1">
-            <Text className="text-lg font-extrabold text-text">{t("Stay in the loop")}</Text>
-            <Text className="text-sm leading-5 text-text-muted">
-              {t("Get updates about invitations, reservations, and important wishlist activity.")}
-            </Text>
-          </View>
-        </View>
-      }
+      header={<BottomSheetHeader title={t("Stay in the loop")} />}
       footer={
         <View className="w-full gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button disabled={updateSettings.isPending} onPress={() => void allowNotifications()}>
@@ -152,9 +141,16 @@ export function NotificationPermissionSheet({ userId }: { userId: string }) {
     >
       <BottomSheetScrollView
         className="max-h-full"
-        contentContainerClassName="gap-4 px-5 pt-5"
+        contentContainerClassName="gap-4 px-5"
         showsVerticalScrollIndicator={false}
       >
+        <View className="flex-row items-start gap-2 rounded-xl border border-border-subtle bg-bg-muted p-3">
+          <Icon as={Bell} className="mt-0.5 size-4 text-brand" />
+          <Text className="min-w-0 flex-1 text-sm leading-5 text-text-muted">
+            {t("Get updates about invitations, reservations, and important wishlist activity.")}
+          </Text>
+        </View>
+
         <View className="flex-row items-start gap-2 rounded-xl border border-border-subtle bg-bg-muted p-3">
           <Icon as={ShieldCheck} className="mt-0.5 size-4 text-brand" />
           <Text className="min-w-0 flex-1 text-sm leading-5 text-text-muted">
