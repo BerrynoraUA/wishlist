@@ -12,6 +12,7 @@ import type {
   FriendGroup,
   FriendWithDetails,
   GetFriendsWithoutWishlistAccessParams,
+  BlockedUser,
   ProfileSearchResult,
   PublicProfile,
   WishlistAccessUser,
@@ -282,6 +283,36 @@ export async function getFriends({ skip = 0, take = 20, search }: PaginationPara
     wishlists_count: Number(row.wishlists_count ?? 0),
     mutual_friends_count: Number(row.mutual_friends_count ?? 0),
   }));
+}
+
+/**
+ * Blocking also tears down the existing connection — the RPC removes the
+ * friendship and any pending request in either direction.
+ */
+export async function blockUser(userId: string): Promise<void> {
+  const { error } = await supabase.rpc("block_user", { p_user_id: userId });
+  if (error) throw error;
+}
+
+export async function unblockUser(userId: string): Promise<void> {
+  const { error } = await supabase.rpc("unblock_user", { p_user_id: userId });
+  if (error) throw error;
+}
+
+export async function getBlockedUsers({
+  skip = 0,
+  take = 20,
+  search,
+}: PaginationParams = {}): Promise<BlockedUser[]> {
+  const { data, error } = await supabase.rpc("get_blocked_users", {
+    p_skip: skip,
+    p_take: take,
+    p_search: normalizeSearchQuery(search) || null,
+  });
+
+  if (error) throw error;
+
+  return data ?? [];
 }
 
 export async function removeFriend(userId: string): Promise<void> {

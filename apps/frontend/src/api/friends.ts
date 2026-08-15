@@ -6,6 +6,7 @@ import {
   createLocalizedNotifications,
 } from "@/lib/create-notification";
 import type {
+  BlockedUser,
   FriendRequest,
   FriendWithDetails,
   FriendRequestWithDetails,
@@ -212,6 +213,36 @@ export async function removeFriend(userId: string): Promise<void> {
     );
 
   if (error) throw error;
+}
+
+/**
+ * Blocking also tears down the existing connection — the RPC removes the
+ * friendship and any pending request in either direction.
+ */
+export async function blockUser(userId: string): Promise<void> {
+  const { error } = await supabaseBrowser.rpc("block_user", { p_user_id: userId });
+  if (error) throw error;
+}
+
+export async function unblockUser(userId: string): Promise<void> {
+  const { error } = await supabaseBrowser.rpc("unblock_user", { p_user_id: userId });
+  if (error) throw error;
+}
+
+export async function getBlockedUsers({
+  skip = 0,
+  take = 20,
+  search,
+}: PaginationParams = {}): Promise<BlockedUser[]> {
+  const { data, error } = await supabaseBrowser.rpc("get_blocked_users", {
+    p_skip: skip,
+    p_take: take,
+    p_search: normalizeSearchQuery(search ?? "") || null,
+  });
+
+  if (error) throw error;
+
+  return data ?? [];
 }
 
 export async function getFriendsWithoutWishlistAccess({

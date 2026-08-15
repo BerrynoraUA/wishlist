@@ -5,7 +5,7 @@ import { useGT } from "gt-next";
 import { Tabs, type TabItem } from "@/components/ui/Tabs/Tabs";
 import styles from "./FriendsTabs.module.scss";
 
-type TabValue = "friends" | "groups" | "requests" | "sent";
+type TabValue = "friends" | "groups" | "requests" | "sent" | "blocked";
 
 type Props = {
   active: TabValue;
@@ -13,6 +13,7 @@ type Props = {
   groupsCount: number;
   requestsCount: number;
   sentCount?: number;
+  blockedCount?: number;
   action?: ReactNode;
   onChange: (v: TabValue) => void;
 };
@@ -23,6 +24,7 @@ export function FriendsTabs({
   groupsCount,
   requestsCount,
   sentCount = 0,
+  blockedCount = 0,
   action,
   onChange,
 }: Props) {
@@ -71,8 +73,16 @@ export function FriendsTabs({
           </>
         ),
       },
+      {
+        value: "blocked",
+        label: (
+          <>
+            {t("Blocked", { $id: "friends.tabs.blocked" })} {blockedCount}
+          </>
+        ),
+      },
     ],
-    [t, friendsCount, groupsCount, requestsCount, sentCount],
+    [t, friendsCount, groupsCount, requestsCount, sentCount, blockedCount],
   );
 
   return (

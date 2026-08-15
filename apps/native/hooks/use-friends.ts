@@ -1,6 +1,8 @@
 import {
   acceptFriendRequest,
+  blockUser,
   cancelFriendRequest,
+  getBlockedUsers,
   checkFriendship,
   createFriendGroup,
   deleteFriendGroup,
@@ -19,6 +21,7 @@ import {
   revokeWishlistGroupAccess,
   searchProfilesByNickname,
   sendFriendRequest,
+  unblockUser,
   updateFriendGroup,
 } from "@/api/friends";
 import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
@@ -233,6 +236,45 @@ export function useRemoveFriend() {
     mutationFn: (friendId: string) => removeFriend(friendId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: friendKeys.lists() });
+      await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+    },
+  });
+}
+
+export function useBlockedUsers(params?: PaginationParams) {
+  const { user } = useAuth();
+  const normalized = params
+    ? { ...params, search: normalizeSearchQuery(params.search) || undefined }
+    : undefined;
+
+  return useQuery({
+    queryKey: friendKeys.blocked(user?.id, normalized),
+    queryFn: () => getBlockedUsers(normalized),
+    enabled: Boolean(user?.id),
+  });
+}
+
+export function useBlockUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userId: string) => blockUser(userId),
+    onSuccess: async () => {
+      // The block drops the friendship and any pending request, so every
+      // friends list can be stale afterwards.
+      await queryClient.invalidateQueries({ queryKey: friendKeys.all });
+      await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+    },
+  });
+}
+
+export function useUnblockUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userId: string) => unblockUser(userId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: friendKeys.all });
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
     },
   });

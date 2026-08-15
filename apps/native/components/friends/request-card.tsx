@@ -9,17 +9,21 @@ export function RequestCard({
   request,
   accepting,
   rejecting,
+  blocking,
   onAccept,
   onReject,
+  onBlock,
 }: {
   request: FriendRequestWithDetails;
   accepting?: boolean;
   rejecting?: boolean;
+  blocking?: boolean;
   onAccept: () => void;
   onReject: () => void;
+  onBlock?: () => void;
 }) {
   const t = useGT();
-  const disabled = Boolean(accepting || rejecting);
+  const disabled = Boolean(accepting || rejecting || blocking);
 
   return (
     <View className="gap-4 rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm">
@@ -55,6 +59,11 @@ export function RequestCard({
           <Text>{rejecting ? t("Declining...") : t("Decline")}</Text>
         </Button>
       </View>
+      {onBlock ? (
+        <Button variant="ghost" size="sm" disabled={disabled} onPress={onBlock}>
+          <Text className="text-destructive">{t("Block")}</Text>
+        </Button>
+      ) : null}
     </View>
   );
 }

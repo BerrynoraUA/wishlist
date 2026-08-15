@@ -31,6 +31,14 @@ export interface PublicProfile {
   avatar_url: string | null;
 }
 
+export interface BlockedUser {
+  id: string;
+  nickname: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+  blocked_at: string;
+}
+
 export interface ProfileSearchResult {
   id: string;
   nickname: string;

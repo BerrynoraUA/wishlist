@@ -1,5 +1,6 @@
 import { FriendCard } from "@/components/friends/friend-card";
 import { FriendGroupCard } from "@/components/friends/friend-group-card";
+import { BlockedUserCard } from "@/components/friends/blocked-user-card";
 import { FriendsTabs, type FriendsTab } from "@/components/friends/friends-tabs";
 import { OutgoingRequestCard } from "@/components/friends/outgoing-request-card";
 import { RequestCard } from "@/components/friends/request-card";
@@ -14,6 +15,8 @@ import { Text } from "@/components/ui/text";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import {
   useAcceptFriendRequest,
+  useBlockUser,
+  useBlockedUsers,
   useCancelFriendRequest,
   useDeleteFriendGroup,
   useInfiniteFriendGroups,
@@ -22,11 +25,13 @@ import {
   useInfiniteOutgoingFriendRequests,
   useRejectFriendRequest,
   useRemoveFriend,
+  useUnblockUser,
   useUpdateFriendGroup,
 } from "@/hooks/use-friends";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
 import type {
+  BlockedUser,
   FriendGroup,
   FriendRequestWithDetails,
   FriendWithDetails,
@@ -39,10 +44,11 @@ import { ActivityIndicator, View, useWindowDimensions } from "react-native";
 type SheetState =
   | { type: "group"; group: FriendGroup }
   | { type: "removeFriend"; friendId: string }
+  | { type: "blockUser"; userId: string }
   | { type: "deleteGroup"; group: FriendGroup }
   | null;
 
-type FriendEntry = FriendWithDetails | FriendGroup | FriendRequestWithDetails;
+type FriendEntry = FriendWithDetails | FriendGroup | FriendRequestWithDetails | BlockedUser;
 type FriendsRow = FriendEntry[];
 const FRIENDS_PAGE_SIZE = 20;
 
@@ -90,6 +96,8 @@ export default function FriendsScreen() {
   const rejectRequest = useRejectFriendRequest();
   const cancelRequest = useCancelFriendRequest();
   const removeFriend = useRemoveFriend();
+  const blockUser = useBlockUser();
+  const unblockUser = useUnblockUser();
   const updateGroup = useUpdateFriendGroup();
   const deleteGroup = useDeleteFriendGroup();
 
@@ -101,13 +109,16 @@ export default function FriendsScreen() {
   const { items: groups, loadMore: loadMoreGroups } = useInfiniteListData(groupsQuery);
   const { items: requests, loadMore: loadMoreRequests } = useInfiniteListData(requestsQuery);
   const { items: outgoing, loadMore: loadMoreOutgoing } = useInfiniteListData(outgoingQuery);
+  const blockedQuery = useBlockedUsers({ search: tab === "blocked" ? debouncedSearch : undefined });
+  const blocked = React.useMemo(() => blockedQuery.data ?? [], [blockedQuery.data]);
 
   const activeItems = React.useMemo<FriendEntry[]>(() => {
     if (tab === "groups") return groups;
     if (tab === "requests") return requests;
     if (tab === "sent") return outgoing;
+    if (tab === "blocked") return blocked;
     return friends;
-  }, [friends, groups, outgoing, requests, tab]);
+  }, [blocked, friends, groups, outgoing, requests, tab]);
 
   const rows = React.useMemo<FriendsRow[]>(
     () => chunkRows(activeItems, columns),
@@ -120,7 +131,9 @@ export default function FriendsScreen() {
         ? requestsQuery.isLoading
         : tab === "sent"
           ? outgoingQuery.isLoading
-          : friendsQuery.isLoading;
+          : tab === "blocked"
+            ? blockedQuery.isLoading
+            : friendsQuery.isLoading;
   const isError =
     tab === "groups"
       ? groupsQuery.isError
@@ -128,7 +141,9 @@ export default function FriendsScreen() {
         ? requestsQuery.isError
         : tab === "sent"
           ? outgoingQuery.isError
-          : friendsQuery.isError;
+          : tab === "blocked"
+            ? blockedQuery.isError
+            : friendsQuery.isError;
   const activeQuery =
     tab === "groups"
       ? groupsQuery
@@ -175,8 +190,21 @@ export default function FriendsScreen() {
                 request={entry as FriendRequestWithDetails}
                 accepting={acceptRequest.isPending}
                 rejecting={rejectRequest.isPending}
+                blocking={blockUser.isPending}
                 onAccept={() => acceptRequest.mutate(entry.id)}
                 onReject={() => rejectRequest.mutate(entry.id)}
+                onBlock={() =>
+                  setSheet({
+                    type: "blockUser",
+                    userId: (entry as FriendRequestWithDetails).sender_id,
+                  })
+                }
+              />
+            ) : tab === "blocked" ? (
+              <BlockedUserCard
+                user={entry as BlockedUser}
+                isPending={unblockUser.isPending}
+                onUnblock={(userId) => unblockUser.mutate(userId)}
               />
             ) : tab === "sent" ? (
               <OutgoingRequestCard
@@ -217,6 +245,7 @@ export default function FriendsScreen() {
                 groupsCount={groups.length}
                 requestsCount={requests.length}
                 sentCount={outgoing.length}
+                blockedCount={blocked.length}
                 onChange={handleTabChange}
               />
             </ExpandingSearchHeader>
@@ -227,6 +256,7 @@ export default function FriendsScreen() {
               groupsCount={groups.length}
               requestsCount={requests.length}
               sentCount={outgoing.length}
+              blockedCount={blocked.length}
               onChange={handleTabChange}
             />
           )}
@@ -301,6 +331,8 @@ export default function FriendsScreen() {
             confirmLabel={t("Remove Friend")}
             isPending={removeFriend.isPending}
             error={removeFriend.error?.message}
+            secondaryLabel={t("Remove and block")}
+            onSecondary={() => setSheet({ type: "blockUser", userId: sheet.friendId })}
             onOpenChange={(open) => {
               if (!open) setSheet(null);
             }}
@@ -308,6 +340,24 @@ export default function FriendsScreen() {
               removeFriend.mutate(sheet.friendId, {
                 onSuccess: () => setSheet(null),
               });
+            }}
+          />
+        ) : null}
+        {sheet?.type === "blockUser" ? (
+          <ConfirmActionSheet
+            open
+            title={t("Block this person?")}
+            description={t(
+              "They will not be able to send you friend requests, and your wishlists stop being visible to them. You can undo this from the Blocked tab.",
+            )}
+            confirmLabel={t("Block")}
+            isPending={blockUser.isPending}
+            error={blockUser.error?.message}
+            onOpenChange={(open) => {
+              if (!open) setSheet(null);
+            }}
+            onConfirm={() => {
+              blockUser.mutate(sheet.userId, { onSuccess: () => setSheet(null) });
             }}
           />
         ) : null}
@@ -341,6 +391,8 @@ function ConfirmActionSheet({
   confirmLabel,
   isPending,
   error,
+  secondaryLabel,
+  onSecondary,
   onOpenChange,
   onConfirm,
 }: {
@@ -350,6 +402,9 @@ function ConfirmActionSheet({
   confirmLabel: string;
   isPending: boolean;
   error?: string;
+  /** Optional escalation, e.g. removing a friend and blocking them. */
+  secondaryLabel?: string;
+  onSecondary?: () => void;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
 }) {
@@ -382,6 +437,11 @@ function ConfirmActionSheet({
             <Text>{confirmLabel}</Text>
           </Button>
         </View>
+        {secondaryLabel && onSecondary ? (
+          <Button variant="ghost" disabled={isPending} onPress={onSecondary}>
+            <Text className="text-destructive">{secondaryLabel}</Text>
+          </Button>
+        ) : null}
       </View>
     </BottomSheet>
   );

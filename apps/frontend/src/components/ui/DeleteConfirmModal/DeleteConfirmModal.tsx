@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
@@ -15,6 +16,8 @@ type Props = {
   description?: string;
   confirmLabel?: string;
   isPending?: boolean;
+  /** Rendered between the description and the buttons, e.g. an extra option. */
+  extraContent?: ReactNode;
 };
 
 export function DeleteConfirmModal({
@@ -25,6 +28,7 @@ export function DeleteConfirmModal({
   description,
   confirmLabel,
   isPending = false,
+  extraContent,
 }: Props) {
   const t = useGT();
   const resolvedTitle = title ?? t("Delete", { $id: "confirm.delete.title" });
@@ -46,6 +50,8 @@ export function DeleteConfirmModal({
         <Text variant="subtitle" tone="muted">
           {resolvedDescription}
         </Text>
+
+        {extraContent}
 
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose} disabled={isPending}>

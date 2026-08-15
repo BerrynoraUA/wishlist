@@ -16,6 +16,8 @@ export const friendKeys = {
     [...friendKeys.requests(), "outgoing", authUserId ?? "anonymous", params] as const,
   search: (authUserId: string | null | undefined, query: string, params?: FriendPaginationParams) =>
     [...friendKeys.all, "search", authUserId ?? "anonymous", query, params] as const,
+  blocked: (authUserId: string | null | undefined, params?: FriendPaginationParams) =>
+    [...friendKeys.all, "blocked", authUserId ?? "anonymous", params] as const,
   groups: () => [...friendKeys.all, "groups"] as const,
   groupList: (authUserId: string | null | undefined, params?: FriendPaginationParams) =>
     [...friendKeys.groups(), "list", authUserId ?? "anonymous", params] as const,
