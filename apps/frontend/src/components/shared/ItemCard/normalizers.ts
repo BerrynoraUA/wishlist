@@ -4,6 +4,19 @@ import { getItemStoreFromUrl } from "@/lib/helpers/item-card";
 import { ALL_PRIORITIES } from "@/lib/priorities";
 import type { ItemCardData } from "./types";
 
+/**
+ * Display name for a priority, resolved from the client's canonical list. The
+ * id wins over the stored name: a name that drifts from the seed leaves the
+ * badge without its colour and icon, since the card matches on the name.
+ */
+function resolvePriorityName(
+  priorityId: string | null | undefined,
+  priorityName: string | null | undefined,
+): string | null {
+  const byId = priorityId ? ALL_PRIORITIES.find((p) => p.id === priorityId) : null;
+  return byId?.name ?? priorityName ?? null;
+}
+
 export function normalizeDiscoverItem(item: DiscoverItem): ItemCardData {
   return {
     id: item.id,
@@ -14,7 +27,7 @@ export function normalizeDiscoverItem(item: DiscoverItem): ItemCardData {
     url: item.url ?? null,
     shareUrl: item.share_url || item.url || null,
     description: item.description ?? null,
-    priority: item.priority ?? null,
+    priority: resolvePriorityName(item.priority_id, item.priority),
     discountPrice: item.discount_price ?? null,
     currency: item.currency ?? null,
     status: item.status ?? null,
@@ -56,11 +69,7 @@ export function normalizeWishlistItem(item: Item, reservedByName?: string | null
     url: item.url,
     shareUrl: item.url,
     description: item.description,
-    priority:
-      item.priority_name ??
-      (item.priority_id
-        ? (ALL_PRIORITIES.find((p) => p.id === item.priority_id)?.name ?? null)
-        : null),
+    priority: resolvePriorityName(item.priority_id, item.priority_name),
     discountPrice: item.has_discount ? item.discount_price : null,
     discountEndDate: item.discount_end_date,
     currency: item.currency,

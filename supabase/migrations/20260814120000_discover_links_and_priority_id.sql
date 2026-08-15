@@ -1,6 +1,10 @@
--- Discover cards open the same detail modal as your own items, which lists an
--- item's extra links. The discover payload never carried them, so the section
--- was always empty there. Recreated verbatim with `additional_links` added.
+-- Two gaps in the discover payload, both fixed by recreating the functions
+-- verbatim with extra keys:
+--   * additional_links — the detail modal lists an item's extra links, but
+--     discover never sent them, so the section was always empty.
+--   * priority_id — clients fell back to matching the priority by name, which
+--     leaves the badge colourless and iconless whenever a name drifts from
+--     the seed.
 
 create or replace function public.get_friends_wishlists_discover(
   p_skip integer default 0,
@@ -71,6 +75,7 @@ begin
           'image', coalesce(i.image_url, ''),
           'currency', coalesce(i.currency, null),
           'priority', ip.name,
+          'priority_id', i.priority_id,
           'additional_links', i.additional_links,
           'status', i.status,
           'reservedBy', i.reserved_by,
@@ -189,6 +194,7 @@ begin
           'image', coalesce(i.image_url, ''),
           'currency', i.currency,
           'priority', ip.name,
+          'priority_id', i.priority_id,
           'additional_links', i.additional_links,
           'status', i.status,
           'reservedBy', i.reserved_by,

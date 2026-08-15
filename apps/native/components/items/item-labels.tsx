@@ -224,12 +224,14 @@ function usePriorityPalette(priority: ItemPriority, context: "card" | "detail") 
   const { theme } = useUniwind();
   const cardBackground = useCSSVariable("--color-card-bg");
   const namedPalette = PRIORITY_PALETTE[priority.name as keyof typeof PRIORITY_PALETTE];
+  // Not `priority.color`: Stare follows the accent, the rest keep their own.
+  const color = usePriorityColor(priority) ?? priority.color;
 
   if (context === "detail" && namedPalette) return namedPalette[getThemeMode(theme)];
 
   return {
     backgroundColor: typeof cardBackground === "string" ? cardBackground : "transparent",
-    borderColor: priority.color,
-    color: priority.color,
+    borderColor: color,
+    color,
   };
 }

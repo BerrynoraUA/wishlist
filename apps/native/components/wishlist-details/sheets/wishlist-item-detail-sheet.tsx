@@ -20,7 +20,7 @@ import {
   getTranslatedItemPriorityLabel,
   isDiscountActive,
 } from "@/lib/items";
-import { getValidHttpUrl } from "@/lib/urls";
+import { getLinkUrl, getValidHttpUrl } from "@/lib/urls";
 import type { Item } from "@wishlist/backend/types/item";
 import * as Clipboard from "expo-clipboard";
 import {
@@ -106,7 +106,7 @@ export function WishlistItemDetailSheet({
   const store = getItemStoreFromUrl(selectedItem.url);
   const itemUrl = getValidHttpUrl(selectedItem.url) ?? "";
   const additionalLinks = (selectedItem.additional_links ?? [])
-    .map((link) => ({ ...link, url: getValidHttpUrl(link.url) }))
+    .map((link) => ({ ...link, url: getLinkUrl(link.url) }))
     .filter((link): link is typeof link & { url: string } => link.url !== null);
   const hasLinks = itemUrl.length > 0 || additionalLinks.length > 0;
   const hasActiveDiscount = isDiscountActive(

@@ -1,11 +1,7 @@
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
-import {
-  CARD_BADGE_HEIGHT,
-  ItemPriorityBadge,
-  ItemPriorityMedallion,
-} from "@/components/items/item-labels";
+import { CARD_BADGE_HEIGHT, ItemPriorityBadge } from "@/components/items/item-labels";
 import { cn } from "@/lib/utils";
 import { isStarPriorityId } from "@wishlist/backend/lib";
 import type { Item } from "@wishlist/backend/types/item";
@@ -48,7 +44,7 @@ export function ItemImage({
         // Square in both sizes so the detail sheet shows the image at the same height as
         // the card in the list, instead of cropping it into a short strip.
         "relative aspect-square items-center justify-center overflow-hidden bg-bg-muted",
-        isDetail ? "rounded-2xl border border-border-subtle" : "w-full min-h-0",
+        isDetail ? "rounded-2xl border border-border-subtle" : "w-full min-h-0 rounded-t-xl",
       )}
     >
       {item.image_url ? (
@@ -120,19 +116,12 @@ export function ItemImage({
             </Text>
           </View>
         ) : null}
-        {priority && priorityLabel ? (
+        {/* Stare already reads from the card behind the sheet, and its medallion
+            used to sit right below — no need to repeat it in the detail hero. */}
+        {priority && priorityLabel && !(isDetail && isStarPriorityId(priority.id)) ? (
           <ItemPriorityBadge priority={priority} label={priorityLabel} compact context="card" />
         ) : null}
       </View>
-
-      {/* Only Stare gets a medallion, and on a card it hangs off the bottom edge
-          of the whole card (see the card components) — here it shows in the
-          detail sheet, where the image is the full-width hero. */}
-      {priority && isDetail && isStarPriorityId(priority.id) ? (
-        <View className="absolute inset-x-0 bottom-3 z-10 items-center">
-          <ItemPriorityMedallion priority={priority} label={priorityLabel} size="detail" />
-        </View>
-      ) : null}
 
       {item.price ? (
         <View

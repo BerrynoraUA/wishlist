@@ -19,7 +19,7 @@ import {
   getSalePercentOff,
   getTranslatedItemPriorityLabel,
 } from "@/lib/items";
-import { getValidHttpUrl } from "@/lib/urls";
+import { getLinkUrl, getValidHttpUrl } from "@/lib/urls";
 import type { Item } from "@wishlist/backend/types/item";
 import { Copy, ExternalLink, LockKeyhole, ShoppingCart } from "lucide-react-native";
 import * as Clipboard from "expo-clipboard";
@@ -74,7 +74,7 @@ export function DiscoverItemDetailSheet({
   const store = getItemStoreFromUrl(item.url);
   const itemUrl = getValidHttpUrl(item.url) ?? "";
   const additionalLinks = (item.additional_links ?? [])
-    .map((link) => ({ ...link, url: getValidHttpUrl(link.url) }))
+    .map((link) => ({ ...link, url: getLinkUrl(link.url) }))
     .filter((link): link is typeof link & { url: string } => link.url !== null);
   const hasLinks = itemUrl.length > 0 || additionalLinks.length > 0;
   const salePercentOff = getSalePercentOff(item.price, item.discount_price, item.has_discount);

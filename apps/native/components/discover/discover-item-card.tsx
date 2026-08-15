@@ -45,15 +45,18 @@ export function DiscoverItemCard({
   const store = getItemStoreFromUrl(item.url);
   const salePercentOff = getSalePercentOff(item.price, item.discount_price, item.has_discount);
   const isTaken = Boolean(reservationLabel);
+  // Only Stare hangs a medallion off the bottom edge of the card.
+  const medallionPriority = priority && isStarPriorityId(priority.id) ? priority : null;
 
   return (
-    <View style={{ width }}>
+    // The medallion hangs below the card, so the row has to leave it room.
+    <View style={{ width }} className={cn(medallionPriority && "pb-3.5")}>
       <AnimatedPressable
         accessibilityRole="button"
         accessibilityLabel={t('Open "{name}"', { name: item.name })}
         onPress={onPress}
         pressedScale={0.98}
-        className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
+        className="rounded-xl border border-border-subtle bg-card-bg shadow-sm"
         // Purchased state wins, otherwise the priority tints the card.
         style={purchasedMode ? { borderColor: "rgba(22, 163, 74, 0.18)" } : cardBorderStyle}
       >
@@ -89,14 +92,12 @@ export function DiscoverItemCard({
             ) : null}
           </View>
         </View>
+        {medallionPriority ? (
+          <View className="absolute inset-x-0 -bottom-3.5 items-center" pointerEvents="none">
+            <ItemPriorityMedallion priority={medallionPriority} label={priorityLabel} />
+          </View>
+        ) : null}
       </AnimatedPressable>
-
-      {/* Hangs off the bottom edge, centred — same placement as the web card. */}
-      {priority && isStarPriorityId(priority.id) ? (
-        <View className="absolute inset-x-0 -bottom-3.5 z-10 items-center" pointerEvents="none">
-          <ItemPriorityMedallion priority={priority} label={priorityLabel} />
-        </View>
-      ) : null}
     </View>
   );
 }

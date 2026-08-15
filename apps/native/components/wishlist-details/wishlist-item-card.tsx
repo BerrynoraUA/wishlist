@@ -102,6 +102,8 @@ export function WishlistItemCard({
   const priorityLabel = getTranslatedItemPriorityLabel(t, item.priority_id);
   const priority = getItemPriority(item.priority_id);
   const cardBorderStyle = useItemCardBorderStyle(priority);
+  // Only Stare hangs a medallion off the bottom edge of the card.
+  const medallionPriority = priority && isStarPriorityId(priority.id) ? priority : null;
   const store = getItemStoreFromUrl(item.url);
   const itemUrl = getValidHttpUrl(item.url) ?? "";
   const showCopyLink = itemUrl.length > 0;
@@ -135,7 +137,8 @@ export function WishlistItemCard({
   }
 
   return (
-    <View style={{ width }}>
+    // The medallion hangs below the card, so the row has to leave it room.
+    <View style={{ width }} className={cn(medallionPriority && "pb-3.5")}>
       <DropdownMenu className="relative" onOpenChange={menuPreview.onOpenChange}>
         <View ref={menuPreview.cardRef} collapsable={false}>
           <AnimatedPressable
@@ -144,7 +147,7 @@ export function WishlistItemCard({
             onPress={onPress}
             onLongPress={showMenu ? menuPreview.openMenu : undefined}
             pressedScale={isTaken ? 1 : 0.98}
-            className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
+            className="rounded-xl border border-border-subtle bg-card-bg shadow-sm"
             // The priority is what tints the card — no separate item colour.
             style={cardBorderStyle}
           >
@@ -317,15 +320,12 @@ export function WishlistItemCard({
                 </View>
               ) : null}
             </View>
+            {medallionPriority ? (
+              <View className="absolute inset-x-0 -bottom-3.5 items-center" pointerEvents="none">
+                <ItemPriorityMedallion priority={medallionPriority} label={priorityLabel} />
+              </View>
+            ) : null}
           </AnimatedPressable>
-
-          {/* Hangs off the bottom edge, centred — same placement as the web card.
-              It sits outside the pressable, which clips its own overflow. */}
-          {priority && isStarPriorityId(priority.id) ? (
-            <View className="absolute inset-x-0 -bottom-3.5 z-10 items-center" pointerEvents="none">
-              <ItemPriorityMedallion priority={priority} label={priorityLabel} />
-            </View>
-          ) : null}
         </View>
         {showMenu ? (
           <DropdownMenuTrigger asChild>
