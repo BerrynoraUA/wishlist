@@ -197,10 +197,12 @@ export function EventsCalendarSheet({
                         accessibilityRole="button"
                         accessibilityLabel={
                           hasEvents
-                            ? t("{date}, {count} events", {
-                                date: cell.dateKey ?? "",
-                                count: dayEvents.length,
-                              })
+                            ? dayEvents.length === 1
+                              ? t("{date}, 1 event", { date: cell.dateKey ?? "" })
+                              : t("{date}, {count} events", {
+                                  date: cell.dateKey ?? "",
+                                  count: dayEvents.length,
+                                })
                             : (cell.dateKey ?? "")
                         }
                         onPress={() => setSelectedDateKey(cell.dateKey)}
@@ -260,7 +262,9 @@ export function EventsCalendarSheet({
             <Text className="text-base font-extrabold text-text">{selectedDateLabel}</Text>
             {selectedEvents.length > 0 ? (
               <Text className="text-xs font-bold text-brand">
-                {t("{count} events", { count: selectedEvents.length })}
+                {selectedEvents.length === 1
+                  ? t("1 event")
+                  : t("{count} events", { count: selectedEvents.length })}
               </Text>
             ) : null}
           </View>

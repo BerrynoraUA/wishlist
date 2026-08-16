@@ -59,7 +59,9 @@ export function FriendGroupCard({
                 </Text>
               ) : null}
               <Text className="text-xs font-semibold text-text-muted">
-                {t("{count} members", { count: group.member_count })}
+                {group.member_count === 1
+                  ? t("1 member")
+                  : t("{count} members", { count: group.member_count })}
               </Text>
             </View>
 

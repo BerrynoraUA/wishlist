@@ -5,6 +5,7 @@ import { createClient, processLock } from "@supabase/supabase-js";
 import type { Database } from "../db-types";
 import type { WishlistSupabaseClient } from "./types";
 import { getSupabasePublicEnv } from "./shared";
+import { createShowcaseClient } from "./showcase/client";
 
 function toSecureStoreKey(key: string) {
   return key.replace(/[^A-Za-z0-9._-]/g, "_");
@@ -33,4 +34,7 @@ export function createNativeClient(): WishlistSupabaseClient {
   });
 }
 
-export const supabase = createNativeClient();
+// App-store captures run against fixtures instead of a project, so the harness needs
+// no Supabase credentials and no local stack. See `./showcase/client.ts`.
+export const supabase =
+  process.env.EXPO_PUBLIC_SHOWCASE === "1" ? createShowcaseClient() : createNativeClient();

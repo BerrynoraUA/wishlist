@@ -19,6 +19,7 @@
     "./supabase/native": "./supabase/native.ts",
     "./supabase/server": "./supabase/server.ts",
     "./supabase/shared": "./supabase/shared.ts",
+    "./supabase/showcase/constants": "./supabase/showcase/constants.ts",
     "./types": "./types/index.ts",
     "./types/bug-reports": "./types/bug-reports.ts",
     "./types/discover": "./types/discover.ts",

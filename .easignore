@@ -43,6 +43,9 @@ apps/native/ios
 apps/native/.expo
 apps/native/dist
 apps/native/web-build
+# Showcase capture output and the simulator build it photographs. Inside the native
+# app, so it would otherwise be uploaded with every build.
+apps/native/artifacts
 
 # Native-only local and credential files covered by apps/native/.gitignore.
 apps/native/*.orig.*
@@ -71,3 +74,4 @@ apps/frontend
 # "supabase" also removed packages/backend/supabase/, breaking the bundle.
 /services/
 /supabase/
+/scripts/showcase/assets/
