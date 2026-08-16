@@ -52,6 +52,9 @@ const PNPM = NodeProcess.platform === "win32" ? "pnpm.cmd" : "pnpm";
  */
 const FIRST_SCENE_TIMEOUT_MS = 900_000;
 
+/** Guest RAM for emulators this runner starts. See the launch call for why. */
+const ANDROID_EMULATOR_MEMORY_MB = 4096;
+
 export function resolveAndroidSdkRoot(
   environment: Readonly<Record<string, string | undefined>>,
   platform: NodeJS.Platform = NodeProcess.platform,
@@ -351,19 +354,7 @@ async function stopProcess(child: NodeChildProcess.ChildProcess): Promise<void> 
 async function waitForPort(port: number, label = "Process", timeoutMs = 120_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    const open = await new Promise<boolean>((resolve) => {
-      const socket = NodeNet.createConnection({ host: "127.0.0.1", port });
-      socket.once("connect", () => {
-        socket.destroy();
-        resolve(true);
-      });
-      socket.once("error", () => resolve(false));
-      socket.setTimeout(500, () => {
-        socket.destroy();
-        resolve(false);
-      });
-    });
-    if (open) return;
+    if (await isPortInUse(port)) return;
     await delay(500);
   }
   throw new Error(`${label} did not begin listening on port ${port} within ${timeoutMs}ms.`);
@@ -388,6 +379,35 @@ function showcaseMetroEnv(): NodeJS.ProcessEnv {
     EXPO_PUBLIC_REVENUECAT_IOS_API_KEY: "",
     EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY: "",
   };
+}
+
+async function isPortInUse(port: number): Promise<boolean> {
+  return await new Promise<boolean>((resolve) => {
+    const socket = NodeNet.createConnection({ host: "127.0.0.1", port });
+    socket.once("connect", () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.once("error", () => resolve(false));
+    socket.setTimeout(500, () => {
+      socket.destroy();
+      resolve(false);
+    });
+  });
+}
+
+/**
+ * A leftover Metro from an interrupted run still answers on the harness port, so
+ * `expo start` quietly skips its own dev server and `waitForPort` is satisfied by the
+ * stale one. The app then hangs on a blank screen until the scene timeout, 15 minutes
+ * later, with nothing in the log to explain it. Refuse to start instead.
+ */
+async function assertMetroPortFree(port: number): Promise<void> {
+  if (!(await isPortInUse(port))) return;
+  throw new Error(
+    `Port ${port} is already in use, most likely by Metro from an interrupted run. ` +
+      `Stop it and retry, or pass --skip-metro to capture against the server already running there.`,
+  );
 }
 
 function startMetro(config: ShowcaseConfig): NodeChildProcess.ChildProcess {
@@ -426,24 +446,40 @@ async function buildIos(): Promise<string> {
   return IOS_APP_PATH;
 }
 
+/** Absolute: `cmd` does not reliably resolve a bare `gradlew.bat` from the cwd. */
+function gradleWrapperPath(): string {
+  return NodePath.join(
+    NATIVE_ROOT,
+    "android",
+    NodeProcess.platform === "win32" ? "gradlew.bat" : "gradlew",
+  );
+}
+
 async function buildAndroid(abis: readonly string[]): Promise<string> {
   await runCommand(PNPM, ["exec", "expo", "prebuild", "--clean", "--platform", "android"], {
     cwd: NATIVE_ROOT,
     env: showcaseMetroEnv(),
   });
   await runCommand(
-    // Absolute: `cmd` does not reliably resolve a bare `gradlew.bat` from the cwd.
-    NodePath.join(
-      NATIVE_ROOT,
-      "android",
-      NodeProcess.platform === "win32" ? "gradlew.bat" : "gradlew",
-    ),
+    gradleWrapperPath(),
     [
       "app:assembleDebug",
       ...(abis.length > 0 ? [`-PreactNativeArchitectures=${abis.join(",")}`] : []),
+      // Library modules build inside node_modules, and on Windows a daemon left over
+      // from an earlier run keeps their output jars open, so the next run dies with
+      // "Unable to delete file ... classes.jar". File-system watching is what retains
+      // those handles; without it the daemon is still reused, just not as a lock.
+      ...(NodeProcess.platform === "win32" ? ["-Dorg.gradle.vfs.watch=false"] : []),
     ],
     { cwd: NodePath.join(NATIVE_ROOT, "android"), env: showcaseMetroEnv() },
   );
+  // The daemon keeps a multi-gigabyte heap and file handles inside node_modules for
+  // nothing once the APK exists, and the emulator is about to want that memory. Also
+  // spares the next run the locked-jar failure the daemon causes on Windows.
+  await runCommand(gradleWrapperPath(), ["--stop"], {
+    cwd: NodePath.join(NATIVE_ROOT, "android"),
+    env: showcaseMetroEnv(),
+  }).catch(() => undefined);
   return ANDROID_APK_PATH;
 }
 
@@ -773,7 +809,17 @@ async function captureAndroid(
     }
     launchedEmulator = spawnProcess(
       androidSdkTool("emulator/emulator"),
-      ["-avd", capture.device.avd, "-no-snapshot-load", "-no-boot-anim"],
+      [
+        "-avd",
+        capture.device.avd,
+        "-no-snapshot-load",
+        "-no-boot-anim",
+        // AVDs are commonly created with 2 GB, which the dev client outgrows: Android's
+        // low-memory killer reaps the app seconds after launch and the capture then
+        // waits on an empty screen. Overriding here keeps the AVD's own config alone.
+        "-memory",
+        String(ANDROID_EMULATOR_MEMORY_MB),
+      ],
       { stdio: "ignore", detached: true },
     );
     launchedEmulator.unref();
@@ -796,6 +842,15 @@ async function captureAndroid(
     await runAdb(serial, ["reverse", `tcp:${port}`, `tcp:${port}`]);
   }
 
+  // The reverse tunnel accepts connections whether or not anything answers on the
+  // host, so a dead bundler reaches the app as a truncated HTTP response instead of a
+  // refused connection. Checking here names the cause rather than timing out blank.
+  if (!(await isPortInUse(config.metroPort))) {
+    throw new Error(
+      `Nothing is listening on Metro port ${config.metroPort}; the bundler died before the app launched.`,
+    );
+  }
+
   const firstScene = capture.scenes[0]!;
   control.requestScene(firstScene);
   const metroUrl = encodeURIComponent(`http://127.0.0.1:${config.metroPort}`);
@@ -804,6 +859,10 @@ async function captureAndroid(
     "am",
     "start",
     "-W",
+    // Without -S an app left running on a reused emulator swallows the intent as an
+    // ordinary onNewIntent ("delivered to currently running top-most instance") and
+    // keeps whatever bundle it already had, so the capture waits on a blank screen.
+    "-S",
     "-a",
     "android.intent.action.VIEW",
     "-d",
@@ -894,10 +953,8 @@ async function main(): Promise<void> {
   const androidCleanups: AndroidCaptureCleanup[] = [];
 
   try {
-    if (!options.skipMetro) {
-      metro = startMetro(showcaseConfig);
-      await waitForPort(showcaseConfig.metroPort, "Metro");
-    }
+    // Fail before a ten-minute build rather than after it.
+    if (!options.skipMetro) await assertMetroPortFree(showcaseConfig.metroPort);
 
     const iosAppPath = hasIos
       ? options.skipBuild
@@ -912,6 +969,17 @@ async function main(): Promise<void> {
         ? await existingArtifact(ANDROID_APK_PATH)
         : await buildAndroid([...new Set(androidAbis)])
       : null;
+
+    // Only now: `expo prebuild --clean` deletes and regenerates the native directory,
+    // and doing that under Metro's file watcher corrupts its file map and can take the
+    // dev server down. The app then gets an empty reply through the adb reverse tunnel
+    // ("unexpected end of stream on http://127.0.0.1:<port>") and never boots. Nothing
+    // before this point needs a bundler.
+    if (!options.skipMetro) {
+      metro = startMetro(showcaseConfig);
+      // A cold file-map crawl on Windows runs well past the default wait.
+      await waitForPort(showcaseConfig.metroPort, "Metro", 300_000);
+    }
 
     for (const capture of captures) {
       if (capture.device.platform === "ios") {
