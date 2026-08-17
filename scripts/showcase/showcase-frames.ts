@@ -255,35 +255,48 @@ async function buildCloud(
   const seed = lines.join("|");
   const fontSize = Math.round(30 * layout.scale);
   const lineHeight = Math.round(fontSize * 1.333);
-  // Tight, because the body is only the ring the lobes are seated on — it is never drawn.
-  // The visible breathing room is the notch between two lobes, which sits a further
-  // sqrt(r² - (spacing/2)²) outside this box, so the text is generously clear of the
-  // silhouette even with almost no padding of its own.
+  // The body is only the ring the lobes are seated on — it is never drawn — so its padding
+  // is almost nothing and the puff supplies the breathing room instead.
   const padX = Math.round(12 * layout.scale);
   const padY = Math.round(4 * layout.scale);
   const bodyWidth =
     Math.round(Math.max(...lines.map((line) => measure(line, fontSize, 0.56)))) + padX * 2;
   const bodyHeight = lines.length * lineHeight + padY * 2;
 
-  // Scaled off the body, so shrinking the padding shrinks the whole cloud without
-  // flattening its puff into a finely scalloped pill.
-  const baseRadius = bodyHeight * 0.42;
+  const baseRadius = bodyHeight * 0.34;
   // Puffier above than below, the way the weather-cloud icons are drawn.
   const rise = 1.09;
   const fall = 0.9;
   const wobbleRange = 0.3;
-  const inset = Math.ceil(baseRadius * rise * (0.85 + wobbleRange)) + 2;
+  const spacing = baseRadius * 1.35;
+  const maxRadius = baseRadius * rise * (0.85 + wobbleRange);
 
-  const perimeter = 2 * Math.max(0, bodyWidth - bodyHeight) + Math.PI * bodyHeight;
-  const count = Math.max(8, Math.round(perimeter / (baseRadius * 1.5)));
+  /**
+   * The lobe ring is pulled inside the text box so the puff hugs the text rather than
+   * ballooning around it. That trades away the guarantee a ring seated exactly on the box
+   * would give, so the pull is capped at a fraction of the shallowest notch two lobes can
+   * leave — the wobble's smallest radius at the widest spacing. Whatever the wobble does,
+   * a fifth of that notch still clears the box, and the text sits inside it with its
+   * padding and line leading on top.
+   */
+  const shallowestNotch = Math.sqrt(
+    Math.max(0, (baseRadius * fall * 0.85) ** 2 - (spacing / 2) ** 2),
+  );
+  const seat = Math.max(0, Math.floor(Math.min(baseRadius * 0.34, shallowestNotch * 0.8)));
+  const inset = Math.ceil(maxRadius) - seat + 2;
+
+  const seatWidth = bodyWidth - seat * 2;
+  const seatHeight = bodyHeight - seat * 2;
+  const perimeter = 2 * Math.max(0, seatWidth - seatHeight) + Math.PI * seatHeight;
+  const count = Math.max(8, Math.round(perimeter / spacing));
   const lobes: Lobe[] = Array.from({ length: count }, (_, index) => {
-    const seat = stadiumPoint(bodyWidth, bodyHeight, (perimeter * index) / count);
+    const point = stadiumPoint(seatWidth, seatHeight, (perimeter * index) / count);
     return {
-      x: seat.x + inset,
-      y: seat.y + inset,
+      x: point.x + inset + seat,
+      y: point.y + inset + seat,
       r:
         baseRadius *
-        (seat.y < bodyHeight / 2 ? rise : fall) *
+        (point.y < seatHeight / 2 ? rise : fall) *
         (0.85 + wobble(seed, index) * wobbleRange),
     };
   });
