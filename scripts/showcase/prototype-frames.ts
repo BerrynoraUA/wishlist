@@ -31,12 +31,25 @@ const SAFE = 72; // side margin for headline text
 const BLACK_FONT = "Segoe UI Black, Segoe UI, Arial Black, Helvetica, sans-serif";
 const TEXT_FONT = "Segoe UI Semibold, Segoe UI, Helvetica Neue, Arial, sans-serif";
 
-interface ScenePill {
-  readonly text: string;
-  /** Which edge the pill hangs off, so it breaks the device outline rather than floating inside it. */
+interface SceneCallout {
+  /** Pre-broken so the cloud never has to guess where a line should wrap. */
+  readonly lines: readonly string[];
+  /** Which edge the cloud hangs off, so it breaks the device outline rather than floating inside it. */
   readonly side: "left" | "right";
-  /** Fraction of the device height the pill's centre sits at. */
-  readonly at: number;
+  /**
+   * The thing on the screen this explains, in 0–1 screen coordinates. The tail is drawn
+   * from the cloud to this point, so a callout is always tied to something the reader
+   * can see rather than floating as an unattached claim. Aim at the blank space beside
+   * the element, never at its middle — a dot on top of the label hides the very thing
+   * the cloud is drawing attention to.
+   */
+  readonly anchor: { x: number; y: number };
+  /**
+   * Where the cloud sits relative to its anchor, in fractions of the screen height.
+   * Negative is above. Kept per callout so the tails point up as often as down and the
+   * clouds land at different heights across the gallery.
+   */
+  readonly lift: number;
 }
 
 interface SceneCopy {
@@ -45,12 +58,13 @@ interface SceneCopy {
   readonly accentLine: number;
   readonly sub: string;
   /**
-   * Floating pills. Each says something the screen behind it does not already say —
-   * repeating a visible number teaches the reader nothing, so these carry strengths of
-   * the app the current screen cannot show. Heights and sides vary per scene so the
-   * gallery does not read as the same stamp seven times.
+   * Clouds pointing at real elements of the screen behind them. Each names something
+   * visible and then says what it *means* — "3 Reserved" is a number the reader can
+   * already count, but that it stops two people buying the same present is the part the
+   * screen cannot tell them. Restating a visible label teaches nothing; explaining it
+   * is the whole job.
    */
-  readonly pills: readonly ScenePill[];
+  readonly callouts: readonly SceneCallout[];
   /** Region of the screenshot worth zooming into, in 0–1 screen coordinates. */
   readonly focus: { x: number; y: number; width: number; height: number };
 }
@@ -65,9 +79,19 @@ const COPY: Record<ShowcaseScene, SceneCopy> = {
     lines: ["Never lose a", "gift idea again"],
     accentLine: 1,
     sub: "Save from any shop in two taps.",
-    pills: [
-      { text: "Save from any shop", side: "left", at: 0.27 },
-      { text: "Birthdays never sneak up", side: "right", at: 0.63 },
+    callouts: [
+      {
+        lines: ["Gifts you claimed, so", "nobody buys it twice"],
+        side: "left",
+        anchor: { x: 0.3, y: 0.352 },
+        lift: 0.14,
+      },
+      {
+        lines: ["Only friends you accept", "can open this list"],
+        side: "right",
+        anchor: { x: 0.675, y: 0.716 },
+        lift: -0.1,
+      },
     ],
     focus: { x: 0.5, y: 0.168, width: 0.46, height: 0.128 },
   },
@@ -75,9 +99,19 @@ const COPY: Record<ShowcaseScene, SceneCopy> = {
     lines: ["Get the exact", "one you wanted"],
     accentLine: 1,
     sub: "Size, colour and price saved with it.",
-    pills: [
-      { text: "Price drops show up", side: "right", at: 0.3 },
-      { text: "Reservations stay hidden", side: "left", at: 0.68 },
+    callouts: [
+      {
+        lines: ["They flag what they", "want most"],
+        side: "right",
+        anchor: { x: 0.775, y: 0.453 },
+        lift: -0.09,
+      },
+      {
+        lines: ["You pick who sees the", "list, and when it lands"],
+        side: "left",
+        anchor: { x: 0.253, y: 0.298 },
+        lift: 0.19,
+      },
     ],
     focus: { x: 0.02, y: 0.241, width: 0.48, height: 0.062 },
   },
@@ -85,16 +119,41 @@ const COPY: Record<ShowcaseScene, SceneCopy> = {
     lines: ["Paste a link.", "It fills itself in."],
     accentLine: 1,
     sub: "Name, photo and price, pulled from the shop.",
-    pills: [{ text: "Works on any store", side: "left", at: 0.24 }],
+    callouts: [
+      // Both anchors sit in the empty right-hand end of their field. Pointing at the left
+      // end would drag the bubble trail across the value the reader is meant to read.
+      {
+        lines: ["This link is the only", "thing you typed"],
+        side: "right",
+        anchor: { x: 0.72, y: 0.338 },
+        lift: -0.16,
+      },
+      {
+        lines: ["Name, photo and price", "arrived from the shop"],
+        side: "left",
+        anchor: { x: 0.3, y: 0.866 },
+        lift: -0.125,
+      },
+    ],
     focus: { x: 0.04, y: 0.402, width: 0.64, height: 0.082 },
   },
   discover: {
     lines: ["Know exactly", "what to buy them"],
     accentLine: 1,
     sub: "Every friend's list, always current.",
-    pills: [
-      { text: "Filter by budget", side: "right", at: 0.26 },
-      { text: "They never see who reserved", side: "left", at: 0.74 },
+    callouts: [
+      {
+        lines: ["Nine days' warning,", "not a same-day panic"],
+        side: "left",
+        anchor: { x: 0.72, y: 0.2545 },
+        lift: -0.108,
+      },
+      {
+        lines: ["Greyed out means taken", "— and they never know"],
+        side: "right",
+        anchor: { x: 0.88, y: 0.66 },
+        lift: -0.075,
+      },
     ],
     focus: { x: 0.03, y: 0.345, width: 0.66, height: 0.068 },
   },
@@ -102,16 +161,41 @@ const COPY: Record<ShowcaseScene, SceneCopy> = {
     lines: ["Never guess a", "present again"],
     accentLine: 1,
     sub: "Their lists update as they add to them.",
-    pills: [{ text: "You choose who sees what", side: "left", at: 0.35 }],
+    callouts: [
+      {
+        lines: ["Nobody sees your lists", "until you accept them"],
+        side: "right",
+        anchor: { x: 0.757, y: 0.152 },
+        lift: 0.09,
+      },
+      // Right side again, unusually: every row here puts its avatar and name hard against
+      // the left edge, so a left-hanging cloud can only land on top of a name.
+      {
+        lines: ["Three lists to browse", "instead of guessing"],
+        side: "right",
+        anchor: { x: 0.52, y: 0.604 },
+        lift: -0.105,
+      },
+    ],
     focus: { x: 0.06, y: 0.178, width: 0.5, height: 0.128 },
   },
   "secret-santa": {
     lines: ["Secret Santa that", "runs itself"],
     accentLine: 1,
     sub: "Draw names, set a budget, done.",
-    pills: [
-      { text: "Names drawn for you", side: "right", at: 0.38 },
-      { text: "Invite with a link", side: "left", at: 0.72 },
+    callouts: [
+      {
+        lines: ["One budget everyone", "shops to"],
+        side: "left",
+        anchor: { x: 0.235, y: 0.431 },
+        lift: 0.1,
+      },
+      {
+        lines: ["Six people in, names", "drawn for you"],
+        side: "right",
+        anchor: { x: 0.632, y: 0.738 },
+        lift: -0.1,
+      },
     ],
     focus: { x: 0.05, y: 0.366, width: 0.47, height: 0.092 },
   },
@@ -119,10 +203,24 @@ const COPY: Record<ShowcaseScene, SceneCopy> = {
     lines: ["Names drawn.", "Nobody knows."],
     accentLine: 1,
     sub: "Everyone sees their person, and only theirs.",
-    pills: [{ text: "Only you see your match", side: "left", at: 0.8 }],
+    // One cloud only. The screen is already a stack of cards with nothing spare to cover,
+    // and the match secrecy is the single claim worth making here.
+    callouts: [
+      {
+        lines: ["Only you see this name.", "Everyone else sees theirs"],
+        side: "right",
+        anchor: { x: 0.62, y: 0.323 },
+        lift: -0.115,
+      },
+    ],
     focus: { x: 0.075, y: 0.272, width: 0.62, height: 0.115 },
   },
 };
+
+/** V4 and V5 carry a single line of supporting copy rather than a cloud. */
+function firstCalloutText(copy: SceneCopy): string {
+  return copy.callouts[0]?.lines.join(" ") ?? "";
+}
 
 function escapeXml(value: string): string {
   return value.replace(
@@ -495,7 +593,7 @@ const vivid: Variation = async (scene, screen) => {
   const deviceX = Math.round((W - device.width) / 2);
   const deviceY = 600;
 
-  const chipText = copy.pills[0]?.text ?? "";
+  const chipText = firstCalloutText(copy);
   const chipWidth = Math.round(measure(chipText, 34, 0.55)) + 72;
   const chipY = 250 + lineHeight * copy.lines.length + 6;
 
@@ -548,7 +646,7 @@ const marker: Variation = async (scene, screen) => {
   const swash = `<g transform="rotate(-1.1 ${centerX} ${accentBaseline - size * 0.3})"><rect x="${centerX - accentWidth / 2}" y="${accentBaseline - size * 0.78}" width="${accentWidth}" height="${Math.round(size * 0.98)}" rx="${Math.round(size * 0.18)}" fill="#FF3D8B" opacity="0.3" /></g>`;
 
   const pillHeight = 92;
-  const pillText = copy.pills[0]?.text ?? "";
+  const pillText = firstCalloutText(copy);
   const pillWidth = Math.round(measure(pillText, 36, 0.55)) + 96;
   const pillX = -30;
   const pillY = 1000;
@@ -589,27 +687,225 @@ const marker: Variation = async (scene, screen) => {
  */
 const DEVICE_HEIGHT_PER_WIDTH = (1 - 0.021 * 2) * (H / W) + 0.021 * 2;
 
-/** Pills hang off the device edge; the overhang is what makes them read as floating. */
-async function buildPill(text: string): Promise<{ image: Buffer; width: number; height: number }> {
-  const height = 84;
-  const width = Math.round(measure(text, 32, 0.55)) + 88;
+/**
+ * Deterministic 0–1 wobble. The bumps have to look hand-drawn rather than stamped, but a
+ * frame that renders differently on every run cannot be diffed, so this stands in for
+ * randomness.
+ */
+function wobble(seed: string, index: number): number {
+  let hash = 2166136261;
+  for (const character of `${seed}#${index}`) {
+    hash = ((hash ^ character.charCodeAt(0)) * 16777619) >>> 0;
+  }
+  return (hash % 1000) / 1000;
+}
+
+const CLOUD_FILL = "#FFFFFF";
+const CLOUD_INK = "#1D0F16";
+const CLOUD_ACCENT = "#FF2E88";
+
+interface Point {
+  readonly x: number;
+  readonly y: number;
+}
+
+interface Lobe extends Point {
+  readonly r: number;
+}
+
+/**
+ * Point at arc length `t` clockwise around a stadium of this size, starting where its top
+ * edge leaves the left cap. Lobe centres ride this curve, and because they sit exactly on
+ * the text box's own outline every notch between two lobes falls outside it — so the text
+ * can never be clipped by the silhouette however the lobes are sized.
+ */
+function stadiumPoint(width: number, height: number, t: number): Point {
+  const radius = height / 2;
+  const straight = Math.max(0, width - height);
+  const cap = Math.PI * radius;
+  if (t < straight) return { x: radius + t, y: 0 };
+  if (t < straight + cap) {
+    const angle = -Math.PI / 2 + (t - straight) / radius;
+    return { x: width - radius + radius * Math.cos(angle), y: radius + radius * Math.sin(angle) };
+  }
+  if (t < 2 * straight + cap) return { x: width - radius - (t - straight - cap), y: height };
+  const angle = Math.PI / 2 + (t - 2 * straight - cap) / radius;
+  return { x: radius + radius * Math.cos(angle), y: radius + radius * Math.sin(angle) };
+}
+
+/** Where two overlapping lobes cross on the outside, i.e. furthest from `away`. */
+function lobeCrossing(a: Lobe, b: Lobe, away: Point): Point {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const span = Math.hypot(dx, dy);
+  const along = (span * span + a.r * a.r - b.r * b.r) / (2 * span);
+  const off = Math.sqrt(Math.max(0, a.r * a.r - along * along));
+  const base = { x: a.x + (along * dx) / span, y: a.y + (along * dy) / span };
+  const perpendicular = { x: -dy / span, y: dx / span };
+  const outward = { x: base.x + off * perpendicular.x, y: base.y + off * perpendicular.y };
+  const inward = { x: base.x - off * perpendicular.x, y: base.y - off * perpendicular.y };
+  return Math.hypot(outward.x - away.x, outward.y - away.y) >=
+    Math.hypot(inward.x - away.x, inward.y - away.y)
+    ? outward
+    : inward;
+}
+
+/**
+ * The outline of a union of overlapping circles, as one closed path: each lobe contributes
+ * the single arc running between where it crosses the lobe before it and the lobe after
+ * it. Twemoji's thought balloon (U+1F4AD) is drawn exactly this way — one path of arcs for
+ * the body, separate circles only for the trail — and Font Awesome's cloud is the same
+ * idea with a flat base. Tracing the outline instead of stacking discs means there is one
+ * shape rather than a dozen, no interior seams to hide behind an opaque fill, and a stroke
+ * would follow the silhouette if one is ever wanted.
+ */
+function cloudPath(lobes: readonly Lobe[], centre: Point): string {
+  const crossings = lobes.map((lobe, index) =>
+    lobeCrossing(lobe, lobes[(index + 1) % lobes.length]!, centre),
+  );
+  const start = crossings[crossings.length - 1]!;
+  const arcs = lobes.map((lobe, index) => {
+    const from = crossings[(index + lobes.length - 1) % lobes.length]!;
+    const to = crossings[index]!;
+    const turn =
+      Math.atan2(to.y - lobe.y, to.x - lobe.x) - Math.atan2(from.y - lobe.y, from.x - lobe.x);
+    // Lobes are ordered clockwise on screen, so sweep is always 1; whether the exposed arc
+    // is the major one depends on how much of the lobe its neighbours cover.
+    const clockwise = ((turn % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    const radius = lobe.r.toFixed(2);
+    return `A${radius} ${radius} 0 ${clockwise > Math.PI ? 1 : 0} 1 ${to.x.toFixed(2)} ${to.y.toFixed(2)}`;
+  });
+  return `M${start.x.toFixed(2)} ${start.y.toFixed(2)}${arcs.join("")}Z`;
+}
+
+interface Cloud {
+  readonly image: Buffer;
+  readonly width: number;
+  readonly height: number;
+  /** Distance from the cloud's bounding box to its text body, so a tail starts on the body. */
+  readonly inset: number;
+}
+
+/** A speech cloud sized to its text: one path, one shape. */
+async function buildCloud(lines: readonly string[], seed: string): Promise<Cloud> {
+  const fontSize = 30;
+  const lineHeight = 40;
+  // Tight, because the body is only the ring the lobes are seated on — it is never drawn.
+  // The visible breathing room is the notch between two lobes, which sits a further
+  // sqrt(r² - (spacing/2)²) outside this box, so the text is generously clear of the
+  // silhouette even with almost no padding of its own.
+  const padX = 12;
+  const padY = 4;
+  const bodyWidth =
+    Math.round(Math.max(...lines.map((line) => measure(line, fontSize, 0.56)))) + padX * 2;
+  const bodyHeight = lines.length * lineHeight + padY * 2;
+
+  // Scaled off the body, so shrinking the padding shrinks the whole cloud without
+  // flattening its puff into a finely scalloped pill.
+  const baseRadius = bodyHeight * 0.42;
+  // Puffier above than below, the way the weather-cloud icons are drawn.
+  const rise = 1.09;
+  const fall = 0.9;
+  const wobbleRange = 0.3;
+  const inset = Math.ceil(baseRadius * rise * (0.85 + wobbleRange)) + 2;
+
+  const perimeter = 2 * Math.max(0, bodyWidth - bodyHeight) + Math.PI * bodyHeight;
+  const count = Math.max(8, Math.round(perimeter / (baseRadius * 1.5)));
+  const lobes: Lobe[] = Array.from({ length: count }, (_, index) => {
+    const seat = stadiumPoint(bodyWidth, bodyHeight, (perimeter * index) / count);
+    return {
+      x: seat.x + inset,
+      y: seat.y + inset,
+      r: baseRadius * (seat.y < bodyHeight / 2 ? rise : fall) * (0.85 + wobble(seed, index) * wobbleRange),
+    };
+  });
+
+  const width = bodyWidth + inset * 2;
+  const height = bodyHeight + inset * 2;
+  const path = cloudPath(lobes, { x: width / 2, y: height / 2 });
+
+  const text = lines
+    .map((line, index) => {
+      const baseline =
+        inset + padY + lineHeight * (index + 0.5) + fontSize * 0.36 - (lineHeight - fontSize) / 2;
+      return `<text x="${inset + bodyWidth / 2}" y="${baseline.toFixed(1)}" text-anchor="middle" font-family="${TEXT_FONT}" font-size="${fontSize}" font-weight="700" fill="${CLOUD_INK}">${escapeXml(line)}</text>`;
+    })
+    .join("\n  ");
+
   const image = await sharp(
     Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-  <rect width="${width}" height="${height}" rx="${height / 2}" fill="#FFFFFF" />
-  <circle cx="${height / 2 + 14}" cy="${height / 2}" r="13" fill="#FF2E88" />
-  <text x="${height / 2 + 38}" y="${height / 2 + 12}" font-family="${TEXT_FONT}" font-size="32" font-weight="700" fill="#1D0F16">${escapeXml(text)}</text>
+  <path d="${path}" fill="${CLOUD_FILL}" />
+  ${text}
 </svg>`),
   )
     .png()
     .toBuffer();
-  return { image, width, height };
+
+  return { image, width, height, inset };
+}
+
+interface ScreenRect {
+  readonly left: number;
+  readonly top: number;
+  readonly width: number;
+  readonly height: number;
 }
 
 /**
- * V6 — V5's highlighter headline and floating pills, with the device shown whole rather
- * than bled off the bottom. The device is sized from the space the headline leaves, so
- * the phone is always complete. No ring or pull-out: marking a region and then
- * reprinting it beside the phone only restated what was already legible.
+ * One callout drawn onto its own full-canvas layer: the cloud, the shrinking bubbles
+ * that carry it back to the element it is about, and a dot on that element. Keeping the
+ * whole callout in one layer means a single shadow pass covers the cloud and its tail,
+ * so the trail keeps reading as one object over whatever it crosses.
+ */
+async function buildCallout(callout: SceneCallout, screen: ScreenRect): Promise<Buffer> {
+  const cloud = await buildCloud(callout.lines, callout.lines.join("|"));
+  const anchorX = screen.left + callout.anchor.x * screen.width;
+  const anchorY = screen.top + callout.anchor.y * screen.height;
+
+  // Kept whole inside the canvas. A pill could bleed off the edge and still look
+  // deliberate, but a lobe sliced flat by the frame edge just looks like a clipping bug.
+  // The cloud still breaks the device outline, which is what made the overhang worth
+  // having — the phone is narrower than the frame.
+  const margin = 10;
+  const left = callout.side === "left" ? margin : W - cloud.width - margin;
+  const wanted = anchorY + callout.lift * screen.height - cloud.height / 2;
+  const top = Math.round(Math.min(Math.max(wanted, 24), H - cloud.height - 24));
+
+  // Leave from the body's inner face, so the first bubble is never stranded in the
+  // transparent corner of the cloud's bounding box.
+  const fromX = callout.side === "left" ? left + cloud.width - cloud.inset : left + cloud.inset;
+  const fromY = top + cloud.height / 2;
+
+  const bubbles = [
+    { at: 0.3, radius: 19 },
+    { at: 0.56, radius: 12.5 },
+    { at: 0.8, radius: 8 },
+  ]
+    .map(
+      (bubble) =>
+        `<circle cx="${(fromX + (anchorX - fromX) * bubble.at).toFixed(1)}" cy="${(fromY + (anchorY - fromY) * bubble.at).toFixed(1)}" r="${bubble.radius}" fill="${CLOUD_FILL}" />`,
+    )
+    .join("\n  ");
+
+  const tail = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
+  ${bubbles}
+  <circle cx="${anchorX.toFixed(1)}" cy="${anchorY.toFixed(1)}" r="12" fill="${CLOUD_FILL}" />
+  <circle cx="${anchorX.toFixed(1)}" cy="${anchorY.toFixed(1)}" r="7" fill="${CLOUD_ACCENT}" />
+</svg>`;
+
+  const placed = await clip(cloud.image, left, top);
+  return sharp(Buffer.from(tail))
+    .composite(placed ? [placed] : [])
+    .png()
+    .toBuffer();
+}
+
+/**
+ * V6 — V5's highlighter headline over a whole device, annotated with speech clouds. The
+ * device is sized from the space the headline leaves, so the phone is always complete.
+ * Each cloud trails bubbles back to the element it explains: a floating claim beside a
+ * screenshot makes the reader hunt for what it refers to, and a zoomed pull-out only
+ * reprinted something already legible.
  */
 const marked: Variation = async (scene, screen) => {
   const copy = COPY[scene];
@@ -638,22 +934,26 @@ const marked: Variation = async (scene, screen) => {
   ${headlineSvg({ lines: copy.lines, accentLine: -1, size, lineHeight, baseline, color: "#1D0F16", accentColor: "#1D0F16" })}
 </svg>`;
 
-  const overhang = 28;
-  const pillLayers: sharp.OverlayOptions[] = [];
-  for (const spec of copy.pills) {
-    const pill = await buildPill(spec.text);
-    const left = spec.side === "left" ? -overhang : W - pill.width + overhang;
-    const top = Math.round(deviceY + device.height * spec.at - pill.height / 2);
-    const shadow = await shadowFor(pill.image, left, top, { blur: 16, opacity: 0.28, dy: 12 });
-    const placed = await clip(pill.image, left, top);
-    if (shadow) pillLayers.push(shadow);
-    if (placed) pillLayers.push(placed);
+  const bezel = Math.max(8, Math.round(device.width * 0.021));
+  const screenRect: ScreenRect = {
+    left: deviceX + bezel,
+    top: deviceY + bezel,
+    width: device.width - bezel * 2,
+    height: device.height - bezel * 2,
+  };
+
+  const calloutLayers: sharp.OverlayOptions[] = [];
+  for (const callout of copy.callouts) {
+    const layer = await buildCallout(callout, screenRect);
+    const shadow = await shadowFor(layer, 0, 0, { blur: 14, opacity: 0.24, dy: 10 });
+    if (shadow) calloutLayers.push(shadow);
+    calloutLayers.push({ input: layer, left: 0, top: 0 });
   }
 
   const layers = [
     await shadowFor(device.image, deviceX, deviceY, { blur: 32, opacity: 0.28, dy: 24 }),
     await clip(device.image, deviceX, deviceY),
-    ...pillLayers,
+    ...calloutLayers,
   ].filter(Boolean) as sharp.OverlayOptions[];
 
   return sharp(Buffer.from(background))
