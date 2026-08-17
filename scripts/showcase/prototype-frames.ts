@@ -1,5 +1,5 @@
 /**
- * Throwaway prototype: five Cal-AI-style frame treatments for the store showcase.
+ * Throwaway prototype: six Cal-AI-style frame treatments for the store showcase.
  *
  *     node scripts/showcase/prototype-frames.ts
  *
@@ -17,6 +17,7 @@ import sharp from "sharp";
 
 import { computeFrameLayout } from "./showcase-frames.ts";
 import { SHOWCASE_SCENES, type ShowcaseScene } from "./showcase.config.ts";
+import { showcaseSceneFileStem } from "../../packages/backend/supabase/showcase/constants.ts";
 
 const ROOT = path.resolve(import.meta.dirname, "../..");
 const CAPTURES = path.join(ROOT, "apps/native/artifacts/screenshots/google-play/phone/light");
@@ -30,44 +31,96 @@ const SAFE = 72; // side margin for headline text
 const BLACK_FONT = "Segoe UI Black, Segoe UI, Arial Black, Helvetica, sans-serif";
 const TEXT_FONT = "Segoe UI Semibold, Segoe UI, Helvetica Neue, Arial, sans-serif";
 
+interface ScenePill {
+  readonly text: string;
+  /** Which edge the pill hangs off, so it breaks the device outline rather than floating inside it. */
+  readonly side: "left" | "right";
+  /** Fraction of the device height the pill's centre sits at. */
+  readonly at: number;
+}
+
 interface SceneCopy {
   readonly lines: readonly string[];
   /** Line rendered in the accent colour / under the highlighter. */
   readonly accentLine: number;
   readonly sub: string;
-  readonly chip: string;
+  /**
+   * Floating pills. Each says something the screen behind it does not already say —
+   * repeating a visible number teaches the reader nothing, so these carry strengths of
+   * the app the current screen cannot show. Heights and sides vary per scene so the
+   * gallery does not read as the same stamp seven times.
+   */
+  readonly pills: readonly ScenePill[];
   /** Region of the screenshot worth zooming into, in 0–1 screen coordinates. */
   readonly focus: { x: number; y: number; width: number; height: number };
 }
 
+/**
+ * Headlines name the outcome the reader gets, not the feature that produces it — a
+ * store listing is read in about a second, and "never guess a present again" lands in
+ * that second where "friends list sync" does not.
+ */
 const COPY: Record<ShowcaseScene, SceneCopy> = {
   wishlists: {
-    lines: ["The links you", "meant to keep"],
+    lines: ["Never lose a", "gift idea again"],
     accentLine: 1,
     sub: "Save from any shop in two taps.",
-    chip: "4 lists · 12 items",
+    pills: [
+      { text: "Save from any shop", side: "left", at: 0.27 },
+      { text: "Birthdays never sneak up", side: "right", at: 0.63 },
+    ],
     focus: { x: 0.5, y: 0.168, width: 0.46, height: 0.128 },
   },
   wishlist: {
-    lines: ["Sizes, colours,", "prices — all there"],
+    lines: ["Get the exact", "one you wanted"],
     accentLine: 1,
-    sub: "Every detail you saved, ready to shop.",
-    chip: "6 items · priorities",
+    sub: "Size, colour and price saved with it.",
+    pills: [
+      { text: "Price drops show up", side: "right", at: 0.3 },
+      { text: "Reservations stay hidden", side: "left", at: 0.68 },
+    ],
     focus: { x: 0.02, y: 0.241, width: 0.48, height: 0.062 },
   },
-  friends: {
-    lines: ["Know what they", "actually want"],
+  "item-link": {
+    lines: ["Paste a link.", "It fills itself in."],
     accentLine: 1,
-    sub: "Friends' lists, always up to date.",
-    chip: "5 friends · 6 mutual",
+    sub: "Name, photo and price, pulled from the shop.",
+    pills: [{ text: "Works on any store", side: "left", at: 0.24 }],
+    focus: { x: 0.04, y: 0.402, width: 0.64, height: 0.082 },
+  },
+  discover: {
+    lines: ["Know exactly", "what to buy them"],
+    accentLine: 1,
+    sub: "Every friend's list, always current.",
+    pills: [
+      { text: "Filter by budget", side: "right", at: 0.26 },
+      { text: "They never see who reserved", side: "left", at: 0.74 },
+    ],
+    focus: { x: 0.03, y: 0.345, width: 0.66, height: 0.068 },
+  },
+  friends: {
+    lines: ["Never guess a", "present again"],
+    accentLine: 1,
+    sub: "Their lists update as they add to them.",
+    pills: [{ text: "You choose who sees what", side: "left", at: 0.35 }],
     focus: { x: 0.06, y: 0.178, width: 0.5, height: 0.128 },
   },
   "secret-santa": {
-    lines: ["Secret Santa", "without the group chat"],
-    accentLine: 0,
+    lines: ["Secret Santa that", "runs itself"],
+    accentLine: 1,
     sub: "Draw names, set a budget, done.",
-    chip: "4 participants · GBP 50",
+    pills: [
+      { text: "Names drawn for you", side: "right", at: 0.38 },
+      { text: "Invite with a link", side: "left", at: 0.72 },
+    ],
     focus: { x: 0.05, y: 0.366, width: 0.47, height: 0.092 },
+  },
+  "secret-santa-event": {
+    lines: ["Names drawn.", "Nobody knows."],
+    accentLine: 1,
+    sub: "Everyone sees their person, and only theirs.",
+    pills: [{ text: "Only you see your match", side: "left", at: 0.8 }],
+    focus: { x: 0.075, y: 0.272, width: 0.62, height: 0.115 },
   },
 };
 
@@ -442,7 +495,8 @@ const vivid: Variation = async (scene, screen) => {
   const deviceX = Math.round((W - device.width) / 2);
   const deviceY = 600;
 
-  const chipWidth = Math.round(measure(copy.chip, 34, 0.55)) + 72;
+  const chipText = copy.pills[0]?.text ?? "";
+  const chipWidth = Math.round(measure(chipText, 34, 0.55)) + 72;
   const chipY = 250 + lineHeight * copy.lines.length + 6;
 
   const background = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
@@ -456,7 +510,7 @@ const vivid: Variation = async (scene, screen) => {
   <circle cx="180" cy="130" r="460" fill="url(#haze)" />
   ${headlineSvg({ lines: copy.lines, accentLine: copy.accentLine, size, lineHeight, baseline: 250, color: "#FFFFFF", accentColor: "#FFD766" })}
   <rect x="${Math.round((W - chipWidth) / 2)}" y="${chipY}" width="${chipWidth}" height="66" rx="33" fill="#FFFFFF" opacity="0.2" />
-  <text x="${W / 2}" y="${chipY + 45}" text-anchor="middle" font-family="${TEXT_FONT}" font-size="34" font-weight="600" fill="#FFFFFF">${escapeXml(copy.chip)}</text>
+  <text x="${W / 2}" y="${chipY + 45}" text-anchor="middle" font-family="${TEXT_FONT}" font-size="34" font-weight="600" fill="#FFFFFF">${escapeXml(chipText)}</text>
 </svg>`;
 
   const layers = [
@@ -494,14 +548,15 @@ const marker: Variation = async (scene, screen) => {
   const swash = `<g transform="rotate(-1.1 ${centerX} ${accentBaseline - size * 0.3})"><rect x="${centerX - accentWidth / 2}" y="${accentBaseline - size * 0.78}" width="${accentWidth}" height="${Math.round(size * 0.98)}" rx="${Math.round(size * 0.18)}" fill="#FF3D8B" opacity="0.3" /></g>`;
 
   const pillHeight = 92;
-  const pillWidth = Math.round(measure(copy.chip, 36, 0.55)) + 96;
+  const pillText = copy.pills[0]?.text ?? "";
+  const pillWidth = Math.round(measure(pillText, 36, 0.55)) + 96;
   const pillX = -30;
   const pillY = 1000;
   const pill = await sharp(
     Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${pillWidth}" height="${pillHeight}">
   <rect width="${pillWidth}" height="${pillHeight}" rx="${pillHeight / 2}" fill="#FFFFFF" />
   <circle cx="${pillHeight / 2 + 12}" cy="${pillHeight / 2}" r="15" fill="#FF2E88" />
-  <text x="${pillHeight / 2 + 40}" y="${pillHeight / 2 + 13}" font-family="${TEXT_FONT}" font-size="36" font-weight="700" fill="#1D0F16">${escapeXml(copy.chip)}</text>
+  <text x="${pillHeight / 2 + 40}" y="${pillHeight / 2 + 13}" font-family="${TEXT_FONT}" font-size="36" font-weight="700" fill="#1D0F16">${escapeXml(pillText)}</text>
 </svg>`),
   )
     .png()
@@ -528,30 +583,111 @@ const marker: Variation = async (scene, screen) => {
     .toBuffer();
 };
 
+/**
+ * Height a device of this width occupies, bezels included, so a layout can solve for
+ * the width that exactly fills the space left over after the headline.
+ */
+const DEVICE_HEIGHT_PER_WIDTH = (1 - 0.021 * 2) * (H / W) + 0.021 * 2;
+
+/** Pills hang off the device edge; the overhang is what makes them read as floating. */
+async function buildPill(text: string): Promise<{ image: Buffer; width: number; height: number }> {
+  const height = 84;
+  const width = Math.round(measure(text, 32, 0.55)) + 88;
+  const image = await sharp(
+    Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+  <rect width="${width}" height="${height}" rx="${height / 2}" fill="#FFFFFF" />
+  <circle cx="${height / 2 + 14}" cy="${height / 2}" r="13" fill="#FF2E88" />
+  <text x="${height / 2 + 38}" y="${height / 2 + 12}" font-family="${TEXT_FONT}" font-size="32" font-weight="700" fill="#1D0F16">${escapeXml(text)}</text>
+</svg>`),
+  )
+    .png()
+    .toBuffer();
+  return { image, width, height };
+}
+
+/**
+ * V6 — V5's highlighter headline and floating pills, with the device shown whole rather
+ * than bled off the bottom. The device is sized from the space the headline leaves, so
+ * the phone is always complete. No ring or pull-out: marking a region and then
+ * reprinting it beside the phone only restated what was already legible.
+ */
+const marked: Variation = async (scene, screen) => {
+  const copy = COPY[scene];
+  const size = fitFontSize(copy.lines, W - 128, 78);
+  const lineHeight = Math.round(size * 1.06);
+  const baseline = 138;
+  const headlineBottom = baseline + (copy.lines.length - 1) * lineHeight + Math.round(size * 0.28);
+
+  const topGap = 34;
+  const bottomMargin = 44;
+  const deviceTop = headlineBottom + topGap;
+  const available = H - deviceTop - bottomMargin;
+  const deviceWidth = Math.min(W - 80, Math.floor(available / DEVICE_HEIGHT_PER_WIDTH));
+  const device = await buildDevice(screen, { width: deviceWidth });
+  const deviceX = Math.round((W - device.width) / 2);
+  const deviceY = deviceTop + Math.max(0, Math.round((available - device.height) / 2));
+
+  const accentBaseline = baseline + copy.accentLine * lineHeight;
+  const accentWidth = measure(copy.lines[copy.accentLine] ?? "", size) + 40;
+  const swash = `<g transform="rotate(-1.1 ${W / 2} ${accentBaseline - size * 0.3})"><rect x="${W / 2 - accentWidth / 2}" y="${accentBaseline - size * 0.78}" width="${accentWidth}" height="${Math.round(size * 0.98)}" rx="${Math.round(size * 0.18)}" fill="#FF3D8B" opacity="0.3" /></g>`;
+
+  const background = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
+  <rect width="${W}" height="${H}" fill="#FFFCFD" />
+  <circle cx="${W / 2}" cy="1900" r="880" fill="#FFE1EE" />
+  ${swash}
+  ${headlineSvg({ lines: copy.lines, accentLine: -1, size, lineHeight, baseline, color: "#1D0F16", accentColor: "#1D0F16" })}
+</svg>`;
+
+  const overhang = 28;
+  const pillLayers: sharp.OverlayOptions[] = [];
+  for (const spec of copy.pills) {
+    const pill = await buildPill(spec.text);
+    const left = spec.side === "left" ? -overhang : W - pill.width + overhang;
+    const top = Math.round(deviceY + device.height * spec.at - pill.height / 2);
+    const shadow = await shadowFor(pill.image, left, top, { blur: 16, opacity: 0.28, dy: 12 });
+    const placed = await clip(pill.image, left, top);
+    if (shadow) pillLayers.push(shadow);
+    if (placed) pillLayers.push(placed);
+  }
+
+  const layers = [
+    await shadowFor(device.image, deviceX, deviceY, { blur: 32, opacity: 0.28, dy: 24 }),
+    await clip(device.image, deviceX, deviceY),
+    ...pillLayers,
+  ].filter(Boolean) as sharp.OverlayOptions[];
+
+  return sharp(Buffer.from(background))
+    .composite(layers)
+    .flatten({ background: "#FFFCFD" })
+    .png()
+    .toBuffer();
+};
+
 const VARIATIONS: ReadonlyArray<{ id: string; name: string; render: Variation }> = [
   { id: "v1-bleed", name: "Bleed", render: bleed },
   { id: "v2-spotlight", name: "Spotlight", render: spotlight },
   { id: "v3-chapters", name: "Chapters", render: chapters },
   { id: "v4-vivid", name: "Vivid", render: vivid },
   { id: "v5-marker", name: "Marker", render: marker },
+  { id: "v6-marked-spotlight", name: "Marked (full-height + edge pills)", render: marked },
 ];
 
 /**
  * Prefer the bare capture. When it is gone, lift the screen back out of the framed
  * PNG so the prototypes can be re-rendered without booting an emulator.
  */
-async function loadScreen(scene: ShowcaseScene): Promise<Buffer> {
-  const capture = path.join(CAPTURES, `${scene}.png`);
+async function loadScreen(scene: ShowcaseScene): Promise<Buffer | null> {
+  const capture = path.join(CAPTURES, `${showcaseSceneFileStem(scene)}.png`);
   if (existsSync(capture))
     return sharp(await readFile(capture))
       .resize(W, H)
       .png()
       .toBuffer();
 
-  const framedPath = path.join(FRAMED, `${scene}.png`);
-  if (!existsSync(framedPath)) {
-    throw new Error(`No capture or framed image for '${scene}'. Run pnpm screenshots first.`);
-  }
+  const framedPath = path.join(FRAMED, `${showcaseSceneFileStem(scene)}.png`);
+  // A scene added since the last capture simply has no source yet.
+  if (!existsSync(framedPath)) return null;
+
   const layout = computeFrameLayout({ store: "google-play", width: W, height: H }, 2);
   return sharp(await readFile(framedPath))
     .extract({
@@ -566,17 +702,30 @@ async function loadScreen(scene: ShowcaseScene): Promise<Buffer> {
 }
 
 async function main(): Promise<void> {
+  const screens = new Map<ShowcaseScene, Buffer>();
+  for (const scene of SHOWCASE_SCENES) {
+    const screen = await loadScreen(scene);
+    if (screen) screens.set(scene, screen);
+  }
+
+  const missing = SHOWCASE_SCENES.filter((scene) => !screens.has(scene));
+  let written = 0;
+
   for (const variation of VARIATIONS) {
     const directory = path.join(OUT, variation.id);
     await mkdir(directory, { recursive: true });
-    for (const scene of SHOWCASE_SCENES) {
-      const screen = await loadScreen(scene);
-      const image = await variation.render(scene, screen);
-      await writeFile(path.join(directory, `${scene}.png`), image);
+    for (const [scene, screen] of screens) {
+      const name = `${showcaseSceneFileStem(scene)}.png`;
+      await writeFile(path.join(directory, name), await variation.render(scene, screen));
+      written += 1;
     }
-    console.log(`${variation.id.padEnd(14)} ${variation.name}`);
+    console.log(`${variation.id.padEnd(20)} ${variation.name}`);
   }
-  console.log(`\nWrote ${VARIATIONS.length * SHOWCASE_SCENES.length} images to ${OUT}`);
+
+  if (missing.length > 0) {
+    console.log(`\nSkipped (no capture yet): ${missing.join(", ")}`);
+  }
+  console.log(`\nWrote ${written} images to ${OUT}`);
 }
 
 await main();

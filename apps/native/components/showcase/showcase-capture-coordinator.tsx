@@ -2,12 +2,14 @@ import { useAppReady } from "@/components/splash/animated-splash";
 import {
   markShowcaseSceneReady,
   readRequestedShowcaseScene,
+  requestShowcaseOverlay,
   SHOWCASE_ENABLED,
 } from "@/lib/showcase/showcase-control";
 import { retryShowcaseOperation } from "@/lib/showcase/showcase-retry";
 import { useAuth } from "@/providers/auth-provider";
 import {
   showcaseSceneMatchesPathname,
+  showcaseSceneOverlay,
   showcaseSceneRoute,
   type ShowcaseScene,
 } from "@wishlist/backend/supabase/showcase/constants";
@@ -65,6 +67,14 @@ function ActiveShowcaseCaptureCoordinator() {
     if (!session || !requestedScene || onRequestedRoute) return;
     router.replace(showcaseSceneRoute(requestedScene) as never);
   }, [onRequestedRoute, requestedScene, router, session]);
+
+  const overlay = requestedScene ? showcaseSceneOverlay(requestedScene) : null;
+
+  // Opened only once the route underneath is in place, and withdrawn as soon as the
+  // runner moves on, so a sheet never lingers into the next scene's capture.
+  React.useEffect(() => {
+    requestShowcaseOverlay(onRequestedRoute ? overlay : null);
+  }, [onRequestedRoute, overlay]);
 
   const settled = Boolean(session) && appReady && onRequestedRoute && fetchingCount === 0;
 

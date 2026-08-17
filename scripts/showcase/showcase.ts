@@ -7,7 +7,10 @@ import * as NodePath from "node:path";
 import * as NodeProcess from "node:process";
 import * as NodeURL from "node:url";
 
-import { SHOWCASE_CONTROL_PORT } from "../../packages/backend/supabase/showcase/constants.ts";
+import {
+  SHOWCASE_CONTROL_PORT,
+  showcaseSceneFileStem,
+} from "../../packages/backend/supabase/showcase/constants.ts";
 import { startShowcaseControlServer } from "./showcase-control-server.ts";
 import { renderFramedScreenshot } from "./showcase-frames.ts";
 import {
@@ -511,7 +514,7 @@ async function validateCaptureSet(
   const directory = showcaseCaptureDirectory(outputDirectory, capture);
   const files = (await NodeFSP.readdir(directory)).filter((file) => file.endsWith(".png")).sort();
   const missingFiles = capture.scenes
-    .map((scene) => `${scene}.png`)
+    .map((scene) => `${showcaseSceneFileStem(scene)}.png`)
     .filter((file) => !files.includes(file));
   if (missingFiles.length > 0) {
     throw new Error(`${capture.device.id} is missing ${missingFiles.join(", ")} in ${directory}.`);
@@ -540,13 +543,15 @@ async function renderCaptureFrames(
 
   for (const scene of capture.scenes) {
     const framed = await renderFramedScreenshot({
-      screenshot: await NodeFSP.readFile(NodePath.join(source, `${scene}.png`)),
+      screenshot: await NodeFSP.readFile(
+        NodePath.join(source, `${showcaseSceneFileStem(scene)}.png`),
+      ),
       spec: capture.device.storeAsset,
       appearance: capture.appearance,
       caption: config.frames.captions[scene],
       frames: config.frames,
     });
-    const destination = NodePath.join(destinationDirectory, `${scene}.png`);
+    const destination = NodePath.join(destinationDirectory, `${showcaseSceneFileStem(scene)}.png`);
     await NodeFSP.writeFile(destination, framed);
     validateStoreAsset(capture.device.storeAsset, framed, `framed ${capture.device.id}/${scene}`);
   }
@@ -676,7 +681,7 @@ async function captureIos(
     await delay(config.settleDelayMs);
     const destination = NodePath.join(
       showcaseCaptureDirectory(outputDirectory, capture),
-      `${scene}.png`,
+      `${showcaseSceneFileStem(scene)}.png`,
     );
     await runCommand("xcrun", ["simctl", "io", simulator.udid, "screenshot", destination]);
     await finalizeCapture(destination, capture.device);
@@ -876,7 +881,7 @@ async function captureAndroid(
     await delay(config.settleDelayMs);
     const destination = NodePath.join(
       showcaseCaptureDirectory(outputDirectory, capture),
-      `${scene}.png`,
+      `${showcaseSceneFileStem(scene)}.png`,
     );
     const png = await new Promise<Buffer>((resolve, reject) => {
       NodeChildProcess.execFile(

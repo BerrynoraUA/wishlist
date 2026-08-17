@@ -11,8 +11,10 @@
 import type { WishlistSupabaseClient } from "../types";
 import {
   SHOWCASE_BLOCKED_USERS,
+  SHOWCASE_DISCOVER_SECTIONS,
   SHOWCASE_EXCHANGE_RATES,
   SHOWCASE_FRIENDS,
+  SHOWCASE_GIFT_SUGGESTIONS,
   SHOWCASE_INCOMING_REQUESTS,
   SHOWCASE_ITEMS,
   SHOWCASE_NOTIFICATIONS,
@@ -23,6 +25,7 @@ import {
   SHOWCASE_SETTINGS,
   SHOWCASE_STATISTICS,
   SHOWCASE_SUBSCRIPTION,
+  SHOWCASE_UPCOMING_WISHLISTS,
   SHOWCASE_USER,
   SHOWCASE_WISHLISTS,
 } from "./data";
@@ -76,6 +79,13 @@ const RPC_HANDLERS: Record<string, (params: Params) => unknown> = {
       params,
     ),
   get_user_stats: () => [SHOWCASE_STATISTICS],
+  get_friends_wishlists_discover_all: (params) => page(SHOWCASE_DISCOVER_SECTIONS, params),
+  get_friends_wishlists_discover: (params) => page(SHOWCASE_DISCOVER_SECTIONS, params),
+  get_friends_upcoming_wishlists: () => SHOWCASE_UPCOMING_WISHLISTS,
+  // The Discover tabs these back are not captured; answering them keeps a stray tab
+  // switch from erroring rather than rendering an empty state.
+  get_reserved_items_by_me: () => [],
+  get_my_bought_items: () => [],
   get_friends: (params) => page(SHOWCASE_FRIENDS, params),
   get_incoming_friend_requests_with_details: (params) => page(SHOWCASE_INCOMING_REQUESTS, params),
   get_outgoing_friend_requests_with_details: () => [],
@@ -83,6 +93,7 @@ const RPC_HANDLERS: Record<string, (params: Params) => unknown> = {
   get_blocked_users: () => SHOWCASE_BLOCKED_USERS,
   list_secret_santa_events: () => SHOWCASE_SECRET_SANTA_LIST,
   get_secret_santa_details: () => SHOWCASE_SECRET_SANTA_DETAILS,
+  get_user_visible_items_by_max_price: () => SHOWCASE_GIFT_SUGGESTIONS,
   get_user_notifications: (params) => page(SHOWCASE_NOTIFICATIONS, params, "p_offset", "p_limit"),
   get_unread_notifications_count: () =>
     SHOWCASE_NOTIFICATIONS.filter((notification) => !notification.is_read).length,

@@ -4,8 +4,10 @@ import { PNG } from "pngjs";
 import { describe, expect, it } from "vitest";
 
 import {
+  SHOWCASE_SCENES,
   SHOWCASE_WISHLIST_ID,
   showcaseAssetUrl,
+  showcaseSceneFileStem,
   showcaseSceneMatchesPathname,
   showcaseSceneRoute,
 } from "../../packages/backend/supabase/showcase/constants.ts";
@@ -227,6 +229,22 @@ describe("scene routing", () => {
       false,
     );
     expect(showcaseSceneMatchesPathname("secret-santa", "/secret-santa/")).toBe(true);
+  });
+});
+
+describe("gallery ordering", () => {
+  it("numbers every scene from its position in the store order", () => {
+    expect(SHOWCASE_SCENES.map(showcaseSceneFileStem)[0]).toBe(`01-${SHOWCASE_SCENES[0]}`);
+    expect(showcaseSceneFileStem(SHOWCASE_SCENES[1]!)).toBe(`02-${SHOWCASE_SCENES[1]}`);
+  });
+
+  it("sorts lexicographically into the declared order, which is how both consoles read it", () => {
+    const names = SHOWCASE_SCENES.map((scene) => `${showcaseSceneFileStem(scene)}.png`);
+    expect([...names].sort()).toStrictEqual(names);
+  });
+
+  it("leads the gallery with the scenes that carry the pitch", () => {
+    expect(SHOWCASE_SCENES.slice(0, 3)).toStrictEqual(["wishlists", "item-link", "discover"]);
   });
 });
 

@@ -207,10 +207,13 @@ const config: ShowcaseConfig = {
   frames: {
     outputDirectory: "apps/native/artifacts/framed",
     captions: {
-      wishlists: "The links you meant to keep",
-      wishlist: "Sizes, colours, prices — all there",
-      friends: "Know what they actually want",
-      "secret-santa": "Secret Santa, without the group chat",
+      wishlists: "Never lose a gift idea again",
+      wishlist: "They get the exact one you wanted",
+      "item-link": "Paste a link, the rest fills itself",
+      discover: "See what your friends actually want",
+      friends: "Everyone's lists in one place",
+      "secret-santa": "Run Secret Santa without the group chat",
+      "secret-santa-event": "Names drawn, budget set, nobody knows",
     },
     background: {
       light: ["#FFF9FB", "#F7EDF2"],

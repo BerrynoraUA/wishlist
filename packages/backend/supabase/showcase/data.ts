@@ -6,9 +6,14 @@
 
 import { PRIORITY_IDS } from "../../lib/priorities";
 import type { Notification } from "../../types";
+import type { DiscoverItem, DiscoverSection, FriendUpcomingWishlist } from "../../types/discover";
 import type { BlockedUser, FriendRequestWithDetails, FriendWithDetails } from "../../types/friends";
 import type { Item } from "../../types/item";
-import type { SecretSantaDetails, SecretSantaListResponse } from "../../types/secret-santa";
+import type {
+  SecretSantaDetails,
+  SecretSantaListResponse,
+  VisibleItemsResponse,
+} from "../../types/secret-santa";
 import type { UserProfile, UserSettings } from "../../types/settings";
 import type { UserStatistics, Wishlist } from "../../types/wishlist";
 import {
@@ -370,6 +375,155 @@ export const SHOWCASE_INCOMING_REQUESTS: readonly FriendRequestWithDetails[] = [
 
 export const SHOWCASE_BLOCKED_USERS: readonly BlockedUser[] = [];
 
+interface ShowcaseDiscoverSeed {
+  readonly friendIndex: number;
+  readonly wishlist: string;
+  /** Days from capture time; drives both the section label and the upcoming card. */
+  readonly eventInDays: number;
+  readonly items: readonly {
+    readonly title: string;
+    readonly price: string;
+    readonly store: string;
+    readonly imageAsset: string;
+    readonly url: string;
+    readonly priorityId?: string;
+    readonly reserved?: boolean;
+  }[];
+}
+
+/**
+ * Discover is the friends-facing half of the app, so these are other people's lists
+ * rather than the owner's. One item is already reserved, which is what stops two people
+ * buying the same present and is the whole point of the screen.
+ */
+const DISCOVER_SEEDS: readonly ShowcaseDiscoverSeed[] = [
+  {
+    friendIndex: 0,
+    // Discover already prefixes the owner's name, so a possessive title reads as
+    // "Jamie Chen's Jamie's birthday".
+    wishlist: "Birthday",
+    eventInDays: 9,
+    items: [
+      {
+        title: "Sony WH-1000XM5 headphones",
+        price: "279.00",
+        store: "sony.co.uk",
+        imageAsset: "items/sony-wh-1000xm5.jpg",
+        url: "https://www.sony.co.uk/electronics/headband-headphones/wh-1000xm5",
+        priorityId: PRIORITY_IDS.HIGH,
+      },
+      {
+        title: "Kindle Paperwhite (12th gen)",
+        price: "159.99",
+        store: "amazon.co.uk",
+        imageAsset: "items/kindle-paperwhite.jpg",
+        url: "https://www.amazon.co.uk/dp/B0CFPJYX7P",
+        reserved: true,
+      },
+      {
+        title: "AirPods Pro 3",
+        price: "219.00",
+        store: "apple.com",
+        imageAsset: "items/airpods-pro-3.jpg",
+        url: "https://www.apple.com/uk/shop/buy-airpods/airpods-pro-3",
+        priorityId: PRIORITY_IDS.MEDIUM,
+      },
+    ],
+  },
+  {
+    friendIndex: 1,
+    wishlist: "Housewarming",
+    eventInDays: 21,
+    items: [
+      {
+        title: "Ninja Foodi MAX AF400UK",
+        price: "229.99",
+        store: "ninjakitchen.co.uk",
+        imageAsset: "items/ninja-foodi-max-af400uk.jpg",
+        url: "https://ninjakitchen.co.uk/product/ninja-foodi-max-dual-zone-air-fryer-af400uk",
+        priorityId: PRIORITY_IDS.HIGH,
+      },
+      {
+        title: "Dyson V15 Detect Absolute",
+        price: "649.99",
+        store: "dyson.co.uk",
+        imageAsset: "items/dyson-v15-detect.jpg",
+        url: "https://www.dyson.co.uk/vacuum-cleaners/cordless/v15/detect-absolute-gold-iron",
+      },
+    ],
+  },
+  {
+    friendIndex: 2,
+    wishlist: "Cycling kit",
+    eventInDays: 34,
+    items: [
+      {
+        title: "Garmin Edge 540",
+        price: "349.99",
+        store: "garmin.com",
+        imageAsset: "items/garmin-edge-540.jpg",
+        url: "https://www.garmin.com/en-GB/p/798938/",
+        priorityId: PRIORITY_IDS.MEDIUM,
+      },
+      {
+        title: "Garmin Varia RTL515",
+        price: "169.99",
+        store: "garmin.com",
+        imageAsset: "items/garmin-varia-rtl515.jpg",
+        url: "https://www.garmin.com/en-GB/p/698893/",
+      },
+    ],
+  },
+];
+
+export const SHOWCASE_DISCOVER_SECTIONS: readonly DiscoverSection[] = DISCOVER_SEEDS.map(
+  (seed, sectionIndex) => {
+    const friend = FRIENDS[seed.friendIndex] as ShowcasePerson;
+    const items: DiscoverItem[] = seed.items.map((item, index) => ({
+      id: `5b0f9c40-0000-4000-8000-0000000008${String(sectionIndex)}${String(index)}`,
+      title: item.title,
+      price: item.price,
+      store: item.store,
+      image: showcaseAssetUrl(`content/${item.imageAsset}`),
+      image_url: showcaseAssetUrl(`content/${item.imageAsset}`),
+      url: item.url,
+      description: null,
+      priority: item.priorityId ? (PRIORITY_NAMES[item.priorityId] ?? null) : null,
+      priority_id: item.priorityId ?? null,
+      status: 0,
+      isReserved: item.reserved ?? false,
+      reserved_by: item.reserved ? OWNER.id : null,
+      reservedBy: item.reserved ? OWNER.id : null,
+      reservedByName: item.reserved ? OWNER.displayName : null,
+      discount_price: null,
+      currency: "GBP",
+      additional_links: null,
+    }));
+
+    return {
+      id: `5b0f9c40-0000-4000-8000-00000000070${String(sectionIndex)}`,
+      owner: friend.displayName,
+      username: friend.nickname,
+      avatar_url: friend.avatarUrl,
+      wishlist: seed.wishlist,
+      date: dateDaysFromNow(seed.eventInDays),
+      friend_id: friend.id,
+      wishlist_id: `5b0f9c40-0000-4000-8000-00000000070${String(sectionIndex)}`,
+      items,
+    };
+  },
+);
+
+export const SHOWCASE_UPCOMING_WISHLISTS: readonly FriendUpcomingWishlist[] = DISCOVER_SEEDS.map(
+  (seed, index) => ({
+    friend_name: (FRIENDS[seed.friendIndex] as ShowcasePerson).displayName,
+    wishlist_title: seed.wishlist,
+    event_date: dateDaysFromNow(seed.eventInDays),
+    wishlist_id: `5b0f9c40-0000-4000-8000-00000000070${String(index)}`,
+    friend_id: (FRIENDS[seed.friendIndex] as ShowcasePerson).id,
+  }),
+);
+
 const SECRET_SANTA_PARTICIPANTS = [OWNER, ...FRIENDS.slice(0, 3)].map((entry) => ({
   id: entry.id,
   nickname: entry.nickname,
@@ -429,6 +583,65 @@ export const SHOWCASE_SECRET_SANTA_DETAILS: SecretSantaDetails = {
     },
   ],
   my_receiver: SECRET_SANTA_PARTICIPANTS[1],
+};
+
+/**
+ * What the drawn match has on their own lists under the event budget. Without these the
+ * detail screen photographs its empty state, which sells the opposite of the feature —
+ * the point is that you are told who you drew *and* what they want.
+ */
+export const SHOWCASE_GIFT_SUGGESTIONS: VisibleItemsResponse = {
+  items: [
+    {
+      id: "5b0f9c40-0000-4000-8000-000000000901",
+      wishlist_id: "5b0f9c40-0000-4000-8000-000000000700",
+      wishlist_title: "Birthday",
+      wishlist_image_url: null,
+      // Both suggestions stay under the event's GBP 50, because the card above them
+      // promises exactly that.
+      name: "Kindle Paperwhite fabric cover",
+      description: "Black, for the 12th-gen Paperwhite",
+      price: "34.99",
+      discount_price: null,
+      has_discount: false,
+      effective_price: 34.99,
+      discount_end_date: null,
+      currency: "GBP",
+      priority_id: PRIORITY_IDS.HIGH,
+      priority_name: PRIORITY_NAMES[PRIORITY_IDS.HIGH] ?? null,
+      url: "https://www.amazon.co.uk/dp/B0CFPJYX7P",
+      image_url: showcaseAssetUrl("content/items/kindle-paperwhite.jpg"),
+      status: 0,
+      reserved_by: null,
+      created_at: daysFromNow(-6),
+      additional_links: null,
+    },
+    {
+      id: "5b0f9c40-0000-4000-8000-000000000902",
+      wishlist_id: "5b0f9c40-0000-4000-8000-000000000700",
+      wishlist_title: "Birthday",
+      wishlist_image_url: null,
+      name: "AirPods Pro 3 silicone case",
+      description: "Deep Blue, with the carabiner clip",
+      price: "39.99",
+      discount_price: "29.99",
+      has_discount: true,
+      effective_price: 29.99,
+      discount_end_date: dateDaysFromNow(9),
+      currency: "GBP",
+      priority_id: PRIORITY_IDS.MEDIUM,
+      priority_name: PRIORITY_NAMES[PRIORITY_IDS.MEDIUM] ?? null,
+      url: "https://www.apple.com/uk/shop/buy-airpods/airpods-pro-3",
+      image_url: showcaseAssetUrl("content/items/airpods-pro-3.jpg"),
+      status: 0,
+      reserved_by: null,
+      created_at: daysFromNow(-11),
+      additional_links: null,
+    },
+  ],
+  total: 2,
+  limit: 20,
+  offset: 0,
 };
 
 export const SHOWCASE_NOTIFICATIONS: readonly Notification[] = [

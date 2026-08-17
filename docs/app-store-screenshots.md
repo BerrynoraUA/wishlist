@@ -42,10 +42,30 @@ Metro and any device the runner started are cleaned up afterwards. Pass
 Phones only: the app has no tablet layouts yet, so `ios.supportsTablet` is `false` in
 `apps/native/app.json` and there is no iPad slot to fill.
 
-Each target captures four scenes — `wishlists`, `wishlist`, `friends` and
-`secret-santa` — producing 12 PNGs for one appearance or 24 for both, plus the same
-count again in the framed set. Four avoids low-value settings imagery while satisfying
-Apple's 1–10 limit and Google's phone requirement of 2–8.
+Each target captures seven scenes, producing 21 PNGs for one appearance or 42 for both,
+plus the same count again in the framed set. Seven covers the features worth selling
+while staying inside Apple's 1–10 limit and Google's phone requirement of 2–8.
+
+Files are named `NN-scene.png`, where `NN` is the scene's position in the store gallery:
+
+    01-wishlists  02-item-link  03-discover  04-secret-santa
+    05-secret-santa-event  06-wishlist  07-friends
+
+App Store Connect and Play Console both take screenshots in file order, and a listing is
+skimmed before it is read — Apple shows roughly the first two or three, Google three or
+four, so the opening slots carry the pitch: what it is, how little work it is, and what
+it does for the people you buy for. The numbering is derived from `SHOWCASE_SCENES` in
+[constants.ts](../packages/backend/supabase/showcase/constants.ts), so reordering that
+array is the only edit needed — the prefixes follow, and a test asserts the names still
+sort into the declared order. Numbers are zero-padded so a tenth scene cannot sort
+between the first and the second.
+
+`item-link` is the only scene that is not a route: it is the production
+create-from-link sheet, which the coordinator asks the app to open via
+`requestShowcaseOverlay` once the wishlist underneath has settled. `CreateMenuHost` owns
+that sheet in production and opens it here too, so the capture is the real sheet. The
+scrape behind it is answered from `SHOWCASE_SCRAPED_PRODUCT` rather than the network,
+which is what lets the run stay offline.
 
 ## When tablets ship
 
@@ -64,7 +84,7 @@ The generated tree is aligned with the store upload fields:
 
     apps/native/artifacts/
     ├── screenshots/            # bare captures, upload these
-    │   ├── apple/iphone-{6.9,6.5}/{light,dark}/{wishlists,wishlist,friends,secret-santa}.png
+    │   ├── apple/iphone-{6.9,6.5}/{light,dark}/{01-wishlists,02-item-link,…}.png
     │   └── google-play/{phone,tablet-7,tablet-10}/{light,dark}/…
     ├── framed/                 # same names, gradient background + caption
     │   ├── apple/…

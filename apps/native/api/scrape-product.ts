@@ -1,4 +1,6 @@
 import { type ClientScrapeOutcome, scrapeProductOnDevice } from "@/lib/scraper/client-scraper";
+import { SHOWCASE_ENABLED } from "@/lib/showcase/showcase-control";
+import { SHOWCASE_SCRAPED_PRODUCT } from "@wishlist/backend/supabase/showcase/constants";
 
 export type ScrapedProduct = {
   title: string | null;
@@ -65,6 +67,11 @@ async function scrapeProductOnServer(url: string): Promise<ScrapedProduct> {
 
 /** Scrapes on the device first, falling back to the server silently. */
 export async function scrapeProductLink(url: string): Promise<ScrapedProduct> {
+  // Captures run with no network and no scraper service, so the showcase build answers
+  // the lookup from the same fixtures the rest of the run uses. The sheet, its loading
+  // state and every field it fills are the production ones.
+  if (SHOWCASE_ENABLED) return normalizeProduct(SHOWCASE_SCRAPED_PRODUCT);
+
   let clientOutcome: ClientScrapeOutcome | null = null;
   try {
     clientOutcome = await scrapeProductOnDevice(url);
