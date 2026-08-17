@@ -14,10 +14,13 @@ import type { TranslateFn } from "@/lib/translate-fn";
 
 const background = require("@/assets/images/subscription-premium-bg.jpg");
 
+// Every bullet must be a feature that actually ships — advertising an absent one is an
+// App Store 2.3.1 rejection. Cross-check against docs/premium-features.md, which derives
+// the Free/Pro matrix from the code rather than from marketing copy.
 const PREMIUM_FEATURES = [
   "Unlimited lists & items",
   "Collaborator access",
-  "Sale alerts & tracking",
+  "Secret Santa exclusions",
   "Custom colors & priorities",
 ] as const;
 

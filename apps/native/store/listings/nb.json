@@ -5,7 +5,15 @@
   "subtitle": "Ønskelister, delt pent",
   "shortDescription": "Lag ønskelister, del dem med venner, og reserver gaver i hemmelighet.",
   "promoText": "Lim inn en lenke, lag en fin ønskeliste og del den med vennene. De reserverer gaver i hemmelighet – ingen kjøper det samme, og ingen overraskelse blir avslørt.",
-  "keywords": ["ønskeliste", "gave", "bursdag", "jul", "julenissetrekning", "gavetips", "shopping"],
+  "keywords": [
+    "ønskeliste",
+    "gave",
+    "bursdag",
+    "jul",
+    "julenissetrekning",
+    "gavetips",
+    "shopping"
+  ],
   "intro": [
     "Wishlane gjør spørsmålet «ja, men hva ønsker du deg egentlig?» til noe alle liker.",
     "Lag fine ønskelister, del dem med menneskene som betyr noe, og la dem reservere gaver i hemmelighet – ingen kjøper det samme to ganger, og ingen overraskelse blir ødelagt."
@@ -37,7 +45,7 @@
     },
     {
       "heading": "Wishlane Premium",
-      "body": "Ubegrenset med lister og ting, tilgang for medredaktører på delte lister, prisvarsler ved prisfall og egne farger og prioriteringer."
+      "body": "Ubegrenset med lister og ting, tilgang for medredaktører på delte lister og egne farger og prioriteringer."
     }
   ],
   "closing": "Wishlane er gratis å komme i gang med – uten kort, klart på under ett minutt. Tilgjengelig på over 40 språk.",

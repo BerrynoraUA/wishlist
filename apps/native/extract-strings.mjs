@@ -78,7 +78,7 @@ const extras = [
   "Divine",
   "Unlimited lists & items",
   "Collaborator access",
-  "Sale alerts & tracking",
+  "Secret Santa exclusions",
   "Custom colors & priorities",
   // Below: not found via static regex extraction (dynamic template concatenation,
   // Alert.alert() titles, or other indirect call sites). Reconstructed by
@@ -107,7 +107,6 @@ const extras = [
   "No priority",
   "Previous",
   "Manage wishlist access",
-  "Sale Alerts",
   "Edit wishlist description",
   "Discount enabled",
   "Add Wishlist",

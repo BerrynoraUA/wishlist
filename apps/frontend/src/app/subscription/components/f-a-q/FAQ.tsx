@@ -57,7 +57,7 @@ export function FAQ() {
           $id: "subscription.faq.trial.q",
         }),
         answer: t(
-          "We don't offer a trial, but the Free plan is fully functional for casual use. You can upgrade to Pro whenever you're ready for unlimited wishlists, sale alerts, and more.",
+          "We don't offer a trial, but the Free plan is fully functional for casual use. You can upgrade to Pro whenever you're ready for unlimited wishlists, collaborative lists, and more.",
           { $id: "subscription.faq.trial.a" },
         ),
       },
