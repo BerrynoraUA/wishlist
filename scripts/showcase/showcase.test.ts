@@ -17,7 +17,13 @@ import {
   SHOWCASE_WISHLISTS,
 } from "../../packages/backend/supabase/showcase/data.ts";
 import { buildShowcaseAvatarSvg, renderShowcaseAvatar } from "./showcase-control-server.ts";
-import { buildDeviceOverlaySvg, computeFrameLayout, wrapCaption } from "./showcase-frames.ts";
+import {
+  buildDeviceOverlaySvg,
+  buildFrameBackgroundSvg,
+  cloudPath,
+  computeFrameLayout,
+  fitFontSize,
+} from "./showcase-frames.ts";
 import {
   normalizeStorePng,
   readPngMetadata,
@@ -201,11 +207,12 @@ describe("frame layout", () => {
     expect(two.deviceY).toBeGreaterThan(one.deviceY);
   });
 
-  it("wraps captions on word boundaries without dropping words", () => {
-    const lines = wrapCaption("See what friends are hoping for", 16);
-    expect(lines.length).toBeGreaterThan(1);
-    expect(lines.join(" ")).toBe("See what friends are hoping for");
-    expect(lines.every((line) => line.length <= 16 || !line.includes(" "))).toBe(true);
+  it("shrinks a headline that would run past the margins", () => {
+    expect(fitFontSize(["short"], 1000, 80)).toBe(80);
+    const long = "a".repeat(60);
+    const fitted = fitFontSize([long], 1000, 80);
+    expect(fitted).toBeLessThan(80);
+    expect(long.length * fitted * 0.575).toBeLessThanOrEqual(1000);
   });
 
   it("renders store-specific hardware details", () => {
@@ -215,6 +222,54 @@ describe("frame layout", () => {
     expect(iphone).toContain("<circle");
     expect(android.match(/<circle/gu)).toHaveLength(2);
     expect(iphone).not.toBe(android);
+  });
+
+  it("highlights the headline's last line, which is where the hand break puts the payoff", () => {
+    const svg = buildFrameBackgroundSvg(
+      computeFrameLayout(PLAY_SPEC, 2),
+      ["Never lose a", "gift idea again"],
+      "light",
+      showcaseConfig.frames,
+    );
+    const swashY = Number(/<g transform="rotate\([^ ]+ [^ ]+ ([\d.]+)\)/u.exec(svg)?.[1]);
+    const baselines = [...svg.matchAll(/<text [^>]*y="([\d.]+)"/gu)].map((match) =>
+      Number(match[1]),
+    );
+    expect(baselines).toHaveLength(2);
+    expect(swashY).toBeGreaterThan(baselines[0]!);
+  });
+});
+
+describe("callout clouds", () => {
+  it("traces a ring of lobes as one closed path of arcs", () => {
+    const lobes = Array.from({ length: 10 }, (_, index) => {
+      const angle = (index / 10) * Math.PI * 2;
+      return { x: 200 + 90 * Math.cos(angle), y: 120 + 50 * Math.sin(angle), r: 44 };
+    });
+    const path = cloudPath(lobes, { x: 200, y: 120 });
+    expect(path.startsWith("M")).toBe(true);
+    expect(path.endsWith("Z")).toBe(true);
+    expect(path.match(/A/gu)).toHaveLength(lobes.length);
+    // One shape, not a stack: no second subpath, and no non-finite coordinate.
+    expect(path.match(/M/gu)).toHaveLength(1);
+    expect(path).not.toMatch(/NaN|Infinity/u);
+  });
+
+  it("gives every scene a headline and anchors its callouts inside the screen", () => {
+    for (const scene of SHOWCASE_SCENES) {
+      const copy = showcaseConfig.frames.scenes[scene];
+      expect(copy.headline.length).toBeGreaterThan(0);
+      expect(copy.callouts.length).toBeGreaterThan(0);
+      for (const callout of copy.callouts) {
+        expect(callout.lines.length).toBeGreaterThan(0);
+        expect(callout.anchor.x).toBeGreaterThan(0);
+        expect(callout.anchor.x).toBeLessThan(1);
+        expect(callout.anchor.y).toBeGreaterThan(0);
+        expect(callout.anchor.y).toBeLessThan(1);
+        // A cloud sitting on its own anchor leaves no room for a tail.
+        expect(Math.abs(callout.lift)).toBeGreaterThan(0.02);
+      }
+    }
   });
 });
 

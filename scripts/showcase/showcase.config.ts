@@ -52,12 +52,53 @@ export interface ShowcaseAndroidDevice {
 
 export type ShowcaseDevice = ShowcaseIosDevice | ShowcaseAndroidDevice;
 
+/**
+ * A speech cloud pointing at something on the screen behind it. Each one names a visible
+ * element and then says what it *means* — "3 Reserved" is a number the reader can already
+ * count, but that it stops two people buying the same present is the part the screenshot
+ * cannot tell them. Restating a visible label teaches nothing.
+ */
+export interface ShowcaseCallout {
+  /** Pre-broken, so the cloud never has to guess where a line should wrap. */
+  readonly lines: readonly string[];
+  /** Which edge the cloud hangs off, so it breaks the device outline rather than floating inside it. */
+  readonly side: "left" | "right";
+  /**
+   * The element this explains, in 0–1 screen coordinates. Aim at the blank space beside
+   * it, never at its middle: the tail ends in a dot, and a dot on top of the label hides
+   * the very thing the cloud is drawing attention to.
+   */
+  readonly anchor: { readonly x: number; readonly y: number };
+  /**
+   * Where the cloud sits relative to its anchor, in fractions of the screen height.
+   * Negative is above. Per callout so tails point up as often as down and the clouds land
+   * at different heights across the gallery.
+   */
+  readonly lift: number;
+}
+
+export interface ShowcaseSceneFrame {
+  /**
+   * Broken by hand: the highlighter marks the last line, so where the break falls decides
+   * what gets emphasised. Headlines name the outcome the reader gets, not the feature that
+   * produces it — a listing is read in about a second, and "never guess a present again"
+   * lands in that second where "friends list sync" does not.
+   */
+  readonly headline: readonly string[];
+  readonly callouts: readonly ShowcaseCallout[];
+}
+
 export interface ShowcaseFrameConfig {
   /** Framed output directory relative to the repository root. */
   readonly outputDirectory: string;
-  readonly captions: Readonly<Record<ShowcaseScene, string>>;
+  readonly scenes: Readonly<Record<ShowcaseScene, ShowcaseSceneFrame>>;
   readonly background: Readonly<Record<ShowcaseAppearance, readonly [string, string]>>;
   readonly captionColor: Readonly<Record<ShowcaseAppearance, string>>;
+  /** Highlighter swash drawn under the headline's last line. */
+  readonly accentColor: Readonly<Record<ShowcaseAppearance, string>>;
+  /** Heavy display face for the headline. */
+  readonly headlineFontFamily: string;
+  /** Text face for the callout clouds. */
   readonly fontFamily: string;
 }
 
@@ -206,24 +247,145 @@ const config: ShowcaseConfig = {
   ],
   frames: {
     outputDirectory: "apps/native/artifacts/framed",
-    captions: {
-      wishlists: "Never lose a gift idea again",
-      wishlist: "They get the exact one you wanted",
-      "item-link": "Paste a link, the rest fills itself",
-      discover: "See what your friends actually want",
-      friends: "Everyone's lists in one place",
-      "secret-santa": "Run Secret Santa without the group chat",
-      "secret-santa-event": "Names drawn, budget set, nobody knows",
+    // Anchors are fractions of the captured screen, so they survive a change of upload
+    // size — but they were tuned against the 9:16 Android capture. The iPhone slots are
+    // 9:19.5, where the app lays out with more vertical room, so those frames want an
+    // anchor pass of their own once iOS captures exist to check them against.
+    scenes: {
+      wishlists: {
+        headline: ["Never lose a", "gift idea again"],
+        callouts: [
+          {
+            lines: ["Gifts you claimed, so", "nobody buys it twice"],
+            side: "left",
+            anchor: { x: 0.3, y: 0.352 },
+            lift: 0.14,
+          },
+          {
+            lines: ["Only friends you accept", "can open this list"],
+            side: "right",
+            anchor: { x: 0.675, y: 0.716 },
+            lift: -0.1,
+          },
+        ],
+      },
+      "item-link": {
+        headline: ["Paste a link.", "It fills itself in."],
+        // Both anchors sit in the empty right-hand end of their field. Pointing at the
+        // left end would drag the bubble trail across the value meant to be read.
+        callouts: [
+          {
+            lines: ["This link is the only", "thing you typed"],
+            side: "right",
+            anchor: { x: 0.72, y: 0.338 },
+            lift: -0.16,
+          },
+          {
+            lines: ["Name, photo and price", "arrived from the shop"],
+            side: "left",
+            anchor: { x: 0.3, y: 0.866 },
+            lift: -0.125,
+          },
+        ],
+      },
+      discover: {
+        headline: ["Know exactly", "what to buy them"],
+        callouts: [
+          {
+            lines: ["Nine days' warning,", "not a same-day panic"],
+            side: "left",
+            anchor: { x: 0.72, y: 0.2545 },
+            lift: -0.108,
+          },
+          {
+            lines: ["Greyed out means taken", "— and they never know"],
+            side: "right",
+            anchor: { x: 0.88, y: 0.66 },
+            lift: -0.075,
+          },
+        ],
+      },
+      "secret-santa": {
+        headline: ["Secret Santa that", "runs itself"],
+        callouts: [
+          {
+            lines: ["One budget everyone", "shops to"],
+            side: "left",
+            anchor: { x: 0.235, y: 0.431 },
+            lift: 0.1,
+          },
+          {
+            lines: ["Six people in, names", "drawn for you"],
+            side: "right",
+            anchor: { x: 0.632, y: 0.738 },
+            lift: -0.1,
+          },
+        ],
+      },
+      "secret-santa-event": {
+        headline: ["Names drawn.", "Nobody knows."],
+        // One cloud only. The screen is already a stack of cards with nothing spare to
+        // cover, and the match secrecy is the single claim worth making here.
+        callouts: [
+          {
+            lines: ["Only you see this name.", "Everyone else sees theirs"],
+            side: "right",
+            anchor: { x: 0.62, y: 0.323 },
+            lift: -0.115,
+          },
+        ],
+      },
+      wishlist: {
+        headline: ["Get the exact", "one you wanted"],
+        callouts: [
+          {
+            lines: ["They flag what they", "want most"],
+            side: "right",
+            anchor: { x: 0.775, y: 0.453 },
+            lift: -0.09,
+          },
+          {
+            lines: ["You pick who sees the", "list, and when it lands"],
+            side: "left",
+            anchor: { x: 0.253, y: 0.298 },
+            lift: 0.19,
+          },
+        ],
+      },
+      friends: {
+        headline: ["Never guess a", "present again"],
+        callouts: [
+          {
+            lines: ["Nobody sees your lists", "until you accept them"],
+            side: "right",
+            anchor: { x: 0.757, y: 0.152 },
+            lift: 0.09,
+          },
+          // Right again, unusually: every row here puts its avatar and name hard against
+          // the left edge, so a left-hanging cloud can only land on top of a name.
+          {
+            lines: ["Three lists to browse", "instead of guessing"],
+            side: "right",
+            anchor: { x: 0.52, y: 0.604 },
+            lift: -0.105,
+          },
+        ],
+      },
     },
     background: {
-      light: ["#FFF9FB", "#F7EDF2"],
-      dark: ["#171014", "#24181E"],
+      light: ["#FFFCFD", "#FFE6F1"],
+      dark: ["#171014", "#2C1622"],
     },
     captionColor: {
-      light: "#2F2027",
+      light: "#1D0F16",
       dark: "#FFF5F8",
     },
-    fontFamily: "Segoe UI, Helvetica Neue, Arial, sans-serif",
+    accentColor: {
+      light: "#FF3D8B",
+      dark: "#FF5C9F",
+    },
+    headlineFontFamily: "Segoe UI Black, Arial Black, Segoe UI, Helvetica, sans-serif",
+    fontFamily: "Segoe UI Semibold, Segoe UI, Helvetica Neue, Arial, sans-serif",
   },
 };
 

@@ -95,10 +95,41 @@ The generated tree is aligned with the store upload fields:
 belongs in git. It is ignored by both `.gitignore` and `.easignore`, so a capture never
 shows up as pending changes and never rides along in an EAS build archive.
 
+## The framed treatment
+
 Framed images keep the exact store dimensions, so they can be uploaded directly when a
-captioned listing is wanted instead of bare screenshots. Captions, background colours
-and the caption font live in
-[showcase.config.ts](../scripts/showcase/showcase.config.ts).
+captioned listing is wanted instead of bare screenshots. Each frame is a heavy two-line
+headline with a highlighter swash under its last line, the whole phone below it sized to
+whatever room the headline leaves, and speech clouds trailing bubbles back to the element
+each one explains.
+
+Headlines and callouts are declared per scene under `frames.scenes` in
+[showcase.config.ts](../scripts/showcase/showcase.config.ts), alongside the background,
+accent and font settings. Three rules are worth keeping when editing them:
+
+- **Headlines are broken by hand**, because the swash marks the last line — where the
+  break falls decides what gets emphasised. They name the outcome, not the feature.
+- **A callout explains something visible rather than repeating it.** "3 Reserved" is a
+  number the reader can already count; that it stops two people buying the same present
+  is the part the screenshot cannot tell them.
+- **Anchors aim at the blank space beside an element, never its middle.** The tail ends in
+  a dot, and a dot on the label hides the thing the cloud is pointing out.
+
+Anchors are fractions of the captured screen, so they survive a change of upload size,
+but they were tuned against the 9:16 Android capture. The iPhone slots are 9:19.5, where
+the app has more vertical room, so those frames want an anchor pass of their own once iOS
+captures exist to check them against.
+
+Clouds are one closed SVG path, not a stack of circles: lobe centres are seated on the
+text box's own outline and `cloudPath` traces the union's silhouette as a run of arcs,
+the way Twemoji's thought balloon (U+1F4AD) is drawn. Because the centres sit on that
+outline, every notch between two lobes falls outside the text box, so text can never be
+clipped by the silhouette however the lobes are sized.
+
+Reframing needs nothing but the PNGs already on disk, so iterate on the styling without
+booting anything:
+
+    pnpm screenshots --platform android --frames-only
 
 ## Fast iteration
 
@@ -116,10 +147,11 @@ Reuse the native build and leave the device up afterwards:
 
     pnpm screenshots --device pixel --skip-build --keep-running
 
-Skip the framed set, list the matrix, or validate existing files without touching any
-device:
+Skip the framed set, reframe existing captures, list the matrix, or validate existing
+files without touching any device:
 
     pnpm screenshots --no-frames
+    pnpm screenshots --frames-only
     pnpm screenshots --list
     pnpm screenshots --validate-only
 
@@ -147,7 +179,7 @@ Neither job needs credentials, a database or a Docker daemon.
   [client.ts](../packages/backend/supabase/showcase/client.ts)
 - Scenes, ids and the control/asset origin shared with the runner:
   [constants.ts](../packages/backend/supabase/showcase/constants.ts)
-- Device matrix, scenes, captions and frame styling:
+- Device matrix, scenes, headlines, callouts and frame styling:
   [showcase.config.ts](../scripts/showcase/showcase.config.ts)
 - Simulator/emulator orchestration:
   [showcase.ts](../scripts/showcase/showcase.ts)

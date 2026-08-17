@@ -81,6 +81,8 @@ interface CliOptions {
   readonly skipBuild: boolean;
   readonly skipMetro: boolean;
   readonly skipFrames: boolean;
+  /** Re-render the framed set from captures already on disk, touching no device. */
+  readonly framesOnly: boolean;
   readonly keepRunning: boolean;
   readonly validateOnly: boolean;
   readonly list: boolean;
@@ -125,6 +127,7 @@ export function parseShowcaseCliArgs(args: readonly string[]): CliOptions {
   let skipBuild = false;
   let skipMetro = false;
   let skipFrames = false;
+  let framesOnly = false;
   let keepRunning = false;
   let validateOnly = false;
   let list = false;
@@ -171,6 +174,8 @@ export function parseShowcaseCliArgs(args: readonly string[]): CliOptions {
       skipMetro = true;
     } else if (argument === "--no-frames") {
       skipFrames = true;
+    } else if (argument === "--frames-only") {
+      framesOnly = true;
     } else if (argument === "--keep-running") {
       keepRunning = true;
     } else if (argument === "--validate-only") {
@@ -190,6 +195,7 @@ export function parseShowcaseCliArgs(args: readonly string[]): CliOptions {
     skipBuild,
     skipMetro,
     skipFrames,
+    framesOnly,
     keepRunning,
     validateOnly,
     list,
@@ -245,6 +251,7 @@ Options:
   --skip-build               Reuse the existing simulator app / debug APK
   --skip-metro               Reuse an already running showcase Metro server
   --no-frames                Skip the framed marketing set
+  --frames-only              Reframe existing captures, without touching a device
   --keep-running             Leave devices and Metro running after capture
   --validate-only            Validate existing upload assets without capturing
   --list                     Print this help and the configured matrix
@@ -548,7 +555,7 @@ async function renderCaptureFrames(
       ),
       spec: capture.device.storeAsset,
       appearance: capture.appearance,
-      caption: config.frames.captions[scene],
+      scene,
       frames: config.frames,
     });
     const destination = NodePath.join(destinationDirectory, `${showcaseSceneFileStem(scene)}.png`);
@@ -934,6 +941,15 @@ async function main(): Promise<void> {
         outputDirectory,
         capture.scenes.length === capture.device.scenes.length,
       );
+    }
+    return;
+  }
+
+  // Frame styling is iterated on far more often than the captures behind it, and reframing
+  // needs nothing but the PNGs already on disk — no emulator, no build, no Metro.
+  if (options.framesOnly) {
+    for (const capture of captures) {
+      await renderCaptureFrames(capture, outputDirectory, showcaseConfig);
     }
     return;
   }
