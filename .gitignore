@@ -30,3 +30,7 @@ apps/native/android/app/*.jks
 apps/native/*firebase-adminsdk*.json
 .pnpm-store/
 .pnpm-debug.log*
+
+# Native scratch data that is never committed: app-store capture output from
+# scripts/showcase plus the simulator build it photographs.
+apps/native/artifacts/

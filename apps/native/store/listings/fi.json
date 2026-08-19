@@ -5,7 +5,14 @@
   "subtitle": "Toivelistat, kauniisti jaettu",
   "shortDescription": "Luo toivelistoja, jaa ne kavereille ja varaa lahjoja salaa.",
   "promoText": "Liitä mikä tahansa linkki, luo kaunis toivelista ja jaa se kavereille. He varaavat lahjat salaa – kukaan ei osta samaa eikä yksikään yllätys paljastu.",
-  "keywords": ["toivelista", "lahja", "syntymäpäivä", "joulu", "salainen joulupukki", "lahjaideat"],
+  "keywords": [
+    "toivelista",
+    "lahja",
+    "syntymäpäivä",
+    "joulu",
+    "salainen joulupukki",
+    "lahjaideat"
+  ],
   "intro": [
     "Wishlane muuttaa kysymyksen ”no mitä sä oikeasti haluat?” kaikille mukavaksi hetkeksi.",
     "Luo kauniita toivelistoja, jaa ne sinulle tärkeille ihmisille ja anna heidän varata lahjat salaa – kukaan ei osta samaa kahdesti eikä yksikään yllätys mene pilalle."
@@ -37,7 +44,7 @@
     },
     {
       "heading": "Wishlane Premium",
-      "body": "Rajattomasti listoja ja tuotteita, muokkausoikeus jaetuille listoille, hälytykset hinnanlaskuista sekä omat värit ja tärkeysjärjestykset."
+      "body": "Rajattomasti listoja ja tuotteita, muokkausoikeus jaetuille listoille sekä omat värit ja tärkeysjärjestykset."
     }
   ],
   "closing": "Wishlanen aloittaminen on ilmaista – ei korttia, käyttöönotto alle minuutissa. Saatavilla yli 40 kielellä.",

@@ -176,7 +176,9 @@ export function SecretSantaLaunchSheet({
                       </Text>
                       {excluded.size > 0 ? (
                         <Text className="text-xs text-text-muted">
-                          {t("{count} exclusions", { count: excluded.size })}
+                          {excluded.size === 1
+                            ? t("1 exclusion")
+                            : t("{count} exclusions", { count: excluded.size })}
                         </Text>
                       ) : null}
                     </View>

@@ -12,6 +12,16 @@ const LOCALE_DATA_ALIASES = {
   "@formatjs/intl-pluralrules/locale-data/zh-Hant": "@formatjs/intl-pluralrules/locale-data/zh",
 };
 
+// `artifacts/` is showcase capture output plus, on macOS, the whole Xcode
+// derived-data tree — written inside the project root while Metro is running. Left
+// unblocked, Metro crawls and watches tens of thousands of build files. Expo's own
+// default blockList already excludes `android/app/build` and `ios/Pods` this way.
+config.resolver.blockList = [
+  ...config.resolver.blockList,
+  /^artifacts[\\/]/,
+  /[\\/]apps[\\/]native[\\/]artifacts[\\/]/,
+];
+
 const baseResolveRequest = config.resolver.resolveRequest;
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {

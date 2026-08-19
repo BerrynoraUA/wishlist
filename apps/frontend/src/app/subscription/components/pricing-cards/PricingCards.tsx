@@ -41,9 +41,9 @@ export function PricingCards() {
         included: true,
       },
       {
-        key: "items20",
-        label: t("Up to 20 items per wishlist", {
-          $id: "subscription.pricing.free.items20",
+        key: "items10",
+        label: t("Up to 10 items per wishlist", {
+          $id: "subscription.pricing.free.items10",
         }),
         included: true,
       },
@@ -81,20 +81,6 @@ export function PricingCards() {
           $id: "subscription.pricing.free.theme",
         }),
         included: true,
-      },
-      {
-        key: "saleAlerts",
-        label: t("Sale price alerts", {
-          $id: "subscription.pricing.free.saleAlerts",
-        }),
-        included: false,
-      },
-      {
-        key: "priceHistory",
-        label: t("Price tracking & history", {
-          $id: "subscription.pricing.free.priceHistory",
-        }),
-        included: false,
       },
       {
         key: "collab",
@@ -171,22 +157,6 @@ export function PricingCards() {
           $id: "subscription.pricing.pro.theme",
         }),
         included: true,
-      },
-      {
-        key: "saleAlerts",
-        label: t("Sale price alerts", {
-          $id: "subscription.pricing.pro.saleAlerts",
-        }),
-        included: true,
-        highlight: true,
-      },
-      {
-        key: "priceHistory",
-        label: t("Price tracking & history", {
-          $id: "subscription.pricing.pro.priceHistory",
-        }),
-        included: true,
-        highlight: true,
       },
       {
         key: "collab",

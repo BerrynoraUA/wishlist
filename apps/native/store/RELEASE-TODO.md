@@ -50,7 +50,6 @@ Nothing is submitted for review. The blockers below are what stands between here
 - [ ] Attach the IAPs to the 1.0 version for its first review — IAPs submitted after a build need a
       separate review pass.
 
-
 ## Phase 4 — Console forms (manual, both stores)
 
 **App Store Connect**

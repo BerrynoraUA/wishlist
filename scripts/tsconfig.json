@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../packages/backend/tsconfig/base.json",
+  "compilerOptions": {
+    // The runner and its helpers are executed straight from source by Node's type
+    // stripping, which is why they import each other with explicit .ts extensions.
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
+  },
+  "include": ["**/*.ts"]
+}

@@ -98,7 +98,9 @@ export function SecretSantaEventCard({
                       className={cn(TEXT_END_CLASS, "text-sm text-text-muted")}
                       numberOfLines={1}
                     >
-                      {t("{count} participants", { count: event.participants_count })}
+                      {event.participants_count === 1
+                        ? t("1 participant")
+                        : t("{count} participants", { count: event.participants_count })}
                     </Text>
                   </View>
                 </View>

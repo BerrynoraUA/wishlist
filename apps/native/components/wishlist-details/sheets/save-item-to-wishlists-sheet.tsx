@@ -49,7 +49,10 @@ export function SaveItemToWishlistsSheet({
           value: wishlist.id,
           label: wishlist.title,
           keywords: wishlist.description ? [wishlist.description] : undefined,
-          trailing: t("{count} items", { count: wishlist.items_count ?? 0 }),
+          trailing:
+            (wishlist.items_count ?? 0) === 1
+              ? t("1 item")
+              : t("{count} items", { count: wishlist.items_count ?? 0 }),
           imageUrl: wishlist.image_url,
         })),
     [t, wishlists],

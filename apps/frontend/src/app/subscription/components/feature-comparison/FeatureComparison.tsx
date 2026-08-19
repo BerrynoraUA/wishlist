@@ -40,7 +40,7 @@ export function FeatureComparison() {
         feature: t("Items per wishlist", {
           $id: "subscription.compare.itemsPerWishlist",
         }),
-        free: t("Up to 20", { $id: "subscription.compare.upTo20" }),
+        free: t("Up to 10", { $id: "subscription.compare.upTo10" }),
         pro: t("Unlimited", { $id: "subscription.compare.unlimitedItems" }),
       },
       {
@@ -81,22 +81,6 @@ export function FeatureComparison() {
           $id: "subscription.compare.theme",
         }),
         free: true,
-        pro: true,
-      },
-      {
-        key: "saleAlerts",
-        feature: t("Sale price alerts", {
-          $id: "subscription.compare.saleAlerts",
-        }),
-        free: false,
-        pro: true,
-      },
-      {
-        key: "priceHistory",
-        feature: t("Price tracking & history", {
-          $id: "subscription.compare.priceHistory",
-        }),
-        free: false,
         pro: true,
       },
       {

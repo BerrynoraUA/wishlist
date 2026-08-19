@@ -40,10 +40,14 @@ export function FriendCard({
           </Text>
         ) : null}
         <Text className="text-xs font-semibold text-text-muted" numberOfLines={1}>
-          {t("{wishlistsCount} wishlists · {mutualCount} mutual", {
-            wishlistsCount: friend.wishlists_count,
-            mutualCount: friend.mutual_friends_count,
-          })}
+          {friend.wishlists_count === 1
+            ? t("1 wishlist · {mutualCount} mutual", {
+                mutualCount: friend.mutual_friends_count,
+              })
+            : t("{wishlistsCount} wishlists · {mutualCount} mutual", {
+                wishlistsCount: friend.wishlists_count,
+                mutualCount: friend.mutual_friends_count,
+              })}
         </Text>
       </View>
 

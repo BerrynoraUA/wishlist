@@ -15,6 +15,12 @@ import { useMyStatistics, useWishlistById } from "@/hooks/use-wishlists";
 import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
 import { isWishlistDetailPath } from "@/lib/routes";
 import { extractSharedProductUrl } from "@/lib/share-intent";
+import {
+  readShowcaseOverlay,
+  SHOWCASE_ENABLED,
+  subscribeToShowcaseOverlay,
+} from "@/lib/showcase/showcase-control";
+import { SHOWCASE_ITEM_LINK_URL } from "@wishlist/backend/supabase/showcase/constants";
 import { Portal } from "@rn-primitives/portal";
 import { useShareIntentContext } from "expo-share-intent";
 import { useGlobalSearchParams, usePathname } from "expo-router";
@@ -130,6 +136,21 @@ async function settledData<TData>(query: {
     .catch(() => undefined);
 }
 
+function readNoOverlay() {
+  return null;
+}
+
+function useShowcaseOverlay() {
+  return React.useSyncExternalStore(
+    SHOWCASE_ENABLED ? subscribeToShowcaseOverlay : subscribeToNothing,
+    SHOWCASE_ENABLED ? readShowcaseOverlay : readNoOverlay,
+  );
+}
+
+function subscribeToNothing() {
+  return () => {};
+}
+
 export function CreateMenuHost({
   open,
   onOpenChange,
@@ -157,6 +178,20 @@ export function CreateMenuHost({
     setAction("item-link");
     resetShareIntent();
   }, [hasShareIntent, resetShareIntent, shareIntent]);
+
+  // Lets the app-store capture photograph this sheet, which no route can reach.
+  // Constant `null` outside showcase builds, so the effect never runs.
+  const showcaseOverlay = useShowcaseOverlay();
+
+  React.useEffect(() => {
+    if (showcaseOverlay === "item-link") {
+      setSharedUrl(SHOWCASE_ITEM_LINK_URL);
+      setAction("item-link");
+      return;
+    }
+    setSharedUrl(null);
+    setAction((current) => (current === "item-link" ? null : current));
+  }, [showcaseOverlay]);
 
   // This host is mounted for the entire session — expo-router evaluates every `_layout`
   // eagerly to read `unstable_settings`, so it is on the cold-start path — but the three

@@ -2,6 +2,44 @@
 ALTER TABLE "public"."item"
   ADD COLUMN IF NOT EXISTS "color_index" smallint NULL DEFAULT NULL;
 
+-- ============================================================
+-- Restore the item_priorities objects this migration's functions read.
+--
+-- 20260430150000_revert_item_priorities dropped the table and item.priority_id,
+-- and 20260501130000_sync_with_staging brings them back — but that runs *after*
+-- this file, so a database built from scratch (`supabase start`, `supabase db
+-- reset`, CI) failed here with `relation "public.item_priorities" does not exist`.
+-- Every statement below is idempotent, so this is a no-op on any database that
+-- already ran the later sync.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS "public"."item_priorities" (
+    id uuid PRIMARY KEY,
+    name text NOT NULL,
+    color text NOT NULL,
+    emoji text NOT NULL,
+    sort_order integer NOT NULL,
+    is_free boolean NOT NULL DEFAULT false
+);
+ALTER TABLE "public"."item_priorities" OWNER TO postgres;
+ALTER TABLE "public"."item_priorities" ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON TABLE "public"."item_priorities" TO anon, authenticated, service_role;
+
+INSERT INTO "public"."item_priorities" (id, name, color, emoji, sort_order, is_free) VALUES
+    ('11111111-0000-0000-0000-000000000001', 'Low',       '#22c55e', '🟢', 1,  true),
+    ('11111111-0000-0000-0000-000000000002', 'Medium',    '#eab308', '🟡', 2,  true),
+    ('11111111-0000-0000-0000-000000000003', 'High',      '#ef4444', '🔴', 3,  true),
+    ('11111111-0000-0000-0000-000000000004', 'Urgent',    '#f97316', '🔥', 4,  false),
+    ('11111111-0000-0000-0000-000000000005', 'Critical',  '#ec4899', '⚡', 5,  false),
+    ('11111111-0000-0000-0000-000000000006', 'Epic',      '#8b5cf6', '💜', 6,  false),
+    ('11111111-0000-0000-0000-000000000007', 'Legendary', '#f59e0b', '👑', 7,  false),
+    ('11111111-0000-0000-0000-000000000008', 'Mythic',    '#06b6d4', '🌊', 8,  false),
+    ('11111111-0000-0000-0000-000000000009', 'Celestial', '#6366f1', '✨', 9,  false),
+    ('11111111-0000-0000-0000-000000000010', 'Divine',    '#e879f9', '🌟', 10, false)
+ON CONFLICT (id) DO NOTHING;
+
+ALTER TABLE "public"."item"
+  ADD COLUMN IF NOT EXISTS "priority_id" uuid REFERENCES "public"."item_priorities"(id) ON DELETE SET NULL;
+
 -- Drop existing overloads of functions whose signatures change in this migration
 do $drop_overloads$
 declare r record;

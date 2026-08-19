@@ -25,6 +25,8 @@ import {
   writeBootThemeSettings,
 } from "@/lib/boot-cache";
 import { AnimatedSplash, MarkAppReady, useAppReady } from "@/components/splash/animated-splash";
+import { ShowcaseCaptureCoordinator } from "@/components/showcase/showcase-capture-coordinator";
+import { SHOWCASE_ENABLED } from "@/lib/showcase/showcase-control";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { SubscriptionProvider } from "@/providers/subscription-provider";
 import { UserGuideProvider } from "@/components/user-guide/user-guide-provider";
@@ -126,6 +128,7 @@ export default function RootLayout() {
                         <StatusBar style={themeMode === "dark" ? "light" : "dark"} />
                         <AppBlurTarget>
                           <AuthGate />
+                          <ShowcaseCaptureCoordinator />
                         </AppBlurTarget>
                       </ReanimatedTrueSheetProvider>
                     </SafeAreaProvider>
@@ -260,11 +263,14 @@ function NotificationPushBootstrap() {
   const appReady = useAppReady();
 
   // Token registration is a permission check, an Expo push-token round trip and a POST,
-  // none of which the first screen needs — hold them until the splash is gone.
-  useRegisterPushNotifications({ enabled: appReady });
+  // none of which the first screen needs — hold them until the splash is gone. Showcase
+  // captures skip it entirely so no OS permission dialog lands on a screenshot.
+  useRegisterPushNotifications({ enabled: appReady && !SHOWCASE_ENABLED });
   // Stays eager: this replays the notification that launched the app, and deferring it
   // can drop that initial response entirely.
   useNotificationResponseObserver();
+
+  if (SHOWCASE_ENABLED) return null;
 
   return user?.id ? <NotificationPermissionSheet userId={user.id} /> : null;
 }

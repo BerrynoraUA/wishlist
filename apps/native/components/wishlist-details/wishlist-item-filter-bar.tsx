@@ -163,9 +163,11 @@ export function WishlistItemFilterBar({
           <View className="min-w-0 flex-1">
             <MultiSelectMenu
               label={
-                filters.statuses.length
-                  ? t("{count} statuses", { count: filters.statuses.length })
-                  : t("Status")
+                filters.statuses.length === 1
+                  ? t("1 status")
+                  : filters.statuses.length
+                    ? t("{count} statuses", { count: filters.statuses.length })
+                    : t("Status")
               }
               values={filters.statuses}
               options={itemStatusOptions.map((option) => ({
@@ -179,9 +181,11 @@ export function WishlistItemFilterBar({
           <View className="min-w-0 flex-1">
             <MultiSelectMenu
               label={
-                filters.priorities.length
-                  ? t("{count} priorities", { count: filters.priorities.length })
-                  : t("Priority")
+                filters.priorities.length === 1
+                  ? t("1 priority")
+                  : filters.priorities.length
+                    ? t("{count} priorities", { count: filters.priorities.length })
+                    : t("Priority")
               }
               values={filters.priorities}
               options={itemPriorityOptions.map((option) => ({

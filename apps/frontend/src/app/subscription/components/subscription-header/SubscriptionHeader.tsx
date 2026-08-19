@@ -17,7 +17,7 @@ export function SubscriptionHeader() {
       </h1>
       <p className={styles.subtitle}>
         {t(
-          "Unlock the full power of Wishlane with Pro — price tracking, sale alerts, collaborative wishlists, and more.",
+          "Unlock the full power of Wishlane with Pro — unlimited lists, collaborative wishlists, and more.",
           { $id: "subscription.header.subtitle" },
         )}
       </p>
