@@ -11,6 +11,7 @@ import {
   toggleItemReservationSecret,
   toggleItemBoughtSecret,
   getItemVotes,
+  reportItem,
   toggleItemVote,
   type ItemVotesResult,
 } from "@/api/items";
@@ -177,6 +178,20 @@ export function useToggleItemBoughtSecret() {
 export const useReserveItem = useToggleItemReservation;
 
 // ── Item Votes ──
+
+export function useReportItem() {
+  return useMutation({
+    mutationFn: (itemId: string) => reportItem(itemId),
+    onSuccess: (recorded) => {
+      toast.success(
+        recorded ? "Thanks — this item has been reported" : "You already reported this item",
+      );
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to report this item");
+    },
+  });
+}
 
 export function useItemVotes(itemIds: string[]) {
   return useQuery({

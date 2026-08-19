@@ -138,6 +138,18 @@ export async function getWishlistItems(
   return (data as Item[]) || [];
 }
 
+/**
+ * Records a report against someone else's item. Resolves to false when this
+ * user had already reported it — the same person never counts twice.
+ */
+export async function reportItem(itemId: string): Promise<boolean> {
+  const { data, error } = await supabaseBrowser.rpc("report_item", { p_item_id: itemId });
+
+  if (error) throw error;
+
+  return Boolean(data);
+}
+
 export async function updateItem(itemId: string, updates: UpdateItemParams): Promise<Item> {
   const { image, removeImage, image_url, ...restUpdates } = updates;
 

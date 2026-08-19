@@ -1,5 +1,6 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { ItemImage } from "@/components/items/item-image";
+import { useReportItem } from "@/hooks/use-items";
 import { ItemPriorityMedallion, useItemCardBorderStyle } from "@/components/items/item-labels";
 import { ActionBottomSheetConfirm } from "@/components/ui/action-bottom-sheet";
 import {
@@ -30,6 +31,7 @@ import {
   Copy,
   Eye,
   EyeOff,
+  Flag,
   Heart,
   LockKeyhole,
   Pencil,
@@ -108,7 +110,8 @@ export function WishlistItemCard({
   const itemUrl = getValidHttpUrl(item.url) ?? "";
   const showCopyLink = itemUrl.length > 0;
   const hasWebsiteLink = Boolean(store);
-  const showMenu = Boolean(showCopyLink || (isOwner && (onEdit || onDelete)));
+  const canReport = !isOwner;
+  const showMenu = Boolean(showCopyLink || canReport || (isOwner && (onEdit || onDelete)));
   const hasActiveDiscount = isDiscountActive(item.has_discount, item.discount_end_date);
   const salePercentOff = getSalePercentOff(
     item.price,
@@ -120,6 +123,8 @@ export function WishlistItemCard({
   const menuPreview = useDropdownMenuPreview();
   const [reservationConfirmationOpen, setReservationConfirmationOpen] = React.useState(false);
   const [purchaseConfirmationOpen, setPurchaseConfirmationOpen] = React.useState(false);
+  const [reportConfirmationOpen, setReportConfirmationOpen] = React.useState(false);
+  const reportItem = useReportItem();
 
   async function handleCopyLink() {
     if (!itemUrl) return;
@@ -355,6 +360,16 @@ export function WishlistItemCard({
               <Icon as={Trash2} className="ms-auto size-4 text-destructive" />
             </DropdownMenuItem>
           ) : null}
+          {canReport ? (
+            <DropdownMenuItem
+              layout="action"
+              variant="destructive"
+              onPress={() => setReportConfirmationOpen(true)}
+            >
+              <Text className="flex-1">{t("Report")}</Text>
+              <Icon as={Flag} className="ms-auto size-4 text-destructive" />
+            </DropdownMenuItem>
+          ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
       <ActionBottomSheetConfirm
@@ -368,6 +383,18 @@ export function WishlistItemCard({
         onConfirm={() => {
           setReservationConfirmationOpen(false);
           onToggleReserve?.();
+        }}
+      />
+      <ActionBottomSheetConfirm
+        open={reportConfirmationOpen}
+        title={t("Report this item?")}
+        message={t("Our team will take a look. You can only report an item once.")}
+        confirmLabel={t("Report")}
+        isPending={reportItem.isPending}
+        tone="destructive"
+        onClose={() => setReportConfirmationOpen(false)}
+        onConfirm={() => {
+          reportItem.mutate(item.id, { onSettled: () => setReportConfirmationOpen(false) });
         }}
       />
       <ActionBottomSheetConfirm

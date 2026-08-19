@@ -38,6 +38,11 @@ export function useFriendsPage() {
   const [editingGroup, setEditingGroup] = useState<FriendGroup | null>(null);
   const [friendToRemoveId, setFriendToRemoveId] = useState<string | null>(null);
   const [blockOnRemove, setBlockOnRemove] = useState(false);
+  const [requestToDecline, setRequestToDecline] = useState<{
+    requestId: string;
+    senderId: string;
+  } | null>(null);
+  const [blockOnDecline, setBlockOnDecline] = useState(false);
 
   const search = useMemo(() => getFriendsSearch(searchParams), [searchParams]);
 
@@ -76,9 +81,27 @@ export function useFriendsPage() {
     mutation.mutate(friendToRemoveId, { onSuccess: closeRemoveFriend });
   }
 
-  /** Turning down a request and blocking in one go. */
-  function handleRejectAndBlock(senderId: string) {
-    blockUser.mutate(senderId);
+  function handleDeclineRequest(requestId: string, senderId: string) {
+    setRequestToDecline({ requestId, senderId });
+    setBlockOnDecline(false);
+  }
+
+  function closeDeclineRequest() {
+    setRequestToDecline(null);
+    setBlockOnDecline(false);
+  }
+
+  function handleConfirmDeclineRequest() {
+    if (!requestToDecline) return;
+
+    // Blocking already cancels the pending request, so it stands in for the
+    // plain rejection rather than running after it.
+    if (blockOnDecline) {
+      blockUser.mutate(requestToDecline.senderId, { onSuccess: closeDeclineRequest });
+      return;
+    }
+
+    rejectRequest.mutate(requestToDecline.requestId, { onSuccess: closeDeclineRequest });
   }
 
   function handleCreateGroup() {
@@ -125,6 +148,12 @@ export function useFriendsPage() {
     blockOnRemove,
     setBlockOnRemove,
     closeRemoveFriend,
+    requestToDecline,
+    blockOnDecline,
+    setBlockOnDecline,
+    closeDeclineRequest,
+    handleDeclineRequest,
+    handleConfirmDeclineRequest,
     friends: friendsQuery.data ?? [],
     friendsLoading: friendsQuery.isLoading,
     friendsError: friendsQuery.isError,
@@ -146,7 +175,6 @@ export function useFriendsPage() {
     removeFriend,
     blockUser,
     unblockUser,
-    handleRejectAndBlock,
     createGroup,
     updateGroup,
     deleteGroup,

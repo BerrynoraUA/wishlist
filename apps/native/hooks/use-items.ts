@@ -3,6 +3,7 @@ import {
   deleteItem,
   getItemVotes,
   getWishlistItems,
+  reportItem,
   toggleItemBought,
   toggleItemReservation,
   toggleItemVote,
@@ -105,6 +106,12 @@ export function useToggleItemBought() {
   return useMutation({
     mutationFn: (id: string) => toggleItemBought(id),
     onSuccess: (item) => invalidateWishlistItems(queryClient, item.wishlist_id),
+  });
+}
+
+export function useReportItem() {
+  return useMutation({
+    mutationFn: (itemId: string) => reportItem(itemId),
   });
 }
 

@@ -45,6 +45,7 @@ type SheetState =
   | { type: "group"; group: FriendGroup }
   | { type: "removeFriend"; friendId: string }
   | { type: "blockUser"; userId: string }
+  | { type: "declineRequest"; requestId: string; senderId: string }
   | { type: "deleteGroup"; group: FriendGroup }
   | null;
 
@@ -190,13 +191,12 @@ export default function FriendsScreen() {
                 request={entry as FriendRequestWithDetails}
                 accepting={acceptRequest.isPending}
                 rejecting={rejectRequest.isPending}
-                blocking={blockUser.isPending}
                 onAccept={() => acceptRequest.mutate(entry.id)}
-                onReject={() => rejectRequest.mutate(entry.id)}
-                onBlock={() =>
+                onReject={() =>
                   setSheet({
-                    type: "blockUser",
-                    userId: (entry as FriendRequestWithDetails).sender_id,
+                    type: "declineRequest",
+                    requestId: entry.id,
+                    senderId: (entry as FriendRequestWithDetails).sender_id,
                   })
                 }
               />
@@ -340,6 +340,24 @@ export default function FriendsScreen() {
               removeFriend.mutate(sheet.friendId, {
                 onSuccess: () => setSheet(null),
               });
+            }}
+          />
+        ) : null}
+        {sheet?.type === "declineRequest" ? (
+          <ConfirmActionSheet
+            open
+            title={t("Decline Request")}
+            description={t("They will not be told. You can accept a new request from them later.")}
+            confirmLabel={t("Decline")}
+            isPending={rejectRequest.isPending}
+            error={rejectRequest.error?.message}
+            secondaryLabel={t("Decline and block")}
+            onSecondary={() => setSheet({ type: "blockUser", userId: sheet.senderId })}
+            onOpenChange={(open) => {
+              if (!open) setSheet(null);
+            }}
+            onConfirm={() => {
+              rejectRequest.mutate(sheet.requestId, { onSuccess: () => setSheet(null) });
             }}
           />
         ) : null}

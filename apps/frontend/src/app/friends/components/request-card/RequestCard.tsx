@@ -7,20 +7,16 @@ type Props = {
   request: FriendRequestWithDetails;
   onAccept: () => void;
   onReject: () => void;
-  onBlock?: () => void;
   accepting?: boolean;
   rejecting?: boolean;
-  blocking?: boolean;
 };
 
 export function RequestCard({
   request,
   onAccept,
   onReject,
-  onBlock,
   accepting = false,
   rejecting = false,
-  blocking = false,
 }: Props) {
   const t = useGT();
 
@@ -61,16 +57,6 @@ export function RequestCard({
             ? t("Declining...", { $id: "friends.requestCard.declining" })
             : t("Decline", { $id: "friends.requestCard.decline" })}
         </Button>
-        {onBlock && (
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onBlock}
-            disabled={accepting || rejecting || blocking}
-          >
-            {t("Block", { $id: "friends.requestCard.block" })}
-          </Button>
-        )}
       </div>
     </div>
   );

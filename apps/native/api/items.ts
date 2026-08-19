@@ -120,6 +120,18 @@ export async function updateItem(itemId: string, updates: UpdateItemParams): Pro
   return data as Item;
 }
 
+/**
+ * Records a report against someone else's item. Resolves to false when this
+ * user had already reported it — the same person never counts twice.
+ */
+export async function reportItem(itemId: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc("report_item", { p_item_id: itemId });
+
+  if (error) throw error;
+
+  return Boolean(data);
+}
+
 export async function deleteItem(itemId: string): Promise<void> {
   const { error } = await supabase.from("item").delete().eq("id", itemId);
 

@@ -10,6 +10,7 @@ import {
   type ActionBottomSheetConfirmTone,
 } from "@/components/ui/action-bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { useReportItem } from "@/hooks/use-items";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import {
@@ -22,7 +23,7 @@ import {
 } from "@/lib/items";
 import { getLinkUrl, getValidHttpUrl } from "@/lib/urls";
 import type { Item } from "@wishlist/backend/types/item";
-import { Copy, ExternalLink, LockKeyhole, ShoppingCart } from "lucide-react-native";
+import { Copy, ExternalLink, Flag, LockKeyhole, ShoppingCart } from "lucide-react-native";
 import * as Clipboard from "expo-clipboard";
 import { useGT } from "gt-react-native";
 import * as React from "react";
@@ -59,6 +60,8 @@ export function DiscoverItemDetailSheet({
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const [confirmation, setConfirmation] = React.useState<Confirmation | null>(null);
+  const [reportOpen, setReportOpen] = React.useState(false);
+  const reportItem = useReportItem();
 
   if (!item) return null;
   const selectedItem = item;
@@ -178,6 +181,10 @@ export function DiscoverItemDetailSheet({
           {canUndoPurchase ? t("Undo") : reservation.isPurchased ? t("Purchased") : t("Buy")}
         </Text>
       </Button>
+      <Button variant="ghost" size="sm" onPress={() => setReportOpen(true)}>
+        <Icon as={Flag} className="size-4 text-text-muted" />
+        <Text className="text-text-muted">{t("Report")}</Text>
+      </Button>
     </View>
   );
 
@@ -256,6 +263,18 @@ export function DiscoverItemDetailSheet({
           ) : null}
         </BottomSheetScrollView>
       </BottomSheet>
+      <ActionBottomSheetConfirm
+        open={reportOpen}
+        title={t("Report this item?")}
+        message={t("Our team will take a look. You can only report an item once.")}
+        confirmLabel={t("Report")}
+        isPending={reportItem.isPending}
+        tone="destructive"
+        onClose={() => setReportOpen(false)}
+        onConfirm={() => {
+          reportItem.mutate(item.id, { onSettled: () => setReportOpen(false) });
+        }}
+      />
       <ActionBottomSheetConfirm
         open={Boolean(confirmation)}
         title={confirmation?.title ?? ""}

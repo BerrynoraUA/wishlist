@@ -59,7 +59,12 @@ function FriendsPageContent() {
     removeFriend,
     blockUser,
     unblockUser,
-    handleRejectAndBlock,
+    requestToDecline,
+    blockOnDecline,
+    setBlockOnDecline,
+    closeDeclineRequest,
+    handleDeclineRequest,
+    handleConfirmDeclineRequest,
     handleRemoveFriend,
     handleConfirmRemoveFriend,
     handleCreateGroup,
@@ -194,11 +199,9 @@ function FriendsPageContent() {
               key={r.id}
               request={r}
               onAccept={() => acceptRequest.mutate(r.id)}
-              onReject={() => rejectRequest.mutate(r.id)}
-              onBlock={() => handleRejectAndBlock(r.sender_id)}
+              onReject={() => handleDeclineRequest(r.id, r.sender_id)}
               accepting={acceptRequest.isPending}
               rejecting={rejectRequest.isPending}
-              blocking={blockUser.isPending}
             />
           ))}
         </div>
@@ -276,6 +279,31 @@ function FriendsPageContent() {
           $id: "friends.page.removeFriendConfirm",
         })}
         isPending={removeFriend.isPending || blockUser.isPending}
+      />
+      <DeleteConfirmModal
+        open={!!requestToDecline}
+        onClose={closeDeclineRequest}
+        onConfirm={handleConfirmDeclineRequest}
+        title={t("Decline Request", { $id: "friends.page.declineRequestTitle" })}
+        description={t("They will not be told. You can accept a new request from them later.", {
+          $id: "friends.page.declineRequestDescription",
+        })}
+        confirmLabel={t("Decline", { $id: "friends.page.declineRequestConfirm" })}
+        isPending={rejectRequest.isPending || blockUser.isPending}
+        extraContent={
+          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={blockOnDecline}
+              onChange={(e) => setBlockOnDecline(e.target.checked)}
+            />
+            <span>
+              {t("Also block this person so they cannot send you requests again", {
+                $id: "friends.page.alsoBlock",
+              })}
+            </span>
+          </label>
+        }
       />
       <FriendGroupModal
         open={groupModalOpen}
