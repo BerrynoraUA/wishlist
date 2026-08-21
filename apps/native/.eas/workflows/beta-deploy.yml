@@ -3,7 +3,7 @@ name: Native Beta Deploy
 defaults:
   tools:
     node: 22.14.0
-    pnpm: 11.9.0
+    pnpm: 11.20.0
 
 # Public-tester channel: new features built against the PRODUCTION environment
 # (production Supabase, production RevenueCat) but distributed to testers only —

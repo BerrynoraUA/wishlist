@@ -3,7 +3,7 @@ name: Native Development Build
 defaults:
   tools:
     node: 22.14.0
-    pnpm: 11.9.0
+    pnpm: 11.20.0
 
 # Fingerprint-gated, same rule as production: cut a development build only when
 # no development build matches the current native fingerprint, otherwise publish

@@ -83,14 +83,14 @@ Nothing is submitted for review. The blockers below are what stands between here
 
 ## Phase 6 — Build and submit
 
-Commands and flags in §10. All credentials are already on EAS (§12).
+Commands and flags are in §13. All credentials are already on EAS (§12). Push the production tag;
+the GitHub workflow builds both platforms and always auto-submits them. Smoke-test the processed
+TestFlight/Play builds before promoting the iOS build to App Review or releasing Android publicly.
 
-- [ ] `npx eas-cli build --platform ios --profile production`
-- [ ] `npx eas-cli build --platform android --profile production`
+- [ ] Push a `native-v<app.json version>` tag, or run `pnpm --filter native workflow:production`
+- [ ] Confirm both EAS submissions finish: iOS in TestFlight and Android on the production track
 - [ ] Smoke-test both binaries: sign-in (email + Apple), create wishlist, paste-link autofill,
       share intent, push notification, purchase, restore, account deletion, deep links (`wishlane://`)
-- [ ] `npx eas-cli submit --platform ios --profile production`
-- [ ] `npx eas-cli submit --platform android --profile <see Play gating below>`
 
 **Play production is gated** (§2 #6). This is a personal developer account, so Google requires a
 closed test with **12+ testers for 14 continuous days** before production access can be applied for.
@@ -114,8 +114,10 @@ that clears.
 
 ---
 
-## Known issue not blocking release
+## Retained EAS Workflow caveat
 
-`development-build.yml`'s `publish_update` job fails on
-`Unable to resolve module @formatjs/intl-pluralrules/locale-data/zh-Hant` — job-environment specific,
-the same export succeeds locally and in `build_android`. Details and the pnpm/corepack lead in §13.
+The old workflows remain available for manual production validation, with automatic triggers
+disabled. The last `development-build.yml` update run failed on
+`Unable to resolve module @formatjs/intl-pluralrules/locale-data/zh-Hant`; the same export succeeded
+locally and during Android builds. Re-test that path after the Expo compatibility update before
+using the retained development workflow as a fallback. Details are in §13.

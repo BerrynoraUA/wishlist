@@ -408,23 +408,64 @@ build.
 
 ---
 
-## 13. EAS Workflows
+## 13. GitHub Actions and EAS
 
-Definitions are in `apps/native/.eas/workflows/`, wrappers in `package.json` as `workflow:*`.
-All have their `on:` triggers commented out, so every one is manual-only today.
+The definitions in `apps/native/.eas/workflows/` are retained temporarily as a production-validation
+fallback. `build.yml` is manual-only through `workflow_dispatch`; the automatic triggers in the
+other six files remain commented out. Do not enable those automatic triggers while the equivalent
+GitHub workflows are active, or both systems can create duplicate paid builds and conflicting store
+submissions. The `workflow:*` package scripts intentionally target GitHub Actions; invoke a retained
+EAS workflow explicitly from the EAS dashboard or with `eas workflow:run` when validating it.
 
-| Workflow                | Jobs                                            | Script                         |
-| ----------------------- | ----------------------------------------------- | ------------------------------ |
-| `staging-deploy.yml`    | build + submit, both platforms, `staging`       | `npm run workflow:staging`     |
-| `build.yml`             | build only, both platforms, profile as input    | `npm run workflow:build`       |
-| `development-build.yml` | build both + publish an update to `development` | `npm run workflow:development` |
-| `production-build.yml`  | —                                               | `npm run workflow:production`  |
-| `release-build.yml`     | —                                               | `npm run workflow:release`     |
+There are exactly four GitHub mobile build lanes. Development creates internally distributed Expo
+development clients and never submits them to a store. The other three lanes create fresh iOS and
+Android store binaries and use EAS auto-submit; there is no PR preview or build-or-OTA deployment
+lane. `mobile-ci.yml` remains a validation workflow, and `mobile-eas-build-submit.yml` is the
+private reusable implementation used by the three store deployment workflows.
 
-Cloud workflows are non-interactive: every credential has to exist on EAS beforehand, because
-nothing can prompt for an Apple login mid-run. `staging-deploy.yml` also pins
-`environment: preview` on all four jobs, so build-time variables must be present in the EAS
-**preview** environment, not just in a local `.env`.
+| GitHub workflow                        | Trigger           | Database configuration       | iOS destination                | Android destination    |
+| -------------------------------------- | ----------------- | ---------------------------- | ------------------------------ | ---------------------- |
+| `mobile-eas-development.yml`           | Push to `dev`     | EAS `development`            | Internal development client    | Internal APK           |
+| `mobile-eas-staging-testflight.yml`    | Push to `staging` | EAS `preview` (staging data) | App Store Connect / TestFlight | Play internal testing  |
+| `mobile-eas-production-testflight.yml` | Push to `main`    | EAS `production`             | App Store Connect / TestFlight | Play beta/open testing |
+| `mobile-eas-production.yml`            | `native-v*` tag   | EAS `production`             | App Store Connect / TestFlight | Play production        |
+
+All four can also be started manually with their matching package script:
+
+| Lane                           | Command                                               |
+| ------------------------------ | ----------------------------------------------------- |
+| Development client build       | `pnpm --filter native workflow:development`           |
+| Staging database TestFlight    | `pnpm --filter native workflow:testflight:staging`    |
+| Production database TestFlight | `pnpm --filter native workflow:testflight:production` |
+| Production database production | `pnpm --filter native workflow:production`            |
+
+Cloud jobs are non-interactive, and GitHub must have an `EXPO_TOKEN` repository secret. The
+development workflow validates dev-client, internal-distribution, APK, environment, and no-submit
+invariants before building. For the other lanes, Apple and Google credentials must exist on EAS;
+the shared workflow validates store distribution, Android App Bundle output, auto-increment,
+Play track, and App Store Connect app ID before it starts a paid build.
+
+The remote EAS values were checked without printing them: `preview` resolves to a different
+Supabase project than `production`, while `development` currently resolves to the same Supabase
+project as `preview`. In other words, the development client and staging TestFlight build share the
+staging database today; both production-backed lanes share the production database.
+
+EAS Submit uploads each of the three store iOS lanes to App Store Connect, where it becomes a
+TestFlight build. Apple does not let EAS Submit send a production build directly into App Review,
+so promoting the tagged production build to App Review and releasing it remain explicit App Store
+Connect steps.
+
+### Versioning
+
+`app.json` is the source of the user-visible version and defines one release train. A production tag
+must be named `native-v<app.json version>`; the production workflow rejects a mismatched tag before
+starting either paid build. `eas.json` keeps native build numbers remotely and auto-increments them
+for all three store profiles, preventing App Store and Play version-code collisions when multiple
+builds share the same user-visible version. Development clients do not auto-increment store build
+numbers because they are never submitted. Corepack pins EAS to the repository's root pnpm version.
+
+The historical first full EAS Workflow run below is retained as credential troubleshooting context;
+normal runs originate in GitHub Actions, while the old workflows can still be invoked manually.
 
 **First full run, 2026-08-02** (`019fc3a5-3a0c-782f-b5a3-636bd85efda0`):
 
@@ -434,21 +475,3 @@ nothing can prompt for an Apple login mid-run. `staging-deploy.yml` also pins
 | `submit_ios`     | SUCCESS — reached TestFlight                  |
 | `build_android`  | SUCCESS                                       |
 | `submit_android` | FAILURE — Play Developer API disabled, §12 #4 |
-
-### Known issue
-
-`development-build.yml`'s `publish_update` job (`type: update`) fails during `expo export` with:
-
-```
-Unable to resolve module @formatjs/intl-pluralrules/locale-data/zh-Hant
-```
-
-`metro.config.js` already aliases that specifier to `.../zh` (the package ships language-level
-plural data only, and Chinese has one plural category regardless of script). The alias is intact —
-`uniwind/metro` chains to it rather than replacing it, and the identical export command
-(`expo export --source-maps --dump-assetmap --platform ios --platform android`) succeeds locally,
-as does the `build_android` job in the staging workflow, which bundles through the same config.
-So the fault is specific to the `type: update` job environment, not the resolver. Unconfirmed lead:
-that job's log shows `npm warn deprecated` lines even though the workflow declares
-`corepack: true` / `pnpm: 11.9.0`, which would mean a different dependency tree than the pnpm
-workspace produces.

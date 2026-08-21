@@ -1,0 +1,129 @@
+name: Mobile EAS Build and Submit
+
+on:
+  workflow_call:
+    inputs:
+      profile:
+        description: Matching EAS build and submit profile
+        required: true
+        type: string
+      environment:
+        description: EAS environment containing the lane's backend configuration
+        required: true
+        type: string
+      android_track:
+        description: Google Play track that must receive the build
+        required: true
+        type: string
+    secrets:
+      EXPO_TOKEN:
+        required: true
+
+jobs:
+  deploy:
+    name: Build and submit ${{ inputs.profile }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+    steps:
+      - name: Require EXPO_TOKEN
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::EXPO_TOKEN is not configured for this repository."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.14.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+          packager: npm
+
+      - name: Verify store deployment profile
+        working-directory: apps/native
+        env:
+          TARGET_PROFILE: ${{ inputs.profile }}
+          TARGET_ENVIRONMENT: ${{ inputs.environment }}
+          TARGET_ANDROID_TRACK: ${{ inputs.android_track }}
+        run: |
+          actual_environment="$(jq -er --arg profile "$TARGET_PROFILE" '.build[$profile].environment' eas.json)"
+          actual_distribution="$(jq -r --arg profile "$TARGET_PROFILE" '.build[$profile].distribution // "store"' eas.json)"
+          actual_auto_increment="$(jq -r --arg profile "$TARGET_PROFILE" '.build[$profile].autoIncrement // false' eas.json)"
+          actual_android_type="$(jq -r --arg profile "$TARGET_PROFILE" '.build[$profile].android.buildType // "app-bundle"' eas.json)"
+          actual_android_track="$(jq -er --arg profile "$TARGET_PROFILE" '.submit[$profile].android.track' eas.json)"
+          ios_app_id="$(jq -er --arg profile "$TARGET_PROFILE" '.submit[$profile].ios.ascAppId' eas.json)"
+
+          [ "$actual_environment" = "$TARGET_ENVIRONMENT" ] || {
+            echo "Profile $TARGET_PROFILE uses EAS environment $actual_environment, expected $TARGET_ENVIRONMENT." >&2
+            exit 1
+          }
+          [ "$actual_distribution" = "store" ] || {
+            echo "Profile $TARGET_PROFILE is not a store-distribution build." >&2
+            exit 1
+          }
+          [ "$actual_auto_increment" = "true" ] || {
+            echo "Profile $TARGET_PROFILE does not auto-increment store build versions." >&2
+            exit 1
+          }
+          [ "$actual_android_type" = "app-bundle" ] || {
+            echo "Profile $TARGET_PROFILE does not produce a Google Play app bundle." >&2
+            exit 1
+          }
+          [ "$actual_android_track" = "$TARGET_ANDROID_TRACK" ] || {
+            echo "Profile $TARGET_PROFILE submits to Play track $actual_android_track, expected $TARGET_ANDROID_TRACK." >&2
+            exit 1
+          }
+          [ -n "$ios_app_id" ] || {
+            echo "Profile $TARGET_PROFILE has no App Store Connect app ID." >&2
+            exit 1
+          }
+
+      - name: Build and submit to both stores
+        working-directory: apps/native
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          TARGET_PROFILE: ${{ inputs.profile }}
+        run: >-
+          eas build
+          --platform all
+          --profile "$TARGET_PROFILE"
+          --auto-submit-with-profile "$TARGET_PROFILE"
+          --non-interactive
+
+      - name: Summarize deployment
+        env:
+          TARGET_PROFILE: ${{ inputs.profile }}
+          TARGET_ENVIRONMENT: ${{ inputs.environment }}
+          TARGET_ANDROID_TRACK: ${{ inputs.android_track }}
+        run: |
+          {
+            echo "## $TARGET_PROFILE store deployment"
+            echo
+            echo "- EAS environment: \`$TARGET_ENVIRONMENT\`"
+            echo "- iOS destination: App Store Connect / TestFlight"
+            echo "- Android destination: Google Play \`$TARGET_ANDROID_TRACK\` track"
+            echo "- Store build numbers: remotely auto-incremented by EAS"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,34 @@
+name: Mobile EAS TestFlight - Production Database
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/native/**
+      - packages/backend/**
+      - packages/scraper-core/**
+      - patches/**
+      - .easignore
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - .github/workflows/mobile-eas-production-testflight.yml
+      - .github/workflows/mobile-eas-build-submit.yml
+      - "!**/*.md"
+
+concurrency:
+  group: mobile-eas-production-testflight-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  production_testflight:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/mobile-eas-build-submit.yml
+    with:
+      profile: beta
+      environment: production
+      android_track: beta
+    secrets: inherit

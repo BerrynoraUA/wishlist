@@ -1,0 +1,111 @@
+name: Mobile EAS Development Client
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+    paths:
+      - apps/native/**
+      - packages/backend/**
+      - packages/scraper-core/**
+      - patches/**
+      - .easignore
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - .github/workflows/mobile-eas-development.yml
+      - "!**/*.md"
+
+concurrency:
+  group: mobile-eas-development-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  development:
+    name: Build development client
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+    steps:
+      - name: Require EXPO_TOKEN
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::EXPO_TOKEN is not configured for this repository."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.14.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+          packager: npm
+
+      - name: Verify development client profile
+        working-directory: apps/native
+        run: |
+          development_client="$(jq -r '.build.development.developmentClient // false' eas.json)"
+          distribution="$(jq -er '.build.development.distribution' eas.json)"
+          environment="$(jq -er '.build.development.environment' eas.json)"
+          android_type="$(jq -er '.build.development.android.buildType' eas.json)"
+          submit_profile="$(jq -r 'has("submit") and (.submit | has("development"))' eas.json)"
+
+          [ "$development_client" = "true" ] || {
+            echo "The development profile is not an Expo development client." >&2
+            exit 1
+          }
+          [ "$distribution" = "internal" ] || {
+            echo "The development profile is not internally distributed." >&2
+            exit 1
+          }
+          [ "$environment" = "development" ] || {
+            echo "The development profile does not use the development EAS environment." >&2
+            exit 1
+          }
+          [ "$android_type" = "apk" ] || {
+            echo "The development profile does not produce an installable Android APK." >&2
+            exit 1
+          }
+          [ "$submit_profile" = "false" ] || {
+            echo "The development profile must not have a store submission profile." >&2
+            exit 1
+          }
+
+      - name: Build development clients
+        working-directory: apps/native
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: eas build --platform all --profile development --non-interactive
+
+      - name: Summarize build
+        run: |
+          {
+            echo "## Development clients built"
+            echo
+            echo "- EAS environment: \`development\`"
+            echo "- Distribution: internal"
+            echo "- Store submission: disabled"
+          } >> "$GITHUB_STEP_SUMMARY"

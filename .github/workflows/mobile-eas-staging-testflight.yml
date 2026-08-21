@@ -1,0 +1,34 @@
+name: Mobile EAS TestFlight - Staging Database
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - staging
+    paths:
+      - apps/native/**
+      - packages/backend/**
+      - packages/scraper-core/**
+      - patches/**
+      - .easignore
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - .github/workflows/mobile-eas-staging-testflight.yml
+      - .github/workflows/mobile-eas-build-submit.yml
+      - "!**/*.md"
+
+concurrency:
+  group: mobile-eas-staging-testflight-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  staging_testflight:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/mobile-eas-build-submit.yml
+    with:
+      profile: staging
+      environment: preview
+      android_track: internal
+    secrets: inherit
