@@ -10,6 +10,11 @@ defaults:
 # TestFlight and Play open testing. Never touches the Play production track;
 # that stays with release-build.yml.
 #
+# Fingerprint-gated, same rule as production: build and submit only when no beta
+# build matches the current native fingerprint, otherwise publish an OTA to the
+# beta channel. Bumping `version` in app.json changes the fingerprint and so
+# cuts the next beta build.
+#
 # on:
 #   push:
 #     branches:
@@ -19,12 +24,43 @@ defaults:
 #       - "!**/*.md"
 
 concurrency:
-  cancel_in_progress: true
+  # Never cancel: OTAs must publish in merge order, and a cancelled run can
+  # leave a half-finished build the next run would duplicate.
+  cancel_in_progress: false
   group: ${{ workflow.filename }}-${{ github.ref }}
 
 jobs:
+  fingerprint:
+    name: Fingerprint
+    type: fingerprint
+    environment: production
+
+  get_ios_build:
+    name: Check for existing iOS build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: ios
+      profile: beta
+      fingerprint_hash: ${{ needs.fingerprint.outputs.ios_fingerprint_hash }}
+      # An in-progress build counts as existing, otherwise every push during
+      # the build window cuts a duplicate.
+      wait_for_in_progress: true
+
+  get_android_build:
+    name: Check for existing Android build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: android
+      profile: beta
+      fingerprint_hash: ${{ needs.fingerprint.outputs.android_fingerprint_hash }}
+      wait_for_in_progress: true
+
   build_ios:
     name: Build iOS Beta
+    needs: [get_ios_build]
+    if: ${{ !needs.get_ios_build.outputs.build_id }}
     type: build
     environment: production
     params:
@@ -43,6 +79,8 @@ jobs:
 
   build_android:
     name: Build Android Beta
+    needs: [get_android_build]
+    if: ${{ !needs.get_android_build.outputs.build_id }}
     type: build
     environment: production
     params:
@@ -58,3 +96,25 @@ jobs:
     params:
       build_id: ${{ needs.build_android.outputs.build_id }}
       profile: beta
+
+  publish_ios_update:
+    name: Publish iOS Beta Update
+    needs: [get_ios_build]
+    if: ${{ needs.get_ios_build.outputs.build_id }}
+    type: update
+    environment: production
+    params:
+      platform: ios
+      channel: beta
+      message: Beta update from ${{ github.ref_name }}
+
+  publish_android_update:
+    name: Publish Android Beta Update
+    needs: [get_android_build]
+    if: ${{ needs.get_android_build.outputs.build_id }}
+    type: update
+    environment: production
+    params:
+      platform: android
+      channel: beta
+      message: Beta update from ${{ github.ref_name }}

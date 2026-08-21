@@ -5,6 +5,11 @@ defaults:
     node: 22.14.0
     pnpm: 11.9.0
 
+# Fingerprint-gated, same rule as production: cut a development build only when
+# no development build matches the current native fingerprint, otherwise publish
+# an OTA to the development channel. A run that cuts a fresh build publishes no
+# update — the next JS-only push finds that build and updates it.
+#
 # on:
 #   push:
 #     branches:
@@ -14,12 +19,41 @@ defaults:
 #       - "!**/*.md"
 
 concurrency:
-  cancel_in_progress: true
+  cancel_in_progress: false
   group: ${{ workflow.filename }}-${{ github.ref }}
 
 jobs:
+  fingerprint:
+    name: Fingerprint
+    type: fingerprint
+    environment: development
+
+  get_android_build:
+    name: Check for existing Android build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: android
+      profile: development
+      fingerprint_hash: ${{ needs.fingerprint.outputs.android_fingerprint_hash }}
+      # An in-progress build counts as existing, otherwise every push during
+      # the build window cuts a duplicate.
+      wait_for_in_progress: true
+
+  get_ios_build:
+    name: Check for existing iOS build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: ios
+      profile: development
+      fingerprint_hash: ${{ needs.fingerprint.outputs.ios_fingerprint_hash }}
+      wait_for_in_progress: true
+
   build_android:
     name: Build Android Development
+    needs: [get_android_build]
+    if: ${{ !needs.get_android_build.outputs.build_id }}
     type: build
     environment: development
     params:
@@ -29,6 +63,8 @@ jobs:
 
   build_ios:
     name: Build iOS Development
+    needs: [get_ios_build]
+    if: ${{ !needs.get_ios_build.outputs.build_id }}
     type: build
     environment: development
     params:
@@ -36,12 +72,24 @@ jobs:
       profile: development
       message: Development build from ${{ github.ref_name }}
 
-  publish_update:
-    name: Publish Development Update
-    needs: [build_android, build_ios]
+  publish_android_update:
+    name: Publish Android Development Update
+    needs: [get_android_build]
+    if: ${{ needs.get_android_build.outputs.build_id }}
     type: update
     environment: development
     params:
-      platform: all
+      platform: android
+      channel: development
+      message: Development update from ${{ github.ref_name }}
+
+  publish_ios_update:
+    name: Publish iOS Development Update
+    needs: [get_ios_build]
+    if: ${{ needs.get_ios_build.outputs.build_id }}
+    type: update
+    environment: development
+    params:
+      platform: ios
       channel: development
       message: Development update from ${{ github.ref_name }}

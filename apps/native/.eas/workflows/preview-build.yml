@@ -5,6 +5,10 @@ defaults:
     node: 22.14.0
     pnpm: 11.9.0
 
+# Fingerprint-gated: a PR only needs its own build when it changes the native
+# fingerprint. A PR whose fingerprint already has a build reuses it, so
+# JS-only PRs cost no build minutes.
+#
 # on:
 #   pull_request:
 #     branches:
@@ -15,12 +19,38 @@ defaults:
 #       - "!**/*.md"
 
 concurrency:
+  # PR-scoped: superseded pushes to the same PR should stop building.
   cancel_in_progress: true
   group: ${{ workflow.filename }}-${{ github.ref }}
 
 jobs:
+  fingerprint:
+    name: Fingerprint
+    type: fingerprint
+    environment: development
+
+  get_android_build:
+    name: Check for existing Android build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: android
+      profile: development
+      fingerprint_hash: ${{ needs.fingerprint.outputs.android_fingerprint_hash }}
+
+  get_ios_build:
+    name: Check for existing iOS build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: ios
+      profile: development
+      fingerprint_hash: ${{ needs.fingerprint.outputs.ios_fingerprint_hash }}
+
   build_android:
     name: Build Android Preview
+    needs: [get_android_build]
+    if: ${{ !needs.get_android_build.outputs.build_id }}
     type: build
     environment: development
     params:
@@ -30,6 +60,8 @@ jobs:
 
   build_ios:
     name: Build iOS Preview
+    needs: [get_ios_build]
+    if: ${{ !needs.get_ios_build.outputs.build_id }}
     type: build
     environment: development
     params:

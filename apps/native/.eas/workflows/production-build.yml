@@ -5,6 +5,18 @@ defaults:
     node: 22.14.0
     pnpm: 11.9.0
 
+# Fingerprint-gated. A production build is cut only when no production build
+# matches the current native fingerprint; otherwise the change is JS-only and
+# ships as an OTA to the production channel, which reaches exactly the binaries
+# whose native project matches the update.
+#
+# `version` in app.json is part of the fingerprint (@expo/fingerprint skips only
+# package.json android/ios scripts by default, not ExpoConfigVersions), so
+# bumping `version` is on its own enough to force the next production build.
+# That is the release train: one version per train, cut by a version bump.
+#
+# Submission stays with release-build.yml, behind its approval gate.
+#
 # on:
 #   push:
 #     branches:
@@ -14,12 +26,43 @@ defaults:
 #       - "!**/*.md"
 
 concurrency:
-  cancel_in_progress: true
+  # Never cancel: OTAs must publish in merge order, and a cancelled run can
+  # leave a half-finished build the next run would duplicate.
+  cancel_in_progress: false
   group: ${{ workflow.filename }}-${{ github.ref }}
 
 jobs:
+  fingerprint:
+    name: Fingerprint
+    type: fingerprint
+    environment: production
+
+  get_android_build:
+    name: Check for existing Android build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: android
+      profile: production
+      fingerprint_hash: ${{ needs.fingerprint.outputs.android_fingerprint_hash }}
+      # An in-progress build counts as existing, otherwise every push during
+      # the build window cuts a duplicate.
+      wait_for_in_progress: true
+
+  get_ios_build:
+    name: Check for existing iOS build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: ios
+      profile: production
+      fingerprint_hash: ${{ needs.fingerprint.outputs.ios_fingerprint_hash }}
+      wait_for_in_progress: true
+
   build_android:
     name: Build Android Production
+    needs: [get_android_build]
+    if: ${{ !needs.get_android_build.outputs.build_id }}
     type: build
     environment: production
     params:
@@ -29,9 +72,33 @@ jobs:
 
   build_ios:
     name: Build iOS Production
+    needs: [get_ios_build]
+    if: ${{ !needs.get_ios_build.outputs.build_id }}
     type: build
     environment: production
     params:
       platform: ios
       profile: production
       message: Production build from ${{ github.ref_name }}
+
+  publish_android_update:
+    name: Publish Android Production Update
+    needs: [get_android_build]
+    if: ${{ needs.get_android_build.outputs.build_id }}
+    type: update
+    environment: production
+    params:
+      platform: android
+      channel: production
+      message: Production update from ${{ github.ref_name }}
+
+  publish_ios_update:
+    name: Publish iOS Production Update
+    needs: [get_ios_build]
+    if: ${{ needs.get_ios_build.outputs.build_id }}
+    type: update
+    environment: production
+    params:
+      platform: ios
+      channel: production
+      message: Production update from ${{ github.ref_name }}
