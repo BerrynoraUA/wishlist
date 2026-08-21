@@ -14,6 +14,7 @@ export function ItemImage({
   reservationLabel,
   stampLabel,
   overlayAction,
+  endAction,
   purchased,
   priority,
   priorityLabel,
@@ -27,6 +28,8 @@ export function ItemImage({
   stampLabel?: string | null;
   /** Control pinned to the top-start corner, e.g. the reveal toggle. */
   overlayAction?: React.ReactNode;
+  /** Control pinned to the top-end corner, under the badges — the report button. */
+  endAction?: React.ReactNode;
   purchased: boolean;
   priority: ReturnType<typeof import("@/lib/items").getItemPriority>;
   priorityLabel?: string | null;
@@ -121,6 +124,7 @@ export function ItemImage({
         {priority && priorityLabel && !(isDetail && isStarPriorityId(priority.id)) ? (
           <ItemPriorityBadge priority={priority} label={priorityLabel} compact context="card" />
         ) : null}
+        {endAction}
       </View>
 
       {item.price ? (

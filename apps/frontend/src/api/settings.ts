@@ -13,6 +13,7 @@ import {
   uploadPublicImage,
 } from "@/lib/helpers/storage-image";
 import { MAX_IMAGE_UPLOAD_BYTES } from "@/lib/image-upload";
+import { isDefaultAvatarUrl } from "@wishlist/backend/lib/default-avatars";
 import { getCurrentUser } from "./user";
 import { PublicProfile } from "./types/user";
 
@@ -108,6 +109,28 @@ export async function uploadAvatar(file: File): Promise<string> {
   }
 
   return publicUrl;
+}
+
+export async function selectDefaultAvatar(url: string): Promise<string> {
+  let previousAvatarUrl: string | null = null;
+  try {
+    const currentProfile = await getProfile();
+    previousAvatarUrl = currentProfile.avatar_url;
+  } catch {}
+
+  await updateProfile({ avatar_url: url });
+
+  // The defaults are shared, so only a photo the user uploaded is cleaned up.
+  if (
+    previousAvatarUrl &&
+    previousAvatarUrl !== url &&
+    !isDefaultAvatarUrl(previousAvatarUrl) &&
+    isSupabaseAvatarUrl(previousAvatarUrl)
+  ) {
+    await deleteAvatarImage(previousAvatarUrl);
+  }
+
+  return url;
 }
 
 export function isSupabaseAvatarUrl(url: string | null): boolean {

@@ -7,10 +7,13 @@ import { StyledPressable } from "@/components/ui/styled-pressable";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AvatarPickerSheet } from "@/components/settings/sheets/avatar-picker-sheet";
 import { SettingsControlsLabeledInput } from "@/components/settings/settings-controls";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { useCheckNickname, useProfile, useUpdateProfile } from "@/hooks/use-settings";
 import { useImageUploadField } from "@/lib/image-upload";
+import { removeOwnedStorageImage } from "@/lib/storage";
+import { isDefaultAvatarUrl } from "@wishlist/backend/lib/default-avatars";
 import * as ImagePicker from "expo-image-picker";
 import * as React from "react";
 import { UserRound } from "lucide-react-native";
@@ -44,6 +47,14 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
   });
   const values = useWatch({ control }) as ProfileFormValues;
   const [message, setMessage] = React.useState<ActionBottomSheetMessagePayload | null>(null);
+  // The form starts blank and is filled from the profile once it arrives, so validation
+  // stays quiet until then — otherwise every field reads as "required" while it loads.
+  const [hasInitializedForm, setHasInitializedForm] = React.useState(false);
+  const [isAvatarPickerOpen, setIsAvatarPickerOpen] = React.useState(false);
+  // A default avatar chosen in the picker, applied on save like every other field.
+  const [selectedDefaultAvatarUrl, setSelectedDefaultAvatarUrl] = React.useState<string | null>(
+    null,
+  );
   const [nicknameStatus, setNicknameStatus] = React.useState<
     "idle" | "checking" | "available" | "taken"
   >("idle");
@@ -59,6 +70,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
       shoeSize: formatProfileNumber(profile.shoe_size),
       bio: profile.bio ?? "",
     });
+    setHasInitializedForm(true);
   }, [profile, reset]);
 
   React.useEffect(() => {
@@ -87,25 +99,30 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
     return () => clearTimeout(timeout);
   }, [values.nickname, profile?.nickname]);
 
-  // Picked image wins over the stored one so a fresh choice is visible before it is saved.
-  const avatarPreviewUri = avatarUpload.pickedImage?.uri ?? profile?.avatar_url ?? null;
+  // Whatever was chosen this session wins over the stored one, so a fresh choice is
+  // visible before it is saved.
+  const avatarPreviewUri =
+    avatarUpload.pickedImage?.uri ?? selectedDefaultAvatarUrl ?? profile?.avatar_url ?? null;
   const trimmedDisplayName = values.displayName.trim();
   const trimmedNickname = values.nickname.trim();
   const displayNameError = React.useMemo(() => {
+    if (!hasInitializedForm) return null;
     if (trimmedDisplayName.length === 0) return t("Display name is required");
     if (trimmedDisplayName.length < 3) return t("Display name must be at least 3 characters");
     return null;
-  }, [trimmedDisplayName, t]);
+  }, [hasInitializedForm, trimmedDisplayName, t]);
 
   const nicknameError = React.useMemo(() => {
+    if (!hasInitializedForm) return null;
     if (trimmedNickname.length === 0) return t("Nickname is required");
     if (trimmedNickname.length < 3) return t("Nickname must be at least 3 characters");
     if (nicknameStatus === "taken") return t("This nickname is already taken");
     return null;
-  }, [trimmedNickname, nicknameStatus, t]);
+  }, [hasInitializedForm, trimmedNickname, nicknameStatus, t]);
 
   async function submitForm(formValues: ProfileFormValues) {
-    if (displayNameError || nicknameError) return;
+    // Saving before the profile lands would write the blank form over it.
+    if (!hasInitializedForm || displayNameError || nicknameError) return;
 
     const previousAvatarUrl = profile?.avatar_url ?? null;
     let avatarUrl: string | null | undefined;
@@ -122,6 +139,8 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
         });
         return;
       }
+    } else if (selectedDefaultAvatarUrl) {
+      avatarUrl = selectedDefaultAvatarUrl;
     }
 
     updateProfile.mutate(
@@ -138,6 +157,14 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
       {
         onSuccess: () => {
           void avatarUpload.commitPendingUpload(previousAvatarUrl);
+          // Swapping an uploaded photo for a default leaves the old file behind.
+          if (
+            selectedDefaultAvatarUrl &&
+            avatarUrl === selectedDefaultAvatarUrl &&
+            !isDefaultAvatarUrl(previousAvatarUrl)
+          ) {
+            void removeOwnedStorageImage("avatars", previousAvatarUrl);
+          }
           // The picked image stays as the preview on purpose: `useUpdateProfile` only
           // invalidates, so clearing it here would flash the old avatar until the refetch.
           setMessage({ title: t("Saved"), message: t("Profile updated.") });
@@ -194,6 +221,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
 
     // Shows immediately and uploads in the background. Nothing is written to the profile
     // until Save, so backing out of the screen leaves the current avatar untouched.
+    setSelectedDefaultAvatarUrl(null);
     avatarUpload.onPick({
       uri: asset.uri,
       mimeType: asset.mimeType,
@@ -208,7 +236,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
           <StyledPressable
             accessibilityRole="button"
             accessibilityLabel={t("Change profile photo")}
-            onPress={handlePickAvatar}
+            onPress={() => setIsAvatarPickerOpen(true)}
             className="size-14 overflow-hidden rounded-full active:opacity-80"
           >
             <Avatar
@@ -329,6 +357,16 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
           </Text>
         </Button>
       </SettingsSection>
+      <AvatarPickerSheet
+        open={isAvatarPickerOpen}
+        selectedUrl={avatarPreviewUri}
+        onSelect={(url) => {
+          avatarUpload.onClear();
+          setSelectedDefaultAvatarUrl(url);
+        }}
+        onUpload={handlePickAvatar}
+        onClose={() => setIsAvatarPickerOpen(false)}
+      />
       <ActionBottomSheetMessage message={message} onClose={() => setMessage(null)} />
     </>
   );

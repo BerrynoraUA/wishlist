@@ -5,6 +5,7 @@ import {
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
 import { ItemImage } from "@/components/items/item-image";
+import { ItemReportButton } from "@/components/items/item-report-button";
 import { Button } from "@/components/ui/button";
 import {
   ActionBottomSheetConfirm,
@@ -22,6 +23,7 @@ import {
   isDiscountActive,
 } from "@/lib/items";
 import { getLinkUrl, getValidHttpUrl } from "@/lib/urls";
+import { useReportItem } from "@/hooks/use-items";
 import type { Item } from "@wishlist/backend/types/item";
 import * as Clipboard from "expo-clipboard";
 import {
@@ -81,6 +83,8 @@ export function WishlistItemDetailSheet({
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const [confirmation, setConfirmation] = React.useState<Confirmation | null>(null);
   const [reserverRevealed, setReserverRevealed] = React.useState(false);
+  const [reportOpen, setReportOpen] = React.useState(false);
+  const reportItem = useReportItem();
 
   if (!item) return null;
   const selectedItem = item;
@@ -324,6 +328,7 @@ export function WishlistItemDetailSheet({
             priorityLabel={priorityLabel}
             salePercentOff={salePercentOff}
             showDiscountPrice={hasActiveDiscount}
+            endAction={isOwner ? null : <ItemReportButton onPress={() => setReportOpen(true)} />}
             size="detail"
           />
 
@@ -384,6 +389,18 @@ export function WishlistItemDetailSheet({
           ) : null}
         </BottomSheetScrollView>
       </BottomSheet>
+      <ActionBottomSheetConfirm
+        open={reportOpen}
+        title={t("Report this item?")}
+        message={t("Our team will take a look. You can only report an item once.")}
+        confirmLabel={t("Report")}
+        isPending={reportItem.isPending}
+        tone="destructive"
+        onClose={() => setReportOpen(false)}
+        onConfirm={() => {
+          reportItem.mutate(selectedItem.id, { onSettled: () => setReportOpen(false) });
+        }}
+      />
       <ActionBottomSheetConfirm
         open={Boolean(confirmation)}
         title={confirmation?.title ?? ""}

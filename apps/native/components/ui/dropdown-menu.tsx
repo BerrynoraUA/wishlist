@@ -36,6 +36,14 @@ const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
  */
 const attachedEntering = () => FadeInUp.springify().damping(20).stiffness(240);
 
+/**
+ * Corner radius of the lifted card snapshot. Must match the `rounded-xl` the cards that
+ * open an action menu are drawn with: the snapshot is a PNG whose own corners are already
+ * transparent, so clipping it any tighter leaves a translucent sliver of blurred backdrop
+ * showing between the two curves.
+ */
+const PREVIEW_CORNER_RADIUS = 20;
+
 type DropdownMenuPreview = {
   height: number;
   pageX: number;
@@ -43,6 +51,12 @@ type DropdownMenuPreview = {
   uri: string;
   width: number;
 };
+
+function nextFrame() {
+  return new Promise<void>((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+}
 
 function measureView(view: View) {
   return new Promise<Omit<DropdownMenuPreview, "uri">>((resolve) => {
@@ -62,6 +76,12 @@ function useDropdownMenuPreview() {
     if (!card) return;
 
     hapticLongPress();
+
+    // The card drops its pressed state as this long press fires (see AnimatedPressable);
+    // let that reach the screen before the snapshot, so the lifted copy is the card at
+    // rest rather than the dimmed, scaled-down one under the finger.
+    await nextFrame();
+    await nextFrame();
 
     try {
       const [layout, uri] = await Promise.all([
@@ -149,7 +169,7 @@ function DropdownMenuCaret({ side }: { side: "top" | "bottom" }) {
     <View
       pointerEvents="none"
       className={cn(
-        "absolute -ms-1.5 size-3 rotate-45 border-white/10 bg-[#121219]",
+        "absolute -ms-1.5 size-3 rotate-45 border-border bg-action-menu",
         side === "top" ? "-bottom-1.5 border-b border-e" : "-top-1.5 border-s border-t",
       )}
       style={{ start: "50%" }}
@@ -251,7 +271,7 @@ function DropdownMenuContent({
             left: preview.pageX,
             width: preview.width,
             height: preview.height,
-            borderRadius: 12,
+            borderRadius: PREVIEW_CORNER_RADIUS,
             borderCurve: "continuous",
             boxShadow: "0 14px 36px rgba(0, 0, 0, 0.34)",
           }}
@@ -259,7 +279,7 @@ function DropdownMenuContent({
           <Animated.Image
             source={{ uri: preview.uri }}
             resizeMode="stretch"
-            style={{ width: "100%", height: "100%", borderRadius: 12 }}
+            style={{ width: "100%", height: "100%", borderRadius: PREVIEW_CORNER_RADIUS }}
           />
         </Animated.View>
       ) : null}
@@ -270,7 +290,10 @@ function DropdownMenuContent({
           <DropdownMenuPrimitive.Content
             className={cn(
               "bg-card-bg/95 border-border min-w-[8rem] rounded-xl border p-1 shadow-xl shadow-black/15",
-              backdrop === "blur" && "rounded-2xl border-white/10 bg-[#121219]/96 p-2",
+              // Its own surface rather than the card colour: the action menu floats over a
+              // dimmed, blurred backdrop, so it needs a panel that stays legible in every
+              // theme — near-white in the light ones, near-black in the dark ones.
+              backdrop === "blur" && "border-border bg-action-menu rounded-2xl p-2",
               // The caret has to overhang the edge, so a menu with one cannot clip.
               !hasCaret && "overflow-hidden",
               className,

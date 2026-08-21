@@ -5,6 +5,7 @@ import {
   updateProfile,
   updateUserGuideStep,
   uploadAvatar,
+  selectDefaultAvatar,
   getSettings,
   updateSettings,
   changePassword,
@@ -104,6 +105,21 @@ export function useUploadAvatar() {
     },
     onError: (err) => {
       toast.error(err.message || "Failed to upload avatar");
+    },
+  });
+}
+
+export function useSelectDefaultAvatar() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (url: string) => selectDefaultAvatar(url),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: settingsKeys.profile() });
+      toast.success("Avatar updated");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update avatar");
     },
   });
 }

@@ -10,6 +10,7 @@
     "./db-types": "./db-types/index.ts",
     "./lib": "./lib/index.ts",
     "./lib/currencies": "./lib/currencies.ts",
+    "./lib/default-avatars": "./lib/default-avatars.ts",
     "./lib/filter-helpers": "./lib/filter-helpers.ts",
     "./lib/posthog-person-from-supabase": "./lib/posthog-person-from-supabase.ts",
     "./notifications/templates": "./notifications/templates.ts",

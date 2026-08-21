@@ -431,6 +431,22 @@ function ConfirmActionSheet({
 
   if (!open) return null;
 
+  const hasEscalation = Boolean(secondaryLabel && onSecondary);
+
+  // With an escalation present it takes the slot beside the confirm button, so the two
+  // destructive choices sit together and Cancel — the way out — gets the full width below
+  // them. Without one, Cancel keeps that slot and the sheet looks as it always has.
+  const cancelButton = (
+    <Button
+      className={hasEscalation ? undefined : "flex-1"}
+      variant="outline"
+      disabled={isPending}
+      onPress={() => void sheetRef.current?.dismiss()}
+    >
+      <Text>{t("Cancel")}</Text>
+    </Button>
+  );
+
   return (
     <BottomSheet
       ref={sheetRef}
@@ -442,24 +458,24 @@ function ConfirmActionSheet({
         <Text className="text-sm text-text-muted">{description}</Text>
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
         <View className="flex-row gap-2">
-          <Button
-            className="flex-1"
-            variant="outline"
-            disabled={isPending}
-            onPress={() => void sheetRef.current?.dismiss()}
-          >
-            <Text>{t("Cancel")}</Text>
-          </Button>
+          {hasEscalation ? (
+            <Button
+              className="flex-1 rounded-lg border border-destructive/35 bg-danger-bg"
+              variant="ghost"
+              disabled={isPending}
+              onPress={onSecondary}
+            >
+              <Text className="text-destructive">{secondaryLabel}</Text>
+            </Button>
+          ) : (
+            cancelButton
+          )}
           <Button className="flex-1" variant="destructive" disabled={isPending} onPress={onConfirm}>
             {isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
             <Text>{confirmLabel}</Text>
           </Button>
         </View>
-        {secondaryLabel && onSecondary ? (
-          <Button variant="ghost" disabled={isPending} onPress={onSecondary}>
-            <Text className="text-destructive">{secondaryLabel}</Text>
-          </Button>
-        ) : null}
+        {hasEscalation ? cancelButton : null}
       </View>
     </BottomSheet>
   );

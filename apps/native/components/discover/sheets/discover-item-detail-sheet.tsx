@@ -5,6 +5,7 @@ import {
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
 import { ItemImage } from "@/components/items/item-image";
+import { ItemReportButton } from "@/components/items/item-report-button";
 import {
   ActionBottomSheetConfirm,
   type ActionBottomSheetConfirmTone,
@@ -23,7 +24,7 @@ import {
 } from "@/lib/items";
 import { getLinkUrl, getValidHttpUrl } from "@/lib/urls";
 import type { Item } from "@wishlist/backend/types/item";
-import { Copy, ExternalLink, Flag, LockKeyhole, ShoppingCart } from "lucide-react-native";
+import { Copy, ExternalLink, LockKeyhole, ShoppingCart } from "lucide-react-native";
 import * as Clipboard from "expo-clipboard";
 import { useGT } from "gt-react-native";
 import * as React from "react";
@@ -181,10 +182,6 @@ export function DiscoverItemDetailSheet({
           {canUndoPurchase ? t("Undo") : reservation.isPurchased ? t("Purchased") : t("Buy")}
         </Text>
       </Button>
-      <Button variant="ghost" size="sm" onPress={() => setReportOpen(true)}>
-        <Icon as={Flag} className="size-4 text-text-muted" />
-        <Text className="text-text-muted">{t("Report")}</Text>
-      </Button>
     </View>
   );
 
@@ -213,6 +210,7 @@ export function DiscoverItemDetailSheet({
             priorityLabel={priorityLabel}
             salePercentOff={salePercentOff}
             showDiscountPrice={Boolean(item.has_discount)}
+            endAction={<ItemReportButton onPress={() => setReportOpen(true)} />}
             size="detail"
           />
 
