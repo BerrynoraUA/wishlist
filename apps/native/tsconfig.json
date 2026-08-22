@@ -4,7 +4,13 @@
     "jsx": "react-jsx",
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    // Expo's `*.css` module declarations normally arrive via `expo-env.d.ts`,
+    // which only the Metro dev server writes and which is gitignored — so a
+    // clean CI checkout has no declaration for `import "@/global.css"`.
+    // Referencing Expo's published types directly makes this independent of
+    // whether anyone has run `expo start` first.
+    "types": ["expo/types"]
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }
