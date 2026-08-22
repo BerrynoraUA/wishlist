@@ -235,7 +235,6 @@ export function WishlistShareSheet({
     <BottomSheet
       ref={sheetRef}
       detents={["auto"]}
-      cornerRadius={28}
       onDidDismiss={() => onOpenChange(false)}
       header={
         <BottomSheetHeader
