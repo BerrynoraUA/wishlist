@@ -75,6 +75,8 @@ jobs:
           actual_android_type="$(jq -r --arg profile "$TARGET_PROFILE" '.build[$profile].android.buildType // "app-bundle"' eas.json)"
           actual_android_track="$(jq -er --arg profile "$TARGET_PROFILE" '.submit[$profile].android.track' eas.json)"
           ios_app_id="$(jq -er --arg profile "$TARGET_PROFILE" '.submit[$profile].ios.ascAppId' eas.json)"
+          eas_pnpm="$(jq -er --arg profile "$TARGET_PROFILE" '.build[$profile].pnpm // .build[(.build[$profile].extends // "base")].pnpm' eas.json)"
+          repo_package_manager="$(jq -er '.packageManager' ../../package.json)"
 
           [ "$actual_environment" = "$TARGET_ENVIRONMENT" ] || {
             echo "Profile $TARGET_PROFILE uses EAS environment $actual_environment, expected $TARGET_ENVIRONMENT." >&2
@@ -98,6 +100,10 @@ jobs:
           }
           [ -n "$ios_app_id" ] || {
             echo "Profile $TARGET_PROFILE has no App Store Connect app ID." >&2
+            exit 1
+          }
+          [ "$repo_package_manager" = "pnpm@$eas_pnpm" ] || {
+            echo "Profile $TARGET_PROFILE pins pnpm $eas_pnpm but the repository requires $repo_package_manager." >&2
             exit 1
           }
 

@@ -462,7 +462,11 @@ must be named `native-v<app.json version>`; the production workflow rejects a mi
 starting either paid build. `eas.json` keeps native build numbers remotely and auto-increments them
 for all three store profiles, preventing App Store and Play version-code collisions when multiple
 builds share the same user-visible version. Development clients do not auto-increment store build
-numbers because they are never submitted. Corepack pins EAS to the repository's root pnpm version.
+numbers because they are never submitted. `eas.json` pins the pnpm version EAS Build installs; it
+must stay equal to the `packageManager` field in the root `package.json`, and the build workflow
+fails fast when the two drift apart. Corepack must stay disabled: EAS installs pnpm itself, and
+enabling corepack makes that install collide with the corepack shim
+([expo/eas-cli#3148](https://github.com/expo/eas-cli/issues/3148)).
 
 The historical first full EAS Workflow run below is retained as credential troubleshooting context;
 normal runs originate in GitHub Actions, while the old workflows can still be invoked manually.
