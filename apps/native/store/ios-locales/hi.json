@@ -1,0 +1,10 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Wishlane को अपनी लाइब्रेरी से प्रोफ़ाइल तस्वीर चुनने की अनुमति दें।",
+    "NSFaceIDUsageDescription": "Wishlane को सहेजे गए खातों के बीच सुरक्षित रूप से बदलने की अनुमति दें।"
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
+}

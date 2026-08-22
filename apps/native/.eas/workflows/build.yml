@@ -3,9 +3,10 @@ name: Native Build
 defaults:
   tools:
     node: 22.14.0
-    corepack: true
-    pnpm: 11.9.0
+    pnpm: 11.20.0
 
+# Manual-only: workflow_dispatch never fires automatically, and the inputs
+# block must stay declared for `${{ inputs.profile }}` to resolve.
 on:
   workflow_dispatch:
     inputs:
@@ -17,6 +18,7 @@ on:
         options:
           - development
           - staging
+          - beta
           - production
 
 concurrency:

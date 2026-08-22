@@ -1,6 +1,7 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { hapticSuccess, hapticWarning } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { useGT } from "gt-react-native";
 import * as React from "react";
@@ -11,7 +12,8 @@ export type ActionBottomSheetMessagePayload = {
   message?: string;
 };
 
-export type ActionBottomSheetConfirmTone = "default" | "brand" | "success" | "destructive";
+/** "buy" is the purchase action: green like success, but rose when the accent itself is green. */
+export type ActionBottomSheetConfirmTone = "default" | "brand" | "success" | "buy" | "destructive";
 
 export function ActionBottomSheetMessage({
   message,
@@ -30,14 +32,16 @@ export function ActionBottomSheetMessage({
   }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
-      <View className="gap-4 px-5 pb-5 pt-5">
-        <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">{message.title}</Text>
-          {message.message ? (
-            <Text className="text-sm leading-5 text-text-muted">{message.message}</Text>
-          ) : null}
-        </View>
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={onClose}
+      header={<BottomSheetHeader title={message.title} />}
+    >
+      <View className="gap-4 px-5">
+        {message.message ? (
+          <Text className="text-sm leading-5 text-text-muted">{message.message}</Text>
+        ) : null}
         <Button onPress={handleClose}>
           <Text>{t("OK")}</Text>
         </Button>
@@ -77,14 +81,27 @@ export function ActionBottomSheetConfirm({
   function handleClose() {
     void sheetRef.current?.dismiss();
   }
+  function handleConfirm() {
+    // Destructive steps get the sharper pattern so they feel different from a
+    // reserve or a purchase landing.
+    if (tone === "destructive") {
+      hapticWarning();
+    } else {
+      hapticSuccess();
+    }
+
+    onConfirm();
+  }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
-      <View className="gap-4 px-5 pb-5 pt-5">
-        <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">{title}</Text>
-          <Text className="text-sm leading-5 text-text-muted">{message}</Text>
-        </View>
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={onClose}
+      header={<BottomSheetHeader title={title} />}
+    >
+      <View className="gap-4 px-5">
+        <Text className="text-sm leading-5 text-text-muted">{message}</Text>
         {children}
         <View className="flex-row gap-2">
           <Button className="flex-1" variant="outline" disabled={isPending} onPress={handleClose}>
@@ -95,14 +112,16 @@ export function ActionBottomSheetConfirm({
               tone === "destructive" ? "destructive" : tone === "default" ? "default" : "ghost"
             }
             disabled={isPending || confirmDisabled}
-            onPress={onConfirm}
+            onPress={handleConfirm}
             className={cn(
               "flex-1",
               tone === "success"
                 ? "rounded-lg border border-success/35 bg-success-bg"
-                : tone === "brand"
-                  ? "rounded-lg border border-brand/25 bg-brand-lighter"
-                  : undefined,
+                : tone === "buy"
+                  ? "rounded-lg border border-buy/35 bg-buy-bg"
+                  : tone === "brand"
+                    ? "rounded-lg border border-brand/25 bg-brand-lighter"
+                    : undefined,
             )}
           >
             {isPending ? (
@@ -110,15 +129,23 @@ export function ActionBottomSheetConfirm({
                 colorClassName={
                   tone === "success"
                     ? "accent-success"
-                    : tone === "brand"
-                      ? "accent-brand"
-                      : "accent-white"
+                    : tone === "buy"
+                      ? "accent-buy"
+                      : tone === "brand"
+                        ? "accent-brand"
+                        : "accent-white"
                 }
               />
             ) : null}
             <Text
               className={
-                tone === "success" ? "text-success" : tone === "brand" ? "text-brand" : undefined
+                tone === "success"
+                  ? "text-success"
+                  : tone === "buy"
+                    ? "text-buy"
+                    : tone === "brand"
+                      ? "text-brand"
+                      : undefined
               }
             >
               {confirmLabel}

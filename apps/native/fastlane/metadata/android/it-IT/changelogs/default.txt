@@ -1,0 +1,8 @@
+La prima versione di Wishlane.
+
+- Liste con colori, priorità e date
+- Incolla un link e compiliamo noi i dettagli
+- Liste pubbliche, solo per amici o private
+- Prenota regali in segreto sulle liste degli amici
+- Gruppo Babbo Natale segreto con estrazione automatica
+- Liste degli amici ed eventi in arrivo

@@ -10,6 +10,9 @@ import {
   useOutgoingFriendRequests,
   useRejectFriendRequest,
   useRemoveFriend,
+  useBlockUser,
+  useBlockedUsers,
+  useUnblockUser,
   useCancelFriendRequest,
   useCreateFriendGroup,
   useDeleteFriendGroup,
@@ -34,6 +37,12 @@ export function useFriendsPage() {
   const [groupModalOpen, setGroupModalOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<FriendGroup | null>(null);
   const [friendToRemoveId, setFriendToRemoveId] = useState<string | null>(null);
+  const [blockOnRemove, setBlockOnRemove] = useState(false);
+  const [requestToDecline, setRequestToDecline] = useState<{
+    requestId: string;
+    senderId: string;
+  } | null>(null);
+  const [blockOnDecline, setBlockOnDecline] = useState(false);
 
   const search = useMemo(() => getFriendsSearch(searchParams), [searchParams]);
 
@@ -41,25 +50,58 @@ export function useFriendsPage() {
   const groupsQuery = useFriendGroups();
   const requestsQuery = useIncomingFriendRequests();
   const outgoingQuery = useOutgoingFriendRequests();
+  const blockedQuery = useBlockedUsers({ search });
 
   const acceptRequest = useAcceptFriendRequest();
   const rejectRequest = useRejectFriendRequest();
   const removeFriend = useRemoveFriend();
   const cancelRequest = useCancelFriendRequest();
+  const blockUser = useBlockUser();
+  const unblockUser = useUnblockUser();
   const createGroup = useCreateFriendGroup();
   const updateGroup = useUpdateFriendGroup();
   const deleteGroup = useDeleteFriendGroup();
 
   function handleRemoveFriend(friendId: string) {
     setFriendToRemoveId(friendId);
+    setBlockOnRemove(false);
+  }
+
+  function closeRemoveFriend() {
+    setFriendToRemoveId(null);
+    setBlockOnRemove(false);
   }
 
   function handleConfirmRemoveFriend() {
     if (!friendToRemoveId) return;
 
-    removeFriend.mutate(friendToRemoveId, {
-      onSuccess: () => setFriendToRemoveId(null),
-    });
+    // Blocking already drops the friendship, so it replaces the plain removal
+    // rather than running alongside it.
+    const mutation = blockOnRemove ? blockUser : removeFriend;
+    mutation.mutate(friendToRemoveId, { onSuccess: closeRemoveFriend });
+  }
+
+  function handleDeclineRequest(requestId: string, senderId: string) {
+    setRequestToDecline({ requestId, senderId });
+    setBlockOnDecline(false);
+  }
+
+  function closeDeclineRequest() {
+    setRequestToDecline(null);
+    setBlockOnDecline(false);
+  }
+
+  function handleConfirmDeclineRequest() {
+    if (!requestToDecline) return;
+
+    // Blocking already cancels the pending request, so it stands in for the
+    // plain rejection rather than running after it.
+    if (blockOnDecline) {
+      blockUser.mutate(requestToDecline.senderId, { onSuccess: closeDeclineRequest });
+      return;
+    }
+
+    rejectRequest.mutate(requestToDecline.requestId, { onSuccess: closeDeclineRequest });
   }
 
   function handleCreateGroup() {
@@ -103,6 +145,15 @@ export function useFriendsPage() {
     groupModalOpen,
     editingGroup,
     friendToRemoveId,
+    blockOnRemove,
+    setBlockOnRemove,
+    closeRemoveFriend,
+    requestToDecline,
+    blockOnDecline,
+    setBlockOnDecline,
+    closeDeclineRequest,
+    handleDeclineRequest,
+    handleConfirmDeclineRequest,
     friends: friendsQuery.data ?? [],
     friendsLoading: friendsQuery.isLoading,
     friendsError: friendsQuery.isError,
@@ -115,10 +166,15 @@ export function useFriendsPage() {
     outgoing: outgoingQuery.data ?? [],
     outgoingLoading: outgoingQuery.isLoading,
     outgoingError: outgoingQuery.isError,
+    blocked: blockedQuery.data ?? [],
+    blockedLoading: blockedQuery.isLoading,
+    blockedError: blockedQuery.isError,
     acceptRequest,
     rejectRequest,
     cancelRequest,
     removeFriend,
+    blockUser,
+    unblockUser,
     createGroup,
     updateGroup,
     deleteGroup,

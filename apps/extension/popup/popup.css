@@ -271,6 +271,176 @@ textarea:focus {
   margin-bottom: 10px;
 }
 
+/* ================================================================== */
+/*  Import from another service                                        */
+/* ================================================================== */
+
+.import-block {
+  margin-bottom: 14px;
+}
+
+/* Circular monogram standing in for each service's logo. */
+.import-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--brand-alpha-10);
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.import-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font);
+  transition: all 0.2s var(--ease);
+}
+
+.import-card:hover:not(:disabled) {
+  border-color: var(--brand);
+  transform: translateY(-1px);
+}
+
+.import-card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.import-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.import-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.import-card-sub {
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.import-card-arrow {
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+.import-card:hover:not(:disabled) .import-card-arrow {
+  color: var(--brand);
+}
+
+.import-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 2px;
+  border: none;
+  background: none;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.import-toggle:hover {
+  color: var(--brand);
+}
+
+.import-chevron {
+  transition: transform 0.2s var(--ease);
+}
+
+.import-toggle.open .import-chevron {
+  transform: rotate(180deg);
+}
+
+.import-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+}
+
+.import-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  font-family: var(--font);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s var(--ease);
+}
+
+.import-option:hover:not(:disabled) {
+  background: var(--brand-alpha-06);
+}
+
+.import-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.import-option .import-badge {
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  background: var(--border-light);
+  color: var(--text-muted);
+}
+
+.import-option-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.import-status {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 8px 2px 0;
+  line-height: 1.5;
+}
+
+.import-status.busy {
+  color: var(--brand);
+}
+
+.import-status.done {
+  color: #1f8a4c;
+}
+
+.import-status.failed {
+  color: #c0392b;
+}
+
 .setup-hint {
   background: #f0f4ff;
   color: #2563eb;

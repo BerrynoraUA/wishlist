@@ -1,0 +1,10 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Leiskite „Wishlane“ pasirinkti profilio nuotrauką iš jūsų bibliotekos.",
+    "NSFaceIDUsageDescription": "Leiskite „Wishlane“ saugiai perjungti išsaugotas paskyras."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
+}

@@ -8,12 +8,14 @@ import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText
 import { validateImageUploadFile } from "@/lib/image-upload";
 import styles from "./ProfileSettings.module.scss";
 import { SettingsSection } from "../settings-section/SettingsSection";
+import { AvatarPickerModal } from "../avatar-picker-modal/AvatarPickerModal";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { Button } from "@/components/ui/Button/Button";
 import {
   useProfile,
   useUpdateProfile,
   useUploadAvatar,
+  useSelectDefaultAvatar,
   useCheckNickname,
 } from "@/hooks/use-settings";
 
@@ -22,6 +24,7 @@ export function ProfileSettings() {
   const { data: profile, isLoading } = useProfile();
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadAvatar();
+  const selectDefaultAvatar = useSelectDefaultAvatar();
   const checkNickname = useCheckNickname();
 
   const [displayName, setDisplayName] = useState("");
@@ -31,6 +34,7 @@ export function ProfileSettings() {
   const [bio, setBio] = useState("");
   const [hasInitializedForm, setHasInitializedForm] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false);
   const [nicknameStatus, setNicknameStatus] = useState<"idle" | "checking" | "available" | "taken">(
     "idle",
   );
@@ -199,8 +203,8 @@ export function ProfileSettings() {
           <button
             type="button"
             className={styles.avatarUpload}
-            onClick={() => fileRef.current?.click()}
-            disabled={uploadAvatar.isPending}
+            onClick={() => setIsAvatarPickerOpen(true)}
+            disabled={uploadAvatar.isPending || selectDefaultAvatar.isPending}
           >
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -225,7 +229,7 @@ export function ProfileSettings() {
           />
           <div className={styles.avatarHint}>
             <p>
-              {t("Click to upload a new avatar", {
+              {t("Click to pick an avatar or upload your own", {
                 $id: "settings.profile.avatarHint",
               })}
             </p>
@@ -361,6 +365,19 @@ export function ProfileSettings() {
           )}
         </div>
       </SettingsSection>
+      <AvatarPickerModal
+        open={isAvatarPickerOpen}
+        selectedUrl={profile?.avatar_url}
+        isSaving={selectDefaultAvatar.isPending}
+        onSelect={(url) =>
+          selectDefaultAvatar.mutate(url, { onSuccess: () => setIsAvatarPickerOpen(false) })
+        }
+        onUpload={() => {
+          setIsAvatarPickerOpen(false);
+          fileRef.current?.click();
+        }}
+        onClose={() => setIsAvatarPickerOpen(false)}
+      />
     </>
   );
 }

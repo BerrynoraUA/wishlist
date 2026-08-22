@@ -6,6 +6,15 @@ import type {
   ItemVotesResult,
   UpdateItemParams,
 } from "@wishlist/backend/types/item";
+import { createLocalizedNotification } from "@/lib/create-notification";
+
+/** Extra fields the toggle RPCs return alongside the item, used to notify the owner. */
+type ToggleItemResult = {
+  owner_id?: string | null;
+  wishlist_id?: string | null;
+  is_reserved_by_me?: boolean;
+  is_bought_by_me?: boolean;
+};
 
 export async function getWishlistItems(
   wishlistId: string,
@@ -111,6 +120,18 @@ export async function updateItem(itemId: string, updates: UpdateItemParams): Pro
   return data as Item;
 }
 
+/**
+ * Records a report against someone else's item. Resolves to false when this
+ * user had already reported it — the same person never counts twice.
+ */
+export async function reportItem(itemId: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc("report_item", { p_item_id: itemId });
+
+  if (error) throw error;
+
+  return Boolean(data);
+}
+
 export async function deleteItem(itemId: string): Promise<void> {
   const { error } = await supabase.from("item").delete().eq("id", itemId);
 
@@ -124,6 +145,16 @@ export async function toggleItemReservation(itemId: string): Promise<Item> {
 
   if (error) throw new Error(error.message || "Failed to toggle reservation");
 
+  const result = data as ToggleItemResult;
+  if (result?.is_reserved_by_me && result.owner_id) {
+    void createLocalizedNotification({
+      receiverId: result.owner_id,
+      key: "item_reserved",
+      vars: {},
+      entityId: result.wishlist_id ?? null,
+    });
+  }
+
   return data as Item;
 }
 
@@ -133,6 +164,16 @@ export async function toggleItemBought(itemId: string): Promise<Item> {
   });
 
   if (error) throw new Error(error.message || "Failed to toggle item bought status");
+
+  const result = data as ToggleItemResult;
+  if (result?.is_bought_by_me && result.owner_id) {
+    void createLocalizedNotification({
+      receiverId: result.owner_id,
+      key: "item_bought",
+      vars: {},
+      entityId: result.wishlist_id ?? null,
+    });
+  }
 
   return data as Item;
 }

@@ -1,0 +1,8 @@
+Rilis pertama Wishlane.
+
+- Wishlist dengan warna, prioritas, dan tanggal
+- Tempel tautan produk, detailnya kami isi
+- Daftar publik, khusus teman, atau pribadi
+- Pesan hadiah diam-diam di daftar teman
+- Grup tukar kado dengan undian otomatis
+- Daftar teman dan acara yang akan datang

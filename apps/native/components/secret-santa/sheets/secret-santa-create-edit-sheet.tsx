@@ -1,31 +1,37 @@
 import {
-  AutocompleteDropdown,
-  type AutocompleteDropdownOption,
-} from "@/components/ui/autocomplete-dropdown";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+  BottomSheet,
+  BottomSheetHeader,
+  BottomSheetScrollView,
+  type BottomSheetRef,
+} from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { CurrencyPicker } from "@/components/ui/currency-picker";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
-import { StyledImage } from "@/components/ui/styled-image";
+import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
+import { SingleImagePicker } from "@/components/ui/single-image-picker";
 import { Text } from "@/components/ui/text";
-import { useFriends } from "@/hooks/use-friends";
-import { useCreateSecretSantaEvent, useUpdateSecretSantaEvent } from "@/hooks/use-secret-santa";
-import { useSettings } from "@/hooks/use-settings";
+import { useInfiniteFriends } from "@/hooks/use-friends";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
+import { useProGate } from "@/hooks/use-pro-gate";
 import {
-  SECRET_SANTA_MAX_IMAGE_BYTES,
-  getSecretSantaCurrencyOptions,
-  getSecretSantaPersonName,
-} from "@/lib/secret-santa";
+  useCreateSecretSantaEvent,
+  useInfiniteSecretSantaEvents,
+  useUpdateSecretSantaEvent,
+} from "@/hooks/use-secret-santa";
+import { useSettings } from "@/hooks/use-settings";
+import type { NativePickedImage } from "@/lib/image-upload";
+import { getSecretSantaPersonName } from "@/lib/secret-santa";
 import type {
   SecretSantaDetails,
   SecretSantaImageInput,
 } from "@wishlist/backend/types/secret-santa";
-import * as ImagePicker from "expo-image-picker";
-import { Camera, CalendarDays, ImagePlus, X } from "lucide-react-native";
+import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
+import { CalendarDays, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, useWindowDimensions, View } from "react-native";
 
 type SheetMode = "create" | "edit";
 
@@ -34,6 +40,10 @@ type SelectedImage = SecretSantaImageInput & {
 };
 
 const PARTICIPANT_PAGE_SIZE = 10;
+/** Used for the very first frame, before the form has reported its height. */
+const INITIAL_SHEET_DETENT = 0.75;
+const MIN_SHEET_DETENT = 0.4;
+const MAX_SHEET_DETENT = 0.94;
 
 export function SecretSantaCreateEditSheet({
   mode,
@@ -49,18 +59,34 @@ export function SecretSantaCreateEditSheet({
   onSaved?: () => void;
 }) {
   const t = useGT();
+  const { isGated, openPaywall } = useProGate();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const { height: windowHeight } = useWindowDimensions();
+  const [contentHeight, setContentHeight] = React.useState(0);
+  // Edit mode remains scrollable and uses a single detent sized to the form, so the sheet
+  // can neither open with dead space nor be dragged past its content. Creation uses the
+  // native `auto` detent instead.
+  // Rounded to whole percents so typing in the description does not retrigger a resize
+  // on every keystroke.
+  const contentDetent =
+    contentHeight > 0
+      ? Math.round(
+          Math.min(MAX_SHEET_DETENT, Math.max(MIN_SHEET_DETENT, contentHeight / windowHeight)) *
+            100,
+        ) / 100
+      : INITIAL_SHEET_DETENT;
   const { data: settings } = useSettings();
   const [participantSearch, setParticipantSearch] = React.useState("");
   const deferredParticipantSearch = React.useDeferredValue(participantSearch);
-  const [participantTake, setParticipantTake] = React.useState(PARTICIPANT_PAGE_SIZE);
-  const friendsQuery = useFriends({
-    take: participantTake,
-    search: deferredParticipantSearch,
-  });
+  const friendsQuery = useInfiniteFriends(
+    { search: deferredParticipantSearch },
+    PARTICIPANT_PAGE_SIZE,
+    { enabled: open && mode === "create" },
+  );
+  const { items: friends, loadMore: loadMoreFriends } = useInfiniteListData(friendsQuery);
   const createEvent = useCreateSecretSantaEvent();
   const updateEvent = useUpdateSecretSantaEvent();
-  const currencyOptions = React.useMemo(() => getSecretSantaCurrencyOptions(), []);
+  const eventsQuery = useInfiniteSecretSantaEvents({}, 1);
   const defaultCurrency = settings?.display_currency ?? "USD";
   const [name, setName] = React.useState(event?.name ?? "");
   const [eventDate, setEventDate] = React.useState(event?.event_date?.slice(0, 10) ?? "");
@@ -69,12 +95,9 @@ export function SecretSantaCreateEditSheet({
   const [image, setImage] = React.useState<SelectedImage | null>(null);
   const [imageUrl, setImageUrl] = React.useState(event?.image_url ?? "");
   const [removeImage, setRemoveImage] = React.useState(false);
-  const [participants, setParticipants] = React.useState<AutocompleteDropdownOption[]>([]);
+  const [participants, setParticipants] = React.useState<PeoplePickerItem[]>([]);
   const [error, setError] = React.useState<string | null>(null);
   const isSaving = createEvent.isPending || updateEvent.isPending;
-  const selectedCurrencyOption =
-    currencyOptions.find((option) => option.value === currency) ?? currencyOptions[0];
-
   React.useEffect(() => {
     if (!open) return;
     setName(event?.name ?? "");
@@ -86,53 +109,22 @@ export function SecretSantaCreateEditSheet({
     setRemoveImage(false);
     setParticipants([]);
     setParticipantSearch("");
-    setParticipantTake(PARTICIPANT_PAGE_SIZE);
     setError(null);
   }, [defaultCurrency, event, open]);
 
-  const friendOptions = React.useMemo<AutocompleteDropdownOption[]>(() => {
-    return (friendsQuery.data ?? []).map((friend) => ({
-      value: friend.friend_id,
-      label: friend.display_name || friend.nickname || t("Friend"),
-      description: friend.nickname ? `@${friend.nickname}` : undefined,
-      keywords: [friend.display_name, friend.nickname].filter(Boolean) as string[],
-      imageUrl: friend.avatar_url,
+  const friendOptions = React.useMemo<PeoplePickerItem[]>(() => {
+    return friends.map((friend) => ({
+      id: friend.friend_id,
+      name: friend.display_name || friend.nickname || t("Friend"),
+      subtitle: friend.nickname ? `@${friend.nickname}` : null,
+      avatarUrl: friend.avatar_url,
     }));
-  }, [friendsQuery.data, t]);
+  }, [friends, t]);
 
   if (!open) return null;
 
-  async function pickImage() {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (!permission.granted) {
-      setError(t("Allow photo library access to choose an image."));
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 0.85,
-    });
-
-    if (result.canceled) return;
-
-    const asset = result.assets[0];
-    if (!asset) return;
-
-    if (asset.fileSize && asset.fileSize > SECRET_SANTA_MAX_IMAGE_BYTES) {
-      setError(t("Choose an image that is 5 MB or less."));
-      return;
-    }
-
-    setImage({
-      uri: asset.uri,
-      mimeType: asset.mimeType,
-      fileName: asset.fileName,
-      previewUri: asset.uri,
-    });
+  function pickImage(picked: NativePickedImage) {
+    setImage({ ...picked, previewUri: picked.uri });
     setImageUrl("");
     setRemoveImage(false);
     setError(null);
@@ -150,6 +142,15 @@ export function SecretSantaCreateEditSheet({
 
   function submit() {
     const parsedBudget = Number(budget);
+
+    if (
+      mode === "create" &&
+      isGated &&
+      (eventsQuery.data?.pages[0]?.total ?? 0) >= FREE_LIMITS.maxSecretSantaEvents
+    ) {
+      openPaywall();
+      return;
+    }
 
     if (!name.trim()) {
       setError(t("Event name is required."));
@@ -201,7 +202,7 @@ export function SecretSantaCreateEditSheet({
         currency,
         image,
         imageUrl: image ? null : imageUrl || null,
-        invited_user_ids: participants.map((participant) => participant.value),
+        invited_user_ids: participants.map((participant) => participant.id),
       },
       {
         onSuccess: () => {
@@ -216,9 +217,13 @@ export function SecretSantaCreateEditSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
-      detents={[0.75, 0.94]}
+      scrollable={mode === "edit"}
+      detents={mode === "create" ? ["auto"] : [contentDetent]}
+      footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
+      header={
+        <BottomSheetHeader title={mode === "edit" ? t("Edit event") : t("Create an event")} />
+      }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -244,11 +249,12 @@ export function SecretSantaCreateEditSheet({
         </View>
       }
     >
-      <ScrollView
+      <BottomSheetScrollView
         className="max-h-full"
-        contentContainerClassName="gap-5 px-5 pb-6 pt-5"
+        contentContainerClassName="gap-5 px-5"
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled
+        onContentSizeChange={(_width, height) => setContentHeight(height)}
         showsVerticalScrollIndicator={false}
       >
         <View className="gap-2">
@@ -283,7 +289,7 @@ export function SecretSantaCreateEditSheet({
         </View>
 
         <View className="flex-row gap-3">
-          <View className="min-w-0 flex-1 gap-2">
+          <View className="min-w-0 basis-0 flex-1 gap-2">
             <Text className="text-sm font-semibold text-text">{t("Budget")}</Text>
             <Input
               value={budget}
@@ -292,104 +298,42 @@ export function SecretSantaCreateEditSheet({
               placeholder="25"
             />
           </View>
-          <View className="w-32 gap-2">
+          <View className="min-w-0 basis-0 flex-1 gap-2">
             <Text className="text-sm font-semibold text-text">{t("Currency")}</Text>
-            <AutocompleteDropdown
-              options={currencyOptions}
-              value={selectedCurrencyOption}
-              onValueChange={(option) => setCurrency(option.value)}
-              placeholder={t("Currency")}
-              emptyText={t("No currencies found.")}
-            />
+            <CurrencyPicker value={currency} onValueChange={setCurrency} />
           </View>
         </View>
 
         <View className="gap-2">
           <Text className="text-sm font-semibold text-text">{t("Cover Image")}</Text>
-          <View className="overflow-hidden rounded-xl border border-border-subtle bg-bg-muted">
-            {image?.previewUri || imageUrl ? (
-              <View className="relative h-40">
-                <StyledImage
-                  source={{ uri: image?.previewUri ?? imageUrl }}
-                  contentFit="cover"
-                  className="absolute inset-0 size-full"
-                />
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  accessibilityLabel={t("Remove image")}
-                  onPress={clearImage}
-                  className="absolute right-3 top-3 rounded-full"
-                >
-                  <Icon as={X} className="size-4 text-text" />
-                </Button>
-              </View>
-            ) : (
-              <Button variant="ghost" onPress={pickImage} className="h-32 flex-col gap-2">
-                <Icon as={ImagePlus} className="size-7 text-brand" />
-                <Text>{t("Choose cover image")}</Text>
-              </Button>
-            )}
-          </View>
-          {image?.previewUri || imageUrl ? (
-            <Button variant="outline" onPress={pickImage} className="self-start">
-              <Icon as={Camera} className="size-4 text-text" />
-              <Text>{t("Change image")}</Text>
-            </Button>
-          ) : null}
+          <SingleImagePicker
+            previewUri={image?.previewUri ?? imageUrl}
+            aspect={[16, 9]}
+            pickLabel={t("Choose cover image")}
+            changeLabel={t("Change image")}
+            onPick={pickImage}
+            onClear={clearImage}
+            onError={setError}
+          />
         </View>
 
         {mode === "create" ? (
-          <View className="gap-2">
-            <Text className="text-sm font-semibold text-text">{t("Participants")}</Text>
-            <AutocompleteDropdown
-              multiple
-              attached
-              options={friendOptions}
-              value={participants}
-              onValueChange={setParticipants}
-              onQueryChange={(query) => {
-                setParticipantSearch(query);
-                setParticipantTake(PARTICIPANT_PAGE_SIZE);
-              }}
-              onEndReached={() => {
-                if (
-                  !friendsQuery.isFetching &&
-                  (friendsQuery.data?.length ?? 0) >= participantTake
-                ) {
-                  setParticipantTake((current) => current + PARTICIPANT_PAGE_SIZE);
-                }
-              }}
-              isLoadingMore={friendsQuery.isFetching && participantTake > PARTICIPANT_PAGE_SIZE}
-              maxVisibleOptions={2}
-              closeAccessibilityLabel={t("Close participant search")}
-              hideSelectedOptions
-              showSelectedValue={false}
-              placeholder={t("Search friends")}
-              emptyText={friendsQuery.isLoading ? t("Loading friends...") : t("No friends to add.")}
-            />
-            {participants.length > 0 ? (
-              <View className="flex-row flex-wrap gap-2 pt-1">
-                {participants.map((participant) => (
-                  <Button
-                    key={participant.value}
-                    variant="secondary"
-                    size="sm"
-                    accessibilityLabel={t("Remove {name}", { name: participant.label })}
-                    onPress={() =>
-                      setParticipants((current) =>
-                        current.filter((item) => item.value !== participant.value),
-                      )
-                    }
-                    className="rounded-full"
-                  >
-                    <Text>{participant.description ?? participant.label}</Text>
-                    <Icon as={X} className="size-3.5 text-text" />
-                  </Button>
-                ))}
-              </View>
-            ) : null}
-          </View>
+          <PeoplePickerField
+            label={t("Participants")}
+            title={t("Add participants")}
+            addLabel={t("Add participants")}
+            items={friendOptions}
+            selected={participants}
+            onChange={setParticipants}
+            query={participantSearch}
+            onQueryChange={setParticipantSearch}
+            onEndReached={loadMoreFriends}
+            isLoading={friendsQuery.isLoading}
+            isError={friendsQuery.isError}
+            isFetchingMore={friendsQuery.isFetchingNextPage}
+            searchPlaceholder={t("Search friends")}
+            emptyLabel={t("No friends to add.")}
+          />
         ) : null}
 
         {mode === "edit" && event?.participants.length ? (
@@ -402,7 +346,7 @@ export function SecretSantaCreateEditSheet({
         ) : null}
 
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
-      </ScrollView>
+      </BottomSheetScrollView>
     </BottomSheet>
   );
 }

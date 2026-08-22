@@ -11,6 +11,7 @@
     "**/.gt/**",
     "pnpm-lock.yaml",
     "apps/native/uniwind-types.d.ts",
+    "apps/native/lib/scraper/extractor-bundle.generated.ts",
     "services/scraper/tests/fixtures/**"
   ]
 }

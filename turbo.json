@@ -15,6 +15,7 @@
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "check-types": {},
+    "test": {},
     "translate": {
       "cache": false
     },

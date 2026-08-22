@@ -153,7 +153,7 @@ function getCachedThemeSettingsKey(userId: string) {
   return `${THEME_SETTINGS_STORE_KEY_PREFIX}${userId}`;
 }
 
-function isCachedNativeThemeSettings(value: unknown): value is CachedNativeThemeSettings {
+export function isCachedNativeThemeSettings(value: unknown): value is CachedNativeThemeSettings {
   if (!value || typeof value !== "object") return false;
   const candidate = value as Partial<CachedNativeThemeSettings>;
 
@@ -200,7 +200,10 @@ export function setActiveNativeThemeSettingsSnapshot(
   activeThemeSettingsSnapshot = { userId, settings };
 }
 
-export function applyNativeThemeSettings(settings: CachedNativeThemeSettings) {
+export function applyNativeThemeSettings(
+  settings: CachedNativeThemeSettings,
+  systemColorScheme?: string | null,
+) {
   // Settings from the backend can carry a NULL theme at runtime despite the
   // type — treat anything invalid as "system" so we never setTheme(null).
   const theme = THEME_PREFERENCE_SET.has(settings.theme) ? settings.theme : "system";
@@ -211,10 +214,16 @@ export function applyNativeThemeSettings(settings: CachedNativeThemeSettings) {
     return;
   }
 
-  Appearance.setColorScheme("unspecified");
-  Uniwind.setTheme(
-    getNativeThemeNameForPreference("system", settings.default_accent, Appearance.getColorScheme()),
-  );
+  Uniwind.setTheme("system");
+
+  const accent = getNativeAccentForWishlistAccent(settings.default_accent);
+  if (accent === "pink") return;
+
+  const resolvedSystemTheme =
+    systemColorScheme === "light" || systemColorScheme === "dark"
+      ? systemColorScheme
+      : getThemeMode(Uniwind.currentTheme);
+  Uniwind.setTheme(getNativeThemeName(resolvedSystemTheme, accent));
 }
 
 /** React Navigation colors from Uniwind / `global.css` tokens. */

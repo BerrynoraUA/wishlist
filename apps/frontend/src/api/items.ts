@@ -4,7 +4,16 @@ import type { ItemQueryParams } from "@wishlist/backend/types";
 import { CreateItemParams, UpdateItemParams } from "./types/item";
 import { getCurrentSession } from "./user";
 import { deletePublicImage, uploadPublicImage } from "@/lib/helpers/storage-image";
-import { isStarCardColorIndex, STAR_CARD_COLOR_INDEX } from "@/lib/item-colors";
+import { isStarPriorityId, STAR_PRIORITY_ID } from "@/lib/priorities";
+import { createLocalizedNotification } from "@/lib/create-notification";
+
+/** Extra fields the toggle RPCs return alongside the item, used to notify the owner. */
+type ToggleItemResult = {
+  owner_id?: string | null;
+  wishlist_id?: string | null;
+  is_reserved_by_me?: boolean;
+  is_bought_by_me?: boolean;
+};
 
 const ITEM_IMAGE_BUCKET = "items";
 const MAX_STAR_ITEMS_PER_WISHLIST = 3;
@@ -13,12 +22,12 @@ async function ensureProForPriority(priority_id: string | null | undefined) {
   void priority_id;
 }
 
-async function ensureStarColorLimit(wishlistId: string, excludeItemId?: string) {
+async function ensureStarPriorityLimit(wishlistId: string, excludeItemId?: string) {
   let query = supabaseBrowser
     .from("item")
     .select("id", { count: "exact", head: true })
     .eq("wishlist_id", wishlistId)
-    .eq("color_index", STAR_CARD_COLOR_INDEX);
+    .eq("priority_id", STAR_PRIORITY_ID);
 
   if (excludeItemId) {
     query = query.neq("id", excludeItemId);
@@ -38,7 +47,6 @@ export async function createItem({
   description,
   price,
   priority_id,
-  color_index,
   image,
   image_url,
   url,
@@ -54,8 +62,8 @@ export async function createItem({
 
   await ensureProForPriority(priority_id);
 
-  if (isStarCardColorIndex(color_index)) {
-    await ensureStarColorLimit(wishlist_id);
+  if (isStarPriorityId(priority_id)) {
+    await ensureStarPriorityLimit(wishlist_id);
   }
 
   let finalImageUrl: string | null = null;
@@ -76,7 +84,6 @@ export async function createItem({
       description,
       price,
       priority_id: priority_id ?? null,
-      color_index: color_index ?? null,
       image_url: finalImageUrl,
       url,
       status,
@@ -131,25 +138,35 @@ export async function getWishlistItems(
   return (data as Item[]) || [];
 }
 
+/**
+ * Records a report against someone else's item. Resolves to false when this
+ * user had already reported it — the same person never counts twice.
+ */
+export async function reportItem(itemId: string): Promise<boolean> {
+  const { data, error } = await supabaseBrowser.rpc("report_item", { p_item_id: itemId });
+
+  if (error) throw error;
+
+  return Boolean(data);
+}
+
 export async function updateItem(itemId: string, updates: UpdateItemParams): Promise<Item> {
   const { image, removeImage, image_url, ...restUpdates } = updates;
 
   await ensureProForPriority(restUpdates.priority_id);
 
-  let currentItemForStarLimit: { wishlist_id: string; color_index: number | null } | null = null;
-
-  if (isStarCardColorIndex(restUpdates.color_index)) {
+  if (isStarPriorityId(restUpdates.priority_id)) {
     const { data: currentItem, error: currentItemError } = await supabaseBrowser
       .from("item")
-      .select("wishlist_id,color_index")
+      .select("wishlist_id,priority_id")
       .eq("id", itemId)
       .single();
 
     if (currentItemError) throw currentItemError;
-    currentItemForStarLimit = currentItem;
 
-    if (!isStarCardColorIndex(currentItemForStarLimit.color_index)) {
-      await ensureStarColorLimit(currentItemForStarLimit.wishlist_id, itemId);
+    // Already starred items keep their slot — only newly starred ones count.
+    if (!isStarPriorityId(currentItem.priority_id)) {
+      await ensureStarPriorityLimit(currentItem.wishlist_id, itemId);
     }
   }
 
@@ -229,6 +246,16 @@ export async function toggleItemReservation(itemId: string): Promise<Item> {
     throw new Error(error.message || "Failed to toggle reservation");
   }
 
+  const result = data as ToggleItemResult;
+  if (result?.is_reserved_by_me && result.owner_id) {
+    void createLocalizedNotification({
+      receiverId: result.owner_id,
+      key: "item_reserved",
+      vars: {},
+      entityId: result.wishlist_id ?? null,
+    });
+  }
+
   return data as Item;
 }
 
@@ -240,6 +267,16 @@ export async function toggleItemBought(itemId: string): Promise<Item> {
   if (error) {
     console.error("Error toggling item bought status:", error);
     throw new Error(error.message || "Failed to toggle item bought status");
+  }
+
+  const result = data as ToggleItemResult;
+  if (result?.is_bought_by_me && result.owner_id) {
+    void createLocalizedNotification({
+      receiverId: result.owner_id,
+      key: "item_bought",
+      vars: {},
+      entityId: result.wishlist_id ?? null,
+    });
   }
 
   return data as Item;

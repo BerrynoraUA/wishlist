@@ -43,6 +43,14 @@ export interface FriendWithDetails {
   mutual_friends_count: number;
 }
 
+export interface BlockedUser {
+  id: string;
+  nickname: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+  blocked_at: string;
+}
+
 export interface ProfileSearchResult {
   id: string;
   nickname: string;

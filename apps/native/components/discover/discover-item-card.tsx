@@ -1,5 +1,6 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { ItemImage } from "@/components/items/item-image";
+import { ItemPriorityMedallion, useItemCardBorderStyle } from "@/components/items/item-labels";
 import { Text } from "@/components/ui/text";
 import {
   buildReservationLabel,
@@ -10,6 +11,7 @@ import {
   getTranslatedItemPriorityLabel,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
+import { isStarPriorityId } from "@wishlist/backend/lib";
 import type { Item } from "@wishlist/backend/types/item";
 import { useGT } from "gt-react-native";
 import { View } from "react-native";
@@ -39,25 +41,29 @@ export function DiscoverItemCard({
   const reservationLabel = buildReservationLabel({ ...reservation, reservedByName }, t);
   const priorityLabel = getTranslatedItemPriorityLabel(t, item.priority_id) ?? item.priority_name;
   const priority = getItemPriority(item.priority_id ?? item.priority_name);
+  const cardBorderStyle = useItemCardBorderStyle(priority);
   const store = getItemStoreFromUrl(item.url);
   const salePercentOff = getSalePercentOff(item.price, item.discount_price, item.has_discount);
   const isTaken = Boolean(reservationLabel);
+  // Only Stare hangs a medallion off the bottom edge of the card.
+  const medallionPriority = priority && isStarPriorityId(priority.id) ? priority : null;
 
   return (
-    <View style={{ width }}>
+    // The medallion hangs below the card, so the row has to leave it room.
+    <View style={{ width }} className={cn(medallionPriority && "pb-3.5")}>
       <AnimatedPressable
         accessibilityRole="button"
         accessibilityLabel={t('Open "{name}"', { name: item.name })}
         onPress={onPress}
         pressedScale={0.98}
-        className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
-        style={purchasedMode ? { borderColor: "rgba(22, 163, 74, 0.18)" } : undefined}
+        className="rounded-xl border border-border-subtle bg-card-bg shadow-sm"
+        // Purchased state wins, otherwise the priority tints the card.
+        style={purchasedMode ? { borderColor: "rgba(22, 163, 74, 0.18)" } : cardBorderStyle}
       >
         <ItemImage
           item={item}
           reservationLabel={reservationLabel}
           purchased={reservation.isPurchased}
-          reserved={reservation.isReserved}
           priority={priority}
           priorityLabel={priorityLabel}
           salePercentOff={salePercentOff}
@@ -86,6 +92,11 @@ export function DiscoverItemCard({
             ) : null}
           </View>
         </View>
+        {medallionPriority ? (
+          <View className="absolute inset-x-0 -bottom-3.5 items-center" pointerEvents="none">
+            <ItemPriorityMedallion priority={medallionPriority} label={priorityLabel} />
+          </View>
+        ) : null}
       </AnimatedPressable>
     </View>
   );

@@ -43,6 +43,7 @@
     --theme-light-color-border-subtle: oklch(0.9413 0.0143 343.212 / 0.6);
     --theme-light-color-brand: oklch(0.5473 0.2022 351.459);
     --theme-light-color-brand-lighter: oklch(0.9714 0.0141 343.198);
+    --theme-light-color-action-menu: oklch(1 0 0 / 0.96);
     --theme-light-color-glass-bg: oklch(0.9889 0.0053 17.247 / 0.75);
     --theme-light-color-glass-border: oklch(0.9413 0.0143 343.212 / 0.5);
     --theme-light-color-card: oklch(1 0 0);
@@ -68,6 +69,8 @@
     --theme-light-color-danger-bg: oklch(0.9705 0.0129 17.38);
     --theme-light-color-success: oklch(0.6271 0.1699 149.214);
     --theme-light-color-success-bg: oklch(0.9819 0.0181 155.826);
+    --theme-light-color-buy-rose: oklch(0.5473 0.2022 351.459);
+    --theme-light-color-buy-rose-bg: oklch(0.9714 0.0141 343.198);
     --theme-light-color-info: oklch(0.5461 0.2152 262.881);
     --theme-light-color-info-bg: oklch(0.9705 0.0142 254.604);
     --theme-light-color-chart-1: oklch(0.7253 0.1752 349.761);
@@ -195,6 +198,7 @@
     --theme-dark-color-border-subtle: oklch(0.3203 0.0141 285.576 / 0.6);
     --theme-dark-color-brand: oklch(0.6504 0.1928 349.803);
     --theme-dark-color-brand-lighter: oklch(0.2234 0.0453 345.399);
+    --theme-dark-color-action-menu: oklch(0.1856 0.0142 284.934 / 0.96);
     --theme-dark-color-glass-bg: oklch(0.1558 0.0063 285.642 / 0.82);
     --theme-dark-color-glass-border: oklch(0.3203 0.0141 285.576 / 0.5);
     --theme-dark-color-card: oklch(0.2015 0.0059 285.856);
@@ -220,6 +224,8 @@
     --theme-dark-color-danger-bg: oklch(0.2303 0.0393 20.545);
     --theme-dark-color-success: oklch(0.7227 0.192 149.579);
     --theme-dark-color-success-bg: oklch(0.2638 0.044 151.788);
+    --theme-dark-color-buy-rose: oklch(0.6504 0.1928 349.803);
+    --theme-dark-color-buy-rose-bg: oklch(0.2234 0.0453 345.399);
     --theme-dark-color-info: oklch(0.6231 0.188 259.815);
     --theme-dark-color-info-bg: oklch(0.2319 0.0352 264.526);
     --theme-dark-color-chart-1: oklch(0.7253 0.1752 349.761);
@@ -343,6 +349,7 @@
       --color-border-subtle: var(--theme-light-color-border-subtle);
       --color-brand: var(--theme-light-color-brand);
       --color-brand-lighter: var(--theme-light-color-brand-lighter);
+      --color-action-menu: var(--theme-light-color-action-menu);
       --color-glass-bg: var(--theme-light-color-glass-bg);
       --color-glass-border: var(--theme-light-color-glass-border);
       --color-card: var(--theme-light-color-card);
@@ -368,6 +375,8 @@
       --color-danger-bg: var(--theme-light-color-danger-bg);
       --color-success: var(--theme-light-color-success);
       --color-success-bg: var(--theme-light-color-success-bg);
+      --color-buy: var(--theme-light-color-success);
+      --color-buy-bg: var(--theme-light-color-success-bg);
       --color-info: var(--theme-light-color-info);
       --color-info-bg: var(--theme-light-color-info-bg);
       --color-chart-1: var(--theme-light-color-chart-1);
@@ -422,6 +431,7 @@
       --color-border-subtle: var(--theme-dark-color-border-subtle);
       --color-brand: var(--theme-dark-color-brand);
       --color-brand-lighter: var(--theme-dark-color-brand-lighter);
+      --color-action-menu: var(--theme-dark-color-action-menu);
       --color-glass-bg: var(--theme-dark-color-glass-bg);
       --color-glass-border: var(--theme-dark-color-glass-border);
       --color-card: var(--theme-dark-color-card);
@@ -447,6 +457,8 @@
       --color-danger-bg: var(--theme-dark-color-danger-bg);
       --color-success: var(--theme-dark-color-success);
       --color-success-bg: var(--theme-dark-color-success-bg);
+      --color-buy: var(--theme-dark-color-success);
+      --color-buy-bg: var(--theme-dark-color-success-bg);
       --color-info: var(--theme-dark-color-info);
       --color-info-bg: var(--theme-dark-color-info-bg);
       --color-chart-1: var(--theme-dark-color-chart-1);
@@ -501,6 +513,7 @@
       --color-border-subtle: var(--theme-light-color-border-subtle);
       --color-brand: oklch(0.5461 0.2152 262.881);
       --color-brand-lighter: oklch(0.9705 0.0142 254.604);
+      --color-action-menu: var(--theme-light-color-action-menu);
       --color-glass-bg: var(--theme-light-color-glass-bg);
       --color-glass-border: var(--theme-light-color-glass-border);
       --color-card: var(--theme-light-color-card);
@@ -526,6 +539,8 @@
       --color-danger-bg: var(--theme-light-color-danger-bg);
       --color-success: var(--theme-light-color-success);
       --color-success-bg: var(--theme-light-color-success-bg);
+      --color-buy: var(--theme-light-color-success);
+      --color-buy-bg: var(--theme-light-color-success-bg);
       --color-info: var(--theme-light-color-info);
       --color-info-bg: var(--theme-light-color-info-bg);
       --color-chart-1: var(--theme-light-color-chart-1);
@@ -617,6 +632,7 @@
       --color-border-subtle: var(--theme-dark-color-border-subtle);
       --color-brand: oklch(0.7137 0.1434 254.624);
       --color-brand-lighter: oklch(0.2449 0.0388 264.354);
+      --color-action-menu: var(--theme-dark-color-action-menu);
       --color-glass-bg: var(--theme-dark-color-glass-bg);
       --color-glass-border: var(--theme-dark-color-glass-border);
       --color-card: var(--theme-dark-color-card);
@@ -642,6 +658,8 @@
       --color-danger-bg: var(--theme-dark-color-danger-bg);
       --color-success: var(--theme-dark-color-success);
       --color-success-bg: var(--theme-dark-color-success-bg);
+      --color-buy: var(--theme-dark-color-success);
+      --color-buy-bg: var(--theme-dark-color-success-bg);
       --color-info: var(--theme-dark-color-info);
       --color-info-bg: var(--theme-dark-color-info-bg);
       --color-chart-1: var(--theme-dark-color-chart-1);
@@ -733,6 +751,7 @@
       --color-border-subtle: var(--theme-light-color-border-subtle);
       --color-brand: oklch(0.6658 0.1574 58.318);
       --color-brand-lighter: oklch(0.9869 0.0214 95.277);
+      --color-action-menu: var(--theme-light-color-action-menu);
       --color-glass-bg: var(--theme-light-color-glass-bg);
       --color-glass-border: var(--theme-light-color-glass-border);
       --color-card: var(--theme-light-color-card);
@@ -758,6 +777,8 @@
       --color-danger-bg: var(--theme-light-color-danger-bg);
       --color-success: var(--theme-light-color-success);
       --color-success-bg: var(--theme-light-color-success-bg);
+      --color-buy: var(--theme-light-color-success);
+      --color-buy-bg: var(--theme-light-color-success-bg);
       --color-info: var(--theme-light-color-info);
       --color-info-bg: var(--theme-light-color-info-bg);
       --color-chart-1: var(--theme-light-color-chart-1);
@@ -849,6 +870,7 @@
       --color-border-subtle: var(--theme-dark-color-border-subtle);
       --color-brand: oklch(0.8369 0.1644 84.429);
       --color-brand-lighter: oklch(0.2199 0.0229 87.837);
+      --color-action-menu: var(--theme-dark-color-action-menu);
       --color-glass-bg: var(--theme-dark-color-glass-bg);
       --color-glass-border: var(--theme-dark-color-glass-border);
       --color-card: var(--theme-dark-color-card);
@@ -874,6 +896,8 @@
       --color-danger-bg: var(--theme-dark-color-danger-bg);
       --color-success: var(--theme-dark-color-success);
       --color-success-bg: var(--theme-dark-color-success-bg);
+      --color-buy: var(--theme-dark-color-success);
+      --color-buy-bg: var(--theme-dark-color-success-bg);
       --color-info: var(--theme-dark-color-info);
       --color-info-bg: var(--theme-dark-color-info-bg);
       --color-chart-1: var(--theme-dark-color-chart-1);
@@ -965,6 +989,7 @@
       --color-border-subtle: var(--theme-light-color-border-subtle);
       --color-brand: oklch(0.596 0.1274 163.225);
       --color-brand-lighter: oklch(0.9793 0.0207 166.113);
+      --color-action-menu: var(--theme-light-color-action-menu);
       --color-glass-bg: var(--theme-light-color-glass-bg);
       --color-glass-border: var(--theme-light-color-glass-border);
       --color-card: var(--theme-light-color-card);
@@ -990,6 +1015,8 @@
       --color-danger-bg: var(--theme-light-color-danger-bg);
       --color-success: var(--theme-light-color-success);
       --color-success-bg: var(--theme-light-color-success-bg);
+      --color-buy: var(--theme-light-color-buy-rose);
+      --color-buy-bg: var(--theme-light-color-buy-rose-bg);
       --color-info: var(--theme-light-color-info);
       --color-info-bg: var(--theme-light-color-info-bg);
       --color-chart-1: var(--theme-light-color-chart-1);
@@ -1081,6 +1108,7 @@
       --color-border-subtle: var(--theme-dark-color-border-subtle);
       --color-brand: oklch(0.7729 0.1535 163.223);
       --color-brand-lighter: oklch(0.2223 0.0259 164.639);
+      --color-action-menu: var(--theme-dark-color-action-menu);
       --color-glass-bg: var(--theme-dark-color-glass-bg);
       --color-glass-border: var(--theme-dark-color-glass-border);
       --color-card: var(--theme-dark-color-card);
@@ -1106,6 +1134,8 @@
       --color-danger-bg: var(--theme-dark-color-danger-bg);
       --color-success: var(--theme-dark-color-success);
       --color-success-bg: var(--theme-dark-color-success-bg);
+      --color-buy: var(--theme-dark-color-buy-rose);
+      --color-buy-bg: var(--theme-dark-color-buy-rose-bg);
       --color-info: var(--theme-dark-color-info);
       --color-info-bg: var(--theme-dark-color-info-bg);
       --color-chart-1: var(--theme-dark-color-chart-1);
@@ -1197,6 +1227,7 @@
       --color-border-subtle: var(--theme-light-color-border-subtle);
       --color-brand: oklch(0.5413 0.2466 293.009);
       --color-brand-lighter: oklch(0.9691 0.0161 293.756);
+      --color-action-menu: var(--theme-light-color-action-menu);
       --color-glass-bg: var(--theme-light-color-glass-bg);
       --color-glass-border: var(--theme-light-color-glass-border);
       --color-card: var(--theme-light-color-card);
@@ -1222,6 +1253,8 @@
       --color-danger-bg: var(--theme-light-color-danger-bg);
       --color-success: var(--theme-light-color-success);
       --color-success-bg: var(--theme-light-color-success-bg);
+      --color-buy: var(--theme-light-color-success);
+      --color-buy-bg: var(--theme-light-color-success-bg);
       --color-info: var(--theme-light-color-info);
       --color-info-bg: var(--theme-light-color-info-bg);
       --color-chart-1: var(--theme-light-color-chart-1);
@@ -1313,6 +1346,7 @@
       --color-border-subtle: var(--theme-dark-color-border-subtle);
       --color-brand: oklch(0.709 0.1592 293.541);
       --color-brand-lighter: oklch(0.2207 0.0462 293.769);
+      --color-action-menu: var(--theme-dark-color-action-menu);
       --color-glass-bg: var(--theme-dark-color-glass-bg);
       --color-glass-border: var(--theme-dark-color-glass-border);
       --color-card: var(--theme-dark-color-card);
@@ -1338,6 +1372,8 @@
       --color-danger-bg: var(--theme-dark-color-danger-bg);
       --color-success: var(--theme-dark-color-success);
       --color-success-bg: var(--theme-dark-color-success-bg);
+      --color-buy: var(--theme-dark-color-success);
+      --color-buy-bg: var(--theme-dark-color-success-bg);
       --color-info: var(--theme-dark-color-info);
       --color-info-bg: var(--theme-dark-color-info-bg);
       --color-chart-1: var(--theme-dark-color-chart-1);

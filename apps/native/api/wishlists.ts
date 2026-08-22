@@ -1,4 +1,5 @@
 import { supabase } from "@wishlist/backend/supabase/native";
+import { notifyNewWishlist, notifyWishlistAccessGranted } from "@/lib/create-notification";
 import { normalizeSearchQuery, parseEventDate } from "@/lib/wishlists";
 import {
   type DiscoverQueryParams,
@@ -202,9 +203,7 @@ export async function createWishlist(values: WishlistFormValues): Promise<Wishli
     values.visibility === WishlistVisibility.Public ||
     values.visibility === WishlistVisibility.FriendsOnly
   ) {
-    await supabase.rpc("notify_friends_about_new_wishlist", {
-      p_wishlist_id: data.id,
-    });
+    void notifyNewWishlist(data.id, values.title.trim());
   }
 
   return normalizeWishlist(data as WishlistFeedRow);
@@ -292,6 +291,9 @@ export async function grantWishlistAccess(
   });
 
   if (error) throw error;
+
+  void notifyWishlistAccessGranted(wishlistId, grantedToUserId);
+
   return data;
 }
 

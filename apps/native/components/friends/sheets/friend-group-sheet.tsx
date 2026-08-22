@@ -1,48 +1,52 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import {
+  BottomSheet,
+  BottomSheetHeader,
+  BottomSheetScrollView,
+  type BottomSheetRef,
+} from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
-import { useFriendGroupMembers } from "@/hooks/use-friends";
+import {
+  SlidingOptionSelector,
+  type SlidingOptionRenderProps,
+} from "@/components/ui/sliding-option-selector";
+import { useFriendGroupMembers, useInfiniteFriends } from "@/hooks/use-friends";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
+import { FRIEND_GROUP_ICON_OPTIONS } from "@/lib/friend-groups";
+import { NATIVE_ACCENTS } from "@/lib/theme";
 import { cn } from "@/lib/utils";
-import type {
-  FriendGroup,
-  FriendGroupPayload,
-  FriendWithDetails,
-} from "@wishlist/backend/types/friends";
-import { Check, Gift, Heart, Search, Star, Users, X, type LucideIcon } from "lucide-react-native";
+import type { FriendGroup, FriendGroupPayload } from "@wishlist/backend/types/friends";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
-const COLOR_OPTIONS = ["pink", "peach", "blue", "lavender", "mint"] as const;
-const ICON_OPTIONS: { value: string; icon: LucideIcon }[] = [
-  { value: "users", icon: Users },
-  { value: "heart", icon: Heart },
-  { value: "star", icon: Star },
-  { value: "gift", icon: Gift },
-];
+// Ordered like the wishlist accent picker so the two read as the same control.
+const COLOR_OPTIONS = ["pink", "blue", "peach", "mint", "lavender"] as const;
+const FRIENDS_PAGE_SIZE = 20;
 
-const COLOR_CLASS: Record<(typeof COLOR_OPTIONS)[number], string> = {
-  pink: "bg-pink-400",
-  peach: "bg-orange-400",
-  blue: "bg-sky-400",
-  lavender: "bg-violet-400",
-  mint: "bg-emerald-400",
-};
+type GroupColor = (typeof COLOR_OPTIONS)[number];
+
+/**
+ * The same gradient swatches the wishlist accent picker uses. Group colours are named
+ * after the very same five accents, so they should not drift into their own flat palette.
+ */
+const COLOR_CLASS = Object.fromEntries(
+  NATIVE_ACCENTS.map((accent) => [accent.name, accent.swatchClassName]),
+) as Record<GroupColor, string>;
 
 export function FriendGroupSheet({
   open,
   group,
-  friends,
   isSaving,
   onOpenChange,
   onSubmit,
 }: {
   open: boolean;
   group: FriendGroup | null;
-  friends: FriendWithDetails[];
   isSaving: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (payload: FriendGroupPayload) => Promise<void>;
@@ -55,7 +59,12 @@ export function FriendGroupSheet({
   const [color, setColor] = React.useState<(typeof COLOR_OPTIONS)[number]>("pink");
   const [icon, setIcon] = React.useState("users");
   const [query, setQuery] = React.useState("");
-  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const deferredQuery = React.useDeferredValue(query);
+  const friendsQuery = useInfiniteFriends({ search: deferredQuery }, FRIENDS_PAGE_SIZE, {
+    enabled: open,
+  });
+  const { items: friends, loadMore: loadMoreFriends } = useInfiniteListData(friendsQuery);
+  const [members, setMembers] = React.useState<PeoplePickerItem[]>([]);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -65,25 +74,35 @@ export function FriendGroupSheet({
     setColor(COLOR_OPTIONS.find((option) => option === group?.color) ?? "pink");
     setIcon(group?.icon ?? "users");
     setQuery("");
-    setSelectedIds(new Set());
+    setMembers([]);
     setError(null);
   }, [group, open]);
 
   React.useEffect(() => {
     if (!open || !group || !membersQuery.data) return;
-    setSelectedIds(new Set(membersQuery.data.map((member) => member.id)));
-  }, [group, membersQuery.data, open]);
+    setMembers(
+      membersQuery.data.map((member) => ({
+        id: member.id,
+        name: member.display_name || member.nickname || t("Friend"),
+        subtitle: member.nickname ? `@${member.nickname}` : null,
+        avatarUrl: member.avatar_url,
+      })),
+    );
+  }, [group, membersQuery.data, open, t]);
+
+  const friendItems = React.useMemo<PeoplePickerItem[]>(
+    () =>
+      friends.map((friend) => ({
+        id: friend.friend_id,
+        name: friend.display_name || friend.nickname || t("Friend"),
+        subtitle: friend.nickname ? `@${friend.nickname}` : null,
+        searchText: friend.nickname,
+        avatarUrl: friend.avatar_url,
+      })),
+    [friends, t],
+  );
 
   if (!open) return null;
-
-  function toggleMember(friendId: string) {
-    setSelectedIds((current) => {
-      const next = new Set(current);
-      if (next.has(friendId)) next.delete(friendId);
-      else next.add(friendId);
-      return next;
-    });
-  }
 
   function handleClose() {
     void sheetRef.current?.dismiss();
@@ -100,7 +119,7 @@ export function FriendGroupSheet({
         description: description.trim() || null,
         color,
         icon,
-        memberIds: Array.from(selectedIds),
+        memberIds: members.map((member) => member.id),
       });
       handleClose();
     } catch (err) {
@@ -108,21 +127,14 @@ export function FriendGroupSheet({
     }
   }
 
-  const normalizedQuery = query.trim().toLowerCase();
-  const friendOptions =
-    normalizedQuery.length < 3
-      ? friends
-      : friends.filter((friend) => {
-          const nickname = friend.nickname?.toLowerCase() ?? "";
-          const displayName = friend.display_name?.toLowerCase() ?? "";
-          return nickname.includes(normalizedQuery) || displayName.includes(normalizedQuery);
-        });
-
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
+      scrollable={Boolean(group)}
+      detents={group ? undefined : ["auto"]}
+      footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
+      header={<BottomSheetHeader title={group ? t("Edit group") : t("Create a group")} />}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -144,9 +156,9 @@ export function FriendGroupSheet({
         </View>
       }
     >
-      <ScrollView
+      <BottomSheetScrollView
         className="max-h-full"
-        contentContainerClassName="gap-3 px-5 pb-4 pt-4"
+        contentContainerClassName="gap-3 px-5"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -173,108 +185,127 @@ export function FriendGroupSheet({
 
         <View className="gap-1.5">
           <Text className="text-sm font-bold text-text">{t("Color")}</Text>
-          <View className="flex-row flex-wrap gap-2">
-            {COLOR_OPTIONS.map((option) => (
-              <Button
-                key={option}
-                size="icon"
-                variant="ghost"
-                accessibilityLabel={option}
-                onPress={() => setColor(option)}
-                className={cn("rounded-full", COLOR_CLASS[option])}
-              >
-                {color === option ? <Icon as={Check} className="size-4 text-white" /> : null}
-              </Button>
-            ))}
-          </View>
+          <GroupColorSelector value={color} onChange={setColor} />
         </View>
 
         <View className="gap-1.5">
           <Text className="text-sm font-bold text-text">{t("Icon")}</Text>
-          <View className="flex-row flex-wrap gap-2">
-            {ICON_OPTIONS.map((option) => {
-              const GroupIcon = option.icon;
-              const selected = icon === option.value;
-              return (
-                <Button
-                  key={option.value}
-                  size="icon"
-                  variant={selected ? "default" : "outline"}
-                  accessibilityLabel={option.value}
-                  onPress={() => setIcon(option.value)}
-                  className="rounded-full"
-                >
-                  <Icon
-                    as={GroupIcon}
-                    className={cn("size-4", selected ? "text-primary-foreground" : "text-text")}
-                  />
-                </Button>
-              );
-            })}
-          </View>
+          <GroupIconSelector value={icon} onChange={setIcon} />
         </View>
 
-        <View className="gap-2 rounded-xl border border-border-subtle bg-bg-subtle p-3">
-          <View className="flex-row items-center justify-between gap-3">
-            <Text className="font-extrabold text-text">{t("Members")}</Text>
-            <Text className="text-sm font-semibold text-text-muted">
-              {t("{count} selected", { count: selectedIds.size })}
-            </Text>
-          </View>
-          <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
-            <Icon as={Search} className="size-4 text-muted-foreground/50" />
-            <Input
-              className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
-              value={query}
-              onChangeText={setQuery}
-              placeholder={t("Search friends")}
-              returnKeyType="search"
-            />
-            {query.length > 0 ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                accessibilityLabel={t("Clear search")}
-                onPress={() => setQuery("")}
-                className="size-8 shrink-0 rounded-full"
-              >
-                <Icon as={X} className="size-3.5 text-text-muted" />
-              </Button>
-            ) : null}
-          </View>
-          {group && membersQuery.isLoading ? (
-            <View className="items-center py-3">
-              <ActivityIndicator colorClassName="accent-brand" />
-            </View>
-          ) : null}
-          {friendOptions.length === 0 && !membersQuery.isLoading ? (
-            <Text className="text-sm font-semibold text-text-muted">{t("No friends found.")}</Text>
-          ) : null}
-          <View className="gap-2">
-            {friendOptions.map((friend) => {
-              const active = selectedIds.has(friend.friend_id);
-              const label = friend.nickname ? `@${friend.nickname}` : friend.display_name;
-              return (
-                <Button
-                  key={friend.friend_id}
-                  variant={active ? "default" : "outline"}
-                  onPress={() => toggleMember(friend.friend_id)}
-                  className="justify-start rounded-xl"
-                >
-                  <Text className={cn(active ? "text-primary-foreground" : "text-text")}>
-                    {label}
-                  </Text>
-                  {active ? (
-                    <Icon as={Check} className="ml-auto size-4 text-primary-foreground" />
-                  ) : null}
-                </Button>
-              );
-            })}
-          </View>
-        </View>
+        <PeoplePickerField
+          label={t("Members")}
+          title={t("Add members")}
+          addLabel={t("Add members")}
+          items={friendItems}
+          selected={members}
+          onChange={setMembers}
+          query={query}
+          onQueryChange={setQuery}
+          searchPlaceholder={t("Search friends")}
+          emptyLabel={t("No friends found.")}
+          isLoading={friendsQuery.isLoading || (Boolean(group) && membersQuery.isLoading)}
+          isError={friendsQuery.isError || membersQuery.isError}
+          isFetchingMore={friendsQuery.isFetchingNextPage}
+          onEndReached={loadMoreFriends}
+        />
 
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
-      </ScrollView>
+      </BottomSheetScrollView>
     </BottomSheet>
+  );
+}
+
+function GroupIconSelector({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (icon: string) => void;
+}) {
+  const rows = React.useMemo(
+    () => [
+      FRIEND_GROUP_ICON_OPTIONS.map((option) => {
+        const GroupIcon = option.icon;
+
+        return {
+          value: option.value,
+          accessibilityLabel: option.value,
+          surfaceClassName: "bg-transparent",
+          children: ({ selected }: SlidingOptionRenderProps) => (
+            <Icon as={GroupIcon} className={cn("size-4 text-text", selected && "text-brand")} />
+          ),
+        };
+      }),
+    ],
+    [],
+  );
+
+  return (
+    <SlidingOptionSelector
+      rows={rows}
+      value={value}
+      onChange={onChange}
+      optionHeight={40}
+      optionHeightClassName="h-10"
+      optionClassName="rounded-full px-0"
+      indicatorClassName="rounded-full border border-brand bg-brand-lighter"
+    />
+  );
+}
+
+/**
+ * Colour picker matching the wishlist accent selector: gradient swatch plus label on a
+ * sliding indicator, rather than bare colour circles with a tick. Sharing the control
+ * also removes the platform gap — the old round `Button`s rendered their fill and their
+ * check very differently on iOS.
+ */
+function GroupColorSelector({
+  value,
+  onChange,
+}: {
+  value: GroupColor;
+  onChange: (color: GroupColor) => void;
+}) {
+  const t = useGT();
+  const rows = React.useMemo(() => {
+    const labels: Record<GroupColor, string> = {
+      pink: t("Pink"),
+      blue: t("Blue"),
+      peach: t("Peach"),
+      mint: t("Mint"),
+      lavender: t("Lavender"),
+    };
+
+    const options = COLOR_OPTIONS.map((option) => ({
+      value: option,
+      accessibilityLabel: t('Use "{label}" color', { label: labels[option] }),
+      surfaceClassName: "bg-transparent",
+      children: ({ selected }: SlidingOptionRenderProps) => (
+        <>
+          <View className={cn("size-4 rounded-full", COLOR_CLASS[option])} />
+          <Text
+            className={cn("text-sm font-semibold text-text-muted", selected && "text-brand")}
+            numberOfLines={1}
+          >
+            {labels[option]}
+          </Text>
+        </>
+      ),
+    }));
+
+    return [options.slice(0, 3), options.slice(3)];
+  }, [t]);
+
+  return (
+    <SlidingOptionSelector
+      rows={rows}
+      value={value}
+      onChange={onChange}
+      optionHeight={40}
+      optionHeightClassName="h-10"
+      optionClassName="gap-2 rounded-full px-3"
+      indicatorClassName="rounded-full border border-brand bg-brand-lighter"
+    />
   );
 }

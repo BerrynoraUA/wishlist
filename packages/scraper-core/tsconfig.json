@@ -1,0 +1,9 @@
+{
+  "extends": "../backend/tsconfig/react-native.json",
+  "compilerOptions": {
+    // Only the test harness and the bundle script touch Node APIs; the `src`
+    // tree stays DOM-only so it can run inside a WebView.
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}

@@ -1,0 +1,74 @@
+{
+  "bcp47": "fr",
+  "title": "Wishlane : listes d'envies",
+  "appleName": "Wishlane",
+  "subtitle": "Listes d'envies et cadeaux",
+  "shortDescription": "Créez des listes d'envies, partagez-les et réservez des cadeaux en secret.",
+  "promoText": "Collez un lien, créez une belle liste d'envies et partagez-la. Vos proches réservent les cadeaux en secret : plus de doublons ni de surprises gâchées.",
+  "keywords": [
+    "liste d'envies",
+    "cadeau",
+    "anniversaire",
+    "noël",
+    "secret santa",
+    "idées cadeaux",
+    "shopping"
+  ],
+  "intro": [
+    "Wishlane transforme le « bon, tu veux quoi au juste ? » en un moment agréable.",
+    "Créez de belles listes d'envies, partagez-les avec les personnes qui comptent et laissez-les réserver les cadeaux en secret : personne n'achète deux fois la même chose et aucune surprise n'est gâchée."
+  ],
+  "sections": [
+    {
+      "heading": "Une liste en quelques secondes",
+      "body": "Collez n'importe quel lien produit et Wishlane remplit le titre, la description, l'image et le prix. Nommez la liste, choisissez une couleur, ajoutez la date de l'événement, c'est prêt."
+    },
+    {
+      "heading": "Partagez comme vous voulez",
+      "body": "Chaque liste est publique, réservée aux amis ou totalement privée. Envoyez un lien à qui vous voulez ou ajoutez vos amis par nom d'utilisateur : vous voyez leurs listes, ils voient les vôtres."
+    },
+    {
+      "heading": "Réservez les cadeaux en secret",
+      "body": "Réservez un article sur la liste d'un ami : les autres voient qu'il est pris, mais le propriétaire de la liste ne le saura jamais. Aucun doublon, aucune surprise gâchée."
+    },
+    {
+      "heading": "Secret Santa, organisé",
+      "body": "Créez un groupe, invitez tout le monde avec un seul lien et laissez Wishlane faire le tirage. Chacun voit la liste d'envies de la personne tirée, alors les cadeaux font mouche."
+    },
+    {
+      "heading": "Découvrez les envies des autres",
+      "body": "Parcourez les listes publiques de vos amis, suivez les anniversaires et événements à venir avec un compte à rebours et n'arrivez plus jamais les mains vides."
+    },
+    {
+      "heading": "Restez informé",
+      "body": "Recevez une notification quand un ami crée une liste, vous envoie une demande ou réserve un article de la vôtre."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Listes et articles illimités, accès collaborateur sur les listes partagées, couleurs et priorités personnalisées."
+    }
+  ],
+  "closing": "Wishlane est gratuit au départ : sans carte bancaire et prêt en moins d'une minute. Disponible en plus de 40 langues.",
+  "subscriptionHeading": "Conditions d'abonnement",
+  "subscriptionApple": "Wishlane Premium est un abonnement à renouvellement automatique, mensuel ou annuel. Le paiement est débité de votre identifiant Apple à la confirmation de l'achat. L'abonnement se renouvelle automatiquement sauf si le renouvellement automatique est désactivé au moins 24 heures avant la fin de la période en cours. Vous pouvez le gérer ou le résilier à tout moment dans les réglages de votre compte Apple.",
+  "subscriptionGoogle": "Wishlane Premium est un abonnement à renouvellement automatique, mensuel ou annuel. Le paiement est débité de votre compte Google Play à la confirmation de l'achat. L'abonnement se renouvelle automatiquement sauf si le renouvellement automatique est désactivé au moins 24 heures avant la fin de la période en cours. Vous pouvez le gérer ou le résilier à tout moment dans le Google Play Store.",
+  "subscriptionPrice": "Wishlane Premium coûte {monthly} par mois ou {yearly} par an. Les prix sont indiqués en dollars américains et peuvent varier selon la région.",
+  "footer": [
+    "Questions ou retours ? support@wishlane.net",
+    "Politique de confidentialité : https://wishlane.net/privacy-policy",
+    "Conditions d'utilisation : https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "La première version de Wishlane.",
+  "changelogBullets": [
+    "Listes avec couleurs, priorités et dates",
+    "Collez un lien, les détails se remplissent",
+    "Listes publiques, entre amis ou privées",
+    "Réservation secrète sur les listes des amis",
+    "Groupe Secret Santa avec tirage automatique",
+    "Listes des amis et événements à venir"
+  ],
+  "permissions": {
+    "photos": "Autorisez Wishlane à choisir une photo de profil dans votre galerie.",
+    "faceId": "Autorisez Wishlane à basculer en toute sécurité entre vos comptes enregistrés."
+  }
+}

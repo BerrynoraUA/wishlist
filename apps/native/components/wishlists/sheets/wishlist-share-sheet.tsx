@@ -1,4 +1,5 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { hapticSuccess } from "@/lib/haptics";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
@@ -11,11 +12,44 @@ import { Copy, Gift, MoreHorizontal, X, type LucideIcon } from "lucide-react-nat
 import * as React from "react";
 import { Linking, Platform, Share, useWindowDimensions, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
+import type ReactNativeShare from "react-native-share";
+import { captureRef } from "react-native-view-shot";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
 
 type ShareTarget = "whatsapp" | "copy" | "more" | "message" | "story" | "telegram";
 
 const INSTAGRAM_ICON_SOURCE = require("@/assets/images/Instagram_icon.png");
+
+// Meta requires a Facebook App ID to share to Stories (mandatory since January 2023);
+// without one Instagram refuses the intent and shows "app doesn't support this".
+const FACEBOOK_APP_ID = process.env.EXPO_PUBLIC_FACEBOOK_APP_ID ?? "";
+
+// Brand gradient behind the shared card. Instagram only accepts hex, while the theme
+// defines `--color-brand` in oklch — these are that token converted, dark shade on top.
+const STORY_BACKGROUND_TOP = "#E052A0";
+const STORY_BACKGROUND_BOTTOM = "#C0267E";
+
+type NativeShare = { default: typeof ReactNativeShare; Social: { InstagramStories: string } };
+let nativeShare: NativeShare | null | undefined;
+
+/**
+ * `react-native-share` calls `TurboModuleRegistry.getEnforcing("RNShare")` while its
+ * module body runs, which throws outright when the native side is missing. Importing it
+ * at the top of this file would therefore take down the whole wishlist screen, not just
+ * the share sheet — and an OTA update can legitimately land on a binary built before the
+ * dependency existed. Resolve it lazily so that case degrades to the system share sheet.
+ */
+function getNativeShare(): NativeShare | null {
+  if (nativeShare === undefined) {
+    try {
+      nativeShare = require("react-native-share") as NativeShare;
+    } catch {
+      nativeShare = null;
+    }
+  }
+
+  return nativeShare;
+}
 
 export function WishlistShareSheet({
   wishlist,
@@ -29,6 +63,7 @@ export function WishlistShareSheet({
   const t = useGT();
   const { height } = useWindowDimensions();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const previewRef = React.useRef<View>(null);
   const [copied, setCopied] = React.useState(false);
 
   React.useEffect(() => {
@@ -103,16 +138,62 @@ export function WishlistShareSheet({
     await sheetRef.current?.dismiss();
   }
 
+  /**
+   * Deliberately does not use `Linking.canOpenURL` as a gate. Custom schemes have to be
+   * allow-listed to be *queried* (`LSApplicationQueriesSchemes` on iOS, `<queries>` on
+   * Android 11+), so `canOpenURL` reports false for installed apps like Telegram and
+   * Instagram. Launching is not filtered, so opening and catching the rejection is both
+   * accurate and free of native config.
+   */
   async function openUrl(url: string, fallback?: string) {
-    const canOpen = await Linking.canOpenURL(url);
-    if (canOpen) {
+    try {
       await Linking.openURL(url);
       return;
+    } catch {
+      // No app registered for the scheme — fall through.
     }
 
     if (fallback) {
       await Linking.openURL(fallback);
     } else {
+      await Share.share({ title: activeWishlist.title, message: shareMessage, url: activeLink });
+    }
+  }
+
+  /**
+   * Opens the Instagram Stories composer with the preview card placed as a sticker over
+   * the brand gradient, rather than as a full-bleed background — the card is card-shaped,
+   * and a background image would be cropped to 9:16.
+   *
+   * Stories cannot carry a tappable link unless the account is verified, so the wishlist
+   * URL goes to the clipboard for the user to drop in as a link sticker.
+   */
+  async function shareToInstagramStory() {
+    const share = getNativeShare();
+
+    if (!FACEBOOK_APP_ID || !share) {
+      await Share.share({ title: activeWishlist.title, message: shareMessage, url: activeLink });
+      return;
+    }
+
+    try {
+      const stickerImage = await captureRef(previewRef, {
+        format: "png",
+        quality: 1,
+        result: "data-uri",
+      });
+
+      await Clipboard.setStringAsync(activeLink);
+      await share.default.shareSingle({
+        social: share.Social.InstagramStories as never,
+        appId: FACEBOOK_APP_ID,
+        stickerImage,
+        backgroundTopColor: STORY_BACKGROUND_TOP,
+        backgroundBottomColor: STORY_BACKGROUND_BOTTOM,
+      });
+    } catch {
+      // Instagram missing, or the user backed out of the composer. Neither deserves an
+      // error, but falling back keeps the tile from feeling dead when the app is absent.
       await Share.share({ title: activeWishlist.title, message: shareMessage, url: activeLink });
     }
   }
@@ -124,6 +205,7 @@ export function WishlistShareSheet({
     switch (target) {
       case "copy":
         await Clipboard.setStringAsync(activeLink);
+        hapticSuccess();
         setCopied(true);
         return;
       case "whatsapp":
@@ -135,7 +217,7 @@ export function WishlistShareSheet({
         );
         return;
       case "story":
-        await openUrl("instagram://story-camera", undefined);
+        await shareToInstagramStory();
         return;
       case "telegram":
         await openUrl(
@@ -155,23 +237,28 @@ export function WishlistShareSheet({
       detents={["auto"]}
       cornerRadius={28}
       onDidDismiss={() => onOpenChange(false)}
+      header={
+        <BottomSheetHeader
+          title={t("Share this wishlist")}
+          action={
+            <AnimatedPressable
+              accessibilityRole="button"
+              accessibilityLabel={t("Close")}
+              className="size-10 items-center justify-center rounded-full"
+              onPress={dismiss}
+            >
+              <Icon as={X} className="size-6 text-text" />
+            </AnimatedPressable>
+          }
+        />
+      }
     >
-      <View className="gap-5 px-4 pb-8 pt-8">
-        <View className="flex-row items-center justify-center">
-          <View className="items-center gap-1 px-12">
-            <Text className="text-xl font-extrabold text-text">{t("Share this wishlist")}</Text>
-          </View>
-          <AnimatedPressable
-            accessibilityRole="button"
-            accessibilityLabel={t("Close")}
-            className="absolute right-0 size-10 items-center justify-center rounded-full"
-            onPress={dismiss}
-          >
-            <Icon as={X} className="size-8 text-text" />
-          </AnimatedPressable>
-        </View>
-
-        <View className="overflow-hidden rounded-[24px] border border-border-subtle bg-card-bg">
+      <View className="gap-5 px-4">
+        <View
+          ref={previewRef}
+          collapsable={false}
+          className="overflow-hidden rounded-[24px] border border-border-subtle bg-card-bg"
+        >
           <View
             className="items-center justify-center bg-bg-subtle"
             style={{ height: previewImageHeight }}

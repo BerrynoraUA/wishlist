@@ -1,11 +1,12 @@
 import { FriendCard } from "@/components/friends/friend-card";
 import { FriendGroupCard } from "@/components/friends/friend-group-card";
+import { BlockedUserCard } from "@/components/friends/blocked-user-card";
 import { FriendsTabs, type FriendsTab } from "@/components/friends/friends-tabs";
 import { OutgoingRequestCard } from "@/components/friends/outgoing-request-card";
 import { RequestCard } from "@/components/friends/request-card";
 import { FriendGroupSheet } from "@/components/friends/sheets/friend-group-sheet";
 import { InlineState } from "@/components/shared/inline-state";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { ExpandingSearchHeader } from "@/components/ui/expanding-search-header";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
@@ -14,6 +15,8 @@ import { Text } from "@/components/ui/text";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import {
   useAcceptFriendRequest,
+  useBlockUser,
+  useBlockedUsers,
   useCancelFriendRequest,
   useDeleteFriendGroup,
   useInfiniteFriendGroups,
@@ -22,11 +25,13 @@ import {
   useInfiniteOutgoingFriendRequests,
   useRejectFriendRequest,
   useRemoveFriend,
+  useUnblockUser,
   useUpdateFriendGroup,
 } from "@/hooks/use-friends";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
-import { chunkRows } from "@/lib/layout";
+import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
 import type {
+  BlockedUser,
   FriendGroup,
   FriendRequestWithDetails,
   FriendWithDetails,
@@ -39,10 +44,12 @@ import { ActivityIndicator, View, useWindowDimensions } from "react-native";
 type SheetState =
   | { type: "group"; group: FriendGroup }
   | { type: "removeFriend"; friendId: string }
+  | { type: "blockUser"; userId: string }
+  | { type: "declineRequest"; requestId: string; senderId: string }
   | { type: "deleteGroup"; group: FriendGroup }
   | null;
 
-type FriendEntry = FriendWithDetails | FriendGroup | FriendRequestWithDetails;
+type FriendEntry = FriendWithDetails | FriendGroup | FriendRequestWithDetails | BlockedUser;
 type FriendsRow = FriendEntry[];
 const FRIENDS_PAGE_SIZE = 20;
 
@@ -56,6 +63,7 @@ export default function FriendsScreen() {
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
+  const paddingBottom = useTabBarContentPadding();
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
@@ -89,6 +97,8 @@ export default function FriendsScreen() {
   const rejectRequest = useRejectFriendRequest();
   const cancelRequest = useCancelFriendRequest();
   const removeFriend = useRemoveFriend();
+  const blockUser = useBlockUser();
+  const unblockUser = useUnblockUser();
   const updateGroup = useUpdateFriendGroup();
   const deleteGroup = useDeleteFriendGroup();
 
@@ -100,13 +110,16 @@ export default function FriendsScreen() {
   const { items: groups, loadMore: loadMoreGroups } = useInfiniteListData(groupsQuery);
   const { items: requests, loadMore: loadMoreRequests } = useInfiniteListData(requestsQuery);
   const { items: outgoing, loadMore: loadMoreOutgoing } = useInfiniteListData(outgoingQuery);
+  const blockedQuery = useBlockedUsers({ search: tab === "blocked" ? debouncedSearch : undefined });
+  const blocked = React.useMemo(() => blockedQuery.data ?? [], [blockedQuery.data]);
 
   const activeItems = React.useMemo<FriendEntry[]>(() => {
     if (tab === "groups") return groups;
     if (tab === "requests") return requests;
     if (tab === "sent") return outgoing;
+    if (tab === "blocked") return blocked;
     return friends;
-  }, [friends, groups, outgoing, requests, tab]);
+  }, [blocked, friends, groups, outgoing, requests, tab]);
 
   const rows = React.useMemo<FriendsRow[]>(
     () => chunkRows(activeItems, columns),
@@ -119,7 +132,9 @@ export default function FriendsScreen() {
         ? requestsQuery.isLoading
         : tab === "sent"
           ? outgoingQuery.isLoading
-          : friendsQuery.isLoading;
+          : tab === "blocked"
+            ? blockedQuery.isLoading
+            : friendsQuery.isLoading;
   const isError =
     tab === "groups"
       ? groupsQuery.isError
@@ -127,7 +142,9 @@ export default function FriendsScreen() {
         ? requestsQuery.isError
         : tab === "sent"
           ? outgoingQuery.isError
-          : friendsQuery.isError;
+          : tab === "blocked"
+            ? blockedQuery.isError
+            : friendsQuery.isError;
   const activeQuery =
     tab === "groups"
       ? groupsQuery
@@ -175,7 +192,19 @@ export default function FriendsScreen() {
                 accepting={acceptRequest.isPending}
                 rejecting={rejectRequest.isPending}
                 onAccept={() => acceptRequest.mutate(entry.id)}
-                onReject={() => rejectRequest.mutate(entry.id)}
+                onReject={() =>
+                  setSheet({
+                    type: "declineRequest",
+                    requestId: entry.id,
+                    senderId: (entry as FriendRequestWithDetails).sender_id,
+                  })
+                }
+              />
+            ) : tab === "blocked" ? (
+              <BlockedUserCard
+                user={entry as BlockedUser}
+                isPending={unblockUser.isPending}
+                onUnblock={(userId) => unblockUser.mutate(userId)}
               />
             ) : tab === "sent" ? (
               <OutgoingRequestCard
@@ -216,6 +245,7 @@ export default function FriendsScreen() {
                 groupsCount={groups.length}
                 requestsCount={requests.length}
                 sentCount={outgoing.length}
+                blockedCount={blocked.length}
                 onChange={handleTabChange}
               />
             </ExpandingSearchHeader>
@@ -226,6 +256,7 @@ export default function FriendsScreen() {
               groupsCount={groups.length}
               requestsCount={requests.length}
               sentCount={outgoing.length}
+              blockedCount={blocked.length}
               onChange={handleTabChange}
             />
           )}
@@ -235,8 +266,7 @@ export default function FriendsScreen() {
           renderItem={renderRow}
           keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
           className="flex-1"
-          contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop }}
+          contentContainerStyle={{ paddingTop, paddingBottom }}
           onScroll={requestMeasure}
           scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View className="h-4" />}
@@ -282,7 +312,6 @@ export default function FriendsScreen() {
           <FriendGroupSheet
             open
             group={sheet.group}
-            friends={friends}
             isSaving={updateGroup.isPending}
             onOpenChange={(open) => {
               if (!open) {
@@ -302,6 +331,8 @@ export default function FriendsScreen() {
             confirmLabel={t("Remove Friend")}
             isPending={removeFriend.isPending}
             error={removeFriend.error?.message}
+            secondaryLabel={t("Remove and block")}
+            onSecondary={() => setSheet({ type: "blockUser", userId: sheet.friendId })}
             onOpenChange={(open) => {
               if (!open) setSheet(null);
             }}
@@ -309,6 +340,42 @@ export default function FriendsScreen() {
               removeFriend.mutate(sheet.friendId, {
                 onSuccess: () => setSheet(null),
               });
+            }}
+          />
+        ) : null}
+        {sheet?.type === "declineRequest" ? (
+          <ConfirmActionSheet
+            open
+            title={t("Decline Request")}
+            description={t("They will not be told. You can accept a new request from them later.")}
+            confirmLabel={t("Decline")}
+            isPending={rejectRequest.isPending}
+            error={rejectRequest.error?.message}
+            secondaryLabel={t("Decline and block")}
+            onSecondary={() => setSheet({ type: "blockUser", userId: sheet.senderId })}
+            onOpenChange={(open) => {
+              if (!open) setSheet(null);
+            }}
+            onConfirm={() => {
+              rejectRequest.mutate(sheet.requestId, { onSuccess: () => setSheet(null) });
+            }}
+          />
+        ) : null}
+        {sheet?.type === "blockUser" ? (
+          <ConfirmActionSheet
+            open
+            title={t("Block this person?")}
+            description={t(
+              "They will not be able to send you friend requests, and your wishlists stop being visible to them. You can undo this from the Blocked tab.",
+            )}
+            confirmLabel={t("Block")}
+            isPending={blockUser.isPending}
+            error={blockUser.error?.message}
+            onOpenChange={(open) => {
+              if (!open) setSheet(null);
+            }}
+            onConfirm={() => {
+              blockUser.mutate(sheet.userId, { onSuccess: () => setSheet(null) });
             }}
           />
         ) : null}
@@ -342,6 +409,8 @@ function ConfirmActionSheet({
   confirmLabel,
   isPending,
   error,
+  secondaryLabel,
+  onSecondary,
   onOpenChange,
   onConfirm,
 }: {
@@ -351,6 +420,9 @@ function ConfirmActionSheet({
   confirmLabel: string;
   isPending: boolean;
   error?: string;
+  /** Optional escalation, e.g. removing a friend and blocking them. */
+  secondaryLabel?: string;
+  onSecondary?: () => void;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
 }) {
@@ -359,28 +431,51 @@ function ConfirmActionSheet({
 
   if (!open) return null;
 
+  const hasEscalation = Boolean(secondaryLabel && onSecondary);
+
+  // With an escalation present it takes the slot beside the confirm button, so the two
+  // destructive choices sit together and Cancel — the way out — gets the full width below
+  // them. Without one, Cancel keeps that slot and the sheet looks as it always has.
+  const cancelButton = (
+    <Button
+      className={hasEscalation ? undefined : "flex-1"}
+      variant="outline"
+      disabled={isPending}
+      onPress={() => void sheetRef.current?.dismiss()}
+    >
+      <Text>{t("Cancel")}</Text>
+    </Button>
+  );
+
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={() => onOpenChange(false)}>
-      <View className="gap-4 px-5 pb-5 pt-5">
-        <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">{title}</Text>
-          <Text className="text-sm text-text-muted">{description}</Text>
-        </View>
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={() => onOpenChange(false)}
+      header={<BottomSheetHeader title={title} />}
+    >
+      <View className="gap-4 px-5">
+        <Text className="text-sm text-text-muted">{description}</Text>
         {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
         <View className="flex-row gap-2">
-          <Button
-            className="flex-1"
-            variant="outline"
-            disabled={isPending}
-            onPress={() => void sheetRef.current?.dismiss()}
-          >
-            <Text>{t("Cancel")}</Text>
-          </Button>
+          {hasEscalation ? (
+            <Button
+              className="flex-1 rounded-lg border border-destructive/35 bg-danger-bg"
+              variant="ghost"
+              disabled={isPending}
+              onPress={onSecondary}
+            >
+              <Text className="text-destructive">{secondaryLabel}</Text>
+            </Button>
+          ) : (
+            cancelButton
+          )}
           <Button className="flex-1" variant="destructive" disabled={isPending} onPress={onConfirm}>
             {isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
             <Text>{confirmLabel}</Text>
           </Button>
         </View>
+        {hasEscalation ? cancelButton : null}
       </View>
     </BottomSheet>
   );

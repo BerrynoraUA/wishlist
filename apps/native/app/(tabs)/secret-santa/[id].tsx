@@ -15,8 +15,7 @@ import {
   type ActionBottomSheetMessagePayload,
 } from "@/components/ui/action-bottom-sheet";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
-import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
-import { StyledImage } from "@/components/ui/styled-image";
+import { useTabBarContentPadding } from "@/lib/layout";
 import {
   useDeleteSecretSantaEvent,
   useRemoveSecretSantaInvite,
@@ -29,8 +28,6 @@ import {
   buildSecretSantaJoinUrl,
   getSecretSantaPersonName,
 } from "@/lib/secret-santa";
-import { cn } from "@/lib/utils";
-import { getWishlistAccentClass } from "@/lib/wishlists";
 import type {
   SecretSantaPendingInvite,
   SecretSantaPerson,
@@ -57,6 +54,7 @@ export default function SecretSantaDetailScreen() {
   const eventId = String(params.id ?? "");
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const paddingBottom = useTabBarContentPadding(32);
   const { data: currentUserId = "" } = useCurrentUserId();
   const detailsQuery = useSecretSantaDetails(eventId);
   const removeParticipant = useRemoveSecretSantaParticipant();
@@ -150,23 +148,7 @@ export default function SecretSantaDetailScreen() {
     <>
       <Stack.Screen options={{ title: data?.name ?? t("Secret Santa") }} />
       <View className="flex-1 bg-bg">
-        {data ? (
-          <ScreenTopBackdrop>
-            <View className={cn("absolute inset-0", getWishlistAccentClass(null))} />
-            {data.image_url ? (
-              <StyledImage
-                source={{ uri: data.image_url }}
-                contentFit="cover"
-                className="absolute inset-0 w-full"
-              />
-            ) : null}
-            <View className="absolute inset-0 bg-black/25" />
-          </ScreenTopBackdrop>
-        ) : null}
-        <ScrollView
-          className="flex-1"
-          contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
-        >
+        <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom }}>
           <View className="gap-5 bg-bg">
             {detailsQuery.isLoading ? (
               <View

@@ -1,0 +1,8 @@
+Prvo izdanje Wishlanea.
+
+- Liste želja s bojama, prioritetima i datumima
+- Zalijepite poveznicu, detalje ispunjavamo mi
+- Liste javne, samo za prijatelje ili privatne
+- Tajna rezervacija darova na listama prijatelja
+- Grupa Tajni Djed Božićnjak s automatskim izvlačenjem
+- Liste prijatelja i nadolazeći događaji

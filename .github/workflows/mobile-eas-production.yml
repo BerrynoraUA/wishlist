@@ -1,0 +1,46 @@
+name: Mobile EAS Production
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - native-v*
+
+concurrency:
+  group: mobile-eas-production-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify_version:
+    name: Verify release version
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Match tag to app version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          tag_version="${RELEASE_TAG#native-v}"
+          app_version="$(jq -er '.expo.version' apps/native/app.json)"
+          if [ "$tag_version" != "$app_version" ]; then
+            echo "Tag version $tag_version does not match app.json version $app_version." >&2
+            exit 1
+          fi
+
+  production:
+    name: Deploy production
+    needs: verify_version
+    if: always() && (needs.verify_version.result == 'success' || needs.verify_version.result == 'skipped')
+    permissions:
+      contents: read
+    uses: ./.github/workflows/mobile-eas-build-submit.yml
+    with:
+      profile: production
+      environment: production
+      android_track: production
+    secrets: inherit

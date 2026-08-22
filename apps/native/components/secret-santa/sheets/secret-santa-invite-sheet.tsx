@@ -1,20 +1,23 @@
-import {
-  AutocompleteDropdown,
-  type AutocompleteDropdownOption,
-} from "@/components/ui/autocomplete-dropdown";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
 import { Text } from "@/components/ui/text";
-import { useFriends } from "@/hooks/use-friends";
+import { useInfiniteFriends } from "@/hooks/use-friends";
+import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useInviteSecretSantaUsers } from "@/hooks/use-secret-santa";
-import { Copy, Share2, X } from "lucide-react-native";
+import { Copy, Share2 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
 
-const FRIENDS_PAGE_SIZE = 10;
+const FRIENDS_PAGE_SIZE = 20;
 
+/**
+ * Deliberately mirrors `AddFriendSheet`: invite link on top, the shared people picker
+ * below, one content-sized detent and no footer. The previous layout put the search in a
+ * sheet footer with the results floating above it, which behaved differently per platform.
+ */
 export function SecretSantaInviteSheet({
   open,
   eventId,
@@ -38,32 +41,34 @@ export function SecretSantaInviteSheet({
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const inviteUsers = useInviteSecretSantaUsers();
-  const [search, setSearch] = React.useState("");
-  const deferredSearch = React.useDeferredValue(search);
-  const [take, setTake] = React.useState(FRIENDS_PAGE_SIZE);
-  const friendsQuery = useFriends({ take, search: deferredSearch });
-  const [selected, setSelected] = React.useState<AutocompleteDropdownOption[]>([]);
+  const [query, setQuery] = React.useState("");
+  const deferredQuery = React.useDeferredValue(query);
+  const friendsQuery = useInfiniteFriends({ search: deferredQuery }, FRIENDS_PAGE_SIZE, {
+    enabled: open,
+  });
+  const { items: friends, loadMore: loadMoreFriends } = useInfiniteListData(friendsQuery);
+  const [selected, setSelected] = React.useState<PeoplePickerItem[]>([]);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (!open) return;
     setSelected([]);
-    setSearch("");
-    setTake(FRIENDS_PAGE_SIZE);
+    setQuery("");
     setError(null);
   }, [open]);
 
-  const friendOptions = React.useMemo<AutocompleteDropdownOption[]>(() => {
-    return (friendsQuery.data ?? [])
-      .filter((friend) => !excludedUserIds.includes(friend.friend_id))
-      .map((friend) => ({
-        value: friend.friend_id,
-        label: friend.display_name || friend.nickname || t("Friend"),
-        description: friend.nickname ? `@${friend.nickname}` : undefined,
-        keywords: [friend.display_name, friend.nickname].filter(Boolean) as string[],
-        imageUrl: friend.avatar_url,
-      }));
-  }, [friendsQuery.data, excludedUserIds, t]);
+  const results = React.useMemo<PeoplePickerItem[]>(
+    () =>
+      friends
+        .filter((friend) => !excludedUserIds.includes(friend.friend_id))
+        .map((friend) => ({
+          id: friend.friend_id,
+          name: friend.display_name || friend.nickname || t("Friend"),
+          subtitle: friend.nickname ? `@${friend.nickname}` : null,
+          avatarUrl: friend.avatar_url,
+        })),
+    [excludedUserIds, friends, t],
+  );
 
   if (!open) return null;
 
@@ -85,7 +90,7 @@ export function SecretSantaInviteSheet({
     if (selected.length === 0) return;
 
     inviteUsers.mutate(
-      { eventId, eventName, userIds: selected.map((option) => option.value) },
+      { eventId, eventName, userIds: selected.map((friend) => friend.id) },
       {
         onSuccess: () => {
           onInvited?.();
@@ -99,52 +104,14 @@ export function SecretSantaInviteSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      detents={["auto", 0.75, 1]}
+      detents={["auto"]}
       onDidDismiss={() => onOpenChange(false)}
-      footer={
-        <View className="w-full gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
-          <AutocompleteDropdown
-            multiple
-            attached
-            alwaysShowOptions
-            optionsPosition="above"
-            options={friendOptions}
-            value={selected}
-            onValueChange={setSelected}
-            onQueryChange={(query) => {
-              setSearch(query);
-              setTake(FRIENDS_PAGE_SIZE);
-            }}
-            onEndReached={() => {
-              if (!friendsQuery.isFetching && (friendsQuery.data?.length ?? 0) >= take) {
-                setTake((current) => current + FRIENDS_PAGE_SIZE);
-              }
-            }}
-            isLoading={friendsQuery.isLoading}
-            isLoadingMore={friendsQuery.isFetching && take > FRIENDS_PAGE_SIZE}
-            maxVisibleOptions={4}
-            closeAccessibilityLabel={t("Close friend search")}
-            hideSelectedOptions
-            showSelectedValue={false}
-            placeholder={t("Search friends")}
-            emptyText={
-              search.trim()
-                ? t('No friends match "{search}".', { search: search.trim() })
-                : t("No friends to invite.")
-            }
-            inputAccessory={
-              <Button
-                className="h-10 rounded-none px-3"
-                disabled={inviteUsers.isPending || selected.length === 0}
-                onPress={submit}
-              >
-                {inviteUsers.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
-                <Text>{t("Send")}</Text>
-              </Button>
-            }
-            inputProps={{ autoCapitalize: "words", autoCorrect: false }}
-          />
-          <View className="flex-row items-center rounded-xl bg-bg-subtle px-2">
+      header={<BottomSheetHeader title={t("Invite friends")} />}
+    >
+      <View className="gap-5 px-5">
+        <View className="gap-2">
+          <Text className="text-sm font-bold text-text">{t("Invite link")}</Text>
+          <View className="flex-row items-center rounded-full border border-border-subtle bg-card-bg px-2">
             <Button
               className="h-11 min-w-0 flex-1 justify-start px-2"
               variant="ghost"
@@ -164,32 +131,49 @@ export function SecretSantaInviteSheet({
             </Button>
           </View>
         </View>
-      }
-    >
-      {selected.length > 0 || error ? (
-        <View className="gap-5 px-5 pb-6 pt-5">
-          {selected.length > 0 ? (
-            <View className="flex-row flex-wrap gap-2 pt-1">
-              {selected.map((friend) => (
-                <Button
-                  key={friend.value}
-                  variant="secondary"
-                  size="sm"
-                  accessibilityLabel={t("Remove {name}", { name: friend.label })}
-                  onPress={() =>
-                    setSelected((current) => current.filter((item) => item.value !== friend.value))
-                  }
-                  className="rounded-full"
-                >
-                  <Text>{friend.label}</Text>
-                  <Icon as={X} className="size-3.5 text-text" />
-                </Button>
-              ))}
-            </View>
-          ) : null}
-          {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
+
+        <PeoplePickerField
+          label={t("Or search")}
+          title={t("Invite friends")}
+          addLabel={t("Choose friends")}
+          items={results}
+          selected={selected}
+          onChange={setSelected}
+          query={query}
+          onQueryChange={setQuery}
+          searchPlaceholder={t("Search friends")}
+          isLoading={friendsQuery.isLoading}
+          isError={friendsQuery.isError}
+          isFetchingMore={friendsQuery.isFetchingNextPage}
+          onEndReached={loadMoreFriends}
+          emptyLabel={
+            query.trim()
+              ? t('No friends match "{search}".', { search: query.trim() })
+              : t("No friends to invite.")
+          }
+        />
+
+        {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
+
+        <View className="flex-row gap-2">
+          <Button
+            className="flex-1"
+            variant="outline"
+            disabled={inviteUsers.isPending}
+            onPress={closeSheet}
+          >
+            <Text>{t("Cancel")}</Text>
+          </Button>
+          <Button
+            className="flex-1"
+            disabled={selected.length === 0 || inviteUsers.isPending}
+            onPress={submit}
+          >
+            {inviteUsers.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
+            <Text>{inviteUsers.isPending ? t("Inviting...") : t("Invite")}</Text>
+          </Button>
         </View>
-      ) : null}
+      </View>
     </BottomSheet>
   );
 }

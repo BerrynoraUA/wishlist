@@ -1,5 +1,11 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import {
+  BottomSheet,
+  BottomSheetHeader,
+  BottomSheetScrollView,
+  type BottomSheetRef,
+} from "@/components/ui/bottom-sheet";
 import { ItemImage } from "@/components/items/item-image";
+import { ItemReportButton } from "@/components/items/item-report-button";
 import { Button } from "@/components/ui/button";
 import {
   ActionBottomSheetConfirm,
@@ -16,13 +22,16 @@ import {
   getTranslatedItemPriorityLabel,
   isDiscountActive,
 } from "@/lib/items";
-import { getValidHttpUrl } from "@/lib/urls";
+import { getLinkUrl, getValidHttpUrl } from "@/lib/urls";
+import { useReportItem } from "@/hooks/use-items";
 import type { Item } from "@wishlist/backend/types/item";
 import * as Clipboard from "expo-clipboard";
 import {
   Bookmark,
   Copy,
   ExternalLink,
+  Eye,
+  EyeOff,
   LockKeyhole,
   Pencil,
   ShoppingCart,
@@ -30,7 +39,7 @@ import {
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, Linking, Platform, View } from "react-native";
+import { ActivityIndicator, Linking, Pressable, View } from "react-native";
 
 type Confirmation = {
   title: string;
@@ -45,6 +54,7 @@ export function WishlistItemDetailSheet({
   item,
   currentUserId,
   isOwner,
+  showOwnerReservation = false,
   reservedByName,
   reservePending,
   boughtPending,
@@ -58,6 +68,7 @@ export function WishlistItemDetailSheet({
   item: Item | null;
   currentUserId: string;
   isOwner: boolean;
+  showOwnerReservation?: boolean;
   reservedByName?: string | null;
   reservePending?: boolean;
   boughtPending?: boolean;
@@ -71,6 +82,9 @@ export function WishlistItemDetailSheet({
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const [confirmation, setConfirmation] = React.useState<Confirmation | null>(null);
+  const [reserverRevealed, setReserverRevealed] = React.useState(false);
+  const [reportOpen, setReportOpen] = React.useState(false);
+  const reportItem = useReportItem();
 
   if (!item) return null;
   const selectedItem = item;
@@ -87,13 +101,17 @@ export function WishlistItemDetailSheet({
       reservedByName,
     },
     t,
+    { revealName: reserverRevealed },
   );
+  // Owners only see the ribbon once they opt into the spoiler.
+  const showStatusStamp = Boolean(reservationLabel) && (!isOwner || showOwnerReservation);
+  const canRevealReserver = showOwnerReservation && showStatusStamp && Boolean(reservedByName);
   const priorityLabel = getTranslatedItemPriorityLabel(t, selectedItem.priority_id);
   const priority = getItemPriority(selectedItem.priority_id);
   const store = getItemStoreFromUrl(selectedItem.url);
   const itemUrl = getValidHttpUrl(selectedItem.url) ?? "";
   const additionalLinks = (selectedItem.additional_links ?? [])
-    .map((link) => ({ ...link, url: getValidHttpUrl(link.url) }))
+    .map((link) => ({ ...link, url: getLinkUrl(link.url) }))
     .filter((link): link is typeof link & { url: string } => link.url !== null);
   const hasLinks = itemUrl.length > 0 || additionalLinks.length > 0;
   const hasActiveDiscount = isDiscountActive(
@@ -134,7 +152,7 @@ export function WishlistItemDetailSheet({
       message: selectedItem.name,
       confirmLabel: reservation.isPurchased ? t("Undo") : t("Buy"),
       isPending: boughtPending,
-      tone: reservation.isPurchased ? "destructive" : "success",
+      tone: reservation.isPurchased ? "destructive" : "buy",
       onConfirm: () => {
         setConfirmation(null);
         onToggleBought(selectedItem.id);
@@ -153,20 +171,164 @@ export function WishlistItemDetailSheet({
     await Clipboard.setStringAsync(link);
   }
 
+  // Actions stay visible but are locked when the viewer can't perform them. "Undo" only
+  // appears for a purchase this viewer made — someone else's purchase shows a locked "Buy".
+  const canReserve = reservation.canToggleReservation;
+  const canBuy = reservation.canToggleBought;
+  const canUndoPurchase = reservation.isPurchased && canBuy;
+  const reservedByMe = reservation.isReserved && reservation.reservedByMe;
+  // A purchased gift is reserved too, so both buttons report the state they are locked in.
+  const showAsReserved = reservation.isReserved || reservation.isPurchased;
+  const ownerActions = isOwner ? Boolean(onEdit) || Boolean(onDelete) : false;
+  const guestActions =
+    !isOwner && (Boolean(onSaveToWishlist) || Boolean(onToggleReserve) || Boolean(onToggleBought));
+  const hasActions = ownerActions || guestActions;
+
+  const actions = !hasActions ? null : (
+    <View className="w-full gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
+      {isOwner ? (
+        <View className="flex-row gap-2">
+          {onEdit ? (
+            <Button
+              className="min-w-0 flex-1"
+              onPress={() => {
+                onEdit(selectedItem);
+                handleClose();
+              }}
+            >
+              <Icon as={Pencil} className="size-4 text-primary-foreground" />
+              <Text>{t("Edit")}</Text>
+            </Button>
+          ) : null}
+          {onDelete ? (
+            <Button
+              variant="destructive"
+              className="min-w-0 flex-1"
+              onPress={() => {
+                onDelete(selectedItem);
+                handleClose();
+              }}
+            >
+              <Icon as={Trash2} className="size-4 text-white" />
+              <Text>{t("Delete")}</Text>
+            </Button>
+          ) : null}
+        </View>
+      ) : (
+        <>
+          {onSaveToWishlist ? (
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onPress={() => {
+                onSaveToWishlist(selectedItem);
+                handleClose();
+              }}
+            >
+              <Icon as={Bookmark} className="size-4 text-text" />
+              <Text>{t("Save to wishlist")}</Text>
+            </Button>
+          ) : null}
+          {onToggleReserve ? (
+            <Button
+              variant="ghost"
+              size="lg"
+              disabled={!canReserve || reservePending}
+              onPress={confirmReservation}
+              className={
+                reservedByMe
+                  ? "w-full rounded-lg border border-brand bg-brand"
+                  : "w-full rounded-lg border border-brand/25 bg-brand-lighter"
+              }
+            >
+              {reservePending ? (
+                <ActivityIndicator colorClassName="accent-primary-foreground" />
+              ) : null}
+              <Icon
+                as={LockKeyhole}
+                className={reservedByMe ? "size-4 text-primary-foreground" : "size-4 text-brand"}
+              />
+              <Text className={reservedByMe ? "text-primary-foreground" : "text-brand"}>
+                {reservedByMe
+                  ? t("Release reservation")
+                  : showAsReserved
+                    ? t("Reserved")
+                    : t("Reserve this gift")}
+              </Text>
+            </Button>
+          ) : null}
+          {onToggleBought ? (
+            <Button
+              variant="ghost"
+              size="lg"
+              disabled={!canBuy || boughtPending}
+              onPress={confirmBought}
+              className={
+                canUndoPurchase
+                  ? "w-full rounded-lg border border-destructive/35 bg-danger-bg"
+                  : "w-full rounded-xl border border-buy/70 bg-buy-bg"
+              }
+            >
+              {boughtPending ? (
+                <ActivityIndicator colorClassName="accent-primary-foreground" />
+              ) : null}
+              <Icon
+                as={ShoppingCart}
+                className={canUndoPurchase ? "size-4 text-destructive" : "size-4 text-buy"}
+              />
+              <Text className={canUndoPurchase ? "text-destructive" : "text-buy"}>
+                {canUndoPurchase ? t("Undo") : reservation.isPurchased ? t("Purchased") : t("Buy")}
+              </Text>
+            </Button>
+          ) : null}
+        </>
+      )}
+    </View>
+  );
+
   return (
     <>
-      <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
-        {/* iOS sheets add their own bottom safe-area inset; only Android needs the extra padding. */}
-        <View className={`gap-5 px-5 pt-5 ${Platform.OS === "ios" ? "pb-0" : "pb-4"}`}>
+      <BottomSheet
+        ref={sheetRef}
+        scrollable
+        // "auto" keeps the sheet as tall as its content — no empty gap under a short item —
+        // and only starts scrolling once the content outgrows the screen.
+        detents={["auto", 0.94]}
+        footerInsetMode="scroll-content"
+        onDidDismiss={onClose}
+        header={<BottomSheetHeader title={t("Item details")} />}
+        footer={actions ?? undefined}
+      >
+        <BottomSheetScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerClassName="gap-5 px-5"
+        >
           <ItemImage
             item={item}
-            reservationLabel={!isOwner ? reservationLabel : null}
+            reservationLabel={showStatusStamp ? reservationLabel : null}
+            stampLabel={reserverRevealed ? reservedByName : null}
+            overlayAction={
+              canRevealReserver ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    reserverRevealed ? t("Hide who reserved this") : t("Show who reserved this")
+                  }
+                  onPress={() => setReserverRevealed((value) => !value)}
+                  hitSlop={8}
+                  className="size-9 items-center justify-center rounded-full border border-border-subtle bg-card-bg shadow-sm"
+                >
+                  <Icon as={reserverRevealed ? EyeOff : Eye} className="size-5 text-text-muted" />
+                </Pressable>
+              ) : null
+            }
             purchased={reservation.isPurchased}
-            reserved={!isOwner && reservation.isReserved}
             priority={priority}
             priorityLabel={priorityLabel}
             salePercentOff={salePercentOff}
             showDiscountPrice={hasActiveDiscount}
+            endAction={isOwner ? null : <ItemReportButton onPress={() => setReportOpen(true)} />}
             size="detail"
           />
 
@@ -225,117 +387,20 @@ export function WishlistItemDetailSheet({
               ))}
             </View>
           ) : null}
-
-          <View className="gap-2">
-            {isOwner ? (
-              <View className="flex-row gap-2">
-                {onEdit ? (
-                  <Button
-                    className="min-w-0 flex-1"
-                    onPress={() => {
-                      onEdit(item);
-                      handleClose();
-                    }}
-                  >
-                    <Icon as={Pencil} className="size-4 text-primary-foreground" />
-                    <Text>{t("Edit")}</Text>
-                  </Button>
-                ) : null}
-                {onDelete ? (
-                  <Button
-                    variant="destructive"
-                    className="min-w-0 flex-1"
-                    onPress={() => {
-                      onDelete(item);
-                      handleClose();
-                    }}
-                  >
-                    <Icon as={Trash2} className="size-4 text-white" />
-                    <Text>{t("Delete")}</Text>
-                  </Button>
-                ) : null}
-              </View>
-            ) : (
-              <View className="gap-2">
-                {onSaveToWishlist ? (
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full"
-                    onPress={() => {
-                      onSaveToWishlist(item);
-                      handleClose();
-                    }}
-                  >
-                    <Icon as={Bookmark} className="size-4 text-text" />
-                    <Text>{t("Save to wishlist")}</Text>
-                  </Button>
-                ) : null}
-                {onToggleReserve ? (
-                  <Button
-                    variant="ghost"
-                    size="lg"
-                    disabled={!reservation.canToggleReservation || reservePending}
-                    onPress={confirmReservation}
-                    className={
-                      reservation.isReserved
-                        ? "w-full rounded-lg border border-brand bg-brand"
-                        : "w-full rounded-lg border border-brand/25 bg-brand-lighter"
-                    }
-                  >
-                    {reservePending ? (
-                      <ActivityIndicator colorClassName="accent-primary-foreground" />
-                    ) : null}
-                    <Icon
-                      as={LockKeyhole}
-                      className={
-                        reservation.isReserved
-                          ? "size-4 text-primary-foreground"
-                          : "size-4 text-brand"
-                      }
-                    />
-                    <Text
-                      className={reservation.isReserved ? "text-primary-foreground" : "text-brand"}
-                    >
-                      {!reservation.isReserved
-                        ? t("Reserve this gift")
-                        : reservation.reservedByMe
-                          ? t("Release reservation")
-                          : t("Reserved")}
-                    </Text>
-                  </Button>
-                ) : null}
-                {onToggleBought ? (
-                  <Button
-                    variant="ghost"
-                    size="lg"
-                    disabled={!reservation.canToggleBought || boughtPending}
-                    onPress={confirmBought}
-                    className={
-                      reservation.isPurchased
-                        ? "w-full rounded-lg border border-destructive/35 bg-danger-bg"
-                        : "w-full rounded-xl border border-success/70 bg-success-bg"
-                    }
-                  >
-                    {boughtPending ? (
-                      <ActivityIndicator colorClassName="accent-primary-foreground" />
-                    ) : null}
-                    <Icon
-                      as={ShoppingCart}
-                      className={
-                        reservation.isPurchased ? "size-4 text-destructive" : "size-4 text-success"
-                      }
-                    />
-                    <Text className={reservation.isPurchased ? "text-destructive" : "text-success"}>
-                      {reservation.isPurchased ? t("Undo") : t("Buy")}
-                    </Text>
-                  </Button>
-                ) : null}
-              </View>
-            )}
-          </View>
-        </View>
+        </BottomSheetScrollView>
       </BottomSheet>
+      <ActionBottomSheetConfirm
+        open={reportOpen}
+        title={t("Report this item?")}
+        message={t("Our team will take a look. You can only report an item once.")}
+        confirmLabel={t("Report")}
+        isPending={reportItem.isPending}
+        tone="destructive"
+        onClose={() => setReportOpen(false)}
+        onConfirm={() => {
+          reportItem.mutate(selectedItem.id, { onSettled: () => setReportOpen(false) });
+        }}
+      />
       <ActionBottomSheetConfirm
         open={Boolean(confirmation)}
         title={confirmation?.title ?? ""}

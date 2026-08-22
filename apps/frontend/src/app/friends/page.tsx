@@ -8,6 +8,7 @@ import { FriendCard } from "./components/friend-card/FriendCard";
 import { FriendGroupCard } from "./components/friend-group-card/FriendGroupCard";
 import { FriendGroupModal } from "./components/friend-group-modal/FriendGroupModal";
 import { RequestCard } from "./components/request-card/RequestCard";
+import { BlockedUserCard } from "./components/blocked-user-card/BlockedUserCard";
 import { OutgoingRequestCard } from "./components/outgoing-request-card/OutgoingRequestCard";
 import { AddFriendModal } from "./components/add-friend-modal/AddFriendModal";
 import { FriendCardSkeleton } from "./components/friends-skeleton/FriendsSkeleton";
@@ -32,6 +33,9 @@ function FriendsPageContent() {
     groupModalOpen,
     editingGroup,
     friendToRemoveId,
+    blockOnRemove,
+    setBlockOnRemove,
+    closeRemoveFriend,
     friends,
     friendsLoading,
     friendsError,
@@ -44,15 +48,25 @@ function FriendsPageContent() {
     outgoing,
     outgoingLoading,
     outgoingError,
+    blocked,
+    blockedLoading,
+    blockedError,
     acceptRequest,
     rejectRequest,
     cancelRequest,
     createGroup,
     updateGroup,
     removeFriend,
+    blockUser,
+    unblockUser,
+    requestToDecline,
+    blockOnDecline,
+    setBlockOnDecline,
+    closeDeclineRequest,
+    handleDeclineRequest,
+    handleConfirmDeclineRequest,
     handleRemoveFriend,
     handleConfirmRemoveFriend,
-    setFriendToRemoveId,
     handleCreateGroup,
     handleEditGroup,
     handleDeleteGroup,
@@ -98,6 +112,7 @@ function FriendsPageContent() {
         friendsCount={friends.length}
         groupsCount={groups.length}
         requestsCount={requests.length}
+        blockedCount={blocked.length}
         sentCount={outgoing.length}
         action={
           tab === "groups" ? (
@@ -184,7 +199,7 @@ function FriendsPageContent() {
               key={r.id}
               request={r}
               onAccept={() => acceptRequest.mutate(r.id)}
-              onReject={() => rejectRequest.mutate(r.id)}
+              onReject={() => handleDeclineRequest(r.id, r.sender_id)}
               accepting={acceptRequest.isPending}
               rejecting={rejectRequest.isPending}
             />
@@ -216,11 +231,45 @@ function FriendsPageContent() {
         </div>
       )}
 
+      {tab === "blocked" && (
+        <div style={FRIENDS_GRID_STYLE}>
+          {blockedLoading && renderSkeletons(REQUESTS_SKELETON_COUNT)}
+          {blockedError && (
+            <p>{t("Failed to load blocked users.", { $id: "friends.page.blockedError" })}</p>
+          )}
+          {!blockedLoading && !blockedError && blocked.length === 0 && (
+            <p>{t("You have not blocked anyone.", { $id: "friends.page.noBlocked" })}</p>
+          )}
+          {blocked.map((user) => (
+            <BlockedUserCard
+              key={user.id}
+              user={user}
+              onUnblock={(userId) => unblockUser.mutate(userId)}
+              isPending={unblockUser.isPending}
+            />
+          ))}
+        </div>
+      )}
+
       <AddFriendModal open={addOpen} onClose={closeAddFriendModal} />
       <DeleteConfirmModal
         open={!!friendToRemoveId}
-        onClose={() => setFriendToRemoveId(null)}
+        onClose={closeRemoveFriend}
         onConfirm={handleConfirmRemoveFriend}
+        extraContent={
+          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={blockOnRemove}
+              onChange={(e) => setBlockOnRemove(e.target.checked)}
+            />
+            <span>
+              {t("Also block this person so they cannot send you requests again", {
+                $id: "friends.page.alsoBlock",
+              })}
+            </span>
+          </label>
+        }
         title={t("Remove Friend", { $id: "friends.page.removeFriendTitle" })}
         description={t(
           "Are you sure you want to remove this friend? You will need to send a new friend request to reconnect.",
@@ -229,7 +278,32 @@ function FriendsPageContent() {
         confirmLabel={t("Remove Friend", {
           $id: "friends.page.removeFriendConfirm",
         })}
-        isPending={removeFriend.isPending}
+        isPending={removeFriend.isPending || blockUser.isPending}
+      />
+      <DeleteConfirmModal
+        open={!!requestToDecline}
+        onClose={closeDeclineRequest}
+        onConfirm={handleConfirmDeclineRequest}
+        title={t("Decline Request", { $id: "friends.page.declineRequestTitle" })}
+        description={t("They will not be told. You can accept a new request from them later.", {
+          $id: "friends.page.declineRequestDescription",
+        })}
+        confirmLabel={t("Decline", { $id: "friends.page.declineRequestConfirm" })}
+        isPending={rejectRequest.isPending || blockUser.isPending}
+        extraContent={
+          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={blockOnDecline}
+              onChange={(e) => setBlockOnDecline(e.target.checked)}
+            />
+            <span>
+              {t("Also block this person so they cannot send you requests again", {
+                $id: "friends.page.alsoBlock",
+              })}
+            </span>
+          </label>
+        }
       />
       <FriendGroupModal
         open={groupModalOpen}

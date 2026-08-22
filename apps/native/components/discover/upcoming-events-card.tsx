@@ -49,7 +49,7 @@ export function UpcomingEventsCard({
               <Text className="text-base font-extrabold text-text">{t("Upcoming events")}</Text>
               <Icon as={ChevronRight} className="size-5 shrink-0 text-text-muted" />
             </View>
-            <View className="gap-1.5 pr-3">
+            <View className="gap-1.5 pe-3">
               {previewEvents.map((event) => {
                 const daysUntil = getDaysUntil(event.event_date);
                 const eventSummary =

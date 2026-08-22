@@ -1,0 +1,8 @@
+Den första versionen av Wishlane.
+
+- Önskelistor med färger, prioritet och datum
+- Klistra in en produktlänk så fyller vi i detaljerna
+- Listor offentliga, för vänner eller privata
+- Boka presenter i hemlighet på vänners listor
+- Grupp för hemlig tomte med automatisk dragning
+- Vänners listor och kommande tillfällen

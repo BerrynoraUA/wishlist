@@ -1,0 +1,97 @@
+name: Mobile CI
+
+# Checks only — no EAS builds, no EXPO_TOKEN, no cost beyond runner minutes.
+# Safe to run alongside the mobile-eas-* deployment workflows.
+#
+# The path lists below are duplicated rather than shared via a YAML anchor:
+# GitHub Actions does not support anchors or aliases in workflow files.
+on:
+  pull_request:
+    paths:
+      - apps/native/**
+      - packages/backend/**
+      - packages/scraper-core/**
+      - patches/**
+      - .easignore
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - .github/workflows/mobile-ci.yml
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - apps/native/**
+      - packages/backend/**
+      - packages/scraper-core/**
+      - patches/**
+      - .easignore
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - .github/workflows/mobile-ci.yml
+
+concurrency:
+  group: mobile-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check native app
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          # Pinned to match eas.json's `base` build profile, so CI and EAS Build
+          # run the same Node. Keep the two in sync.
+          node-version: 22.14.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check Expo dependency compatibility
+        run: pnpm --filter native exec expo install --check
+
+      # Expo Doctor catches broader ecosystem/configuration issues, including
+      # advisory findings that do not necessarily make EAS Build unusable.
+      - name: Run Expo Doctor
+        continue-on-error: true
+        working-directory: apps/native
+        run: pnpm dlx expo-doctor@latest
+
+      - name: Resolve app config
+        run: pnpm --filter native exec expo config --type public
+
+      - name: Lint
+        run: pnpm lint
+
+      # Non-blocking on purpose: `oxfmt --check` currently reports 80
+      # pre-existing offenders across the repo, none of them mobile-specific.
+      # Run `pnpm ref` to fix them, then drop this continue-on-error.
+      - name: Check formatting
+        continue-on-error: true
+        run: pnpm format
+
+      - name: Typecheck
+        run: pnpm check-types
+
+      # Scoped to the native app rather than `pnpm test:unit`: the latter fans
+      # out to @wishlist/backend, which has no test files, and vitest exits 1
+      # when nothing matches.
+      - name: Test native app
+        run: pnpm --filter native test
+
+      - name: Test repo scripts
+        run: pnpm test:scripts

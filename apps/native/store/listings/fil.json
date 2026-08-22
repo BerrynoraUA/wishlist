@@ -1,0 +1,74 @@
+{
+  "bcp47": "fil",
+  "title": "Wishlane: wishlist at regalo",
+  "appleName": "Wishlane",
+  "subtitle": "Wishlist, maganda ang share",
+  "shortDescription": "Gumawa ng wishlist, i-share sa kaibigan, at mag-reserve ng regalo nang lihim.",
+  "promoText": "I-paste ang kahit anong link, gumawa ng magandang wishlist, at i-share sa mga kaibigan. Lihim silang nagre-reserve ng regalo: walang dobleng regalo at walang sirang sorpresa.",
+  "keywords": [
+    "wishlist",
+    "regalo",
+    "kaarawan",
+    "pasko",
+    "monito monita",
+    "ideya sa regalo",
+    "shopping"
+  ],
+  "intro": [
+    "Ginagawang masaya ng Wishlane ang tanong na \"ano nga ba talaga ang gusto mo?\"",
+    "Gumawa ng magagandang wishlist, i-share sa mga taong mahalaga sa iyo, at hayaan silang mag-reserve ng regalo nang lihim: walang bibili ng parehong bagay nang dalawang beses at walang sorpresang masisira."
+  ],
+  "sections": [
+    {
+      "heading": "Wishlist sa loob ng ilang segundo",
+      "body": "I-paste ang kahit anong link ng produkto at ang Wishlane na ang bahala sa pamagat, paglalarawan, larawan at presyo. Pangalanan ang listahan, pumili ng kulay, ilagay ang petsa ng okasyon, at tapos ka na."
+    },
+    {
+      "heading": "Ikaw ang bahala sa pag-share",
+      "body": "Puwedeng public, para sa mga kaibigan lang, o ganap na pribado ang bawat wishlist. Magpadala ng link kaninuman, o kumonekta sa mga kaibigan gamit ang username: makikita mo ang listahan nila, makikita nila ang sa iyo."
+    },
+    {
+      "heading": "Lihim na mag-reserve ng regalo",
+      "body": "Mag-reserve ng item sa listahan ng kaibigan: makikita ng iba na kuha na ito, pero hinding-hindi malalaman ng may-ari ng listahan. Walang dobleng regalo, walang sirang sorpresa."
+    },
+    {
+      "heading": "Monito Monita, ayos na ayos",
+      "body": "Gumawa ng grupo, imbitahan ang lahat gamit ang isang link, at ang Wishlane na ang bahala sa bunutan. Nakikita ng bawat isa ang wishlist ng nabunot niya, kaya tumatama talaga ang regalo."
+    },
+    {
+      "heading": "Alamin ang gusto ng iba",
+      "body": "Tingnan ang mga public wishlist ng mga kaibigan, subaybayan ang paparating na kaarawan at okasyon na may countdown, at huwag nang dumating nang walang dala."
+    },
+    {
+      "heading": "Manatiling updated",
+      "body": "Maaabisuhan ka kapag may kaibigang gumawa ng wishlist, nagpadala sa iyo ng request, o nag-reserve ng isang bagay mula sa listahan mo."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Walang limitasyong listahan at item, collaborator access sa mga shared na listahan, at custom na kulay at prayoridad."
+    }
+  ],
+  "closing": "Libre ang simula sa Wishlane: walang credit card, wala pang isang minuto ang setup. Available sa mahigit 40 wika.",
+  "subscriptionHeading": "Mga tuntunin ng subscription",
+  "subscriptionApple": "Ang Wishlane Premium ay awtomatikong nagre-renew na subscription, buwanan o taunan. Sisingilin ang bayad sa iyong Apple ID sa pagkumpirma ng pagbili. Awtomatikong nagre-renew ang subscription maliban kung i-off ang auto-renew nang hindi bababa sa 24 oras bago matapos ang kasalukuyang panahon. Puwede mong pamahalaan o kanselahin ito anumang oras sa mga setting ng iyong Apple ID account.",
+  "subscriptionGoogle": "Ang Wishlane Premium ay awtomatikong nagre-renew na subscription, buwanan o taunan. Sisingilin ang bayad sa iyong Google Play account sa pagkumpirma ng pagbili. Awtomatikong nagre-renew ang subscription maliban kung i-off ang auto-renew nang hindi bababa sa 24 oras bago matapos ang kasalukuyang panahon. Puwede mong pamahalaan o kanselahin ito anumang oras sa Google Play Store.",
+  "subscriptionPrice": "Ang Wishlane Premium ay nagkakahalaga ng {monthly} kada buwan o {yearly} kada taon. Ang mga presyo ay nasa US dollar at maaaring mag-iba depende sa rehiyon.",
+  "footer": [
+    "May tanong o feedback? support@wishlane.net",
+    "Patakaran sa Privacy: https://wishlane.net/privacy-policy",
+    "Mga Tuntunin ng Serbisyo: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Ang unang release ng Wishlane.",
+  "changelogBullets": [
+    "Wishlist na may kulay, prayoridad at petsa",
+    "I-paste ang link, kami na ang bahala sa detalye",
+    "Listahang public, para sa kaibigan, o pribado",
+    "Lihim na pag-reserve ng regalo sa listahan ng kaibigan",
+    "Grupong Monito Monita na may awtomatikong bunutan",
+    "Listahan ng mga kaibigan at paparating na okasyon"
+  ],
+  "permissions": {
+    "photos": "Payagan ang Wishlane na pumili ng profile photo mula sa iyong library.",
+    "faceId": "Payagan ang Wishlane na ligtas na maglipat sa pagitan ng mga naka-save na account."
+  }
+}

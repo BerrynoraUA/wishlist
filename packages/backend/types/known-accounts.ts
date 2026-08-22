@@ -13,6 +13,7 @@ export type KnownAccount = {
   expiresAt?: number | null;
   defaultAccent?: number | null;
   themePreference?: "light" | "dark" | "system" | null;
+  preferredLocale?: string | null;
 };
 
 const SUPPORTED_AUTH_PROVIDERS = ["email", "google", "apple", "facebook"] as const;

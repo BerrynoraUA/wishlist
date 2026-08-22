@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/slide-out-filter-panel";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
+import { useTabBarContentPadding } from "@/lib/layout";
 import { useDiscoverFeed } from "@/hooks/use-discover-feed";
-import { useFriends } from "@/hooks/use-friends";
 import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
 import {
   optimisticallyToggleItemBought,
@@ -47,19 +47,20 @@ export default function DiscoverScreen() {
   const { user } = useAuth();
   const { width } = useWindowDimensions();
   const feed = useDiscoverFeed();
-  const friendsQuery = useFriends();
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [selection, setSelection] = React.useState<SelectedDiscoverItem | null>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
+  const paddingBottom = useTabBarContentPadding();
 
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
-  const columns = width >= 820 ? 3 : 2;
-  const cardWidth = (contentWidth - gridGap * (columns - 1)) / columns;
-  const friends = friendsQuery.data ?? [];
+  // Sections scroll horizontally, so cards are sized to show ~1.5 per screen as a scroll hint.
+  const sectionCardWidth = Math.min(300, Math.max(200, contentWidth * 0.62));
+  // Reserved / purchased are a single column: one full-width card per row, scrolling down.
+  const reservedCardWidth = contentWidth;
 
   function handleToggleSelectedReservation(itemId: string) {
     if (!selection || selection.item.id !== itemId || !user?.id) return;
@@ -121,15 +122,6 @@ export default function DiscoverScreen() {
     setSelection({ item, reservedByName });
   }
 
-  const avatarByKey = React.useMemo(() => {
-    const map = new Map<string, string | null>();
-    for (const friend of friends) {
-      map.set(friend.friend_id, friend.avatar_url ?? null);
-      if (friend.nickname) map.set(friend.nickname, friend.avatar_url ?? null);
-    }
-    return map;
-  }, [friends]);
-
   const rows = React.useMemo<DiscoverRow[]>(() => {
     const contentRows: DiscoverRow[] = feed.sectionTab
       ? feed.activeSections
@@ -156,8 +148,8 @@ export default function DiscoverScreen() {
         <View style={{ alignSelf: "center", width: contentWidth }}>
           <ReservedItemsGrid
             items={feed.activeItems}
-            columns={columns}
-            cardWidth={cardWidth}
+            columns={1}
+            cardWidth={reservedCardWidth}
             gridGap={gridGap}
             currentUserId={user?.id}
             purchased={feed.tab === "purchased"}
@@ -172,12 +164,10 @@ export default function DiscoverScreen() {
       <View style={{ alignSelf: "center", width: contentWidth }}>
         <DiscoverSection
           section={item}
-          cardWidth={cardWidth}
+          cardWidth={sectionCardWidth}
           gridGap={gridGap}
           currentUserId={user?.id}
-          avatarUrl={
-            item.friend_id ? avatarByKey.get(item.friend_id) : avatarByKey.get(item.username)
-          }
+          avatarUrl={item.avatar_url}
           headerAccessory={null}
           onOpenItem={openItem}
         />
@@ -232,8 +222,7 @@ export default function DiscoverScreen() {
         renderItem={renderRow}
         keyExtractor={(row) => ("type" in row ? row.id : row.id)}
         className="flex-1"
-        contentContainerClassName="pb-8"
-        contentContainerStyle={{ paddingTop }}
+        contentContainerStyle={{ paddingTop, paddingBottom }}
         onScroll={requestMeasure}
         scrollEventThrottle={16}
         ItemSeparatorComponent={RowSeparator}
@@ -267,7 +256,8 @@ export default function DiscoverScreen() {
         }
         extraData={{
           tab: feed.tab,
-          cardWidth,
+          sectionCardWidth,
+          reservedCardWidth,
           contentWidth,
           gridGap,
           activeItems: feed.activeItems,

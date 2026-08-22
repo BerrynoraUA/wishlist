@@ -1,0 +1,8 @@
+Die erste Version von Wishlane.
+
+- Wunschlisten mit Farben, Prioritäten und Daten
+- Produktlink einfügen, Details werden ergänzt
+- Listen öffentlich, für Freunde oder privat teilen
+- Geschenke heimlich reservieren
+- Wichtelgruppe mit automatischer Auslosung
+- Listen von Freunden und anstehende Anlässe

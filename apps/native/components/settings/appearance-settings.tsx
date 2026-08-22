@@ -10,6 +10,7 @@ import type { NativeAccentName } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { getWishlistAccentOptions } from "@/lib/wishlists";
 import { useUpdateSettings } from "@/hooks/use-settings";
+import { useProGate } from "@/hooks/use-pro-gate";
 import type { ThemePreference, WishlistColorIndex } from "@wishlist/backend/types/settings";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 import {
@@ -24,6 +25,7 @@ import {
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
+import { Lock } from "lucide-react-native";
 
 const THEME_OPTION_HEIGHT = 96;
 const SWATCH_OPTION_HEIGHT = 76;
@@ -85,6 +87,7 @@ export function AppearanceSettings({
 }) {
   const t = useGT();
   const updateSettings = useUpdateSettings();
+  const { isPro, openPaywall } = useProGate();
 
   const accentOptions = React.useMemo(() => getWishlistAccentOptions(t), [t]);
   const accentsWithLabels = React.useMemo(
@@ -135,6 +138,10 @@ export function AppearanceSettings({
   );
 
   function setDefaultAccent(value: WishlistAccent) {
+    if (!isPro && value !== WishlistAccent.Pink) {
+      openPaywall();
+      return;
+    }
     updateSettings.mutate({ default_accent: value });
   }
 
@@ -163,6 +170,7 @@ export function AppearanceSettings({
         title={t("Default Accent Color")}
         value={selectedAccent}
         onChange={setDefaultAccent}
+        isLocked={(value) => !isPro && value !== WishlistAccent.Pink}
       />
 
       <SwatchPicker
@@ -170,7 +178,15 @@ export function AppearanceSettings({
         accents={accentsWithLabels}
         title={t("Default Wishlist Color")}
         value={selectedWishlistColor}
-        onChange={(value) => updateSettings.mutate({ default_wishlist_color: value })}
+        onChange={(value) => {
+          if (!isPro && value !== 0) {
+            openPaywall();
+            return;
+          }
+          updateSettings.mutate({ default_wishlist_color: value });
+        }}
+        isLocked={(value) => !isPro && value !== 0}
+        getValue={(_, index) => index as WishlistColorIndex}
       />
     </SettingsSection>
   );
@@ -184,14 +200,21 @@ function SwatchPicker<T extends WishlistAccent | WishlistColorIndex>({
   accents,
   value,
   onChange,
+  isLocked,
+  getValue,
 }: {
   icon: LucideIcon;
   title: string;
   accents: SwatchRow[];
   value: T;
   onChange: (value: T) => void;
+  isLocked?: (value: T) => boolean;
+  getValue?: (accent: SwatchRow, index: number) => T;
 }) {
-  const selectedAccent = accents.find((accent) => accent.value === value) ?? accents[0];
+  const optionValue = (accent: SwatchRow, index: number) =>
+    getValue?.(accent, index) ?? (accent.value as T);
+  const selectedAccent =
+    accents.find((accent, index) => optionValue(accent, index) === value) ?? accents[0];
 
   return (
     <View className="gap-2">
@@ -200,7 +223,12 @@ function SwatchPicker<T extends WishlistAccent | WishlistColorIndex>({
         <Text className="text-sm font-semibold text-text">{title}</Text>
       </View>
       <SlidingOptionSelector
-        rows={[accents.map((accent) => createSwatchOption<T>(accent))]}
+        rows={[
+          accents.map((accent, index) => {
+            const accentValue = optionValue(accent, index);
+            return createSwatchOption(accent, accentValue, isLocked?.(accentValue));
+          }),
+        ]}
         value={value}
         onChange={onChange}
         optionHeight={SWATCH_OPTION_HEIGHT}
@@ -218,16 +246,18 @@ function SwatchPicker<T extends WishlistAccent | WishlistColorIndex>({
 
 function createSwatchOption<T extends WishlistAccent | WishlistColorIndex>(
   accent: SwatchRow,
+  value: T,
+  locked = false,
 ): SlidingOption<T> {
   return {
-    value: accent.value as T,
+    value,
     accessibilityLabel: accent.label,
     surfaceClassName: "bg-transparent",
     children: () => (
-      <View className="w-full items-center gap-1 py-1.5">
-        <View
-          className={cn("size-11 items-center justify-center rounded-full", accent.className)}
-        />
+      <View className={cn("w-full items-center gap-1 py-1.5", locked && "opacity-55")}>
+        <View className={cn("size-11 items-center justify-center rounded-full", accent.className)}>
+          {locked ? <Icon as={Lock} className="size-4 text-white" /> : null}
+        </View>
         <Text
           className="text-center text-[11px] font-semibold leading-tight text-text"
           numberOfLines={1}

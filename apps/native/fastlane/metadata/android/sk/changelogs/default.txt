@@ -1,0 +1,8 @@
+Prvé vydanie Wishlane.
+
+- Zoznamy želaní s farbami, prioritami a dátumami
+- Vložte odkaz na produkt a detaily doplníme
+- Zoznamy verejné, len pre priateľov alebo súkromné
+- Tajná rezervácia darčekov v zoznamoch priateľov
+- Skupina Tajný Santa s automatickým žrebovaním
+- Zoznamy priateľov a nadchádzajúce udalosti

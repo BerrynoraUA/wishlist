@@ -10,14 +10,17 @@
     "./db-types": "./db-types/index.ts",
     "./lib": "./lib/index.ts",
     "./lib/currencies": "./lib/currencies.ts",
+    "./lib/default-avatars": "./lib/default-avatars.ts",
     "./lib/filter-helpers": "./lib/filter-helpers.ts",
     "./lib/posthog-person-from-supabase": "./lib/posthog-person-from-supabase.ts",
+    "./notifications/templates": "./notifications/templates.ts",
     "./supabase": "./supabase/index.ts",
     "./supabase/admin": "./supabase/admin.ts",
     "./supabase/browser": "./supabase/browser.ts",
     "./supabase/native": "./supabase/native.ts",
     "./supabase/server": "./supabase/server.ts",
     "./supabase/shared": "./supabase/shared.ts",
+    "./supabase/showcase/constants": "./supabase/showcase/constants.ts",
     "./types": "./types/index.ts",
     "./types/bug-reports": "./types/bug-reports.ts",
     "./types/discover": "./types/discover.ts",
@@ -33,16 +36,18 @@
     "./types/wishlist": "./types/wishlist.ts"
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.103.0",
-    "expo-secure-store": "~56.0.4",
+    "expo-secure-store": "~57.0.1",
     "react-native-url-polyfill": "^3.0.0",
     "server-only": "0.0.1"
   },
   "devDependencies": {
-    "@types/node": "^20.19.39"
+    "@types/node": "^20.19.39",
+    "vitest": "^4.1.10"
   }
 }

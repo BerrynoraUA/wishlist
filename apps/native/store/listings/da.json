@@ -1,0 +1,66 @@
+{
+  "bcp47": "da",
+  "title": "Wishlane: ønskelister",
+  "appleName": "Wishlane",
+  "subtitle": "Ønskelister, delt smukt",
+  "shortDescription": "Lav ønskelister, del dem med venner, og reservér gaver i al hemmelighed.",
+  "promoText": "Indsæt et link, lav en flot ønskeliste, og del den med vennerne. De reserverer gaver i hemmelighed – ingen køber det samme, og ingen overraskelse afsløres.",
+  "keywords": ["ønskeliste", "gave", "fødselsdag", "jul", "pakkeleg", "gaveidéer", "shopping"],
+  "intro": [
+    "Wishlane gør spørgsmålet »hvad ønsker du dig egentlig?« til noget, alle synes er sjovt.",
+    "Lav flotte ønskelister, del dem med de mennesker, der betyder noget, og lad dem reservere gaver i hemmelighed – ingen køber det samme to gange, og ingen overraskelse bliver ødelagt."
+  ],
+  "sections": [
+    {
+      "heading": "En ønskeliste på sekunder",
+      "body": "Indsæt et hvilket som helst produktlink, så udfylder Wishlane titel, beskrivelse, billede og pris for dig. Navngiv listen, vælg en farve, sæt en dato – så er du klar."
+    },
+    {
+      "heading": "Del på dine egne præmisser",
+      "body": "Hver ønskeliste kan være offentlig, kun for venner eller helt privat. Send et link til hvem som helst, eller find venner via brugernavn – du ser deres lister, og de ser dine."
+    },
+    {
+      "heading": "Reservér gaver i hemmelighed",
+      "body": "Reservér noget på en vens liste: alle andre kan se, at den er taget, men ejeren finder aldrig ud af det. Ingen dobbeltgaver og ingen ødelagte overraskelser."
+    },
+    {
+      "heading": "Pakkeleg med styr på det",
+      "body": "Opret en gruppe, invitér alle med ét link, og lad Wishlane stå for lodtrækningen. Alle ser ønskelisten for den, de har trukket, så gaverne rammer plet."
+    },
+    {
+      "heading": "Opdag hvad andre ønsker sig",
+      "body": "Se vennernes offentlige ønskelister, hold øje med kommende fødselsdage og begivenheder med nedtælling, og mød aldrig op tomhændet igen."
+    },
+    {
+      "heading": "Følg med",
+      "body": "Få besked, når en ven tilføjer en ønskeliste, sender dig en anmodning eller reserverer noget fra din liste."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Ubegrænsede lister og ting, adgang for medredaktører på delte lister samt egne farver og prioriteter."
+    }
+  ],
+  "closing": "Wishlane er gratis at komme i gang med – intet kort, klar på under et minut. Fås på over 40 sprog.",
+  "subscriptionHeading": "Abonnementsvilkår",
+  "subscriptionApple": "Wishlane Premium er et abonnement med automatisk fornyelse, månedligt eller årligt. Beløbet trækkes på dit Apple-id, når købet bekræftes. Abonnementet fornys automatisk, medmindre automatisk fornyelse slås fra senest 24 timer før den aktuelle periode slutter. Du kan altid administrere eller opsige det i indstillingerne for din Apple-id-konto.",
+  "subscriptionGoogle": "Wishlane Premium er et abonnement med automatisk fornyelse, månedligt eller årligt. Beløbet trækkes på din Google Play-konto, når købet bekræftes. Abonnementet fornys automatisk, medmindre automatisk fornyelse slås fra senest 24 timer før den aktuelle periode slutter. Du kan altid administrere eller opsige det i Google Play Butik.",
+  "subscriptionPrice": "Wishlane Premium koster {monthly} om måneden eller {yearly} om året. Priserne er i amerikanske dollar og kan variere fra region til region.",
+  "footer": [
+    "Spørgsmål eller feedback? support@wishlane.net",
+    "Privatlivspolitik: https://wishlane.net/privacy-policy",
+    "Servicevilkår: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Den første version af Wishlane.",
+  "changelogBullets": [
+    "Ønskelister med farver, prioriteter og datoer",
+    "Indsæt et produktlink, så udfylder vi detaljerne",
+    "Lister offentlige, kun for venner eller private",
+    "Reservér gaver i hemmelighed på venners lister",
+    "Pakkelegsgruppe med automatisk lodtrækning",
+    "Venners lister og kommende begivenheder"
+  ],
+  "permissions": {
+    "photos": "Tillad Wishlane at vælge et profilbillede fra dit bibliotek.",
+    "faceId": "Tillad Wishlane at skifte sikkert mellem gemte konti."
+  }
+}

@@ -36,6 +36,13 @@ const itemNotes = $("item-notes");
 const addBtn = $("add-btn");
 const mainError = $("main-error");
 const logoutBtn = $("logout-btn");
+const importPrimary = $("import-primary");
+const importPrimaryBadge = $("import-primary-badge");
+const importPrimaryTitle = $("import-primary-title");
+const importToggle = $("import-toggle");
+const importToggleLabel = $("import-toggle-label");
+const importList = $("import-list");
+const importStatus = $("import-status");
 
 // Success
 const successDetail = $("success-detail");
@@ -167,6 +174,8 @@ googleBtn.addEventListener("click", async () => {
 
 async function initMainScreen() {
   showScreen(mainScreen);
+
+  await initImportSection();
 
   let pageUrl = null;
 
@@ -367,6 +376,78 @@ addBtn.addEventListener("click", async () => {
   successDetail.textContent = `"${payload.name}" saved to ${wlName}.`;
   showScreen(successScreen);
 });
+
+/* ------------------------------------------------------------------ */
+/*  Import from another wishlist service                               */
+/* ------------------------------------------------------------------ */
+
+function setImportStatus(msg, state) {
+  importStatus.textContent = msg;
+  importStatus.className = `import-status ${state}`;
+}
+
+/** Leads with the service in the active tab; the rest stay behind a toggle. */
+async function initImportSection() {
+  const { sources = [] } = await sendMessage({ type: "GET_IMPORT_SOURCES" });
+  if (sources.length === 0) return;
+
+  const current = sources.find((s) => s.isCurrentSite);
+  const rest = sources.filter((s) => s !== current);
+
+  if (current) {
+    importPrimaryBadge.textContent = current.label[0];
+    importPrimaryTitle.textContent = `Import from ${current.label}`;
+    importPrimary.classList.remove("hidden");
+    importPrimary.addEventListener("click", () => runImport(current));
+    importToggleLabel.textContent = "Other services";
+  }
+
+  for (const source of rest) {
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = "import-option";
+    row.innerHTML = `
+      <span class="import-badge">${escapeHtml(source.label[0])}</span>
+      <span class="import-option-label">${escapeHtml(source.label)}</span>
+    `;
+    row.addEventListener("click", () => runImport(source));
+    importList.appendChild(row);
+  }
+}
+
+importToggle.addEventListener("click", () => {
+  const open = importList.classList.toggle("hidden");
+  importToggle.classList.toggle("open", !open);
+});
+
+async function runImport(source) {
+  const buttons = [importPrimary, ...importList.querySelectorAll(".import-option")];
+  buttons.forEach((b) => (b.disabled = true));
+  setImportStatus(`Importing from ${source.label}…`, "busy");
+
+  const res = await sendMessage({ type: "IMPORT_SOURCE", payload: { source: source.id } });
+
+  buttons.forEach((b) => (b.disabled = false));
+
+  if (res.error) {
+    setImportStatus(res.error, "failed");
+    return;
+  }
+
+  if (res.needsSourceTab) {
+    setImportStatus(`Opened ${source.label} — sign in there, then import again.`, "");
+    return;
+  }
+
+  const parts = [
+    `${res.itemsAdded} item${res.itemsAdded === 1 ? "" : "s"} imported`,
+    `${res.wishlistsCreated} new wishlist${res.wishlistsCreated === 1 ? "" : "s"}`,
+  ];
+  if (res.itemsSkipped) parts.push(`${res.itemsSkipped} already there`);
+  setImportStatus(parts.join(" · "), "done");
+
+  await loadWishlists();
+}
 
 /* ------------------------------------------------------------------ */
 /*  Logout                                                             */

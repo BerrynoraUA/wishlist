@@ -3,7 +3,7 @@
 import { useGT } from "gt-next";
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { Headphones, BookOpen } from "lucide-react";
+import { ArrowDown, ArrowUp, Equal, Headphones, BookOpen } from "lucide-react";
 import styles from "../landing.module.scss";
 
 export function MockupItem({
@@ -270,6 +270,7 @@ export function DiscoverCard({
       : priority === "med"
         ? styles.discoverCardPriorityMed
         : styles.discoverCardPriorityLow;
+  const PriorityIcon = priority === "high" ? ArrowUp : priority === "med" ? Equal : ArrowDown;
   const priorityLabel =
     priority === "high"
       ? t("High", { $id: "landing.discover.priority.high" })
@@ -287,7 +288,13 @@ export function DiscoverCard({
         <h4 className={styles.discoverCardTitle}>{title}</h4>
         <div className={styles.discoverCardFooter}>
           <span className={styles.discoverCardPrice}>{price}</span>
-          <span className={`${styles.discoverCardPriority} ${priorityClass}`}>{priorityLabel}</span>
+          <span
+            className={`${styles.discoverCardPriority} ${priorityClass}`}
+            aria-label={priorityLabel}
+            title={priorityLabel}
+          >
+            <PriorityIcon size={13} strokeWidth={2.5} />
+          </span>
         </div>
       </div>
     </div>

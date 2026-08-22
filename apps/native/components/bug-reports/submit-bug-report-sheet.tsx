@@ -1,4 +1,4 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateBugReport } from "@/hooks/use-bug-reports";
 import { BUG_DESCRIPTION_MAX_LENGTH, BUG_TITLE_MAX_LENGTH } from "@/lib/bug-reports";
-import type { NativePickedImage } from "@/lib/image-upload";
+import { useImageUploadField } from "@/lib/image-upload";
 import { cn } from "@/lib/utils";
 import { useGT } from "gt-react-native";
 import { Bug, ImagePlus } from "lucide-react-native";
@@ -27,8 +27,7 @@ export function SubmitBugReportSheet({
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [screenshot, setScreenshot] = React.useState<NativePickedImage | null>(null);
-  const [screenshotError, setScreenshotError] = React.useState<string | null>(null);
+  const screenshotUpload = useImageUploadField("bug");
   const [error, setError] = React.useState<string | null>(null);
   const [titleError, setTitleError] = React.useState<string | null>(null);
   const [descriptionError, setDescriptionError] = React.useState<string | null>(null);
@@ -46,14 +45,13 @@ export function SubmitBugReportSheet({
   function resetForm() {
     setTitle("");
     setDescription("");
-    setScreenshot(null);
-    setScreenshotError(null);
+    screenshotUpload.reset();
     setError(null);
     setTitleError(null);
     setDescriptionError(null);
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     const nextTitleError = trimmedTitle ? null : t("Title is required.");
     const nextDescriptionError = trimmedDescription ? null : t("Description is required.");
     setTitleError(nextTitleError);
@@ -61,8 +59,12 @@ export function SubmitBugReportSheet({
     if (nextTitleError || nextDescriptionError || createReport.isPending) return;
 
     setError(null);
+    // Resolves the background upload started when the screenshot was picked.
+    const screenshotUrl = await screenshotUpload.resolveImageUrl("");
+    if (screenshotUrl === undefined) return;
+
     createReport.mutate(
-      { title: trimmedTitle, description: trimmedDescription, screenshot },
+      { title: trimmedTitle, description: trimmedDescription, screenshotUrl },
       {
         onSuccess: () => {
           resetForm();
@@ -77,19 +79,19 @@ export function SubmitBugReportSheet({
   }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={onClose}>
-      <View className="px-5 pb-6 pt-5">
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={onClose}
+      header={<BottomSheetHeader title={t("Report a Bug")} />}
+    >
+      <View className="px-5">
         <View className="gap-4">
           <View className="flex-row items-start gap-3">
-            <View className="size-10 items-center justify-center rounded-full bg-destructive/10">
-              <Icon as={Bug} className="size-5 text-destructive" />
-            </View>
-            <View className="flex-1 gap-1">
-              <Text className="text-lg font-extrabold text-text">{t("Report a Bug")}</Text>
-              <Text className="text-sm leading-5 text-text-muted">
-                {t("Tell us what happened, and we will look into it.")}
-              </Text>
-            </View>
+            <Icon as={Bug} className="mt-0.5 size-4 text-destructive" />
+            <Text className="min-w-0 flex-1 text-sm leading-5 text-text-muted">
+              {t("Tell us what happened, and we will look into it.")}
+            </Text>
           </View>
 
           <View className="gap-2">
@@ -143,23 +145,16 @@ export function SubmitBugReportSheet({
               <Text className="text-xs text-text-light">{t("Optional")}</Text>
             </View>
             <SingleImagePicker
-              previewUri={screenshot?.uri}
+              previewUri={screenshotUpload.pickedImage?.uri}
               aspect={[16, 9]}
               pickLabel={t("Attach a screenshot")}
               changeLabel={t("Change screenshot")}
-              onPick={(image) => {
-                setScreenshot(image);
-                setScreenshotError(null);
-              }}
-              onClear={() => {
-                setScreenshot(null);
-                setScreenshotError(null);
-              }}
-              onError={setScreenshotError}
-              showChangeButton={false}
+              onPick={screenshotUpload.onPick}
+              onClear={screenshotUpload.onClear}
+              onError={screenshotUpload.onError}
             />
-            {screenshotError ? (
-              <Text className="text-xs text-destructive">{screenshotError}</Text>
+            {screenshotUpload.error ? (
+              <Text className="text-xs text-destructive">{screenshotUpload.error}</Text>
             ) : (
               <View className="flex-row items-center gap-1">
                 <Icon as={ImagePlus} className="size-3.5 text-text-light" />

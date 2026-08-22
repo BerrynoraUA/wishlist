@@ -73,10 +73,10 @@ function ToggleGroupItem({
           props.disabled && "opacity-50",
           ToggleGroupPrimitive.utils.getIsSelected(value, props.value) && "bg-accent",
           "min-w-0 shrink-0 rounded-none shadow-none",
-          isFirst && "rounded-l-md",
-          isLast && "rounded-r-md",
-          (context.variant === "outline" || variant === "outline") && "border-l-0",
-          (context.variant === "outline" || variant === "outline") && isFirst && "border-l",
+          isFirst && "rounded-s-md",
+          isLast && "rounded-e-md",
+          (context.variant === "outline" || variant === "outline") && "border-s-0",
+          (context.variant === "outline" || variant === "outline") && isFirst && "border-s",
           className,
         )}
         {...props}

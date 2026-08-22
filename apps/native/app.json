@@ -2,23 +2,67 @@
   "expo": {
     "name": "Wishlane",
     "slug": "wishlane",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "runtimeVersion": {
-      "policy": "appVersion"
+      "policy": "fingerprint"
     },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "wishlane",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": ["assets/images/**/*"],
     "updates": {
       "url": "https://u.expo.dev/50371ce7-ec58-411c-ab43-d42fce223c68"
     },
+    "locales": {
+      "en": "./store/ios-locales/en.json",
+      "uk": "./store/ios-locales/uk.json",
+      "de": "./store/ios-locales/de.json",
+      "es": "./store/ios-locales/es.json",
+      "fr": "./store/ios-locales/fr.json",
+      "ja": "./store/ios-locales/ja.json",
+      "it": "./store/ios-locales/it.json",
+      "pt-BR": "./store/ios-locales/pt-BR.json",
+      "zh-Hans": "./store/ios-locales/zh-Hans.json",
+      "pl": "./store/ios-locales/pl.json",
+      "ko": "./store/ios-locales/ko.json",
+      "nl": "./store/ios-locales/nl.json",
+      "hi": "./store/ios-locales/hi.json",
+      "tr": "./store/ios-locales/tr.json",
+      "vi": "./store/ios-locales/vi.json",
+      "th": "./store/ios-locales/th.json",
+      "id": "./store/ios-locales/id.json",
+      "cs": "./store/ios-locales/cs.json",
+      "sk": "./store/ios-locales/sk.json",
+      "hu": "./store/ios-locales/hu.json",
+      "ro": "./store/ios-locales/ro.json",
+      "bg": "./store/ios-locales/bg.json",
+      "el": "./store/ios-locales/el.json",
+      "sv": "./store/ios-locales/sv.json",
+      "da": "./store/ios-locales/da.json",
+      "nb": "./store/ios-locales/nb.json",
+      "fi": "./store/ios-locales/fi.json",
+      "hr": "./store/ios-locales/hr.json",
+      "sr": "./store/ios-locales/sr.json",
+      "sl": "./store/ios-locales/sl.json",
+      "lt": "./store/ios-locales/lt.json",
+      "lv": "./store/ios-locales/lv.json",
+      "et": "./store/ios-locales/et.json",
+      "bn": "./store/ios-locales/bn.json",
+      "ms": "./store/ios-locales/ms.json",
+      "fil": "./store/ios-locales/fil.json",
+      "zh-Hant": "./store/ios-locales/zh-Hant.json",
+      "ar": "./store/ios-locales/ar.json",
+      "he": "./store/ios-locales/he.json",
+      "fa": "./store/ios-locales/fa.json",
+      "ur": "./store/ios-locales/ur.json"
+    },
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.berrynora.wishlane",
       "usesAppleSignIn": true,
       "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true,
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -70,7 +114,54 @@
           "launchMode": "most-recent"
         }
       ],
-      "expo-localization",
+      [
+        "expo-localization",
+        {
+          "supportedLocales": [
+            "en",
+            "uk",
+            "de",
+            "es",
+            "fr",
+            "ja",
+            "it",
+            "pt-BR",
+            "zh-Hans",
+            "pl",
+            "ko",
+            "nl",
+            "hi",
+            "tr",
+            "vi",
+            "th",
+            "id",
+            "cs",
+            "sk",
+            "hu",
+            "ro",
+            "bg",
+            "el",
+            "sv",
+            "da",
+            "nb",
+            "fi",
+            "hr",
+            "sr",
+            "sl",
+            "lt",
+            "lv",
+            "et",
+            "bn",
+            "ms",
+            "fil",
+            "zh-Hant",
+            "ar",
+            "he",
+            "fa",
+            "ur"
+          ]
+        }
+      ],
       [
         "expo-notifications",
         {
@@ -89,6 +180,29 @@
         "expo-web-browser",
         {
           "experimentalLauncherActivity": false
+        }
+      ],
+      [
+        "react-native-share",
+        {
+          "ios": ["instagram", "instagram-stories"],
+          "android": ["com.instagram.android"]
+        }
+      ],
+      "expo-font",
+      "expo-sharing",
+      "expo-status-bar",
+      "expo-build-properties",
+      [
+        "expo-share-intent",
+        {
+          "iosShareExtensionName": "Wishlane Share",
+          "iosActivationRules": {
+            "NSExtensionActivationSupportsWebURLWithMaxCount": 1,
+            "NSExtensionActivationSupportsWebPageWithMaxCount": 1,
+            "NSExtensionActivationSupportsText": true
+          },
+          "androidIntentFilters": ["text/*"]
         }
       ]
     ],

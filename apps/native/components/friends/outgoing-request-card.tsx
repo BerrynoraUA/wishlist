@@ -34,9 +34,11 @@ export function OutgoingRequestCard({
             </Text>
           ) : null}
           <Text className="text-xs font-semibold text-text-muted" numberOfLines={1}>
-            {t("{mutualCount} mutual friends", {
-              mutualCount: request.mutual_friends_count,
-            })}
+            {request.mutual_friends_count === 1
+              ? t("1 mutual friend")
+              : t("{mutualCount} mutual friends", {
+                  mutualCount: request.mutual_friends_count,
+                })}
           </Text>
         </View>
       </View>

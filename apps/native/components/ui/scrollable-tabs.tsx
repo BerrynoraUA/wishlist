@@ -1,3 +1,4 @@
+import { hapticSelection } from "@/lib/haptics";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Text } from "@/components/ui/text";
 import { GuideTarget } from "@/components/user-guide/guide-target";
@@ -121,10 +122,6 @@ export function ScrollableTabs<T>({
                 top: 0,
                 bottom: 0,
                 left: 0,
-                shadowColor: "#000",
-                shadowOpacity: 0.1,
-                shadowRadius: 6,
-                shadowOffset: { width: 0, height: 2 },
               },
               indicatorStyle,
             ]}
@@ -141,7 +138,10 @@ export function ScrollableTabs<T>({
               accessibilityRole="button"
               accessibilityLabel={tab.accessibilityLabel ?? tab.label}
               accessibilityState={{ selected }}
-              onPress={() => onChange(tab.value)}
+              onPress={() => {
+                hapticSelection();
+                onChange(tab.value);
+              }}
               className={cn(
                 "relative h-11 min-w-20 flex-row items-center justify-center gap-1.5",
                 IS_IOS ? "px-5" : "px-4",

@@ -27,7 +27,7 @@ export function GuideTarget({
   tooltipVerticalOffset?: number;
 }) {
   const ref = React.useRef<View>(null);
-  const { activeTargetId, activeTooltip, registerTarget, requestMeasure } =
+  const { activeTargetId, activeTooltip, registerTarget, requestInstantMeasure } =
     useUserGuideTargetRegistration();
   const active = activeTargetId === id;
   const tooltip = active ? activeTooltip : null;
@@ -58,7 +58,7 @@ export function GuideTarget({
       ref={ref}
       collapsable={false}
       className="relative"
-      onLayout={requestMeasure}
+      onLayout={requestInstantMeasure}
       pointerEvents="box-none"
       style={style}
     >
@@ -94,8 +94,8 @@ function AttachedTooltip({
       : { marginTop: 2, top: "100%" as const };
   const arrowClassName =
     tooltip.placement === "top"
-      ? "absolute -bottom-1.25 size-3 rotate-45 border-b border-r border-border bg-card-bg"
-      : "absolute -top-1.25 size-3 rotate-45 border-l border-t border-border bg-card-bg";
+      ? "absolute -bottom-1.25 size-3 rotate-45 border-b border-e border-border bg-card-bg"
+      : "absolute -top-1.25 size-3 rotate-45 border-s border-t border-border bg-card-bg";
 
   return (
     <View

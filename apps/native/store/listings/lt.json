@@ -1,0 +1,73 @@
+{
+  "bcp47": "lt",
+  "title": "Wishlane: norų sąrašai",
+  "appleName": "Wishlane",
+  "subtitle": "Norų sąrašai ir dovanos",
+  "shortDescription": "Kurkite norų sąrašus, dalykitės jais su draugais ir slapta rezervuokite dovanas.",
+  "promoText": "Įklijuokite bet kokią nuorodą, sukurkite gražų norų sąrašą ir pasidalykite juo su draugais. Dovanas jie rezervuoja slapta – niekas nenuperka to paties ir jokia staigmena nesugadinama.",
+  "keywords": [
+    "norų sąrašas",
+    "dovana",
+    "gimtadienis",
+    "kalėdos",
+    "slaptasis Kalėdų Senelis",
+    "dovanų idėjos"
+  ],
+  "intro": [
+    "„Wishlane“ klausimą „tai ko tu iš tikrųjų nori?“ paverčia tuo, kas džiugina visus.",
+    "Kurkite gražius norų sąrašus, dalykitės jais su svarbiausiais žmonėmis ir leiskite jiems slapta rezervuoti dovanas – niekas nenuperka to paties du kartus ir jokia staigmena nesugadinama."
+  ],
+  "sections": [
+    {
+      "heading": "Norų sąrašas per kelias sekundes",
+      "body": "Įklijuokite bet kurio produkto nuorodą ir „Wishlane“ už jus užpildys pavadinimą, aprašymą, nuotrauką bei kainą. Pavadinkite sąrašą, pasirinkite spalvą, nustatykite datą – ir viskas."
+    },
+    {
+      "heading": "Dalykitės savo sąlygomis",
+      "body": "Kiekvienas sąrašas gali būti viešas, tik draugams arba visiškai privatus. Siųskite nuorodą bet kam arba susisiekite su draugais pagal naudotojo vardą – matysite jų sąrašus, jie – jūsų."
+    },
+    {
+      "heading": "Rezervuokite dovanas slapta",
+      "body": "Rezervuokite prekę draugo sąraše: visi kiti matys, kad ji jau paimta, bet sąrašo savininkas niekada nesužinos. Jokių dvigubų dovanų ir sugadintų staigmenų."
+    },
+    {
+      "heading": "Slaptasis Kalėdų Senelis be rūpesčių",
+      "body": "Sukurkite grupę, viena nuoroda pakvieskite visus ir leiskite „Wishlane“ atlikti burtus. Kiekvienas mato ištraukto žmogaus norų sąrašą, todėl dovanos tikrai pataiko."
+    },
+    {
+      "heading": "Sužinokite, ko nori kiti",
+      "body": "Naršykite viešus draugų sąrašus, stebėkite artėjančius gimtadienius ir šventes su laiko skaičiuokle ir niekada nebeateikite tuščiomis rankomis."
+    },
+    {
+      "heading": "Nepraleiskite naujienų",
+      "body": "Gaukite pranešimą, kai draugas sukuria norų sąrašą, atsiunčia jums užklausą arba rezervuoja ką nors iš jūsų sąrašo."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Neriboti sąrašai ir prekės, bendraautorių prieiga bendruose sąrašuose, savos spalvos ir prioritetai."
+    }
+  ],
+  "closing": "„Wishlane“ pradėti nemokama – be kortelės, viskas paruošta greičiau nei per minutę. Veikia daugiau nei 40 kalbų.",
+  "subscriptionHeading": "Prenumeratos sąlygos",
+  "subscriptionApple": "„Wishlane Premium“ yra automatiškai atsinaujinanti mėnesio arba metų prenumerata. Mokestis nuskaitomas iš jūsų „Apple ID“ patvirtinus pirkimą. Prenumerata atsinaujina automatiškai, nebent automatinis atnaujinimas išjungiamas bent 24 valandas iki dabartinio laikotarpio pabaigos. Ją bet kada galite tvarkyti ar atšaukti „Apple ID“ paskyros nustatymuose.",
+  "subscriptionGoogle": "„Wishlane Premium“ yra automatiškai atsinaujinanti mėnesio arba metų prenumerata. Mokestis nuskaitomas iš jūsų „Google Play“ paskyros patvirtinus pirkimą. Prenumerata atsinaujina automatiškai, nebent automatinis atnaujinimas išjungiamas bent 24 valandas iki dabartinio laikotarpio pabaigos. Ją bet kada galite tvarkyti ar atšaukti „Google Play“ parduotuvėje.",
+  "subscriptionPrice": "„Wishlane Premium“ kainuoja {monthly} per mėnesį arba {yearly} per metus. Kainos nurodytos JAV doleriais ir gali skirtis priklausomai nuo regiono.",
+  "footer": [
+    "Klausimai ar atsiliepimai? support@wishlane.net",
+    "Privatumo politika: https://wishlane.net/privacy-policy",
+    "Naudojimo sąlygos: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Pirmoji „Wishlane“ versija.",
+  "changelogBullets": [
+    "Norų sąrašai su spalvomis, prioritetais ir datomis",
+    "Įklijuokite nuorodą – detales užpildysime mes",
+    "Sąrašai vieši, tik draugams arba privatūs",
+    "Slaptas dovanų rezervavimas draugų sąrašuose",
+    "Slaptojo Kalėdų Senelio grupė su automatiniais burtais",
+    "Draugų sąrašai ir artėjančios šventės"
+  ],
+  "permissions": {
+    "photos": "Leiskite „Wishlane“ pasirinkti profilio nuotrauką iš jūsų bibliotekos.",
+    "faceId": "Leiskite „Wishlane“ saugiai perjungti išsaugotas paskyras."
+  }
+}

@@ -1,3 +1,4 @@
+import { hapticToggle } from "@/lib/haptics";
 import { motionSpring, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as SwitchPrimitives from "@rn-primitives/switch";
@@ -16,9 +17,14 @@ type SwitchProps = React.ComponentProps<typeof SwitchPrimitives.Root> & {
   staticColors?: boolean;
 };
 
-function Switch({ className, staticColors = false, ...props }: SwitchProps) {
+function Switch({ className, staticColors = false, onCheckedChange, ...props }: SwitchProps) {
   const reduceMotion = useReducedMotion();
   const checked = props.checked === true;
+
+  function handleCheckedChange(next: boolean) {
+    hapticToggle(next);
+    onCheckedChange?.(next);
+  }
   const thumbTranslateX = useSharedValue(checked ? SWITCH_THUMB_TRANSLATE_X : 0);
 
   React.useEffect(() => {
@@ -40,6 +46,7 @@ function Switch({ className, staticColors = false, ...props }: SwitchProps) {
         props.disabled && "opacity-50",
         className,
       )}
+      onCheckedChange={handleCheckedChange}
       {...props}
     >
       <AnimatedSwitchThumb

@@ -1,0 +1,10 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Tillad Wishlane at vælge et profilbillede fra dit bibliotek.",
+    "NSFaceIDUsageDescription": "Tillad Wishlane at skifte sikkert mellem gemte konti."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
+}

@@ -43,8 +43,8 @@ export function SubscriptionSettings() {
         title={isPro ? t("Wishlane Premium is active") : t("Upgrade to Wishlane Premium")}
         subtitle={
           isPro
-            ? t("Unlimited lists and items, collaborator access, sale alerts, and custom sorting.")
-            : t("Unlock more room for wishes, shared planning, sale tracking, and customization.")
+            ? t("Unlimited lists and items, collaborator access, and custom sorting.")
+            : t("Unlock more room for wishes, shared planning, and customization.")
         }
       />
       {isPro && renewalDate ? (

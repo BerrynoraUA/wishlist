@@ -1,6 +1,5 @@
 import { InlineState } from "@/components/shared/inline-state";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
-import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
@@ -9,6 +8,7 @@ import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheet
 import { SaveItemToWishlistsSheet } from "@/components/wishlist-details/sheets/save-item-to-wishlists-sheet";
 import { WishlistItemHeader } from "@/components/wishlist-details/wishlist-item-header";
 import { WishlistItemCard } from "@/components/wishlist-details/wishlist-item-card";
+import { useShowOwnReservations } from "@/hooks/use-own-reservations";
 import {
   useUserGuideStepCompletion,
   useUserGuideTargetRegistration,
@@ -31,13 +31,13 @@ import { WishlistGrantAccessSheet } from "@/components/wishlists/sheets/wishlist
 import { createWishlistShareToken } from "@/api/share";
 import { useCheckFriendship, useProfilesByIds } from "@/hooks/use-friends";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
+import { useProGate } from "@/hooks/use-pro-gate";
 import {
   useItemVotes,
   useInfiniteWishlistItems,
   useToggleItemBought,
   useToggleItemReservation,
   useToggleItemVote,
-  useWishlistItems,
 } from "@/hooks/use-items";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useWishlistById } from "@/hooks/use-wishlists";
@@ -51,9 +51,7 @@ import {
   optimisticallyToggleItemReservation,
   updateItemIfSelected,
 } from "@/lib/items";
-import { chunkRows } from "@/lib/layout";
-import { cn } from "@/lib/utils";
-import { getWishlistAccentClass } from "@/lib/wishlists";
+import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
 import type { Item } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -90,7 +88,9 @@ type WishlistItemListRow =
 export default function WishlistDetailScreen() {
   const t = useGT();
   const router = useRouter();
+  const { isGated, openPaywall } = useProGate();
   const insets = useSafeAreaInsets();
+  const paddingBottom = useTabBarContentPadding();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const rawId = Array.isArray(id) ? (id[0] ?? "") : (id ?? "");
@@ -144,7 +144,6 @@ export default function WishlistDetailScreen() {
     itemQueryParams,
     WISHLIST_ITEMS_PAGE_SIZE,
   );
-  const allItemsQuery = useWishlistItems(wishlistId, { skip: 0, take: 1 });
   const { items, loadMore: loadMoreItems } = useInfiniteListData(itemsQuery);
   const itemIds = React.useMemo(() => items.map((item) => item.id), [items]);
   const votesQuery = useItemVotes(itemIds);
@@ -173,12 +172,15 @@ export default function WishlistDetailScreen() {
     return new Map(entries);
   }, [profilesQuery.data, t]);
   const filtersActive = wishlistItemFilterBarHasActiveFilters(filters);
-  const hasAnyItems = (allItemsQuery.data?.length ?? 0) > 0;
+  const hasAnyItems = (wishlist?.items_count ?? 0) > 0;
   const contentWidth = Math.min(width - 32, 1200);
   const gridGap = width >= 768 ? 18 : 14;
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
   const showDiscountBadge = !canEditWishlist && Boolean(friendshipQuery.data);
+  const canSeeOwnReservations = useShowOwnReservations();
+  // Owner only, not editors: the preference is about your own wishlists.
+  const showOwnerReservation = Boolean(wishlist?.is_owner) && canSeeOwnReservations;
   const itemRows = React.useMemo(() => chunkRows(items, columns), [columns, items]);
   const itemListData = React.useMemo<WishlistItemListRow[]>(
     () => [
@@ -309,11 +311,16 @@ export default function WishlistDetailScreen() {
               onManageAccess={
                 wishlist.is_owner
                   ? () => {
+                      if (isGated) {
+                        openPaywall();
+                        return;
+                      }
                       completeManageAccessStep();
                       setSheet({ type: "grantAccess", wishlist });
                     }
                   : undefined
               }
+              manageAccessLocked={isGated}
               topInset={insets.top}
             />
           </View>
@@ -341,6 +348,7 @@ export default function WishlistDetailScreen() {
                 currentUserId={currentUser.data}
                 isOwner={canEditWishlist}
                 showDiscountBadge={showDiscountBadge}
+                showOwnerReservation={showOwnerReservation}
                 reservedByName={
                   entry.reserved_by ? profileNamesById.get(entry.reserved_by) : undefined
                 }
@@ -373,6 +381,8 @@ export default function WishlistDetailScreen() {
       gridGap,
       handleShareWishlist,
       insets.top,
+      isGated,
+      openPaywall,
       profileNamesById,
       showDiscountBadge,
       toggleVote,
@@ -398,14 +408,6 @@ export default function WishlistDetailScreen() {
     <>
       <Stack.Screen options={{ title: wishlist?.title ?? t("Wishlist") }} />
       <View className="flex-1 bg-bg">
-        {wishlist ? (
-          <ScreenTopBackdrop>
-            <View
-              className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))}
-            />
-            <View className="absolute inset-0 bg-black/20" />
-          </ScreenTopBackdrop>
-        ) : null}
         {wishlistQuery.isLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator />
@@ -431,7 +433,8 @@ export default function WishlistDetailScreen() {
               "type" in row ? row.id : row.map((entry) => entry.id).join(":")
             }
             className="flex-1"
-            contentContainerClassName="bg-bg pb-8"
+            contentContainerClassName="bg-bg"
+            contentContainerStyle={{ paddingBottom }}
             onScroll={requestMeasure}
             scrollEventThrottle={16}
             ItemSeparatorComponent={ItemRowSeparator}
@@ -535,6 +538,7 @@ export default function WishlistDetailScreen() {
           item={sheet?.type === "detail" ? sheet.item : null}
           currentUserId={currentUser.data}
           isOwner={canEditWishlist}
+          showOwnerReservation={showOwnerReservation}
           reservedByName={
             sheet?.type === "detail" && sheet.item.reserved_by
               ? profileNamesById.get(sheet.item.reserved_by)

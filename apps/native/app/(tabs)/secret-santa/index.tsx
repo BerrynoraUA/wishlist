@@ -1,16 +1,22 @@
 import { SecretSantaEventCard } from "@/components/secret-santa/secret-santa-event-card";
 import { SecretSantaInvitesPanel } from "@/components/secret-santa/secret-santa-invites-panel";
+import { SecretSantaCreateEditSheet } from "@/components/secret-santa/sheets/secret-santa-create-edit-sheet";
 import { InlineState } from "@/components/shared/inline-state";
+import {
+  ActionBottomSheetConfirm,
+  ActionBottomSheetMessage,
+  type ActionBottomSheetMessagePayload,
+} from "@/components/ui/action-bottom-sheet";
 import { ExpandingSearchHeader } from "@/components/ui/expanding-search-header";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
 import { ScrollableTabs, type ScrollableTab } from "@/components/ui/scrollable-tabs";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useNotifications } from "@/hooks/use-notifications";
-import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
+import { useDeleteSecretSantaEvent, useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { SECRET_SANTA_PAGE_SIZE } from "@/lib/secret-santa";
-import { chunkRows } from "@/lib/layout";
-import type { SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
+import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
+import type { SecretSantaDetails, SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
 import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
@@ -18,6 +24,10 @@ import { ActivityIndicator, View, useWindowDimensions } from "react-native";
 
 type SecretSantaRow = SecretSantaListItem[];
 type SecretSantaTab = "events" | "invites";
+type SheetState =
+  | { type: "edit"; event: SecretSantaListItem }
+  | { type: "delete"; event: SecretSantaListItem }
+  | null;
 
 export default function SecretSantaScreen() {
   const t = useGT();
@@ -26,7 +36,10 @@ export default function SecretSantaScreen() {
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [activeTab, setActiveTab] = React.useState<SecretSantaTab>("events");
+  const [sheet, setSheet] = React.useState<SheetState>(null);
+  const [message, setMessage] = React.useState<ActionBottomSheetMessagePayload | null>(null);
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
+  const paddingBottom = useTabBarContentPadding();
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
@@ -44,6 +57,7 @@ export default function SecretSantaScreen() {
     },
     SECRET_SANTA_PAGE_SIZE,
   );
+  const deleteEvent = useDeleteSecretSantaEvent();
   const notificationsQuery = useNotifications({ limit: 50 });
   const { items: events, loadMore } = useInfiniteListData(query, (page) => page.items);
   const inviteNotifications = React.useMemo(
@@ -58,6 +72,23 @@ export default function SecretSantaScreen() {
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
   const rows = React.useMemo<SecretSantaRow[]>(() => chunkRows(events, columns), [columns, events]);
+  const editEvent = React.useMemo<SecretSantaDetails | undefined>(() => {
+    if (sheet?.type !== "edit") return undefined;
+
+    return {
+      id: sheet.event.id,
+      name: sheet.event.name,
+      event_date: sheet.event.event_date,
+      budget: sheet.event.budget,
+      currency: sheet.event.currency,
+      image_url: sheet.event.image_url,
+      owner_id: sheet.event.owner_id,
+      is_started: false,
+      participants: [],
+      pending_invites: [],
+      my_receiver: null,
+    };
+  }, [sheet]);
   const tabs = React.useMemo<ScrollableTab<SecretSantaTab>[]>(
     () => [
       { value: "events", label: t("Events") },
@@ -77,6 +108,8 @@ export default function SecretSantaScreen() {
             key={event.id}
             event={event}
             width={cardWidth}
+            onEdit={event.is_owner ? () => setSheet({ type: "edit", event }) : undefined}
+            onDelete={event.is_owner ? () => setSheet({ type: "delete", event }) : undefined}
             onPress={() =>
               router.push({ pathname: "/secret-santa/[id]", params: { id: event.id } } as never)
             }
@@ -88,6 +121,17 @@ export default function SecretSantaScreen() {
 
   function loadMoreEvents() {
     if (activeTab === "events") loadMore();
+  }
+
+  function handleDelete() {
+    if (sheet?.type !== "delete") return;
+
+    deleteEvent.mutate(sheet.event.id, {
+      onSuccess: () => setSheet(null),
+      onError: (error) => {
+        setMessage({ title: t("Delete failed"), message: error.message });
+      },
+    });
   }
 
   return (
@@ -110,8 +154,7 @@ export default function SecretSantaScreen() {
           renderItem={renderRow}
           keyExtractor={(row) => row.map((event) => event.id).join(":")}
           className="flex-1"
-          contentContainerClassName="pb-8"
-          contentContainerStyle={{ paddingTop }}
+          contentContainerStyle={{ paddingTop, paddingBottom }}
           ItemSeparatorComponent={() => <View className="h-4" />}
           onEndReached={loadMoreEvents}
           isLoadingMore={activeTab === "events" && query.isFetchingNextPage}
@@ -174,6 +217,29 @@ export default function SecretSantaScreen() {
           }}
         />
       </View>
+      {editEvent ? (
+        <SecretSantaCreateEditSheet
+          mode="edit"
+          open={sheet?.type === "edit"}
+          event={editEvent}
+          onOpenChange={(open) => {
+            if (!open) setSheet(null);
+          }}
+        />
+      ) : null}
+      <ActionBottomSheetConfirm
+        open={sheet?.type === "delete"}
+        title={t("Delete Event")}
+        message={t(
+          "Are you sure you want to delete this Secret Santa event? This action cannot be undone.",
+        )}
+        confirmLabel={t("Delete Event")}
+        tone="destructive"
+        isPending={deleteEvent.isPending}
+        onClose={() => setSheet(null)}
+        onConfirm={handleDelete}
+      />
+      <ActionBottomSheetMessage message={message} onClose={() => setMessage(null)} />
     </>
   );
 }

@@ -1,0 +1,10 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Permita que o Wishlane escolha uma foto de perfil da sua galeria.",
+    "NSFaceIDUsageDescription": "Permita que o Wishlane alterne com segurança entre as contas salvas."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
+}

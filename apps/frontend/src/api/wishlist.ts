@@ -2,6 +2,7 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 import { Wishlist, WishlistAccent, WishlistVisibility } from "@/types/wishlist";
 import { getWishlists } from "@/api/helpers/wishlist-helper";
 import { getCurrentSession } from "./user";
+import { notifyNewWishlist, notifyWishlistAccessGranted } from "@/lib/create-notification";
 import { normalizeSearchQuery } from "@/lib/helpers/search";
 import {
   CreateWishlistParams,
@@ -207,14 +208,7 @@ export async function createWishlist({
   }
 
   if (visibility === WishlistVisibility.Public || visibility === WishlistVisibility.FriendsOnly) {
-    // Викликаємо SQL функцію для створення нотифікацій
-    const { error: notifyError } = await supabaseBrowser.rpc("notify_friends_about_new_wishlist", {
-      p_wishlist_id: data.id,
-    });
-
-    if (notifyError) {
-      console.error("Failed to notify friends:", notifyError);
-    }
+    void notifyNewWishlist(data.id, title);
   }
 
   return data;
@@ -422,6 +416,9 @@ export async function grantWishlistAccess(
   });
 
   if (error) throw error;
+
+  void notifyWishlistAccessGranted(wishlistId, grantedToUserId);
+
   return data;
 }
 

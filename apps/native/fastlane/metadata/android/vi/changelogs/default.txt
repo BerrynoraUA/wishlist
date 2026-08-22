@@ -1,0 +1,8 @@
+Phiên bản đầu tiên của Wishlane.
+
+- Danh sách ước có màu, mức ưu tiên và ngày
+- Dán liên kết sản phẩm, chúng tôi điền chi tiết
+- Danh sách công khai, chỉ bạn bè hoặc riêng tư
+- Bí mật giữ chỗ quà trong danh sách của bạn bè
+- Nhóm Secret Santa với bốc thăm tự động
+- Khám phá danh sách bạn bè và sự kiện sắp tới

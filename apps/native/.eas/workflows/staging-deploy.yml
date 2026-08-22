@@ -3,24 +3,59 @@ name: Native Staging Deploy
 defaults:
   tools:
     node: 22.14.0
-    corepack: true
-    pnpm: 11.9.0
+    pnpm: 11.20.0
 
-on:
-  push:
-    branches:
-      - staging
-    paths:
-      - apps/native/**
-      - "!**/*.md"
+# Fingerprint-gated, same rule as production: build and submit only when no
+# staging build matches the current native fingerprint, otherwise publish an
+# OTA to the staging channel. Bumping `version` in app.json changes the
+# fingerprint and so cuts the next staging build.
+#
+# on:
+#   push:
+#     branches:
+#       - staging
+#     paths:
+#       - apps/native/**
+#       - "!**/*.md"
 
 concurrency:
-  cancel_in_progress: true
+  # Never cancel: OTAs must publish in merge order, and a cancelled run can
+  # leave a half-finished build the next run would duplicate.
+  cancel_in_progress: false
   group: ${{ workflow.filename }}-${{ github.ref }}
 
 jobs:
+  fingerprint:
+    name: Fingerprint
+    type: fingerprint
+    environment: preview
+
+  get_ios_build:
+    name: Check for existing iOS build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: ios
+      profile: staging
+      fingerprint_hash: ${{ needs.fingerprint.outputs.ios_fingerprint_hash }}
+      # An in-progress build counts as existing, otherwise every push during
+      # the build window cuts a duplicate.
+      wait_for_in_progress: true
+
+  get_android_build:
+    name: Check for existing Android build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: android
+      profile: staging
+      fingerprint_hash: ${{ needs.fingerprint.outputs.android_fingerprint_hash }}
+      wait_for_in_progress: true
+
   build_ios:
     name: Build iOS Staging
+    needs: [get_ios_build]
+    if: ${{ !needs.get_ios_build.outputs.build_id }}
     type: build
     environment: preview
     params:
@@ -39,6 +74,8 @@ jobs:
 
   build_android:
     name: Build Android Staging
+    needs: [get_android_build]
+    if: ${{ !needs.get_android_build.outputs.build_id }}
     type: build
     environment: preview
     params:
@@ -54,3 +91,25 @@ jobs:
     params:
       build_id: ${{ needs.build_android.outputs.build_id }}
       profile: staging
+
+  publish_ios_update:
+    name: Publish iOS Staging Update
+    needs: [get_ios_build]
+    if: ${{ needs.get_ios_build.outputs.build_id }}
+    type: update
+    environment: preview
+    params:
+      platform: ios
+      channel: staging
+      message: Staging update from ${{ github.ref_name }}
+
+  publish_android_update:
+    name: Publish Android Staging Update
+    needs: [get_android_build]
+    if: ${{ needs.get_android_build.outputs.build_id }}
+    type: update
+    environment: preview
+    params:
+      platform: android
+      channel: staging
+      message: Staging update from ${{ github.ref_name }}

@@ -1,5 +1,3 @@
-import { FadeIn, LinearTransition } from "react-native-reanimated";
-
-export const wishlistGridLinearTransition = LinearTransition;
+import { FadeIn } from "react-native-reanimated";
 
 export const wishlistCardFadeIn = FadeIn.duration(180);

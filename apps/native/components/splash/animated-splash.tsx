@@ -5,6 +5,7 @@ import {
   use,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -15,6 +16,7 @@ import Animated, {
   Easing,
   runOnJS,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withDelay,
   withRepeat,
@@ -56,17 +58,35 @@ const NATIVE_SPLASH_FALLBACK_MS = 600;
 // even if the ready signal or an animation callback never arrives.
 const OVERLAY_FAILSAFE_MS = 15000;
 
-const AppReadyContext = createContext<() => void>(() => {});
+type AppReadyContextValue = {
+  markReady: () => void;
+  /** True once the overlay is gone, i.e. the app is actually visible to the user. */
+  ready: boolean;
+};
+
+const AppReadyContext = createContext<AppReadyContextValue>({
+  markReady: () => {},
+  ready: false,
+});
 
 /** Render this once the first real screen is on the tree to dismiss the splash. */
 export function MarkAppReady() {
-  const markReady = use(AppReadyContext);
+  const { markReady } = use(AppReadyContext);
 
   useEffect(() => {
     markReady();
   }, [markReady]);
 
   return null;
+}
+
+/**
+ * Whether the splash has finished. Use it to hold non-essential startup work — SDK
+ * configuration, background queries — out of the launch window, where it competes with
+ * the auth refresh and the first screen's own fetches for the JS thread and the network.
+ */
+export function useAppReady() {
+  return use(AppReadyContext).ready;
 }
 
 export function AnimatedSplash({ children }: { children: ReactNode }) {
@@ -86,6 +106,7 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
   // Android: no transform on the app content — an animated wrapper around the
   // react-native-screens tree breaks rendering there (react-native-screens#2856).
   const contentScale = useSharedValue(IS_ANDROID ? 1 : 1.04);
+  const reducedMotion = useReducedMotion();
 
   // Scale needed for the visible mascot, rather than its transparent canvas,
   // to fly past every screen edge.
@@ -140,29 +161,40 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!revealRequested || revealStarted.current) return;
     revealStarted.current = true;
-    cancelAnimation(pulse);
-    pulse.value = withTiming(1, { duration: 150 });
 
-    // Anticipation squash, then zoom straight through the viewer.
+    // The app is already rendered and interactive underneath the overlay, so every
+    // millisecond of this animation is latency the user experiences as launch time.
+    // Nothing is waiting on it — it exists purely to make the handoff feel intentional.
+    // Skip it entirely when the user has asked for less motion.
+    if (reducedMotion) {
+      finish();
+      return;
+    }
+
+    cancelAnimation(pulse);
+    pulse.value = withTiming(1, { duration: 100 });
+
+    // Anticipation squash, then zoom straight through the viewer. Timings are tuned so
+    // the backdrop — whose callback ends the whole sequence — lands at ~420ms.
     iconScale.value = withSequence(
-      withTiming(0.86, { duration: 220, easing: Easing.bezier(0.3, 0, 0.6, 1) }),
-      withTiming(zoomScale, { duration: 520, easing: Easing.bezier(0.7, 0, 0.84, 0) }),
+      withTiming(0.86, { duration: 130, easing: Easing.bezier(0.3, 0, 0.6, 1) }),
+      withTiming(zoomScale, { duration: 300, easing: Easing.bezier(0.7, 0, 0.84, 0) }),
     );
     iconOpacity.value = withDelay(
-      480,
-      withTiming(0, { duration: 260, easing: Easing.out(Easing.quad) }),
+      300,
+      withTiming(0, { duration: 160, easing: Easing.out(Easing.quad) }),
     );
     backdropOpacity.value = withDelay(
-      300,
-      withTiming(0, { duration: 420, easing: Easing.out(Easing.cubic) }, (finished) => {
+      160,
+      withTiming(0, { duration: 260, easing: Easing.out(Easing.cubic) }, (finished) => {
         if (finished) runOnJS(finish)();
       }),
     );
     // The page underneath settles from a slight over-scale, like an app launch.
     if (!IS_ANDROID) {
       contentScale.value = withDelay(
-        260,
-        withTiming(1, { duration: 520, easing: Easing.out(Easing.cubic) }),
+        140,
+        withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) }),
       );
     }
   }, [
@@ -173,6 +205,7 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
     iconOpacity,
     iconScale,
     pulse,
+    reducedMotion,
     zoomScale,
   ]);
 
@@ -189,8 +222,10 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
     transform: [{ scale: iconScale.value * pulse.value }],
   }));
 
+  const appReady = useMemo(() => ({ markReady, ready: done }), [markReady, done]);
+
   return (
-    <AppReadyContext value={markReady}>
+    <AppReadyContext value={appReady}>
       <View style={{ flex: 1, backgroundColor: splashBackground }}>
         {IS_ANDROID ? (
           <View style={{ flex: 1 }}>{children}</View>

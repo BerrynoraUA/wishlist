@@ -1,16 +1,17 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { hapticSuccess } from "@/lib/haptics";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { Input } from "@/components/ui/input";
+import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
 import { Text } from "@/components/ui/text";
 import { useSearchProfilesByNickname, useSendFriendRequest } from "@/hooks/use-friends";
 import { useCurrentUserId } from "@/hooks/use-user";
-import type { ProfileSearchResult } from "@wishlist/backend/types/friends";
+import { cn } from "@/lib/utils";
 import * as Clipboard from "expo-clipboard";
-import { Copy, Search, X } from "lucide-react-native";
+import { Copy } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Pressable, View } from "react-native";
 
 export function AddFriendSheet({
   open,
@@ -24,7 +25,7 @@ export function AddFriendSheet({
   const { data: userId } = useCurrentUserId();
   const [query, setQuery] = React.useState("");
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
-  const [selected, setSelected] = React.useState<ProfileSearchResult[]>([]);
+  const [selected, setSelected] = React.useState<PeoplePickerItem[]>([]);
   const [copied, setCopied] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const searchParams = React.useMemo(() => ({ take: 10 }), []);
@@ -47,22 +48,32 @@ export function AddFriendSheet({
     }
   }, [open]);
 
+  const results = React.useMemo<PeoplePickerItem[]>(
+    () =>
+      (search.data ?? []).map((profile) => ({
+        id: profile.id,
+        name: profile.display_name || profile.nickname,
+        subtitle: profile.display_name ? `@${profile.nickname}` : null,
+        avatarUrl: profile.avatar_url,
+      })),
+    [search.data],
+  );
+
   if (!open) return null;
 
   function handleClose() {
     void sheetRef.current?.dismiss();
   }
 
-  function handleSelect(profile: ProfileSearchResult) {
-    setSelected((current) =>
-      current.some((item) => item.id === profile.id) ? current : [...current, profile],
-    );
+  function handleSelectionChange(profiles: PeoplePickerItem[]) {
+    setSelected(profiles);
     setSuccess(false);
   }
 
   async function handleCopy() {
     if (!inviteLink) return;
     await Clipboard.setStringAsync(inviteLink);
+    hapticSuccess();
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
@@ -77,114 +88,89 @@ export function AddFriendSheet({
     setSuccess(true);
   }
 
-  const results = search.data ?? [];
-  const visibleResults = React.useMemo(
-    () => results.filter((profile) => !selected.some((item) => item.id === profile.id)),
-    [results, selected],
-  );
-  const canSearch = debouncedQuery.length >= 3;
+  const trimmedQuery = query.trim();
+  const searchHint = !trimmedQuery
+    ? t("Search for someone by their handle.")
+    : trimmedQuery.length < 3
+      ? t("Type at least 3 characters.")
+      : null;
+  // The query only reaches the server after the debounce, so without this the picker
+  // flashes "No matches" between the third keystroke and the request going out.
+  const isSearching = trimmedQuery !== debouncedQuery || (search.isFetching && !search.data);
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={() => onOpenChange(false)}>
-      <View className="gap-5 px-5 pb-5 pt-5">
-        <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">{t("Invite friends")}</Text>
-          <Text className="text-sm text-text-muted">
-            {t("Share your invite link or look up a friend by handle.")}
-          </Text>
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={() => onOpenChange(false)}
+      header={<BottomSheetHeader title={t("Invite friends")} />}
+      footer={
+        <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
+          <Button
+            className="min-w-0 flex-1"
+            variant="outline"
+            disabled={sendRequest.isPending}
+            onPress={handleClose}
+          >
+            <Text>{t("Cancel")}</Text>
+          </Button>
+          <Button
+            className="min-w-0 flex-1"
+            disabled={selected.length === 0 || sendRequest.isPending}
+            onPress={handleInvite}
+          >
+            {sendRequest.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
+            <Text>{sendRequest.isPending ? t("Inviting...") : t("Invite")}</Text>
+          </Button>
         </View>
-
+      }
+    >
+      <View className="gap-5 px-5">
         <View className="gap-2">
-          <Text className="text-sm font-bold text-text">{t("Your invite link")}</Text>
-          <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 py-2">
+          <View className="flex-row items-center justify-between gap-3">
+            <Text className="text-sm font-bold text-text">{t("Your invite link")}</Text>
+            {copied ? (
+              <Text className="text-sm font-semibold text-success">{t("Copied")}</Text>
+            ) : null}
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t("Copy invite link")}
+            accessibilityState={{ disabled: !inviteLink }}
+            disabled={!inviteLink}
+            onPress={() => void handleCopy()}
+            className={cn(
+              "flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 py-2 active:opacity-70 disabled:opacity-50",
+              copied && "border-success",
+            )}
+          >
             <Text className="min-w-0 flex-1 text-sm text-text-muted" numberOfLines={1}>
               {inviteLink || "..."}
             </Text>
-            <Button size="icon" variant="ghost" disabled={!inviteLink} onPress={handleCopy}>
-              <Icon as={Copy} className="size-4 text-text" />
-            </Button>
-          </View>
-          {copied ? (
-            <Text className="text-sm font-semibold text-success">{t("Copied")}</Text>
-          ) : null}
+            <View className="size-10 items-center justify-center rounded-full">
+              <Icon as={Copy} className={cn("size-4 text-text", copied && "text-success")} />
+            </View>
+          </Pressable>
         </View>
 
-        <View className="gap-3">
-          <Text className="text-xs font-extrabold uppercase text-text-muted">{t("Or search")}</Text>
-          <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
-            <Icon as={Search} className="size-4 text-muted-foreground/50" />
-            <Input
-              value={query}
-              onChangeText={(value) => {
-                setQuery(value);
-                setSuccess(false);
-              }}
-              placeholder={t("username")}
-              autoCapitalize="none"
-              className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
-              returnKeyType="search"
-            />
-            {query.length > 0 ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                accessibilityLabel={t("Clear search")}
-                onPress={() => {
-                  setQuery("");
-                  setDebouncedQuery("");
-                  setSuccess(false);
-                }}
-                className="size-9 shrink-0 rounded-full"
-              >
-                <Icon as={X} className="size-4 text-text-muted" />
-              </Button>
-            ) : null}
-          </View>
-
-          {selected.length > 0 ? (
-            <View className="flex-row flex-wrap gap-2">
-              {selected.map((profile) => (
-                <Button
-                  key={profile.id}
-                  variant="secondary"
-                  size="sm"
-                  onPress={() =>
-                    setSelected((current) => current.filter((item) => item.id !== profile.id))
-                  }
-                  className="rounded-full"
-                >
-                  <Text>@{profile.nickname}</Text>
-                  <Icon as={X} className="size-3.5 text-text" />
-                </Button>
-              ))}
-            </View>
-          ) : null}
-
-          {canSearch ? (
-            <View className="max-h-56 gap-2">
-              {search.isFetching && visibleResults.length === 0 ? (
-                <View className="items-center py-3">
-                  <ActivityIndicator colorClassName="accent-brand" />
-                </View>
-              ) : null}
-              {!search.isFetching && visibleResults.length === 0 ? (
-                <Text className="text-sm font-semibold text-text-muted">{t("No matches")}</Text>
-              ) : null}
-              {visibleResults.map((profile) => (
-                <Button
-                  key={profile.id}
-                  variant="outline"
-                  onPress={() => handleSelect(profile)}
-                  className="justify-start rounded-xl"
-                >
-                  <Text className="font-bold text-text">@{profile.nickname}</Text>
-                </Button>
-              ))}
-            </View>
-          ) : (
-            <Text className="text-sm text-text-muted">{t("Type at least 3 characters.")}</Text>
-          )}
-        </View>
+        <PeoplePickerField
+          label={t("Or search")}
+          title={t("Find friends")}
+          addLabel={t("Search by handle")}
+          items={results}
+          selected={selected}
+          onChange={handleSelectionChange}
+          query={query}
+          onQueryChange={(value) => {
+            setQuery(value);
+            setSuccess(false);
+          }}
+          searchPlaceholder={t("username")}
+          hint={searchHint}
+          autoFocusSearch
+          isLoading={isSearching}
+          emptyLabel={t("No matches")}
+        />
 
         {sendRequest.error ? (
           <Text className="text-sm font-semibold text-destructive">
@@ -194,25 +180,6 @@ export function AddFriendSheet({
         {success ? (
           <Text className="text-sm font-semibold text-success">{t("Invite sent!")}</Text>
         ) : null}
-
-        <View className="flex-row gap-2">
-          <Button
-            className="flex-1"
-            variant="outline"
-            disabled={sendRequest.isPending}
-            onPress={handleClose}
-          >
-            <Text>{t("Cancel")}</Text>
-          </Button>
-          <Button
-            className="flex-1"
-            disabled={selected.length === 0 || sendRequest.isPending}
-            onPress={handleInvite}
-          >
-            {sendRequest.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
-            <Text>{sendRequest.isPending ? t("Inviting...") : t("Invite")}</Text>
-          </Button>
-        </View>
       </View>
     </BottomSheet>
   );

@@ -1,0 +1,74 @@
+{
+  "bcp47": "es",
+  "title": "Wishlane: listas de deseos",
+  "appleName": "Wishlane",
+  "subtitle": "Listas de deseos y regalos",
+  "shortDescription": "Crea listas de deseos, compártelas y reserva regalos en secreto.",
+  "promoText": "Pega cualquier enlace, crea una lista de deseos preciosa y compártela. Tus amigos reservan regalos en secreto: nadie repite regalo y ninguna sorpresa se estropea.",
+  "keywords": [
+    "lista de deseos",
+    "regalo",
+    "cumpleaños",
+    "navidad",
+    "amigo invisible",
+    "ideas de regalo",
+    "compras"
+  ],
+  "intro": [
+    "Wishlane convierte el «¿y tú qué quieres?» en algo que todos disfrutan.",
+    "Crea listas de deseos preciosas, compártelas con quienes te importan y deja que reserven regalos en secreto: nadie compra lo mismo dos veces y ninguna sorpresa se estropea."
+  ],
+  "sections": [
+    {
+      "heading": "Una lista en segundos",
+      "body": "Pega cualquier enlace de producto y Wishlane rellena el título, la descripción, la imagen y el precio. Ponle nombre a la lista, elige un color, marca la fecha del evento y listo."
+    },
+    {
+      "heading": "Comparte a tu manera",
+      "body": "Cada lista puede ser pública, solo para amigos o totalmente privada. Envía un enlace a quien quieras o conecta con amigos por nombre de usuario: verás sus listas y ellos las tuyas."
+    },
+    {
+      "heading": "Reserva regalos en secreto",
+      "body": "Reserva un artículo de la lista de un amigo y los demás verán que está cogido, pero quien la creó nunca se entera. Sin regalos repetidos ni sorpresas arruinadas."
+    },
+    {
+      "heading": "Amigo invisible, resuelto",
+      "body": "Crea un grupo, invita a todos con un solo enlace y deja que Wishlane haga el sorteo. Cada persona ve la lista de deseos de quien le ha tocado, así que los regalos aciertan."
+    },
+    {
+      "heading": "Descubre qué quieren los demás",
+      "body": "Explora las listas públicas de tus amigos, consulta cumpleaños y eventos próximos con cuenta atrás y no vuelvas a llegar con las manos vacías."
+    },
+    {
+      "heading": "Entérate de todo",
+      "body": "Recibe avisos cuando alguien crea una lista, te envía una solicitud o reserva algo de la tuya."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Listas y artículos ilimitados, acceso de colaboradores en listas compartidas y colores y prioridades personalizados."
+    }
+  ],
+  "closing": "Wishlane es gratis para empezar: sin tarjeta y listo en menos de un minuto. Disponible en más de 40 idiomas.",
+  "subscriptionHeading": "Condiciones de la suscripción",
+  "subscriptionApple": "Wishlane Premium es una suscripción de renovación automática, mensual o anual. El pago se carga a tu Apple ID al confirmar la compra. La suscripción se renueva automáticamente salvo que desactives la renovación al menos 24 horas antes del final del periodo en curso. Puedes gestionarla o cancelarla cuando quieras en los ajustes de tu cuenta de Apple ID.",
+  "subscriptionGoogle": "Wishlane Premium es una suscripción de renovación automática, mensual o anual. El pago se carga a tu cuenta de Google Play al confirmar la compra. La suscripción se renueva automáticamente salvo que desactives la renovación al menos 24 horas antes del final del periodo en curso. Puedes gestionarla o cancelarla cuando quieras en Google Play Store.",
+  "subscriptionPrice": "Wishlane Premium cuesta {monthly} al mes o {yearly} al año. Los precios se indican en dólares estadounidenses y pueden variar según la región.",
+  "footer": [
+    "¿Dudas o comentarios? support@wishlane.net",
+    "Política de privacidad: https://wishlane.net/privacy-policy",
+    "Términos del servicio: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "La primera versión de Wishlane.",
+  "changelogBullets": [
+    "Listas con colores, prioridades y fechas",
+    "Pega un enlace y rellenamos los detalles",
+    "Listas públicas, solo para amigos o privadas",
+    "Reserva regalos en secreto en listas de amigos",
+    "Grupos de amigo invisible con sorteo automático",
+    "Listas de amigos y eventos próximos"
+  ],
+  "permissions": {
+    "photos": "Permite que Wishlane elija una foto de perfil de tu galería.",
+    "faceId": "Permite que Wishlane cambie de forma segura entre tus cuentas guardadas."
+  }
+}

@@ -44,6 +44,7 @@ export const secretSantaKeys = {
 export function useInfiniteSecretSantaEvents(
   params: ListSecretSantaEventsParams,
   pageSize: number,
+  { enabled = true }: { enabled?: boolean } = {},
 ) {
   const { user } = useAuth();
   const normalizedParams = {
@@ -61,7 +62,7 @@ export function useInfiniteSecretSantaEvents(
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) =>
       lastPage.offset + lastPage.items.length < lastPage.total ? lastPageParam + 1 : undefined,
-    enabled: Boolean(user?.id),
+    enabled: enabled && Boolean(user?.id),
   });
 }
 

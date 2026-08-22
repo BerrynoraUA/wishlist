@@ -44,7 +44,7 @@ export function ReservedItemsGrid({
         >
           {row.map(({ source, item }) => (
             <View key={item.id} className="gap-2" style={{ width: cardWidth }}>
-              <View className="min-h-10 flex-row items-center justify-between gap-2">
+              <View className="flex-row items-center justify-between gap-2">
                 <Text
                   className="min-w-0 flex-1 text-xs font-bold text-text-muted"
                   numberOfLines={1}

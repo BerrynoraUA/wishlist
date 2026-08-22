@@ -21,7 +21,7 @@ import { logout } from "@/api/login";
 import { useSubscription } from "@/hooks/use-subscription";
 import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
-import { useProfile } from "@/hooks/use-settings";
+import { useProfile, useUpdateSettings } from "@/hooks/use-settings";
 import { useCurrentUser } from "@/hooks/use-user";
 import { useKnownAccounts } from "@/hooks/use-known-accounts";
 import { upsertKnownAccount } from "@/lib/known-accounts";
@@ -53,6 +53,45 @@ function getAddAccountHref() {
 const LOCALE_LABELS: Record<string, string> = {
   en: "English",
   uk: "Українська",
+  de: "Deutsch",
+  es: "Español",
+  fr: "Français",
+  ja: "日本語",
+  it: "Italiano",
+  pt: "Português",
+  zh: "中文",
+  pl: "Polski",
+  ko: "한국어",
+  nl: "Nederlands",
+  hi: "हिन्दी",
+  tr: "Türkçe",
+  vi: "Tiếng Việt",
+  th: "ไทย",
+  id: "Bahasa Indonesia",
+  cs: "Čeština",
+  sk: "Slovenčina",
+  hu: "Magyar",
+  ro: "Română",
+  bg: "Български",
+  el: "Ελληνικά",
+  sv: "Svenska",
+  da: "Dansk",
+  nb: "Norsk bokmål",
+  fi: "Suomi",
+  hr: "Hrvatski",
+  sr: "Српски",
+  sl: "Slovenščina",
+  lt: "Lietuvių",
+  lv: "Latviešu",
+  et: "Eesti",
+  bn: "বাংলা",
+  ms: "Bahasa Melayu",
+  fil: "Filipino",
+  "zh-Hant": "繁體中文",
+  ar: "العربية",
+  he: "עברית",
+  fa: "فارسی",
+  ur: "اردو",
 };
 
 export function ProfileMenu({ onOpen }: Props) {
@@ -61,6 +100,7 @@ export function ProfileMenu({ onOpen }: Props) {
   const locale = useLocale();
   const locales = useLocales();
   const setLocale = useSetLocale();
+  const { mutate: mutateSettings } = useUpdateSettings();
   const { isPro } = useSubscription();
   const { data: profile } = useProfile();
   const { data: currentUser } = useCurrentUser();
@@ -291,6 +331,7 @@ export function ProfileMenu({ onOpen }: Props) {
                         className={styles.languageOption}
                         onClick={() => {
                           setLocale(code);
+                          mutateSettings({ preferred_locale: code });
                           router.refresh();
                           setLanguageListOpen(false);
                         }}

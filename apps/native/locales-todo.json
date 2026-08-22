@@ -1,0 +1,224 @@
+{
+  "_note": "Planning list only — not wired into gt.config.json/loadTranslations.ts yet. Languages already shipped are listed under \"done\" for reference; \"todo\" groups the rest by rough priority tier (global reach / market size), matching the kind of language roster you'd see in Spotify, Duolingo, WhatsApp, etc. Review and trim before we start translating.",
+  "done": [
+    {
+      "code": "en",
+      "name": "English",
+      "isDefault": true
+    },
+    {
+      "code": "uk",
+      "name": "Ukrainian",
+      "native": "Українська"
+    },
+    {
+      "code": "de",
+      "name": "German",
+      "native": "Deutsch"
+    },
+    {
+      "code": "es",
+      "name": "Spanish",
+      "native": "Español"
+    },
+    {
+      "code": "fr",
+      "name": "French",
+      "native": "Français"
+    },
+    {
+      "code": "ja",
+      "name": "Japanese",
+      "native": "日本語"
+    },
+    {
+      "code": "it",
+      "name": "Italian",
+      "native": "Italiano"
+    },
+    {
+      "code": "pt",
+      "name": "Portuguese (Brazil)",
+      "native": "Português"
+    },
+    {
+      "code": "zh",
+      "name": "Chinese (Simplified)",
+      "native": "中文"
+    },
+    {
+      "code": "pl",
+      "name": "Polish",
+      "native": "Polski"
+    },
+    {
+      "code": "ko",
+      "name": "Korean",
+      "native": "한국어"
+    },
+    {
+      "code": "nl",
+      "name": "Dutch",
+      "native": "Nederlands"
+    },
+    {
+      "code": "ru",
+      "name": "Russian",
+      "native": "Русский"
+    },
+    {
+      "code": "hi",
+      "name": "Hindi",
+      "native": "हिन्दी"
+    },
+    {
+      "code": "tr",
+      "name": "Turkish",
+      "native": "Türkçe"
+    },
+    {
+      "code": "vi",
+      "name": "Vietnamese",
+      "native": "Tiếng Việt"
+    },
+    {
+      "code": "th",
+      "name": "Thai",
+      "native": "ไทย"
+    },
+    {
+      "code": "id",
+      "name": "Indonesian",
+      "native": "Bahasa Indonesia"
+    },
+    {
+      "code": "cs",
+      "name": "Czech",
+      "native": "Čeština"
+    },
+    {
+      "code": "sk",
+      "name": "Slovak",
+      "native": "Slovenčina"
+    },
+    {
+      "code": "hu",
+      "name": "Hungarian",
+      "native": "Magyar"
+    },
+    {
+      "code": "ro",
+      "name": "Romanian",
+      "native": "Română"
+    },
+    {
+      "code": "bg",
+      "name": "Bulgarian",
+      "native": "Български"
+    },
+    {
+      "code": "el",
+      "name": "Greek",
+      "native": "Ελληνικά"
+    },
+    {
+      "code": "sv",
+      "name": "Swedish",
+      "native": "Svenska"
+    },
+    {
+      "code": "da",
+      "name": "Danish",
+      "native": "Dansk"
+    },
+    {
+      "code": "nb",
+      "name": "Norwegian",
+      "native": "Norsk bokmål"
+    },
+    {
+      "code": "fi",
+      "name": "Finnish",
+      "native": "Suomi"
+    },
+    {
+      "code": "hr",
+      "name": "Croatian",
+      "native": "Hrvatski"
+    },
+    {
+      "code": "sr",
+      "name": "Serbian",
+      "native": "Српски"
+    },
+    {
+      "code": "sl",
+      "name": "Slovenian",
+      "native": "Slovenščina"
+    },
+    {
+      "code": "lt",
+      "name": "Lithuanian",
+      "native": "Lietuvių"
+    },
+    {
+      "code": "lv",
+      "name": "Latvian",
+      "native": "Latviešu"
+    },
+    {
+      "code": "et",
+      "name": "Estonian",
+      "native": "Eesti"
+    },
+    {
+      "code": "bn",
+      "name": "Bengali",
+      "native": "বাংলা"
+    },
+    {
+      "code": "ms",
+      "name": "Malay",
+      "native": "Bahasa Melayu"
+    },
+    {
+      "code": "fil",
+      "name": "Filipino",
+      "native": "Filipino"
+    },
+    {
+      "code": "zh-Hant",
+      "name": "Chinese (Traditional)",
+      "native": "繁體中文"
+    },
+    {
+      "code": "ar",
+      "name": "Arabic",
+      "native": "العربية",
+      "rtl": true
+    },
+    {
+      "code": "he",
+      "name": "Hebrew",
+      "native": "עברית",
+      "rtl": true
+    },
+    {
+      "code": "fa",
+      "name": "Persian",
+      "native": "فارسی",
+      "rtl": true
+    },
+    {
+      "code": "ur",
+      "name": "Urdu",
+      "native": "اردو",
+      "rtl": true
+    }
+  ],
+  "todo": {
+    "tier1_mustHave": [],
+    "tier2_commonInEuFocusedApps": [],
+    "tier3_broaderGlobalReach": []
+  }
+}

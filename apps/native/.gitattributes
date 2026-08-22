@@ -1,0 +1,6 @@
+# `store/build-store-metadata.js` writes these with LF endings, and Play uploads them verbatim.
+# Without this, `core.autocrlf` checks them out as CRLF on Windows and every `--check` run reports
+# spurious drift.
+fastlane/metadata/** text eol=lf
+store/listings/*.json text eol=lf
+store/ios-locales/*.json text eol=lf

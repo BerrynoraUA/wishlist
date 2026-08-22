@@ -14,7 +14,7 @@ import {
   SortSelect,
 } from "@/components/ui/FilterSortBar";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
-import { ALL_PRIORITIES } from "@/lib/priorities";
+import { ALL_PRIORITIES, getPriorityCssColor } from "@/lib/priorities";
 import { useWishlistItemFilters } from "../../hooks/use-wishlist-item-filters";
 import styles from "../../WishlistPage.module.scss";
 
@@ -66,7 +66,7 @@ export function WishlistItemFilters({ wishlistId }: Props) {
           icon: (
             <span
               className={styles.priorityFilterIcon}
-              style={{ "--priority-color": priority.color } as CSSProperties}
+              style={{ "--priority-color": getPriorityCssColor(priority) } as CSSProperties}
             >
               {Icon && <Icon size={14} strokeWidth={2.5} />}
             </span>

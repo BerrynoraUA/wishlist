@@ -1,0 +1,74 @@
+{
+  "bcp47": "hu",
+  "title": "Wishlane: kívánságlisták",
+  "appleName": "Wishlane",
+  "subtitle": "Kívánságlisták és ajándékok",
+  "shortDescription": "Készíts kívánságlistát, oszd meg a barátaiddal, és foglalj ajándékot titokban.",
+  "promoText": "Illessz be bármilyen linket, készíts szép kívánságlistát, és oszd meg a barátaiddal. Titokban foglalják le az ajándékokat: nincs két egyforma és nincs lelőtt meglepetés.",
+  "keywords": [
+    "kívánságlista",
+    "ajándék",
+    "születésnap",
+    "karácsony",
+    "titkos mikulás",
+    "ajándékötlet",
+    "vásárlás"
+  ],
+  "intro": [
+    "A Wishlane a „na és mit szeretnél valójában?” kérdést olyanná teszi, amit mindenki élvez.",
+    "Készíts szép kívánságlistákat, oszd meg őket a számodra fontos emberekkel, és hagyd, hogy titokban lefoglalják az ajándékokat – így senki nem vesz kétszer ugyanolyat, és egyetlen meglepetés sem lesz lelőve."
+  ],
+  "sections": [
+    {
+      "heading": "Kívánságlista másodpercek alatt",
+      "body": "Illessz be bármilyen terméklinket, és a Wishlane kitölti helyetted a címet, a leírást, a képet és az árat. Nevezd el a listát, válassz színt, add meg az esemény dátumát – kész is."
+    },
+    {
+      "heading": "Te döntöd el, ki láthatja",
+      "body": "Minden lista lehet nyilvános, csak barátoknak szóló vagy teljesen privát. Küldj linket bárkinek, vagy add hozzá a barátaidat felhasználónév alapján – te látod az ő listájukat, ők a tiédet."
+    },
+    {
+      "heading": "Foglalj ajándékot titokban",
+      "body": "Foglalj le egy tételt egy barátod listáján: mindenki más látja, hogy elkelt, de a lista tulajdonosa sosem tudja meg. Nincs dupla ajándék, nincs elrontott meglepetés."
+    },
+    {
+      "heading": "Titkos Mikulás, megszervezve",
+      "body": "Hozz létre csoportot, hívj meg mindenkit egyetlen linkkel, a sorsolást pedig bízd a Wishlane-re. Mindenki látja a kihúzott személy kívánságlistáját, így az ajándék tényleg telibe talál."
+    },
+    {
+      "heading": "Fedezd fel, ki mire vágyik",
+      "body": "Böngészd a barátaid nyilvános listáit, kövesd a közelgő születésnapokat és eseményeket visszaszámlálóval, és soha többé ne érkezz üres kézzel."
+    },
+    {
+      "heading": "Maradj képben",
+      "body": "Értesítést kapsz, ha egy barátod listát készít, kérést küld neked, vagy lefoglal valamit a te listádról."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Korlátlan lista és tétel, szerkesztői hozzáférés a megosztott listákhoz, egyedi színek és prioritások."
+    }
+  ],
+  "closing": "A Wishlane ingyen indul – bankkártya nélkül, egy percen belül beállítható. Több mint 40 nyelven elérhető.",
+  "subscriptionHeading": "Előfizetési feltételek",
+  "subscriptionApple": "A Wishlane Premium automatikusan megújuló, havi vagy éves előfizetés. A díjat a vásárlás megerősítésekor terheljük az Apple ID-dra. Az előfizetés automatikusan megújul, hacsak az automatikus megújítást nem kapcsolod ki legalább 24 órával az aktuális időszak vége előtt. Bármikor kezelheted vagy lemondhatod az Apple ID fiókbeállításaidban.",
+  "subscriptionGoogle": "A Wishlane Premium automatikusan megújuló, havi vagy éves előfizetés. A díjat a vásárlás megerősítésekor terheljük a Google Play-fiókodra. Az előfizetés automatikusan megújul, hacsak az automatikus megújítást nem kapcsolod ki legalább 24 órával az aktuális időszak vége előtt. Bármikor kezelheted vagy lemondhatod a Google Play Áruházban.",
+  "subscriptionPrice": "A Wishlane Premium ára {monthly} havonta vagy {yearly} évente. Az árak amerikai dollárban értendők, és régiónként eltérhetnek.",
+  "footer": [
+    "Kérdés vagy visszajelzés? support@wishlane.net",
+    "Adatvédelmi irányelvek: https://wishlane.net/privacy-policy",
+    "Felhasználási feltételek: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "A Wishlane első kiadása.",
+  "changelogBullets": [
+    "Kívánságlisták színekkel, prioritással, dátummal",
+    "Illessz be egy terméklinket, a többit kitöltjük",
+    "Nyilvános, barátoknak szóló vagy privát listák",
+    "Titkos ajándékfoglalás a barátok listáin",
+    "Titkos Mikulás csoport automatikus sorsolással",
+    "Barátok listái és közelgő események"
+  ],
+  "permissions": {
+    "photos": "Engedélyezd a Wishlane-nek, hogy profilképet válasszon a könyvtáradból.",
+    "faceId": "Engedélyezd a Wishlane-nek, hogy biztonságosan váltson a mentett fiókok között."
+  }
+}

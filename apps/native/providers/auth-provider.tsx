@@ -3,6 +3,7 @@ import { deactivateCurrentPushToken } from "@/api/notifications";
 import { supabase } from "@wishlist/backend/supabase/native";
 import type { KnownAccountProvider } from "@wishlist/backend/types/known-accounts";
 import { upsertKnownAccount } from "@/lib/known-accounts";
+import { writeBootLastUserId } from "@/lib/boot-cache";
 import { useQueryClient } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
@@ -83,6 +84,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       activeUserIdRef.current = nextUserId;
+      // Synchronous, so the next cold start can pick a theme before it knows who is
+      // signed in. See `lib/boot-cache.ts`.
+      writeBootLastUserId(nextUserId);
       setSession(nextSession);
       setIsLoading(false);
       void rememberSessionAccount(nextSession).catch(() => undefined);

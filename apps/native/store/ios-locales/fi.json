@@ -1,0 +1,10 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Salli Wishlanen valita profiilikuva kirjastostasi.",
+    "NSFaceIDUsageDescription": "Salli Wishlanen vaihtaa turvallisesti tallennettujen tilien välillä."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
+}

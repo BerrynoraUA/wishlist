@@ -1,8 +1,9 @@
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
-import { ItemPriorityBadge, ItemStatusBadge } from "@/components/items/item-labels";
+import { CARD_BADGE_HEIGHT, ItemPriorityBadge } from "@/components/items/item-labels";
 import { cn } from "@/lib/utils";
+import { isStarPriorityId } from "@wishlist/backend/lib";
 import type { Item } from "@wishlist/backend/types/item";
 import { Gift } from "lucide-react-native";
 import { useGT } from "gt-react-native";
@@ -11,8 +12,10 @@ import { View } from "react-native";
 export function ItemImage({
   item,
   reservationLabel,
+  stampLabel,
+  overlayAction,
+  endAction,
   purchased,
-  reserved,
   priority,
   priorityLabel,
   salePercentOff,
@@ -21,8 +24,13 @@ export function ItemImage({
 }: {
   item: Item;
   reservationLabel?: string | null;
+  /** Overrides the ribbon text, e.g. with a revealed reserver name. */
+  stampLabel?: string | null;
+  /** Control pinned to the top-start corner, e.g. the reveal toggle. */
+  overlayAction?: React.ReactNode;
+  /** Control pinned to the top-end corner, under the badges — the report button. */
+  endAction?: React.ReactNode;
   purchased: boolean;
-  reserved: boolean;
   priority: ReturnType<typeof import("@/lib/items").getItemPriority>;
   priorityLabel?: string | null;
   salePercentOff?: number | null;
@@ -36,8 +44,10 @@ export function ItemImage({
   return (
     <View
       className={cn(
-        "relative items-center justify-center overflow-hidden bg-bg-muted",
-        isDetail ? "h-56 rounded-2xl border border-border-subtle" : "aspect-square w-full min-h-0",
+        // Square in both sizes so the detail sheet shows the image at the same height as
+        // the card in the list, instead of cropping it into a short strip.
+        "relative aspect-square items-center justify-center overflow-hidden bg-bg-muted",
+        isDetail ? "rounded-2xl border border-border-subtle" : "w-full min-h-0 rounded-t-xl",
       )}
     >
       {item.image_url ? (
@@ -72,53 +82,56 @@ export function ItemImage({
             style={{ transform: [{ rotate: "-20deg" }] }}
           >
             <Text
+              numberOfLines={1}
               className={cn(
-                "font-extrabold uppercase tracking-widest text-brand",
-                isDetail ? "text-xl" : "text-lg",
+                "font-extrabold",
+                // Purchased reads green; reserved keeps the brand colour.
+                purchased ? "text-[#86efac]" : "text-brand",
+                stampLabel ? "px-3 text-sm" : "uppercase tracking-widest",
+                !stampLabel && (isDetail ? "text-xl" : "text-lg"),
               )}
             >
-              {purchased ? t("Purchased") : t("Reserved")}
+              {stampLabel ?? (purchased ? t("Purchased") : t("Reserved"))}
             </Text>
           </View>
         </View>
       ) : null}
 
-      {reserved && reservationLabel ? (
-        <View
-          className={cn(
-            "absolute left-2 top-2 z-10 max-w-[70%]",
-            isDetail && "left-3 top-3 max-w-[80%]",
-          )}
-        >
-          <ItemStatusBadge
-            label={reservationLabel}
-            purchased={isDetail ? false : purchased}
-            compact={!isDetail && salePercentOff != null}
-          />
+      {overlayAction ? (
+        <View className={cn("absolute z-10", isDetail ? "start-3 top-3" : "start-2 top-2")}>
+          {overlayAction}
         </View>
       ) : null}
 
       <View
         className={cn(
-          "absolute right-2 top-2 z-10 items-end gap-1.5",
-          isDetail && "right-3 top-3 max-w-[45%]",
+          "absolute end-2 top-2 z-10 items-end gap-1.5",
+          isDetail && "end-3 top-3 max-w-[45%]",
         )}
       >
         {salePercentOff != null ? (
-          <Text className="rounded-full border border-danger bg-danger-bg px-2 py-1 text-[11px] font-extrabold text-danger">
-            {t("Sale -{percent}%", { percent: salePercentOff })}
-          </Text>
+          <View
+            className="items-center justify-center rounded-full border border-danger bg-danger-bg px-2.5"
+            style={{ height: CARD_BADGE_HEIGHT }}
+          >
+            <Text className="text-[11px] font-extrabold text-danger">
+              {t("Sale -{percent}%", { percent: salePercentOff })}
+            </Text>
+          </View>
         ) : null}
-        {priority && priorityLabel ? (
+        {/* Stare already reads from the card behind the sheet, and its medallion
+            used to sit right below — no need to repeat it in the detail hero. */}
+        {priority && priorityLabel && !(isDetail && isStarPriorityId(priority.id)) ? (
           <ItemPriorityBadge priority={priority} label={priorityLabel} compact context="card" />
         ) : null}
+        {endAction}
       </View>
 
       {item.price ? (
         <View
           className={cn(
-            "absolute bottom-2 right-2 z-10 flex-row items-center gap-1 rounded-full border border-brand/30 bg-card-bg/95 px-2.5 py-1",
-            isDetail && "bottom-3 right-3 gap-2 px-3 py-1.5",
+            "absolute bottom-2 end-2 z-10 flex-row items-center gap-1 rounded-full border border-brand/30 bg-card-bg/95 px-2.5 py-1",
+            isDetail && "bottom-3 end-3 gap-2 px-3 py-1.5",
           )}
         >
           {showDiscountPrice && item.discount_price ? (

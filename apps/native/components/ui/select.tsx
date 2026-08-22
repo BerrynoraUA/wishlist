@@ -140,7 +140,7 @@ function SelectItem({
   return (
     <SelectPrimitive.Item
       className={cn(
-        "active:bg-accent group relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 sm:py-1.5",
+        "active:bg-accent group relative flex w-full flex-row items-center gap-2 rounded-sm py-2 ps-2 pe-8 sm:py-1.5",
         props.disabled && "opacity-50",
         className,
       )}
@@ -148,7 +148,7 @@ function SelectItem({
     >
       {icon ? <Icon as={icon} className="text-muted-foreground size-4 shrink-0" /> : null}
       {leading}
-      <View className="absolute right-2 flex size-3.5 items-center justify-center">
+      <View className="absolute end-2 flex size-3.5 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
           <Icon as={Check} className="text-muted-foreground size-4 shrink-0" />
         </SelectPrimitive.ItemIndicator>

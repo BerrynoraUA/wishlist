@@ -22,8 +22,8 @@ export function PricingView() {
         included: true,
       },
       {
-        key: "items20",
-        label: t("Up to 20 items per wishlist", { $id: "pricing.free.items20" }),
+        key: "items10",
+        label: t("Up to 10 items per wishlist", { $id: "pricing.free.items10" }),
         included: true,
       },
       {
@@ -50,16 +50,6 @@ export function PricingView() {
         key: "theme",
         label: t("Dark / light theme", { $id: "pricing.free.theme" }),
         included: true,
-      },
-      {
-        key: "saleAlerts",
-        label: t("Sale price alerts", { $id: "pricing.free.saleAlerts" }),
-        included: false,
-      },
-      {
-        key: "priceHistory",
-        label: t("Price tracking & history", { $id: "pricing.free.priceHistory" }),
-        included: false,
       },
       {
         key: "collab",
@@ -116,18 +106,6 @@ export function PricingView() {
         key: "theme",
         label: t("Dark / light theme", { $id: "pricing.pro.theme" }),
         included: true,
-      },
-      {
-        key: "saleAlerts",
-        label: t("Sale price alerts", { $id: "pricing.pro.saleAlerts" }),
-        included: true,
-        highlight: true,
-      },
-      {
-        key: "priceHistory",
-        label: t("Price tracking & history", { $id: "pricing.pro.priceHistory" }),
-        included: true,
-        highlight: true,
       },
       {
         key: "collab",

@@ -1,0 +1,74 @@
+{
+  "bcp47": "sk",
+  "title": "Wishlane: zoznamy želaní",
+  "appleName": "Wishlane",
+  "subtitle": "Zoznamy želaní a darčeky",
+  "shortDescription": "Vytvárajte zoznamy želaní, zdieľajte ich s priateľmi a tajne rezervujte darčeky.",
+  "promoText": "Vložte akýkoľvek odkaz, vytvorte krásny zoznam želaní a zdieľajte ho s priateľmi. Darčeky rezervujú tajne – nikto nekúpi to isté a žiadne prekvapenie sa neprezradí.",
+  "keywords": [
+    "zoznam želaní",
+    "darček",
+    "narodeniny",
+    "vianoce",
+    "tajný Santa",
+    "tipy na darčeky",
+    "nákupy"
+  ],
+  "intro": [
+    "Wishlane premení otázku „tak čo si vlastne praješ?“ na niečo, čo baví všetkých.",
+    "Vytvárajte krásne zoznamy želaní, zdieľajte ich s ľuďmi, na ktorých vám záleží, a nechajte ich tajne rezervovať darčeky – nikto nekúpi to isté dvakrát a žiadne prekvapenie sa nepokazí."
+  ],
+  "sections": [
+    {
+      "heading": "Zoznam želaní za pár sekúnd",
+      "body": "Vložte odkaz na akýkoľvek produkt a Wishlane za vás doplní názov, popis, obrázok aj cenu. Pomenujte zoznam, vyberte farbu, nastavte dátum udalosti a je hotovo."
+    },
+    {
+      "heading": "Zdieľajte podľa seba",
+      "body": "Každý zoznam môže byť verejný, len pre priateľov alebo úplne súkromný. Pošlite odkaz komukoľvek alebo sa s priateľmi prepojte cez používateľské meno – uvidíte ich zoznamy, oni tie vaše."
+    },
+    {
+      "heading": "Rezervujte darčeky tajne",
+      "body": "Rezervujte položku zo zoznamu kamaráta – ostatní uvidia, že je zabratá, ale majiteľ zoznamu sa to nikdy nedozvie. Žiadne dvojité darčeky, žiadne pokazené prekvapenia."
+    },
+    {
+      "heading": "Tajný Santa bez starostí",
+      "body": "Vytvorte skupinu, pozvite všetkých jediným odkazom a žrebovanie nechajte na Wishlane. Každý vidí zoznam želaní toho, koho si vyžreboval, takže darčeky naozaj sedia."
+    },
+    {
+      "heading": "Zistite, čo si kto praje",
+      "body": "Prezerajte verejné zoznamy priateľov, sledujte blížiace sa narodeniny a udalosti s odpočtom a nikdy už neprichádzajte s prázdnymi rukami."
+    },
+    {
+      "heading": "Majte prehľad",
+      "body": "Dostanete upozornenie, keď niekto pridá zoznam želaní, pošle vám žiadosť alebo si niečo rezervuje z toho vášho."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Neobmedzené zoznamy a položky, prístup spolupracovníkov pri zdieľaných zoznamoch a vlastné farby aj priority."
+    }
+  ],
+  "closing": "Wishlane je na začiatok zadarmo – bez karty, nastavenie do jednej minúty. Dostupný vo viac než 40 jazykoch.",
+  "subscriptionHeading": "Podmienky predplatného",
+  "subscriptionApple": "Wishlane Premium je automaticky obnovované predplatné, mesačné alebo ročné. Platba sa strhne z vášho Apple ID pri potvrdení nákupu. Predplatné sa automaticky obnoví, ak automatické obnovenie nevypnete aspoň 24 hodín pred koncom aktuálneho obdobia. Spravovať alebo zrušiť ho môžete kedykoľvek v nastaveniach účtu Apple ID.",
+  "subscriptionGoogle": "Wishlane Premium je automaticky obnovované predplatné, mesačné alebo ročné. Platba sa strhne z vášho účtu Google Play pri potvrdení nákupu. Predplatné sa automaticky obnoví, ak automatické obnovenie nevypnete aspoň 24 hodín pred koncom aktuálneho obdobia. Spravovať alebo zrušiť ho môžete kedykoľvek v Obchode Google Play.",
+  "subscriptionPrice": "Wishlane Premium stojí {monthly} mesačne alebo {yearly} ročne. Ceny sú uvedené v amerických dolároch a môžu sa líšiť podľa regiónu.",
+  "footer": [
+    "Otázky alebo pripomienky? support@wishlane.net",
+    "Zásady ochrany osobných údajov: https://wishlane.net/privacy-policy",
+    "Podmienky používania: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Prvé vydanie Wishlane.",
+  "changelogBullets": [
+    "Zoznamy želaní s farbami, prioritami a dátumami",
+    "Vložte odkaz na produkt a detaily doplníme",
+    "Zoznamy verejné, len pre priateľov alebo súkromné",
+    "Tajná rezervácia darčekov v zoznamoch priateľov",
+    "Skupina Tajný Santa s automatickým žrebovaním",
+    "Zoznamy priateľov a nadchádzajúce udalosti"
+  ],
+  "permissions": {
+    "photos": "Povoľte Wishlane vybrať profilový obrázok z vašej knižnice.",
+    "faceId": "Povoľte Wishlane bezpečne prepínať medzi uloženými účtami."
+  }
+}

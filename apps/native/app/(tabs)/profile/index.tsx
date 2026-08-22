@@ -19,6 +19,7 @@ import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { NAV_TAB_BAR_BACKDROP_OFFSET, NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
 
 const SETTINGS_SECTIONS = [
   "account",
@@ -41,6 +42,9 @@ const SINGLE_OPEN_SETTINGS_SECTION = true;
 // Section that starts expanded.
 const DEFAULT_OPEN_SECTION: SettingsSection = "profile";
 
+const MIN_BOTTOM_INSET = 8;
+const SETTINGS_BOTTOM_SPACING = 24;
+
 export default function ProfileScreen() {
   const t = useGT();
   const router = useRouter();
@@ -50,6 +54,16 @@ export default function ProfileScreen() {
   const { data: settings, isLoading: settingsLoading } = useSettings();
   const { data: profile, isLoading: profileLoading } = useProfile();
   const updateSettings = useUpdateSettings();
+  const androidTabBarInset =
+    process.env.EXPO_OS === "android"
+      ? NAV_TAB_BAR_HEIGHT / 2 -
+        NAV_TAB_BAR_BACKDROP_OFFSET +
+        Math.max(insets.bottom, MIN_BOTTOM_INSET)
+      : 0;
+  const contentBottomPadding =
+    process.env.EXPO_OS === "android"
+      ? NAV_TAB_BAR_HEIGHT / 2 + NAV_TAB_BAR_BACKDROP_OFFSET + SETTINGS_BOTTOM_SPACING
+      : insets.bottom + SETTINGS_BOTTOM_SPACING;
 
   function setThemePreference(value: ThemePreference) {
     updateSettings.mutate({ theme: value });
@@ -138,7 +152,7 @@ export default function ProfileScreen() {
   return (
     <>
       <Stack.Screen options={{ title: t("Settings") }} />
-      <View className="flex-1 bg-bg">
+      <View className="flex-1 bg-bg" style={{ paddingBottom: androidTabBarInset }}>
         <SettingsSectionProvider
           enabled={SINGLE_OPEN_SETTINGS_SECTION}
           defaultOpenSection={DEFAULT_OPEN_SECTION}
@@ -148,8 +162,11 @@ export default function ProfileScreen() {
             renderItem={renderSection}
             keyExtractor={(item) => item}
             className="flex-1"
-            contentContainerClassName="px-4 pb-6"
-            contentContainerStyle={{ paddingTop: insets.top + 24 }}
+            contentContainerClassName="px-4"
+            contentContainerStyle={{
+              paddingTop: insets.top + 24,
+              paddingBottom: contentBottomPadding,
+            }}
             ItemSeparatorComponent={SettingsSectionSeparator}
             ListHeaderComponent={
               settingsLoading || profileLoading ? (

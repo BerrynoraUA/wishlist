@@ -1,5 +1,4 @@
-import { createBugReport, getPublicBugReports, uploadBugScreenshot } from "@/api/bug-reports";
-import type { NativePickedImage } from "@/lib/image-upload";
+import { createBugReport, getPublicBugReports } from "@/api/bug-reports";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const bugReportKeys = {
@@ -10,7 +9,8 @@ export const bugReportKeys = {
 export type SubmitBugReportParams = {
   title: string;
   description: string;
-  screenshot: NativePickedImage | null;
+  /** Already uploaded by the picker in the background — see `useImageUploadField`. */
+  screenshotUrl: string | null;
 };
 
 export function useBugReports() {
@@ -24,10 +24,8 @@ export function useCreateBugReport() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ title, description, screenshot }: SubmitBugReportParams) => {
-      const screenshotUrl = screenshot ? await uploadBugScreenshot(screenshot) : null;
-      return createBugReport({ title, description, screenshot_url: screenshotUrl });
-    },
+    mutationFn: ({ title, description, screenshotUrl }: SubmitBugReportParams) =>
+      createBugReport({ title, description, screenshot_url: screenshotUrl }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: bugReportKeys.all });
     },

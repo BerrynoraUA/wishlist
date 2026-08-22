@@ -1,0 +1,8 @@
+Wishlane'i esimene versioon.
+
+- Soovinimekirjad värvide, tähtsuse ja kuupäevadega
+- Kleebi tootelink ja meie täidame üksikasjad
+- Nimekirjad avalikud, sõpradele või privaatsed
+- Salajane kingituste broneerimine sõprade nimekirjades
+- Salajase jõuluvana grupp automaatse loosimisega
+- Sõprade nimekirjad ja tulevased tähtpäevad

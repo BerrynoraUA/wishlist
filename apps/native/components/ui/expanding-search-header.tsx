@@ -68,10 +68,12 @@ export function ExpandingSearchHeader({
     opacity: searchProgress.value,
   }));
 
+  // Logical `start`/`end` (Yoga mirrors them under RTL) to stay consistent with
+  // the search widget's `start-0`/`end-0` class below.
   const tabsPositionStyle =
     searchSide === "left"
-      ? { left: SEARCH_COLLAPSED_WIDTH + SEARCH_TABS_GAP, right: 0 }
-      : { left: 0, right: SEARCH_COLLAPSED_WIDTH + SEARCH_TABS_GAP };
+      ? { start: SEARCH_COLLAPSED_WIDTH + SEARCH_TABS_GAP, end: 0 }
+      : { start: 0, end: SEARCH_COLLAPSED_WIDTH + SEARCH_TABS_GAP };
 
   return (
     <View className="relative h-11" style={{ width: contentWidth }}>
@@ -83,7 +85,7 @@ export function ExpandingSearchHeader({
       <Animated.View
         className={cn(
           "absolute top-0 z-10 h-11 overflow-hidden rounded-full border",
-          searchSide === "left" ? "left-0" : "right-0",
+          searchSide === "left" ? "start-0" : "end-0",
           HAS_LIQUID_GLASS
             ? "border-transparent bg-transparent"
             : "border-border-subtle bg-card-bg shadow-sm",

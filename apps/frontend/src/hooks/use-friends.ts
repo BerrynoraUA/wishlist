@@ -10,6 +10,9 @@ import {
   getFriends,
   checkFriendship,
   removeFriend,
+  blockUser,
+  unblockUser,
+  getBlockedUsers,
   searchProfilesByNickname,
   getFriendsWithoutWishlistAccess,
   getWishlistAccessList,
@@ -37,6 +40,7 @@ export const friendKeys = {
   search: (query: string, params?: PaginationParams) =>
     [...friendKeys.all, "search", query, params] as const,
   groups: () => [...friendKeys.all, "groups"] as const,
+  blocked: (params?: PaginationParams) => [...friendKeys.all, "blocked", params] as const,
   groupList: (params?: PaginationParams) => [...friendKeys.groups(), params] as const,
   groupMembers: (groupId?: string) => [...friendKeys.groups(), "members", groupId] as const,
 };
@@ -193,6 +197,49 @@ export function useRemoveFriend() {
     },
     onError: (err) => {
       toast.error(err.message || "Failed to remove friend");
+    },
+  });
+}
+
+export function useBlockedUsers(params?: PaginationParams) {
+  const normalized = params
+    ? { ...params, search: normalizeSearchQuery(params.search ?? "") || undefined }
+    : undefined;
+
+  return useQuery({
+    queryKey: friendKeys.blocked(normalized),
+    queryFn: () => getBlockedUsers(normalized),
+  });
+}
+
+export function useBlockUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userId: string) => blockUser(userId),
+    onSuccess: () => {
+      // The block drops the friendship and any pending request, so every
+      // friends list can be stale afterwards.
+      queryClient.invalidateQueries({ queryKey: friendKeys.all });
+      toast.success("User blocked");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to block user");
+    },
+  });
+}
+
+export function useUnblockUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userId: string) => unblockUser(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: friendKeys.all });
+      toast.success("User unblocked");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to unblock user");
     },
   });
 }

@@ -1,4 +1,4 @@
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -34,14 +34,16 @@ export function WishlistItemDeleteSheet({
   }
 
   return (
-    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={() => onOpenChange(false)}>
-      <View className="gap-4 px-5 pb-5 pt-5">
-        <View className="gap-2">
-          <Text className="text-lg font-extrabold text-text">{t("Delete Item")}</Text>
-          <Text className="text-sm text-text-muted">
-            {t("Are you sure you want to delete this item? This action cannot be undone.")}
-          </Text>
-        </View>
+    <BottomSheet
+      ref={sheetRef}
+      detents={["auto"]}
+      onDidDismiss={() => onOpenChange(false)}
+      header={<BottomSheetHeader title={t("Delete Item")} />}
+    >
+      <View className="gap-4 px-5">
+        <Text className="text-sm text-text-muted">
+          {t("Are you sure you want to delete this item? This action cannot be undone.")}
+        </Text>
 
         {mutation.error ? (
           <Text className="text-sm font-semibold text-destructive">{mutation.error.message}</Text>

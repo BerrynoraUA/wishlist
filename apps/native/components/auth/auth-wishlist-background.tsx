@@ -11,7 +11,7 @@ type SkeletonConfig = {
 
 const SKELETONS: Record<AuthBackgroundVariant, readonly SkeletonConfig[]> = {
   "sign-in": [
-    { className: "-left-10 top-16 rotate-[-10deg] opacity-55" },
+    { className: "-start-10 top-16 rotate-[-10deg] opacity-55" },
     { className: "right-[-84px] bottom-24 rotate-10 opacity-42", compact: true },
   ],
   email: [

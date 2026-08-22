@@ -8,6 +8,7 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { GuideTarget } from "@/components/user-guide/guide-target";
@@ -25,6 +26,7 @@ import {
   Calendar,
   ChevronDown,
   KeyRound,
+  Lock,
   MoreHorizontal,
   Pencil,
   Share2,
@@ -48,6 +50,7 @@ export function WishlistItemHeader({
   onDelete,
   onShare,
   onManageAccess,
+  manageAccessLocked = false,
   topInset = 0,
 }: {
   wishlist: Wishlist;
@@ -56,6 +59,7 @@ export function WishlistItemHeader({
   onDelete?: () => void;
   onShare?: () => void;
   onManageAccess?: () => void;
+  manageAccessLocked?: boolean;
   topInset?: number;
 }) {
   const t = useGT();
@@ -82,7 +86,7 @@ export function WishlistItemHeader({
   const hasActionsMenu = Boolean((isOwner && onManageAccess) || onEdit || onDelete);
   const headerActionsCount = Number(Boolean(onShare)) + Number(hasActionsMenu);
   const headerActionsRightPadding =
-    headerActionsCount >= 3 ? "pr-32" : headerActionsCount === 2 ? "pr-20" : "pr-12";
+    headerActionsCount >= 3 ? "pe-32" : headerActionsCount === 2 ? "pe-20" : "pe-12";
   React.useEffect(() => {
     if (!editingTitle && optimisticTitleRef.current === null) {
       setValue("title", wishlist.title);
@@ -238,8 +242,14 @@ export function WishlistItemHeader({
       <DropdownMenuContent className="min-w-48">
         {isOwner && onManageAccess ? (
           <DropdownMenuItem onPress={onManageAccess}>
-            <Icon as={KeyRound} className="size-4 text-popover-foreground" />
+            <Icon
+              as={manageAccessLocked ? Lock : KeyRound}
+              className="size-4 text-popover-foreground"
+            />
             <Text>{t("Manage access")}</Text>
+            {manageAccessLocked ? (
+              <Text className="ms-auto text-xs font-bold text-brand">{t("Pro")}</Text>
+            ) : null}
           </DropdownMenuItem>
         ) : null}
         {onEdit ? (
@@ -263,13 +273,15 @@ export function WishlistItemHeader({
 
   return (
     <>
-      <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
-        <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
-        <View className="absolute inset-0 bg-black/20" />
+      <View className="w-full self-stretch border-b border-border-subtle">
+        <ScreenTopBackdrop>
+          <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
+          <View className="absolute inset-0 bg-black/20" />
+        </ScreenTopBackdrop>
         <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
           {hasButtonsRow || hasActionsMenu ? (
             <View
-              className="absolute right-4 z-10 flex-row items-center justify-end gap-2"
+              className="absolute end-4 z-10 flex-row items-center justify-end gap-2"
               style={{ top: topInset + 8 }}
             >
               {onShare ? (
@@ -333,11 +345,7 @@ export function WishlistItemHeader({
               </View>
             )}
 
-            <DatePicker
-              value={eventDate}
-              onChange={updateEventDate}
-              iosContainerClassName="overflow-hidden rounded-xl border border-border-subtle bg-card-bg"
-            >
+            <DatePicker value={eventDate} onChange={updateEventDate}>
               {({ displayValue, openPicker }) => (
                 <View className="w-full flex-row items-center gap-2">
                   {canInlineEdit ? (
@@ -376,12 +384,12 @@ export function WishlistItemHeader({
 
                   {eventDate || canInlineEdit ? (
                     eventDate && canInlineEdit ? (
-                      <View className="h-9 flex-1 flex-row items-center rounded-full border border-white/35 bg-white/25 pl-3 pr-1">
+                      <View className="h-9 flex-1 flex-row items-center rounded-full border border-white/35 bg-white/25 ps-3 pe-1">
                         <AnimatedPressable
                           accessibilityRole="button"
                           accessibilityLabel={t("Wishlist event date")}
                           onPress={openPicker}
-                          className="h-9 flex-1 flex-row items-center justify-center gap-1.5 pr-2"
+                          className="h-9 flex-1 flex-row items-center justify-center gap-1.5 pe-2"
                         >
                           <Icon as={Calendar} className="size-3.5 text-white" />
                           <Text className="text-xs font-bold text-white" numberOfLines={1}>

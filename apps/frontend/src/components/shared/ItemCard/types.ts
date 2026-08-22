@@ -11,7 +11,6 @@ export type ItemCardData = {
   shareUrl: string | null;
   description: string | null;
   priority: ItemCardPriority;
-  colorIndex: number | null;
   discountPrice: string | number | null;
   discountEndDate: string | null;
   currency: string | null;
@@ -25,6 +24,8 @@ export type ItemCardProps = ItemCardData & {
   variant?: "discover" | "reserved" | "wishlist";
   showDiscountBadge?: boolean;
   isOwner?: boolean;
+  /** Pro opt-in: let the owner see reservations on their own wishlist. */
+  showOwnerReservation?: boolean;
   reservedByCurrentUser?: boolean;
   mode?: "reserved" | "purchased";
   onToggleReserve?: (id: string) => void;

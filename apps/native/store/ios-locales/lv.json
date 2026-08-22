@@ -1,0 +1,10 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Atļaujiet Wishlane izvēlēties profila attēlu no jūsu bibliotēkas.",
+    "NSFaceIDUsageDescription": "Atļaujiet Wishlane droši pārslēgties starp saglabātajiem kontiem."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
+}

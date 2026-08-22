@@ -1,0 +1,2554 @@
+[
+  {
+    "id": "action.purchase.body",
+    "en": "This will mark this gift as purchased by you."
+  },
+  {
+    "id": "action.purchase.bodyWithName",
+    "en": "This will mark {itemName} as purchased by you."
+  },
+  {
+    "id": "action.purchase.confirm",
+    "en": "Mark purchased"
+  },
+  {
+    "id": "action.reserve.body",
+    "en": "This will reserve this gift for you so other people know it is already taken."
+  },
+  {
+    "id": "action.reserve.bodyWithName",
+    "en": "This will reserve {itemName} for you so other people know it is already taken."
+  },
+  {
+    "id": "action.unpurchase.body",
+    "en": "This will remove the purchased status from this gift."
+  },
+  {
+    "id": "action.unpurchase.bodyWithName",
+    "en": "This will remove the purchased status from {itemName}."
+  },
+  {
+    "id": "action.unpurchase.confirm",
+    "en": "Remove status"
+  },
+  {
+    "id": "action.unpurchase.title",
+    "en": "Remove purchased status?"
+  },
+  {
+    "id": "action.unreserve.body",
+    "en": "This will remove your reservation and make the gift available again."
+  },
+  {
+    "id": "action.unreserve.bodyWithName",
+    "en": "This will remove your reservation from {itemName} and make it available again."
+  },
+  {
+    "id": "banner.mobileComingSoon",
+    "en": "Mobile App Coming Soon"
+  },
+  {
+    "id": "bugs.filter.nav",
+    "en": "Bug status filters"
+  },
+  {
+    "id": "bugs.modal.removeScreenshot",
+    "en": "Remove screenshot"
+  },
+  {
+    "id": "bugs.modal.screenshotLabel",
+    "en": "Screenshot (optional)"
+  },
+  {
+    "id": "bugs.page.screenshotAlt",
+    "en": "Screenshot for {title}"
+  },
+  {
+    "id": "calendar.action.today",
+    "en": "Today"
+  },
+  {
+    "id": "calendar.aria.chooseMonth",
+    "en": "Choose month"
+  },
+  {
+    "id": "calendar.aria.chooseYear",
+    "en": "Choose the year"
+  },
+  {
+    "id": "calendar.aria.closePicker",
+    "en": "Close calendar selector"
+  },
+  {
+    "id": "calendar.chooseMonth",
+    "en": "Choose month"
+  },
+  {
+    "id": "calendar.chooseYear",
+    "en": "Choose the year"
+  },
+  {
+    "id": "calendar.listbox.month",
+    "en": "Choose month"
+  },
+  {
+    "id": "calendar.listbox.year",
+    "en": "Choose the year"
+  },
+  {
+    "id": "calendar.month.april",
+    "en": "April"
+  },
+  {
+    "id": "calendar.month.august",
+    "en": "August"
+  },
+  {
+    "id": "calendar.month.december",
+    "en": "December"
+  },
+  {
+    "id": "calendar.month.february",
+    "en": "February"
+  },
+  {
+    "id": "calendar.month.january",
+    "en": "January"
+  },
+  {
+    "id": "calendar.month.july",
+    "en": "July"
+  },
+  {
+    "id": "calendar.month.june",
+    "en": "June"
+  },
+  {
+    "id": "calendar.month.march",
+    "en": "March"
+  },
+  {
+    "id": "calendar.month.may",
+    "en": "May"
+  },
+  {
+    "id": "calendar.month.november",
+    "en": "November"
+  },
+  {
+    "id": "calendar.month.october",
+    "en": "October"
+  },
+  {
+    "id": "calendar.month.september",
+    "en": "September"
+  },
+  {
+    "id": "calendar.weekday.fr",
+    "en": "Fr"
+  },
+  {
+    "id": "calendar.weekday.mo",
+    "en": "Mo"
+  },
+  {
+    "id": "calendar.weekday.sa",
+    "en": "Sa"
+  },
+  {
+    "id": "calendar.weekday.su",
+    "en": "Su"
+  },
+  {
+    "id": "calendar.weekday.th",
+    "en": "Th"
+  },
+  {
+    "id": "calendar.weekday.tu",
+    "en": "Tu"
+  },
+  {
+    "id": "calendar.weekday.we",
+    "en": "We"
+  },
+  {
+    "id": "common.pleaseWait",
+    "en": "Please wait..."
+  },
+  {
+    "id": "common.proBadge",
+    "en": "PRO"
+  },
+  {
+    "id": "confirm.delete.description",
+    "en": "Are you sure? This action cannot be undone."
+  },
+  {
+    "id": "datePicker.closeAria",
+    "en": "Close calendar"
+  },
+  {
+    "id": "discover.calendar.eventCountOne",
+    "en": "{n} event"
+  },
+  {
+    "id": "discover.calendar.eventCountOther",
+    "en": "{n} events"
+  },
+  {
+    "id": "discover.calendar.exportAria",
+    "en": "Export to calendar"
+  },
+  {
+    "id": "discover.calendar.exportTooltip",
+    "en": "Export to calendar"
+  },
+  {
+    "id": "discover.calendar.title",
+    "en": "Events Calendar"
+  },
+  {
+    "id": "discover.filter.search",
+    "en": "Search..."
+  },
+  {
+    "id": "discover.filters.allWishlists",
+    "en": "All Wishlists"
+  },
+  {
+    "id": "discover.grid.forOwner",
+    "en": "For {ownerName}"
+  },
+  {
+    "id": "discover.grid.purchasedFor",
+    "en": "Purchased for {ownerName}"
+  },
+  {
+    "id": "discover.header.subtitle",
+    "en": "Browse your friends' wishlists and find the perfect gifts."
+  },
+  {
+    "id": "discover.page.emptyAvailable",
+    "en": "No available wishlists to discover."
+  },
+  {
+    "id": "discover.page.emptyPurchased",
+    "en": "No purchased items yet."
+  },
+  {
+    "id": "discover.page.emptyReserved",
+    "en": "No reserved items yet."
+  },
+  {
+    "id": "discover.page.emptyWishlists",
+    "en": "No wishlists to discover."
+  },
+  {
+    "id": "discover.section.scrollLeft",
+    "en": "Scroll gifts left"
+  },
+  {
+    "id": "discover.section.scrollRight",
+    "en": "Scroll gifts right"
+  },
+  {
+    "id": "discover.section.viewAll",
+    "en": "View all {count}"
+  },
+  {
+    "id": "discover.section.viewAllParen",
+    "en": "View all ({count})"
+  },
+  {
+    "id": "discover.upcoming.calendarAria",
+    "en": "Open events calendar"
+  },
+  {
+    "id": "discover.upcoming.calendarTooltip",
+    "en": "Open events calendar"
+  },
+  {
+    "id": "discover.upcoming.headlinePrefix",
+    "en": "{friendName}'s"
+  },
+  {
+    "id": "discover.upcoming.headlineSuffix",
+    "en": "is {when}"
+  },
+  {
+    "id": "discover.upcoming.inDays",
+    "en": "in {days} days"
+  },
+  {
+    "id": "discover.upcoming.today",
+    "en": "today"
+  },
+  {
+    "id": "discover.upcoming.tomorrow",
+    "en": "tomorrow"
+  },
+  {
+    "id": "draft.badge",
+    "en": "Draft"
+  },
+  {
+    "id": "draft.createItem.restored",
+    "en": "Draft restored for this item."
+  },
+  {
+    "id": "draft.createItem.saved",
+    "en": "Draft is saved for this item."
+  },
+  {
+    "id": "draft.createWishlist.restored",
+    "en": "Draft restored for this wishlist."
+  },
+  {
+    "id": "draft.createWishlist.saved",
+    "en": "Draft is saved for this wishlist."
+  },
+  {
+    "id": "draft.discard",
+    "en": "Discard"
+  },
+  {
+    "id": "draft.discardAction",
+    "en": "Discard draft"
+  },
+  {
+    "id": "draft.editItem.restored",
+    "en": "Draft restored for this item."
+  },
+  {
+    "id": "draft.editItem.saved",
+    "en": "Draft is saved for this item."
+  },
+  {
+    "id": "draft.editWishlist.restored",
+    "en": "Draft restored for this wishlist."
+  },
+  {
+    "id": "draft.editWishlist.saved",
+    "en": "Draft is saved for this wishlist."
+  },
+  {
+    "id": "draft.localImageReupload",
+    "en": "Local image needs to be added again."
+  },
+  {
+    "id": "draft.secretSanta.restored",
+    "en": "Draft restored for this event."
+  },
+  {
+    "id": "filter.access",
+    "en": "Access"
+  },
+  {
+    "id": "filter.clearAll",
+    "en": "Clear all"
+  },
+  {
+    "id": "friends.addModal.closeAria",
+    "en": "Close invite friends modal"
+  },
+  {
+    "id": "friends.addModal.copied",
+    "en": "Copied to clipboard"
+  },
+  {
+    "id": "friends.addModal.loadMore",
+    "en": "Load more"
+  },
+  {
+    "id": "friends.addModal.orSearch",
+    "en": "OR SEARCH"
+  },
+  {
+    "id": "friends.addModal.removeBadgeAria",
+    "en": "Remove from invite list"
+  },
+  {
+    "id": "friends.addModal.removeBadgeTooltip",
+    "en": "Remove from invite list"
+  },
+  {
+    "id": "friends.addModal.searchError",
+    "en": "Could not search right now. Try again."
+  },
+  {
+    "id": "friends.addModal.subtitle",
+    "en": "Share your personal invite link or look up a friend by handle."
+  },
+  {
+    "id": "friends.groups.loadError",
+    "en": "Failed to load groups."
+  },
+  {
+    "id": "friends.groups.modal.editTitle",
+    "en": "Edit group"
+  },
+  {
+    "id": "friends.groups.modal.loadingMembers",
+    "en": "Loading members..."
+  },
+  {
+    "id": "friends.groups.modal.namePlaceholder",
+    "en": "Family, coworkers, close friends"
+  },
+  {
+    "id": "friends.groups.modal.subtitle",
+    "en": "Group your friends for faster wishlist sharing."
+  },
+  {
+    "id": "friends.header.invite",
+    "en": "Invite Friends"
+  },
+  {
+    "id": "friends.header.subtitle",
+    "en": "Connect with friends and discover their wishlists."
+  },
+  {
+    "id": "friends.inviteModal.backToFriends",
+    "en": "Back to friends"
+  },
+  {
+    "id": "friends.inviteModal.checkErrorFallback",
+    "en": "Could not check friendship status."
+  },
+  {
+    "id": "friends.inviteModal.checkErrorTitle",
+    "en": "Couldn't check invite"
+  },
+  {
+    "id": "friends.inviteModal.checkingDesc",
+    "en": "This may take a few seconds."
+  },
+  {
+    "id": "friends.inviteModal.checkingTitle",
+    "en": "Checking invite..."
+  },
+  {
+    "id": "friends.inviteModal.errorFallbackDesc",
+    "en": "Try again in a moment."
+  },
+  {
+    "id": "friends.inviteModal.errorTitle",
+    "en": "Couldn't send request"
+  },
+  {
+    "id": "friends.inviteModal.eyebrow",
+    "en": "Friend request"
+  },
+  {
+    "id": "friends.inviteModal.friendsDesc",
+    "en": "This person is already in your friends list."
+  },
+  {
+    "id": "friends.inviteModal.friendsTitle",
+    "en": "You're already friends!"
+  },
+  {
+    "id": "friends.inviteModal.missingDesc",
+    "en": "Invite link is missing a user identifier."
+  },
+  {
+    "id": "friends.inviteModal.missingTitle",
+    "en": "Missing userId"
+  },
+  {
+    "id": "friends.inviteModal.readyDesc",
+    "en": "Send a friend request to connect with this person."
+  },
+  {
+    "id": "friends.inviteModal.readyTitle",
+    "en": "Send friend request?"
+  },
+  {
+    "id": "friends.inviteModal.selfDesc",
+    "en": "You can't send a friend request to yourself."
+  },
+  {
+    "id": "friends.inviteModal.selfTitle",
+    "en": "That's you"
+  },
+  {
+    "id": "friends.inviteModal.sendErrorFallback",
+    "en": "Could not send request."
+  },
+  {
+    "id": "friends.inviteModal.sendRequest",
+    "en": "Send request"
+  },
+  {
+    "id": "friends.inviteModal.sending",
+    "en": "Sending..."
+  },
+  {
+    "id": "friends.inviteModal.sentDesc",
+    "en": "We'll notify you when they accept your invite."
+  },
+  {
+    "id": "friends.inviteModal.sentTitle",
+    "en": "Request sent"
+  },
+  {
+    "id": "friends.inviteModal.unauthDesc",
+    "en": "Please sign in to send a friend request."
+  },
+  {
+    "id": "friends.inviteModal.unauthTitle",
+    "en": "Sign in required"
+  },
+  {
+    "id": "friends.page.requestsError",
+    "en": "Failed to load requests."
+  },
+  {
+    "id": "friends.page.sentError",
+    "en": "Failed to load sent requests."
+  },
+  {
+    "id": "friends.tabs.requestsShort",
+    "en": "Req."
+  },
+  {
+    "id": "home.dashboard.greeting",
+    "en": "Good afternoon, {name}"
+  },
+  {
+    "id": "home.dashboard.greeting.fallbackName",
+    "en": "there"
+  },
+  {
+    "id": "home.dashboard.subtitle",
+    "en": "Manage your wishlists and discover what your friends are wishing for."
+  },
+  {
+    "id": "home.dashboard.upgradeToAdd",
+    "en": "Upgrade to Add"
+  },
+  {
+    "id": "home.dashboard.wishlistLimit",
+    "en": "{current}/{max} wishlists"
+  },
+  {
+    "id": "home.stats.aria.openInDiscover",
+    "en": "Open {label} in discover"
+  },
+  {
+    "id": "ideas.filter.nav",
+    "en": "Ideas status filters"
+  },
+  {
+    "id": "ideas.page.infoBanner",
+    "en": "This is where you can share your feature ideas for this app. Other users can vote on them. If an idea gets enough support — we'll build it as soon as possible!"
+  },
+  {
+    "id": "item.modal.additionalLinkPlaceholder",
+    "en": "Additional link URL"
+  },
+  {
+    "id": "item.modal.colorLabelShort",
+    "en": "Card Color"
+  },
+  {
+    "id": "item.modal.colorNone",
+    "en": "No color"
+  },
+  {
+    "id": "item.modal.colorStar",
+    "en": "Star"
+  },
+  {
+    "id": "item.modal.create.imageLabel",
+    "en": "Image (drag & drop or click)"
+  },
+  {
+    "id": "item.modal.create.subtitle",
+    "en": "Add a product to this wishlist."
+  },
+  {
+    "id": "item.modal.previewAlt",
+    "en": "Preview"
+  },
+  {
+    "id": "item.modal.priceLabel",
+    "en": "Price (optional)"
+  },
+  {
+    "id": "item.modal.proMultipleLinks",
+    "en": "Pro: Add multiple links"
+  },
+  {
+    "id": "item.modal.removeLinkAria",
+    "en": "Remove link"
+  },
+  {
+    "id": "item.modal.scrapeError",
+    "en": "Error loading product"
+  },
+  {
+    "id": "itemCard.menuAria",
+    "en": "Open item menu"
+  },
+  {
+    "id": "itemCard.moreOptions",
+    "en": "More options"
+  },
+  {
+    "id": "itemCard.noImage",
+    "en": "No image"
+  },
+  {
+    "id": "itemCard.openProduct",
+    "en": "Open product link"
+  },
+  {
+    "id": "items.tabs.addLink",
+    "en": "Add Link"
+  },
+  {
+    "id": "items.tabs.preview",
+    "en": "Preview"
+  },
+  {
+    "id": "landing.cta.button",
+    "en": "Create Your First Wishlist"
+  },
+  {
+    "id": "landing.cta.note",
+    "en": "Free forever - No credit card needed - Set up in 30 seconds"
+  },
+  {
+    "id": "landing.cta.subtitle",
+    "en": "Join thousands of people who've already simplified their gifting with Wishlane. It's free, it's beautiful, and it just works."
+  },
+  {
+    "id": "landing.cta.titleEmphasis",
+    "en": "magical"
+  },
+  {
+    "id": "landing.cta.titlePart1",
+    "en": "Ready to make gifting"
+  },
+  {
+    "id": "landing.demo.reserve.item1.name",
+    "en": "Sony WH-1000XM5"
+  },
+  {
+    "id": "landing.demo.reserve.item2.name",
+    "en": "Atomic Habits"
+  },
+  {
+    "id": "landing.discover.card1.title",
+    "en": "Air Jordan 1 Retro"
+  },
+  {
+    "id": "landing.discover.card2.title",
+    "en": "PS5 DualSense Controller"
+  },
+  {
+    "id": "landing.discover.card3.title",
+    "en": "Baies Scented Candle"
+  },
+  {
+    "id": "landing.discover.countdown",
+    "en": "{count} days"
+  },
+  {
+    "id": "landing.discover.eventName",
+    "en": "Alex's Birthday"
+  },
+  {
+    "id": "landing.discover.isIn",
+    "en": "is in"
+  },
+  {
+    "id": "landing.discover.subtitle",
+    "en": "Explore your friends' wishlists, see upcoming events, and never show up empty-handed."
+  },
+  {
+    "id": "landing.discover.titleEmphasis",
+    "en": "perfect gift"
+  },
+  {
+    "id": "landing.discover.titlePart1",
+    "en": "Find the"
+  },
+  {
+    "id": "landing.discover.titlePart2",
+    "en": ", every time"
+  },
+  {
+    "id": "landing.discover.viewWishlist",
+    "en": "View Wishlist"
+  },
+  {
+    "id": "landing.features.badge",
+    "en": "Features"
+  },
+  {
+    "id": "landing.features.card1.desc",
+    "en": "Create stunning wishlists with custom colors, descriptions, and event dates. Choose from five accent colors to make each list unique."
+  },
+  {
+    "id": "landing.features.card1.title",
+    "en": "Beautiful Wishlists"
+  },
+  {
+    "id": "landing.features.card2.desc",
+    "en": "Paste any product URL and Wishlane auto-fills the title, description, image, and price."
+  },
+  {
+    "id": "landing.features.card2.title",
+    "en": "Smart Link Scraping"
+  },
+  {
+    "id": "landing.features.card3.desc",
+    "en": "Connect with friends via invite links or username search. Share wishlists publicly, with friends only, or keep them private."
+  },
+  {
+    "id": "landing.features.card3.title",
+    "en": "Friends & Sharing"
+  },
+  {
+    "id": "landing.features.card4.desc",
+    "en": "Reserve items on friends' wishlists so nobody buys the same gift. Only you can see your reservations."
+  },
+  {
+    "id": "landing.features.card4.title",
+    "en": "Gift Reservations"
+  },
+  {
+    "id": "landing.features.card5.desc",
+    "en": "Get notified when friends add wishlists, send requests, or reserve an item."
+  },
+  {
+    "id": "landing.features.card5.title",
+    "en": "Real-Time Notifications"
+  },
+  {
+    "id": "landing.features.card6.desc",
+    "en": "Browse friends' public wishlists, see upcoming events with countdowns, and find the right gift."
+  },
+  {
+    "id": "landing.features.card6.title",
+    "en": "Discover & Explore"
+  },
+  {
+    "id": "landing.features.subtitle",
+    "en": "From creating wishlists to discovering what your friends want - Wishlane handles every part of the gifting journey."
+  },
+  {
+    "id": "landing.features.titleEmphasis",
+    "en": "perfect"
+  },
+  {
+    "id": "landing.features.titlePart1",
+    "en": "Everything you need for"
+  },
+  {
+    "id": "landing.features.titlePart2",
+    "en": "gifting"
+  },
+  {
+    "id": "landing.footer.col.legal",
+    "en": "Legal"
+  },
+  {
+    "id": "landing.footer.col.product",
+    "en": "Product"
+  },
+  {
+    "id": "landing.footer.copyright",
+    "en": "Copyright {year} Wishlane. All rights reserved."
+  },
+  {
+    "id": "landing.footer.link.features",
+    "en": "Features"
+  },
+  {
+    "id": "landing.footer.link.howItWorks",
+    "en": "How It Works"
+  },
+  {
+    "id": "landing.footer.tagline",
+    "en": "Wishlists, shared beautifully."
+  },
+  {
+    "id": "landing.hero.badge",
+    "en": "Gifting, reimagined"
+  },
+  {
+    "id": "landing.hero.ctaPrimary",
+    "en": "Start Your First Wishlist"
+  },
+  {
+    "id": "landing.hero.ctaSecondary",
+    "en": "See How It Works"
+  },
+  {
+    "id": "landing.hero.mockup.floatReserved",
+    "en": "Item reserved!"
+  },
+  {
+    "id": "landing.hero.mockup.floatShared",
+    "en": "Link shared"
+  },
+  {
+    "id": "landing.hero.mockup.item1.name",
+    "en": "Wireless Headphones"
+  },
+  {
+    "id": "landing.hero.mockup.item2.name",
+    "en": "Design Anthology Book"
+  },
+  {
+    "id": "landing.hero.mockup.item3.name",
+    "en": "Ceramic Pour-Over Set"
+  },
+  {
+    "id": "landing.hero.mockup.meta",
+    "en": "{count} items - {date}"
+  },
+  {
+    "id": "landing.hero.mockup.title",
+    "en": "Birthday Wishes"
+  },
+  {
+    "id": "landing.hero.note",
+    "en": "Free forever - No credit card required"
+  },
+  {
+    "id": "landing.hero.subtitle",
+    "en": "Create stunning wishlists, share them with friends and family, and never miss the perfect gift again. Wishlane makes every occasion unforgettable."
+  },
+  {
+    "id": "landing.hero.titleEmphasis",
+    "en": "beautifully"
+  },
+  {
+    "id": "landing.hero.titleLine1",
+    "en": "Wishlists,"
+  },
+  {
+    "id": "landing.hero.titleShared",
+    "en": "shared"
+  },
+  {
+    "id": "landing.how.badge",
+    "en": "How It Works"
+  },
+  {
+    "id": "landing.how.step1.demoLabel",
+    "en": "Wishlist Name"
+  },
+  {
+    "id": "landing.how.step1.demoValue",
+    "en": "Christmas 2026"
+  },
+  {
+    "id": "landing.how.step1.desc",
+    "en": "Name it, pick a color, set an event date, and choose who can see it. Add items by pasting links and Wishlane fills the details."
+  },
+  {
+    "id": "landing.how.step1.title",
+    "en": "Create Your Wishlist"
+  },
+  {
+    "id": "landing.how.step2.copied",
+    "en": "Copied!"
+  },
+  {
+    "id": "landing.how.step2.desc",
+    "en": "Invite friends by sharing your unique link or searching their username. They will see your wishlists and you will see theirs."
+  },
+  {
+    "id": "landing.how.step2.friend1.name",
+    "en": "Alex Chen"
+  },
+  {
+    "id": "landing.how.step2.friend2.name",
+    "en": "Maya Patel"
+  },
+  {
+    "id": "landing.how.step2.title",
+    "en": "Share With Friends"
+  },
+  {
+    "id": "landing.how.step3.desc",
+    "en": "Browse friends' wishlists and reserve items secretly. No duplicate gifts and no ruined surprises."
+  },
+  {
+    "id": "landing.how.step3.title",
+    "en": "Reserve & Surprise"
+  },
+  {
+    "id": "landing.how.subtitle",
+    "en": "Getting started with Wishlane is as easy as making a wish."
+  },
+  {
+    "id": "landing.how.titleEmphasis",
+    "en": "gifting joy"
+  },
+  {
+    "id": "landing.how.titlePart1",
+    "en": "Three steps to"
+  },
+  {
+    "id": "landing.mobile.features",
+    "en": "Features"
+  },
+  {
+    "id": "landing.mobile.getStartedFree",
+    "en": "Get Started Free"
+  },
+  {
+    "id": "landing.mobile.howItWorks",
+    "en": "How It Works"
+  },
+  {
+    "id": "landing.mobile.logIn",
+    "en": "Log In"
+  },
+  {
+    "id": "landing.mobile.testimonials",
+    "en": "Testimonials"
+  },
+  {
+    "id": "landing.nav.features",
+    "en": "Features"
+  },
+  {
+    "id": "landing.nav.getStartedFree",
+    "en": "Get Started Free"
+  },
+  {
+    "id": "landing.nav.howItWorks",
+    "en": "How It Works"
+  },
+  {
+    "id": "landing.nav.logIn",
+    "en": "Log In"
+  },
+  {
+    "id": "landing.nav.openMenu.aria",
+    "en": "Open menu"
+  },
+  {
+    "id": "landing.nav.openMenu.tooltip",
+    "en": "Open menu"
+  },
+  {
+    "id": "landing.nav.testimonials",
+    "en": "Testimonials"
+  },
+  {
+    "id": "landing.stats.giftsTracked",
+    "en": "Gifts Tracked"
+  },
+  {
+    "id": "landing.stats.happyGiftGivers",
+    "en": "Happy Gift-Givers"
+  },
+  {
+    "id": "landing.stats.itemsReserved",
+    "en": "Items Reserved"
+  },
+  {
+    "id": "landing.stats.wishlistsCreated",
+    "en": "Wishlists Created"
+  },
+  {
+    "id": "landing.testimonials.author1.name",
+    "en": "Sarah Johnson"
+  },
+  {
+    "id": "landing.testimonials.author1.role",
+    "en": "Mom of 3"
+  },
+  {
+    "id": "landing.testimonials.author2.name",
+    "en": "Jake Rivera"
+  },
+  {
+    "id": "landing.testimonials.author2.role",
+    "en": "Tech Enthusiast"
+  },
+  {
+    "id": "landing.testimonials.author3.name",
+    "en": "Emma Nakamura"
+  },
+  {
+    "id": "landing.testimonials.author3.role",
+    "en": "Gift Connoisseur"
+  },
+  {
+    "id": "landing.testimonials.badge",
+    "en": "Testimonials"
+  },
+  {
+    "id": "landing.testimonials.quote1",
+    "en": "Wishlane changed how our family does holidays. No more duplicate gifts and everyone knows what to get."
+  },
+  {
+    "id": "landing.testimonials.quote2",
+    "en": "The link scraping feature is magic. I paste an Amazon link and everything fills in automatically."
+  },
+  {
+    "id": "landing.testimonials.quote3",
+    "en": "I love the reservation system. I can claim a gift and nobody else sees it, so surprises stay intact."
+  },
+  {
+    "id": "landing.testimonials.titleEmphasis",
+    "en": "gift-givers"
+  },
+  {
+    "id": "landing.testimonials.titlePart1",
+    "en": "Loved by"
+  },
+  {
+    "id": "landing.testimonials.titlePart2",
+    "en": "everywhere"
+  },
+  {
+    "id": "login.form.badge",
+    "en": "✨ Welcome back"
+  },
+  {
+    "id": "login.form.divider.or",
+    "en": "or"
+  },
+  {
+    "id": "login.form.placeholder.password",
+    "en": "••••••••"
+  },
+  {
+    "id": "login.form.submit.creatingAccount",
+    "en": "Creating account..."
+  },
+  {
+    "id": "login.form.submit.signIn",
+    "en": "Sign in"
+  },
+  {
+    "id": "login.form.submit.signingIn",
+    "en": "Signing in..."
+  },
+  {
+    "id": "login.form.subtitle",
+    "en": "Enter your credentials to continue where you left off."
+  },
+  {
+    "id": "login.form.title",
+    "en": "Sign in to your account"
+  },
+  {
+    "id": "login.mockup.float1",
+    "en": "Item reserved!"
+  },
+  {
+    "id": "login.mockup.float2",
+    "en": "Link shared"
+  },
+  {
+    "id": "login.mockup.item1",
+    "en": "Wireless Headphones"
+  },
+  {
+    "id": "login.mockup.item2",
+    "en": "Design Anthology"
+  },
+  {
+    "id": "login.mockup.item3",
+    "en": "Ceramic Pour-Over"
+  },
+  {
+    "id": "login.mockup.meta",
+    "en": "{count} items · {date}"
+  },
+  {
+    "id": "login.mockup.title",
+    "en": "Birthday Wishes 🎂"
+  },
+  {
+    "id": "login.tabs.login",
+    "en": "Login"
+  },
+  {
+    "id": "login.tabs.register",
+    "en": "Register"
+  },
+  {
+    "id": "login.testimonial.name.1",
+    "en": "Sarah Johnson"
+  },
+  {
+    "id": "login.testimonial.name.2",
+    "en": "Marcus Chen"
+  },
+  {
+    "id": "login.testimonial.name.3",
+    "en": "Emily Park"
+  },
+  {
+    "id": "login.testimonial.quote.1",
+    "en": "\"Wishlane completely changed how our family does holidays!\""
+  },
+  {
+    "id": "login.testimonial.quote.2",
+    "en": "\"I never forget a birthday gift anymore. This app is a lifesaver!\""
+  },
+  {
+    "id": "login.testimonial.quote.3",
+    "en": "\"Sharing wishlists with friends made group gifting so much easier.\""
+  },
+  {
+    "id": "login.testimonial.role.1",
+    "en": "Mom of 3"
+  },
+  {
+    "id": "login.testimonial.role.2",
+    "en": "Gift enthusiast"
+  },
+  {
+    "id": "login.testimonial.role.3",
+    "en": "Event planner"
+  },
+  {
+    "id": "login.visual.subtitle",
+    "en": "Sign in to manage your wishlists, see what friends are wishing for, and never miss the perfect gift."
+  },
+  {
+    "id": "login.visual.titleLine1",
+    "en": "Welcome back to"
+  },
+  {
+    "id": "nav.betaBadge",
+    "en": "BETA"
+  },
+  {
+    "id": "nav.myWishlists",
+    "en": "My Wishlists"
+  },
+  {
+    "id": "nav.secretSanta.newBadge",
+    "en": "NEW"
+  },
+  {
+    "id": "pagination.goToPage",
+    "en": "Go to page {n}"
+  },
+  {
+    "id": "pagination.navLabel",
+    "en": "Pagination"
+  },
+  {
+    "id": "pagination.next",
+    "en": "Go to next page"
+  },
+  {
+    "id": "pagination.previous",
+    "en": "Go to previous page"
+  },
+  {
+    "id": "pricing.billedYearly",
+    "en": "Billed as {amount}/year"
+  },
+  {
+    "id": "pricing.finePrint",
+    "en": "Prices in USD. Taxes may apply. Cancel anytime — your Pro benefits stay active until the end of the billing period."
+  },
+  {
+    "id": "pricing.footerPrivacy",
+    "en": "Privacy"
+  },
+  {
+    "id": "pricing.footerRefunds",
+    "en": "Refunds"
+  },
+  {
+    "id": "pricing.footerTerms",
+    "en": "Terms"
+  },
+  {
+    "id": "pricing.forever",
+    "en": "forever"
+  },
+  {
+    "id": "pricing.free.collab",
+    "en": "Collaborative wishlists"
+  },
+  {
+    "id": "pricing.free.discover",
+    "en": "Discover & explore"
+  },
+  {
+    "id": "pricing.free.friends",
+    "en": "Friends & gift reservations"
+  },
+  {
+    "id": "pricing.free.items20",
+    "en": "Up to 20 items per wishlist"
+  },
+  {
+    "id": "pricing.free.notifications",
+    "en": "Real-time notifications"
+  },
+  {
+    "id": "pricing.free.priceHistory",
+    "en": "Price tracking & history"
+  },
+  {
+    "id": "pricing.free.saleAlerts",
+    "en": "Sale price alerts"
+  },
+  {
+    "id": "pricing.free.scraping",
+    "en": "Smart link scraping"
+  },
+  {
+    "id": "pricing.free.sharing",
+    "en": "Advanced sharing (QR, PDF)"
+  },
+  {
+    "id": "pricing.free.support",
+    "en": "Priority support"
+  },
+  {
+    "id": "pricing.free.theme",
+    "en": "Dark / light theme"
+  },
+  {
+    "id": "pricing.free.wishlists5",
+    "en": "Up to 5 wishlists"
+  },
+  {
+    "id": "pricing.freeDesc",
+    "en": "Everything you need to get started with wishlists."
+  },
+  {
+    "id": "pricing.getStarted",
+    "en": "Get started"
+  },
+  {
+    "id": "pricing.mostPopular",
+    "en": "Most Popular"
+  },
+  {
+    "id": "pricing.perMonth",
+    "en": "/month"
+  },
+  {
+    "id": "pricing.pro.collab",
+    "en": "Collaborative wishlists"
+  },
+  {
+    "id": "pricing.pro.discover",
+    "en": "Discover & explore"
+  },
+  {
+    "id": "pricing.pro.friends",
+    "en": "Friends & gift reservations"
+  },
+  {
+    "id": "pricing.pro.notifications",
+    "en": "Real-time notifications"
+  },
+  {
+    "id": "pricing.pro.priceHistory",
+    "en": "Price tracking & history"
+  },
+  {
+    "id": "pricing.pro.saleAlerts",
+    "en": "Sale price alerts"
+  },
+  {
+    "id": "pricing.pro.scraping",
+    "en": "Smart link scraping"
+  },
+  {
+    "id": "pricing.pro.sharing",
+    "en": "Advanced sharing (QR, PDF)"
+  },
+  {
+    "id": "pricing.pro.support",
+    "en": "Priority support"
+  },
+  {
+    "id": "pricing.pro.theme",
+    "en": "Dark / light theme"
+  },
+  {
+    "id": "pricing.pro.unlimitedItems",
+    "en": "Unlimited items per wishlist"
+  },
+  {
+    "id": "pricing.pro.unlimitedWl",
+    "en": "Unlimited wishlists"
+  },
+  {
+    "id": "pricing.proDesc",
+    "en": "Unlock the full Wishlane experience with unlimited everything."
+  },
+  {
+    "id": "pricing.savePercent",
+    "en": "Save {percent}%"
+  },
+  {
+    "id": "pricing.signIn",
+    "en": "Sign in"
+  },
+  {
+    "id": "pricing.subtitle",
+    "en": "Start free. Upgrade to Pro when you want unlimited everything."
+  },
+  {
+    "id": "pricing.title",
+    "en": "Simple, honest pricing"
+  },
+  {
+    "id": "pricing.upgradeToPro",
+    "en": "Upgrade to Pro"
+  },
+  {
+    "id": "profile.accounts.addAria",
+    "en": "Add account"
+  },
+  {
+    "id": "profile.accounts.addLabel",
+    "en": "Add account"
+  },
+  {
+    "id": "profile.accounts.label",
+    "en": "Accounts"
+  },
+  {
+    "id": "profile.accounts.removeModalDescription",
+    "en": "Remove {name} from saved accounts on this device? You can add it again later by signing in."
+  },
+  {
+    "id": "profile.accounts.switchAria",
+    "en": "Switch to {name}"
+  },
+  {
+    "id": "profile.accounts.switching",
+    "en": "Switching…"
+  },
+  {
+    "id": "profile.avatarAlt",
+    "en": "Avatar"
+  },
+  {
+    "id": "profile.loggingOut",
+    "en": "Logging out..."
+  },
+  {
+    "id": "profile.signedIn",
+    "en": "Signed in"
+  },
+  {
+    "id": "register.form.badge",
+    "en": "✨ Get started free"
+  },
+  {
+    "id": "register.form.placeholder.confirmPassword",
+    "en": "••••••••"
+  },
+  {
+    "id": "register.form.subtitle",
+    "en": "Join thousands of happy gift-givers. Free forever, no credit card required."
+  },
+  {
+    "id": "register.mockup.float1",
+    "en": "Wishlist created!"
+  },
+  {
+    "id": "register.mockup.float2",
+    "en": "3 friends joined"
+  },
+  {
+    "id": "register.mockup.item1",
+    "en": "Cozy Wool Sweater"
+  },
+  {
+    "id": "register.mockup.item2",
+    "en": "Wireless Charger"
+  },
+  {
+    "id": "register.mockup.item3",
+    "en": "Indoor Plant Kit"
+  },
+  {
+    "id": "register.mockup.meta",
+    "en": "{count} items · {date}"
+  },
+  {
+    "id": "register.mockup.title",
+    "en": "Christmas 2026 🎄"
+  },
+  {
+    "id": "register.switch.link",
+    "en": "Sign in"
+  },
+  {
+    "id": "register.testimonial.name.1",
+    "en": "Jake Rivera"
+  },
+  {
+    "id": "register.testimonial.name.2",
+    "en": "Olivia Kim"
+  },
+  {
+    "id": "register.testimonial.name.3",
+    "en": "Daniel Müller"
+  },
+  {
+    "id": "register.testimonial.quote.1",
+    "en": "\"The link scraping feature is magic. Just paste a URL and everything fills in automatically!\""
+  },
+  {
+    "id": "register.testimonial.quote.2",
+    "en": "\"Setting up my first wishlist took less than a minute. So intuitive!\""
+  },
+  {
+    "id": "register.testimonial.quote.3",
+    "en": "\"Perfect for coordinating gifts with family across different countries.\""
+  },
+  {
+    "id": "register.testimonial.role.1",
+    "en": "Tech Enthusiast"
+  },
+  {
+    "id": "register.testimonial.role.2",
+    "en": "Design Student"
+  },
+  {
+    "id": "register.testimonial.role.3",
+    "en": "Frequent traveler"
+  },
+  {
+    "id": "register.visual.subtitle",
+    "en": "Create stunning wishlists, share them with friends and family, and never miss the perfect gift again."
+  },
+  {
+    "id": "register.visual.titleEmphasis",
+    "en": "gifting journey"
+  },
+  {
+    "id": "register.visual.titleLine1",
+    "en": "Start your"
+  },
+  {
+    "id": "secretSanta.create.budgetPlaceholder",
+    "en": "e.g. 25"
+  },
+  {
+    "id": "secretSanta.create.coverAlt",
+    "en": "Event cover preview"
+  },
+  {
+    "id": "secretSanta.create.coverDrop",
+    "en": "Drop an image or click to upload"
+  },
+  {
+    "id": "secretSanta.create.coverLabel",
+    "en": "Cover Image (optional)"
+  },
+  {
+    "id": "secretSanta.create.eventNamePlaceholder",
+    "en": "e.g. Office Christmas Party, Family Gift Exchange"
+  },
+  {
+    "id": "secretSanta.create.noFriends",
+    "en": "No friends to add"
+  },
+  {
+    "id": "secretSanta.create.searchFriendsPlaceholder",
+    "en": "Search friends to add..."
+  },
+  {
+    "id": "secretSanta.create.subtitle",
+    "en": "Set up a gift exchange with your friends."
+  },
+  {
+    "id": "secretSanta.create.title",
+    "en": "Create Secret Santa Event"
+  },
+  {
+    "id": "secretSanta.detail.copyFailed",
+    "en": "Failed to copy invite link"
+  },
+  {
+    "id": "secretSanta.detail.participantsDescription",
+    "en": "Everyone in the event can see accepted participants."
+  },
+  {
+    "id": "secretSanta.detail.pendingDescription",
+    "en": "These people still need to accept the invite."
+  },
+  {
+    "id": "secretSanta.detail.pendingEmpty",
+    "en": "No pending invites."
+  },
+  {
+    "id": "secretSanta.detail.pendingTitle",
+    "en": "Pending invites"
+  },
+  {
+    "id": "secretSanta.edit.budgetPlaceholder",
+    "en": "e.g. 25"
+  },
+  {
+    "id": "secretSanta.edit.coverAlt",
+    "en": "Event cover preview"
+  },
+  {
+    "id": "secretSanta.edit.coverDrop",
+    "en": "Drop an image or click to upload"
+  },
+  {
+    "id": "secretSanta.edit.coverLabel",
+    "en": "Cover Image (optional)"
+  },
+  {
+    "id": "secretSanta.edit.eventNamePlaceholder",
+    "en": "e.g. Office Christmas Party, Family Gift Exchange"
+  },
+  {
+    "id": "secretSanta.edit.subtitle",
+    "en": "Update the event details without changing participants."
+  },
+  {
+    "id": "secretSanta.edit.title",
+    "en": "Edit Secret Santa Event"
+  },
+  {
+    "id": "secretSanta.gifts.description",
+    "en": "Items from your receiver's wishlists that fit the event budget."
+  },
+  {
+    "id": "secretSanta.gifts.empty",
+    "en": "No matching items found in their wishlists."
+  },
+  {
+    "id": "secretSanta.gifts.noImage",
+    "en": "No image"
+  },
+  {
+    "id": "secretSanta.grid.loadError",
+    "en": "Failed to load events."
+  },
+  {
+    "id": "secretSanta.grid.title",
+    "en": "Your Events"
+  },
+  {
+    "id": "secretSanta.header.eventLimit",
+    "en": "{current}/{max} events"
+  },
+  {
+    "id": "secretSanta.header.guestName",
+    "en": "there"
+  },
+  {
+    "id": "secretSanta.header.newEvent",
+    "en": "New Event"
+  },
+  {
+    "id": "secretSanta.header.subtitle",
+    "en": "Organize gift exchanges with your friends, {name}. Create an event, add participants, and let the magic happen!"
+  },
+  {
+    "id": "secretSanta.header.upgradeToAdd",
+    "en": "Upgrade to Add"
+  },
+  {
+    "id": "secretSanta.hero.aria.eventActions",
+    "en": "Event actions"
+  },
+  {
+    "id": "secretSanta.hero.aria.linkCopied",
+    "en": "Invite link copied"
+  },
+  {
+    "id": "secretSanta.hero.budget.doubleClickEdit",
+    "en": "Double-click to edit"
+  },
+  {
+    "id": "secretSanta.hero.cancelBudgetEditing",
+    "en": "Cancel budget editing"
+  },
+  {
+    "id": "secretSanta.hero.inviteFriends",
+    "en": "Invite Friends"
+  },
+  {
+    "id": "secretSanta.hero.ownerPill",
+    "en": "You are the owner"
+  },
+  {
+    "id": "secretSanta.hero.saveBudget",
+    "en": "Save budget"
+  },
+  {
+    "id": "secretSanta.hero.summary.budget",
+    "en": "Budget per person"
+  },
+  {
+    "id": "secretSanta.hero.summary.pending",
+    "en": "Pending invites"
+  },
+  {
+    "id": "secretSanta.hero.title.doubleClickEdit",
+    "en": "Double-click to edit"
+  },
+  {
+    "id": "secretSanta.hero.title.linkCopied",
+    "en": "Invite link copied"
+  },
+  {
+    "id": "secretSanta.hero.title.moreOptions",
+    "en": "More options"
+  },
+  {
+    "id": "secretSanta.launchCard.title",
+    "en": "Launch event"
+  },
+  {
+    "id": "secretSanta.launchModal.error.launchFailed",
+    "en": "Failed to launch event."
+  },
+  {
+    "id": "secretSanta.launchModal.upgradeAction",
+    "en": "Upgrade to unlock"
+  },
+  {
+    "id": "secretSanta.launchModal.upgradeCopyShort",
+    "en": "Custom exclusions are available on Pro."
+  },
+  {
+    "id": "secretSanta.newBadge",
+    "en": "NEW"
+  },
+  {
+    "id": "secretSanta.receiverCard.assignedFallback",
+    "en": "Assigned person"
+  },
+  {
+    "id": "secretSanta.receiverCard.title",
+    "en": "Your receiver"
+  },
+  {
+    "id": "settings.account.dangerDescription",
+    "en": "Permanently delete your account and all associated data."
+  },
+  {
+    "id": "settings.account.deleteModalDescription",
+    "en": "Are you absolutely sure? This will permanently delete your account, all wishlists, items, friends, and subscription data. This action cannot be undone."
+  },
+  {
+    "id": "settings.account.emailDescription",
+    "en": "Your account email used for login and notifications."
+  },
+  {
+    "id": "settings.account.emailLockedHint",
+    "en": "Email cannot be changed at this time"
+  },
+  {
+    "id": "settings.account.emailTitle",
+    "en": "Email Address"
+  },
+  {
+    "id": "settings.account.error.passwordMinLength",
+    "en": "Password must be at least 6 characters"
+  },
+  {
+    "id": "settings.account.error.passwordsMismatch",
+    "en": "Passwords do not match"
+  },
+  {
+    "id": "settings.account.googleOAuthHint",
+    "en": "Authenticated via Google OAuth"
+  },
+  {
+    "id": "settings.account.linkedAccountsDescription",
+    "en": "External accounts connected to your Wishlane profile."
+  },
+  {
+    "id": "settings.account.linkedAccountsTitle",
+    "en": "Linked Accounts"
+  },
+  {
+    "id": "settings.account.passwordDescription",
+    "en": "Change your account password."
+  },
+  {
+    "id": "settings.account.passwordOAuthDescription",
+    "en": "You signed in with Google — no password to manage."
+  },
+  {
+    "id": "settings.account.providerConnected",
+    "en": "Connected"
+  },
+  {
+    "id": "settings.account.providerGoogle",
+    "en": "Google"
+  },
+  {
+    "id": "settings.account.providerNotConnected",
+    "en": "Not connected"
+  },
+  {
+    "id": "settings.account.updatingPassword",
+    "en": "Updating…"
+  },
+  {
+    "id": "settings.appearance.accent.upgradeToPro",
+    "en": "Upgrade to Pro"
+  },
+  {
+    "id": "settings.appearance.accentSectionDescription",
+    "en": "Secondary platform color used across the interface."
+  },
+  {
+    "id": "settings.appearance.prioritiesSectionDescription",
+    "en": "Choose which priority levels appear when adding or editing items."
+  },
+  {
+    "id": "settings.appearance.priority.showLess",
+    "en": "Show less"
+  },
+  {
+    "id": "settings.appearance.priority.showMore",
+    "en": "Show more"
+  },
+  {
+    "id": "settings.appearance.priority.upgradeToPro",
+    "en": "Upgrade to Pro"
+  },
+  {
+    "id": "settings.appearance.theme.darkDesc",
+    "en": "Easy on the eyes"
+  },
+  {
+    "id": "settings.appearance.theme.lightDesc",
+    "en": "Clean and bright"
+  },
+  {
+    "id": "settings.appearance.theme.systemDesc",
+    "en": "Match your device"
+  },
+  {
+    "id": "settings.appearance.themeSectionDescription",
+    "en": "Select your preferred color scheme."
+  },
+  {
+    "id": "settings.appearance.wishlistColor.upgradeToPro",
+    "en": "Upgrade to Pro"
+  },
+  {
+    "id": "settings.appearance.wishlistColorSectionDescription",
+    "en": "Pre-selected color when creating new wishlists."
+  },
+  {
+    "id": "settings.currency.AED",
+    "en": "UAE Dirham"
+  },
+  {
+    "id": "settings.currency.AUD",
+    "en": "Australian Dollar"
+  },
+  {
+    "id": "settings.currency.BGN",
+    "en": "Bulgarian Lev"
+  },
+  {
+    "id": "settings.currency.BRL",
+    "en": "Brazilian Real"
+  },
+  {
+    "id": "settings.currency.CAD",
+    "en": "Canadian Dollar"
+  },
+  {
+    "id": "settings.currency.CHF",
+    "en": "Swiss Franc"
+  },
+  {
+    "id": "settings.currency.CNY",
+    "en": "Chinese Yuan"
+  },
+  {
+    "id": "settings.currency.CZK",
+    "en": "Czech Koruna"
+  },
+  {
+    "id": "settings.currency.DKK",
+    "en": "Danish Krone"
+  },
+  {
+    "id": "settings.currency.EUR",
+    "en": "Euro"
+  },
+  {
+    "id": "settings.currency.GBP",
+    "en": "British Pound"
+  },
+  {
+    "id": "settings.currency.HKD",
+    "en": "Hong Kong Dollar"
+  },
+  {
+    "id": "settings.currency.HUF",
+    "en": "Hungarian Forint"
+  },
+  {
+    "id": "settings.currency.IDR",
+    "en": "Indonesian Rupiah"
+  },
+  {
+    "id": "settings.currency.ILS",
+    "en": "Israeli New Shekel"
+  },
+  {
+    "id": "settings.currency.INR",
+    "en": "Indian Rupee"
+  },
+  {
+    "id": "settings.currency.ISK",
+    "en": "Icelandic Krona"
+  },
+  {
+    "id": "settings.currency.JPY",
+    "en": "Japanese Yen"
+  },
+  {
+    "id": "settings.currency.KRW",
+    "en": "South Korean Won"
+  },
+  {
+    "id": "settings.currency.MXN",
+    "en": "Mexican Peso"
+  },
+  {
+    "id": "settings.currency.MYR",
+    "en": "Malaysian Ringgit"
+  },
+  {
+    "id": "settings.currency.NOK",
+    "en": "Norwegian Krone"
+  },
+  {
+    "id": "settings.currency.NZD",
+    "en": "New Zealand Dollar"
+  },
+  {
+    "id": "settings.currency.PHP",
+    "en": "Philippine Peso"
+  },
+  {
+    "id": "settings.currency.PLN",
+    "en": "Polish Zloty"
+  },
+  {
+    "id": "settings.currency.RON",
+    "en": "Romanian Leu"
+  },
+  {
+    "id": "settings.currency.SEK",
+    "en": "Swedish Krona"
+  },
+  {
+    "id": "settings.currency.SGD",
+    "en": "Singapore Dollar"
+  },
+  {
+    "id": "settings.currency.THB",
+    "en": "Thai Baht"
+  },
+  {
+    "id": "settings.currency.TRY",
+    "en": "Turkish Lira"
+  },
+  {
+    "id": "settings.currency.UAH",
+    "en": "Ukrainian Hryvnia"
+  },
+  {
+    "id": "settings.currency.USD",
+    "en": "US Dollar"
+  },
+  {
+    "id": "settings.currency.ZAR",
+    "en": "South African Rand"
+  },
+  {
+    "id": "settings.currency.sectionDescription",
+    "en": "Prices on items will be converted and shown in your selected currency."
+  },
+  {
+    "id": "settings.notifications.pushDescription",
+    "en": "Choose which notifications you receive in the app."
+  },
+  {
+    "id": "settings.profile.avatarAlt",
+    "en": "Avatar"
+  },
+  {
+    "id": "settings.profile.avatarFormats",
+    "en": "JPG, PNG or WebP"
+  },
+  {
+    "id": "settings.profile.avatarHint",
+    "en": "Click to upload a new avatar"
+  },
+  {
+    "id": "settings.profile.bioPlaceholder",
+    "en": "Tell your friends a little about yourself…"
+  },
+  {
+    "id": "settings.profile.heightPlaceholder",
+    "en": "175"
+  },
+  {
+    "id": "settings.profile.nicknameHint",
+    "en": "Friends can find you by this"
+  },
+  {
+    "id": "settings.profile.saving",
+    "en": "Saving…"
+  },
+  {
+    "id": "settings.profile.sectionDescription",
+    "en": "This is how you appear to your friends on Wishlane."
+  },
+  {
+    "id": "settings.profile.sectionTitle",
+    "en": "Profile Information"
+  },
+  {
+    "id": "settings.profile.shoeSizePlaceholder",
+    "en": "42"
+  },
+  {
+    "id": "settings.tabs.nav",
+    "en": "Settings sections"
+  },
+  {
+    "id": "share.authPrompt.body",
+    "en": "You need to sign in or create an account to reserve items. After signing in, a friend request will be sent to the wishlist owner automatically."
+  },
+  {
+    "id": "share.authPrompt.eyebrow",
+    "en": "Sign in required"
+  },
+  {
+    "id": "share.authPrompt.signIn",
+    "en": "Sign in"
+  },
+  {
+    "id": "share.authPrompt.title",
+    "en": "Want to reserve this gift?"
+  },
+  {
+    "id": "share.copiedLink",
+    "en": "Copied link"
+  },
+  {
+    "id": "share.friendRequest.eyebrow",
+    "en": "Friend request"
+  },
+  {
+    "id": "share.friendRequestSent.body",
+    "en": "A friend request has been sent to the wishlist owner. Once they accept, you'll be able to view and reserve items from their wishlists."
+  },
+  {
+    "id": "share.friendRequestSent.gotIt",
+    "en": "Got it"
+  },
+  {
+    "id": "share.friendRequestSent.title",
+    "en": "Request sent!"
+  },
+  {
+    "id": "share.friendRequestStatus.errorBody",
+    "en": "We couldn't send the friend request. Please try again later."
+  },
+  {
+    "id": "share.friendRequestStatus.friendsBody",
+    "en": "You can now reserve items from this wishlist."
+  },
+  {
+    "id": "share.friendRequestStatus.friendsTitle",
+    "en": "You're already friends!"
+  },
+  {
+    "id": "share.friendRequestStatus.sentBody",
+    "en": "We've sent a friend request to the wishlist owner. Once accepted, you'll be able to reserve items."
+  },
+  {
+    "id": "share.friendRequestStatus.sentTitle",
+    "en": "Friend request sent"
+  },
+  {
+    "id": "share.page.invalidLink",
+    "en": "Invalid share link."
+  },
+  {
+    "id": "share.page.loadError",
+    "en": "Failed to load shared wishlist."
+  },
+  {
+    "id": "share.page.notFound",
+    "en": "Wishlist not found."
+  },
+  {
+    "id": "subscription.compare.colFeature",
+    "en": "Feature"
+  },
+  {
+    "id": "subscription.compare.collab",
+    "en": "Collaborative wishlists"
+  },
+  {
+    "id": "subscription.compare.discover",
+    "en": "Discover & explore"
+  },
+  {
+    "id": "subscription.compare.friends",
+    "en": "Friends & reservations"
+  },
+  {
+    "id": "subscription.compare.itemsPerWishlist",
+    "en": "Items per wishlist"
+  },
+  {
+    "id": "subscription.compare.notifications",
+    "en": "Real-time notifications"
+  },
+  {
+    "id": "subscription.compare.priceHistory",
+    "en": "Price tracking & history"
+  },
+  {
+    "id": "subscription.compare.saleAlerts",
+    "en": "Sale price alerts"
+  },
+  {
+    "id": "subscription.compare.scraping",
+    "en": "Smart link scraping"
+  },
+  {
+    "id": "subscription.compare.sharing",
+    "en": "Advanced sharing (QR, PDF)"
+  },
+  {
+    "id": "subscription.compare.support",
+    "en": "Priority support"
+  },
+  {
+    "id": "subscription.compare.theme",
+    "en": "Dark / light theme"
+  },
+  {
+    "id": "subscription.compare.trigger",
+    "en": "Full feature comparison"
+  },
+  {
+    "id": "subscription.compare.unlimited",
+    "en": "Unlimited"
+  },
+  {
+    "id": "subscription.compare.unlimitedItems",
+    "en": "Unlimited"
+  },
+  {
+    "id": "subscription.compare.upTo20",
+    "en": "Up to 20"
+  },
+  {
+    "id": "subscription.compare.upTo5",
+    "en": "Up to 5"
+  },
+  {
+    "id": "subscription.faq.cancel.a",
+    "en": "Yes! You can cancel at any time from your subscription page. You'll keep Pro access until the end of your current billing period."
+  },
+  {
+    "id": "subscription.faq.cancel.q",
+    "en": "Can I cancel my subscription anytime?"
+  },
+  {
+    "id": "subscription.faq.downgrade.a",
+    "en": "Your wishlists and items are never deleted. If you exceed the free limits (5 wishlists, 20 items per wishlist), the extra ones become read-only — you can still view them but won't be able to edit or add new ones until you're within the limits or upgrade again."
+  },
+  {
+    "id": "subscription.faq.downgrade.q",
+    "en": "What happens to my data if I downgrade?"
+  },
+  {
+    "id": "subscription.faq.payment.a",
+    "en": "We accept all major credit cards (Visa, Mastercard, American Express) and other methods through our payment provider. Your subscription will also work across our mobile app when it launches."
+  },
+  {
+    "id": "subscription.faq.payment.q",
+    "en": "What payment methods are accepted?"
+  },
+  {
+    "id": "subscription.faq.refund.a",
+    "en": "If you're unhappy with Pro, contact us within your first 7 days and we'll issue a full refund. After that, you can cancel anytime and continue using Pro until the end of your billing period."
+  },
+  {
+    "id": "subscription.faq.refund.q",
+    "en": "Do I get a refund if I'm not satisfied?"
+  },
+  {
+    "id": "subscription.faq.title",
+    "en": "Frequently Asked Questions"
+  },
+  {
+    "id": "subscription.faq.trial.a",
+    "en": "We don't offer a trial, but the Free plan is fully functional for casual use. You can upgrade to Pro whenever you're ready for unlimited wishlists, sale alerts, and more."
+  },
+  {
+    "id": "subscription.faq.trial.q",
+    "en": "Is there a free trial for Pro?"
+  },
+  {
+    "id": "subscription.faq.yearly.q",
+    "en": "How does yearly billing work?"
+  },
+  {
+    "id": "subscription.header.badgeFree",
+    "en": "FREE"
+  },
+  {
+    "id": "subscription.header.badgePro",
+    "en": "PRO"
+  },
+  {
+    "id": "subscription.header.onFreePlan",
+    "en": "You're on the Free plan"
+  },
+  {
+    "id": "subscription.header.onProPlan",
+    "en": "You're on the Pro plan"
+  },
+  {
+    "id": "subscription.header.renewsPrefix",
+    "en": "· Renews"
+  },
+  {
+    "id": "subscription.header.subtitle",
+    "en": "Unlock the full power of Wishlane with Pro — price tracking, sale alerts, collaborative wishlists, and more."
+  },
+  {
+    "id": "subscription.header.title",
+    "en": "Choose Your Plan"
+  },
+  {
+    "id": "subscription.pricing.billedMonthly",
+    "en": "Billed as {amount}/month"
+  },
+  {
+    "id": "subscription.pricing.billedYearly",
+    "en": "Billed as {amount}/year"
+  },
+  {
+    "id": "subscription.pricing.currentPlan",
+    "en": "Current Plan"
+  },
+  {
+    "id": "subscription.pricing.downgrade",
+    "en": "Downgrade"
+  },
+  {
+    "id": "subscription.pricing.forever",
+    "en": "forever"
+  },
+  {
+    "id": "subscription.pricing.free.collab",
+    "en": "Collaborative wishlists"
+  },
+  {
+    "id": "subscription.pricing.free.discover",
+    "en": "Discover & explore"
+  },
+  {
+    "id": "subscription.pricing.free.friends",
+    "en": "Friends & gift reservations"
+  },
+  {
+    "id": "subscription.pricing.free.items20",
+    "en": "Up to 20 items per wishlist"
+  },
+  {
+    "id": "subscription.pricing.free.notifications",
+    "en": "Real-time notifications"
+  },
+  {
+    "id": "subscription.pricing.free.priceHistory",
+    "en": "Price tracking & history"
+  },
+  {
+    "id": "subscription.pricing.free.saleAlerts",
+    "en": "Sale price alerts"
+  },
+  {
+    "id": "subscription.pricing.free.scraping",
+    "en": "Smart link scraping"
+  },
+  {
+    "id": "subscription.pricing.free.sharing",
+    "en": "Advanced sharing (QR, PDF)"
+  },
+  {
+    "id": "subscription.pricing.free.support",
+    "en": "Priority support"
+  },
+  {
+    "id": "subscription.pricing.free.theme",
+    "en": "Dark / light theme"
+  },
+  {
+    "id": "subscription.pricing.free.wishlists5",
+    "en": "Up to 5 wishlists"
+  },
+  {
+    "id": "subscription.pricing.freeDesc",
+    "en": "Everything you need to get started with wishlists."
+  },
+  {
+    "id": "subscription.pricing.mostPopular",
+    "en": "Most Popular"
+  },
+  {
+    "id": "subscription.pricing.newBadge",
+    "en": "NEW"
+  },
+  {
+    "id": "subscription.pricing.openingCheckout",
+    "en": "Opening checkout..."
+  },
+  {
+    "id": "subscription.pricing.openingManagement",
+    "en": "Opening..."
+  },
+  {
+    "id": "subscription.pricing.perMonth",
+    "en": "/month"
+  },
+  {
+    "id": "subscription.pricing.pro.collab",
+    "en": "Collaborative wishlists"
+  },
+  {
+    "id": "subscription.pricing.pro.discover",
+    "en": "Discover & explore"
+  },
+  {
+    "id": "subscription.pricing.pro.friends",
+    "en": "Friends & gift reservations"
+  },
+  {
+    "id": "subscription.pricing.pro.notifications",
+    "en": "Real-time notifications"
+  },
+  {
+    "id": "subscription.pricing.pro.priceHistory",
+    "en": "Price tracking & history"
+  },
+  {
+    "id": "subscription.pricing.pro.saleAlerts",
+    "en": "Sale price alerts"
+  },
+  {
+    "id": "subscription.pricing.pro.scraping",
+    "en": "Smart link scraping"
+  },
+  {
+    "id": "subscription.pricing.pro.sharing",
+    "en": "Advanced sharing (QR, PDF)"
+  },
+  {
+    "id": "subscription.pricing.pro.support",
+    "en": "Priority support"
+  },
+  {
+    "id": "subscription.pricing.pro.theme",
+    "en": "Dark / light theme"
+  },
+  {
+    "id": "subscription.pricing.pro.unlimitedItems",
+    "en": "Unlimited items per wishlist"
+  },
+  {
+    "id": "subscription.pricing.pro.unlimitedWl",
+    "en": "Unlimited wishlists"
+  },
+  {
+    "id": "subscription.pricing.proDesc",
+    "en": "Unlock the full Wishlane experience with unlimited everything."
+  },
+  {
+    "id": "subscription.pricing.savePercent",
+    "en": "Save {percent}%"
+  },
+  {
+    "id": "subscription.pricing.syncSubscription",
+    "en": "Sync subscription"
+  },
+  {
+    "id": "subscription.pricing.syncing",
+    "en": "Syncing…"
+  },
+  {
+    "id": "subscription.pricing.upgradeToPro",
+    "en": "Upgrade to Pro"
+  },
+  {
+    "id": "theme.switchDark",
+    "en": "Switch to dark mode"
+  },
+  {
+    "id": "theme.switchLight",
+    "en": "Switch to light mode"
+  },
+  {
+    "id": "wishlist.grantAccess.accessListError",
+    "en": "Could not load wishlist access right now."
+  },
+  {
+    "id": "wishlist.grantAccess.accessTotal",
+    "en": "{n} total"
+  },
+  {
+    "id": "wishlist.grantAccess.alreadyHasAccess",
+    "en": "Already has access"
+  },
+  {
+    "id": "wishlist.grantAccess.eyebrow",
+    "en": "Access control"
+  },
+  {
+    "id": "wishlist.grantAccess.friendsLoadError",
+    "en": "Could not load your friends right now."
+  },
+  {
+    "id": "wishlist.grantAccess.grantFailedFallback",
+    "en": "Failed to grant access."
+  },
+  {
+    "id": "wishlist.grantAccess.granting",
+    "en": "Granting access..."
+  },
+  {
+    "id": "wishlist.grantAccess.hideFriendList",
+    "en": "Hide friend list"
+  },
+  {
+    "id": "wishlist.grantAccess.noAccessYet",
+    "en": "No access yet"
+  },
+  {
+    "id": "wishlist.grantAccess.proDescription",
+    "en": "Granting view or edit access to other people is available only on the Pro plan."
+  },
+  {
+    "id": "wishlist.grantAccess.proEyebrow",
+    "en": "Pro feature"
+  },
+  {
+    "id": "wishlist.grantAccess.proTitle",
+    "en": "Collaborative wishlists"
+  },
+  {
+    "id": "wishlist.grantAccess.revokeAria",
+    "en": "Revoke access for {handle}"
+  },
+  {
+    "id": "wishlist.grantAccess.revokeFailedFallback",
+    "en": "Failed to revoke access."
+  },
+  {
+    "id": "wishlist.grantAccess.revokeMissingUser",
+    "en": "Missing target user id for revoke access."
+  },
+  {
+    "id": "wishlist.grantAccess.revokeTooltip",
+    "en": "Revoke access for {handle}"
+  },
+  {
+    "id": "wishlist.grantAccess.showFriendList",
+    "en": "Show friend list"
+  },
+  {
+    "id": "wishlist.grantAccess.subtitle",
+    "en": "Pick a friend and choose whether they can view or edit."
+  },
+  {
+    "id": "wishlist.grantAccess.title",
+    "en": "Grant wishlist access"
+  },
+  {
+    "id": "wishlist.grantAccess.toggleFriendList",
+    "en": "Toggle friend list"
+  },
+  {
+    "id": "wishlist.grantAccess.upgradeAction",
+    "en": "Upgrade to Pro"
+  },
+  {
+    "id": "wishlist.grantAccess.upgradeCopy",
+    "en": "Upgrade to Pro to invite collaborators and manage wishlist access levels."
+  },
+  {
+    "id": "wishlist.grid.layoutOnePerRow",
+    "en": "1 per row"
+  },
+  {
+    "id": "wishlist.grid.layoutTwoPerRow",
+    "en": "2 per row"
+  },
+  {
+    "id": "wishlist.grid.unknownUser",
+    "en": "Unknown user"
+  },
+  {
+    "id": "wishlist.header.limitCounter",
+    "en": "{current}/{max} items"
+  },
+  {
+    "id": "wishlist.header.moreTooltip",
+    "en": "More options"
+  },
+  {
+    "id": "wishlist.header.titlePlaceholder",
+    "en": "Wishlist title"
+  },
+  {
+    "id": "wishlist.header.upgradeToAdd",
+    "en": "Upgrade to Add"
+  },
+  {
+    "id": "wishlist.itemCount.one",
+    "en": "{n} item"
+  },
+  {
+    "id": "wishlist.itemCount.other",
+    "en": "{n} items"
+  },
+  {
+    "id": "wishlist.modal.access.openSelector",
+    "en": "Open access selector"
+  },
+  {
+    "id": "wishlist.modal.access.removeAria",
+    "en": "Remove access for {handle}"
+  },
+  {
+    "id": "wishlist.modal.access.selected",
+    "en": "{n} selected"
+  },
+  {
+    "id": "wishlist.modal.coverAlt",
+    "en": "Wishlist cover preview"
+  },
+  {
+    "id": "wishlist.modal.coverColor",
+    "en": "Cover Color"
+  },
+  {
+    "id": "wishlist.modal.coverColor.upgradeToPro",
+    "en": "Upgrade to Pro"
+  },
+  {
+    "id": "wishlist.modal.create.coverLabel",
+    "en": "Cover Image (drag & drop or click)"
+  },
+  {
+    "id": "wishlist.modal.create.subtitle",
+    "en": "Give your wishlist a name and customize its appearance."
+  },
+  {
+    "id": "wishlist.modal.create.title",
+    "en": "Create New Wishlist"
+  },
+  {
+    "id": "wishlist.modal.descriptionPlaceholder",
+    "en": "Add a note for your friends..."
+  },
+  {
+    "id": "wishlist.modal.dropImage",
+    "en": "Drop an image or click to upload"
+  },
+  {
+    "id": "wishlist.modal.edit.subtitle",
+    "en": "Update your wishlist details and customize its appearance."
+  },
+  {
+    "id": "wishlist.modal.eventDateLabel",
+    "en": "Event Date (optional)"
+  },
+  {
+    "id": "wishlist.modal.nameLabel",
+    "en": "Wishlist Name"
+  },
+  {
+    "id": "wishlist.modal.namePlaceholder",
+    "en": "e.g. Birthday Wishes, Home Office Setup"
+  },
+  {
+    "id": "wishlist.modal.privacyLabel",
+    "en": "Privacy"
+  },
+  {
+    "id": "wishlist.privacy.friends",
+    "en": "Friends Only"
+  },
+  {
+    "id": "wishlist.privacy.friendsSubtitle",
+    "en": "Only your friends"
+  },
+  {
+    "id": "wishlist.privacy.privateSubtitle",
+    "en": "Only you"
+  },
+  {
+    "id": "wishlist.privacy.publicSubtitle",
+    "en": "Anyone can view"
+  },
+  {
+    "id": "wishlist.privacy.selectedFriendsSubtitle",
+    "en": "Only friends you choose"
+  },
+  {
+    "id": "wishlist.share.createLinkErrorDescription",
+    "en": "We couldn't generate a share link for this wishlist."
+  },
+  {
+    "id": "wishlist.share.createLinkErrorTitle",
+    "en": "Could not create link"
+  },
+  {
+    "id": "wishlist.share.linkCopiedDescription",
+    "en": "Your wishlist share link is ready to send."
+  },
+  {
+    "id": "wishlist.share.shareFailedDescription",
+    "en": "Something went wrong while creating the share link."
+  },
+  {
+    "id": "wishlistCard.pin",
+    "en": "Pin"
+  },
+  {
+    "id": "wishlistCard.sharedBy",
+    "en": "Shared by {name}"
+  },
+  {
+    "id": "wishlistCard.unpin",
+    "en": "Unpin"
+  }
+]

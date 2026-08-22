@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { SecretSantaPersonAvatar } from "@/components/secret-santa/secret-santa-person-avatar";
@@ -86,20 +87,29 @@ export function SecretSantaDetailHero({
   const hasActionsMenu = isOwner;
   const headerActionsCount = Number(hasInviteAction) + Number(hasActionsMenu);
   const headerActionsRightPadding =
-    headerActionsCount >= 2 ? "pr-20" : headerActionsCount === 1 ? "pr-12" : "";
+    headerActionsCount >= 2 ? "pe-20" : headerActionsCount === 1 ? "pe-12" : "";
   const eventDateLabel = formatSecretSantaDate(event.event_date, locale ?? "en");
   const budgetLabel = formatSecretSantaBudget(event.budget, event.currency);
   const peopleCountLabel = formatSecretSantaPeopleCount(totalPeople, t);
 
   return (
-    <View className="w-full self-stretch overflow-hidden border-b border-border-subtle">
-      <View className={cn("absolute inset-0", getWishlistAccentClass(null))} />
-      <View className="absolute inset-0 bg-black/25" />
+    <View className="w-full self-stretch border-b border-border-subtle">
+      <ScreenTopBackdrop>
+        <View className={cn("absolute inset-0", getWishlistAccentClass(null))} />
+        {event.image_url ? (
+          <StyledImage
+            source={{ uri: event.image_url }}
+            contentFit="cover"
+            className="absolute inset-0 size-full"
+          />
+        ) : null}
+        <View className="absolute inset-0 bg-black/25" />
+      </ScreenTopBackdrop>
 
       <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
         {headerActionsCount > 0 ? (
           <View
-            className="absolute right-4 z-10 flex-row items-center justify-end gap-2"
+            className="absolute end-4 z-10 flex-row items-center justify-end gap-2"
             style={{ top: topInset + 8 }}
           >
             {hasInviteAction ? (

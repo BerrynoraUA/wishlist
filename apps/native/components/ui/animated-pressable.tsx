@@ -15,6 +15,7 @@ type PressEvent = Parameters<NonNullable<PressableProps["onPressIn"]>>[0];
 
 type UseAnimatedPressFeedbackOptions = {
   disabled?: boolean | null;
+  onLongPress?: PressableProps["onLongPress"];
   onPressIn?: PressableProps["onPressIn"];
   onPressOut?: PressableProps["onPressOut"];
   pressedOpacity?: number;
@@ -28,6 +29,7 @@ type AnimatedPressableProps = React.ComponentProps<typeof Pressable> & {
 
 function useAnimatedPressFeedback({
   disabled,
+  onLongPress,
   onPressIn,
   onPressOut,
   pressedOpacity = motionPress.opacity,
@@ -58,8 +60,21 @@ function useAnimatedPressFeedback({
     onPressOut?.(event);
   }
 
+  function handleLongPress(event: Parameters<NonNullable<typeof onLongPress>>[0]) {
+    // A long press hands the element over to whatever it opens — an action menu, in
+    // practice, which lifts a snapshot of it. Release the pressed state before that
+    // handler runs, and without animating, so the snapshot cannot catch the element
+    // dimmed and scaled down: that snapshot is drawn at full size, so the shrunken
+    // artwork inside it reads as a translucent border around the lifted card.
+    scale.value = 1;
+    opacity.value = 1;
+
+    onLongPress?.(event);
+  }
+
   return {
     animatedStyle,
+    handleLongPress,
     handlePressIn,
     handlePressOut,
   };
@@ -67,6 +82,7 @@ function useAnimatedPressFeedback({
 
 function AnimatedPressable({
   ref,
+  onLongPress,
   onPressIn,
   onPressOut,
   pressedOpacity = motionPress.opacity,
@@ -74,17 +90,20 @@ function AnimatedPressable({
   style,
   ...props
 }: AnimatedPressableProps) {
-  const { animatedStyle, handlePressIn, handlePressOut } = useAnimatedPressFeedback({
-    disabled: props.disabled,
-    onPressIn,
-    onPressOut,
-    pressedOpacity,
-    pressedScale,
-  });
+  const { animatedStyle, handleLongPress, handlePressIn, handlePressOut } =
+    useAnimatedPressFeedback({
+      disabled: props.disabled,
+      onLongPress,
+      onPressIn,
+      onPressOut,
+      pressedOpacity,
+      pressedScale,
+    });
 
   return (
     <ReanimatedPressable
       ref={ref}
+      onLongPress={onLongPress ? handleLongPress : undefined}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       style={[style, animatedStyle]}

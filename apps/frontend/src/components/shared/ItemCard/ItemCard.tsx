@@ -12,10 +12,9 @@ import {
   getSalePercentOff,
   isDiscountActive,
 } from "@/lib/helpers/item-card";
-import { ALL_PRIORITIES } from "@/lib/priorities";
+import { ALL_PRIORITIES, getPriorityCssColor, isStarPriorityId } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
-import { isStarCardColorIndex, ITEM_COLORS } from "@/lib/item-colors";
-import type { LucideIcon } from "lucide-react";
+import { Eye, EyeOff, type LucideIcon } from "lucide-react";
 import type { ItemCardProps } from "./types";
 import { CardImage } from "./components/CardImage";
 import { CardBadges } from "./components/CardBadges";
@@ -46,10 +45,10 @@ export function ItemCard({
   isReserved,
   reservedBy,
   reservedByName,
-  colorIndex,
   variant = "discover",
   showDiscountBadge = false,
   isOwner = false,
+  showOwnerReservation = false,
   reservedByCurrentUser = false,
   mode,
   onToggleReserve,
@@ -62,22 +61,18 @@ export function ItemCard({
 }: ItemCardProps) {
   const t = useGT();
   const { formatPrice } = useCurrencyFormatter();
+  const [reserverRevealed, setReserverRevealed] = React.useState(false);
 
   const priorityMeta = priority ? ALL_PRIORITIES.find((p) => p.name === priority) : null;
-  const priorityColor = priorityMeta?.color ?? null;
+  const priorityColor = priorityMeta ? getPriorityCssColor(priorityMeta) : null;
   const priorityDisplay = priority || null;
   const PriorityIcon: LucideIcon | null = priorityMeta
     ? (PRIORITY_ICONS[priorityMeta.id] ?? null)
     : null;
 
-  const accentColor =
-    colorIndex !== null &&
-    colorIndex !== undefined &&
-    colorIndex >= 0 &&
-    colorIndex < ITEM_COLORS.length
-      ? ITEM_COLORS[colorIndex].color
-      : null;
-  const hasStarAccent = isStarCardColorIndex(colorIndex);
+  // The priority tints the card; Stare additionally keeps its heavier frame.
+  const accentColor = priorityColor;
+  const hasStarAccent = isStarPriorityId(priorityMeta?.id);
 
   const formattedPrice = formatPrice(price, currency);
   const showActiveDiscount =
@@ -130,6 +125,7 @@ export function ItemCard({
                 $id: "itemCard.reservedByName",
               }),
           },
+          { revealName: reserverRevealed },
         );
 
         const reserveBtnLabel = buildReservationActionLabel(
@@ -151,8 +147,9 @@ export function ItemCard({
         });
 
         // Gray out reserved/purchased items so they read as "taken" at a
-        // glance, while the badge itself stays fully visible.
-        const isTaken = !isOwner && !!statusLabel;
+        // glance. Owners only see this once they opt into the spoiler.
+        const isTaken = !!statusLabel && (!isOwner || showOwnerReservation);
+        const canRevealReserver = showOwnerReservation && isTaken && Boolean(reservedByName);
 
         return (
           <div
@@ -177,20 +174,40 @@ export function ItemCard({
               <CardImage image={image} name={name} isWishlist={isWishlist} />
 
               {isTaken && (
-                <div className={styles.reservedStamp} aria-hidden="true">
-                  <span>
-                    {isPurchased
-                      ? t("Purchased", { $id: "itemCard.purchasedStamp" })
-                      : t("Reserved", { $id: "itemCard.reservedStamp" })}
+                <div
+                  className={cn(styles.reservedStamp, isPurchased && styles.purchasedStamp)}
+                  aria-hidden="true"
+                >
+                  <span className={cn(reserverRevealed && styles.reservedStampName)}>
+                    {reserverRevealed && reservedByName
+                      ? reservedByName
+                      : isPurchased
+                        ? t("Purchased", { $id: "itemCard.purchasedStamp" })
+                        : t("Reserved", { $id: "itemCard.reservedStamp" })}
                   </span>
                 </div>
               )}
 
+              {canRevealReserver && (
+                <button
+                  type="button"
+                  className={styles.revealReserverButton}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setReserverRevealed((value) => !value);
+                  }}
+                  aria-pressed={reserverRevealed}
+                  aria-label={
+                    reserverRevealed
+                      ? t("Hide who reserved this", { $id: "itemCard.hideReserver" })
+                      : t("Show who reserved this", { $id: "itemCard.showReserver" })
+                  }
+                >
+                  {reserverRevealed ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              )}
+
               <CardBadges
-                variant={variant}
-                isOwner={isOwner}
-                statusLabel={statusLabel}
-                isPurchased={isPurchased}
                 salePercentOff={salePercentOff}
                 priorityColor={priorityColor}
                 priorityDisplay={priorityDisplay}
@@ -214,6 +231,19 @@ export function ItemCard({
                 onDelete={onDelete}
               />
             </div>
+
+            {/* Only Stare hangs a medallion off the bottom edge; every other
+                priority reads as the badge in the corner. */}
+            {hasStarAccent && PriorityIcon && (
+              <span
+                className={styles.priorityMedallion}
+                style={{ "--priority-color": priorityColor } as React.CSSProperties}
+                aria-label={priorityDisplay ?? undefined}
+                title={priorityDisplay ?? undefined}
+              >
+                <PriorityIcon size={16} strokeWidth={2.5} />
+              </span>
+            )}
 
             <CardInfo
               name={name}

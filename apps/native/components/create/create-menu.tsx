@@ -8,10 +8,21 @@ import { useUserGuide } from "@/components/user-guide/user-guide-provider";
 import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheets/wishlist-item-create-edit-sheet";
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
-import { useCreateFriendGroup, useFriends } from "@/hooks/use-friends";
+import { useCreateFriendGroup } from "@/hooks/use-friends";
+import { useProGate } from "@/hooks/use-pro-gate";
+import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
+import { useMyStatistics, useWishlistById } from "@/hooks/use-wishlists";
 import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
 import { isWishlistDetailPath } from "@/lib/routes";
+import { extractSharedProductUrl } from "@/lib/share-intent";
+import {
+  readShowcaseOverlay,
+  SHOWCASE_ENABLED,
+  subscribeToShowcaseOverlay,
+} from "@/lib/showcase/showcase-control";
+import { SHOWCASE_ITEM_LINK_URL } from "@wishlist/backend/supabase/showcase/constants";
 import { Portal } from "@rn-primitives/portal";
+import { useShareIntentContext } from "expo-share-intent";
 import { useGlobalSearchParams, usePathname } from "expo-router";
 import {
   Gift,
@@ -36,6 +47,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
 
 export type CreateAction =
   | "item-scratch"
@@ -108,6 +120,37 @@ function useContextualWishlistId() {
   return routeId || undefined;
 }
 
+/**
+ * Current data for a query, waiting for the first fetch if it has not landed yet.
+ * Resolves to `undefined` rather than throwing when the fetch fails.
+ */
+async function settledData<TData>(query: {
+  data: TData | undefined;
+  refetch: () => Promise<{ data: TData | undefined }>;
+}): Promise<TData | undefined> {
+  if (query.data !== undefined) return query.data;
+
+  return query
+    .refetch()
+    .then((result) => result.data)
+    .catch(() => undefined);
+}
+
+function readNoOverlay() {
+  return null;
+}
+
+function useShowcaseOverlay() {
+  return React.useSyncExternalStore(
+    SHOWCASE_ENABLED ? subscribeToShowcaseOverlay : subscribeToNothing,
+    SHOWCASE_ENABLED ? readShowcaseOverlay : readNoOverlay,
+  );
+}
+
+function subscribeToNothing() {
+  return () => {};
+}
+
 export function CreateMenuHost({
   open,
   onOpenChange,
@@ -120,10 +163,62 @@ export function CreateMenuHost({
   const { completeStep } = useUserGuide();
   const [action, setAction] = React.useState<CreateAction | null>(null);
   const [itemMenuOpen, setItemMenuOpen] = React.useState(false);
+  const [sharedUrl, setSharedUrl] = React.useState<string | null>(null);
   const contextualWishlistId = useContextualWishlistId();
+  const { isGated, openPaywall } = useProGate();
+  const { hasShareIntent, shareIntent, resetShareIntent } = useShareIntentContext();
 
-  function handleSelect(entry: CreateMenuEntry) {
+  // This host only mounts behind the auth gate, so a link shared while signed out sits in the
+  // provider and lands here the moment the tabs come up after sign-in. Text with no link still
+  // opens the sheet — on an empty form, rather than the app appearing to do nothing.
+  React.useEffect(() => {
+    if (!hasShareIntent) return;
+
+    setSharedUrl(extractSharedProductUrl(shareIntent));
+    setAction("item-link");
+    resetShareIntent();
+  }, [hasShareIntent, resetShareIntent, shareIntent]);
+
+  // Lets the app-store capture photograph this sheet, which no route can reach.
+  // Constant `null` outside showcase builds, so the effect never runs.
+  const showcaseOverlay = useShowcaseOverlay();
+
+  React.useEffect(() => {
+    if (showcaseOverlay === "item-link") {
+      setSharedUrl(SHOWCASE_ITEM_LINK_URL);
+      setAction("item-link");
+      return;
+    }
+    setSharedUrl(null);
+    setAction((current) => (current === "item-link" ? null : current));
+  }, [showcaseOverlay]);
+
+  // This host is mounted for the entire session — expo-router evaluates every `_layout`
+  // eagerly to read `unstable_settings`, so it is on the cold-start path — but the three
+  // queries below only exist to evaluate free-tier limits when a row is tapped. Latch on
+  // first open rather than tracking `open` directly, so they stay warm afterwards instead
+  // of being torn down and refetched every time the menu closes.
+  const [limitsEnabled, setLimitsEnabled] = React.useState(false);
+  const menuVisible = open || itemMenuOpen;
+
+  React.useEffect(() => {
+    if (menuVisible) setLimitsEnabled(true);
+  }, [menuVisible]);
+
+  const statisticsQuery = useMyStatistics({ enabled: limitsEnabled });
+  const contextualWishlistQuery = useWishlistById(contextualWishlistId ?? "", {
+    enabled: limitsEnabled,
+  });
+  const secretSantaQuery = useInfiniteSecretSantaEvents({}, 1, { enabled: limitsEnabled });
+
+  async function handleSelect(entry: CreateMenuEntry) {
     onOpenChange(false);
+
+    if (isGated && (await isLimitReached(entry))) {
+      openPaywall();
+      return;
+    }
+
     if (entry.guideStep !== undefined) completeStep(entry.guideStep);
     if (entry.action === "item") {
       setItemMenuOpen(true);
@@ -132,13 +227,42 @@ export function CreateMenuHost({
     setAction(entry.action);
   }
 
+  /**
+   * The limit queries start when the menu opens, so a fast tap can arrive before they
+   * resolve. Await the in-flight fetch instead of reading `undefined` as zero, which let a
+   * free account past the limit. A fetch that genuinely fails still falls through to zero —
+   * blocking creation while offline would be a worse trade than the occasional bypass.
+   */
+  async function isLimitReached(entry: CreateMenuEntry) {
+    switch (entry.action) {
+      case "wishlist": {
+        const data = await settledData(statisticsQuery);
+        return (data?.wishlists_count ?? 0) >= FREE_LIMITS.maxWishlists;
+      }
+      case "item": {
+        if (!contextualWishlistId) return false;
+        const data = await settledData(contextualWishlistQuery);
+        return (data?.items_count ?? 0) >= FREE_LIMITS.maxItemsPerWishlist;
+      }
+      case "secret-santa": {
+        const data = await settledData(secretSantaQuery);
+        return (data?.pages[0]?.total ?? 0) >= FREE_LIMITS.maxSecretSantaEvents;
+      }
+      default:
+        return false;
+    }
+  }
+
   function handleItemSelect(source: ItemCreateSource) {
     setItemMenuOpen(false);
     setAction(source === "link" ? "item-link" : "item-scratch");
   }
 
   function closeAction(openState: boolean) {
-    if (!openState) setAction(null);
+    if (!openState) {
+      setAction(null);
+      setSharedUrl(null);
+    }
   }
 
   return (
@@ -159,6 +283,7 @@ export function CreateMenuHost({
         mode="create"
         createSource={action === "item-link" ? "link" : "scratch"}
         wishlistId={contextualWishlistId}
+        initialUrl={sharedUrl ?? undefined}
         open={action === "item-scratch" || action === "item-link"}
         onOpenChange={closeAction}
       />
@@ -291,7 +416,7 @@ function CreateFloatingMenuContent({
         />
       </Animated.View>
       <View
-        className="absolute left-0 right-0 items-center gap-2.5"
+        className="absolute start-0 end-0 items-center gap-2.5"
         pointerEvents="box-none"
         style={{ bottom: menuBottom }}
       >
@@ -314,7 +439,7 @@ function CreateFloatingMenuContent({
               accessibilityRole="button"
               accessibilityLabel={entry.label}
               onPress={() => onSelect(entry)}
-              className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg py-2.5 pl-2.5 pr-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
+              className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg py-2.5 ps-2.5 pe-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
             >
               <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
                 <Icon as={entry.icon} className="size-5 text-brand" />
@@ -332,14 +457,12 @@ function CreateFloatingMenuContent({
 
 function CreateFriendGroupSheet({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
   const { completeStep } = useUserGuide();
-  const friendsQuery = useFriends();
   const createGroup = useCreateFriendGroup();
 
   return (
     <FriendGroupSheet
       open
       group={null}
-      friends={friendsQuery.data ?? []}
       isSaving={createGroup.isPending}
       onOpenChange={onOpenChange}
       onSubmit={(payload) =>

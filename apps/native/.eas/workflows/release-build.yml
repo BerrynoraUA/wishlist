@@ -3,15 +3,14 @@ name: Native Release Build
 defaults:
   tools:
     node: 22.14.0
-    corepack: true
-    pnpm: 11.9.0
+    pnpm: 11.20.0
 
-on:
-  push:
-    tags:
-      - native-v*
-    paths:
-      - apps/native/**
+# on:
+#   push:
+#     tags:
+#       - native-v*
+#     paths:
+#       - apps/native/**
 
 concurrency:
   cancel_in_progress: true

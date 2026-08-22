@@ -1,0 +1,10 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Wishlane",
+    "NSPhotoLibraryUsageDescription": "Dovolite Wishlanu, da izbere profilno sliko iz vaše knjižnice.",
+    "NSFaceIDUsageDescription": "Dovolite Wishlanu varno preklapljanje med shranjenimi računi."
+  },
+  "android": {
+    "app_name": "Wishlane"
+  }
+}

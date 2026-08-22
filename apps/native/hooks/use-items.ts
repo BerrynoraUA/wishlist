@@ -3,14 +3,16 @@ import {
   deleteItem,
   getItemVotes,
   getWishlistItems,
+  reportItem,
   toggleItemBought,
   toggleItemReservation,
   toggleItemVote,
   updateItem,
 } from "@/api/items";
 import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
-import { statisticsKeys, wishlistKeys } from "@/hooks/use-wishlists";
+import { itemKeys } from "@/lib/item-query-keys";
 import { normalizeItemSearch } from "@/lib/items";
+import { statisticsKeys, wishlistKeys } from "@/lib/wishlist-query-keys";
 import { useAuth } from "@/providers/auth-provider";
 import type {
   CreateItemParams,
@@ -19,30 +21,6 @@ import type {
   UpdateItemParams,
 } from "@wishlist/backend/types/item";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-export const itemKeys = {
-  all: ["items"] as const,
-  wishlist: (authUserId: string | null | undefined, wishlistId: string, params?: ItemQueryParams) =>
-    [...itemKeys.all, "wishlist", authUserId ?? "anonymous", wishlistId, params] as const,
-  votes: (authUserId: string | null | undefined, itemIds: string[]) =>
-    [...itemKeys.all, "votes", authUserId ?? "anonymous", ...itemIds.sort()] as const,
-};
-
-export function useWishlistItems(wishlistId: string, params?: ItemQueryParams) {
-  const { user } = useAuth();
-  const normalizedParams = params
-    ? {
-        ...params,
-        search: normalizeItemSearch(params.search) || undefined,
-      }
-    : undefined;
-
-  return useQuery({
-    queryKey: itemKeys.wishlist(user?.id, wishlistId, normalizedParams),
-    queryFn: () => getWishlistItems(wishlistId, normalizedParams),
-    enabled: Boolean(user?.id && wishlistId),
-  });
-}
 
 export function useInfiniteWishlistItems(
   wishlistId: string,
@@ -58,7 +36,10 @@ export function useInfiniteWishlistItems(
   };
 
   return useSkipTakeInfiniteQuery({
-    queryKey: itemKeys.wishlist(user?.id, wishlistId, { ...normalizedParams, take: pageSize }),
+    queryKey: itemKeys.wishlist(user?.id, wishlistId, {
+      ...normalizedParams,
+      take: pageSize,
+    }),
     fetchPage: ({ skip, take }) =>
       getWishlistItems(wishlistId, {
         ...normalizedParams,
@@ -125,6 +106,12 @@ export function useToggleItemBought() {
   return useMutation({
     mutationFn: (id: string) => toggleItemBought(id),
     onSuccess: (item) => invalidateWishlistItems(queryClient, item.wishlist_id),
+  });
+}
+
+export function useReportItem() {
+  return useMutation({
+    mutationFn: (itemId: string) => reportItem(itemId),
   });
 }
 

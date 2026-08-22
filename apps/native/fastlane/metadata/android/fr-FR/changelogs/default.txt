@@ -1,0 +1,8 @@
+La première version de Wishlane.
+
+- Listes avec couleurs, priorités et dates
+- Collez un lien, les détails se remplissent
+- Listes publiques, entre amis ou privées
+- Réservation secrète sur les listes des amis
+- Groupe Secret Santa avec tirage automatique
+- Listes des amis et événements à venir

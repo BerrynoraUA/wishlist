@@ -137,7 +137,7 @@ export function WishlistItemFilterBar({
       </View>
 
       <SlideOutFilterPanel open={open} className="pb-1 pt-4" maxHeight={ITEM_FILTER_PANEL_HEIGHT}>
-        <View className="flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 pl-3 shadow-sm">
+        <View className="flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 ps-3 shadow-sm">
           <Icon as={Search} className="size-4 text-muted-foreground/50" />
           <Input
             value={filters.search}
@@ -163,9 +163,11 @@ export function WishlistItemFilterBar({
           <View className="min-w-0 flex-1">
             <MultiSelectMenu
               label={
-                filters.statuses.length
-                  ? t("{count} statuses", { count: filters.statuses.length })
-                  : t("Status")
+                filters.statuses.length === 1
+                  ? t("1 status")
+                  : filters.statuses.length
+                    ? t("{count} statuses", { count: filters.statuses.length })
+                    : t("Status")
               }
               values={filters.statuses}
               options={itemStatusOptions.map((option) => ({
@@ -179,9 +181,11 @@ export function WishlistItemFilterBar({
           <View className="min-w-0 flex-1">
             <MultiSelectMenu
               label={
-                filters.priorities.length
-                  ? t("{count} priorities", { count: filters.priorities.length })
-                  : t("Priority")
+                filters.priorities.length === 1
+                  ? t("1 priority")
+                  : filters.priorities.length
+                    ? t("{count} priorities", { count: filters.priorities.length })
+                    : t("Priority")
               }
               values={filters.priorities}
               options={itemPriorityOptions.map((option) => ({
@@ -311,7 +315,7 @@ function MultiSelectMenu({
             key={option.value}
             checked={values.includes(option.value)}
             closeOnPress={false}
-            className={option.leading ? "min-h-11 rounded-xl pl-11" : undefined}
+            className={option.leading ? "min-h-11 rounded-xl ps-11" : undefined}
             leading={
               option.leading ??
               (option.color ? (

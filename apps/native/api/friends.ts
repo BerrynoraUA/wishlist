@@ -1,4 +1,8 @@
 import { supabase } from "@wishlist/backend/supabase/native";
+import {
+  createLocalizedNotification,
+  createLocalizedNotifications,
+} from "@/lib/create-notification";
 import { normalizeSearchQuery } from "@/lib/wishlists";
 import type {
   FriendGroupMember,
@@ -8,6 +12,7 @@ import type {
   FriendGroup,
   FriendWithDetails,
   GetFriendsWithoutWishlistAccessParams,
+  BlockedUser,
   ProfileSearchResult,
   PublicProfile,
   WishlistAccessUser,
@@ -125,23 +130,48 @@ export async function sendFriendRequest(receiverId: string): Promise<FriendReque
 
   if (error) throw error;
 
+  void createLocalizedNotification({
+    receiverId,
+    key: "friend_request",
+    vars: {},
+    entityId: user.id,
+  });
+
   return data as FriendRequest;
 }
 
 export async function acceptFriendRequest(requestId: string): Promise<void> {
-  const { error } = await supabase.rpc("accept_friend_request", {
+  const { data, error } = await supabase.rpc("accept_friend_request", {
     p_request_id: requestId,
   });
 
   if (error) throw error;
+
+  const requesterId = data as string | null;
+  if (requesterId) {
+    void createLocalizedNotification({
+      receiverId: requesterId,
+      key: "friend_accepted",
+      vars: {},
+    });
+  }
 }
 
 export async function rejectFriendRequest(requestId: string): Promise<void> {
-  const { error } = await supabase.rpc("reject_friend_request", {
+  const { data, error } = await supabase.rpc("reject_friend_request", {
     p_request_id: requestId,
   });
 
   if (error) throw error;
+
+  const requesterId = data as string | null;
+  if (requesterId) {
+    void createLocalizedNotification({
+      receiverId: requesterId,
+      key: "friend_declined",
+      vars: {},
+    });
+  }
 }
 
 export async function cancelFriendRequest(requestId: string): Promise<void> {
@@ -223,6 +253,8 @@ export async function searchProfilesByNickname({
   return ((data ?? []) as FriendAccessRow[]).map((row) => ({
     id: row.id ?? "",
     nickname: row.nickname ?? "unknown",
+    display_name: row.display_name ?? null,
+    avatar_url: row.avatar_url ?? null,
   }));
 }
 
@@ -251,6 +283,36 @@ export async function getFriends({ skip = 0, take = 20, search }: PaginationPara
     wishlists_count: Number(row.wishlists_count ?? 0),
     mutual_friends_count: Number(row.mutual_friends_count ?? 0),
   }));
+}
+
+/**
+ * Blocking also tears down the existing connection — the RPC removes the
+ * friendship and any pending request in either direction.
+ */
+export async function blockUser(userId: string): Promise<void> {
+  const { error } = await supabase.rpc("block_user", { p_user_id: userId });
+  if (error) throw error;
+}
+
+export async function unblockUser(userId: string): Promise<void> {
+  const { error } = await supabase.rpc("unblock_user", { p_user_id: userId });
+  if (error) throw error;
+}
+
+export async function getBlockedUsers({
+  skip = 0,
+  take = 20,
+  search,
+}: PaginationParams = {}): Promise<BlockedUser[]> {
+  const { data, error } = await supabase.rpc("get_blocked_users", {
+    p_skip: skip,
+    p_take: take,
+    p_search: normalizeSearchQuery(search) || null,
+  });
+
+  if (error) throw error;
+
+  return data ?? [];
 }
 
 export async function removeFriend(userId: string): Promise<void> {
@@ -322,6 +384,10 @@ export async function createFriendGroup(payload: FriendGroupPayload) {
   });
 
   if (error) throw error;
+
+  const groupId = (data as { id?: string } | null)?.id ?? null;
+  notifyGroupMembersAdded(groupId, payload.name, payload.memberIds);
+
   return data;
 }
 
@@ -336,7 +402,31 @@ export async function updateFriendGroup(groupId: string, payload: FriendGroupPay
   });
 
   if (error) throw error;
+
+  notifyGroupMembersAdded(groupId, payload.name, payload.memberIds);
+
   return data;
+}
+
+/**
+ * Notifies each group member that they were added. create_notification() dedupes by
+ * (receiver, group) and skips self, so re-sending on update is safe.
+ */
+function notifyGroupMembersAdded(
+  groupId: string | null,
+  groupName: string,
+  memberIds: string[] | undefined,
+) {
+  if (!groupId || !memberIds?.length) return;
+
+  void createLocalizedNotifications(
+    memberIds.map((receiverId) => ({
+      receiverId,
+      key: "group_added" as const,
+      vars: { group: groupName },
+      entityId: groupId,
+    })),
+  );
 }
 
 export async function deleteFriendGroup(groupId: string) {
@@ -368,6 +458,8 @@ export async function getFriendsWithoutWishlistAccess({
   return ((data ?? []) as FriendAccessRow[]).map((row) => ({
     id: row.id ?? "",
     nickname: row.nickname ?? "unknown",
+    display_name: row.display_name ?? null,
+    avatar_url: row.avatar_url ?? null,
   }));
 }
 

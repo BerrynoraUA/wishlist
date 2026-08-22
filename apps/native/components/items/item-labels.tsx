@@ -1,7 +1,7 @@
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { getThemeMode } from "@/lib/theme";
-import { PRIORITY_IDS } from "@wishlist/backend/lib";
+import { isStarPriorityId, PRIORITY_IDS } from "@wishlist/backend/lib";
 import type { ItemPriority } from "@wishlist/backend/types";
 import {
   AlertTriangle,
@@ -9,12 +9,11 @@ import {
   ArrowUp,
   Clock3,
   Crown,
+  Equal,
   Gem,
-  LockKeyhole,
-  Minus,
   PackageCheck,
   PackageOpen,
-  ShoppingCart,
+  Sparkle,
   Sparkles,
   Star,
   Waves,
@@ -36,15 +35,16 @@ const STATUS_PALETTE = {
 
 const PRIORITY_ICONS = {
   [PRIORITY_IDS.LOW]: ArrowDown,
-  [PRIORITY_IDS.MEDIUM]: Minus,
+  [PRIORITY_IDS.MEDIUM]: Equal,
   [PRIORITY_IDS.HIGH]: ArrowUp,
   [PRIORITY_IDS.URGENT]: Zap,
   [PRIORITY_IDS.CRITICAL]: AlertTriangle,
   [PRIORITY_IDS.EPIC]: Sparkles,
   [PRIORITY_IDS.LEGENDARY]: Crown,
   [PRIORITY_IDS.MYTHIC]: Waves,
-  [PRIORITY_IDS.CELESTIAL]: Star,
+  [PRIORITY_IDS.CELESTIAL]: Sparkle,
   [PRIORITY_IDS.DIVINE]: Gem,
+  [PRIORITY_IDS.STAR]: Star,
 } as const;
 
 const PRIORITY_PALETTE = {
@@ -62,42 +62,8 @@ const PRIORITY_PALETTE = {
   },
 } as const;
 
-export function ItemStatusBadge({
-  label,
-  purchased,
-  compact = false,
-}: {
-  label: string;
-  purchased: boolean;
-  compact?: boolean;
-}) {
-  const palette = useItemStatusPalette(purchased ? "purchased" : "reserved");
-  const icon = purchased ? ShoppingCart : LockKeyhole;
-
-  return (
-    <View
-      className="max-w-full flex-row items-center rounded-full border"
-      style={{
-        backgroundColor: palette.backgroundColor,
-        borderColor: palette.borderColor,
-        gap: compact ? 0 : 6,
-        paddingHorizontal: compact ? 5 : 10,
-        paddingVertical: compact ? 5 : 6,
-      }}
-    >
-      <Icon as={icon} className="size-3.5" color={palette.color} />
-      {!compact ? (
-        <Text
-          className="min-w-0 shrink text-[11px] font-bold"
-          numberOfLines={1}
-          style={{ color: palette.color }}
-        >
-          {label}
-        </Text>
-      ) : null}
-    </View>
-  );
-}
+/** Shared height so sale / priority / status pills on an item image line up exactly. */
+export const CARD_BADGE_HEIGHT = 26;
 
 export function ItemDetailStatusBadge({ label, purchased }: { label: string; purchased: boolean }) {
   const palette = useItemStatusPalette(purchased ? "purchased" : "reserved");
@@ -112,6 +78,36 @@ export function ItemDetailStatusBadge({ label, purchased }: { label: string; pur
       </Text>
     </View>
   );
+}
+
+/**
+ * Stare follows the user's accent (`--color-brand`) like the old star card did;
+ * every other priority uses its own fixed colour.
+ */
+export function usePriorityColor(priority: ItemPriority | null | undefined) {
+  const brand = useCSSVariable("--color-brand");
+
+  if (!priority) return undefined;
+  if (!isStarPriorityId(priority.id)) return priority.color;
+
+  return typeof brand === "string" ? brand : priority.color;
+}
+
+/**
+ * The priority tints the item card border; Stare additionally keeps the heavier
+ * frame it has always had. Mirrors the web card.
+ */
+export function useItemCardBorderStyle(priority: ItemPriority | null | undefined) {
+  const color = usePriorityColor(priority);
+
+  if (!priority || !color) return undefined;
+
+  // Only Stare overrides the width. Passing `borderWidth: undefined` explicitly
+  // would cancel the width coming from the card's className and leave the card
+  // with no border at all, so the key is omitted instead.
+  return isStarPriorityId(priority.id)
+    ? { borderColor: color, borderWidth: 2 }
+    : { borderColor: color };
 }
 
 export function ItemPriorityBadge({
@@ -130,13 +126,14 @@ export function ItemPriorityBadge({
 
   return (
     <View
-      className="flex-row items-center rounded-full border"
+      className="flex-row items-center justify-center rounded-full border"
       style={{
         backgroundColor: palette.backgroundColor,
         borderColor: palette.borderColor,
         gap: 6,
-        paddingHorizontal: compact ? 8 : 10,
-        paddingVertical: compact ? 4 : 6,
+        height: compact ? CARD_BADGE_HEIGHT : undefined,
+        paddingHorizontal: 10,
+        paddingVertical: compact ? 0 : 6,
       }}
     >
       {PriorityIcon ? <Icon as={PriorityIcon} className="size-3" color={palette.color} /> : null}
@@ -147,6 +144,43 @@ export function ItemPriorityBadge({
       >
         {label}
       </Text>
+    </View>
+  );
+}
+
+/** Stare's icon medallion, hanging off the bottom edge of a card. */
+export function ItemPriorityMedallion({
+  priority,
+  label,
+  size = "card",
+}: {
+  priority: ItemPriority;
+  label?: string | null;
+  size?: "card" | "detail";
+}) {
+  const cardBackground = useCSSVariable("--color-card-bg");
+  const color = usePriorityColor(priority) ?? priority.color;
+  const PriorityIcon = PRIORITY_ICONS[priority.id as keyof typeof PRIORITY_ICONS];
+  const diameter = size === "detail" ? 34 : 28;
+
+  return (
+    <View
+      accessibilityLabel={label ?? priority.name}
+      className="items-center justify-center rounded-full border-2"
+      style={{
+        backgroundColor: typeof cardBackground === "string" ? cardBackground : "transparent",
+        borderColor: color,
+        height: diameter,
+        width: diameter,
+      }}
+    >
+      {PriorityIcon ? (
+        <Icon
+          as={PriorityIcon}
+          className={size === "detail" ? "size-4" : "size-3.5"}
+          color={color}
+        />
+      ) : null}
     </View>
   );
 }
@@ -190,12 +224,14 @@ function usePriorityPalette(priority: ItemPriority, context: "card" | "detail") 
   const { theme } = useUniwind();
   const cardBackground = useCSSVariable("--color-card-bg");
   const namedPalette = PRIORITY_PALETTE[priority.name as keyof typeof PRIORITY_PALETTE];
+  // Not `priority.color`: Stare follows the accent, the rest keep their own.
+  const color = usePriorityColor(priority) ?? priority.color;
 
   if (context === "detail" && namedPalette) return namedPalette[getThemeMode(theme)];
 
   return {
     backgroundColor: typeof cardBackground === "string" ? cardBackground : "transparent",
-    borderColor: priority.color,
-    color: priority.color,
+    borderColor: color,
+    color,
   };
 }

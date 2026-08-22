@@ -1,5 +1,10 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import {
+  BottomSheet,
+  BottomSheetHeader,
+  BottomSheetScrollView,
+  type BottomSheetRef,
+} from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
@@ -7,6 +12,11 @@ import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import {
+  PeopleAvatar,
+  PeoplePickerField,
+  type PeoplePickerItem,
+} from "@/components/ui/people-picker";
 import { SingleImagePicker } from "@/components/ui/single-image-picker";
 import {
   Select,
@@ -16,13 +26,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
-import { useCreateWishlist, useUpdateWishlist } from "@/hooks/use-wishlists";
+import { useCreateWishlist, useMyStatistics, useUpdateWishlist } from "@/hooks/use-wishlists";
+import { useProGate } from "@/hooks/use-pro-gate";
 import {
   EMPTY_WISHLIST_FORM,
   getWishlistAccentOptions,
   getWishlistVisibilityOptions,
   getWishlistAccentClass,
   toWishlistFormValues,
+  WISHLIST_GROUP_ICON,
   type WishlistVisibilityOption,
 } from "@/lib/wishlists";
 import type { TranslateFn } from "@/lib/translate-fn";
@@ -35,20 +47,21 @@ import {
 } from "@/components/ui/sliding-option-selector";
 import type { WishlistAccessUser } from "@wishlist/backend/types/friends";
 import {
+  WishlistAccent,
   WishlistVisibility,
   type Wishlist,
   type WishlistFormValues,
 } from "@wishlist/backend/types/wishlist";
-import { CalendarDays, Check, X } from "lucide-react-native";
+import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
+import { CalendarDays, Lock, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import Animated, { LinearTransition } from "react-native-reanimated";
 import {
   useWishlistSelectedAccess,
   type SelectedAccessTarget,
-  type WishlistAccessOption,
 } from "./use-wishlist-selected-access";
 
 type VisibilitySelectorValue =
@@ -93,17 +106,23 @@ export function WishlistCreateEditSheet({
 }) {
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const t = useGT();
+  const { isGated, openPaywall } = useProGate();
   const completeCreateWishlistStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.createWishlist);
   const visibilityOptions = React.useMemo(() => getWishlistVisibilityOptions(t), [t]);
   const accentOptions = React.useMemo(() => getWishlistAccentOptions(t), [t]);
   const createMutation = useCreateWishlist();
   const updateMutation = useUpdateWishlist();
+  const statisticsQuery = useMyStatistics();
   const isPending = createMutation.isPending || updateMutation.isPending;
   const error = createMutation.error ?? updateMutation.error;
   const { control, handleSubmit, reset, setValue } = useForm<WishlistFormValues>({
     defaultValues: EMPTY_WISHLIST_FORM,
   });
-  const values = useWatch({ control }) as WishlistFormValues;
+  // Watch per field rather than the whole form: a bare `useWatch({ control })` re-renders
+  // this sheet on every keystroke in the description too, which nothing here reads.
+  const title = useWatch({ control, name: "title" });
+  const visibility = useWatch({ control, name: "visibility" });
+  const imageUrl = useWatch({ control, name: "imageUrl" });
   const [descriptionInputHeight, setDescriptionInputHeight] = React.useState(
     DESCRIPTION_INPUT_MIN_HEIGHT,
   );
@@ -115,22 +134,22 @@ export function WishlistCreateEditSheet({
     mode,
     open,
     wishlist,
-    visibility: values.visibility,
+    visibility,
     setVisibility: setSelectedAccessVisibility,
   });
   const imageUpload = useImageUploadField("wishlist");
   const canSubmit =
-    !isPending &&
-    !selectedAccess.isSaving &&
-    !imageUpload.isUploading &&
-    values.title.trim() !== "";
+    !isPending && !selectedAccess.isSaving && !imageUpload.isUploading && title.trim() !== "";
   React.useEffect(() => {
     if (!open) return;
 
-    reset(toWishlistFormValues(wishlist));
+    const nextValues = toWishlistFormValues(wishlist);
+    reset(
+      mode === "create" && isGated ? { ...nextValues, accent: WishlistAccent.Pink } : nextValues,
+    );
     imageUpload.reset();
     setDescriptionInputHeight(estimateDescriptionInputHeight(wishlist?.description));
-  }, [imageUpload.reset, mode, open, reset, wishlist]);
+  }, [imageUpload.reset, isGated, mode, open, reset, wishlist]);
 
   if (!open) return null;
 
@@ -161,6 +180,14 @@ export function WishlistCreateEditSheet({
 
   async function submitForm(formValues: WishlistFormValues) {
     if (!canSubmit) return;
+    if (
+      mode === "create" &&
+      isGated &&
+      (statisticsQuery.data?.wishlists_count ?? 0) >= FREE_LIMITS.maxWishlists
+    ) {
+      openPaywall();
+      return;
+    }
 
     selectedAccess.setError(null);
     selectedAccess.setIsSaving(false);
@@ -200,7 +227,11 @@ export function WishlistCreateEditSheet({
       ref={sheetRef}
       scrollable
       detents={[0.75, 0.94]}
+      footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
+      header={
+        <BottomSheetHeader title={mode === "edit" ? t("Edit wishlist") : t("Create a wishlist")} />
+      }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -226,10 +257,10 @@ export function WishlistCreateEditSheet({
         </View>
       }
     >
-      <ScrollView
+      <BottomSheetScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="gap-5 px-5 pb-6 pt-5"
+        contentContainerClassName="gap-5 px-5"
       >
         <Field label={t("Name")}>
           <Controller
@@ -273,7 +304,7 @@ export function WishlistCreateEditSheet({
           <VisibilitySelector
             t={t}
             visibilityOptions={visibilityOptions}
-            value={values.visibility}
+            value={visibility}
             selectedAccessTarget={selectedAccess.target}
             onChange={handleVisibilityChange}
           />
@@ -286,22 +317,19 @@ export function WishlistCreateEditSheet({
               {selectedAccess.target === "friends" ? (
                 <WishlistAccessPicker
                   title={t("Selected friends")}
+                  addLabel={t("Add friends")}
                   options={selectedAccess.friendOptions}
                   selected={selectedAccess.selectedFriends}
                   onChange={(nextSelected) => {
                     selectedAccess.setSelectedFriends(nextSelected);
                     selectedAccess.setError(null);
                   }}
-                  isLoading={
-                    mode === "edit"
-                      ? selectedAccess.friendsWithoutAccessLoading
-                      : selectedAccess.friendsLoading
-                  }
-                  isError={
-                    mode === "edit"
-                      ? selectedAccess.friendsWithoutAccessError
-                      : selectedAccess.friendsError
-                  }
+                  query={selectedAccess.friendQuery}
+                  onQueryChange={selectedAccess.setFriendQuery}
+                  isLoading={selectedAccess.friendsLoading}
+                  isError={selectedAccess.friendsError}
+                  isFetchingMore={selectedAccess.friendsFetchingMore}
+                  onEndReached={selectedAccess.loadMoreFriends}
                   emptyLabel={
                     mode === "edit"
                       ? t("All available friends already have access.")
@@ -324,22 +352,19 @@ export function WishlistCreateEditSheet({
               ) : (
                 <WishlistAccessPicker
                   title={t("Selected groups")}
+                  addLabel={t("Add groups")}
                   options={selectedAccess.groupOptions}
                   selected={selectedAccess.selectedGroups}
                   onChange={(nextSelected) => {
                     selectedAccess.setSelectedGroups(nextSelected);
                     selectedAccess.setError(null);
                   }}
-                  isLoading={
-                    mode === "edit"
-                      ? selectedAccess.groupsWithoutAccessLoading
-                      : selectedAccess.groupsLoading
-                  }
-                  isError={
-                    mode === "edit"
-                      ? selectedAccess.groupsWithoutAccessError
-                      : selectedAccess.groupsError
-                  }
+                  query={selectedAccess.groupQuery}
+                  onQueryChange={selectedAccess.setGroupQuery}
+                  isLoading={selectedAccess.groupsLoading}
+                  isError={selectedAccess.groupsError}
+                  isFetchingMore={selectedAccess.groupsFetchingMore}
+                  onEndReached={selectedAccess.loadMoreGroups}
                   emptyLabel={
                     mode === "edit"
                       ? t("All available groups already have access.")
@@ -369,7 +394,18 @@ export function WishlistCreateEditSheet({
             control={control}
             name="accent"
             render={({ field: { onChange, value } }) => (
-              <AccentSelector accentOptions={accentOptions} value={value} onChange={onChange} />
+              <AccentSelector
+                accentOptions={accentOptions}
+                value={value}
+                onChange={(accent) => {
+                  if (isGated && accent !== WishlistAccent.Pink) {
+                    openPaywall();
+                    return;
+                  }
+                  onChange(accent);
+                }}
+                isGated={isGated}
+              />
             )}
           />
         </Field>
@@ -386,11 +422,10 @@ export function WishlistCreateEditSheet({
 
         <Field label={t("Cover Image")}>
           <SingleImagePicker
-            previewUri={imageUpload.pickedImage?.uri ?? values.imageUrl}
+            previewUri={imageUpload.pickedImage?.uri ?? imageUrl}
             aspect={[16, 9]}
             pickLabel={t("Choose cover image")}
             changeLabel={t("Change image")}
-            showChangeButton={mode !== "edit"}
             onPick={(image) => {
               imageUpload.onPick(image);
             }}
@@ -411,7 +446,7 @@ export function WishlistCreateEditSheet({
         {selectedAccess.error ? (
           <Text className="text-sm font-semibold text-destructive">{selectedAccess.error}</Text>
         ) : null}
-      </ScrollView>
+      </BottomSheetScrollView>
     </BottomSheet>
   );
 }
@@ -464,7 +499,7 @@ function VisibilitySelector({
       {
         value: "selected-groups",
         label: t("Selected groups"),
-        icon: friendsOption.icon,
+        icon: WISHLIST_GROUP_ICON,
         visibility: WishlistVisibility.SelectedFriends,
         selectedAccessTarget: "groups",
       },
@@ -494,7 +529,7 @@ function VisibilitySelector({
         onChange(nextOption.visibility, nextOption.selectedAccessTarget);
       }}
     >
-      <SelectTrigger className="h-12 rounded-lg border-border-subtle bg-bg-subtle">
+      <SelectTrigger className="h-10 rounded-lg border-border-subtle sm:h-9">
         <View className="min-w-0 flex-1 flex-row items-center gap-2">
           {SelectedIcon ? <Icon as={SelectedIcon} className="size-4 text-text-muted" /> : null}
           <SelectValue className="min-w-0 flex-1" placeholder={t("Select visibility")} />
@@ -518,10 +553,12 @@ function AccentSelector({
   accentOptions,
   value,
   onChange,
+  isGated,
 }: {
   accentOptions: ReturnType<typeof getWishlistAccentOptions>;
   value: WishlistFormValues["accent"];
   onChange: (accent: WishlistFormValues["accent"]) => void;
+  isGated: boolean;
 }) {
   const t = useGT();
   const rows = React.useMemo(() => {
@@ -531,7 +568,17 @@ function AccentSelector({
       surfaceClassName: "bg-transparent",
       children: ({ selected }: SlidingOptionRenderProps) => (
         <>
-          <View className={cn("size-4 rounded-full", getWishlistAccentClass(option.value))} />
+          <View
+            className={cn(
+              "size-4 items-center justify-center rounded-full",
+              getWishlistAccentClass(option.value),
+              isGated && option.value !== WishlistAccent.Pink && "opacity-55",
+            )}
+          >
+            {isGated && option.value !== WishlistAccent.Pink ? (
+              <Icon as={Lock} className="size-2.5 text-white" />
+            ) : null}
+          </View>
           <Text
             className={cn("text-sm font-semibold text-text-muted", selected && "text-brand")}
             numberOfLines={1}
@@ -543,7 +590,7 @@ function AccentSelector({
     }));
 
     return [options.slice(0, 3), options.slice(3)];
-  }, [accentOptions, t]);
+  }, [accentOptions, isGated, t]);
 
   return (
     <SlidingOptionSelector
@@ -568,27 +615,20 @@ function EventDatePicker({
   const t = useGT();
 
   return (
-    <DatePicker
-      value={value || null}
-      onChange={(nextValue) => onChange(nextValue ?? "")}
-      iosContainerClassName="mt-2 overflow-hidden rounded-xl border border-border-subtle bg-bg-subtle"
-    >
+    <DatePicker value={value || null} onChange={(nextValue) => onChange(nextValue ?? "")}>
       {({ displayValue, openPicker }) => (
         <View className="gap-2">
           <AnimatedPressable
             accessibilityRole="button"
             accessibilityLabel={t("Select event date")}
             onPress={openPicker}
-            className="min-h-12 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-bg-subtle px-3"
+            className="h-10 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-background px-3 sm:h-9 dark:bg-input/30"
           >
             <Icon as={CalendarDays} className="size-4 text-text-muted" />
             <View className="min-w-0 flex-1">
               <Text className={cn("font-semibold", value ? "text-text" : "text-text-muted")}>
                 {value ? displayValue : t("Select a date")}
               </Text>
-              {value ? (
-                <Text className="text-xs font-semibold text-text-muted">{value}</Text>
-              ) : null}
             </View>
             {value ? (
               <AnimatedPressable
@@ -612,11 +652,16 @@ function EventDatePicker({
 
 function WishlistAccessPicker({
   title,
+  addLabel,
   options,
   selected,
   onChange,
+  query,
+  onQueryChange,
   isLoading,
   isError,
+  isFetchingMore,
+  onEndReached,
   emptyLabel,
   errorLabel,
   existingAccess = [],
@@ -627,11 +672,16 @@ function WishlistAccessPicker({
   searchPlaceholder,
 }: {
   title: string;
-  options: WishlistAccessOption[];
-  selected: WishlistAccessOption[];
-  onChange: (options: WishlistAccessOption[]) => void;
+  addLabel: string;
+  options: PeoplePickerItem[];
+  selected: PeoplePickerItem[];
+  onChange: (options: PeoplePickerItem[]) => void;
+  query: string;
+  onQueryChange: (query: string) => void;
   isLoading: boolean;
   isError: boolean;
+  isFetchingMore: boolean;
+  onEndReached: () => void;
   emptyLabel: string;
   errorLabel: string;
   existingAccess?: WishlistAccessUser[];
@@ -642,87 +692,26 @@ function WishlistAccessPicker({
   searchPlaceholder: string;
 }) {
   const t = useGT();
-  const [query, setQuery] = React.useState("");
-  const selectedIds = React.useMemo(() => new Set(selected.map((item) => item.id)), [selected]);
-  const filteredOptions = React.useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    if (normalizedQuery.length < 3) return options;
-    return options.filter((option) => option.nickname.toLowerCase().includes(normalizedQuery));
-  }, [options, query]);
-
-  function toggleOption(option: WishlistAccessOption) {
-    if (selectedIds.has(option.id)) {
-      onChange(selected.filter((item) => item.id !== option.id));
-      return;
-    }
-
-    onChange([...selected, option]);
-  }
 
   return (
     <View className="gap-3">
-      <View className="flex-row items-center justify-between gap-2">
-        <Text className="text-sm font-bold text-text">{title}</Text>
-        {selected.length > 0 ? (
-          <View className="rounded-full bg-brand-lighter px-2 py-1">
-            <Text className="text-xs font-bold text-brand">
-              {t("{count} selected", { count: selected.length })}
-            </Text>
-          </View>
-        ) : null}
-      </View>
-
-      <Input
-        value={query}
-        onChangeText={setQuery}
-        placeholder={searchPlaceholder}
-        autoCapitalize="none"
+      <PeoplePickerField
+        label={title}
+        title={addLabel}
+        addLabel={addLabel}
+        items={options}
+        selected={selected}
+        onChange={onChange}
+        query={query}
+        onQueryChange={onQueryChange}
+        searchPlaceholder={searchPlaceholder}
+        emptyLabel={emptyLabel}
+        errorLabel={errorLabel}
+        isLoading={isLoading}
+        isError={isError}
+        isFetchingMore={isFetchingMore}
+        onEndReached={onEndReached}
       />
-
-      <View className="gap-2">
-        {isLoading ? (
-          <Text className="rounded-lg bg-bg-muted p-3 text-sm font-semibold text-text-muted">
-            {t("Loading...")}
-          </Text>
-        ) : null}
-        {!isLoading && isError ? (
-          <Text className="rounded-lg bg-bg-muted p-3 text-sm font-semibold text-destructive">
-            {errorLabel}
-          </Text>
-        ) : null}
-        {!isLoading && !isError && filteredOptions.length === 0 ? (
-          <Text className="rounded-lg bg-bg-muted p-3 text-sm font-semibold text-text-muted">
-            {emptyLabel}
-          </Text>
-        ) : null}
-        {!isLoading && !isError
-          ? filteredOptions.map((option) => {
-              const active = selectedIds.has(option.id);
-
-              return (
-                <Button
-                  key={option.id}
-                  variant="ghost"
-                  className={cn(
-                    "min-h-12 justify-start rounded-lg border border-border-subtle bg-bg-elevated px-3",
-                    active && "border-brand bg-brand-lighter",
-                  )}
-                  onPress={() => toggleOption(option)}
-                >
-                  <View className="size-8 items-center justify-center rounded-full bg-bg-muted">
-                    <Text className="text-xs font-extrabold text-text-muted">
-                      {option.nickname[0]?.toUpperCase() ?? "?"}
-                    </Text>
-                  </View>
-                  <Text className={cn("min-w-0 flex-1 font-semibold", active && "text-brand")}>
-                    {option.nickname}
-                  </Text>
-                  {active ? <Icon as={Check} className="size-4 text-brand" /> : null}
-                </Button>
-              );
-            })
-          : null}
-      </View>
 
       {existingAccessTitle ? (
         <View className="gap-2 border-t border-border-subtle pt-3">
@@ -750,11 +739,18 @@ function WishlistAccessPicker({
                     key={`${target.target_type ?? "user"}-${revokeTargetId}`}
                     className="min-h-12 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-bg-elevated px-3"
                   >
-                    <View className="size-8 items-center justify-center rounded-full bg-bg-muted">
-                      <Text className="text-xs font-extrabold text-text-muted">
-                        {target.nickname[0]?.toUpperCase() ?? "?"}
-                      </Text>
-                    </View>
+                    {/* Same leading slot as the picker above, so a row that was just
+                        granted access does not change shape once it moves down here. */}
+                    <PeopleAvatar
+                      className="size-8"
+                      item={{
+                        name: target.nickname,
+                        group:
+                          target.target_type === "group"
+                            ? { icon: target.icon ?? "users", color: target.color ?? "pink" }
+                            : undefined,
+                      }}
+                    />
                     <Text className="min-w-0 flex-1 font-semibold text-text">
                       {target.nickname}
                     </Text>

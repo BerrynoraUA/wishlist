@@ -1,6 +1,6 @@
 import { MascotEmptyState } from "@/components/shared/mascot-empty-state";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
-import { BottomSheet, type BottomSheetRef } from "@/components/ui/bottom-sheet";
+import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -120,7 +120,7 @@ export function NotificationsMenu() {
       >
         <Icon as={Bell} className="size-5 text-text" />
         {unreadCount > 0 ? (
-          <View className="absolute -right-1 -top-1 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5">
+          <View className="absolute -end-1 -top-1 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5">
             <Text className="text-[10px] font-extrabold leading-3 text-white">
               {unreadCount > 99 ? "99+" : unreadCount}
             </Text>
@@ -131,7 +131,6 @@ export function NotificationsMenu() {
       <NotificationsSheet
         open={open}
         notifications={notifications}
-        unreadCount={unreadCount}
         isLoading={isBusy}
         onClear={() => void handleClear()}
         onReadAll={() => void handleReadAll()}
@@ -145,7 +144,6 @@ export function NotificationsMenu() {
 function NotificationsSheet({
   open,
   notifications,
-  unreadCount,
   isLoading,
   onClear,
   onReadAll,
@@ -154,7 +152,6 @@ function NotificationsSheet({
 }: {
   open: boolean;
   notifications: Notification[];
-  unreadCount: number;
   isLoading: boolean;
   onClear: () => void;
   onReadAll: () => void;
@@ -173,29 +170,25 @@ function NotificationsSheet({
       detents={[0.82, 1]}
       initialDetentIndex={0}
       onDidDismiss={onClose}
+      header={
+        <BottomSheetHeader
+          title={t("Notifications")}
+          action={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              accessibilityLabel={t("Close notifications")}
+              onPress={() => void sheetRef.current?.dismiss()}
+            >
+              <Icon as={X} className="size-4 text-text" />
+            </Button>
+          }
+        />
+      }
     >
-      <View className="px-5 pb-6 pt-4">
+      <View className="px-5">
         <View className="gap-4">
           <View className="gap-3">
-            <View className="flex-row items-start justify-between gap-3">
-              <View className="min-w-0 flex-1 gap-1">
-                <Text className="text-2xl font-extrabold text-text">{t("Notifications")}</Text>
-                <Text className="text-sm leading-5 text-text-muted">
-                  {unreadCount > 0
-                    ? t("{n} unread notification", { n: unreadCount })
-                    : t("You are all caught up.")}
-                </Text>
-              </View>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                accessibilityLabel={t("Close notifications")}
-                onPress={() => void sheetRef.current?.dismiss()}
-              >
-                <Icon as={X} className="size-4 text-text" />
-              </Button>
-            </View>
-
             {notifications.length > 0 ? (
               <View className="flex-row gap-2">
                 <Button
@@ -367,7 +360,7 @@ function NotificationRow({
       </View>
 
       {isInvite ? (
-        <View className="ml-5 flex-row gap-2">
+        <View className="ms-5 flex-row gap-2">
           <Button
             className="min-w-0 flex-1 rounded-full"
             size="sm"

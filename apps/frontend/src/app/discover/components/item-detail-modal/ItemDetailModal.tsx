@@ -16,17 +16,16 @@ import {
 import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
 import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
 import {
-  buildItemPriorityLabel,
   buildPurchaseActionLabel,
   buildReservationActionLabel,
-  buildReservationStatusLabel,
   buildSaveItemData,
-  getItemPriorityKey,
   getItemReservationState,
   getItemStoreFromUrl,
   getNextConfirmAction,
   getReservedByValue,
 } from "@/lib/helpers/item-card";
+import { ALL_PRIORITIES, getPriorityCssColor } from "@/lib/priorities";
+import { PRIORITY_ICONS } from "@/lib/priority-icons";
 
 type ReserveActionType = "reserve" | "unreserve";
 type BoughtActionType = "purchase" | "unpurchase";
@@ -67,36 +66,13 @@ export function ItemDetailModal({
     currentUserId,
   });
   const imgSrc = item.image_url || item.image;
-  const priorityKey = getItemPriorityKey(item.priority);
-  const priorityLabel = buildItemPriorityLabel(item.priority, {
-    low: t("Low", { $id: "discover.detail.priorityLow" }),
-    medium: t("Medium", { $id: "discover.detail.priorityMedium" }),
-    high: t("High", { $id: "discover.detail.priorityHigh" }),
-  });
   const canShowBoughtAction = Boolean(onToggleBought || onBoughtAction);
 
-  const reserveStatusLabel = buildReservationStatusLabel(reservationState, item.reservedByName, {
-    purchasedByYou: () =>
-      t("Purchased by you", {
-        $id: "discover.detail.purchasedByYouStatus",
-      }),
-    purchased: () => t("Purchased", { $id: "discover.detail.purchasedStatus" }),
-    purchasedByName: (name) =>
-      t("Purchased by {name}", {
-        name,
-        $id: "discover.detail.purchasedByNameStatus",
-      }),
-    reservedByYou: () =>
-      t("Reserved by you", {
-        $id: "discover.detail.reservedByYouStatus",
-      }),
-    reserved: () => t("Reserved", { $id: "discover.detail.reservedStatus" }),
-    reservedByName: (name) =>
-      t("Reserved by {name}", {
-        name,
-        $id: "discover.detail.reservedByNameStatus",
-      }),
-  });
+  // The diagonal stamp on the image carries the status.
+  const showStatusStamp = reservationState.isPurchased || reservationState.isReserved;
+
+  const priorityMeta = ALL_PRIORITIES.find((p) => p.name === item.priority) ?? null;
+  const PriorityIcon = priorityMeta ? (PRIORITY_ICONS[priorityMeta.id] ?? null) : null;
 
   const handleReserveClick = () => {
     if (!reservationState.canToggleReservation || (!onToggleReserve && !onReserveAction)) return;
@@ -151,6 +127,21 @@ export function ItemDetailModal({
           {imgSrc && (
             <div className={styles.imageSection}>
               <img src={imgSrc} alt={item.title} />
+
+              {showStatusStamp && (
+                <div
+                  className={`${styles.reservedStamp} ${
+                    reservationState.isPurchased ? styles.purchasedStamp : ""
+                  }`}
+                  aria-hidden="true"
+                >
+                  <span>
+                    {reservationState.isPurchased
+                      ? t("Purchased", { $id: "discover.detail.purchasedStamp" })
+                      : t("Reserved", { $id: "discover.detail.reservedStamp" })}
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
@@ -181,16 +172,20 @@ export function ItemDetailModal({
               {item.price != null && (
                 <span className={styles.price}>{formatPrice(item.price, item.currency)}</span>
               )}
-              {priorityKey && priorityLabel && (
-                <span className={`${styles.priority} ${styles[priorityKey]}`}>{priorityLabel}</span>
-              )}
-              {reserveStatusLabel && (
+              {PriorityIcon && (
                 <span
-                  className={`${styles.reservedBadge} ${
-                    reservationState.isPurchased ? styles.purchasedBadge : ""
-                  }`}
+                  className={styles.priority}
+                  style={
+                    {
+                      "--priority-color": priorityMeta
+                        ? getPriorityCssColor(priorityMeta)
+                        : undefined,
+                    } as React.CSSProperties
+                  }
+                  aria-label={priorityMeta?.name}
+                  title={priorityMeta?.name}
                 >
-                  {reserveStatusLabel}
+                  <PriorityIcon size={15} strokeWidth={2.5} />
                 </span>
               )}
             </div>

@@ -197,17 +197,20 @@ export function buildReservationStatusLabel(
   >,
   reservedByName: string | null | undefined,
   labels: ReservationStatusLabelFactory,
+  // Naming the giver is a spoiler, so it only happens when the wishlist owner
+  // asks for it item by item. Everyone else always sees the generic status.
+  { revealName = false }: { revealName?: boolean } = {},
 ): string | null {
-  // Privacy: never reveal who reserved/purchased an item. Only the actor
-  // sees "by you"; everyone else sees the generic status.
+  const named = revealName && reservedByName ? reservedByName : null;
+
   if (state.isPurchased) {
     if (state.reservedByMe) return labels.purchasedByYou();
-    return labels.purchased();
+    return named ? labels.purchasedByName(named) : labels.purchased();
   }
 
   if (!state.isReserved) return null;
   if (state.reservedByMe) return labels.reservedByYou();
-  return labels.reserved();
+  return named ? labels.reservedByName(named) : labels.reserved();
 }
 
 export function buildReservationActionLabel(

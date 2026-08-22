@@ -1,0 +1,73 @@
+{
+  "bcp47": "et",
+  "title": "Wishlane: soovinimekirjad",
+  "appleName": "Wishlane",
+  "subtitle": "Soovinimekirjad ja kingid",
+  "shortDescription": "Koosta soovinimekirju, jaga neid sõpradega ja broneeri kingitusi salaja.",
+  "promoText": "Kleebi ükskõik milline link, koosta ilus soovinimekiri ja jaga seda sõpradega. Nad broneerivad kingitusi salaja – keegi ei osta sama asja ja ükski üllatus ei lähe raisku.",
+  "keywords": [
+    "soovinimekiri",
+    "kingitus",
+    "sünnipäev",
+    "jõulud",
+    "salajane jõuluvana",
+    "kingiideed"
+  ],
+  "intro": [
+    "Wishlane muudab küsimuse „no mida sa siis tegelikult tahad?” millekski, mis kõigile meeldib.",
+    "Koosta ilusaid soovinimekirju, jaga neid sinu jaoks oluliste inimestega ja lase neil kingitusi salaja broneerida – keegi ei osta sama asja kaks korda ja ükski üllatus ei lähe raisku."
+  ],
+  "sections": [
+    {
+      "heading": "Soovinimekiri sekunditega",
+      "body": "Kleebi ükskõik milline tootelink ja Wishlane täidab sinu eest pealkirja, kirjelduse, pildi ja hinna. Pane nimekirjale nimi, vali värv, määra sündmuse kuupäev – valmis."
+    },
+    {
+      "heading": "Jaga oma tingimustel",
+      "body": "Iga nimekiri võib olla avalik, ainult sõpradele või täiesti privaatne. Saada link kellele tahes või lisa sõbrad kasutajanime järgi – sina näed nende nimekirju, nemad sinu omi."
+    },
+    {
+      "heading": "Broneeri kingitusi salaja",
+      "body": "Broneeri sõbra nimekirjast ese: kõik teised näevad, et see on juba võetud, aga nimekirja omanik ei saa sellest kunagi teada. Ei mingeid topeltkingitusi ega rikutud üllatusi."
+    },
+    {
+      "heading": "Salajane jõuluvana, korraldatud",
+      "body": "Loo grupp, kutsu kõik ühe lingiga ja lase Wishlane'il loosimine ära teha. Igaüks näeb loositud inimese soovinimekirja, nii et kingitused lähevad täppi."
+    },
+    {
+      "heading": "Avasta, mida teised soovivad",
+      "body": "Sirvi sõprade avalikke soovinimekirju, jälgi tulevasi sünnipäevi ja tähtpäevi koos ajaarvestusega ega tule enam kunagi tühjade kätega."
+    },
+    {
+      "heading": "Ole kursis",
+      "body": "Saad teate, kui sõber lisab soovinimekirja, saadab sulle päringu või broneerib midagi sinu nimekirjast."
+    },
+    {
+      "heading": "Wishlane Premium",
+      "body": "Piiramatud nimekirjad ja esemed, kaastoimetajate ligipääs jagatud nimekirjadele ning omad värvid ja tähtsusjärjekorrad."
+    }
+  ],
+  "closing": "Wishlane'iga alustamine on tasuta – kaarti pole vaja ja seadistus võtab alla minuti. Saadaval enam kui 40 keeles.",
+  "subscriptionHeading": "Tellimuse tingimused",
+  "subscriptionApple": "Wishlane Premium on automaatselt uuenev tellimus kuu või aasta kaupa. Makse võetakse ostu kinnitamisel sinu Apple ID-lt. Tellimus uueneb automaatselt, kui automaatset uuendamist ei lülitata välja vähemalt 24 tundi enne käimasoleva perioodi lõppu. Saad seda igal ajal hallata või tühistada oma Apple ID konto seadetes.",
+  "subscriptionGoogle": "Wishlane Premium on automaatselt uuenev tellimus kuu või aasta kaupa. Makse võetakse ostu kinnitamisel sinu Google Play kontolt. Tellimus uueneb automaatselt, kui automaatset uuendamist ei lülitata välja vähemalt 24 tundi enne käimasoleva perioodi lõppu. Saad seda igal ajal hallata või tühistada Google Play poes.",
+  "subscriptionPrice": "Wishlane Premium maksab {monthly} kuus või {yearly} aastas. Hinnad on USA dollarites ja võivad piirkonniti erineda.",
+  "footer": [
+    "Küsimused või tagasiside? support@wishlane.net",
+    "Privaatsuspoliitika: https://wishlane.net/privacy-policy",
+    "Kasutustingimused: https://wishlane.net/terms-of-service"
+  ],
+  "changelogIntro": "Wishlane'i esimene versioon.",
+  "changelogBullets": [
+    "Soovinimekirjad värvide, tähtsuse ja kuupäevadega",
+    "Kleebi tootelink ja meie täidame üksikasjad",
+    "Nimekirjad avalikud, sõpradele või privaatsed",
+    "Salajane kingituste broneerimine sõprade nimekirjades",
+    "Salajase jõuluvana grupp automaatse loosimisega",
+    "Sõprade nimekirjad ja tulevased tähtpäevad"
+  ],
+  "permissions": {
+    "photos": "Luba Wishlane'il valida sinu teegist profiilipilt.",
+    "faceId": "Luba Wishlane'il turvaliselt salvestatud kontode vahel vahetada."
+  }
+}
