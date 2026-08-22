@@ -5,32 +5,35 @@ name: Mobile CI
 #
 # The path lists below are duplicated rather than shared via a YAML anchor:
 # GitHub Actions does not support anchors or aliases in workflow files.
+# Automatic triggers are commented out: this pipeline is manual-dispatch only.
+# Uncomment the blocks below to restore automatic runs.
 on:
-  pull_request:
-    paths:
-      - apps/native/**
-      - packages/backend/**
-      - packages/scraper-core/**
-      - patches/**
-      - .easignore
-      - package.json
-      - pnpm-lock.yaml
-      - pnpm-workspace.yaml
-      - .github/workflows/mobile-ci.yml
-  push:
-    branches:
-      - main
-      - dev
-    paths:
-      - apps/native/**
-      - packages/backend/**
-      - packages/scraper-core/**
-      - patches/**
-      - .easignore
-      - package.json
-      - pnpm-lock.yaml
-      - pnpm-workspace.yaml
-      - .github/workflows/mobile-ci.yml
+  workflow_dispatch:
+#   pull_request:
+#     paths:
+#       - apps/native/**
+#       - packages/backend/**
+#       - packages/scraper-core/**
+#       - patches/**
+#       - .easignore
+#       - package.json
+#       - pnpm-lock.yaml
+#       - pnpm-workspace.yaml
+#       - .github/workflows/mobile-ci.yml
+#   push:
+#     branches:
+#       - main
+#       - dev
+#     paths:
+#       - apps/native/**
+#       - packages/backend/**
+#       - packages/scraper-core/**
+#       - patches/**
+#       - .easignore
+#       - package.json
+#       - pnpm-lock.yaml
+#       - pnpm-workspace.yaml
+#       - .github/workflows/mobile-ci.yml
 
 concurrency:
   group: mobile-ci-${{ github.event.pull_request.number || github.ref }}

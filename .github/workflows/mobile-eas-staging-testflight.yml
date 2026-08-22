@@ -1,22 +1,24 @@
 name: Mobile EAS TestFlight - Staging Database
 
+# Automatic triggers are commented out: this pipeline is manual-dispatch only.
+# Uncomment the blocks below to restore automatic runs.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - staging
-    paths:
-      - apps/native/**
-      - packages/backend/**
-      - packages/scraper-core/**
-      - patches/**
-      - .easignore
-      - package.json
-      - pnpm-lock.yaml
-      - pnpm-workspace.yaml
-      - .github/workflows/mobile-eas-staging-testflight.yml
-      - .github/workflows/mobile-eas-build-submit.yml
-      - "!**/*.md"
+#   push:
+#     branches:
+#       - staging
+#     paths:
+#       - apps/native/**
+#       - packages/backend/**
+#       - packages/scraper-core/**
+#       - patches/**
+#       - .easignore
+#       - package.json
+#       - pnpm-lock.yaml
+#       - pnpm-workspace.yaml
+#       - .github/workflows/mobile-eas-staging-testflight.yml
+#       - .github/workflows/mobile-eas-build-submit.yml
+#       - "!**/*.md"
 
 concurrency:
   group: mobile-eas-staging-testflight-${{ github.ref }}

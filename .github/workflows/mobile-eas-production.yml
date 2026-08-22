@@ -1,10 +1,12 @@
 name: Mobile EAS Production
 
+# Automatic triggers are commented out: this pipeline is manual-dispatch only.
+# Uncomment the blocks below to restore automatic runs.
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - native-v*
+#   push:
+#     tags:
+#       - native-v*
 
 concurrency:
   group: mobile-eas-production-${{ github.ref }}

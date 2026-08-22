@@ -1,21 +1,23 @@
 name: Mobile EAS Development Client
 
+# Automatic triggers are commented out: this pipeline is manual-dispatch only.
+# Uncomment the blocks below to restore automatic runs.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - dev
-    paths:
-      - apps/native/**
-      - packages/backend/**
-      - packages/scraper-core/**
-      - patches/**
-      - .easignore
-      - package.json
-      - pnpm-lock.yaml
-      - pnpm-workspace.yaml
-      - .github/workflows/mobile-eas-development.yml
-      - "!**/*.md"
+#   push:
+#     branches:
+#       - dev
+#     paths:
+#       - apps/native/**
+#       - packages/backend/**
+#       - packages/scraper-core/**
+#       - patches/**
+#       - .easignore
+#       - package.json
+#       - pnpm-lock.yaml
+#       - pnpm-workspace.yaml
+#       - .github/workflows/mobile-eas-development.yml
+#       - "!**/*.md"
 
 concurrency:
   group: mobile-eas-development-${{ github.ref }}
