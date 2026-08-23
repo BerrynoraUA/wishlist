@@ -45,7 +45,7 @@ export function DiscoverItemCard({
   const store = getItemStoreFromUrl(item.url);
   const salePercentOff = getSalePercentOff(item.price, item.discount_price, item.has_discount);
   const isTaken = Boolean(reservationLabel);
-  // Only Stare hangs a medallion off the bottom edge of the card.
+  // Only Starred hangs a medallion off the bottom edge of the card.
   const medallionPriority = priority && isStarPriorityId(priority.id) ? priority : null;
 
   return (

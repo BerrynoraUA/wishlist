@@ -256,16 +256,16 @@ const config: ShowcaseConfig = {
         headline: ["Never lose a", "gift idea again"],
         callouts: [
           {
-            lines: ["Gifts you claimed, so", "nobody buys it twice"],
+            lines: ["Taken items show up —", "no double gifts"],
             side: "left",
             anchor: { x: 0.3, y: 0.352 },
             lift: 0.14,
           },
           {
-            lines: ["Only friends you accept", "can open this list"],
+            lines: ["You choose who", "gets to see it"],
             side: "right",
-            anchor: { x: 0.675, y: 0.716 },
-            lift: -0.1,
+            anchor: { x: 0.675, y: 0.702 },
+            lift: -0.086,
           },
         ],
       },
@@ -275,13 +275,13 @@ const config: ShowcaseConfig = {
         // left end would drag the bubble trail across the value meant to be read.
         callouts: [
           {
-            lines: ["This link is the only", "thing you typed"],
+            lines: ["Drop a link —", "that's it"],
             side: "right",
             anchor: { x: 0.72, y: 0.338 },
             lift: -0.16,
           },
           {
-            lines: ["Name, photo and price", "arrived from the shop"],
+            lines: ["Photo and price,", "pulled in for you"],
             side: "left",
             anchor: { x: 0.3, y: 0.866 },
             lift: -0.125,
@@ -292,16 +292,16 @@ const config: ShowcaseConfig = {
         headline: ["Know exactly", "what to buy them"],
         callouts: [
           {
-            lines: ["Nine days' warning,", "not a same-day panic"],
+            lines: ["Never miss a date —", "we remind you in time"],
             side: "left",
-            anchor: { x: 0.72, y: 0.2545 },
-            lift: -0.108,
+            anchor: { x: 0.72, y: 0.2405 },
+            lift: -0.094,
           },
           {
-            lines: ["Greyed out means taken", "— and they never know"],
+            lines: ["Mark the gift you're giving —", "no one else will take it"],
             side: "right",
             anchor: { x: 0.88, y: 0.66 },
-            lift: -0.075,
+            lift: 0.152,
           },
         ],
       },
@@ -309,16 +309,16 @@ const config: ShowcaseConfig = {
         headline: ["Secret Santa that", "runs itself"],
         callouts: [
           {
-            lines: ["One budget everyone", "shops to"],
+            lines: ["Date, budget, people —", "it runs itself"],
             side: "left",
             anchor: { x: 0.235, y: 0.431 },
             lift: 0.1,
           },
           {
-            lines: ["Six people in, names", "drawn for you"],
+            lines: ["Same budget", "for everyone"],
             side: "right",
             anchor: { x: 0.632, y: 0.738 },
-            lift: -0.1,
+            lift: -0.152,
           },
         ],
       },
@@ -328,7 +328,7 @@ const config: ShowcaseConfig = {
         // cover, and the match secrecy is the single claim worth making here.
         callouts: [
           {
-            lines: ["Only you see this name.", "Everyone else sees theirs"],
+            lines: ["Your match.", "Just for your eyes"],
             side: "right",
             anchor: { x: 0.62, y: 0.323 },
             lift: -0.115,
@@ -339,16 +339,16 @@ const config: ShowcaseConfig = {
         headline: ["Get the exact", "one you wanted"],
         callouts: [
           {
-            lines: ["They flag what they", "want most"],
+            lines: ["Mark what you", "want most"],
             side: "right",
             anchor: { x: 0.775, y: 0.453 },
             lift: -0.09,
           },
           {
-            lines: ["You pick who sees the", "list, and when it lands"],
+            lines: ["Only you decide", "who can see it"],
             side: "left",
-            anchor: { x: 0.253, y: 0.298 },
-            lift: 0.19,
+            anchor: { x: 0.253, y: 0.2563 },
+            lift: 0.2317,
           },
         ],
       },
@@ -356,15 +356,15 @@ const config: ShowcaseConfig = {
         headline: ["Never guess a", "present again"],
         callouts: [
           {
-            lines: ["Nobody sees your lists", "until you accept them"],
+            lines: ["Lists stay closed", "until you confirm"],
             side: "right",
-            anchor: { x: 0.757, y: 0.152 },
-            lift: 0.09,
+            anchor: { x: 0.85, y: 0.1083 },
+            lift: 0.1337,
           },
           // Right again, unusually: every row here puts its avatar and name hard against
           // the left edge, so a left-hanging cloud can only land on top of a name.
           {
-            lines: ["Three lists to browse", "instead of guessing"],
+            lines: ["See what your friends", "actually want"],
             side: "right",
             anchor: { x: 0.52, y: 0.604 },
             lift: -0.105,

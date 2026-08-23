@@ -104,7 +104,7 @@ export function WishlistItemCard({
   const priorityLabel = getTranslatedItemPriorityLabel(t, item.priority_id);
   const priority = getItemPriority(item.priority_id);
   const cardBorderStyle = useItemCardBorderStyle(priority);
-  // Only Stare hangs a medallion off the bottom edge of the card.
+  // Only Starred hangs a medallion off the bottom edge of the card.
   const medallionPriority = priority && isStarPriorityId(priority.id) ? priority : null;
   const store = getItemStoreFromUrl(item.url);
   const itemUrl = getValidHttpUrl(item.url) ?? "";

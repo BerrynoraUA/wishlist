@@ -115,7 +115,7 @@
   }
 }
 
-/* Stare keeps the heavier brand-coloured frame it always had. */
+/* Starred keeps the heavier brand-coloured frame it always had. */
 .cardStarAccent {
   border: 2px solid var(--color-brand) !important;
   box-shadow: 0 16px 36px var(--brand-alpha-18);
@@ -126,7 +126,7 @@
   }
 }
 
-/* Only Stare hangs a medallion off the bottom edge; the rest use the badge. */
+/* Only Starred hangs a medallion off the bottom edge; the rest use the badge. */
 .priorityMedallion {
   position: absolute;
   left: 50%;

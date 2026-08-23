@@ -81,7 +81,7 @@ export function ItemDetailStatusBadge({ label, purchased }: { label: string; pur
 }
 
 /**
- * Stare follows the user's accent (`--color-brand`) like the old star card did;
+ * Starred follows the user's accent (`--color-brand`) like the old star card did;
  * every other priority uses its own fixed colour.
  */
 export function usePriorityColor(priority: ItemPriority | null | undefined) {
@@ -94,7 +94,7 @@ export function usePriorityColor(priority: ItemPriority | null | undefined) {
 }
 
 /**
- * The priority tints the item card border; Stare additionally keeps the heavier
+ * The priority tints the item card border; Starred additionally keeps the heavier
  * frame it has always had. Mirrors the web card.
  */
 export function useItemCardBorderStyle(priority: ItemPriority | null | undefined) {
@@ -102,7 +102,7 @@ export function useItemCardBorderStyle(priority: ItemPriority | null | undefined
 
   if (!priority || !color) return undefined;
 
-  // Only Stare overrides the width. Passing `borderWidth: undefined` explicitly
+  // Only Starred overrides the width. Passing `borderWidth: undefined` explicitly
   // would cancel the width coming from the card's className and leave the card
   // with no border at all, so the key is omitted instead.
   return isStarPriorityId(priority.id)
@@ -148,7 +148,7 @@ export function ItemPriorityBadge({
   );
 }
 
-/** Stare's icon medallion, hanging off the bottom edge of a card. */
+/** Starred's icon medallion, hanging off the bottom edge of a card. */
 export function ItemPriorityMedallion({
   priority,
   label,
@@ -224,7 +224,7 @@ function usePriorityPalette(priority: ItemPriority, context: "card" | "detail") 
   const { theme } = useUniwind();
   const cardBackground = useCSSVariable("--color-card-bg");
   const namedPalette = PRIORITY_PALETTE[priority.name as keyof typeof PRIORITY_PALETTE];
-  // Not `priority.color`: Stare follows the accent, the rest keep their own.
+  // Not `priority.color`: Starred follows the accent, the rest keep their own.
   const color = usePriorityColor(priority) ?? priority.color;
 
   if (context === "detail" && namedPalette) return namedPalette[getThemeMode(theme)];

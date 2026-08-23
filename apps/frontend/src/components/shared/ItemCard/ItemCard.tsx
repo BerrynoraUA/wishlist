@@ -70,7 +70,7 @@ export function ItemCard({
     ? (PRIORITY_ICONS[priorityMeta.id] ?? null)
     : null;
 
-  // The priority tints the card; Stare additionally keeps its heavier frame.
+  // The priority tints the card; Starred additionally keeps its heavier frame.
   const accentColor = priorityColor;
   const hasStarAccent = isStarPriorityId(priorityMeta?.id);
 
@@ -232,7 +232,7 @@ export function ItemCard({
               />
             </div>
 
-            {/* Only Stare hangs a medallion off the bottom edge; every other
+            {/* Only Starred hangs a medallion off the bottom edge; every other
                 priority reads as the badge in the corner. */}
             {hasStarAccent && PriorityIcon && (
               <span
