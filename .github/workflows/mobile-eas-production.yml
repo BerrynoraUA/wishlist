@@ -1,48 +1,372 @@
 name: Mobile EAS Production
 
+# The release train is driven by `expo.version` in apps/native/app.json, not by
+# git tags: a run cuts a store build only when the latest production build on
+# EAS carries a different version. Bumping `version` is all it takes to start
+# the next train, and re-running an unchanged version is a no-op.
+#
+# Every run reconciles two things, per platform:
+#   1. Store builds — when the latest production build's version differs from
+#      app.json, cut a build and auto-submit it. Submission lands on the Play
+#      `production` track (`releaseStatus: completed`) and in App Store Connect,
+#      so it is publicly irreversible once Google/Apple approve. That is why the
+#      store path sits behind the `store-release` reviewer gate. To ship to
+#      testers instead, use mobile-eas-production-testflight.yml (`beta`
+#      profile, Play `beta` track).
+#   2. OTA — publish a production-channel update for each platform that already
+#      has a finished production build matching the current native fingerprint.
+#      Where native drift means no shipped binary could install the update, it is
+#      skipped and flagged in the summary rather than published into the void.
+#
 # Automatic triggers are commented out: this pipeline is manual-dispatch only.
-# Uncomment the blocks below to restore automatic runs.
+# Uncomment the block below to restore automatic runs. Note that the OTA job is
+# deliberately NOT behind the reviewer gate, so under a live `push` trigger every
+# merge ships JS to all production users with no store review. That is the point
+# of OTA, but confirm it is what you want before uncommenting.
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: build (+ auto-submit to the stores) or update (OTA)
+        required: true
+        type: choice
+        default: build
+        options:
+          - build
+          - update
+      platform:
+        description: Target platform
+        required: true
+        type: choice
+        default: all
+        options:
+          - ios
+          - android
+          - all
+      version:
+        description: Optional version override; blank uses app.json, an override is committed before building
+        required: false
+        type: string
+      message:
+        description: OTA update message (mode=update only)
+        required: false
+        type: string
 #   push:
-#     tags:
-#       - native-v*
+#     branches:
+#       - main
+#     paths:
+#       - apps/native/**
+#       - packages/backend/**
+#       - packages/scraper-core/**
+#       - patches/**
+#       - .easignore
+#       - package.json
+#       - pnpm-lock.yaml
+#       - pnpm-workspace.yaml
+#       - .github/workflows/mobile-eas-production.yml
+#       - "!**/*.md"
 
+# Serialize every run rather than one group per ref: OTAs must publish in merge
+# order, and this lane pushes version commits. GitHub keeps at most one queued
+# run per group, so a burst of merges collapses into a single run of the newest
+# commit — intermediate commits do not need their own OTA.
 concurrency:
-  group: mobile-eas-production-${{ github.ref }}
+  group: mobile-eas-production
   cancel-in-progress: false
 
 jobs:
-  verify_version:
-    name: Verify release version
-    if: github.event_name == 'push'
+  # Mirrors the require-approval gate in .eas/workflows/release-build.yml. The
+  # gate cannot live inside the build job: `eas build --auto-submit --no-wait`
+  # hands the build and its submission to EAS and returns immediately, so once
+  # that step runs there is no later point at which submission can be held back.
+  #
+  # Requires a `store-release` environment with required reviewers under
+  # Settings → Environments. GitHub auto-creates a referenced environment with no
+  # protection rules, so an unconfigured one waves every run straight through.
+  approve_store_submission:
+    name: Approve store submission
+    if: github.event_name == 'push' || inputs.mode == 'build'
     runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: read
+    environment: store-release
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Match tag to app version
-        env:
-          RELEASE_TAG: ${{ github.ref_name }}
+      - name: Record approval
         run: |
-          tag_version="${RELEASE_TAG#native-v}"
-          app_version="$(jq -er '.expo.version' apps/native/app.json)"
-          if [ "$tag_version" != "$app_version" ]; then
-            echo "Tag version $tag_version does not match app.json version $app_version." >&2
+          {
+            echo "## Store submission approved"
+            echo
+            echo "- iOS: App Store Connect (manual submit-for-review still required)"
+            echo "- Android: Play \`production\` track, rolls out once Google approves"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  store_builds:
+    name: Reconcile store builds
+    needs: approve_store_submission
+    if: github.event_name == 'push' || inputs.mode == 'build'
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+    steps:
+      - name: Require EXPO_TOKEN
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::EXPO_TOKEN is not configured for this repository."
             exit 1
           fi
 
-  production:
-    name: Deploy production
-    needs: verify_version
-    if: always() && (needs.verify_version.result == 'success' || needs.verify_version.result == 'skipped')
+      # The version commit is pushed with GITHUB_TOKEN. Two consequences if the
+      # `push` trigger above is ever uncommented: that commit will not itself
+      # re-trigger any workflow, and branch protection on main will reject it.
+      # Mint a GitHub App token here if either becomes a problem.
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.14.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+          packager: npm
+
+      - name: Verify production deployment profile
+        working-directory: apps/native
+        run: |
+          actual_environment="$(jq -er '.build.production.environment' eas.json)"
+          actual_distribution="$(jq -r '.build.production.distribution // "store"' eas.json)"
+          actual_auto_increment="$(jq -r '.build.production.autoIncrement // false' eas.json)"
+          actual_android_type="$(jq -r '.build.production.android.buildType // "app-bundle"' eas.json)"
+          actual_android_track="$(jq -er '.submit.production.android.track' eas.json)"
+          ios_app_id="$(jq -er '.submit.production.ios.ascAppId' eas.json)"
+          eas_pnpm="$(jq -er '.build.production.pnpm // .build[(.build.production.extends // "base")].pnpm' eas.json)"
+          repo_package_manager="$(jq -er '.packageManager' ../../package.json)"
+
+          [ "$actual_environment" = "production" ] || {
+            echo "The production profile uses EAS environment $actual_environment, expected production." >&2
+            exit 1
+          }
+          [ "$actual_distribution" = "store" ] || {
+            echo "The production profile is not a store-distribution build." >&2
+            exit 1
+          }
+          [ "$actual_auto_increment" = "true" ] || {
+            echo "The production profile does not auto-increment store build versions." >&2
+            exit 1
+          }
+          [ "$actual_android_type" = "app-bundle" ] || {
+            echo "The production profile does not produce a Google Play app bundle." >&2
+            exit 1
+          }
+          [ "$actual_android_track" = "production" ] || {
+            echo "The production profile submits to Play track $actual_android_track, expected production." >&2
+            exit 1
+          }
+          [ -n "$ios_app_id" ] || {
+            echo "The production profile has no App Store Connect app ID." >&2
+            exit 1
+          }
+          [ "$repo_package_manager" = "pnpm@$eas_pnpm" ] || {
+            echo "The production profile pins pnpm $eas_pnpm but the repository requires $repo_package_manager." >&2
+            exit 1
+          }
+
+      - name: Apply version override
+        if: github.event_name == 'workflow_dispatch' && inputs.version != ''
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          if [ "$GITHUB_REF_TYPE" != "branch" ]; then
+            echo "Version overrides must be dispatched from a branch; received $GITHUB_REF_TYPE '$GITHUB_REF_NAME'." >&2
+            exit 1
+          fi
+          if ! printf '%s' "$RELEASE_VERSION" | grep -Eq '^[0-9]+(\.[0-9]+){1,2}$'; then
+            echo "Version override must be two or three dot-separated integers; received '$RELEASE_VERSION'." >&2
+            exit 1
+          fi
+
+          # Rewrite only the version line so the override keeps the formatting
+          # oxfmt produces for the rest of app.json — jq would round-trip the
+          # whole file and explode every inline array onto its own line.
+          # `.expo.version` is the file's only "version" key, which is what makes
+          # a line-oriented edit safe; bail rather than rewrite the wrong key if
+          # that ever stops being true.
+          version_lines="$(grep -cE '^[[:space:]]*"version":' apps/native/app.json)"
+          if [ "$version_lines" != "1" ]; then
+            echo "Expected exactly one \"version\" key in app.json, found $version_lines." >&2
+            exit 1
+          fi
+          sed -i -E "s/^([[:space:]]*\"version\":[[:space:]]*\")[^\"]*(\")/\1${RELEASE_VERSION}\2/" apps/native/app.json
+          applied="$(jq -er '.expo.version' apps/native/app.json)"
+          [ "$applied" = "$RELEASE_VERSION" ] || {
+            echo "Could not update app.json to $RELEASE_VERSION (it now reads $applied)." >&2
+            exit 1
+          }
+
+          if git diff --quiet -- apps/native/app.json; then
+            echo "app.json is already at $RELEASE_VERSION; no version commit needed."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/native/app.json
+          git commit -m "chore(native): bump app version to $RELEASE_VERSION"
+          git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
+
+      # No --status filter on build:list: an in-queue or in-progress build must
+      # count as existing, or a second run during the build window would cut a
+      # duplicate. After an errored build, re-dispatch mode=build once EAS has
+      # discarded the failed build, or bump the version.
+      #
+      # --no-wait: EAS owns the build and its auto-submission from here, so the
+      # runner has nothing left to watch. continue-on-error keeps one platform's
+      # failure from stranding the other; the job still fails at the end.
+      - id: store_builds
+        name: Ensure store builds exist for the current app version
+        continue-on-error: true
+        working-directory: apps/native
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
+        run: |
+          case "${TARGET_PLATFORM:-all}" in
+            ios) platforms="ios" ;;
+            android) platforms="android" ;;
+            *) platforms="ios android" ;;
+          esac
+
+          failed=0
+          version="$(npx expo config --json --type public | jq -er '.version')"
+          {
+            echo "## Production release train"
+            echo
+            echo "- App version: \`$version\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          for platform in $platforms; do
+            latest="$(eas build:list --platform "$platform" --build-profile production --limit 1 --json --non-interactive | jq -r '.[0].appVersion // "none"')"
+            if [ "$latest" = "$version" ]; then
+              echo "- $platform: production build for \`$version\` already exists (or is in progress)" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+            echo "$platform: latest production build is $latest, app.json says $version — building"
+            if eas build --platform "$platform" --profile production --auto-submit --non-interactive --no-wait; then
+              echo "- $platform: scheduled production build and submission for \`$version\`" >> "$GITHUB_STEP_SUMMARY"
+            else
+              failed=1
+              echo "- $platform: production build or submission FAILED for \`$version\`" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+
+          exit "$failed"
+
+      - name: Propagate store build failure
+        if: steps.store_builds.outcome == 'failure'
+        run: exit 1
+
+  ota:
+    name: Publish fingerprint-gated OTA
+    if: github.event_name == 'push' || inputs.mode == 'update'
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 30
     permissions:
       contents: read
-    uses: ./.github/workflows/mobile-eas-build-submit.yml
-    with:
-      profile: production
-      environment: production
-      android_track: production
-    secrets: inherit
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+    steps:
+      - name: Require EXPO_TOKEN
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::EXPO_TOKEN is not configured for this repository."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.14.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+          packager: npm
+
+      # An OTA is only publishable where a finished production build shares the
+      # current native fingerprint — that build is the binary the update installs
+      # onto. Old-version binaries with a matching fingerprint receive it too.
+      - name: Publish OTA to the production channel
+        working-directory: apps/native
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
+          MESSAGE_OVERRIDE: ${{ inputs.message }}
+        run: |
+          case "${TARGET_PLATFORM:-all}" in
+            ios) platforms="ios" ;;
+            android) platforms="android" ;;
+            *) platforms="ios android" ;;
+          esac
+
+          message="$MESSAGE_OVERRIDE"
+          if [ -z "$message" ]; then
+            message="$(git log -1 --pretty=%s | head -c 120) ($(git rev-parse --short=9 HEAD))"
+          fi
+
+          {
+            echo "## Production OTA"
+            echo
+            echo "- Message: $message"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          for platform in $platforms; do
+            # eas-cli prints an environment-loaded notice to stdout before the
+            # JSON even with --json, so discard everything before the document.
+            hash="$(eas fingerprint:generate --platform "$platform" --environment production --json --non-interactive | sed -n '/^{/,$p' | jq -er '.hash | select(type == "string" and length > 0)')"
+            matching="$(eas build:list --platform "$platform" --build-profile production --status finished --fingerprint-hash "$hash" --limit 1 --json --non-interactive | jq 'length')"
+            if [ "$matching" -gt 0 ]; then
+              eas update \
+                --channel production \
+                --environment production \
+                --platform "$platform" \
+                --message "$message" \
+                --non-interactive
+              echo "- $platform: OTA published (fingerprint \`$hash\`)" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "- $platform: no finished production build matches fingerprint \`$hash\` — OTA skipped; JS changes reach $platform only once a matching build ships" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
