@@ -36,12 +36,11 @@ export function DiscoverItemCard({
     status: item.status,
     reservedBy: item.reserved_by,
     currentUserId,
-    isOwner: false,
   });
   const reservationLabel = buildReservationLabel({ ...reservation, reservedByName }, t);
   const priorityLabel = getTranslatedItemPriorityLabel(t, item.priority_id) ?? item.priority_name;
   const priority = getItemPriority(item.priority_id ?? item.priority_name);
-  const cardBorderStyle = useItemCardBorderStyle(priority);
+  const cardBorderStyle = useItemCardBorderStyle(priority, item.color_index);
   const store = getItemStoreFromUrl(item.url);
   const salePercentOff = getSalePercentOff(item.price, item.discount_price, item.has_discount);
   const isTaken = Boolean(reservationLabel);

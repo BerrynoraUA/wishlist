@@ -15,6 +15,7 @@ export interface CreateItemParams {
   discount_end_date?: string | null;
   currency?: string | null;
   additional_links?: ItemLink[] | null;
+  color_index?: number | null;
 }
 
 export interface UpdateItemParams {
@@ -33,4 +34,5 @@ export interface UpdateItemParams {
   discount_end_date?: string | null;
   currency?: string | null;
   additional_links?: ItemLink[] | null;
+  color_index?: number | null;
 }

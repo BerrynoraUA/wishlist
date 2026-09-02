@@ -305,8 +305,13 @@
   animation: popoverIn 0.18s ease-out;
 }
 
-.dateBadgePlaceholder {
-  opacity: 0.6;
+.dateBadge.dateBadgePlaceholder {
+  /* Placeholder must read as "empty slot", not as a disabled control. Opacity
+     is deliberately avoided here: it blends the badge's blue into the pink
+     banner and comes out muddier (and darker) than the neutral badges beside
+     it. Muted foreground + dashed border carry the same hint cleanly. */
+  background: var(--badge-count-bg);
+  color: var(--color-text-tertiary);
   border-style: dashed;
   border-width: 1px;
   border-color: var(--color-border-light);
@@ -929,4 +934,10 @@
 
 :global([data-theme="dark"]) .dateBadgePlaceholder {
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+:global([data-theme="dark"]) .dateBadge.dateBadgePlaceholder {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(240, 240, 242, 0.6);
+  border-color: rgba(255, 255, 255, 0.14);
 }

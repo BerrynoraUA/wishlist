@@ -47,7 +47,16 @@ export function Tabs<T extends string>({
           data-guide-target={item.guideTarget}
         >
           {item.label}
-          {item.badge !== undefined && <span className={styles.badge}>{item.badge}</span>}
+          {item.badge !== undefined && (
+            <span
+              className={styles.badge}
+              // A count of zero is not something to be drawn to: the pill keeps its shape
+              // so the row does not shift, but loses the brand fill that reads as "look here".
+              data-empty={item.badge === 0 || undefined}
+            >
+              {item.badge}
+            </span>
+          )}
         </button>
       ))}
     </Tag>

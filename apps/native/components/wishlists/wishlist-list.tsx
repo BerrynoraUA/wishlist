@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
+import { CardGridSkeleton } from "@/components/ui/list-skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
@@ -182,7 +183,7 @@ export function WishlistList({
         ListFooterComponent={
           <View className="gap-5" style={{ alignSelf: "center", width: contentWidth }}>
             {query.isLoading ? (
-              <WishlistGridSkeleton cardWidth={cardWidth} gridGap={gridGap} />
+              <CardGridSkeleton cardWidth={cardWidth} gridGap={gridGap} />
             ) : null}
             {query.isError ? (
               <InlineState width={contentWidth} message={t("Failed to load wishlists.")} />
@@ -436,26 +437,6 @@ function StatIcon({ icon }: { icon: LucideIcon }) {
   return (
     <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
       <Icon as={icon} className="size-4 text-brand" />
-    </View>
-  );
-}
-
-function WishlistGridSkeleton({ cardWidth, gridGap }: { cardWidth: number; gridGap: number }) {
-  return (
-    <View className="flex-row flex-wrap" style={{ gap: gridGap }}>
-      {[0, 1, 2, 3].map((item) => (
-        <View
-          key={item}
-          className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg"
-          style={{ width: cardWidth }}
-        >
-          <Skeleton className="h-30 rounded-none" />
-          <View className="gap-3 p-4">
-            <Skeleton className="h-5 w-3/4" />
-            <Skeleton className="h-4 w-full" />
-          </View>
-        </View>
-      ))}
     </View>
   );
 }

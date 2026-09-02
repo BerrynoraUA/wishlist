@@ -18,6 +18,8 @@ export type ItemCardData = {
   isReserved: boolean;
   reservedBy: string | null;
   reservedByName: string | null;
+  /** Index into ITEM_COLORS: the glow the owner picked, or null for a plain card. */
+  colorIndex: number | null;
 };
 
 export type ItemCardProps = ItemCardData & {

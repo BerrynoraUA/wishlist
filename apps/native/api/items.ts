@@ -62,6 +62,7 @@ export async function createItem({
   discount_end_date,
   currency,
   additional_links,
+  color_index,
 }: CreateItemParams): Promise<Item> {
   const { data, error } = await supabase
     .from("item")
@@ -79,6 +80,7 @@ export async function createItem({
       discount_end_date: discount_end_date || null,
       currency: currency ?? null,
       additional_links: additional_links ?? [],
+      color_index: color_index ?? null,
     })
     .select()
     .single();
@@ -104,6 +106,7 @@ export async function updateItem(itemId: string, updates: UpdateItemParams): Pro
     payload.discount_end_date = updates.discount_end_date || null;
   }
   if (updates.currency !== undefined) payload.currency = updates.currency;
+  if (updates.color_index !== undefined) payload.color_index = updates.color_index;
   if (updates.additional_links !== undefined) {
     payload.additional_links = updates.additional_links ?? [];
   }

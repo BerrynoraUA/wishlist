@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useGT } from "gt-next";
 import { useRouter } from "next/navigation";
-import { Sun, Moon, Monitor, Check, Lock, ChevronDown, Eye, EyeOff } from "lucide-react";
+import { Sun, Moon, Monitor, Check, Lock, Eye, EyeOff } from "lucide-react";
 import styles from "./AppearanceSettings.module.scss";
 import { SettingsSection } from "../settings-section/SettingsSection";
 import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
@@ -26,7 +26,6 @@ export function AppearanceSettings() {
   const { data: settings } = useSettings();
   const updateSettings = useUpdateSettings();
   const { isPro } = useSubscription();
-  const [prioritiesExpanded, setPrioritiesExpanded] = useState(false);
   const isAccentGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
   const isWishlistColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
   const isPriorityGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
@@ -126,9 +125,6 @@ export function AppearanceSettings() {
   const defaultColorLabel = t("Pink", {
     $id: "settings.appearance.wishlistColor.pink",
   });
-  const basePriorityIds: string[] = [PRIORITY_IDS.LOW, PRIORITY_IDS.MEDIUM, PRIORITY_IDS.HIGH];
-  const basePriorities = ALL_PRIORITIES.filter((p) => basePriorityIds.includes(p.id));
-  const extraPriorities = ALL_PRIORITIES.filter((p) => !basePriorityIds.includes(p.id));
 
   function renderPriorityRow(p: (typeof ALL_PRIORITIES)[number]) {
     const locked = isPriorityGated && !p.is_free;
@@ -322,32 +318,8 @@ export function AppearanceSettings() {
           $id: "settings.appearance.prioritiesSectionDescription",
         })}
       >
-        <div className={styles.priorityList}>
-          {basePriorities.map(renderPriorityRow)}
-          <div className={`${styles.priorityExtras} ${prioritiesExpanded ? styles.expanded : ""}`}>
-            <div className={styles.priorityExtrasInner}>
-              {extraPriorities.map(renderPriorityRow)}
-            </div>
-          </div>
-        </div>
-        <button
-          type="button"
-          className={styles.priorityShowMore}
-          onClick={() => setPrioritiesExpanded((value) => !value)}
-          aria-expanded={prioritiesExpanded}
-        >
-          <span>
-            {prioritiesExpanded
-              ? t("Show less", { $id: "settings.appearance.priority.showLess" })
-              : t("Show more", {
-                  $id: "settings.appearance.priority.showMore",
-                })}
-          </span>
-          <ChevronDown
-            size={14}
-            className={prioritiesExpanded ? styles.priorityShowMoreIconOpen : ""}
-          />
-        </button>
+        {/* All four fit in one list — there is nothing left to fold away. */}
+        <div className={styles.priorityList}>{ALL_PRIORITIES.map(renderPriorityRow)}</div>
       </SettingsSection>
     </>
   );

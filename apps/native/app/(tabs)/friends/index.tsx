@@ -40,6 +40,7 @@ import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View, useWindowDimensions } from "react-native";
+import { ListRowsSkeleton } from "@/components/ui/list-skeletons";
 
 type SheetState =
   | { type: "group"; group: FriendGroup }
@@ -274,11 +275,7 @@ export default function FriendsScreen() {
           isLoadingMore={activeQuery.isFetchingNextPage}
           ListFooterComponent={
             <View className="gap-4 self-center" style={{ width: contentWidth }}>
-              {isLoading ? (
-                <View className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-8">
-                  <ActivityIndicator colorClassName="accent-brand" />
-                </View>
-              ) : null}
+              {isLoading ? <ListRowsSkeleton /> : null}
               {isError ? <InlineState message={t("Failed to load friends.")} /> : null}
               {!isLoading && !isError && activeItems.length === 0 ? (
                 <InlineState

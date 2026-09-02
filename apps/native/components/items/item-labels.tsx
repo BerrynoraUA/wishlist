@@ -1,23 +1,16 @@
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { getThemeMode } from "@/lib/theme";
-import { isStarPriorityId, PRIORITY_IDS } from "@wishlist/backend/lib";
+import { getItemColor, isStarPriorityId, PRIORITY_IDS } from "@wishlist/backend/lib";
 import type { ItemPriority } from "@wishlist/backend/types";
 import {
-  AlertTriangle,
   ArrowDown,
   ArrowUp,
   Clock3,
-  Crown,
   Equal,
-  Gem,
   PackageCheck,
   PackageOpen,
-  Sparkle,
-  Sparkles,
   Star,
-  Waves,
-  Zap,
 } from "lucide-react-native";
 import { View } from "react-native";
 import { useCSSVariable, useUniwind } from "uniwind";
@@ -37,13 +30,6 @@ const PRIORITY_ICONS = {
   [PRIORITY_IDS.LOW]: ArrowDown,
   [PRIORITY_IDS.MEDIUM]: Equal,
   [PRIORITY_IDS.HIGH]: ArrowUp,
-  [PRIORITY_IDS.URGENT]: Zap,
-  [PRIORITY_IDS.CRITICAL]: AlertTriangle,
-  [PRIORITY_IDS.EPIC]: Sparkles,
-  [PRIORITY_IDS.LEGENDARY]: Crown,
-  [PRIORITY_IDS.MYTHIC]: Waves,
-  [PRIORITY_IDS.CELESTIAL]: Sparkle,
-  [PRIORITY_IDS.DIVINE]: Gem,
   [PRIORITY_IDS.STAR]: Star,
 } as const;
 
@@ -94,20 +80,23 @@ export function usePriorityColor(priority: ItemPriority | null | undefined) {
 }
 
 /**
- * The priority tints the item card border; Starred additionally keeps the heavier
- * frame it has always had. Mirrors the web card.
+ * What colours an item card's frame: the Starred priority, or the card colour its owner
+ * picked. Nothing else — an ordinary priority reads from its badge alone. Mirrors the web
+ * card.
  */
-export function useItemCardBorderStyle(priority: ItemPriority | null | undefined) {
-  const color = usePriorityColor(priority);
+export function useItemCardBorderStyle(
+  priority: ItemPriority | null | undefined,
+  colorIndex?: number | null,
+) {
+  const priorityColor = usePriorityColor(priority);
 
-  if (!priority || !color) return undefined;
+  if (priority && priorityColor && isStarPriorityId(priority.id)) {
+    return { borderColor: priorityColor, borderWidth: 2 };
+  }
 
-  // Only Starred overrides the width. Passing `borderWidth: undefined` explicitly
-  // would cancel the width coming from the card's className and leave the card
-  // with no border at all, so the key is omitted instead.
-  return isStarPriorityId(priority.id)
-    ? { borderColor: color, borderWidth: 2 }
-    : { borderColor: color };
+  const itemColor = getItemColor(colorIndex);
+
+  return itemColor ? { borderColor: itemColor, borderWidth: 2 } : undefined;
 }
 
 export function ItemPriorityBadge({

@@ -56,6 +56,7 @@ export async function createItem({
   discount_end_date,
   currency,
   additional_links,
+  color_index,
 }: CreateItemParams): Promise<Item> {
   const session = await getCurrentSession();
   if (!session?.user) throw new Error("Not authenticated");
@@ -92,6 +93,7 @@ export async function createItem({
       discount_end_date: discount_end_date ?? null,
       currency: currency ?? null,
       additional_links: additional_links ?? [],
+      color_index: color_index ?? null,
     })
     .select()
     .single();

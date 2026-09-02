@@ -5,7 +5,11 @@ import { useGT } from "gt-next";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DiscoverItem } from "@/api/types/wishilst";
-import { ExternalLink, ShoppingCart, Link2, X } from "lucide-react";
+import { ExternalLink, Link2, MoreHorizontal, ShoppingCart, X } from "lucide-react";
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
+import { useReportItem } from "@/hooks/use-items";
+import { shareItemLink } from "@/lib/helpers/item-card";
 import styles from "./ItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
@@ -16,7 +20,6 @@ import {
 import { ReservationLockIcon } from "@/components/ui/ReservationLockIcon/ReservationLockIcon";
 import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
 import {
-  buildPurchaseActionLabel,
   buildReservationActionLabel,
   buildSaveItemData,
   getItemReservationState,
@@ -24,8 +27,6 @@ import {
   getNextConfirmAction,
   getReservedByValue,
 } from "@/lib/helpers/item-card";
-import { ALL_PRIORITIES, getPriorityCssColor } from "@/lib/priorities";
-import { PRIORITY_ICONS } from "@/lib/priority-icons";
 
 type ReserveActionType = "reserve" | "unreserve";
 type BoughtActionType = "purchase" | "unpurchase";
@@ -57,6 +58,9 @@ export function ItemDetailModal({
   const t = useGT();
   const { data: currentUserId = "" } = useCurrentUserId();
   const { formatPrice } = useCurrencyFormatter();
+  const shareLink = item.share_url || item.url || null;
+  const reportItem = useReportItem();
+  const [reportOpen, setReportOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ItemActionConfirmType | null>(null);
   const reservedByValue = getReservedByValue(item.reservedBy ?? item.reserved_by ?? null);
   const reservationState = getItemReservationState({
@@ -70,9 +74,6 @@ export function ItemDetailModal({
 
   // The diagonal stamp on the image carries the status.
   const showStatusStamp = reservationState.isPurchased || reservationState.isReserved;
-
-  const priorityMeta = ALL_PRIORITIES.find((p) => p.name === item.priority) ?? null;
-  const PriorityIcon = priorityMeta ? (PRIORITY_ICONS[priorityMeta.id] ?? null) : null;
 
   const handleReserveClick = () => {
     if (!reservationState.canToggleReservation || (!onToggleReserve && !onReserveAction)) return;
@@ -128,6 +129,62 @@ export function ItemDetailModal({
             <div className={styles.imageSection}>
               <img src={imgSrc} alt={item.title} />
 
+              <div className={styles.imageSaveAction}>
+                <SaveToWishlistButton
+                  item={buildSaveItemData({
+                    name: item.title,
+                    description: item.description,
+                    price: item.price,
+                    imageUrl: imgSrc,
+                    url: item.url,
+                    priority_id: item.priority_id,
+                    discountPrice: item.discount_price,
+                    hasDiscount: item.discount_price != null,
+                    currency: item.currency,
+                    additionalLinks: item.additional_links,
+                  })}
+                  className={styles.imageCornerButton}
+                  tooltipAlign="start"
+                />
+              </div>
+
+              <div className={styles.imageMenu}>
+                <DropdownMenu
+                  trigger={({ toggle }) => (
+                    <button
+                      type="button"
+                      className={styles.imageCornerButton}
+                      onClick={toggle}
+                      aria-label={t("More options", { $id: "itemCard.moreOptions" })}
+                    >
+                      <MoreHorizontal size={16} />
+                    </button>
+                  )}
+                >
+                  {canShowBoughtAction && (
+                    <DropdownMenuItem
+                      icon={<ShoppingCart size={16} />}
+                      disabled={!reservationState.canToggleBought}
+                      onClick={handleBoughtClick}
+                    >
+                      <span>
+                        {reservationState.isPurchased
+                          ? t("Mark as not purchased", { $id: "itemCard.unpurchase" })
+                          : t("Mark as purchased", { $id: "itemCard.purchase" })}
+                      </span>
+                    </DropdownMenuItem>
+                  )}
+                  {shareLink && (
+                    <DropdownMenuItem variant="share" onClick={() => shareItemLink(shareLink)}>
+                      <span>{t("Share", { $id: "itemCard.share" })}</span>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem variant="danger" onClick={() => setReportOpen(true)}>
+                    <span>{t("Report", { $id: "itemCard.report" })}</span>
+                  </DropdownMenuItem>
+                </DropdownMenu>
+              </div>
+
               {showStatusStamp && (
                 <div
                   className={`${styles.reservedStamp} ${
@@ -172,22 +229,6 @@ export function ItemDetailModal({
               {item.price != null && (
                 <span className={styles.price}>{formatPrice(item.price, item.currency)}</span>
               )}
-              {PriorityIcon && (
-                <span
-                  className={styles.priority}
-                  style={
-                    {
-                      "--priority-color": priorityMeta
-                        ? getPriorityCssColor(priorityMeta)
-                        : undefined,
-                    } as React.CSSProperties
-                  }
-                  aria-label={priorityMeta?.name}
-                  title={priorityMeta?.name}
-                >
-                  <PriorityIcon size={15} strokeWidth={2.5} />
-                </span>
-              )}
             </div>
 
             <div className={styles.footer}>
@@ -201,12 +242,7 @@ export function ItemDetailModal({
                       className={styles.linkBtn}
                     >
                       <ExternalLink size={14} />
-                      <span>
-                        {getItemStoreFromUrl(item.url) ||
-                          t("Visit website", {
-                            $id: "item.detail.visitWebsite",
-                          })}
-                      </span>
+                      <span>{t("Go to store", { $id: "itemCard.goToStore" })}</span>
                     </a>
                   )}
                   {item.additional_links?.map((link, index) => (
@@ -227,23 +263,6 @@ export function ItemDetailModal({
                   ))}
                 </div>
               )}
-
-              <SaveToWishlistButton
-                item={buildSaveItemData({
-                  name: item.title,
-                  description: item.description,
-                  price: item.price,
-                  imageUrl: imgSrc,
-                  url: item.url,
-                  priority_id: item.priority_id,
-                  discountPrice: item.discount_price,
-                  hasDiscount: item.discount_price != null,
-                  currency: item.currency,
-                  additionalLinks: item.additional_links,
-                })}
-                className={styles.saveBtn}
-                tooltipAlign="start"
-              />
 
               <div className={styles.footerRight}>
                 <Button
@@ -271,26 +290,24 @@ export function ItemDetailModal({
                       }),
                   })}
                 </Button>
-
-                {canShowBoughtAction && (
-                  <Button
-                    variant={reservationState.isPurchased ? "secondary" : "primary"}
-                    size="sm"
-                    onClick={handleBoughtClick}
-                    disabled={!reservationState.canToggleBought}
-                  >
-                    <ShoppingCart size={14} style={{ marginRight: 6 }} />
-                    {buildPurchaseActionLabel(reservationState.isPurchased, {
-                      purchased: () => t("Purchased", { $id: "item.status.purchased" }),
-                      available: () => t("Bought", { $id: "item.detail.bought" }),
-                    })}
-                  </Button>
-                )}
               </div>
             </div>
           </div>
         </div>
       </Modal>
+
+      <DeleteConfirmModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        onConfirm={() => reportItem.mutate(item.id, { onSuccess: () => setReportOpen(false) })}
+        title={t("Report this item", { $id: "itemCard.reportTitle" })}
+        description={t(
+          "Tell us this item breaks the rules and our team will take a look. You can only report an item once.",
+          { $id: "itemCard.reportDescription" },
+        )}
+        confirmLabel={t("Report", { $id: "itemCard.reportConfirm" })}
+        isPending={reportItem.isPending}
+      />
 
       <ActionConfirmModal
         open={!!confirmAction}

@@ -57,7 +57,8 @@ import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View, useWindowDimensions } from "react-native";
+import { View, useWindowDimensions } from "react-native";
+import { CardGridSkeleton, DetailSkeleton } from "@/components/ui/list-skeletons";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -360,10 +361,9 @@ export default function WishlistDetailScreen() {
                   canEditWishlist ? () => setSheet({ type: "delete", item: entry }) : undefined
                 }
                 onToggleVote={canEditWishlist ? undefined : () => toggleVote.mutate(entry.id)}
-                onToggleReserve={
-                  canEditWishlist ? undefined : () => toggleReservation.mutate(entry.id)
-                }
-                onToggleBought={canEditWishlist ? undefined : () => toggleBought.mutate(entry.id)}
+                // Owners included: you can mark your own gift reserved or bought.
+                onToggleReserve={() => toggleReservation.mutate(entry.id)}
+                onToggleBought={() => toggleBought.mutate(entry.id)}
                 reservePending={toggleReservation.isPending}
                 boughtPending={toggleBought.isPending}
               />
@@ -409,8 +409,8 @@ export default function WishlistDetailScreen() {
       <Stack.Screen options={{ title: wishlist?.title ?? t("Wishlist") }} />
       <View className="flex-1 bg-bg">
         {wishlistQuery.isLoading ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator />
+          <View className="flex-1 px-4 pt-6">
+            <DetailSkeleton width={contentWidth} />
           </View>
         ) : wishlistQuery.isError || !wishlist ? (
           <View className="flex-1 items-center justify-center px-6">
@@ -447,9 +447,7 @@ export default function WishlistDetailScreen() {
                 style={{ alignSelf: "center", maxWidth: 1200, width: contentWidth }}
               >
                 {itemsQuery.isLoading ? (
-                  <View className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-8">
-                    <ActivityIndicator />
-                  </View>
+                  <CardGridSkeleton cardWidth={cardWidth} gridGap={gridGap} />
                 ) : null}
                 {itemsQuery.isError ? <InlineState message={t("Failed to load items.")} /> : null}
                 {!itemsQuery.isLoading && !itemsQuery.isError && items.length === 0 ? (

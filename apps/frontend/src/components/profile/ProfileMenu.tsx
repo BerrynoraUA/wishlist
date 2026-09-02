@@ -21,7 +21,7 @@ import { logout } from "@/api/login";
 import { useSubscription } from "@/hooks/use-subscription";
 import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
-import { useProfile, useUpdateSettings } from "@/hooks/use-settings";
+import { useEnsureDefaultAvatar, useProfile, useUpdateSettings } from "@/hooks/use-settings";
 import { useCurrentUser } from "@/hooks/use-user";
 import { useKnownAccounts } from "@/hooks/use-known-accounts";
 import { upsertKnownAccount } from "@/lib/known-accounts";
@@ -105,8 +105,11 @@ export function ProfileMenu({ onOpen }: Props) {
   const { data: profile } = useProfile();
   const { data: currentUser } = useCurrentUser();
 
+  useEnsureDefaultAvatar();
+
   const [open, setOpen] = useState(false);
   const [languageListOpen, setLanguageListOpen] = useState(false);
+  const [languageQuery, setLanguageQuery] = useState("");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [switchingUserId, setSwitchingUserId] = useState<string | null>(null);
   const [accountPendingRemoval, setAccountPendingRemoval] = useState<KnownAccount | null>(null);
@@ -124,6 +127,10 @@ export function ProfileMenu({ onOpen }: Props) {
       setAccountPendingRemoval(null);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!languageListOpen) setLanguageQuery("");
+  }, [languageListOpen]);
 
   useEffect(() => {
     if (!userId || !userEmail) return;
@@ -216,6 +223,13 @@ export function ProfileMenu({ onOpen }: Props) {
 
   const activeLocale = locale ?? locales[0] ?? "en";
   const localeOptions = locales?.length ? locales : ["en", "uk"];
+  // Matches the language's own name as well as its code, so "uk" and "Українська" both find it.
+  const languageSearch = languageQuery.trim().toLowerCase();
+  const filteredLocaleOptions = !languageSearch
+    ? localeOptions
+    : localeOptions.filter((code) =>
+        `${LOCALE_LABELS[code] ?? ""} ${code}`.toLowerCase().includes(languageSearch),
+      );
 
   const otherAccounts = accounts.filter((account) => account.userId !== userId);
   const pendingRemovalLabel =
@@ -314,41 +328,60 @@ export function ProfileMenu({ onOpen }: Props) {
               />
             </button>
             {languageListOpen && (
-              <ul
-                id="profile-language-list"
-                className={styles.languageList}
-                role="listbox"
-                aria-labelledby="profile-language-trigger"
-              >
-                {localeOptions.map((code) => {
-                  const selected = activeLocale === code;
-                  return (
-                    <li key={code} className={styles.languageListItem}>
-                      <button
-                        type="button"
-                        role="option"
-                        aria-selected={selected}
-                        className={styles.languageOption}
-                        onClick={() => {
-                          setLocale(code);
-                          mutateSettings({ preferred_locale: code });
-                          router.refresh();
-                          setLanguageListOpen(false);
-                        }}
-                      >
-                        <span
-                          className={styles.languageCheckbox}
-                          aria-hidden
-                          data-selected={selected}
+              <div className={styles.languagePanel}>
+                <input
+                  type="search"
+                  className={styles.languageSearch}
+                  value={languageQuery}
+                  onChange={(e) => setLanguageQuery(e.target.value)}
+                  placeholder={t("Search language", {
+                    $id: "profile.languageSearchPlaceholder",
+                  })}
+                  aria-label={t("Search language", {
+                    $id: "profile.languageSearchPlaceholder",
+                  })}
+                />
+                <ul
+                  id="profile-language-list"
+                  className={styles.languageList}
+                  role="listbox"
+                  aria-labelledby="profile-language-trigger"
+                >
+                  {filteredLocaleOptions.map((code) => {
+                    const selected = activeLocale === code;
+                    return (
+                      <li key={code} className={styles.languageListItem}>
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={selected}
+                          className={styles.languageOption}
+                          onClick={() => {
+                            setLocale(code);
+                            mutateSettings({ preferred_locale: code });
+                            router.refresh();
+                            setLanguageListOpen(false);
+                          }}
                         >
-                          {selected ? <Check size={12} strokeWidth={3} /> : null}
-                        </span>
-                        <span>{LOCALE_LABELS[code] ?? code}</span>
-                      </button>
+                          <span
+                            className={styles.languageCheckbox}
+                            aria-hidden
+                            data-selected={selected}
+                          >
+                            {selected ? <Check size={12} strokeWidth={3} /> : null}
+                          </span>
+                          <span>{LOCALE_LABELS[code] ?? code}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                  {filteredLocaleOptions.length === 0 && (
+                    <li className={styles.languageEmpty}>
+                      {t("No languages found", { $id: "profile.languageNoResults" })}
                     </li>
-                  );
-                })}
-              </ul>
+                  )}
+                </ul>
+              </div>
             )}
           </div>
 

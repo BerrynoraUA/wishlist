@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useGT } from "gt-next";
 import styles from "./settings.module.scss";
 import { SettingsTabs } from "./components/settings-tabs/SettingsTabs";
@@ -10,6 +11,15 @@ import { AppearanceSettings } from "./components/appearance-settings/AppearanceS
 import { useSettingsPage } from "./hooks/use-settings-page";
 
 export default function SettingsPage() {
+  // The active tab comes from `?tab=`, and `useSearchParams` needs a Suspense boundary.
+  return (
+    <Suspense fallback={null}>
+      <SettingsPageContent />
+    </Suspense>
+  );
+}
+
+function SettingsPageContent() {
   const t = useGT();
   const { tab, setTab } = useSettingsPage();
 

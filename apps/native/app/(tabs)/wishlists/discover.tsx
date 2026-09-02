@@ -30,7 +30,8 @@ import type { Item } from "@wishlist/backend/types/item";
 import { Stack } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View, useWindowDimensions } from "react-native";
+import { View, useWindowDimensions } from "react-native";
+import { CardGridSkeleton } from "@/components/ui/list-skeletons";
 
 type DiscoverRow =
   | DiscoverSectionType
@@ -232,9 +233,7 @@ export default function DiscoverScreen() {
         ListFooterComponent={
           <View className="gap-4 self-center" style={{ width: contentWidth }}>
             {feed.activeQuery.isLoading ? (
-              <View className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-8">
-                <ActivityIndicator colorClassName="accent-brand" />
-              </View>
+              <CardGridSkeleton cardWidth={sectionCardWidth} gridGap={gridGap} />
             ) : null}
             {feed.activeQuery.isError ? (
               <InlineState message={t("Failed to load discover feed.")} />

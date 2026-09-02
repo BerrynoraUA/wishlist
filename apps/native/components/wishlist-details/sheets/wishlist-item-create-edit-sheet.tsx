@@ -9,6 +9,7 @@ import {
   BottomSheetScrollView,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
+import { ItemColorSelector } from "@/components/items/item-color-selector";
 import { Button } from "@/components/ui/button";
 import { CurrencyPicker } from "@/components/ui/currency-picker";
 import { GuideTarget } from "@/components/user-guide/guide-target";
@@ -445,6 +446,7 @@ export function WishlistItemCreateEditSheet({
       discount_end_date: formValues.discountEndDate.trim() || null,
       additional_links:
         mode === "create" && isGated ? [] : cleanAdditionalLinks(formValues.additionalLinks),
+      color_index: formValues.colorIndex,
     };
 
     if (mode === "edit" && item) {
@@ -644,6 +646,16 @@ export function WishlistItemCreateEditSheet({
             />
           </Field>
         )}
+
+        <Field label={t("Card color")}>
+          <Controller
+            control={control}
+            name="colorIndex"
+            render={({ field: { onChange, value } }) => (
+              <ItemColorSelector value={value} onChange={onChange} />
+            )}
+          />
+        </Field>
 
         {isGated ? (
           <ProFeatureButton label={t("Pro: Add multiple links")} onPress={openPaywall} />

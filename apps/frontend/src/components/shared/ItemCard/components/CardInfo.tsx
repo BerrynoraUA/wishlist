@@ -10,7 +10,6 @@ type CardInfoProps = {
   formattedPrice: string;
   store: string | null;
   variant: "discover" | "reserved" | "wishlist";
-  isOwner: boolean;
   isPurchasedMode: boolean;
   reserveBtnLabel: string;
   isPurchased: boolean;
@@ -64,7 +63,6 @@ export function CardInfo({
   formattedPrice,
   store,
   variant,
-  isOwner,
   isPurchasedMode,
   reserveBtnLabel,
   isPurchased,
@@ -77,7 +75,9 @@ export function CardInfo({
   boughtActionLabel,
 }: CardInfoProps) {
   const isWishlist = variant === "wishlist";
-  const useDiscoverReserveStyles = variant === "discover" || (isWishlist && !isOwner);
+  // The owner's own wishlist used to have no reserve button at all, so it fell through to
+  // the plain style. It gets the brand-filled one like every other wishlist card.
+  const useDiscoverReserveStyles = variant === "discover" || isWishlist;
   const titleTooltip = useOverflowTooltip<HTMLElement>(name);
   const descriptionTooltip = useOverflowTooltip<HTMLParagraphElement>(description);
   void isPurchasedMode;
@@ -121,41 +121,39 @@ export function CardInfo({
         )}
       </div>
 
-      {!isOwner && (
-        <div className={styles.actions}>
+      <div className={styles.actions}>
+        <button
+          className={cn(
+            styles.reserveBtn,
+            useDiscoverReserveStyles && styles.reserveBtnDiscover,
+            isReservedState && styles.reserved,
+            onToggleBought && styles.reserveCompact,
+          )}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleReserveClick();
+          }}
+          disabled={!canToggleReservation}
+        >
+          <ReservationLockIcon isReserved={isReservedState} size={16} animateOnReserve />
+          <span>{reserveBtnLabel}</span>
+        </button>
+
+        {onToggleBought && (
           <button
-            className={cn(
-              styles.reserveBtn,
-              useDiscoverReserveStyles && styles.reserveBtnDiscover,
-              isReservedState && styles.reserved,
-              onToggleBought && styles.reserveCompact,
-            )}
+            className={cn(styles.buyBtn, isPurchased && styles.purchased, "iconTooltipTrigger")}
             onClick={(e) => {
               e.stopPropagation();
-              handleReserveClick();
+              handleBoughtClick();
             }}
-            disabled={!canToggleReservation}
+            disabled={!canToggleBought}
+            aria-label={boughtActionLabel}
+            data-tooltip={boughtActionLabel}
           >
-            <ReservationLockIcon isReserved={isReservedState} size={16} animateOnReserve />
-            <span>{reserveBtnLabel}</span>
+            <ShoppingCart size={16} />
           </button>
-
-          {onToggleBought && (
-            <button
-              className={cn(styles.buyBtn, isPurchased && styles.purchased, "iconTooltipTrigger")}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleBoughtClick();
-              }}
-              disabled={!canToggleBought}
-              aria-label={boughtActionLabel}
-              data-tooltip={boughtActionLabel}
-            >
-              <ShoppingCart size={16} />
-            </button>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

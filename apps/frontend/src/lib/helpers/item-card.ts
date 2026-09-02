@@ -11,7 +11,6 @@ type ReservationStateInput = {
   isReserved?: boolean;
   reservedBy?: string | null;
   currentUserId?: string | null;
-  isOwner?: boolean;
   reservedByCurrentUser?: boolean;
 };
 
@@ -74,7 +73,6 @@ export function getItemReservationState({
   isReserved = false,
   reservedBy,
   currentUserId,
-  isOwner = false,
   reservedByCurrentUser = false,
 }: ReservationStateInput) {
   const reservedByValue = getReservedByValue(reservedBy);
@@ -85,10 +83,12 @@ export function getItemReservationState({
   const reservedByMe =
     reservedByCurrentUser ||
     (Boolean(currentUserId) && Boolean(reservedByValue) && reservedByValue === currentUserId);
-  const canToggleReservation = !isOwner && !isPurchased && (!resolvedIsReserved || reservedByMe);
+  // Owners included: marking your own gift as reserved or bought is allowed, so the
+  // only thing that blocks either toggle is the item already being in someone else's
+  // hands.
+  const canToggleReservation = !isPurchased && (!resolvedIsReserved || reservedByMe);
   const canToggleBought =
-    !isOwner &&
-    ((isPurchased && reservedByMe) || (!isPurchased && (!resolvedIsReserved || reservedByMe)));
+    (isPurchased && reservedByMe) || (!isPurchased && (!resolvedIsReserved || reservedByMe));
 
   return {
     reservedByValue,

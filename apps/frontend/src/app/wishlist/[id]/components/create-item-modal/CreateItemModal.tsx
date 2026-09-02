@@ -21,6 +21,7 @@ import { validateImageUploadFile } from "@/lib/image-upload";
 import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import { ALL_PRIORITIES, getPriorityCssColor } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
+import { ItemColorField } from "@/components/shared/ItemColorField/ItemColorField";
 import styles from "./CreateItemModal.module.scss";
 
 import type { CreateItemParams } from "@/api/types/item";
@@ -39,6 +40,7 @@ type CreateItemDraft = {
   description: string;
   price: string;
   priority: string | null;
+  colorIndex: number | null;
   imagePreview: string;
   discountPrice: string | null;
   hasDiscount: boolean;
@@ -61,6 +63,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [priority, setPriority] = useState<string | null>(null);
+  const [colorIndex, setColorIndex] = useState<number | null>(null);
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
@@ -140,6 +144,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       description,
       price,
       priority,
+      colorIndex,
       imagePreview: imageFile ? "" : imagePreview,
       discountPrice,
       hasDiscount,
@@ -149,6 +154,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     }),
     [
       additionalLinks,
+      colorIndex,
       currency,
       description,
       discountEndDate,
@@ -171,6 +177,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       draft.description.trim() ||
       draft.price.trim() ||
       draft.priority !== null ||
+      draft.colorIndex !== null ||
       draft.imagePreview ||
       draft.discountPrice ||
       draft.hasDiscount ||
@@ -186,6 +193,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       setDescription(draft.description);
       setPrice(draft.price);
       setPriority(draft.priority);
+      setColorIndex(draft.colorIndex);
       if (imageObjectUrl) {
         URL.revokeObjectURL(imageObjectUrl);
       }
@@ -242,6 +250,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
     setDescription("");
     setPrice("");
     setPriority(null);
+    setColorIndex(null);
+    setColorPickerOpen(false);
     setImagePreview("");
     setImageFile(null);
     if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
@@ -277,6 +287,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
       description: description.trim() || null,
       price: price.trim() || null,
       priority_id: priority || null,
+      color_index: colorIndex,
       url: link.trim() || null, // original link user pasted
       additional_links: additionalLinks.filter((l) => l.url.trim()),
       image: imageFile,
@@ -650,7 +661,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
           </div>
         </div>
 
-        <div className={styles.priorityRow}>
+        <div className={`${styles.priorityRow} ${styles.priorityColorRow}`}>
           {canUsePriority && (
             <div className={styles.field}>
               <label>{t("Priority", { $id: "item.modal.priorityLabel" })}</label>
@@ -666,6 +677,12 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               />
             </div>
           )}
+          <ItemColorField
+            colorIndex={colorIndex}
+            open={colorPickerOpen}
+            onOpenChange={setColorPickerOpen}
+            onSelect={setColorIndex}
+          />
         </div>
 
         <div className={styles.footer}>

@@ -20,7 +20,8 @@ import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import { ArrowLeft, Bug, Clock3, Info, RefreshCw, X } from "lucide-react-native";
 import * as React from "react";
-import { ActivityIndicator, RefreshControl, View, useWindowDimensions } from "react-native";
+import { RefreshControl, View, useWindowDimensions } from "react-native";
+import { ListRowsSkeleton } from "@/components/ui/list-skeletons";
 
 export default function BugsScreen() {
   const t = useGT();
@@ -124,9 +125,7 @@ export default function BugsScreen() {
           ListHeaderComponent={listHeader}
           ListEmptyComponent={
             reportsQuery.isLoading ? (
-              <View className="items-center py-16">
-                <ActivityIndicator colorClassName="accent-brand" />
-              </View>
+              <ListRowsSkeleton className="py-4" />
             ) : reportsQuery.isError ? (
               <View className="items-center gap-4 py-14">
                 <Text className="text-center text-sm font-semibold text-text-muted">

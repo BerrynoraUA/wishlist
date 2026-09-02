@@ -2,6 +2,7 @@ import {
   BottomSheet,
   BottomSheetHeader,
   BottomSheetScrollView,
+  useSheetContentDetent,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
 import { ItemImage } from "@/components/items/item-image";
@@ -60,6 +61,7 @@ export function DiscoverItemDetailSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const { detent, onContentSizeChange, onHeaderLayout } = useSheetContentDetent();
   const [confirmation, setConfirmation] = React.useState<Confirmation | null>(null);
   const [reportOpen, setReportOpen] = React.useState(false);
   const reportItem = useReportItem();
@@ -71,12 +73,10 @@ export function DiscoverItemDetailSheet({
     status: item.status,
     reservedBy: item.reserved_by,
     currentUserId,
-    isOwner: false,
   });
   const reservationLabel = buildReservationLabel({ ...reservation, reservedByName }, t);
   const priorityLabel = getTranslatedItemPriorityLabel(t, item.priority_id) ?? item.priority_name;
   const priority = getItemPriority(item.priority_id ?? item.priority_name);
-  const store = getItemStoreFromUrl(item.url);
   const itemUrl = getValidHttpUrl(item.url) ?? "";
   const additionalLinks = (item.additional_links ?? [])
     .map((link) => ({ ...link, url: getLinkUrl(link.url) }))
@@ -190,17 +190,22 @@ export function DiscoverItemDetailSheet({
       <BottomSheet
         ref={sheetRef}
         scrollable
-        // "auto" keeps the sheet as tall as its content — no empty gap under a short item —
-        // and only starts scrolling once the content outgrows the screen.
-        detents={["auto", 0.94]}
+        // A single detent measured from the content keeps the sheet as tall as the item —
+        // no empty gap under a short one — and caps at nearly full screen, where it scrolls.
+        detents={[detent]}
         footerInsetMode="scroll-content"
         onDidDismiss={onClose}
-        header={<BottomSheetHeader title={t("Item details")} />}
+        header={
+          <View onLayout={onHeaderLayout}>
+            <BottomSheetHeader title={t("Item details")} />
+          </View>
+        }
         footer={actions}
       >
         <BottomSheetScrollView
           showsVerticalScrollIndicator={false}
           contentContainerClassName="gap-5 px-5"
+          onContentSizeChange={onContentSizeChange}
         >
           <ItemImage
             item={item}
@@ -232,7 +237,7 @@ export function DiscoverItemDetailSheet({
                     className="min-w-0 flex-1 justify-start"
                   >
                     <Icon as={ExternalLink} className="size-4 text-text" />
-                    <Text numberOfLines={1}>{store || t("Visit website")}</Text>
+                    <Text numberOfLines={1}>{t("Go to store")}</Text>
                   </Button>
                   <Button
                     variant="outline"

@@ -85,7 +85,6 @@ export function WishlistItemCard({
     status: item.status,
     reservedBy: item.reserved_by,
     currentUserId,
-    isOwner,
   });
   const reservationLabel = buildReservationLabel(
     {
@@ -99,11 +98,14 @@ export function WishlistItemCard({
   // surprise). For everyone else, gray out reserved/purchased items so they
   // read as "taken" at a glance; purchases use the image ribbon only.
   // Owners only see the ribbon once they opt into the spoiler.
-  const isTaken = Boolean(reservationLabel) && (!isOwner || showOwnerReservation);
+  // An owner always sees a reservation they made themselves — the spoiler only hides
+  // what someone else did.
+  const isTaken =
+    Boolean(reservationLabel) && (!isOwner || showOwnerReservation || reservation.reservedByMe);
   const canRevealReserver = showOwnerReservation && isTaken && Boolean(reservedByName);
   const priorityLabel = getTranslatedItemPriorityLabel(t, item.priority_id);
   const priority = getItemPriority(item.priority_id);
-  const cardBorderStyle = useItemCardBorderStyle(priority);
+  const cardBorderStyle = useItemCardBorderStyle(priority, item.color_index);
   // Only Starred hangs a medallion off the bottom edge of the card.
   const medallionPriority = priority && isStarPriorityId(priority.id) ? priority : null;
   const store = getItemStoreFromUrl(item.url);
@@ -118,8 +120,9 @@ export function WishlistItemCard({
     item.discount_price,
     showDiscountBadge && hasActiveDiscount,
   );
-  const canReserve = !isOwner && Boolean(onToggleReserve && reservation.canToggleReservation);
-  const canBuy = !isOwner && Boolean(onToggleBought && reservation.canToggleBought);
+  // Owners included: marking your own gift reserved or bought is allowed.
+  const canReserve = Boolean(onToggleReserve && reservation.canToggleReservation);
+  const canBuy = Boolean(onToggleBought && reservation.canToggleBought);
   const menuPreview = useDropdownMenuPreview();
   const [reservationConfirmationOpen, setReservationConfirmationOpen] = React.useState(false);
   const [purchaseConfirmationOpen, setPurchaseConfirmationOpen] = React.useState(false);

@@ -13,6 +13,7 @@ import {
   isDiscountActive,
 } from "@/lib/helpers/item-card";
 import { ALL_PRIORITIES, getPriorityCssColor, isStarPriorityId } from "@/lib/priorities";
+import { getItemColor } from "@wishlist/backend/lib/item-colors";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
 import { Eye, EyeOff, type LucideIcon } from "lucide-react";
 import type { ItemCardProps } from "./types";
@@ -38,6 +39,7 @@ export function ItemCard({
   shareUrl,
   description,
   priority,
+  colorIndex,
   discountPrice,
   discountEndDate,
   currency,
@@ -70,9 +72,10 @@ export function ItemCard({
     ? (PRIORITY_ICONS[priorityMeta.id] ?? null)
     : null;
 
-  // The priority tints the card; Starred additionally keeps its heavier frame.
-  const accentColor = priorityColor;
+  // Only Starred tints the card from its priority; every other glow comes from the
+  // colour the owner picked, and a card with neither keeps the neutral frame.
   const hasStarAccent = isStarPriorityId(priorityMeta?.id);
+  const accentColor = hasStarAccent ? priorityColor : getItemColor(colorIndex);
 
   const formattedPrice = formatPrice(price, currency);
   const showActiveDiscount =
@@ -88,7 +91,6 @@ export function ItemCard({
       status={status}
       isReserved={isReserved}
       reservedBy={reservedBy}
-      isOwner={isOwner}
       reservedByCurrentUser={reservedByCurrentUser}
       autoOpen={autoOpen}
       onAutoOpenHandled={onAutoOpenHandled}
@@ -148,7 +150,10 @@ export function ItemCard({
 
         // Gray out reserved/purchased items so they read as "taken" at a
         // glance. Owners only see this once they opt into the spoiler.
-        const isTaken = !!statusLabel && (!isOwner || showOwnerReservation);
+        // `reservedByMe` keeps an owner's own reservation visible even with the spoiler
+        // off: it is their own doing, and without it the card would not react to the
+        // button they just pressed.
+        const isTaken = !!statusLabel && (!isOwner || showOwnerReservation || reservedByMe);
         const canRevealReserver = showOwnerReservation && isTaken && Boolean(reservedByName);
 
         return (
@@ -251,7 +256,6 @@ export function ItemCard({
               formattedPrice={formattedPrice}
               store={store}
               variant={variant}
-              isOwner={isOwner}
               isPurchasedMode={isPurchasedMode}
               reserveBtnLabel={reserveBtnLabel}
               isPurchased={isPurchased}

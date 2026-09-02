@@ -1,4 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import { getRandomDefaultAvatarUrl } from "@wishlist/backend/lib/default-avatars";
 import { toast } from "sonner";
 import {
   getProfile,
@@ -40,6 +42,30 @@ export function useProfile(options?: { enabled?: boolean }) {
     queryFn: getProfile,
     enabled: options?.enabled ?? true,
   });
+}
+
+/**
+ * Gives a profile with no picture one of the ten default avatars — the same write the
+ * picker makes when a default is chosen by hand. The app does this rather than the
+ * database because building the URL needs the project's storage host, which Postgres
+ * has no way to know. Silent on purpose: nobody asked for this write.
+ */
+export function useEnsureDefaultAvatar() {
+  const queryClient = useQueryClient();
+  const { data: profile } = useProfile();
+  const assignedRef = useRef(false);
+
+  useEffect(() => {
+    if (!profile || profile.avatar_url || assignedRef.current) return;
+
+    assignedRef.current = true;
+    updateProfile({ avatar_url: getRandomDefaultAvatarUrl() })
+      .then((next) => queryClient.setQueryData(settingsKeys.profile(), next))
+      .catch(() => {
+        // Retried on the next load; an avatar is not worth an error toast.
+        assignedRef.current = false;
+      });
+  }, [profile, queryClient]);
 }
 
 export function useUpdateProfile() {

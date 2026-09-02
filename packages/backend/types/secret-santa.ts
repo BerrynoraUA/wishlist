@@ -126,6 +126,7 @@ export type VisibleItem = {
   reserved_by: string | null;
   created_at: string;
   additional_links?: ItemLink[] | null;
+  color_index?: number | null;
 };
 
 export type VisibleItemsResponse = {

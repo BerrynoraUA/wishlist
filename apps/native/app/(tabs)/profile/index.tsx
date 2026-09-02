@@ -13,11 +13,11 @@ import { useSettings, useProfile, useUpdateSettings } from "@/hooks/use-settings
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 import { toKnownAccountProvider } from "@wishlist/backend/types/known-accounts";
 import type { ThemePreference } from "@wishlist/backend/types/settings";
-import { StyledFlashList } from "@/components/ui/styled-flash-list";
+import { SettingsSkeleton } from "@/components/ui/list-skeletons";
 import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { NAV_TAB_BAR_BACKDROP_OFFSET, NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
 
@@ -110,7 +110,7 @@ export default function ProfileScreen() {
     router.replace("/(auth)/sign-in" as never);
   }
 
-  function renderSection({ item }: { item: SettingsSection }) {
+  function renderSection(item: SettingsSection) {
     switch (item) {
       case "account":
         return (
@@ -157,31 +157,33 @@ export default function ProfileScreen() {
           enabled={SINGLE_OPEN_SETTINGS_SECTION}
           defaultOpenSection={DEFAULT_OPEN_SECTION}
         >
-          <StyledFlashList
-            data={SETTINGS_SECTIONS}
-            renderItem={renderSection}
-            keyExtractor={(item) => item}
+          {/*
+            A plain ScrollView, not a virtualized list: there are eight fixed
+            sections, so virtualization buys nothing, and the accordions animate
+            their own height via Reanimated layout transitions. FlashList caches
+            item sizes and is not told about those animated height changes, so
+            expanding a section left the cards overlapping each other.
+          */}
+          <ScrollView
             className="flex-1"
-            contentContainerClassName="px-4"
             contentContainerStyle={{
+              paddingHorizontal: 16,
               paddingTop: insets.top + 24,
               paddingBottom: contentBottomPadding,
             }}
-            ItemSeparatorComponent={SettingsSectionSeparator}
-            ListHeaderComponent={
-              settingsLoading || profileLoading ? (
-                <View className="items-center justify-center py-6">
-                  <ActivityIndicator colorClassName="accent-brand" />
-                </View>
-              ) : null
-            }
-          />
+          >
+            {settingsLoading || profileLoading ? (
+              <SettingsSkeleton sections={SETTINGS_SECTIONS.length} />
+            ) : (
+              <View className="gap-4">
+                {SETTINGS_SECTIONS.map((section) => (
+                  <View key={section}>{renderSection(section)}</View>
+                ))}
+              </View>
+            )}
+          </ScrollView>
         </SettingsSectionProvider>
       </View>
     </>
   );
-}
-
-function SettingsSectionSeparator() {
-  return <View className="h-4" />;
 }

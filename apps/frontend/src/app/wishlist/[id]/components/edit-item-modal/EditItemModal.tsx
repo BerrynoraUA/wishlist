@@ -22,6 +22,7 @@ import { validateImageUploadFile } from "@/lib/image-upload";
 import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import { ALL_PRIORITIES, getPriorityCssColor } from "@/lib/priorities";
 import { PRIORITY_ICONS } from "@/lib/priority-icons";
+import { ItemColorField } from "@/components/shared/ItemColorField/ItemColorField";
 import styles from "../create-item-modal/CreateItemModal.module.scss";
 
 type Props = {
@@ -35,6 +36,7 @@ type EditItemDraft = {
   description: string;
   price: string;
   priority: string | null;
+  colorIndex: number | null;
   link: string;
   additionalLinks: ItemLink[];
   imagePreview: string;
@@ -135,6 +137,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       description: item.description ?? "",
       price: item.price ?? "",
       priority: item.priority_id ?? null,
+      colorIndex: item.color_index ?? null,
       link: item.url ?? "",
       additionalLinks: item.additional_links ?? [],
       imagePreview: item.image_url ?? "",
@@ -147,6 +150,8 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
   const [description, setDescription] = useState(item.description ?? "");
   const [price, setPrice] = useState(item.price ?? "");
   const [priority, setPriority] = useState<string | null>(item.priority_id ?? null);
+  const [colorIndex, setColorIndex] = useState<number | null>(item.color_index ?? null);
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [link, setLink] = useState(item.url ?? "");
   const [additionalLinks, setAdditionalLinks] = useState<ItemLink[]>(item.additional_links ?? []);
   const [imagePreview, setImagePreview] = useState(item.image_url ?? "");
@@ -172,13 +177,25 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       description,
       price,
       priority,
+      colorIndex,
       link,
       additionalLinks,
       imagePreview: imageFile ? "" : imagePreview,
       currency,
       hadLocalImage: Boolean(imageFile),
     }),
-    [additionalLinks, currency, description, imageFile, imagePreview, link, name, price, priority],
+    [
+      additionalLinks,
+      colorIndex,
+      currency,
+      description,
+      imageFile,
+      imagePreview,
+      link,
+      name,
+      price,
+      priority,
+    ],
   );
 
   const isMeaningfulDraft = useCallback(
@@ -192,6 +209,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
         draft.description.trim() !== initialDraft.description.trim() ||
         draft.price.trim() !== initialDraft.price.trim() ||
         draft.priority !== initialDraft.priority ||
+        draft.colorIndex !== initialDraft.colorIndex ||
         draft.link.trim() !== initialDraft.link.trim() ||
         draft.currency !== initialDraft.currency ||
         draft.imagePreview !== initialDraft.imagePreview ||
@@ -224,6 +242,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       setDescription(draft.description);
       setPrice(draft.price);
       setPriority(draft.priority);
+      setColorIndex(draft.colorIndex);
       setLink(draft.link);
       setAdditionalLinks(draft.additionalLinks);
       if (imageObjectUrl) {
@@ -256,6 +275,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
     const initialPrice = item.price?.trim() ?? "";
     const initialLink = item.url?.trim() ?? "";
     const initialPriority = item.priority_id ?? null;
+    const initialColorIndex = item.color_index ?? null;
     const initialCurrency = resolveCurrency(item.currency);
     const initialImage = item.image_url ?? "";
     const initialAdditionalLinks = item.additional_links ?? [];
@@ -270,6 +290,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       price.trim() !== initialPrice ||
       link.trim() !== initialLink ||
       priority !== initialPriority ||
+      colorIndex !== initialColorIndex ||
       currency !== initialCurrency ||
       Boolean(imageFile) ||
       imagePreview !== initialImage ||
@@ -277,6 +298,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
     );
   }, [
     additionalLinks,
+    colorIndex,
     currency,
     description,
     imageFile,
@@ -368,6 +390,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
       url: link.trim() || null,
       additional_links: validAdditionalLinks,
       priority_id: priorityValue,
+      color_index: colorIndex,
       currency,
       ...(imageFile ? { image: imageFile } : { image_url: imagePreview || null }),
     };
@@ -692,7 +715,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
           </div>
         </div>
 
-        <div className={styles.priorityRow}>
+        <div className={`${styles.priorityRow} ${styles.priorityColorRow}`}>
           {canUsePriority && (
             <div
               className={`${styles.field} ${isDraftRestored && restoredFields.priority ? styles.draftField : ""}`.trim()}
@@ -710,6 +733,12 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
               />
             </div>
           )}
+          <ItemColorField
+            colorIndex={colorIndex}
+            open={colorPickerOpen}
+            onOpenChange={setColorPickerOpen}
+            onSelect={setColorIndex}
+          />
         </div>
 
         <div className={styles.footer}>

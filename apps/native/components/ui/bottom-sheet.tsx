@@ -3,6 +3,7 @@ import {
   createElement,
   forwardRef,
   isValidElement,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useContext,
@@ -43,8 +44,55 @@ const SHEET_CONTENT_BOTTOM_MARGIN = 16;
  * it keeps an explicit one.
  */
 const ANDROID_CORNER_RADIUS = 30;
+/** Detent used for the very first frame, before the content has reported its height. */
+const INITIAL_CONTENT_DETENT = 0.75;
+const MIN_CONTENT_DETENT = 0.35;
+const MAX_CONTENT_DETENT = 0.94;
 
 export type BottomSheetRef = ComponentRef<typeof ReanimatedTrueSheet>;
+
+/**
+ * Sizes a scrollable sheet to its content.
+ *
+ * The native `auto` detent cannot do this: it has to measure the whole content, which a
+ * scrollable sheet clips, so a sheet that mixes the two opens at its maximum height and
+ * leaves dead space under short content. Measuring the scroll content ourselves and
+ * handing the sheet a single fractional detent keeps a short item compact and still lets
+ * a long one fill the screen and scroll.
+ *
+ * Wire `onHeaderLayout` to a view wrapping the sheet header and `onContentSizeChange` to
+ * the BottomSheetScrollView; the scroll content already carries the footer inset, so the
+ * header and the footer's own bottom padding are all that is left to add.
+ */
+export function useSheetContentDetent({
+  initial = INITIAL_CONTENT_DETENT,
+  min = MIN_CONTENT_DETENT,
+  max = MAX_CONTENT_DETENT,
+}: { initial?: number; min?: number; max?: number } = {}) {
+  const { height: windowHeight } = useWindowDimensions();
+  const [contentHeight, setContentHeight] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const bottomSafeAreaInset = initialWindowMetrics?.insets.bottom ?? 0;
+  const chromeHeight = headerHeight + Math.max(bottomSafeAreaInset, SHEET_CONTENT_BOTTOM_MARGIN);
+
+  const onContentSizeChange = useCallback((_width: number, height: number) => {
+    setContentHeight(height);
+  }, []);
+
+  const onHeaderLayout = useCallback((event: LayoutChangeEvent) => {
+    setHeaderHeight(event.nativeEvent.layout.height);
+  }, []);
+
+  // Rounded to whole percents so a one-pixel reflow does not retrigger a resize.
+  const detent =
+    contentHeight > 0
+      ? Math.round(
+          Math.min(max, Math.max(min, (contentHeight + chromeHeight) / windowHeight)) * 100,
+        ) / 100
+      : initial;
+
+  return { detent, onContentSizeChange, onHeaderLayout };
+}
 
 const FooterContentInsetContext = createContext(0);
 

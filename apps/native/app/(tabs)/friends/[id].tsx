@@ -18,7 +18,8 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Gift } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, Pressable, View, useWindowDimensions } from "react-native";
+import { Pressable, View, useWindowDimensions } from "react-native";
+import { CardGridSkeleton } from "@/components/ui/list-skeletons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function FriendWishlistsScreen() {
@@ -88,9 +89,7 @@ export default function FriendWishlistsScreen() {
           ListFooterComponent={
             <View className="self-center" style={{ width: contentWidth }}>
               {wishlistsQuery.isLoading ? (
-                <View className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-8">
-                  <ActivityIndicator colorClassName="accent-brand" />
-                </View>
+                <CardGridSkeleton cardWidth={cardWidth} gridGap={gridGap} />
               ) : null}
               {wishlistsQuery.isError ? (
                 <Text className="text-center text-sm font-semibold text-destructive">
