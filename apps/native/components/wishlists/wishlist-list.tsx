@@ -182,9 +182,7 @@ export function WishlistList({
         }
         ListFooterComponent={
           <View className="gap-5" style={{ alignSelf: "center", width: contentWidth }}>
-            {query.isLoading ? (
-              <CardGridSkeleton cardWidth={cardWidth} gridGap={gridGap} />
-            ) : null}
+            {query.isLoading ? <CardGridSkeleton cardWidth={cardWidth} gridGap={gridGap} /> : null}
             {query.isError ? (
               <InlineState width={contentWidth} message={t("Failed to load wishlists.")} />
             ) : null}

@@ -15,13 +15,7 @@ import { View } from "react-native";
 const CARD_SHELL = "overflow-hidden rounded-xl border border-border-subtle bg-card-bg";
 
 /** Stacked row cards: friends, Secret Santa events and invites, bugs, ideas. */
-export function ListRowsSkeleton({
-  rows = 4,
-  className,
-}: {
-  rows?: number;
-  className?: string;
-}) {
+export function ListRowsSkeleton({ rows = 4, className }: { rows?: number; className?: string }) {
   return (
     <View className={cn("gap-4", className)}>
       {Array.from({ length: rows }, (_, index) => (
