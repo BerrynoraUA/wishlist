@@ -172,6 +172,17 @@
   }
 }
 
+/* Only a row that has somewhere to scroll offers the grab cursor. */
+.gridDraggable {
+  cursor: grab;
+}
+
+.gridDragging {
+  cursor: grabbing;
+  /* Otherwise the drag selects the card titles it passes over. */
+  user-select: none;
+}
+
 .item {
   flex: 0 0 clamp(220px, 24vw, 240px);
   min-width: 0;

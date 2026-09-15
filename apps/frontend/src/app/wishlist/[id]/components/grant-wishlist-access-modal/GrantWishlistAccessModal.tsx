@@ -10,7 +10,6 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { useFriendsWithoutWishlistAccess, useWishlistAccessList } from "@/hooks/use-friends";
 import { useGrantWishlistAccess, useRevokeWishlistAccess } from "@/hooks/use-wishlists";
 import { hasReachedSearchThreshold, normalizeSearchQuery } from "@/lib/helpers/search";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import {
   SELECTED_FRIENDS_ACCESS_TYPE,
   SELECTED_GROUPS_ACCESS_TYPE,
@@ -57,7 +56,7 @@ export function GrantWishlistAccessModal({ open, onClose, wishlistId, wishlistTi
   } = useWishlistAccessList(wishlistId);
   const grantAccess = useGrantWishlistAccess();
   const revokeAccess = useRevokeWishlistAccess();
-  const isGrantAccessGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
+  const isGrantAccessGated = !isPro;
 
   const accessOptions = useMemo(
     () =>

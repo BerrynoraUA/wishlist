@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useGT } from "gt-next";
-import { ExternalLink, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Store } from "lucide-react";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { SaveToWishlistButton } from "@/components/ui/SaveToWishlistModal/SaveToWishlistButton";
 import { useSessionDraftPresence } from "@/hooks/use-session-draft";
@@ -58,122 +58,125 @@ export function CardQuickActions({
   });
 
   return (
-    <div className={styles.quickActions}>
+    <>
+      {/* Saving someone else's idea is a keeper action, not a menu one, so it gets the
+          free corner of the image to itself. */}
       {!isOwner && (
-        <SaveToWishlistButton
-          item={buildSaveItemData({
-            name,
-            description,
-            price,
-            imageUrl: image,
-            url,
-            priority_id: priority,
-            discountPrice,
-            currency,
-          })}
-          className={`${styles.iconButton} iconTooltipTrigger`}
-        />
+        <div className={styles.saveAction}>
+          <SaveToWishlistButton
+            item={buildSaveItemData({
+              name,
+              description,
+              price,
+              imageUrl: image,
+              url,
+              priority_id: priority,
+              discountPrice,
+              currency,
+            })}
+            className={`${styles.iconButton} iconTooltipTrigger`}
+          />
+        </div>
       )}
 
-      {hasProductLink && (
-        <a
-          href={url!}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`${styles.iconButton} iconTooltipTrigger`}
-          onClick={(e) => e.stopPropagation()}
-          aria-label={t("Open product link", { $id: "itemCard.openProduct" })}
-          data-tooltip={t("Open product link", { $id: "itemCard.openProduct" })}
-        >
-          <ExternalLink size={16} />
-        </a>
-      )}
-
-      {isOwner ? (
-        <DropdownMenu
-          trigger={({ toggle }) => (
-            <button
-              className={`${styles.iconButton} iconTooltipTrigger`}
+      <div className={styles.quickActions}>
+        {isOwner ? (
+          <DropdownMenu
+            trigger={({ toggle }) => (
+              <button
+                className={`${styles.iconButton} iconTooltipTrigger`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggle();
+                }}
+                aria-label={t("Open item menu", { $id: "itemCard.menuAria" })}
+                data-tooltip={t("More options", { $id: "itemCard.moreOptions" })}
+              >
+                <MoreHorizontal size={16} />
+                {hasEditDraft && <DraftBadge variant="dot" className={styles.iconButtonDraftDot} />}
+              </button>
+            )}
+          >
+            <DropdownMenuItem
+              variant="edit"
               onClick={(e) => {
                 e.stopPropagation();
-                toggle();
+                onEdit?.();
               }}
-              aria-label={t("Open item menu", { $id: "itemCard.menuAria" })}
-              data-tooltip={t("More options", { $id: "itemCard.moreOptions" })}
             >
-              <MoreHorizontal size={16} />
-              {hasEditDraft && <DraftBadge variant="dot" className={styles.iconButtonDraftDot} />}
-            </button>
-          )}
-        >
-          <DropdownMenuItem
-            variant="edit"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit?.();
-            }}
-          >
-            <span>{t("Edit", { $id: "common.edit" })}</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            variant="danger"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete?.(id);
-            }}
-          >
-            <span>{t("Delete", { $id: "common.delete" })}</span>
-          </DropdownMenuItem>
-        </DropdownMenu>
-      ) : (
-        <DropdownMenu
-          trigger={({ toggle }) => (
-            <button
-              className={`${styles.iconButton} iconTooltipTrigger`}
-              onClick={(e) => {
-                e.stopPropagation();
-                toggle();
-              }}
-              aria-label={t("Open item menu", { $id: "itemCard.menuAria" })}
-              data-tooltip={t("More options", { $id: "itemCard.moreOptions" })}
-            >
-              <MoreHorizontal size={16} />
-            </button>
-          )}
-        >
-          {!isWishlist && hasShareLink && (
-            <DropdownMenuItem variant="share" onClick={() => shareItemLink(shareUrl!)}>
-              <span>{t("Share", { $id: "itemCard.share" })}</span>
+              <span>{t("Edit", { $id: "common.edit" })}</span>
             </DropdownMenuItem>
-          )}
-          <DropdownMenuItem
-            variant="danger"
-            onClick={(e) => {
-              e.stopPropagation();
-              setReportOpen(true);
-            }}
+            <DropdownMenuItem
+              variant="danger"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.(id);
+              }}
+            >
+              <span>{t("Delete", { $id: "common.delete" })}</span>
+            </DropdownMenuItem>
+          </DropdownMenu>
+        ) : (
+          <DropdownMenu
+            trigger={({ toggle }) => (
+              <button
+                className={`${styles.iconButton} iconTooltipTrigger`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggle();
+                }}
+                aria-label={t("Open item menu", { $id: "itemCard.menuAria" })}
+                data-tooltip={t("More options", { $id: "itemCard.moreOptions" })}
+              >
+                <MoreHorizontal size={16} />
+              </button>
+            )}
           >
-            <span>{t("Report", { $id: "itemCard.report" })}</span>
-          </DropdownMenuItem>
-        </DropdownMenu>
-      )}
-
-      <DeleteConfirmModal
-        open={reportOpen}
-        onClose={() => setReportOpen(false)}
-        onConfirm={() =>
-          reportItem.mutate(id, {
-            onSuccess: () => setReportOpen(false),
-          })
-        }
-        title={t("Report this item", { $id: "itemCard.reportTitle" })}
-        description={t(
-          "Tell us this item breaks the rules and our team will take a look. You can only report an item once.",
-          { $id: "itemCard.reportDescription" },
+            {hasProductLink && (
+              <DropdownMenuItem
+                icon={<Store size={16} />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(url!, "_blank", "noopener,noreferrer");
+                }}
+              >
+                <span>{t("Go to store", { $id: "itemCard.goToStore" })}</span>
+              </DropdownMenuItem>
+            )}
+            {!isWishlist && hasShareLink && (
+              <DropdownMenuItem variant="share" onClick={() => shareItemLink(shareUrl!)}>
+                <span>{t("Share", { $id: "itemCard.share" })}</span>
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem
+              variant="danger"
+              onClick={(e) => {
+                e.stopPropagation();
+                setReportOpen(true);
+              }}
+            >
+              <span>{t("Report", { $id: "itemCard.report" })}</span>
+            </DropdownMenuItem>
+          </DropdownMenu>
         )}
-        confirmLabel={t("Report", { $id: "itemCard.reportConfirm" })}
-        isPending={reportItem.isPending}
-      />
-    </div>
+
+        <DeleteConfirmModal
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+          onConfirm={() =>
+            reportItem.mutate(id, {
+              onSuccess: () => setReportOpen(false),
+            })
+          }
+          title={t("Report this item", { $id: "itemCard.reportTitle" })}
+          description={t(
+            "Tell us this item breaks the rules and our team will take a look. You can only report an item once.",
+            { $id: "itemCard.reportDescription" },
+          )}
+          confirmLabel={t("Report", { $id: "itemCard.reportConfirm" })}
+          isPending={reportItem.isPending}
+        />
+      </div>
+    </>
   );
 }

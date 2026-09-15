@@ -7,7 +7,7 @@ import {
 } from "@/hooks/use-notifications";
 import { NotificationPermissionSheet } from "@/components/notifications/notification-permission-sheet";
 import { AppBlurTarget } from "@/components/ui/app-blur-target";
-import { useProfile, useSettings } from "@/hooks/use-settings";
+import { useEnsureDefaultAvatar, useSettings } from "@/hooks/use-settings";
 import {
   applyNativeThemeSettings,
   type CachedNativeThemeSettings,
@@ -207,7 +207,7 @@ function AuthGate() {
     return (
       <AuthenticatedThemeGate key={session.user.id}>
         <AuthRedirector />
-        <ProfilePrefetch />
+        <ProfileBootstrap />
         <NotificationPushBootstrap />
         {/* Inside the per-account subtree so the guide reads the right account's state,
             and never mounts at all on the auth screens. */}
@@ -263,10 +263,13 @@ function AuthRedirector() {
  * Starts the profile query the moment there is a session, rather than when the profile
  * screen first mounts. It is one small GET, so it costs nothing next to the queries the
  * first screen already makes, and it means the settings form opens filled in instead of
- * mounting empty — which used to show every field's "required" error until the fetch landed.
+ * mounting empty — which used to show every field.s "required" error until the fetch landed.
+ *
+ * It also hands a profile with no picture one of the default avatars, off the back of the
+ * same query.
  */
-function ProfilePrefetch() {
-  useProfile();
+function ProfileBootstrap() {
+  useEnsureDefaultAvatar();
 
   return null;
 }

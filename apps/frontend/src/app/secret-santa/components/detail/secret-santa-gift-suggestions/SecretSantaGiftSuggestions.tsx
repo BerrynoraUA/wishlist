@@ -38,6 +38,7 @@ function toWishlistItem(item: VisibleItem): Item {
     discount_end_date: item.discount_end_date,
     currency: item.currency,
     additional_links: item.additional_links ?? [],
+    color_index: item.color_index ?? null,
   };
 }
 

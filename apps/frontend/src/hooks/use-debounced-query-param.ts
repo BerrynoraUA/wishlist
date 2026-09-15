@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 type Options = {
   key: string;
@@ -10,7 +10,6 @@ type Options = {
 
 export function useDebouncedQueryParam({ key, debounceMs = 300 }: Options) {
   const pathname = usePathname();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [value, setValue] = useState(() => searchParams.get(key) ?? "");
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -49,13 +48,17 @@ export function useDebouncedQueryParam({ key, debounceMs = 300 }: Options) {
           params.delete(key);
         }
 
-        router.replace(
+        // History API, not `router.replace` — see `useQueryParams`: replacing the route
+        // re-renders it on the server and flashes its `loading.tsx` over the page, which
+        // is very visible when it happens on every pause in typing.
+        window.history.replaceState(
+          null,
+          "",
           params.toString() ? `${pathnameRef.current}?${params.toString()}` : pathnameRef.current,
-          { scroll: false },
         );
       }, debounceMs);
     },
-    [debounceMs, key, router],
+    [debounceMs, key],
   );
 
   return {

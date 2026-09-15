@@ -21,6 +21,8 @@ export interface Item {
   discount_end_date: string | null;
   currency: string | null;
   additional_links: ItemLink[] | null;
+  /** Index into ITEM_COLORS; null means the card keeps its neutral frame. */
+  color_index: number | null;
 }
 
 export interface ItemFormValues {
@@ -35,6 +37,7 @@ export interface ItemFormValues {
   hasDiscount: boolean;
   discountEndDate: string;
   additionalLinks: ItemLink[];
+  colorIndex: number | null;
 }
 
 export interface ItemQueryParams {
@@ -62,6 +65,7 @@ export interface CreateItemParams {
   discount_end_date?: string | null;
   currency?: string | null;
   additional_links?: ItemLink[] | null;
+  color_index?: number | null;
 }
 
 export type UpdateItemParams = Partial<Omit<CreateItemParams, "wishlist_id">>;

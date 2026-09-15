@@ -22,7 +22,8 @@ import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import { ArrowLeft, Clock3, Info, Lightbulb, RefreshCw, X } from "lucide-react-native";
 import * as React from "react";
-import { ActivityIndicator, RefreshControl, View, useWindowDimensions } from "react-native";
+import { RefreshControl, View, useWindowDimensions } from "react-native";
+import { ListRowsSkeleton } from "@/components/ui/list-skeletons";
 import { useMMKVBoolean } from "react-native-mmkv";
 
 export default function IdeasScreen() {
@@ -139,9 +140,7 @@ export default function IdeasScreen() {
           ListHeaderComponent={listHeader}
           ListEmptyComponent={
             ideasQuery.isLoading ? (
-              <View className="items-center py-16">
-                <ActivityIndicator colorClassName="accent-brand" />
-              </View>
+              <ListRowsSkeleton className="py-4" />
             ) : ideasQuery.isError ? (
               <View className="items-center gap-4 py-14">
                 <Text className="text-center text-sm font-semibold text-text-muted">

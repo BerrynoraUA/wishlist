@@ -39,8 +39,8 @@ export const FREE_LIMITS = {
 } as const;
 
 export const PRICING = {
-  monthly: 2.99,
-  yearly: 19.99,
+  monthly: 3.99,
+  yearly: 24.99,
   get yearlySavingsPercent() {
     return Math.round((1 - this.yearly / (this.monthly * 12)) * 100);
   },

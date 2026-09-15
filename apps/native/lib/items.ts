@@ -17,13 +17,7 @@ export const ITEM_PRIORITY_LOOKUP = [
   { value: PRIORITY_IDS.LOW, priority_id: PRIORITY_IDS.LOW },
   { value: PRIORITY_IDS.MEDIUM, priority_id: PRIORITY_IDS.MEDIUM },
   { value: PRIORITY_IDS.HIGH, priority_id: PRIORITY_IDS.HIGH },
-  { value: PRIORITY_IDS.URGENT, priority_id: PRIORITY_IDS.URGENT },
-  { value: PRIORITY_IDS.CRITICAL, priority_id: PRIORITY_IDS.CRITICAL },
-  { value: PRIORITY_IDS.EPIC, priority_id: PRIORITY_IDS.EPIC },
-  { value: PRIORITY_IDS.LEGENDARY, priority_id: PRIORITY_IDS.LEGENDARY },
-  { value: PRIORITY_IDS.MYTHIC, priority_id: PRIORITY_IDS.MYTHIC },
-  { value: PRIORITY_IDS.CELESTIAL, priority_id: PRIORITY_IDS.CELESTIAL },
-  { value: PRIORITY_IDS.DIVINE, priority_id: PRIORITY_IDS.DIVINE },
+  { value: PRIORITY_IDS.STAR, priority_id: PRIORITY_IDS.STAR },
 ] as const;
 
 export function getItemStatusOptions(t: TranslateFn) {
@@ -90,6 +84,7 @@ export const EMPTY_ITEM_FORM: ItemFormValues = {
   hasDiscount: false,
   discountEndDate: "",
   additionalLinks: [],
+  colorIndex: null,
 };
 
 export function normalizeItemSearch(value?: string) {
@@ -118,6 +113,7 @@ export function toItemFormValues(item?: Item): ItemFormValues {
     hasDiscount: item.has_discount,
     discountEndDate: item.discount_end_date?.slice(0, 10) ?? "",
     additionalLinks: item.additional_links ?? [],
+    colorIndex: item.color_index,
   };
 }
 
@@ -190,12 +186,10 @@ export function getItemReservationState({
   status,
   reservedBy,
   currentUserId,
-  isOwner,
 }: {
   status?: number | null;
   reservedBy?: string | null;
   currentUserId?: string | null;
-  isOwner?: boolean;
 }) {
   const isPurchased = status === 2;
   const isReserved = status === 1 || Boolean(reservedBy && !isPurchased);
@@ -205,10 +199,11 @@ export function getItemReservationState({
     isPurchased,
     isReserved,
     reservedByMe,
-    canToggleReservation: !isOwner && !isPurchased && (!isReserved || reservedByMe),
+    // Owners included: marking your own gift reserved or bought is allowed, so the only
+    // thing that blocks either toggle is the item already being in someone else's hands.
+    canToggleReservation: !isPurchased && (!isReserved || reservedByMe),
     canToggleBought:
-      !isOwner &&
-      ((isPurchased && reservedByMe) || (!isPurchased && (!isReserved || reservedByMe))),
+      (isPurchased && reservedByMe) || (!isPurchased && (!isReserved || reservedByMe)),
   };
 }
 

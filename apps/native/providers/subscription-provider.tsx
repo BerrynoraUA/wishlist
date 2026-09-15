@@ -18,7 +18,7 @@ import { Linking, Platform } from "react-native";
 
 type PurchaseState = "idle" | "loading" | "purchasing" | "restoring";
 
-const RC_PRO_ENTITLEMENT_ID = "pro_access";
+const RC_PRO_ENTITLEMENT_ID = "wishlane-premium";
 const ANDROID_SUBSCRIPTION_STORES = new Set(["PLAY_STORE", "TEST_STORE"]);
 
 interface SubscriptionContextValue {

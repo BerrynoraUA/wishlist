@@ -16,6 +16,11 @@ const MIN_SCROLL_AMOUNT = 220;
 const MAX_SCROLL_AMOUNT = 390;
 const SCROLL_ANIMATION_MIN_DURATION = 300;
 const SCROLL_ANIMATION_MAX_DURATION = 460;
+/**
+ * How far the mouse has to travel before a press turns into a drag. Below it the press
+ * is still a click, so the buttons and links on the cards keep working normally.
+ */
+const DRAG_THRESHOLD = 5;
 
 type ScrollState = {
   canScrollLeft: boolean;
@@ -53,6 +58,14 @@ export function DiscoverSection({
     canScrollRight: false,
   });
   const [scrollState, setScrollState] = useState<ScrollState>(scrollStateRef.current);
+  const dragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startScrollLeft: number;
+    dragging: boolean;
+  } | null>(null);
+  const swallowNextClickRef = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
   const itemCount = items.length;
   const resolvedAvatarUrl = avatarUrl ?? avatar_url ?? null;
 
@@ -175,6 +188,78 @@ export function DiscoverSection({
     [updateScrollState],
   );
 
+  function handleDragPointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    // Touch and pen already pan the track natively; only the mouse needs help.
+    if (event.pointerType !== "mouse" || event.button !== 0 || !trackRef.current) {
+      return;
+    }
+
+    swallowNextClickRef.current = false;
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startScrollLeft: trackRef.current.scrollLeft,
+      dragging: false,
+    };
+  }
+
+  function handleDragPointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    const track = trackRef.current;
+
+    if (!drag || !track || event.pointerId !== drag.pointerId) {
+      return;
+    }
+
+    const delta = event.clientX - drag.startX;
+
+    if (!drag.dragging) {
+      if (Math.abs(delta) < DRAG_THRESHOLD) {
+        return;
+      }
+
+      drag.dragging = true;
+      setIsDragging(true);
+      // Keeps the drag alive when the cursor leaves the track or the window.
+      track.setPointerCapture(drag.pointerId);
+
+      if (scrollAnimationRef.current !== null) {
+        window.cancelAnimationFrame(scrollAnimationRef.current);
+        scrollAnimationRef.current = null;
+      }
+    }
+
+    track.scrollLeft = drag.startScrollLeft - delta;
+  }
+
+  function handleDragPointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    const track = trackRef.current;
+
+    if (!drag || event.pointerId !== drag.pointerId) {
+      return;
+    }
+
+    if (drag.dragging && track?.hasPointerCapture(drag.pointerId)) {
+      track.releasePointerCapture(drag.pointerId);
+    }
+
+    // A drag ends in a click event the card underneath would otherwise act on.
+    swallowNextClickRef.current = drag.dragging;
+    dragRef.current = null;
+    setIsDragging(false);
+  }
+
+  function handleDragClickCapture(event: React.MouseEvent<HTMLDivElement>) {
+    if (!swallowNextClickRef.current) {
+      return;
+    }
+
+    swallowNextClickRef.current = false;
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   return (
     <section className={styles.section}>
       <header>
@@ -260,7 +345,17 @@ export function DiscoverSection({
           </button>
         )}
 
-        <div ref={trackRef} className={styles.grid}>
+        <div
+          ref={trackRef}
+          className={`${styles.grid} ${scrollState.canScrollLeft || scrollState.canScrollRight ? styles.gridDraggable : ""} ${isDragging ? styles.gridDragging : ""}`.trim()}
+          onPointerDown={handleDragPointerDown}
+          onPointerMove={handleDragPointerMove}
+          onPointerUp={handleDragPointerUp}
+          onPointerCancel={handleDragPointerUp}
+          onClickCapture={handleDragClickCapture}
+          // Cards hold images and links, which the browser would rather drag than scroll.
+          onDragStart={(event) => event.preventDefault()}
+        >
           {items.map((item) => (
             <div className={styles.item} key={item.id}>
               <ItemCard

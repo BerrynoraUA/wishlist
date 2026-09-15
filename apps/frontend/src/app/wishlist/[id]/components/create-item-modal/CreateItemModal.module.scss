@@ -172,6 +172,16 @@
   align-items: start;
 }
 
+/* Priority takes the room it needs; the colour swatch sits beside it, and takes the
+   whole row when priority is hidden (a free account with no priorities selected). */
+.priorityColorRow {
+  grid-template-columns: minmax(0, 1fr) auto;
+
+  &:has(> :only-child) {
+    grid-template-columns: 1fr;
+  }
+}
+
 .selectWrap {
   min-width: 88px;
 }

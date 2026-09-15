@@ -298,6 +298,7 @@ export const SHOWCASE_ITEMS: readonly Item[] = WISHLIST_SEEDS.flatMap((seed, wis
     discount_end_date: item.discountPrice ? dateDaysFromNow(9) : null,
     currency: "GBP",
     additional_links: null,
+    color_index: null,
   })),
 );
 

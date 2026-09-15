@@ -44,6 +44,10 @@
   border-color: #2f6d46;
 }
 
+/* Reserve and Bought sit on the left edge, under the links, rather than being pushed to
+   the far side of the row. */
+/* Auto margin, so the actions hug the right edge of whichever line they land on:
+   beside a single link, or alone under a full row of them. */
 .footerRight {
   display: flex;
   gap: 8px;
@@ -55,11 +59,14 @@
   box-shadow: 0 4px 12px var(--brand-alpha-10);
 }
 
+/* Not a full-width row: with a single link the actions fit beside it, and only a
+   longer list of links pushes them onto their own line. */
 .linksSection {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  width: 100%;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .linkBtnSecondary {

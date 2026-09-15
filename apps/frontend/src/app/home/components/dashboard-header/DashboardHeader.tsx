@@ -9,7 +9,6 @@ import { Plus, Sparkles } from "lucide-react";
 import { useCurrentUser, useMyStatistics } from "@/hooks/use-user";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FREE_LIMITS } from "@/types/subscription";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { DashboardHeaderSkeleton } from "../home-skeleton/HomeSkeleton";
 import { getDisplayName } from "../../helpers";
 import { GREETING_FALLBACK_NAME } from "../../constants";
@@ -26,7 +25,7 @@ export function DashboardHeader({ onNewWishlist, hasDraft = false }: Props) {
   const { isPro } = useSubscription();
   const router = useRouter();
   const wishlistCount = stats?.wishlists_count ?? 0;
-  const atLimit = SUBSCRIPTIONS_UI_ENABLED && !isPro && wishlistCount >= FREE_LIMITS.maxWishlists;
+  const atLimit = !isPro && wishlistCount >= FREE_LIMITS.maxWishlists;
   const rawDisplayName = user ? getDisplayName(user) : null;
   const displayName =
     rawDisplayName === null
@@ -74,7 +73,7 @@ export function DashboardHeader({ onNewWishlist, hasDraft = false }: Props) {
       </div>
 
       <div className={styles.actions}>
-        {SUBSCRIPTIONS_UI_ENABLED && !isPro && (
+        {!isPro && (
           <span className={styles.limitCounter}>
             {t("{current}/{max} wishlists", {
               current: wishlistCount,

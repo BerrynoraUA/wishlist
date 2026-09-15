@@ -20,7 +20,8 @@ import type { SecretSantaDetails, SecretSantaListItem } from "@wishlist/backend/
 import { Stack, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View, useWindowDimensions } from "react-native";
+import { View, useWindowDimensions } from "react-native";
+import { ListRowsSkeleton } from "@/components/ui/list-skeletons";
 
 type SecretSantaRow = SecretSantaListItem[];
 type SecretSantaTab = "events" | "invites";
@@ -161,9 +162,7 @@ export default function SecretSantaScreen() {
           ListFooterComponent={
             <View className="gap-4 self-center" style={{ width: contentWidth }}>
               {activeTab === "invites" && notificationsQuery.isLoading ? (
-                <View className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-8">
-                  <ActivityIndicator colorClassName="accent-brand" />
-                </View>
+                <ListRowsSkeleton rows={3} />
               ) : null}
               {activeTab === "invites" && notificationsQuery.isError ? (
                 <InlineState message={t("Failed to load invites.")} />
@@ -183,11 +182,7 @@ export default function SecretSantaScreen() {
                   message={t("No Secret Santa invites right now.")}
                 />
               ) : null}
-              {activeTab === "events" && query.isLoading ? (
-                <View className="items-center justify-center rounded-xl border border-border-subtle bg-card-bg p-8">
-                  <ActivityIndicator colorClassName="accent-brand" />
-                </View>
-              ) : null}
+              {activeTab === "events" && query.isLoading ? <ListRowsSkeleton /> : null}
               {activeTab === "events" && query.isError ? (
                 <InlineState message={t("Failed to load Secret Santa events.")} />
               ) : null}

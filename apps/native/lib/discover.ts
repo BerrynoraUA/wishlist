@@ -30,6 +30,7 @@ export function normalizeDiscoverItem(item: DiscoverItem): Item {
     discount_end_date: null,
     currency: item.currency ?? null,
     additional_links: item.additional_links ?? null,
+    color_index: item.color_index ?? null,
   };
 }
 
@@ -52,6 +53,7 @@ export function normalizeReservedItem(item: ReservedItem, currentUserId?: string
     discount_end_date: null,
     currency: item.currency ?? null,
     additional_links: item.additional_links ?? null,
+    color_index: item.color_index ?? null,
   };
 }
 

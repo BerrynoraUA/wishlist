@@ -54,6 +54,7 @@ export type DiscoverItem = {
   discount_end_date?: string | null;
   currency?: string | null;
   additional_links?: ItemLink[] | null;
+  color_index?: number | null;
 };
 
 export type DiscoverSection = {
@@ -88,6 +89,7 @@ export type ReservedItem = {
   discount_end_date?: string | null;
   currency?: string | null;
   additional_links?: ItemLink[] | null;
+  color_index?: number | null;
 };
 
 export interface FriendUpcomingWishlist {

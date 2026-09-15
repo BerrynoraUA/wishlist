@@ -36,7 +36,8 @@ import * as Clipboard from "expo-clipboard";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, ScrollView, Share, View, useWindowDimensions } from "react-native";
+import { ScrollView, Share, View, useWindowDimensions } from "react-native";
+import { DetailSkeleton } from "@/components/ui/list-skeletons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SheetState = "edit" | "invite" | "launch" | "delete" | null;
@@ -151,11 +152,8 @@ export default function SecretSantaDetailScreen() {
         <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom }}>
           <View className="gap-5 bg-bg">
             {detailsQuery.isLoading ? (
-              <View
-                className="items-center justify-center self-center rounded-xl border border-border-subtle bg-card-bg p-8"
-                style={{ marginTop: 20, width: contentWidth }}
-              >
-                <ActivityIndicator colorClassName="accent-brand" />
+              <View style={{ marginTop: 20 }}>
+                <DetailSkeleton width={contentWidth} />
               </View>
             ) : null}
 

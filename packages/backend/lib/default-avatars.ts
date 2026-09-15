@@ -2,9 +2,9 @@ import { getSupabasePublicEnv } from "../supabase/shared";
 
 /**
  * Ten flat person illustrations stored in the public `avatars` bucket under
- * `defaults/`. One is picked at random when a profile is created, and the
- * profile screens let the user swap to any of the others instead of uploading
- * a photo.
+ * `defaults/`. A profile with no picture is given one at random the first time
+ * an app loads it, and the profile screens let the user swap to any of the
+ * others instead of uploading a photo.
  *
  * They are ordinary public storage URLs, so every place that renders
  * `avatar_url` shows them without knowing they are defaults. The files
@@ -22,6 +22,14 @@ export function getDefaultAvatarUrls(projectUrl?: string) {
   return Array.from({ length: DEFAULT_AVATAR_COUNT }, (_, index) =>
     getDefaultAvatarUrl(index, projectUrl),
   );
+}
+
+/**
+ * Picks the default a profile starts with. Assigned by the app rather than by the
+ * database, which has no way to know the project's storage host.
+ */
+export function getRandomDefaultAvatarUrl(projectUrl?: string) {
+  return getDefaultAvatarUrl(Math.floor(Math.random() * DEFAULT_AVATAR_COUNT), projectUrl);
 }
 
 /** Defaults are shared between users, so nobody's avatar change may delete one. */

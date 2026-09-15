@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 /**
  * Hook for managing URL query parameters with page-reset semantics.
@@ -9,7 +9,6 @@ import { useRouter, useSearchParams } from "next/navigation";
  * pattern used across filtered list pages.
  */
 export function useQueryParams(basePath: string) {
-  const router = useRouter();
   const routeSearchParams = useSearchParams();
   const routeSearchParamsString = routeSearchParams.toString();
   const [optimisticParamsString, setOptimisticParamsString] = useState(routeSearchParamsString);
@@ -29,11 +28,13 @@ export function useQueryParams(basePath: string) {
       updater(nextParams);
       const nextQuery = nextParams.toString();
       setOptimisticParamsString(nextQuery);
-      router.replace(nextQuery ? `${basePath}?${nextQuery}` : basePath, {
-        scroll: false,
-      });
+      // The History API rather than `router.replace`: replacing the route makes Next
+      // re-render it on the server, and the route's `loading.tsx` flashes over the whole
+      // page on the way. Filters are client state — the URL only has to record them, and
+      // the list re-fetches from its own query key.
+      window.history.replaceState(null, "", nextQuery ? `${basePath}?${nextQuery}` : basePath);
     },
-    [basePath, optimisticParamsString, router],
+    [basePath, optimisticParamsString],
   );
 
   const setPage = useCallback(

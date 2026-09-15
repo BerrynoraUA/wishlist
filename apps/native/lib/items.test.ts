@@ -23,13 +23,25 @@ describe("item domain helpers", () => {
         status: 1,
         reservedBy: "other-user",
         currentUserId: "current-user",
-        isOwner: false,
       }),
     ).toMatchObject({
       isReserved: true,
       reservedByMe: false,
       canToggleReservation: false,
       canToggleBought: false,
+    });
+  });
+
+  it("lets the owner reserve an item nobody has taken", () => {
+    expect(
+      getItemReservationState({
+        status: 0,
+        reservedBy: null,
+        currentUserId: "owner",
+      }),
+    ).toMatchObject({
+      canToggleReservation: true,
+      canToggleBought: true,
     });
   });
 });

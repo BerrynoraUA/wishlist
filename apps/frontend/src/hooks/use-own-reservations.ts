@@ -1,6 +1,5 @@
 import { useSettings } from "@/hooks/use-settings";
 import { useSubscription } from "@/hooks/use-subscription";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 
 /**
  * Whether the wishlist owner opted into seeing reservations on their own
@@ -10,7 +9,7 @@ import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 export function useShowOwnReservations(): boolean {
   const { data: settings } = useSettings();
   const { isPro } = useSubscription();
-  const gated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
+  const gated = !isPro;
 
   return !gated && Boolean(settings?.show_own_reservations);
 }

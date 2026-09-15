@@ -14,7 +14,6 @@ type ItemCardBaseProps = {
   status?: number | null;
   isReserved?: boolean;
   reservedBy?: string | null;
-  isOwner?: boolean;
   reservedByCurrentUser?: boolean;
   autoOpen?: boolean;
   onAutoOpenHandled?: (id: string) => void;
@@ -41,7 +40,6 @@ export function ItemCardBase({
   status,
   isReserved = false,
   reservedBy,
-  isOwner = false,
   reservedByCurrentUser = false,
   autoOpen = false,
   onAutoOpenHandled,
@@ -59,7 +57,6 @@ export function ItemCardBase({
     isReserved,
     reservedBy,
     currentUserId,
-    isOwner,
     reservedByCurrentUser,
   });
 

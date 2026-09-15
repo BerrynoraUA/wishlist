@@ -10,7 +10,6 @@ import { Plus, TreePine, Sparkles } from "lucide-react";
 import { useCurrentUser } from "@/hooks/use-user";
 import { useSubscription } from "@/hooks/use-subscription";
 import { useSecretSantaEvents } from "@/hooks/use-secret-santa";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { FREE_LIMITS } from "@/types/subscription";
 
 function getDisplayName(
@@ -49,8 +48,7 @@ export function SecretSantaHeader({ onNewEvent, hasDraft = false }: Props) {
   const { isPro } = useSubscription();
   const { data: eventsData } = useSecretSantaEvents();
   const eventCount = eventsData?.total ?? 0;
-  const atLimit =
-    SUBSCRIPTIONS_UI_ENABLED && !isPro && eventCount >= FREE_LIMITS.maxSecretSantaEvents;
+  const atLimit = !isPro && eventCount >= FREE_LIMITS.maxSecretSantaEvents;
   const displayName = getDisplayName(
     user ?? undefined,
     t("there", { $id: "secretSanta.header.guestName" }),
@@ -81,7 +79,7 @@ export function SecretSantaHeader({ onNewEvent, hasDraft = false }: Props) {
       </div>
 
       <div className={styles.actions}>
-        {SUBSCRIPTIONS_UI_ENABLED && !isPro && (
+        {!isPro && (
           <span className={styles.limitCounter}>
             {t("{current}/{max} events", {
               current: eventCount,

@@ -80,6 +80,11 @@
   font-weight: var(--fw-semibold);
   padding: 2px 7px;
   border-radius: $radius-pill;
+
+  &[data-empty] {
+    background: var(--color-bg-muted);
+    color: var(--color-text-muted);
+  }
 }
 
 /* ── Responsive ── */

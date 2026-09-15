@@ -5,17 +5,10 @@ export const PRIORITY_IDS = {
   LOW: "11111111-0000-0000-0000-000000000001",
   MEDIUM: "11111111-0000-0000-0000-000000000002",
   HIGH: "11111111-0000-0000-0000-000000000003",
-  URGENT: "11111111-0000-0000-0000-000000000004",
-  CRITICAL: "11111111-0000-0000-0000-000000000005",
-  EPIC: "11111111-0000-0000-0000-000000000006",
-  LEGENDARY: "11111111-0000-0000-0000-000000000007",
-  MYTHIC: "11111111-0000-0000-0000-000000000008",
-  CELESTIAL: "11111111-0000-0000-0000-000000000009",
-  DIVINE: "11111111-0000-0000-0000-000000000010",
   STAR: "11111111-0000-0000-0000-000000000011",
 } as const;
 
-// Stare items float to the top of the default ordering and are capped per
+// Starred items float to the top of the default ordering and are capped per
 // wishlist — the DB functions match on this id directly, so keep it in sync
 // with the migration seed.
 export const STAR_PRIORITY_ID = PRIORITY_IDS.STAR;
@@ -50,64 +43,8 @@ export const ALL_PRIORITIES: ItemPriority[] = [
     is_free: true,
   },
   {
-    id: PRIORITY_IDS.URGENT,
-    name: "Urgent",
-    color: "#f97316",
-    emoji: "🔥",
-    sort_order: 4,
-    is_free: false,
-  },
-  {
-    id: PRIORITY_IDS.CRITICAL,
-    name: "Critical",
-    color: "#ec4899",
-    emoji: "⚡",
-    sort_order: 5,
-    is_free: false,
-  },
-  {
-    id: PRIORITY_IDS.EPIC,
-    name: "Epic",
-    color: "#8b5cf6",
-    emoji: "💜",
-    sort_order: 6,
-    is_free: false,
-  },
-  {
-    id: PRIORITY_IDS.LEGENDARY,
-    name: "Legendary",
-    color: "#f59e0b",
-    emoji: "👑",
-    sort_order: 7,
-    is_free: false,
-  },
-  {
-    id: PRIORITY_IDS.MYTHIC,
-    name: "Mythic",
-    color: "#06b6d4",
-    emoji: "🌊",
-    sort_order: 8,
-    is_free: false,
-  },
-  {
-    id: PRIORITY_IDS.CELESTIAL,
-    name: "Celestial",
-    color: "#6366f1",
-    emoji: "✨",
-    sort_order: 9,
-    is_free: false,
-  },
-  {
-    id: PRIORITY_IDS.DIVINE,
-    name: "Divine",
-    color: "#e879f9",
-    emoji: "🌟",
-    sort_order: 10,
-    is_free: false,
-  },
-  {
     id: PRIORITY_IDS.STAR,
-    name: "Stare",
+    name: "Starred",
     color: "#c0267e",
     emoji: "⭐",
     sort_order: 11,
@@ -116,7 +53,7 @@ export const ALL_PRIORITIES: ItemPriority[] = [
 ];
 
 /**
- * CSS colour to paint a priority with. Stare follows the user's chosen accent
+ * CSS colour to paint a priority with. Starred follows the user's chosen accent
  * (`--color-brand`) the way the old star card did, so it stays blue for a blue
  * accent instead of the fixed pink stored in the DB.
  */

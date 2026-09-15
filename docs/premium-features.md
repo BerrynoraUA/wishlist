@@ -6,12 +6,15 @@ code rather than from marketing copy. Every claim below links to the file that e
 Plans are defined in [`packages/backend/types/subscription.ts`](../packages/backend/types/subscription.ts)
 as `SubscriptionPlan.Free` and `SubscriptionPlan.Pro`.
 
+For how to configure App Store Connect, Google Play, RevenueCat and Paddle, see
+[mobile-subscriptions-setup.md](./mobile-subscriptions-setup.md).
+
 ## Pricing
 
 | Interval | Price  | Notes                                |
 | -------- | ------ | ------------------------------------ |
-| Monthly  | $2.99  |                                      |
-| Yearly   | $19.99 | 44% cheaper than 12 monthly payments |
+| Monthly  | $3.99  |                                      |
+| Yearly   | $24.99 | 48% cheaper than 12 monthly payments |
 
 Source: `PRICING` in [`packages/backend/types/subscription.ts`](../packages/backend/types/subscription.ts).
 The savings percentage is computed, not hard-coded.
@@ -119,7 +122,7 @@ All gating funnels through one hook,
 const { isPro, isGated, isLoading, openPaywall } = useProGate();
 ```
 
-- `isPro` comes from `useSubscriptionManager()`, which reads the RevenueCat `pro_access`
+- `isPro` comes from `useSubscriptionManager()`, which reads the RevenueCat `wishlane-premium`
   entitlement and the server-side subscription status
   ([`subscription-provider.tsx`](../apps/native/providers/subscription-provider.tsx)).
 - `isGated` is simply `!isPro`.

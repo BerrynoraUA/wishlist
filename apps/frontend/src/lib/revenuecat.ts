@@ -1,7 +1,7 @@
 import { Purchases } from "@revenuecat/purchases-js";
 
 const RC_API_KEY = process.env.NEXT_PUBLIC_REVENUECAT_API_KEY as string;
-export const RC_PRO_ENTITLEMENT_ID = "pro_access";
+export const RC_PRO_ENTITLEMENT_ID = "wishlane-premium";
 
 let instance: Purchases | null = null;
 let currentUserId: string | null = null;

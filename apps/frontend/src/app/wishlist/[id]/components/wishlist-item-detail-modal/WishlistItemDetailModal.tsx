@@ -6,7 +6,20 @@ import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
 import { Item } from "@/types/item";
-import { ExternalLink, Eye, EyeOff, Trash2, Pencil, ShoppingCart, Link2, X } from "lucide-react";
+import {
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Link2,
+  MoreHorizontal,
+  Pencil,
+  ShoppingCart,
+  Trash2,
+  X,
+} from "lucide-react";
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/DropdownMenu/DropdownMenu";
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
+import { useReportItem } from "@/hooks/use-items";
 import styles from "./WishlistItemDetailModal.module.scss";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
@@ -25,8 +38,6 @@ import {
   getItemStoreFromUrl,
   getNextConfirmAction,
 } from "@/lib/helpers/item-card";
-import { ALL_PRIORITIES, getPriorityCssColor } from "@/lib/priorities";
-import { PRIORITY_ICONS } from "@/lib/priority-icons";
 
 type Props = {
   open: boolean;
@@ -63,20 +74,21 @@ export function WishlistItemDetailModal({
   const { formatPrice } = useCurrencyFormatter();
   const [confirmAction, setConfirmAction] = useState<ItemActionConfirmType | null>(null);
   const [reserverRevealed, setReserverRevealed] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const reportItem = useReportItem();
   const reservationState = getItemReservationState({
     status: item.status,
     reservedBy: item.reserved_by,
     currentUserId,
-    isOwner,
   });
 
   // The diagonal stamp on the image carries the status, so only the flag matters.
   const hasReservationStatus = reservationState.isPurchased || reservationState.isReserved;
-  const showStatusStamp = hasReservationStatus && (!isOwner || showOwnerReservation);
+  // An owner always sees a reservation they made themselves — the spoiler only hides
+  // what someone else did.
+  const showStatusStamp =
+    hasReservationStatus && (!isOwner || showOwnerReservation || reservationState.reservedByMe);
   const canRevealReserver = showOwnerReservation && showStatusStamp && Boolean(reservedByName);
-
-  const priorityMeta = ALL_PRIORITIES.find((p) => p.name === item.priority_name) ?? null;
-  const PriorityIcon = priorityMeta ? (PRIORITY_ICONS[priorityMeta.id] ?? null) : null;
 
   const handleReserveClick = () => {
     if (!reservationState.canToggleReservation || !onToggleReserve) return;
@@ -136,6 +148,108 @@ export function WishlistItemDetailModal({
                 </div>
               )}
 
+              {!isOwner && (
+                <div className={styles.imageSaveAction}>
+                  <SaveToWishlistButton
+                    item={buildSaveItemData({
+                      name: item.name,
+                      description: item.description,
+                      price: item.price,
+                      imageUrl: item.image_url,
+                      url: item.url,
+                      priority_id: item.priority_id,
+                      discountPrice: item.discount_price,
+                      hasDiscount: item.has_discount,
+                      discountEndDate: item.discount_end_date,
+                      currency: item.currency,
+                      additionalLinks: item.additional_links,
+                    })}
+                    className={styles.imageCornerButton}
+                    tooltipAlign="start"
+                  />
+                </div>
+              )}
+
+              {!isOwner && (
+                <div className={styles.imageMenu}>
+                  <DropdownMenu
+                    trigger={({ toggle }) => (
+                      <button
+                        type="button"
+                        className={styles.imageCornerButton}
+                        onClick={toggle}
+                        aria-label={t("More options", { $id: "itemCard.moreOptions" })}
+                      >
+                        <MoreHorizontal size={16} />
+                      </button>
+                    )}
+                  >
+                    {onToggleBought && (
+                      <DropdownMenuItem
+                        icon={<ShoppingCart size={16} />}
+                        disabled={!reservationState.canToggleBought}
+                        onClick={handleBoughtClick}
+                      >
+                        <span>
+                          {reservationState.isPurchased
+                            ? t("Mark as not purchased", { $id: "itemCard.unpurchase" })
+                            : t("Mark as purchased", { $id: "itemCard.purchase" })}
+                        </span>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem variant="danger" onClick={() => setReportOpen(true)}>
+                      <span>{t("Report", { $id: "itemCard.report" })}</span>
+                    </DropdownMenuItem>
+                  </DropdownMenu>
+                </div>
+              )}
+
+              {isOwner && (
+                <div className={styles.imageMenu}>
+                  <DropdownMenu
+                    trigger={({ toggle }) => (
+                      <button
+                        type="button"
+                        className={styles.imageMenuTrigger}
+                        onClick={toggle}
+                        aria-label={t("More options", { $id: "itemCard.moreOptions" })}
+                      >
+                        <MoreHorizontal size={16} />
+                      </button>
+                    )}
+                  >
+                    <DropdownMenuItem
+                      disabled={!reservationState.canToggleReservation}
+                      onClick={handleReserveClick}
+                    >
+                      <span>
+                        {buildReservationActionLabel(reservationState, {
+                          purchased: () => t("Purchased", { $id: "item.status.purchased" }),
+                          reservedByYou: () =>
+                            t("Release reservation", { $id: "item.detail.releaseReservation" }),
+                          reserved: () => t("Reserved", { $id: "item.status.reserved" }),
+                          available: () =>
+                            t("Reserve this gift", { $id: "item.detail.reserveThisGift" }),
+                        })}
+                      </span>
+                    </DropdownMenuItem>
+                    {onToggleBought && (
+                      <DropdownMenuItem
+                        disabled={!reservationState.canToggleBought}
+                        onClick={handleBoughtClick}
+                      >
+                        <span>
+                          {buildPurchaseActionLabel(reservationState.isPurchased, {
+                            purchased: () => t("Purchased", { $id: "item.status.purchased" }),
+                            available: () => t("Bought", { $id: "item.detail.bought" }),
+                          })}
+                        </span>
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenu>
+                </div>
+              )}
+
               {canRevealReserver && (
                 <button
                   type="button"
@@ -171,22 +285,6 @@ export function WishlistItemDetailModal({
               {item.price && (
                 <span className={styles.price}>{formatPrice(item.price, item.currency)}</span>
               )}
-              {PriorityIcon && (
-                <span
-                  className={styles.priority}
-                  style={
-                    {
-                      "--priority-color": priorityMeta
-                        ? getPriorityCssColor(priorityMeta)
-                        : undefined,
-                    } as React.CSSProperties
-                  }
-                  aria-label={priorityMeta?.name}
-                  title={priorityMeta?.name}
-                >
-                  <PriorityIcon size={15} strokeWidth={2.5} />
-                </span>
-              )}
             </div>
 
             <div className={styles.footer}>
@@ -201,12 +299,7 @@ export function WishlistItemDetailModal({
                       className={styles.linkBtn}
                     >
                       <ExternalLink size={14} />
-                      <span>
-                        {getItemStoreFromUrl(item.url) ||
-                          t("Visit website", {
-                            $id: "item.detail.visitWebsite",
-                          })}
-                      </span>
+                      <span>{t("Go to store", { $id: "itemCard.goToStore" })}</span>
                     </a>
                   )}
                   {item.additional_links?.map((link, index) => (
@@ -226,26 +319,6 @@ export function WishlistItemDetailModal({
                     </a>
                   ))}
                 </div>
-              )}
-
-              {!isOwner && (
-                <SaveToWishlistButton
-                  item={buildSaveItemData({
-                    name: item.name,
-                    description: item.description,
-                    price: item.price,
-                    imageUrl: item.image_url,
-                    url: item.url,
-                    priority_id: item.priority_id,
-                    discountPrice: item.discount_price,
-                    hasDiscount: item.has_discount,
-                    discountEndDate: item.discount_end_date,
-                    currency: item.currency,
-                    additionalLinks: item.additional_links,
-                  })}
-                  className={styles.saveBtn}
-                  tooltipAlign="start"
-                />
               )}
 
               <div className={styles.footerRight}>
@@ -308,21 +381,6 @@ export function WishlistItemDetailModal({
                           }),
                       })}
                     </Button>
-
-                    {onToggleBought && (
-                      <Button
-                        variant={reservationState.isPurchased ? "secondary" : "primary"}
-                        size="sm"
-                        onClick={handleBoughtClick}
-                        disabled={!reservationState.canToggleBought}
-                      >
-                        <ShoppingCart size={14} style={{ marginRight: 6 }} />
-                        {buildPurchaseActionLabel(reservationState.isPurchased, {
-                          purchased: () => t("Purchased", { $id: "item.status.purchased" }),
-                          available: () => t("Bought", { $id: "item.detail.bought" }),
-                        })}
-                      </Button>
-                    )}
                   </>
                 )}
               </div>
@@ -330,6 +388,19 @@ export function WishlistItemDetailModal({
           </div>
         </div>
       </Modal>
+
+      <DeleteConfirmModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        onConfirm={() => reportItem.mutate(item.id, { onSuccess: () => setReportOpen(false) })}
+        title={t("Report this item", { $id: "itemCard.reportTitle" })}
+        description={t(
+          "Tell us this item breaks the rules and our team will take a look. You can only report an item once.",
+          { $id: "itemCard.reportDescription" },
+        )}
+        confirmLabel={t("Report", { $id: "itemCard.reportConfirm" })}
+        isPending={reportItem.isPending}
+      />
 
       <ActionConfirmModal
         open={!!confirmAction}

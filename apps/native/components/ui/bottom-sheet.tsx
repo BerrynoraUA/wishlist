@@ -3,6 +3,7 @@ import {
   createElement,
   forwardRef,
   isValidElement,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useContext,
@@ -28,16 +29,70 @@ import { useRouter } from "expo-router";
 import { ReanimatedTrueSheet } from "@lodev09/react-native-true-sheet/reanimated";
 import { useCSSVariable } from "uniwind";
 import { Text } from "@/components/ui/text";
-import { NAV_TAB_BAR_MIN_BOTTOM_INSET } from "@/lib/layout";
 
 type ReanimatedBottomSheetProps = ComponentProps<typeof ReanimatedTrueSheet>;
 type BottomSheetDetents = NonNullable<ReanimatedBottomSheetProps["detents"]>;
 const DEFAULT_DETENTS: BottomSheetDetents = ["auto", 1];
 const DEFAULT_SCROLLABLE_DETENTS: BottomSheetDetents = [0.75, 1];
 const FOOTER_CONTENT_GAP = 12;
-const FOOTER_MIN_BOTTOM_PADDING = 12;
+/** iOS's standard content margin, used under every sheet's last row. */
+const SHEET_CONTENT_BOTTOM_MARGIN = 16;
+/**
+ * iOS sizes a sheet's corners concentrically with the display it sits on, so its own radius is
+ * both larger than anything we would pick and device-specific — `undefined` hands the choice
+ * back to UIKit. Android has no system default and squares the corners when none is given, so
+ * it keeps an explicit one.
+ */
+const ANDROID_CORNER_RADIUS = 30;
+/** Detent used for the very first frame, before the content has reported its height. */
+const INITIAL_CONTENT_DETENT = 0.75;
+const MIN_CONTENT_DETENT = 0.35;
+const MAX_CONTENT_DETENT = 0.94;
 
 export type BottomSheetRef = ComponentRef<typeof ReanimatedTrueSheet>;
+
+/**
+ * Sizes a scrollable sheet to its content.
+ *
+ * The native `auto` detent cannot do this: it has to measure the whole content, which a
+ * scrollable sheet clips, so a sheet that mixes the two opens at its maximum height and
+ * leaves dead space under short content. Measuring the scroll content ourselves and
+ * handing the sheet a single fractional detent keeps a short item compact and still lets
+ * a long one fill the screen and scroll.
+ *
+ * Wire `onHeaderLayout` to a view wrapping the sheet header and `onContentSizeChange` to
+ * the BottomSheetScrollView; the scroll content already carries the footer inset, so the
+ * header and the footer's own bottom padding are all that is left to add.
+ */
+export function useSheetContentDetent({
+  initial = INITIAL_CONTENT_DETENT,
+  min = MIN_CONTENT_DETENT,
+  max = MAX_CONTENT_DETENT,
+}: { initial?: number; min?: number; max?: number } = {}) {
+  const { height: windowHeight } = useWindowDimensions();
+  const [contentHeight, setContentHeight] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const bottomSafeAreaInset = initialWindowMetrics?.insets.bottom ?? 0;
+  const chromeHeight = headerHeight + Math.max(bottomSafeAreaInset, SHEET_CONTENT_BOTTOM_MARGIN);
+
+  const onContentSizeChange = useCallback((_width: number, height: number) => {
+    setContentHeight(height);
+  }, []);
+
+  const onHeaderLayout = useCallback((event: LayoutChangeEvent) => {
+    setHeaderHeight(event.nativeEvent.layout.height);
+  }, []);
+
+  // Rounded to whole percents so a one-pixel reflow does not retrigger a resize.
+  const detent =
+    contentHeight > 0
+      ? Math.round(
+          Math.min(max, Math.max(min, (contentHeight + chromeHeight) / windowHeight)) * 100,
+        ) / 100
+      : initial;
+
+  return { detent, onContentSizeChange, onHeaderLayout };
+}
 
 const FooterContentInsetContext = createContext(0);
 
@@ -132,7 +187,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
       detents,
       scrollable,
       dimmed = true,
-      cornerRadius = 30,
+      cornerRadius,
       onDidDismiss,
       autoPresent = true,
       dismissOnBack = false,
@@ -159,13 +214,16 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
     // window-level native container. The contextual inset then includes the iOS tab bar,
     // so use the physical window inset for sheet layout instead.
     const bottomSafeAreaInset = initialWindowMetrics?.insets.bottom ?? 0;
-    const bottomSafeAreaPadding = Math.max(bottomSafeAreaInset, NAV_TAB_BAR_MIN_BOTTOM_INSET);
+    // Only the footer insets itself. TrueSheet already grows the sheet past its detent by the
+    // bottom safe area, and the content sits above that growth — but the footer is pinned to
+    // the sheet's bottom edge, underneath it, so it has to clear the home indicator on its own.
+    // Padding the content by the inset as well is what doubles the gap under a sheet.
+    const footerBottomPadding = Math.max(bottomSafeAreaInset, SHEET_CONTENT_BOTTOM_MARGIN);
     const { width: windowWidth } = useWindowDimensions();
 
     const resolvedDetents = detents ?? (scrollable ? DEFAULT_SCROLLABLE_DETENTS : DEFAULT_DETENTS);
 
     const [footerHeight, setFooterHeight] = useState(0);
-    const footerBottomPadding = Math.max(bottomSafeAreaInset, FOOTER_MIN_BOTTOM_PADDING);
     const footerControlHeight = Math.max(0, footerHeight - footerBottomPadding);
     const footerContentInset = footer ? footerControlHeight + FOOTER_CONTENT_GAP : 0;
     const scrollContentHandlesFooterInset = footerInsetMode === "scroll-content";
@@ -247,7 +305,9 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         maxContentWidth={windowWidth}
         insetAdjustment="automatic"
         dimmed={dimmed}
-        cornerRadius={cornerRadius}
+        cornerRadius={
+          cornerRadius ?? (process.env.EXPO_OS === "ios" ? undefined : ANDROID_CORNER_RADIUS)
+        }
         header={header}
         footer={resolvedFooter}
         footerOptions={{ keyboardOffset: -bottomSafeAreaInset }}
@@ -273,7 +333,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
                 ? footerContentInset
                 : footer
                   ? 0
-                  : bottomSafeAreaPadding,
+                  : SHEET_CONTENT_BOTTOM_MARGIN,
             width: "100%",
           }}
         >

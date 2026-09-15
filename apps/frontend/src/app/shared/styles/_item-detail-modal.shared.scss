@@ -106,6 +106,76 @@
     }
   }
 
+  /* Owner-only menu over the image: reserve and purchase live here so the footer keeps
+     just the two actions an owner reaches for most. */
+  /* Save keeps the free left corner of the image, opposite the menu. */
+  .imageSaveAction {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+  }
+
+  /* Shared shape for both corner controls over the image. */
+  .imageCornerButton {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 999px;
+    background: var(--card-bg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease;
+
+    &:hover {
+      color: $brand;
+      border-color: $brand;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--input-focus-ring);
+    }
+  }
+  .imageMenu {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+  }
+
+  .imageMenuTrigger {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 999px;
+    background: var(--card-bg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease;
+
+    &:hover {
+      color: $brand;
+      border-color: $brand;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--input-focus-ring);
+    }
+  }
   .revealReserverButton {
     position: absolute;
     top: 12px;
@@ -272,15 +342,18 @@
     color: rgba(243, 244, 246, 0.92);
   }
 
+  /* The price is the last thing read before the actions, so it sits on the right and
+     carries the weight of a heading. */
   .meta {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 12px;
     flex-wrap: wrap;
   }
 
   .price {
-    font-size: 16px;
+    font-size: 22px;
     font-weight: var(--fw-bold);
     color: $brand;
   }
@@ -300,7 +373,7 @@
   .footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 10px;
     padding-top: 10px;
     border-top: 1px solid var(--color-border-subtle);

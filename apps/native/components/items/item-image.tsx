@@ -119,7 +119,7 @@ export function ItemImage({
             </Text>
           </View>
         ) : null}
-        {/* Stare already reads from the card behind the sheet, and its medallion
+        {/* Starred already reads from the card behind the sheet, and its medallion
             used to sit right below — no need to repeat it in the detail hero. */}
         {priority && priorityLabel && !(isDetail && isStarPriorityId(priority.id)) ? (
           <ItemPriorityBadge priority={priority} label={priorityLabel} compact context="card" />

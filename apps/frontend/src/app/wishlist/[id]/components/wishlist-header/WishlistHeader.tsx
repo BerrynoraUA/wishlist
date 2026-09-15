@@ -33,7 +33,6 @@ import {
 import { useSubscription } from "@/hooks/use-subscription";
 import { useUpdateWishlist } from "@/hooks/use-wishlists";
 import { FREE_LIMITS } from "@/types/subscription";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { Calendar } from "@/components/ui/Calendar/Calendar";
 import { validateImageUploadFile } from "@/lib/image-upload";
 
@@ -76,13 +75,12 @@ export function WishlistHeader({
   const description = wishlist.description ?? "";
   const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
   const canAddItem = Boolean(onAddItem);
-  const atItemLimit =
-    SUBSCRIPTIONS_UI_ENABLED && !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
+  const atItemLimit = !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
   const showFriendInlineShare = !isOwner && Boolean(onShare);
   const showAsideShare = Boolean(onShare) && !showFriendInlineShare;
   const showAsideActions = Boolean(showAsideShare || onManageAccess || showMenu);
   const itemsBadgeLabel =
-    isOwner && SUBSCRIPTIONS_UI_ENABLED && !isPro
+    isOwner && !isPro
       ? t("{current}/{max} items", {
           current: itemsCount,
           max: FREE_LIMITS.maxItemsPerWishlist,

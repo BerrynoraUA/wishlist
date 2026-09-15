@@ -16,6 +16,8 @@ import {
   type CachedNativeThemeSettings,
 } from "@/lib/theme";
 import { useAuth } from "@/providers/auth-provider";
+import { getRandomDefaultAvatarUrl } from "@wishlist/backend/lib/default-avatars";
+import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   DEFAULT_SETTINGS,
@@ -45,6 +47,29 @@ export function useProfile() {
     queryFn: getProfile,
     enabled: Boolean(user?.id),
   });
+}
+
+/**
+ * Gives a profile with no picture one of the ten default avatars — the same write the
+ * picker makes when a default is chosen by hand. The app does this rather than the
+ * database because building the URL needs the project's storage host, which Postgres
+ * has no way to know.
+ */
+export function useEnsureDefaultAvatar() {
+  const { data: profile } = useProfile();
+  const updateProfile = useUpdateProfile();
+  const assignedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!profile || profile.avatar_url || assignedRef.current) return;
+
+    assignedRef.current = true;
+    updateProfile.mutate(
+      { avatar_url: getRandomDefaultAvatarUrl() },
+      // A failed write (offline, usually) should be retried on the next launch.
+      { onError: () => (assignedRef.current = false) },
+    );
+  }, [profile?.avatar_url, profile?.id]);
 }
 
 export function useUpdateProfile() {
