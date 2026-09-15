@@ -26,7 +26,6 @@ import { useCurrentUser } from "@/hooks/use-user";
 import { useKnownAccounts } from "@/hooks/use-known-accounts";
 import { upsertKnownAccount } from "@/lib/known-accounts";
 import { switchAccount } from "@/lib/account-switch";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import {
   DEFAULT_ACCENT,
   DEFAULT_THEME_PREFERENCE,
@@ -251,7 +250,7 @@ export function ProfileMenu({ onOpen }: Props) {
         ) : (
           displayInitial
         )}
-        {SUBSCRIPTIONS_UI_ENABLED && isPro && (
+        {isPro && (
           <span className={styles.avatarProBadge}>
             <ProBadge size="sm" />
           </span>
@@ -385,20 +384,18 @@ export function ProfileMenu({ onOpen }: Props) {
             )}
           </div>
 
-          {SUBSCRIPTIONS_UI_ENABLED && (
-            <button
-              type="button"
-              className={styles.menuItemSub}
-              onClick={() => {
-                setOpen(false);
-                router.push("/subscription");
-              }}
-            >
-              <Crown size={16} />
-              <span>{t("Subscription", { $id: "profile.subscription" })}</span>
-              {isPro && <ProBadge size="sm" />}
-            </button>
-          )}
+          <button
+            type="button"
+            className={styles.menuItemSub}
+            onClick={() => {
+              setOpen(false);
+              router.push("/subscription");
+            }}
+          >
+            <Crown size={16} />
+            <span>{t("Subscription", { $id: "profile.subscription" })}</span>
+            {isPro && <ProBadge size="sm" />}
+          </button>
 
           <button
             type="button"

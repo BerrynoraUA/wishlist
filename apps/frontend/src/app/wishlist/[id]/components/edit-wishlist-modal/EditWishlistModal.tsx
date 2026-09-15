@@ -20,7 +20,6 @@ import { useCurrentUserId } from "@/hooks/use-user";
 import { useSessionDraft } from "@/hooks/use-session-draft";
 import { useRevokeWishlistAccess, useUpdateWishlist } from "@/hooks/use-wishlists";
 import { Check } from "lucide-react";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
@@ -83,7 +82,7 @@ function EditWishlistForm({
   const { data: currentUserId = "" } = useCurrentUserId();
   const { isPro } = useSubscription();
   const privacyOptions = getWishlistPrivacyOptions(t);
-  const isColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
+  const isColorGated = !isPro;
   const [name, setName] = useState(wishlist.title ?? "");
   const [description, setDescription] = useState(wishlist.description ?? "");
   const [privacy, setPrivacy] = useState<WishlistPrivacyOption>(

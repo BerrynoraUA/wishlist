@@ -135,7 +135,7 @@ Play requires the app to have a published build on at least the internal track b
 can go live.
 
 RevenueCat: add both products, put them in the `default` offering as `$rc_monthly` and
-`$rc_annual`, and point the entitlement the app checks at them (`pro_access`, pinned in
+`$rc_annual`, and point the entitlement the app checks at them (`wishlane-premium`, pinned in
 `providers/subscription-provider.tsx`).
 
 **Prices appear in two unrelated places and nothing keeps them in sync.**

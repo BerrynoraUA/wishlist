@@ -122,7 +122,7 @@ All gating funnels through one hook,
 const { isPro, isGated, isLoading, openPaywall } = useProGate();
 ```
 
-- `isPro` comes from `useSubscriptionManager()`, which reads the RevenueCat `pro_access`
+- `isPro` comes from `useSubscriptionManager()`, which reads the RevenueCat `wishlane-premium`
   entitlement and the server-side subscription status
   ([`subscription-provider.tsx`](../apps/native/providers/subscription-provider.tsx)).
 - `isGated` is simply `!isPro`.

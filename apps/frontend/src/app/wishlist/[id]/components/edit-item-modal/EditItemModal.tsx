@@ -17,7 +17,6 @@ import { useSettings } from "@/hooks/use-settings";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Item, ItemLink } from "@/types/item";
 import type { UpdateItemParams } from "@/api/types/item";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { validateImageUploadFile } from "@/lib/image-upload";
 import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import { ALL_PRIORITIES, getPriorityCssColor } from "@/lib/priorities";
@@ -77,8 +76,8 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
   const { data: currentUserId = "" } = useCurrentUserId();
   const { isPro } = useSubscription();
   const { data: settings } = useSettings();
-  const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
-  const canUseMultipleLinks = !SUBSCRIPTIONS_UI_ENABLED || isPro;
+  const canUsePriority = isPro;
+  const canUseMultipleLinks = isPro;
   const currencyOptions = getCompactCurrencyOptions("code");
   const visiblePriorities = settings?.selected_priorities
     ? ALL_PRIORITIES.filter((p) => settings.selected_priorities!.includes(p.id))
@@ -610,7 +609,7 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
             </div>
           )}
 
-          {!canUseMultipleLinks && SUBSCRIPTIONS_UI_ENABLED && (
+          {!canUseMultipleLinks && (
             <button
               type="button"
               className={styles.proLinkHint}

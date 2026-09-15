@@ -21,7 +21,7 @@ their credentials.
 | App Store Connect app ID | `6792105704`                               |
 | Monthly price            | **$3.99**                                  |
 | Yearly price             | **$24.99** (48% cheaper than 12 × monthly) |
-| RevenueCat entitlement   | `pro_access` — must match exactly          |
+| RevenueCat entitlement   | `wishlane-premium` — must match exactly    |
 
 > Deep links into Apple's and Google's consoles change often, so each step gives the
 > in-dashboard navigation path in words alongside a stable entry-point link.
@@ -230,10 +230,10 @@ Licence testers purchase for free and get compressed renewals (monthly ≈ 5 min
 
 | Field       | Value                 |
 | ----------- | --------------------- |
-| Identifier  | `pro_access`          |
+| Identifier  | `wishlane-premium`    |
 | Description | `Wishlane Pro access` |
 
-`pro_access` is hard-coded in the app and on the server. Any other value silently leaves
+`wishlane-premium` is hard-coded in the app and on the server. Any other value silently leaves
 every user on Free.
 
 ### 3.3 Import the products
@@ -260,7 +260,7 @@ always means the base plan is still in Draft (§2.3) or the product is in Missin
 
 ### 3.4 Attach every product to the entitlement
 
-Open **Entitlements → `pro_access` → Attach products** and add all four.
+Open **Entitlements → `wishlane-premium` → Attach products** and add all four.
 
 > This is the step most often missed. A product that is not attached will take the user's
 > money, complete the purchase successfully, and still leave them on Free — with no error
@@ -494,7 +494,7 @@ disagree silently.
 
 **RevenueCat**
 
-- [ ] Entitlement identifier is exactly `pro_access`
+- [ ] Entitlement identifier is exactly `wishlane-premium`
 - [ ] Four products imported — Android ones in `wishlane_pro:monthly` form
 - [ ] All four **attached to the entitlement**
 - [ ] Offering marked **Current**; packages `$rc_annual` and `$rc_monthly`, each holding both

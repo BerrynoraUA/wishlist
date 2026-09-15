@@ -42,9 +42,9 @@ Nothing is submitted for review. The blockers below are what stands between here
 - [ ] **Create the same two in Play Console** → Monetize → Subscriptions, one base plan each,
       activate. Needs a published build on at least the internal track first.
 - [ ] **Attach both to the RevenueCat `default` offering** as `$rc_monthly` / `$rc_annual`, pointing
-      at the `pro_access` entitlement (pinned in `providers/subscription-provider.tsx`).
+      at the `wishlane-premium` entitlement (pinned in `providers/subscription-provider.tsx`).
 - [ ] **Verify a real purchase** in TestFlight and on the Play internal track — paywall renders
-      products, purchase unlocks `pro_access`, restore works.
+      products, purchase unlocks `wishlane-premium`, restore works.
 - [ ] **Reconcile `PRICES` in `store/listings.js`** (currently `$3.99` / `$24.99`) against the real
       store prices, then re-run `store:metadata` and `store:apple:push` (§5).
 - [ ] Attach the IAPs to the 1.0 version for its first review — IAPs submitted after a build need a

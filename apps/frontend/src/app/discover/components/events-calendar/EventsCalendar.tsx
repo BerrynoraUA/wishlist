@@ -7,7 +7,6 @@ import { Download, Lock } from "lucide-react";
 import { FriendUpcomingWishlist } from "@/api/types/wishilst";
 import { Calendar, type CalendarCell } from "@/components/ui/Calendar/Calendar";
 import { useSubscription } from "@/hooks/use-subscription";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { exportMultipleCalendarEvents } from "@/lib/calendar-export";
 import styles from "./EventsCalendar.module.scss";
 
@@ -53,8 +52,7 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
   );
 
   const handleExportCalendar = useCallback(() => {
-    const canExport = SUBSCRIPTIONS_UI_ENABLED ? isPro : true;
-    if (!canExport) {
+    if (!isPro) {
       router.push("/subscription");
       return;
     }
@@ -277,7 +275,7 @@ export function EventsCalendar({ open, onClose, events, anchorRef }: Props) {
                 $id: "discover.calendar.exportTooltip",
               })}
             >
-              {SUBSCRIPTIONS_UI_ENABLED && !isPro ? <Lock size={14} /> : <Download size={14} />}
+              {!isPro ? <Lock size={14} /> : <Download size={14} />}
               <span>{t("Export", { $id: "discover.calendar.export" })}</span>
             </button>
           )}

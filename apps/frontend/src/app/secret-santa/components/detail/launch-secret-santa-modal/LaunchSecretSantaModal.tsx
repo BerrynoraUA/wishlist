@@ -9,7 +9,6 @@ import type { SecretSantaExclusion, SecretSantaPerson } from "@wishlist/backend/
 import { generateSecretSantaAssignment } from "@/api/secret-santa";
 import { useLaunchSecretSanta } from "@/hooks/use-secret-santa";
 import { useSubscription } from "@/hooks/use-subscription";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { SecretSantaPersonAvatar } from "../secret-santa-person-avatar/SecretSantaPersonAvatar";
 import { Ban, Sparkles, ChevronDown, ChevronUp, AlertTriangle, Users } from "lucide-react";
 import styles from "./LaunchSecretSantaModal.module.scss";
@@ -29,7 +28,7 @@ export function LaunchSecretSantaModal({ open, onClose, eventId, participants }:
   const [exclusions, setExclusions] = useState<Record<string, Set<string>>>({});
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const launch = useLaunchSecretSanta();
-  const canUseExclusions = !SUBSCRIPTIONS_UI_ENABLED || isPro;
+  const canUseExclusions = isPro;
 
   const toggleExclusion = useCallback((giverId: string, excludedId: string) => {
     setExclusions((prev) => {

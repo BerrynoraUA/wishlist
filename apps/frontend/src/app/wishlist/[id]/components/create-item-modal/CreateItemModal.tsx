@@ -16,7 +16,6 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { useUserGuideStepCompletion } from "@/components/user-guide/UserGuideProvider";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { validateImageUploadFile } from "@/lib/image-upload";
 import { getCompactCurrencyOptions, resolveCurrency } from "@/lib/helpers/form-select-options";
 import { ALL_PRIORITIES, getPriorityCssColor } from "@/lib/priorities";
@@ -55,8 +54,8 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
   const { isPro } = useSubscription();
   const completeOpenItemStep = useUserGuideStepCompletion(5);
   const completeCreateItemStep = useUserGuideStepCompletion(6);
-  const canUsePriority = !SUBSCRIPTIONS_UI_ENABLED || isPro;
-  const canUseMultipleLinks = !SUBSCRIPTIONS_UI_ENABLED || isPro;
+  const canUsePriority = isPro;
+  const canUseMultipleLinks = isPro;
   const [link, setLink] = useState("");
   const [additionalLinks, setAdditionalLinks] = useState<ItemLink[]>([]);
   const [name, setName] = useState("");
@@ -560,7 +559,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
             </div>
           )}
 
-          {!canUseMultipleLinks && SUBSCRIPTIONS_UI_ENABLED && (
+          {!canUseMultipleLinks && (
             <button
               type="button"
               className={styles.proLinkHint}

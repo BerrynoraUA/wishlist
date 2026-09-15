@@ -14,7 +14,6 @@ import {
 } from "@/lib/constants/wishlist";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FREE_LIMITS } from "@/types/subscription";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 
 type Props = {
   wishlist: Wishlist;
@@ -38,8 +37,7 @@ export function WishlistInfo({ wishlist, onAddItem }: Props) {
   const description = wishlist.description ?? "";
   const eventDate = (wishlist as Wishlist & { event_date?: string }).event_date;
   const canAddItem = Boolean(onAddItem);
-  const atItemLimit =
-    SUBSCRIPTIONS_UI_ENABLED && !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
+  const atItemLimit = !isPro && itemsCount >= FREE_LIMITS.maxItemsPerWishlist;
 
   function handleAddItem() {
     if (atItemLimit) {
@@ -59,7 +57,7 @@ export function WishlistInfo({ wishlist, onAddItem }: Props) {
 
         {canAddItem && (
           <div className={styles.ownerActions}>
-            {SUBSCRIPTIONS_UI_ENABLED && !isPro && (
+            {!isPro && (
               <span className={styles.limitCounter}>
                 {t("{current}/{max} items", {
                   current: itemsCount,

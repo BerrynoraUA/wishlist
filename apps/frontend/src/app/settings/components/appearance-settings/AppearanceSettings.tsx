@@ -10,7 +10,6 @@ import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 import { Toggle } from "@/components/ui/Toggle/Toggle";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { useSubscription } from "@/hooks/use-subscription";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { WishlistAccent } from "@/types/wishlist";
 import type { ThemePreference, WishlistColorIndex } from "@/types/settings";
 import { useAppTheme } from "@/providers";
@@ -26,10 +25,10 @@ export function AppearanceSettings() {
   const { data: settings } = useSettings();
   const updateSettings = useUpdateSettings();
   const { isPro } = useSubscription();
-  const isAccentGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
-  const isWishlistColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
-  const isPriorityGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
-  const isOwnReservationsGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
+  const isAccentGated = !isPro;
+  const isWishlistColorGated = !isPro;
+  const isPriorityGated = !isPro;
+  const isOwnReservationsGated = !isPro;
   const showsOwnReservations = !isOwnReservationsGated && Boolean(settings?.show_own_reservations);
 
   const selectedPriorities = settings?.selected_priorities ?? [

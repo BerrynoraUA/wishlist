@@ -25,7 +25,6 @@ import { useCurrentUserId } from "@/hooks/use-user";
 import { useSessionDraft } from "@/hooks/use-session-draft";
 import { useSettings } from "@/hooks/use-settings";
 import { Check, ChevronDown, Lock, Search, X } from "lucide-react";
-import { SUBSCRIPTIONS_UI_ENABLED } from "@/lib/features";
 import { DatePickerField } from "@/components/ui/Calendar/DatePickerField";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
@@ -85,7 +84,7 @@ function CreateWishlistForm({
   const completeOpenWishlistStep = useUserGuideStepCompletion(2);
   const completeCreateWishlistStep = useUserGuideStepCompletion(3);
   const privacyOptions = getWishlistPrivacyOptions(t);
-  const isColorGated = SUBSCRIPTIONS_UI_ENABLED && !isPro;
+  const isColorGated = !isPro;
   const initialColor = isColorGated ? "pink" : defaultColor;
 
   const [name, setName] = useState("");

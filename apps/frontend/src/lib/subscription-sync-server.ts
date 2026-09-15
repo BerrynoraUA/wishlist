@@ -3,7 +3,7 @@ import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const RC_API_KEY = process.env.REVENUECAT_SECRET_API_KEY?.trim();
-const RC_PRO_ENTITLEMENT_ID = "pro_access";
+const RC_PRO_ENTITLEMENT_ID = "wishlane-premium";
 const RC_API_BASE = "https://api.revenuecat.com/v1";
 
 type RevenueCatAccessRecord = {
