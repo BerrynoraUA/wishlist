@@ -34,6 +34,7 @@ apps/native/*firebase-adminsdk*.json
 .pnpm-debug.log*
 
 .fallow
+.pytest_cache/
 
 # Native projects are generated from app.json during EAS Build (CNG).
 # These root-relative rules also work around EAS CLI's Windows bug where
