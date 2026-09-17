@@ -109,10 +109,9 @@ async function getProductChangeInfo(
   const customerInfo = await Purchases.getCustomerInfo();
   const activeSubscription = getActiveAndroidSubscription(customerInfo);
 
-  if (
-    !activeSubscription ||
-    getProductId(activeSubscription) === selectedPackage.product.identifier
-  ) {
+  // Play reports both as `subscriptionId:basePlanId`, so compare them whole — stripping the
+  // base plan makes every plan look different and requests a change to the plan already owned.
+  if (!activeSubscription || activeSubscription === selectedPackage.product.identifier) {
     return null;
   }
 
@@ -154,8 +153,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   const activeProductId = useMemo(() => {
     if (!customerInfo) return null;
 
-    const activeSubscription = getActiveAndroidSubscription(customerInfo);
-    return activeSubscription ? getProductId(activeSubscription) : null;
+    return getActiveAndroidSubscription(customerInfo) ?? null;
   }, [customerInfo]);
   const activeEntitlementStore = useMemo(() => {
     const proEntitlement = customerInfo?.entitlements.active[RC_PRO_ENTITLEMENT_ID];
