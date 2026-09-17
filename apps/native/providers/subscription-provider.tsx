@@ -3,7 +3,6 @@ import { subscriptionKeys, useSubscriptionStatus } from "@/hooks/use-subscriptio
 import { configureRevenueCat } from "@/lib/revenuecat";
 import { useAppReady } from "@/components/splash/animated-splash";
 import { useAuth } from "@/providers/auth-provider";
-import { SubscriptionPlan } from "@wishlist/backend/types/subscription";
 import { useQueryClient } from "@tanstack/react-query";
 import Purchases, {
   PACKAGE_TYPE,
@@ -88,30 +87,18 @@ function getProductId(subscription: string) {
   return subscription.split(":")[0];
 }
 
+function getSubscriptionStore(customerInfo: CustomerInfo, subscription: string) {
+  return customerInfo.subscriptionsByProductIdentifier[getProductId(subscription)]?.store ?? null;
+}
+
 function isAndroidSubscriptionStore(store?: string | null) {
   return Boolean(store && ANDROID_SUBSCRIPTION_STORES.has(store));
 }
 
-/**
- * A package's Play plan as `subscriptionId:basePlanId`, the shape the SDK documents for
- * `SubscriptionOption.storeProductId`.
- */
-export function getPackagePlanId(plan: PurchasesPackage) {
-  return plan.product.defaultOption?.storeProductId ?? plan.product.identifier;
-}
-
-/**
- * The owned Play plan in the same shape as `getPackagePlanId`. `activeSubscriptions` carries
- * only the subscription ID, so the base plan has to come from the entitlement.
- */
-function getActiveAndroidPlanId(customerInfo: CustomerInfo) {
-  const entitlement = customerInfo.entitlements.active[RC_PRO_ENTITLEMENT_ID];
-  if (!entitlement || !isAndroidSubscriptionStore(entitlement.store)) return null;
-
-  const productId = getProductId(entitlement.productIdentifier);
-  return entitlement.productPlanIdentifier
-    ? `${productId}:${entitlement.productPlanIdentifier}`
-    : productId;
+function getActiveAndroidSubscription(customerInfo: CustomerInfo) {
+  return customerInfo.activeSubscriptions.find((subscription) =>
+    isAndroidSubscriptionStore(getSubscriptionStore(customerInfo, subscription)),
+  );
 }
 
 async function getProductChangeInfo(
@@ -120,14 +107,16 @@ async function getProductChangeInfo(
   if (Platform.OS !== "android") return null;
 
   const customerInfo = await Purchases.getCustomerInfo();
-  const activePlanId = getActiveAndroidPlanId(customerInfo);
+  const activeSubscription = getActiveAndroidSubscription(customerInfo);
 
-  if (!activePlanId || activePlanId === getPackagePlanId(selectedPackage)) {
+  // Play reports both as `subscriptionId:basePlanId`, so compare them whole — stripping the
+  // base plan makes every plan look different and requests a change to the plan already owned.
+  if (!activeSubscription || activeSubscription === selectedPackage.product.identifier) {
     return null;
   }
 
   return {
-    oldProductIdentifier: getProductId(activePlanId),
+    oldProductIdentifier: getProductId(activeSubscription),
     replacementMode: STORE_REPLACEMENT_MODE.DEFERRED,
   };
 }
@@ -164,7 +153,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   const activeProductId = useMemo(() => {
     if (!customerInfo) return null;
 
-    return getActiveAndroidPlanId(customerInfo);
+    return getActiveAndroidSubscription(customerInfo) ?? null;
   }, [customerInfo]);
   const activeEntitlementStore = useMemo(() => {
     const proEntitlement = customerInfo?.entitlements.active[RC_PRO_ENTITLEMENT_ID];
@@ -191,7 +180,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     setError(null);
 
     try {
-      const { data: serverStatus } = await refetchSubscriptionStatus();
+      await refetchSubscriptionStatus();
 
       const configured = Boolean(await configureRevenueCat(user.id));
       setIsConfigured(configured);
@@ -204,13 +193,6 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       const info = await Purchases.getCustomerInfo();
       updateCustomerInfo(info);
 
-      // The store says Pro but the server doesn't — a purchase whose sync never landed. Heal it
-      // here so the user isn't left on Free until they think to tap Restore.
-      const serverIsPro = serverStatus?.plan === SubscriptionPlan.Pro && serverStatus.isActive;
-      if (info.entitlements.active[RC_PRO_ENTITLEMENT_ID] && !serverIsPro) {
-        await syncServerStatus();
-      }
-
       const offerings = await Purchases.getOfferings();
       const currentOffering = offerings.current ?? Object.values(offerings.all)[0] ?? null;
       setOffering(currentOffering);
@@ -220,7 +202,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     } finally {
       setState("idle");
     }
-  }, [refetchSubscriptionStatus, syncServerStatus, updateCustomerInfo, user?.id]);
+  }, [refetchSubscriptionStatus, updateCustomerInfo, user?.id]);
 
   useEffect(() => {
     if (!user?.id) {

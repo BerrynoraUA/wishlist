@@ -3,7 +3,7 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { openLegalPage } from "@/lib/legal-links";
 import { cn } from "@/lib/utils";
-import { getPackagePlanId, useSubscriptionManager } from "@/providers/subscription-provider";
+import { useSubscriptionManager } from "@/providers/subscription-provider";
 import { useGT } from "gt-react-native";
 import { Check, X } from "lucide-react-native";
 import React from "react";
@@ -177,7 +177,7 @@ export function Subscription({
   const isBusy = isPurchasing || isRestoring;
   const hasMobileSubscription = Boolean(activeProductId);
   const isCurrentSelection =
-    selectedPackage !== null && activeProductId === getPackagePlanId(selectedPackage);
+    Boolean(activeProductId) && activeProductId === selectedPackage?.product.identifier;
   const isPurchaseDisabled =
     !isConfigured || !selectedPackage || isCurrentSelection || hasExternalSubscription || isBusy;
   const renewalLabel = expiresAt
@@ -282,7 +282,7 @@ export function Subscription({
 
               {packages.map((plan) => {
                 const isSelected = selectedPackageId === plan.identifier;
-                const isCurrent = activeProductId === getPackagePlanId(plan);
+                const isCurrent = activeProductId === plan.product.identifier;
 
                 return (
                   <PlanOption
