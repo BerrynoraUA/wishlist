@@ -19,7 +19,10 @@ The command:
 
 1. Starts an isolated Metro server on port 8199 and a control server on port 8299. The
    control server hands scenes to the app, reads readiness back, and serves the fixture
-   imagery the sample rows point at.
+   imagery the sample rows point at. A device the runner has finished with stays booted
+   and keeps polling for scenes, so readiness counts only from the app launch the
+   current capture started: every launch identifies itself, and the channel is claimed
+   by the first identifier the server has not seen before.
 2. Builds the selected native apps with a clean Expo prebuild and boots each device.
 3. Asks the app for each scene in turn, waits for it to report ready, and captures.
 4. Sets the requested system appearance, normalises status bars, converts captures to
@@ -44,7 +47,7 @@ Phones only: the app has no tablet layouts yet, so `ios.supportsTablet` is `fals
 
 Each target captures seven scenes, producing 21 PNGs for one appearance or 42 for both,
 plus the same count again in the framed set. Seven covers the features worth selling
-while staying inside Apple's 1–10 limit and Google's phone requirement of 2–8.
+while staying inside Apple's 3–10 limit and Google's phone requirement of 2–8.
 
 Files are named `NN-scene.png`, where `NN` is the scene's position in the store gallery:
 
@@ -163,13 +166,15 @@ dimensions — do not resize its output. If store rules change, update the targe
 
 ## Windows and iOS
 
-iOS capture needs macOS and Xcode; running `--platform ios` anywhere else fails with a
-clear message. On Windows, capture Android locally and produce the App Store set with
-the **Showcase Screenshots** workflow (Actions tab → choose `all`, `ios` or `android`,
-and `light`, `dark` or `both`). Both jobs upload their PNGs even when a later capture
-fails, so a partial run is still useful for diagnosis.
+`xcodebuild` and `simctl` exist only on macOS, so iOS capture does too:
 
-Neither job needs credentials, a database or a Docker daemon.
+    pnpm screenshots:android      # the Google Play set, anywhere
+    pnpm screenshots:ios          # macOS only
+
+On Windows or Linux the iOS run fails with a clear message before it builds anything,
+and there is no CI job standing in for it — the App Store set has to be captured on a
+Mac with this repository checked out. Nothing in that run needs credentials, a database
+or a Docker daemon, so a Mac with Xcode and the repo is the whole requirement.
 
 ## Customising the sample data
 
@@ -192,11 +197,15 @@ loopback tunnel the scene channel uses, so runs stay offline-safe and the files 
 ship in a production build. Avatars are gradient initials rendered on demand rather
 than synthetic faces.
 
-Two app-side details keep captures clean: the fixture profiles have
+Three app-side details keep captures clean: the fixture profiles have
 `userGuideStep = 15`, which is `USER_GUIDE_COMPLETE_STEP`, so the onboarding coach
-marks never appear; and `NotificationPushBootstrap` skips permission registration and
+marks never appear; `NotificationPushBootstrap` skips permission registration and
 the permission sheet entirely while `EXPO_PUBLIC_SHOWCASE=1`, so no OS dialog lands on
-a screenshot. Themes are driven purely by the device appearance — the fixture settings
+a screenshot; and the dev menu is silenced on both platforms — on Android through the
+shared-preferences file the runner writes with `run-as`, on iOS through the three
+`EXDevMenu*` keys [app.config.js](../apps/native/app.config.js) adds to the showcase
+build's Info.plist. Without those a newly installed dev client opens its menu over the
+app as soon as the first screen appears, which is exactly when a capture begins. Themes are driven purely by the device appearance — the fixture settings
 use `theme = 'system'`.
 
 ## Local prerequisites

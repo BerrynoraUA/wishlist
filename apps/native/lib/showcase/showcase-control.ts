@@ -8,6 +8,14 @@ import {
 export const SHOWCASE_ENABLED = process.env.EXPO_PUBLIC_SHOWCASE === "1";
 
 /**
+ * Identifies this launch to the control server. Every device the runner has already
+ * captured stays booted and keeps polling for scenes, so the server has to tell those
+ * reports apart from the app it is currently waiting on — and since the app is
+ * restarted for every capture, one id per JS runtime is exactly that distinction.
+ */
+const SHOWCASE_CLIENT_ID = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+
+/**
  * Some scenes are a sheet over a route rather than a route. The capture coordinator
  * publishes the one it wants here and `CreateMenuHost` — which owns that sheet's state
  * in production — opens it, so the capture photographs the real sheet instead of a
@@ -40,7 +48,9 @@ export function readShowcaseOverlay(): ShowcaseOverlay | null {
  * through `adb reverse` / the simulator's shared loopback.
  */
 export async function readRequestedShowcaseScene(): Promise<ShowcaseScene | null> {
-  const response = await fetch(`${SHOWCASE_CONTROL_ORIGIN}/scene`);
+  const response = await fetch(
+    `${SHOWCASE_CONTROL_ORIGIN}/scene?client=${encodeURIComponent(SHOWCASE_CLIENT_ID)}`,
+  );
   if (!response.ok) return null;
   const payload: unknown = await response.json();
   const scene = (payload as { scene?: unknown } | null)?.scene;
@@ -51,7 +61,7 @@ export async function markShowcaseSceneReady(scene: ShowcaseScene): Promise<bool
   const response = await fetch(`${SHOWCASE_CONTROL_ORIGIN}/ready`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ scene }),
+    body: JSON.stringify({ scene, client: SHOWCASE_CLIENT_ID }),
   });
   return response.ok;
 }

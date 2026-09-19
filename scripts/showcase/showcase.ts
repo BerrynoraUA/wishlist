@@ -407,6 +407,19 @@ async function isPortInUse(port: number): Promise<boolean> {
 }
 
 /**
+ * Both the simulator's loopback and the emulator's reverse tunnel accept a connection
+ * whether or not anything answers on the host, so a dead bundler reaches the app as a
+ * truncated HTTP response instead of a refused connection. Checking before launch
+ * names the cause rather than timing out on a blank screen a quarter of an hour later.
+ */
+async function assertMetroListening(port: number): Promise<void> {
+  if (await isPortInUse(port)) return;
+  throw new Error(
+    `Nothing is listening on Metro port ${port}; the bundler died before the app launched.`,
+  );
+}
+
+/**
  * A leftover Metro from an interrupted run still answers on the harness port, so
  * `expo start` quietly skips its own dev server and `waitForPort` is satisfied by the
  * stale one. The app then hangs on a blank screen until the scene timeout, 15 minutes
@@ -636,6 +649,7 @@ async function captureIos(
   control: Awaited<ReturnType<typeof startShowcaseControlServer>>,
   registerCleanup: (cleanup: IosCaptureCleanup) => void,
 ): Promise<void> {
+  control.beginDevice();
   const { simulator, createdByRunner } = await ensureIosSimulator(capture.device);
   const startedByRunner = simulator.state !== "Booted";
   registerCleanup({ udid: simulator.udid, startedByRunner, createdByRunner });
@@ -654,23 +668,13 @@ async function captureIos(
     await runCommand("xcrun", ["simctl", "install", simulator.udid, appPath]);
   }
 
-  for (const [key, value] of [
-    ["EXDevMenuIsOnboardingFinished", "true"],
-    ["EXDevMenuShowFloatingActionButton", "false"],
-    ["EXDevMenuShowsAtLaunch", "false"],
-  ] as const) {
-    await runCommand("xcrun", [
-      "simctl",
-      "spawn",
-      simulator.udid,
-      "defaults",
-      "write",
-      APP_ID,
-      key,
-      "-bool",
-      value,
-    ]).catch(() => undefined);
-  }
+  // Nothing is needed here to silence the dev menu, which a freshly installed dev
+  // client would otherwise open over the app as its first screen renders: that is done
+  // through the showcase build's Info.plist, in apps/native/app.config.js. The app
+  // reads its preferences from inside its own sandboxed container, which
+  // `simctl spawn … defaults write` does not reach.
+
+  await assertMetroListening(config.metroPort);
 
   const firstScene = capture.scenes[0]!;
   control.requestScene(firstScene);
@@ -805,6 +809,7 @@ async function captureAndroid(
   control: Awaited<ReturnType<typeof startShowcaseControlServer>>,
   registerCleanup: (cleanup: AndroidCaptureCleanup) => void,
 ): Promise<void> {
+  control.beginDevice();
   const running = await runningAndroidAvds();
   const existingSerial = running.get(capture.device.avd);
   const startedByRunner = !existingSerial;
@@ -854,14 +859,7 @@ async function captureAndroid(
     await runAdb(serial, ["reverse", `tcp:${port}`, `tcp:${port}`]);
   }
 
-  // The reverse tunnel accepts connections whether or not anything answers on the
-  // host, so a dead bundler reaches the app as a truncated HTTP response instead of a
-  // refused connection. Checking here names the cause rather than timing out blank.
-  if (!(await isPortInUse(config.metroPort))) {
-    throw new Error(
-      `Nothing is listening on Metro port ${config.metroPort}; the bundler died before the app launched.`,
-    );
-  }
+  await assertMetroListening(config.metroPort);
 
   const firstScene = capture.scenes[0]!;
   control.requestScene(firstScene);
