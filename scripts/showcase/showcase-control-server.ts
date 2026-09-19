@@ -23,6 +23,13 @@ const CONTENT_TYPES: Readonly<Record<string, string>> = {
 };
 
 export interface ShowcaseControlServer {
+  /**
+   * Hand the channel to the launch this capture is about to make. Devices captured
+   * earlier stay booted with their app still polling, so without this the device the
+   * runner has finished with answers for the next one and the capture photographs a
+   * screen that is still booting.
+   */
+  beginDevice(): void;
   /** Ask the app to navigate to a scene and forget any previous readiness. */
   requestScene(scene: ShowcaseScene): void;
   /** Resolves once the app reports that scene is rendered and idle. */
@@ -144,11 +151,25 @@ export async function startShowcaseControlServer(
 ): Promise<ShowcaseControlServer> {
   let requestedScene: ShowcaseScene | null = null;
   let readyScene: ShowcaseScene | null = null;
+  let activeClient: string | null = null;
+  const seenClients = new Set<string>();
+
+  /**
+   * The first client id the server has never seen takes the channel. The runner
+   * restarts the app for every capture, so an unknown id is always the launch it is
+   * waiting on, while an id already on file belongs to a device it has finished with.
+   */
+  const noteClient = (client: string | null): void => {
+    if (!client || seenClients.has(client)) return;
+    seenClients.add(client);
+    activeClient = client;
+  };
 
   const server = NodeHttp.createServer((request, response) => {
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
 
     if (request.method === "GET" && url.pathname === "/scene") {
+      noteClient(url.searchParams.get("client"));
       response.writeHead(200, { "content-type": "application/json" });
       response.end(JSON.stringify({ scene: requestedScene }));
       return;
@@ -158,8 +179,13 @@ export async function startShowcaseControlServer(
       request.on("data", (chunk) => (body += String(chunk)));
       request.on("end", () => {
         try {
-          const scene = (JSON.parse(body) as { scene?: unknown }).scene;
-          if (isShowcaseScene(scene)) readyScene = scene;
+          const payload = JSON.parse(body) as { scene?: unknown; client?: unknown };
+          const client = typeof payload.client === "string" ? payload.client : null;
+          noteClient(client);
+          // Only the app this capture launched may answer for it.
+          if (client !== null && client === activeClient && isShowcaseScene(payload.scene)) {
+            readyScene = payload.scene;
+          }
         } catch {
           // A malformed report just leaves the scene un-ready until the app retries.
         }
@@ -209,6 +235,10 @@ export async function startShowcaseControlServer(
   });
 
   return {
+    beginDevice() {
+      activeClient = null;
+      readyScene = null;
+    },
     requestScene(scene) {
       requestedScene = scene;
       readyScene = null;
@@ -219,9 +249,16 @@ export async function startShowcaseControlServer(
         if (readyScene === scene) return;
         await new Promise((resolve) => setTimeout(resolve, 250));
       }
-      throw new Error(`Showcase scene '${scene}' did not report ready within ${timeoutMs}ms.`);
+      throw new Error(
+        `Showcase scene '${scene}' did not report ready within ${timeoutMs}ms${
+          activeClient ? "" : " — no app claimed the control channel"
+        }.`,
+      );
     },
     async close() {
+      // The app polls over keep-alive, so a device left running would otherwise hold
+      // the server open and the runner would never exit.
+      server.closeAllConnections();
       await new Promise<void>((resolve) => server.close(() => resolve()));
     },
   };

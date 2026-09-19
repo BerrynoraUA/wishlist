@@ -205,7 +205,8 @@ const config: ShowcaseConfig = {
         directory: "apple/iphone-6.9",
         width: 1320,
         height: 2868,
-        minimumUploadCount: 1,
+        // App Store Connect takes 3–10 per size — see apps/native/store/RELEASE-CHECKLIST.md §4.
+        minimumUploadCount: 3,
         maximumUploadCount: 10,
       },
     },
@@ -221,7 +222,7 @@ const config: ShowcaseConfig = {
         directory: "apple/iphone-6.5",
         width: 1284,
         height: 2778,
-        minimumUploadCount: 1,
+        minimumUploadCount: 3,
         maximumUploadCount: 10,
       },
     },

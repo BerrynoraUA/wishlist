@@ -22,6 +22,7 @@
     "test:scripts": "vitest run",
     "screenshots": "node scripts/showcase/showcase.ts",
     "screenshots:android": "node scripts/showcase/showcase.ts --platform android",
+    "screenshots:ios": "node scripts/showcase/showcase.ts --platform ios",
     "screenshots:validate": "node scripts/showcase/showcase.ts --validate-only",
     "screenshots:frames": "node scripts/showcase/showcase.ts --frames-only",
     "lint": "oxlint",

@@ -16,7 +16,11 @@ import {
   SHOWCASE_SECRET_SANTA_LIST,
   SHOWCASE_WISHLISTS,
 } from "../../packages/backend/supabase/showcase/data.ts";
-import { buildShowcaseAvatarSvg, renderShowcaseAvatar } from "./showcase-control-server.ts";
+import {
+  buildShowcaseAvatarSvg,
+  renderShowcaseAvatar,
+  startShowcaseControlServer,
+} from "./showcase-control-server.ts";
 import {
   buildDeviceOverlaySvg,
   buildFrameBackgroundSvg,
@@ -269,6 +273,47 @@ describe("callout clouds", () => {
         // A cloud sitting on its own anchor leaves no room for a tail.
         expect(Math.abs(callout.lift)).toBeGreaterThan(0.02);
       }
+    }
+  });
+});
+
+describe("control channel", () => {
+  // Not the harness port, so a test never talks to a capture running beside it.
+  const PORT = 8391;
+  const ORIGIN = `http://127.0.0.1:${PORT}`;
+
+  const poll = (client: string) => fetch(`${ORIGIN}/scene?client=${client}`);
+  const report = (client: string, scene: string) =>
+    fetch(`${ORIGIN}/ready`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ scene, client }),
+    });
+
+  it("only counts readiness from the app the current capture launched", async () => {
+    const control = await startShowcaseControlServer(PORT);
+    try {
+      control.beginDevice();
+      control.requestScene("wishlists");
+      await poll("launch-a");
+      await report("launch-a", "wishlists");
+      await expect(control.waitForScene("wishlists", 1_000)).resolves.toBeUndefined();
+
+      // Next device. The one just captured stays booted, keeps polling, and answers
+      // this scene within a second — long before the new device has even booted.
+      control.beginDevice();
+      control.requestScene("friends");
+      await poll("launch-a");
+      await report("launch-a", "friends");
+      await expect(control.waitForScene("friends", 300)).rejects.toThrow(
+        /no app claimed the control channel/u,
+      );
+
+      await poll("launch-b");
+      await report("launch-b", "friends");
+      await expect(control.waitForScene("friends", 1_000)).resolves.toBeUndefined();
+    } finally {
+      await control.close();
     }
   });
 });
