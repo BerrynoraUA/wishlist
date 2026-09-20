@@ -22,6 +22,11 @@ import {
   startShowcaseControlServer,
 } from "./showcase-control-server.ts";
 import {
+  buildFeatureGraphicSvg,
+  renderFeatureGraphic,
+  validateFeatureGraphic,
+} from "./showcase-feature-graphic.ts";
+import {
   buildDeviceOverlaySvg,
   buildFrameBackgroundSvg,
   cloudPath,
@@ -263,17 +268,61 @@ describe("callout clouds", () => {
     for (const scene of SHOWCASE_SCENES) {
       const copy = showcaseConfig.frames.scenes[scene];
       expect(copy.headline.length).toBeGreaterThan(0);
-      expect(copy.callouts.length).toBeGreaterThan(0);
-      for (const callout of copy.callouts) {
-        expect(callout.lines.length).toBeGreaterThan(0);
-        expect(callout.anchor.x).toBeGreaterThan(0);
-        expect(callout.anchor.x).toBeLessThan(1);
-        expect(callout.anchor.y).toBeGreaterThan(0);
-        expect(callout.anchor.y).toBeLessThan(1);
-        // A cloud sitting on its own anchor leaves no room for a tail.
-        expect(Math.abs(callout.lift)).toBeGreaterThan(0.02);
+      for (const platform of ["ios", "android"] as const) {
+        const callouts = copy.callouts[platform];
+        expect(callouts.length).toBeGreaterThan(0);
+        for (const callout of callouts) {
+          expect(callout.lines.length).toBeGreaterThan(0);
+          expect(callout.anchor.x).toBeGreaterThan(0);
+          expect(callout.anchor.x).toBeLessThan(1);
+          expect(callout.anchor.y).toBeGreaterThan(0);
+          expect(callout.anchor.y).toBeLessThan(1);
+          // A cloud sitting on its own anchor leaves no room for a tail.
+          expect(Math.abs(callout.lift)).toBeGreaterThan(0.02);
+        }
       }
+      // The two sets say the same things; only where they point differs.
+      expect(copy.callouts.ios.map((callout) => callout.lines)).toEqual(
+        copy.callouts.android.map((callout) => callout.lines),
+      );
     }
+  });
+});
+
+describe("play feature graphic", () => {
+  const spec = showcaseConfig.frames.featureGraphic;
+
+  it("matches the size Google Play fixes for the listing banner", () => {
+    expect([spec.width, spec.height]).toEqual([1024, 500]);
+  });
+
+  it("keeps the wordmark and tagline clear of the edges Play may crop", () => {
+    const svg = buildFeatureGraphicSvg(spec, "light", showcaseConfig.frames);
+    expect(svg).toContain(spec.wordmark);
+    expect(svg).toContain(spec.tagline);
+    // Every <text> starts at least 5% in from the left edge.
+    const xs = [...svg.matchAll(/<text x="(\d+(?:\.\d+)?)"/gu)].map((m) => Number(m[1]));
+    expect(xs.length).toBeGreaterThan(0);
+    for (const x of xs) expect(x).toBeGreaterThanOrEqual(spec.width * 0.05);
+  });
+
+  it("renders an alpha-free RGB png that passes its own validator", async () => {
+    const graphic = await renderFeatureGraphic({
+      spec,
+      appearance: "light",
+      frames: showcaseConfig.frames,
+    });
+    expect(() => validateFeatureGraphic(spec, graphic)).not.toThrow();
+  });
+
+  it("rejects a graphic that is not the size Play asks for", () => {
+    const wrong = PNG.sync.write(new PNG({ width: 800, height: 400 }), {
+      bitDepth: 8,
+      colorType: 2,
+      inputColorType: 6,
+      inputHasAlpha: true,
+    });
+    expect(() => validateFeatureGraphic(spec, wrong)).toThrow(/requires 1024×500/u);
   });
 });
 

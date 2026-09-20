@@ -12,6 +12,7 @@ import {
   showcaseSceneFileStem,
 } from "../../packages/backend/supabase/showcase/constants.ts";
 import { startShowcaseControlServer } from "./showcase-control-server.ts";
+import { renderFeatureGraphic, validateFeatureGraphic } from "./showcase-feature-graphic.ts";
 import { renderFramedScreenshot } from "./showcase-frames.ts";
 import {
   normalizeStorePng,
@@ -569,6 +570,7 @@ async function renderCaptureFrames(
       spec: capture.device.storeAsset,
       appearance: capture.appearance,
       scene,
+      platform: capture.device.platform,
       frames: config.frames,
     });
     const destination = NodePath.join(destinationDirectory, `${showcaseSceneFileStem(scene)}.png`);
@@ -577,6 +579,23 @@ async function renderCaptureFrames(
   }
   NodeProcess.stdout.write(
     `Framed ${capture.scenes.length} marketing images in ${NodePath.relative(REPO_ROOT, destinationDirectory)}/\n`,
+  );
+}
+
+/**
+ * Drawn from config alone, so it is produced once per run rather than per capture and
+ * needs no device — the Play listing cannot be published without it.
+ */
+async function renderStoreFeatureGraphic(config: ShowcaseConfig): Promise<void> {
+  const spec = config.frames.featureGraphic;
+  const destination = NodePath.resolve(REPO_ROOT, config.frames.outputDirectory, spec.path);
+  await NodeFSP.mkdir(NodePath.dirname(destination), { recursive: true });
+
+  const graphic = await renderFeatureGraphic({ spec, appearance: "light", frames: config.frames });
+  validateFeatureGraphic(spec, graphic);
+  await NodeFSP.writeFile(destination, graphic);
+  NodeProcess.stdout.write(
+    `Rendered the Play feature graphic at ${NodePath.relative(REPO_ROOT, destination)}\n`,
   );
 }
 
@@ -949,6 +968,7 @@ async function main(): Promise<void> {
     for (const capture of captures) {
       await renderCaptureFrames(capture, outputDirectory, showcaseConfig);
     }
+    await renderStoreFeatureGraphic(showcaseConfig);
     return;
   }
 
@@ -1028,6 +1048,9 @@ async function main(): Promise<void> {
       if (!options.skipFrames) {
         await renderCaptureFrames(capture, outputDirectory, showcaseConfig);
       }
+    }
+    if (!options.skipFrames) {
+      await renderStoreFeatureGraphic(showcaseConfig);
     }
 
     NodeProcess.stdout.write(
