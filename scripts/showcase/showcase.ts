@@ -12,6 +12,7 @@ import {
   showcaseSceneFileStem,
 } from "../../packages/backend/supabase/showcase/constants.ts";
 import { startShowcaseControlServer } from "./showcase-control-server.ts";
+import { renderFeatureGraphic, validateFeatureGraphic } from "./showcase-feature-graphic.ts";
 import { renderFramedScreenshot } from "./showcase-frames.ts";
 import {
   normalizeStorePng,
@@ -569,6 +570,7 @@ async function renderCaptureFrames(
       spec: capture.device.storeAsset,
       appearance: capture.appearance,
       scene,
+      platform: capture.device.platform,
       frames: config.frames,
     });
     const destination = NodePath.join(destinationDirectory, `${showcaseSceneFileStem(scene)}.png`);
@@ -577,6 +579,23 @@ async function renderCaptureFrames(
   }
   NodeProcess.stdout.write(
     `Framed ${capture.scenes.length} marketing images in ${NodePath.relative(REPO_ROOT, destinationDirectory)}/\n`,
+  );
+}
+
+/**
+ * Drawn from config alone, so it is produced once per run rather than per capture and
+ * needs no device — the Play listing cannot be published without it.
+ */
+async function renderStoreFeatureGraphic(config: ShowcaseConfig): Promise<void> {
+  const spec = config.frames.featureGraphic;
+  const destination = NodePath.resolve(REPO_ROOT, config.frames.outputDirectory, spec.path);
+  await NodeFSP.mkdir(NodePath.dirname(destination), { recursive: true });
+
+  const graphic = await renderFeatureGraphic({ spec, appearance: "light", frames: config.frames });
+  validateFeatureGraphic(spec, graphic);
+  await NodeFSP.writeFile(destination, graphic);
+  NodeProcess.stdout.write(
+    `Rendered the Play feature graphic at ${NodePath.relative(REPO_ROOT, destination)}\n`,
   );
 }
 
@@ -756,6 +775,17 @@ async function normalizeAndroidEmulator(
   await runAdb(serial, ["shell", "cmd", "uimode", "night", appearance === "dark" ? "yes" : "no"]);
   await runAdb(serial, ["shell", "settings", "put", "system", "time_12_24", "12"]);
   await runAdb(serial, ["emu", "power", "capacity", "100"]).catch(() => undefined);
+  if (device.viewport) {
+    await runAdb(serial, [
+      "shell",
+      "wm",
+      "size",
+      `${device.viewport.width}x${device.viewport.height}`,
+    ]);
+    if (device.viewport.density) {
+      await runAdb(serial, ["shell", "wm", "density", String(device.viewport.density)]);
+    }
+  }
   await runAdb(serial, ["shell", "settings", "put", "global", "sysui_demo_allowed", "1"]);
   const demo = (extras: readonly string[]) =>
     runAdb(serial, [
@@ -771,17 +801,36 @@ async function normalizeAndroidEmulator(
   await demo(["enter"]);
   await demo(["clock", "-e", "hhmm", "0941"]);
   await demo(["battery", "-e", "level", "100", "-e", "plugged", "false"]);
-  if (device.viewport) {
-    await runAdb(serial, [
-      "shell",
-      "wm",
-      "size",
-      `${device.viewport.width}x${device.viewport.height}`,
-    ]);
-    if (device.viewport.density) {
-      await runAdb(serial, ["shell", "wm", "density", String(device.viewport.density)]);
-    }
-  }
+  // Android 16 renders emulator transport indicators outside the demo-mode network
+  // protocol. Hide the system icon group so only the deterministic clock remains.
+  await runAdb(serial, ["shell", "cmd", "statusbar", "send-disable-flag", "system-icons"]);
+  // Notification and system icons are whatever the device happened to accumulate, so they
+  // are cleared rather than photographed.
+  await demo(["notifications", "-e", "visible", "false"]);
+  await demo([
+    "status",
+    "-e",
+    "volume",
+    "hide",
+    "-e",
+    "bluetooth",
+    "hide",
+    "-e",
+    "location",
+    "hide",
+    "-e",
+    "alarm",
+    "hide",
+    "-e",
+    "sync",
+    "hide",
+    "-e",
+    "mute",
+    "hide",
+    "-e",
+    "speakerphone",
+    "hide",
+  ]);
 }
 
 async function prepareAndroidShowcaseApp(serial: string): Promise<void> {
@@ -905,6 +954,9 @@ async function cleanupAndroidViewport(
   device: ShowcaseAndroidDevice,
   serial: string,
 ): Promise<void> {
+  await runAdb(serial, ["shell", "cmd", "statusbar", "send-disable-flag", "none"]).catch(
+    () => undefined,
+  );
   await runAdb(serial, [
     "shell",
     "am",
@@ -949,6 +1001,7 @@ async function main(): Promise<void> {
     for (const capture of captures) {
       await renderCaptureFrames(capture, outputDirectory, showcaseConfig);
     }
+    await renderStoreFeatureGraphic(showcaseConfig);
     return;
   }
 
@@ -1028,6 +1081,9 @@ async function main(): Promise<void> {
       if (!options.skipFrames) {
         await renderCaptureFrames(capture, outputDirectory, showcaseConfig);
       }
+    }
+    if (!options.skipFrames) {
+      await renderStoreFeatureGraphic(showcaseConfig);
     }
 
     NodeProcess.stdout.write(

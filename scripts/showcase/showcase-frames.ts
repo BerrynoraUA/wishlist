@@ -4,6 +4,7 @@ import { normalizeStorePng } from "./showcase-images.ts";
 import type {
   ShowcaseAppearance,
   ShowcaseCallout,
+  ShowcaseDevicePlatform,
   ShowcaseFrameConfig,
   ShowcaseScene,
   ShowcaseStoreAssetSpec,
@@ -549,6 +550,8 @@ export async function renderFramedScreenshot(options: {
   readonly spec: ShowcaseStoreAssetSpec;
   readonly appearance: ShowcaseAppearance;
   readonly scene: ShowcaseScene;
+  /** Picks the anchor set tuned for this capture's aspect ratio. */
+  readonly platform: ShowcaseDevicePlatform;
   readonly frames: ShowcaseFrameConfig;
 }): Promise<Buffer> {
   const copy = options.frames.scenes[options.scene];
@@ -585,7 +588,7 @@ export async function renderFramedScreenshot(options: {
     { input: Buffer.from(buildDeviceOverlaySvg(layout, options.spec.store)), left: 0, top: 0 },
   );
 
-  for (const callout of copy.callouts) {
+  for (const callout of copy.callouts[options.platform]) {
     const layer = await buildCallout(callout, layout, options.frames);
     const shadow = await shadowFor(layer, 0, 0, layout, {
       blur: 14 * layout.scale,
