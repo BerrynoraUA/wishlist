@@ -1,6 +1,6 @@
 Wishlane gjør spørsmålet «ja, men hva ønsker du deg egentlig?» til noe alle liker.
 
-Lag fine ønskelister, del dem med menneskene som betyr noe, og la dem reservere gaver i hemmelighet – ingen kjøper det samme to ganger, og ingen overraskelse blir ødelagt.
+Lag fine ønskelister, del dem med menneskene som betyr noe, og la dem reservere gaver – så ingen kjøper det samme to ganger.
 
 <b>En ønskeliste på sekunder</b>
 Lim inn en hvilken som helst produktlenke, så fyller Wishlane inn tittel, beskrivelse, bilde og pris for deg. Gi listen et navn, velg en farge, sett en dato – ferdig.
@@ -8,8 +8,8 @@ Lim inn en hvilken som helst produktlenke, så fyller Wishlane inn tittel, beskr
 <b>Del på dine premisser</b>
 Hver ønskeliste kan være offentlig, kun for venner eller helt privat. Send en lenke til hvem du vil, eller legg til venner med brukernavn – du ser listene deres, de ser dine.
 
-<b>Reserver gaver i hemmelighet</b>
-Reserver noe på en venns liste: alle andre ser at den er tatt, men eieren av listen får aldri vite det. Ingen doble gaver og ingen ødelagte overraskelser.
+<b>Ingen doble gaver</b>
+Reserver noe på en venns liste: alle andre ser at den er tatt, så ingen kjøper den samme gaven to ganger.
 
 <b>Julenissetrekning, ordnet</b>
 Opprett en gruppe, inviter alle med én lenke, og la Wishlane ta trekningen. Alle ser ønskelisten til den de trakk, så gavene treffer blink.
@@ -21,7 +21,7 @@ Bla gjennom vennenes offentlige ønskelister, se kommende bursdager og anledning
 Få varsel når en venn lager en ønskeliste, sender deg en forespørsel eller reserverer noe fra din liste.
 
 <b>Wishlane Premium</b>
-Ubegrenset med lister og ting, tilgang for medredaktører på delte lister, prisvarsler ved prisfall og egne farger og prioriteringer.
+Ubegrenset med lister og ting, tilgang for medredaktører på delte lister og egne farger og prioriteringer.
 
 Wishlane er gratis å komme i gang med – uten kort, klart på under ett minutt. Tilgjengelig på over 40 språk.
 

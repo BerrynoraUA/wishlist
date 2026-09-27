@@ -3,8 +3,8 @@
   "title": "Wishlane: seznami želja",
   "appleName": "Wishlane",
   "subtitle": "Seznami želja in darila",
-  "shortDescription": "Ustvarjajte sezname želja, jih delite in skrivaj rezervirajte darila.",
-  "promoText": "Prilepite katero koli povezavo, ustvarite lep seznam želja in ga delite s prijatelji. Darila rezervirajo skrivaj – nihče ne kupi istega in nobeno presenečenje ni pokvarjeno.",
+  "shortDescription": "Ustvarjajte sezname želja, jih delite in pozabite na podvojena darila.",
+  "promoText": "Prilepite katero koli povezavo, ustvarite lep seznam želja in ga delite s prijatelji. Rezervirajo, kar bodo kupili – nihče ne dobi istega darila dvakrat.",
   "keywords": [
     "seznam želja",
     "darilo",
@@ -15,7 +15,7 @@
   ],
   "intro": [
     "Wishlane spremeni vprašanje »kaj pa si pravzaprav želiš?« v nekaj, kar uživajo vsi.",
-    "Ustvarite lepe sezname želja, delite jih z ljudmi, ki vam nekaj pomenijo, in jim dovolite, da darila rezervirajo skrivaj – nihče ne kupi iste stvari dvakrat in nobeno presenečenje ni pokvarjeno."
+    "Ustvarite lepe sezname želja, delite jih z ljudmi, ki vam nekaj pomenijo, in jim dovolite, da rezervirajo darila – nihče ne kupi iste stvari dvakrat."
   ],
   "sections": [
     {
@@ -27,8 +27,8 @@
       "body": "Vsak seznam je lahko javen, samo za prijatelje ali povsem zaseben. Pošljite povezavo komur koli ali dodajte prijatelje prek uporabniškega imena – vi vidite njihove sezname, oni vaše."
     },
     {
-      "heading": "Darila rezervirajte skrivaj",
-      "body": "Rezervirajte izdelek na prijateljevem seznamu: vsi drugi vidijo, da je zaseden, lastnik seznama pa tega nikoli ne izve. Brez podvojenih daril in pokvarjenih presenečenj."
+      "heading": "Brez podvojenih daril",
+      "body": "Rezervirajte izdelek na prijateljevem seznamu: vsi drugi vidijo, da je zaseden, zato nihče ne kupi istega darila dvakrat."
     },
     {
       "heading": "Skrivni Božiček, urejeno",
@@ -62,7 +62,7 @@
     "Seznami želja z barvami, prednostmi in datumi",
     "Prilepite povezavo, podrobnosti izpolnimo mi",
     "Seznami javni, samo za prijatelje ali zasebni",
-    "Skrivna rezervacija daril na seznamih prijateljev",
+    "Rezervacija daril na seznamih prijateljev, brez podvajanja",
     "Skupina Skrivni Božiček s samodejnim žrebom",
     "Seznami prijateljev in prihajajoči dogodki"
   ],

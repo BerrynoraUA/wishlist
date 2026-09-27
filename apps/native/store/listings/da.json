@@ -3,12 +3,12 @@
   "title": "Wishlane: ønskelister",
   "appleName": "Wishlane",
   "subtitle": "Ønskelister, delt smukt",
-  "shortDescription": "Lav ønskelister, del dem med venner, og reservér gaver i al hemmelighed.",
-  "promoText": "Indsæt et link, lav en flot ønskeliste, og del den med vennerne. De reserverer gaver i hemmelighed – ingen køber det samme, og ingen overraskelse afsløres.",
+  "shortDescription": "Lav ønskelister, del dem med venner, og undgå dobbeltgaver.",
+  "promoText": "Indsæt et link, lav en flot ønskeliste, og del den med vennerne. De reserverer det, de køber – så ingen får den samme gave to gange.",
   "keywords": ["ønskeliste", "gave", "fødselsdag", "jul", "pakkeleg", "gaveidéer", "shopping"],
   "intro": [
     "Wishlane gør spørgsmålet »hvad ønsker du dig egentlig?« til noget, alle synes er sjovt.",
-    "Lav flotte ønskelister, del dem med de mennesker, der betyder noget, og lad dem reservere gaver i hemmelighed – ingen køber det samme to gange, og ingen overraskelse bliver ødelagt."
+    "Lav flotte ønskelister, del dem med de mennesker, der betyder noget, og lad dem reservere gaver – så ingen køber det samme to gange."
   ],
   "sections": [
     {
@@ -20,8 +20,8 @@
       "body": "Hver ønskeliste kan være offentlig, kun for venner eller helt privat. Send et link til hvem som helst, eller find venner via brugernavn – du ser deres lister, og de ser dine."
     },
     {
-      "heading": "Reservér gaver i hemmelighed",
-      "body": "Reservér noget på en vens liste: alle andre kan se, at den er taget, men ejeren finder aldrig ud af det. Ingen dobbeltgaver og ingen ødelagte overraskelser."
+      "heading": "Ingen dobbeltgaver",
+      "body": "Reservér noget på en vens liste: alle andre kan se, at den er taget, så ingen køber den samme gave to gange."
     },
     {
       "heading": "Pakkeleg med styr på det",
@@ -55,7 +55,7 @@
     "Ønskelister med farver, prioriteter og datoer",
     "Indsæt et produktlink, så udfylder vi detaljerne",
     "Lister offentlige, kun for venner eller private",
-    "Reservér gaver i hemmelighed på venners lister",
+    "Reservér gaver på venners lister, så ingen køber det samme",
     "Pakkelegsgruppe med automatisk lodtrækning",
     "Venners lister og kommende begivenheder"
   ],

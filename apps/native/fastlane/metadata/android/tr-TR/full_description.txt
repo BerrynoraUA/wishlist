@@ -1,6 +1,6 @@
 Wishlane, "e sen aslında ne istiyorsun?" sorusunu herkesin keyif aldığı bir şeye dönüştürür.
 
-Şık dilek listeleri oluşturun, sizin için önemli olan kişilerle paylaşın ve hediyeleri gizlice ayırmalarına izin verin: kimse aynı şeyi iki kez almaz ve hiçbir sürpriz bozulmaz.
+Şık dilek listeleri oluşturun, sizin için önemli olan kişilerle paylaşın ve hediyeleri ayırmalarına izin verin: kimse aynı şeyi iki kez almaz.
 
 <b>Saniyeler içinde dilek listesi</b>
 Herhangi bir ürün bağlantısını yapıştırın; Wishlane başlığı, açıklamayı, görseli ve fiyatı sizin için doldursun. Listeye ad verin, bir renk seçin, etkinlik tarihini girin ve bitti.
@@ -8,8 +8,8 @@ Herhangi bir ürün bağlantısını yapıştırın; Wishlane başlığı, açı
 <b>Paylaşım kuralını siz koyun</b>
 Her liste herkese açık, yalnızca arkadaşlara açık veya tamamen gizli olabilir. Dilediğinize bağlantı gönderin ya da kullanıcı adıyla arkadaş ekleyin: siz onların listelerini, onlar sizinkini görür.
 
-<b>Hediyeleri gizlice ayırın</b>
-Bir arkadaşınızın listesindeki ürünü ayırın; diğer herkes o ürünün alındığını görür ama listenin sahibi asla öğrenmez. Ne aynı hediye ne de bozulan sürpriz.
+<b>Aynı hediye iki kez yok</b>
+Bir arkadaşınızın listesindeki ürünü ayırın; diğer herkes o ürünün alındığını görür, böylece kimse aynı hediyeyi iki kez almaz.
 
 <b>Gizli kardeş, düzenli</b>
 Bir grup oluşturun, tek bağlantıyla herkesi davet edin ve çekilişi Wishlane yapsın. Herkes eşleştiği kişinin dilek listesini görür, böylece hediyeler tam isabet eder.
@@ -21,7 +21,7 @@ Arkadaşlarınızın herkese açık listelerine göz atın, yaklaşan doğum gü
 Bir arkadaşınız liste eklediğinde, size istek gönderdiğinde ya da listenizden bir şey ayırdığında bildirim alın.
 
 <b>Wishlane Premium</b>
-Sınırsız liste ve ürün, paylaşılan listelerde ortak düzenleme, fiyat düşüşlerini bildiren indirim uyarıları, özel renkler ve öncelikler.
+Sınırsız liste ve ürün, paylaşılan listelerde ortak düzenleme, özel renkler ve öncelikler.
 
 Wishlane'e başlamak ücretsiz: kredi kartı yok, kurulum bir dakikadan kısa. 40'tan fazla dilde kullanılabilir.
 

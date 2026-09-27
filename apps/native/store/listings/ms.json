@@ -3,8 +3,8 @@
   "title": "Wishlane: senarai hajat",
   "appleName": "Wishlane",
   "subtitle": "Senarai hajat dan hadiah",
-  "shortDescription": "Cipta senarai hajat, kongsi dengan rakan dan tempah hadiah secara rahsia.",
-  "promoText": "Tampal mana-mana pautan, cipta senarai hajat yang cantik dan kongsikannya. Rakan menempah hadiah secara rahsia: tiada hadiah berulang dan tiada kejutan yang terbongkar.",
+  "shortDescription": "Cipta senarai hajat, kongsi dengan rakan dan elak hadiah berulang.",
+  "promoText": "Tampal mana-mana pautan, cipta senarai hajat yang cantik dan kongsikannya. Rakan menempah apa yang akan dibeli: tiada siapa dapat hadiah sama dua kali.",
   "keywords": [
     "senarai hajat",
     "hadiah",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Wishlane menukar soalan \"jadi, apa yang kamu nak sebenarnya?\" kepada sesuatu yang semua orang nikmati.",
-    "Cipta senarai hajat yang cantik, kongsikannya dengan orang yang penting bagi anda dan biarkan mereka menempah hadiah secara rahsia: tiada siapa membeli benda yang sama dua kali dan tiada kejutan yang rosak."
+    "Cipta senarai hajat yang cantik, kongsikannya dengan orang yang penting bagi anda dan biarkan mereka menempah hadiah: tiada siapa membeli benda yang sama dua kali."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Setiap senarai boleh menjadi awam, khusus rakan sahaja atau sepenuhnya peribadi. Hantar pautan kepada sesiapa, atau tambah rakan melalui nama pengguna: anda lihat senarai mereka, mereka lihat senarai anda."
     },
     {
-      "heading": "Tempah hadiah secara rahsia",
-      "body": "Tempah item pada senarai rakan: orang lain nampak item itu sudah diambil, tetapi pemilik senarai tidak akan tahu. Tiada hadiah berulang, tiada kejutan yang rosak."
+      "heading": "Tiada hadiah berulang",
+      "body": "Tempah item pada senarai rakan: orang lain nampak item itu sudah diambil, jadi tiada siapa membeli hadiah yang sama dua kali."
     },
     {
       "heading": "Secret Santa, tersusun",
@@ -63,7 +63,7 @@
     "Senarai hajat dengan warna, keutamaan dan tarikh",
     "Tampal pautan produk, kami isikan butirannya",
     "Senarai awam, khusus rakan atau peribadi",
-    "Tempah hadiah secara rahsia pada senarai rakan",
+    "Tempah hadiah pada senarai rakan tanpa berulang",
     "Kumpulan Secret Santa dengan cabutan automatik",
     "Senarai rakan dan acara akan datang"
   ],

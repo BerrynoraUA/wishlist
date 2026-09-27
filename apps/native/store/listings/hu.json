@@ -3,8 +3,8 @@
   "title": "Wishlane: kívánságlisták",
   "appleName": "Wishlane",
   "subtitle": "Kívánságlisták és ajándékok",
-  "shortDescription": "Készíts kívánságlistát, oszd meg a barátaiddal, és foglalj ajándékot titokban.",
-  "promoText": "Illessz be bármilyen linket, készíts szép kívánságlistát, és oszd meg a barátaiddal. Titokban foglalják le az ajándékokat: nincs két egyforma és nincs lelőtt meglepetés.",
+  "shortDescription": "Készíts és ossz meg kívánságlistákat – dupla ajándékok nélkül.",
+  "promoText": "Illessz be bármilyen linket, készíts szép kívánságlistát, és oszd meg a barátaiddal. Lefoglalják, amit megvesznek: senki nem kapja kétszer ugyanazt.",
   "keywords": [
     "kívánságlista",
     "ajándék",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "A Wishlane a „na és mit szeretnél valójában?” kérdést olyanná teszi, amit mindenki élvez.",
-    "Készíts szép kívánságlistákat, oszd meg őket a számodra fontos emberekkel, és hagyd, hogy titokban lefoglalják az ajándékokat – így senki nem vesz kétszer ugyanolyat, és egyetlen meglepetés sem lesz lelőve."
+    "Készíts szép kívánságlistákat, oszd meg őket a számodra fontos emberekkel, és hagyd, hogy lefoglalják az ajándékokat – így senki nem vesz kétszer ugyanolyat."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Minden lista lehet nyilvános, csak barátoknak szóló vagy teljesen privát. Küldj linket bárkinek, vagy add hozzá a barátaidat felhasználónév alapján – te látod az ő listájukat, ők a tiédet."
     },
     {
-      "heading": "Foglalj ajándékot titokban",
-      "body": "Foglalj le egy tételt egy barátod listáján: mindenki más látja, hogy elkelt, de a lista tulajdonosa sosem tudja meg. Nincs dupla ajándék, nincs elrontott meglepetés."
+      "heading": "Nincs dupla ajándék",
+      "body": "Foglalj le egy tételt egy barátod listáján: mindenki más látja, hogy elkelt, így senki nem veszi meg kétszer ugyanazt."
     },
     {
       "heading": "Titkos Mikulás, megszervezve",
@@ -63,7 +63,7 @@
     "Kívánságlisták színekkel, prioritással, dátummal",
     "Illessz be egy terméklinket, a többit kitöltjük",
     "Nyilvános, barátoknak szóló vagy privát listák",
-    "Titkos ajándékfoglalás a barátok listáin",
+    "Ajándékfoglalás a barátok listáin, dupla ajándékok nélkül",
     "Titkos Mikulás csoport automatikus sorsolással",
     "Barátok listái és közelgő események"
   ],

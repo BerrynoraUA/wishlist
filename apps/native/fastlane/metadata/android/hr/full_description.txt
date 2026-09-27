@@ -1,6 +1,6 @@
 Wishlane pretvara pitanje „pa što zapravo želiš?” u nešto u čemu svi uživaju.
 
-Stvarajte lijepe liste želja, dijelite ih s ljudima do kojih vam je stalo i pustite ih da tajno rezerviraju darove – nitko ne kupuje istu stvar dvaput i nijedno iznenađenje nije pokvareno.
+Stvarajte lijepe liste želja, dijelite ih s ljudima do kojih vam je stalo i pustite ih da rezerviraju darove – nitko ne kupuje istu stvar dvaput.
 
 <b>Lista želja u nekoliko sekundi</b>
 Zalijepite poveznicu bilo kojeg proizvoda i Wishlane će umjesto vas ispuniti naslov, opis, sliku i cijenu. Imenujte listu, odaberite boju, postavite datum događaja i gotovi ste.
@@ -8,8 +8,8 @@ Zalijepite poveznicu bilo kojeg proizvoda i Wishlane će umjesto vas ispuniti na
 <b>Dijelite po svojim pravilima</b>
 Svaka lista može biti javna, samo za prijatelje ili posve privatna. Pošaljite poveznicu bilo kome ili dodajte prijatelje po korisničkom imenu – vi vidite njihove liste, oni vaše.
 
-<b>Tajno rezervirajte darove</b>
-Rezervirajte stavku na prijateljevoj listi: svi ostali vide da je zauzeta, ali vlasnik liste to nikada ne saznaje. Nema dvostrukih darova ni pokvarenih iznenađenja.
+<b>Bez dvostrukih darova</b>
+Rezervirajte stavku na prijateljevoj listi: svi ostali vide da je zauzeta, pa nitko ne kupuje isti dar dvaput.
 
 <b>Tajni Djed Božićnjak, organizirano</b>
 Stvorite grupu, pozovite sve jednom poveznicom i prepustite izvlačenje Wishlaneu. Svatko vidi listu želja osobe koju je izvukao pa darovi doista pogađaju.
@@ -21,7 +21,7 @@ Pregledavajte javne liste prijatelja, pratite nadolazeće rođendane i događaje
 Primit ćete obavijest kada prijatelj doda listu želja, pošalje vam zahtjev ili rezervira nešto s vaše liste.
 
 <b>Wishlane Premium</b>
-Neograničene liste i stavke, pristup suradnicima na dijeljenim listama, upozorenja o padu cijena te vlastite boje i prioriteti.
+Neograničene liste i stavke, pristup suradnicima na dijeljenim listama te vlastite boje i prioriteti.
 
 Wishlane je za početak besplatan – bez kartice, postavljanje u manje od minute. Dostupan na više od 40 jezika.
 

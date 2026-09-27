@@ -3,8 +3,8 @@
   "title": "Wishlane: listy życzeń",
   "appleName": "Wishlane",
   "subtitle": "Listy życzeń i prezenty",
-  "shortDescription": "Twórz listy życzeń, udostępniaj je znajomym i rezerwuj prezenty w tajemnicy.",
-  "promoText": "Wklej dowolny link, stwórz piękną listę życzeń i udostępnij ją znajomym. Prezenty rezerwują w tajemnicy – nikt nie kupi tego samego i niespodzianka zostaje niespodzianką.",
+  "shortDescription": "Twórz i udostępniaj listy życzeń – bez powtórzonych prezentów.",
+  "promoText": "Wklej dowolny link, stwórz piękną listę życzeń i udostępnij ją znajomym. Rezerwują to, co kupią – nikt nie dostanie dwa razy tego samego prezentu.",
   "keywords": [
     "lista życzeń",
     "prezent",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Wishlane zamienia pytanie „no dobra, co ty właściwie chcesz?” w coś, co cieszy wszystkich.",
-    "Twórz piękne listy życzeń, udostępniaj je bliskim i pozwól im rezerwować prezenty w tajemnicy – nikt nie kupi tego samego dwa razy i żadna niespodzianka się nie wyda."
+    "Twórz piękne listy życzeń, udostępniaj je bliskim i pozwól im rezerwować prezenty – nikt nie kupi tego samego dwa razy."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Każda lista może być publiczna, tylko dla znajomych albo całkowicie prywatna. Wyślij link komu chcesz lub dodaj znajomych po nazwie użytkownika – zobaczysz ich listy, a oni twoje."
     },
     {
-      "heading": "Rezerwuj prezenty w tajemnicy",
-      "body": "Zarezerwuj rzecz z listy znajomego – pozostali zobaczą, że jest już zajęta, ale autor listy nigdy się o tym nie dowie. Żadnych powtórzonych prezentów i zepsutych niespodzianek."
+      "heading": "Bez powtórzonych prezentów",
+      "body": "Zarezerwuj rzecz z listy znajomego – pozostali zobaczą, że jest już zajęta, więc nikt nie kupi tego samego prezentu dwa razy."
     },
     {
       "heading": "Mikołajki bez chaosu",
@@ -63,7 +63,7 @@
     "Listy życzeń z kolorami, priorytetami i datami",
     "Wklej link do produktu, resztę uzupełnimy",
     "Listy publiczne, dla znajomych lub prywatne",
-    "Rezerwuj prezenty na listach znajomych w tajemnicy",
+    "Rezerwuj prezenty na listach znajomych, bez powtórek",
     "Grupa mikołajkowa z automatycznym losowaniem",
     "Listy znajomych i nadchodzące wydarzenia"
   ],

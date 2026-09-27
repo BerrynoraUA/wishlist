@@ -3,6 +3,6 @@ Wishlanen ensimmäinen versio.
 - Toivelistat väreillä, tärkeysjärjestyksellä ja päivillä
 - Liitä tuotelinkki, me täytämme tiedot
 - Listat julkisina, kavereille tai yksityisinä
-- Varaa lahjoja salaa kaverien listoilta
+- Varaa lahjoja kaverien listoilta, ettei mitään osteta kahdesti
 - Salaisen joulupukin ryhmä automaattisella arvonnalla
 - Kaverien listat ja tulevat juhlat

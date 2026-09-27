@@ -1,6 +1,6 @@
 Wishlane turns "so, what do you actually want?" into something everyone enjoys.
 
-Create beautiful wishlists, share them with the people who matter, and let them reserve gifts in secret - so nobody buys the same thing twice and no surprise gets spoiled.
+Create beautiful wishlists, share them with the people who matter, and let them reserve gifts - so nobody buys the same thing twice.
 
 <b>Create a wishlist in seconds</b>
 Paste any product link and Wishlane fills in the title, description, image and price for you. Name your list, pick an accent colour, set an event date, and you're done.
@@ -8,8 +8,8 @@ Paste any product link and Wishlane fills in the title, description, image and p
 <b>Share on your terms</b>
 Every wishlist is public, friends-only, or completely private. Send a link to anyone, or connect with friends by username - you'll see their lists, they'll see yours.
 
-<b>Reserve gifts secretly</b>
-Reserve an item on a friend's list and everyone else can see it's taken - but the owner never finds out. No duplicate presents, no ruined surprises.
+<b>No duplicate gifts</b>
+Reserve an item on a friend's list and everyone else can see it's taken, so nobody buys the same present twice.
 
 <b>Secret Santa, organised</b>
 Create a group, invite everyone with a single link, and let Wishlane run the draw. Each person sees their match's wishlist, so the gifts actually land.
@@ -21,7 +21,7 @@ Browse your friends' public wishlists, see upcoming birthdays and events with co
 Get notified when a friend adds a wishlist, sends you a request, or reserves something from yours.
 
 <b>Wishlane Premium</b>
-Upgrade for unlimited lists and items, collaborator access on shared lists, sale alerts that track price drops, and custom colours and priorities.
+Upgrade for unlimited lists and items, collaborator access on shared lists, and custom colours and priorities.
 
 Wishlane is free to start - no credit card, set up in under a minute. Available in 40+ languages.
 

@@ -3,8 +3,8 @@
   "title": "Wishlane: liste dei desideri",
   "appleName": "Wishlane",
   "subtitle": "Liste dei desideri e regali",
-  "shortDescription": "Crea liste dei desideri, condividile e prenota i regali in segreto.",
-  "promoText": "Incolla un link, crea una bella lista dei desideri e condividila. Gli amici prenotano i regali in segreto: niente doppioni e nessuna sorpresa rovinata.",
+  "shortDescription": "Crea liste dei desideri, condividile e niente più regali doppi.",
+  "promoText": "Incolla un link, crea una bella lista dei desideri e condividila. Gli amici prenotano ciò che compreranno: nessuno riceve lo stesso regalo due volte.",
   "keywords": [
     "lista desideri",
     "regalo",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Wishlane trasforma il «ma tu cosa vuoi davvero?» in un momento piacevole per tutti.",
-    "Crea liste dei desideri bellissime, condividile con le persone che contano e lascia che prenotino i regali in segreto: nessuno compra la stessa cosa due volte e nessuna sorpresa viene rovinata."
+    "Crea liste dei desideri bellissime, condividile con le persone che contano e lascia che prenotino i regali: nessuno compra la stessa cosa due volte."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Ogni lista può essere pubblica, solo per amici o del tutto privata. Invia un link a chiunque oppure aggiungi gli amici per nome utente: vedrai le loro liste e loro le tue."
     },
     {
-      "heading": "Prenota i regali in segreto",
-      "body": "Prenota un articolo sulla lista di un amico: tutti gli altri vedranno che è già preso, ma chi ha creato la lista non lo scoprirà mai. Niente regali doppi, niente sorprese rovinate."
+      "heading": "Niente regali doppi",
+      "body": "Prenota un articolo sulla lista di un amico: tutti gli altri vedranno che è già preso, così nessuno compra lo stesso regalo due volte."
     },
     {
       "heading": "Babbo Natale segreto, organizzato",
@@ -63,7 +63,7 @@
     "Liste con colori, priorità e date",
     "Incolla un link e compiliamo noi i dettagli",
     "Liste pubbliche, solo per amici o private",
-    "Prenota regali in segreto sulle liste degli amici",
+    "Prenota regali sulle liste degli amici, senza doppioni",
     "Gruppo Babbo Natale segreto con estrazione automatica",
     "Liste degli amici ed eventi in arrivo"
   ],

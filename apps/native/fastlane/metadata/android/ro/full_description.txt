@@ -1,6 +1,6 @@
 Wishlane transformă întrebarea „și tu ce vrei, de fapt?” în ceva ce toată lumea savurează.
 
-Creează liste de dorințe frumoase, împarte-le cu oamenii care contează și lasă-i să rezerve cadourile în secret: nimeni nu cumpără același lucru de două ori și nicio surpriză nu se strică.
+Creează liste de dorințe frumoase, împarte-le cu oamenii care contează și lasă-i să rezerve cadourile: nimeni nu cumpără același lucru de două ori.
 
 <b>O listă în câteva secunde</b>
 Lipește orice link de produs, iar Wishlane completează titlul, descrierea, imaginea și prețul. Dă un nume listei, alege o culoare, setează data evenimentului și gata.
@@ -8,8 +8,8 @@ Lipește orice link de produs, iar Wishlane completează titlul, descrierea, ima
 <b>Împarte cum vrei tu</b>
 Fiecare listă poate fi publică, doar pentru prieteni sau complet privată. Trimite linkul oricui sau conectează-te cu prietenii după numele de utilizator: tu le vezi listele, ei pe ale tale.
 
-<b>Rezervă cadouri în secret</b>
-Rezervă un produs din lista unui prieten: ceilalți văd că e deja luat, dar proprietarul listei nu află niciodată. Fără cadouri duble, fără surprize stricate.
+<b>Fără cadouri duble</b>
+Rezervă un produs din lista unui prieten: ceilalți văd că e deja luat, așa că nimeni nu cumpără același cadou de două ori.
 
 <b>Moș Anonim, organizat</b>
 Creează un grup, invită pe toată lumea cu un singur link și lasă Wishlane să facă extragerea. Fiecare vede lista de dorințe a persoanei extrase, așa că darurile chiar nimeresc.
@@ -21,7 +21,7 @@ Răsfoiește listele publice ale prietenilor, urmărește zilele de naștere și
 Primești notificări când un prieten adaugă o listă, îți trimite o cerere sau rezervă ceva din lista ta.
 
 <b>Wishlane Premium</b>
-Liste și produse nelimitate, acces de colaborator pe listele partajate, alerte la scăderi de preț, culori și priorități personalizate.
+Liste și produse nelimitate, acces de colaborator pe listele partajate, culori și priorități personalizate.
 
 Wishlane e gratuit la start: fără card, configurare în mai puțin de un minut. Disponibil în peste 40 de limbi.
 

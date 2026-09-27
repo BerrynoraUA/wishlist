@@ -3,8 +3,8 @@
   "title": "Wishlane: soovinimekirjad",
   "appleName": "Wishlane",
   "subtitle": "Soovinimekirjad ja kingid",
-  "shortDescription": "Koosta soovinimekirju, jaga neid sõpradega ja broneeri kingitusi salaja.",
-  "promoText": "Kleebi ükskõik milline link, koosta ilus soovinimekiri ja jaga seda sõpradega. Nad broneerivad kingitusi salaja – keegi ei osta sama asja ja ükski üllatus ei lähe raisku.",
+  "shortDescription": "Koosta soovinimekirju, jaga neid sõpradega ja unusta topeltkingitused.",
+  "promoText": "Kleebi ükskõik milline link, koosta ilus soovinimekiri ja jaga seda sõpradega. Nad broneerivad, mida ostavad – keegi ei saa sama kingitust kaks korda.",
   "keywords": [
     "soovinimekiri",
     "kingitus",
@@ -15,7 +15,7 @@
   ],
   "intro": [
     "Wishlane muudab küsimuse „no mida sa siis tegelikult tahad?” millekski, mis kõigile meeldib.",
-    "Koosta ilusaid soovinimekirju, jaga neid sinu jaoks oluliste inimestega ja lase neil kingitusi salaja broneerida – keegi ei osta sama asja kaks korda ja ükski üllatus ei lähe raisku."
+    "Koosta ilusaid soovinimekirju, jaga neid sinu jaoks oluliste inimestega ja lase neil kingitusi broneerida – keegi ei osta sama asja kaks korda."
   ],
   "sections": [
     {
@@ -27,8 +27,8 @@
       "body": "Iga nimekiri võib olla avalik, ainult sõpradele või täiesti privaatne. Saada link kellele tahes või lisa sõbrad kasutajanime järgi – sina näed nende nimekirju, nemad sinu omi."
     },
     {
-      "heading": "Broneeri kingitusi salaja",
-      "body": "Broneeri sõbra nimekirjast ese: kõik teised näevad, et see on juba võetud, aga nimekirja omanik ei saa sellest kunagi teada. Ei mingeid topeltkingitusi ega rikutud üllatusi."
+      "heading": "Ei mingeid topeltkingitusi",
+      "body": "Broneeri sõbra nimekirjast ese: kõik teised näevad, et see on juba võetud, nii et keegi ei osta sama kingitust kaks korda."
     },
     {
       "heading": "Salajane jõuluvana, korraldatud",
@@ -62,7 +62,7 @@
     "Soovinimekirjad värvide, tähtsuse ja kuupäevadega",
     "Kleebi tootelink ja meie täidame üksikasjad",
     "Nimekirjad avalikud, sõpradele või privaatsed",
-    "Salajane kingituste broneerimine sõprade nimekirjades",
+    "Kingituste broneerimine sõprade nimekirjades, ilma kordusteta",
     "Salajase jõuluvana grupp automaatse loosimisega",
     "Sõprade nimekirjad ja tulevased tähtpäevad"
   ],

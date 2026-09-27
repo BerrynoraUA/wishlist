@@ -3,8 +3,8 @@
   "title": "Wishlane: liste želja",
   "appleName": "Wishlane",
   "subtitle": "Liste želja i darovi",
-  "shortDescription": "Stvarajte liste želja, dijelite ih s prijateljima i tajno rezervirajte darove.",
-  "promoText": "Zalijepite poveznicu, stvorite lijepu listu želja i podijelite je s prijateljima. Darove rezerviraju tajno – nitko ne kupuje isto i iznenađenje ostaje tajna.",
+  "shortDescription": "Stvarajte i dijelite liste želja – bez dvostrukih darova.",
+  "promoText": "Zalijepite poveznicu, stvorite lijepu listu želja i podijelite je s prijateljima. Rezerviraju ono što kupuju – nitko ne dobiva isti dar dvaput.",
   "keywords": [
     "lista želja",
     "dar",
@@ -15,7 +15,7 @@
   ],
   "intro": [
     "Wishlane pretvara pitanje „pa što zapravo želiš?” u nešto u čemu svi uživaju.",
-    "Stvarajte lijepe liste želja, dijelite ih s ljudima do kojih vam je stalo i pustite ih da tajno rezerviraju darove – nitko ne kupuje istu stvar dvaput i nijedno iznenađenje nije pokvareno."
+    "Stvarajte lijepe liste želja, dijelite ih s ljudima do kojih vam je stalo i pustite ih da rezerviraju darove – nitko ne kupuje istu stvar dvaput."
   ],
   "sections": [
     {
@@ -27,8 +27,8 @@
       "body": "Svaka lista može biti javna, samo za prijatelje ili posve privatna. Pošaljite poveznicu bilo kome ili dodajte prijatelje po korisničkom imenu – vi vidite njihove liste, oni vaše."
     },
     {
-      "heading": "Tajno rezervirajte darove",
-      "body": "Rezervirajte stavku na prijateljevoj listi: svi ostali vide da je zauzeta, ali vlasnik liste to nikada ne saznaje. Nema dvostrukih darova ni pokvarenih iznenađenja."
+      "heading": "Bez dvostrukih darova",
+      "body": "Rezervirajte stavku na prijateljevoj listi: svi ostali vide da je zauzeta, pa nitko ne kupuje isti dar dvaput."
     },
     {
       "heading": "Tajni Djed Božićnjak, organizirano",
@@ -62,7 +62,7 @@
     "Liste želja s bojama, prioritetima i datumima",
     "Zalijepite poveznicu, detalje ispunjavamo mi",
     "Liste javne, samo za prijatelje ili privatne",
-    "Tajna rezervacija darova na listama prijatelja",
+    "Rezervacija darova na listama prijatelja, bez ponavljanja",
     "Grupa Tajni Djed Božićnjak s automatskim izvlačenjem",
     "Liste prijatelja i nadolazeći događaji"
   ],

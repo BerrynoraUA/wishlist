@@ -3,8 +3,8 @@
   "title": "Wishlane: listas de deseos",
   "appleName": "Wishlane",
   "subtitle": "Listas de deseos y regalos",
-  "shortDescription": "Crea listas de deseos, compártelas y reserva regalos en secreto.",
-  "promoText": "Pega cualquier enlace, crea una lista de deseos preciosa y compártela. Tus amigos reservan regalos en secreto: nadie repite regalo y ninguna sorpresa se estropea.",
+  "shortDescription": "Crea listas de deseos, compártelas y olvídate de los regalos repetidos.",
+  "promoText": "Pega cualquier enlace, crea una lista de deseos preciosa y compártela. Tus amigos reservan lo que van a comprar: nadie recibe el mismo regalo dos veces.",
   "keywords": [
     "lista de deseos",
     "regalo",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Wishlane convierte el «¿y tú qué quieres?» en algo que todos disfrutan.",
-    "Crea listas de deseos preciosas, compártelas con quienes te importan y deja que reserven regalos en secreto: nadie compra lo mismo dos veces y ninguna sorpresa se estropea."
+    "Crea listas de deseos preciosas, compártelas con quienes te importan y deja que reserven regalos: nadie compra lo mismo dos veces."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Cada lista puede ser pública, solo para amigos o totalmente privada. Envía un enlace a quien quieras o conecta con amigos por nombre de usuario: verás sus listas y ellos las tuyas."
     },
     {
-      "heading": "Reserva regalos en secreto",
-      "body": "Reserva un artículo de la lista de un amigo y los demás verán que está cogido, pero quien la creó nunca se entera. Sin regalos repetidos ni sorpresas arruinadas."
+      "heading": "Sin regalos repetidos",
+      "body": "Reserva un artículo de la lista de un amigo y los demás verán que está cogido, así nadie compra el mismo regalo dos veces."
     },
     {
       "heading": "Amigo invisible, resuelto",
@@ -63,7 +63,7 @@
     "Listas con colores, prioridades y fechas",
     "Pega un enlace y rellenamos los detalles",
     "Listas públicas, solo para amigos o privadas",
-    "Reserva regalos en secreto en listas de amigos",
+    "Reserva regalos en listas de amigos para no repetir",
     "Grupos de amigo invisible con sorteo automático",
     "Listas de amigos y eventos próximos"
   ],

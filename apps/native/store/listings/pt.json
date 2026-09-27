@@ -3,8 +3,8 @@
   "title": "Wishlane: listas de desejos",
   "appleName": "Wishlane",
   "subtitle": "Listas de desejos e presentes",
-  "shortDescription": "Crie listas de desejos, compartilhe com amigos e reserve presentes em segredo.",
-  "promoText": "Cole qualquer link, monte uma lista de desejos linda e compartilhe. Seus amigos reservam presentes em segredo: ninguém repete o presente e nenhuma surpresa se estraga.",
+  "shortDescription": "Crie listas de desejos, compartilhe com amigos e acabe com presentes repetidos.",
+  "promoText": "Cole qualquer link, monte uma lista de desejos linda e compartilhe. Seus amigos reservam o que vão comprar: ninguém ganha o mesmo presente duas vezes.",
   "keywords": [
     "lista de desejos",
     "presente",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "O Wishlane transforma o «e você, o que quer de verdade?» em algo que todo mundo curte.",
-    "Crie listas de desejos lindas, compartilhe com quem importa e deixe que reservem os presentes em segredo: ninguém compra a mesma coisa duas vezes e nenhuma surpresa é estragada."
+    "Crie listas de desejos lindas, compartilhe com quem importa e deixe que reservem os presentes: ninguém compra a mesma coisa duas vezes."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Cada lista pode ser pública, só para amigos ou totalmente privada. Envie um link para quem quiser ou conecte-se com amigos pelo nome de usuário: você vê as listas deles e eles veem as suas."
     },
     {
-      "heading": "Reserve presentes em segredo",
-      "body": "Reserve um item na lista de um amigo e todos os outros veem que já foi pego, mas quem criou a lista nunca fica sabendo. Sem presentes repetidos, sem surpresas estragadas."
+      "heading": "Sem presentes repetidos",
+      "body": "Reserve um item na lista de um amigo e todos os outros veem que já foi pego, assim ninguém compra o mesmo presente duas vezes."
     },
     {
       "heading": "Amigo secreto organizado",
@@ -63,7 +63,7 @@
     "Listas com cores, prioridades e datas",
     "Cole um link e preenchemos os detalhes",
     "Listas públicas, só para amigos ou privadas",
-    "Reserve presentes em segredo nas listas de amigos",
+    "Reserve presentes nas listas de amigos, sem repetições",
     "Grupo de amigo secreto com sorteio automático",
     "Listas dos amigos e eventos chegando"
   ],

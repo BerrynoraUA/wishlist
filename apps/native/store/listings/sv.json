@@ -3,8 +3,8 @@
   "title": "Wishlane: önskelistor",
   "appleName": "Wishlane",
   "subtitle": "Önskelistor, snyggt delade",
-  "shortDescription": "Skapa önskelistor, dela dem med vänner och boka presenter i hemlighet.",
-  "promoText": "Klistra in en länk, skapa en snygg önskelista och dela den med vänner. De bokar presenter i hemlighet – ingen köper samma sak och ingen överraskning avslöjas.",
+  "shortDescription": "Skapa önskelistor, dela dem med vänner och slipp dubbla presenter.",
+  "promoText": "Klistra in en länk, skapa en snygg önskelista och dela den med vänner. De bokar det de köper – ingen får samma present två gånger.",
   "keywords": [
     "önskelista",
     "present",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Wishlane gör frågan ”ja men vad vill du egentligen ha?” till något alla gillar.",
-    "Skapa snygga önskelistor, dela dem med människorna som betyder något och låt dem boka presenter i hemlighet – ingen köper samma sak två gånger och ingen överraskning förstörs."
+    "Skapa snygga önskelistor, dela dem med människorna som betyder något och låt dem boka presenter – ingen köper samma sak två gånger."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Varje önskelista kan vara offentlig, bara för vänner eller helt privat. Skicka en länk till vem du vill, eller lägg till vänner via användarnamn – du ser deras listor, de ser dina."
     },
     {
-      "heading": "Boka presenter i hemlighet",
-      "body": "Boka en sak på en väns lista: alla andra ser att den är tagen, men listans ägare får aldrig veta det. Inga dubbla presenter, inga förstörda överraskningar."
+      "heading": "Inga dubbla presenter",
+      "body": "Boka en sak på en väns lista: alla andra ser att den är tagen, så ingen köper samma present två gånger."
     },
     {
       "heading": "Hemlig tomte, organiserad",
@@ -63,7 +63,7 @@
     "Önskelistor med färger, prioritet och datum",
     "Klistra in en produktlänk så fyller vi i detaljerna",
     "Listor offentliga, för vänner eller privata",
-    "Boka presenter i hemlighet på vänners listor",
+    "Boka presenter på vänners listor, utan dubbletter",
     "Grupp för hemlig tomte med automatisk dragning",
     "Vänners listor och kommande tillfällen"
   ],

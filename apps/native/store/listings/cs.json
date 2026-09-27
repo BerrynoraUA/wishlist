@@ -3,8 +3,8 @@
   "title": "Wishlane: seznamy přání",
   "appleName": "Wishlane",
   "subtitle": "Seznamy přání a dárky",
-  "shortDescription": "Vytvářejte seznamy přání, sdílejte je s přáteli a tajně rezervujte dárky.",
-  "promoText": "Vložte jakýkoli odkaz, vytvořte krásný seznam přání a sdílejte ho s přáteli. Dárky rezervují tajně – nikdo nekoupí to samé a žádné překvapení se neprozradí.",
+  "shortDescription": "Vytvářejte seznamy přání, sdílejte je s přáteli a zapomeňte na dvojité dárky.",
+  "promoText": "Vložte jakýkoli odkaz, vytvořte krásný seznam přání a sdílejte ho s přáteli. Rezervují si, co koupí – nikdo nedostane stejný dárek dvakrát.",
   "keywords": [
     "seznam přání",
     "dárek",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Wishlane promění otázku „tak co si vlastně přeješ?“ v něco, co baví všechny.",
-    "Vytvářejte krásné seznamy přání, sdílejte je s lidmi, na kterých vám záleží, a nechte je tajně rezervovat dárky – nikdo nekoupí to samé dvakrát a žádné překvapení se nezkazí."
+    "Vytvářejte krásné seznamy přání, sdílejte je s lidmi, na kterých vám záleží, a nechte je rezervovat dárky – nikdo nekoupí to samé dvakrát."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Každý seznam může být veřejný, jen pro přátele, nebo zcela soukromý. Pošlete odkaz komukoli, nebo se s přáteli propojte přes uživatelské jméno – uvidíte jejich seznamy, oni ty vaše."
     },
     {
-      "heading": "Rezervujte dárky tajně",
-      "body": "Rezervujte položku ze seznamu kamaráda – ostatní uvidí, že je zabraná, ale majitel seznamu se to nikdy nedozví. Žádné dvojité dárky, žádná zkažená překvapení."
+      "heading": "Žádné dvojité dárky",
+      "body": "Rezervujte položku ze seznamu kamaráda – ostatní uvidí, že je zabraná, takže nikdo nekoupí stejný dárek dvakrát."
     },
     {
       "heading": "Tajný Ježíšek bez starostí",
@@ -63,7 +63,7 @@
     "Seznamy přání s barvami, prioritami a daty",
     "Vložte odkaz na produkt a detaily doplníme",
     "Seznamy veřejné, jen pro přátele nebo soukromé",
-    "Tajná rezervace dárků v seznamech přátel",
+    "Rezervace dárků v seznamech přátel, aby se nic neopakovalo",
     "Skupina Tajný Ježíšek s automatickým losováním",
     "Seznamy přátel a nadcházející události"
   ],

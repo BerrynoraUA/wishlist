@@ -3,12 +3,12 @@
   "title": "Wishlane: ønskelister",
   "appleName": "Wishlane",
   "subtitle": "Ønskelister, delt pent",
-  "shortDescription": "Lag ønskelister, del dem med venner, og reserver gaver i hemmelighet.",
-  "promoText": "Lim inn en lenke, lag en fin ønskeliste og del den med vennene. De reserverer gaver i hemmelighet – ingen kjøper det samme, og ingen overraskelse blir avslørt.",
+  "shortDescription": "Lag ønskelister, del dem med venner, og unngå doble gaver.",
+  "promoText": "Lim inn en lenke, lag en fin ønskeliste og del den med vennene. De reserverer det de kjøper – så ingen får den samme gaven to ganger.",
   "keywords": ["ønskeliste", "gave", "bursdag", "jul", "julenissetrekning", "gavetips", "shopping"],
   "intro": [
     "Wishlane gjør spørsmålet «ja, men hva ønsker du deg egentlig?» til noe alle liker.",
-    "Lag fine ønskelister, del dem med menneskene som betyr noe, og la dem reservere gaver i hemmelighet – ingen kjøper det samme to ganger, og ingen overraskelse blir ødelagt."
+    "Lag fine ønskelister, del dem med menneskene som betyr noe, og la dem reservere gaver – så ingen kjøper det samme to ganger."
   ],
   "sections": [
     {
@@ -20,8 +20,8 @@
       "body": "Hver ønskeliste kan være offentlig, kun for venner eller helt privat. Send en lenke til hvem du vil, eller legg til venner med brukernavn – du ser listene deres, de ser dine."
     },
     {
-      "heading": "Reserver gaver i hemmelighet",
-      "body": "Reserver noe på en venns liste: alle andre ser at den er tatt, men eieren av listen får aldri vite det. Ingen doble gaver og ingen ødelagte overraskelser."
+      "heading": "Ingen doble gaver",
+      "body": "Reserver noe på en venns liste: alle andre ser at den er tatt, så ingen kjøper den samme gaven to ganger."
     },
     {
       "heading": "Julenissetrekning, ordnet",
@@ -55,7 +55,7 @@
     "Ønskelister med farger, prioriteringer og datoer",
     "Lim inn en produktlenke, så fyller vi inn detaljene",
     "Lister offentlig, kun for venner eller privat",
-    "Reserver gaver i hemmelighet på venners lister",
+    "Reserver gaver på venners lister, så ingen kjøper det samme",
     "Gruppe for julenissetrekning med automatisk trekning",
     "Venners lister og kommende anledninger"
   ],

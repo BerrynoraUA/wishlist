@@ -3,6 +3,6 @@ La primera versión de Wishlane.
 - Listas con colores, prioridades y fechas
 - Pega un enlace y rellenamos los detalles
 - Listas públicas, solo para amigos o privadas
-- Reserva regalos en secreto en listas de amigos
+- Reserva regalos en listas de amigos para no repetir
 - Grupos de amigo invisible con sorteo automático
 - Listas de amigos y eventos próximos

@@ -1,6 +1,6 @@
 O Wishlane transforma o «e você, o que quer de verdade?» em algo que todo mundo curte.
 
-Crie listas de desejos lindas, compartilhe com quem importa e deixe que reservem os presentes em segredo: ninguém compra a mesma coisa duas vezes e nenhuma surpresa é estragada.
+Crie listas de desejos lindas, compartilhe com quem importa e deixe que reservem os presentes: ninguém compra a mesma coisa duas vezes.
 
 <b>Uma lista em segundos</b>
 Cole qualquer link de produto e o Wishlane preenche título, descrição, imagem e preço para você. Dê um nome à lista, escolha uma cor, defina a data do evento e pronto.
@@ -8,8 +8,8 @@ Cole qualquer link de produto e o Wishlane preenche título, descrição, imagem
 <b>Compartilhe do seu jeito</b>
 Cada lista pode ser pública, só para amigos ou totalmente privada. Envie um link para quem quiser ou conecte-se com amigos pelo nome de usuário: você vê as listas deles e eles veem as suas.
 
-<b>Reserve presentes em segredo</b>
-Reserve um item na lista de um amigo e todos os outros veem que já foi pego, mas quem criou a lista nunca fica sabendo. Sem presentes repetidos, sem surpresas estragadas.
+<b>Sem presentes repetidos</b>
+Reserve um item na lista de um amigo e todos os outros veem que já foi pego, assim ninguém compra o mesmo presente duas vezes.
 
 <b>Amigo secreto organizado</b>
 Crie um grupo, convide todo mundo com um único link e deixe o Wishlane fazer o sorteio. Cada pessoa vê a lista de quem tirou, então os presentes acertam em cheio.
@@ -21,7 +21,7 @@ Navegue pelas listas públicas dos seus amigos, veja aniversários e eventos che
 Receba avisos quando um amigo criar uma lista, enviar um pedido ou reservar algo da sua.
 
 <b>Wishlane Premium</b>
-Listas e itens ilimitados, acesso de colaboradores em listas compartilhadas, alertas de queda de preço e cores e prioridades personalizadas.
+Listas e itens ilimitados, acesso de colaboradores em listas compartilhadas e cores e prioridades personalizadas.
 
 O Wishlane é grátis para começar: sem cartão de crédito e pronto em menos de um minuto. Disponível em mais de 40 idiomas.
 
