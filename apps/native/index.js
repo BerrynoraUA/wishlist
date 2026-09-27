@@ -22,7 +22,7 @@ require("./polyfills/gtIntlPolyfills");
 // following it, which matters because `AuthGate` blocks the route tree until it resolves.
 //
 // This does not replace `onAuthStateChange` in the provider: supabase-js dedupes against
-// its internal `_initialize()` promise and the configured `processLock`, so
+// its internal initialization promise and in-flight token refresh, so
 // `INITIAL_SESSION` still fires there as usual. This only starts the clock earlier.
 const { supabase } = require("@wishlist/backend/supabase/native");
 

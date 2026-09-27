@@ -9,10 +9,17 @@ import {
   BottomSheetScrollView,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
+import {
+  AutofillField,
+  LoadingBorder,
+  RollingPriceInput,
+  TypewriterInput,
+} from "@/components/items/autofill-field";
 import { ItemColorSelector } from "@/components/items/item-color-selector";
 import { Button } from "@/components/ui/button";
 import { CurrencyPicker } from "@/components/ui/currency-picker";
 import { GuideTarget } from "@/components/user-guide/guide-target";
+import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { Icon } from "@/components/ui/icon";
@@ -41,6 +48,7 @@ import {
   toItemFormValues,
 } from "@/lib/items";
 import { useImageUploadField } from "@/lib/image-upload";
+import { hapticSuccess } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
 import { WISHLIST_PAGE_SIZE } from "@/lib/wishlists";
@@ -54,6 +62,14 @@ import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, View } from "react-native";
+
+/** Which scraped fields landed, keyed by the scrape request that filled them. */
+type Autofill = {
+  id: number;
+  fields: Partial<Record<keyof ItemFormValues, true>>;
+};
+
+const NO_AUTOFILL: Autofill = { id: 0, fields: {} };
 
 type ItemFormVariant = {
   showsProductLink: boolean;
@@ -165,6 +181,8 @@ export function WishlistItemCreateEditSheet({
   const [isScraping, setIsScraping] = React.useState(false);
   const imageUpload = useImageUploadField("item");
   const [scrapeError, setScrapeError] = React.useState<string | null>(null);
+  const [autofill, setAutofill] = React.useState<Autofill>(NO_AUTOFILL);
+  const autofillId = (field: keyof ItemFormValues) => (autofill.fields[field] ? autofill.id : 0);
   const currentUrlRef = React.useRef("");
   const lastScrapedUrlRef = React.useRef("");
   const scrapeRequestIdRef = React.useRef(0);
@@ -200,6 +218,7 @@ export function WishlistItemCreateEditSheet({
       setSelectedWishlist(null);
       setWishlistSearch("");
       setScrapeError(null);
+      setAutofill(NO_AUTOFILL);
       imageUpload.reset();
       currentUrlRef.current = nextValues.url.trim();
       // An existing item's link has already produced the values in the form, but a create-mode
@@ -272,6 +291,7 @@ export function WishlistItemCreateEditSheet({
     scrapeRequestIdRef.current += 1;
     setIsScraping(false);
     setScrapeError(null);
+    setAutofill(NO_AUTOFILL);
     imageUpload.onClear();
     lastScrapedUrlRef.current = "";
     patchValues({
@@ -320,39 +340,40 @@ export function WishlistItemCreateEditSheet({
         control={control}
         name="url"
         render={({ field: { onChange, value } }) => (
-          <ClearableInput
-            value={value}
-            onChangeText={(url) => {
-              onChange(url);
-              if (scrapeError) setScrapeError(null);
-            }}
-            placeholder={t("Product URL")}
-            autoCapitalize="none"
-            keyboardType="url"
-            returnKeyType="done"
-            containerClassName={cn("border-primary", productLinkInvalid && "border-destructive")}
-            showClear={canClearScrapedFields && !isScraping && !isPending}
-            onClear={clearProductLinkAndScraperFields}
-            clearLabel={t("Clear product link and autofill")}
-            trailing={
-              value.trim() === "" ? (
-                <Button
-                  variant="ghost"
-                  onPress={() => void pasteProductLink()}
-                  className="-me-1.5 h-8 shrink-0 gap-1.5 rounded-full px-2.5"
-                >
-                  <Icon as={ClipboardPaste} className="size-4 text-brand" />
-                  <Text className="text-sm font-semibold text-brand">{t("Paste")}</Text>
-                </Button>
-              ) : null
-            }
-          />
+          // Matches ClearableInput's `rounded-md`.
+          <LoadingBorder loading={isScraping} radius={12}>
+            <ClearableInput
+              value={value}
+              onChangeText={(url) => {
+                onChange(url);
+                if (scrapeError) setScrapeError(null);
+              }}
+              placeholder={t("Product URL")}
+              autoCapitalize="none"
+              keyboardType="url"
+              returnKeyType="done"
+              containerClassName={cn("border-primary", productLinkInvalid && "border-destructive")}
+              showClear={canClearScrapedFields && !isScraping && !isPending}
+              onClear={clearProductLinkAndScraperFields}
+              clearLabel={t("Clear product link and autofill")}
+              trailing={
+                value.trim() === "" ? (
+                  <Button
+                    variant="ghost"
+                    onPress={() => void pasteProductLink()}
+                    className="-me-1.5 h-8 shrink-0 gap-1.5 rounded-full px-2.5"
+                  >
+                    <Icon as={ClipboardPaste} className="size-4 text-brand" />
+                    <Text className="text-sm font-semibold text-brand">{t("Paste")}</Text>
+                  </Button>
+                ) : null
+              }
+            />
+          </LoadingBorder>
         )}
       />
       {productLinkInvalid ? (
         <Text className="text-sm font-semibold text-destructive">{t("Enter valid Url")}</Text>
-      ) : isScraping ? (
-        <Text className="text-sm font-semibold text-text-muted">{t("Searching...")}</Text>
       ) : scrapeError ? (
         <Text className="text-sm font-semibold text-destructive">{scrapeError}</Text>
       ) : null}
@@ -393,7 +414,7 @@ export function WishlistItemCreateEditSheet({
         imageUpload.onClear();
       }
       const scrapedCurrency = resolveSupportedCurrency(product.currency);
-      patchValues({
+      const scrapedValues: Partial<ItemFormValues> = {
         ...(product.title ? { name: product.title } : {}),
         ...(form.scrapeDescription && product.description
           ? { description: product.description }
@@ -403,10 +424,20 @@ export function WishlistItemCreateEditSheet({
         // The scraper can report a symbol or a currency we don't offer; keep the current
         // selection in that case rather than autofilling something we can't represent.
         ...(scrapedCurrency ? { currency: scrapedCurrency } : {}),
+      };
+      patchValues({
+        ...scrapedValues,
         discountPrice: product.discount_price ?? "",
         hasDiscount: product.has_discount,
         discountEndDate: product.discount_end_date ?? "",
       });
+      setAutofill({
+        id: requestId,
+        fields: Object.fromEntries(Object.keys(scrapedValues).map((key) => [key, true])),
+      });
+      // The photo pushes the rest of the form down; open the sheet fully so it stays in view.
+      if (mode === "create" && product.image) void sheetRef.current?.resize(1);
+      hapticSuccess();
     } catch (error) {
       if (requestId === scrapeRequestIdRef.current && currentUrlRef.current === url) {
         setScrapeError(error instanceof Error ? error.message : t("Could not fetch product data"));
@@ -520,17 +551,21 @@ export function WishlistItemCreateEditSheet({
         {form.productLinkPosition === "top" ? productLinkField : null}
 
         <Field label={t("Name")}>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field: { onChange, value } }) => (
-              <Input
-                value={value}
-                onChangeText={onChange}
-                placeholder={t("e.g. Noise-cancelling headphones")}
-              />
-            )}
-          />
+          <AutofillField loading={isScraping} fillId={autofillId("name")} order={0}>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { onChange, value } }) => (
+                <TypewriterInput
+                  value={value}
+                  runId={autofillId("name")}
+                  order={0}
+                  onChangeText={onChange}
+                  placeholder={t("e.g. Noise-cancelling headphones")}
+                />
+              )}
+            />
+          </AutofillField>
         </Field>
 
         {form.showsWishlistPicker ? (
@@ -551,22 +586,29 @@ export function WishlistItemCreateEditSheet({
         {form.productLinkPosition === "middle" ? productLinkField : null}
 
         <Field label={t("Image")}>
-          <SingleImagePicker
-            previewUri={
-              imageUpload.pickedImage?.uri ?? (imageUrlInvalid ? null : values.imageUrl.trim())
-            }
-            pickLabel={t("Choose image")}
-            changeLabel={t("Change image")}
-            onPick={(image) => {
-              imageUpload.onPick(image);
-              patchValues({ imageUrl: "" });
-            }}
-            onClear={() => {
-              imageUpload.onClear();
-              patchValues({ imageUrl: "" });
-            }}
-            onError={imageUpload.onError}
-          />
+          <AutofillField
+            loading={isScraping}
+            fillId={autofillId("imageUrl")}
+            order={1}
+            radiusClassName="rounded-xl"
+          >
+            <SingleImagePicker
+              previewUri={
+                imageUpload.pickedImage?.uri ?? (imageUrlInvalid ? null : values.imageUrl.trim())
+              }
+              pickLabel={t("Choose image")}
+              changeLabel={t("Change image")}
+              onPick={(image) => {
+                imageUpload.onPick(image);
+                patchValues({ imageUrl: "" });
+              }}
+              onClear={() => {
+                imageUpload.onClear();
+                patchValues({ imageUrl: "" });
+              }}
+              onError={imageUpload.onError}
+            />
+          </AutofillField>
           {imageUrlInvalid ? (
             <Text className="text-xs font-semibold text-destructive">{t("Enter valid Url")}</Text>
           ) : null}
@@ -577,55 +619,63 @@ export function WishlistItemCreateEditSheet({
 
         {form.showsDescription ? (
           <Field label={t("Description")}>
-            <Controller
-              control={control}
-              name="description"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  onFocus={() => void sheetRef.current?.resize(1)}
-                  placeholder={t("Add details, size, color...")}
-                  multiline
-                  onContentSizeChange={(event) => {
-                    setDescriptionInputHeight(
-                      clampDescriptionInputHeight(
-                        event.nativeEvent.contentSize.height + DESCRIPTION_INPUT_VERTICAL_OFFSET,
-                      ),
-                    );
-                  }}
-                  className="items-start py-3"
-                  style={{ height: descriptionInputHeight }}
-                  textAlignVertical="top"
-                />
-              )}
-            />
+            <AutofillField loading={isScraping} fillId={autofillId("description")} order={2}>
+              <Controller
+                control={control}
+                name="description"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    onFocus={() => void sheetRef.current?.resize(1)}
+                    placeholder={t("Add details, size, color...")}
+                    multiline
+                    onContentSizeChange={(event) => {
+                      setDescriptionInputHeight(
+                        clampDescriptionInputHeight(
+                          event.nativeEvent.contentSize.height + DESCRIPTION_INPUT_VERTICAL_OFFSET,
+                        ),
+                      );
+                    }}
+                    className="items-start py-3"
+                    style={{ height: descriptionInputHeight }}
+                    textAlignVertical="top"
+                  />
+                )}
+              />
+            </AutofillField>
           </Field>
         ) : null}
 
         <View className="flex-row gap-3">
           <Field label={t("Price")} className="min-w-0 basis-0 flex-1">
-            <Controller
-              control={control}
-              name="price"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder={t("199")}
-                  keyboardType="decimal-pad"
-                />
-              )}
-            />
+            <AutofillField loading={isScraping} fillId={autofillId("price")} order={3}>
+              <Controller
+                control={control}
+                name="price"
+                render={({ field: { onChange, value } }) => (
+                  <RollingPriceInput
+                    value={value}
+                    runId={autofillId("price")}
+                    order={3}
+                    onChangeText={onChange}
+                    placeholder={t("199")}
+                    keyboardType="decimal-pad"
+                  />
+                )}
+              />
+            </AutofillField>
           </Field>
           <Field label={t("Currency")} className="min-w-0 basis-0 flex-1">
-            <Controller
-              control={control}
-              name="currency"
-              render={({ field: { onChange, value } }) => (
-                <CurrencyPicker value={value} onValueChange={onChange} />
-              )}
-            />
+            <AutofillField loading={isScraping} fillId={autofillId("currency")} order={4}>
+              <Controller
+                control={control}
+                name="currency"
+                render={({ field: { onChange, value } }) => (
+                  <CurrencyPicker value={value} onValueChange={onChange} />
+                )}
+              />
+            </AutofillField>
           </Field>
         </View>
 
@@ -699,7 +749,9 @@ export function WishlistItemCreateEditSheet({
               <Button
                 variant="outline"
                 onPress={() =>
-                  patchValues({ additionalLinks: [...values.additionalLinks, { url: "" }] })
+                  patchValues({
+                    additionalLinks: [...values.additionalLinks, { url: "" }],
+                  })
                 }
               >
                 <Icon as={Plus} className="size-4 text-text" />
@@ -782,28 +834,43 @@ function WishlistPickerField({
     [t, wishlists],
   );
   const selectedOption = options.find((option) => option.value === value) ?? null;
+  const [createTitle, setCreateTitle] = React.useState<string | null>(null);
 
   return (
-    <AutocompleteDropdown
-      value={selectedOption}
-      onValueChange={(option) => {
-        const wishlist = wishlists.find((candidate) => candidate.id === option.value);
-        if (wishlist) onChange(wishlist);
-      }}
-      options={options}
-      placeholder={t("Search wishlists")}
-      sheetTitle={t("Select a wishlist")}
-      emptyText={
-        query.trim() ? t("No wishlists found") : t("Create a wishlist first to add wishes to it.")
-      }
-      attached
-      maxVisibleOptions={4}
-      optionClassName="min-h-12 py-3"
-      isLoading={isLoading}
-      isLoadingMore={isLoadingMore}
-      onEndReached={onEndReached}
-      onQueryChange={onQueryChange}
-    />
+    <>
+      <AutocompleteDropdown
+        value={selectedOption}
+        onValueChange={(option) => {
+          const wishlist = wishlists.find((candidate) => candidate.id === option.value);
+          if (wishlist) onChange(wishlist);
+        }}
+        options={options}
+        placeholder={t("Search wishlists")}
+        sheetTitle={t("Select a wishlist")}
+        emptyText={query.trim() ? t("No wishlists found") : t("You don't have any wishlists yet.")}
+        createAction={{
+          label: (search) =>
+            search ? t('Create "{title}"', { title: search }) : t("Create a wishlist"),
+          onPress: setCreateTitle,
+        }}
+        attached
+        maxVisibleOptions={4}
+        optionClassName="min-h-12 py-3"
+        isLoading={isLoading}
+        isLoadingMore={isLoadingMore}
+        onEndReached={onEndReached}
+        onQueryChange={onQueryChange}
+      />
+      <WishlistCreateEditSheet
+        mode="create"
+        open={createTitle !== null}
+        initialTitle={createTitle ?? undefined}
+        onOpenChange={(open) => {
+          if (!open) setCreateTitle(null);
+        }}
+        onCreated={onChange}
+      />
+    </>
   );
 }
 

@@ -1,7 +1,7 @@
 import "react-native-url-polyfill/auto";
 
 import * as SecureStore from "expo-secure-store";
-import { createClient, processLock } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../db-types";
 import type { WishlistSupabaseClient } from "./types";
 import { getSupabasePublicEnv } from "./shared";
@@ -29,7 +29,6 @@ export function createNativeClient(): WishlistSupabaseClient {
       persistSession: true,
       detectSessionInUrl: false,
       flowType: "pkce",
-      lock: processLock,
     },
   });
 }
