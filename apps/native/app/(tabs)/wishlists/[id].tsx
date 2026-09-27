@@ -51,7 +51,7 @@ import {
   optimisticallyToggleItemReservation,
   updateItemIfSelected,
 } from "@/lib/items";
-import { useTabBarContentPadding } from "@/lib/layout";
+import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
 import type { Item } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -82,7 +82,7 @@ type SheetState =
   | null;
 
 type WishlistItemListRow =
-  | Item
+  | Item[]
   | { id: "header"; type: "header" }
   | { id: "filters"; type: "filters" };
 
@@ -182,13 +182,14 @@ export default function WishlistDetailScreen() {
   const canSeeOwnReservations = useShowOwnReservations();
   // Owner only, not editors: the preference is about your own wishlists.
   const showOwnerReservation = Boolean(wishlist?.is_owner) && canSeeOwnReservations;
+  const itemRows = React.useMemo(() => chunkRows(items, columns), [columns, items]);
   const itemListData = React.useMemo<WishlistItemListRow[]>(
     () => [
       { id: "header", type: "header" },
       { id: "filters", type: "filters" },
-      ...(itemsQuery.isLoading ? [] : items),
+      ...(itemsQuery.isLoading ? [] : itemRows),
     ],
-    [items, itemsQuery.isLoading],
+    [itemRows, itemsQuery.isLoading],
   );
 
   function updateFilters(patch: Partial<WishlistItemFilterState>) {
@@ -294,7 +295,7 @@ export default function WishlistDetailScreen() {
   }
 
   const renderItemRow = React.useCallback(
-    ({ item, index }: { item: WishlistItemListRow; index: number }) =>
+    ({ item }: { item: WishlistItemListRow }) =>
       "type" in item && item.type === "header" ? (
         wishlist ? (
           <View>
@@ -328,40 +329,51 @@ export default function WishlistDetailScreen() {
       ) : "type" in item ? (
         renderFilterHeader()
       ) : (
-        // Each cell fills one masonry column of the full-width list; the card hugs the gap
-        // between columns so the pair lines up with the header's content width.
         <View
-          className="pb-4"
-          style={masonryCellStyle(index - MASONRY_FULL_WIDTH_ROWS, columns, gridGap)}
+          className="flex-row"
+          style={{
+            alignSelf: "center",
+            gap: gridGap,
+            width: contentWidth,
+          }}
         >
-          <Animated.View entering={wishlistCardFadeIn} style={{ width: cardWidth }}>
-            <WishlistItemCard
-              item={item}
-              width={cardWidth}
-              currentUserId={currentUser.data}
-              isOwner={canEditWishlist}
-              showDiscountBadge={showDiscountBadge}
-              showOwnerReservation={showOwnerReservation}
-              reservedByName={item.reserved_by ? profileNamesById.get(item.reserved_by) : undefined}
-              voteCount={votesQuery.data?.counts[item.id] ?? 0}
-              hasVoted={votesQuery.data?.userVotes.has(item.id) ?? false}
-              onPress={() => setSheet({ type: "detail", item })}
-              onEdit={canEditWishlist ? () => setSheet({ type: "edit", item }) : undefined}
-              onDelete={canEditWishlist ? () => setSheet({ type: "delete", item }) : undefined}
-              onToggleVote={canEditWishlist ? undefined : () => toggleVote.mutate(item.id)}
-              // Owners included: you can mark your own gift reserved or bought.
-              onToggleReserve={() => toggleReservation.mutate(item.id)}
-              onToggleBought={() => toggleBought.mutate(item.id)}
-              reservePending={toggleReservation.isPending}
-              boughtPending={toggleBought.isPending}
-            />
-          </Animated.View>
+          {item.map((entry) => (
+            <Animated.View
+              key={entry.id}
+              entering={wishlistCardFadeIn}
+              style={{ width: cardWidth }}
+            >
+              <WishlistItemCard
+                item={entry}
+                width={cardWidth}
+                currentUserId={currentUser.data}
+                isOwner={canEditWishlist}
+                showDiscountBadge={showDiscountBadge}
+                showOwnerReservation={showOwnerReservation}
+                reservedByName={
+                  entry.reserved_by ? profileNamesById.get(entry.reserved_by) : undefined
+                }
+                voteCount={votesQuery.data?.counts[entry.id] ?? 0}
+                hasVoted={votesQuery.data?.userVotes.has(entry.id) ?? false}
+                onPress={() => setSheet({ type: "detail", item: entry })}
+                onEdit={canEditWishlist ? () => setSheet({ type: "edit", item: entry }) : undefined}
+                onDelete={
+                  canEditWishlist ? () => setSheet({ type: "delete", item: entry }) : undefined
+                }
+                onToggleVote={canEditWishlist ? undefined : () => toggleVote.mutate(entry.id)}
+                // Owners included: you can mark your own gift reserved or bought.
+                onToggleReserve={() => toggleReservation.mutate(entry.id)}
+                onToggleBought={() => toggleBought.mutate(entry.id)}
+                reservePending={toggleReservation.isPending}
+                boughtPending={toggleBought.isPending}
+              />
+            </Animated.View>
+          ))}
         </View>
       ),
     [
       canEditWishlist,
       cardWidth,
-      columns,
       contentWidth,
       currentUser.data,
       filters,
@@ -417,21 +429,18 @@ export default function WishlistDetailScreen() {
                 : itemListData
             }
             renderItem={renderItemRow}
-            keyExtractor={(row) => row.id}
-            // Cards are as tall as their photos, so the columns stack independently.
-            masonry
-            numColumns={columns}
-            overrideItemLayout={(layout, row) => {
-              if ("type" in row) layout.span = columns;
-            }}
+            keyExtractor={(row) =>
+              "type" in row ? row.id : row.map((entry) => entry.id).join(":")
+            }
             className="flex-1"
             contentContainerClassName="bg-bg"
             contentContainerStyle={{ paddingBottom }}
             onScroll={requestMeasure}
             scrollEventThrottle={16}
+            ItemSeparatorComponent={ItemRowSeparator}
             onEndReached={loadMoreItems}
             isLoadingMore={itemsQuery.isFetchingNextPage}
-            getItemType={(row) => ("type" in row ? row.type : "item")}
+            getItemType={(row) => ("type" in row ? row.type : "item-row")}
             ListFooterComponent={
               <View
                 className="gap-5"
@@ -456,7 +465,6 @@ export default function WishlistDetailScreen() {
             }
             extraData={{
               cardWidth,
-              columns,
               contentWidth,
               filters,
               filtersOpen,
@@ -560,17 +568,10 @@ export default function WishlistDetailScreen() {
   );
 }
 
-/** The header and filter rows span every column ahead of the items. */
-const MASONRY_FULL_WIDTH_ROWS = 2;
+function ItemRowSeparator({ leadingItem }: { leadingItem?: WishlistItemListRow }) {
+  if (leadingItem && "type" in leadingItem) {
+    return null;
+  }
 
-/**
- * Lines a card up inside its masonry cell. Without `optimizeItemArrangement` FlashList deals
- * items into columns in turn, so an item's column follows from its position.
- */
-function masonryCellStyle(position: number, columns: number, gap: number) {
-  if (columns === 1) return { alignItems: "center" } as const;
-  const column = position % columns;
-  if (column === 0) return { alignItems: "flex-end", paddingEnd: gap / 2 } as const;
-  if (column === columns - 1) return { alignItems: "flex-start", paddingStart: gap / 2 } as const;
-  return { alignItems: "center" } as const;
+  return <View className="h-4" />;
 }

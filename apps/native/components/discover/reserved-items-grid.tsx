@@ -1,6 +1,7 @@
 import { DiscoverItemCard } from "@/components/discover/discover-item-card";
 import { Text } from "@/components/ui/text";
 import { normalizeReservedItem } from "@/lib/discover";
+import { chunkRows } from "@/lib/layout";
 import type { ReservedItem } from "@wishlist/backend/types/discover";
 import type { Item } from "@wishlist/backend/types/item";
 import { useGT } from "gt-react-native";
@@ -31,21 +32,17 @@ export function ReservedItemsGrid({
     () => items.map((item) => ({ source: item, item: normalizeReservedItem(item, currentUserId) })),
     [currentUserId, items],
   );
-  // Cards are as tall as their photos, so each column stacks on its own (masonry) rather
-  // than in rows that would leave gaps under the shorter cards.
-  const stacks = React.useMemo(
-    () =>
-      Array.from({ length: columns }, (_, column) =>
-        normalized.filter((_, index) => index % columns === column),
-      ),
-    [columns, normalized],
-  );
+  const rows = React.useMemo(() => chunkRows(normalized, columns), [columns, normalized]);
 
   return (
-    <View className="flex-row items-start" style={{ gap: gridGap }}>
-      {stacks.map((stack, column) => (
-        <View key={column} className="gap-4">
-          {stack.map(({ source, item }, index) => (
+    <View className="gap-4">
+      {rows.map((row) => (
+        <View
+          key={row.map((entry) => entry.item.id).join(":")}
+          className="flex-row"
+          style={{ gap: gridGap }}
+        >
+          {row.map(({ source, item }) => (
             <View key={item.id} className="gap-2" style={{ width: cardWidth }}>
               <View className="flex-row items-center justify-between gap-2">
                 <Text
@@ -56,7 +53,7 @@ export function ReservedItemsGrid({
                     ? t("Purchased for {name}", { name: source.owner_name })
                     : t("For {name}", { name: source.owner_name })}
                 </Text>
-                {column === 0 && index === 0 ? headerAccessory : null}
+                {row[0]?.item.id === item.id ? headerAccessory : null}
               </View>
               <DiscoverItemCard
                 item={item}

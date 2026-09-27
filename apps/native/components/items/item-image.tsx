@@ -1,10 +1,5 @@
 import { Icon } from "@/components/ui/icon";
-import {
-  clampAspect,
-  FittedImage,
-  IMAGE_ASPECT_RANGE,
-  useImageAspect,
-} from "@/components/ui/fitted-image";
+import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { CARD_BADGE_HEIGHT, ItemPriorityBadge } from "@/components/items/item-labels";
 import { cn } from "@/lib/utils";
@@ -45,27 +40,22 @@ export function ItemImage({
   const t = useGT();
   const isDetail = size === "detail";
   const isTaken = Boolean(reservationLabel);
-  const image = useImageAspect(item.image_url);
 
   return (
     <View
-      // Shaped like the photo (within range), square until it is known or when there is none.
-      style={{
-        aspectRatio:
-          item.image_url && image.aspect
-            ? clampAspect(image.aspect, IMAGE_ASPECT_RANGE[isDetail ? "hero" : "card"])
-            : 1,
-      }}
       className={cn(
-        "relative items-center justify-center overflow-hidden bg-bg-muted",
+        // Square in both sizes so the detail sheet shows the image at the same height as
+        // the card in the list, instead of cropping it into a short strip.
+        "relative aspect-square items-center justify-center overflow-hidden bg-bg-muted",
         isDetail ? "rounded-2xl border border-border-subtle" : "w-full min-h-0 rounded-t-xl",
       )}
     >
       {item.image_url ? (
-        <FittedImage
-          uri={item.image_url}
+        <StyledImage
+          source={{ uri: item.image_url }}
+          contentFit="cover"
+          contentPosition="center"
           cachePolicy="memory-disk"
-          onLoad={image.onLoad}
           recyclingKey={item.id}
           className={cn("absolute inset-0 size-full", isTaken && "opacity-40")}
         />
