@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/fitted-image";
 import { Text } from "@/components/ui/text";
 import { MAX_IMAGE_UPLOAD_BYTES, type NativePickedImage } from "@/lib/image-upload";
+import { cn } from "@/lib/utils";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
 import type { ImageLoadEventData } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
@@ -77,7 +78,13 @@ export function SingleImagePicker({
 
   return (
     <View className="gap-3">
-      <View className="overflow-hidden rounded-xl border border-border-subtle bg-bg-muted">
+      <View
+        className={cn(
+          "overflow-hidden rounded-xl border border-border-subtle",
+          // A letterboxed photo sits on the screen itself, not on a grey card.
+          !previewUri && "bg-bg-muted",
+        )}
+      >
         {previewUri ? (
           <PreviewFrame uri={previewUri}>
             <AnimatedPressable

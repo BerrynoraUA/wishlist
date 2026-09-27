@@ -71,8 +71,8 @@ export function useImageAspect(uri: string | null | undefined) {
 /**
  * A photo that fills its frame without mangling it. Scraped product shots come in every shape
  * — tall phone renders, wide banners, square packshots — so cropping them all to fill cuts the
- * product off. Close-enough shapes fill the frame; anything else is shown whole, over a
- * blurred copy of itself filling the rest, the way photo apps letterbox off-ratio pictures.
+ * product off. Close-enough shapes fill the frame; anything else is shown whole, letterboxed
+ * over a transparent background.
  * Frames sized to the photo (see `useImageAspect`) only letterbox what their range clamps.
  *
  * `className` sizes and positions the frame.
@@ -103,17 +103,6 @@ export function FittedImage({
         }
       }}
     >
-      {letterbox ? (
-        <StyledImage
-          source={{ uri }}
-          contentFit="cover"
-          blurRadius={24}
-          // The blurred copy decodes after the photo; fade it in rather than pop.
-          transition={200}
-          cachePolicy={props.cachePolicy}
-          className="absolute inset-0 size-full scale-110"
-        />
-      ) : null}
       <StyledImage
         {...props}
         source={{ uri }}
