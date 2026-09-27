@@ -108,7 +108,7 @@ The generated tree is aligned with the store upload fields:
 
     apps/native/artifacts/
     ├── screenshots/            # bare captures, upload these
-    │   ├── apple/iphone-{6.9,6.5}/{light,dark}/{01-wishlists,02-item-link,…}.png
+    │   ├── apple/iphone-{6.9,6.5}/{light,dark}/{01-item-link,02-discover,…}.png
     │   └── google-play/{phone,tablet-7,tablet-10}/{light,dark}/…
     ├── framed/                 # same names, gradient background + caption
     │   ├── apple/…
