@@ -9,7 +9,12 @@ import {
   BottomSheetScrollView,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
-import { AutofillField, useTypewriter } from "@/components/items/autofill-field";
+import {
+  AutofillField,
+  LoadingBorder,
+  RollingPriceInput,
+  TypewriterInput,
+} from "@/components/items/autofill-field";
 import { ItemColorSelector } from "@/components/items/item-color-selector";
 import { Button } from "@/components/ui/button";
 import { CurrencyPicker } from "@/components/ui/currency-picker";
@@ -180,8 +185,6 @@ export function WishlistItemCreateEditSheet({
   const currentUrlRef = React.useRef("");
   const lastScrapedUrlRef = React.useRef("");
   const scrapeRequestIdRef = React.useRef(0);
-  const typedName = useTypewriter(values.name, autofillId("name"), 0);
-  const typedPrice = useTypewriter(values.price, autofillId("price"), 3);
   const productLinkInvalid = form.showsProductLink && hasInvalidOptionalUrl(values.url);
   const imageUrlInvalid = hasInvalidOptionalUrl(values.imageUrl);
   const invalidAdditionalLinkIndexes = React.useMemo(
@@ -336,39 +339,40 @@ export function WishlistItemCreateEditSheet({
         control={control}
         name="url"
         render={({ field: { onChange, value } }) => (
-          <ClearableInput
-            value={value}
-            onChangeText={(url) => {
-              onChange(url);
-              if (scrapeError) setScrapeError(null);
-            }}
-            placeholder={t("Product URL")}
-            autoCapitalize="none"
-            keyboardType="url"
-            returnKeyType="done"
-            containerClassName={cn("border-primary", productLinkInvalid && "border-destructive")}
-            showClear={canClearScrapedFields && !isScraping && !isPending}
-            onClear={clearProductLinkAndScraperFields}
-            clearLabel={t("Clear product link and autofill")}
-            trailing={
-              value.trim() === "" ? (
-                <Button
-                  variant="ghost"
-                  onPress={() => void pasteProductLink()}
-                  className="-me-1.5 h-8 shrink-0 gap-1.5 rounded-full px-2.5"
-                >
-                  <Icon as={ClipboardPaste} className="size-4 text-brand" />
-                  <Text className="text-sm font-semibold text-brand">{t("Paste")}</Text>
-                </Button>
-              ) : null
-            }
-          />
+          // Matches ClearableInput's `rounded-md`.
+          <LoadingBorder loading={isScraping} radius={12}>
+            <ClearableInput
+              value={value}
+              onChangeText={(url) => {
+                onChange(url);
+                if (scrapeError) setScrapeError(null);
+              }}
+              placeholder={t("Product URL")}
+              autoCapitalize="none"
+              keyboardType="url"
+              returnKeyType="done"
+              containerClassName={cn("border-primary", productLinkInvalid && "border-destructive")}
+              showClear={canClearScrapedFields && !isScraping && !isPending}
+              onClear={clearProductLinkAndScraperFields}
+              clearLabel={t("Clear product link and autofill")}
+              trailing={
+                value.trim() === "" ? (
+                  <Button
+                    variant="ghost"
+                    onPress={() => void pasteProductLink()}
+                    className="-me-1.5 h-8 shrink-0 gap-1.5 rounded-full px-2.5"
+                  >
+                    <Icon as={ClipboardPaste} className="size-4 text-brand" />
+                    <Text className="text-sm font-semibold text-brand">{t("Paste")}</Text>
+                  </Button>
+                ) : null
+              }
+            />
+          </LoadingBorder>
         )}
       />
       {productLinkInvalid ? (
         <Text className="text-sm font-semibold text-destructive">{t("Enter valid Url")}</Text>
-      ) : isScraping ? (
-        <Text className="text-sm font-semibold text-text-muted">{t("Searching...")}</Text>
       ) : scrapeError ? (
         <Text className="text-sm font-semibold text-destructive">{scrapeError}</Text>
       ) : null}
@@ -549,8 +553,10 @@ export function WishlistItemCreateEditSheet({
               control={control}
               name="name"
               render={({ field: { onChange, value } }) => (
-                <Input
-                  value={typedName ?? value}
+                <TypewriterInput
+                  value={value}
+                  runId={autofillId("name")}
+                  order={0}
                   onChangeText={onChange}
                   placeholder={t("e.g. Noise-cancelling headphones")}
                 />
@@ -645,8 +651,10 @@ export function WishlistItemCreateEditSheet({
                 control={control}
                 name="price"
                 render={({ field: { onChange, value } }) => (
-                  <Input
-                    value={typedPrice ?? value}
+                  <RollingPriceInput
+                    value={value}
+                    runId={autofillId("price")}
+                    order={3}
                     onChangeText={onChange}
                     placeholder={t("199")}
                     keyboardType="decimal-pad"
