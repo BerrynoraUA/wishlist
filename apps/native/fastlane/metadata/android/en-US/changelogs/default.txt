@@ -3,6 +3,6 @@ The first release of Wishlane.
 - Create wishlists with colours, priorities and dates
 - Paste a product link and we fill in the details
 - Share lists publicly, with friends, or privately
-- Reserve gifts on friends' lists in secret
+- Reserve gifts on friends' lists so nobody doubles up
 - Run a Secret Santa group with an automatic draw
 - Discover friends' lists and upcoming events

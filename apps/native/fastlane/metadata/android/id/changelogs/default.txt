@@ -3,6 +3,6 @@ Rilis pertama Wishlane.
 - Wishlist dengan warna, prioritas, dan tanggal
 - Tempel tautan produk, detailnya kami isi
 - Daftar publik, khusus teman, atau pribadi
-- Pesan hadiah diam-diam di daftar teman
+- Pesan hadiah di daftar teman agar tak ada yang kembar
 - Grup tukar kado dengan undian otomatis
 - Daftar teman dan acara yang akan datang

@@ -1,6 +1,6 @@
 A Wishlane a „na és mit szeretnél valójában?” kérdést olyanná teszi, amit mindenki élvez.
 
-Készíts szép kívánságlistákat, oszd meg őket a számodra fontos emberekkel, és hagyd, hogy titokban lefoglalják az ajándékokat – így senki nem vesz kétszer ugyanolyat, és egyetlen meglepetés sem lesz lelőve.
+Készíts szép kívánságlistákat, oszd meg őket a számodra fontos emberekkel, és hagyd, hogy lefoglalják az ajándékokat – így senki nem vesz kétszer ugyanolyat.
 
 <b>Kívánságlista másodpercek alatt</b>
 Illessz be bármilyen terméklinket, és a Wishlane kitölti helyetted a címet, a leírást, a képet és az árat. Nevezd el a listát, válassz színt, add meg az esemény dátumát – kész is.
@@ -8,8 +8,8 @@ Illessz be bármilyen terméklinket, és a Wishlane kitölti helyetted a címet,
 <b>Te döntöd el, ki láthatja</b>
 Minden lista lehet nyilvános, csak barátoknak szóló vagy teljesen privát. Küldj linket bárkinek, vagy add hozzá a barátaidat felhasználónév alapján – te látod az ő listájukat, ők a tiédet.
 
-<b>Foglalj ajándékot titokban</b>
-Foglalj le egy tételt egy barátod listáján: mindenki más látja, hogy elkelt, de a lista tulajdonosa sosem tudja meg. Nincs dupla ajándék, nincs elrontott meglepetés.
+<b>Nincs dupla ajándék</b>
+Foglalj le egy tételt egy barátod listáján: mindenki más látja, hogy elkelt, így senki nem veszi meg kétszer ugyanazt.
 
 <b>Titkos Mikulás, megszervezve</b>
 Hozz létre csoportot, hívj meg mindenkit egyetlen linkkel, a sorsolást pedig bízd a Wishlane-re. Mindenki látja a kihúzott személy kívánságlistáját, így az ajándék tényleg telibe talál.
@@ -21,7 +21,7 @@ Böngészd a barátaid nyilvános listáit, kövesd a közelgő születésnapoka
 Értesítést kapsz, ha egy barátod listát készít, kérést küld neked, vagy lefoglal valamit a te listádról.
 
 <b>Wishlane Premium</b>
-Korlátlan lista és tétel, szerkesztői hozzáférés a megosztott listákhoz, árcsökkenést jelző riasztások, egyedi színek és prioritások.
+Korlátlan lista és tétel, szerkesztői hozzáférés a megosztott listákhoz, egyedi színek és prioritások.
 
 A Wishlane ingyen indul – bankkártya nélkül, egy percen belül beállítható. Több mint 40 nyelven elérhető.
 

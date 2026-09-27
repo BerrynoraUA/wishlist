@@ -3,8 +3,8 @@
   "title": "Wishlane: vēlmju saraksti",
   "appleName": "Wishlane",
   "subtitle": "Vēlmju saraksti un dāvanas",
-  "shortDescription": "Veidojiet vēlmju sarakstus, dalieties ar draugiem, rezervējiet dāvanas slepeni.",
-  "promoText": "Ielīmējiet jebkuru saiti, izveidojiet skaistu vēlmju sarakstu un padalieties ar draugiem. Dāvanas viņi rezervē slepeni – neviens nenopērk to pašu un neviens pārsteigums netiek sabojāts.",
+  "shortDescription": "Veidojiet un dalieties ar vēlmju sarakstiem – bez dubultām dāvanām.",
+  "promoText": "Ielīmējiet jebkuru saiti, izveidojiet skaistu vēlmju sarakstu un padalieties ar draugiem. Viņi rezervē to, ko pirks – neviens nesaņem vienu dāvanu divreiz.",
   "keywords": [
     "vēlmju saraksts",
     "dāvana",
@@ -15,7 +15,7 @@
   ],
   "intro": [
     "Wishlane pārvērš jautājumu „nu tad ko tu īsti vēlies?” par kaut ko, kas patīk visiem.",
-    "Veidojiet skaistus vēlmju sarakstus, dalieties ar sev svarīgajiem cilvēkiem un ļaujiet viņiem slepeni rezervēt dāvanas – neviens nenopērk vienu un to pašu divreiz un neviens pārsteigums netiek sabojāts."
+    "Veidojiet skaistus vēlmju sarakstus, dalieties ar sev svarīgajiem cilvēkiem un ļaujiet viņiem rezervēt dāvanas – neviens nenopērk vienu un to pašu divreiz."
   ],
   "sections": [
     {
@@ -27,8 +27,8 @@
       "body": "Katrs saraksts var būt publisks, tikai draugiem vai pilnīgi privāts. Nosūtiet saiti jebkuram vai pievienojiet draugus pēc lietotājvārda – jūs redzat viņu sarakstus, viņi jūsējos."
     },
     {
-      "heading": "Rezervējiet dāvanas slepeni",
-      "body": "Rezervējiet lietu drauga sarakstā: visi pārējie redz, ka tā jau ir paņemta, bet saraksta īpašnieks to nekad neuzzina. Nekādu dubultu dāvanu un sabojātu pārsteigumu."
+      "heading": "Nekādu dubultu dāvanu",
+      "body": "Rezervējiet lietu drauga sarakstā: visi pārējie redz, ka tā jau ir paņemta, tāpēc neviens nenopērk vienu dāvanu divreiz."
     },
     {
       "heading": "Slepenais Ziemassvētku vecītis, sakārtots",
@@ -62,7 +62,7 @@
     "Vēlmju saraksti ar krāsām, prioritātēm un datumiem",
     "Ielīmējiet saiti – detaļas aizpildīsim mēs",
     "Saraksti publiski, tikai draugiem vai privāti",
-    "Slepena dāvanu rezervēšana draugu sarakstos",
+    "Dāvanu rezervēšana draugu sarakstos bez atkārtojumiem",
     "Slepenā Ziemassvētku vecīša grupa ar automātisku izlozi",
     "Draugu saraksti un gaidāmie notikumi"
   ],

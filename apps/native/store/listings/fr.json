@@ -3,8 +3,8 @@
   "title": "Wishlane : listes d'envies",
   "appleName": "Wishlane",
   "subtitle": "Listes d'envies et cadeaux",
-  "shortDescription": "Créez des listes d'envies, partagez-les et réservez des cadeaux en secret.",
-  "promoText": "Collez un lien, créez une belle liste d'envies et partagez-la. Vos proches réservent les cadeaux en secret : plus de doublons ni de surprises gâchées.",
+  "shortDescription": "Créez des listes d'envies, partagez-les et dites adieu aux cadeaux en double.",
+  "promoText": "Collez un lien, créez une belle liste d'envies et partagez-la. Vos proches réservent ce qu'ils achètent : personne ne reçoit deux fois le même cadeau.",
   "keywords": [
     "liste d'envies",
     "cadeau",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Wishlane transforme le « bon, tu veux quoi au juste ? » en un moment agréable.",
-    "Créez de belles listes d'envies, partagez-les avec les personnes qui comptent et laissez-les réserver les cadeaux en secret : personne n'achète deux fois la même chose et aucune surprise n'est gâchée."
+    "Créez de belles listes d'envies, partagez-les avec les personnes qui comptent et laissez-les réserver les cadeaux : personne n'achète deux fois la même chose."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Chaque liste est publique, réservée aux amis ou totalement privée. Envoyez un lien à qui vous voulez ou ajoutez vos amis par nom d'utilisateur : vous voyez leurs listes, ils voient les vôtres."
     },
     {
-      "heading": "Réservez les cadeaux en secret",
-      "body": "Réservez un article sur la liste d'un ami : les autres voient qu'il est pris, mais le propriétaire de la liste ne le saura jamais. Aucun doublon, aucune surprise gâchée."
+      "heading": "Fini les cadeaux en double",
+      "body": "Réservez un article sur la liste d'un ami : les autres voient qu'il est pris, et personne n'achète deux fois le même cadeau."
     },
     {
       "heading": "Secret Santa, organisé",
@@ -63,7 +63,7 @@
     "Listes avec couleurs, priorités et dates",
     "Collez un lien, les détails se remplissent",
     "Listes publiques, entre amis ou privées",
-    "Réservation secrète sur les listes des amis",
+    "Réservation de cadeaux sur les listes des amis, sans doublons",
     "Groupe Secret Santa avec tirage automatique",
     "Listes des amis et événements à venir"
   ],

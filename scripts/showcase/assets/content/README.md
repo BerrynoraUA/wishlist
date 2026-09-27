@@ -4,7 +4,12 @@ These checked-in assets replace synthetic lifestyle and generic product renders 
 store showcase. Wishlist covers are real photographs from Unsplash, used under the
 [Unsplash License](https://unsplash.com/license). Item thumbnails show the named model
 itself, sourced from manufacturer or retailer product pages and normalised to a neutral
-square crop like an image a user would save from a shopping page.
+square crop like an image a user would save from a shopping page. The unbranded gifts —
+the candle, the pour-over set and the plant — are Unsplash photographs too, named
+generically in the fixtures so each photo is always the thing its name describes. The
+sources below are where each image came from; the fixtures price everything in US
+dollars, and the air fryer is listed as the US DZ401, the same design as the AF400UK
+pictured.
 
 One wishlist and one Secret Santa event deliberately ship without a cover, so a capture
 shows the accent-gradient placeholder alongside the photographed cards.
@@ -27,3 +32,6 @@ shows the accent-gradient placeholder alongside the photographed cards.
 | `items/kobo-libra-colour.jpg`       | [Kobo Libra Colour](https://www.kobo.com/gb/en/ereaders)                                                             |
 | `items/garmin-edge-540.jpg`         | [Garmin Edge 540](https://www.garmin.com/en-GB/p/798938/)                                                            |
 | `items/garmin-varia-rtl515.jpg`     | [Garmin Varia RTL515](https://www.decathlon.ie/p/998675596-264703-rearview-radar-garmin-varia-rtl515.html)           |
+| `items/soy-candle.jpg`              | [Candle on a white blanket, by mk. s](https://unsplash.com/photos/f7bkJyyPb8E)                                       |
+| `items/pour-over-set.jpg`           | [Pour-over coffee set, by Szymon Satora](https://unsplash.com/photos/c-wdaPOmtLQ)                                    |
+| `items/potted-plant.jpg`            | [Potted plant, by Kelsey Brown](https://unsplash.com/photos/2LlRY-bMmig)                                             |

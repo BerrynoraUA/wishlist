@@ -4,7 +4,11 @@ import { PNG } from "pngjs";
 import { describe, expect, it } from "vitest";
 
 import {
+  isShowcaseAppScene,
+  SHOWCASE_ITEM_LINK_URL,
   SHOWCASE_SCENES,
+  SHOWCASE_SCRAPED_PRODUCT,
+  SHOWCASE_SHOP_PAGE_PATH,
   SHOWCASE_WISHLIST_ID,
   showcaseAssetUrl,
   showcaseSceneFileStem,
@@ -12,12 +16,16 @@ import {
   showcaseSceneRoute,
 } from "../../packages/backend/supabase/showcase/constants.ts";
 import {
+  SHOWCASE_DISCOVER_SECTIONS,
+  SHOWCASE_GIFT_SUGGESTIONS,
   SHOWCASE_ITEMS,
+  SHOWCASE_SECRET_SANTA_DETAILS,
   SHOWCASE_SECRET_SANTA_LIST,
   SHOWCASE_WISHLISTS,
 } from "../../packages/backend/supabase/showcase/data.ts";
 import {
   buildShowcaseAvatarSvg,
+  buildShowcaseShopPage,
   renderShowcaseAvatar,
   startShowcaseControlServer,
 } from "./showcase-control-server.ts";
@@ -29,7 +37,6 @@ import {
 import {
   buildDeviceOverlaySvg,
   buildFrameBackgroundSvg,
-  cloudPath,
   computeFrameLayout,
   fitFontSize,
 } from "./showcase-frames.ts";
@@ -41,6 +48,7 @@ import {
 } from "./showcase-images.ts";
 import showcaseConfig, { CAPTURE_TABLETS, resolveShowcaseAndroidAbi } from "./showcase.config.ts";
 import {
+  parseAndroidUiNodes,
   parseShowcaseCliArgs,
   planShowcaseCaptures,
   resolveAndroidSdkRoot,
@@ -86,14 +94,14 @@ describe("parseShowcaseCliArgs", () => {
       "--device",
       "pixel",
       "--scene",
-      "friends",
+      "share",
       "--scene",
-      "secret-santa",
+      "discover",
       "--skip-build",
       "--no-frames",
     ]);
     expect([...options.deviceIds]).toEqual(["pixel"]);
-    expect([...options.scenes].sort()).toEqual(["friends", "secret-santa"]);
+    expect([...options.scenes].sort()).toEqual(["discover", "share"]);
     expect(options.skipBuild).toBe(true);
     expect(options.skipFrames).toBe(true);
   });
@@ -224,13 +232,24 @@ describe("frame layout", () => {
     expect(long.length * fitted * 0.575).toBeLessThanOrEqual(1000);
   });
 
-  it("renders store-specific hardware details", () => {
-    const iphone = buildDeviceOverlaySvg(computeFrameLayout(APPLE_SPEC, 1), "apple");
-    const android = buildDeviceOverlaySvg(computeFrameLayout(PLAY_SPEC, 1), "google-play");
-    expect(iphone).toContain("<rect");
-    expect(iphone).toContain("<circle");
+  it("draws each device's own camera cutout", () => {
+    const island = buildDeviceOverlaySvg(computeFrameLayout(APPLE_SPEC, 1), "dynamic-island");
+    const notch = buildDeviceOverlaySvg(computeFrameLayout(APPLE_SPEC, 1), "notch");
+    const android = buildDeviceOverlaySvg(computeFrameLayout(PLAY_SPEC, 1), "punch-hole");
+    expect(island).toContain("<circle");
+    expect(island).not.toContain("<path");
+    expect(notch).toContain("<path");
+    expect(notch).not.toContain("<circle");
     expect(android.match(/<circle/gu)).toHaveLength(2);
-    expect(iphone).not.toBe(android);
+  });
+
+  it("matches the cutout to the simulator each iPhone slot is captured on", () => {
+    const cutouts = Object.fromEntries(
+      showcaseConfig.devices.flatMap((device) =>
+        device.platform === "ios" ? [[device.id, device.cutout]] : [],
+      ),
+    );
+    expect(cutouts).toStrictEqual({ "iphone-6.9": "dynamic-island", "iphone-6.5": "notch" });
   });
 
   it("highlights the headline's last line, which is where the hand break puts the payoff", () => {
@@ -249,43 +268,11 @@ describe("frame layout", () => {
   });
 });
 
-describe("callout clouds", () => {
-  it("traces a ring of lobes as one closed path of arcs", () => {
-    const lobes = Array.from({ length: 10 }, (_, index) => {
-      const angle = (index / 10) * Math.PI * 2;
-      return { x: 200 + 90 * Math.cos(angle), y: 120 + 50 * Math.sin(angle), r: 44 };
-    });
-    const path = cloudPath(lobes, { x: 200, y: 120 });
-    expect(path.startsWith("M")).toBe(true);
-    expect(path.endsWith("Z")).toBe(true);
-    expect(path.match(/A/gu)).toHaveLength(lobes.length);
-    // One shape, not a stack: no second subpath, and no non-finite coordinate.
-    expect(path.match(/M/gu)).toHaveLength(1);
-    expect(path).not.toMatch(/NaN|Infinity/u);
-  });
-
-  it("gives every scene a headline and anchors its callouts inside the screen", () => {
-    for (const scene of SHOWCASE_SCENES) {
-      const copy = showcaseConfig.frames.scenes[scene];
-      expect(copy.headline.length).toBeGreaterThan(0);
-      for (const platform of ["ios", "android"] as const) {
-        const callouts = copy.callouts[platform];
-        expect(callouts.length).toBeGreaterThan(0);
-        for (const callout of callouts) {
-          expect(callout.lines.length).toBeGreaterThan(0);
-          expect(callout.anchor.x).toBeGreaterThan(0);
-          expect(callout.anchor.x).toBeLessThan(1);
-          expect(callout.anchor.y).toBeGreaterThan(0);
-          expect(callout.anchor.y).toBeLessThan(1);
-          // A cloud sitting on its own anchor leaves no room for a tail.
-          expect(Math.abs(callout.lift)).toBeGreaterThan(0.02);
-        }
-      }
-      // The two sets say the same things; only where they point differs.
-      expect(copy.callouts.ios.map((callout) => callout.lines)).toEqual(
-        copy.callouts.android.map((callout) => callout.lines),
-      );
-    }
+describe("scene copy", () => {
+  it("gives every scene a two-line headline of its own", () => {
+    const headlines = SHOWCASE_SCENES.map((scene) => showcaseConfig.frames.scenes[scene].headline);
+    for (const headline of headlines) expect(headline).toHaveLength(2);
+    expect(new Set(headlines.map((headline) => headline.join(" "))).size).toBe(headlines.length);
   });
 });
 
@@ -296,8 +283,12 @@ describe("play feature graphic", () => {
     expect([spec.width, spec.height]).toEqual([1024, 500]);
   });
 
+  const cards = [
+    { name: "Sony WH-1000XM5", price: "$399.99", image: "data:image/jpeg;base64," },
+  ] as const;
+
   it("keeps the wordmark and tagline clear of the edges Play may crop", () => {
-    const svg = buildFeatureGraphicSvg(spec, "light", showcaseConfig.frames);
+    const svg = buildFeatureGraphicSvg(spec, "light", showcaseConfig.frames, cards);
     expect(svg).toContain(spec.wordmark);
     expect(svg).toContain(spec.tagline);
     // Every <text> starts at least 5% in from the left edge.
@@ -313,6 +304,19 @@ describe("play feature graphic", () => {
       frames: showcaseConfig.frames,
     });
     expect(() => validateFeatureGraphic(spec, graphic)).not.toThrow();
+  });
+
+  it("shows saved gifts with their photo and price rather than placeholder rows", () => {
+    const svg = buildFeatureGraphicSvg(spec, "light", showcaseConfig.frames, cards);
+    expect(svg).toContain("<image");
+    expect(svg).toContain("$399.99");
+  });
+
+  it("carries the listing's English subtitle as its tagline", () => {
+    const listing = JSON.parse(
+      NodeFS.readFileSync("apps/native/store/listings/en.json", "utf8"),
+    ) as { subtitle: string };
+    expect(spec.tagline).toBe(listing.subtitle);
   });
 
   it("rejects a graphic that is not the size Play asks for", () => {
@@ -351,19 +355,69 @@ describe("control channel", () => {
       // Next device. The one just captured stays booted, keeps polling, and answers
       // this scene within a second — long before the new device has even booted.
       control.beginDevice();
-      control.requestScene("friends");
+      control.requestScene("discover");
       await poll("launch-a");
-      await report("launch-a", "friends");
-      await expect(control.waitForScene("friends", 300)).rejects.toThrow(
+      await report("launch-a", "discover");
+      await expect(control.waitForScene("discover", 300)).rejects.toThrow(
         /no app claimed the control channel/u,
       );
 
       await poll("launch-b");
-      await report("launch-b", "friends");
-      await expect(control.waitForScene("friends", 1_000)).resolves.toBeUndefined();
+      await report("launch-b", "discover");
+      await expect(control.waitForScene("discover", 1_000)).resolves.toBeUndefined();
     } finally {
       await control.close();
     }
+  });
+
+  it("serves the product page the share scene opens", async () => {
+    // Its own port: fetch keeps sockets alive, and one left over from the server above
+    // would be reset when reused.
+    const control = await startShowcaseControlServer(PORT + 1);
+    try {
+      const response = await fetch(`http://127.0.0.1:${PORT + 1}${SHOWCASE_SHOP_PAGE_PATH}`);
+      expect(response.headers.get("content-type")).toContain("text/html");
+      expect(await response.text()).toBe(buildShowcaseShopPage());
+    } finally {
+      await control.close();
+    }
+  });
+});
+
+describe("share scene", () => {
+  const page = buildShowcaseShopPage();
+
+  it("shares the product the create-from-link scene fills in", () => {
+    expect(page).toContain(SHOWCASE_SCRAPED_PRODUCT.title);
+    expect(page).toContain(JSON.stringify(SHOWCASE_ITEM_LINK_URL));
+    expect(page).toContain(`$${SHOWCASE_SCRAPED_PRODUCT.price}`);
+    expect(page).toContain("navigator.share");
+  });
+
+  it("snaps its photo to the top so the collapsed toolbar hides the loopback address", () => {
+    expect(page).toContain("scroll-snap-type: y mandatory");
+    expect(page).not.toContain("127.0.0.1");
+  });
+
+  it("is never asked of the app, which has no route for it", () => {
+    expect(isShowcaseAppScene("share")).toBe(false);
+    expect(SHOWCASE_SCENES.filter(isShowcaseAppScene)).not.toContain("share");
+  });
+
+  it("is left out of the App Store galleries, which cannot drive Safari's sheet", () => {
+    for (const device of showcaseConfig.devices) {
+      expect(device.scenes.includes("share")).toBe(device.platform === "android");
+    }
+  });
+
+  it("reads share-sheet targets and their bounds out of a uiautomator dump", () => {
+    const nodes = parseAndroidUiNodes(
+      `<?xml version='1.0'?><hierarchy><node text="" content-desc="" bounds="[0,0][1080,1920]"><node text="Wishlane" content-desc="" bounds="[240,1500][400,1740]" /><node text="Fig &amp; cedar" content-desc="Copy" bounds="[10,20][30,40]" /></node></hierarchy>`,
+    );
+    expect(nodes).toHaveLength(3);
+    expect(nodes[0]).toMatchObject({ right: 1080, bottom: 1920 });
+    expect(nodes[1]).toMatchObject({ text: "Wishlane", left: 240, top: 1500, right: 400 });
+    expect(nodes[2]).toMatchObject({ text: "Fig & cedar", description: "Copy" });
   });
 });
 
@@ -377,13 +431,13 @@ describe("scene routing", () => {
     expect(showcaseSceneMatchesPathname("wishlists", `/wishlists/${SHOWCASE_WISHLIST_ID}`)).toBe(
       false,
     );
-    expect(showcaseSceneMatchesPathname("secret-santa", "/secret-santa/")).toBe(true);
+    expect(showcaseSceneMatchesPathname("discover", "/wishlists/discover/")).toBe(true);
   });
 });
 
 describe("gallery ordering", () => {
   it("numbers every scene from its position in the store order", () => {
-    expect(SHOWCASE_SCENES.map(showcaseSceneFileStem)[0]).toBe(`01-${SHOWCASE_SCENES[0]}`);
+    expect(showcaseSceneFileStem(SHOWCASE_SCENES[0])).toBe(`01-${SHOWCASE_SCENES[0]}`);
     expect(showcaseSceneFileStem(SHOWCASE_SCENES[1]!)).toBe(`02-${SHOWCASE_SCENES[1]}`);
   });
 
@@ -393,7 +447,14 @@ describe("gallery ordering", () => {
   });
 
   it("leads the gallery with the scenes that carry the pitch", () => {
-    expect(SHOWCASE_SCENES.slice(0, 3)).toStrictEqual(["wishlists", "item-link", "discover"]);
+    expect(SHOWCASE_SCENES.slice(0, 3)).toStrictEqual(["item-link", "share", "discover"]);
+  });
+
+  it("numbers a gallery that skips a scene without leaving a gap", () => {
+    const gallery = SHOWCASE_SCENES.filter((scene) => scene !== "share");
+    expect(gallery.map((scene) => showcaseSceneFileStem(scene, gallery).slice(0, 2))).toStrictEqual(
+      gallery.map((_, index) => String(index + 1).padStart(2, "0")),
+    );
   });
 });
 
@@ -428,6 +489,37 @@ describe("showcase content assets", () => {
     expect(SHOWCASE_SECRET_SANTA_LIST.items.filter((e) => e.image_url === null)).toHaveLength(1);
     // Second in the list, so the gradient is actually on screen in the capture.
     expect(SHOWCASE_WISHLISTS[1]!.image_url).toBeNull();
+  });
+
+  it("prices everything in US dollars", () => {
+    const currencies = new Set([
+      SHOWCASE_SCRAPED_PRODUCT.currency,
+      SHOWCASE_SECRET_SANTA_DETAILS.currency,
+      ...SHOWCASE_ITEMS.map((item) => item.currency),
+      ...SHOWCASE_DISCOVER_SECTIONS.flatMap((section) =>
+        section.items.map((item) => item.currency),
+      ),
+      ...SHOWCASE_SECRET_SANTA_LIST.items.map((event) => event.currency),
+      ...SHOWCASE_GIFT_SUGGESTIONS.items.map((item) => item.currency),
+    ]);
+    expect([...currencies]).toStrictEqual(["USD"]);
+  });
+
+  it("suggests Secret Santa gifts the match actually asked for, within the budget", () => {
+    const match = SHOWCASE_DISCOVER_SECTIONS.find(
+      (section) => section.friend_id === SHOWCASE_SECRET_SANTA_DETAILS.my_receiver?.id,
+    );
+    for (const suggestion of SHOWCASE_GIFT_SUGGESTIONS.items) {
+      expect(suggestion.effective_price).toBeLessThanOrEqual(
+        SHOWCASE_SECRET_SANTA_DETAILS.budget ?? 0,
+      );
+      // Same name and same photo as on their list, so the thumbnail is the thing named.
+      expect(
+        match?.items.some(
+          (item) => item.title === suggestion.name && item.image_url === suggestion.image_url,
+        ),
+      ).toBe(true);
+    }
   });
 
   it("renders an avatar the runner can answer from the control server", async () => {

@@ -6,9 +6,12 @@ import * as NodeURL from "node:url";
 import sharp from "sharp";
 
 import {
-  isShowcaseScene,
+  isShowcaseAppScene,
   SHOWCASE_CONTROL_PORT,
-  type ShowcaseScene,
+  SHOWCASE_ITEM_LINK_URL,
+  SHOWCASE_SCRAPED_PRODUCT,
+  SHOWCASE_SHOP_PAGE_PATH,
+  type ShowcaseAppScene,
 } from "../../packages/backend/supabase/showcase/constants.ts";
 
 const ASSETS_ROOT = NodePath.resolve(
@@ -31,9 +34,9 @@ export interface ShowcaseControlServer {
    */
   beginDevice(): void;
   /** Ask the app to navigate to a scene and forget any previous readiness. */
-  requestScene(scene: ShowcaseScene): void;
+  requestScene(scene: ShowcaseAppScene): void;
   /** Resolves once the app reports that scene is rendered and idle. */
-  waitForScene(scene: ShowcaseScene, timeoutMs?: number): Promise<void>;
+  waitForScene(scene: ShowcaseAppScene, timeoutMs?: number): Promise<void>;
   close(): Promise<void>;
 }
 
@@ -141,16 +144,81 @@ export async function renderShowcaseAvatar(
   return await sharp(Buffer.from(svg)).png().toBuffer();
 }
 
+function escapeHtml(value: string): string {
+  return value.replace(
+    /[&<>"']/gu,
+    (character) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ??
+      character,
+  );
+}
+
+/**
+ * The product page the `share` scene shares from. It stands in for any shop, so it
+ * carries no retailer's branding — only the product the next scene fills in, priced the
+ * same. Tapping anywhere opens the browser's share sheet on the product link, which is
+ * the real system sheet with the real Wishlane target in it.
+ *
+ * Only its top is ever photographed, above the sheet. The browser toolbar would show the
+ * loopback address there, so the page snaps its gallery to the top of the viewport after
+ * one scroll — which is also what makes Chrome collapse the toolbar.
+ */
+export function buildShowcaseShopPage(): string {
+  const product = SHOWCASE_SCRAPED_PRODUCT;
+  const share = JSON.stringify({ title: product.title, url: SHOWCASE_ITEM_LINK_URL });
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(product.title)}</title>
+<style>
+  html { scroll-snap-type: y mandatory; }
+  body { margin: 0; font-family: Roboto, system-ui, sans-serif; color: #141414; background: #fff; }
+  .top { scroll-snap-align: start; height: 260px; padding: 18px 20px; box-sizing: border-box; }
+  .bar { display: flex; align-items: center; justify-content: space-between; font-size: 22px; }
+  .search { margin-top: 22px; height: 46px; border-radius: 23px; background: #f1f1f3; }
+  .crumbs { margin-top: 26px; font-size: 14px; color: #6b6b72; }
+  .gallery { scroll-snap-align: start; background: #f4f4f6; }
+  .gallery img { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; mix-blend-mode: multiply; }
+  .info { padding: 20px; }
+  h1 { font-size: 24px; line-height: 1.25; margin: 0 0 8px; }
+  .price { font-size: 26px; font-weight: 800; margin: 14px 0; }
+  .buy { background: #141414; color: #fff; border-radius: 28px; padding: 17px; text-align: center; font-weight: 700; }
+  .rest { height: 1400px; }
+</style>
+</head>
+<body>
+<section class="top">
+  <div class="bar"><span>&#9776;</span><span>&#128717;</span></div>
+  <div class="search"></div>
+  <div class="crumbs">Audio &#8250; Headphones</div>
+</section>
+<section class="gallery"><img alt="" src="${escapeHtml(new URL(product.image).pathname)}"></section>
+<section class="info">
+  <h1>${escapeHtml(product.title)}</h1>
+  <div>${escapeHtml(product.description)}</div>
+  <div class="price">$${escapeHtml(product.price)}</div>
+  <div class="buy">Add to cart</div>
+</section>
+<div class="rest"></div>
+<script>
+  document.addEventListener("click", () => navigator.share(${share}).catch(() => {}));
+</script>
+</body>
+</html>`;
+}
+
 /**
  * Hands a scene to the app, reads readiness back, and serves the fixture imagery the
- * showcase rows point at. An HTTP channel needs no native code and behaves identically
+ * showcase rows point at, plus the product page the `share` scene opens. An HTTP channel needs no native code and behaves identically
  * on the iOS Simulator (shared loopback) and the Android emulator (`adb reverse`).
  */
 export async function startShowcaseControlServer(
   port = SHOWCASE_CONTROL_PORT,
 ): Promise<ShowcaseControlServer> {
-  let requestedScene: ShowcaseScene | null = null;
-  let readyScene: ShowcaseScene | null = null;
+  let requestedScene: ShowcaseAppScene | null = null;
+  let readyScene: ShowcaseAppScene | null = null;
   let activeClient: string | null = null;
   const seenClients = new Set<string>();
 
@@ -183,7 +251,7 @@ export async function startShowcaseControlServer(
           const client = typeof payload.client === "string" ? payload.client : null;
           noteClient(client);
           // Only the app this capture launched may answer for it.
-          if (client !== null && client === activeClient && isShowcaseScene(payload.scene)) {
+          if (client !== null && client === activeClient && isShowcaseAppScene(payload.scene)) {
             readyScene = payload.scene;
           }
         } catch {
@@ -192,6 +260,11 @@ export async function startShowcaseControlServer(
         response.writeHead(200, { "content-type": "application/json" });
         response.end(JSON.stringify({ ok: true }));
       });
+      return;
+    }
+    if (request.method === "GET" && url.pathname === SHOWCASE_SHOP_PAGE_PATH) {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(buildShowcaseShopPage());
       return;
     }
     if (request.method === "GET" && url.pathname.startsWith("/avatars/")) {

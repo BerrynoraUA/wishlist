@@ -1,6 +1,6 @@
 Wishlane biến câu hỏi "rốt cuộc bạn muốn gì?" thành điều ai cũng thấy vui.
 
-Tạo những danh sách ước thật đẹp, chia sẻ với người quan trọng và để họ bí mật giữ chỗ món quà: không ai mua trùng và không bất ngờ nào bị phá hỏng.
+Tạo những danh sách ước thật đẹp, chia sẻ với người quan trọng và để họ giữ chỗ món quà: không ai mua trùng.
 
 <b>Tạo danh sách trong vài giây</b>
 Dán bất kỳ liên kết sản phẩm nào và Wishlane sẽ tự điền tên, mô tả, hình ảnh và giá. Đặt tên danh sách, chọn màu, thêm ngày diễn ra sự kiện là xong.
@@ -8,8 +8,8 @@ Dán bất kỳ liên kết sản phẩm nào và Wishlane sẽ tự điền tê
 <b>Chia sẻ theo ý bạn</b>
 Mỗi danh sách có thể công khai, chỉ bạn bè hoặc hoàn toàn riêng tư. Gửi liên kết cho bất kỳ ai, hoặc kết bạn bằng tên người dùng: bạn thấy danh sách của họ, họ thấy của bạn.
 
-<b>Bí mật giữ chỗ món quà</b>
-Giữ chỗ một món trong danh sách của bạn bè: những người khác thấy món đó đã có người nhận, còn chủ danh sách thì không bao giờ biết. Không quà trùng, không bất ngờ bị lộ.
+<b>Không quà trùng</b>
+Giữ chỗ một món trong danh sách của bạn bè: những người khác thấy món đó đã có người nhận, nên không ai mua trùng quà.
 
 <b>Secret Santa gọn gàng</b>
 Tạo nhóm, mời mọi người bằng một liên kết duy nhất và để Wishlane bốc thăm. Mỗi người xem được danh sách ước của người mình bốc trúng nên món quà luôn đúng ý.
@@ -21,7 +21,7 @@ Xem danh sách công khai của bạn bè, theo dõi sinh nhật và sự kiện
 Nhận thông báo khi bạn bè thêm danh sách, gửi lời mời hoặc giữ chỗ món gì đó trong danh sách của bạn.
 
 <b>Wishlane Premium</b>
-Danh sách và món đồ không giới hạn, quyền cộng tác trên danh sách chia sẻ, cảnh báo giảm giá, cùng màu sắc và mức ưu tiên tùy chỉnh.
+Danh sách và món đồ không giới hạn, quyền cộng tác trên danh sách chia sẻ, cùng màu sắc và mức ưu tiên tùy chỉnh.
 
 Wishlane miễn phí khi bắt đầu: không cần thẻ, cài đặt dưới một phút. Hỗ trợ hơn 40 ngôn ngữ.
 

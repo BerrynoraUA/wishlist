@@ -3,8 +3,8 @@
   "title": "Wishlane: Wunschlisten",
   "appleName": "Wishlane",
   "subtitle": "Wunschlisten, schön geteilt",
-  "shortDescription": "Wunschlisten erstellen, mit Freunden teilen und Geschenke heimlich reservieren.",
-  "promoText": "Link einfügen, schöne Wunschliste erstellen und mit Freunden teilen. Sie reservieren Geschenke heimlich – niemand kauft dasselbe, keine Überraschung wird verraten.",
+  "shortDescription": "Wunschlisten erstellen, mit Freunden teilen und doppelte Geschenke vermeiden.",
+  "promoText": "Link einfügen, schöne Wunschliste erstellen und mit Freunden teilen. Sie reservieren, was sie kaufen – so bekommt niemand dasselbe Geschenk zweimal.",
   "keywords": [
     "wunschliste",
     "geschenk",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Wishlane macht aus „Was wünschst du dir eigentlich?“ etwas, das allen Spaß macht.",
-    "Erstelle schöne Wunschlisten, teile sie mit den Menschen, die dir wichtig sind, und lass sie Geschenke heimlich reservieren – so kauft niemand dasselbe zweimal und keine Überraschung wird verdorben."
+    "Erstelle schöne Wunschlisten, teile sie mit den Menschen, die dir wichtig sind, und lass sie Geschenke reservieren – so kauft niemand dasselbe zweimal."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Jede Wunschliste ist öffentlich, nur für Freunde oder komplett privat. Sende einen Link an alle oder verbinde dich per Benutzername mit Freunden – du siehst ihre Listen, sie deine."
     },
     {
-      "heading": "Geschenke heimlich reservieren",
-      "body": "Reserviere einen Eintrag auf der Liste einer Freundin oder eines Freundes: Alle anderen sehen, dass er vergeben ist – nur die Besitzerin oder der Besitzer erfährt es nie. Keine doppelten Geschenke, keine verratenen Überraschungen."
+      "heading": "Keine doppelten Geschenke",
+      "body": "Reserviere einen Eintrag auf der Liste einer Freundin oder eines Freundes: Alle anderen sehen, dass er vergeben ist – so kauft niemand dasselbe Geschenk zweimal."
     },
     {
       "heading": "Wichteln, organisiert",
@@ -63,7 +63,7 @@
     "Wunschlisten mit Farben, Prioritäten und Daten",
     "Produktlink einfügen, Details werden ergänzt",
     "Listen öffentlich, für Freunde oder privat teilen",
-    "Geschenke heimlich reservieren",
+    "Geschenke reservieren, damit nichts doppelt gekauft wird",
     "Wichtelgruppe mit automatischer Auslosung",
     "Listen von Freunden und anstehende Anlässe"
   ],

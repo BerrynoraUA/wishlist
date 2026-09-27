@@ -1,6 +1,6 @@
 Wishlane macht aus „Was wünschst du dir eigentlich?“ etwas, das allen Spaß macht.
 
-Erstelle schöne Wunschlisten, teile sie mit den Menschen, die dir wichtig sind, und lass sie Geschenke heimlich reservieren – so kauft niemand dasselbe zweimal und keine Überraschung wird verdorben.
+Erstelle schöne Wunschlisten, teile sie mit den Menschen, die dir wichtig sind, und lass sie Geschenke reservieren – so kauft niemand dasselbe zweimal.
 
 <b>Wunschliste in Sekunden</b>
 Füge einen beliebigen Produktlink ein und Wishlane ergänzt Titel, Beschreibung, Bild und Preis automatisch. Liste benennen, Farbe wählen, Datum setzen – fertig.
@@ -8,8 +8,8 @@ Füge einen beliebigen Produktlink ein und Wishlane ergänzt Titel, Beschreibung
 <b>Teilen, wie du willst</b>
 Jede Wunschliste ist öffentlich, nur für Freunde oder komplett privat. Sende einen Link an alle oder verbinde dich per Benutzername mit Freunden – du siehst ihre Listen, sie deine.
 
-<b>Geschenke heimlich reservieren</b>
-Reserviere einen Eintrag auf der Liste einer Freundin oder eines Freundes: Alle anderen sehen, dass er vergeben ist – nur die Besitzerin oder der Besitzer erfährt es nie. Keine doppelten Geschenke, keine verratenen Überraschungen.
+<b>Keine doppelten Geschenke</b>
+Reserviere einen Eintrag auf der Liste einer Freundin oder eines Freundes: Alle anderen sehen, dass er vergeben ist – so kauft niemand dasselbe Geschenk zweimal.
 
 <b>Wichteln, organisiert</b>
 Gruppe erstellen, alle mit einem Link einladen und Wishlane die Auslosung übernehmen lassen. Jede Person sieht die Wunschliste ihres Loses – so treffen die Geschenke ins Schwarze.
@@ -21,7 +21,7 @@ Stöbere in den öffentlichen Wunschlisten deiner Freunde, sieh anstehende Gebur
 Erhalte eine Benachrichtigung, wenn jemand eine Wunschliste anlegt, dir eine Anfrage schickt oder etwas aus deiner Liste reserviert.
 
 <b>Wishlane Premium</b>
-Unbegrenzte Listen und Einträge, Mitbearbeitung geteilter Listen, Preisalarme bei Rabatten sowie eigene Farben und Prioritäten.
+Unbegrenzte Listen und Einträge, Mitbearbeitung geteilter Listen sowie eigene Farben und Prioritäten.
 
 Wishlane ist kostenlos nutzbar – keine Kreditkarte, in unter einer Minute eingerichtet. In über 40 Sprachen verfügbar.
 

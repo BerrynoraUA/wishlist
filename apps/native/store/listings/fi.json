@@ -3,12 +3,12 @@
   "title": "Wishlane: toivelistat",
   "appleName": "Wishlane",
   "subtitle": "Toivelistat, kauniisti jaettu",
-  "shortDescription": "Luo toivelistoja, jaa ne kavereille ja varaa lahjoja salaa.",
-  "promoText": "Liitä mikä tahansa linkki, luo kaunis toivelista ja jaa se kavereille. He varaavat lahjat salaa – kukaan ei osta samaa eikä yksikään yllätys paljastu.",
+  "shortDescription": "Luo toivelistoja, jaa ne kavereille ja unohda tuplalahjat.",
+  "promoText": "Liitä mikä tahansa linkki, luo kaunis toivelista ja jaa se kavereille. He varaavat ostamansa lahjat – kukaan ei saa samaa lahjaa kahdesti.",
   "keywords": ["toivelista", "lahja", "syntymäpäivä", "joulu", "salainen joulupukki", "lahjaideat"],
   "intro": [
     "Wishlane muuttaa kysymyksen ”no mitä sä oikeasti haluat?” kaikille mukavaksi hetkeksi.",
-    "Luo kauniita toivelistoja, jaa ne sinulle tärkeille ihmisille ja anna heidän varata lahjat salaa – kukaan ei osta samaa kahdesti eikä yksikään yllätys mene pilalle."
+    "Luo kauniita toivelistoja, jaa ne sinulle tärkeille ihmisille ja anna heidän varata lahjoja – kukaan ei osta samaa kahdesti."
   ],
   "sections": [
     {
@@ -20,8 +20,8 @@
       "body": "Jokainen lista voi olla julkinen, vain kavereille tai täysin yksityinen. Lähetä linkki kenelle tahansa tai lisää kavereita käyttäjänimellä – sinä näet heidän listansa, he sinun."
     },
     {
-      "heading": "Varaa lahjat salaa",
-      "body": "Varaa tuote kaverin listalta: muut näkevät sen olevan varattu, mutta listan omistaja ei saa koskaan tietää. Ei kaksoislahjoja eikä pilalle menneitä yllätyksiä."
+      "heading": "Ei tuplalahjoja",
+      "body": "Varaa tuote kaverin listalta: muut näkevät sen olevan varattu, joten kukaan ei osta samaa lahjaa kahdesti."
     },
     {
       "heading": "Salainen joulupukki järjestyksessä",
@@ -55,7 +55,7 @@
     "Toivelistat väreillä, tärkeysjärjestyksellä ja päivillä",
     "Liitä tuotelinkki, me täytämme tiedot",
     "Listat julkisina, kavereille tai yksityisinä",
-    "Varaa lahjoja salaa kaverien listoilta",
+    "Varaa lahjoja kaverien listoilta, ettei mitään osteta kahdesti",
     "Salaisen joulupukin ryhmä automaattisella arvonnalla",
     "Kaverien listat ja tulevat juhlat"
   ],

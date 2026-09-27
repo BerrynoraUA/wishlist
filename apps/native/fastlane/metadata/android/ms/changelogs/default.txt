@@ -3,6 +3,6 @@ Keluaran pertama Wishlane.
 - Senarai hajat dengan warna, keutamaan dan tarikh
 - Tampal pautan produk, kami isikan butirannya
 - Senarai awam, khusus rakan atau peribadi
-- Tempah hadiah secara rahsia pada senarai rakan
+- Tempah hadiah pada senarai rakan tanpa berulang
 - Kumpulan Secret Santa dengan cabutan automatik
 - Senarai rakan dan acara akan datang

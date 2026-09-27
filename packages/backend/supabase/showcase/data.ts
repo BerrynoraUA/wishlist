@@ -133,54 +133,57 @@ const WISHLIST_SEEDS: readonly ShowcaseWishlistSeed[] = [
     pinned: true,
     eventInDays: 24,
     coverAsset: "birthday-wishes.jpg",
+    // Mixed on purpose: a real birthday list is a candle next to a laptop, and a gallery
+    // of nothing but electronics reads as a gadget tracker rather than a wishlist. The
+    // headphones are left to the create-from-link scene, which adds them to this list.
     items: [
       {
-        name: "Sony WH-1000XM5 headphones",
-        description: "Black — the XM5s, not a similar pair",
-        price: "279.00",
-        discountPrice: "249.00",
+        name: "Apple Watch Series 11",
+        description: "42mm Space Grey with the Dark Grey Sport Loop",
+        price: "399.00",
+        discountPrice: "349.00",
         priorityId: PRIORITY_IDS.HIGH,
-        url: "https://www.sony.co.uk/electronics/headband-headphones/wh-1000xm5",
-        imageAsset: "items/sony-wh-1000xm5.jpg",
+        url: "https://www.apple.com/shop/buy-watch/apple-watch",
+        imageAsset: "items/apple-watch-series-11.jpg",
       },
       {
-        name: "iPhone 17 Pro 256GB",
-        description: "Deep Blue, SIM-free",
-        price: "1099.00",
+        name: "Soy candle, fig & cedar",
+        description: "The big 14 oz jar",
+        price: "32.00",
         priorityId: PRIORITY_IDS.MEDIUM,
-        url: "https://www.apple.com/uk/shop/buy-iphone/iphone-17-pro",
-        imageAsset: "items/iphone-17-pro.jpg",
+        url: "https://www.etsy.com/listing/soy-candle-fig-cedar",
+        imageAsset: "items/soy-candle.jpg",
       },
       {
         name: "13-inch MacBook Air (M5)",
         description: "Silver, 16GB memory and 512GB storage",
-        price: "1099.00",
+        price: "999.00",
         priorityId: PRIORITY_IDS.HIGH,
-        url: "https://www.apple.com/uk/shop/buy-mac/macbook-air",
+        url: "https://www.apple.com/shop/buy-mac/macbook-air",
         imageAsset: "items/macbook-air-13.jpg",
       },
       {
         name: "AirPods Pro 3",
         description: "With the MagSafe USB-C charging case",
-        price: "219.00",
+        price: "249.00",
         priorityId: PRIORITY_IDS.LOW,
-        url: "https://www.apple.com/uk/shop/buy-airpods/airpods-pro-3",
+        url: "https://www.apple.com/shop/buy-airpods/airpods-pro-3",
         imageAsset: "items/airpods-pro-3.jpg",
       },
       {
-        name: "Apple Watch Series 11",
-        description: "42mm Space Grey with the Dark Grey Sport Loop",
-        price: "369.00",
+        name: "iPhone 17 Pro 256GB",
+        description: "Deep Blue, unlocked",
+        price: "1099.00",
         priorityId: PRIORITY_IDS.MEDIUM,
-        url: "https://www.apple.com/uk/shop/buy-watch/apple-watch",
-        imageAsset: "items/apple-watch-series-11.jpg",
+        url: "https://www.apple.com/shop/buy-iphone/iphone-17-pro",
+        imageAsset: "items/iphone-17-pro.jpg",
       },
       {
         name: "iPad mini (A17 Pro)",
         description: "128GB Wi-Fi in Purple",
-        price: "599.00",
+        price: "499.00",
         priorityId: PRIORITY_IDS.LOW,
-        url: "https://www.apple.com/uk/shop/buy-ipad/ipad-mini",
+        url: "https://www.apple.com/shop/buy-ipad/ipad-mini",
         imageAsset: "items/ipad-mini.jpg",
       },
     ],
@@ -196,16 +199,16 @@ const WISHLIST_SEEDS: readonly ShowcaseWishlistSeed[] = [
     items: [
       {
         name: "Dyson V15 Detect Absolute",
-        description: "The Gold/Iron model with the Fluffy Optic head",
-        price: "649.99",
-        url: "https://www.dyson.co.uk/vacuum-cleaners/cordless/v15/detect-absolute-gold-iron",
+        description: "The Gold model with the Fluffy Optic head",
+        price: "749.99",
+        url: "https://www.dyson.com/vacuum-cleaners/cordless/v15/detect-absolute-gold",
         imageAsset: "items/dyson-v15-detect.jpg",
       },
       {
-        name: "Ninja Foodi MAX AF400UK",
-        description: "9.5L Dual Zone air fryer in Black",
+        name: "Ninja Foodi DualZone DZ401",
+        description: "10-quart two-basket air fryer in Black",
         price: "229.99",
-        url: "https://ninjakitchen.co.uk/product/ninja-foodi-max-dual-zone-air-fryer-af400uk",
+        url: "https://www.ninjakitchen.com/product/ninja-foodi-dualzone-air-fryer-dz401",
         imageAsset: "items/ninja-foodi-max-af400uk.jpg",
       },
     ],
@@ -222,14 +225,14 @@ const WISHLIST_SEEDS: readonly ShowcaseWishlistSeed[] = [
         name: "Kindle Paperwhite (12th gen)",
         description: "16GB in Black, without lock-screen ads",
         price: "159.99",
-        url: "https://www.amazon.co.uk/dp/B0CFPJYX7P",
+        url: "https://www.amazon.com/dp/B0CFPJYX7P",
         imageAsset: "items/kindle-paperwhite.jpg",
       },
       {
         name: "Kobo Libra Colour",
         description: "White, with the page-turn buttons",
-        price: "239.99",
-        url: "https://www.kobo.com/gb/en/ereaders",
+        price: "219.99",
+        url: "https://us.kobobooks.com/products/kobo-libra-colour",
         imageAsset: "items/kobo-libra-colour.jpg",
       },
     ],
@@ -246,14 +249,14 @@ const WISHLIST_SEEDS: readonly ShowcaseWishlistSeed[] = [
         name: "Garmin Edge 540",
         description: "Standard edition, not the Solar bundle",
         price: "349.99",
-        url: "https://www.garmin.com/en-GB/p/798938/",
+        url: "https://www.garmin.com/en-US/p/798938",
         imageAsset: "items/garmin-edge-540.jpg",
       },
       {
         name: "Garmin Varia RTL515",
         description: "Rear-view radar with the tail light",
-        price: "169.99",
-        url: "https://www.garmin.com/en-GB/p/698893/",
+        price: "199.99",
+        url: "https://www.garmin.com/en-US/p/698893",
         imageAsset: "items/garmin-varia-rtl515.jpg",
       },
     ],
@@ -296,7 +299,7 @@ export const SHOWCASE_ITEMS: readonly Item[] = WISHLIST_SEEDS.flatMap((seed, wis
     discount_price: item.discountPrice ?? null,
     has_discount: Boolean(item.discountPrice),
     discount_end_date: item.discountPrice ? dateDaysFromNow(9) : null,
-    currency: "GBP",
+    currency: "USD",
     additional_links: null,
     color_index: null,
   })),
@@ -326,7 +329,7 @@ export const SHOWCASE_SETTINGS: Partial<UserSettings> = {
   user_id: OWNER.id,
   // `system` lets the runner drive light/dark purely from the device appearance.
   theme: "system",
-  display_currency: "GBP",
+  display_currency: "USD",
   email_digest: false,
   selected_priorities: [PRIORITY_IDS.LOW, PRIORITY_IDS.MEDIUM, PRIORITY_IDS.HIGH],
 };
@@ -392,10 +395,15 @@ interface ShowcaseDiscoverSeed {
   }[];
 }
 
+/** Shared with the Secret Santa suggestions, which are drawn from this same list. */
+const JAMIE_POUR_OVER_URL = "https://www.etsy.com/listing/ceramic-pour-over-coffee-set";
+const JAMIE_CANDLE_URL = "https://www.etsy.com/listing/soy-candle-fig-cedar";
+
 /**
  * Discover is the friends-facing half of the app, so these are other people's lists
  * rather than the owner's. One item is already reserved, which is what stops two people
- * buying the same present and is the whole point of the screen.
+ * buying the same present and is the whole point of the screen. Each list opens on
+ * something other than a gadget, so the two cards on screen show the range people ask for.
  */
 const DISCOVER_SEEDS: readonly ShowcaseDiscoverSeed[] = [
   {
@@ -406,28 +414,35 @@ const DISCOVER_SEEDS: readonly ShowcaseDiscoverSeed[] = [
     eventInDays: 9,
     items: [
       {
-        title: "Sony WH-1000XM5 headphones",
-        price: "279.00",
-        store: "sony.co.uk",
-        imageAsset: "items/sony-wh-1000xm5.jpg",
-        url: "https://www.sony.co.uk/electronics/headband-headphones/wh-1000xm5",
+        title: "Ceramic pour-over coffee set",
+        price: "48.00",
+        store: "etsy.com",
+        imageAsset: "items/pour-over-set.jpg",
+        url: JAMIE_POUR_OVER_URL,
         priorityId: PRIORITY_IDS.HIGH,
       },
       {
         title: "Kindle Paperwhite (12th gen)",
         price: "159.99",
-        store: "amazon.co.uk",
+        store: "amazon.com",
         imageAsset: "items/kindle-paperwhite.jpg",
-        url: "https://www.amazon.co.uk/dp/B0CFPJYX7P",
+        url: "https://www.amazon.com/dp/B0CFPJYX7P",
         reserved: true,
       },
       {
-        title: "AirPods Pro 3",
-        price: "219.00",
-        store: "apple.com",
-        imageAsset: "items/airpods-pro-3.jpg",
-        url: "https://www.apple.com/uk/shop/buy-airpods/airpods-pro-3",
+        title: "Soy candle, fig & cedar",
+        price: "32.00",
+        store: "etsy.com",
+        imageAsset: "items/soy-candle.jpg",
+        url: JAMIE_CANDLE_URL,
         priorityId: PRIORITY_IDS.MEDIUM,
+      },
+      {
+        title: "Sony WH-1000XM5 headphones",
+        price: "399.99",
+        store: "sony.com",
+        imageAsset: "items/sony-wh-1000xm5.jpg",
+        url: "https://electronics.sony.com/audio/headphones/headband/p/wh1000xm5-b",
       },
     ],
   },
@@ -437,19 +452,26 @@ const DISCOVER_SEEDS: readonly ShowcaseDiscoverSeed[] = [
     eventInDays: 21,
     items: [
       {
-        title: "Ninja Foodi MAX AF400UK",
-        price: "229.99",
-        store: "ninjakitchen.co.uk",
-        imageAsset: "items/ninja-foodi-max-af400uk.jpg",
-        url: "https://ninjakitchen.co.uk/product/ninja-foodi-max-dual-zone-air-fryer-af400uk",
+        title: "Potted plant in a ceramic planter",
+        price: "45.00",
+        store: "thesill.com",
+        imageAsset: "items/potted-plant.jpg",
+        url: "https://www.thesill.com/products/potted-plant-ceramic-planter",
         priorityId: PRIORITY_IDS.HIGH,
       },
       {
+        title: "Ninja Foodi DualZone DZ401",
+        price: "229.99",
+        store: "ninjakitchen.com",
+        imageAsset: "items/ninja-foodi-max-af400uk.jpg",
+        url: "https://www.ninjakitchen.com/product/ninja-foodi-dualzone-air-fryer-dz401",
+      },
+      {
         title: "Dyson V15 Detect Absolute",
-        price: "649.99",
-        store: "dyson.co.uk",
+        price: "749.99",
+        store: "dyson.com",
         imageAsset: "items/dyson-v15-detect.jpg",
-        url: "https://www.dyson.co.uk/vacuum-cleaners/cordless/v15/detect-absolute-gold-iron",
+        url: "https://www.dyson.com/vacuum-cleaners/cordless/v15/detect-absolute-gold",
       },
     ],
   },
@@ -463,15 +485,15 @@ const DISCOVER_SEEDS: readonly ShowcaseDiscoverSeed[] = [
         price: "349.99",
         store: "garmin.com",
         imageAsset: "items/garmin-edge-540.jpg",
-        url: "https://www.garmin.com/en-GB/p/798938/",
+        url: "https://www.garmin.com/en-US/p/798938",
         priorityId: PRIORITY_IDS.MEDIUM,
       },
       {
         title: "Garmin Varia RTL515",
-        price: "169.99",
+        price: "199.99",
         store: "garmin.com",
         imageAsset: "items/garmin-varia-rtl515.jpg",
-        url: "https://www.garmin.com/en-GB/p/698893/",
+        url: "https://www.garmin.com/en-US/p/698893",
       },
     ],
   },
@@ -497,7 +519,7 @@ export const SHOWCASE_DISCOVER_SECTIONS: readonly DiscoverSection[] = DISCOVER_S
       reservedBy: item.reserved ? OWNER.id : null,
       reservedByName: item.reserved ? OWNER.displayName : null,
       discount_price: null,
-      currency: "GBP",
+      currency: "USD",
       additional_links: null,
     }));
 
@@ -539,7 +561,7 @@ export const SHOWCASE_SECRET_SANTA_LIST: SecretSantaListResponse = {
       name: "Family Secret Santa",
       event_date: dateDaysFromNow(45),
       budget: 50,
-      currency: "GBP",
+      currency: "USD",
       // No cover, so the list shows both states side by side: this one falls back to
       // the accent gradient while the event below carries a real photo.
       image_url: null,
@@ -552,7 +574,7 @@ export const SHOWCASE_SECRET_SANTA_LIST: SecretSantaListResponse = {
       name: "Studio gift swap",
       event_date: dateDaysFromNow(12),
       budget: 25,
-      currency: "GBP",
+      currency: "USD",
       image_url: showcaseAssetUrl("content/secret-santa-swap.jpg"),
       owner_id: FRIENDS[0].id,
       is_owner: false,
@@ -569,7 +591,7 @@ export const SHOWCASE_SECRET_SANTA_DETAILS: SecretSantaDetails = {
   name: "Family Secret Santa",
   event_date: dateDaysFromNow(45),
   budget: 50,
-  currency: "GBP",
+  currency: "USD",
   image_url: null,
   owner_id: OWNER.id,
   is_started: true,
@@ -589,7 +611,8 @@ export const SHOWCASE_SECRET_SANTA_DETAILS: SecretSantaDetails = {
 /**
  * What the drawn match has on their own lists under the event budget. Without these the
  * detail screen photographs its empty state, which sells the opposite of the feature —
- * the point is that you are told who you drew *and* what they want.
+ * the point is that you are told who you drew *and* what they want. They are the very
+ * items on Jamie's Birthday list in Discover, so each photo is the thing it is named.
  */
 export const SHOWCASE_GIFT_SUGGESTIONS: VisibleItemsResponse = {
   items: [
@@ -598,20 +621,20 @@ export const SHOWCASE_GIFT_SUGGESTIONS: VisibleItemsResponse = {
       wishlist_id: "5b0f9c40-0000-4000-8000-000000000700",
       wishlist_title: "Birthday",
       wishlist_image_url: null,
-      // Both suggestions stay under the event's GBP 50, because the card above them
+      // Both suggestions stay under the event's USD 50, because the card above them
       // promises exactly that.
-      name: "Kindle Paperwhite fabric cover",
-      description: "Black, for the 12th-gen Paperwhite",
-      price: "34.99",
+      name: "Ceramic pour-over coffee set",
+      description: "Dripper and glass server, in white",
+      price: "48.00",
       discount_price: null,
       has_discount: false,
-      effective_price: 34.99,
+      effective_price: 48,
       discount_end_date: null,
-      currency: "GBP",
+      currency: "USD",
       priority_id: PRIORITY_IDS.HIGH,
       priority_name: PRIORITY_NAMES[PRIORITY_IDS.HIGH] ?? null,
-      url: "https://www.amazon.co.uk/dp/B0CFPJYX7P",
-      image_url: showcaseAssetUrl("content/items/kindle-paperwhite.jpg"),
+      url: JAMIE_POUR_OVER_URL,
+      image_url: showcaseAssetUrl("content/items/pour-over-set.jpg"),
       status: 0,
       reserved_by: null,
       created_at: daysFromNow(-6),
@@ -622,18 +645,18 @@ export const SHOWCASE_GIFT_SUGGESTIONS: VisibleItemsResponse = {
       wishlist_id: "5b0f9c40-0000-4000-8000-000000000700",
       wishlist_title: "Birthday",
       wishlist_image_url: null,
-      name: "AirPods Pro 3 silicone case",
-      description: "Deep Blue, with the carabiner clip",
-      price: "39.99",
-      discount_price: "29.99",
-      has_discount: true,
-      effective_price: 29.99,
-      discount_end_date: dateDaysFromNow(9),
-      currency: "GBP",
+      name: "Soy candle, fig & cedar",
+      description: "The big 14 oz jar",
+      price: "32.00",
+      discount_price: null,
+      has_discount: false,
+      effective_price: 32,
+      discount_end_date: null,
+      currency: "USD",
       priority_id: PRIORITY_IDS.MEDIUM,
       priority_name: PRIORITY_NAMES[PRIORITY_IDS.MEDIUM] ?? null,
-      url: "https://www.apple.com/uk/shop/buy-airpods/airpods-pro-3",
-      image_url: showcaseAssetUrl("content/items/airpods-pro-3.jpg"),
+      url: JAMIE_CANDLE_URL,
+      image_url: showcaseAssetUrl("content/items/soy-candle.jpg"),
       status: 0,
       reserved_by: null,
       created_at: daysFromNow(-11),
@@ -674,8 +697,8 @@ export const SHOWCASE_NOTIFICATIONS: readonly Notification[] = [
 
 /**
  * USD-based rates, so price conversion never reaches the network during a capture.
- * The fixture prices are already in the display currency, so only the pair below
- * is ever exercised.
+ * The fixture prices are already in the display currency, so no captured scene
+ * converts anything.
  */
 export const SHOWCASE_EXCHANGE_RATES = [
   { base_currency: "USD", target_currency: "GBP", rate: 0.79, updated_at: daysFromNow(-1) },

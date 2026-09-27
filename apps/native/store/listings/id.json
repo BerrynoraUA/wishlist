@@ -3,8 +3,8 @@
   "title": "Wishlane: wishlist & hadiah",
   "appleName": "Wishlane",
   "subtitle": "Wishlist, dibagikan cantik",
-  "shortDescription": "Buat wishlist, bagikan ke teman, dan pesan hadiah secara diam-diam.",
-  "promoText": "Tempel tautan apa pun, buat wishlist yang cantik, lalu bagikan ke teman. Mereka memesan hadiah diam-diam: tidak ada hadiah kembar dan tidak ada kejutan yang bocor.",
+  "shortDescription": "Buat wishlist, bagikan ke teman, dan tak ada lagi hadiah kembar.",
+  "promoText": "Tempel tautan apa pun, buat wishlist yang cantik, lalu bagikan ke teman. Mereka memesan yang akan mereka beli: tak ada yang dapat hadiah sama dua kali.",
   "keywords": [
     "wishlist",
     "hadiah",
@@ -17,7 +17,7 @@
   ],
   "intro": [
     "Wishlane mengubah pertanyaan \"jadi, kamu sebenarnya mau apa?\" jadi hal yang menyenangkan buat semua.",
-    "Buat wishlist yang cantik, bagikan ke orang-orang terdekat, dan biarkan mereka memesan hadiah diam-diam: tidak ada yang membeli barang yang sama dua kali dan tidak ada kejutan yang rusak."
+    "Buat wishlist yang cantik, bagikan ke orang-orang terdekat, dan biarkan mereka memesan hadiah: tidak ada yang membeli barang yang sama dua kali."
   ],
   "sections": [
     {
@@ -29,8 +29,8 @@
       "body": "Setiap wishlist bisa publik, khusus teman, atau sepenuhnya pribadi. Kirim tautan ke siapa saja, atau tambahkan teman lewat nama pengguna: kamu lihat daftar mereka, mereka lihat daftarmu."
     },
     {
-      "heading": "Pesan hadiah diam-diam",
-      "body": "Pesan barang di daftar temanmu: orang lain akan melihat barang itu sudah diambil, tetapi pemilik daftar tidak pernah tahu. Tidak ada hadiah kembar, tidak ada kejutan yang bocor."
+      "heading": "Tak ada hadiah kembar",
+      "body": "Pesan barang di daftar temanmu: orang lain akan melihat barang itu sudah diambil, jadi tak ada yang membeli hadiah yang sama dua kali."
     },
     {
       "heading": "Tukar kado jadi rapi",
@@ -64,7 +64,7 @@
     "Wishlist dengan warna, prioritas, dan tanggal",
     "Tempel tautan produk, detailnya kami isi",
     "Daftar publik, khusus teman, atau pribadi",
-    "Pesan hadiah diam-diam di daftar teman",
+    "Pesan hadiah di daftar teman agar tak ada yang kembar",
     "Grup tukar kado dengan undian otomatis",
     "Daftar teman dan acara yang akan datang"
   ],

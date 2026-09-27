@@ -3,8 +3,8 @@
   "title": "Wishlane: verlanglijstjes",
   "appleName": "Wishlane",
   "subtitle": "Verlanglijstjes en cadeaus",
-  "shortDescription": "Maak verlanglijstjes, deel ze met vrienden en reserveer cadeaus in het geheim.",
-  "promoText": "Plak een link, maak een mooi verlanglijstje en deel het met vrienden. Zij reserveren cadeaus in het geheim: niemand koopt hetzelfde en geen verrassing wordt verklapt.",
+  "shortDescription": "Maak verlanglijstjes, deel ze met vrienden en voorkom dubbele cadeaus.",
+  "promoText": "Plak een link, maak een mooi verlanglijstje en deel het met vrienden. Zij reserveren wat ze kopen: niemand krijgt twee keer hetzelfde cadeau.",
   "keywords": [
     "verlanglijstje",
     "cadeau",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Wishlane maakt van „wat wil je nou eigenlijk?” iets waar iedereen plezier aan beleeft.",
-    "Maak mooie verlanglijstjes, deel ze met de mensen die ertoe doen en laat hen cadeaus in het geheim reserveren: niemand koopt twee keer hetzelfde en geen enkele verrassing wordt verklapt."
+    "Maak mooie verlanglijstjes, deel ze met de mensen die ertoe doen en laat hen cadeaus reserveren: niemand koopt twee keer hetzelfde."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Elk lijstje is openbaar, alleen voor vrienden of helemaal privé. Stuur een link naar wie je wilt of voeg vrienden toe via hun gebruikersnaam: jij ziet hun lijstjes, zij die van jou."
     },
     {
-      "heading": "Reserveer cadeaus in het geheim",
-      "body": "Reserveer een item op het lijstje van een vriend: alle anderen zien dat het bezet is, maar de eigenaar komt er nooit achter. Geen dubbele cadeaus, geen verklapte verrassingen."
+      "heading": "Geen dubbele cadeaus",
+      "body": "Reserveer een item op het lijstje van een vriend: alle anderen zien dat het bezet is, zodat niemand twee keer hetzelfde cadeau koopt."
     },
     {
       "heading": "Secret Santa, geregeld",
@@ -63,7 +63,7 @@
     "Lijstjes met kleuren, prioriteiten en datums",
     "Plak een productlink en wij vullen de rest in",
     "Lijstjes openbaar, voor vrienden of privé",
-    "Reserveer cadeaus in het geheim",
+    "Reserveer cadeaus op lijstjes van vrienden, zonder dubbele",
     "Secret Santa-groep met automatische loting",
     "Lijstjes van vrienden en aankomende gelegenheden"
   ],

@@ -2,6 +2,7 @@ import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Icon } from "@/components/ui/icon";
 import { useHideBackButton } from "@/hooks/use-hide-back-button";
 import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
+import { SHOWCASE_ENABLED } from "@/lib/showcase/showcase-control";
 import { cn } from "@/lib/utils";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useRouter } from "expo-router";
@@ -44,7 +45,9 @@ export function FloatingBackButton({
   const insets = useSafeAreaInsets();
   const [hidden] = useHideBackButton();
 
-  if (hidden) return null;
+  // Store screenshots have no navigation to demonstrate, and the button would sit on
+  // top of the content they are selling.
+  if (SHOWCASE_ENABLED || hidden) return null;
 
   const tabBarTopClearance = process.env.EXPO_OS === "android" ? ANDROID_TAB_BAR_TOP_CLEARANCE : 0;
   const bottom =

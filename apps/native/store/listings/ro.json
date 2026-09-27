@@ -3,8 +3,8 @@
   "title": "Wishlane: liste de dorințe",
   "appleName": "Wishlane",
   "subtitle": "Liste de dorințe și cadouri",
-  "shortDescription": "Creează liste de dorințe, împarte-le cu prietenii și rezervă cadouri în secret.",
-  "promoText": "Lipește orice link, creează o listă frumoasă și trimite-o prietenilor. Ei rezervă cadourile în secret: nimeni nu cumpără la fel, nicio surpriză nu se strică.",
+  "shortDescription": "Creează liste de dorințe, împarte-le cu prietenii și scapă de cadourile duble.",
+  "promoText": "Lipește orice link, creează o listă frumoasă și trimite-o prietenilor. Ei rezervă ce vor cumpăra: nimeni nu primește același cadou de două ori.",
   "keywords": [
     "listă de dorințe",
     "cadou",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Wishlane transformă întrebarea „și tu ce vrei, de fapt?” în ceva ce toată lumea savurează.",
-    "Creează liste de dorințe frumoase, împarte-le cu oamenii care contează și lasă-i să rezerve cadourile în secret: nimeni nu cumpără același lucru de două ori și nicio surpriză nu se strică."
+    "Creează liste de dorințe frumoase, împarte-le cu oamenii care contează și lasă-i să rezerve cadourile: nimeni nu cumpără același lucru de două ori."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Fiecare listă poate fi publică, doar pentru prieteni sau complet privată. Trimite linkul oricui sau conectează-te cu prietenii după numele de utilizator: tu le vezi listele, ei pe ale tale."
     },
     {
-      "heading": "Rezervă cadouri în secret",
-      "body": "Rezervă un produs din lista unui prieten: ceilalți văd că e deja luat, dar proprietarul listei nu află niciodată. Fără cadouri duble, fără surprize stricate."
+      "heading": "Fără cadouri duble",
+      "body": "Rezervă un produs din lista unui prieten: ceilalți văd că e deja luat, așa că nimeni nu cumpără același cadou de două ori."
     },
     {
       "heading": "Moș Anonim, organizat",
@@ -63,7 +63,7 @@
     "Liste cu culori, priorități și date",
     "Lipești un link, noi completăm detaliile",
     "Liste publice, doar pentru prieteni sau private",
-    "Rezervi cadouri în secret pe listele prietenilor",
+    "Rezervi cadouri pe listele prietenilor, fără dubluri",
     "Grup Moș Anonim cu extragere automată",
     "Listele prietenilor și evenimente apropiate"
   ],

@@ -3,8 +3,8 @@
   "title": "Wishlane: danh sách ước",
   "appleName": "Wishlane",
   "subtitle": "Danh sách ước và quà tặng",
-  "shortDescription": "Tạo danh sách ước, chia sẻ với bạn bè và bí mật giữ chỗ món quà.",
-  "promoText": "Dán bất kỳ liên kết nào, tạo danh sách ước thật đẹp rồi chia sẻ với bạn bè. Họ giữ chỗ quà trong bí mật: không ai tặng trùng, không bất ngờ nào bị lộ.",
+  "shortDescription": "Tạo danh sách ước, chia sẻ với bạn bè và không còn quà trùng.",
+  "promoText": "Dán bất kỳ liên kết nào, tạo danh sách ước thật đẹp rồi chia sẻ với bạn bè. Họ giữ chỗ món sẽ mua: không ai nhận cùng một món quà hai lần.",
   "keywords": [
     "danh sách ước",
     "quà tặng",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Wishlane biến câu hỏi \"rốt cuộc bạn muốn gì?\" thành điều ai cũng thấy vui.",
-    "Tạo những danh sách ước thật đẹp, chia sẻ với người quan trọng và để họ bí mật giữ chỗ món quà: không ai mua trùng và không bất ngờ nào bị phá hỏng."
+    "Tạo những danh sách ước thật đẹp, chia sẻ với người quan trọng và để họ giữ chỗ món quà: không ai mua trùng."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Mỗi danh sách có thể công khai, chỉ bạn bè hoặc hoàn toàn riêng tư. Gửi liên kết cho bất kỳ ai, hoặc kết bạn bằng tên người dùng: bạn thấy danh sách của họ, họ thấy của bạn."
     },
     {
-      "heading": "Bí mật giữ chỗ món quà",
-      "body": "Giữ chỗ một món trong danh sách của bạn bè: những người khác thấy món đó đã có người nhận, còn chủ danh sách thì không bao giờ biết. Không quà trùng, không bất ngờ bị lộ."
+      "heading": "Không quà trùng",
+      "body": "Giữ chỗ một món trong danh sách của bạn bè: những người khác thấy món đó đã có người nhận, nên không ai mua trùng quà."
     },
     {
       "heading": "Secret Santa gọn gàng",
@@ -63,7 +63,7 @@
     "Danh sách ước có màu, mức ưu tiên và ngày",
     "Dán liên kết sản phẩm, chúng tôi điền chi tiết",
     "Danh sách công khai, chỉ bạn bè hoặc riêng tư",
-    "Bí mật giữ chỗ quà trong danh sách của bạn bè",
+    "Giữ chỗ quà trong danh sách của bạn bè, không lo trùng",
     "Nhóm Secret Santa với bốc thăm tự động",
     "Khám phá danh sách bạn bè và sự kiện sắp tới"
   ],

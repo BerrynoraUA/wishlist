@@ -45,30 +45,51 @@ Metro and any device the runner started are cleaned up afterwards. Pass
 Phones only: the app has no tablet layouts yet, so `ios.supportsTablet` is `false` in
 `apps/native/app.json` and there is no iPad slot to fill.
 
-Each target captures seven scenes, producing 21 PNGs for one appearance or 42 for both,
-plus the same count again in the framed set. Seven covers the features worth selling
-while staying inside Apple's 3–10 limit and Google's phone requirement of 2–8.
+The Google Play target captures six scenes and each iPhone target five, well inside
+Apple's 3–10 limit and Google's phone requirement of 2–8. Fewer, stronger images beat a
+full gallery: each one has a single job.
 
-Files are named `NN-scene.png`, where `NN` is the scene's position in the store gallery:
+Files are named `NN-scene.png`, where `NN` is the scene's position in that device's
+gallery:
 
-    01-wishlists  02-item-link  03-discover  04-secret-santa
-    05-secret-santa-event  06-wishlist  07-friends
+    Google Play  01-item-link  02-share  03-discover  04-wishlists  05-wishlist
+                 06-secret-santa-event
+    iPhone       01-item-link  02-discover  03-wishlists  04-wishlist
+                 05-secret-santa-event
 
 App Store Connect and Play Console both take screenshots in file order, and a listing is
 skimmed before it is read — Apple shows roughly the first two or three, Google three or
-four, so the opening slots carry the pitch: what it is, how little work it is, and what
-it does for the people you buy for. The numbering is derived from `SHOWCASE_SCENES` in
-[constants.ts](../packages/backend/supabase/showcase/constants.ts), so reordering that
-array is the only edit needed — the prefixes follow, and a test asserts the names still
-sort into the declared order. Numbers are zero-padded so a tenth scene cannot sort
-between the first and the second.
+four, so the opening slots carry the pitch: a wishlist you fill from any shop link, that
+works from any app through the share sheet, and that stops friends buying the same gift.
+Secret Santa is a secondary feature and gets one image, last. The order comes from
+`SHOWCASE_SCENES` in [constants.ts](../packages/backend/supabase/showcase/constants.ts),
+so reordering that array is the only edit needed — the prefixes follow, a device that
+skips a scene numbers its gallery without a gap, and a test asserts the names still sort
+into the declared order. Numbers are zero-padded so a tenth scene cannot sort between
+the first and the second.
 
 `item-link` is the only scene that is not a route: it is the production
 create-from-link sheet, which the coordinator asks the app to open via
 `requestShowcaseOverlay` once the wishlist underneath has settled. `CreateMenuHost` owns
 that sheet in production and opens it here too, so the capture is the real sheet. The
 scrape behind it is answered from `SHOWCASE_SCRAPED_PRODUCT` rather than the network,
-which is what lets the run stay offline.
+which is what lets the run stay offline. It is also exactly the screen a share from
+another app lands on, since `CreateMenuHost` opens the same sheet for a share intent.
+
+`share` is not in the app at all. The runner opens a product page — served by the control
+server at `/shop` and rendered from `SHOWCASE_SCRAPED_PRODUCT`, so it is the same product
+the `item-link` scene fills in — in Chrome on the emulator, scrolls once so Chrome
+collapses its toolbar (which would show the loopback address), and taps the page, which
+calls `navigator.share`. What gets photographed is the real Android share sheet with the
+real Wishlane target that `expo-share-intent` registers. Android ranks targets by use,
+so on a fresh AVD Wishlane is listed last; the runner pins it once through the sheet's
+long-press menu, and the pin persists on the AVD. It needs a Google APIs or Play Store
+system image, since those ship Chrome, and an English system language, since it finds
+the targets by their labels. On Chrome's first-run screens it only ever chooses to stay
+signed out — it never adds an account.
+
+iOS has no `simctl` command that can open Safari's share sheet, so the App Store
+galleries go without `share` rather than show a sheet that is not the real one.
 
 ## When tablets ship
 
@@ -87,7 +108,7 @@ The generated tree is aligned with the store upload fields:
 
     apps/native/artifacts/
     ├── screenshots/            # bare captures, upload these
-    │   ├── apple/iphone-{6.9,6.5}/{light,dark}/{01-wishlists,02-item-link,…}.png
+    │   ├── apple/iphone-{6.9,6.5}/{light,dark}/{01-item-link,02-discover,…}.png
     │   └── google-play/{phone,tablet-7,tablet-10}/{light,dark}/…
     ├── framed/                 # same names, gradient background + caption
     │   ├── apple/…
@@ -102,32 +123,21 @@ shows up as pending changes and never rides along in an EAS build archive.
 
 Framed images keep the exact store dimensions, so they can be uploaded directly when a
 captioned listing is wanted instead of bare screenshots. Each frame is a heavy two-line
-headline with a highlighter swash under its last line, the whole phone below it sized to
-whatever room the headline leaves, and speech clouds trailing bubbles back to the element
-each one explains.
+headline with a highlighter swash under its last line and the whole phone below it,
+sized to whatever room the headline leaves. The frame draws each device's own camera
+cutout — the Dynamic Island on the 6.9-inch slot, the notch on the 6.5-inch iPhone 14
+Plus, a punch-hole on Android — because simulator captures do not include the hardware.
 
-Headlines and callouts are declared per scene under `frames.scenes` in
+Headlines are declared per scene under `frames.scenes` in
 [showcase.config.ts](../scripts/showcase/showcase.config.ts), alongside the background,
 accent and font settings. Three rules are worth keeping when editing them:
 
 - **Headlines are broken by hand**, because the swash marks the last line — where the
   break falls decides what gets emphasised. They name the outcome, not the feature.
-- **A callout explains something visible rather than repeating it.** "3 Reserved" is a
-  number the reader can already count; that it stops two people buying the same present
-  is the part the screenshot cannot tell them.
-- **Anchors aim at the blank space beside an element, never its middle.** The tail ends in
-  a dot, and a dot on the label hides the thing the cloud is pointing out.
-
-Anchors are fractions of the captured screen, so they survive a change of upload size,
-but they were tuned against the 9:16 Android capture. The iPhone slots are 9:19.5, where
-the app has more vertical room, so those frames want an anchor pass of their own once iOS
-captures exist to check them against.
-
-Clouds are one closed SVG path, not a stack of circles: lobe centres are seated on the
-text box's own outline and `cloudPath` traces the union's silhouette as a run of arcs,
-the way Twemoji's thought balloon (U+1F4AD) is drawn. Because the centres sit on that
-outline, every notch between two lobes falls outside the text box, so text can never be
-clipped by the silhouette however the lobes are sized.
+- **One message per image.** Two images that make the same promise waste a slot.
+- **Nothing but the headline.** Galleries are browsed at thumbnail size, where a 30 px
+  annotation on a 1080 px canvas shrinks to about 5 px; only the headline survives, so
+  anything worth saying goes there and the real screen is the proof.
 
 Reframing needs nothing but the PNGs already on disk, so iterate on the styling without
 booting anything:
@@ -139,7 +149,7 @@ booting anything:
 Capture one scene or device:
 
     pnpm screenshots --device pixel --scene wishlist
-    pnpm screenshots --platform android --scene friends
+    pnpm screenshots --platform android --scene share
 
 Override the configured appearance:
 
@@ -184,7 +194,7 @@ or a Docker daemon, so a Mac with Xcode and the repo is the whole requirement.
   [client.ts](../packages/backend/supabase/showcase/client.ts)
 - Scenes, ids and the control/asset origin shared with the runner:
   [constants.ts](../packages/backend/supabase/showcase/constants.ts)
-- Device matrix, scenes, headlines, callouts and frame styling:
+- Device matrix, scenes, headlines and frame styling:
   [showcase.config.ts](../scripts/showcase/showcase.config.ts)
 - Simulator/emulator orchestration:
   [showcase.ts](../scripts/showcase/showcase.ts)
@@ -197,7 +207,9 @@ loopback tunnel the scene channel uses, so runs stay offline-safe and the files 
 ship in a production build. Avatars are gradient initials rendered on demand rather
 than synthetic faces.
 
-Three app-side details keep captures clean: the fixture profiles have
+Four app-side details keep captures clean: the floating back button on detail screens is
+not rendered while `EXPO_PUBLIC_SHOWCASE=1`, since it would sit on top of the content a
+screenshot is selling; the fixture profiles have
 `userGuideStep = 15`, which is `USER_GUIDE_COMPLETE_STEP`, so the onboarding coach
 marks never appear; `NotificationPushBootstrap` skips permission registration and
 the permission sheet entirely while `EXPO_PUBLIC_SHOWCASE=1`, so no OS dialog lands on

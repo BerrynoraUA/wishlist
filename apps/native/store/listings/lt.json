@@ -3,8 +3,8 @@
   "title": "Wishlane: norų sąrašai",
   "appleName": "Wishlane",
   "subtitle": "Norų sąrašai ir dovanos",
-  "shortDescription": "Kurkite norų sąrašus, dalykitės jais su draugais ir slapta rezervuokite dovanas.",
-  "promoText": "Įklijuokite bet kokią nuorodą, sukurkite gražų norų sąrašą ir pasidalykite juo su draugais. Dovanas jie rezervuoja slapta – niekas nenuperka to paties ir jokia staigmena nesugadinama.",
+  "shortDescription": "Kurkite ir dalykitės norų sąrašais – be pasikartojančių dovanų.",
+  "promoText": "Įklijuokite bet kokią nuorodą, sukurkite gražų norų sąrašą ir pasidalykite juo su draugais. Jie rezervuoja, ką pirks – niekas negauna tos pačios dovanos du kartus.",
   "keywords": [
     "norų sąrašas",
     "dovana",
@@ -15,7 +15,7 @@
   ],
   "intro": [
     "„Wishlane“ klausimą „tai ko tu iš tikrųjų nori?“ paverčia tuo, kas džiugina visus.",
-    "Kurkite gražius norų sąrašus, dalykitės jais su svarbiausiais žmonėmis ir leiskite jiems slapta rezervuoti dovanas – niekas nenuperka to paties du kartus ir jokia staigmena nesugadinama."
+    "Kurkite gražius norų sąrašus, dalykitės jais su svarbiausiais žmonėmis ir leiskite jiems rezervuoti dovanas – niekas nenuperka to paties du kartus."
   ],
   "sections": [
     {
@@ -27,8 +27,8 @@
       "body": "Kiekvienas sąrašas gali būti viešas, tik draugams arba visiškai privatus. Siųskite nuorodą bet kam arba susisiekite su draugais pagal naudotojo vardą – matysite jų sąrašus, jie – jūsų."
     },
     {
-      "heading": "Rezervuokite dovanas slapta",
-      "body": "Rezervuokite prekę draugo sąraše: visi kiti matys, kad ji jau paimta, bet sąrašo savininkas niekada nesužinos. Jokių dvigubų dovanų ir sugadintų staigmenų."
+      "heading": "Jokių pasikartojančių dovanų",
+      "body": "Rezervuokite prekę draugo sąraše: visi kiti matys, kad ji jau paimta, todėl niekas nenupirks tos pačios dovanos du kartus."
     },
     {
       "heading": "Slaptasis Kalėdų Senelis be rūpesčių",
@@ -62,7 +62,7 @@
     "Norų sąrašai su spalvomis, prioritetais ir datomis",
     "Įklijuokite nuorodą – detales užpildysime mes",
     "Sąrašai vieši, tik draugams arba privatūs",
-    "Slaptas dovanų rezervavimas draugų sąrašuose",
+    "Dovanų rezervavimas draugų sąrašuose, be pasikartojimų",
     "Slaptojo Kalėdų Senelio grupė su automatiniais burtais",
     "Draugų sąrašai ir artėjančios šventės"
   ],

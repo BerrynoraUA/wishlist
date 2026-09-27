@@ -3,8 +3,8 @@
   "title": "Wishlane: wishlist at regalo",
   "appleName": "Wishlane",
   "subtitle": "Wishlist, maganda ang share",
-  "shortDescription": "Gumawa ng wishlist, i-share sa kaibigan, at mag-reserve ng regalo nang lihim.",
-  "promoText": "I-paste ang kahit anong link, gumawa ng magandang wishlist, at i-share sa mga kaibigan. Lihim silang nagre-reserve ng regalo: walang dobleng regalo at walang sirang sorpresa.",
+  "shortDescription": "Gumawa ng wishlist, i-share sa kaibigan, at iwasan ang dobleng regalo.",
+  "promoText": "I-paste ang kahit anong link, gumawa ng magandang wishlist, at i-share sa mga kaibigan. Nire-reserve nila ang bibilhin nila: walang dobleng regalo.",
   "keywords": [
     "wishlist",
     "regalo",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Ginagawang masaya ng Wishlane ang tanong na \"ano nga ba talaga ang gusto mo?\"",
-    "Gumawa ng magagandang wishlist, i-share sa mga taong mahalaga sa iyo, at hayaan silang mag-reserve ng regalo nang lihim: walang bibili ng parehong bagay nang dalawang beses at walang sorpresang masisira."
+    "Gumawa ng magagandang wishlist, i-share sa mga taong mahalaga sa iyo, at hayaan silang mag-reserve ng regalo: walang bibili ng parehong bagay nang dalawang beses."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Puwedeng public, para sa mga kaibigan lang, o ganap na pribado ang bawat wishlist. Magpadala ng link kaninuman, o kumonekta sa mga kaibigan gamit ang username: makikita mo ang listahan nila, makikita nila ang sa iyo."
     },
     {
-      "heading": "Lihim na mag-reserve ng regalo",
-      "body": "Mag-reserve ng item sa listahan ng kaibigan: makikita ng iba na kuha na ito, pero hinding-hindi malalaman ng may-ari ng listahan. Walang dobleng regalo, walang sirang sorpresa."
+      "heading": "Walang dobleng regalo",
+      "body": "Mag-reserve ng item sa listahan ng kaibigan: makikita ng iba na kuha na ito, kaya walang bibili ng parehong regalo nang dalawang beses."
     },
     {
       "heading": "Monito Monita, ayos na ayos",
@@ -63,7 +63,7 @@
     "Wishlist na may kulay, prayoridad at petsa",
     "I-paste ang link, kami na ang bahala sa detalye",
     "Listahang public, para sa kaibigan, o pribado",
-    "Lihim na pag-reserve ng regalo sa listahan ng kaibigan",
+    "Pag-reserve ng regalo sa listahan ng kaibigan, walang doble",
     "Grupong Monito Monita na may awtomatikong bunutan",
     "Listahan ng mga kaibigan at paparating na okasyon"
   ],

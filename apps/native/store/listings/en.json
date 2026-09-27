@@ -2,9 +2,9 @@
   "bcp47": "en",
   "title": "Wishlane: Wishlists & Gifts",
   "appleName": "Wishlane",
-  "subtitle": "Wishlists, shared beautifully",
-  "shortDescription": "Create wishlists, share them with friends, and reserve gifts in secret.",
-  "promoText": "Paste any link, build a beautiful wishlist, and share it with friends. They reserve gifts in secret - so nobody buys the same present and no surprise gets spoiled.",
+  "subtitle": "Save anything from any shop",
+  "shortDescription": "Create wishlists, share them with friends, and never double up on gifts.",
+  "promoText": "Paste any link, build a beautiful wishlist, and share it with friends. They reserve what they're buying - so nobody gets the same present twice.",
   "keywords": [
     "wishlist",
     "gift",
@@ -19,7 +19,7 @@
   ],
   "intro": [
     "Wishlane turns \"so, what do you actually want?\" into something everyone enjoys.",
-    "Create beautiful wishlists, share them with the people who matter, and let them reserve gifts in secret - so nobody buys the same thing twice and no surprise gets spoiled."
+    "Create beautiful wishlists, share them with the people who matter, and let them reserve gifts - so nobody buys the same thing twice."
   ],
   "sections": [
     {
@@ -31,8 +31,8 @@
       "body": "Every wishlist is public, friends-only, or completely private. Send a link to anyone, or connect with friends by username - you'll see their lists, they'll see yours."
     },
     {
-      "heading": "Reserve gifts secretly",
-      "body": "Reserve an item on a friend's list and everyone else can see it's taken - but the owner never finds out. No duplicate presents, no ruined surprises."
+      "heading": "No duplicate gifts",
+      "body": "Reserve an item on a friend's list and everyone else can see it's taken, so nobody buys the same present twice."
     },
     {
       "heading": "Secret Santa, organised",
@@ -66,7 +66,7 @@
     "Create wishlists with colours, priorities and dates",
     "Paste a product link and we fill in the details",
     "Share lists publicly, with friends, or privately",
-    "Reserve gifts on friends' lists in secret",
+    "Reserve gifts on friends' lists so nobody doubles up",
     "Run a Secret Santa group with an automatic draw",
     "Discover friends' lists and upcoming events"
   ],

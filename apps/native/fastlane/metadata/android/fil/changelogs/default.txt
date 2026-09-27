@@ -3,6 +3,6 @@ Ang unang release ng Wishlane.
 - Wishlist na may kulay, prayoridad at petsa
 - I-paste ang link, kami na ang bahala sa detalye
 - Listahang public, para sa kaibigan, o pribado
-- Lihim na pag-reserve ng regalo sa listahan ng kaibigan
+- Pag-reserve ng regalo sa listahan ng kaibigan, walang doble
 - Grupong Monito Monita na may awtomatikong bunutan
 - Listahan ng mga kaibigan at paparating na okasyon

@@ -3,8 +3,8 @@
   "title": "Wishlane: dilek listeleri",
   "appleName": "Wishlane",
   "subtitle": "Dilek listeleri ve hediyeler",
-  "shortDescription": "Dilek listeleri oluşturun, arkadaşlarınızla paylaşın, hediyeleri gizlice ayırın.",
-  "promoText": "Herhangi bir bağlantıyı yapıştırın, şık bir dilek listesi oluşturun ve paylaşın. Arkadaşlarınız hediyeleri gizlice ayırır: aynı hediye alınmaz, sürpriz bozulmaz.",
+  "shortDescription": "Dilek listeleri oluşturun, arkadaşlarınızla paylaşın, aynı hediyeye son verin.",
+  "promoText": "Herhangi bir bağlantıyı yapıştırın, şık bir dilek listesi oluşturun ve paylaşın. Arkadaşlarınız alacaklarını ayırır: kimse aynı hediyeyi iki kez almaz.",
   "keywords": [
     "dilek listesi",
     "hediye",
@@ -16,7 +16,7 @@
   ],
   "intro": [
     "Wishlane, \"e sen aslında ne istiyorsun?\" sorusunu herkesin keyif aldığı bir şeye dönüştürür.",
-    "Şık dilek listeleri oluşturun, sizin için önemli olan kişilerle paylaşın ve hediyeleri gizlice ayırmalarına izin verin: kimse aynı şeyi iki kez almaz ve hiçbir sürpriz bozulmaz."
+    "Şık dilek listeleri oluşturun, sizin için önemli olan kişilerle paylaşın ve hediyeleri ayırmalarına izin verin: kimse aynı şeyi iki kez almaz."
   ],
   "sections": [
     {
@@ -28,8 +28,8 @@
       "body": "Her liste herkese açık, yalnızca arkadaşlara açık veya tamamen gizli olabilir. Dilediğinize bağlantı gönderin ya da kullanıcı adıyla arkadaş ekleyin: siz onların listelerini, onlar sizinkini görür."
     },
     {
-      "heading": "Hediyeleri gizlice ayırın",
-      "body": "Bir arkadaşınızın listesindeki ürünü ayırın; diğer herkes o ürünün alındığını görür ama listenin sahibi asla öğrenmez. Ne aynı hediye ne de bozulan sürpriz."
+      "heading": "Aynı hediye iki kez yok",
+      "body": "Bir arkadaşınızın listesindeki ürünü ayırın; diğer herkes o ürünün alındığını görür, böylece kimse aynı hediyeyi iki kez almaz."
     },
     {
       "heading": "Gizli kardeş, düzenli",
@@ -63,7 +63,7 @@
     "Renkler, öncelikler ve tarihlerle dilek listeleri",
     "Ürün bağlantısını yapıştırın, detayları biz dolduralım",
     "Listeler herkese açık, arkadaşlara özel veya gizli",
-    "Arkadaş listelerinde hediyeleri gizlice ayırma",
+    "Arkadaş listelerinde hediye ayırma, tekrar olmadan",
     "Otomatik çekilişli gizli kardeş grubu",
     "Arkadaş listeleri ve yaklaşan özel günler"
   ],
