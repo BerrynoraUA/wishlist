@@ -9,6 +9,7 @@ import {
   BottomSheetScrollView,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
+import { AutofillField, useTypewriter } from "@/components/items/autofill-field";
 import { ItemColorSelector } from "@/components/items/item-color-selector";
 import { Button } from "@/components/ui/button";
 import { CurrencyPicker } from "@/components/ui/currency-picker";
@@ -41,6 +42,7 @@ import {
   toItemFormValues,
 } from "@/lib/items";
 import { useImageUploadField } from "@/lib/image-upload";
+import { hapticSuccess } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
 import { WISHLIST_PAGE_SIZE } from "@/lib/wishlists";
@@ -54,6 +56,14 @@ import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, View } from "react-native";
+
+/** Which scraped fields landed, keyed by the scrape request that filled them. */
+type Autofill = {
+  id: number;
+  fields: Partial<Record<keyof ItemFormValues, true>>;
+};
+
+const NO_AUTOFILL: Autofill = { id: 0, fields: {} };
 
 type ItemFormVariant = {
   showsProductLink: boolean;
@@ -165,9 +175,13 @@ export function WishlistItemCreateEditSheet({
   const [isScraping, setIsScraping] = React.useState(false);
   const imageUpload = useImageUploadField("item");
   const [scrapeError, setScrapeError] = React.useState<string | null>(null);
+  const [autofill, setAutofill] = React.useState<Autofill>(NO_AUTOFILL);
+  const autofillId = (field: keyof ItemFormValues) => (autofill.fields[field] ? autofill.id : 0);
   const currentUrlRef = React.useRef("");
   const lastScrapedUrlRef = React.useRef("");
   const scrapeRequestIdRef = React.useRef(0);
+  const typedName = useTypewriter(values.name, autofillId("name"), 0);
+  const typedPrice = useTypewriter(values.price, autofillId("price"), 3);
   const productLinkInvalid = form.showsProductLink && hasInvalidOptionalUrl(values.url);
   const imageUrlInvalid = hasInvalidOptionalUrl(values.imageUrl);
   const invalidAdditionalLinkIndexes = React.useMemo(
@@ -200,6 +214,7 @@ export function WishlistItemCreateEditSheet({
       setSelectedWishlist(null);
       setWishlistSearch("");
       setScrapeError(null);
+      setAutofill(NO_AUTOFILL);
       imageUpload.reset();
       currentUrlRef.current = nextValues.url.trim();
       // An existing item's link has already produced the values in the form, but a create-mode
@@ -272,6 +287,7 @@ export function WishlistItemCreateEditSheet({
     scrapeRequestIdRef.current += 1;
     setIsScraping(false);
     setScrapeError(null);
+    setAutofill(NO_AUTOFILL);
     imageUpload.onClear();
     lastScrapedUrlRef.current = "";
     patchValues({
@@ -393,7 +409,7 @@ export function WishlistItemCreateEditSheet({
         imageUpload.onClear();
       }
       const scrapedCurrency = resolveSupportedCurrency(product.currency);
-      patchValues({
+      const scrapedValues: Partial<ItemFormValues> = {
         ...(product.title ? { name: product.title } : {}),
         ...(form.scrapeDescription && product.description
           ? { description: product.description }
@@ -403,10 +419,18 @@ export function WishlistItemCreateEditSheet({
         // The scraper can report a symbol or a currency we don't offer; keep the current
         // selection in that case rather than autofilling something we can't represent.
         ...(scrapedCurrency ? { currency: scrapedCurrency } : {}),
+      };
+      patchValues({
+        ...scrapedValues,
         discountPrice: product.discount_price ?? "",
         hasDiscount: product.has_discount,
         discountEndDate: product.discount_end_date ?? "",
       });
+      setAutofill({
+        id: requestId,
+        fields: Object.fromEntries(Object.keys(scrapedValues).map((key) => [key, true])),
+      });
+      hapticSuccess();
     } catch (error) {
       if (requestId === scrapeRequestIdRef.current && currentUrlRef.current === url) {
         setScrapeError(error instanceof Error ? error.message : t("Could not fetch product data"));
@@ -520,17 +544,19 @@ export function WishlistItemCreateEditSheet({
         {form.productLinkPosition === "top" ? productLinkField : null}
 
         <Field label={t("Name")}>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field: { onChange, value } }) => (
-              <Input
-                value={value}
-                onChangeText={onChange}
-                placeholder={t("e.g. Noise-cancelling headphones")}
-              />
-            )}
-          />
+          <AutofillField loading={isScraping} fillId={autofillId("name")} order={0}>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  value={typedName ?? value}
+                  onChangeText={onChange}
+                  placeholder={t("e.g. Noise-cancelling headphones")}
+                />
+              )}
+            />
+          </AutofillField>
         </Field>
 
         {form.showsWishlistPicker ? (
@@ -551,22 +577,29 @@ export function WishlistItemCreateEditSheet({
         {form.productLinkPosition === "middle" ? productLinkField : null}
 
         <Field label={t("Image")}>
-          <SingleImagePicker
-            previewUri={
-              imageUpload.pickedImage?.uri ?? (imageUrlInvalid ? null : values.imageUrl.trim())
-            }
-            pickLabel={t("Choose image")}
-            changeLabel={t("Change image")}
-            onPick={(image) => {
-              imageUpload.onPick(image);
-              patchValues({ imageUrl: "" });
-            }}
-            onClear={() => {
-              imageUpload.onClear();
-              patchValues({ imageUrl: "" });
-            }}
-            onError={imageUpload.onError}
-          />
+          <AutofillField
+            loading={isScraping}
+            fillId={autofillId("imageUrl")}
+            order={1}
+            radiusClassName="rounded-xl"
+          >
+            <SingleImagePicker
+              previewUri={
+                imageUpload.pickedImage?.uri ?? (imageUrlInvalid ? null : values.imageUrl.trim())
+              }
+              pickLabel={t("Choose image")}
+              changeLabel={t("Change image")}
+              onPick={(image) => {
+                imageUpload.onPick(image);
+                patchValues({ imageUrl: "" });
+              }}
+              onClear={() => {
+                imageUpload.onClear();
+                patchValues({ imageUrl: "" });
+              }}
+              onError={imageUpload.onError}
+            />
+          </AutofillField>
           {imageUrlInvalid ? (
             <Text className="text-xs font-semibold text-destructive">{t("Enter valid Url")}</Text>
           ) : null}
@@ -577,55 +610,61 @@ export function WishlistItemCreateEditSheet({
 
         {form.showsDescription ? (
           <Field label={t("Description")}>
-            <Controller
-              control={control}
-              name="description"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  onFocus={() => void sheetRef.current?.resize(1)}
-                  placeholder={t("Add details, size, color...")}
-                  multiline
-                  onContentSizeChange={(event) => {
-                    setDescriptionInputHeight(
-                      clampDescriptionInputHeight(
-                        event.nativeEvent.contentSize.height + DESCRIPTION_INPUT_VERTICAL_OFFSET,
-                      ),
-                    );
-                  }}
-                  className="items-start py-3"
-                  style={{ height: descriptionInputHeight }}
-                  textAlignVertical="top"
-                />
-              )}
-            />
+            <AutofillField loading={isScraping} fillId={autofillId("description")} order={2}>
+              <Controller
+                control={control}
+                name="description"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    onFocus={() => void sheetRef.current?.resize(1)}
+                    placeholder={t("Add details, size, color...")}
+                    multiline
+                    onContentSizeChange={(event) => {
+                      setDescriptionInputHeight(
+                        clampDescriptionInputHeight(
+                          event.nativeEvent.contentSize.height + DESCRIPTION_INPUT_VERTICAL_OFFSET,
+                        ),
+                      );
+                    }}
+                    className="items-start py-3"
+                    style={{ height: descriptionInputHeight }}
+                    textAlignVertical="top"
+                  />
+                )}
+              />
+            </AutofillField>
           </Field>
         ) : null}
 
         <View className="flex-row gap-3">
           <Field label={t("Price")} className="min-w-0 basis-0 flex-1">
-            <Controller
-              control={control}
-              name="price"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder={t("199")}
-                  keyboardType="decimal-pad"
-                />
-              )}
-            />
+            <AutofillField loading={isScraping} fillId={autofillId("price")} order={3}>
+              <Controller
+                control={control}
+                name="price"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={typedPrice ?? value}
+                    onChangeText={onChange}
+                    placeholder={t("199")}
+                    keyboardType="decimal-pad"
+                  />
+                )}
+              />
+            </AutofillField>
           </Field>
           <Field label={t("Currency")} className="min-w-0 basis-0 flex-1">
-            <Controller
-              control={control}
-              name="currency"
-              render={({ field: { onChange, value } }) => (
-                <CurrencyPicker value={value} onValueChange={onChange} />
-              )}
-            />
+            <AutofillField loading={isScraping} fillId={autofillId("currency")} order={4}>
+              <Controller
+                control={control}
+                name="currency"
+                render={({ field: { onChange, value } }) => (
+                  <CurrencyPicker value={value} onValueChange={onChange} />
+                )}
+              />
+            </AutofillField>
           </Field>
         </View>
 
