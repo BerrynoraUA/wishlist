@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
-    "@supabase/supabase-js": "^2.103.0",
+    "@supabase/supabase-js": "^2.117.2",
     "expo-secure-store": "~57.0.1",
     "react-native-url-polyfill": "^3.0.0",
     "server-only": "0.0.1"

@@ -15,7 +15,7 @@ import {
 } from "@/lib/scraper/constants";
 import { type SandboxParseResult, registerSandboxBridge } from "@/lib/scraper/sandbox-bridge";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { InteractionManager, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { WebView, type WebViewMessageEvent } from "react-native-webview";
 
 /**
@@ -48,8 +48,8 @@ export function ScraperSandbox() {
 
   // Instantiating a WebView is native work; keep it off the first frames.
   useEffect(() => {
-    const handle = InteractionManager.runAfterInteractions(() => setMounted(true));
-    return () => handle.cancel();
+    const handle = requestIdleCallback(() => setMounted(true));
+    return () => cancelIdleCallback(handle);
   }, []);
 
   // --- Request tracking ----------------------------------------------------

@@ -37,7 +37,7 @@
     "clean": "pnpm -r exec -- node -e \"const fs=require('fs');try{fs.rmSync('node_modules',{recursive:true,force:true});console.log('Deleted node_modules')}catch(e){}\" && node -e \"const fs=require('fs');try{fs.rmSync('node_modules',{recursive:true,force:true});console.log('Deleted root node_modules')}catch(e){}\" && pnpm store prune"
   },
   "devDependencies": {
-    "@supabase/supabase-js": "^2.103.0",
+    "@supabase/supabase-js": "^2.117.2",
     "@types/pngjs": "^6.0.5",
     "node-gyp": "^12.4.0",
     "oxfmt": "^0.45.0",
