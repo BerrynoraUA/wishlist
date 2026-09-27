@@ -11,7 +11,7 @@ import { INPUT_CLASS_NAME, Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronRight, X } from "lucide-react-native";
+import { Check, ChevronRight, Plus, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Keyboard, Pressable, ScrollView, TextInput, View } from "react-native";
 
@@ -51,6 +51,14 @@ type CommonProps = {
   hideSelectedOptions?: boolean;
   showSelectedValue?: boolean;
   inputAccessory?: React.ReactNode;
+  /**
+   * Adds a row above the options for creating a new entry, e.g. from a search that found
+   * nothing. `onPress` gets the trimmed query and runs once the list has closed.
+   */
+  createAction?: {
+    label: (query: string) => string;
+    onPress: (query: string) => void;
+  };
   inputProps?: Omit<
     React.ComponentProps<typeof Input>,
     "value" | "onChangeText" | "onFocus" | "onSubmitEditing" | "placeholder"
@@ -93,6 +101,7 @@ export function AutocompleteDropdown({
   hideSelectedOptions = false,
   showSelectedValue = true,
   inputAccessory,
+  createAction,
   inputProps,
   ...props
 }: AutocompleteDropdownProps) {
@@ -155,6 +164,23 @@ export function AutocompleteDropdown({
 
     setIsOpen(false);
     Keyboard.dismiss();
+  }
+
+  async function handleCreate() {
+    if (!createAction) return;
+    const trimmedQuery = query.trim();
+    setQuery("");
+    onQueryChange?.("");
+
+    if (usesSheet) {
+      // Let this sheet finish closing before the caller presents whatever creates the entry.
+      await sheetRef.current?.dismiss();
+    } else {
+      setIsOpen(false);
+      Keyboard.dismiss();
+    }
+
+    createAction.onPress(trimmedQuery);
   }
 
   function handleSubmit() {
@@ -239,6 +265,24 @@ export function AutocompleteDropdown({
     );
   });
 
+  const createRow = createAction ? (
+    <Pressable
+      onPress={() => void handleCreate()}
+      role="button"
+      className={cn(
+        "min-h-16 flex-row items-center gap-3 rounded-xl border border-transparent px-3 py-3 active:bg-bg-subtle",
+        optionClassName,
+      )}
+    >
+      <View className="size-9 items-center justify-center rounded-full bg-brand-lighter">
+        <Icon as={Plus} aria-hidden={true} className="size-4 text-brand" />
+      </View>
+      <Text className="min-w-0 flex-1 font-semibold text-brand" numberOfLines={1}>
+        {createAction.label(query.trim())}
+      </Text>
+    </Pressable>
+  ) : null;
+
   const loadingMoreIndicator = isLoadingMore ? (
     <View className="h-12 items-center justify-center">
       <ActivityIndicator colorClassName="accent-brand" size="small" />
@@ -297,6 +341,7 @@ export function AutocompleteDropdown({
         dropdownClassName,
       )}
     >
+      {createRow}
       {isLoading && matchingOptions.length === 0 ? (
         <View className="h-16 items-center justify-center">
           <ActivityIndicator colorClassName="accent-brand" size="small" />
@@ -428,6 +473,7 @@ export function AutocompleteDropdown({
               paddingHorizontal: 20,
             }}
           >
+            {createRow}
             {isLoading && matchingOptions.length === 0 ? (
               <View className="h-16 items-center justify-center">
                 <ActivityIndicator colorClassName="accent-brand" size="small" />

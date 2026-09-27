@@ -19,6 +19,7 @@ import { ItemColorSelector } from "@/components/items/item-color-selector";
 import { Button } from "@/components/ui/button";
 import { CurrencyPicker } from "@/components/ui/currency-picker";
 import { GuideTarget } from "@/components/user-guide/guide-target";
+import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { Icon } from "@/components/ui/icon";
@@ -434,6 +435,8 @@ export function WishlistItemCreateEditSheet({
         id: requestId,
         fields: Object.fromEntries(Object.keys(scrapedValues).map((key) => [key, true])),
       });
+      // The photo pushes the rest of the form down; open the sheet fully so it stays in view.
+      if (mode === "create" && product.image) void sheetRef.current?.resize(1);
       hapticSuccess();
     } catch (error) {
       if (requestId === scrapeRequestIdRef.current && currentUrlRef.current === url) {
@@ -746,7 +749,9 @@ export function WishlistItemCreateEditSheet({
               <Button
                 variant="outline"
                 onPress={() =>
-                  patchValues({ additionalLinks: [...values.additionalLinks, { url: "" }] })
+                  patchValues({
+                    additionalLinks: [...values.additionalLinks, { url: "" }],
+                  })
                 }
               >
                 <Icon as={Plus} className="size-4 text-text" />
@@ -829,28 +834,43 @@ function WishlistPickerField({
     [t, wishlists],
   );
   const selectedOption = options.find((option) => option.value === value) ?? null;
+  const [createTitle, setCreateTitle] = React.useState<string | null>(null);
 
   return (
-    <AutocompleteDropdown
-      value={selectedOption}
-      onValueChange={(option) => {
-        const wishlist = wishlists.find((candidate) => candidate.id === option.value);
-        if (wishlist) onChange(wishlist);
-      }}
-      options={options}
-      placeholder={t("Search wishlists")}
-      sheetTitle={t("Select a wishlist")}
-      emptyText={
-        query.trim() ? t("No wishlists found") : t("Create a wishlist first to add wishes to it.")
-      }
-      attached
-      maxVisibleOptions={4}
-      optionClassName="min-h-12 py-3"
-      isLoading={isLoading}
-      isLoadingMore={isLoadingMore}
-      onEndReached={onEndReached}
-      onQueryChange={onQueryChange}
-    />
+    <>
+      <AutocompleteDropdown
+        value={selectedOption}
+        onValueChange={(option) => {
+          const wishlist = wishlists.find((candidate) => candidate.id === option.value);
+          if (wishlist) onChange(wishlist);
+        }}
+        options={options}
+        placeholder={t("Search wishlists")}
+        sheetTitle={t("Select a wishlist")}
+        emptyText={query.trim() ? t("No wishlists found") : t("You don't have any wishlists yet.")}
+        createAction={{
+          label: (search) =>
+            search ? t('Create "{title}"', { title: search }) : t("Create a wishlist"),
+          onPress: setCreateTitle,
+        }}
+        attached
+        maxVisibleOptions={4}
+        optionClassName="min-h-12 py-3"
+        isLoading={isLoading}
+        isLoadingMore={isLoadingMore}
+        onEndReached={onEndReached}
+        onQueryChange={onQueryChange}
+      />
+      <WishlistCreateEditSheet
+        mode="create"
+        open={createTitle !== null}
+        initialTitle={createTitle ?? undefined}
+        onOpenChange={(open) => {
+          if (!open) setCreateTitle(null);
+        }}
+        onCreated={onChange}
+      />
+    </>
   );
 }
 

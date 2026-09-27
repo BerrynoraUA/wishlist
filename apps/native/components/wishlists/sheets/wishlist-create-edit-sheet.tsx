@@ -97,12 +97,17 @@ export function WishlistCreateEditSheet({
   mode,
   open,
   wishlist,
+  initialTitle,
   onOpenChange,
+  onCreated,
 }: {
   mode: "create" | "edit";
   open: boolean;
   wishlist?: Wishlist;
+  /** Create-mode title to start from, e.g. what was typed into a wishlist search. */
+  initialTitle?: string;
   onOpenChange: (open: boolean) => void;
+  onCreated?: (wishlist: Wishlist) => void;
 }) {
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const t = useGT();
@@ -145,11 +150,17 @@ export function WishlistCreateEditSheet({
 
     const nextValues = toWishlistFormValues(wishlist);
     reset(
-      mode === "create" && isGated ? { ...nextValues, accent: WishlistAccent.Pink } : nextValues,
+      mode === "create"
+        ? {
+            ...nextValues,
+            title: initialTitle ?? nextValues.title,
+            ...(isGated ? { accent: WishlistAccent.Pink } : null),
+          }
+        : nextValues,
     );
     imageUpload.reset();
     setDescriptionInputHeight(estimateDescriptionInputHeight(wishlist?.description));
-  }, [imageUpload.reset, isGated, mode, open, reset, wishlist]);
+  }, [imageUpload.reset, initialTitle, isGated, mode, open, reset, wishlist]);
 
   if (!open) return null;
 
@@ -199,7 +210,10 @@ export function WishlistCreateEditSheet({
 
     try {
       if (mode === "edit" && wishlist) {
-        await updateMutation.mutateAsync({ id: wishlist.id, values: valuesToSave });
+        await updateMutation.mutateAsync({
+          id: wishlist.id,
+          values: valuesToSave,
+        });
         await imageUpload.commitPendingUpload(wishlist.image_url);
         await selectedAccess.syncAfterSave(wishlist.id, formValues.visibility);
 
@@ -211,6 +225,7 @@ export function WishlistCreateEditSheet({
       await imageUpload.commitPendingUpload();
       await selectedAccess.grantSelectedAccess(createdWishlist.id);
       completeCreateWishlistStep();
+      onCreated?.(createdWishlist);
       handleClose();
     } catch (submitError) {
       await imageUpload.discardPendingUpload();
@@ -747,7 +762,10 @@ function WishlistAccessPicker({
                         name: target.nickname,
                         group:
                           target.target_type === "group"
-                            ? { icon: target.icon ?? "users", color: target.color ?? "pink" }
+                            ? {
+                                icon: target.icon ?? "users",
+                                color: target.color ?? "pink",
+                              }
                             : undefined,
                       }}
                     />
