@@ -8,8 +8,14 @@ import * as NodeProcess from "node:process";
 import * as NodeURL from "node:url";
 
 import {
+  isShowcaseAppScene,
+  SHOWCASE_CONTROL_ORIGIN,
   SHOWCASE_CONTROL_PORT,
+  SHOWCASE_ITEM_LINK_URL,
+  SHOWCASE_SCRAPED_PRODUCT,
+  SHOWCASE_SHOP_PAGE_PATH,
   showcaseSceneFileStem,
+  type ShowcaseAppScene,
 } from "../../packages/backend/supabase/showcase/constants.ts";
 import { startShowcaseControlServer } from "./showcase-control-server.ts";
 import { renderFeatureGraphic, validateFeatureGraphic } from "./showcase-feature-graphic.ts";
@@ -47,6 +53,20 @@ const ANDROID_APK_PATH = NodePath.join(
   "android/app/build/outputs/apk/debug/app-debug.apk",
 );
 const PNPM = NodeProcess.platform === "win32" ? "pnpm.cmd" : "pnpm";
+const CHROME_PACKAGE = "com.android.chrome";
+
+/**
+ * Chrome's first-run screens, answered only with the choices that leave the emulator as
+ * it was: no Google account is added and Chrome stays signed out. Anything that would
+ * sign in ("Continue as …", "Add account to device") is deliberately absent.
+ */
+const CHROME_FIRST_RUN_ANSWERS = [
+  "Accept & continue",
+  "Use without an account",
+  "Stay signed out",
+  "No thanks",
+  "No, thanks",
+];
 
 /**
  * The first scene of a device also covers the cold Metro bundle and the dev-client
@@ -535,7 +555,7 @@ async function validateCaptureSet(
   const directory = showcaseCaptureDirectory(outputDirectory, capture);
   const files = (await NodeFSP.readdir(directory)).filter((file) => file.endsWith(".png")).sort();
   const missingFiles = capture.scenes
-    .map((scene) => `${showcaseSceneFileStem(scene)}.png`)
+    .map((scene) => `${showcaseSceneFileStem(scene, capture.device.scenes)}.png`)
     .filter((file) => !files.includes(file));
   if (missingFiles.length > 0) {
     throw new Error(`${capture.device.id} is missing ${missingFiles.join(", ")} in ${directory}.`);
@@ -565,15 +585,18 @@ async function renderCaptureFrames(
   for (const scene of capture.scenes) {
     const framed = await renderFramedScreenshot({
       screenshot: await NodeFSP.readFile(
-        NodePath.join(source, `${showcaseSceneFileStem(scene)}.png`),
+        NodePath.join(source, `${showcaseSceneFileStem(scene, capture.device.scenes)}.png`),
       ),
       spec: capture.device.storeAsset,
       appearance: capture.appearance,
       scene,
-      platform: capture.device.platform,
+      cutout: capture.device.platform === "ios" ? capture.device.cutout : "punch-hole",
       frames: config.frames,
     });
-    const destination = NodePath.join(destinationDirectory, `${showcaseSceneFileStem(scene)}.png`);
+    const destination = NodePath.join(
+      destinationDirectory,
+      `${showcaseSceneFileStem(scene, capture.device.scenes)}.png`,
+    );
     await NodeFSP.writeFile(destination, framed);
     validateStoreAsset(capture.device.storeAsset, framed, `framed ${capture.device.id}/${scene}`);
   }
@@ -695,7 +718,11 @@ async function captureIos(
 
   await assertMetroListening(config.metroPort);
 
-  const firstScene = capture.scenes[0]!;
+  const scenes = capture.scenes.filter(isShowcaseAppScene);
+  if (scenes.length !== capture.scenes.length) {
+    throw new Error("The share scene is captured from Chrome on Android only.");
+  }
+  const firstScene = scenes[0]!;
   control.requestScene(firstScene);
   const metroUrl = encodeURIComponent(`http://127.0.0.1:${config.metroPort}`);
   await runCommand("xcrun", [
@@ -705,13 +732,13 @@ async function captureIos(
     `${APP_SCHEME}://expo-development-client/?url=${metroUrl}`,
   ]);
 
-  for (const [sceneIndex, scene] of capture.scenes.entries()) {
+  for (const [sceneIndex, scene] of scenes.entries()) {
     if (sceneIndex > 0) control.requestScene(scene);
     await control.waitForScene(scene, sceneIndex === 0 ? FIRST_SCENE_TIMEOUT_MS : 120_000);
     await delay(config.settleDelayMs);
     const destination = NodePath.join(
       showcaseCaptureDirectory(outputDirectory, capture),
-      `${showcaseSceneFileStem(scene)}.png`,
+      `${showcaseSceneFileStem(scene, capture.device.scenes)}.png`,
     );
     await runCommand("xcrun", ["simctl", "io", simulator.udid, "screenshot", destination]);
     await finalizeCapture(destination, capture.device);
@@ -728,6 +755,198 @@ async function adbOutput(serial: string, args: readonly string[]): Promise<strin
 
 async function runAdb(serial: string, args: readonly string[]): Promise<void> {
   await runCommand(androidSdkTool("platform-tools/adb"), ["-s", serial, ...args]);
+}
+
+export interface AndroidUiNode {
+  readonly text: string;
+  readonly description: string;
+  readonly left: number;
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+}
+
+function unescapeXml(value: string): string {
+  return value
+    .replace(/&lt;/gu, "<")
+    .replace(/&gt;/gu, ">")
+    .replace(/&quot;/gu, '"')
+    .replace(/&apos;/gu, "'")
+    .replace(/&#(\d+);/gu, (_, code: string) => String.fromCodePoint(Number(code)))
+    .replace(/&amp;/gu, "&");
+}
+
+/** Reads the nodes out of a `uiautomator dump`, in document order. */
+export function parseAndroidUiNodes(xml: string): readonly AndroidUiNode[] {
+  return [...xml.matchAll(/<node\b[^>]*>/gu)].flatMap(([node]) => {
+    const attribute = (name: string) =>
+      unescapeXml(new RegExp(` ${name}="([^"]*)"`, "u").exec(node)?.[1] ?? "");
+    const bounds = /\[(\d+),(\d+)\]\[(\d+),(\d+)\]/u.exec(attribute("bounds"));
+    if (!bounds) return [];
+    const [left, top, right, bottom] = bounds.slice(1).map(Number) as [
+      number,
+      number,
+      number,
+      number,
+    ];
+    return [
+      { text: attribute("text"), description: attribute("content-desc"), left, top, right, bottom },
+    ];
+  });
+}
+
+async function androidUiNodes(serial: string): Promise<readonly AndroidUiNode[]> {
+  // `/dev/tty` streams the dump to stdout instead of leaving a file on the device.
+  return parseAndroidUiNodes(
+    await adbOutput(serial, ["exec-out", "uiautomator", "dump", "/dev/tty"]),
+  );
+}
+
+function findAndroidNode(
+  nodes: readonly AndroidUiNode[],
+  label: string,
+): AndroidUiNode | undefined {
+  return nodes.find((node) => node.text === label || node.description === label);
+}
+
+async function tapAndroidNode(serial: string, node: AndroidUiNode, holdMs = 0): Promise<void> {
+  const x = String(Math.round((node.left + node.right) / 2));
+  const y = String(Math.round((node.top + node.bottom) / 2));
+  await runAdb(
+    serial,
+    holdMs > 0
+      ? ["shell", "input", "swipe", x, y, x, y, String(holdMs)]
+      : ["shell", "input", "tap", x, y],
+  );
+}
+
+/**
+ * Polls the screen until `label` is on it, answering any screen in `answers` on the way.
+ * Resolves with the node so the caller can act on where it is.
+ */
+async function waitForAndroidNode(
+  serial: string,
+  label: string,
+  answers: readonly string[] = [],
+  timeoutMs = 60_000,
+): Promise<AndroidUiNode> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const nodes = await androidUiNodes(serial).catch(() => []);
+    const found = findAndroidNode(nodes, label);
+    if (found) return found;
+    const answer = answers
+      .map((candidate) => findAndroidNode(nodes, candidate))
+      .find((node) => node !== undefined);
+    if (answer) await tapAndroidNode(serial, answer);
+    await delay(answer ? 1_500 : 500);
+  }
+  throw new Error(`'${label}' did not appear on the Android screen within ${timeoutMs}ms.`);
+}
+
+/**
+ * Photographs the system share sheet over a shop's product page in Chrome, with Wishlane
+ * among the targets — the real sheet and the real target the app registers through
+ * `expo-share-intent`, not a mock-up of either.
+ *
+ * Android ranks share targets by use, so a fresh emulator lists Wishlane last. The runner
+ * pins it once through the sheet's own long-press menu; the pin persists on the AVD, and
+ * every later run finds it already in the first row.
+ */
+async function captureAndroidShare(
+  capture: ShowcaseCapture & { readonly device: ShowcaseAndroidDevice },
+  serial: string,
+  outputDirectory: string,
+  config: ShowcaseConfig,
+): Promise<void> {
+  if (!(await adbOutput(serial, ["shell", "pm", "path", CHROME_PACKAGE]).catch(() => ""))) {
+    throw new Error(
+      `The share scene needs Chrome, which AVD '${capture.device.avd}' does not have. Use a Google APIs or Play Store system image.`,
+    );
+  }
+  await runAdb(serial, ["shell", "am", "force-stop", CHROME_PACKAGE]);
+  await runAdb(serial, [
+    "shell",
+    "am",
+    "start",
+    "-W",
+    "-a",
+    "android.intent.action.VIEW",
+    "-d",
+    `${SHOWCASE_CONTROL_ORIGIN}${SHOWCASE_SHOP_PAGE_PATH}`,
+    CHROME_PACKAGE,
+  ]);
+  await waitForAndroidNode(serial, SHOWCASE_SCRAPED_PRODUCT.title, CHROME_FIRST_RUN_ANSWERS);
+
+  // One scroll collapses Chrome's toolbar, which would otherwise show the loopback address,
+  // and the page snaps its product photo to the top of the viewport.
+  const screen = (await androidUiNodes(serial))[0]!;
+  const x = String(Math.round(screen.right / 2));
+  await runAdb(serial, [
+    "shell",
+    "input",
+    "swipe",
+    x,
+    String(Math.round(screen.bottom * 0.75)),
+    x,
+    String(Math.round(screen.bottom * 0.35)),
+    "400",
+  ]);
+  await delay(1_500);
+
+  // The page shares its product on any tap, and a third of the way down is always page.
+  const openSheet = async () => {
+    await runAdb(serial, ["shell", "input", "tap", x, String(Math.round(screen.bottom * 0.3))]);
+    await waitForAndroidNode(serial, SHOWCASE_ITEM_LINK_URL);
+    await delay(1_000);
+  };
+  await openSheet();
+
+  if (!findAndroidNode(await androidUiNodes(serial), "Wishlane")) {
+    // Expand the sheet to reach the full target list, then pin Wishlane from its menu.
+    await runAdb(serial, [
+      "shell",
+      "input",
+      "swipe",
+      x,
+      String(Math.round(screen.bottom * 0.85)),
+      x,
+      String(Math.round(screen.bottom * 0.2)),
+      "500",
+    ]);
+    await delay(1_000);
+    await tapAndroidNode(serial, await waitForAndroidNode(serial, "Wishlane", [], 10_000), 1_200);
+    await tapAndroidNode(serial, await waitForAndroidNode(serial, "Pin Wishlane", [], 10_000));
+    await delay(1_000);
+    await runAdb(serial, ["shell", "input", "keyevent", "KEYCODE_BACK"]);
+    await delay(1_000);
+    await openSheet();
+    if (!findAndroidNode(await androidUiNodes(serial), "Wishlane")) {
+      throw new Error("Wishlane is pinned but still not in the share sheet's first row.");
+    }
+  }
+
+  await delay(config.settleDelayMs);
+  const destination = NodePath.join(
+    showcaseCaptureDirectory(outputDirectory, capture),
+    `${showcaseSceneFileStem("share", capture.device.scenes)}.png`,
+  );
+  await NodeFSP.writeFile(destination, await androidScreencap(serial));
+  await finalizeCapture(destination, capture.device);
+
+  await runAdb(serial, ["shell", "input", "keyevent", "KEYCODE_BACK"]);
+  await runAdb(serial, ["shell", "am", "force-stop", CHROME_PACKAGE]);
+}
+
+async function androidScreencap(serial: string): Promise<Buffer> {
+  return await new Promise<Buffer>((resolve, reject) => {
+    NodeChildProcess.execFile(
+      androidSdkTool("platform-tools/adb"),
+      ["-s", serial, "exec-out", "screencap", "-p"],
+      { cwd: REPO_ROOT, encoding: "buffer", maxBuffer: 64 * 1024 * 1024 },
+      (error, stdout) => (error ? reject(error) : resolve(stdout as unknown as Buffer)),
+    );
+  });
 }
 
 async function runningAndroidAvds(): Promise<ReadonlyMap<string, string>> {
@@ -802,8 +1021,17 @@ async function normalizeAndroidEmulator(
   await demo(["clock", "-e", "hhmm", "0941"]);
   await demo(["battery", "-e", "level", "100", "-e", "plugged", "false"]);
   // Android 16 renders emulator transport indicators outside the demo-mode network
-  // protocol. Hide the system icon group so only the deterministic clock remains.
-  await runAdb(serial, ["shell", "cmd", "statusbar", "send-disable-flag", "system-icons"]);
+  // protocol. Hide the system icon group so only the deterministic clock remains. Demo
+  // mode's notification switch below no longer hides ongoing notifications either — a
+  // signed-in Google account leaves its "G" there — so their icons go the same way.
+  await runAdb(serial, [
+    "shell",
+    "cmd",
+    "statusbar",
+    "send-disable-flag",
+    "system-icons",
+    "notification-icons",
+  ]);
   // Notification and system icons are whatever the device happened to accumulate, so they
   // are cleared rather than photographed.
   await demo(["notifications", "-e", "visible", "false"]);
@@ -908,9 +1136,27 @@ async function captureAndroid(
     await runAdb(serial, ["reverse", `tcp:${port}`, `tcp:${port}`]);
   }
 
+  // The app's own screens first, then the share sheet, which is photographed in Chrome
+  // and leaves the app in the background.
+  const scenes = capture.scenes.filter(isShowcaseAppScene);
+  if (scenes.length > 0)
+    await captureAndroidAppScenes(capture, scenes, serial, outputDirectory, config, control);
+  if (capture.scenes.includes("share")) {
+    await captureAndroidShare(capture, serial, outputDirectory, config);
+  }
+}
+
+async function captureAndroidAppScenes(
+  capture: ShowcaseCapture & { readonly device: ShowcaseAndroidDevice },
+  scenes: readonly ShowcaseAppScene[],
+  serial: string,
+  outputDirectory: string,
+  config: ShowcaseConfig,
+  control: Awaited<ReturnType<typeof startShowcaseControlServer>>,
+): Promise<void> {
   await assertMetroListening(config.metroPort);
 
-  const firstScene = capture.scenes[0]!;
+  const firstScene = scenes[0]!;
   control.requestScene(firstScene);
   const metroUrl = encodeURIComponent(`http://127.0.0.1:${config.metroPort}`);
   await runAdb(serial, [
@@ -929,23 +1175,15 @@ async function captureAndroid(
     APP_ID,
   ]);
 
-  for (const [sceneIndex, scene] of capture.scenes.entries()) {
+  for (const [sceneIndex, scene] of scenes.entries()) {
     if (sceneIndex > 0) control.requestScene(scene);
     await control.waitForScene(scene, sceneIndex === 0 ? FIRST_SCENE_TIMEOUT_MS : 120_000);
     await delay(config.settleDelayMs);
     const destination = NodePath.join(
       showcaseCaptureDirectory(outputDirectory, capture),
-      `${showcaseSceneFileStem(scene)}.png`,
+      `${showcaseSceneFileStem(scene, capture.device.scenes)}.png`,
     );
-    const png = await new Promise<Buffer>((resolve, reject) => {
-      NodeChildProcess.execFile(
-        androidSdkTool("platform-tools/adb"),
-        ["-s", serial, "exec-out", "screencap", "-p"],
-        { cwd: REPO_ROOT, encoding: "buffer", maxBuffer: 64 * 1024 * 1024 },
-        (error, stdout) => (error ? reject(error) : resolve(stdout as unknown as Buffer)),
-      );
-    });
-    await NodeFSP.writeFile(destination, png);
+    await NodeFSP.writeFile(destination, await androidScreencap(serial));
     await finalizeCapture(destination, capture.device);
   }
 }

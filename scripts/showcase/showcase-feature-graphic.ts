@@ -1,3 +1,7 @@
+import * as NodeFSP from "node:fs/promises";
+import * as NodePath from "node:path";
+import * as NodeURL from "node:url";
+
 import sharp from "sharp";
 
 import { normalizeStorePng, readPngMetadata } from "./showcase-images.ts";
@@ -15,8 +19,35 @@ import type {
  * The treatment matches the framed screenshots — same gradient, same heavy wordmark under
  * the same highlighter swash — with the artwork pushed to the right and the wordmark to
  * the left, because Play lays a round play button over the middle whenever the listing
- * also has a promo video.
+ * also has a promo video. The artwork is three saved gifts, photographed and priced the
+ * way the app shows them: abstract list rows would read as any to-do app.
  */
+
+const ITEMS_ROOT = NodePath.resolve(
+  NodePath.dirname(NodeURL.fileURLToPath(import.meta.url)),
+  "assets/content/items",
+);
+
+export interface FeatureGraphicCard {
+  readonly name: string;
+  readonly price: string;
+  /** Any URL librsvg can load; the renderer passes the photo inline as a data URI. */
+  readonly image: string;
+}
+
+/** A spread of what people save: a splurge, a small treat, something for the home. */
+const CARDS = [
+  { name: "Sony WH-1000XM5", price: "$399.99", asset: "sony-wh-1000xm5.jpg" },
+  { name: "Soy candle", price: "$32.00", asset: "soy-candle.jpg" },
+  { name: "Potted plant", price: "$45.00", asset: "potted-plant.jpg" },
+] as const;
+
+/** Staggered and tilted, like cards dropped on a table. */
+const CARD_PLACEMENTS = [
+  { x: 648, y: 40, angle: -5 },
+  { x: 684, y: 172, angle: -1.5 },
+  { x: 656, y: 304, angle: 3.5 },
+] as const;
 
 function escapeXml(value: string): string {
   return value.replace(
@@ -32,18 +63,29 @@ function measure(text: string, size: number, factor = 0.575): number {
   return text.length * size * factor;
 }
 
-/** A wishlist card: a colour swatch and two text bars, stacked at a slight angle. */
-function card(x: number, y: number, angle: number, swatch: string, opacity: number): string {
-  const width = 286;
-  const height = 96;
+/** A saved item: its photo, name and price, stacked at a slight angle. */
+function card(
+  index: number,
+  item: FeatureGraphicCard,
+  x: number,
+  y: number,
+  angle: number,
+  frames: ShowcaseFrameConfig,
+  ink: string,
+  accent: string,
+): string {
+  const width = 300;
+  const height = 104;
+  const photo = 76;
   const centreX = x + width / 2;
   const centreY = y + height / 2;
-  return `<g transform="rotate(${angle} ${centreX} ${centreY})" opacity="${opacity}">
-    <rect x="${x + 4}" y="${y + 9}" width="${width}" height="${height}" rx="22" fill="#B4145E" opacity="0.13" />
-    <rect x="${x}" y="${y}" width="${width}" height="${height}" rx="22" fill="#FFFFFF" />
-    <rect x="${x + 22}" y="${y + 26}" width="44" height="44" rx="14" fill="${swatch}" />
-    <rect x="${x + 82}" y="${y + 32}" width="150" height="13" rx="6.5" fill="#1D0F16" opacity="0.82" />
-    <rect x="${x + 82}" y="${y + 57}" width="96" height="11" rx="5.5" fill="#1D0F16" opacity="0.32" />
+  return `<g transform="rotate(${angle} ${centreX} ${centreY})">
+    <clipPath id="photo${index}"><rect x="${x + 14}" y="${y + 14}" width="${photo}" height="${photo}" rx="16" /></clipPath>
+    <rect x="${x + 4}" y="${y + 9}" width="${width}" height="${height}" rx="24" fill="#B4145E" opacity="0.13" />
+    <rect x="${x}" y="${y}" width="${width}" height="${height}" rx="24" fill="#FFFFFF" />
+    <image x="${x + 14}" y="${y + 14}" width="${photo}" height="${photo}" preserveAspectRatio="xMidYMid slice" clip-path="url(#photo${index})" href="${escapeXml(item.image)}" />
+    <text x="${x + 106}" y="${y + 46}" font-family="${escapeXml(frames.fontFamily)}" font-size="19" font-weight="700" fill="${ink}">${escapeXml(item.name)}</text>
+    <text x="${x + 106}" y="${y + 76}" font-family="${escapeXml(frames.fontFamily)}" font-size="19" font-weight="700" fill="${accent}">${escapeXml(item.price)}</text>
   </g>`;
 }
 
@@ -51,6 +93,7 @@ export function buildFeatureGraphicSvg(
   spec: ShowcaseFeatureGraphicSpec,
   appearance: ShowcaseAppearance,
   frames: ShowcaseFrameConfig,
+  cards: readonly FeatureGraphicCard[],
 ): string {
   const { width, height } = spec;
   const [from, to] = frames.background[appearance];
@@ -80,9 +123,13 @@ export function buildFeatureGraphicSvg(
     </radialGradient>
   </defs>
   <rect width="${width}" height="${height}" fill="url(#wash)" />
-  ${card(658, 44, -6, "#FF3D8B", 0.94)}
-  ${card(690, 176, -1.5, "#12B886", 0.97)}
-  ${card(664, 308, 4, "#7C5CFF", 1)}
+  ${cards
+    .slice(0, CARD_PLACEMENTS.length)
+    .map((item, index) => {
+      const { x, y, angle } = CARD_PLACEMENTS[index]!;
+      return card(index, item, x, y, angle, frames, ink, accent);
+    })
+    .join("\n  ")}
   ${swash}
   <text x="${textLeft}" y="${wordmarkBaseline}" font-family="${escapeXml(frames.headlineFontFamily)}" font-size="${wordmarkSize}" font-weight="900" letter-spacing="-3" fill="${ink}">${escapeXml(spec.wordmark)}</text>
   <text x="${textLeft}" y="${taglineBaseline}" font-family="${escapeXml(frames.fontFamily)}" font-size="${taglineSize}" font-weight="700" fill="${ink}" opacity="0.72">${escapeXml(spec.tagline)}</text>
@@ -94,7 +141,14 @@ export async function renderFeatureGraphic(options: {
   readonly appearance: ShowcaseAppearance;
   readonly frames: ShowcaseFrameConfig;
 }): Promise<Buffer> {
-  const svg = buildFeatureGraphicSvg(options.spec, options.appearance, options.frames);
+  const cards = await Promise.all(
+    CARDS.map(async (item) => ({
+      name: item.name,
+      price: item.price,
+      image: `data:image/jpeg;base64,${(await NodeFSP.readFile(NodePath.join(ITEMS_ROOT, item.asset))).toString("base64")}`,
+    })),
+  );
+  const svg = buildFeatureGraphicSvg(options.spec, options.appearance, options.frames, cards);
   const rendered = await sharp(Buffer.from(svg))
     .flatten({ background: options.frames.background[options.appearance][0] })
     .png()

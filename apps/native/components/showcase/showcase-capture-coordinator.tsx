@@ -11,7 +11,7 @@ import {
   showcaseSceneMatchesPathname,
   showcaseSceneOverlay,
   showcaseSceneRoute,
-  type ShowcaseScene,
+  type ShowcaseAppScene,
 } from "@wishlist/backend/supabase/showcase/constants";
 import { useIsFetching } from "@tanstack/react-query";
 import { usePathname, useRouter } from "expo-router";
@@ -40,8 +40,8 @@ function ActiveShowcaseCaptureCoordinator() {
   const { session } = useAuth();
   const appReady = useAppReady();
   const fetchingCount = useIsFetching();
-  const [requestedScene, setRequestedScene] = React.useState<ShowcaseScene | null>(null);
-  const [readyScene, setReadyScene] = React.useState<ShowcaseScene | null>(null);
+  const [requestedScene, setRequestedScene] = React.useState<ShowcaseAppScene | null>(null);
+  const [readyScene, setReadyScene] = React.useState<ShowcaseAppScene | null>(null);
 
   React.useEffect(() => {
     let cancelled = false;

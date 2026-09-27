@@ -8,33 +8,43 @@
  * Declaration order is the store gallery order, and the capture filenames are numbered
  * from it — App Store Connect and Play Console both take screenshots in file order, so
  * this array is the single place that decides what a browsing user sees first. The
- * opening three carry the pitch: what it is, how little work it is, and what it does for
- * the people you buy for. Reorder here and the numbering follows.
+ * opening three carry the pitch: what it is (a wishlist you fill from any shop link),
+ * where it works (from any app, via the share sheet), and what it does for the people
+ * you buy for. Reorder here and the numbering follows.
  */
 export const SHOWCASE_SCENES = [
-  "wishlists",
   "item-link",
+  "share",
   "discover",
-  "secret-santa",
-  "secret-santa-event",
+  "wishlists",
   "wishlist",
-  "friends",
+  "secret-santa-event",
 ] as const;
 
 export type ShowcaseScene = (typeof SHOWCASE_SCENES)[number];
 
 /**
- * Capture filename stem, prefixed with its gallery position. Zero-padded so a
+ * `share` is photographed in the browser's share sheet, outside the app, so the app never
+ * navigates to it. Every other scene is one of the app's own screens.
+ */
+export type ShowcaseAppScene = Exclude<ShowcaseScene, "share">;
+
+/**
+ * Capture filename stem, prefixed with its position in the gallery it belongs to. A
+ * device that skips a scene numbers its own gallery without a gap. Zero-padded so a
  * lexicographic listing — which is what both consoles and every file picker give you —
  * still matches the numeric order once there are ten or more.
  */
-export function showcaseSceneFileStem(scene: ShowcaseScene): string {
-  const position = SHOWCASE_SCENES.indexOf(scene) + 1;
+export function showcaseSceneFileStem(
+  scene: ShowcaseScene,
+  gallery: readonly ShowcaseScene[] = SHOWCASE_SCENES,
+): string {
+  const position = gallery.indexOf(scene) + 1;
   return `${String(position).padStart(2, "0")}-${scene}`;
 }
 
-export function isShowcaseScene(value: unknown): value is ShowcaseScene {
-  return SHOWCASE_SCENES.some((scene) => scene === value);
+export function isShowcaseAppScene(value: unknown): value is ShowcaseAppScene {
+  return value !== "share" && SHOWCASE_SCENES.some((scene) => scene === value);
 }
 
 /**
@@ -81,19 +91,26 @@ export const SHOWCASE_REQUESTER_ID = "5b0f9c40-0000-4000-8000-000000000007";
  */
 // Short enough that the field shows the whole link rather than scrolling to its tail,
 // which is what a reader needs to see to understand the screen.
-export const SHOWCASE_ITEM_LINK_URL = "https://sony.co.uk/wh-1000xm5";
+export const SHOWCASE_ITEM_LINK_URL = "https://sony.com/wh-1000xm5";
 
 /** What the showcase build returns instead of calling the scraper. */
 export const SHOWCASE_SCRAPED_PRODUCT = {
   title: "Sony WH-1000XM5 headphones",
   description: "Black — the XM5s, not a similar pair",
   image: showcaseAssetUrl("content/items/sony-wh-1000xm5.jpg"),
-  price: "279.00",
-  discount_price: "249.00",
+  price: "399.99",
+  discount_price: "329.99",
   has_discount: true,
   discount_end_date: null,
-  currency: "GBP",
+  currency: "USD",
 };
+
+/**
+ * The product page the `share` scene opens in the browser and shares from. The control
+ * server renders it from the scraped product above, so the page, the link in the share
+ * sheet and the item the next screenshot fills in are one product.
+ */
+export const SHOWCASE_SHOP_PAGE_PATH = "/shop";
 
 /**
  * Scenes that are an overlay over a route rather than a route of their own. The
@@ -102,11 +119,11 @@ export const SHOWCASE_SCRAPED_PRODUCT = {
  */
 export type ShowcaseOverlay = "item-link";
 
-export function showcaseSceneOverlay(scene: ShowcaseScene): ShowcaseOverlay | null {
+export function showcaseSceneOverlay(scene: ShowcaseAppScene): ShowcaseOverlay | null {
   return scene === "item-link" ? "item-link" : null;
 }
 
-export function showcaseSceneRoute(scene: ShowcaseScene): string {
+export function showcaseSceneRoute(scene: ShowcaseAppScene): string {
   switch (scene) {
     case "wishlists":
       return "/(tabs)/wishlists";
@@ -117,10 +134,6 @@ export function showcaseSceneRoute(scene: ShowcaseScene): string {
       return `/(tabs)/wishlists/${SHOWCASE_WISHLIST_ID}`;
     case "discover":
       return "/(tabs)/wishlists/discover";
-    case "friends":
-      return "/(tabs)/friends";
-    case "secret-santa":
-      return "/(tabs)/secret-santa";
     case "secret-santa-event":
       return `/(tabs)/secret-santa/${SHOWCASE_EVENT_ID}`;
   }
@@ -130,7 +143,7 @@ export function showcaseSceneRoute(scene: ShowcaseScene): string {
  * Matches the pathname expo-router reports once `showcaseSceneRoute` has settled.
  * The `(tabs)` group is not part of the resolved pathname.
  */
-export function showcaseSceneMatchesPathname(scene: ShowcaseScene, pathname: string): boolean {
+export function showcaseSceneMatchesPathname(scene: ShowcaseAppScene, pathname: string): boolean {
   const path = (pathname.split(/[?#]/u, 1)[0] ?? pathname).replace(/\/$/u, "") || "/";
   switch (scene) {
     case "wishlists":
@@ -140,10 +153,6 @@ export function showcaseSceneMatchesPathname(scene: ShowcaseScene, pathname: str
       return path === `/wishlists/${SHOWCASE_WISHLIST_ID}`;
     case "discover":
       return path === "/wishlists/discover";
-    case "friends":
-      return path === "/friends";
-    case "secret-santa":
-      return path === "/secret-santa";
     case "secret-santa-event":
       return path === `/secret-santa/${SHOWCASE_EVENT_ID}`;
   }

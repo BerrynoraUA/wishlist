@@ -3,8 +3,7 @@ import sharp from "sharp";
 import { normalizeStorePng } from "./showcase-images.ts";
 import type {
   ShowcaseAppearance,
-  ShowcaseCallout,
-  ShowcaseDevicePlatform,
+  ShowcaseCameraCutout,
   ShowcaseFrameConfig,
   ShowcaseScene,
   ShowcaseStoreAssetSpec,
@@ -16,8 +15,7 @@ import type {
  * captures are wanted with a caption instead of bare.
  *
  * The treatment: a heavy two-line headline with a highlighter swash under its last line,
- * the whole phone below it sized to whatever room is left, and speech clouds trailing
- * bubbles back to the element each one explains.
+ * and the whole phone below it sized to whatever room is left.
  */
 export interface FrameLayout {
   readonly width: number;
@@ -137,7 +135,7 @@ function escapeXml(value: string): string {
   );
 }
 
-/** Rough advance width. Good enough to auto-fit a headline and size a cloud to its text. */
+/** Rough advance width. Good enough to auto-fit a headline and size its swash. */
 function measure(text: string, size: number, factor = 0.575): number {
   return text.length * size * factor;
 }
@@ -146,184 +144,6 @@ function measure(text: string, size: number, factor = 0.575): number {
 export function fitFontSize(lines: readonly string[], maxWidth: number, preferred: number): number {
   const widest = Math.max(...lines.map((line) => measure(line, preferred)));
   return widest <= maxWidth ? preferred : Math.floor((preferred * maxWidth) / widest);
-}
-
-/**
- * Deterministic 0–1 wobble. Cloud lobes have to look hand-drawn rather than stamped, but a
- * frame that renders differently on every run cannot be diffed, so this stands in for
- * randomness.
- */
-function wobble(seed: string, index: number): number {
-  let hash = 2166136261;
-  for (const character of `${seed}#${index}`) {
-    hash = ((hash ^ character.charCodeAt(0)) * 16777619) >>> 0;
-  }
-  return (hash % 1000) / 1000;
-}
-
-const CLOUD_FILL = "#FFFFFF";
-const CLOUD_INK = "#1D0F16";
-const CLOUD_ACCENT = "#FF2E88";
-
-interface Point {
-  readonly x: number;
-  readonly y: number;
-}
-
-interface Lobe extends Point {
-  readonly r: number;
-}
-
-/**
- * Point at arc length `t` clockwise around a stadium of this size, starting where its top
- * edge leaves the left cap. Lobe centres ride this curve, and because they sit exactly on
- * the text box's own outline every notch between two lobes falls outside it — so the text
- * can never be clipped by the silhouette however the lobes are sized.
- */
-function stadiumPoint(width: number, height: number, t: number): Point {
-  const radius = height / 2;
-  const straight = Math.max(0, width - height);
-  const cap = Math.PI * radius;
-  if (t < straight) return { x: radius + t, y: 0 };
-  if (t < straight + cap) {
-    const angle = -Math.PI / 2 + (t - straight) / radius;
-    return { x: width - radius + radius * Math.cos(angle), y: radius + radius * Math.sin(angle) };
-  }
-  if (t < 2 * straight + cap) return { x: width - radius - (t - straight - cap), y: height };
-  const angle = Math.PI / 2 + (t - 2 * straight - cap) / radius;
-  return { x: radius + radius * Math.cos(angle), y: radius + radius * Math.sin(angle) };
-}
-
-/** Where two overlapping lobes cross on the outside, i.e. furthest from `away`. */
-function lobeCrossing(a: Lobe, b: Lobe, away: Point): Point {
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const span = Math.hypot(dx, dy);
-  const along = (span * span + a.r * a.r - b.r * b.r) / (2 * span);
-  const off = Math.sqrt(Math.max(0, a.r * a.r - along * along));
-  const base = { x: a.x + (along * dx) / span, y: a.y + (along * dy) / span };
-  const perpendicular = { x: -dy / span, y: dx / span };
-  const outward = { x: base.x + off * perpendicular.x, y: base.y + off * perpendicular.y };
-  const inward = { x: base.x - off * perpendicular.x, y: base.y - off * perpendicular.y };
-  return Math.hypot(outward.x - away.x, outward.y - away.y) >=
-    Math.hypot(inward.x - away.x, inward.y - away.y)
-    ? outward
-    : inward;
-}
-
-/**
- * The outline of a union of overlapping circles, as one closed path: each lobe contributes
- * the single arc running between where it crosses the lobe before it and the lobe after
- * it. Twemoji's thought balloon (U+1F4AD) is drawn exactly this way — one path of arcs for
- * the body, separate circles only for the trail — and Font Awesome's cloud is the same
- * idea with a flat base. Tracing the outline instead of stacking discs means there is one
- * shape rather than a dozen, no interior seams to hide behind an opaque fill, and a stroke
- * would follow the silhouette if one is ever wanted.
- */
-export function cloudPath(lobes: readonly Lobe[], centre: Point): string {
-  const crossings = lobes.map((lobe, index) =>
-    lobeCrossing(lobe, lobes[(index + 1) % lobes.length]!, centre),
-  );
-  const start = crossings[crossings.length - 1]!;
-  const arcs = lobes.map((lobe, index) => {
-    const from = crossings[(index + lobes.length - 1) % lobes.length]!;
-    const to = crossings[index]!;
-    const turn =
-      Math.atan2(to.y - lobe.y, to.x - lobe.x) - Math.atan2(from.y - lobe.y, from.x - lobe.x);
-    // Lobes are ordered clockwise on screen, so sweep is always 1; whether the exposed arc
-    // is the major one depends on how much of the lobe its neighbours cover.
-    const clockwise = ((turn % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-    const radius = lobe.r.toFixed(2);
-    return `A${radius} ${radius} 0 ${clockwise > Math.PI ? 1 : 0} 1 ${to.x.toFixed(2)} ${to.y.toFixed(2)}`;
-  });
-  return `M${start.x.toFixed(2)} ${start.y.toFixed(2)}${arcs.join("")}Z`;
-}
-
-interface Cloud {
-  readonly image: Buffer;
-  readonly width: number;
-  readonly height: number;
-  /** Distance from the cloud's bounding box to its text body, so a tail starts on the body. */
-  readonly inset: number;
-}
-
-/** A speech cloud sized to its text: one path, one shape. */
-async function buildCloud(
-  lines: readonly string[],
-  layout: FrameLayout,
-  frames: ShowcaseFrameConfig,
-): Promise<Cloud> {
-  const seed = lines.join("|");
-  const fontSize = Math.round(30 * layout.scale);
-  const lineHeight = Math.round(fontSize * 1.333);
-  // The body is only the ring the lobes are seated on — it is never drawn — so its padding
-  // is almost nothing and the puff supplies the breathing room instead.
-  const padX = Math.round(12 * layout.scale);
-  const padY = Math.round(4 * layout.scale);
-  const bodyWidth =
-    Math.round(Math.max(...lines.map((line) => measure(line, fontSize, 0.56)))) + padX * 2;
-  const bodyHeight = lines.length * lineHeight + padY * 2;
-
-  const baseRadius = bodyHeight * 0.34;
-  // Puffier above than below, the way the weather-cloud icons are drawn.
-  const rise = 1.09;
-  const fall = 0.9;
-  const wobbleRange = 0.3;
-  const spacing = baseRadius * 1.35;
-  const maxRadius = baseRadius * rise * (0.85 + wobbleRange);
-
-  /**
-   * The lobe ring is pulled inside the text box so the puff hugs the text rather than
-   * ballooning around it. That trades away the guarantee a ring seated exactly on the box
-   * would give, so the pull is capped at a fraction of the shallowest notch two lobes can
-   * leave — the wobble's smallest radius at the widest spacing. Whatever the wobble does,
-   * a fifth of that notch still clears the box, and the text sits inside it with its
-   * padding and line leading on top.
-   */
-  const shallowestNotch = Math.sqrt(
-    Math.max(0, (baseRadius * fall * 0.85) ** 2 - (spacing / 2) ** 2),
-  );
-  const seat = Math.max(0, Math.floor(Math.min(baseRadius * 0.34, shallowestNotch * 0.8)));
-  const inset = Math.ceil(maxRadius) - seat + 2;
-
-  const seatWidth = bodyWidth - seat * 2;
-  const seatHeight = bodyHeight - seat * 2;
-  const perimeter = 2 * Math.max(0, seatWidth - seatHeight) + Math.PI * seatHeight;
-  const count = Math.max(8, Math.round(perimeter / spacing));
-  const lobes: Lobe[] = Array.from({ length: count }, (_, index) => {
-    const point = stadiumPoint(seatWidth, seatHeight, (perimeter * index) / count);
-    return {
-      x: point.x + inset + seat,
-      y: point.y + inset + seat,
-      r:
-        baseRadius *
-        (point.y < seatHeight / 2 ? rise : fall) *
-        (0.85 + wobble(seed, index) * wobbleRange),
-    };
-  });
-
-  const width = bodyWidth + inset * 2;
-  const height = bodyHeight + inset * 2;
-  const path = cloudPath(lobes, { x: width / 2, y: height / 2 });
-
-  const text = lines
-    .map((line, index) => {
-      const baseline =
-        inset + padY + lineHeight * (index + 0.5) + fontSize * 0.36 - (lineHeight - fontSize) / 2;
-      return `<text x="${inset + bodyWidth / 2}" y="${baseline.toFixed(1)}" text-anchor="middle" font-family="${escapeXml(frames.fontFamily)}" font-size="${fontSize}" font-weight="700" fill="${CLOUD_INK}">${escapeXml(line)}</text>`;
-    })
-    .join("\n  ");
-
-  const image = await sharp(
-    Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-  <path d="${path}" fill="${CLOUD_FILL}" />
-  ${text}
-</svg>`),
-  )
-    .png()
-    .toBuffer();
-
-  return { image, width, height, inset };
 }
 
 /** sharp refuses composites that fall outside the base, so clip first. */
@@ -402,60 +222,6 @@ async function shadowFor(
   return clip(layer, left - pad, top - pad + options.dy, layout);
 }
 
-/**
- * One callout drawn onto its own full-canvas layer: the cloud, the shrinking bubbles that
- * carry it back to the element it is about, and a dot on that element. Keeping the whole
- * callout in one layer means a single shadow pass covers the cloud and its tail, so the
- * trail keeps reading as one object over whatever it crosses.
- */
-async function buildCallout(
-  callout: ShowcaseCallout,
-  layout: FrameLayout,
-  frames: ShowcaseFrameConfig,
-): Promise<Buffer> {
-  const cloud = await buildCloud(callout.lines, layout, frames);
-  const anchorX = layout.screenX + callout.anchor.x * layout.screenWidth;
-  const anchorY = layout.screenY + callout.anchor.y * layout.screenHeight;
-
-  // Kept whole inside the canvas. A pill could bleed off the edge and still look
-  // deliberate, but a lobe sliced flat by the frame edge just looks like a clipping bug.
-  // The cloud still breaks the device outline, which is what the bleed was for — the phone
-  // is narrower than the frame.
-  const margin = Math.round(10 * layout.scale);
-  const edge = Math.round(24 * layout.scale);
-  const left = callout.side === "left" ? margin : layout.width - cloud.width - margin;
-  const wanted = anchorY + callout.lift * layout.screenHeight - cloud.height / 2;
-  const top = Math.round(Math.min(Math.max(wanted, edge), layout.height - cloud.height - edge));
-
-  // Leave from the body's inner face, so the first bubble is never stranded in the
-  // transparent corner of the cloud's bounding box.
-  const fromX = callout.side === "left" ? left + cloud.width - cloud.inset : left + cloud.inset;
-  const fromY = top + cloud.height / 2;
-
-  const bubbles = [
-    { at: 0.3, radius: 19 },
-    { at: 0.56, radius: 12.5 },
-    { at: 0.8, radius: 8 },
-  ]
-    .map(
-      (bubble) =>
-        `<circle cx="${(fromX + (anchorX - fromX) * bubble.at).toFixed(1)}" cy="${(fromY + (anchorY - fromY) * bubble.at).toFixed(1)}" r="${(bubble.radius * layout.scale).toFixed(1)}" fill="${CLOUD_FILL}" />`,
-    )
-    .join("\n  ");
-
-  const tail = `<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}">
-  ${bubbles}
-  <circle cx="${anchorX.toFixed(1)}" cy="${anchorY.toFixed(1)}" r="${(12 * layout.scale).toFixed(1)}" fill="${CLOUD_FILL}" />
-  <circle cx="${anchorX.toFixed(1)}" cy="${anchorY.toFixed(1)}" r="${(7 * layout.scale).toFixed(1)}" fill="${CLOUD_ACCENT}" />
-</svg>`;
-
-  const placed = await clip(cloud.image, left, top, layout);
-  return sharp(Buffer.from(tail))
-    .composite(placed ? [placed] : [])
-    .png()
-    .toBuffer();
-}
-
 export function buildFrameBackgroundSvg(
   layout: FrameLayout,
   headline: readonly string[],
@@ -502,15 +268,38 @@ export function buildDeviceBodySvg(layout: FrameLayout, appearance: ShowcaseAppe
 </svg>`;
 }
 
-export function buildDeviceOverlaySvg(
-  layout: FrameLayout,
-  store: ShowcaseStoreAssetSpec["store"],
-): string {
+/** The notch the pre-Dynamic Island iPhones have: a bar hanging from the top edge. */
+function notchSvg(layout: FrameLayout): string {
+  const width = layout.screenWidth * 0.378;
+  const height = layout.screenHeight * 0.0356;
+  const radius = height * 0.62;
+  const fillet = height * 0.22;
+  const left = layout.screenX + (layout.screenWidth - width) / 2;
+  const right = left + width;
+  // Starts inside the bezel so no sliver of screen shows above the bar.
+  const top = layout.screenY - layout.bezel;
+  const bottom = layout.screenY + height;
+  const path = [
+    `M${left - fillet} ${top}`,
+    `L${left - fillet} ${layout.screenY}`,
+    `Q${left} ${layout.screenY} ${left} ${layout.screenY + fillet}`,
+    `L${left} ${bottom - radius}`,
+    `Q${left} ${bottom} ${left + radius} ${bottom}`,
+    `L${right - radius} ${bottom}`,
+    `Q${right} ${bottom} ${right} ${bottom - radius}`,
+    `L${right} ${layout.screenY + fillet}`,
+    `Q${right} ${layout.screenY} ${right + fillet} ${layout.screenY}`,
+    `L${right + fillet} ${top}Z`,
+  ].join("");
+  return `<path d="${path}" fill="#050506" />`;
+}
+
+export function buildDeviceOverlaySvg(layout: FrameLayout, cutout: ShowcaseCameraCutout): string {
   const screenOutline = `<rect x="${layout.screenX}" y="${layout.screenY}" width="${layout.screenWidth}" height="${layout.screenHeight}" rx="${layout.screenCornerRadius}" fill="none" stroke="#08080A" stroke-width="${layout.bezel}" />`;
   const buttonWidth = Math.max(3, Math.round(layout.deviceWidth * 0.009));
   const buttonRadius = Math.max(2, Math.round(buttonWidth / 2));
 
-  if (store === "apple") {
+  if (cutout !== "punch-hole") {
     const islandWidth = Math.round(layout.screenWidth * 0.27);
     const islandHeight = Math.round(layout.screenHeight * 0.027);
     const islandX = Math.round(layout.screenX + (layout.screenWidth - islandWidth) / 2);
@@ -524,8 +313,12 @@ export function buildDeviceOverlaySvg(
   <rect x="${sideX}" y="${Math.round(layout.deviceY + layout.deviceHeight * 0.29)}" width="${buttonWidth}" height="${Math.round(layout.deviceHeight * 0.07)}" rx="${buttonRadius}" fill="#343438" />
   <rect x="${sideX}" y="${Math.round(layout.deviceY + layout.deviceHeight * 0.39)}" width="${buttonWidth}" height="${Math.round(layout.deviceHeight * 0.07)}" rx="${buttonRadius}" fill="#343438" />
   <rect x="${powerX}" y="${Math.round(layout.deviceY + layout.deviceHeight * 0.3)}" width="${buttonWidth}" height="${Math.round(layout.deviceHeight * 0.11)}" rx="${buttonRadius}" fill="#343438" />
-  <rect x="${islandX}" y="${islandY}" width="${islandWidth}" height="${islandHeight}" rx="${Math.round(islandHeight / 2)}" fill="#050506" />
-  <circle cx="${Math.round(islandX + islandWidth * 0.82)}" cy="${Math.round(islandY + islandHeight / 2)}" r="${Math.max(2, Math.round(islandHeight * 0.16))}" fill="#151D2B" />
+  ${
+    cutout === "notch"
+      ? notchSvg(layout)
+      : `<rect x="${islandX}" y="${islandY}" width="${islandWidth}" height="${islandHeight}" rx="${Math.round(islandHeight / 2)}" fill="#050506" />
+  <circle cx="${Math.round(islandX + islandWidth * 0.82)}" cy="${Math.round(islandY + islandHeight / 2)}" r="${Math.max(2, Math.round(islandHeight * 0.16))}" fill="#151D2B" />`
+  }
 </svg>`;
   }
 
@@ -550,8 +343,7 @@ export async function renderFramedScreenshot(options: {
   readonly spec: ShowcaseStoreAssetSpec;
   readonly appearance: ShowcaseAppearance;
   readonly scene: ShowcaseScene;
-  /** Picks the anchor set tuned for this capture's aspect ratio. */
-  readonly platform: ShowcaseDevicePlatform;
+  readonly cutout: ShowcaseCameraCutout;
   readonly frames: ShowcaseFrameConfig;
 }): Promise<Buffer> {
   const copy = options.frames.scenes[options.scene];
@@ -585,19 +377,8 @@ export async function renderFramedScreenshot(options: {
   layers.push(
     { input: body, left: 0, top: 0 },
     { input: screen, left: layout.screenX, top: layout.screenY },
-    { input: Buffer.from(buildDeviceOverlaySvg(layout, options.spec.store)), left: 0, top: 0 },
+    { input: Buffer.from(buildDeviceOverlaySvg(layout, options.cutout)), left: 0, top: 0 },
   );
-
-  for (const callout of copy.callouts[options.platform]) {
-    const layer = await buildCallout(callout, layout, options.frames);
-    const shadow = await shadowFor(layer, 0, 0, layout, {
-      blur: 14 * layout.scale,
-      opacity: 0.24,
-      dy: Math.round(10 * layout.scale),
-    });
-    if (shadow) layers.push(shadow);
-    layers.push({ input: layer, left: 0, top: 0 });
-  }
 
   const framed = await sharp(
     Buffer.from(buildFrameBackgroundSvg(layout, copy.headline, options.appearance, options.frames)),

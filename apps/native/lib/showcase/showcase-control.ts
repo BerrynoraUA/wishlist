@@ -1,8 +1,8 @@
 import {
-  isShowcaseScene,
+  isShowcaseAppScene,
   SHOWCASE_CONTROL_ORIGIN,
+  type ShowcaseAppScene,
   type ShowcaseOverlay,
-  type ShowcaseScene,
 } from "@wishlist/backend/supabase/showcase/constants";
 
 export const SHOWCASE_ENABLED = process.env.EXPO_PUBLIC_SHOWCASE === "1";
@@ -47,17 +47,17 @@ export function readShowcaseOverlay(): ShowcaseOverlay | null {
  * no native code and reaches the iOS Simulator and the Android emulator identically
  * through `adb reverse` / the simulator's shared loopback.
  */
-export async function readRequestedShowcaseScene(): Promise<ShowcaseScene | null> {
+export async function readRequestedShowcaseScene(): Promise<ShowcaseAppScene | null> {
   const response = await fetch(
     `${SHOWCASE_CONTROL_ORIGIN}/scene?client=${encodeURIComponent(SHOWCASE_CLIENT_ID)}`,
   );
   if (!response.ok) return null;
   const payload: unknown = await response.json();
   const scene = (payload as { scene?: unknown } | null)?.scene;
-  return isShowcaseScene(scene) ? scene : null;
+  return isShowcaseAppScene(scene) ? scene : null;
 }
 
-export async function markShowcaseSceneReady(scene: ShowcaseScene): Promise<boolean> {
+export async function markShowcaseSceneReady(scene: ShowcaseAppScene): Promise<boolean> {
   const response = await fetch(`${SHOWCASE_CONTROL_ORIGIN}/ready`, {
     method: "POST",
     headers: { "content-type": "application/json" },
