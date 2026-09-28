@@ -209,8 +209,15 @@ export function applyNativeThemeSettings(
   const theme = THEME_PREFERENCE_SET.has(settings.theme) ? settings.theme : "system";
 
   if (theme !== "system") {
-    Uniwind.setTheme(getNativeThemeNameForPreference(theme, settings.default_accent, null));
-    Appearance.setColorScheme(theme);
+    const nextTheme = getNativeThemeNameForPreference(theme, settings.default_accent, null);
+    // Even setting the same custom theme resets native appearance to the OS scheme.
+    // Avoid toggling it back and forth when appearance events or settings refetches arrive.
+    if (Uniwind.currentTheme !== nextTheme || Uniwind.hasAdaptiveThemes) {
+      Uniwind.setTheme(nextTheme);
+    }
+    if (Appearance.getColorScheme() !== theme) {
+      Appearance.setColorScheme(theme);
+    }
     return;
   }
 

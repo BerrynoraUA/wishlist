@@ -307,6 +307,9 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
   );
   const [themeApplied, setThemeApplied] = useState(false);
   const themeSettings = settings ?? cachedSettings ?? DEFAULT_SETTINGS;
+  const { theme: themePreference, default_accent: themeAccent } = themeSettings;
+  const adaptiveColorScheme =
+    themePreference === "light" || themePreference === "dark" ? undefined : systemColorScheme;
   const ready = Boolean(settings || cachedSettings || settingsError);
   const locale = useLocale();
   const setLocale = useSetLocale();
@@ -370,9 +373,12 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
 
   useLayoutEffect(() => {
     if (!ready) return;
-    applyNativeThemeSettings(themeSettings, systemColorScheme);
+    applyNativeThemeSettings(
+      { theme: themePreference, default_accent: themeAccent },
+      adaptiveColorScheme,
+    );
     setThemeApplied(true);
-  }, [ready, systemColorScheme, themeSettings]);
+  }, [ready, adaptiveColorScheme, themePreference, themeAccent]);
 
   if (!ready || !themeApplied) {
     return (
