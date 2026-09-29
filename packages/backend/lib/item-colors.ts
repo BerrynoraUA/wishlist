@@ -22,6 +22,7 @@ export const ITEM_COLORS: ItemColor[] = [
   { color: "#f59e0b", label: "Amber" },
   { color: "#f97316", label: "Orange" },
   { color: "#8b5cf6", label: "Violet" },
+  { color: "#84cc16", label: "Lime" },
 ];
 
 export function getItemColor(colorIndex: number | null | undefined): string | null {

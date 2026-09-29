@@ -26,7 +26,7 @@ const STATUS_PALETTE = {
   },
 } as const;
 
-const PRIORITY_ICONS = {
+export const PRIORITY_ICONS = {
   [PRIORITY_IDS.LOW]: ArrowDown,
   [PRIORITY_IDS.MEDIUM]: Equal,
   [PRIORITY_IDS.HIGH]: ArrowUp,

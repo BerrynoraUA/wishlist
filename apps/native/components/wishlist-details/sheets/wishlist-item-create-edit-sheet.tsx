@@ -26,15 +26,8 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { ClearableInput } from "@/components/ui/clearable-input";
 import { SingleImagePicker } from "@/components/ui/single-image-picker";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
-import { PriorityFilterIcon } from "@/components/items/item-labels";
+import { ItemPrioritySelector } from "@/components/items/item-priority-selector";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useCreateItem, useUpdateItem } from "@/hooks/use-items";
 import { useProGate } from "@/hooks/use-pro-gate";
@@ -42,7 +35,6 @@ import { useInfiniteMyWishlists, useWishlistById } from "@/hooks/use-wishlists";
 import { useSettings } from "@/hooks/use-settings";
 import {
   EMPTY_ITEM_FORM,
-  getItemPriority,
   getItemPriorityOptions,
   cleanAdditionalLinks,
   toItemFormValues,
@@ -687,7 +679,7 @@ export function WishlistItemCreateEditSheet({
               control={control}
               name="priority_id"
               render={({ field: { onChange, value } }) => (
-                <PrioritySelector
+                <ItemPrioritySelector
                   priorityOptions={priorityOptions}
                   value={value}
                   onChange={onChange}
@@ -871,76 +863,5 @@ function WishlistPickerField({
         onCreated={onChange}
       />
     </>
-  );
-}
-
-function PrioritySelector({
-  priorityOptions,
-  value,
-  onChange,
-}: {
-  priorityOptions: ReturnType<typeof getItemPriorityOptions>;
-  value: ItemFormValues["priority_id"];
-  onChange: (priority: ItemFormValues["priority_id"]) => void;
-}) {
-  const t = useGT();
-  const options = React.useMemo(
-    () =>
-      priorityOptions.map((option) => ({
-        value: option.priority_id,
-        label: option.label,
-      })),
-    [priorityOptions],
-  );
-  const selectedOption = options.find((option) => option.value === value) ?? null;
-  const prioritiesById = React.useMemo(
-    () =>
-      new Map(
-        priorityOptions.map((option) => [option.priority_id, getItemPriority(option.priority_id)]),
-      ),
-    [priorityOptions],
-  );
-  const selectedPriority = value ? prioritiesById.get(value) : undefined;
-
-  return (
-    <Select
-      value={selectedOption ?? undefined}
-      onValueChange={(option) => {
-        if (option?.value) onChange(option.value);
-      }}
-    >
-      <SelectTrigger
-        className="h-10"
-        style={
-          selectedPriority
-            ? {
-                backgroundColor: `${selectedPriority.color}1f`,
-                borderColor: `${selectedPriority.color}33`,
-              }
-            : undefined
-        }
-      >
-        <View className="min-w-0 flex-1 flex-row items-center gap-2">
-          {selectedPriority ? (
-            <PriorityFilterIcon priority={selectedPriority} showBackground={false} />
-          ) : null}
-          <SelectValue className="min-w-0 flex-1" placeholder={t("Select priority")} />
-        </View>
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((option) => {
-          const priority = prioritiesById.get(option.value);
-
-          return (
-            <SelectItem
-              key={option.value}
-              value={option.value}
-              label={option.label}
-              leading={priority ? <PriorityFilterIcon priority={priority} /> : null}
-            />
-          );
-        })}
-      </SelectContent>
-    </Select>
   );
 }

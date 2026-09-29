@@ -15,8 +15,9 @@ const IOS_HEADER_CONTENT_GAP = 16;
 
 /**
  * List top padding for screens using `PinnedListHeader`. Starts from an estimate so
- * content doesn't jump on mount, then tracks the header's measured height (which can
- * change, e.g. when a filters panel expands).
+ * content doesn't jump on mount, then tracks the header's measured height. A slide-out
+ * panel passed as `panel` is left out of that measurement — the list follows it with a
+ * `SlideOutSpacer` on the UI thread instead of re-laying out its padding every frame.
  */
 export function usePinnedListHeaderPadding(estimatedRows = 1) {
   const insets = useSafeAreaInsets();
@@ -47,33 +48,49 @@ export function usePinnedListHeaderPadding(estimatedRows = 1) {
 export function PinnedListHeader({
   contentWidth,
   onLayout,
+  panel,
   children,
 }: {
   /** Width of the centered content column. Omit to let children span the full row. */
   contentWidth?: number;
   /** Wire to `usePinnedListHeaderPadding().onHeaderLayout` to pad the list underneath. */
   onLayout?: (event: LayoutChangeEvent) => void;
+  /**
+   * A `SlideOutFilterPanel` under the header rows. It sits outside the measured block, so
+   * the list padding stays put while it animates; the glass background still covers it.
+   */
+  panel?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View
-      className="absolute inset-x-0 top-0 z-10 overflow-hidden pb-4"
-      style={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
-      onLayout={onLayout}
-    >
+    <View className="absolute inset-x-0 top-0 z-10 overflow-hidden">
       {HAS_LIQUID_GLASS ? (
         <GlassView pointerEvents="none" style={StyleSheet.absoluteFill} />
       ) : (
         <View pointerEvents="none" className="absolute inset-0 bg-bg" />
       )}
       <View
-        className="gap-4 self-center"
-        style={contentWidth !== undefined ? { width: contentWidth } : undefined}
+        className="pb-4"
+        style={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
+        onLayout={onLayout}
       >
-        {children}
+        <View
+          className="gap-4 self-center"
+          style={contentWidth !== undefined ? { width: contentWidth } : undefined}
+        >
+          {children}
+        </View>
       </View>
+      {panel ? (
+        <View
+          className="self-center"
+          style={contentWidth !== undefined ? { width: contentWidth } : undefined}
+        >
+          {panel}
+        </View>
+      ) : null}
     </View>
   );
 }

@@ -9,6 +9,9 @@ import { Gift } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import { View } from "react-native";
 
+const RESERVED_RIBBON = require("@/assets/images/ribbons/reserved.png");
+const PURCHASED_RIBBON = require("@/assets/images/ribbons/purchased.png");
+
 export function ItemImage({
   item,
   reservationLabel,
@@ -78,17 +81,28 @@ export function ItemImage({
           className="absolute inset-0 items-center justify-center"
         >
           <View
-            className="w-[170%] items-center bg-black/70 py-1.5"
-            style={{ transform: [{ rotate: "-20deg" }] }}
+            className={cn(
+              "w-[135%] items-center justify-center",
+              isDetail ? "h-44" : "h-36",
+            )}
+            style={{ transform: [{ rotate: "-38deg" }] }}
           >
+            <StyledImage
+              source={purchased ? PURCHASED_RIBBON : RESERVED_RIBBON}
+              contentFit="fill"
+              className="absolute left-0 size-full"
+              // Align the flat face with the label despite the artwork's transparent padding.
+              style={{ top: purchased ? "1%" : "4%" }}
+            />
             <Text
               numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.7}
               className={cn(
-                "font-extrabold",
-                // Purchased reads green; reserved keeps the brand colour.
-                purchased ? "text-[#86efac]" : "text-brand",
-                stampLabel ? "px-3 text-sm" : "uppercase tracking-widest",
-                !stampLabel && (isDetail ? "text-xl" : "text-lg"),
+                "max-w-[72%] text-center font-bold",
+                purchased ? "text-[#245B45]" : "text-[#654098]",
+                stampLabel ? "text-sm" : "uppercase tracking-wide",
+                !stampLabel && (isDetail ? "text-lg" : "text-sm"),
               )}
             >
               {stampLabel ?? (purchased ? t("Purchased") : t("Reserved"))}

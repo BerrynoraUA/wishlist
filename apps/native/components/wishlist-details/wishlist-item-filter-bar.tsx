@@ -29,6 +29,7 @@ import { ChevronsUpDown, Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
+import type { SharedValue } from "react-native-reanimated";
 
 export type WishlistItemFilterState = {
   search: string;
@@ -56,6 +57,7 @@ export function WishlistItemFilterBar({
   onChange,
   onReset,
   open,
+  progress,
   onOpenChange,
 }: {
   filters: WishlistItemFilterState;
@@ -63,6 +65,8 @@ export function WishlistItemFilterBar({
   onChange: (patch: Partial<WishlistItemFilterState>) => void;
   onReset: () => void;
   open: boolean;
+  /** From `useSlideOutPanel`, which owns `open` too. */
+  progress: SharedValue<number>;
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useGT();
@@ -136,7 +140,12 @@ export function WishlistItemFilterBar({
         />
       </View>
 
-      <SlideOutFilterPanel open={open} className="pb-1 pt-4" maxHeight={ITEM_FILTER_PANEL_HEIGHT}>
+      <SlideOutFilterPanel
+        open={open}
+        progress={progress}
+        className="pb-1 pt-4"
+        maxHeight={ITEM_FILTER_PANEL_HEIGHT}
+      >
         <View className="flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 ps-3 shadow-sm">
           <Icon as={Search} className="size-4 text-muted-foreground/50" />
           <Input

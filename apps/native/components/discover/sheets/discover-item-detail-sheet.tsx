@@ -137,16 +137,17 @@ export function DiscoverItemDetailSheet({
   const showAsReserved = reservation.isReserved || reservation.isPurchased;
 
   const actions = (
-    <View className="w-full gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
+    <View className="w-full flex-row gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
       <Button
         variant="ghost"
         size="lg"
         disabled={!canReserve || reservePending}
         onPress={confirmReservation}
+        accessibilityLabel={reservedByMe ? t("Release reservation") : t("Reserve this gift")}
         className={
           reservedByMe
-            ? "w-full rounded-lg border border-brand bg-brand"
-            : "w-full rounded-lg border border-brand/25 bg-brand-lighter"
+            ? "min-w-0 flex-1 rounded-lg border border-brand bg-brand"
+            : "min-w-0 flex-1 rounded-lg border border-brand/25 bg-brand-lighter"
         }
       >
         {reservePending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
@@ -154,12 +155,11 @@ export function DiscoverItemDetailSheet({
           as={LockKeyhole}
           className={reservedByMe ? "size-4 text-primary-foreground" : "size-4 text-brand"}
         />
-        <Text className={reservedByMe ? "text-primary-foreground" : "text-brand"}>
-          {reservedByMe
-            ? t("Release reservation")
-            : showAsReserved
-              ? t("Reserved")
-              : t("Reserve this gift")}
+        <Text
+          numberOfLines={1}
+          className={reservedByMe ? "text-primary-foreground" : "text-brand"}
+        >
+          {reservedByMe ? t("Release") : showAsReserved ? t("Reserved") : t("Reserve")}
         </Text>
       </Button>
       <Button
@@ -169,8 +169,8 @@ export function DiscoverItemDetailSheet({
         onPress={confirmBought}
         className={
           canUndoPurchase
-            ? "w-full rounded-lg border border-destructive/35 bg-danger-bg"
-            : "w-full rounded-xl border border-buy/70 bg-buy-bg"
+            ? "min-w-0 flex-1 rounded-lg border border-destructive/35 bg-danger-bg"
+            : "min-w-0 flex-1 rounded-lg border border-buy/70 bg-buy-bg"
         }
       >
         {boughtPending ? <ActivityIndicator colorClassName="accent-primary-foreground" /> : null}
@@ -178,7 +178,7 @@ export function DiscoverItemDetailSheet({
           as={ShoppingCart}
           className={canUndoPurchase ? "size-4 text-destructive" : "size-4 text-buy"}
         />
-        <Text className={canUndoPurchase ? "text-destructive" : "text-buy"}>
+        <Text numberOfLines={1} className={canUndoPurchase ? "text-destructive" : "text-buy"}>
           {canUndoPurchase ? t("Undo") : reservation.isPurchased ? t("Purchased") : t("Buy")}
         </Text>
       </Button>

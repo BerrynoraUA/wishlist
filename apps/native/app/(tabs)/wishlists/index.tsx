@@ -6,7 +6,11 @@ import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Stack, useRouter } from "expo-router";
 import * as React from "react";
 import { View, useWindowDimensions } from "react-native";
-import { WishlistFilterBar } from "@/components/wishlists/wishlist-filter-bar";
+import {
+  useSlideOutPanel,
+  WISHLIST_FILTER_PANEL_HEIGHT,
+} from "@/components/ui/slide-out-filter-panel";
+import { WishlistFilterBar, WishlistFilterPanel } from "@/components/wishlists/wishlist-filter-bar";
 import { WishlistListStatsRow, WishlistList } from "@/components/wishlists/wishlist-list";
 import { useUserGuideStepCompletion } from "@/components/user-guide/user-guide-provider";
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
@@ -27,7 +31,11 @@ export default function WishlistsScreen() {
   const feed = useWishlistFeed(width);
   const completeOpenDiscoverStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.openDiscover);
   const [sheet, setSheet] = React.useState<SheetState>(null);
-  const [filtersOpen, setFiltersOpen] = React.useState(false);
+  const {
+    open: filtersOpen,
+    setOpen: setFiltersOpen,
+    progress: filtersProgress,
+  } = useSlideOutPanel();
 
   return (
     <>
@@ -46,9 +54,6 @@ export default function WishlistsScreen() {
               search={feed.search}
               visibility={feed.visibility}
               sort={feed.sort}
-              onSearchChange={feed.handleSearchChange}
-              onVisibilityChange={feed.handleVisibilityChange}
-              onSortChange={feed.handleSortChange}
               onResetFilters={feed.handleResetFilters}
               onOpenDiscover={() => {
                 completeOpenDiscoverStep();
@@ -58,6 +63,19 @@ export default function WishlistsScreen() {
               onFiltersOpenChange={setFiltersOpen}
             />
           }
+          FilterPanelComponent={
+            <WishlistFilterPanel
+              search={feed.search}
+              visibility={feed.visibility}
+              sort={feed.sort}
+              onSearchChange={feed.handleSearchChange}
+              onVisibilityChange={feed.handleVisibilityChange}
+              onSortChange={feed.handleSortChange}
+              open={filtersOpen}
+              progress={filtersProgress}
+            />
+          }
+          filterPanel={{ progress: filtersProgress, height: WISHLIST_FILTER_PANEL_HEIGHT }}
           ListHeaderComponent={
             <View>
               <WishlistListStatsRow />

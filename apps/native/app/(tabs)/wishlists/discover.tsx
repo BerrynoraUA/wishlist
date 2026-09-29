@@ -13,6 +13,8 @@ import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pi
 import {
   ITEM_FILTER_PANEL_HEIGHT,
   SlideOutFilterPanel,
+  SlideOutSpacer,
+  useSlideOutPanel,
 } from "@/components/ui/slide-out-filter-panel";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
@@ -50,7 +52,11 @@ export default function DiscoverScreen() {
   const feed = useDiscoverFeed();
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
-  const [filtersOpen, setFiltersOpen] = React.useState(false);
+  const {
+    open: filtersOpen,
+    setOpen: setFiltersOpen,
+    progress: filtersProgress,
+  } = useSlideOutPanel();
   const [selection, setSelection] = React.useState<SelectedDiscoverItem | null>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
@@ -179,7 +185,31 @@ export default function DiscoverScreen() {
   return (
     <View className="flex-1 bg-bg">
       <Stack.Screen options={{ title: t("Discover") }} />
-      <PinnedListHeader contentWidth={contentWidth} onLayout={onHeaderLayout}>
+      <PinnedListHeader
+        contentWidth={contentWidth}
+        onLayout={onHeaderLayout}
+        panel={
+          <SlideOutFilterPanel
+            open={filtersOpen}
+            progress={filtersProgress}
+            className="pb-4 pt-1"
+            maxHeight={ITEM_FILTER_PANEL_HEIGHT}
+          >
+            <DiscoverFiltersPanel
+              search={feed.search}
+              priorityIds={feed.priorityIds}
+              priceMin={feed.priceMin}
+              priceMax={feed.priceMax}
+              sort={feed.sort}
+              onSearchChange={feed.setSearch}
+              onPriorityToggle={feed.togglePriority}
+              onPriceMinChange={feed.setPriceMin}
+              onPriceMaxChange={feed.setPriceMax}
+              onSortChange={feed.setSort}
+            />
+          </SlideOutFilterPanel>
+        }
+      >
         <View>
           <View className="flex-row items-center gap-3">
             <DiscoverFilterActions
@@ -198,24 +228,6 @@ export default function DiscoverScreen() {
               />
             </View>
           </View>
-          <SlideOutFilterPanel
-            open={filtersOpen}
-            className="pb-1 pt-4"
-            maxHeight={ITEM_FILTER_PANEL_HEIGHT}
-          >
-            <DiscoverFiltersPanel
-              search={feed.search}
-              priorityIds={feed.priorityIds}
-              priceMin={feed.priceMin}
-              priceMax={feed.priceMax}
-              sort={feed.sort}
-              onSearchChange={feed.setSearch}
-              onPriorityToggle={feed.togglePriority}
-              onPriceMinChange={feed.setPriceMin}
-              onPriceMaxChange={feed.setPriceMax}
-              onSortChange={feed.setSort}
-            />
-          </SlideOutFilterPanel>
         </View>
       </PinnedListHeader>
       <StyledFlashList
@@ -230,6 +242,9 @@ export default function DiscoverScreen() {
         onEndReached={feed.loadMore}
         isLoadingMore={feed.activeQuery.isFetchingNextPage}
         getItemType={(row) => ("type" in row ? row.type : "discover-section")}
+        ListHeaderComponent={
+          <SlideOutSpacer progress={filtersProgress} height={ITEM_FILTER_PANEL_HEIGHT} />
+        }
         ListFooterComponent={
           <View className="gap-4 self-center" style={{ width: contentWidth }}>
             {feed.activeQuery.isLoading ? (

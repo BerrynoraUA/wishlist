@@ -1,4 +1,4 @@
-import { AddFriendSheet } from "@/components/friends/sheets/add-friend-sheet";
+import { AddFriendSheet, getFriendInviteLink } from "@/components/friends/sheets/add-friend-sheet";
 import { FriendGroupSheet } from "@/components/friends/sheets/friend-group-sheet";
 import { SecretSantaCreateEditSheet } from "@/components/secret-santa/sheets/secret-santa-create-edit-sheet";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
@@ -9,6 +9,8 @@ import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheet
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { useCreateFriendGroup } from "@/hooks/use-friends";
+import { useCurrentUserId } from "@/hooks/use-user";
+import { hapticSuccess } from "@/lib/haptics";
 import { useProGate } from "@/hooks/use-pro-gate";
 import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { useMyStatistics, useWishlistById } from "@/hooks/use-wishlists";
@@ -22,13 +24,16 @@ import {
 } from "@/lib/showcase/showcase-control";
 import { SHOWCASE_ITEM_LINK_URL } from "@wishlist/backend/supabase/showcase/constants";
 import { Portal } from "@rn-primitives/portal";
+import * as Clipboard from "expo-clipboard";
 import { useShareIntentContext } from "expo-share-intent";
 import { useGlobalSearchParams, usePathname } from "expo-router";
 import {
+  Copy,
   Gift,
   Link,
   PartyPopper,
   PencilLine,
+  Search,
   Star,
   UserPlus,
   Users,
@@ -57,7 +62,7 @@ export type CreateAction =
   | "friend"
   | "friend-group";
 export type ItemCreateSource = "scratch" | "link";
-type CreateMenuAction = CreateAction | "item";
+type CreateMenuAction = CreateAction | "item" | "friend-link";
 
 const MENU_ROW_HEIGHT = 60;
 const MENU_ROW_GAP = 10;
@@ -163,6 +168,8 @@ export function CreateMenuHost({
   const { completeStep } = useUserGuide();
   const [action, setAction] = React.useState<CreateAction | null>(null);
   const [itemMenuOpen, setItemMenuOpen] = React.useState(false);
+  const [friendMenuOpen, setFriendMenuOpen] = React.useState(false);
+  const { data: userId } = useCurrentUserId();
   const [sharedUrl, setSharedUrl] = React.useState<string | null>(null);
   const contextualWishlistId = useContextualWishlistId();
   const { isGated, openPaywall } = useProGate();
@@ -199,7 +206,7 @@ export function CreateMenuHost({
   // first open rather than tracking `open` directly, so they stay warm afterwards instead
   // of being torn down and refetched every time the menu closes.
   const [limitsEnabled, setLimitsEnabled] = React.useState(false);
-  const menuVisible = open || itemMenuOpen;
+  const menuVisible = open || itemMenuOpen || friendMenuOpen;
 
   React.useEffect(() => {
     if (menuVisible) setLimitsEnabled(true);
@@ -224,6 +231,11 @@ export function CreateMenuHost({
       setItemMenuOpen(true);
       return;
     }
+    if (entry.action === "friend") {
+      setFriendMenuOpen(true);
+      return;
+    }
+    if (entry.action === "friend-link") return;
     setAction(entry.action);
   }
 
@@ -258,6 +270,19 @@ export function CreateMenuHost({
     setAction(source === "link" ? "item-link" : "item-scratch");
   }
 
+  async function handleFriendSelect(entry: CreateMenuEntry) {
+    setFriendMenuOpen(false);
+
+    if (entry.action === "friend") {
+      setAction("friend");
+      return;
+    }
+
+    if (!userId) return;
+    await Clipboard.setStringAsync(getFriendInviteLink(userId));
+    hapticSuccess();
+  }
+
   function closeAction(openState: boolean) {
     if (!openState) {
       setAction(null);
@@ -273,6 +298,11 @@ export function CreateMenuHost({
         open={itemMenuOpen}
         onClose={() => setItemMenuOpen(false)}
         onSelect={handleItemSelect}
+      />
+      <CreateFriendInviteMenu
+        open={friendMenuOpen}
+        onClose={() => setFriendMenuOpen(false)}
+        onSelect={(entry) => void handleFriendSelect(entry)}
       />
       <WishlistCreateEditSheet
         mode="create"
@@ -292,7 +322,7 @@ export function CreateMenuHost({
         open={action === "secret-santa"}
         onOpenChange={closeAction}
       />
-      {action === "friend" ? <AddFriendSheet open onOpenChange={closeAction} /> : null}
+      {action === "friend" ? <AddFriendSheet onClose={() => closeAction(false)} /> : null}
       {action === "friend-group" ? <CreateFriendGroupSheet onOpenChange={closeAction} /> : null}
     </>
   );
@@ -325,6 +355,25 @@ export function CreateItemSourceMenu({
       onSelect={(entry) => onSelect(entry.action === "item-link" ? "link" : "scratch")}
     />
   );
+}
+
+/** "Invite Friend" branches like "New Wish": copy the invite link, or search by handle. */
+function CreateFriendInviteMenu({
+  open,
+  onClose,
+  onSelect,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSelect: (entry: CreateMenuEntry) => void;
+}) {
+  const t = useGT();
+  const entries: CreateMenuEntry[] = [
+    { action: "friend-link", icon: Copy, label: t("Copy link") },
+    { action: "friend", icon: Search, label: t("Search by handle") },
+  ];
+
+  return <CreateFloatingMenu open={open} onClose={onClose} entries={entries} onSelect={onSelect} />;
 }
 
 function CreateActionMenu({

@@ -45,12 +45,22 @@ function formatDateFieldValue(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+function startOfToday() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
 export function DatePicker({ value, onChange, children }: DatePickerProps) {
   const t = useGT();
   const locale = useLocale();
   const [iosPickerOpen, setIosPickerOpen] = React.useState(false);
   const [androidPickerOpen, setAndroidPickerOpen] = React.useState(false);
   const date = React.useMemo(() => parseDateFieldValue(value) ?? new Date(), [value]);
+  // Past days are greyed out in the calendar: every date here is an upcoming event.
+  // A stored date that has already passed opens the calendar on today instead.
+  const minimumDate = React.useMemo(() => startOfToday(), []);
+  const pickerDate = date < minimumDate ? minimumDate : date;
   const datePickerAccentColor = useCSSVariable("--color-primary") as string | undefined;
   const displayValue = React.useMemo(
     () =>
@@ -80,8 +90,9 @@ export function DatePicker({ value, onChange, children }: DatePickerProps) {
 
       {process.env.EXPO_OS === "android" && androidPickerOpen ? (
         <DateTimePicker
-          value={date}
+          value={pickerDate}
           mode="date"
+          minimumDate={minimumDate}
           accentColor={datePickerAccentColor}
           positiveButton={{ label: t("OK") }}
           negativeButton={{ label: t("Cancel") }}
@@ -92,7 +103,8 @@ export function DatePicker({ value, onChange, children }: DatePickerProps) {
 
       {process.env.EXPO_OS === "ios" && iosPickerOpen ? (
         <IosDatePickerSheet
-          value={date}
+          value={pickerDate}
+          minimumDate={minimumDate}
           accentColor={datePickerAccentColor}
           onConfirm={(selectedDate) => onChange(formatDateFieldValue(selectedDate))}
           onClose={() => setIosPickerOpen(false)}
@@ -109,11 +121,13 @@ export function DatePicker({ value, onChange, children }: DatePickerProps) {
  */
 function IosDatePickerSheet({
   value,
+  minimumDate,
   accentColor,
   onConfirm,
   onClose,
 }: {
   value: Date;
+  minimumDate: Date;
   accentColor: string | undefined;
   onConfirm: (value: Date) => void;
   onClose: () => void;
@@ -154,6 +168,7 @@ function IosDatePickerSheet({
           value={draft}
           mode="date"
           display="inline"
+          minimumDate={minimumDate}
           accentColor={accentColor}
           themeVariant={getThemeMode(theme)}
           onValueChange={(_, selectedDate) => setDraft(selectedDate)}

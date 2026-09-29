@@ -156,9 +156,16 @@ export function PeoplePickerField({
   );
 }
 
-function PeoplePickerSheet({
+/**
+ * The picker sheet on its own, for flows where picking people is the whole task. With
+ * `onConfirm` the confirm button runs that action (e.g. sending invites) and closes the
+ * sheet once it succeeds, instead of handing the selection back to a host form.
+ */
+export function PeoplePickerSheet({
   title,
   onClose,
+  confirmLabel,
+  onConfirm,
   items,
   selected,
   onChange,
@@ -175,8 +182,15 @@ function PeoplePickerSheet({
   errorLabel,
   isFetchingMore = false,
   onEndReached,
-}: PeoplePickerSource & { title: string; onClose: () => void }) {
+}: PeoplePickerSource & {
+  title: string;
+  onClose: () => void;
+  confirmLabel?: string;
+  onConfirm?: (selected: PeoplePickerItem[]) => Promise<void>;
+}) {
   const t = useGT();
+  const [confirmPending, setConfirmPending] = React.useState(false);
+  const [confirmError, setConfirmError] = React.useState<string | null>(null);
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const searchInputRef = React.useRef<TextInput>(null);
   // Edited as a draft so Cancel — and a swipe-down, which is the same gesture — leaves
@@ -228,6 +242,24 @@ function PeoplePickerSheet({
   function commit(next: PeoplePickerItem[]) {
     onChange(next);
     void sheetRef.current?.dismiss();
+  }
+
+  async function confirm() {
+    if (!onConfirm) {
+      commit(draft);
+      return;
+    }
+
+    setConfirmPending(true);
+    setConfirmError(null);
+    try {
+      await onConfirm(draft);
+      void sheetRef.current?.dismiss();
+    } catch (error) {
+      setConfirmError(error instanceof Error ? error.message : t("Something went wrong."));
+    } finally {
+      setConfirmPending(false);
+    }
   }
 
   function toggle(item: PeoplePickerItem) {
@@ -340,16 +372,26 @@ function PeoplePickerSheet({
             ) : null}
           </View>
 
+          {confirmError ? (
+            <Text className="text-sm font-semibold text-destructive">{confirmError}</Text>
+          ) : null}
+
           <View className="flex-row items-stretch gap-2">
             <Button
               className="min-w-0 flex-1"
               variant="outline"
+              disabled={confirmPending}
               onPress={() => void sheetRef.current?.dismiss()}
             >
               <Text>{t("Cancel")}</Text>
             </Button>
-            <Button className="min-w-0 flex-1" onPress={() => commit(draft)}>
-              <Text>{t("Done")}</Text>
+            <Button
+              className="min-w-0 flex-1"
+              disabled={confirmPending || (Boolean(onConfirm) && draft.length === 0)}
+              onPress={() => void confirm()}
+            >
+              {confirmPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
+              <Text>{confirmLabel ?? t("Done")}</Text>
             </Button>
           </View>
         </View>
@@ -551,7 +593,7 @@ function PickerStatus({ label, tone }: { label: string; tone?: "destructive" }) 
   return (
     <Text
       className={cn(
-        "rounded-xl bg-bg-muted p-3 text-sm font-semibold",
+        "px-1 py-1 text-center text-sm font-medium",
         tone === "destructive" ? "text-destructive" : "text-text-muted",
       )}
     >

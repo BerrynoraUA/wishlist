@@ -80,7 +80,7 @@ function DialogContent({
         >
           <DialogPrimitive.Content
             className={cn(
-              "bg-background border-border z-50 mx-auto flex w-full flex-col gap-4 rounded-lg border p-6 shadow-lg shadow-black/5 sm:max-w-lg",
+              "bg-card-bg border-border z-50 mx-auto flex w-full flex-col gap-4 rounded-lg border p-6 shadow-lg shadow-black/5 sm:max-w-lg",
               className,
             )}
             {...props}
@@ -113,7 +113,7 @@ function DialogFooter({ className, ...props }: ViewProps) {
 function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn("text-foreground text-lg font-semibold leading-none", className)}
+      className={cn("text-text text-lg font-semibold leading-none", className)}
       {...props}
     />
   );

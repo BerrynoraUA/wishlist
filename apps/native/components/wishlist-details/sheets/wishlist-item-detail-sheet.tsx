@@ -6,7 +6,6 @@ import {
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
 import { ItemImage } from "@/components/items/item-image";
-import { ItemReportButton } from "@/components/items/item-report-button";
 import { Button } from "@/components/ui/button";
 import {
   ActionBottomSheetConfirm,
@@ -34,6 +33,7 @@ import {
   ExternalLink,
   Eye,
   EyeOff,
+  Flag,
   LockKeyhole,
   MoreVertical,
   Pencil,
@@ -42,7 +42,7 @@ import {
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { Linking, Pressable, View } from "react-native";
+import { ActivityIndicator, Linking, Pressable, View } from "react-native";
 
 /** Enough to read what the item is; anything longer hides behind "Show more". */
 const DESCRIPTION_COLLAPSED_LINES = 4;
@@ -191,17 +191,20 @@ export function WishlistItemDetailSheet({
   // A purchased gift is reserved too, so both buttons report the state they are locked in.
   const showAsReserved = reservation.isReserved || reservation.isPurchased;
   const ownerActions = isOwner ? Boolean(onEdit) || Boolean(onDelete) : false;
-  // Saving a copy of the item to your own wishlist stays pointless on a list you own.
-  const guestActions = !isOwner && Boolean(onSaveToWishlist);
-  const hasActions = ownerActions || guestActions || itemUrl.length > 0;
-  // Reserve and buy are for everyone, the owner included, but they read as secondary to
-  // edit and delete — they live in the overflow menu on the image, not in the footer.
   const hasGiftActions = Boolean(onToggleReserve) || Boolean(onToggleBought);
+  // Reserve and buy are what a guest came for, so they sit in the footer. For the owner
+  // they read as secondary to edit and delete and stay in the overflow menu instead.
+  const guestGiftActions = !isOwner && hasGiftActions;
+  const hasActions = ownerActions || guestGiftActions || itemUrl.length > 0;
+  // Saving a copy and reporting are rare, out-of-band guest actions — they ride in the
+  // overflow menu. Saving to your own wishlist stays pointless on a list you own.
+  const canSaveToWishlist = !isOwner && Boolean(onSaveToWishlist);
+  const hasMenuActions = isOwner ? hasGiftActions : true;
 
-  const giftActionsTrigger = hasGiftActions ? (
+  const giftActionsTrigger = hasMenuActions ? (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={t("Gift actions")}
+      accessibilityLabel={t("More actions")}
       accessibilityState={{ expanded: giftMenuOpen }}
       hitSlop={8}
       onPress={() => setGiftMenuOpen((open) => !open)}
@@ -224,7 +227,34 @@ export function WishlistItemDetailSheet({
         className="absolute inset-0"
       />
       <View className="absolute start-3 top-14 min-w-56 rounded-xl border border-border bg-card-bg p-1 shadow-xl shadow-black/15">
-        {onToggleReserve ? (
+        {canSaveToWishlist && onSaveToWishlist ? (
+          <Pressable
+            accessibilityRole="menuitem"
+            onPress={() => {
+              setGiftMenuOpen(false);
+              onSaveToWishlist(selectedItem);
+              handleClose();
+            }}
+            className="min-h-11 flex-row items-center gap-3 rounded-lg px-3 py-2 active:bg-bg-muted"
+          >
+            <Icon as={Bookmark} className="size-4 text-text" />
+            <Text className="text-sm text-text">{t("Save to wishlist")}</Text>
+          </Pressable>
+        ) : null}
+        {!isOwner ? (
+          <Pressable
+            accessibilityRole="menuitem"
+            onPress={() => {
+              setGiftMenuOpen(false);
+              setReportOpen(true);
+            }}
+            className="min-h-11 flex-row items-center gap-3 rounded-lg px-3 py-2 active:bg-bg-muted"
+          >
+            <Icon as={Flag} className="size-4 text-destructive" />
+            <Text className="text-sm text-destructive">{t("Report this item")}</Text>
+          </Pressable>
+        ) : null}
+        {isOwner && onToggleReserve ? (
           <Pressable
             accessibilityRole="menuitem"
             disabled={!canReserve || reservePending}
@@ -247,7 +277,7 @@ export function WishlistItemDetailSheet({
             </Text>
           </Pressable>
         ) : null}
-        {onToggleBought ? (
+        {isOwner && onToggleBought ? (
           <Pressable
             accessibilityRole="menuitem"
             disabled={!canBuy || boughtPending}
@@ -327,19 +357,68 @@ export function WishlistItemDetailSheet({
           ) : null}
         </View>
       ) : null}
-      {!isOwner && onSaveToWishlist ? (
-        <Button
-          variant="outline"
-          size="lg"
-          className="w-full"
-          onPress={() => {
-            onSaveToWishlist(selectedItem);
-            handleClose();
-          }}
-        >
-          <Icon as={Bookmark} className="size-4 text-text" />
-          <Text>{t("Save to wishlist")}</Text>
-        </Button>
+      {guestGiftActions ? (
+        <View className="flex-row gap-2">
+          {onToggleReserve ? (
+            <Button
+              variant="ghost"
+              size="lg"
+              disabled={!canReserve || reservePending}
+              onPress={confirmReservation}
+              accessibilityLabel={reservedByMe ? t("Release reservation") : t("Reserve this gift")}
+              className={
+                reservedByMe
+                  ? "min-w-0 flex-1 rounded-lg border border-brand bg-brand"
+                  : "min-w-0 flex-1 rounded-lg border border-brand/25 bg-brand-lighter"
+              }
+            >
+              {reservePending ? (
+                <ActivityIndicator colorClassName="accent-primary-foreground" />
+              ) : null}
+              <Icon
+                as={LockKeyhole}
+                className={reservedByMe ? "size-4 text-primary-foreground" : "size-4 text-brand"}
+              />
+              <Text
+                numberOfLines={1}
+                className={reservedByMe ? "text-primary-foreground" : "text-brand"}
+              >
+                {reservedByMe ? t("Release") : showAsReserved ? t("Reserved") : t("Reserve")}
+              </Text>
+            </Button>
+          ) : null}
+          {onToggleBought ? (
+            <Button
+              variant="ghost"
+              size="lg"
+              disabled={!canBuy || boughtPending}
+              onPress={confirmBought}
+              className={
+                canUndoPurchase
+                  ? "min-w-0 flex-1 rounded-lg border border-destructive/35 bg-danger-bg"
+                  : "min-w-0 flex-1 rounded-lg border border-buy/70 bg-buy-bg"
+              }
+            >
+              {boughtPending ? (
+                <ActivityIndicator colorClassName="accent-primary-foreground" />
+              ) : null}
+              <Icon
+                as={ShoppingCart}
+                className={canUndoPurchase ? "size-4 text-destructive" : "size-4 text-buy"}
+              />
+              <Text
+                numberOfLines={1}
+                className={canUndoPurchase ? "text-destructive" : "text-buy"}
+              >
+                {canUndoPurchase
+                  ? t("Undo")
+                  : reservation.isPurchased
+                    ? t("Purchased")
+                    : t("Buy")}
+              </Text>
+            </Button>
+          ) : null}
+        </View>
       ) : null}
     </View>
   );
@@ -401,7 +480,6 @@ export function WishlistItemDetailSheet({
               priorityLabel={priorityLabel}
               salePercentOff={salePercentOff}
               showDiscountPrice={hasActiveDiscount}
-              endAction={isOwner ? null : <ItemReportButton onPress={() => setReportOpen(true)} />}
               size="detail"
             />
 

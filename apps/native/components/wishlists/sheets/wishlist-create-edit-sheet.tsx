@@ -632,33 +632,36 @@ function EventDatePicker({
   return (
     <DatePicker value={value || null} onChange={(nextValue) => onChange(nextValue ?? "")}>
       {({ displayValue, openPicker }) => (
-        <View className="gap-2">
+        <View className="relative justify-center">
           <AnimatedPressable
             accessibilityRole="button"
             accessibilityLabel={t("Select event date")}
             onPress={openPicker}
-            className="h-10 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-background px-3 sm:h-9 dark:bg-input/30"
+            className={cn(
+              "h-10 flex-row items-center gap-3 rounded-lg border border-border-subtle bg-background px-3 sm:h-9 dark:bg-input/30",
+              value && "pe-11",
+            )}
           >
             <Icon as={CalendarDays} className="size-4 text-text-muted" />
             <View className="min-w-0 flex-1">
-              <Text className={cn("font-semibold", value ? "text-text" : "text-text-muted")}>
+              <Text
+                numberOfLines={1}
+                className={cn("font-semibold", value ? "text-text" : "text-text-muted")}
+              >
                 {value ? displayValue : t("Select a date")}
               </Text>
             </View>
-            {value ? (
-              <AnimatedPressable
-                accessibilityRole="button"
-                accessibilityLabel={t("Clear event date")}
-                onPress={(event) => {
-                  event.stopPropagation();
-                  onChange("");
-                }}
-                className="size-8 items-center justify-center rounded-full bg-bg-muted"
-              >
-                <Icon as={X} className="size-3.5 text-text-muted" />
-              </AnimatedPressable>
-            ) : null}
           </AnimatedPressable>
+          {value ? (
+            <AnimatedPressable
+              accessibilityRole="button"
+              accessibilityLabel={t("Clear event date")}
+              onPress={() => onChange("")}
+              className="absolute end-1.5 size-7 items-center justify-center rounded-full bg-bg-muted"
+            >
+              <Icon as={X} className="size-3.5 text-text-muted" />
+            </AnimatedPressable>
+          ) : null}
         </View>
       )}
     </DatePicker>

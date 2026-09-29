@@ -1,71 +1,108 @@
-import { motionDuration, useReducedMotion } from "@/lib/motion";
+import { useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as React from "react";
 import { View } from "react-native";
 import Animated, {
-  runOnJS,
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
 
 const FILTER_PANEL_FALLBACK_HEIGHT = 220;
 export const WISHLIST_FILTER_PANEL_HEIGHT = 120;
 export const ITEM_FILTER_PANEL_HEIGHT = 176;
 
+const OPEN_DURATION = 240;
+const CLOSE_DURATION = 200;
+/** Standard "emphasized decelerate" curve: moves at once, settles softly. */
+const PANEL_EASING = Easing.bezier(0.2, 0, 0, 1);
+
+/**
+ * Open state for a slide-out filter panel, plus the shared progress (0 closed → 1 open)
+ * that drives it on the UI thread.
+ *
+ * The animation starts inside `setOpen` itself rather than in an effect after React has
+ * re-rendered the screen, so it begins on the next frame after the tap no matter how
+ * heavy that re-render is. Everything that has to move with the panel — the panel, and
+ * the `SlideOutSpacer` that pushes the content below it — reads this one value, so they
+ * stay in lockstep.
+ */
+export function useSlideOutPanel(initialOpen = false) {
+  const reduceMotion = useReducedMotion();
+  const [open, setOpenState] = React.useState(initialOpen);
+  const progress = useSharedValue(initialOpen ? 1 : 0);
+
+  const setOpen = React.useCallback(
+    (next: boolean) => {
+      progress.value = withTiming(next ? 1 : 0, {
+        duration: reduceMotion ? 0 : next ? OPEN_DURATION : CLOSE_DURATION,
+        easing: PANEL_EASING,
+      });
+      setOpenState(next);
+    },
+    [progress, reduceMotion],
+  );
+
+  return { open, setOpen, progress };
+}
+
+/**
+ * The collapsible panel. Its height animates with the fade, so layout below it (in the
+ * same flow) moves in step. It stays mounted while closed, at zero height, so opening
+ * only has to run the animation instead of mounting inputs on the tap.
+ */
 export function SlideOutFilterPanel({
   open,
+  progress,
   children,
   className,
   maxHeight = FILTER_PANEL_FALLBACK_HEIGHT,
 }: {
   open: boolean;
+  progress: SharedValue<number>;
   children: React.ReactNode;
   className?: string;
   maxHeight?: number;
 }) {
-  const reduceMotion = useReducedMotion();
-  const [rendered, setRendered] = React.useState(open);
-  const progress = useSharedValue(open ? 1 : 0);
-  const hidePanel = React.useCallback(() => {
-    setRendered(false);
-  }, []);
-
-  React.useEffect(() => {
-    if (open) {
-      setRendered(true);
-    }
-  }, [open]);
-
-  React.useEffect(() => {
-    if (!rendered) return;
-
-    const duration = reduceMotion ? 0 : motionDuration.normal;
-
-    progress.value = withTiming(open ? 1 : 0, { duration }, (finished) => {
-      if (finished && !open) {
-        runOnJS(hidePanel)();
-      }
-    });
-  }, [hidePanel, open, progress, reduceMotion, rendered]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
+  const containerStyle = useAnimatedStyle(() => ({
+    height: maxHeight * progress.value,
+  }));
+  const contentStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
-    transform: [{ translateY: -10 * (1 - progress.value) }],
+    transform: [{ translateY: -12 * (1 - progress.value) }],
   }));
 
-  if (!rendered) return null;
-
   return (
-    <View
+    <Animated.View
       className="overflow-hidden"
       pointerEvents={open ? "auto" : "none"}
-      style={{ height: maxHeight }}
+      style={containerStyle}
+      accessibilityElementsHidden={!open}
       importantForAccessibility={open ? "auto" : "no-hide-descendants"}
     >
-      <Animated.View style={animatedStyle}>
+      <Animated.View style={contentStyle}>
         <View className={cn("gap-3", className)}>{children}</View>
       </Animated.View>
-    </View>
+    </Animated.View>
   );
+}
+
+/**
+ * Empty space that grows with a panel living outside the list — in a pinned header that
+ * overlays it. Put it at the top of the list's `ListHeaderComponent`: the header flows
+ * above the recycled cells, so the cells slide down with it on the UI thread instead of
+ * waiting for a JS re-layout of the list's padding on every frame.
+ */
+export function SlideOutSpacer({
+  progress,
+  height,
+}: {
+  progress: SharedValue<number>;
+  height: number;
+}) {
+  const style = useAnimatedStyle(() => ({ height: height * progress.value }));
+
+  return <Animated.View pointerEvents="none" style={style} />;
 }

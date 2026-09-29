@@ -12,6 +12,7 @@ import { Icon } from "@/components/ui/icon";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
 import { CardGridSkeleton } from "@/components/ui/list-skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SlideOutSpacer } from "@/components/ui/slide-out-filter-panel";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
@@ -83,6 +84,8 @@ export function WishlistList({
   columns,
   gridGap,
   FilterHeaderComponent,
+  FilterPanelComponent,
+  filterPanel,
   ListHeaderComponent,
   onEndReached,
   onOpenSheet,
@@ -99,6 +102,10 @@ export function WishlistList({
   columns: number;
   gridGap: number;
   FilterHeaderComponent: React.ReactElement;
+  /** A `SlideOutFilterPanel` shown under the filter row inside the pinned header. */
+  FilterPanelComponent?: React.ReactElement;
+  /** Drives the list spacer that makes room for `FilterPanelComponent`. */
+  filterPanel?: { progress: SharedValue<number>; height: number };
   ListHeaderComponent: React.ReactElement;
   onEndReached: () => void;
   onOpenSheet: (sheet: Exclude<SheetState, null>) => void;
@@ -159,7 +166,16 @@ export function WishlistList({
 
   return (
     <View className="flex-1">
-      <PinnedListHeader onLayout={onHeaderLayout}>
+      <PinnedListHeader
+        onLayout={onHeaderLayout}
+        panel={
+          FilterPanelComponent ? (
+            <View className="max-w-300 self-center" style={{ width: contentWidth }}>
+              {FilterPanelComponent}
+            </View>
+          ) : undefined
+        }
+      >
         <View className="max-w-300 self-center" style={{ width: contentWidth }}>
           {FilterHeaderComponent}
         </View>
@@ -176,9 +192,14 @@ export function WishlistList({
         onScroll={requestMeasure}
         scrollEventThrottle={16}
         ListHeaderComponent={
-          <View className="max-w-300 self-center pb-4" style={{ width: contentWidth }}>
-            {ListHeaderComponent}
-          </View>
+          <>
+            {filterPanel ? (
+              <SlideOutSpacer progress={filterPanel.progress} height={filterPanel.height} />
+            ) : null}
+            <View className="max-w-300 self-center pb-4" style={{ width: contentWidth }}>
+              {ListHeaderComponent}
+            </View>
+          </>
         }
         ListFooterComponent={
           <View className="gap-5" style={{ alignSelf: "center", width: contentWidth }}>

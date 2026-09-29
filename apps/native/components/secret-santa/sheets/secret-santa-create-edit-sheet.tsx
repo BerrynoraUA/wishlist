@@ -23,6 +23,7 @@ import {
 import { useSettings } from "@/hooks/use-settings";
 import type { NativePickedImage } from "@/lib/image-upload";
 import { getSecretSantaPersonName } from "@/lib/secret-santa";
+import { cn } from "@/lib/utils";
 import type {
   SecretSantaDetails,
   SecretSantaImageInput,
@@ -266,11 +267,15 @@ export function SecretSantaCreateEditSheet({
           <Text className="text-sm font-semibold text-text">{t("Event Date")}</Text>
           <DatePicker value={eventDate || null} onChange={(value) => setEventDate(value ?? "")}>
             {({ displayValue, openPicker }) => (
-              <View className="flex-row gap-2">
-                <Button variant="outline" onPress={openPicker} className="flex-1 justify-between">
-                  <View className="flex-row items-center gap-2">
+              <View className="relative justify-center">
+                <Button
+                  variant="outline"
+                  onPress={openPicker}
+                  className={cn("justify-start", eventDate && "pe-12")}
+                >
+                  <View className="min-w-0 flex-1 flex-row items-center gap-2">
                     <Icon as={CalendarDays} className="size-4 text-text-muted" />
-                    <Text>{eventDate ? displayValue : t("Choose date")}</Text>
+                    <Text numberOfLines={1}>{eventDate ? displayValue : t("Choose date")}</Text>
                   </View>
                 </Button>
                 {eventDate ? (
@@ -279,6 +284,7 @@ export function SecretSantaCreateEditSheet({
                     size="icon"
                     accessibilityLabel={t("Clear event date")}
                     onPress={() => setEventDate("")}
+                    className="absolute end-0 rounded-full"
                   >
                     <Icon as={X} className="size-4 text-text-muted" />
                   </Button>

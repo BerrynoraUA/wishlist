@@ -14,9 +14,9 @@ import { ActivityIndicator, View } from "react-native";
 const FRIENDS_PAGE_SIZE = 20;
 
 /**
- * Deliberately mirrors `AddFriendSheet`: invite link on top, the shared people picker
- * below, one content-sized detent and no footer. The previous layout put the search in a
- * sheet footer with the results floating above it, which behaved differently per platform.
+ * Invite link on top, the shared people picker below, one content-sized detent and no
+ * footer. The previous layout put the search in a sheet footer with the results floating
+ * above it, which behaved differently per platform.
  */
 export function SecretSantaInviteSheet({
   open,

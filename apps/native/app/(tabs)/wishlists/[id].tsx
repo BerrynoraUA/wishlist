@@ -1,5 +1,6 @@
 import { InlineState } from "@/components/shared/inline-state";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
+import { useSlideOutPanel } from "@/components/ui/slide-out-filter-panel";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
@@ -81,10 +82,7 @@ type SheetState =
   | { type: "grantAccess"; wishlist: Wishlist }
   | null;
 
-type WishlistItemListRow =
-  | Item[]
-  | { id: "header"; type: "header" }
-  | { id: "filters"; type: "filters" };
+type WishlistItemListRow = Item[];
 
 export default function WishlistDetailScreen() {
   const t = useGT();
@@ -100,7 +98,11 @@ export default function WishlistDetailScreen() {
   const wishlist = wishlistQuery.data;
   const currentUser = useCurrentUserId();
   const [filters, setFilters] = React.useState<WishlistItemFilterState>(EMPTY_FILTERS);
-  const [filtersOpen, setFiltersOpen] = React.useState(false);
+  const {
+    open: filtersOpen,
+    setOpen: setFiltersOpen,
+    progress: filtersProgress,
+  } = useSlideOutPanel();
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const [shareFeedback, setShareFeedback] = React.useState<ShareFeedback>(null);
@@ -184,11 +186,7 @@ export default function WishlistDetailScreen() {
   const showOwnerReservation = Boolean(wishlist?.is_owner) && canSeeOwnReservations;
   const itemRows = React.useMemo(() => chunkRows(items, columns), [columns, items]);
   const itemListData = React.useMemo<WishlistItemListRow[]>(
-    () => [
-      { id: "header", type: "header" },
-      { id: "filters", type: "filters" },
-      ...(itemsQuery.isLoading ? [] : itemRows),
-    ],
+    () => (itemsQuery.isLoading ? [] : itemRows),
     [itemRows, itemsQuery.isLoading],
   );
 
@@ -277,121 +275,110 @@ export default function WishlistDetailScreen() {
     });
   }
 
-  function renderFilterHeader() {
-    return (
+  // Header and filters live in the list header rather than as list rows: it flows above
+  // the recycled cells, so when the filter panel animates its height the cells slide
+  // with it on the UI thread. As rows, FlashList would only reposition them after
+  // re-measuring — a beat behind the panel, and in jumps.
+  const listHeader = wishlist ? (
+    <View>
+      <WishlistItemHeader
+        wishlist={wishlist}
+        isOwner={wishlist.is_owner}
+        onEdit={
+          canEditWishlist ? () => setSheet({ type: "editWishlist", wishlist }) : undefined
+        }
+        onDelete={
+          wishlist.is_owner ? () => setSheet({ type: "deleteWishlist", wishlist }) : undefined
+        }
+        onShare={handleShareWishlist}
+        onManageAccess={
+          wishlist.is_owner
+            ? () => {
+                if (isGated) {
+                  openPaywall();
+                  return;
+                }
+                completeManageAccessStep();
+                setSheet({ type: "grantAccess", wishlist });
+              }
+            : undefined
+        }
+        manageAccessLocked={isGated}
+        topInset={insets.top}
+      />
       <View className="z-2 bg-bg pb-4 pt-4">
         <View className="max-w-300 self-center" style={{ width: contentWidth }}>
           <WishlistItemFilterBar
             filters={filters}
-            itemsCount={wishlist?.items_count ?? 0}
+            itemsCount={wishlist.items_count ?? 0}
             onChange={updateFilters}
             onReset={resetFilters}
             open={filtersOpen}
+            progress={filtersProgress}
             onOpenChange={setFiltersOpen}
           />
         </View>
       </View>
-    );
-  }
+    </View>
+  ) : null;
 
   const renderItemRow = React.useCallback(
-    ({ item }: { item: WishlistItemListRow }) =>
-      "type" in item && item.type === "header" ? (
-        wishlist ? (
-          <View>
-            <WishlistItemHeader
-              wishlist={wishlist}
-              isOwner={wishlist.is_owner}
-              onEdit={
-                canEditWishlist ? () => setSheet({ type: "editWishlist", wishlist }) : undefined
+    ({ item }: { item: WishlistItemListRow }) => (
+      <View
+        className="flex-row"
+        style={{
+          alignSelf: "center",
+          gap: gridGap,
+          width: contentWidth,
+        }}
+      >
+        {item.map((entry) => (
+          <Animated.View
+            key={entry.id}
+            entering={wishlistCardFadeIn}
+            style={{ width: cardWidth }}
+          >
+            <WishlistItemCard
+              item={entry}
+              width={cardWidth}
+              currentUserId={currentUser.data}
+              isOwner={canEditWishlist}
+              showDiscountBadge={showDiscountBadge}
+              showOwnerReservation={showOwnerReservation}
+              reservedByName={
+                entry.reserved_by ? profileNamesById.get(entry.reserved_by) : undefined
               }
+              voteCount={votesQuery.data?.counts[entry.id] ?? 0}
+              hasVoted={votesQuery.data?.userVotes.has(entry.id) ?? false}
+              onPress={() => setSheet({ type: "detail", item: entry })}
+              onEdit={canEditWishlist ? () => setSheet({ type: "edit", item: entry }) : undefined}
               onDelete={
-                wishlist.is_owner ? () => setSheet({ type: "deleteWishlist", wishlist }) : undefined
+                canEditWishlist ? () => setSheet({ type: "delete", item: entry }) : undefined
               }
-              onShare={handleShareWishlist}
-              onManageAccess={
-                wishlist.is_owner
-                  ? () => {
-                      if (isGated) {
-                        openPaywall();
-                        return;
-                      }
-                      completeManageAccessStep();
-                      setSheet({ type: "grantAccess", wishlist });
-                    }
-                  : undefined
-              }
-              manageAccessLocked={isGated}
-              topInset={insets.top}
+              onToggleVote={canEditWishlist ? undefined : () => toggleVote.mutate(entry.id)}
+              // Owners included: you can mark your own gift reserved or bought.
+              onToggleReserve={() => toggleReservation.mutate(entry.id)}
+              onToggleBought={() => toggleBought.mutate(entry.id)}
+              reservePending={toggleReservation.isPending}
+              boughtPending={toggleBought.isPending}
             />
-          </View>
-        ) : null
-      ) : "type" in item ? (
-        renderFilterHeader()
-      ) : (
-        <View
-          className="flex-row"
-          style={{
-            alignSelf: "center",
-            gap: gridGap,
-            width: contentWidth,
-          }}
-        >
-          {item.map((entry) => (
-            <Animated.View
-              key={entry.id}
-              entering={wishlistCardFadeIn}
-              style={{ width: cardWidth }}
-            >
-              <WishlistItemCard
-                item={entry}
-                width={cardWidth}
-                currentUserId={currentUser.data}
-                isOwner={canEditWishlist}
-                showDiscountBadge={showDiscountBadge}
-                showOwnerReservation={showOwnerReservation}
-                reservedByName={
-                  entry.reserved_by ? profileNamesById.get(entry.reserved_by) : undefined
-                }
-                voteCount={votesQuery.data?.counts[entry.id] ?? 0}
-                hasVoted={votesQuery.data?.userVotes.has(entry.id) ?? false}
-                onPress={() => setSheet({ type: "detail", item: entry })}
-                onEdit={canEditWishlist ? () => setSheet({ type: "edit", item: entry }) : undefined}
-                onDelete={
-                  canEditWishlist ? () => setSheet({ type: "delete", item: entry }) : undefined
-                }
-                onToggleVote={canEditWishlist ? undefined : () => toggleVote.mutate(entry.id)}
-                // Owners included: you can mark your own gift reserved or bought.
-                onToggleReserve={() => toggleReservation.mutate(entry.id)}
-                onToggleBought={() => toggleBought.mutate(entry.id)}
-                reservePending={toggleReservation.isPending}
-                boughtPending={toggleBought.isPending}
-              />
-            </Animated.View>
-          ))}
-        </View>
-      ),
+          </Animated.View>
+        ))}
+      </View>
+    ),
     [
       canEditWishlist,
       cardWidth,
       contentWidth,
       currentUser.data,
-      filters,
-      filtersOpen,
       gridGap,
-      handleShareWishlist,
-      insets.top,
-      isGated,
-      openPaywall,
       profileNamesById,
       showDiscountBadge,
+      showOwnerReservation,
       toggleVote,
       toggleReservation,
       toggleBought,
       votesQuery.data,
-      wishlist,
-      t,
-      completeManageAccessStep,
     ],
   );
 
@@ -420,18 +407,9 @@ export default function WishlistDetailScreen() {
           </View>
         ) : (
           <StyledFlashList
-            data={
-              itemsQuery.isError
-                ? [
-                    { id: "header", type: "header" },
-                    { id: "filters", type: "filters" },
-                  ]
-                : itemListData
-            }
+            data={itemsQuery.isError ? [] : itemListData}
             renderItem={renderItemRow}
-            keyExtractor={(row) =>
-              "type" in row ? row.id : row.map((entry) => entry.id).join(":")
-            }
+            keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
             className="flex-1"
             contentContainerClassName="bg-bg"
             contentContainerStyle={{ paddingBottom }}
@@ -440,7 +418,7 @@ export default function WishlistDetailScreen() {
             ItemSeparatorComponent={ItemRowSeparator}
             onEndReached={loadMoreItems}
             isLoadingMore={itemsQuery.isFetchingNextPage}
-            getItemType={(row) => ("type" in row ? row.type : "item-row")}
+            ListHeaderComponent={listHeader}
             ListFooterComponent={
               <View
                 className="gap-5"
@@ -466,8 +444,6 @@ export default function WishlistDetailScreen() {
             extraData={{
               cardWidth,
               contentWidth,
-              filters,
-              filtersOpen,
               gridGap,
             }}
           />
@@ -568,10 +544,6 @@ export default function WishlistDetailScreen() {
   );
 }
 
-function ItemRowSeparator({ leadingItem }: { leadingItem?: WishlistItemListRow }) {
-  if (leadingItem && "type" in leadingItem) {
-    return null;
-  }
-
+function ItemRowSeparator() {
   return <View className="h-4" />;
 }

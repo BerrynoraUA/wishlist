@@ -1,52 +1,32 @@
-import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
-import { hapticSuccess } from "@/lib/haptics";
-import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
-import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
-import { Text } from "@/components/ui/text";
+import { PeoplePickerSheet, type PeoplePickerItem } from "@/components/ui/people-picker";
 import { useSearchProfilesByNickname, useSendFriendRequest } from "@/hooks/use-friends";
-import { useCurrentUserId } from "@/hooks/use-user";
-import { cn } from "@/lib/utils";
-import * as Clipboard from "expo-clipboard";
-import { Copy } from "lucide-react-native";
+import { hapticSuccess } from "@/lib/haptics";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, Pressable, View } from "react-native";
 
-export function AddFriendSheet({
-  open,
-  onOpenChange,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}) {
+/** The deep link that opens the app on a friend request from `userId`. */
+export function getFriendInviteLink(userId: string) {
+  return `wishlane://home?friendInvite=${userId}`;
+}
+
+/**
+ * Search by handle and send friend requests — straight into the people picker, whose
+ * confirm button sends the invites and closes it. Copying the invite link lives in the
+ * create menu next to this, so there is no intermediate sheet.
+ */
+export function AddFriendSheet({ onClose }: { onClose: () => void }) {
   const t = useGT();
-  const sheetRef = React.useRef<BottomSheetRef>(null);
-  const { data: userId } = useCurrentUserId();
   const [query, setQuery] = React.useState("");
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
   const [selected, setSelected] = React.useState<PeoplePickerItem[]>([]);
-  const [copied, setCopied] = React.useState(false);
-  const [success, setSuccess] = React.useState(false);
   const searchParams = React.useMemo(() => ({ take: 10 }), []);
   const search = useSearchProfilesByNickname(debouncedQuery, searchParams);
   const sendRequest = useSendFriendRequest();
-  const inviteLink = userId ? `wishlane://home?friendInvite=${userId}` : "";
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedQuery(query.trim()), 220);
     return () => clearTimeout(timeout);
   }, [query]);
-
-  React.useEffect(() => {
-    if (!open) {
-      setQuery("");
-      setDebouncedQuery("");
-      setSelected([]);
-      setCopied(false);
-      setSuccess(false);
-    }
-  }, [open]);
 
   const results = React.useMemo<PeoplePickerItem[]>(
     () =>
@@ -59,33 +39,9 @@ export function AddFriendSheet({
     [search.data],
   );
 
-  if (!open) return null;
-
-  function handleClose() {
-    void sheetRef.current?.dismiss();
-  }
-
-  function handleSelectionChange(profiles: PeoplePickerItem[]) {
-    setSelected(profiles);
-    setSuccess(false);
-  }
-
-  async function handleCopy() {
-    if (!inviteLink) return;
-    await Clipboard.setStringAsync(inviteLink);
+  async function handleInvite(profiles: PeoplePickerItem[]) {
+    await Promise.all(profiles.map((profile) => sendRequest.mutateAsync(profile.id)));
     hapticSuccess();
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  }
-
-  async function handleInvite() {
-    if (selected.length === 0) return;
-
-    await Promise.all(selected.map((profile) => sendRequest.mutateAsync(profile.id)));
-    setSelected([]);
-    setQuery("");
-    setDebouncedQuery("");
-    setSuccess(true);
   }
 
   const trimmedQuery = query.trim();
@@ -99,88 +55,21 @@ export function AddFriendSheet({
   const isSearching = trimmedQuery !== debouncedQuery || (search.isFetching && !search.data);
 
   return (
-    <BottomSheet
-      ref={sheetRef}
-      detents={["auto"]}
-      onDidDismiss={() => onOpenChange(false)}
-      header={<BottomSheetHeader title={t("Invite friends")} />}
-      footer={
-        <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
-          <Button
-            className="min-w-0 flex-1"
-            variant="outline"
-            disabled={sendRequest.isPending}
-            onPress={handleClose}
-          >
-            <Text>{t("Cancel")}</Text>
-          </Button>
-          <Button
-            className="min-w-0 flex-1"
-            disabled={selected.length === 0 || sendRequest.isPending}
-            onPress={handleInvite}
-          >
-            {sendRequest.isPending ? <ActivityIndicator colorClassName="accent-white" /> : null}
-            <Text>{sendRequest.isPending ? t("Inviting...") : t("Invite")}</Text>
-          </Button>
-        </View>
-      }
-    >
-      <View className="gap-5 px-5">
-        <View className="gap-2">
-          <View className="flex-row items-center justify-between gap-3">
-            <Text className="text-sm font-bold text-text">{t("Your invite link")}</Text>
-            {copied ? (
-              <Text className="text-sm font-semibold text-success">{t("Copied")}</Text>
-            ) : null}
-          </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t("Copy invite link")}
-            accessibilityState={{ disabled: !inviteLink }}
-            disabled={!inviteLink}
-            onPress={() => void handleCopy()}
-            className={cn(
-              "flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3 py-2 active:opacity-70 disabled:opacity-50",
-              copied && "border-success",
-            )}
-          >
-            <Text className="min-w-0 flex-1 text-sm text-text-muted" numberOfLines={1}>
-              {inviteLink || "..."}
-            </Text>
-            <View className="size-10 items-center justify-center rounded-full">
-              <Icon as={Copy} className={cn("size-4 text-text", copied && "text-success")} />
-            </View>
-          </Pressable>
-        </View>
-
-        <PeoplePickerField
-          label={t("Or search")}
-          title={t("Find friends")}
-          addLabel={t("Search by handle")}
-          items={results}
-          selected={selected}
-          onChange={handleSelectionChange}
-          query={query}
-          onQueryChange={(value) => {
-            setQuery(value);
-            setSuccess(false);
-          }}
-          searchPlaceholder={t("username")}
-          hint={searchHint}
-          autoFocusSearch
-          isLoading={isSearching}
-          emptyLabel={t("No matches")}
-        />
-
-        {sendRequest.error ? (
-          <Text className="text-sm font-semibold text-destructive">
-            {sendRequest.error.message}
-          </Text>
-        ) : null}
-        {success ? (
-          <Text className="text-sm font-semibold text-success">{t("Invite sent!")}</Text>
-        ) : null}
-      </View>
-    </BottomSheet>
+    <PeoplePickerSheet
+      title={t("Find friends")}
+      onClose={onClose}
+      confirmLabel={t("Invite")}
+      onConfirm={handleInvite}
+      items={results}
+      selected={selected}
+      onChange={setSelected}
+      query={query}
+      onQueryChange={setQuery}
+      searchPlaceholder={t("username")}
+      hint={searchHint}
+      autoFocusSearch
+      isLoading={isSearching}
+      emptyLabel={t("No matches")}
+    />
   );
 }
