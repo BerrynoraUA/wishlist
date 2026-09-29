@@ -5,12 +5,13 @@ defaults:
     node: 22.14.0
     pnpm: 11.20.0
 
+# Store submission lane, behind the approval gate. Same release train as
+# production-build.yml and no git tags: `version` in app.json is part of the
+# fingerprint, so bumping it is what cuts the build this lane submits. Run it
+# once production-build.yml has built the version you intend to release.
+#
 # on:
-#   push:
-#     tags:
-#       - native-v*
-#     paths:
-#       - apps/native/**
+#   workflow_dispatch:
 
 concurrency:
   cancel_in_progress: true
