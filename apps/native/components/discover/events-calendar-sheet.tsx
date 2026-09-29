@@ -13,8 +13,6 @@ import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 
-const WEEKDAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"] as const;
-
 type CalendarCell = {
   key: string;
   day: number | null;
@@ -30,6 +28,7 @@ export function EventsCalendarSheet({
   onClose: () => void;
 }) {
   const t = useGT();
+  const weekdayLabels = [t("Mo"), t("Tu"), t("We"), t("Th"), t("Fr"), t("Sa"), t("Su")];
   const locale = useLocale();
   const router = useRouter();
   const { isGated, openPaywall } = useProGate();
@@ -176,9 +175,9 @@ export function EventsCalendarSheet({
           </View>
 
           <View className="mb-1 flex-row">
-            {WEEKDAY_LABELS.map((weekday) => (
-              <View key={weekday} className="flex-1 items-center py-1">
-                <Text className="text-xs font-bold text-text-muted">{t(weekday)}</Text>
+            {weekdayLabels.map((weekday, index) => (
+              <View key={index} className="flex-1 items-center py-1">
+                <Text className="text-xs font-bold text-text-muted">{weekday}</Text>
               </View>
             ))}
           </View>

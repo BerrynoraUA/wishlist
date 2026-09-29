@@ -20,14 +20,6 @@ import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
 
-const SORT_OPTIONS = [
-  { value: "default", labelKey: "Recommended" },
-  { value: "price-low", labelKey: "Lowest price" },
-  { value: "price-high", labelKey: "Highest price" },
-  { value: "priority-high", labelKey: "Highest priority" },
-  { value: "priority-low", labelKey: "Lowest priority" },
-] as const;
-
 export function DiscoverFilterActions({
   filtersOpen,
   filtersActive,
@@ -78,6 +70,13 @@ export function DiscoverFiltersPanel({
 }) {
   const t = useGT();
   const { data: settings } = useSettings();
+  const sortOptions = [
+    { value: "default", label: t("Recommended") },
+    { value: "price-low", label: t("Lowest price") },
+    { value: "price-high", label: t("Highest price") },
+    { value: "priority-high", label: t("Highest priority") },
+    { value: "priority-low", label: t("Lowest priority") },
+  ];
   const priorityOptions = React.useMemo(
     () => getItemPriorityOptions(t, settings?.selected_priorities),
     [settings?.selected_priorities, t],
@@ -87,7 +86,7 @@ export function DiscoverFiltersPanel({
     .map((option) => option.label)
     .join(", ");
   const sortLabel =
-    SORT_OPTIONS.find((option) => option.value === sort)?.labelKey ?? SORT_OPTIONS[0].labelKey;
+    sortOptions.find((option) => option.value === sort)?.label ?? sortOptions[0].label;
 
   return (
     <View className="gap-3">
@@ -170,15 +169,15 @@ export function DiscoverFiltersPanel({
             <DropdownMenuTrigger asChild>
               <AnimatedPressable className="h-11 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3 dark:bg-card-bg">
                 <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
-                  {t(sortLabel)}
+                  {sortLabel}
                 </Text>
                 <Icon as={ChevronsUpDown} className="size-3.5 shrink-0 text-text" />
               </AnimatedPressable>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="min-w-52">
-              {SORT_OPTIONS.map((option) => (
+              {sortOptions.map((option) => (
                 <DropdownMenuItem key={option.value} onPress={() => onSortChange(option.value)}>
-                  <Text>{t(option.labelKey)}</Text>
+                  <Text>{option.label}</Text>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>

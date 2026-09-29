@@ -48,8 +48,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useUniwind } from "uniwind";
 import { DEFAULT_SETTINGS } from "@wishlist/backend/types/settings";
 import { syncLayoutDirection } from "@/lib/rtl";
-import gtConfig from "../gt.config.json";
-import { loadTranslations } from "../loadTranslations";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -106,15 +104,7 @@ export default function RootLayout() {
           }}
           autocapture={{ captureScreens: false }}
         >
-          <GTProvider
-            config={gtConfig}
-            devApiKey={process.env.EXPO_PUBLIC_GT_DEV_API_KEY}
-            loadTranslations={loadTranslations}
-            projectId={process.env.EXPO_PUBLIC_GT_PROJECT_ID}
-            renderSettings={{
-              method: "skeleton",
-            }}
-          >
+          <GTProvider>
             <IntlLocaleGate />
             <RtlDirectionGate />
             <QueryClientProvider client={queryClient}>
