@@ -238,7 +238,7 @@ export function AndroidTabBar({
                     "items-center justify-center overflow-hidden rounded-full shadow-[0px_6px_14px_rgba(15,23,42,0.28)]",
                     fabGradientClassName,
                   )}
-                  style={{ width: FAB_SIZE, height: FAB_SIZE, marginTop: -FAB_OVERHANG }}
+                  style={{ width: FAB_SIZE, height: FAB_SIZE, top: -FAB_OVERHANG }}
                 >
                   <Icon as={Plus} className="size-7 text-white" strokeWidth={2.5} />
                 </AnimatedPressable>
@@ -272,8 +272,11 @@ export function AndroidTabBar({
               )}
               <Text
                 numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+                style={{ includeFontPadding: false, textAlignVertical: "center" }}
                 className={cn(
-                  "max-w-full px-1 text-xs font-semibold",
+                  "max-w-full px-0.5 text-center text-xs leading-4 font-semibold",
                   isFocused ? "text-brand" : "text-text-muted",
                 )}
               >

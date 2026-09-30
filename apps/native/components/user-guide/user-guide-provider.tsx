@@ -13,7 +13,7 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useProfile, useUpdateUserGuideStep } from "@/hooks/use-settings";
 import { PREFERENCE_KEYS, preferencesStorage } from "@/lib/storage";
-import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
+import { NAV_TAB_BAR_FAB_OVERHANG, NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { useAuth } from "@/providers/auth-provider";
 import { Portal } from "@rn-primitives/portal";
@@ -243,11 +243,15 @@ function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
       const tabHeight = NAV_TAB_BAR_HEIGHT;
       const pillWidth = Math.min(72, tabWidth - 16);
       const bottom = Math.max(insets.bottom, 8);
+      const createOverhang =
+        process.env.EXPO_OS === "android" && targetId === "nav-create"
+          ? Math.max(0, NAV_TAB_BAR_FAB_OVERHANG + 26 - tabHeight / 2)
+          : 0;
       return {
         x: Math.round(tabWidth * index + (tabWidth - pillWidth) / 2),
-        y: Math.round(height - bottom - tabHeight - 2),
+        y: Math.round(height - bottom - tabHeight - 2 - createOverhang),
         width: Math.round(pillWidth),
-        height: Math.round(tabHeight),
+        height: Math.round(tabHeight + createOverhang),
       };
     },
     [height, insets.bottom, width],
