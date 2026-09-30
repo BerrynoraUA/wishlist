@@ -29,331 +29,331 @@ const DEFAULT_LOCALE = "en";
  */
 const LOCALE_DATA: Record<string, () => void> = {
   en: () => {
-    require("@formatjs/intl-displaynames/locale-data/en");
-    require("@formatjs/intl-listformat/locale-data/en");
-    require("@formatjs/intl-pluralrules/locale-data/en");
-    require("@formatjs/intl-numberformat/locale-data/en");
-    require("@formatjs/intl-relativetimeformat/locale-data/en");
-    require("@formatjs/intl-datetimeformat/locale-data/en");
+    require("@formatjs/intl-displaynames/locale-data/en.js");
+    require("@formatjs/intl-listformat/locale-data/en.js");
+    require("@formatjs/intl-pluralrules/locale-data/en.js");
+    require("@formatjs/intl-numberformat/locale-data/en.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/en.js");
+    require("@formatjs/intl-datetimeformat/locale-data/en.js");
   },
   uk: () => {
-    require("@formatjs/intl-displaynames/locale-data/uk");
-    require("@formatjs/intl-listformat/locale-data/uk");
-    require("@formatjs/intl-pluralrules/locale-data/uk");
-    require("@formatjs/intl-numberformat/locale-data/uk");
-    require("@formatjs/intl-relativetimeformat/locale-data/uk");
-    require("@formatjs/intl-datetimeformat/locale-data/uk");
+    require("@formatjs/intl-displaynames/locale-data/uk.js");
+    require("@formatjs/intl-listformat/locale-data/uk.js");
+    require("@formatjs/intl-pluralrules/locale-data/uk.js");
+    require("@formatjs/intl-numberformat/locale-data/uk.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/uk.js");
+    require("@formatjs/intl-datetimeformat/locale-data/uk.js");
   },
   de: () => {
-    require("@formatjs/intl-displaynames/locale-data/de");
-    require("@formatjs/intl-listformat/locale-data/de");
-    require("@formatjs/intl-pluralrules/locale-data/de");
-    require("@formatjs/intl-numberformat/locale-data/de");
-    require("@formatjs/intl-relativetimeformat/locale-data/de");
-    require("@formatjs/intl-datetimeformat/locale-data/de");
+    require("@formatjs/intl-displaynames/locale-data/de.js");
+    require("@formatjs/intl-listformat/locale-data/de.js");
+    require("@formatjs/intl-pluralrules/locale-data/de.js");
+    require("@formatjs/intl-numberformat/locale-data/de.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/de.js");
+    require("@formatjs/intl-datetimeformat/locale-data/de.js");
   },
   es: () => {
-    require("@formatjs/intl-displaynames/locale-data/es");
-    require("@formatjs/intl-listformat/locale-data/es");
-    require("@formatjs/intl-pluralrules/locale-data/es");
-    require("@formatjs/intl-numberformat/locale-data/es");
-    require("@formatjs/intl-relativetimeformat/locale-data/es");
-    require("@formatjs/intl-datetimeformat/locale-data/es");
+    require("@formatjs/intl-displaynames/locale-data/es.js");
+    require("@formatjs/intl-listformat/locale-data/es.js");
+    require("@formatjs/intl-pluralrules/locale-data/es.js");
+    require("@formatjs/intl-numberformat/locale-data/es.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/es.js");
+    require("@formatjs/intl-datetimeformat/locale-data/es.js");
   },
   fr: () => {
-    require("@formatjs/intl-displaynames/locale-data/fr");
-    require("@formatjs/intl-listformat/locale-data/fr");
-    require("@formatjs/intl-pluralrules/locale-data/fr");
-    require("@formatjs/intl-numberformat/locale-data/fr");
-    require("@formatjs/intl-relativetimeformat/locale-data/fr");
-    require("@formatjs/intl-datetimeformat/locale-data/fr");
+    require("@formatjs/intl-displaynames/locale-data/fr.js");
+    require("@formatjs/intl-listformat/locale-data/fr.js");
+    require("@formatjs/intl-pluralrules/locale-data/fr.js");
+    require("@formatjs/intl-numberformat/locale-data/fr.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/fr.js");
+    require("@formatjs/intl-datetimeformat/locale-data/fr.js");
   },
   ja: () => {
-    require("@formatjs/intl-displaynames/locale-data/ja");
-    require("@formatjs/intl-listformat/locale-data/ja");
-    require("@formatjs/intl-pluralrules/locale-data/ja");
-    require("@formatjs/intl-numberformat/locale-data/ja");
-    require("@formatjs/intl-relativetimeformat/locale-data/ja");
-    require("@formatjs/intl-datetimeformat/locale-data/ja");
+    require("@formatjs/intl-displaynames/locale-data/ja.js");
+    require("@formatjs/intl-listformat/locale-data/ja.js");
+    require("@formatjs/intl-pluralrules/locale-data/ja.js");
+    require("@formatjs/intl-numberformat/locale-data/ja.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/ja.js");
+    require("@formatjs/intl-datetimeformat/locale-data/ja.js");
   },
   it: () => {
-    require("@formatjs/intl-displaynames/locale-data/it");
-    require("@formatjs/intl-listformat/locale-data/it");
-    require("@formatjs/intl-pluralrules/locale-data/it");
-    require("@formatjs/intl-numberformat/locale-data/it");
-    require("@formatjs/intl-relativetimeformat/locale-data/it");
-    require("@formatjs/intl-datetimeformat/locale-data/it");
+    require("@formatjs/intl-displaynames/locale-data/it.js");
+    require("@formatjs/intl-listformat/locale-data/it.js");
+    require("@formatjs/intl-pluralrules/locale-data/it.js");
+    require("@formatjs/intl-numberformat/locale-data/it.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/it.js");
+    require("@formatjs/intl-datetimeformat/locale-data/it.js");
   },
   pt: () => {
-    require("@formatjs/intl-displaynames/locale-data/pt");
-    require("@formatjs/intl-listformat/locale-data/pt");
-    require("@formatjs/intl-pluralrules/locale-data/pt");
-    require("@formatjs/intl-numberformat/locale-data/pt");
-    require("@formatjs/intl-relativetimeformat/locale-data/pt");
-    require("@formatjs/intl-datetimeformat/locale-data/pt");
+    require("@formatjs/intl-displaynames/locale-data/pt.js");
+    require("@formatjs/intl-listformat/locale-data/pt.js");
+    require("@formatjs/intl-pluralrules/locale-data/pt.js");
+    require("@formatjs/intl-numberformat/locale-data/pt.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/pt.js");
+    require("@formatjs/intl-datetimeformat/locale-data/pt.js");
   },
   zh: () => {
-    require("@formatjs/intl-displaynames/locale-data/zh");
-    require("@formatjs/intl-listformat/locale-data/zh");
-    require("@formatjs/intl-pluralrules/locale-data/zh");
-    require("@formatjs/intl-numberformat/locale-data/zh");
-    require("@formatjs/intl-relativetimeformat/locale-data/zh");
-    require("@formatjs/intl-datetimeformat/locale-data/zh");
+    require("@formatjs/intl-displaynames/locale-data/zh.js");
+    require("@formatjs/intl-listformat/locale-data/zh.js");
+    require("@formatjs/intl-pluralrules/locale-data/zh.js");
+    require("@formatjs/intl-numberformat/locale-data/zh.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/zh.js");
+    require("@formatjs/intl-datetimeformat/locale-data/zh.js");
   },
   pl: () => {
-    require("@formatjs/intl-displaynames/locale-data/pl");
-    require("@formatjs/intl-listformat/locale-data/pl");
-    require("@formatjs/intl-pluralrules/locale-data/pl");
-    require("@formatjs/intl-numberformat/locale-data/pl");
-    require("@formatjs/intl-relativetimeformat/locale-data/pl");
-    require("@formatjs/intl-datetimeformat/locale-data/pl");
+    require("@formatjs/intl-displaynames/locale-data/pl.js");
+    require("@formatjs/intl-listformat/locale-data/pl.js");
+    require("@formatjs/intl-pluralrules/locale-data/pl.js");
+    require("@formatjs/intl-numberformat/locale-data/pl.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/pl.js");
+    require("@formatjs/intl-datetimeformat/locale-data/pl.js");
   },
   ko: () => {
-    require("@formatjs/intl-displaynames/locale-data/ko");
-    require("@formatjs/intl-listformat/locale-data/ko");
-    require("@formatjs/intl-pluralrules/locale-data/ko");
-    require("@formatjs/intl-numberformat/locale-data/ko");
-    require("@formatjs/intl-relativetimeformat/locale-data/ko");
-    require("@formatjs/intl-datetimeformat/locale-data/ko");
+    require("@formatjs/intl-displaynames/locale-data/ko.js");
+    require("@formatjs/intl-listformat/locale-data/ko.js");
+    require("@formatjs/intl-pluralrules/locale-data/ko.js");
+    require("@formatjs/intl-numberformat/locale-data/ko.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/ko.js");
+    require("@formatjs/intl-datetimeformat/locale-data/ko.js");
   },
   nl: () => {
-    require("@formatjs/intl-displaynames/locale-data/nl");
-    require("@formatjs/intl-listformat/locale-data/nl");
-    require("@formatjs/intl-pluralrules/locale-data/nl");
-    require("@formatjs/intl-numberformat/locale-data/nl");
-    require("@formatjs/intl-relativetimeformat/locale-data/nl");
-    require("@formatjs/intl-datetimeformat/locale-data/nl");
+    require("@formatjs/intl-displaynames/locale-data/nl.js");
+    require("@formatjs/intl-listformat/locale-data/nl.js");
+    require("@formatjs/intl-pluralrules/locale-data/nl.js");
+    require("@formatjs/intl-numberformat/locale-data/nl.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/nl.js");
+    require("@formatjs/intl-datetimeformat/locale-data/nl.js");
   },
   hi: () => {
-    require("@formatjs/intl-displaynames/locale-data/hi");
-    require("@formatjs/intl-listformat/locale-data/hi");
-    require("@formatjs/intl-pluralrules/locale-data/hi");
-    require("@formatjs/intl-numberformat/locale-data/hi");
-    require("@formatjs/intl-relativetimeformat/locale-data/hi");
-    require("@formatjs/intl-datetimeformat/locale-data/hi");
+    require("@formatjs/intl-displaynames/locale-data/hi.js");
+    require("@formatjs/intl-listformat/locale-data/hi.js");
+    require("@formatjs/intl-pluralrules/locale-data/hi.js");
+    require("@formatjs/intl-numberformat/locale-data/hi.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/hi.js");
+    require("@formatjs/intl-datetimeformat/locale-data/hi.js");
   },
   tr: () => {
-    require("@formatjs/intl-displaynames/locale-data/tr");
-    require("@formatjs/intl-listformat/locale-data/tr");
-    require("@formatjs/intl-pluralrules/locale-data/tr");
-    require("@formatjs/intl-numberformat/locale-data/tr");
-    require("@formatjs/intl-relativetimeformat/locale-data/tr");
-    require("@formatjs/intl-datetimeformat/locale-data/tr");
+    require("@formatjs/intl-displaynames/locale-data/tr.js");
+    require("@formatjs/intl-listformat/locale-data/tr.js");
+    require("@formatjs/intl-pluralrules/locale-data/tr.js");
+    require("@formatjs/intl-numberformat/locale-data/tr.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/tr.js");
+    require("@formatjs/intl-datetimeformat/locale-data/tr.js");
   },
   vi: () => {
-    require("@formatjs/intl-displaynames/locale-data/vi");
-    require("@formatjs/intl-listformat/locale-data/vi");
-    require("@formatjs/intl-pluralrules/locale-data/vi");
-    require("@formatjs/intl-numberformat/locale-data/vi");
-    require("@formatjs/intl-relativetimeformat/locale-data/vi");
-    require("@formatjs/intl-datetimeformat/locale-data/vi");
+    require("@formatjs/intl-displaynames/locale-data/vi.js");
+    require("@formatjs/intl-listformat/locale-data/vi.js");
+    require("@formatjs/intl-pluralrules/locale-data/vi.js");
+    require("@formatjs/intl-numberformat/locale-data/vi.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/vi.js");
+    require("@formatjs/intl-datetimeformat/locale-data/vi.js");
   },
   th: () => {
-    require("@formatjs/intl-displaynames/locale-data/th");
-    require("@formatjs/intl-listformat/locale-data/th");
-    require("@formatjs/intl-pluralrules/locale-data/th");
-    require("@formatjs/intl-numberformat/locale-data/th");
-    require("@formatjs/intl-relativetimeformat/locale-data/th");
-    require("@formatjs/intl-datetimeformat/locale-data/th");
+    require("@formatjs/intl-displaynames/locale-data/th.js");
+    require("@formatjs/intl-listformat/locale-data/th.js");
+    require("@formatjs/intl-pluralrules/locale-data/th.js");
+    require("@formatjs/intl-numberformat/locale-data/th.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/th.js");
+    require("@formatjs/intl-datetimeformat/locale-data/th.js");
   },
   id: () => {
-    require("@formatjs/intl-displaynames/locale-data/id");
-    require("@formatjs/intl-listformat/locale-data/id");
-    require("@formatjs/intl-pluralrules/locale-data/id");
-    require("@formatjs/intl-numberformat/locale-data/id");
-    require("@formatjs/intl-relativetimeformat/locale-data/id");
-    require("@formatjs/intl-datetimeformat/locale-data/id");
+    require("@formatjs/intl-displaynames/locale-data/id.js");
+    require("@formatjs/intl-listformat/locale-data/id.js");
+    require("@formatjs/intl-pluralrules/locale-data/id.js");
+    require("@formatjs/intl-numberformat/locale-data/id.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/id.js");
+    require("@formatjs/intl-datetimeformat/locale-data/id.js");
   },
   cs: () => {
-    require("@formatjs/intl-displaynames/locale-data/cs");
-    require("@formatjs/intl-listformat/locale-data/cs");
-    require("@formatjs/intl-pluralrules/locale-data/cs");
-    require("@formatjs/intl-numberformat/locale-data/cs");
-    require("@formatjs/intl-relativetimeformat/locale-data/cs");
-    require("@formatjs/intl-datetimeformat/locale-data/cs");
+    require("@formatjs/intl-displaynames/locale-data/cs.js");
+    require("@formatjs/intl-listformat/locale-data/cs.js");
+    require("@formatjs/intl-pluralrules/locale-data/cs.js");
+    require("@formatjs/intl-numberformat/locale-data/cs.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/cs.js");
+    require("@formatjs/intl-datetimeformat/locale-data/cs.js");
   },
   sk: () => {
-    require("@formatjs/intl-displaynames/locale-data/sk");
-    require("@formatjs/intl-listformat/locale-data/sk");
-    require("@formatjs/intl-pluralrules/locale-data/sk");
-    require("@formatjs/intl-numberformat/locale-data/sk");
-    require("@formatjs/intl-relativetimeformat/locale-data/sk");
-    require("@formatjs/intl-datetimeformat/locale-data/sk");
+    require("@formatjs/intl-displaynames/locale-data/sk.js");
+    require("@formatjs/intl-listformat/locale-data/sk.js");
+    require("@formatjs/intl-pluralrules/locale-data/sk.js");
+    require("@formatjs/intl-numberformat/locale-data/sk.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/sk.js");
+    require("@formatjs/intl-datetimeformat/locale-data/sk.js");
   },
   hu: () => {
-    require("@formatjs/intl-displaynames/locale-data/hu");
-    require("@formatjs/intl-listformat/locale-data/hu");
-    require("@formatjs/intl-pluralrules/locale-data/hu");
-    require("@formatjs/intl-numberformat/locale-data/hu");
-    require("@formatjs/intl-relativetimeformat/locale-data/hu");
-    require("@formatjs/intl-datetimeformat/locale-data/hu");
+    require("@formatjs/intl-displaynames/locale-data/hu.js");
+    require("@formatjs/intl-listformat/locale-data/hu.js");
+    require("@formatjs/intl-pluralrules/locale-data/hu.js");
+    require("@formatjs/intl-numberformat/locale-data/hu.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/hu.js");
+    require("@formatjs/intl-datetimeformat/locale-data/hu.js");
   },
   ro: () => {
-    require("@formatjs/intl-displaynames/locale-data/ro");
-    require("@formatjs/intl-listformat/locale-data/ro");
-    require("@formatjs/intl-pluralrules/locale-data/ro");
-    require("@formatjs/intl-numberformat/locale-data/ro");
-    require("@formatjs/intl-relativetimeformat/locale-data/ro");
-    require("@formatjs/intl-datetimeformat/locale-data/ro");
+    require("@formatjs/intl-displaynames/locale-data/ro.js");
+    require("@formatjs/intl-listformat/locale-data/ro.js");
+    require("@formatjs/intl-pluralrules/locale-data/ro.js");
+    require("@formatjs/intl-numberformat/locale-data/ro.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/ro.js");
+    require("@formatjs/intl-datetimeformat/locale-data/ro.js");
   },
   bg: () => {
-    require("@formatjs/intl-displaynames/locale-data/bg");
-    require("@formatjs/intl-listformat/locale-data/bg");
-    require("@formatjs/intl-pluralrules/locale-data/bg");
-    require("@formatjs/intl-numberformat/locale-data/bg");
-    require("@formatjs/intl-relativetimeformat/locale-data/bg");
-    require("@formatjs/intl-datetimeformat/locale-data/bg");
+    require("@formatjs/intl-displaynames/locale-data/bg.js");
+    require("@formatjs/intl-listformat/locale-data/bg.js");
+    require("@formatjs/intl-pluralrules/locale-data/bg.js");
+    require("@formatjs/intl-numberformat/locale-data/bg.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/bg.js");
+    require("@formatjs/intl-datetimeformat/locale-data/bg.js");
   },
   el: () => {
-    require("@formatjs/intl-displaynames/locale-data/el");
-    require("@formatjs/intl-listformat/locale-data/el");
-    require("@formatjs/intl-pluralrules/locale-data/el");
-    require("@formatjs/intl-numberformat/locale-data/el");
-    require("@formatjs/intl-relativetimeformat/locale-data/el");
-    require("@formatjs/intl-datetimeformat/locale-data/el");
+    require("@formatjs/intl-displaynames/locale-data/el.js");
+    require("@formatjs/intl-listformat/locale-data/el.js");
+    require("@formatjs/intl-pluralrules/locale-data/el.js");
+    require("@formatjs/intl-numberformat/locale-data/el.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/el.js");
+    require("@formatjs/intl-datetimeformat/locale-data/el.js");
   },
   sv: () => {
-    require("@formatjs/intl-displaynames/locale-data/sv");
-    require("@formatjs/intl-listformat/locale-data/sv");
-    require("@formatjs/intl-pluralrules/locale-data/sv");
-    require("@formatjs/intl-numberformat/locale-data/sv");
-    require("@formatjs/intl-relativetimeformat/locale-data/sv");
-    require("@formatjs/intl-datetimeformat/locale-data/sv");
+    require("@formatjs/intl-displaynames/locale-data/sv.js");
+    require("@formatjs/intl-listformat/locale-data/sv.js");
+    require("@formatjs/intl-pluralrules/locale-data/sv.js");
+    require("@formatjs/intl-numberformat/locale-data/sv.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/sv.js");
+    require("@formatjs/intl-datetimeformat/locale-data/sv.js");
   },
   da: () => {
-    require("@formatjs/intl-displaynames/locale-data/da");
-    require("@formatjs/intl-listformat/locale-data/da");
-    require("@formatjs/intl-pluralrules/locale-data/da");
-    require("@formatjs/intl-numberformat/locale-data/da");
-    require("@formatjs/intl-relativetimeformat/locale-data/da");
-    require("@formatjs/intl-datetimeformat/locale-data/da");
+    require("@formatjs/intl-displaynames/locale-data/da.js");
+    require("@formatjs/intl-listformat/locale-data/da.js");
+    require("@formatjs/intl-pluralrules/locale-data/da.js");
+    require("@formatjs/intl-numberformat/locale-data/da.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/da.js");
+    require("@formatjs/intl-datetimeformat/locale-data/da.js");
   },
   nb: () => {
-    require("@formatjs/intl-displaynames/locale-data/nb");
-    require("@formatjs/intl-listformat/locale-data/nb");
-    require("@formatjs/intl-pluralrules/locale-data/nb");
-    require("@formatjs/intl-numberformat/locale-data/nb");
-    require("@formatjs/intl-relativetimeformat/locale-data/nb");
-    require("@formatjs/intl-datetimeformat/locale-data/nb");
+    require("@formatjs/intl-displaynames/locale-data/nb.js");
+    require("@formatjs/intl-listformat/locale-data/nb.js");
+    require("@formatjs/intl-pluralrules/locale-data/nb.js");
+    require("@formatjs/intl-numberformat/locale-data/nb.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/nb.js");
+    require("@formatjs/intl-datetimeformat/locale-data/nb.js");
   },
   fi: () => {
-    require("@formatjs/intl-displaynames/locale-data/fi");
-    require("@formatjs/intl-listformat/locale-data/fi");
-    require("@formatjs/intl-pluralrules/locale-data/fi");
-    require("@formatjs/intl-numberformat/locale-data/fi");
-    require("@formatjs/intl-relativetimeformat/locale-data/fi");
-    require("@formatjs/intl-datetimeformat/locale-data/fi");
+    require("@formatjs/intl-displaynames/locale-data/fi.js");
+    require("@formatjs/intl-listformat/locale-data/fi.js");
+    require("@formatjs/intl-pluralrules/locale-data/fi.js");
+    require("@formatjs/intl-numberformat/locale-data/fi.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/fi.js");
+    require("@formatjs/intl-datetimeformat/locale-data/fi.js");
   },
   hr: () => {
-    require("@formatjs/intl-displaynames/locale-data/hr");
-    require("@formatjs/intl-listformat/locale-data/hr");
-    require("@formatjs/intl-pluralrules/locale-data/hr");
-    require("@formatjs/intl-numberformat/locale-data/hr");
-    require("@formatjs/intl-relativetimeformat/locale-data/hr");
-    require("@formatjs/intl-datetimeformat/locale-data/hr");
+    require("@formatjs/intl-displaynames/locale-data/hr.js");
+    require("@formatjs/intl-listformat/locale-data/hr.js");
+    require("@formatjs/intl-pluralrules/locale-data/hr.js");
+    require("@formatjs/intl-numberformat/locale-data/hr.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/hr.js");
+    require("@formatjs/intl-datetimeformat/locale-data/hr.js");
   },
   sr: () => {
-    require("@formatjs/intl-displaynames/locale-data/sr");
-    require("@formatjs/intl-listformat/locale-data/sr");
-    require("@formatjs/intl-pluralrules/locale-data/sr");
-    require("@formatjs/intl-numberformat/locale-data/sr");
-    require("@formatjs/intl-relativetimeformat/locale-data/sr");
-    require("@formatjs/intl-datetimeformat/locale-data/sr");
+    require("@formatjs/intl-displaynames/locale-data/sr.js");
+    require("@formatjs/intl-listformat/locale-data/sr.js");
+    require("@formatjs/intl-pluralrules/locale-data/sr.js");
+    require("@formatjs/intl-numberformat/locale-data/sr.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/sr.js");
+    require("@formatjs/intl-datetimeformat/locale-data/sr.js");
   },
   sl: () => {
-    require("@formatjs/intl-displaynames/locale-data/sl");
-    require("@formatjs/intl-listformat/locale-data/sl");
-    require("@formatjs/intl-pluralrules/locale-data/sl");
-    require("@formatjs/intl-numberformat/locale-data/sl");
-    require("@formatjs/intl-relativetimeformat/locale-data/sl");
-    require("@formatjs/intl-datetimeformat/locale-data/sl");
+    require("@formatjs/intl-displaynames/locale-data/sl.js");
+    require("@formatjs/intl-listformat/locale-data/sl.js");
+    require("@formatjs/intl-pluralrules/locale-data/sl.js");
+    require("@formatjs/intl-numberformat/locale-data/sl.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/sl.js");
+    require("@formatjs/intl-datetimeformat/locale-data/sl.js");
   },
   lt: () => {
-    require("@formatjs/intl-displaynames/locale-data/lt");
-    require("@formatjs/intl-listformat/locale-data/lt");
-    require("@formatjs/intl-pluralrules/locale-data/lt");
-    require("@formatjs/intl-numberformat/locale-data/lt");
-    require("@formatjs/intl-relativetimeformat/locale-data/lt");
-    require("@formatjs/intl-datetimeformat/locale-data/lt");
+    require("@formatjs/intl-displaynames/locale-data/lt.js");
+    require("@formatjs/intl-listformat/locale-data/lt.js");
+    require("@formatjs/intl-pluralrules/locale-data/lt.js");
+    require("@formatjs/intl-numberformat/locale-data/lt.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/lt.js");
+    require("@formatjs/intl-datetimeformat/locale-data/lt.js");
   },
   lv: () => {
-    require("@formatjs/intl-displaynames/locale-data/lv");
-    require("@formatjs/intl-listformat/locale-data/lv");
-    require("@formatjs/intl-pluralrules/locale-data/lv");
-    require("@formatjs/intl-numberformat/locale-data/lv");
-    require("@formatjs/intl-relativetimeformat/locale-data/lv");
-    require("@formatjs/intl-datetimeformat/locale-data/lv");
+    require("@formatjs/intl-displaynames/locale-data/lv.js");
+    require("@formatjs/intl-listformat/locale-data/lv.js");
+    require("@formatjs/intl-pluralrules/locale-data/lv.js");
+    require("@formatjs/intl-numberformat/locale-data/lv.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/lv.js");
+    require("@formatjs/intl-datetimeformat/locale-data/lv.js");
   },
   et: () => {
-    require("@formatjs/intl-displaynames/locale-data/et");
-    require("@formatjs/intl-listformat/locale-data/et");
-    require("@formatjs/intl-pluralrules/locale-data/et");
-    require("@formatjs/intl-numberformat/locale-data/et");
-    require("@formatjs/intl-relativetimeformat/locale-data/et");
-    require("@formatjs/intl-datetimeformat/locale-data/et");
+    require("@formatjs/intl-displaynames/locale-data/et.js");
+    require("@formatjs/intl-listformat/locale-data/et.js");
+    require("@formatjs/intl-pluralrules/locale-data/et.js");
+    require("@formatjs/intl-numberformat/locale-data/et.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/et.js");
+    require("@formatjs/intl-datetimeformat/locale-data/et.js");
   },
   bn: () => {
-    require("@formatjs/intl-displaynames/locale-data/bn");
-    require("@formatjs/intl-listformat/locale-data/bn");
-    require("@formatjs/intl-pluralrules/locale-data/bn");
-    require("@formatjs/intl-numberformat/locale-data/bn");
-    require("@formatjs/intl-relativetimeformat/locale-data/bn");
-    require("@formatjs/intl-datetimeformat/locale-data/bn");
+    require("@formatjs/intl-displaynames/locale-data/bn.js");
+    require("@formatjs/intl-listformat/locale-data/bn.js");
+    require("@formatjs/intl-pluralrules/locale-data/bn.js");
+    require("@formatjs/intl-numberformat/locale-data/bn.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/bn.js");
+    require("@formatjs/intl-datetimeformat/locale-data/bn.js");
   },
   ms: () => {
-    require("@formatjs/intl-displaynames/locale-data/ms");
-    require("@formatjs/intl-listformat/locale-data/ms");
-    require("@formatjs/intl-pluralrules/locale-data/ms");
-    require("@formatjs/intl-numberformat/locale-data/ms");
-    require("@formatjs/intl-relativetimeformat/locale-data/ms");
-    require("@formatjs/intl-datetimeformat/locale-data/ms");
+    require("@formatjs/intl-displaynames/locale-data/ms.js");
+    require("@formatjs/intl-listformat/locale-data/ms.js");
+    require("@formatjs/intl-pluralrules/locale-data/ms.js");
+    require("@formatjs/intl-numberformat/locale-data/ms.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/ms.js");
+    require("@formatjs/intl-datetimeformat/locale-data/ms.js");
   },
   fil: () => {
-    require("@formatjs/intl-displaynames/locale-data/fil");
-    require("@formatjs/intl-listformat/locale-data/fil");
-    require("@formatjs/intl-pluralrules/locale-data/fil");
-    require("@formatjs/intl-numberformat/locale-data/fil");
-    require("@formatjs/intl-relativetimeformat/locale-data/fil");
-    require("@formatjs/intl-datetimeformat/locale-data/fil");
+    require("@formatjs/intl-displaynames/locale-data/fil.js");
+    require("@formatjs/intl-listformat/locale-data/fil.js");
+    require("@formatjs/intl-pluralrules/locale-data/fil.js");
+    require("@formatjs/intl-numberformat/locale-data/fil.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/fil.js");
+    require("@formatjs/intl-datetimeformat/locale-data/fil.js");
   },
   "zh-Hant": () => {
-    require("@formatjs/intl-displaynames/locale-data/zh-Hant");
-    require("@formatjs/intl-listformat/locale-data/zh-Hant");
-    require("@formatjs/intl-numberformat/locale-data/zh-Hant");
-    require("@formatjs/intl-relativetimeformat/locale-data/zh-Hant");
-    require("@formatjs/intl-datetimeformat/locale-data/zh-Hant");
+    require("@formatjs/intl-displaynames/locale-data/zh-Hant.js");
+    require("@formatjs/intl-listformat/locale-data/zh-Hant.js");
+    require("@formatjs/intl-numberformat/locale-data/zh-Hant.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/zh-Hant.js");
+    require("@formatjs/intl-datetimeformat/locale-data/zh-Hant.js");
   },
   ar: () => {
-    require("@formatjs/intl-displaynames/locale-data/ar");
-    require("@formatjs/intl-listformat/locale-data/ar");
-    require("@formatjs/intl-pluralrules/locale-data/ar");
-    require("@formatjs/intl-numberformat/locale-data/ar");
-    require("@formatjs/intl-relativetimeformat/locale-data/ar");
-    require("@formatjs/intl-datetimeformat/locale-data/ar");
+    require("@formatjs/intl-displaynames/locale-data/ar.js");
+    require("@formatjs/intl-listformat/locale-data/ar.js");
+    require("@formatjs/intl-pluralrules/locale-data/ar.js");
+    require("@formatjs/intl-numberformat/locale-data/ar.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/ar.js");
+    require("@formatjs/intl-datetimeformat/locale-data/ar.js");
   },
   he: () => {
-    require("@formatjs/intl-displaynames/locale-data/he");
-    require("@formatjs/intl-listformat/locale-data/he");
-    require("@formatjs/intl-pluralrules/locale-data/he");
-    require("@formatjs/intl-numberformat/locale-data/he");
-    require("@formatjs/intl-relativetimeformat/locale-data/he");
-    require("@formatjs/intl-datetimeformat/locale-data/he");
+    require("@formatjs/intl-displaynames/locale-data/he.js");
+    require("@formatjs/intl-listformat/locale-data/he.js");
+    require("@formatjs/intl-pluralrules/locale-data/he.js");
+    require("@formatjs/intl-numberformat/locale-data/he.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/he.js");
+    require("@formatjs/intl-datetimeformat/locale-data/he.js");
   },
   fa: () => {
-    require("@formatjs/intl-displaynames/locale-data/fa");
-    require("@formatjs/intl-listformat/locale-data/fa");
-    require("@formatjs/intl-pluralrules/locale-data/fa");
-    require("@formatjs/intl-numberformat/locale-data/fa");
-    require("@formatjs/intl-relativetimeformat/locale-data/fa");
-    require("@formatjs/intl-datetimeformat/locale-data/fa");
+    require("@formatjs/intl-displaynames/locale-data/fa.js");
+    require("@formatjs/intl-listformat/locale-data/fa.js");
+    require("@formatjs/intl-pluralrules/locale-data/fa.js");
+    require("@formatjs/intl-numberformat/locale-data/fa.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/fa.js");
+    require("@formatjs/intl-datetimeformat/locale-data/fa.js");
   },
   ur: () => {
-    require("@formatjs/intl-displaynames/locale-data/ur");
-    require("@formatjs/intl-listformat/locale-data/ur");
-    require("@formatjs/intl-pluralrules/locale-data/ur");
-    require("@formatjs/intl-numberformat/locale-data/ur");
-    require("@formatjs/intl-relativetimeformat/locale-data/ur");
-    require("@formatjs/intl-datetimeformat/locale-data/ur");
+    require("@formatjs/intl-displaynames/locale-data/ur.js");
+    require("@formatjs/intl-listformat/locale-data/ur.js");
+    require("@formatjs/intl-pluralrules/locale-data/ur.js");
+    require("@formatjs/intl-numberformat/locale-data/ur.js");
+    require("@formatjs/intl-relativetimeformat/locale-data/ur.js");
+    require("@formatjs/intl-datetimeformat/locale-data/ur.js");
   },
 };
 
@@ -377,17 +377,17 @@ function installPolyfills() {
   // given engine must not stop the rest — losing `Intl.Locale` because, say,
   // DateTimeFormat threw is what turns a cosmetic gap into a startup crash.
   const steps: [string, () => void][] = [
-    ["getcanonicallocales", () => require("@formatjs/intl-getcanonicallocales/polyfill")],
-    ["locale", () => require("@formatjs/intl-locale/polyfill")],
+    ["getcanonicallocales", () => require("@formatjs/intl-getcanonicallocales/polyfill.js")],
+    ["locale", () => require("@formatjs/intl-locale/polyfill.js")],
     // Forced: a native DisplayNames without ICU display-name data returns the locale code
     // unchanged, which GT reads as invalid.
-    ["displaynames", () => require("@formatjs/intl-displaynames/polyfill-force")],
-    ["listformat", () => require("@formatjs/intl-listformat/polyfill")],
+    ["displaynames", () => require("@formatjs/intl-displaynames/polyfill-force.js")],
+    ["listformat", () => require("@formatjs/intl-listformat/polyfill.js")],
     // Forced: Hermes reports support but returns wrong plural categories
     // (formatjs/formatjs#4463), which GT relies on for message selection.
-    ["pluralrules", () => require("@formatjs/intl-pluralrules/polyfill-force")],
-    ["numberformat", () => require("@formatjs/intl-numberformat/polyfill")],
-    ["relativetimeformat", () => require("@formatjs/intl-relativetimeformat/polyfill")],
+    ["pluralrules", () => require("@formatjs/intl-pluralrules/polyfill-force.js")],
+    ["numberformat", () => require("@formatjs/intl-numberformat/polyfill.js")],
+    ["relativetimeformat", () => require("@formatjs/intl-relativetimeformat/polyfill.js")],
     [
       "datetimeformat",
       () => {
@@ -399,11 +399,11 @@ function installPolyfills() {
         // Safe to gate precisely because nothing else leans on `Intl.DateTimeFormat`:
         // GT validates locales through `Intl.Locale` and `Intl.DisplayNames`, and the
         // forced DisplayNames polyfill calls into `Intl.Locale`. Those stay unconditional.
-        const { shouldPolyfill } = require("@formatjs/intl-datetimeformat/should-polyfill");
+        const { shouldPolyfill } = require("@formatjs/intl-datetimeformat/should-polyfill.js");
         if (!shouldPolyfill()) return;
 
-        require("@formatjs/intl-datetimeformat/polyfill");
-        require("@formatjs/intl-datetimeformat/add-all-tz");
+        require("@formatjs/intl-datetimeformat/polyfill.js");
+        require("@formatjs/intl-datetimeformat/add-all-tz.js");
       },
     ],
   ];
