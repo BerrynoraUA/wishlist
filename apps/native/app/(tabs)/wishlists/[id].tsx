@@ -285,9 +285,7 @@ export default function WishlistDetailScreen() {
       <WishlistItemHeader
         wishlist={wishlist}
         isOwner={wishlist.is_owner}
-        onEdit={
-          canEditWishlist ? () => setSheet({ type: "editWishlist", wishlist }) : undefined
-        }
+        onEdit={canEditWishlist ? () => setSheet({ type: "editWishlist", wishlist }) : undefined}
         onDelete={
           wishlist.is_owner ? () => setSheet({ type: "deleteWishlist", wishlist }) : undefined
         }
@@ -334,11 +332,7 @@ export default function WishlistDetailScreen() {
         }}
       >
         {item.map((entry) => (
-          <Animated.View
-            key={entry.id}
-            entering={wishlistCardFadeIn}
-            style={{ width: cardWidth }}
-          >
+          <Animated.View key={entry.id} entering={wishlistCardFadeIn} style={{ width: cardWidth }}>
             <WishlistItemCard
               item={entry}
               width={cardWidth}

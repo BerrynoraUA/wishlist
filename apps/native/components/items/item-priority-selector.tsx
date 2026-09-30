@@ -70,7 +70,16 @@ export function ItemPrioritySelector({
     thumbOpacity.value = withTiming(nextOpacity, { duration: 150 });
     thumbColor.value = withTiming(nextColor, { duration: 200 });
     thumbTint.value = withTiming(nextTint, { duration: 200 });
-  }, [reduceMotion, segmentWidth, selected, selectedIndex, thumbColor, thumbOpacity, thumbTint, thumbX]);
+  }, [
+    reduceMotion,
+    segmentWidth,
+    selected,
+    selectedIndex,
+    thumbColor,
+    thumbOpacity,
+    thumbTint,
+    thumbX,
+  ]);
 
   const thumbStyle = useAnimatedStyle(() => ({
     width: segmentWidth,
@@ -111,11 +120,7 @@ export function ItemPrioritySelector({
             className="min-w-0 flex-1 flex-row items-center justify-center gap-1.5 rounded-full"
           >
             {PriorityIcon ? (
-              <Icon
-                as={PriorityIcon}
-                className="size-4"
-                color={option.color}
-              />
+              <Icon as={PriorityIcon} className="size-4" color={option.color} />
             ) : null}
             <Text
               numberOfLines={1}

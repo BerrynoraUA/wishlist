@@ -81,10 +81,7 @@ export function ItemImage({
           className="absolute inset-0 items-center justify-center"
         >
           <View
-            className={cn(
-              "w-[135%] items-center justify-center",
-              isDetail ? "h-44" : "h-36",
-            )}
+            className={cn("w-[135%] items-center justify-center", isDetail ? "h-44" : "h-36")}
             style={{ transform: [{ rotate: "-38deg" }] }}
           >
             <StyledImage
