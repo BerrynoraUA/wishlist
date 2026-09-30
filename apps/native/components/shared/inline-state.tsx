@@ -2,6 +2,7 @@ import { CreateButtonPointer } from "@/components/shared/create-button-pointer";
 import { Text } from "@/components/ui/text";
 import { MascotEmptyState, type MascotVariant } from "@/components/shared/mascot-empty-state";
 import { cn } from "@/lib/utils";
+import type { RefObject } from "react";
 import { View } from "react-native";
 
 export function InlineState({
@@ -10,6 +11,7 @@ export function InlineState({
   mascot,
   width,
   pointToCreateButton = false,
+  pointerScreenRef,
 }: {
   className?: string;
   message: string;
@@ -17,6 +19,8 @@ export function InlineState({
   width?: number;
   /** Draws a curved line from this state to the global "+" create button. */
   pointToCreateButton?: boolean;
+  /** Keeps the pointer inside this native screen so it follows page transitions. */
+  pointerScreenRef?: RefObject<View | null>;
 }) {
   const card = (
     <View
@@ -34,5 +38,9 @@ export function InlineState({
     </View>
   );
 
-  return pointToCreateButton ? <CreateButtonPointer>{card}</CreateButtonPointer> : card;
+  return pointToCreateButton ? (
+    <CreateButtonPointer screenRef={pointerScreenRef}>{card}</CreateButtonPointer>
+  ) : (
+    card
+  );
 }

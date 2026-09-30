@@ -87,6 +87,7 @@ type WishlistItemListRow = Item[];
 export default function WishlistDetailScreen() {
   const t = useGT();
   const router = useRouter();
+  const screenRef = React.useRef<View>(null);
   const { isGated, openPaywall } = useProGate();
   const insets = useSafeAreaInsets();
   const paddingBottom = useTabBarContentPadding();
@@ -394,7 +395,7 @@ export default function WishlistDetailScreen() {
   return (
     <>
       <Stack.Screen options={{ title: wishlist?.title ?? t("Wishlist") }} />
-      <View className="flex-1 bg-bg">
+      <View ref={screenRef} collapsable={false} className="flex-1 bg-bg">
         {wishlistQuery.isLoading ? (
           <View className="flex-1 px-4 pt-6">
             <DetailSkeleton width={contentWidth} />
@@ -437,6 +438,7 @@ export default function WishlistDetailScreen() {
                         : t("No items yet.")
                     }
                     pointToCreateButton={!(filtersActive && hasAnyItems)}
+                    pointerScreenRef={screenRef}
                   />
                 ) : null}
               </View>

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Icon } from "@/components/ui/icon";
 import {
   AnimatedGlassView,
@@ -12,10 +13,11 @@ import { SearchClearButton } from "@/components/ui/search-clear-button";
 import { useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { GlassContainer } from "expo-glass-effect";
+import { useFocusEffect } from "expo-router";
 import { useGT } from "gt-react-native";
-import { Search, X } from "lucide-react-native";
+import { ArrowLeft, Search, X } from "lucide-react-native";
 import * as React from "react";
-import { Pressable, StyleSheet, TextInput, View } from "react-native";
+import { BackHandler, StyleSheet, TextInput, View } from "react-native";
 import Animated, {
   type SharedValue,
   useAnimatedStyle,
@@ -24,7 +26,8 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 
-const SEARCH_COLLAPSED_WIDTH = 44;
+const IS_ANDROID = process.env.EXPO_OS === "android";
+const SEARCH_COLLAPSED_WIDTH = IS_ANDROID ? 48 : 44;
 const SEARCH_TABS_GAP = 12;
 /** Space between the open field and its close button (liquid glass only). */
 const CLOSE_BUTTON_GAP = 8;
@@ -124,14 +127,25 @@ export function ExpandingSearchHeader({
     setSearchOpen(true);
   }
 
-  function closeSearch() {
+  const closeSearch = React.useCallback(() => {
     // Clear the native text as well: blurring makes iOS commit whatever the keyboard still
     // holds, which arrives as one late change carrying the old text.
     searchInputRef.current?.clear();
     searchInputRef.current?.blur();
     onChangeSearch("");
     setSearchOpen(false);
-  }
+  }, [onChangeSearch]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!IS_ANDROID || !expanded) return;
+      const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
+        closeSearch();
+        return true;
+      });
+      return () => subscription.remove();
+    }, [closeSearch, expanded]),
+  );
 
   // Any text reopens the field, so a change that lands after it has closed (see
   // `closeSearch`) must not count.
@@ -142,20 +156,29 @@ export function ExpandingSearchHeader({
 
   const field = (
     <View className="h-full flex-row items-center">
-      <Pressable
+      <AnimatedPressable
         accessibilityRole="button"
-        accessibilityLabel={expanded ? t("Focus search") : t("Open search")}
+        accessibilityLabel={
+          expanded ? (IS_ANDROID ? t("Close search") : t("Focus search")) : t("Open search")
+        }
         accessibilityElementsHidden={!searchEnabled}
         importantForAccessibility={searchEnabled ? "auto" : "no-hide-descendants"}
         disabled={!searchEnabled}
-        onPress={expanded ? () => searchInputRef.current?.focus() : openSearch}
-        className="size-11 shrink-0 items-center justify-center"
+        onPress={
+          expanded ? (IS_ANDROID ? closeSearch : () => searchInputRef.current?.focus()) : openSearch
+        }
+        pressedScale={1}
+        pressedOpacity={1}
+        className="size-11 shrink-0 items-center justify-center rounded-full android:size-12 android:overflow-hidden"
       >
         <Icon
-          as={Search}
-          className={cn("size-5", expanded ? "text-muted-foreground/60" : "text-text")}
+          as={IS_ANDROID && expanded ? ArrowLeft : Search}
+          className={cn(
+            "size-5",
+            expanded && !IS_ANDROID ? "text-muted-foreground/60" : "text-text",
+          )}
         />
-      </Pressable>
+      </AnimatedPressable>
       <Animated.View
         className="min-w-0 flex-1"
         pointerEvents={expanded ? "auto" : "none"}
@@ -169,16 +192,19 @@ export function ExpandingSearchHeader({
           onChangeText={handleChangeText}
           placeholder={placeholder}
           className={cn(
-            "h-11 min-w-0 flex-1 bg-transparent text-[17px] text-text",
+            "h-11 min-w-0 flex-1 bg-transparent text-[17px] text-text android:h-12 android:text-base",
             HAS_LIQUID_GLASS && search.length === 0 ? "pe-4" : "pe-1",
           )}
-          placeholderTextColorClassName="accent-muted-foreground/60"
+          placeholderTextColorClassName={
+            IS_ANDROID ? "accent-text-muted" : "accent-muted-foreground/60"
+          }
+          accessibilityLabel={placeholder}
           returnKeyType="search"
           autoCapitalize="none"
           autoCorrect={false}
         />
       </Animated.View>
-      {HAS_LIQUID_GLASS && expanded && search.length > 0 ? (
+      {(HAS_LIQUID_GLASS || IS_ANDROID) && expanded && search.length > 0 ? (
         <SearchClearButton
           onPress={() => {
             onChangeSearch("");
@@ -186,7 +212,7 @@ export function ExpandingSearchHeader({
           }}
         />
       ) : null}
-      {!HAS_LIQUID_GLASS && expanded ? (
+      {!HAS_LIQUID_GLASS && !IS_ANDROID && expanded ? (
         <Button
           variant="ghost"
           size="icon-lg"
@@ -207,9 +233,9 @@ export function ExpandingSearchHeader({
   );
 
   return (
-    <View className="relative h-11" style={{ width: contentWidth }}>
+    <View className="relative h-11 android:h-12" style={{ width: contentWidth }}>
       <Animated.View
-        className="absolute top-0 h-11 justify-center"
+        className="absolute top-0 h-11 justify-center android:h-12"
         pointerEvents={expanded ? "none" : "box-none"}
         accessibilityElementsHidden={expanded}
         importantForAccessibility={expanded ? "no-hide-descendants" : "auto"}
@@ -246,6 +272,8 @@ export function ExpandingSearchHeader({
         <Animated.View
           className={cn(
             "absolute top-0 z-10 h-11 overflow-hidden rounded-full border border-border-subtle bg-card-bg shadow-sm",
+            IS_ANDROID && "h-12 border-transparent bg-bg-muted shadow-none",
+            IS_ANDROID && expanded && "bg-brand-lighter",
             searchSide === "left" ? "start-0" : "end-0",
           )}
           style={fieldStyle}

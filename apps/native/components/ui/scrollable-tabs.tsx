@@ -14,16 +14,20 @@ import type { GlassViewProps } from "expo-glass-effect";
 import * as React from "react";
 import { Platform, ScrollView, StyleSheet, View, type LayoutChangeEvent } from "react-native";
 import Animated, {
+  Easing,
   type SharedValue,
   useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
 // iOS renders a sliding Telegram-style capsule behind the active tab; on iOS 26+ the capsule
 // is layered with a real liquid-glass sheen.
 const IS_IOS = Platform.OS === "ios";
+const IS_ANDROID = Platform.OS === "android";
+const MATERIAL_INDICATOR_TIMING = { duration: 220, easing: Easing.bezier(0.2, 0, 0, 1) };
 const INDICATOR_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 999 }];
 
 /**
@@ -61,7 +65,7 @@ export function ScrollableTabs<T>({
   const [viewportWidth, setViewportWidth] = React.useState(0);
   const reduceMotion = useReducedMotion();
 
-  // Drives the liquid-glass capsule on iOS 26+. Unused on Android / older iOS.
+  // Shared geometry for the iOS capsule and the Android underline.
   const indicatorX = useSharedValue(0);
   const indicatorWidth = useSharedValue(0);
   const indicatorReady = useSharedValue(0);
@@ -73,16 +77,22 @@ export function ScrollableTabs<T>({
       const layout = tabLayoutsRef.current.get(value);
       if (!layout) return;
 
-      // Snap into place on first measure, then spring between tabs afterwards.
-      // (mirrors the Material underline; only the iOS capsule reads these values)
+      const targetX = IS_ANDROID ? layout.x + 12 : layout.x;
+      const targetWidth = IS_ANDROID ? Math.max(0, layout.width - 24) : layout.width;
+      // Snap on first measure. Android glides; iOS uses a liquid spring.
       if (animated && indicatorReady.value === 1 && !reduceMotion) {
-        indicatorX.value = withSpring(layout.x, motionSpring.navPill);
-        indicatorWidth.value = withSpring(layout.width, motionSpring.navPill);
+        indicatorX.value = IS_ANDROID
+          ? withTiming(targetX, MATERIAL_INDICATOR_TIMING)
+          : withSpring(targetX, motionSpring.navPill);
+        indicatorWidth.value = IS_ANDROID
+          ? withTiming(targetWidth, MATERIAL_INDICATOR_TIMING)
+          : withSpring(targetWidth, motionSpring.navPill);
         // Only a real move between tabs gets the droplet, not a re-measure in place.
-        if (indicatorTargetRef.current !== layout.x) indicatorStretch.value = liquidStretch();
+        if (IS_IOS && indicatorTargetRef.current !== layout.x)
+          indicatorStretch.value = liquidStretch();
       } else {
-        indicatorX.value = layout.x;
-        indicatorWidth.value = layout.width;
+        indicatorX.value = targetX;
+        indicatorWidth.value = targetWidth;
       }
       indicatorTargetRef.current = layout.x;
       indicatorReady.value = 1;
@@ -105,16 +115,16 @@ export function ScrollableTabs<T>({
 
   React.useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      scrollToActiveTab(true);
-      if (IS_IOS) moveIndicator(true);
+      scrollToActiveTab(!reduceMotion);
+      if (IS_IOS || IS_ANDROID) moveIndicator(true);
     });
     return () => cancelAnimationFrame(frame);
-  }, [scrollToActiveTab, moveIndicator]);
+  }, [scrollToActiveTab, moveIndicator, reduceMotion]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
     transform: [
       { translateX: indicatorX.value },
-      ...liquidStretchTransform(indicatorStretch.value),
+      ...(IS_IOS ? liquidStretchTransform(indicatorStretch.value) : []),
     ],
     width: indicatorWidth.value,
     opacity: indicatorReady.value,
@@ -131,7 +141,7 @@ export function ScrollableTabs<T>({
   }));
 
   return (
-    <View className={cn("h-11", className)} onLayout={handleViewportLayout}>
+    <View className={cn("h-11 android:h-12", className)} onLayout={handleViewportLayout}>
       <ScrollView
         ref={scrollRef}
         horizontal
@@ -163,11 +173,18 @@ export function ScrollableTabs<T>({
             ) : null}
           </Animated.View>
         ) : null}
+        {IS_ANDROID ? (
+          <Animated.View
+            pointerEvents="none"
+            className="absolute bottom-0 left-0 h-[3px] rounded-t-full bg-brand"
+            style={indicatorStyle}
+          />
+        ) : null}
         {tabs.map((tab) => {
           const selected = tab.value === value;
           const trigger = (
             <AnimatedPressable
-              accessibilityRole="button"
+              accessibilityRole={IS_ANDROID ? "tab" : "button"}
               accessibilityLabel={tab.accessibilityLabel ?? tab.label}
               accessibilityState={{ selected }}
               onPress={() => {
@@ -177,6 +194,7 @@ export function ScrollableTabs<T>({
               className={cn(
                 "relative h-11 min-w-20 flex-row items-center justify-center gap-1.5",
                 IS_IOS ? "px-5" : "px-4",
+                IS_ANDROID && "h-12 overflow-hidden rounded-t-xl",
               )}
             >
               <Text
@@ -195,7 +213,7 @@ export function ScrollableTabs<T>({
                   {tab.count}
                 </Text>
               ) : null}
-              {selected && !IS_IOS ? (
+              {selected && !IS_IOS && !IS_ANDROID ? (
                 <View className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-brand" />
               ) : null}
             </AnimatedPressable>
@@ -209,7 +227,7 @@ export function ScrollableTabs<T>({
                 tabLayoutsRef.current.set(tab.value, { width, x });
                 if (selected) {
                   scrollToActiveTab(false);
-                  if (IS_IOS) moveIndicator(false);
+                  if (IS_IOS || IS_ANDROID) moveIndicator(false);
                 }
               }}
             >

@@ -12,7 +12,7 @@ const IS_IOS = Platform.OS === "ios";
  */
 const HEADER_TOP_GAP = IS_IOS ? 0 : SCROLLABLE_TABS_TOP_GAP;
 /** Height of one tab/filter row, used to estimate list padding before first layout. */
-const HEADER_ROW_HEIGHT = 44;
+const HEADER_ROW_HEIGHT = process.env.EXPO_OS === "android" ? 48 : 44;
 /**
  * The one vertical rhythm of the header: between stacked rows (the `gap-4` wrapper), from
  * the last row to an open panel (`SLIDE_OUT_PANEL_GAP`), and from either to the list.

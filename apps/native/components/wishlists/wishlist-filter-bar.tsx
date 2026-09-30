@@ -135,16 +135,32 @@ export function WishlistFilterBar({
   return (
     <View className="flex-row items-center justify-between gap-3">
       <GuideTarget id="wishlists-discover">
-        <AnimatedGradientBackgroundButton
-          accessibilityLabel={t("Discover")}
-          Icon={<Icon as={Sparkles} className="size-4 text-brand" />}
-          onPress={() => {
-            onOpenDiscover();
-            router.push("/wishlists/discover");
-          }}
-          title={t("Discover")}
-          variant="brand"
-        />
+        {process.env.EXPO_OS === "android" ? (
+          <Button
+            variant="secondary"
+            size="pill"
+            accessibilityLabel={t("Discover")}
+            className="gap-2 overflow-hidden rounded-2xl bg-brand-lighter px-4"
+            onPress={() => {
+              onOpenDiscover();
+              router.push("/wishlists/discover");
+            }}
+          >
+            <Icon as={Sparkles} className="size-5 text-brand" />
+            <Text className="text-base font-semibold text-brand">{t("Discover")}</Text>
+          </Button>
+        ) : (
+          <AnimatedGradientBackgroundButton
+            accessibilityLabel={t("Discover")}
+            Icon={<Icon as={Sparkles} className="size-4 text-brand" />}
+            onPress={() => {
+              onOpenDiscover();
+              router.push("/wishlists/discover");
+            }}
+            title={t("Discover")}
+            variant="brand"
+          />
+        )}
       </GuideTarget>
       <View className="flex-row items-center justify-end gap-2">
         <FilterActions
@@ -201,7 +217,8 @@ export function WishlistFilterPanel({
       <View
         className={cn(
           "w-full flex-row items-center gap-1 rounded-full ps-3",
-          !HAS_LIQUID_GLASS && "border border-border-subtle bg-card-bg shadow-sm",
+          !HAS_LIQUID_GLASS &&
+            "border border-border-subtle bg-card-bg shadow-sm android:border-transparent android:bg-bg-muted android:shadow-none",
         )}
       >
         {HAS_LIQUID_GLASS ? <PanelPillGlass open={open} /> : null}
@@ -212,7 +229,7 @@ export function WishlistFilterPanel({
           onChangeText={onSearchChange}
           placeholder={t("Search wishlists...")}
           className={cn(
-            "h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent",
+            "h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent android:h-12",
             search.length === 0 && "pe-3",
           )}
           returnKeyType="search"
@@ -228,7 +245,7 @@ export function WishlistFilterPanel({
                 size="pill"
                 accessibilityLabel={t("Filter by visibility")}
                 className={cn(
-                  "w-full justify-between shadow-none",
+                  "w-full justify-between shadow-none android:overflow-hidden android:rounded-2xl",
                   HAS_LIQUID_GLASS
                     ? GLASS_PILL_CLASS
                     : visibility.length > 0
@@ -281,7 +298,7 @@ export function WishlistFilterPanel({
                 size="pill"
                 accessibilityLabel={t("Sort wishlists")}
                 className={cn(
-                  "w-full justify-between shadow-none",
+                  "w-full justify-between shadow-none android:overflow-hidden android:rounded-2xl",
                   HAS_LIQUID_GLASS
                     ? GLASS_PILL_CLASS
                     : "border-border-subtle bg-card-bg dark:bg-card-bg",

@@ -101,13 +101,13 @@ export function FilterActions({
           className="z-10"
         >
           <Button
-            variant="destructive"
+            variant={process.env.EXPO_OS === "android" ? "ghost" : "destructive"}
             size="icon-lg"
             accessibilityLabel={clearAccessibilityLabel}
             onPress={onReset}
-            className="rounded-full"
+            className="rounded-full android:overflow-hidden android:bg-danger-bg"
           >
-            <Icon as={X} className="size-4 text-white" />
+            <Icon as={X} className="size-4 text-white android:size-5 android:text-destructive" />
           </Button>
         </Animated.View>
       ) : null}
@@ -117,9 +117,21 @@ export function FilterActions({
         accessibilityLabel={filterAccessibilityLabel}
         accessibilityState={{ expanded: open }}
         onPress={() => onOpenChange(!open)}
-        className="z-10 shrink-0 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg"
+        className={cn(
+          "z-10 shrink-0 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg android:overflow-hidden android:rounded-2xl android:shadow-none",
+          process.env.EXPO_OS === "android" &&
+            (open || active
+              ? "border-brand/20 bg-brand-lighter dark:bg-brand-lighter"
+              : "border-transparent bg-bg-muted dark:bg-bg-muted"),
+        )}
       >
-        <Icon as={SlidersHorizontal} className="size-4 text-text" />
+        <Icon
+          as={SlidersHorizontal}
+          className={cn(
+            "size-4 text-text android:size-5",
+            process.env.EXPO_OS === "android" && (open || active) && "text-brand",
+          )}
+        />
       </Button>
       {children}
     </View>

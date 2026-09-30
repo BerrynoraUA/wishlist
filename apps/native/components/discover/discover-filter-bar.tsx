@@ -104,7 +104,8 @@ export function DiscoverFiltersPanel({
       <View
         className={cn(
           "w-full flex-row items-center gap-1 rounded-full ps-3",
-          !HAS_LIQUID_GLASS && "border border-border-subtle bg-card-bg shadow-sm",
+          !HAS_LIQUID_GLASS &&
+            "border border-border-subtle bg-card-bg shadow-sm android:border-transparent android:bg-bg-muted android:shadow-none",
         )}
       >
         {HAS_LIQUID_GLASS ? <PanelPillGlass open={open} /> : null}
@@ -115,7 +116,7 @@ export function DiscoverFiltersPanel({
           onChangeText={onSearchChange}
           placeholder={t("Search gifts or wishlists")}
           className={cn(
-            "h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent",
+            "h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent android:h-12",
             search.length === 0 && "pe-3",
           )}
           returnKeyType="search"
@@ -129,7 +130,7 @@ export function DiscoverFiltersPanel({
             <DropdownMenuTrigger asChild>
               <AnimatedPressable
                 className={cn(
-                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
+                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3 android:h-12 android:overflow-hidden android:rounded-2xl",
                   HAS_LIQUID_GLASS
                     ? GLASS_PILL_CLASS
                     : priorityIds.length > 0
@@ -183,7 +184,7 @@ export function DiscoverFiltersPanel({
             <DropdownMenuTrigger asChild>
               <AnimatedPressable
                 className={cn(
-                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
+                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3 android:h-12 android:overflow-hidden android:rounded-2xl",
                   HAS_LIQUID_GLASS
                     ? GLASS_PILL_CLASS
                     : "border-border-subtle bg-card-bg dark:bg-card-bg",
@@ -252,7 +253,7 @@ function PriceInput({
         keyboardType="decimal-pad"
         placeholder={placeholder}
         className={cn(
-          "h-11 rounded-full",
+          "h-11 rounded-full android:h-12 android:rounded-2xl android:shadow-none",
           HAS_LIQUID_GLASS
             ? cn(GLASS_PILL_CLASS, active && "text-brand")
             : active

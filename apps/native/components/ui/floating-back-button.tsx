@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { GlassView } from "expo-glass-effect";
 import { useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
-import { ChevronLeft } from "lucide-react-native";
+import { ArrowLeft, ChevronLeft } from "lucide-react-native";
 import * as React from "react";
 import { Pressable, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
@@ -107,11 +107,16 @@ export function FloatingBackButton({
       onPress={handlePress}
       className={cn(
         "absolute start-3 z-50 size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg shadow-lg",
+        process.env.EXPO_OS === "android" &&
+          "overflow-hidden rounded-2xl border-transparent bg-brand-lighter shadow-md",
         className,
       )}
       style={{ bottom }}
     >
-      <Icon as={ChevronLeft} className="size-7 text-text" />
+      <Icon
+        as={process.env.EXPO_OS === "android" ? ArrowLeft : ChevronLeft}
+        className="size-7 text-text android:size-6 android:text-brand"
+      />
     </AnimatedPressable>
   );
 }

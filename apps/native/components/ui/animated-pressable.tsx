@@ -1,6 +1,7 @@
 import { motionDuration, motionPress, motionSpring, useReducedMotion } from "@/lib/motion";
 import * as React from "react";
 import { Pressable } from "react-native";
+import { useCSSVariable } from "uniwind";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -85,11 +86,13 @@ function AnimatedPressable({
   onLongPress,
   onPressIn,
   onPressOut,
-  pressedOpacity = motionPress.opacity,
-  pressedScale = motionPress.scale,
+  pressedOpacity = process.env.EXPO_OS === "android" ? 1 : motionPress.opacity,
+  pressedScale = process.env.EXPO_OS === "android" ? 1 : motionPress.scale,
+  android_ripple,
   style,
   ...props
 }: AnimatedPressableProps) {
+  const rippleColor = useCSSVariable("--color-brand-alpha-12");
   const { animatedStyle, handleLongPress, handlePressIn, handlePressOut } =
     useAnimatedPressFeedback({
       disabled: props.disabled,
@@ -107,6 +110,12 @@ function AnimatedPressable({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       style={[style, animatedStyle]}
+      android_ripple={
+        android_ripple ??
+        (process.env.EXPO_OS === "android"
+          ? { color: typeof rippleColor === "string" ? rippleColor : undefined, foreground: true }
+          : undefined)
+      }
       {...props}
     />
   );
