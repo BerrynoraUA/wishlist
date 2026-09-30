@@ -1,16 +1,23 @@
 import { SCROLLABLE_TABS_TOP_GAP } from "@/components/ui/scrollable-tabs";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
 import * as React from "react";
-import { Platform, StyleSheet, View, type LayoutChangeEvent } from "react-native";
+import { Platform, View, type LayoutChangeEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
+const IS_IOS = Platform.OS === "ios";
+/**
+ * Space between the safe-area top and the first header row. iOS follows the native
+ * navigation bar: a 44pt bar starting right under the status bar, controls centered in it.
+ */
+const HEADER_TOP_GAP = IS_IOS ? 0 : SCROLLABLE_TABS_TOP_GAP;
 /** Vertical padding between the header content and the bottom edge of the bar. */
-const HEADER_BOTTOM_GAP = 16;
+const HEADER_BOTTOM_GAP = IS_IOS ? 0 : 16;
 /** Height of one tab/filter row, used to estimate list padding before first layout. */
 const HEADER_ROW_HEIGHT = 44;
 /** Vertical gap between stacked header rows (matches the `gap-4` content wrapper). */
 const HEADER_ROW_GAP = 16;
+/** Space between the bar and the list's first content, like a standard layout margin. */
 const IOS_HEADER_CONTENT_GAP = 16;
 
 /**
@@ -21,10 +28,10 @@ const IOS_HEADER_CONTENT_GAP = 16;
  */
 export function usePinnedListHeaderPadding(estimatedRows = 1) {
   const insets = useSafeAreaInsets();
-  const listContentGap = Platform.OS === "ios" ? IOS_HEADER_CONTENT_GAP : 0;
+  const listContentGap = IS_IOS ? IOS_HEADER_CONTENT_GAP : 0;
   const [height, setHeight] = React.useState(
     insets.top +
-      SCROLLABLE_TABS_TOP_GAP +
+      HEADER_TOP_GAP +
       estimatedRows * HEADER_ROW_HEIGHT +
       (estimatedRows - 1) * HEADER_ROW_GAP +
       HEADER_BOTTOM_GAP +
@@ -42,8 +49,9 @@ export function usePinnedListHeaderPadding(estimatedRows = 1) {
 
 /**
  * Bar pinned above a scrolling list, Telegram-style top tabs. It overlays the list
- * (which scrolls underneath) with liquid glass where supported and a solid themed
- * background elsewhere.
+ * (which scrolls underneath). Where liquid glass is supported there is no bar: the
+ * controls float on their own glass and the list fades out under them, like the
+ * iOS 26 scroll edge effect. Elsewhere it gets a solid themed background.
  */
 export function PinnedListHeader({
   contentWidth,
@@ -65,15 +73,19 @@ export function PinnedListHeader({
   const insets = useSafeAreaInsets();
 
   return (
-    <View className="absolute inset-x-0 top-0 z-10 overflow-hidden">
+    <View className="absolute inset-x-0 top-0 z-10">
       {HAS_LIQUID_GLASS ? (
-        <GlassView pointerEvents="none" style={StyleSheet.absoluteFill} />
+        // Runs past the header by the list's top gap, so it fully clears content at rest.
+        <View
+          pointerEvents="none"
+          className="absolute inset-x-0 top-0 bg-linear-to-b from-bg from-50% to-bg/0"
+          style={{ bottom: -IOS_HEADER_CONTENT_GAP }}
+        />
       ) : (
         <View pointerEvents="none" className="absolute inset-0 bg-bg" />
       )}
       <View
-        className="pb-4"
-        style={{ paddingTop: insets.top + SCROLLABLE_TABS_TOP_GAP }}
+        style={{ paddingTop: insets.top + HEADER_TOP_GAP, paddingBottom: HEADER_BOTTOM_GAP }}
         onLayout={onLayout}
       >
         <View
