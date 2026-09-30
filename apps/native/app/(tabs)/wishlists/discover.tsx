@@ -195,6 +195,7 @@ export default function DiscoverScreen() {
             maxHeight={ITEM_FILTER_PANEL_HEIGHT}
           >
             <DiscoverFiltersPanel
+              open={filtersOpen}
               search={feed.search}
               priorityIds={feed.priorityIds}
               priceMin={feed.priceMin}

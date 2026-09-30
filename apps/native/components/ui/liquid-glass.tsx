@@ -1,7 +1,7 @@
 import { motionSpring, useReducedMotion } from "@/lib/motion";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import * as React from "react";
-import { Pressable } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import Animated, {
   type SharedValue,
   useAnimatedStyle,
@@ -14,9 +14,13 @@ export const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
 export const GLASS_CAPSULE_STYLE = { borderRadius: 9999 };
 /** Distance at which neighbouring glass shapes in a `GlassContainer` melt into each other. */
 export const GLASS_MERGE_SPACING = 12;
+/** Clears a pill's own border, fill and shadow so the glass behind it shows. */
+export const GLASS_PILL_CLASS = "border-transparent bg-transparent shadow-none dark:bg-transparent";
+
+const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, GLASS_CAPSULE_STYLE];
 
 const GLASS_BUTTON_SIZE = 44;
-const AnimatedGlassView = Animated.createAnimatedComponent(GlassView);
+export const AnimatedGlassView = Animated.createAnimatedComponent(GlassView);
 
 /**
  * 0 → 1 as `visible` turns on, on a slightly bouncy spring (the wobble is the "liquid").
@@ -64,6 +68,23 @@ function GlassIconButton({
     >
       <Animated.View style={contentStyle}>{children}</Animated.View>
     </Pressable>
+  );
+}
+
+/**
+ * Glass behind a filter-panel pill that draws its own shape (render it first inside the
+ * pill). It materializes as the panel opens and dissolves as it closes, rather than only
+ * fading with the panel: UIKit doesn't render glass correctly under partial alpha.
+ */
+export function PanelPillGlass({ open }: { open: boolean }) {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <GlassView
+      pointerEvents="none"
+      glassEffectStyle={{ style: open ? "regular" : "none", animate: !reduceMotion }}
+      style={PILL_GLASS_STYLE}
+    />
   );
 }
 

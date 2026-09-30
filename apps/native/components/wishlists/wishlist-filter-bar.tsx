@@ -10,13 +10,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { SearchClearButton } from "@/components/ui/search-clear-button";
 import { FilterActions } from "@/components/ui/filter-actions";
 import {
   GLASS_CAPSULE_STYLE,
   GLASS_MERGE_SPACING,
+  GLASS_PILL_CLASS,
   GlassCapsuleSlot,
   HAS_LIQUID_GLASS,
   MorphingGlassButton,
+  PanelPillGlass,
 } from "@/components/ui/liquid-glass";
 import {
   SlideOutFilterPanel,
@@ -31,7 +34,6 @@ import {
   getWishlistVisibilityOptions,
 } from "@/lib/wishlists";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
-import { useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { GlassContainer, GlassView } from "expo-glass-effect";
 import { useRouter } from "expo-router";
@@ -40,11 +42,6 @@ import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
-
-/** Glass background behind a control that draws its own shape. */
-const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, GLASS_CAPSULE_STYLE];
-/** Clears an outline button's own fill so the glass behind it shows. */
-const GLASS_PILL_CLASS = "border-transparent bg-transparent dark:bg-transparent";
 
 const styles = StyleSheet.create({
   glassGroup: { flexDirection: "row", alignItems: "center" },
@@ -210,10 +207,6 @@ export function WishlistFilterPanel({
   progress: SharedValue<number>;
 }) {
   const t = useGT();
-  const reduceMotion = useReducedMotion();
-  // The pills' glass materializes as the panel opens and dissolves as it closes, rather
-  // than only fading with the panel: UIKit doesn't render glass correctly under partial alpha.
-  const pillGlass = { style: open ? "regular" : "none", animate: !reduceMotion } as const;
   const sortOptions = React.useMemo(() => getWishlistSortOptions(t), [t]);
   const visibilityOptions = React.useMemo(() => getWishlistVisibilityOptions(t), [t]);
 
@@ -231,32 +224,23 @@ export function WishlistFilterPanel({
     <SlideOutFilterPanel open={open} progress={progress} maxHeight={WISHLIST_FILTER_PANEL_HEIGHT}>
       <View
         className={cn(
-          "w-full flex-row items-center gap-1 rounded-full px-2 ps-3",
+          "w-full flex-row items-center gap-1 rounded-full ps-3",
           !HAS_LIQUID_GLASS && "border border-border-subtle bg-card-bg shadow-sm",
         )}
       >
-        {HAS_LIQUID_GLASS ? (
-          <GlassView pointerEvents="none" glassEffectStyle={pillGlass} style={PILL_GLASS_STYLE} />
-        ) : null}
+        {HAS_LIQUID_GLASS ? <PanelPillGlass open={open} /> : null}
         <Icon as={Search} className="size-4 text-muted-foreground/50" />
         <Input
           value={search}
           onChangeText={onSearchChange}
           placeholder={t("Search wishlists...")}
-          className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
+          className={cn(
+            "h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent",
+            search.length === 0 && "pe-3",
+          )}
           returnKeyType="search"
         />
-        {search.length > 0 ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            accessibilityLabel={t("Clear search")}
-            onPress={() => onSearchChange("")}
-            className="size-9 shrink-0 rounded-full"
-          >
-            <Icon as={X} className="size-4 text-text-muted" />
-          </Button>
-        ) : null}
+        {search.length > 0 ? <SearchClearButton onPress={() => onSearchChange("")} /> : null}
       </View>
       <View className="w-full flex-row items-stretch gap-2">
         <View className="min-w-0 flex-1">
@@ -275,13 +259,7 @@ export function WishlistFilterPanel({
                       : "border-border-subtle bg-card-bg dark:bg-card-bg",
                 )}
               >
-                {HAS_LIQUID_GLASS ? (
-                  <GlassView
-                    pointerEvents="none"
-                    glassEffectStyle={pillGlass}
-                    style={PILL_GLASS_STYLE}
-                  />
-                ) : null}
+                {HAS_LIQUID_GLASS ? <PanelPillGlass open={open} /> : null}
                 <Text
                   className={cn(
                     "shrink text-sm font-semibold text-text",
@@ -332,13 +310,7 @@ export function WishlistFilterPanel({
                     : "border-border-subtle bg-card-bg dark:bg-card-bg",
                 )}
               >
-                {HAS_LIQUID_GLASS ? (
-                  <GlassView
-                    pointerEvents="none"
-                    glassEffectStyle={pillGlass}
-                    style={PILL_GLASS_STYLE}
-                  />
-                ) : null}
+                {HAS_LIQUID_GLASS ? <PanelPillGlass open={open} /> : null}
                 <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                   {selectedSortLabel}
                 </Text>
