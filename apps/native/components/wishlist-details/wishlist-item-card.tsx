@@ -154,7 +154,8 @@ export function WishlistItemCard({
             accessibilityLabel={t('Open "{name}"', { name: item.name })}
             onPress={onPress}
             onLongPress={showMenu ? menuPreview.openMenu : undefined}
-            pressedScale={isTaken ? 1 : 0.98}
+            pressedScale={1}
+            pressedOpacity={1}
             className="rounded-xl border border-border-subtle bg-card-bg shadow-sm"
             // The priority is what tints the card — no separate item colour.
             style={cardBorderStyle}
