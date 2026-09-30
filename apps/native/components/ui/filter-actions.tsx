@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/liquid-glass";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { resetFilters } from "@/lib/reset-filters";
 import { GlassView } from "expo-glass-effect";
 import { SlidersHorizontal, X } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -59,7 +60,7 @@ export function FilterActions({
         <GlassCapsuleSlot
           visible={active}
           accessibilityLabel={clearAccessibilityLabel}
-          onPress={onReset}
+          onPress={() => resetFilters(onReset)}
         >
           <Icon as={X} className="size-5 text-destructive" />
         </GlassCapsuleSlot>
@@ -99,7 +100,7 @@ export function FilterActions({
             variant="destructive"
             size="icon-lg"
             accessibilityLabel={clearAccessibilityLabel}
-            onPress={onReset}
+            onPress={() => resetFilters(onReset)}
             className="rounded-full"
           >
             <Icon as={X} className="size-4 text-white" />

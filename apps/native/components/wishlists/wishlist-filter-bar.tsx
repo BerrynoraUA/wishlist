@@ -35,6 +35,7 @@ import {
 } from "@/lib/wishlists";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { cn } from "@/lib/utils";
+import { resetFilters } from "@/lib/reset-filters";
 import { GlassContainer, GlassView } from "expo-glass-effect";
 import { useRouter } from "expo-router";
 import { Bell, ChevronsUpDown, Search, SlidersHorizontal, Sparkles, X } from "lucide-react-native";
@@ -107,7 +108,7 @@ export function WishlistFilterBar({
                   <GlassCapsuleSlot
                     visible={canResetFilters}
                     accessibilityLabel={t("Clear filters")}
-                    onPress={onResetFilters}
+                    onPress={() => resetFilters(onResetFilters)}
                   >
                     <Icon as={X} className="size-5 text-destructive" />
                   </GlassCapsuleSlot>
