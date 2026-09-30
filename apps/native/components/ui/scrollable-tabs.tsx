@@ -82,21 +82,25 @@ export function ScrollableTabs<T>({
       const targetWidth = IS_ANDROID ? Math.max(0, layout.width - 24) : layout.width;
       // Snap on first measure. Android glides; iOS uses a liquid spring.
       if (animated && indicatorTargetRef.current !== null && !reduceMotion) {
-        indicatorX.value = IS_ANDROID
-          ? withTiming(targetX, MATERIAL_INDICATOR_TIMING)
-          : withSpring(targetX, motionSpring.navPill);
-        indicatorWidth.value = IS_ANDROID
-          ? withTiming(targetWidth, MATERIAL_INDICATOR_TIMING)
-          : withSpring(targetWidth, motionSpring.navPill);
+        indicatorX.set(
+          IS_ANDROID
+            ? withTiming(targetX, MATERIAL_INDICATOR_TIMING)
+            : withSpring(targetX, motionSpring.navPill),
+        );
+        indicatorWidth.set(
+          IS_ANDROID
+            ? withTiming(targetWidth, MATERIAL_INDICATOR_TIMING)
+            : withSpring(targetWidth, motionSpring.navPill),
+        );
         // Only a real move between tabs gets the droplet, not a re-measure in place.
         if (IS_IOS && indicatorTargetRef.current !== layout.x)
-          indicatorStretch.value = liquidStretch();
+          indicatorStretch.set(liquidStretch());
       } else {
-        indicatorX.value = targetX;
-        indicatorWidth.value = targetWidth;
+        indicatorX.set(targetX);
+        indicatorWidth.set(targetWidth);
       }
       indicatorTargetRef.current = layout.x;
-      indicatorReady.value = 1;
+      indicatorReady.set(1);
     },
     [value, reduceMotion, indicatorX, indicatorWidth, indicatorReady, indicatorStretch],
   );
@@ -131,11 +135,11 @@ export function ScrollableTabs<T>({
 
   const indicatorStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: indicatorX.value },
-      ...(IS_IOS ? liquidStretchTransform(indicatorStretch.value) : []),
+      { translateX: indicatorX.get() },
+      ...(IS_IOS ? liquidStretchTransform(indicatorStretch.get()) : []),
     ],
-    width: indicatorWidth.value,
-    opacity: indicatorReady.value,
+    width: indicatorWidth.get(),
+    opacity: indicatorReady.get(),
   }));
 
   function handleViewportLayout(event: LayoutChangeEvent) {
@@ -159,7 +163,7 @@ export function ScrollableTabs<T>({
   // UIKit can drop an effect when any ancestor reaches zero alpha. Reset the effect
   // on the UI thread alongside that fade, including the indicator's initial layout.
   const glassProps = useAnimatedProps<GlassViewProps>(() => ({
-    glassEffectStyle: indicatorReady.value * (opacity?.value ?? 1) > 0.01 ? "regular" : "none",
+    glassEffectStyle: indicatorReady.get() * (opacity?.get() ?? 1) > 0.01 ? "regular" : "none",
   }));
 
   return (

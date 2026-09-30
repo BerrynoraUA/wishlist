@@ -11,6 +11,11 @@ import Animated, {
 
 const ReanimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+// Android presses show a ripple instead of dimming or shrinking. Module constants rather
+// than inline defaults: React Compiler cannot compile a conditional default parameter.
+const DEFAULT_PRESSED_OPACITY = process.env.EXPO_OS === "android" ? 1 : motionPress.opacity;
+const DEFAULT_PRESSED_SCALE = process.env.EXPO_OS === "android" ? 1 : motionPress.scale;
+
 type PressableProps = React.ComponentProps<typeof Pressable>;
 type PressEvent = Parameters<NonNullable<PressableProps["onPressIn"]>>[0];
 
@@ -41,22 +46,22 @@ function useAnimatedPressFeedback({
   const opacity = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: scale.value }],
+    opacity: opacity.get(),
+    transform: [{ scale: scale.get() }],
   }));
 
   function handlePressIn(event: PressEvent) {
     if (!disabled) {
-      scale.value = reduceMotion ? 1 : withSpring(pressedScale, motionSpring.press);
-      opacity.value = withTiming(pressedOpacity, { duration: motionDuration.fast });
+      scale.set(reduceMotion ? 1 : withSpring(pressedScale, motionSpring.press));
+      opacity.set(withTiming(pressedOpacity, { duration: motionDuration.fast }));
     }
 
     onPressIn?.(event);
   }
 
   function handlePressOut(event: Parameters<NonNullable<typeof onPressOut>>[0]) {
-    scale.value = reduceMotion ? 1 : withSpring(1, motionSpring.press);
-    opacity.value = withTiming(1, { duration: motionDuration.fast });
+    scale.set(reduceMotion ? 1 : withSpring(1, motionSpring.press));
+    opacity.set(withTiming(1, { duration: motionDuration.fast }));
 
     onPressOut?.(event);
   }
@@ -67,8 +72,8 @@ function useAnimatedPressFeedback({
     // handler runs, and without animating, so the snapshot cannot catch the element
     // dimmed and scaled down: that snapshot is drawn at full size, so the shrunken
     // artwork inside it reads as a translucent border around the lifted card.
-    scale.value = 1;
-    opacity.value = 1;
+    scale.set(1);
+    opacity.set(1);
 
     onLongPress?.(event);
   }
@@ -86,8 +91,8 @@ function AnimatedPressable({
   onLongPress,
   onPressIn,
   onPressOut,
-  pressedOpacity = process.env.EXPO_OS === "android" ? 1 : motionPress.opacity,
-  pressedScale = process.env.EXPO_OS === "android" ? 1 : motionPress.scale,
+  pressedOpacity = DEFAULT_PRESSED_OPACITY,
+  pressedScale = DEFAULT_PRESSED_SCALE,
   android_ripple,
   style,
   ...props

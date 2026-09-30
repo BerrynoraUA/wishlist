@@ -635,11 +635,11 @@ function PulseOverlay() {
   const opacity = useSharedValue(0.3);
 
   React.useEffect(() => {
-    opacity.value = withTiming(0.12, { duration: motionDuration.slow });
+    opacity.set(withTiming(0.12, { duration: motionDuration.slow }));
   }, [opacity]);
 
   const style = useAnimatedStyle(() => ({
-    opacity: opacity.value,
+    opacity: opacity.get(),
   }));
 
   return (

@@ -48,22 +48,24 @@ const Pulse = ({ index, isDisabled, isLoading }: PulseProps) => {
   useEffect(() => {
     if (isDisabled || isLoading) {
       cancelAnimation(transition);
-      transition.value = 0;
+      transition.set(0);
       return;
     }
 
-    transition.value = withRepeat(
-      withSequence(
-        withDelay(
-          PULSE_DELAY * index,
-          withTiming(1, {
-            duration: PULSE_TRANSITION_DURATION + PULSE_DELAY * (NUMBER_OF_PULSES - index - 1),
-            easing: Easing.out(Easing.ease),
-          }),
+    transition.set(
+      withRepeat(
+        withSequence(
+          withDelay(
+            PULSE_DELAY * index,
+            withTiming(1, {
+              duration: PULSE_TRANSITION_DURATION + PULSE_DELAY * (NUMBER_OF_PULSES - index - 1),
+              easing: Easing.out(Easing.ease),
+            }),
+          ),
+          withTiming(0, { duration: 0 }),
         ),
-        withTiming(0, { duration: 0 }),
+        -1,
       ),
-      -1,
     );
 
     return () => {
@@ -72,10 +74,10 @@ const Pulse = ({ index, isDisabled, isLoading }: PulseProps) => {
   }, [index, isDisabled, isLoading, transition]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(transition.value, [0, 1], [0.5, 0]),
+    opacity: interpolate(transition.get(), [0, 1], [0.5, 0]),
     transform: [
       {
-        scale: interpolate(transition.value, [0, 1], [1, 1.5]),
+        scale: interpolate(transition.get(), [0, 1], [1, 1.5]),
       },
     ],
   }));
@@ -101,7 +103,7 @@ export const PulsingButton = ({
   const isActive = useSharedValue(false);
 
   const animatedContainerStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(backgroundTransition.value, [0, 1], [1, 0.9]),
+    opacity: interpolate(backgroundTransition.get(), [0, 1], [1, 0.9]),
   }));
 
   return (
@@ -117,26 +119,26 @@ export const PulsingButton = ({
       hitSlop={16}
       onPress={onPress}
       onPressIn={() => {
-        isActive.value = true;
-        backgroundTransition.value = withTiming(
-          1,
-          { duration: BACKGROUND_TRANSITION_DURATION },
-          () => {
+        isActive.set(true);
+        backgroundTransition.set(
+          withTiming(1, { duration: BACKGROUND_TRANSITION_DURATION }, () => {
             if (!isActive.value) {
               backgroundTransition.value = withTiming(0, {
                 duration: BACKGROUND_TRANSITION_DURATION,
               });
             }
-          },
+          }),
         );
       }}
       onPressOut={() => {
-        if (backgroundTransition.value === 1) {
-          backgroundTransition.value = withTiming(0, {
-            duration: BACKGROUND_TRANSITION_DURATION,
-          });
+        if (backgroundTransition.get() === 1) {
+          backgroundTransition.set(
+            withTiming(0, {
+              duration: BACKGROUND_TRANSITION_DURATION,
+            }),
+          );
         }
-        isActive.value = false;
+        isActive.set(false);
       }}
     >
       {({ pressed }) => (

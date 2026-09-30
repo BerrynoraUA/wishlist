@@ -208,7 +208,7 @@ export function PeoplePickerSheet({
     hasDraftSelection ? 0 : COLLAPSED_FOOTER_SURFACE_OFFSET,
   );
   const footerSurfaceStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: footerSurfaceOffset.value }],
+    transform: [{ translateY: footerSurfaceOffset.get() }],
   }));
 
   React.useEffect(() => {
@@ -219,9 +219,9 @@ export function PeoplePickerSheet({
 
   React.useEffect(() => {
     const nextOffset = hasDraftSelection ? 0 : COLLAPSED_FOOTER_SURFACE_OFFSET;
-    footerSurfaceOffset.value = reduceMotion
-      ? nextOffset
-      : withTiming(nextOffset, { duration: motionDuration.normal });
+    footerSurfaceOffset.set(
+      reduceMotion ? nextOffset : withTiming(nextOffset, { duration: motionDuration.normal }),
+    );
   }, [footerSurfaceOffset, hasDraftSelection, reduceMotion]);
 
   React.useEffect(() => {

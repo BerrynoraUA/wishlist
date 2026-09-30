@@ -156,15 +156,15 @@ export function AndroidTabBar({
   React.useEffect(() => {
     if (slotWidth <= 0 || selectedSlot < 0) return;
     if (!hasMeasured.current || reduceMotion) {
-      indicatorX.value = indicatorTarget;
+      indicatorX.set(indicatorTarget);
       hasMeasured.current = true;
       return;
     }
-    indicatorX.value = withSpring(indicatorTarget, INDICATOR_SPRING);
+    indicatorX.set(withSpring(indicatorTarget, INDICATOR_SPRING));
   }, [indicatorTarget, indicatorX, reduceMotion, selectedSlot, slotWidth]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorX.value }],
+    transform: [{ translateX: indicatorX.get() }],
   }));
 
   function handleTabPress(route: TabRoute, isFocused: boolean) {

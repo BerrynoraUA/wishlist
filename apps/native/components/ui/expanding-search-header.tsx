@@ -83,11 +83,9 @@ export function ExpandingSearchHeader({
   }, [searchEnabled]);
 
   React.useEffect(() => {
-    expandProgress.value = reduceMotion
-      ? expanded
-        ? 1
-        : 0
-      : withSpring(expanded ? 1 : 0, SEARCH_SPRING);
+    expandProgress.set(
+      reduceMotion ? (expanded ? 1 : 0) : withSpring(expanded ? 1 : 0, SEARCH_SPRING),
+    );
 
     if (!expanded) return;
     const frame = requestAnimationFrame(() => searchInputRef.current?.focus());
@@ -100,8 +98,8 @@ export function ExpandingSearchHeader({
     : contentWidth;
 
   const fieldStyle = useAnimatedStyle(() => {
-    const enabled = clamp01(enabledProgress.value);
-    const expand = clamp01(expandProgress.value);
+    const enabled = clamp01(enabledProgress.get());
+    const expand = clamp01(expandProgress.get());
     return {
       width:
         (SEARCH_COLLAPSED_WIDTH + (expandedFieldWidth - SEARCH_COLLAPSED_WIDTH) * expand) * enabled,
@@ -110,14 +108,14 @@ export function ExpandingSearchHeader({
     };
   }, [expandedFieldWidth]);
 
-  const inputStyle = useAnimatedStyle(() => ({ opacity: clamp01(expandProgress.value) }));
-  const tabsOpacity = useDerivedValue(() => 1 - clamp01(expandProgress.value));
+  const inputStyle = useAnimatedStyle(() => ({ opacity: clamp01(expandProgress.get()) }));
+  const tabsOpacity = useDerivedValue(() => 1 - clamp01(expandProgress.get()));
 
   // Logical `start`/`end` (Yoga mirrors them under RTL), matching the search side.
   const tabsStyle = useAnimatedStyle(() => {
-    const offset = (SEARCH_COLLAPSED_WIDTH + SEARCH_TABS_GAP) * clamp01(enabledProgress.value);
+    const offset = (SEARCH_COLLAPSED_WIDTH + SEARCH_TABS_GAP) * clamp01(enabledProgress.get());
     return {
-      opacity: tabsOpacity.value,
+      opacity: tabsOpacity.get(),
       ...(searchSide === "left" ? { start: offset, end: 0 } : { start: 0, end: offset }),
     };
   }, [searchSide]);

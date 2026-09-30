@@ -50,7 +50,7 @@ export function FloatingBackButton({
   const reduceMotion = useReducedMotion();
   const [materialized, setMaterialized] = React.useState(!HAS_LIQUID_GLASS);
   const iconOpacity = useSharedValue(HAS_LIQUID_GLASS ? 0 : 1);
-  const iconStyle = useAnimatedStyle(() => ({ opacity: iconOpacity.value }));
+  const iconStyle = useAnimatedStyle(() => ({ opacity: iconOpacity.get() }));
 
   // iOS 26: the glass materializes once the screen has come in, like a system bar button,
   // instead of arriving already drawn.
@@ -58,7 +58,7 @@ export function FloatingBackButton({
     if (!HAS_LIQUID_GLASS) return;
     const timeout = setTimeout(() => {
       setMaterialized(true);
-      iconOpacity.value = withTiming(1, { duration: reduceMotion ? 0 : motionDuration.normal });
+      iconOpacity.set(withTiming(1, { duration: reduceMotion ? 0 : motionDuration.normal }));
     }, MATERIALIZE_DELAY);
     return () => clearTimeout(timeout);
   }, [iconOpacity, reduceMotion]);

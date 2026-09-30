@@ -43,6 +43,10 @@ vi.mock("react-native-reanimated", () => ({
         throw new Error("Shared value read on JS thread");
       },
       set value(_value: number) {},
+      get(): number {
+        throw new Error("Shared value read on JS thread");
+      },
+      set(_value: number) {},
     }).current,
   withSpring: (value: number) => value,
   withTiming: (value: number) => value,

@@ -49,10 +49,12 @@ export function useSlideOutPanel(
 
   const setOpen = React.useCallback(
     (next: boolean) => {
-      progress.value = withTiming(next ? 1 : 0, {
-        duration: reduceMotion ? 0 : next ? OPEN_DURATION : CLOSE_DURATION,
-        easing: PANEL_EASING,
-      });
+      progress.set(
+        withTiming(next ? 1 : 0, {
+          duration: reduceMotion ? 0 : next ? OPEN_DURATION : CLOSE_DURATION,
+          easing: PANEL_EASING,
+        }),
+      );
       setOpenState(next);
     },
     [progress, reduceMotion],
@@ -94,11 +96,11 @@ export function SlideOutFilterPanel({
   const contentHeight = useSharedValue(FILTER_PANEL_FALLBACK_HEIGHT);
   const measuredHeight = height ?? contentHeight;
   const containerStyle = useAnimatedStyle(() => ({
-    height: measuredHeight.value * progress.value,
+    height: measuredHeight.get() * progress.get(),
   }));
   const contentStyle = useAnimatedStyle(() => ({
-    opacity: progress.value,
-    transform: [{ translateY: -12 * (1 - progress.value) }],
+    opacity: progress.get(),
+    transform: [{ translateY: -12 * (1 - progress.get()) }],
   }));
 
   return (
@@ -114,7 +116,7 @@ export function SlideOutFilterPanel({
           className={cn("gap-3", className)}
           style={{ paddingTop: SLIDE_OUT_PANEL_GAP }}
           onLayout={(event) => {
-            measuredHeight.value = event.nativeEvent.layout.height;
+            measuredHeight.set(event.nativeEvent.layout.height);
           }}
         >
           {children}
@@ -137,7 +139,7 @@ export function SlideOutSpacer({
   progress: SharedValue<number>;
   height: SharedValue<number>;
 }) {
-  const style = useAnimatedStyle(() => ({ height: height.value * progress.value }));
+  const style = useAnimatedStyle(() => ({ height: height.get() * progress.get() }));
 
   return <Animated.View pointerEvents="none" style={style} />;
 }

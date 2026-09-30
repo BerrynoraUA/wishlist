@@ -14,6 +14,18 @@ type ViewProps = {
 };
 
 const views = vi.hoisted(() => ({ animated: [] as ViewProps[], native: [] as ViewProps[] }));
+const { mockShared } = vi.hoisted(() => ({
+  mockShared: (initial: number) => {
+    const sharedValue = {
+      value: initial,
+      get: () => sharedValue.value,
+      set: (next: number) => {
+        sharedValue.value = next;
+      },
+    };
+    return sharedValue;
+  },
+}));
 
 vi.mock("@/lib/motion", () => ({ useReducedMotion: () => false }));
 vi.mock("expo-router", () => ({ useFocusEffect: vi.fn() }));
@@ -37,7 +49,7 @@ vi.mock("react-native-reanimated", async () => {
       },
     },
     Easing: { bezier: vi.fn() },
-    useSharedValue: (value: number) => ({ value }),
+    useSharedValue: (value: number) => mockShared(value),
     // Read styles again after layout/progress changes, as Reanimated does on the UI thread.
     useAnimatedStyle: (compute: () => Record<string, unknown>) =>
       new Proxy({}, { get: (_, key) => compute()[key as string] }),
@@ -45,7 +57,7 @@ vi.mock("react-native-reanimated", async () => {
 });
 
 function shared(value: number) {
-  return { value } as SharedValue<number>;
+  return mockShared(value) as SharedValue<number>;
 }
 
 function measure(height: number) {

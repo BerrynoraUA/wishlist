@@ -30,11 +30,9 @@ export function useGlassReveal(visible: boolean, reduceMotion: boolean) {
   const progress = useSharedValue(visible ? 1 : 0);
 
   React.useEffect(() => {
-    progress.value = reduceMotion
-      ? visible
-        ? 1
-        : 0
-      : withSpring(visible ? 1 : 0, motionSpring.navPill);
+    progress.set(
+      reduceMotion ? (visible ? 1 : 0) : withSpring(visible ? 1 : 0, motionSpring.navPill),
+    );
   }, [progress, reduceMotion, visible]);
 
   return progress;
@@ -55,7 +53,7 @@ function GlassIconButton({
   onPress: () => void;
   children: React.ReactNode;
 }) {
-  const contentStyle = useAnimatedStyle(() => ({ opacity: progress.value }));
+  const contentStyle = useAnimatedStyle(() => ({ opacity: progress.get() }));
 
   return (
     <Pressable
@@ -110,7 +108,7 @@ export function GlassCapsuleSlot({
   const reduceMotion = useReducedMotion();
   const progress = useGlassReveal(visible, reduceMotion);
   const slotStyle = useAnimatedStyle(() => ({
-    width: GLASS_BUTTON_SIZE * Math.max(0, progress.value),
+    width: GLASS_BUTTON_SIZE * Math.max(0, progress.get()),
   }));
 
   return (
@@ -154,7 +152,7 @@ export function MorphingGlassButton({
   const reduceMotion = useReducedMotion();
   const progress = useGlassReveal(visible, reduceMotion);
   const slotStyle = useAnimatedStyle(() => {
-    const value = Math.max(0, progress.value);
+    const value = Math.max(0, progress.get());
     return {
       width: GLASS_BUTTON_SIZE * value,
       [placement === "before" ? "marginEnd" : "marginStart"]: gap * value,

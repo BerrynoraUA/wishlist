@@ -141,19 +141,20 @@ function PreviewFrame({ uri, children }: { uri: string; children: React.ReactNod
 
   const fitHeight = React.useCallback(
     (animate: boolean) => {
-      if (!width.value || !targetAspect) return;
-      const next = width.value / targetAspect;
-      height.value =
+      if (!width.get() || !targetAspect) return;
+      const next = width.get() / targetAspect;
+      height.set(
         animate && !reduceMotion
           ? withTiming(next, { duration: motionDuration.slow, easing: Easing.out(Easing.cubic) })
-          : next;
+          : next,
+      );
     },
     [height, reduceMotion, targetAspect, width],
   );
 
   React.useEffect(() => fitHeight(true), [fitHeight]);
 
-  const style = useAnimatedStyle(() => ({ height: height.value }));
+  const style = useAnimatedStyle(() => ({ height: height.get() }));
 
   return (
     <Animated.View
@@ -161,8 +162,8 @@ function PreviewFrame({ uri, children }: { uri: string; children: React.ReactNod
       style={style}
       onLayout={({ nativeEvent }) => {
         // Height changes as it animates; only a new width should re-fit it.
-        if (nativeEvent.layout.width === width.value) return;
-        width.value = nativeEvent.layout.width;
+        if (nativeEvent.layout.width === width.get()) return;
+        width.set(nativeEvent.layout.width);
         fitHeight(false);
       }}
     >
@@ -184,12 +185,12 @@ function FadeInImage({
   const progress = useSharedValue(0);
 
   React.useEffect(() => {
-    progress.value = 0;
+    progress.set(0);
   }, [progress, uri]);
 
   const style = useAnimatedStyle(() => ({
-    opacity: progress.value,
-    transform: [{ scale: reduceMotion ? 1 : 1.04 - 0.04 * progress.value }],
+    opacity: progress.get(),
+    transform: [{ scale: reduceMotion ? 1 : 1.04 - 0.04 * progress.get() }],
   }));
 
   return (
@@ -199,10 +200,12 @@ function FadeInImage({
         className="size-full"
         onLoad={(event) => {
           onLoad(event);
-          progress.value = withTiming(1, {
-            duration: IMAGE_FADE_MS,
-            easing: Easing.out(Easing.cubic),
-          });
+          progress.set(
+            withTiming(1, {
+              duration: IMAGE_FADE_MS,
+              easing: Easing.out(Easing.cubic),
+            }),
+          );
         }}
       />
     </Animated.View>

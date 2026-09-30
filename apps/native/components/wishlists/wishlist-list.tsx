@@ -298,7 +298,7 @@ export function WishlistListStatsRow() {
   // fold, so shrinking it pulls the list content below up in the same frame.
   const gridStyle = useAnimatedStyle(
     () => ({
-      height: expandedGridHeight + (STATS_COMPACT_HEIGHT - expandedGridHeight) * progress.value,
+      height: expandedGridHeight + (STATS_COMPACT_HEIGHT - expandedGridHeight) * progress.get(),
     }),
     [expandedGridHeight],
   );
@@ -310,10 +310,12 @@ export function WishlistListStatsRow() {
   const toggle = React.useCallback(() => {
     const next = !compact;
     setCompact(next);
-    progress.value = withTiming(next ? 1 : 0, {
-      duration: reducedMotion ? 0 : motionDuration.normal,
-      easing: STATS_FOLD_EASING,
-    });
+    progress.set(
+      withTiming(next ? 1 : 0, {
+        duration: reducedMotion ? 0 : motionDuration.normal,
+        easing: STATS_FOLD_EASING,
+      }),
+    );
   }, [compact, progress, reducedMotion]);
 
   if (isLoading) {
@@ -394,7 +396,7 @@ function StatCard({
   const travelX = (compactX - expandedX) * (I18nManager.isRTL ? -1 : 1);
 
   const boxStyle = useAnimatedStyle(() => {
-    const value = progress.value;
+    const value = progress.get();
     return {
       width: expandedWidth + (compactWidth - expandedWidth) * value,
       height: expandedHeight + (STATS_COMPACT_HEIGHT - expandedHeight) * value,
@@ -403,11 +405,11 @@ function StatCard({
   }, [compactWidth, expandedHeight, expandedWidth, expandedY, travelX]);
 
   const expandedContentStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(progress.value, [0, 0.45], [1, 0], Extrapolation.CLAMP),
+    opacity: interpolate(progress.get(), [0, 0.45], [1, 0], Extrapolation.CLAMP),
   }));
 
   const compactContentStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(progress.value, [0.55, 1], [0, 1], Extrapolation.CLAMP),
+    opacity: interpolate(progress.get(), [0.55, 1], [0, 1], Extrapolation.CLAMP),
   }));
 
   const handleLayout = React.useCallback(

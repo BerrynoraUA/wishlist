@@ -71,7 +71,7 @@ function AccordionTrigger({
   );
   const chevronStyle = useAnimatedStyle(
     () => ({
-      transform: [{ rotate: `${progress.value * 180}deg` }],
+      transform: [{ rotate: `${progress.get() * 180}deg` }],
     }),
     [progress],
   );

@@ -100,18 +100,18 @@ export function SlidingOptionSelector<T>({
     const targetY = selectedPosition.rowIndex * (optionHeight + SLIDING_SELECTOR_GAP);
 
     if (!didPositionIndicator.current || selectedOptionWidth === 0 || reduceMotion) {
-      indicatorX.value = targetX;
-      indicatorY.value = targetY;
+      indicatorX.set(targetX);
+      indicatorY.set(targetY);
       didPositionIndicator.current = selectedOptionWidth > 0;
       return;
     }
 
     // Only a real move between options gets the droplet, not a re-layout in place.
-    if (targetX !== indicatorX.value || targetY !== indicatorY.value) {
-      indicatorStretch.value = liquidStretch();
+    if (targetX !== indicatorX.get() || targetY !== indicatorY.get()) {
+      indicatorStretch.set(liquidStretch());
     }
-    indicatorX.value = withSpring(targetX, motionSpring.navPill);
-    indicatorY.value = withSpring(targetY, motionSpring.navPill);
+    indicatorX.set(withSpring(targetX, motionSpring.navPill));
+    indicatorY.set(withSpring(targetY, motionSpring.navPill));
   }, [
     indicatorX,
     indicatorY,
@@ -124,9 +124,9 @@ export function SlidingOptionSelector<T>({
 
   const indicatorStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: indicatorX.value },
-      { translateY: indicatorY.value },
-      ...liquidStretchTransform(indicatorStretch.value),
+      { translateX: indicatorX.get() },
+      { translateY: indicatorY.get() },
+      ...liquidStretchTransform(indicatorStretch.get()),
     ],
   }));
 
@@ -145,9 +145,10 @@ export function SlidingOptionSelector<T>({
         : 0;
 
     if (!didPositionIndicator.current && nextSelectedOptionWidth > 0) {
-      indicatorX.value =
-        selectedPosition.columnIndex * (nextSelectedOptionWidth + SLIDING_SELECTOR_GAP);
-      indicatorY.value = selectedPosition.rowIndex * (optionHeight + SLIDING_SELECTOR_GAP);
+      indicatorX.set(
+        selectedPosition.columnIndex * (nextSelectedOptionWidth + SLIDING_SELECTOR_GAP),
+      );
+      indicatorY.set(selectedPosition.rowIndex * (optionHeight + SLIDING_SELECTOR_GAP));
       didPositionIndicator.current = true;
     }
 
