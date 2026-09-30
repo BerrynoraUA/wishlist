@@ -36,7 +36,8 @@ export default function WishlistsScreen() {
     open: filtersOpen,
     setOpen: setFiltersOpen,
     progress: filtersProgress,
-  } = useSlideOutPanel();
+    height: filtersHeight,
+  } = useSlideOutPanel(false, WISHLIST_FILTER_PANEL_HEIGHT);
 
   return (
     <>
@@ -72,9 +73,10 @@ export default function WishlistsScreen() {
               onSortChange={feed.handleSortChange}
               open={filtersOpen}
               progress={filtersProgress}
+              height={filtersHeight}
             />
           }
-          filterPanel={{ progress: filtersProgress, height: WISHLIST_FILTER_PANEL_HEIGHT }}
+          filterPanel={{ progress: filtersProgress, height: filtersHeight }}
           ListHeaderComponent={
             <View>
               <WishlistListStatsRow />

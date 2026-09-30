@@ -105,7 +105,7 @@ export function WishlistList({
   /** A `SlideOutFilterPanel` shown under the filter row inside the pinned header. */
   FilterPanelComponent?: React.ReactElement;
   /** Drives the list spacer that makes room for `FilterPanelComponent`. */
-  filterPanel?: { progress: SharedValue<number>; height: number };
+  filterPanel?: { progress: SharedValue<number>; height: SharedValue<number> };
   ListHeaderComponent: React.ReactElement;
   onEndReached: () => void;
   onOpenSheet: (sheet: Exclude<SheetState, null>) => void;

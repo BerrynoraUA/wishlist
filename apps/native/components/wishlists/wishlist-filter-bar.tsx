@@ -21,10 +21,7 @@ import {
   MorphingGlassButton,
   PanelPillGlass,
 } from "@/components/ui/liquid-glass";
-import {
-  SlideOutFilterPanel,
-  WISHLIST_FILTER_PANEL_HEIGHT,
-} from "@/components/ui/slide-out-filter-panel";
+import { SlideOutFilterPanel } from "@/components/ui/slide-out-filter-panel";
 import { Text } from "@/components/ui/text";
 import { ZoomLink } from "@/components/ui/zoom-link";
 import { GuideTarget } from "@/components/user-guide/guide-target";
@@ -187,6 +184,7 @@ export function WishlistFilterPanel({
   onSortChange,
   open,
   progress,
+  height,
 }: {
   searchInputRef: React.RefObject<TextInput | null>;
   search: string;
@@ -197,6 +195,7 @@ export function WishlistFilterPanel({
   onSortChange: (value: string) => void;
   open: boolean;
   progress: SharedValue<number>;
+  height: SharedValue<number>;
 }) {
   const t = useGT();
   const sortOptions = React.useMemo(() => getWishlistSortOptions(t), [t]);
@@ -213,7 +212,7 @@ export function WishlistFilterPanel({
         : t("{count} selected", { count: visibility.length });
 
   return (
-    <SlideOutFilterPanel open={open} progress={progress} maxHeight={WISHLIST_FILTER_PANEL_HEIGHT}>
+    <SlideOutFilterPanel open={open} progress={progress} height={height}>
       <View
         className={cn(
           "w-full flex-row items-center gap-1 rounded-full ps-3",

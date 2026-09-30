@@ -60,7 +60,8 @@ export default function DiscoverScreen() {
     open: filtersOpen,
     setOpen: setFiltersOpen,
     progress: filtersProgress,
-  } = useSlideOutPanel();
+    height: filtersHeight,
+  } = useSlideOutPanel(false, ITEM_FILTER_PANEL_HEIGHT);
   const [selection, setSelection] = React.useState<SelectedDiscoverItem | null>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
@@ -193,11 +194,7 @@ export default function DiscoverScreen() {
         contentWidth={contentWidth}
         onLayout={onHeaderLayout}
         panel={
-          <SlideOutFilterPanel
-            open={filtersOpen}
-            progress={filtersProgress}
-            maxHeight={ITEM_FILTER_PANEL_HEIGHT}
-          >
+          <SlideOutFilterPanel open={filtersOpen} progress={filtersProgress} height={filtersHeight}>
             <DiscoverFiltersPanel
               searchInputRef={searchInputRef}
               priceMinInputRef={priceMinInputRef}
@@ -255,9 +252,7 @@ export default function DiscoverScreen() {
         onEndReached={feed.loadMore}
         isLoadingMore={feed.activeQuery.isFetchingNextPage}
         getItemType={(row) => ("type" in row ? row.type : "discover-section")}
-        ListHeaderComponent={
-          <SlideOutSpacer progress={filtersProgress} height={ITEM_FILTER_PANEL_HEIGHT} />
-        }
+        ListHeaderComponent={<SlideOutSpacer progress={filtersProgress} height={filtersHeight} />}
         ListFooterComponent={
           <View className="gap-4 self-center" style={{ width: contentWidth }}>
             {feed.activeQuery.isLoading ? (

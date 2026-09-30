@@ -18,9 +18,9 @@ const FILTER_PANEL_FALLBACK_HEIGHT = 220;
  */
 const SLIDE_OUT_PANEL_GAP = 16;
 const FILTER_ROW_HEIGHT = process.env.EXPO_OS === "android" ? 48 : 44;
-/** Gap + two control rows 12pt apart. */
+/** Initial estimate: gap + two control rows 12pt apart. Replaced by the measured height. */
 export const WISHLIST_FILTER_PANEL_HEIGHT = SLIDE_OUT_PANEL_GAP + FILTER_ROW_HEIGHT * 2 + 12;
-/** Gap + three control rows 12pt apart. */
+/** Initial estimate: gap + three control rows 12pt apart. Replaced by the measured height. */
 export const ITEM_FILTER_PANEL_HEIGHT = SLIDE_OUT_PANEL_GAP + FILTER_ROW_HEIGHT * 3 + 12 * 2;
 
 const OPEN_DURATION = 240;
@@ -38,10 +38,14 @@ const PANEL_EASING = Easing.bezier(0.2, 0, 0, 1);
  * the `SlideOutSpacer` that pushes the content below it — reads this one value, so they
  * stay in lockstep.
  */
-export function useSlideOutPanel(initialOpen = false) {
+export function useSlideOutPanel(
+  initialOpen = false,
+  initialHeight = FILTER_PANEL_FALLBACK_HEIGHT,
+) {
   const reduceMotion = useReducedMotion();
   const [open, setOpenState] = React.useState(initialOpen);
   const progress = useSharedValue(initialOpen ? 1 : 0);
+  const height = useSharedValue(initialHeight);
 
   const setOpen = React.useCallback(
     (next: boolean) => {
@@ -65,7 +69,7 @@ export function useSlideOutPanel(initialOpen = false) {
     }, [open, setOpen]),
   );
 
-  return { open, setOpen, progress };
+  return { open, setOpen, progress, height };
 }
 
 /**
@@ -78,17 +82,19 @@ export function SlideOutFilterPanel({
   progress,
   children,
   className,
-  maxHeight,
+  height,
 }: {
   open: boolean;
   progress: SharedValue<number>;
   children: React.ReactNode;
   className?: string;
-  maxHeight?: number;
+  /** Share the measured height with the spacer for a panel in a pinned header. */
+  height?: SharedValue<number>;
 }) {
   const contentHeight = useSharedValue(FILTER_PANEL_FALLBACK_HEIGHT);
+  const measuredHeight = height ?? contentHeight;
   const containerStyle = useAnimatedStyle(() => ({
-    height: (maxHeight ?? contentHeight.value) * progress.value,
+    height: measuredHeight.value * progress.value,
   }));
   const contentStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
@@ -108,7 +114,7 @@ export function SlideOutFilterPanel({
           className={cn("gap-3", className)}
           style={{ paddingTop: SLIDE_OUT_PANEL_GAP }}
           onLayout={(event) => {
-            contentHeight.value = event.nativeEvent.layout.height;
+            measuredHeight.value = event.nativeEvent.layout.height;
           }}
         >
           {children}
@@ -129,9 +135,9 @@ export function SlideOutSpacer({
   height,
 }: {
   progress: SharedValue<number>;
-  height: number;
+  height: SharedValue<number>;
 }) {
-  const style = useAnimatedStyle(() => ({ height: height * progress.value }));
+  const style = useAnimatedStyle(() => ({ height: height.value * progress.value }));
 
   return <Animated.View pointerEvents="none" style={style} />;
 }
