@@ -75,7 +75,7 @@ export function ExpandingSearchHeader({
   const expandedRef = React.useRef(expanded);
   expandedRef.current = expanded;
   const expandProgress = useSharedValue(expanded ? 1 : 0);
-  const enabledProgress = useGlassReveal(searchEnabled);
+  const enabledProgress = useGlassReveal(searchEnabled, reduceMotion);
 
   // Search that gets turned off closes, rather than reopening when it comes back.
   React.useEffect(() => {

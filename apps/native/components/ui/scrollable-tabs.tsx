@@ -62,7 +62,8 @@ export function ScrollableTabs<T>({
 }) {
   const scrollRef = React.useRef<ScrollView>(null);
   const tabLayoutsRef = React.useRef(new Map<T, { width: number; x: number }>());
-  const [viewportWidth, setViewportWidth] = React.useState(0);
+  const viewportWidthRef = React.useRef(0);
+  const viewportScrollTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const reduceMotion = useReducedMotion();
 
   // Shared geometry for the iOS capsule and the Android underline.
@@ -80,7 +81,7 @@ export function ScrollableTabs<T>({
       const targetX = IS_ANDROID ? layout.x + 12 : layout.x;
       const targetWidth = IS_ANDROID ? Math.max(0, layout.width - 24) : layout.width;
       // Snap on first measure. Android glides; iOS uses a liquid spring.
-      if (animated && indicatorReady.value === 1 && !reduceMotion) {
+      if (animated && indicatorTargetRef.current !== null && !reduceMotion) {
         indicatorX.value = IS_ANDROID
           ? withTiming(targetX, MATERIAL_INDICATOR_TIMING)
           : withSpring(targetX, motionSpring.navPill);
@@ -103,6 +104,7 @@ export function ScrollableTabs<T>({
   const scrollToActiveTab = React.useCallback(
     (animated: boolean) => {
       const layout = tabLayoutsRef.current.get(value);
+      const viewportWidth = viewportWidthRef.current;
       if (!layout || viewportWidth === 0) return;
 
       scrollRef.current?.scrollTo({
@@ -110,7 +112,7 @@ export function ScrollableTabs<T>({
         animated,
       });
     },
-    [value, viewportWidth],
+    [value],
   );
 
   React.useEffect(() => {
@@ -120,6 +122,12 @@ export function ScrollableTabs<T>({
     });
     return () => cancelAnimationFrame(frame);
   }, [scrollToActiveTab, moveIndicator, reduceMotion]);
+
+  React.useEffect(() => {
+    return () => {
+      if (viewportScrollTimeout.current !== null) clearTimeout(viewportScrollTimeout.current);
+    };
+  }, [scrollToActiveTab]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
     transform: [
@@ -131,7 +139,21 @@ export function ScrollableTabs<T>({
   }));
 
   function handleViewportLayout(event: LayoutChangeEvent) {
-    setViewportWidth(event.nativeEvent.layout.width);
+    const width = event.nativeEvent.layout.width;
+    if (width === viewportWidthRef.current) return;
+    const initialLayout = viewportWidthRef.current === 0;
+    viewportWidthRef.current = width;
+    if (viewportScrollTimeout.current !== null) clearTimeout(viewportScrollTimeout.current);
+    if (initialLayout) {
+      scrollToActiveTab(false);
+      return;
+    }
+    // Search reveal resizes the viewport every frame. Re-center after layout settles,
+    // without re-rendering the tabs or restarting their indicator animation.
+    viewportScrollTimeout.current = setTimeout(() => {
+      viewportScrollTimeout.current = null;
+      scrollToActiveTab(false);
+    }, 100);
   }
 
   // UIKit can drop an effect when any ancestor reaches zero alpha. Reset the effect

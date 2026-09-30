@@ -26,8 +26,7 @@ export const AnimatedGlassView = Animated.createAnimatedComponent(GlassView);
  * 0 → 1 as `visible` turns on, on a slightly bouncy spring (the wobble is the "liquid").
  * It overshoots, so clamp it before using it as a size.
  */
-export function useGlassReveal(visible: boolean) {
-  const reduceMotion = useReducedMotion();
+export function useGlassReveal(visible: boolean, reduceMotion: boolean) {
   const progress = useSharedValue(visible ? 1 : 0);
 
   React.useEffect(() => {
@@ -108,7 +107,8 @@ export function GlassCapsuleSlot({
   onPress: () => void;
   children: React.ReactNode;
 }) {
-  const progress = useGlassReveal(visible);
+  const reduceMotion = useReducedMotion();
+  const progress = useGlassReveal(visible, reduceMotion);
   const slotStyle = useAnimatedStyle(() => ({
     width: GLASS_BUTTON_SIZE * Math.max(0, progress.value),
   }));
@@ -152,7 +152,7 @@ export function MorphingGlassButton({
   children: React.ReactNode;
 }) {
   const reduceMotion = useReducedMotion();
-  const progress = useGlassReveal(visible);
+  const progress = useGlassReveal(visible, reduceMotion);
   const slotStyle = useAnimatedStyle(() => {
     const value = Math.max(0, progress.value);
     return {
