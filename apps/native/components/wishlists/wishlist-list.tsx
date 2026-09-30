@@ -487,18 +487,24 @@ function WishlistCard({
   const sharedLabel = ownerNickname
     ? t("Shared by @{nickname}", { nickname: ownerNickname })
     : t("Shared wishlist");
-  const menuPreview = useDropdownMenuPreview();
+  const {
+    cardRef: menuCardRef,
+    triggerRef: menuTriggerRef,
+    openMenu,
+    onOpenChange: onMenuOpenChange,
+    preview: menuPreview,
+  } = useDropdownMenuPreview();
   return (
     <Animated.View entering={wishlistCardFadeIn} style={{ width }}>
-      <DropdownMenu className="relative" onOpenChange={menuPreview.onOpenChange}>
-        <View ref={menuPreview.cardRef} collapsable={false}>
+      <DropdownMenu className="relative" onOpenChange={onMenuOpenChange}>
+        <View ref={menuCardRef} collapsable={false}>
           <ZoomLink href={{ pathname: "/wishlists/[id]", params: { id: wishlist.id } }}>
             <AnimatedPressable
               accessibilityRole="button"
               accessibilityLabel={t('Open "{title}"', {
                 title: wishlist.title,
               })}
-              onLongPress={showMenu ? menuPreview.openMenu : undefined}
+              onLongPress={showMenu ? openMenu : undefined}
               onPress={onOpen}
               className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
               pressedScale={0.98}
@@ -570,13 +576,13 @@ function WishlistCard({
         {showMenu ? (
           <DropdownMenuTrigger asChild>
             <AnimatedPressable
-              ref={menuPreview.triggerRef}
+              ref={menuTriggerRef}
               pointerEvents="none"
               className="absolute inset-0 opacity-0"
             />
           </DropdownMenuTrigger>
         ) : null}
-        <DropdownMenuContent backdrop="blur" preview={menuPreview.preview} sideOffset={10}>
+        <DropdownMenuContent backdrop="blur" preview={menuPreview} sideOffset={10}>
           {canEdit ? (
             <DropdownMenuItem
               layout="action"

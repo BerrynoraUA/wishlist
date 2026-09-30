@@ -1,15 +1,14 @@
 import type { TranslateFn } from "@/lib/translate-fn";
 import { normalizeCurrencyCode } from "@wishlist/backend/lib/currencies";
+import { getDateTimeFormat } from "@/lib/intl";
 
 export const SECRET_SANTA_PAGE_SIZE = 20;
 export const MIN_PARTICIPANTS_TO_LAUNCH = 2;
 
 export function formatSecretSantaDate(dateStr: string, locale = "en") {
-  return new Date(`${dateStr}T00:00:00`).toLocaleDateString(locale, {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+  return getDateTimeFormat(locale, { month: "long", day: "numeric", year: "numeric" }).format(
+    new Date(`${dateStr}T00:00:00`),
+  );
 }
 
 export function formatSecretSantaBudget(budget: number, currency: string | null | undefined) {

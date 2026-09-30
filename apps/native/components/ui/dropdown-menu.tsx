@@ -57,6 +57,10 @@ function measureView(view: View) {
   });
 }
 
+/**
+ * Destructure the result: React Compiler treats reading `cardRef` or `triggerRef` off the
+ * returned object during render as a ref access, and skips compiling the whole component.
+ */
 function useDropdownMenuPreview() {
   const cardRef = React.useRef<View>(null);
   const triggerRef = React.useRef<TriggerRef>(null);

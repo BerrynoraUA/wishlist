@@ -12,6 +12,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, Download, Gift, Lock } from "l
 import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
+import { getDateTimeFormat } from "@/lib/intl";
 
 type CalendarCell = {
   key: string;
@@ -67,7 +68,7 @@ export function EventsCalendarSheet({
   const selectedDateLabel = selectedDateKey
     ? formatLongDate(selectedDateKey, locale ?? "en")
     : t("No events selected");
-  const monthLabel = new Intl.DateTimeFormat(locale ?? "en", {
+  const monthLabel = getDateTimeFormat(locale ?? "en", {
     month: "long",
     year: "numeric",
     timeZone: "UTC",
@@ -356,7 +357,7 @@ function toDateKey(value?: string | Date) {
 
 function formatLongDate(dateKey: string, locale: string) {
   const [year, month, day] = dateKey.split("-").map(Number);
-  return new Intl.DateTimeFormat(locale, {
+  return getDateTimeFormat(locale, {
     weekday: "long",
     month: "long",
     day: "numeric",

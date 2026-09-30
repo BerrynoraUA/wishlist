@@ -25,17 +25,23 @@ export function FriendGroupCard({
   onDelete: (group: FriendGroup) => void;
 }) {
   const t = useGT();
-  const menuPreview = useDropdownMenuPreview();
+  const {
+    cardRef: menuCardRef,
+    triggerRef: menuTriggerRef,
+    openMenu,
+    onOpenChange: onMenuOpenChange,
+    preview: menuPreview,
+  } = useDropdownMenuPreview();
   const GroupIcon = getFriendGroupIcon(group.icon);
   const colorClassName = getFriendGroupColorClass(group.color);
 
   return (
-    <DropdownMenu className="relative" onOpenChange={menuPreview.onOpenChange}>
-      <View ref={menuPreview.cardRef} collapsable={false}>
+    <DropdownMenu className="relative" onOpenChange={onMenuOpenChange}>
+      <View ref={menuCardRef} collapsable={false}>
         <AnimatedPressable
           accessibilityRole="button"
           accessibilityLabel={t("Group actions")}
-          onLongPress={menuPreview.openMenu}
+          onLongPress={openMenu}
           pressedScale={0.98}
           className="rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm"
         >
@@ -70,7 +76,7 @@ export function FriendGroupCard({
               accessibilityLabel={t("Group actions")}
               onPress={(event) => {
                 event.stopPropagation();
-                void menuPreview.openMenu();
+                void openMenu();
               }}
               className="size-10 items-center justify-center rounded-full active:bg-bg-muted"
             >
@@ -81,12 +87,12 @@ export function FriendGroupCard({
       </View>
       <DropdownMenuTrigger asChild>
         <AnimatedPressable
-          ref={menuPreview.triggerRef}
+          ref={menuTriggerRef}
           pointerEvents="none"
           className="absolute inset-0 opacity-0"
         />
       </DropdownMenuTrigger>
-      <DropdownMenuContent backdrop="blur" preview={menuPreview.preview} sideOffset={10}>
+      <DropdownMenuContent backdrop="blur" preview={menuPreview} sideOffset={10}>
         <DropdownMenuItem layout="action" onPress={() => onEdit(group)}>
           <Text className="flex-1">{t("Edit")}</Text>
           <Icon as={Pencil} className="ms-auto size-4 text-text-muted" />

@@ -8,6 +8,9 @@ const fixture = vi.hoisted(() => ({
   loading: false,
   filtersActive: false,
   itemsCount: 0,
+  closedSheetRender: vi.fn(),
+  editSheetRender: vi.fn(),
+  onEditWishlist: undefined as (() => void) | undefined,
 }));
 
 vi.mock("expo-router", () => ({
@@ -26,7 +29,7 @@ vi.mock("@/hooks/use-user", () => ({ useCurrentUserId: () => ({ data: "viewer" }
 vi.mock("@/hooks/use-own-reservations", () => ({ useShowOwnReservations: () => false }));
 vi.mock("@/hooks/use-pro-gate", () => ({ useProGate: () => ({}) }));
 vi.mock("@/hooks/use-wishlists", () => ({
-  useWishlistById: () => ({ data: { items_count: fixture.itemsCount } }),
+  useWishlistById: () => ({ data: { items_count: fixture.itemsCount, is_owner: true } }),
 }));
 vi.mock("@/hooks/use-items", () => ({
   useInfiniteWishlistItems: () => ({ isLoading: fixture.loading }),
@@ -46,8 +49,13 @@ vi.mock("@/components/user-guide/user-guide-provider", () => ({
 }));
 vi.mock("@/components/ui/slide-out-filter-panel", () => ({ useSlideOutPanel: () => ({}) }));
 vi.mock("@/components/ui/styled-flash-list", () => ({
-  StyledFlashList: ({ ListFooterComponent }: { ListFooterComponent: ReactNode }) =>
+  StyledFlashList: ({
+    ListHeaderComponent,
     ListFooterComponent,
+  }: {
+    ListHeaderComponent: ReactNode;
+    ListFooterComponent: ReactNode;
+  }) => createElement("div", null, ListHeaderComponent, ListFooterComponent),
 }));
 vi.mock("@/components/shared/inline-state", () => ({
   InlineState: ({
@@ -73,7 +81,10 @@ vi.mock("@/components/wishlist-details/wishlist-item-filter-bar", () => ({
   wishlistItemFilterBarHasActiveFilters: () => fixture.filtersActive,
 }));
 vi.mock("@/components/wishlist-details/wishlist-item-header", () => ({
-  WishlistItemHeader: () => null,
+  WishlistItemHeader: ({ onEdit }: { onEdit?: () => void }) => {
+    fixture.onEditWishlist = onEdit;
+    return null;
+  },
 }));
 vi.mock("@/components/wishlist-details/wishlist-item-card", () => ({
   WishlistItemCard: () => null,
@@ -82,31 +93,58 @@ vi.mock("@/components/wishlists/wishlist-grid-animations", () => ({
   wishlistCardFadeIn: undefined,
 }));
 vi.mock("@/components/wishlist-details/sheets/wishlist-item-delete-sheet", () => ({
-  WishlistItemDeleteSheet: () => null,
+  WishlistItemDeleteSheet: () => {
+    fixture.closedSheetRender();
+    return null;
+  },
 }));
 vi.mock("@/components/wishlist-details/sheets/wishlist-item-detail-sheet", () => ({
-  WishlistItemDetailSheet: () => null,
+  WishlistItemDetailSheet: () => {
+    fixture.closedSheetRender();
+    return null;
+  },
 }));
 vi.mock("@/components/wishlist-details/sheets/wishlist-item-create-edit-sheet", () => ({
-  WishlistItemCreateEditSheet: () => null,
+  WishlistItemCreateEditSheet: () => {
+    fixture.closedSheetRender();
+    return null;
+  },
 }));
 vi.mock("@/components/wishlist-details/sheets/save-item-to-wishlists-sheet", () => ({
-  SaveItemToWishlistsSheet: () => null,
+  SaveItemToWishlistsSheet: () => {
+    fixture.closedSheetRender();
+    return null;
+  },
 }));
 vi.mock("@/components/wishlists/sheets/wishlist-delete-sheet", () => ({
-  WishlistDeleteSheet: () => null,
+  WishlistDeleteSheet: () => {
+    fixture.closedSheetRender();
+    return null;
+  },
 }));
 vi.mock("@/components/wishlists/sheets/wishlist-create-edit-sheet", () => ({
-  WishlistCreateEditSheet: () => null,
+  WishlistCreateEditSheet: (props: { open: boolean; onOpenChange: (open: boolean) => void }) => {
+    fixture.editSheetRender(props);
+    return null;
+  },
 }));
 vi.mock("@/components/wishlists/sheets/share-feedback-sheet", () => ({
-  ShareFeedbackSheet: () => null,
+  ShareFeedbackSheet: () => {
+    fixture.closedSheetRender();
+    return null;
+  },
 }));
 vi.mock("@/components/wishlists/sheets/wishlist-share-sheet", () => ({
-  WishlistShareSheet: () => null,
+  WishlistShareSheet: () => {
+    fixture.closedSheetRender();
+    return null;
+  },
 }));
 vi.mock("@/components/wishlists/sheets/wishlist-grant-access-sheet", () => ({
-  WishlistGrantAccessSheet: () => null,
+  WishlistGrantAccessSheet: () => {
+    fixture.closedSheetRender();
+    return null;
+  },
 }));
 
 describe("wishlist empty-state pointer during native transitions", () => {
@@ -118,6 +156,8 @@ describe("wishlist empty-state pointer during native transitions", () => {
     fixture.loading = false;
     fixture.filtersActive = false;
     fixture.itemsCount = 0;
+    vi.clearAllMocks();
+    fixture.onEditWishlist = undefined;
     container = document.createElement("div");
     root = createRoot(container);
   });
@@ -131,6 +171,25 @@ describe("wishlist empty-state pointer during native transitions", () => {
   function pointer() {
     return container.querySelector("[data-pointer]")?.getAttribute("data-pointer");
   }
+
+  it("does not initialize closed action sheets while opening the page", () => {
+    render();
+    expect(fixture.closedSheetRender).not.toHaveBeenCalled();
+    expect(fixture.editSheetRender).not.toHaveBeenCalled();
+  });
+
+  it("mounts only the requested sheet and supports reopening after dismissal", () => {
+    render();
+    act(() => fixture.onEditWishlist?.());
+    expect(fixture.closedSheetRender).not.toHaveBeenCalled();
+    expect(fixture.editSheetRender).toHaveBeenCalledWith(expect.objectContaining({ open: true }));
+    const { onOpenChange } = fixture.editSheetRender.mock.lastCall![0];
+    act(() => onOpenChange(false));
+    fixture.editSheetRender.mockClear();
+    act(() => fixture.onEditWishlist?.());
+    expect(fixture.editSheetRender).toHaveBeenCalledWith(expect.objectContaining({ open: true }));
+    expect(fixture.closedSheetRender).not.toHaveBeenCalled();
+  });
 
   it("renders a cached empty wishlist's arrow inside its screen without waiting for a transition", () => {
     render();

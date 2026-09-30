@@ -93,6 +93,54 @@ function AnimatedPressable({
   ...props
 }: AnimatedPressableProps) {
   const rippleColor = useCSSVariable("--color-brand-alpha-12");
+  const ripple =
+    android_ripple ??
+    (process.env.EXPO_OS === "android"
+      ? { color: typeof rippleColor === "string" ? rippleColor : undefined, foreground: true }
+      : undefined);
+
+  // Android presses give ripple feedback only, so there is nothing to animate. Skipping the
+  // shared values and animated style keeps each of the many pressables on a screen cheap to
+  // mount, which is most of what a screen push waits on.
+  if (pressedOpacity === 1 && pressedScale === 1) {
+    return (
+      <Pressable
+        ref={ref}
+        onLongPress={onLongPress}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        style={style}
+        android_ripple={ripple}
+        {...props}
+      />
+    );
+  }
+
+  return (
+    <FeedbackPressable
+      ref={ref}
+      onLongPress={onLongPress}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+      pressedOpacity={pressedOpacity}
+      pressedScale={pressedScale}
+      android_ripple={ripple}
+      style={style}
+      {...props}
+    />
+  );
+}
+
+function FeedbackPressable({
+  ref,
+  onLongPress,
+  onPressIn,
+  onPressOut,
+  pressedOpacity,
+  pressedScale,
+  style,
+  ...props
+}: AnimatedPressableProps) {
   const { animatedStyle, handleLongPress, handlePressIn, handlePressOut } =
     useAnimatedPressFeedback({
       disabled: props.disabled,
@@ -110,12 +158,6 @@ function AnimatedPressable({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       style={[style, animatedStyle]}
-      android_ripple={
-        android_ripple ??
-        (process.env.EXPO_OS === "android"
-          ? { color: typeof rippleColor === "string" ? rippleColor : undefined, foreground: true }
-          : undefined)
-      }
       {...props}
     />
   );

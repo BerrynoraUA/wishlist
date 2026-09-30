@@ -35,18 +35,24 @@ export function SecretSantaEventCard({
 }) {
   const t = useGT();
   const locale = useLocale();
-  const menuPreview = useDropdownMenuPreview();
+  const {
+    cardRef: menuCardRef,
+    triggerRef: menuTriggerRef,
+    openMenu,
+    onOpenChange: onMenuOpenChange,
+    preview: menuPreview,
+  } = useDropdownMenuPreview();
   const showMenu = event.is_owner && Boolean(onEdit || onDelete);
 
   return (
     <View style={{ width }}>
-      <DropdownMenu className="relative" onOpenChange={menuPreview.onOpenChange}>
-        <View ref={menuPreview.cardRef} collapsable={false}>
+      <DropdownMenu className="relative" onOpenChange={onMenuOpenChange}>
+        <View ref={menuCardRef} collapsable={false}>
           <ZoomLink href={href}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={t('Open "{name}"', { name: event.name })}
-              onLongPress={showMenu ? menuPreview.openMenu : undefined}
+              onLongPress={showMenu ? openMenu : undefined}
               className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm active:scale-[0.99]"
             >
               <View
@@ -115,13 +121,13 @@ export function SecretSantaEventCard({
         {showMenu ? (
           <DropdownMenuTrigger asChild>
             <Pressable
-              ref={menuPreview.triggerRef}
+              ref={menuTriggerRef}
               pointerEvents="none"
               className="absolute inset-0 opacity-0"
             />
           </DropdownMenuTrigger>
         ) : null}
-        <DropdownMenuContent backdrop="blur" preview={menuPreview.preview} sideOffset={10}>
+        <DropdownMenuContent backdrop="blur" preview={menuPreview} sideOffset={10}>
           {onEdit ? (
             <DropdownMenuItem layout="action" onPress={onEdit}>
               <Text className="flex-1">{t("Edit")}</Text>

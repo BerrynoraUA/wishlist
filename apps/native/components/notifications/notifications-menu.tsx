@@ -21,6 +21,7 @@ import { useGT } from "gt-react-native";
 import { Bell, Check, Trash2, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Image, View } from "react-native";
+import { getDateTimeFormat } from "@/lib/intl";
 
 type InviteAction = "accept" | "decline";
 const DOUBLE_TAP_DELAY_MS = 320;
@@ -60,10 +61,7 @@ function formatNotificationTime(
   const diffDays = Math.floor(diffHours / 24);
   if (diffDays < 7) return t("{n}d ago", { n: diffDays });
 
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+  return getDateTimeFormat(undefined, { month: "short", day: "numeric" }).format(date);
 }
 
 export function NotificationsMenu({

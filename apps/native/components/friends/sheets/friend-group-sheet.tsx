@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sliding-option-selector";
 import { useFriendGroupMembers, useInfiniteFriends } from "@/hooks/use-friends";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
+import { errorMessage } from "@/lib/errors";
 import { FRIEND_GROUP_ICON_OPTIONS } from "@/lib/friend-groups";
 import { NATIVE_ACCENTS } from "@/lib/theme";
 import { cn } from "@/lib/utils";
@@ -113,17 +114,19 @@ export function FriendGroupSheet({
     if (!trimmedName) return;
 
     setError(null);
+    // Built outside the try: React Compiler cannot compile `||` inside a try/catch.
+    const values = {
+      name: trimmedName,
+      description: description.trim() || null,
+      color,
+      icon,
+      memberIds: members.map((member) => member.id),
+    };
     try {
-      await onSubmit({
-        name: trimmedName,
-        description: description.trim() || null,
-        color,
-        icon,
-        memberIds: members.map((member) => member.id),
-      });
+      await onSubmit(values);
       handleClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("Failed to save group."));
+      setError(errorMessage(err, t("Failed to save group.")));
     }
   }
 
