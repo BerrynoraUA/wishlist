@@ -1,3 +1,4 @@
+import { detailScreenAnimation } from "@/lib/motion";
 import { Stack } from "expo-router";
 
 export default function WishlistsStackLayout() {
@@ -9,8 +10,8 @@ export default function WishlistsStackLayout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="discover" options={{ animation: "fade" }} />
-      <Stack.Screen name="[id]" options={{ animation: "fade" }} />
+      <Stack.Screen name="discover" options={{ animation: detailScreenAnimation }} />
+      <Stack.Screen name="[id]" options={{ animation: detailScreenAnimation }} />
     </Stack>
   );
 }

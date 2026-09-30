@@ -1,7 +1,12 @@
 import { hapticSelection } from "@/lib/haptics";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { GuideTarget } from "@/components/user-guide/guide-target";
-import { motionSpring, useReducedMotion } from "@/lib/motion";
+import {
+  liquidStretch,
+  liquidStretchTransform,
+  motionSpring,
+  useReducedMotion,
+} from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as React from "react";
 import { View, type LayoutChangeEvent } from "react-native";
@@ -82,6 +87,7 @@ export function SlidingOptionSelector<T>({
       : 0;
   const indicatorX = useSharedValue(0);
   const indicatorY = useSharedValue(0);
+  const indicatorStretch = useSharedValue(0);
   const didPositionIndicator = React.useRef(false);
 
   React.useEffect(() => {
@@ -100,12 +106,28 @@ export function SlidingOptionSelector<T>({
       return;
     }
 
+    // Only a real move between options gets the droplet, not a re-layout in place.
+    if (targetX !== indicatorX.value || targetY !== indicatorY.value) {
+      indicatorStretch.value = liquidStretch();
+    }
     indicatorX.value = withSpring(targetX, motionSpring.navPill);
     indicatorY.value = withSpring(targetY, motionSpring.navPill);
-  }, [indicatorX, indicatorY, optionHeight, reduceMotion, selectedOptionWidth, selectedPosition]);
+  }, [
+    indicatorX,
+    indicatorY,
+    indicatorStretch,
+    optionHeight,
+    reduceMotion,
+    selectedOptionWidth,
+    selectedPosition,
+  ]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorX.value }, { translateY: indicatorY.value }],
+    transform: [
+      { translateX: indicatorX.value },
+      { translateY: indicatorY.value },
+      ...liquidStretchTransform(indicatorStretch.value),
+    ],
   }));
 
   function handleLayout(event: LayoutChangeEvent) {

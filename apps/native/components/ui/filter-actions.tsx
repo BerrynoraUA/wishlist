@@ -1,8 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import {
+  GLASS_CAPSULE_STYLE,
+  GlassCapsuleSlot,
+  HAS_LIQUID_GLASS,
+} from "@/components/ui/liquid-glass";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
+import { cn } from "@/lib/utils";
+import { GlassView } from "expo-glass-effect";
 import { SlidersHorizontal, X } from "lucide-react-native";
-import { View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import Animated, { FadeIn, FadeOut, Keyframe } from "react-native-reanimated";
 
 const resetButtonEntering = new Keyframe({
@@ -44,6 +51,34 @@ export function FilterActions({
 }) {
   const reduceMotion = useReducedMotion();
 
+  // iOS 26: while filters are active the clear button joins the filter button's glass
+  // capsule, which grows to hold both and shrinks back when they are cleared.
+  if (HAS_LIQUID_GLASS) {
+    return (
+      <GlassView isInteractive style={[GLASS_CAPSULE_STYLE, styles.glassRow]}>
+        <GlassCapsuleSlot
+          visible={active}
+          accessibilityLabel={clearAccessibilityLabel}
+          onPress={onReset}
+        >
+          <Icon as={X} className="size-5 text-destructive" />
+        </GlassCapsuleSlot>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={filterAccessibilityLabel}
+          accessibilityState={{ expanded: open }}
+          onPress={() => onOpenChange(!open)}
+          className="size-11 items-center justify-center"
+        >
+          <Icon
+            as={SlidersHorizontal}
+            className={cn("size-5", open ? "text-brand" : "text-text")}
+          />
+        </Pressable>
+      </GlassView>
+    );
+  }
+
   return (
     <View className="relative -m-1 flex-row items-center gap-1 rounded-full p-1">
       {active ? (
@@ -84,3 +119,7 @@ export function FilterActions({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  glassRow: { flexDirection: "row", alignItems: "center" },
+});

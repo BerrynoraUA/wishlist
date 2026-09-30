@@ -3,7 +3,7 @@ import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheet
 import { WishlistDeleteSheet } from "@/components/wishlists/sheets/wishlist-delete-sheet";
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import * as React from "react";
 import { View, useWindowDimensions } from "react-native";
 import {
@@ -26,7 +26,6 @@ type SheetState =
 
 export default function WishlistsScreen() {
   const t = useGT();
-  const router = useRouter();
   const { width } = useWindowDimensions();
   const feed = useWishlistFeed(width);
   const completeOpenDiscoverStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.openDiscover);
@@ -55,10 +54,7 @@ export default function WishlistsScreen() {
               visibility={feed.visibility}
               sort={feed.sort}
               onResetFilters={feed.handleResetFilters}
-              onOpenDiscover={() => {
-                completeOpenDiscoverStep();
-                router.push("/wishlists/discover" as never);
-              }}
+              onOpenDiscover={completeOpenDiscoverStep}
               filtersOpen={filtersOpen}
               onFiltersOpenChange={setFiltersOpen}
             />

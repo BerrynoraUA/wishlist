@@ -12,10 +12,18 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { FilterActions } from "@/components/ui/filter-actions";
 import {
+  GLASS_CAPSULE_STYLE,
+  GLASS_MERGE_SPACING,
+  GlassCapsuleSlot,
+  HAS_LIQUID_GLASS,
+  MorphingGlassButton,
+} from "@/components/ui/liquid-glass";
+import {
   SlideOutFilterPanel,
   WISHLIST_FILTER_PANEL_HEIGHT,
 } from "@/components/ui/slide-out-filter-panel";
 import { Text } from "@/components/ui/text";
+import { ZoomLink } from "@/components/ui/zoom-link";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import {
   DEFAULT_WISHLIST_SORT,
@@ -23,31 +31,23 @@ import {
   getWishlistVisibilityOptions,
 } from "@/lib/wishlists";
 import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
-import { motionDuration, useReducedMotion } from "@/lib/motion";
+import { useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { GlassContainer, GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { GlassContainer, GlassView } from "expo-glass-effect";
+import { useRouter } from "expo-router";
 import { Bell, ChevronsUpDown, Search, SlidersHorizontal, Sparkles, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import Animated, {
-  type SharedValue,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
+import type { SharedValue } from "react-native-reanimated";
 
-const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
-const GLASS_CAPSULE_STYLE = { borderRadius: 9999 };
 /** Glass background behind a control that draws its own shape. */
 const PILL_GLASS_STYLE = [StyleSheet.absoluteFill, GLASS_CAPSULE_STYLE];
 /** Clears an outline button's own fill so the glass behind it shows. */
 const GLASS_PILL_CLASS = "border-transparent bg-transparent dark:bg-transparent";
-/** Distance at which neighbouring glass shapes start to melt into each other. */
-const GLASS_MERGE_SPACING = 12;
 
 const styles = StyleSheet.create({
-  glassGroup: { flexDirection: "row", alignItems: "center", gap: 8 },
+  glassGroup: { flexDirection: "row", alignItems: "center" },
   row: { flexDirection: "row" },
 });
 
@@ -68,94 +68,83 @@ export function WishlistFilterBar({
   visibility: string[];
   sort: string;
   onResetFilters: () => void;
+  /** Runs as Discover opens; the bar does the navigating. */
   onOpenDiscover: () => void;
   filtersOpen: boolean;
   onFiltersOpenChange: (open: boolean) => void;
 }) {
   const t = useGT();
-  const reduceMotion = useReducedMotion();
+  const router = useRouter();
   const { data: unreadCount = 0 } = useUnreadNotificationsCount();
   const canResetFilters =
     search.trim() !== "" || visibility.length > 0 || sort !== DEFAULT_WISHLIST_SORT;
-  const resetIconProgress = useSharedValue(canResetFilters ? 1 : 0);
-  const resetIconStyle = useAnimatedStyle(() => ({ opacity: resetIconProgress.value }));
-
-  React.useEffect(() => {
-    resetIconProgress.value = withTiming(canResetFilters ? 1 : 0, {
-      duration: reduceMotion ? 0 : motionDuration.fast,
-    });
-  }, [canResetFilters, reduceMotion, resetIconProgress]);
 
   // iOS 26: the controls behave like system bar buttons. Each sits on interactive liquid
-  // glass (it flexes and glows under the finger), filter + notifications share one capsule,
-  // and the clear button materializes out of that capsule inside a glass container.
+  // glass (it flexes and glows under the finger) and Discover zooms open out of its own
+  // button. The right capsule groups whatever belongs together: filter + notifications at
+  // rest; once filters are active, clear + filter, with notifications splitting off into
+  // their own button (and melting back in when the filters are cleared).
   if (HAS_LIQUID_GLASS) {
     return (
       <View className="flex-row items-center justify-between gap-3">
         <GuideTarget id="wishlists-discover">
           <GlassView isInteractive style={GLASS_CAPSULE_STYLE}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t("Discover")}
-              onPress={onOpenDiscover}
-              className="h-11 flex-row items-center gap-1.5 px-4"
-            >
-              <Icon as={Sparkles} className="size-[18px] text-brand" />
-              <Text className="text-[17px] font-semibold text-brand">{t("Discover")}</Text>
-            </Pressable>
+            <ZoomLink href="/wishlists/discover">
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t("Discover")}
+                onPress={onOpenDiscover}
+                className="h-11 flex-row items-center gap-1.5 px-4"
+              >
+                <Icon as={Sparkles} className="size-[18px] text-brand" />
+                <Text className="text-[17px] font-semibold text-brand">{t("Discover")}</Text>
+              </Pressable>
+            </ZoomLink>
           </GlassView>
         </GuideTarget>
         <View>
-          <GlassContainer spacing={GLASS_MERGE_SPACING} style={styles.glassGroup}>
-            <GlassView
-              isInteractive
-              glassEffectStyle={{
-                style: canResetFilters ? "regular" : "none",
-                animate: !reduceMotion,
-              }}
-              pointerEvents={canResetFilters ? "auto" : "none"}
-              accessibilityElementsHidden={!canResetFilters}
-              importantForAccessibility={canResetFilters ? "auto" : "no-hide-descendants"}
-              style={GLASS_CAPSULE_STYLE}
-            >
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={t("Clear filters")}
-                onPress={onResetFilters}
-                className="size-11 items-center justify-center"
-              >
-                <Animated.View style={resetIconStyle}>
-                  <Icon as={X} className="size-5 text-destructive" />
-                </Animated.View>
-              </Pressable>
-            </GlassView>
-            <GlassView isInteractive style={[GLASS_CAPSULE_STYLE, styles.row]}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={t("Show filters")}
-                accessibilityState={{ expanded: filtersOpen }}
-                onPress={() => onFiltersOpenChange(!filtersOpen)}
-                className="size-11 items-center justify-center"
-              >
-                <Icon
-                  as={SlidersHorizontal}
-                  className={cn("size-5", filtersOpen ? "text-brand" : "text-text")}
-                />
-              </Pressable>
-              <NotificationsMenu
-                trigger={(onOpen) => (
+          <NotificationsMenu
+            trigger={(onOpenNotifications) => (
+              <GlassContainer spacing={GLASS_MERGE_SPACING} style={styles.glassGroup}>
+                <GlassView isInteractive style={[GLASS_CAPSULE_STYLE, styles.row]}>
+                  <GlassCapsuleSlot
+                    visible={canResetFilters}
+                    accessibilityLabel={t("Clear filters")}
+                    onPress={onResetFilters}
+                  >
+                    <Icon as={X} className="size-5 text-destructive" />
+                  </GlassCapsuleSlot>
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={t("Notifications")}
-                    onPress={onOpen}
+                    accessibilityLabel={t("Show filters")}
+                    accessibilityState={{ expanded: filtersOpen }}
+                    onPress={() => onFiltersOpenChange(!filtersOpen)}
                     className="size-11 items-center justify-center"
                   >
-                    <Icon as={Bell} className="size-5 text-text" />
+                    <Icon
+                      as={SlidersHorizontal}
+                      className={cn("size-5", filtersOpen ? "text-brand" : "text-text")}
+                    />
                   </Pressable>
-                )}
-              />
-            </GlassView>
-          </GlassContainer>
+                  <GlassCapsuleSlot
+                    visible={!canResetFilters}
+                    accessibilityLabel={t("Notifications")}
+                    onPress={onOpenNotifications}
+                  >
+                    <Icon as={Bell} className="size-5 text-text" />
+                  </GlassCapsuleSlot>
+                </GlassView>
+                <MorphingGlassButton
+                  visible={canResetFilters}
+                  placement="after"
+                  accessibilityLabel={t("Notifications")}
+                  onPress={onOpenNotifications}
+                >
+                  <Icon as={Bell} className="size-5 text-text" />
+                </MorphingGlassButton>
+              </GlassContainer>
+            )}
+          />
           {/* Outside the glass so the capsule's shape doesn't clip it. */}
           {unreadCount > 0 ? (
             <View
@@ -178,7 +167,10 @@ export function WishlistFilterBar({
         <AnimatedGradientBackgroundButton
           accessibilityLabel={t("Discover")}
           Icon={<Icon as={Sparkles} className="size-4 text-brand" />}
-          onPress={onOpenDiscover}
+          onPress={() => {
+            onOpenDiscover();
+            router.push("/wishlists/discover");
+          }}
           title={t("Discover")}
           variant="brand"
         />
@@ -218,6 +210,10 @@ export function WishlistFilterPanel({
   progress: SharedValue<number>;
 }) {
   const t = useGT();
+  const reduceMotion = useReducedMotion();
+  // The pills' glass materializes as the panel opens and dissolves as it closes, rather
+  // than only fading with the panel: UIKit doesn't render glass correctly under partial alpha.
+  const pillGlass = { style: open ? "regular" : "none", animate: !reduceMotion } as const;
   const sortOptions = React.useMemo(() => getWishlistSortOptions(t), [t]);
   const visibilityOptions = React.useMemo(() => getWishlistVisibilityOptions(t), [t]);
 
@@ -232,19 +228,16 @@ export function WishlistFilterPanel({
         : t("{count} selected", { count: visibility.length });
 
   return (
-    <SlideOutFilterPanel
-      open={open}
-      progress={progress}
-      className="pb-4 pt-1"
-      maxHeight={WISHLIST_FILTER_PANEL_HEIGHT}
-    >
+    <SlideOutFilterPanel open={open} progress={progress} maxHeight={WISHLIST_FILTER_PANEL_HEIGHT}>
       <View
         className={cn(
           "w-full flex-row items-center gap-1 rounded-full px-2 ps-3",
           !HAS_LIQUID_GLASS && "border border-border-subtle bg-card-bg shadow-sm",
         )}
       >
-        {HAS_LIQUID_GLASS ? <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} /> : null}
+        {HAS_LIQUID_GLASS ? (
+          <GlassView pointerEvents="none" glassEffectStyle={pillGlass} style={PILL_GLASS_STYLE} />
+        ) : null}
         <Icon as={Search} className="size-4 text-muted-foreground/50" />
         <Input
           value={search}
@@ -283,7 +276,11 @@ export function WishlistFilterPanel({
                 )}
               >
                 {HAS_LIQUID_GLASS ? (
-                  <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+                  <GlassView
+                    pointerEvents="none"
+                    glassEffectStyle={pillGlass}
+                    style={PILL_GLASS_STYLE}
+                  />
                 ) : null}
                 <Text
                   className={cn(
@@ -336,7 +333,11 @@ export function WishlistFilterPanel({
                 )}
               >
                 {HAS_LIQUID_GLASS ? (
-                  <GlassView pointerEvents="none" style={PILL_GLASS_STYLE} />
+                  <GlassView
+                    pointerEvents="none"
+                    glassEffectStyle={pillGlass}
+                    style={PILL_GLASS_STYLE}
+                  />
                 ) : null}
                 <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                   {selectedSortLabel}

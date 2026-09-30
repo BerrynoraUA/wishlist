@@ -192,7 +192,6 @@ export default function DiscoverScreen() {
           <SlideOutFilterPanel
             open={filtersOpen}
             progress={filtersProgress}
-            className="pb-4 pt-1"
             maxHeight={ITEM_FILTER_PANEL_HEIGHT}
           >
             <DiscoverFiltersPanel

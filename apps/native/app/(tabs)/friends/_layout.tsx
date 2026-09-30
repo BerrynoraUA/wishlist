@@ -1,3 +1,4 @@
+import { detailScreenAnimation } from "@/lib/motion";
 import { Stack } from "expo-router";
 
 export default function FriendsStackLayout() {
@@ -9,8 +10,8 @@ export default function FriendsStackLayout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="[id]" options={{ animation: "fade" }} />
-      <Stack.Screen name="wishlist/[id]" options={{ animation: "fade" }} />
+      <Stack.Screen name="[id]" options={{ animation: detailScreenAnimation }} />
+      <Stack.Screen name="wishlist/[id]" options={{ animation: detailScreenAnimation }} />
     </Stack>
   );
 }

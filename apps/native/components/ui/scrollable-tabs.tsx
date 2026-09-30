@@ -2,7 +2,12 @@ import { hapticSelection } from "@/lib/haptics";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Text } from "@/components/ui/text";
 import { GuideTarget } from "@/components/user-guide/guide-target";
-import { motionSpring, useReducedMotion } from "@/lib/motion";
+import {
+  liquidStretch,
+  liquidStretchTransform,
+  motionSpring,
+  useReducedMotion,
+} from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import * as React from "react";
@@ -51,6 +56,8 @@ export function ScrollableTabs<T>({
   const indicatorX = useSharedValue(0);
   const indicatorWidth = useSharedValue(0);
   const indicatorReady = useSharedValue(0);
+  const indicatorStretch = useSharedValue(0);
+  const indicatorTargetRef = React.useRef<number | null>(null);
 
   const moveIndicator = React.useCallback(
     (animated: boolean) => {
@@ -62,13 +69,16 @@ export function ScrollableTabs<T>({
       if (animated && indicatorReady.value === 1 && !reduceMotion) {
         indicatorX.value = withSpring(layout.x, motionSpring.navPill);
         indicatorWidth.value = withSpring(layout.width, motionSpring.navPill);
+        // Only a real move between tabs gets the droplet, not a re-measure in place.
+        if (indicatorTargetRef.current !== layout.x) indicatorStretch.value = liquidStretch();
       } else {
         indicatorX.value = layout.x;
         indicatorWidth.value = layout.width;
       }
+      indicatorTargetRef.current = layout.x;
       indicatorReady.value = 1;
     },
-    [value, reduceMotion, indicatorX, indicatorWidth, indicatorReady],
+    [value, reduceMotion, indicatorX, indicatorWidth, indicatorReady, indicatorStretch],
   );
 
   const scrollToActiveTab = React.useCallback(
@@ -93,7 +103,10 @@ export function ScrollableTabs<T>({
   }, [scrollToActiveTab, moveIndicator]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorX.value }],
+    transform: [
+      { translateX: indicatorX.value },
+      ...liquidStretchTransform(indicatorStretch.value),
+    ],
     width: indicatorWidth.value,
     opacity: indicatorReady.value,
   }));

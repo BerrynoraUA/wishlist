@@ -11,8 +11,15 @@ import Animated, {
 } from "react-native-reanimated";
 
 const FILTER_PANEL_FALLBACK_HEIGHT = 220;
-export const WISHLIST_FILTER_PANEL_HEIGHT = 120;
-export const ITEM_FILTER_PANEL_HEIGHT = 176;
+/**
+ * Space between the row that opens a panel and the panel's first control. Whatever follows
+ * the panel keeps its own 16pt gap below it, so the panel sits evenly between the two.
+ */
+const SLIDE_OUT_PANEL_GAP = 16;
+/** Gap + two 44pt rows 12pt apart. */
+export const WISHLIST_FILTER_PANEL_HEIGHT = SLIDE_OUT_PANEL_GAP + 44 * 2 + 12;
+/** Gap + three 44pt rows 12pt apart. */
+export const ITEM_FILTER_PANEL_HEIGHT = SLIDE_OUT_PANEL_GAP + 44 * 3 + 12 * 2;
 
 const OPEN_DURATION = 240;
 const CLOSE_DURATION = 200;
@@ -83,7 +90,9 @@ export function SlideOutFilterPanel({
       importantForAccessibility={open ? "auto" : "no-hide-descendants"}
     >
       <Animated.View style={contentStyle}>
-        <View className={cn("gap-3", className)}>{children}</View>
+        <View className={cn("gap-3", className)} style={{ paddingTop: SLIDE_OUT_PANEL_GAP }}>
+          {children}
+        </View>
       </Animated.View>
     </Animated.View>
   );

@@ -16,6 +16,7 @@ import { SlideOutSpacer } from "@/components/ui/slide-out-filter-panel";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
+import { ZoomLink } from "@/components/ui/zoom-link";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import {
   useUserGuideStepCompletion,
@@ -33,7 +34,6 @@ import {
 } from "@/lib/wishlists";
 import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
-import { Link } from "expo-router";
 import {
   Gift,
   Link2,
@@ -492,7 +492,7 @@ function WishlistCard({
     <Animated.View entering={wishlistCardFadeIn} style={{ width }}>
       <DropdownMenu className="relative" onOpenChange={menuPreview.onOpenChange}>
         <View ref={menuPreview.cardRef} collapsable={false}>
-          <Link href={{ pathname: "/wishlists/[id]", params: { id: wishlist.id } }} asChild>
+          <ZoomLink href={{ pathname: "/wishlists/[id]", params: { id: wishlist.id } }}>
             <AnimatedPressable
               accessibilityRole="button"
               accessibilityLabel={t('Open "{title}"', {
@@ -565,7 +565,7 @@ function WishlistCard({
                 </View>
               </View>
             </AnimatedPressable>
-          </Link>
+          </ZoomLink>
         </View>
         {showMenu ? (
           <DropdownMenuTrigger asChild>

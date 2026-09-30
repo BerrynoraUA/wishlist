@@ -11,14 +11,13 @@ const IS_IOS = Platform.OS === "ios";
  * navigation bar: a 44pt bar starting right under the status bar, controls centered in it.
  */
 const HEADER_TOP_GAP = IS_IOS ? 0 : SCROLLABLE_TABS_TOP_GAP;
-/** Vertical padding between the header content and the bottom edge of the bar. */
-const HEADER_BOTTOM_GAP = IS_IOS ? 0 : 16;
 /** Height of one tab/filter row, used to estimate list padding before first layout. */
 const HEADER_ROW_HEIGHT = 44;
-/** Vertical gap between stacked header rows (matches the `gap-4` content wrapper). */
+/**
+ * The one vertical rhythm of the header: between stacked rows (the `gap-4` wrapper), from
+ * the last row to an open panel (`SLIDE_OUT_PANEL_GAP`), and from either to the list.
+ */
 const HEADER_ROW_GAP = 16;
-/** Space between the bar and the list's first content, like a standard layout margin. */
-const IOS_HEADER_CONTENT_GAP = 16;
 
 /**
  * List top padding for screens using `PinnedListHeader`. Starts from an estimate so
@@ -28,21 +27,15 @@ const IOS_HEADER_CONTENT_GAP = 16;
  */
 export function usePinnedListHeaderPadding(estimatedRows = 1) {
   const insets = useSafeAreaInsets();
-  const listContentGap = IS_IOS ? IOS_HEADER_CONTENT_GAP : 0;
   const [height, setHeight] = React.useState(
     insets.top +
       HEADER_TOP_GAP +
       estimatedRows * HEADER_ROW_HEIGHT +
-      (estimatedRows - 1) * HEADER_ROW_GAP +
-      HEADER_BOTTOM_GAP +
-      listContentGap,
+      estimatedRows * HEADER_ROW_GAP,
   );
-  const onHeaderLayout = React.useCallback(
-    (event: LayoutChangeEvent) => {
-      setHeight(event.nativeEvent.layout.height + listContentGap);
-    },
-    [listContentGap],
-  );
+  const onHeaderLayout = React.useCallback((event: LayoutChangeEvent) => {
+    setHeight(event.nativeEvent.layout.height + HEADER_ROW_GAP);
+  }, []);
 
   return { paddingTop: height, onHeaderLayout };
 }
@@ -74,20 +67,21 @@ export function PinnedListHeader({
 
   return (
     <View className="absolute inset-x-0 top-0 z-10">
+      {/* Both run past the header by the list's top gap, so they clear content at rest. */}
       {HAS_LIQUID_GLASS ? (
-        // Runs past the header by the list's top gap, so it fully clears content at rest.
         <View
           pointerEvents="none"
           className="absolute inset-x-0 top-0 bg-linear-to-b from-bg from-50% to-bg/0"
-          style={{ bottom: -IOS_HEADER_CONTENT_GAP }}
+          style={{ bottom: -HEADER_ROW_GAP }}
         />
       ) : (
-        <View pointerEvents="none" className="absolute inset-0 bg-bg" />
+        <View
+          pointerEvents="none"
+          className="absolute inset-x-0 top-0 bg-bg"
+          style={{ bottom: -HEADER_ROW_GAP }}
+        />
       )}
-      <View
-        style={{ paddingTop: insets.top + HEADER_TOP_GAP, paddingBottom: HEADER_BOTTOM_GAP }}
-        onLayout={onLayout}
-      >
+      <View style={{ paddingTop: insets.top + HEADER_TOP_GAP }} onLayout={onLayout}>
         <View
           className="gap-4 self-center"
           style={contentWidth !== undefined ? { width: contentWidth } : undefined}
