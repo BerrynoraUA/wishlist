@@ -13,12 +13,12 @@ function Skeleton({ className, ...props }: React.ComponentProps<typeof View>) {
   const sv = useSharedValue(1);
 
   React.useEffect(() => {
-    sv.value = withRepeat(withTiming(0.5, { duration: motionDuration.loading }), -1, true);
+    sv.set(withRepeat(withTiming(0.5, { duration: motionDuration.loading }), -1, true));
   }, []);
 
   const style = useAnimatedStyle(
     () => ({
-      opacity: sv.value,
+      opacity: sv.get(),
     }),
     [sv],
   );

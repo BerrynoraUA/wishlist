@@ -42,6 +42,7 @@ import {
 } from "@/hooks/use-items";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { useWishlistById } from "@/hooks/use-wishlists";
+import { errorMessage } from "@/lib/errors";
 import {
   DEFAULT_ITEM_SORT,
   ITEM_PRIORITY_LOOKUP,
@@ -72,6 +73,11 @@ const EMPTY_FILTERS: WishlistItemFilterState = {
   sort: DEFAULT_ITEM_SORT,
 };
 
+const SHARE_BASE_URL = (process.env.EXPO_PUBLIC_WEB_URL ?? "https://wishlane.net").replace(
+  /\/$/,
+  "",
+);
+
 type SheetState =
   | { type: "edit"; item: Item }
   | { type: "detail"; item: Item }
@@ -87,6 +93,7 @@ type WishlistItemListRow = Item[];
 export default function WishlistDetailScreen() {
   const t = useGT();
   const router = useRouter();
+  const screenRef = React.useRef<View>(null);
   const { isGated, openPaywall } = useProGate();
   const insets = useSafeAreaInsets();
   const paddingBottom = useTabBarContentPadding();
@@ -153,6 +160,11 @@ export default function WishlistDetailScreen() {
   const toggleVote = useToggleItemVote(itemIds);
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
+  // The mutation results get a new identity once their observers subscribe after mount;
+  // depending on them re-rendered every item row right as the screen was opening.
+  const { mutate: mutateVote } = toggleVote;
+  const { mutate: mutateReservation, isPending: reservationPending } = toggleReservation;
+  const { mutate: mutateBought, isPending: boughtPending } = toggleBought;
   const completeShareStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.shareWishlist);
   const completeManageAccessStep = useUserGuideStepCompletion(
     USER_GUIDE_STEP_IDS.manageWishlistAccess,
@@ -203,11 +215,7 @@ export default function WishlistDetailScreen() {
     if (!wishlist) return;
     try {
       const token = await createWishlistShareToken(wishlist.id);
-      const baseUrl = (process.env.EXPO_PUBLIC_WEB_URL ?? "https://wishlane.net").replace(
-        /\/$/,
-        "",
-      );
-      const link = `${baseUrl}/share?token=${encodeURIComponent(token)}`;
+      const link = `${SHARE_BASE_URL}/share?token=${encodeURIComponent(token)}`;
       setShareWishlist(wishlist);
       setShareLink(link);
       setShareGuideCompletionPending(true);
@@ -215,7 +223,7 @@ export default function WishlistDetailScreen() {
       setShareFeedback({
         variant: "error",
         title: t("Share failed"),
-        description: error instanceof Error ? error.message : t("Could not create share link."),
+        description: errorMessage(error, t("Could not create share link.")),
       });
       setShareGuideCompletionPending(false);
     }
@@ -284,9 +292,7 @@ export default function WishlistDetailScreen() {
       <WishlistItemHeader
         wishlist={wishlist}
         isOwner={wishlist.is_owner}
-        onEdit={
-          canEditWishlist ? () => setSheet({ type: "editWishlist", wishlist }) : undefined
-        }
+        onEdit={canEditWishlist ? () => setSheet({ type: "editWishlist", wishlist }) : undefined}
         onDelete={
           wishlist.is_owner ? () => setSheet({ type: "deleteWishlist", wishlist }) : undefined
         }
@@ -333,11 +339,7 @@ export default function WishlistDetailScreen() {
         }}
       >
         {item.map((entry) => (
-          <Animated.View
-            key={entry.id}
-            entering={wishlistCardFadeIn}
-            style={{ width: cardWidth }}
-          >
+          <Animated.View key={entry.id} entering={wishlistCardFadeIn} style={{ width: cardWidth }}>
             <WishlistItemCard
               item={entry}
               width={cardWidth}
@@ -355,12 +357,12 @@ export default function WishlistDetailScreen() {
               onDelete={
                 canEditWishlist ? () => setSheet({ type: "delete", item: entry }) : undefined
               }
-              onToggleVote={canEditWishlist ? undefined : () => toggleVote.mutate(entry.id)}
+              onToggleVote={canEditWishlist ? undefined : () => mutateVote(entry.id)}
               // Owners included: you can mark your own gift reserved or bought.
-              onToggleReserve={() => toggleReservation.mutate(entry.id)}
-              onToggleBought={() => toggleBought.mutate(entry.id)}
-              reservePending={toggleReservation.isPending}
-              boughtPending={toggleBought.isPending}
+              onToggleReserve={() => mutateReservation(entry.id)}
+              onToggleBought={() => mutateBought(entry.id)}
+              reservePending={reservationPending}
+              boughtPending={boughtPending}
             />
           </Animated.View>
         ))}
@@ -375,9 +377,11 @@ export default function WishlistDetailScreen() {
       profileNamesById,
       showDiscountBadge,
       showOwnerReservation,
-      toggleVote,
-      toggleReservation,
-      toggleBought,
+      mutateVote,
+      mutateReservation,
+      mutateBought,
+      reservationPending,
+      boughtPending,
       votesQuery.data,
     ],
   );
@@ -394,7 +398,7 @@ export default function WishlistDetailScreen() {
   return (
     <>
       <Stack.Screen options={{ title: wishlist?.title ?? t("Wishlist") }} />
-      <View className="flex-1 bg-bg">
+      <View ref={screenRef} collapsable={false} className="flex-1 bg-bg">
         {wishlistQuery.isLoading ? (
           <View className="flex-1 px-4 pt-6">
             <DetailSkeleton width={contentWidth} />
@@ -437,6 +441,7 @@ export default function WishlistDetailScreen() {
                         : t("No items yet.")
                     }
                     pointToCreateButton={!(filtersActive && hasAnyItems)}
+                    pointerScreenRef={screenRef}
                   />
                 ) : null}
               </View>
@@ -449,96 +454,114 @@ export default function WishlistDetailScreen() {
           />
         )}
         <FloatingBackButton />
-        <WishlistItemCreateEditSheet
-          mode="edit"
-          wishlistId={wishlistId}
-          item={sheet?.type === "edit" ? sheet.item : undefined}
-          open={sheet?.type === "edit"}
-          onOpenChange={(open) => {
-            if (!open) setSheet(null);
-          }}
-        />
-        <WishlistCreateEditSheet
-          mode="edit"
-          open={sheet?.type === "editWishlist"}
-          wishlist={sheet?.type === "editWishlist" ? sheet.wishlist : undefined}
-          onOpenChange={(open) => {
-            if (!open) setSheet(null);
-          }}
-        />
-        <WishlistDeleteSheet
-          wishlist={sheet?.type === "deleteWishlist" ? sheet.wishlist : null}
-          onOpenChange={(open) => {
-            if (!open) setSheet(null);
-          }}
-          onDeleted={() => router.replace("/wishlists")}
-        />
-        <WishlistGrantAccessSheet
-          open={sheet?.type === "grantAccess"}
-          wishlistId={sheet?.type === "grantAccess" ? sheet.wishlist.id : ""}
-          wishlistTitle={sheet?.type === "grantAccess" ? sheet.wishlist.title : ""}
-          onOpenChange={(open) => {
-            if (!open) {
-              setSheet(null);
-            }
-          }}
-        />
-        <ShareFeedbackSheet
-          feedback={shareFeedback}
-          onOpenChange={(open) => {
-            if (!open) {
-              setShareFeedback(null);
-            }
-          }}
-        />
-        <WishlistShareSheet
-          wishlist={shareWishlist}
-          link={shareLink}
-          onOpenChange={(open) => {
-            if (!open) {
-              const shouldCompleteShareStep = shareGuideCompletionPending;
-
-              setShareWishlist(null);
-              setShareLink(null);
-              setShareGuideCompletionPending(false);
-
-              if (shouldCompleteShareStep) {
-                completeShareStep();
+        {sheet?.type === "edit" ? (
+          <WishlistItemCreateEditSheet
+            mode="edit"
+            wishlistId={wishlistId}
+            item={sheet?.type === "edit" ? sheet.item : undefined}
+            open={sheet?.type === "edit"}
+            onOpenChange={(open) => {
+              if (!open) setSheet(null);
+            }}
+          />
+        ) : null}
+        {sheet?.type === "editWishlist" ? (
+          <WishlistCreateEditSheet
+            mode="edit"
+            open={sheet?.type === "editWishlist"}
+            wishlist={sheet?.type === "editWishlist" ? sheet.wishlist : undefined}
+            onOpenChange={(open) => {
+              if (!open) setSheet(null);
+            }}
+          />
+        ) : null}
+        {sheet?.type === "deleteWishlist" ? (
+          <WishlistDeleteSheet
+            wishlist={sheet?.type === "deleteWishlist" ? sheet.wishlist : null}
+            onOpenChange={(open) => {
+              if (!open) setSheet(null);
+            }}
+            onDeleted={() => router.replace("/wishlists")}
+          />
+        ) : null}
+        {sheet?.type === "grantAccess" ? (
+          <WishlistGrantAccessSheet
+            open={sheet?.type === "grantAccess"}
+            wishlistId={sheet?.type === "grantAccess" ? sheet.wishlist.id : ""}
+            wishlistTitle={sheet?.type === "grantAccess" ? sheet.wishlist.title : ""}
+            onOpenChange={(open) => {
+              if (!open) {
+                setSheet(null);
               }
+            }}
+          />
+        ) : null}
+        {shareFeedback !== null ? (
+          <ShareFeedbackSheet
+            feedback={shareFeedback}
+            onOpenChange={(open) => {
+              if (!open) {
+                setShareFeedback(null);
+              }
+            }}
+          />
+        ) : null}
+        {shareWishlist !== null && shareLink !== null ? (
+          <WishlistShareSheet
+            wishlist={shareWishlist}
+            link={shareLink}
+            onOpenChange={(open) => {
+              if (!open) {
+                const shouldCompleteShareStep = shareGuideCompletionPending;
+
+                setShareWishlist(null);
+                setShareLink(null);
+                setShareGuideCompletionPending(false);
+
+                if (shouldCompleteShareStep) {
+                  completeShareStep();
+                }
+              }
+            }}
+          />
+        ) : null}
+        {sheet?.type === "detail" ? (
+          <WishlistItemDetailSheet
+            item={sheet?.type === "detail" ? sheet.item : null}
+            currentUserId={currentUser.data}
+            isOwner={canEditWishlist}
+            showOwnerReservation={showOwnerReservation}
+            reservedByName={
+              sheet?.type === "detail" && sheet.item.reserved_by
+                ? profileNamesById.get(sheet.item.reserved_by)
+                : undefined
             }
-          }}
-        />
-        <WishlistItemDetailSheet
-          item={sheet?.type === "detail" ? sheet.item : null}
-          currentUserId={currentUser.data}
-          isOwner={canEditWishlist}
-          showOwnerReservation={showOwnerReservation}
-          reservedByName={
-            sheet?.type === "detail" && sheet.item.reserved_by
-              ? profileNamesById.get(sheet.item.reserved_by)
-              : undefined
-          }
-          reservePending={toggleReservation.isPending}
-          boughtPending={toggleBought.isPending}
-          onClose={() => setSheet(null)}
-          onEdit={canEditWishlist ? (item) => setSheet({ type: "edit", item }) : undefined}
-          onDelete={canEditWishlist ? (item) => setSheet({ type: "delete", item }) : undefined}
-          onSaveToWishlist={
-            canEditWishlist ? undefined : (item) => setSheet({ type: "save", item })
-          }
-          onToggleReserve={handleToggleSelectedReservation}
-          onToggleBought={handleToggleSelectedBought}
-        />
-        <SaveItemToWishlistsSheet
-          item={sheet?.type === "save" ? sheet.item : null}
-          onClose={() => setSheet(null)}
-        />
-        <WishlistItemDeleteSheet
-          item={sheet?.type === "delete" ? sheet.item : null}
-          onOpenChange={(open) => {
-            if (!open) setSheet(null);
-          }}
-        />
+            reservePending={toggleReservation.isPending}
+            boughtPending={toggleBought.isPending}
+            onClose={() => setSheet(null)}
+            onEdit={canEditWishlist ? (item) => setSheet({ type: "edit", item }) : undefined}
+            onDelete={canEditWishlist ? (item) => setSheet({ type: "delete", item }) : undefined}
+            onSaveToWishlist={
+              canEditWishlist ? undefined : (item) => setSheet({ type: "save", item })
+            }
+            onToggleReserve={handleToggleSelectedReservation}
+            onToggleBought={handleToggleSelectedBought}
+          />
+        ) : null}
+        {sheet?.type === "save" ? (
+          <SaveItemToWishlistsSheet
+            item={sheet?.type === "save" ? sheet.item : null}
+            onClose={() => setSheet(null)}
+          />
+        ) : null}
+        {sheet?.type === "delete" ? (
+          <WishlistItemDeleteSheet
+            item={sheet?.type === "delete" ? sheet.item : null}
+            onOpenChange={(open) => {
+              if (!open) setSheet(null);
+            }}
+          />
+        ) : null}
       </View>
     </>
   );

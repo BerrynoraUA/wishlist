@@ -32,7 +32,8 @@ import type { Item } from "@wishlist/backend/types/item";
 import { Stack } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View, useWindowDimensions } from "react-native";
+import { type TextInput, View, useWindowDimensions } from "react-native";
+import { resetFilters } from "@/lib/reset-filters";
 import { CardGridSkeleton } from "@/components/ui/list-skeletons";
 
 type DiscoverRow =
@@ -50,13 +51,17 @@ export default function DiscoverScreen() {
   const { user } = useAuth();
   const { width } = useWindowDimensions();
   const feed = useDiscoverFeed();
+  const searchInputRef = React.useRef<TextInput>(null);
+  const priceMinInputRef = React.useRef<TextInput>(null);
+  const priceMaxInputRef = React.useRef<TextInput>(null);
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
   const {
     open: filtersOpen,
     setOpen: setFiltersOpen,
     progress: filtersProgress,
-  } = useSlideOutPanel();
+    height: filtersHeight,
+  } = useSlideOutPanel(false, ITEM_FILTER_PANEL_HEIGHT);
   const [selection, setSelection] = React.useState<SelectedDiscoverItem | null>(null);
   const { requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
@@ -189,13 +194,12 @@ export default function DiscoverScreen() {
         contentWidth={contentWidth}
         onLayout={onHeaderLayout}
         panel={
-          <SlideOutFilterPanel
-            open={filtersOpen}
-            progress={filtersProgress}
-            className="pb-4 pt-1"
-            maxHeight={ITEM_FILTER_PANEL_HEIGHT}
-          >
+          <SlideOutFilterPanel open={filtersOpen} progress={filtersProgress} height={filtersHeight}>
             <DiscoverFiltersPanel
+              searchInputRef={searchInputRef}
+              priceMinInputRef={priceMinInputRef}
+              priceMaxInputRef={priceMaxInputRef}
+              open={filtersOpen}
               search={feed.search}
               priorityIds={feed.priorityIds}
               priceMin={feed.priceMin}
@@ -216,7 +220,13 @@ export default function DiscoverScreen() {
               filtersOpen={filtersOpen}
               filtersActive={feed.filtersActive}
               onFiltersOpenChange={setFiltersOpen}
-              onResetFilters={feed.resetFilters}
+              onResetFilters={() =>
+                resetFilters(feed.resetFilters, [
+                  searchInputRef.current,
+                  priceMinInputRef.current,
+                  priceMaxInputRef.current,
+                ])
+              }
             />
             <View className="min-w-0 flex-1">
               <DiscoverTabs
@@ -242,9 +252,7 @@ export default function DiscoverScreen() {
         onEndReached={feed.loadMore}
         isLoadingMore={feed.activeQuery.isFetchingNextPage}
         getItemType={(row) => ("type" in row ? row.type : "discover-section")}
-        ListHeaderComponent={
-          <SlideOutSpacer progress={filtersProgress} height={ITEM_FILTER_PANEL_HEIGHT} />
-        }
+        ListHeaderComponent={<SlideOutSpacer progress={filtersProgress} height={filtersHeight} />}
         ListFooterComponent={
           <View className="gap-4 self-center" style={{ width: contentWidth }}>
             {feed.activeQuery.isLoading ? (

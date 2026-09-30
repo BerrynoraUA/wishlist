@@ -1,5 +1,4 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -9,16 +8,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { SearchClearButton } from "@/components/ui/search-clear-button";
 import { FilterActions } from "@/components/ui/filter-actions";
+import { GLASS_PILL_CLASS, HAS_LIQUID_GLASS, PanelPillGlass } from "@/components/ui/liquid-glass";
 import { Text } from "@/components/ui/text";
 import { PriorityFilterIcon } from "@/components/items/item-labels";
 import { useSettings } from "@/hooks/use-settings";
 import { getItemPriority, getItemPriorityOptions } from "@/lib/items";
 import { cn } from "@/lib/utils";
-import { ChevronsUpDown, Search, X } from "lucide-react-native";
+import { ChevronsUpDown, Search } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View } from "react-native";
+import { type TextInput, View } from "react-native";
 
 export function DiscoverFilterActions({
   filtersOpen,
@@ -45,7 +46,12 @@ export function DiscoverFilterActions({
   );
 }
 
+/** On iOS 26 the controls sit on liquid glass, like the Wishlists filter panel. */
 export function DiscoverFiltersPanel({
+  searchInputRef,
+  priceMinInputRef,
+  priceMaxInputRef,
+  open,
   search,
   priorityIds,
   priceMin,
@@ -57,6 +63,11 @@ export function DiscoverFiltersPanel({
   onPriceMaxChange,
   onSortChange,
 }: {
+  /** Whether the panel is open; the glass materializes with it. */
+  open: boolean;
+  searchInputRef: React.RefObject<TextInput | null>;
+  priceMinInputRef: React.RefObject<TextInput | null>;
+  priceMaxInputRef: React.RefObject<TextInput | null>;
   search: string;
   priorityIds: string[];
   priceMin: string;
@@ -90,26 +101,27 @@ export function DiscoverFiltersPanel({
 
   return (
     <View className="gap-3">
-      <View className="w-full flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 ps-3 shadow-sm">
+      <View
+        className={cn(
+          "w-full flex-row items-center gap-1 rounded-full ps-3",
+          !HAS_LIQUID_GLASS &&
+            "border border-border-subtle bg-card-bg shadow-sm android:border-transparent android:bg-bg-muted android:shadow-none",
+        )}
+      >
+        {HAS_LIQUID_GLASS ? <PanelPillGlass open={open} /> : null}
         <Icon as={Search} className="size-4 text-muted-foreground/50" />
         <Input
+          ref={searchInputRef}
           value={search}
           onChangeText={onSearchChange}
           placeholder={t("Search gifts or wishlists")}
-          className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
+          className={cn(
+            "h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent android:h-12",
+            search.length === 0 && "pe-3",
+          )}
           returnKeyType="search"
         />
-        {search.length > 0 ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            accessibilityLabel={t("Clear search")}
-            onPress={() => onSearchChange("")}
-            className="size-9 shrink-0 rounded-full"
-          >
-            <Icon as={X} className="size-4 text-text-muted" />
-          </Button>
-        ) : null}
+        {search.length > 0 ? <SearchClearButton onPress={() => onSearchChange("")} /> : null}
       </View>
 
       <View className="w-full flex-row items-stretch gap-2">
@@ -118,12 +130,15 @@ export function DiscoverFiltersPanel({
             <DropdownMenuTrigger asChild>
               <AnimatedPressable
                 className={cn(
-                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
-                  priorityIds.length > 0
-                    ? "border-brand bg-brand-lighter"
-                    : "border-border-subtle bg-card-bg",
+                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3 android:h-12 android:overflow-hidden",
+                  HAS_LIQUID_GLASS
+                    ? GLASS_PILL_CLASS
+                    : priorityIds.length > 0
+                      ? "border-brand bg-brand-lighter"
+                      : "border-border-subtle bg-card-bg",
                 )}
               >
+                {HAS_LIQUID_GLASS ? <PanelPillGlass open={open} /> : null}
                 <Text
                   className={cn(
                     "shrink text-sm font-semibold text-text",
@@ -167,7 +182,15 @@ export function DiscoverFiltersPanel({
         <View className="min-w-0 flex-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <AnimatedPressable className="h-11 w-full flex-row items-center justify-between gap-2 rounded-full border border-border-subtle bg-card-bg px-3 dark:bg-card-bg">
+              <AnimatedPressable
+                className={cn(
+                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3 android:h-12 android:overflow-hidden",
+                  HAS_LIQUID_GLASS
+                    ? GLASS_PILL_CLASS
+                    : "border-border-subtle bg-card-bg dark:bg-card-bg",
+                )}
+              >
+                {HAS_LIQUID_GLASS ? <PanelPillGlass open={open} /> : null}
                 <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                   {sortLabel}
                 </Text>
@@ -186,27 +209,58 @@ export function DiscoverFiltersPanel({
       </View>
 
       <View className="flex-row gap-2">
-        <Input
+        <PriceInput
+          ref={priceMinInputRef}
+          open={open}
           value={priceMin}
           onChangeText={onPriceMinChange}
-          keyboardType="decimal-pad"
           placeholder={t("Min price")}
-          className={cn(
-            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
-            priceMin.trim() && "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
-          )}
         />
-        <Input
+        <PriceInput
+          ref={priceMaxInputRef}
+          open={open}
           value={priceMax}
           onChangeText={onPriceMaxChange}
-          keyboardType="decimal-pad"
           placeholder={t("Max price")}
-          className={cn(
-            "h-11 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
-            priceMax.trim() && "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
-          )}
         />
       </View>
+    </View>
+  );
+}
+
+function PriceInput({
+  ref,
+  open,
+  value,
+  onChangeText,
+  placeholder,
+}: {
+  ref: React.Ref<TextInput>;
+  open: boolean;
+  value: string;
+  onChangeText: (value: string) => void;
+  placeholder: string;
+}) {
+  const active = value.trim() !== "";
+
+  return (
+    <View className="min-w-0 flex-1">
+      {HAS_LIQUID_GLASS ? <PanelPillGlass open={open} /> : null}
+      <Input
+        ref={ref}
+        value={value}
+        onChangeText={onChangeText}
+        keyboardType="decimal-pad"
+        placeholder={placeholder}
+        className={cn(
+          "h-11 rounded-full android:h-12 android:shadow-none",
+          HAS_LIQUID_GLASS
+            ? cn(GLASS_PILL_CLASS, active && "text-brand")
+            : active
+              ? "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter"
+              : "border-border-subtle bg-card-bg dark:bg-card-bg",
+        )}
+      />
     </View>
   );
 }

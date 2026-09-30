@@ -59,8 +59,8 @@ export function useWishlistSelectedAccess({
   const wishlistId = wishlist?.id ?? "";
   const panelVisible = visibility === WishlistVisibility.SelectedFriends && canManage;
   const panelAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: panelOpacity.value,
-    transform: [{ translateY: panelTranslateY.value }, { scaleY: panelScaleY.value }],
+    opacity: panelOpacity.get(),
+    transform: [{ translateY: panelTranslateY.get() }, { scaleY: panelScaleY.get() }],
   }));
 
   // The host sheet renders `null` while closed but still runs this hook, so queries stay
@@ -198,18 +198,18 @@ export function useWishlistSelectedAccess({
   React.useEffect(() => {
     if (panelVisible) {
       setPanelMounted(true);
-      panelOpacity.value = 0;
-      panelTranslateY.value = -14;
-      panelScaleY.value = 0.94;
-      panelOpacity.value = withTiming(1, { duration: motionDuration.normal });
-      panelTranslateY.value = withTiming(0, { duration: motionDuration.normal });
-      panelScaleY.value = withTiming(1, { duration: motionDuration.normal });
+      panelOpacity.set(0);
+      panelTranslateY.set(-14);
+      panelScaleY.set(0.94);
+      panelOpacity.set(withTiming(1, { duration: motionDuration.normal }));
+      panelTranslateY.set(withTiming(0, { duration: motionDuration.normal }));
+      panelScaleY.set(withTiming(1, { duration: motionDuration.normal }));
       return;
     }
 
-    panelOpacity.value = withTiming(0, { duration: motionDuration.normal });
-    panelTranslateY.value = withTiming(-14, { duration: motionDuration.normal });
-    panelScaleY.value = withTiming(0.94, { duration: motionDuration.normal });
+    panelOpacity.set(withTiming(0, { duration: motionDuration.normal }));
+    panelTranslateY.set(withTiming(-14, { duration: motionDuration.normal }));
+    panelScaleY.set(withTiming(0.94, { duration: motionDuration.normal }));
 
     const timeoutId = setTimeout(() => {
       setPanelMounted(false);

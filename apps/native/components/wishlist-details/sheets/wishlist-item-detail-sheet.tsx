@@ -406,15 +406,8 @@ export function WishlistItemDetailSheet({
                 as={ShoppingCart}
                 className={canUndoPurchase ? "size-4 text-destructive" : "size-4 text-buy"}
               />
-              <Text
-                numberOfLines={1}
-                className={canUndoPurchase ? "text-destructive" : "text-buy"}
-              >
-                {canUndoPurchase
-                  ? t("Undo")
-                  : reservation.isPurchased
-                    ? t("Purchased")
-                    : t("Buy")}
+              <Text numberOfLines={1} className={canUndoPurchase ? "text-destructive" : "text-buy"}>
+                {canUndoPurchase ? t("Undo") : reservation.isPurchased ? t("Purchased") : t("Buy")}
               </Text>
             </Button>
           ) : null}

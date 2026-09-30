@@ -47,21 +47,23 @@ export const AnimatedScrollingButton = ({
   const isActive = useSharedValue(false);
 
   useEffect(() => {
-    scrollTransition.value = withTiming(currentStep, {
-      duration: SCROLL_TRANSITION_DURATION,
-    });
+    scrollTransition.set(
+      withTiming(currentStep, {
+        duration: SCROLL_TRANSITION_DURATION,
+      }),
+    );
 
     return () => {
       cancelAnimation(scrollTransition);
     };
-  }, [currentStep, scrollTransition.value, scrollTransition]);
+  }, [currentStep, scrollTransition]);
 
   const animatedScrollingContainerStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(backgroundTransition.value, [0, 1], [1, 0.9]),
+    opacity: interpolate(backgroundTransition.get(), [0, 1], [1, 0.9]),
     transform: [
       {
         translateY: interpolate(
-          scrollTransition.value,
+          scrollTransition.get(),
           [0, steps.length - 1],
           [-HEIGHT * (steps.length - 1), 0],
         ),
@@ -82,26 +84,26 @@ export const AnimatedScrollingButton = ({
       hitSlop={16}
       onPress={onPress}
       onPressIn={() => {
-        isActive.value = true;
-        backgroundTransition.value = withTiming(
-          1,
-          { duration: BACKGROUND_TRANSITION_DURATION },
-          () => {
+        isActive.set(true);
+        backgroundTransition.set(
+          withTiming(1, { duration: BACKGROUND_TRANSITION_DURATION }, () => {
             if (!isActive.value) {
               backgroundTransition.value = withTiming(0, {
                 duration: BACKGROUND_TRANSITION_DURATION,
               });
             }
-          },
+          }),
         );
       }}
       onPressOut={() => {
-        if (backgroundTransition.value === 1) {
-          backgroundTransition.value = withTiming(0, {
-            duration: BACKGROUND_TRANSITION_DURATION,
-          });
+        if (backgroundTransition.get() === 1) {
+          backgroundTransition.set(
+            withTiming(0, {
+              duration: BACKGROUND_TRANSITION_DURATION,
+            }),
+          );
         }
-        isActive.value = false;
+        isActive.set(false);
       }}
     >
       {({ pressed }) => (

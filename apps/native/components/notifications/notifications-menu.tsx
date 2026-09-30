@@ -21,6 +21,7 @@ import { useGT } from "gt-react-native";
 import { Bell, Check, Trash2, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Image, View } from "react-native";
+import { getDateTimeFormat } from "@/lib/intl";
 
 type InviteAction = "accept" | "decline";
 const DOUBLE_TAP_DELAY_MS = 320;
@@ -60,13 +61,15 @@ function formatNotificationTime(
   const diffDays = Math.floor(diffHours / 24);
   if (diffDays < 7) return t("{n}d ago", { n: diffDays });
 
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+  return getDateTimeFormat(undefined, { month: "short", day: "numeric" }).format(date);
 }
 
-export function NotificationsMenu() {
+export function NotificationsMenu({
+  trigger,
+}: {
+  /** Replaces the default bell button, e.g. to place it inside a shared glass capsule. */
+  trigger?: (state: { onOpen: () => void; open: boolean }) => React.ReactNode;
+}) {
   const t = useGT();
   const [open, setOpen] = React.useState(false);
   const previousUnreadCountRef = React.useRef<number | null>(null);
@@ -110,23 +113,32 @@ export function NotificationsMenu() {
 
   return (
     <>
-      <AnimatedPressable
-        accessibilityRole="button"
-        accessibilityLabel={t("Notifications")}
-        accessibilityState={{ expanded: open }}
-        hitSlop={8}
-        onPress={() => setOpen(true)}
-        className="size-11 shrink-0 items-center justify-center rounded-full border border-border-subtle bg-card-bg shadow-[0px_8px_18px_rgba(15,23,42,0.18)]"
-      >
-        <Icon as={Bell} className="size-5 text-text" />
+      <View>
+        {trigger ? (
+          trigger({ onOpen: () => setOpen(true), open })
+        ) : (
+          <AnimatedPressable
+            accessibilityRole="button"
+            accessibilityLabel={t("Notifications")}
+            accessibilityState={{ expanded: open }}
+            hitSlop={8}
+            onPress={() => setOpen(true)}
+            className="size-11 shrink-0 items-center justify-center rounded-full border border-border-subtle bg-card-bg shadow-[0px_8px_18px_rgba(15,23,42,0.18)] android:size-12 android:overflow-hidden android:border-transparent android:bg-bg-muted android:shadow-none"
+          >
+            <Icon as={Bell} className="size-5 text-text" />
+          </AnimatedPressable>
+        )}
         {unreadCount > 0 ? (
-          <View className="absolute -end-1 -top-1 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5">
+          <View
+            pointerEvents="none"
+            className="absolute -end-1 -top-1 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5"
+          >
             <Text className="text-[10px] font-extrabold leading-3 text-white">
               {unreadCount > 99 ? "99+" : unreadCount}
             </Text>
           </View>
         ) : null}
-      </AnimatedPressable>
+      </View>
 
       <NotificationsSheet
         open={open}

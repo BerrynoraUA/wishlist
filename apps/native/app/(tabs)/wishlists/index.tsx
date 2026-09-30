@@ -3,9 +3,10 @@ import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheet
 import { WishlistDeleteSheet } from "@/components/wishlists/sheets/wishlist-delete-sheet";
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import * as React from "react";
-import { View, useWindowDimensions } from "react-native";
+import { type TextInput, View, useWindowDimensions } from "react-native";
+import { resetFilters } from "@/lib/reset-filters";
 import {
   useSlideOutPanel,
   WISHLIST_FILTER_PANEL_HEIGHT,
@@ -26,16 +27,17 @@ type SheetState =
 
 export default function WishlistsScreen() {
   const t = useGT();
-  const router = useRouter();
   const { width } = useWindowDimensions();
   const feed = useWishlistFeed(width);
+  const searchInputRef = React.useRef<TextInput>(null);
   const completeOpenDiscoverStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.openDiscover);
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const {
     open: filtersOpen,
     setOpen: setFiltersOpen,
     progress: filtersProgress,
-  } = useSlideOutPanel();
+    height: filtersHeight,
+  } = useSlideOutPanel(false, WISHLIST_FILTER_PANEL_HEIGHT);
 
   return (
     <>
@@ -54,17 +56,15 @@ export default function WishlistsScreen() {
               search={feed.search}
               visibility={feed.visibility}
               sort={feed.sort}
-              onResetFilters={feed.handleResetFilters}
-              onOpenDiscover={() => {
-                completeOpenDiscoverStep();
-                router.push("/wishlists/discover" as never);
-              }}
+              onResetFilters={() => resetFilters(feed.handleResetFilters, [searchInputRef.current])}
+              onOpenDiscover={completeOpenDiscoverStep}
               filtersOpen={filtersOpen}
               onFiltersOpenChange={setFiltersOpen}
             />
           }
           FilterPanelComponent={
             <WishlistFilterPanel
+              searchInputRef={searchInputRef}
               search={feed.search}
               visibility={feed.visibility}
               sort={feed.sort}
@@ -73,9 +73,10 @@ export default function WishlistsScreen() {
               onSortChange={feed.handleSortChange}
               open={filtersOpen}
               progress={filtersProgress}
+              height={filtersHeight}
             />
           }
-          filterPanel={{ progress: filtersProgress, height: WISHLIST_FILTER_PANEL_HEIGHT }}
+          filterPanel={{ progress: filtersProgress, height: filtersHeight }}
           ListHeaderComponent={
             <View>
               <WishlistListStatsRow />

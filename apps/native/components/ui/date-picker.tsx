@@ -7,6 +7,7 @@ import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/component
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { getThemeMode } from "@/lib/theme";
+import { getDateTimeFormat } from "@/lib/intl";
 
 type DatePickerRenderProps = {
   displayValue: string;
@@ -56,18 +57,21 @@ export function DatePicker({ value, onChange, children }: DatePickerProps) {
   const locale = useLocale();
   const [iosPickerOpen, setIosPickerOpen] = React.useState(false);
   const [androidPickerOpen, setAndroidPickerOpen] = React.useState(false);
-  const date = React.useMemo(() => parseDateFieldValue(value) ?? new Date(), [value]);
+  const selectedDate = React.useMemo(() => parseDateFieldValue(value), [value]);
+  const date = React.useMemo(() => selectedDate ?? new Date(), [selectedDate]);
   // Past days are greyed out in the calendar: every date here is an upcoming event.
   // A stored date that has already passed opens the calendar on today instead.
   const minimumDate = React.useMemo(() => startOfToday(), []);
   const pickerDate = date < minimumDate ? minimumDate : date;
   const datePickerAccentColor = useCSSVariable("--color-primary") as string | undefined;
+  // Empty without a date: callers show their own placeholder then, and skipping the format
+  // keeps the first `Intl.DateTimeFormat` of the session (tens of ms) off screen pushes.
   const displayValue = React.useMemo(
     () =>
-      `${date.getDate()} ${new Intl.DateTimeFormat(locale ?? "en", {
-        month: "long",
-      }).format(date)} ${date.getFullYear()}`,
-    [date, locale],
+      selectedDate
+        ? `${selectedDate.getDate()} ${getDateTimeFormat(locale ?? "en", { month: "long" }).format(selectedDate)} ${selectedDate.getFullYear()}`
+        : "",
+    [locale, selectedDate],
   );
 
   function handleAndroidValueChange(_: DateTimePickerChangeEvent, selectedDate: Date) {

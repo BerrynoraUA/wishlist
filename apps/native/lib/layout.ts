@@ -1,9 +1,9 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export const NAV_TAB_BAR_HEIGHT = 58;
+export const NAV_TAB_BAR_HEIGHT = process.env.EXPO_OS === "android" ? 60 : 58;
 export const NAV_TAB_BAR_BACKDROP_OFFSET = 4;
 /** Headroom above the pill so the raised Create button can overhang it. */
-export const NAV_TAB_BAR_FAB_OVERHANG = 14;
+export const NAV_TAB_BAR_FAB_OVERHANG = 18;
 export const NAV_TAB_BAR_TOP_PADDING = NAV_TAB_BAR_FAB_OVERHANG + 4;
 export const NAV_TAB_BAR_MIN_BOTTOM_INSET = 8;
 

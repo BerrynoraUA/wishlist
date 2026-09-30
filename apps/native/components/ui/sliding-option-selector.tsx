@@ -1,7 +1,12 @@
 import { hapticSelection } from "@/lib/haptics";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { GuideTarget } from "@/components/user-guide/guide-target";
-import { motionSpring, useReducedMotion } from "@/lib/motion";
+import {
+  liquidStretch,
+  liquidStretchTransform,
+  motionSpring,
+  useReducedMotion,
+} from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as React from "react";
 import { View, type LayoutChangeEvent } from "react-native";
@@ -82,6 +87,7 @@ export function SlidingOptionSelector<T>({
       : 0;
   const indicatorX = useSharedValue(0);
   const indicatorY = useSharedValue(0);
+  const indicatorStretch = useSharedValue(0);
   const didPositionIndicator = React.useRef(false);
 
   React.useEffect(() => {
@@ -94,18 +100,34 @@ export function SlidingOptionSelector<T>({
     const targetY = selectedPosition.rowIndex * (optionHeight + SLIDING_SELECTOR_GAP);
 
     if (!didPositionIndicator.current || selectedOptionWidth === 0 || reduceMotion) {
-      indicatorX.value = targetX;
-      indicatorY.value = targetY;
+      indicatorX.set(targetX);
+      indicatorY.set(targetY);
       didPositionIndicator.current = selectedOptionWidth > 0;
       return;
     }
 
-    indicatorX.value = withSpring(targetX, motionSpring.navPill);
-    indicatorY.value = withSpring(targetY, motionSpring.navPill);
-  }, [indicatorX, indicatorY, optionHeight, reduceMotion, selectedOptionWidth, selectedPosition]);
+    // Only a real move between options gets the droplet, not a re-layout in place.
+    if (targetX !== indicatorX.get() || targetY !== indicatorY.get()) {
+      indicatorStretch.set(liquidStretch());
+    }
+    indicatorX.set(withSpring(targetX, motionSpring.navPill));
+    indicatorY.set(withSpring(targetY, motionSpring.navPill));
+  }, [
+    indicatorX,
+    indicatorY,
+    indicatorStretch,
+    optionHeight,
+    reduceMotion,
+    selectedOptionWidth,
+    selectedPosition,
+  ]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorX.value }, { translateY: indicatorY.value }],
+    transform: [
+      { translateX: indicatorX.get() },
+      { translateY: indicatorY.get() },
+      ...liquidStretchTransform(indicatorStretch.get()),
+    ],
   }));
 
   function handleLayout(event: LayoutChangeEvent) {
@@ -123,9 +145,10 @@ export function SlidingOptionSelector<T>({
         : 0;
 
     if (!didPositionIndicator.current && nextSelectedOptionWidth > 0) {
-      indicatorX.value =
-        selectedPosition.columnIndex * (nextSelectedOptionWidth + SLIDING_SELECTOR_GAP);
-      indicatorY.value = selectedPosition.rowIndex * (optionHeight + SLIDING_SELECTOR_GAP);
+      indicatorX.set(
+        selectedPosition.columnIndex * (nextSelectedOptionWidth + SLIDING_SELECTOR_GAP),
+      );
+      indicatorY.set(selectedPosition.rowIndex * (optionHeight + SLIDING_SELECTOR_GAP));
       didPositionIndicator.current = true;
     }
 

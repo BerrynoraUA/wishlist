@@ -48,21 +48,23 @@ export const BouncingButton = ({
   useEffect(() => {
     if (isDisabled || isLoading) {
       cancelAnimation(bounceTransition);
-      bounceTransition.value = 0;
+      bounceTransition.set(0);
       return;
     }
 
-    bounceTransition.value = withRepeat(
-      withDelay(
-        BOUNCE_TRANSITION_DELAY,
-        withSequence(
-          withTiming(1, { duration: BOUNCE_TRANSITION_DURATION }),
-          withTiming(0, { duration: BOUNCE_TRANSITION_DURATION }),
-          withTiming(1, { duration: BOUNCE_TRANSITION_DURATION }),
-          withTiming(0, { duration: BOUNCE_TRANSITION_DURATION }),
+    bounceTransition.set(
+      withRepeat(
+        withDelay(
+          BOUNCE_TRANSITION_DELAY,
+          withSequence(
+            withTiming(1, { duration: BOUNCE_TRANSITION_DURATION }),
+            withTiming(0, { duration: BOUNCE_TRANSITION_DURATION }),
+            withTiming(1, { duration: BOUNCE_TRANSITION_DURATION }),
+            withTiming(0, { duration: BOUNCE_TRANSITION_DURATION }),
+          ),
         ),
+        -1,
       ),
-      -1,
     );
 
     return () => {
@@ -71,10 +73,10 @@ export const BouncingButton = ({
   }, [bounceTransition, isDisabled, isLoading]);
 
   const animatedContainerStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(pressTransition.value, [0, 1], [1, 0.9]),
+    opacity: interpolate(pressTransition.get(), [0, 1], [1, 0.9]),
     transform: [
       {
-        scale: interpolate(bounceTransition.value, [0, 1], [1, 1.1]),
+        scale: interpolate(bounceTransition.get(), [0, 1], [1, 1.1]),
       },
     ],
   }));
@@ -92,10 +94,10 @@ export const BouncingButton = ({
       hitSlop={16}
       onPress={onPress}
       onPressIn={() => {
-        pressTransition.value = withTiming(1, { duration: BACKGROUND_TRANSITION_DURATION });
+        pressTransition.set(withTiming(1, { duration: BACKGROUND_TRANSITION_DURATION }));
       }}
       onPressOut={() => {
-        pressTransition.value = withTiming(0, { duration: BACKGROUND_TRANSITION_DURATION });
+        pressTransition.set(withTiming(0, { duration: BACKGROUND_TRANSITION_DURATION }));
       }}
     >
       {({ pressed }) => (

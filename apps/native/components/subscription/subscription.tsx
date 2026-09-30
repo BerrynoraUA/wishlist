@@ -11,6 +11,7 @@ import { ActivityIndicator, ImageBackground, Pressable, View } from "react-nativ
 import { PACKAGE_TYPE, type PurchasesPackage } from "react-native-purchases";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { TranslateFn } from "@/lib/translate-fn";
+import { getDateTimeFormat } from "@/lib/intl";
 
 const background = require("@/assets/images/subscription-premium-bg.jpg");
 
@@ -180,7 +181,7 @@ export function Subscription({
   const isPurchaseDisabled =
     !isConfigured || !selectedPackage || isCurrentSelection || hasExternalSubscription || isBusy;
   const renewalLabel = expiresAt
-    ? new Intl.DateTimeFormat(undefined, {
+    ? getDateTimeFormat(undefined, {
         month: "short",
         day: "numeric",
         year: "numeric",
