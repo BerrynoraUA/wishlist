@@ -33,20 +33,17 @@ import {
   getWishlistSortOptions,
   getWishlistVisibilityOptions,
 } from "@/lib/wishlists";
-import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
 import { cn } from "@/lib/utils";
-import { resetFilters } from "@/lib/reset-filters";
 import { GlassContainer, GlassView } from "expo-glass-effect";
 import { useRouter } from "expo-router";
-import { Bell, ChevronsUpDown, Search, SlidersHorizontal, Sparkles, X } from "lucide-react-native";
+import { Bell, ChevronsUpDown, Search, Sparkles } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, type TextInput, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
 const styles = StyleSheet.create({
   glassGroup: { flexDirection: "row", alignItems: "center" },
-  row: { flexDirection: "row" },
 });
 
 /**
@@ -73,7 +70,6 @@ export function WishlistFilterBar({
 }) {
   const t = useGT();
   const router = useRouter();
-  const { data: unreadCount = 0 } = useUnreadNotificationsCount();
   const canResetFilters =
     search.trim() !== "" || visibility.length > 0 || sort !== DEFAULT_WISHLIST_SORT;
 
@@ -100,61 +96,38 @@ export function WishlistFilterBar({
             </ZoomLink>
           </GlassView>
         </GuideTarget>
-        <View>
-          <NotificationsMenu
-            trigger={(onOpenNotifications) => (
-              <GlassContainer spacing={GLASS_MERGE_SPACING} style={styles.glassGroup}>
-                <GlassView isInteractive style={[GLASS_CAPSULE_STYLE, styles.row]}>
-                  <GlassCapsuleSlot
-                    visible={canResetFilters}
-                    accessibilityLabel={t("Clear filters")}
-                    onPress={() => resetFilters(onResetFilters)}
-                  >
-                    <Icon as={X} className="size-5 text-destructive" />
-                  </GlassCapsuleSlot>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={t("Show filters")}
-                    accessibilityState={{ expanded: filtersOpen }}
-                    onPress={() => onFiltersOpenChange(!filtersOpen)}
-                    className="size-11 items-center justify-center"
-                  >
-                    <Icon
-                      as={SlidersHorizontal}
-                      className={cn("size-5", filtersOpen ? "text-brand" : "text-text")}
-                    />
-                  </Pressable>
-                  <GlassCapsuleSlot
-                    visible={!canResetFilters}
-                    accessibilityLabel={t("Notifications")}
-                    onPress={onOpenNotifications}
-                  >
-                    <Icon as={Bell} className="size-5 text-text" />
-                  </GlassCapsuleSlot>
-                </GlassView>
-                <MorphingGlassButton
-                  visible={canResetFilters}
-                  placement="after"
+        <NotificationsMenu
+          trigger={({ onOpen: onOpenNotifications, open: notificationsOpen }) => (
+            <GlassContainer spacing={GLASS_MERGE_SPACING} style={styles.glassGroup}>
+              <FilterActions
+                active={canResetFilters}
+                open={filtersOpen}
+                filterAccessibilityLabel={t("Show filters")}
+                clearAccessibilityLabel={t("Clear filters")}
+                onOpenChange={onFiltersOpenChange}
+                onReset={onResetFilters}
+              >
+                <GlassCapsuleSlot
+                  visible={!canResetFilters}
                   accessibilityLabel={t("Notifications")}
+                  accessibilityState={{ expanded: notificationsOpen }}
                   onPress={onOpenNotifications}
                 >
                   <Icon as={Bell} className="size-5 text-text" />
-                </MorphingGlassButton>
-              </GlassContainer>
-            )}
-          />
-          {/* Outside the glass so the capsule's shape doesn't clip it. */}
-          {unreadCount > 0 ? (
-            <View
-              pointerEvents="none"
-              className="absolute -end-1 -top-1 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5"
-            >
-              <Text className="text-[10px] font-extrabold leading-3 text-white">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </Text>
-            </View>
-          ) : null}
-        </View>
+                </GlassCapsuleSlot>
+              </FilterActions>
+              <MorphingGlassButton
+                visible={canResetFilters}
+                placement="after"
+                accessibilityLabel={t("Notifications")}
+                accessibilityState={{ expanded: notificationsOpen }}
+                onPress={onOpenNotifications}
+              >
+                <Icon as={Bell} className="size-5 text-text" />
+              </MorphingGlassButton>
+            </GlassContainer>
+          )}
+        />
       </View>
     );
   }
@@ -189,6 +162,7 @@ export function WishlistFilterBar({
 }
 
 export function WishlistFilterPanel({
+  searchInputRef,
   search,
   visibility,
   sort,
@@ -198,6 +172,7 @@ export function WishlistFilterPanel({
   open,
   progress,
 }: {
+  searchInputRef: React.RefObject<TextInput | null>;
   search: string;
   visibility: string[];
   sort: string;
@@ -232,6 +207,7 @@ export function WishlistFilterPanel({
         {HAS_LIQUID_GLASS ? <PanelPillGlass open={open} /> : null}
         <Icon as={Search} className="size-4 text-muted-foreground/50" />
         <Input
+          ref={searchInputRef}
           value={search}
           onChangeText={onSearchChange}
           placeholder={t("Search wishlists...")}

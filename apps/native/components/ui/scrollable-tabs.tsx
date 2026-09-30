@@ -2,6 +2,7 @@ import { hapticSelection } from "@/lib/haptics";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Text } from "@/components/ui/text";
 import { GuideTarget } from "@/components/user-guide/guide-target";
+import { AnimatedGlassView, HAS_LIQUID_GLASS } from "@/components/ui/liquid-glass";
 import {
   liquidStretch,
   liquidStretchTransform,
@@ -9,15 +10,20 @@ import {
   useReducedMotion,
 } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import type { GlassViewProps } from "expo-glass-effect";
 import * as React from "react";
 import { Platform, ScrollView, StyleSheet, View, type LayoutChangeEvent } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import Animated, {
+  type SharedValue,
+  useAnimatedProps,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 // iOS renders a sliding Telegram-style capsule behind the active tab; on iOS 26+ the capsule
 // is layered with a real liquid-glass sheen.
 const IS_IOS = Platform.OS === "ios";
-const HAS_LIQUID_GLASS = isLiquidGlassAvailable();
 const INDICATOR_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 999 }];
 
 /**
@@ -40,12 +46,15 @@ export function ScrollableTabs<T>({
   onChange,
   align = "left",
   className,
+  opacity,
 }: {
   tabs: ScrollableTab<T>[];
   value: T;
   onChange: (value: T) => void;
   align?: "left" | "right";
   className?: string;
+  /** Opacity of an enclosing fade; used to reinstall glass after it becomes visible. */
+  opacity?: SharedValue<number>;
 }) {
   const scrollRef = React.useRef<ScrollView>(null);
   const tabLayoutsRef = React.useRef(new Map<T, { width: number; x: number }>());
@@ -115,6 +124,12 @@ export function ScrollableTabs<T>({
     setViewportWidth(event.nativeEvent.layout.width);
   }
 
+  // UIKit can drop an effect when any ancestor reaches zero alpha. Reset the effect
+  // on the UI thread alongside that fade, including the indicator's initial layout.
+  const glassProps = useAnimatedProps<GlassViewProps>(() => ({
+    glassEffectStyle: indicatorReady.value * (opacity?.value ?? 1) > 0.01 ? "regular" : "none",
+  }));
+
   return (
     <View className={cn("h-11", className)} onLayout={handleViewportLayout}>
       <ScrollView
@@ -140,7 +155,11 @@ export function ScrollableTabs<T>({
             ]}
           >
             {HAS_LIQUID_GLASS ? (
-              <GlassView pointerEvents="none" style={INDICATOR_GLASS_STYLE} />
+              <AnimatedGlassView
+                pointerEvents="none"
+                style={INDICATOR_GLASS_STYLE}
+                animatedProps={glassProps}
+              />
             ) : null}
           </Animated.View>
         ) : null}

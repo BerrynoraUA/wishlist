@@ -32,7 +32,8 @@ import type { Item } from "@wishlist/backend/types/item";
 import { Stack } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View, useWindowDimensions } from "react-native";
+import { type TextInput, View, useWindowDimensions } from "react-native";
+import { resetFilters } from "@/lib/reset-filters";
 import { CardGridSkeleton } from "@/components/ui/list-skeletons";
 
 type DiscoverRow =
@@ -50,6 +51,9 @@ export default function DiscoverScreen() {
   const { user } = useAuth();
   const { width } = useWindowDimensions();
   const feed = useDiscoverFeed();
+  const searchInputRef = React.useRef<TextInput>(null);
+  const priceMinInputRef = React.useRef<TextInput>(null);
+  const priceMaxInputRef = React.useRef<TextInput>(null);
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
   const {
@@ -195,6 +199,9 @@ export default function DiscoverScreen() {
             maxHeight={ITEM_FILTER_PANEL_HEIGHT}
           >
             <DiscoverFiltersPanel
+              searchInputRef={searchInputRef}
+              priceMinInputRef={priceMinInputRef}
+              priceMaxInputRef={priceMaxInputRef}
               open={filtersOpen}
               search={feed.search}
               priorityIds={feed.priorityIds}
@@ -216,7 +223,13 @@ export default function DiscoverScreen() {
               filtersOpen={filtersOpen}
               filtersActive={feed.filtersActive}
               onFiltersOpenChange={setFiltersOpen}
-              onResetFilters={feed.resetFilters}
+              onResetFilters={() =>
+                resetFilters(feed.resetFilters, [
+                  searchInputRef.current,
+                  priceMinInputRef.current,
+                  priceMaxInputRef.current,
+                ])
+              }
             />
             <View className="min-w-0 flex-1">
               <DiscoverTabs

@@ -5,7 +5,8 @@ import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Stack } from "expo-router";
 import * as React from "react";
-import { View, useWindowDimensions } from "react-native";
+import { type TextInput, View, useWindowDimensions } from "react-native";
+import { resetFilters } from "@/lib/reset-filters";
 import {
   useSlideOutPanel,
   WISHLIST_FILTER_PANEL_HEIGHT,
@@ -28,6 +29,7 @@ export default function WishlistsScreen() {
   const t = useGT();
   const { width } = useWindowDimensions();
   const feed = useWishlistFeed(width);
+  const searchInputRef = React.useRef<TextInput>(null);
   const completeOpenDiscoverStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.openDiscover);
   const [sheet, setSheet] = React.useState<SheetState>(null);
   const {
@@ -53,7 +55,7 @@ export default function WishlistsScreen() {
               search={feed.search}
               visibility={feed.visibility}
               sort={feed.sort}
-              onResetFilters={feed.handleResetFilters}
+              onResetFilters={() => resetFilters(feed.handleResetFilters, [searchInputRef.current])}
               onOpenDiscover={completeOpenDiscoverStep}
               filtersOpen={filtersOpen}
               onFiltersOpenChange={setFiltersOpen}
@@ -61,6 +63,7 @@ export default function WishlistsScreen() {
           }
           FilterPanelComponent={
             <WishlistFilterPanel
+              searchInputRef={searchInputRef}
               search={feed.search}
               visibility={feed.visibility}
               sort={feed.sort}

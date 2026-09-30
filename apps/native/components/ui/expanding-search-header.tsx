@@ -16,7 +16,13 @@ import { useGT } from "gt-react-native";
 import { Search, X } from "lucide-react-native";
 import * as React from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import Animated, {
+  type SharedValue,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 const SEARCH_COLLAPSED_WIDTH = 44;
 const SEARCH_TABS_GAP = 12;
@@ -55,7 +61,8 @@ export function ExpandingSearchHeader({
   searchSide?: "left" | "right";
   searchEnabled?: boolean;
   onOpen?: () => void;
-  children: React.ReactNode;
+  /** Pass the fade progress to the tabs so their glass effect can reset after hiding. */
+  children: (opacity: SharedValue<number>) => React.ReactNode;
 }) {
   const t = useGT();
   const reduceMotion = useReducedMotion();
@@ -101,12 +108,13 @@ export function ExpandingSearchHeader({
   }, [expandedFieldWidth]);
 
   const inputStyle = useAnimatedStyle(() => ({ opacity: clamp01(expandProgress.value) }));
+  const tabsOpacity = useDerivedValue(() => 1 - clamp01(expandProgress.value));
 
   // Logical `start`/`end` (Yoga mirrors them under RTL), matching the search side.
   const tabsStyle = useAnimatedStyle(() => {
     const offset = (SEARCH_COLLAPSED_WIDTH + SEARCH_TABS_GAP) * clamp01(enabledProgress.value);
     return {
-      opacity: 1 - clamp01(expandProgress.value),
+      opacity: tabsOpacity.value,
       ...(searchSide === "left" ? { start: offset, end: 0 } : { start: 0, end: offset }),
     };
   }, [searchSide]);
@@ -207,7 +215,7 @@ export function ExpandingSearchHeader({
         importantForAccessibility={expanded ? "no-hide-descendants" : "auto"}
         style={tabsStyle}
       >
-        {children}
+        {children(tabsOpacity)}
       </Animated.View>
       {HAS_LIQUID_GLASS ? (
         <GlassContainer

@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/liquid-glass";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { resetFilters } from "@/lib/reset-filters";
+import type { ReactNode } from "react";
 import { GlassView } from "expo-glass-effect";
 import { SlidersHorizontal, X } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -42,6 +42,7 @@ export function FilterActions({
   clearAccessibilityLabel,
   onOpenChange,
   onReset,
+  children,
 }: {
   active: boolean;
   open: boolean;
@@ -49,6 +50,8 @@ export function FilterActions({
   clearAccessibilityLabel: string;
   onOpenChange: (open: boolean) => void;
   onReset: () => void;
+  /** Additional controls sharing the filter capsule. */
+  children?: ReactNode;
 }) {
   const reduceMotion = useReducedMotion();
 
@@ -60,7 +63,7 @@ export function FilterActions({
         <GlassCapsuleSlot
           visible={active}
           accessibilityLabel={clearAccessibilityLabel}
-          onPress={() => resetFilters(onReset)}
+          onPress={onReset}
         >
           <Icon as={X} className="size-5 text-destructive" />
         </GlassCapsuleSlot>
@@ -76,6 +79,7 @@ export function FilterActions({
             className={cn("size-5", open ? "text-brand" : "text-text")}
           />
         </Pressable>
+        {children}
       </GlassView>
     );
   }
@@ -100,7 +104,7 @@ export function FilterActions({
             variant="destructive"
             size="icon-lg"
             accessibilityLabel={clearAccessibilityLabel}
-            onPress={() => resetFilters(onReset)}
+            onPress={onReset}
             className="rounded-full"
           >
             <Icon as={X} className="size-4 text-white" />
@@ -117,6 +121,7 @@ export function FilterActions({
       >
         <Icon as={SlidersHorizontal} className="size-4 text-text" />
       </Button>
+      {children}
     </View>
   );
 }

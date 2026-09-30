@@ -25,10 +25,11 @@ import {
   getItemStatusOptions,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
+import { resetFilters } from "@/lib/reset-filters";
 import { ChevronsUpDown, Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View } from "react-native";
+import { type TextInput, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
 export type WishlistItemFilterState = {
@@ -70,6 +71,9 @@ export function WishlistItemFilterBar({
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useGT();
+  const searchInputRef = React.useRef<TextInput>(null);
+  const priceMinInputRef = React.useRef<TextInput>(null);
+  const priceMaxInputRef = React.useRef<TextInput>(null);
   const { data: settings } = useSettings();
   const itemSortOptions = React.useMemo(() => getItemSortOptions(t), [t]);
   const itemStatusOptions = React.useMemo(() => getItemStatusOptions(t), [t]);
@@ -136,7 +140,13 @@ export function WishlistItemFilterBar({
           filterAccessibilityLabel={t("Show item filters")}
           clearAccessibilityLabel={t("Clear filters")}
           onOpenChange={onOpenChange}
-          onReset={onReset}
+          onReset={() =>
+            resetFilters(onReset, [
+              searchInputRef.current,
+              priceMinInputRef.current,
+              priceMaxInputRef.current,
+            ])
+          }
         />
       </View>
 
@@ -144,6 +154,7 @@ export function WishlistItemFilterBar({
         <View className="flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 ps-3 shadow-sm">
           <Icon as={Search} className="size-4 text-muted-foreground/50" />
           <Input
+            ref={searchInputRef}
             value={filters.search}
             onChangeText={(search) => onChange({ search })}
             placeholder={t("Search items...")}
@@ -234,6 +245,7 @@ export function WishlistItemFilterBar({
 
         <View className="w-full flex-row items-center justify-around gap-3">
           <Input
+            ref={priceMinInputRef}
             value={filters.priceMin}
             onChangeText={(priceMin) => onChange({ priceMin })}
             placeholder={t("From")}
@@ -245,6 +257,7 @@ export function WishlistItemFilterBar({
             )}
           />
           <Input
+            ref={priceMaxInputRef}
             value={filters.priceMax}
             onChangeText={(priceMax) => onChange({ priceMax })}
             placeholder={t("To")}

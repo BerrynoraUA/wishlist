@@ -45,12 +45,14 @@ function GlassIconButton({
   visible,
   progress,
   accessibilityLabel,
+  accessibilityState,
   onPress,
   children,
 }: {
   visible: boolean;
   progress: SharedValue<number>;
   accessibilityLabel: string;
+  accessibilityState?: React.ComponentProps<typeof Pressable>["accessibilityState"];
   onPress: () => void;
   children: React.ReactNode;
 }) {
@@ -60,6 +62,7 @@ function GlassIconButton({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      accessibilityState={accessibilityState}
       accessibilityElementsHidden={!visible}
       importantForAccessibility={visible ? "auto" : "no-hide-descendants"}
       disabled={!visible}
@@ -95,11 +98,13 @@ export function PanelPillGlass({ open }: { open: boolean }) {
 export function GlassCapsuleSlot({
   visible,
   accessibilityLabel,
+  accessibilityState,
   onPress,
   children,
 }: {
   visible: boolean;
   accessibilityLabel: string;
+  accessibilityState?: React.ComponentProps<typeof Pressable>["accessibilityState"];
   onPress: () => void;
   children: React.ReactNode;
 }) {
@@ -114,6 +119,7 @@ export function GlassCapsuleSlot({
         visible={visible}
         progress={progress}
         accessibilityLabel={accessibilityLabel}
+        accessibilityState={accessibilityState}
         onPress={onPress}
       >
         {children}
@@ -133,6 +139,7 @@ export function MorphingGlassButton({
   placement = "before",
   gap = 8,
   accessibilityLabel,
+  accessibilityState,
   onPress,
   children,
 }: {
@@ -140,6 +147,7 @@ export function MorphingGlassButton({
   placement?: "before" | "after";
   gap?: number;
   accessibilityLabel: string;
+  accessibilityState?: React.ComponentProps<typeof Pressable>["accessibilityState"];
   onPress: () => void;
   children: React.ReactNode;
 }) {
@@ -164,6 +172,7 @@ export function MorphingGlassButton({
         visible={visible}
         progress={progress}
         accessibilityLabel={accessibilityLabel}
+        accessibilityState={accessibilityState}
         onPress={onPress}
       >
         {children}

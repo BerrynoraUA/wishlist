@@ -242,15 +242,18 @@ export default function FriendsScreen() {
             contentWidth={contentWidth}
             searchEnabled={tab === "friends" || tab === "groups"}
           >
-            <FriendsTabs
-              value={tab}
-              friendsCount={friends.length}
-              groupsCount={groups.length}
-              requestsCount={requests.length}
-              sentCount={outgoing.length}
-              blockedCount={blocked.length}
-              onChange={handleTabChange}
-            />
+            {(opacity) => (
+              <FriendsTabs
+                opacity={opacity}
+                value={tab}
+                friendsCount={friends.length}
+                groupsCount={groups.length}
+                requestsCount={requests.length}
+                sentCount={outgoing.length}
+                blockedCount={blocked.length}
+                onChange={handleTabChange}
+              />
+            )}
           </ExpandingSearchHeader>
         </PinnedListHeader>
         <StyledFlashList

@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { ChevronsUpDown, Search } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View } from "react-native";
+import { type TextInput, View } from "react-native";
 
 export function DiscoverFilterActions({
   filtersOpen,
@@ -48,6 +48,9 @@ export function DiscoverFilterActions({
 
 /** On iOS 26 the controls sit on liquid glass, like the Wishlists filter panel. */
 export function DiscoverFiltersPanel({
+  searchInputRef,
+  priceMinInputRef,
+  priceMaxInputRef,
   open,
   search,
   priorityIds,
@@ -62,6 +65,9 @@ export function DiscoverFiltersPanel({
 }: {
   /** Whether the panel is open; the glass materializes with it. */
   open: boolean;
+  searchInputRef: React.RefObject<TextInput | null>;
+  priceMinInputRef: React.RefObject<TextInput | null>;
+  priceMaxInputRef: React.RefObject<TextInput | null>;
   search: string;
   priorityIds: string[];
   priceMin: string;
@@ -104,6 +110,7 @@ export function DiscoverFiltersPanel({
         {HAS_LIQUID_GLASS ? <PanelPillGlass open={open} /> : null}
         <Icon as={Search} className="size-4 text-muted-foreground/50" />
         <Input
+          ref={searchInputRef}
           value={search}
           onChangeText={onSearchChange}
           placeholder={t("Search gifts or wishlists")}
@@ -202,12 +209,14 @@ export function DiscoverFiltersPanel({
 
       <View className="flex-row gap-2">
         <PriceInput
+          ref={priceMinInputRef}
           open={open}
           value={priceMin}
           onChangeText={onPriceMinChange}
           placeholder={t("Min price")}
         />
         <PriceInput
+          ref={priceMaxInputRef}
           open={open}
           value={priceMax}
           onChangeText={onPriceMaxChange}
@@ -219,11 +228,13 @@ export function DiscoverFiltersPanel({
 }
 
 function PriceInput({
+  ref,
   open,
   value,
   onChangeText,
   placeholder,
 }: {
+  ref: React.Ref<TextInput>;
   open: boolean;
   value: string;
   onChangeText: (value: string) => void;
@@ -235,6 +246,7 @@ function PriceInput({
     <View className="min-w-0 flex-1">
       {HAS_LIQUID_GLASS ? <PanelPillGlass open={open} /> : null}
       <Input
+        ref={ref}
         value={value}
         onChangeText={onChangeText}
         keyboardType="decimal-pad"
