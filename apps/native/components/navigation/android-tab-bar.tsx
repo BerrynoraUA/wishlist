@@ -235,7 +235,7 @@ export function AndroidTabBar({
                   accessibilityLabel={slot.label}
                   onPress={onCreatePress}
                   className={cn(
-                    "items-center justify-center overflow-hidden rounded-2xl shadow-[0px_6px_14px_rgba(15,23,42,0.28)]",
+                    "items-center justify-center overflow-hidden rounded-full shadow-[0px_6px_14px_rgba(15,23,42,0.28)]",
                     fabGradientClassName,
                   )}
                   style={{ width: FAB_SIZE, height: FAB_SIZE, marginTop: -FAB_OVERHANG }}

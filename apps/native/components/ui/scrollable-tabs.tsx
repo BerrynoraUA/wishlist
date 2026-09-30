@@ -194,7 +194,7 @@ export function ScrollableTabs<T>({
               className={cn(
                 "relative h-11 min-w-20 flex-row items-center justify-center gap-1.5",
                 IS_IOS ? "px-5" : "px-4",
-                IS_ANDROID && "h-12 overflow-hidden rounded-t-xl",
+                IS_ANDROID && "h-12 overflow-hidden rounded-full",
               )}
             >
               <Text

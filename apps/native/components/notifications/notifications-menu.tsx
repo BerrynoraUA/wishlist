@@ -125,7 +125,7 @@ export function NotificationsMenu({
             accessibilityState={{ expanded: open }}
             hitSlop={8}
             onPress={() => setOpen(true)}
-            className="size-11 shrink-0 items-center justify-center rounded-full border border-border-subtle bg-card-bg shadow-[0px_8px_18px_rgba(15,23,42,0.18)] android:size-12 android:overflow-hidden android:rounded-2xl android:border-transparent android:bg-bg-muted android:shadow-none"
+            className="size-11 shrink-0 items-center justify-center rounded-full border border-border-subtle bg-card-bg shadow-[0px_8px_18px_rgba(15,23,42,0.18)] android:size-12 android:overflow-hidden android:border-transparent android:bg-bg-muted android:shadow-none"
           >
             <Icon as={Bell} className="size-5 text-text" />
           </AnimatedPressable>

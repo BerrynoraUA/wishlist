@@ -140,7 +140,7 @@ export function WishlistFilterBar({
             variant="secondary"
             size="pill"
             accessibilityLabel={t("Discover")}
-            className="gap-2 overflow-hidden rounded-2xl bg-brand-lighter px-4"
+            className="gap-2 overflow-hidden rounded-full bg-brand-lighter px-4"
             onPress={() => {
               onOpenDiscover();
               router.push("/wishlists/discover");
@@ -245,7 +245,7 @@ export function WishlistFilterPanel({
                 size="pill"
                 accessibilityLabel={t("Filter by visibility")}
                 className={cn(
-                  "w-full justify-between shadow-none android:overflow-hidden android:rounded-2xl",
+                  "w-full justify-between shadow-none android:overflow-hidden",
                   HAS_LIQUID_GLASS
                     ? GLASS_PILL_CLASS
                     : visibility.length > 0
@@ -298,7 +298,7 @@ export function WishlistFilterPanel({
                 size="pill"
                 accessibilityLabel={t("Sort wishlists")}
                 className={cn(
-                  "w-full justify-between shadow-none android:overflow-hidden android:rounded-2xl",
+                  "w-full justify-between shadow-none android:overflow-hidden",
                   HAS_LIQUID_GLASS
                     ? GLASS_PILL_CLASS
                     : "border-border-subtle bg-card-bg dark:bg-card-bg",

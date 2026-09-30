@@ -118,7 +118,7 @@ export function FilterActions({
         accessibilityState={{ expanded: open }}
         onPress={() => onOpenChange(!open)}
         className={cn(
-          "z-10 shrink-0 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg android:overflow-hidden android:rounded-2xl android:shadow-none",
+          "z-10 shrink-0 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg android:overflow-hidden android:shadow-none",
           process.env.EXPO_OS === "android" &&
             (open || active
               ? "border-brand/20 bg-brand-lighter dark:bg-brand-lighter"

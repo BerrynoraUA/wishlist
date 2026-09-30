@@ -108,7 +108,7 @@ export function FloatingBackButton({
       className={cn(
         "absolute start-3 z-50 size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg shadow-lg",
         process.env.EXPO_OS === "android" &&
-          "overflow-hidden rounded-2xl border-transparent bg-brand-lighter shadow-md",
+          "overflow-hidden border-transparent bg-brand-lighter shadow-md",
         className,
       )}
       style={{ bottom }}

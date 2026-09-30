@@ -130,7 +130,7 @@ export function DiscoverFiltersPanel({
             <DropdownMenuTrigger asChild>
               <AnimatedPressable
                 className={cn(
-                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3 android:h-12 android:overflow-hidden android:rounded-2xl",
+                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3 android:h-12 android:overflow-hidden",
                   HAS_LIQUID_GLASS
                     ? GLASS_PILL_CLASS
                     : priorityIds.length > 0
@@ -184,7 +184,7 @@ export function DiscoverFiltersPanel({
             <DropdownMenuTrigger asChild>
               <AnimatedPressable
                 className={cn(
-                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3 android:h-12 android:overflow-hidden android:rounded-2xl",
+                  "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3 android:h-12 android:overflow-hidden",
                   HAS_LIQUID_GLASS
                     ? GLASS_PILL_CLASS
                     : "border-border-subtle bg-card-bg dark:bg-card-bg",
@@ -253,7 +253,7 @@ function PriceInput({
         keyboardType="decimal-pad"
         placeholder={placeholder}
         className={cn(
-          "h-11 rounded-full android:h-12 android:rounded-2xl android:shadow-none",
+          "h-11 rounded-full android:h-12 android:shadow-none",
           HAS_LIQUID_GLASS
             ? cn(GLASS_PILL_CLASS, active && "text-brand")
             : active

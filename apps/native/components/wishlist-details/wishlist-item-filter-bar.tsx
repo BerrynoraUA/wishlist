@@ -218,7 +218,7 @@ export function WishlistItemFilterBar({
                   variant="outline"
                   size="pill"
                   accessibilityLabel={t("Sort items")}
-                  className="w-full justify-between border-border-subtle bg-card-bg shadow-none dark:bg-card-bg android:overflow-hidden android:rounded-2xl"
+                  className="w-full justify-between border-border-subtle bg-card-bg shadow-none dark:bg-card-bg android:overflow-hidden"
                 >
                   <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                     {selectedSort}
@@ -248,7 +248,7 @@ export function WishlistItemFilterBar({
             placeholder={t("From")}
             keyboardType="decimal-pad"
             className={cn(
-              "h-11 w-0 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg android:h-12 android:rounded-2xl android:shadow-none",
+              "h-11 w-0 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg android:h-12 android:shadow-none",
               filters.priceMin.trim() &&
                 "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
             )}
@@ -260,7 +260,7 @@ export function WishlistItemFilterBar({
             placeholder={t("To")}
             keyboardType="decimal-pad"
             className={cn(
-              "h-11 w-0 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg android:h-12 android:rounded-2xl android:shadow-none",
+              "h-11 w-0 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg android:h-12 android:shadow-none",
               filters.priceMax.trim() &&
                 "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
             )}
@@ -276,7 +276,7 @@ export function WishlistItemFilterBar({
               accessibilityRole="button"
               accessibilityLabel={t('Remove "{label}" filter', { label: chip.label })}
               onPress={chip.onRemove}
-              className="flex-row items-center gap-1 rounded-full bg-brand-lighter px-3 py-1.5 android:min-h-12 android:overflow-hidden android:rounded-xl"
+              className="flex-row items-center gap-1 rounded-full bg-brand-lighter px-3 py-1.5 android:min-h-12 android:overflow-hidden"
             >
               <Text className="text-xs font-bold text-brand">{chip.label}</Text>
               <Icon as={X} className="size-3 text-brand" />
@@ -304,7 +304,7 @@ function MultiSelectMenu({
       <DropdownMenuTrigger asChild>
         <AnimatedPressable
           className={cn(
-            "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3 android:h-12 android:overflow-hidden android:rounded-2xl",
+            "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3 android:h-12 android:overflow-hidden",
             values.length > 0 ? "border-brand bg-brand-lighter" : "border-border-subtle bg-card-bg",
           )}
         >
