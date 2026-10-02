@@ -32,10 +32,10 @@ const buttonVariants = cva(
         icon: "h-10 w-10 sm:h-9 sm:w-9",
         // Square icon buttons at fixed control heights (no breakpoint shrink).
         "icon-sm": "h-9 w-9",
-        "icon-lg": "h-11 w-11",
+        "icon-lg": "h-11 w-11 android:h-12 android:w-12",
         // Rounded pill controls (e.g. filter dropdown triggers) aligned to the
         // 44px control height used across toolbars; "pill-sm" for compact chips.
-        pill: "h-11 gap-2 rounded-full px-3",
+        pill: "h-11 gap-2 rounded-full px-3 android:h-12",
         "pill-sm": "h-9 gap-1.5 rounded-full px-3",
       },
     },

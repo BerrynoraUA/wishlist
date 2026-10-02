@@ -1,7 +1,7 @@
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { I18nManager, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
+import { NAV_TAB_BAR_FAB_OVERHANG, NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
 
 /** Both the classic iOS tab bar and the Android custom bar lay out 5 equal-width slots. */
 const NAV_SLOT_COUNT = 5;
@@ -31,6 +31,14 @@ export type CreateButtonBox = { x: number; y: number; radius: number };
 export function useCreateButtonCenter(): CreateButtonBox {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+
+  if (process.env.EXPO_OS === "android") {
+    return {
+      x: width / 2,
+      y: height - Math.max(insets.bottom, 8) - NAV_TAB_BAR_HEIGHT / 2 - NAV_TAB_BAR_FAB_OVERHANG,
+      radius: SLOT_BUTTON_RADIUS,
+    };
+  }
 
   if (HAS_DETACHED_CREATE_BUTTON) {
     const edgeOffset = FLOATING_BAR_MARGIN + FLOATING_BUTTON_RADIUS;

@@ -22,11 +22,12 @@ import { statisticsKeys, wishlistKeys } from "@/lib/wishlist-query-keys";
 import type { DiscoverQueryParams } from "@wishlist/backend/types/discover";
 import { useAuth } from "@/providers/auth-provider";
 import type {
+  Wishlist,
   WishlistFormValues,
   WishlistQueryParams,
   WishlistUpdateValues,
 } from "@wishlist/backend/types/wishlist";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import * as React from "react";
 
 export function useInfiniteMyWishlists(
@@ -260,11 +261,29 @@ export function useWishlistById(
   { enabled = true }: { enabled?: boolean } = {},
 ) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   return useQuery({
     queryKey: wishlistKeys.detail(user?.id, wishlistId),
     queryFn: () => getWishlistById(wishlistId),
     enabled: enabled && Boolean(user?.id && wishlistId),
+    placeholderData: () => {
+      if (!user?.id || !wishlistId) return undefined;
+
+      // Keep the known header visible while the detail request refreshes it.
+      const lists = queryClient.getQueriesData<InfiniteData<Wishlist[]>>({
+        queryKey: wishlistKeys.all,
+        predicate: ({ queryKey }) =>
+          (queryKey[1] === "my" || queryKey[1] === "friend") && queryKey[2] === user.id,
+      });
+      for (const [, data] of lists) {
+        const wishlist = data?.pages
+          .flatMap((page) => page)
+          .find((entry) => entry.id === wishlistId);
+        if (wishlist) return wishlist;
+      }
+      return undefined;
+    },
   });
 }
 

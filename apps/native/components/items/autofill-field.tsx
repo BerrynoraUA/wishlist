@@ -63,19 +63,21 @@ export function AutofillField({
 
   React.useEffect(() => {
     if (!loading || reduceMotion) {
-      shimmerOpacity.value = withTiming(0, { duration: motionDuration.fast });
+      shimmerOpacity.set(withTiming(0, { duration: motionDuration.fast }));
       cancelAnimation(sweep);
       return;
     }
 
-    sweep.value = 0;
-    shimmerOpacity.value = withTiming(1, { duration: motionDuration.normal });
-    sweep.value = withDelay(
-      delay,
-      withRepeat(
-        withTiming(1, { duration: SHIMMER_SWEEP_MS, easing: Easing.inOut(Easing.quad) }),
-        -1,
-        false,
+    sweep.set(0);
+    shimmerOpacity.set(withTiming(1, { duration: motionDuration.normal }));
+    sweep.set(
+      withDelay(
+        delay,
+        withRepeat(
+          withTiming(1, { duration: SHIMMER_SWEEP_MS, easing: Easing.inOut(Easing.quad) }),
+          -1,
+          false,
+        ),
       ),
     );
   }, [delay, loading, reduceMotion, shimmerOpacity, sweep]);
@@ -83,38 +85,42 @@ export function AutofillField({
   React.useEffect(() => {
     if (!fillId) return;
 
-    highlight.value = withDelay(
-      delay,
-      withSequence(
-        withTiming(1, { duration: motionDuration.fast }),
-        withTiming(0, { duration: HIGHLIGHT_FADE_MS, easing: Easing.out(Easing.quad) }),
+    highlight.set(
+      withDelay(
+        delay,
+        withSequence(
+          withTiming(1, { duration: motionDuration.fast }),
+          withTiming(0, { duration: HIGHLIGHT_FADE_MS, easing: Easing.out(Easing.quad) }),
+        ),
       ),
     );
     if (!reduceMotion) {
-      scale.value = withDelay(
-        delay,
-        withSequence(withTiming(0.97, { duration: 90 }), withSpring(1, motionSpring.press)),
+      scale.set(
+        withDelay(
+          delay,
+          withSequence(withTiming(0.97, { duration: 90 }), withSpring(1, motionSpring.press)),
+        ),
       );
     }
   }, [fillId]);
 
-  const containerStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const containerStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
   const shimmerStyle = useAnimatedStyle(() => {
-    const bandWidth = width.value * 0.6;
+    const bandWidth = width.get() * 0.6;
     return {
       width: bandWidth,
-      opacity: shimmerOpacity.value,
-      transform: [{ translateX: -bandWidth + sweep.value * (width.value + bandWidth) }],
+      opacity: shimmerOpacity.get(),
+      transform: [{ translateX: -bandWidth + sweep.get() * (width.get() + bandWidth) }],
     };
   });
-  const highlightStyle = useAnimatedStyle(() => ({ opacity: highlight.value }));
+  const highlightStyle = useAnimatedStyle(() => ({ opacity: highlight.get() }));
 
   return (
     <Animated.View
       className={className}
       style={containerStyle}
       onLayout={({ nativeEvent }) => {
-        width.value = nativeEvent.layout.width;
+        width.set(nativeEvent.layout.width);
       }}
     >
       {children}
@@ -259,10 +265,10 @@ function RollingPrice({ value, order }: { value: string; order: number }) {
 
   React.useEffect(() => {
     // Stay blank, like the rest of the form, until this field's turn in the stagger.
-    opacity.value = withDelay(delay, withTiming(1, { duration: 120 }));
+    opacity.set(withDelay(delay, withTiming(1, { duration: 120 })));
   }, [delay, opacity]);
 
-  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  const style = useAnimatedStyle(() => ({ opacity: opacity.get() }));
 
   return (
     <Animated.View
@@ -291,13 +297,10 @@ function RollingDigit({ digit, delay }: { digit: number; delay: number }) {
   const offset = useSharedValue(0);
 
   React.useEffect(() => {
-    offset.value = withDelay(
-      delay,
-      withSpring(-(10 + digit) * PRICE_ROW_HEIGHT, PRICE_ROLL_SPRING),
-    );
+    offset.set(withDelay(delay, withSpring(-(10 + digit) * PRICE_ROW_HEIGHT, PRICE_ROLL_SPRING)));
   }, [delay, digit, offset]);
 
-  const stackStyle = useAnimatedStyle(() => ({ transform: [{ translateY: offset.value }] }));
+  const stackStyle = useAnimatedStyle(() => ({ transform: [{ translateY: offset.get() }] }));
 
   return (
     // Sized by the landing digit so the handoff to the input's own text doesn't shift.
@@ -318,10 +321,10 @@ function FadingSymbol({ char, delay }: { char: string; delay: number }) {
   const opacity = useSharedValue(0);
 
   React.useEffect(() => {
-    opacity.value = withDelay(delay, withTiming(1, { duration: 120 }));
+    opacity.set(withDelay(delay, withTiming(1, { duration: 120 })));
   }, [delay, opacity]);
 
-  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  const style = useAnimatedStyle(() => ({ opacity: opacity.get() }));
 
   return (
     <Animated.Text className="text-base leading-5 text-text" style={style}>
@@ -361,25 +364,23 @@ export function LoadingBorder({
 
   React.useEffect(() => {
     if (!loading) {
-      opacity.value = withTiming(0, { duration: motionDuration.fast });
+      opacity.set(withTiming(0, { duration: motionDuration.fast }));
       cancelAnimation(progress);
       return;
     }
 
-    opacity.value = withTiming(1, { duration: motionDuration.fast });
-    progress.value = 0;
+    opacity.set(withTiming(1, { duration: motionDuration.fast }));
+    progress.set(0);
     if (!reduceMotion) {
-      progress.value = withRepeat(
-        withTiming(1, { duration: BORDER_SPIN_MS, easing: Easing.linear }),
-        -1,
-        false,
+      progress.set(
+        withRepeat(withTiming(1, { duration: BORDER_SPIN_MS, easing: Easing.linear }), -1, false),
       );
     }
   }, [loading, opacity, progress, reduceMotion]);
 
-  const overlayStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  const overlayStyle = useAnimatedStyle(() => ({ opacity: opacity.get() }));
   const rectProps = useAnimatedProps(() => ({
-    strokeDashoffset: -progress.value * perimeter,
+    strokeDashoffset: -progress.get() * perimeter,
   }));
 
   return (

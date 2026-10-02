@@ -12,7 +12,7 @@ import { BlurView } from "expo-blur";
 import { Check, ChevronDown, ChevronUp } from "lucide-react-native";
 import * as React from "react";
 import { type StyleProp, Text, View, type ViewStyle, useWindowDimensions } from "react-native";
-import Animated, { FadeIn, FadeInUp } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { captureRef, releaseCapture } from "react-native-view-shot";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
@@ -26,15 +26,6 @@ const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
 const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 
 const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
-
-/**
- * The lifted card and the menu under it have to read as one object, so both enter on the
- * same spring. Fading the menu in while the card springs leaves the two visibly detached:
- * the card travels, the menu just appears where it will end up.
- *
- * A fresh builder per call — Reanimated mutates these descriptors when configured.
- */
-const attachedEntering = () => FadeInUp.springify().damping(20).stiffness(240);
 
 /**
  * Corner radius of the lifted card snapshot. Must match the `rounded-xl` the cards that
@@ -66,6 +57,10 @@ function measureView(view: View) {
   });
 }
 
+/**
+ * Destructure the result: React Compiler treats reading `cardRef` or `triggerRef` off the
+ * returned object during render as a ref access, and skips compiling the whole component.
+ */
 function useDropdownMenuPreview() {
   const cardRef = React.useRef<View>(null);
   const triggerRef = React.useRef<TriggerRef>(null);
@@ -207,17 +202,16 @@ function DropdownMenuContent({
   // The caret is what ties the menu to the lifted card; without it the two read as
   // separate surfaces that happen to sit near each other.
   const hasCaret = backdrop === "blur" && Boolean(preview);
-  const previewLift = preview ? Math.min(28, Math.max(16, preview.pageY - 12)) : 0;
   const contentHeight = contentLayout?.height ?? 128;
   const blurMenuSideOffset = sideOffset ?? 10;
-  const liftedPreviewTop = preview ? preview.pageY - previewLift : (triggerPosition?.pageY ?? 0);
-  const liftedPreviewBottom = preview
-    ? liftedPreviewTop + preview.height
+  const previewTop = preview ? preview.pageY : (triggerPosition?.pageY ?? 0);
+  const previewBottom = preview
+    ? previewTop + preview.height
     : triggerPosition
       ? triggerPosition.pageY + triggerPosition.height
       : 0;
-  const availableBelow = windowHeight - liftedPreviewBottom;
-  const availableAbove = liftedPreviewTop;
+  const availableBelow = windowHeight - previewBottom;
+  const availableAbove = previewTop;
   const shouldOpenAbove =
     backdrop === "blur" &&
     Boolean(preview) &&
@@ -233,7 +227,6 @@ function DropdownMenuContent({
           backdrop === "blur"
             ? {
                 width: actionMenuWidth,
-                transform: [{ translateY: -previewLift }],
               }
             : { minWidth: triggerPosition.width },
         ] as unknown as React.ComponentProps<typeof DropdownMenuPrimitive.Content>["style"])
@@ -264,10 +257,9 @@ function DropdownMenuContent({
       {backdrop === "blur" && preview ? (
         <Animated.View
           pointerEvents="none"
-          entering={attachedEntering()}
           style={{
             position: "absolute",
-            top: preview.pageY - previewLift,
+            top: preview.pageY,
             left: preview.pageX,
             width: preview.width,
             height: preview.height,
@@ -283,9 +275,7 @@ function DropdownMenuContent({
           />
         </Animated.View>
       ) : null}
-      <NativeOnlyAnimatedView
-        entering={preview ? attachedEntering() : FadeIn.duration(motionDuration.normal)}
-      >
+      <NativeOnlyAnimatedView entering={FadeIn.duration(motionDuration.normal)}>
         <TextClassContext.Provider value="text-popover-foreground">
           <DropdownMenuPrimitive.Content
             className={cn(

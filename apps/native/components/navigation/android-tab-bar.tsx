@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { useGT } from "gt-react-native";
 import { Plus } from "lucide-react-native";
 import * as React from "react";
-import { Image, View } from "react-native";
+import { I18nManager, Image, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
 import { useCSSVariable, useUniwind } from "uniwind";
@@ -145,7 +145,10 @@ export function AndroidTabBar({
 
   const indicatorWidth = Math.max(0, Math.min(slotWidth - 10, 76));
   const indicatorTarget =
-    selectedSlot >= 0 ? slotWidth * selectedSlot + (slotWidth - indicatorWidth) / 2 : 0;
+    selectedSlot >= 0
+      ? slotWidth * (I18nManager.isRTL ? slots.length - 1 - selectedSlot : selectedSlot) +
+        (slotWidth - indicatorWidth) / 2
+      : 0;
 
   const indicatorX = useSharedValue(indicatorTarget);
   const hasMeasured = React.useRef(false);
@@ -153,15 +156,15 @@ export function AndroidTabBar({
   React.useEffect(() => {
     if (slotWidth <= 0 || selectedSlot < 0) return;
     if (!hasMeasured.current || reduceMotion) {
-      indicatorX.value = indicatorTarget;
+      indicatorX.set(indicatorTarget);
       hasMeasured.current = true;
       return;
     }
-    indicatorX.value = withSpring(indicatorTarget, INDICATOR_SPRING);
+    indicatorX.set(withSpring(indicatorTarget, INDICATOR_SPRING));
   }, [indicatorTarget, indicatorX, reduceMotion, selectedSlot, slotWidth]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorX.value }],
+    transform: [{ translateX: indicatorX.get() }],
   }));
 
   function handleTabPress(route: TabRoute, isFocused: boolean) {
@@ -215,6 +218,7 @@ export function AndroidTabBar({
             style={[
               {
                 top: INDICATOR_VERTICAL_INSET,
+                left: 0,
                 height: NAV_TAB_BAR_HEIGHT - INDICATOR_VERTICAL_INSET * 2 - 2,
                 width: indicatorWidth,
               },
@@ -231,10 +235,10 @@ export function AndroidTabBar({
                   accessibilityLabel={slot.label}
                   onPress={onCreatePress}
                   className={cn(
-                    "items-center justify-center rounded-full shadow-[0px_6px_14px_rgba(15,23,42,0.28)]",
+                    "items-center justify-center overflow-hidden rounded-full shadow-[0px_6px_14px_rgba(15,23,42,0.28)]",
                     fabGradientClassName,
                   )}
-                  style={{ width: FAB_SIZE, height: FAB_SIZE, marginTop: -FAB_OVERHANG }}
+                  style={{ width: FAB_SIZE, height: FAB_SIZE, top: -FAB_OVERHANG }}
                 >
                   <Icon as={Plus} className="size-7 text-white" strokeWidth={2.5} />
                 </AnimatedPressable>
@@ -251,12 +255,11 @@ export function AndroidTabBar({
           return (
             <AnimatedPressable
               key={slot.name}
-              accessibilityRole="button"
+              accessibilityRole="tab"
               accessibilityState={{ selected: isFocused }}
               accessibilityLabel={slot.label}
               onPress={() => handleTabPress(route, isFocused)}
-              className="flex-1 items-center justify-center gap-0.5"
-              pressedScale={0.94}
+              className="flex-1 items-center justify-center gap-0.5 overflow-hidden rounded-full"
             >
               {"image" in slot ? (
                 <Image
@@ -269,8 +272,11 @@ export function AndroidTabBar({
               )}
               <Text
                 numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+                style={{ includeFontPadding: false, textAlignVertical: "center" }}
                 className={cn(
-                  "text-[10px] font-semibold",
+                  "max-w-full px-0.5 text-center text-xs leading-4 font-semibold",
                   isFocused ? "text-brand" : "text-text-muted",
                 )}
               >

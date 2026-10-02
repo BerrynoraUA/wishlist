@@ -3,9 +3,14 @@ import { afterEach, expect, it, vi } from "vitest";
 
 vi.mock("react-native", () => ({ Platform: { OS: "android" } }));
 vi.mock("expo-crypto", () => ({
-  getRandomValues: vi.fn((array: Uint32Array) => webcrypto.getRandomValues(array)),
+  getRandomValues: vi.fn((array: Uint32Array<ArrayBuffer>) => webcrypto.getRandomValues(array)),
   digest: vi.fn((algorithm: string, data: BufferSource) =>
-    webcrypto.subtle.digest(algorithm, data),
+    webcrypto.subtle.digest(
+      algorithm,
+      data instanceof ArrayBuffer
+        ? data
+        : new Uint8Array(data.buffer, data.byteOffset, data.byteLength),
+    ),
   ),
 }));
 

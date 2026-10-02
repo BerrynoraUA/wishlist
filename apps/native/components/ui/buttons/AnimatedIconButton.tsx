@@ -43,8 +43,8 @@ export const AnimatedIconButton = ({
   const [iconX, setIconX] = useState(0);
 
   const isIconMovingBack = useDerivedValue(() => {
-    const value = transition.value < previousTransition.value ? 1 : 0;
-    previousTransition.value = transition.value;
+    const value = transition.get() < previousTransition.get() ? 1 : 0;
+    previousTransition.set(transition.value);
 
     return value;
   });
@@ -52,14 +52,14 @@ export const AnimatedIconButton = ({
   const animatedIconContainerStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        translateX: interpolate(transition.value, [0, 1], [0, containerWidth / 2 - iconX]),
+        translateX: interpolate(transition.get(), [0, 1], [0, containerWidth / 2 - iconX]),
       },
-      { scaleX: isIconMovingBack.value ? -1 : 1 },
+      { scaleX: isIconMovingBack.get() ? -1 : 1 },
     ],
   }));
 
   const animatedTitleStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(transition.value, [0, 1], [1, 0]),
+    opacity: interpolate(transition.get(), [0, 1], [1, 0]),
   }));
 
   return (
@@ -75,20 +75,22 @@ export const AnimatedIconButton = ({
       hitSlop={16}
       onPress={onPress}
       onPressIn={() => {
-        isActive.value = true;
-        transition.value = withTiming(1, { duration: DURATION }, () => {
-          if (!isActive.value) {
-            transition.value = withTiming(0, {
-              duration: DURATION,
-            });
-          }
-        });
+        isActive.set(true);
+        transition.set(
+          withTiming(1, { duration: DURATION }, () => {
+            if (!isActive.value) {
+              transition.value = withTiming(0, {
+                duration: DURATION,
+              });
+            }
+          }),
+        );
       }}
       onPressOut={() => {
-        if (transition.value === 1) {
-          transition.value = withTiming(0, { duration: DURATION });
+        if (transition.get() === 1) {
+          transition.set(withTiming(0, { duration: DURATION }));
         }
-        isActive.value = false;
+        isActive.set(false);
       }}
     >
       {({ pressed }) => (

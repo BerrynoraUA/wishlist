@@ -11,18 +11,9 @@ import { ActivityIndicator, ImageBackground, Pressable, View } from "react-nativ
 import { PACKAGE_TYPE, type PurchasesPackage } from "react-native-purchases";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { TranslateFn } from "@/lib/translate-fn";
+import { getDateTimeFormat } from "@/lib/intl";
 
 const background = require("@/assets/images/subscription-premium-bg.jpg");
-
-// Every bullet must be a feature that actually ships — advertising an absent one is an
-// App Store 2.3.1 rejection. Cross-check against docs/premium-features.md, which derives
-// the Free/Pro matrix from the code rather than from marketing copy.
-const PREMIUM_FEATURES = [
-  "Unlimited lists & items",
-  "Collaborator access",
-  "Secret Santa exclusions",
-  "Custom colors & priorities",
-] as const;
 
 function getPlanName(plan: PurchasesPackage, t: TranslateFn) {
   switch (plan.packageType) {
@@ -152,6 +143,15 @@ export function Subscription({
 }) {
   const t = useGT();
   const insets = useSafeAreaInsets();
+  // Every bullet must be a feature that actually ships — advertising an absent one is an
+  // App Store 2.3.1 rejection. Cross-check against docs/premium-features.md, which derives
+  // the Free/Pro matrix from the code rather than from marketing copy.
+  const premiumFeatures = [
+    t("Unlimited lists & items"),
+    t("Collaborator access"),
+    t("Secret Santa exclusions"),
+    t("Custom colors & priorities"),
+  ];
   const {
     packages,
     selectedPackage,
@@ -181,7 +181,7 @@ export function Subscription({
   const isPurchaseDisabled =
     !isConfigured || !selectedPackage || isCurrentSelection || hasExternalSubscription || isBusy;
   const renewalLabel = expiresAt
-    ? new Intl.DateTimeFormat(undefined, {
+    ? getDateTimeFormat(undefined, {
         month: "short",
         day: "numeric",
         year: "numeric",
@@ -248,10 +248,10 @@ export function Subscription({
             </View>
 
             <View className="flex-row flex-wrap gap-y-2">
-              {PREMIUM_FEATURES.map((feature) => (
+              {premiumFeatures.map((feature) => (
                 <View className="w-1/2 flex-row items-center gap-2" key={feature}>
                   <Icon as={Check} className="size-4 text-white/80" strokeWidth={3} />
-                  <Text className="text-xs font-medium text-white/80">{t(feature)}</Text>
+                  <Text className="text-xs font-medium text-white/80">{feature}</Text>
                 </View>
               ))}
             </View>

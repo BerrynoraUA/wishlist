@@ -8,6 +8,7 @@ import { useGT } from "gt-react-native";
 import { Check, X } from "lucide-react-native";
 import * as React from "react";
 import { View } from "react-native";
+import { getDateTimeFormat } from "@/lib/intl";
 
 type InviteAction = "accept" | "decline";
 
@@ -105,8 +106,5 @@ function formatInviteTime(
   const diffDays = Math.floor(diffHours / 24);
   if (diffDays < 7) return t("{n}d ago", { n: diffDays });
 
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+  return getDateTimeFormat(undefined, { month: "short", day: "numeric" }).format(date);
 }

@@ -123,7 +123,13 @@ export function WishlistItemCard({
   // Owners included: marking your own gift reserved or bought is allowed.
   const canReserve = Boolean(onToggleReserve && reservation.canToggleReservation);
   const canBuy = Boolean(onToggleBought && reservation.canToggleBought);
-  const menuPreview = useDropdownMenuPreview();
+  const {
+    cardRef: menuCardRef,
+    triggerRef: menuTriggerRef,
+    openMenu,
+    onOpenChange: onMenuOpenChange,
+    preview: menuPreview,
+  } = useDropdownMenuPreview();
   const [reservationConfirmationOpen, setReservationConfirmationOpen] = React.useState(false);
   const [purchaseConfirmationOpen, setPurchaseConfirmationOpen] = React.useState(false);
   const [reportConfirmationOpen, setReportConfirmationOpen] = React.useState(false);
@@ -147,14 +153,15 @@ export function WishlistItemCard({
   return (
     // The medallion hangs below the card, so the row has to leave it room.
     <View style={{ width }} className={cn(medallionPriority && "pb-3.5")}>
-      <DropdownMenu className="relative" onOpenChange={menuPreview.onOpenChange}>
-        <View ref={menuPreview.cardRef} collapsable={false}>
+      <DropdownMenu className="relative" onOpenChange={onMenuOpenChange}>
+        <View ref={menuCardRef} collapsable={false}>
           <AnimatedPressable
             accessibilityRole="button"
             accessibilityLabel={t('Open "{name}"', { name: item.name })}
             onPress={onPress}
-            onLongPress={showMenu ? menuPreview.openMenu : undefined}
-            pressedScale={isTaken ? 1 : 0.98}
+            onLongPress={showMenu ? openMenu : undefined}
+            pressedScale={1}
+            pressedOpacity={1}
             className="rounded-xl border border-border-subtle bg-card-bg shadow-sm"
             // The priority is what tints the card — no separate item colour.
             style={cardBorderStyle}
@@ -338,13 +345,13 @@ export function WishlistItemCard({
         {showMenu ? (
           <DropdownMenuTrigger asChild>
             <AnimatedPressable
-              ref={menuPreview.triggerRef}
+              ref={menuTriggerRef}
               pointerEvents="none"
               className="absolute inset-0 opacity-0"
             />
           </DropdownMenuTrigger>
         ) : null}
-        <DropdownMenuContent backdrop="blur" preview={menuPreview.preview} sideOffset={10}>
+        <DropdownMenuContent backdrop="blur" preview={menuPreview} sideOffset={10}>
           {showCopyLink ? (
             <DropdownMenuItem layout="action" onPress={handleCopyLink}>
               <Text className="flex-1">{t("Copy link")}</Text>

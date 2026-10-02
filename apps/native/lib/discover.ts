@@ -1,5 +1,6 @@
 import type { DiscoverItem, ReservedItem } from "@wishlist/backend/types/discover";
 import type { Item } from "@wishlist/backend/types/item";
+import { getDateTimeFormat } from "@/lib/intl";
 
 export const DISCOVER_PAGE_SIZE = 10;
 
@@ -83,7 +84,7 @@ export function formatDiscoverDate(dateValue?: string) {
     : new Date(dateValue);
   if (Number.isNaN(date.getTime())) return "";
 
-  return new Intl.DateTimeFormat(undefined, {
+  return getDateTimeFormat(undefined, {
     month: "short",
     day: "numeric",
     timeZone: dateKey ? "UTC" : undefined,

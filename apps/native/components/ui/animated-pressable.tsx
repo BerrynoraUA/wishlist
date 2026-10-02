@@ -1,6 +1,7 @@
 import { motionDuration, motionPress, motionSpring, useReducedMotion } from "@/lib/motion";
 import * as React from "react";
 import { Pressable } from "react-native";
+import { useCSSVariable } from "uniwind";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,6 +10,11 @@ import Animated, {
 } from "react-native-reanimated";
 
 const ReanimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+// Android presses show a ripple instead of dimming or shrinking. Module constants rather
+// than inline defaults: React Compiler cannot compile a conditional default parameter.
+const DEFAULT_PRESSED_OPACITY = process.env.EXPO_OS === "android" ? 1 : motionPress.opacity;
+const DEFAULT_PRESSED_SCALE = process.env.EXPO_OS === "android" ? 1 : motionPress.scale;
 
 type PressableProps = React.ComponentProps<typeof Pressable>;
 type PressEvent = Parameters<NonNullable<PressableProps["onPressIn"]>>[0];
@@ -40,22 +46,22 @@ function useAnimatedPressFeedback({
   const opacity = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: scale.value }],
+    opacity: opacity.get(),
+    transform: [{ scale: scale.get() }],
   }));
 
   function handlePressIn(event: PressEvent) {
     if (!disabled) {
-      scale.value = reduceMotion ? 1 : withSpring(pressedScale, motionSpring.press);
-      opacity.value = withTiming(pressedOpacity, { duration: motionDuration.fast });
+      scale.set(reduceMotion ? 1 : withSpring(pressedScale, motionSpring.press));
+      opacity.set(withTiming(pressedOpacity, { duration: motionDuration.fast }));
     }
 
     onPressIn?.(event);
   }
 
   function handlePressOut(event: Parameters<NonNullable<typeof onPressOut>>[0]) {
-    scale.value = reduceMotion ? 1 : withSpring(1, motionSpring.press);
-    opacity.value = withTiming(1, { duration: motionDuration.fast });
+    scale.set(reduceMotion ? 1 : withSpring(1, motionSpring.press));
+    opacity.set(withTiming(1, { duration: motionDuration.fast }));
 
     onPressOut?.(event);
   }
@@ -66,8 +72,8 @@ function useAnimatedPressFeedback({
     // handler runs, and without animating, so the snapshot cannot catch the element
     // dimmed and scaled down: that snapshot is drawn at full size, so the shrunken
     // artwork inside it reads as a translucent border around the lifted card.
-    scale.value = 1;
-    opacity.value = 1;
+    scale.set(1);
+    opacity.set(1);
 
     onLongPress?.(event);
   }
@@ -85,8 +91,58 @@ function AnimatedPressable({
   onLongPress,
   onPressIn,
   onPressOut,
-  pressedOpacity = motionPress.opacity,
-  pressedScale = motionPress.scale,
+  pressedOpacity = DEFAULT_PRESSED_OPACITY,
+  pressedScale = DEFAULT_PRESSED_SCALE,
+  android_ripple,
+  style,
+  ...props
+}: AnimatedPressableProps) {
+  const rippleColor = useCSSVariable("--color-brand-alpha-12");
+  const ripple =
+    android_ripple ??
+    (process.env.EXPO_OS === "android"
+      ? { color: typeof rippleColor === "string" ? rippleColor : undefined, foreground: true }
+      : undefined);
+
+  // Android presses give ripple feedback only, so there is nothing to animate. Skipping the
+  // shared values and animated style keeps each of the many pressables on a screen cheap to
+  // mount, which is most of what a screen push waits on.
+  if (pressedOpacity === 1 && pressedScale === 1) {
+    return (
+      <Pressable
+        ref={ref}
+        onLongPress={onLongPress}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        style={style}
+        android_ripple={ripple}
+        {...props}
+      />
+    );
+  }
+
+  return (
+    <FeedbackPressable
+      ref={ref}
+      onLongPress={onLongPress}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+      pressedOpacity={pressedOpacity}
+      pressedScale={pressedScale}
+      android_ripple={ripple}
+      style={style}
+      {...props}
+    />
+  );
+}
+
+function FeedbackPressable({
+  ref,
+  onLongPress,
+  onPressIn,
+  onPressOut,
+  pressedOpacity,
+  pressedScale,
   style,
   ...props
 }: AnimatedPressableProps) {

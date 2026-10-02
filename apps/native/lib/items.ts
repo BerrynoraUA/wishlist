@@ -41,7 +41,7 @@ export function getItemPriorityOptions(t: TranslateFn, selectedPriorityIds?: str
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((priority) => ({
       value: priority.id,
-      label: t(priority.name),
+      label: getTranslatedItemPriorityLabel(t, priority.id) ?? priority.name,
       priority_id: priority.id,
       color: priority.color,
       is_free: priority.is_free,
@@ -65,8 +65,18 @@ export function getTranslatedItemPriorityLabel(
   t: TranslateFn,
   priorityId: string | null | undefined,
 ): string | null {
-  const priority = ALL_PRIORITIES.find((item) => item.id === priorityId);
-  return priority ? t(priority.name) : null;
+  switch (priorityId) {
+    case PRIORITY_IDS.LOW:
+      return t("Low");
+    case PRIORITY_IDS.MEDIUM:
+      return t("Medium");
+    case PRIORITY_IDS.HIGH:
+      return t("High");
+    case PRIORITY_IDS.STAR:
+      return t("Starred");
+    default:
+      return null;
+  }
 }
 
 export function getItemPriority(priorityId: string | null | undefined) {

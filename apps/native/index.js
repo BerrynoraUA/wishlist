@@ -17,6 +17,7 @@
 require("./polyfills/gtIntlPolyfills");
 // Supabase PKCE needs secure randomness and SHA-256 before auth starts.
 require("./polyfills/crypto");
+require("./lib/i18n");
 
 // Start restoring the session now rather than waiting for `AuthProvider`'s effect, which
 // only runs once the whole provider chain has rendered. The keychain read — and any token

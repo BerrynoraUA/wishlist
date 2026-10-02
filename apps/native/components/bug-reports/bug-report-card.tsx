@@ -9,6 +9,7 @@ import { useGT, useLocale } from "gt-react-native";
 import { AlertCircle, CheckCircle2, Code2, Image as ImageIcon } from "lucide-react-native";
 import * as React from "react";
 import { View } from "react-native";
+import { getDateTimeFormat } from "@/lib/intl";
 
 const DATE_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
   day: "numeric",
@@ -21,9 +22,7 @@ export const BugReportCard = React.memo(function BugReportCard({ report }: { rep
   const locale = useLocale();
   const [expanded, setExpanded] = React.useState(false);
   const authorName = report.user_display_name ?? t("Anonymous");
-  const date = new Intl.DateTimeFormat(locale, DATE_FORMAT_OPTIONS).format(
-    new Date(report.created_at),
-  );
+  const date = getDateTimeFormat(locale, DATE_FORMAT_OPTIONS).format(new Date(report.created_at));
 
   return (
     <AnimatedPressable

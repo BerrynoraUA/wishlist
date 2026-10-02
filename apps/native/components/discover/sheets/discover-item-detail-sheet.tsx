@@ -155,10 +155,7 @@ export function DiscoverItemDetailSheet({
           as={LockKeyhole}
           className={reservedByMe ? "size-4 text-primary-foreground" : "size-4 text-brand"}
         />
-        <Text
-          numberOfLines={1}
-          className={reservedByMe ? "text-primary-foreground" : "text-brand"}
-        >
+        <Text numberOfLines={1} className={reservedByMe ? "text-primary-foreground" : "text-brand"}>
           {reservedByMe ? t("Release") : showAsReserved ? t("Reserved") : t("Reserve")}
         </Text>
       </Button>

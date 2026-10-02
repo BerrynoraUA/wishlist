@@ -3,6 +3,7 @@ import { Icon } from "@/components/ui/icon";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
+import { ZoomLink } from "@/components/ui/zoom-link";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useInfiniteFriendWishlists } from "@/hooks/use-wishlists";
 import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
@@ -14,7 +15,7 @@ import {
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { type Href, Stack, useLocalSearchParams } from "expo-router";
 import { Gift } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
@@ -24,7 +25,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function FriendWishlistsScreen() {
   const t = useGT();
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const paddingBottom = useTabBarContentPadding();
   const { width } = useWindowDimensions();
@@ -58,7 +58,7 @@ export default function FriendWishlistsScreen() {
                   <FriendWishlistCard
                     wishlist={wishlist}
                     width={cardWidth}
-                    onPress={() => router.push(`/friends/wishlist/${wishlist.id}` as never)}
+                    href={{ pathname: "/friends/wishlist/[id]", params: { id: wishlist.id } }}
                   />
                 </View>
               ))}
@@ -112,57 +112,51 @@ export default function FriendWishlistsScreen() {
   );
 }
 
-function FriendWishlistCard({
-  wishlist,
-  onPress,
-}: {
-  wishlist: Wishlist;
-  width: number;
-  onPress: () => void;
-}) {
+function FriendWishlistCard({ wishlist, href }: { wishlist: Wishlist; width: number; href: Href }) {
   const t = useGT();
   const visibilityLabels = React.useMemo(() => getWishlistVisibilityLabels(t), [t]);
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[wishlist.visibility_type];
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={t('Open "{title}"', { title: wishlist.title })}
-      onPress={onPress}
-      className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm active:scale-[0.99]"
-    >
-      <View className="h-30 items-center justify-center overflow-hidden">
-        <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
-        {wishlist.image_url ? (
-          <StyledImage
-            source={{ uri: wishlist.image_url }}
-            contentFit="cover"
-            className="absolute inset-0 size-full"
-          />
-        ) : (
-          <Icon as={Gift} className="size-10 text-white/85" />
-        )}
-        <View className="absolute inset-0 bg-black/10" />
-      </View>
+    <ZoomLink href={href}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('Open "{title}"', { title: wishlist.title })}
+        className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm active:scale-[0.99]"
+      >
+        <View className="h-30 items-center justify-center overflow-hidden">
+          <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
+          {wishlist.image_url ? (
+            <StyledImage
+              source={{ uri: wishlist.image_url }}
+              contentFit="cover"
+              className="absolute inset-0 size-full"
+            />
+          ) : (
+            <Icon as={Gift} className="size-10 text-white/85" />
+          )}
+          <View className="absolute inset-0 bg-black/10" />
+        </View>
 
-      <View className="gap-3 px-4 pb-4 pt-3">
-        <Text className="min-h-10 text-[15px] font-bold leading-5 text-text" numberOfLines={2}>
-          {wishlist.title}
-        </Text>
-        <View className="flex-row items-center justify-between gap-3">
-          <Text className="text-sm font-semibold text-text-muted">
-            {(wishlist.items_count ?? 0) === 1
-              ? t("1 item")
-              : t("{count} items", { count: wishlist.items_count ?? 0 })}
+        <View className="gap-3 px-4 pb-4 pt-3">
+          <Text className="min-h-10 text-[15px] font-bold leading-5 text-text" numberOfLines={2}>
+            {wishlist.title}
           </Text>
-          <View className="flex-row items-center gap-1.5">
-            <Icon as={VisibilityIcon} className="size-3.5 text-text-muted" />
+          <View className="flex-row items-center justify-between gap-3">
             <Text className="text-sm font-semibold text-text-muted">
-              {visibilityLabels[wishlist.visibility_type]}
+              {(wishlist.items_count ?? 0) === 1
+                ? t("1 item")
+                : t("{count} items", { count: wishlist.items_count ?? 0 })}
             </Text>
+            <View className="flex-row items-center gap-1.5">
+              <Icon as={VisibilityIcon} className="size-3.5 text-text-muted" />
+              <Text className="text-sm font-semibold text-text-muted">
+                {visibilityLabels[wishlist.visibility_type]}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
-    </Pressable>
+      </Pressable>
+    </ZoomLink>
   );
 }

@@ -8,6 +8,7 @@ import { useLocale, useGT } from "gt-react-native";
 import { CheckCircle2, ChevronUp, Code2, Sparkles } from "lucide-react-native";
 import * as React from "react";
 import { View } from "react-native";
+import { getDateTimeFormat } from "@/lib/intl";
 
 const DATE_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
   day: "numeric",
@@ -28,9 +29,7 @@ export const FeatureIdeaCard = React.memo(function FeatureIdeaCard({
   const locale = useLocale();
   const [expanded, setExpanded] = React.useState(false);
   const authorName = idea.user_display_name ?? t("Anonymous");
-  const date = new Intl.DateTimeFormat(locale, DATE_FORMAT_OPTIONS).format(
-    new Date(idea.created_at),
-  );
+  const date = getDateTimeFormat(locale, DATE_FORMAT_OPTIONS).format(new Date(idea.created_at));
 
   return (
     <AnimatedPressable

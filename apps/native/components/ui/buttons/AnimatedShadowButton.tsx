@@ -44,14 +44,14 @@ export const AnimatedShadowButton = ({
   const animatedStyle = useAnimatedStyle(() =>
     Platform.OS === "android"
       ? {
-          elevation: interpolate(transition.value, [0, 1], [elevation, 0]),
+          elevation: interpolate(transition.get(), [0, 1], [elevation, 0]),
         }
       : {
           shadowOffset: {
             width: 0,
-            height: interpolate(transition.value, [0, 1], [elevation / 2, 0]),
+            height: interpolate(transition.get(), [0, 1], [elevation / 2, 0]),
           },
-          shadowRadius: interpolate(transition.value, [0, 1], [elevation / 1.5, 0]),
+          shadowRadius: interpolate(transition.get(), [0, 1], [elevation / 1.5, 0]),
         },
   );
 
@@ -68,20 +68,22 @@ export const AnimatedShadowButton = ({
       hitSlop={16}
       onPress={onPress}
       onPressIn={() => {
-        isActive.value = true;
-        transition.value = withTiming(1, { duration: DURATION }, () => {
-          if (!isActive.value) {
-            transition.value = withTiming(0, {
-              duration: DURATION,
-            });
-          }
-        });
+        isActive.set(true);
+        transition.set(
+          withTiming(1, { duration: DURATION }, () => {
+            if (!isActive.value) {
+              transition.value = withTiming(0, {
+                duration: DURATION,
+              });
+            }
+          }),
+        );
       }}
       onPressOut={() => {
-        if (isActive.value && transition.value === 1) {
-          transition.value = withTiming(0, { duration: DURATION });
+        if (isActive.get() && transition.get() === 1) {
+          transition.set(withTiming(0, { duration: DURATION }));
         }
-        isActive.value = false;
+        isActive.set(false);
       }}
     >
       {({ pressed }) => (

@@ -25,3 +25,9 @@ minimumReleaseAgeExclude:
   - "@expo/config-plugins@56.0.13"
   - "@expo/require-utils@56.1.5"
   - expo-sharing@56.0.22
+  - expo-constants@57.0.20
+  - expo-modules-core@57.0.20
+  - expo@57.0.26
+  - "@expo/ui@57.0.21"
+  - expo-router@57.0.24
+  - expo-updates@57.0.24

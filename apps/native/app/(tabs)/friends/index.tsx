@@ -229,9 +229,10 @@ export default function FriendsScreen() {
             ) : (
               <FriendCard
                 friend={entry as FriendWithDetails}
-                onOpen={(friendId) =>
-                  router.push({ pathname: "/friends/[id]", params: { id: friendId } } as never)
-                }
+                href={{
+                  pathname: "/friends/[id]",
+                  params: { id: (entry as FriendWithDetails).friend_id },
+                }}
                 onRemove={(friendId) => setSheet({ type: "removeFriend", friendId })}
               />
             )}
@@ -246,14 +247,18 @@ export default function FriendsScreen() {
       <Stack.Screen options={{ title: t("Friends") }} />
       <View className="flex-1 bg-bg">
         <PinnedListHeader contentWidth={contentWidth} onLayout={onHeaderLayout}>
-          {tab === "friends" || tab === "groups" ? (
-            <ExpandingSearchHeader
-              search={search}
-              onChangeSearch={handleSearchChange}
-              placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
-              contentWidth={contentWidth}
-            >
+          {/* One header for every tab, so switching between searchable and non-searchable
+              tabs animates the search button away instead of rebuilding the tabs. */}
+          <ExpandingSearchHeader
+            search={search}
+            onChangeSearch={handleSearchChange}
+            placeholder={tab === "groups" ? t("Search groups") : t("Search friends")}
+            contentWidth={contentWidth}
+            searchEnabled={tab === "friends" || tab === "groups"}
+          >
+            {(opacity) => (
               <FriendsTabs
+                opacity={opacity}
                 value={tab}
                 friendsCount={friends.length}
                 groupsCount={groups.length}
@@ -262,18 +267,8 @@ export default function FriendsScreen() {
                 blockedCount={blocked.length}
                 onChange={handleTabChange}
               />
-            </ExpandingSearchHeader>
-          ) : (
-            <FriendsTabs
-              value={tab}
-              friendsCount={friends.length}
-              groupsCount={groups.length}
-              requestsCount={requests.length}
-              sentCount={outgoing.length}
-              blockedCount={blocked.length}
-              onChange={handleTabChange}
-            />
-          )}
+            )}
+          </ExpandingSearchHeader>
         </PinnedListHeader>
         <StyledFlashList
           data={isLoading || isError ? [] : rows}

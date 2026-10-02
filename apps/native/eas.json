@@ -10,6 +10,9 @@
     },
     "development": {
       "extends": "base",
+      "env": {
+        "APP_VARIANT": "development"
+      },
       "developmentClient": true,
       "distribution": "internal",
       "channel": "development",
