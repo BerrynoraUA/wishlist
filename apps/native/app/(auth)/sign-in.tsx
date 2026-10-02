@@ -59,7 +59,7 @@ export default function SignInScreen() {
                 <Image
                   accessibilityLabel={t("Happy Wishlane mascot pointing to sign-in options")}
                   contentFit="contain"
-                  source={require("@/assets/images/mascot/happy-pointing-down.png")}
+                  source={require("@/assets/images/mascot/happy-pointing-down.webp")}
                   style={{ height: 232, width: 232 }}
                 />
               </View>

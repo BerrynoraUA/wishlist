@@ -55,6 +55,7 @@
       "ur": "./store/ios-locales/ur.json"
     },
     "ios": {
+      "icon": "./assets/app-icon.icon",
       "supportsTablet": false,
       "bundleIdentifier": "com.berrynora.wishlane",
       "usesAppleSignIn": true,
