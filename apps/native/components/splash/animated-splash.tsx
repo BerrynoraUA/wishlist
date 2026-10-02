@@ -50,7 +50,7 @@ const MASCOT_VISIBLE_WIDTH = 438;
 // Keep in sync with imageWidth in app.json.
 const ICON_WIDTH = 240;
 const ICON_HEIGHT = ICON_WIDTH * (MASCOT_SOURCE_HEIGHT / MASCOT_SOURCE_WIDTH);
-const ICON_SOURCE = require("@/assets/images/splash-mascot.png");
+const ICON_SOURCE = require("@/assets/images/splash-mascot.webp");
 
 // Safety net in case the image onDisplay event never fires.
 const NATIVE_SPLASH_FALLBACK_MS = 600;

@@ -27,7 +27,7 @@ export function MascotEmptyState({
     <div className={`${styles.state} ${compact ? styles.compact : ""} ${className ?? ""}`}>
       <Image
         className={styles.image}
-        src={`/mascot/${variant}.png`}
+        src={`/mascot/${variant}.webp`}
         alt=""
         aria-hidden="true"
         width={256}

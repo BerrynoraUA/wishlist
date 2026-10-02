@@ -115,7 +115,7 @@ iOS captures require macOS and Xcode; the runner refuses to start them anywhere 
 | 6.9" iPhone screenshots | 1290×2796 or 1320×2868 px | Yes, 3–10 |
 | 6.5" iPhone screenshots | 1242×2688 or 1284×2778 px | Yes, 3–10 |
 | 13" iPad screenshots | 2064×2752 or 2048×2732 px | No — `ios.supportsTablet` is `false` |
-| App icon | 1024×1024 px, no alpha, no rounding | Already in binary from `assets/images/icon.png` |
+| App icon | Icon Composer package, full square canvas, no baked-in rounding | Generated in the binary from `assets/app-icon.icon`; opaque 1024×1024 PNG fallback at `assets/images/icon.png` |
 | App preview video | 15–30 s, same resolutions | Optional |
 
 Apple scales the 6.9" set down to all smaller iPhones automatically.

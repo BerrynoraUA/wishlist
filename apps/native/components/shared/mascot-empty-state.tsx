@@ -14,15 +14,15 @@ export type MascotVariant =
   | "holding-key";
 
 const MASCOT_IMAGES: Record<MascotVariant, ImageSource> = {
-  "sad-alone": require("@/assets/images/mascot/sad-alone.png"),
-  "gift-in-hands": require("@/assets/images/mascot/gift-in-hands.png"),
-  "empty-hands-shrug": require("@/assets/images/mascot/empty-hands-shrug.png"),
-  "magnifying-glass": require("@/assets/images/mascot/magnifying-glass.png"),
-  "explorer-map": require("@/assets/images/mascot/explorer-map.png"),
-  "sleeping-bell": require("@/assets/images/mascot/sleeping-bell.png"),
-  "lightbulb-idea": require("@/assets/images/mascot/lightbulb-idea.png"),
-  "santa-sack": require("@/assets/images/mascot/santa-sack.png"),
-  "holding-key": require("@/assets/images/mascot/holding-key.png"),
+  "sad-alone": require("@/assets/images/mascot/sad-alone.webp"),
+  "gift-in-hands": require("@/assets/images/mascot/gift-in-hands.webp"),
+  "empty-hands-shrug": require("@/assets/images/mascot/empty-hands-shrug.webp"),
+  "magnifying-glass": require("@/assets/images/mascot/magnifying-glass.webp"),
+  "explorer-map": require("@/assets/images/mascot/explorer-map.webp"),
+  "sleeping-bell": require("@/assets/images/mascot/sleeping-bell.webp"),
+  "lightbulb-idea": require("@/assets/images/mascot/lightbulb-idea.webp"),
+  "santa-sack": require("@/assets/images/mascot/santa-sack.webp"),
+  "holding-key": require("@/assets/images/mascot/holding-key.webp"),
 };
 
 export function MascotEmptyState({
