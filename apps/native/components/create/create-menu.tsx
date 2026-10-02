@@ -11,6 +11,7 @@ import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { useCreateFriendGroup } from "@/hooks/use-friends";
 import { useCurrentUserId } from "@/hooks/use-user";
 import { hapticSuccess } from "@/lib/haptics";
+import { showToast } from "@/components/ui/toast";
 import { useProGate } from "@/hooks/use-pro-gate";
 import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { useMyStatistics, useWishlistById } from "@/hooks/use-wishlists";
@@ -165,6 +166,7 @@ export function CreateMenuHost({
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
 }) {
+  const t = useGT();
   const { completeStep } = useUserGuide();
   const [action, setAction] = React.useState<CreateAction | null>(null);
   const [itemMenuOpen, setItemMenuOpen] = React.useState(false);
@@ -281,6 +283,7 @@ export function CreateMenuHost({
     if (!userId) return;
     await Clipboard.setStringAsync(getFriendInviteLink(userId));
     hapticSuccess();
+    showToast(t("Invite link copied"));
   }
 
   function closeAction(openState: boolean) {

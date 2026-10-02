@@ -1,7 +1,7 @@
 import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { Input } from "@/components/ui/input";
+import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
 import { Text } from "@/components/ui/text";
 import { MascotEmptyState } from "@/components/shared/mascot-empty-state";
 import {
@@ -12,10 +12,10 @@ import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useProGate } from "@/hooks/use-pro-gate";
 import { useGrantWishlistAccess, useRevokeWishlistAccess } from "@/hooks/use-wishlists";
 import type { ProfileSearchResult } from "@wishlist/backend/types/friends";
-import { Check, Lock, Search, Shield, SquarePen, X } from "lucide-react-native";
+import { Check, Lock, Shield, SquarePen, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, View } from "react-native";
 
 type GrantAccessFormValues = {
@@ -25,6 +25,15 @@ type GrantAccessFormValues = {
 };
 
 const FRIENDS_PAGE_SIZE = 20;
+
+function toPickerItem(friend: ProfileSearchResult): PeoplePickerItem {
+  return {
+    id: friend.id,
+    name: friend.display_name || `@${friend.nickname}`,
+    subtitle: friend.display_name ? `@${friend.nickname}` : null,
+    avatarUrl: friend.avatar_url,
+  };
+}
 
 export function WishlistGrantAccessSheet({
   open,
@@ -58,6 +67,12 @@ export function WishlistGrantAccessSheet({
   const accessListQuery = useWishlistAccessList(wishlistId, { enabled: open && !isGated });
   const grantAccess = useGrantWishlistAccess();
   const revokeAccess = useRevokeWishlistAccess();
+  const friendItems = React.useMemo<PeoplePickerItem[]>(
+    () => friends.map(toPickerItem),
+    [friends],
+  );
+  // The picked friend stays shown even once a new search filters it out of `friends`.
+  const selectedItems = values.selectedFriend ? [toPickerItem(values.selectedFriend)] : [];
 
   React.useEffect(() => {
     if (!open) {
@@ -152,90 +167,29 @@ export function WishlistGrantAccessSheet({
           <Text className="text-base font-extrabold text-text">{wishlistTitle}</Text>
         </View>
 
-        <View className="gap-3">
-          <Text className="text-sm font-bold text-text">{t("Choose a friend")}</Text>
-          {values.selectedFriend ? (
-            <View className="flex-row items-center justify-between rounded-xl border border-brand bg-brand-lighter p-3">
-              <View>
-                <Text className="font-extrabold text-text">@{values.selectedFriend.nickname}</Text>
-                <Text className="text-xs font-semibold text-text-muted">
-                  {t("Ready to grant access")}
-                </Text>
-              </View>
-              <Button variant="outline" size="sm" onPress={() => setValue("selectedFriend", null)}>
-                <Text>{t("Change")}</Text>
-              </Button>
-            </View>
-          ) : (
-            <>
-              <View className="flex-row items-center gap-2 rounded-full border border-border-subtle bg-card-bg px-3">
-                <Icon as={Search} className="size-4 text-muted-foreground/50" />
-                <Controller
-                  control={control}
-                  name="query"
-                  render={({ field: { onChange, value } }) => (
-                    <Input
-                      value={value}
-                      onChangeText={onChange}
-                      placeholder={t("Search among your friends")}
-                      autoCapitalize="none"
-                      // Looks up other people, so no autofill — and no yellow overlay for it.
-                      autoComplete="off"
-                      importantForAutofill="no"
-                      className="h-11 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
-                      returnKeyType="search"
-                    />
-                  )}
-                />
-                {values.query.length > 0 ? (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    accessibilityLabel={t("Clear search")}
-                    onPress={() => setValue("query", "")}
-                    className="size-9 shrink-0 rounded-full"
-                  >
-                    <Icon as={X} className="size-4 text-destructive" />
-                  </Button>
-                ) : null}
-              </View>
-              <View className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg">
-                {friendsQuery.isLoading ? (
-                  <View className="items-center p-4">
-                    <ActivityIndicator colorClassName="accent-brand" />
-                  </View>
-                ) : friends.length === 0 ? (
-                  <Text className="p-4 text-sm font-semibold text-text-muted">
-                    {t("No matching friends found.")}
-                  </Text>
-                ) : (
-                  <>
-                    {friends.map((friend) => (
-                      <Button
-                        key={friend.id}
-                        variant="ghost"
-                        className="justify-start rounded-none border-b border-border-subtle px-4"
-                        onPress={() => setValue("selectedFriend", friend)}
-                      >
-                        <Text>@{friend.nickname}</Text>
-                      </Button>
-                    ))}
-                    {friendsQuery.hasNextPage ? (
-                      <Button
-                        variant="ghost"
-                        disabled={friendsQuery.isFetchingNextPage}
-                        onPress={loadMoreFriends}
-                      >
-                        {friendsQuery.isFetchingNextPage ? <ActivityIndicator /> : null}
-                        <Text>{t("Load more")}</Text>
-                      </Button>
-                    ) : null}
-                  </>
-                )}
-              </View>
-            </>
-          )}
-        </View>
+        <PeoplePickerField
+          single
+          label={t("Choose a friend")}
+          title={t("Choose a friend")}
+          addLabel={t("Choose a friend")}
+          items={friendItems}
+          selected={selectedItems}
+          onChange={(next) => {
+            const picked = next[0];
+            setValue(
+              "selectedFriend",
+              picked ? (friends.find((friend) => friend.id === picked.id) ?? null) : null,
+            );
+          }}
+          query={values.query}
+          onQueryChange={(query) => setValue("query", query)}
+          searchPlaceholder={t("Search among your friends")}
+          isLoading={friendsQuery.isLoading}
+          isError={friendsQuery.isError}
+          isFetchingMore={friendsQuery.isFetchingNextPage}
+          onEndReached={loadMoreFriends}
+          emptyLabel={t("No matching friends found.")}
+        />
 
         <View className="gap-3">
           <Text className="text-sm font-bold text-text">{t("Access level")}</Text>

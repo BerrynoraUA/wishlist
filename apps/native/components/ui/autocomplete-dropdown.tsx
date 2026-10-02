@@ -52,8 +52,8 @@ type CommonProps = {
   showSelectedValue?: boolean;
   inputAccessory?: React.ReactNode;
   /**
-   * Adds a row above the options for creating a new entry, e.g. from a search that found
-   * nothing. `onPress` gets the trimmed query and runs once the list has closed.
+   * Adds a create button in the sheet header (or a row for inline options).
+   * `onPress` gets the trimmed query and runs once the list has closed.
    */
   createAction?: {
     label: (query: string) => string;
@@ -369,6 +369,29 @@ export function AutocompleteDropdown({
     ...footerInputProps
   } = inputProps ?? {};
 
+  const sheetSearch = (
+    <View className="w-full px-5 pb-3 pt-3">
+      <TextInput
+        value={query}
+        onChangeText={handleQueryChange}
+        onSubmitEditing={handleSubmit}
+        placeholder={placeholder}
+        autoCorrect={false}
+        returnKeyType="search"
+        className={cn(
+          INPUT_CLASS_NAME,
+          "placeholder:text-muted-foreground/50",
+          footerClassName,
+        )}
+        placeholderTextColorClassName={cn(
+          "accent-muted-foreground/50",
+          footerPlaceholderClassName,
+        )}
+        {...footerInputProps}
+      />
+    </View>
+  );
+
   // Read-only field that shows the current selection and opens the sheet on press.
   const sheetTrigger = selectedFlagCountry ? (
     <View className="relative justify-center">
@@ -440,29 +463,25 @@ export function AutocompleteDropdown({
           detents={[0.9]}
           footerInsetMode="scroll-content"
           onDidDismiss={handleSheetDismiss}
-          header={<BottomSheetHeader title={sheetTitle ?? placeholder ?? ""} />}
-          footer={
-            <View className="w-full px-5 pb-3 pt-3">
-              <TextInput
-                value={query}
-                onChangeText={handleQueryChange}
-                onSubmitEditing={handleSubmit}
-                placeholder={placeholder}
-                autoCorrect={false}
-                returnKeyType="search"
-                className={cn(
-                  INPUT_CLASS_NAME,
-                  "placeholder:text-muted-foreground/50",
-                  footerClassName,
-                )}
-                placeholderTextColorClassName={cn(
-                  "accent-muted-foreground/50",
-                  footerPlaceholderClassName,
-                )}
-                {...footerInputProps}
+          header={
+            <View>
+              <BottomSheetHeader
+                title={sheetTitle ?? placeholder ?? ""}
+                action={createAction ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-11 rounded-full bg-brand-lighter"
+                    accessibilityLabel={createAction.label(query.trim())}
+                    onPress={() => void handleCreate()}
+                  >
+                    <Icon as={Plus} className="size-5 text-brand" />
+                  </Button>
+                ) : undefined}
               />
             </View>
           }
+          footer={sheetSearch}
         >
           <BottomSheetScrollView
             keyboardShouldPersistTaps="handled"
@@ -473,7 +492,6 @@ export function AutocompleteDropdown({
               paddingHorizontal: 20,
             }}
           >
-            {createRow}
             {isLoading && matchingOptions.length === 0 ? (
               <View className="h-16 items-center justify-center">
                 <ActivityIndicator colorClassName="accent-brand" size="small" />

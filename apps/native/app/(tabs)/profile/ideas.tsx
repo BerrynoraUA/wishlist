@@ -4,6 +4,7 @@ import { FeatureIdeasTabs } from "@/components/feature-ideas/feature-ideas-tabs"
 import { SubmitFeatureIdeaSheet } from "@/components/feature-ideas/submit-feature-idea-sheet";
 import { MascotEmptyState } from "@/components/shared/mascot-empty-state";
 import { Button } from "@/components/ui/button";
+import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Icon } from "@/components/ui/icon";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
@@ -18,9 +19,9 @@ import {
   sortIdeasByVotes,
 } from "@/lib/feature-ideas";
 import { PREFERENCE_KEYS, preferencesStorage } from "@/lib/storage";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import { useGT } from "gt-react-native";
-import { ArrowLeft, Clock3, Info, Lightbulb, RefreshCw, X } from "lucide-react-native";
+import { Clock3, Info, Plus, RefreshCw, X } from "lucide-react-native";
 import * as React from "react";
 import { RefreshControl, View, useWindowDimensions } from "react-native";
 import { ListRowsSkeleton } from "@/components/ui/list-skeletons";
@@ -28,7 +29,7 @@ import { useMMKVBoolean } from "react-native-mmkv";
 
 export default function IdeasScreen() {
   const t = useGT();
-  const router = useRouter();
+  const [actionWidth, setActionWidth] = React.useState(0);
   const { width } = useWindowDimensions();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding(2);
   const paddingBottom = useTabBarContentPadding();
@@ -99,27 +100,29 @@ export default function IdeasScreen() {
       <Stack.Screen options={{ title: t("Feature Ideas") }} />
       <View className="flex-1 bg-bg">
         <PinnedListHeader contentWidth={width - 32} onLayout={onHeaderLayout}>
-          <View className="flex-row items-center justify-between gap-3">
-            <View className="min-w-0 flex-1 flex-row items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                accessibilityLabel={t("Back")}
-                onPress={() => router.back()}
-                className="rounded-full"
-              >
-                <Icon as={ArrowLeft} className="size-5 text-text" />
-              </Button>
-              <Text className="min-w-0 flex-1 text-xl font-extrabold text-text" numberOfLines={1}>
-                {t("Feature Ideas")}
-              </Text>
+          {/* Title centred on the screen; padded by the action's width so a long translation
+              never runs under it. Back lives in the shared floating button, as on every
+              other detail screen. */}
+          <View className="min-h-11 justify-center">
+            <Text
+              className="text-center text-xl font-extrabold text-text"
+              numberOfLines={1}
+              style={{ paddingHorizontal: actionWidth + 8 }}
+            >
+              {t("Feature Ideas")}
+            </Text>
+            <View
+              className="absolute end-0"
+              onLayout={(event) => setActionWidth(event.nativeEvent.layout.width)}
+            >
+              <AnimatedGradientBackgroundButton
+                iconOnly
+                accessibilityLabel={t("Submit Idea")}
+                Icon={<Icon as={Plus} className="size-6 text-primary-foreground" />}
+                onPress={() => setSubmitOpen(true)}
+                title={t("Submit Idea")}
+              />
             </View>
-            <AnimatedGradientBackgroundButton
-              accessibilityLabel={t("Submit Idea")}
-              Icon={<Icon as={Lightbulb} className="size-4 text-primary-foreground" />}
-              onPress={() => setSubmitOpen(true)}
-              title={t("Submit Idea")}
-            />
           </View>
           <FeatureIdeasTabs value={statusFilter} onChange={setStatusFilter} />
         </PinnedListHeader>
@@ -174,6 +177,7 @@ export default function IdeasScreen() {
             />
           }
         />
+        <FloatingBackButton />
       </View>
       <SubmitFeatureIdeaSheet
         open={submitOpen}

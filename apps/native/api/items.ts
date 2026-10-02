@@ -7,6 +7,26 @@ import type {
   UpdateItemParams,
 } from "@wishlist/backend/types/item";
 import { createLocalizedNotification } from "@/lib/create-notification";
+import { isStarPriorityId, STAR_PRIORITY_ID } from "@wishlist/backend/lib";
+
+const MAX_STAR_ITEMS_PER_WISHLIST = 3;
+
+async function ensureStarPriorityLimit(wishlistId: string, excludeItemId?: string) {
+  let query = supabase
+    .from("item")
+    .select("id", { count: "exact", head: true })
+    .eq("wishlist_id", wishlistId)
+    .eq("priority_id", STAR_PRIORITY_ID);
+
+  if (excludeItemId) query = query.neq("id", excludeItemId);
+
+  const { count, error } = await query;
+  if (error) throw error;
+
+  if ((count ?? 0) >= MAX_STAR_ITEMS_PER_WISHLIST) {
+    throw new Error("You can have up to 3 starred items in one wishlist.");
+  }
+}
 
 /** Extra fields the toggle RPCs return alongside the item, used to notify the owner. */
 type ToggleItemResult = {
@@ -64,6 +84,10 @@ export async function createItem({
   additional_links,
   color_index,
 }: CreateItemParams): Promise<Item> {
+  if (isStarPriorityId(priority_id)) {
+    await ensureStarPriorityLimit(wishlist_id);
+  }
+
   const { data, error } = await supabase
     .from("item")
     .insert({
@@ -91,6 +115,21 @@ export async function createItem({
 }
 
 export async function updateItem(itemId: string, updates: UpdateItemParams): Promise<Item> {
+  if (isStarPriorityId(updates.priority_id)) {
+    const { data: currentItem, error } = await supabase
+      .from("item")
+      .select("wishlist_id,priority_id")
+      .eq("id", itemId)
+      .single();
+
+    if (error) throw error;
+
+    // Editing an already starred item keeps its existing slot.
+    if (!isStarPriorityId(currentItem.priority_id)) {
+      await ensureStarPriorityLimit(currentItem.wishlist_id, itemId);
+    }
+  }
+
   const payload: Record<string, unknown> = {};
 
   if (updates.name !== undefined) payload.name = updates.name;

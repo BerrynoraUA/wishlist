@@ -1,5 +1,5 @@
 import { normalizeSearchQuery } from "@/lib/wishlists";
-import { notifySecretSantaInvites } from "@/lib/create-notification";
+import { notifySecretSantaInvites, notifySecretSantaStarted } from "@/lib/create-notification";
 import { generateSecretSantaAssignment } from "@/lib/secret-santa-assignment";
 import { removeOwnedStorageImage } from "@/lib/storage";
 import { supabase } from "@wishlist/backend/supabase/native";
@@ -376,6 +376,10 @@ export async function launchSecretSanta(input: LaunchSecretSantaInput): Promise<
   });
 
   if (error) throw error;
+
+  // Fire-and-forget so the organizer sees the draw right away. create_notification skips the
+  // caller, so the organizer is not notified about their own draw.
+  void notifySecretSantaStarted(input.event_id, participantIds);
 }
 
 export async function getUserVisibleItemsByMaxPrice(

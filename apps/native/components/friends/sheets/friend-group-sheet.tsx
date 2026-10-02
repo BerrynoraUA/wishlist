@@ -3,6 +3,7 @@ import {
   BottomSheetHeader,
   BottomSheetScrollView,
   type BottomSheetRef,
+  useSheetContentDetent,
 } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -53,6 +54,9 @@ export function FriendGroupSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  // Scrollable and sized to its content, so the form never gets cut off when the keyboard
+  // pushes the sheet up — the rest of it scrolls instead.
+  const { detent, onContentSizeChange, onHeaderLayout } = useSheetContentDetent();
   const membersQuery = useFriendGroupMembers(group?.id);
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
@@ -130,11 +134,15 @@ export function FriendGroupSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable={Boolean(group)}
-      detents={group ? undefined : ["auto"]}
+      scrollable
+      detents={[detent]}
       footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
-      header={<BottomSheetHeader title={group ? t("Edit group") : t("Create a group")} />}
+      header={
+        <View onLayout={onHeaderLayout}>
+          <BottomSheetHeader title={group ? t("Edit group") : t("Create a group")} />
+        </View>
+      }
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -161,6 +169,7 @@ export function FriendGroupSheet({
         contentContainerClassName="gap-3 px-5"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        onContentSizeChange={onContentSizeChange}
       >
         <View className="gap-1.5">
           <Text className="text-sm font-bold text-text">{t("Group name")}</Text>

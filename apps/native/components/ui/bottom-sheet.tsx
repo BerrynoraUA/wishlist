@@ -37,6 +37,8 @@ const DEFAULT_SCROLLABLE_DETENTS: BottomSheetDetents = [0.75, 1];
 const FOOTER_CONTENT_GAP = 12;
 /** iOS's standard content margin, used under every sheet's last row. */
 const SHEET_CONTENT_BOTTOM_MARGIN = 16;
+/** Gap kept between a sheet footer and the keyboard. */
+const FOOTER_KEYBOARD_GAP = 12;
 /**
  * iOS sizes a sheet's corners concentrically with the display it sits on, so its own radius is
  * both larger than anything we would pick and device-specific — `undefined` hands the choice
@@ -310,7 +312,10 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         }
         header={header}
         footer={resolvedFooter}
-        footerOptions={{ keyboardOffset: -bottomSafeAreaInset }}
+        // The footer pads itself past the home indicator; with the keyboard up that padding
+        // would hide behind the keys and leave the buttons glued to them, so shift it down by
+        // all but a small gap.
+        footerOptions={{ keyboardOffset: -(footerBottomPadding - FOOTER_KEYBOARD_GAP) }}
         footerStyle={footerStyle}
         backgroundColor={backgroundColor ?? sheetBackground}
         grabberOptions={{

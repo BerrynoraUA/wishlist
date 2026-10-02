@@ -30,6 +30,7 @@ import type {
 } from "@wishlist/backend/types/secret-santa";
 import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
 import { CalendarDays, X } from "lucide-react-native";
+import { router } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, useWindowDimensions, View } from "react-native";
@@ -206,9 +207,10 @@ export function SecretSantaCreateEditSheet({
         invited_user_ids: participants.map((participant) => participant.id),
       },
       {
-        onSuccess: () => {
+        onSuccess: (event) => {
           onSaved?.();
           closeSheet();
+          router.push(`/secret-santa/${event.id}` as never);
         },
         onError: (mutationError) => setError(mutationError.message),
       },

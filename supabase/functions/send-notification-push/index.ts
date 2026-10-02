@@ -63,6 +63,8 @@ function getNotificationUrl(record: NotificationRecord) {
       return "/friends";
     case 0:
       return "/secret-santa";
+    case 9:
+      return record.entity_id ? `/secret-santa/${record.entity_id}` : "/secret-santa";
     default:
       return null;
   }

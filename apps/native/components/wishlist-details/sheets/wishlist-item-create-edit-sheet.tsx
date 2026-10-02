@@ -45,6 +45,7 @@ import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
 import { WISHLIST_PAGE_SIZE } from "@/lib/wishlists";
 import { resolveSupportedCurrency } from "@wishlist/backend/lib/currencies";
+import { getItemColor } from "@wishlist/backend/lib/item-colors";
 import type { Item, ItemFormValues } from "@wishlist/backend/types/item";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
@@ -585,6 +586,7 @@ export function WishlistItemCreateEditSheet({
             radiusClassName="rounded-xl"
           >
             <SingleImagePicker
+              borderColor={getItemColor(values.colorIndex)}
               previewUri={
                 imageUpload.pickedImage?.uri ?? (imageUrlInvalid ? null : values.imageUrl.trim())
               }
@@ -686,10 +688,13 @@ export function WishlistItemCreateEditSheet({
                 />
               )}
             />
+            <Text className="text-xs text-text-muted">
+              {t("You can have up to 3 starred items in one wishlist.")}
+            </Text>
           </Field>
         )}
 
-        <Field label={t("Card color")}>
+        <Field label={t("Border color")}>
           <Controller
             control={control}
             name="colorIndex"
@@ -754,7 +759,11 @@ export function WishlistItemCreateEditSheet({
         )}
 
         {error ? (
-          <Text className="text-sm font-semibold text-destructive">{error.message}</Text>
+          <Text className="text-sm font-semibold text-destructive">
+            {error.message === "You can have up to 3 starred items in one wishlist."
+              ? t("You can have up to 3 starred items in one wishlist.")
+              : error.message}
+          </Text>
         ) : null}
       </BottomSheetScrollView>
     </BottomSheet>

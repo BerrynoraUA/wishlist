@@ -21,8 +21,8 @@ export function FeatureIdeasSettings() {
           <Icon as={Lightbulb} className="size-4 text-primary-foreground" />
           <Text>{t("Request a Feature")}</Text>
         </Button>
-        <Button variant="outline" onPress={() => router.push("/(tabs)/profile/bugs" as never)}>
-          <Icon as={Bug} className="size-4 text-text" />
+        <Button variant="destructive" onPress={() => router.push("/(tabs)/profile/bugs" as never)}>
+          <Icon as={Bug} className="size-4 text-white" />
           <Text>{t("Report a Bug")}</Text>
         </Button>
       </View>

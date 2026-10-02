@@ -21,6 +21,9 @@ const buttonVariants = cva(
         // Translucent "glass" control for use over photos/accent backgrounds.
         glass: "border border-white/35 bg-white/25 active:bg-white/40 shadow-sm shadow-black/5",
         link: "",
+        // Colors come entirely from className (e.g. bg-buy-bg text-buy); pressing relies on the
+        // pressable's scale/opacity instead of swapping in a neutral accent background.
+        tinted: "",
       },
       size: {
         default: "h-10 px-4 py-2 sm:h-9",
@@ -54,6 +57,7 @@ const buttonTextVariants = cva("text-text text-sm font-medium", {
       ghost: "group-active:text-accent-foreground",
       glass: "text-white",
       link: "text-primary group-active:underline",
+      tinted: "",
     },
     size: {
       default: "",

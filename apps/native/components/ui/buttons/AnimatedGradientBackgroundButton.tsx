@@ -27,6 +27,8 @@ export interface AnimatedGradientBackgroundButtonProps {
   onPress: () => void;
   title: string;
   variant?: "default" | "brand";
+  /** Round icon-only button; `title` then only serves as the accessibility label fallback. */
+  iconOnly?: boolean;
 }
 
 const HEIGHT = 44;
@@ -40,6 +42,7 @@ export const AnimatedGradientBackgroundButton = ({
   onPress,
   title,
   variant = "default",
+  iconOnly = false,
 }: AnimatedGradientBackgroundButtonProps) => {
   const transition = useSharedValue(0);
   const [outerContainerWidth, setOuterContainerWidth] = useState(0);
@@ -71,7 +74,7 @@ export const AnimatedGradientBackgroundButton = ({
   return (
     <AnimatedPressable
       accessibilityHint={accessibilityHint}
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={accessibilityLabel ?? (iconOnly ? title : undefined)}
       accessibilityRole="button"
       accessibilityState={{
         busy: isLoading,
@@ -90,6 +93,7 @@ export const AnimatedGradientBackgroundButton = ({
             variant === "brand"
               ? "rounded-lg border border-brand/25 bg-brand-lighter"
               : "rounded-md bg-primary",
+            iconOnly && "w-11 rounded-full",
             isDisabled && animatedButtonDisabledClassName,
           )}
         >
@@ -112,6 +116,7 @@ export const AnimatedGradientBackgroundButton = ({
             className={cn(
               "h-11 flex-row items-center justify-center gap-2 px-4 py-2",
               variant === "brand" ? "rounded-lg" : "rounded-md",
+              iconOnly && "rounded-full px-0",
               pressed && (variant === "brand" ? "bg-brand/10" : "bg-primary/20"),
             )}
           >
@@ -123,12 +128,14 @@ export const AnimatedGradientBackgroundButton = ({
             ) : (
               <>
                 {Icon}
-                <Text
-                  numberOfLines={1}
-                  className={variant === "brand" ? "text-brand" : animatedButtonTextClassName}
-                >
-                  {title}
-                </Text>
+                {iconOnly ? null : (
+                  <Text
+                    numberOfLines={1}
+                    className={variant === "brand" ? "text-brand" : animatedButtonTextClassName}
+                  >
+                    {title}
+                  </Text>
+                )}
               </>
             )}
           </View>

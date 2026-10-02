@@ -1,6 +1,6 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { getCurrentUser } from "./user";
-import { notifySecretSantaInvites } from "@/lib/create-notification";
+import { notifySecretSantaInvites, notifySecretSantaStarted } from "@/lib/create-notification";
 import {
   CreateSecretSantaEventInput,
   LaunchSecretSantaInput,
@@ -328,6 +328,10 @@ export async function launchSecretSanta(input: LaunchSecretSantaInput): Promise<
   });
 
   if (error) throw error;
+
+  // Fire-and-forget so the organizer sees the draw right away. create_notification skips the
+  // caller, so the organizer is not notified about their own draw.
+  void notifySecretSantaStarted(input.event_id, participantIds);
 }
 
 export async function getUserVisibleItemsByMaxPrice(

@@ -17,6 +17,7 @@ import {
   ScrollView,
   TextInput,
   View,
+  useWindowDimensions,
 } from "react-native";
 import Animated, {
   FadeIn,
@@ -40,6 +41,7 @@ type EmailAuthFormValues = {
 
 export default function EmailAuthScreen() {
   const t = useGT();
+  const { width, height } = useWindowDimensions();
   const router = useRouter();
   const { session } = useAuth();
   const [mode, setMode] = React.useState<AuthMode>("login");
@@ -99,192 +101,198 @@ export default function EmailAuthScreen() {
   }
 
   return (
-    <KeyboardAvoidingView behavior="padding" className="flex-1 bg-[#16111f]">
-      <ScrollView
-        className="flex-1 bg-[#16111f]"
-        contentContainerClassName="min-h-full flex-grow"
-        contentInsetAdjustmentBehavior="automatic"
-        keyboardShouldPersistTaps="handled"
-      >
-        <View className="relative min-h-full flex-1 overflow-hidden bg-[#16111f]">
-          <AuthWishlistBackground variant="email" />
-
-          <View className="min-h-full flex-1 px-5 py-safe-offset-5">
-            <View className="flex-1 justify-center pb-16">
-              <Animated.View className="w-full max-w-110 self-center" layout={formLayoutTransition}>
-                <Animated.View className="mb-7 items-center gap-3" layout={formLayoutTransition}>
-                  <View className="min-h-11 w-full flex-row items-center justify-center gap-2">
-                    <Pressable
-                      accessibilityLabel={t("Back")}
-                      accessibilityRole="button"
-                      className="size-10 items-center justify-center rounded-full active:bg-white/10 active:scale-95"
-                      hitSlop={12}
-                      onPress={() => {
-                        if (router.canGoBack()) {
-                          router.back();
-                          return;
-                        }
-
-                        router.replace("/(auth)/sign-in" as never);
-                      }}
-                    >
-                      <Icon as={ChevronLeftIcon} className="size-6 text-white" />
-                    </Pressable>
-                    <Animated.View
-                      key={`email-auth-title-${mode}`}
-                      entering={FadeIn.duration(motionDuration.normal)}
-                      exiting={FadeOut.duration(motionDuration.fast)}
-                    >
-                      <Text className="text-center text-[30px] font-extrabold leading-9 text-white">
-                        {isLogin ? t("Welcome back") : t("Create your account")}
-                      </Text>
-                    </Animated.View>
-                  </View>
-                </Animated.View>
-
-                <Animated.View
-                  className="gap-4 rounded-[28px] border border-white/15 bg-[#2a1630]/72 p-5 shadow-lg"
-                  layout={formLayoutTransition}
-                >
-                  <Animated.View className="gap-2" layout={formLayoutTransition}>
-                    <FieldLabel>{t("Email")}</FieldLabel>
-                    <Controller
-                      control={control}
-                      name="email"
-                      render={({ field: { onChange, value } }) => (
-                        <AuthInput
-                          autoCapitalize="none"
-                          autoComplete="email"
-                          keyboardType="email-address"
-                          onChangeText={onChange}
-                          placeholder={t("you@email.com")}
-                          textContentType="emailAddress"
-                          value={value}
-                        />
-                      )}
-                    />
+    <View className="flex-1 bg-[#16111f]">
+      {/* Pinned to the full screen, outside the keyboard-avoiding tree: when the keyboard opens
+          the form shrinks and scrolls, but the backdrop keeps its size and never re-lays out —
+          no flash, and no bare strip where the keyboard is. */}
+      <View pointerEvents="none" style={{ position: "absolute", top: 0, left: 0, width, height }}>
+        <AuthWishlistBackground variant="email" />
+      </View>
+      <KeyboardAvoidingView behavior="padding" className="flex-1">
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="min-h-full flex-grow"
+          contentInsetAdjustmentBehavior="automatic"
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="relative min-h-full flex-1">
+            <View className="min-h-full flex-1 px-5 py-safe-offset-5">
+              <View className="flex-1 justify-center pb-16">
+                <Animated.View className="w-full max-w-110 self-center" layout={formLayoutTransition}>
+                  <Animated.View className="mb-7 items-center gap-3" layout={formLayoutTransition}>
+                    <View className="min-h-11 w-full flex-row items-center justify-center gap-2">
+                      <Pressable
+                        accessibilityLabel={t("Back")}
+                        accessibilityRole="button"
+                        className="size-10 items-center justify-center rounded-full active:bg-white/10 active:scale-95"
+                        hitSlop={12}
+                        onPress={() => {
+                          if (router.canGoBack()) {
+                            router.back();
+                            return;
+                          }
+  
+                          router.replace("/(auth)/sign-in" as never);
+                        }}
+                      >
+                        <Icon as={ChevronLeftIcon} className="size-6 text-white" />
+                      </Pressable>
+                      <Animated.View
+                        key={`email-auth-title-${mode}`}
+                        entering={FadeIn.duration(motionDuration.normal)}
+                        exiting={FadeOut.duration(motionDuration.fast)}
+                      >
+                        <Text className="text-center text-[30px] font-extrabold leading-9 text-white">
+                          {isLogin ? t("Welcome back") : t("Create your account")}
+                        </Text>
+                      </Animated.View>
+                    </View>
                   </Animated.View>
-
-                  <Animated.View className="gap-2" layout={formLayoutTransition}>
-                    <FieldLabel>{t("Password")}</FieldLabel>
-                    <View className="relative">
+  
+                  <Animated.View
+                    className="gap-4 rounded-[28px] border border-white/15 bg-[#2a1630]/72 p-5 shadow-lg"
+                    layout={formLayoutTransition}
+                  >
+                    <Animated.View className="gap-2" layout={formLayoutTransition}>
+                      <FieldLabel>{t("Email")}</FieldLabel>
                       <Controller
                         control={control}
-                        name="password"
+                        name="email"
                         render={({ field: { onChange, value } }) => (
                           <AuthInput
-                            autoComplete={isLogin ? "current-password" : "new-password"}
-                            className="pe-12"
+                            autoCapitalize="none"
+                            autoComplete="email"
+                            keyboardType="email-address"
                             onChangeText={onChange}
-                            placeholder={t("Password")}
-                            secureTextEntry={!showPassword}
-                            textContentType={isLogin ? "password" : "newPassword"}
+                            placeholder={t("you@email.com")}
+                            textContentType="emailAddress"
                             value={value}
                           />
                         )}
                       />
-                      <PasswordToggle
-                        label={showPassword ? t("Hide password") : t("Show password")}
-                        onPress={() => setShowPassword((visible) => !visible)}
-                        visible={showPassword}
-                      />
-                    </View>
-                  </Animated.View>
-
-                  {!isLogin ? (
-                    <Animated.View
-                      className="gap-2"
-                      entering={FadeInDown.duration(motionDuration.normal)}
-                      exiting={FadeOutUp.duration(motionDuration.fast)}
-                      layout={formLayoutTransition}
-                    >
-                      <FieldLabel>{t("Confirm password")}</FieldLabel>
+                    </Animated.View>
+  
+                    <Animated.View className="gap-2" layout={formLayoutTransition}>
+                      <FieldLabel>{t("Password")}</FieldLabel>
                       <View className="relative">
                         <Controller
                           control={control}
-                          name="confirmPassword"
+                          name="password"
                           render={({ field: { onChange, value } }) => (
                             <AuthInput
-                              autoComplete="new-password"
+                              autoComplete={isLogin ? "current-password" : "new-password"}
                               className="pe-12"
                               onChangeText={onChange}
-                              placeholder={t("Confirm password")}
-                              secureTextEntry={!showConfirmPassword}
-                              textContentType="newPassword"
+                              placeholder={t("Password")}
+                              secureTextEntry={!showPassword}
+                              textContentType={isLogin ? "password" : "newPassword"}
                               value={value}
                             />
                           )}
                         />
                         <PasswordToggle
-                          label={showConfirmPassword ? t("Hide password") : t("Show password")}
-                          onPress={() => setShowConfirmPassword((visible) => !visible)}
-                          visible={showConfirmPassword}
+                          label={showPassword ? t("Hide password") : t("Show password")}
+                          onPress={() => setShowPassword((visible) => !visible)}
+                          visible={showPassword}
                         />
                       </View>
                     </Animated.View>
-                  ) : null}
-
-                  {error ? (
-                    <Text
-                      selectable
-                      className="rounded-2xl bg-danger-bg px-3 py-2 text-sm text-danger"
-                    >
-                      {error}
+  
+                    {!isLogin ? (
+                      <Animated.View
+                        className="gap-2"
+                        entering={FadeInDown.duration(motionDuration.normal)}
+                        exiting={FadeOutUp.duration(motionDuration.fast)}
+                        layout={formLayoutTransition}
+                      >
+                        <FieldLabel>{t("Confirm password")}</FieldLabel>
+                        <View className="relative">
+                          <Controller
+                            control={control}
+                            name="confirmPassword"
+                            render={({ field: { onChange, value } }) => (
+                              <AuthInput
+                                autoComplete="new-password"
+                                className="pe-12"
+                                onChangeText={onChange}
+                                placeholder={t("Confirm password")}
+                                secureTextEntry={!showConfirmPassword}
+                                textContentType="newPassword"
+                                value={value}
+                              />
+                            )}
+                          />
+                          <PasswordToggle
+                            label={showConfirmPassword ? t("Hide password") : t("Show password")}
+                            onPress={() => setShowConfirmPassword((visible) => !visible)}
+                            visible={showConfirmPassword}
+                          />
+                        </View>
+                      </Animated.View>
+                    ) : null}
+  
+                    {error ? (
+                      <Text
+                        selectable
+                        className="rounded-2xl bg-danger-bg px-3 py-2 text-sm text-danger"
+                      >
+                        {error}
+                      </Text>
+                    ) : null}
+  
+                    <Animated.View layout={formLayoutTransition}>
+                      <Button
+                        className="h-13 rounded-full bg-[#c0267e] active:bg-[#a91f6e]"
+                        disabled={loading}
+                        onPress={handleSubmit(submitForm)}
+                      >
+                        {loading ? (
+                          <ActivityIndicator colorClassName="accent-white" size="small" />
+                        ) : (
+                          <Animated.View
+                            key={`email-auth-submit-${mode}`}
+                            entering={FadeIn.duration(motionDuration.normal)}
+                            exiting={FadeOut.duration(motionDuration.fast)}
+                          >
+                            <Text className="font-semibold text-white">
+                              {isLogin ? t("Log in") : t("Create account")}
+                            </Text>
+                          </Animated.View>
+                        )}
+                      </Button>
+                    </Animated.View>
+                  </Animated.View>
+  
+                  <Animated.View
+                    key={`email-auth-switch-${mode}`}
+                    className="mt-6 flex-row flex-wrap items-center justify-center gap-1"
+                    entering={FadeIn.duration(motionDuration.normal)}
+                    exiting={FadeOut.duration(motionDuration.fast)}
+                  >
+                    <Text className="text-sm text-white/75">
+                      {isLogin ? t("Don't have an account?") : t("Already have an account?")}
                     </Text>
-                  ) : null}
-
-                  <Animated.View layout={formLayoutTransition}>
-                    <Button
-                      className="h-13 rounded-full bg-[#c0267e] active:bg-[#a91f6e]"
-                      disabled={loading}
-                      onPress={handleSubmit(submitForm)}
+                    <Pressable
+                      accessibilityLabel={isLogin ? t("Create one") : t("Log in")}
+                      accessibilityRole="button"
+                      hitSlop={8}
+                      onPress={() => {
+                        setError(null);
+                        setMode(isLogin ? "register" : "login");
+                      }}
                     >
-                      {loading ? (
-                        <ActivityIndicator colorClassName="accent-white" size="small" />
-                      ) : (
-                        <Animated.View
-                          key={`email-auth-submit-${mode}`}
-                          entering={FadeIn.duration(motionDuration.normal)}
-                          exiting={FadeOut.duration(motionDuration.fast)}
-                        >
-                          <Text className="font-semibold text-white">
-                            {isLogin ? t("Log in") : t("Create account")}
-                          </Text>
-                        </Animated.View>
-                      )}
-                    </Button>
+                      <Text className="text-sm font-semibold text-[#f9a8d4]">
+                        {isLogin ? t("Create one") : t("Log in")}
+                      </Text>
+                    </Pressable>
                   </Animated.View>
                 </Animated.View>
-
-                <Animated.View
-                  key={`email-auth-switch-${mode}`}
-                  className="mt-6 flex-row flex-wrap items-center justify-center gap-1"
-                  entering={FadeIn.duration(motionDuration.normal)}
-                  exiting={FadeOut.duration(motionDuration.fast)}
-                >
-                  <Text className="text-sm text-white/75">
-                    {isLogin ? t("Don't have an account?") : t("Already have an account?")}
-                  </Text>
-                  <Pressable
-                    accessibilityLabel={isLogin ? t("Create one") : t("Log in")}
-                    accessibilityRole="button"
-                    hitSlop={8}
-                    onPress={() => {
-                      setError(null);
-                      setMode(isLogin ? "register" : "login");
-                    }}
-                  >
-                    <Text className="text-sm font-semibold text-[#f9a8d4]">
-                      {isLogin ? t("Create one") : t("Log in")}
-                    </Text>
-                  </Pressable>
-                </Animated.View>
-              </Animated.View>
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 

@@ -139,7 +139,7 @@ export function DiscoverItemDetailSheet({
   const actions = (
     <View className="w-full flex-row gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
       <Button
-        variant="ghost"
+        variant="tinted"
         size="lg"
         disabled={!canReserve || reservePending}
         onPress={confirmReservation}
@@ -163,7 +163,7 @@ export function DiscoverItemDetailSheet({
         </Text>
       </Button>
       <Button
-        variant="ghost"
+        variant="tinted"
         size="lg"
         disabled={!canBuy || boughtPending}
         onPress={confirmBought}
@@ -215,7 +215,7 @@ export function DiscoverItemDetailSheet({
             priorityLabel={priorityLabel}
             salePercentOff={salePercentOff}
             showDiscountPrice={Boolean(item.has_discount)}
-            endAction={<ItemReportButton onPress={() => setReportOpen(true)} />}
+            overlayAction={<ItemReportButton onPress={() => setReportOpen(true)} />}
             size="detail"
           />
 

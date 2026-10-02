@@ -2,22 +2,24 @@ import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { CARD_BADGE_HEIGHT, ItemPriorityBadge } from "@/components/items/item-labels";
+import { ItemRibbon, type ItemRibbonPhase } from "@/components/items/item-ribbon";
+import { useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { isStarPriorityId } from "@wishlist/backend/lib";
 import type { Item } from "@wishlist/backend/types/item";
 import { Gift } from "lucide-react-native";
 import { useGT } from "gt-react-native";
+import * as React from "react";
 import { View } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
-const RESERVED_RIBBON = require("@/assets/images/ribbons/reserved.png");
-const PURCHASED_RIBBON = require("@/assets/images/ribbons/purchased.png");
+const TAKEN_IMAGE_OPACITY = 0.4;
 
 export function ItemImage({
   item,
   reservationLabel,
   stampLabel,
   overlayAction,
-  endAction,
   purchased,
   priority,
   priorityLabel,
@@ -31,8 +33,6 @@ export function ItemImage({
   stampLabel?: string | null;
   /** Control pinned to the top-start corner, e.g. the reveal toggle. */
   overlayAction?: React.ReactNode;
-  /** Control pinned to the top-end corner, under the badges — the report button. */
-  endAction?: React.ReactNode;
   purchased: boolean;
   priority: ReturnType<typeof import("@/lib/items").getItemPriority>;
   priorityLabel?: string | null;
@@ -41,8 +41,56 @@ export function ItemImage({
   size: "card" | "detail";
 }) {
   const t = useGT();
+  const reduceMotion = useReducedMotion();
   const isDetail = size === "detail";
   const isTaken = Boolean(reservationLabel);
+  const status = isTaken ? (purchased ? "purchased" : "reserved") : "none";
+  const label = stampLabel ?? (purchased ? t("Purchased") : t("Reserved"));
+  const isStamp = Boolean(stampLabel);
+
+  // Animate only a real change on the same item: lists recycle this view across items, and an
+  // item that was already taken when it scrolled in should just show its sash.
+  const [previous, setPrevious] = React.useState({ id: item.id, status, label, isStamp });
+  const [ribbonKey, setRibbonKey] = React.useState(0);
+  const [ribbonPhase, setRibbonPhase] = React.useState<ItemRibbonPhase>("static");
+  const [leaving, setLeaving] = React.useState<{
+    purchased: boolean;
+    label: string;
+    isStamp: boolean;
+  } | null>(null);
+  if (
+    previous.id !== item.id ||
+    previous.status !== status ||
+    previous.label !== label ||
+    previous.isStamp !== isStamp
+  ) {
+    const statusChanged = previous.id === item.id && previous.status !== status;
+    setPrevious({ id: item.id, status, label, isStamp });
+
+    if (previous.id !== item.id || statusChanged) {
+      const animate = statusChanged && !reduceMotion;
+      setLeaving(
+        animate && status === "none"
+          ? {
+              purchased: previous.status === "purchased",
+              label: previous.label,
+              isStamp: previous.isStamp,
+            }
+          : null,
+      );
+      setRibbonPhase(animate && status !== "none" ? "enter" : "static");
+      setRibbonKey((key) => key + 1);
+    }
+  }
+
+  const dim = useSharedValue(isTaken ? TAKEN_IMAGE_OPACITY : 1);
+  React.useEffect(() => {
+    const target = isTaken ? TAKEN_IMAGE_OPACITY : 1;
+    const animate = ribbonPhase === "enter" || leaving != null;
+    dim.value = animate ? withTiming(target, { duration: 420 }) : target;
+    // Re-run per status change only; `ribbonKey` bumps exactly then.
+  }, [ribbonKey]);
+  const dimStyle = useAnimatedStyle(() => ({ opacity: dim.value }));
 
   return (
     <View
@@ -54,61 +102,44 @@ export function ItemImage({
       )}
     >
       {item.image_url ? (
-        <StyledImage
-          source={{ uri: item.image_url }}
-          contentFit="cover"
-          contentPosition="center"
-          cachePolicy="memory-disk"
-          recyclingKey={item.id}
-          className={cn("absolute inset-0 size-full", isTaken && "opacity-40")}
-        />
+        <Animated.View className="absolute inset-0" style={dimStyle}>
+          <StyledImage
+            source={{ uri: item.image_url }}
+            contentFit="cover"
+            contentPosition="center"
+            cachePolicy="memory-disk"
+            recyclingKey={item.id}
+            className="size-full"
+          />
+        </Animated.View>
       ) : (
-        <Icon
-          as={Gift}
-          className={cn(
-            isDetail ? "size-12 text-text-light" : "size-10 text-text-light",
-            isTaken && "opacity-40",
-          )}
-        />
+        <Animated.View style={dimStyle}>
+          <Icon
+            as={Gift}
+            className={isDetail ? "size-12 text-text-light" : "size-10 text-text-light"}
+          />
+        </Animated.View>
       )}
 
       {isTaken ? (
-        <View
-          pointerEvents="none"
-          accessible={false}
-          accessibilityElementsHidden
-          importantForAccessibility="no-hide-descendants"
-          className="absolute inset-0 items-center justify-center"
-        >
-          <View
-            className={cn(
-              "w-[135%] items-center justify-center",
-              isDetail ? "h-44" : "h-36",
-            )}
-            style={{ transform: [{ rotate: "-38deg" }] }}
-          >
-            <StyledImage
-              source={purchased ? PURCHASED_RIBBON : RESERVED_RIBBON}
-              contentFit="fill"
-              className="absolute left-0 size-full"
-              // Align the flat face with the label despite the artwork's transparent padding.
-              style={{ top: purchased ? "1%" : "4%" }}
-            />
-            <Text
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              minimumFontScale={0.7}
-              className={cn(
-                "max-w-[72%] text-center font-bold",
-                purchased ? "text-[#245B45]" : "text-[#654098]",
-                stampLabel ? "text-sm" : "uppercase tracking-wide",
-                !stampLabel && (isDetail ? "text-lg" : "text-sm"),
-              )}
-            >
-              {stampLabel ?? (purchased ? t("Purchased") : t("Reserved"))}
-            </Text>
-          </View>
-        </View>
+        <ItemRibbon
+          key={ribbonKey}
+          purchased={purchased}
+          label={label}
+          isStamp={isStamp}
+          isDetail={isDetail}
+          phase={ribbonPhase}
+        />
+      ) : leaving ? (
+        <ItemRibbon
+          key={ribbonKey}
+          purchased={leaving.purchased}
+          label={leaving.label}
+          isStamp={leaving.isStamp}
+          isDetail={isDetail}
+          phase="exit"
+          onExited={() => setLeaving(null)}
+        />
       ) : null}
 
       {overlayAction ? (
@@ -138,7 +169,6 @@ export function ItemImage({
         {priority && priorityLabel && !(isDetail && isStarPriorityId(priority.id)) ? (
           <ItemPriorityBadge priority={priority} label={priorityLabel} compact context="card" />
         ) : null}
-        {endAction}
       </View>
 
       {item.price ? (

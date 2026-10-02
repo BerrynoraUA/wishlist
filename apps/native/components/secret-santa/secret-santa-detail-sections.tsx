@@ -11,6 +11,10 @@ import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { SecretSantaPersonAvatar } from "@/components/secret-santa/secret-santa-person-avatar";
+import {
+  SecretSantaExclusions,
+  type SecretSantaExclusionSelection,
+} from "@/components/secret-santa/secret-santa-exclusions";
 import { MascotEmptyState, type MascotVariant } from "@/components/shared/mascot-empty-state";
 import { useGiftSuggestions } from "@/hooks/use-secret-santa";
 import {
@@ -19,6 +23,8 @@ import {
   getSecretSantaPersonName,
   MIN_PARTICIPANTS_TO_LAUNCH,
 } from "@/lib/secret-santa";
+import * as React from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { cn } from "@/lib/utils";
 import { getWishlistAccentClass } from "@/lib/wishlists";
 import type {
@@ -30,6 +36,8 @@ import type {
 import {
   ArrowUpRight,
   CalendarDays,
+  ChevronDown,
+  ChevronUp,
   CircleCheck,
   Clock3,
   Copy,
@@ -66,7 +74,6 @@ export function SecretSantaDetailHero({
   event,
   totalPeople,
   isOwner,
-  onInvite,
   onCopyLink,
   onEdit,
   onDelete,
@@ -75,7 +82,6 @@ export function SecretSantaDetailHero({
   event: SecretSantaDetails;
   totalPeople: number;
   isOwner: boolean;
-  onInvite: () => void;
   onCopyLink: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -83,11 +89,9 @@ export function SecretSantaDetailHero({
 }) {
   const t = useGT();
   const locale = useLocale();
-  const hasInviteAction = !event.is_started;
   const hasActionsMenu = isOwner;
-  const headerActionsCount = Number(hasInviteAction) + Number(hasActionsMenu);
-  const headerActionsRightPadding =
-    headerActionsCount >= 2 ? "pe-20" : headerActionsCount === 1 ? "pe-12" : "";
+  const headerActionsCount = Number(hasActionsMenu);
+  const headerActionsRightPadding = headerActionsCount === 1 ? "pe-12" : "";
   const eventDateLabel = formatSecretSantaDate(event.event_date, locale ?? "en");
   const budgetLabel = formatSecretSantaBudget(event.budget, event.currency);
   const peopleCountLabel = formatSecretSantaPeopleCount(totalPeople, t);
@@ -112,17 +116,6 @@ export function SecretSantaDetailHero({
             className="absolute end-4 z-10 flex-row items-center justify-end gap-2"
             style={{ top: topInset + 8 }}
           >
-            {hasInviteAction ? (
-              <AnimatedPressable
-                accessibilityRole="button"
-                accessibilityLabel={t("Invite people")}
-                onPress={onInvite}
-                className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-              >
-                <Icon as={Share2} className="size-4 text-white" />
-              </AnimatedPressable>
-            ) : null}
-
             {hasActionsMenu ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -219,6 +212,9 @@ export function SecretSantaPeopleSection({
   ownerId,
   onRemove,
   emptyMascot,
+  footer,
+  exclusions,
+  onExclusionsChange,
 }: {
   title: string;
   description?: string;
@@ -227,8 +223,15 @@ export function SecretSantaPeopleSection({
   ownerId?: string;
   onRemove?: (person: SecretSantaPerson | SecretSantaPendingInvite) => void;
   emptyMascot?: MascotVariant;
+  footer?: ReactNode;
+  exclusions?: SecretSantaExclusionSelection;
+  onExclusionsChange?: Dispatch<SetStateAction<SecretSantaExclusionSelection>>;
 }) {
   const t = useGT();
+  const [expandedId, setExpandedId] = React.useState<string | null>(null);
+  const participants = people.filter(
+    (person): person is SecretSantaPerson => !("invite_id" in person),
+  );
 
   return (
     <View className="gap-3 rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm">
@@ -263,48 +266,84 @@ export function SecretSantaPeopleSection({
             const isOrganizer = !isPendingInvite && Boolean(ownerId) && person.id === ownerId;
             const subtitle =
               person.nickname ?? (isPendingInvite ? t("Invitation pending") : t("Wishlane member"));
+            const canEditExclusions = !isPendingInvite && Boolean(exclusions && onExclusionsChange);
+            const isExpanded = canEditExclusions && expandedId === person.id;
+            const excludedCount = isPendingInvite ? 0 : (exclusions?.[person.id]?.size ?? 0);
 
             return (
-              <View key={key} className="flex-row items-center gap-3 rounded-xl bg-bg-subtle p-3">
-                <SecretSantaPersonAvatar person={person} />
-                <View className="min-w-0 flex-1">
-                  <Text className="font-extrabold text-text" numberOfLines={1}>
-                    {getSecretSantaPersonName(person, t)}
-                  </Text>
-                  <Text className="text-sm text-text-muted" numberOfLines={1}>
-                    {person.nickname ? `@${subtitle}` : subtitle}
-                  </Text>
-                </View>
-                {isPendingInvite ? (
-                  <View className="rounded-full bg-info-bg px-2 py-1">
-                    <Text className="text-[11px] font-extrabold text-info">{t("Pending")}</Text>
-                  </View>
-                ) : null}
-                {isOrganizer ? (
-                  <View className="rounded-full bg-bg-muted px-2 py-1">
-                    <Text className="text-[11px] font-extrabold text-text-muted">
-                      {t("Organizer")}
+              <View key={key} className="overflow-hidden rounded-xl bg-bg-subtle">
+                <Pressable
+                  accessibilityRole={canEditExclusions ? "button" : undefined}
+                  accessibilityState={canEditExclusions ? { expanded: isExpanded } : undefined}
+                  disabled={!canEditExclusions}
+                  onPress={() => setExpandedId(isExpanded ? null : person.id)}
+                  className={cn(
+                    "flex-row items-center gap-3 p-3",
+                    canEditExclusions && "active:bg-bg-muted",
+                  )}
+                >
+                  <SecretSantaPersonAvatar person={person} />
+                  <View className="min-w-0 flex-1">
+                    <Text className="font-extrabold text-text" numberOfLines={1}>
+                      {getSecretSantaPersonName(person, t)}
                     </Text>
+                    <Text className="text-sm text-text-muted" numberOfLines={1}>
+                      {person.nickname ? `@${subtitle}` : subtitle}
+                    </Text>
+                    {excludedCount > 0 ? (
+                      <Text className="text-xs font-bold text-destructive" numberOfLines={1}>
+                        {excludedCount === 1
+                          ? t("1 exclusion")
+                          : t("{count} exclusions", { count: excludedCount })}
+                      </Text>
+                    ) : null}
                   </View>
-                ) : null}
-                {onRemove && !isOrganizer ? (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    accessibilityLabel={t("Remove {name}", {
-                      name: getSecretSantaPersonName(person, t),
-                    })}
-                    onPress={() => onRemove(person)}
-                    className="rounded-full"
-                  >
-                    <Icon as={UserMinus} className="size-4 text-destructive" />
-                  </Button>
+                  {isPendingInvite ? (
+                    <View className="rounded-full bg-info-bg px-2 py-1">
+                      <Text className="text-[11px] font-extrabold text-info">{t("Pending")}</Text>
+                    </View>
+                  ) : null}
+                  {isOrganizer ? (
+                    <View className="rounded-full bg-bg-muted px-2 py-1">
+                      <Text className="text-[11px] font-extrabold text-text-muted">
+                        {t("Organizer")}
+                      </Text>
+                    </View>
+                  ) : null}
+                  {onRemove && !isOrganizer ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      accessibilityLabel={t("Remove {name}", {
+                        name: getSecretSantaPersonName(person, t),
+                      })}
+                      onPress={() => onRemove(person)}
+                      className="rounded-full"
+                    >
+                      <Icon as={UserMinus} className="size-4 text-destructive" />
+                    </Button>
+                  ) : null}
+                  {canEditExclusions ? (
+                    <Icon
+                      as={isExpanded ? ChevronUp : ChevronDown}
+                      className="size-4 text-text-muted"
+                    />
+                  ) : null}
+                </Pressable>
+                {isExpanded && exclusions && onExclusionsChange ? (
+                  <SecretSantaExclusions
+                    giverId={person.id}
+                    participants={participants}
+                    exclusions={exclusions}
+                    onChange={onExclusionsChange}
+                  />
                 ) : null}
               </View>
             );
           })}
         </View>
       )}
+      {footer}
     </View>
   );
 }

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { isStarPriorityId } from "@wishlist/backend/lib";
 import * as React from "react";
 import { View, type LayoutChangeEvent } from "react-native";
+import { useCSSVariable } from "uniwind";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -16,9 +17,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 /**
- * Low / Medium / High as a row of pills with a thumb that slides to the picked one: a
- * border in the priority colour over the same translucent tint the priority badges use. Starred is not a level on this scale — it is toggled from the card — so a starred
- * item simply shows no pill selected here and keeps its star on save.
+ * Priority pills with a sliding thumb. Starred follows the app's accent colour.
  */
 export function ItemPrioritySelector({
   priorityOptions,
@@ -30,9 +29,20 @@ export function ItemPrioritySelector({
   onChange: (priorityId: string) => void;
 }) {
   const reduceMotion = useReducedMotion();
+  const brand = useCSSVariable("--color-brand");
+  const brandTint = useCSSVariable("--color-brand-alpha-12");
   const options = React.useMemo(
-    () => priorityOptions.filter((option) => !isStarPriorityId(option.priority_id)),
-    [priorityOptions],
+    () =>
+      priorityOptions.map((option) => ({
+        ...option,
+        color:
+          isStarPriorityId(option.priority_id) && typeof brand === "string" ? brand : option.color,
+        tint:
+          isStarPriorityId(option.priority_id) && typeof brandTint === "string"
+            ? brandTint
+            : `${option.color}1f`,
+      })),
+    [priorityOptions, brand, brandTint],
   );
   const selectedIndex = options.findIndex((option) => option.priority_id === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : null;
@@ -44,7 +54,7 @@ export function ItemPrioritySelector({
   const thumbColor = useSharedValue(selected?.color ?? "#00000000");
   // The same translucent tint (12%) the priority badges use. Animated on its own, since
   // an in-flight colour is an rgba() string that an alpha suffix cannot be appended to.
-  const thumbTint = useSharedValue(selected ? `${selected.color}1f` : "#00000000");
+  const thumbTint = useSharedValue(selected?.tint ?? "#00000000");
   const hasMeasured = React.useRef(false);
 
   React.useEffect(() => {
@@ -54,7 +64,7 @@ export function ItemPrioritySelector({
     const nextOpacity = selected ? 1 : 0;
     // Keep the last colour while fading out, so the thumb does not flash grey.
     const nextColor = selected?.color ?? thumbColor.value;
-    const nextTint = selected ? `${selected.color}1f` : thumbTint.value;
+    const nextTint = selected?.tint ?? thumbTint.value;
 
     // The first placement snaps, so the thumb does not fly in from the left on open.
     if (reduceMotion || !hasMeasured.current) {
@@ -108,7 +118,7 @@ export function ItemPrioritySelector({
             accessibilityLabel={option.label}
             pressedScale={0.96}
             onPress={() => onChange(option.priority_id)}
-            className="min-w-0 flex-1 flex-row items-center justify-center gap-1.5 rounded-full"
+            className="min-w-0 flex-1 flex-row items-center justify-center gap-1 rounded-full px-1"
           >
             {PriorityIcon ? (
               <Icon
@@ -119,7 +129,12 @@ export function ItemPrioritySelector({
             ) : null}
             <Text
               numberOfLines={1}
-              className={cn("text-sm", isSelected ? "font-bold" : "font-semibold text-text-muted")}
+              adjustsFontSizeToFit
+              minimumFontScale={0.75}
+              className={cn(
+                "shrink text-sm",
+                isSelected ? "font-bold" : "font-semibold text-text-muted",
+              )}
               style={isSelected ? { color: option.color } : undefined}
             >
               {option.label}

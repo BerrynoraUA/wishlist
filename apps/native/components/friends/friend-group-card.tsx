@@ -17,10 +17,12 @@ import { View } from "react-native";
 
 export function FriendGroupCard({
   group,
+  onOpen,
   onEdit,
   onDelete,
 }: {
   group: FriendGroup;
+  onOpen: (group: FriendGroup) => void;
   onEdit: (group: FriendGroup) => void;
   onDelete: (group: FriendGroup) => void;
 }) {
@@ -34,7 +36,9 @@ export function FriendGroupCard({
       <View ref={menuPreview.cardRef} collapsable={false}>
         <AnimatedPressable
           accessibilityRole="button"
-          accessibilityLabel={t("Group actions")}
+          accessibilityLabel={group.name}
+          accessibilityHint={t("Shows the group members")}
+          onPress={() => onOpen(group)}
           onLongPress={menuPreview.openMenu}
           pressedScale={0.98}
           className="rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm"

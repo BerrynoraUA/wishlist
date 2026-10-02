@@ -1,3 +1,4 @@
+import { AnimatedHeight } from "@/components/ui/animated-height";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
@@ -30,53 +31,55 @@ export const BugReportCard = React.memo(function BugReportCard({ report }: { rep
       accessibilityLabel={expanded ? t("Collapse bug report") : t("Expand bug report")}
       accessibilityState={{ expanded }}
       onPress={() => setExpanded((current) => !current)}
-      className="gap-3 rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm"
+      className="rounded-xl border border-border-subtle bg-card-bg shadow-sm"
     >
-      <View className="flex-row items-start gap-3">
-        <View className="size-9 shrink-0 items-center justify-center rounded-full bg-destructive/10">
-          <Icon as={AlertCircle} className="size-4 text-destructive" />
+      <AnimatedHeight className="gap-3 p-4">
+        <View className="flex-row items-start gap-3">
+          <View className="size-9 shrink-0 items-center justify-center rounded-full bg-destructive/10">
+            <Icon as={AlertCircle} className="size-4 text-destructive" />
+          </View>
+          <View className="min-w-0 flex-1 pt-1.5">
+            <Text className="text-base font-extrabold leading-5 text-text" numberOfLines={2}>
+              {report.title}
+            </Text>
+          </View>
+          <StatusBadge status={report.status} />
         </View>
-        <View className="min-w-0 flex-1 pt-1.5">
-          <Text className="text-base font-extrabold leading-5 text-text" numberOfLines={2}>
-            {report.title}
-          </Text>
-        </View>
-        <StatusBadge status={report.status} />
-      </View>
 
-      <Text className="text-sm leading-5 text-text-muted" numberOfLines={expanded ? undefined : 3}>
-        {report.description}
-      </Text>
-
-      {report.screenshot_url ? (
-        <View className="overflow-hidden rounded-xl border border-border-subtle bg-bg-muted">
-          {expanded ? (
-            <StyledImage
-              source={{ uri: report.screenshot_url }}
-              contentFit="cover"
-              className="h-40 w-full"
-            />
-          ) : (
-            <View className="h-12 flex-row items-center gap-2 px-3">
-              <Icon as={ImageIcon} className="size-4 text-brand" />
-              <Text className="text-sm font-semibold text-text-muted">
-                {t("Screenshot attached")}
-              </Text>
-            </View>
-          )}
-        </View>
-      ) : null}
-
-      <View className="flex-row items-center gap-2 border-t border-border-subtle pt-3">
-        <Avatar alt={authorName} className="size-6">
-          {report.user_avatar_url ? <AvatarImage source={{ uri: report.user_avatar_url }} /> : null}
-          <AvatarFallback initialsClassName="text-[10px]" />
-        </Avatar>
-        <Text className="min-w-0 flex-1 text-xs font-semibold text-text-muted" numberOfLines={1}>
-          {authorName}
+        <Text className="text-sm leading-5 text-text-muted" numberOfLines={expanded ? undefined : 3}>
+          {report.description}
         </Text>
-        <Text className="text-xs text-text-light">{date}</Text>
-      </View>
+
+        {report.screenshot_url ? (
+          <View className="overflow-hidden rounded-xl border border-border-subtle bg-bg-muted">
+            {expanded ? (
+              <StyledImage
+                source={{ uri: report.screenshot_url }}
+                contentFit="cover"
+                className="h-40 w-full"
+              />
+            ) : (
+              <View className="h-12 flex-row items-center gap-2 px-3">
+                <Icon as={ImageIcon} className="size-4 text-brand" />
+                <Text className="text-sm font-semibold text-text-muted">
+                  {t("Screenshot attached")}
+                </Text>
+              </View>
+            )}
+          </View>
+        ) : null}
+
+        <View className="flex-row items-center gap-2 border-t border-border-subtle pt-3">
+          <Avatar alt={authorName} className="size-6">
+            {report.user_avatar_url ? <AvatarImage source={{ uri: report.user_avatar_url }} /> : null}
+            <AvatarFallback initialsClassName="text-[10px]" />
+          </Avatar>
+          <Text className="min-w-0 flex-1 text-xs font-semibold text-text-muted" numberOfLines={1}>
+            {authorName}
+          </Text>
+          <Text className="text-xs text-text-light">{date}</Text>
+        </View>
+      </AnimatedHeight>
     </AnimatedPressable>
   );
 });

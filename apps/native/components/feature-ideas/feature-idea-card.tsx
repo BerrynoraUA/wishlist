@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { AnimatedHeight } from "@/components/ui/animated-height";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import type { FeatureIdea, FeatureIdeaStatus } from "@wishlist/backend/types/feature-ideas";
 import { useLocale, useGT } from "gt-react-native";
@@ -37,62 +38,64 @@ export const FeatureIdeaCard = React.memo(function FeatureIdeaCard({
       accessibilityLabel={expanded ? t("Collapse idea") : t("Expand idea")}
       accessibilityState={{ expanded }}
       onPress={() => setExpanded((current) => !current)}
-      className="gap-3 rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm"
+      className="rounded-xl border border-border-subtle bg-card-bg shadow-sm"
     >
-      <View className="flex-row items-start gap-3">
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={t("Vote for {title}", { title: idea.title })}
-          accessibilityState={{ selected: idea.has_voted, disabled: votePending }}
-          disabled={votePending}
-          onPress={(event) => {
-            event.stopPropagation();
-            onVote(idea.id);
-          }}
-          className={
-            idea.has_voted
-              ? "h-9 shrink-0 flex-row items-center justify-center gap-1 rounded-full border border-brand/30 bg-brand-lighter px-3"
-              : "h-9 shrink-0 flex-row items-center justify-center gap-1 rounded-full border border-border bg-bg-subtle px-3"
-          }
-        >
-          <Icon
-            as={ChevronUp}
-            className={idea.has_voted ? "size-4 text-brand" : "size-4 text-text-muted"}
-          />
-          <Text
+      <AnimatedHeight className="gap-3 p-4">
+        <View className="flex-row items-start gap-3">
+          <AnimatedPressable
+            accessibilityRole="button"
+            accessibilityLabel={t("Vote for {title}", { title: idea.title })}
+            accessibilityState={{ selected: idea.has_voted, disabled: votePending }}
+            disabled={votePending}
+            onPress={(event) => {
+              event.stopPropagation();
+              onVote(idea.id);
+            }}
             className={
               idea.has_voted
-                ? "text-xs font-extrabold text-brand"
-                : "text-xs font-extrabold text-text"
+                ? "h-9 shrink-0 flex-row items-center justify-center gap-1 rounded-full border border-brand/30 bg-brand-lighter px-3"
+                : "h-9 shrink-0 flex-row items-center justify-center gap-1 rounded-full border border-border bg-bg-subtle px-3"
             }
-            style={{ fontVariant: ["tabular-nums"] }}
           >
-            {idea.votes_count}
-          </Text>
-        </AnimatedPressable>
+            <Icon
+              as={ChevronUp}
+              className={idea.has_voted ? "size-4 text-brand" : "size-4 text-text-muted"}
+            />
+            <Text
+              className={
+                idea.has_voted
+                  ? "text-xs font-extrabold text-brand"
+                  : "text-xs font-extrabold text-text"
+              }
+              style={{ fontVariant: ["tabular-nums"] }}
+            >
+              {idea.votes_count}
+            </Text>
+          </AnimatedPressable>
 
-        <View className="min-w-0 flex-1 pt-1.5">
-          <Text className="text-base font-extrabold leading-5 text-text" numberOfLines={2}>
-            {idea.title}
-          </Text>
+          <View className="min-w-0 flex-1 pt-1.5">
+            <Text className="text-base font-extrabold leading-5 text-text" numberOfLines={2}>
+              {idea.title}
+            </Text>
+          </View>
+          <StatusBadge status={idea.status} />
         </View>
-        <StatusBadge status={idea.status} />
-      </View>
 
-      <Text className="text-sm leading-5 text-text-muted" numberOfLines={expanded ? undefined : 3}>
-        {idea.description}
-      </Text>
-
-      <View className="flex-row items-center gap-2 border-t border-border-subtle pt-3">
-        <Avatar alt={authorName} className="size-6">
-          {idea.user_avatar_url ? <AvatarImage source={{ uri: idea.user_avatar_url }} /> : null}
-          <AvatarFallback initialsClassName="text-[10px]" />
-        </Avatar>
-        <Text className="min-w-0 flex-1 text-xs font-semibold text-text-muted" numberOfLines={1}>
-          {authorName}
+        <Text className="text-sm leading-5 text-text-muted" numberOfLines={expanded ? undefined : 3}>
+          {idea.description}
         </Text>
-        <Text className="text-xs text-text-light">{date}</Text>
-      </View>
+
+        <View className="flex-row items-center gap-2 border-t border-border-subtle pt-3">
+          <Avatar alt={authorName} className="size-6">
+            {idea.user_avatar_url ? <AvatarImage source={{ uri: idea.user_avatar_url }} /> : null}
+            <AvatarFallback initialsClassName="text-[10px]" />
+          </Avatar>
+          <Text className="min-w-0 flex-1 text-xs font-semibold text-text-muted" numberOfLines={1}>
+            {authorName}
+          </Text>
+          <Text className="text-xs text-text-light">{date}</Text>
+        </View>
+      </AnimatedHeight>
     </AnimatedPressable>
   );
 });

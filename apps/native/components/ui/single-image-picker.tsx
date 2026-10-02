@@ -26,6 +26,7 @@ import { useGT } from "gt-react-native";
 
 export function SingleImagePicker({
   previewUri,
+  borderColor,
   aspect = [1, 1],
   pickLabel,
   changeLabel,
@@ -34,6 +35,7 @@ export function SingleImagePicker({
   onError,
 }: {
   previewUri?: string | null;
+  borderColor?: string | null;
   aspect?: [number, number];
   pickLabel: string;
   changeLabel: string;
@@ -42,6 +44,17 @@ export function SingleImagePicker({
   onError: (message: string) => void;
 }) {
   const t = useGT();
+  const reduceMotion = useReducedMotion();
+  const previewBorderColor = useSharedValue(borderColor ?? "transparent");
+
+  React.useEffect(() => {
+    const nextColor = borderColor ?? "transparent";
+    previewBorderColor.value = reduceMotion
+      ? nextColor
+      : withTiming(nextColor, { duration: motionDuration.normal });
+  }, [borderColor, reduceMotion, previewBorderColor]);
+
+  const borderStyle = useAnimatedStyle(() => ({ borderColor: previewBorderColor.value }));
 
   async function pickImage() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -118,6 +131,11 @@ export function SingleImagePicker({
             <Text>{pickLabel}</Text>
           </Button>
         )}
+        <Animated.View
+          pointerEvents="none"
+          className="absolute inset-0 rounded-xl border-2"
+          style={borderStyle}
+        />
       </View>
     </View>
   );

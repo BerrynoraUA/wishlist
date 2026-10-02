@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
+import { SwipeToDelete } from "@/components/ui/swipe-to-delete";
 import {
   useDeleteAllNotifications,
   useDeleteNotification,
@@ -17,6 +18,7 @@ import { useAcceptSecretSantaInvite, useDeclineSecretSantaInvite } from "@/hooks
 import { getSafeNotificationRoute } from "@/lib/notification-route";
 import type { Notification } from "@wishlist/backend/types";
 import { router } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useGT } from "gt-react-native";
 import { Bell, Check, Trash2, X } from "lucide-react-native";
 import * as React from "react";
@@ -29,6 +31,8 @@ function getNotificationRoute(notification: Notification) {
   switch (notification.type) {
     case 0:
       return "/secret-santa";
+    case 9:
+      return notification.entity_id ? `/secret-santa/${notification.entity_id}` : "/secret-santa";
     case 1:
     case 3:
     case 4:
@@ -170,74 +174,64 @@ function NotificationsSheet({
       detents={[0.82, 1]}
       initialDetentIndex={0}
       onDidDismiss={onClose}
-      header={
-        <BottomSheetHeader
-          title={t("Notifications")}
-          action={
+      header={<BottomSheetHeader title={t("Notifications")} />}
+      footer={
+        notifications.length > 0 ? (
+          <View className="w-full flex-row gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
             <Button
-              variant="ghost"
-              size="icon-sm"
-              accessibilityLabel={t("Close notifications")}
-              onPress={() => void sheetRef.current?.dismiss()}
+              className="min-w-0 flex-1"
+              size="lg"
+              variant="secondary"
+              disabled={isLoading || notifications.every((notification) => notification.is_read)}
+              onPress={onReadAll}
             >
-              <Icon as={X} className="size-4 text-text" />
+              <Icon as={Check} className="size-4 text-secondary-foreground" />
+              <Text numberOfLines={1}>{t("Read all")}</Text>
             </Button>
-          }
-        />
+            <Button
+              className="min-w-0 flex-1"
+              size="lg"
+              variant="outline"
+              disabled={isLoading}
+              onPress={onClear}
+            >
+              <Icon as={Trash2} className="size-4 text-text" />
+              <Text numberOfLines={1}>{t("Clear")}</Text>
+            </Button>
+          </View>
+        ) : undefined
       }
     >
-      <View className="px-5">
-        <View className="gap-4">
-          <View className="gap-3">
-            {notifications.length > 0 ? (
-              <View className="flex-row gap-2">
-                <Button
-                  className="min-w-0 flex-1 rounded-full"
-                  variant="secondary"
-                  disabled={
-                    isLoading || notifications.every((notification) => notification.is_read)
-                  }
-                  onPress={onReadAll}
-                >
-                  <Icon as={Check} className="size-4 text-secondary-foreground" />
-                  <Text numberOfLines={1}>{t("Read all")}</Text>
-                </Button>
-                <Button
-                  className="min-w-0 flex-1 rounded-full"
-                  variant="outline"
-                  disabled={isLoading}
-                  onPress={onClear}
-                >
-                  <Icon as={Trash2} className="size-4 text-text" />
-                  <Text numberOfLines={1}>{t("Clear")}</Text>
-                </Button>
+      {/* Android renders the sheet in its own layout, so the swipe-to-delete rows need a
+          gesture root of their own. */}
+      <GestureHandlerRootView style={{ flexGrow: 1 }}>
+        <View className="px-5">
+          <View className="gap-4">
+  
+            {isLoading ? (
+              <NotificationsSkeleton />
+            ) : notifications.length === 0 ? (
+              <View className="rounded-2xl border border-border-subtle bg-card-bg py-6">
+                <MascotEmptyState compact variant="sleeping-bell" message={t("No notifications")} />
               </View>
-            ) : null}
+            ) : (
+              <View className="gap-2.5">
+                <Text className="px-1 text-xs font-extrabold uppercase text-text-light">
+                  {t("Recent")}
+                </Text>
+                {notifications.map((notification) => (
+                  <NotificationRow
+                    key={notification.id}
+                    notification={notification}
+                    onClose={onClose}
+                    onMarkRead={onMarkRead}
+                  />
+                ))}
+              </View>
+            )}
           </View>
-
-          {isLoading ? (
-            <NotificationsSkeleton />
-          ) : notifications.length === 0 ? (
-            <View className="rounded-2xl border border-border-subtle bg-card-bg py-6">
-              <MascotEmptyState compact variant="sleeping-bell" message={t("No notifications")} />
-            </View>
-          ) : (
-            <View className="gap-2.5">
-              <Text className="px-1 text-xs font-extrabold uppercase text-text-light">
-                {t("Recent")}
-              </Text>
-              {notifications.map((notification) => (
-                <NotificationRow
-                  key={notification.id}
-                  notification={notification}
-                  onClose={onClose}
-                  onMarkRead={onMarkRead}
-                />
-              ))}
-            </View>
-          )}
         </View>
-      </View>
+      </GestureHandlerRootView>
     </BottomSheet>
   );
 }
@@ -324,76 +318,82 @@ function NotificationRow({
   }
 
   return (
-    <AnimatedPressable
-      accessibilityRole="button"
-      accessibilityLabel={notification.text}
-      accessibilityHint={t("Double tap to open")}
-      onPress={() => void handlePress()}
-      className={
-        notification.is_read
-          ? "gap-3 rounded-2xl border border-border-subtle bg-card-bg p-4"
-          : "gap-3 rounded-2xl border border-brand/25 bg-brand-lighter p-4"
-      }
+    <SwipeToDelete
+      accessibilityLabel={t("Delete notification")}
+      collapseGap={10}
+      onDelete={() => deleteNotification.mutateAsync(notification.id)}
     >
-      <View className="flex-row gap-3">
-        {notification.type === 0 ? (
-          <Image
-            source={require("@/assets/images/secret-santa-tab.png")}
-            className="size-6"
-            tintColorClassName={notification.is_read ? "accent-text-muted" : "accent-brand"}
-          />
-        ) : (
-          <View
-            className={
-              notification.is_read
-                ? "mt-1.5 size-2 rounded-full bg-border"
-                : "mt-1.5 size-2 rounded-full bg-brand"
-            }
-          />
-        )}
-        <View className="min-w-0 flex-1 gap-1">
-          <Text className="text-sm font-bold leading-5 text-text">{notification.text}</Text>
-          <Text className="text-xs font-semibold text-text-muted">
-            {formatNotificationTime(notification.created_at, t)}
-          </Text>
-        </View>
-      </View>
-
-      {isInvite ? (
-        <View className="ms-5 flex-row gap-2">
-          <Button
-            className="min-w-0 flex-1 rounded-full"
-            size="sm"
-            disabled={Boolean(pendingInviteAction)}
-            onPress={() => void handleInviteAction("accept")}
-          >
-            {pendingInviteAction === "accept" ? (
-              <ActivityIndicator colorClassName="accent-primary-foreground" />
-            ) : (
-              <Icon as={Check} className="size-4 text-primary-foreground" />
-            )}
-            <Text numberOfLines={1}>
-              {pendingInviteAction === "accept" ? t("Accepting...") : t("Accept")}
+      <AnimatedPressable
+        accessibilityRole="button"
+        accessibilityLabel={notification.text}
+        accessibilityHint={t("Double tap to open")}
+        onPress={() => void handlePress()}
+        className={
+          notification.is_read
+            ? "gap-3 rounded-2xl border border-border-subtle bg-card-bg p-4"
+            : "gap-3 rounded-2xl border border-brand/25 bg-brand-lighter p-4"
+        }
+      >
+        <View className="flex-row gap-3">
+          {notification.type === 0 || notification.type === 9 ? (
+            <Image
+              source={require("@/assets/images/secret-santa-tab.png")}
+              className="size-6"
+              tintColorClassName={notification.is_read ? "accent-text-muted" : "accent-brand"}
+            />
+          ) : (
+            <View
+              className={
+                notification.is_read
+                  ? "mt-1.5 size-2 rounded-full bg-border"
+                  : "mt-1.5 size-2 rounded-full bg-brand"
+              }
+            />
+          )}
+          <View className="min-w-0 flex-1 gap-1">
+            <Text className="text-sm font-bold leading-5 text-text">{notification.text}</Text>
+            <Text className="text-xs font-semibold text-text-muted">
+              {formatNotificationTime(notification.created_at, t)}
             </Text>
-          </Button>
-          <Button
-            className="min-w-0 flex-1 rounded-full"
-            variant="secondary"
-            size="sm"
-            disabled={Boolean(pendingInviteAction)}
-            onPress={() => void handleInviteAction("decline")}
-          >
-            {pendingInviteAction === "decline" ? (
-              <ActivityIndicator colorClassName="accent-secondary-foreground" />
-            ) : (
-              <Icon as={X} className="size-4 text-secondary-foreground" />
-            )}
-            <Text numberOfLines={1}>
-              {pendingInviteAction === "decline" ? t("Declining...") : t("Decline")}
-            </Text>
-          </Button>
+          </View>
         </View>
-      ) : null}
-    </AnimatedPressable>
+  
+        {isInvite ? (
+          <View className="ms-5 flex-row gap-2">
+            <Button
+              className="min-w-0 flex-1 rounded-full"
+              size="sm"
+              disabled={Boolean(pendingInviteAction)}
+              onPress={() => void handleInviteAction("accept")}
+            >
+              {pendingInviteAction === "accept" ? (
+                <ActivityIndicator colorClassName="accent-primary-foreground" />
+              ) : (
+                <Icon as={Check} className="size-4 text-primary-foreground" />
+              )}
+              <Text numberOfLines={1}>
+                {pendingInviteAction === "accept" ? t("Accepting...") : t("Accept")}
+              </Text>
+            </Button>
+            <Button
+              className="min-w-0 flex-1 rounded-full"
+              variant="secondary"
+              size="sm"
+              disabled={Boolean(pendingInviteAction)}
+              onPress={() => void handleInviteAction("decline")}
+            >
+              {pendingInviteAction === "decline" ? (
+                <ActivityIndicator colorClassName="accent-secondary-foreground" />
+              ) : (
+                <Icon as={X} className="size-4 text-secondary-foreground" />
+              )}
+              <Text numberOfLines={1}>
+                {pendingInviteAction === "decline" ? t("Declining...") : t("Decline")}
+              </Text>
+            </Button>
+          </View>
+        ) : null}
+      </AnimatedPressable>
+    </SwipeToDelete>
   );
 }

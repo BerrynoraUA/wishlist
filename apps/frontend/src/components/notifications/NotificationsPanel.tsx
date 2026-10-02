@@ -11,12 +11,14 @@ import { useAcceptSecretSantaInvite, useDeclineSecretSantaInvite } from "@/hooks
 import { useDeleteNotification } from "@/hooks/use-notifications";
 import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 
-// Every notification routes somewhere. Type map: 0 = Secret Santa,
-// 1/3/4/5/7/8 = wishlist-related, 2 = Friends, 6 = Added to a friend group.
+// Every notification routes somewhere. Type map: 0 = Secret Santa invite, 9 = Secret Santa
+// names drawn, 1/3/4/5/7/8 = wishlist-related, 2 = Friends, 6 = Added to a friend group.
 function getNotificationHref(n: Notification): string {
   switch (n.type) {
     case 0: // Secret Santa invite — entity_id is the invite, not the event, so go to the list
       return "/secret-santa";
+    case 9: // Secret Santa names drawn — entity_id is the event
+      return n.entity_id ? `/secret-santa/${n.entity_id}` : "/secret-santa";
     case 1: // item reserved
     case 3: // item bought
     case 4: // new wishlist

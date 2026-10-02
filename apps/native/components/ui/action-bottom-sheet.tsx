@@ -109,7 +109,7 @@ export function ActionBottomSheetConfirm({
           </Button>
           <Button
             variant={
-              tone === "destructive" ? "destructive" : tone === "default" ? "default" : "ghost"
+              tone === "destructive" ? "destructive" : tone === "default" ? "default" : "tinted"
             }
             disabled={isPending || confirmDisabled}
             onPress={handleConfirm}

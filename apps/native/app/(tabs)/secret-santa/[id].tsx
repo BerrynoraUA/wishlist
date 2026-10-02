@@ -8,6 +8,10 @@ import {
 import { SecretSantaCreateEditSheet } from "@/components/secret-santa/sheets/secret-santa-create-edit-sheet";
 import { SecretSantaInviteSheet } from "@/components/secret-santa/sheets/secret-santa-invite-sheet";
 import { SecretSantaLaunchSheet } from "@/components/secret-santa/sheets/secret-santa-launch-sheet";
+import { SecretSantaLaunchCelebration } from "@/components/secret-santa/secret-santa-launch-celebration";
+import {
+  type SecretSantaExclusionSelection,
+} from "@/components/secret-santa/secret-santa-exclusions";
 import { InlineState } from "@/components/shared/inline-state";
 import {
   ActionBottomSheetConfirm,
@@ -36,7 +40,7 @@ import * as Clipboard from "expo-clipboard";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ScrollView, Share, View, useWindowDimensions } from "react-native";
+import { ScrollView, View, useWindowDimensions } from "react-native";
 import { DetailSkeleton } from "@/components/ui/list-skeletons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -62,8 +66,11 @@ export default function SecretSantaDetailScreen() {
   const removeInvite = useRemoveSecretSantaInvite();
   const deleteEvent = useDeleteSecretSantaEvent();
   const [sheet, setSheet] = React.useState<SheetState>(null);
+  const [exclusions, setExclusions] = React.useState<SecretSantaExclusionSelection>({});
+  React.useEffect(() => setExclusions({}), [eventId]);
   const [removeTarget, setRemoveTarget] = React.useState<RemoveTarget | null>(null);
   const [message, setMessage] = React.useState<ActionBottomSheetMessagePayload | null>(null);
+  const [celebrating, setCelebrating] = React.useState(false);
 
   const contentWidth = Math.min(width - 32, 900);
   const data = detailsQuery.data;
@@ -72,27 +79,22 @@ export default function SecretSantaDetailScreen() {
   const participants = data?.participants ?? [];
   const pendingInvites = data?.pending_invites ?? [];
   const totalPeople = participants.length + pendingInvites.length;
+  const activeExclusions = React.useMemo<SecretSantaExclusionSelection>(() => {
+    const ids = new Set(data?.participants.map((person) => person.id) ?? []);
+    return Object.fromEntries(
+      Object.entries(exclusions)
+        .filter(([id]) => ids.has(id))
+        .map(([id, excluded]) => [id, new Set([...excluded].filter((other) => ids.has(other)))]),
+    );
+  }, [exclusions, data?.participants]);
+  const exclusionList = React.useMemo(
+    () => Object.entries(activeExclusions)
+      .filter(([, excluded]) => excluded.size > 0)
+      .map(([user_id, excluded]) => ({ user_id, excluded_ids: [...excluded] })),
+    [activeExclusions],
+  );
   const canLaunch =
     pendingInvites.length === 0 && participants.length >= MIN_PARTICIPANTS_TO_LAUNCH;
-
-  async function shareInviteLink() {
-    if (!eventId) return;
-
-    const url = buildSecretSantaJoinUrl(eventId);
-    const inviteMessage = t('Join our Secret Santa "{name}" on Wishlane!', {
-      name: data?.name ?? t("Secret Santa"),
-    });
-
-    try {
-      if (process.env.EXPO_OS === "ios") {
-        await Share.share({ message: inviteMessage, url });
-      } else {
-        await Share.share({ message: `${inviteMessage}\n${url}` });
-      }
-    } catch {
-      // The user dismissed the share sheet or no share target is available.
-    }
-  }
 
   async function copyInviteLink() {
     if (!eventId) return;
@@ -169,7 +171,6 @@ export default function SecretSantaDetailScreen() {
                   event={data}
                   totalPeople={totalPeople}
                   isOwner={isOwner}
-                  onInvite={isOwner ? () => setSheet("invite") : shareInviteLink}
                   onCopyLink={copyInviteLink}
                   onEdit={() => setSheet("edit")}
                   onDelete={() => setSheet("delete")}
@@ -211,6 +212,8 @@ export default function SecretSantaDetailScreen() {
                         people={[...participants, ...pendingInvites]}
                         ownerId={data.owner_id ?? undefined}
                         onRemove={requestRemove}
+                        exclusions={activeExclusions}
+                        onExclusionsChange={setExclusions}
                       />
                     </>
                   ) : (
@@ -252,8 +255,6 @@ export default function SecretSantaDetailScreen() {
             onOpenChange={(open) => {
               if (!open) setSheet(null);
             }}
-            onShareLink={shareInviteLink}
-            onCopyLink={copyInviteLink}
             onInvited={() =>
               setMessage({
                 title: t("Invites sent"),
@@ -265,16 +266,18 @@ export default function SecretSantaDetailScreen() {
             open={sheet === "launch"}
             eventId={eventId}
             participants={participants}
+            exclusionList={exclusionList}
             onOpenChange={(open) => {
               if (!open) setSheet(null);
             }}
-            onLaunched={() =>
-              setMessage({
-                title: t("Secret Santa launched!"),
-                message: t("Matches are ready."),
-              })
-            }
+            onLaunched={() => setCelebrating(true)}
           />
+          {celebrating ? (
+            <SecretSantaLaunchCelebration
+              receiver={data.my_receiver}
+              onClose={() => setCelebrating(false)}
+            />
+          ) : null}
           <ActionBottomSheetConfirm
             open={sheet === "delete"}
             title={t("Delete Event")}

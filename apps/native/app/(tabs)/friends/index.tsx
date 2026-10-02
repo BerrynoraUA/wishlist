@@ -4,7 +4,9 @@ import { BlockedUserCard } from "@/components/friends/blocked-user-card";
 import { FriendsTabs, type FriendsTab } from "@/components/friends/friends-tabs";
 import { OutgoingRequestCard } from "@/components/friends/outgoing-request-card";
 import { RequestCard } from "@/components/friends/request-card";
+import { FriendGroupDetailsSheet } from "@/components/friends/sheets/friend-group-details-sheet";
 import { FriendGroupSheet } from "@/components/friends/sheets/friend-group-sheet";
+import { FriendInviteSheet } from "@/components/friends/sheets/friend-invite-sheet";
 import { InlineState } from "@/components/shared/inline-state";
 import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
@@ -36,13 +38,14 @@ import type {
   FriendRequestWithDetails,
   FriendWithDetails,
 } from "@wishlist/backend/types/friends";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { ActivityIndicator, View, useWindowDimensions } from "react-native";
 import { ListRowsSkeleton } from "@/components/ui/list-skeletons";
 
 type SheetState =
+  | { type: "groupDetails"; group: FriendGroup }
   | { type: "group"; group: FriendGroup }
   | { type: "removeFriend"; friendId: string }
   | { type: "blockUser"; userId: string }
@@ -62,6 +65,15 @@ export default function FriendsScreen() {
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [sheet, setSheet] = React.useState<SheetState>(null);
+  // A friend invite link lands here as `?friendInvite=<userId>` (see +native-intent). Take it
+  // into state and clear the param, so going back to the tab never reopens the sheet.
+  const { friendInvite } = useLocalSearchParams<{ friendInvite?: string }>();
+  const [inviteUserId, setInviteUserId] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    if (!friendInvite) return;
+    setInviteUserId(friendInvite);
+    router.setParams({ friendInvite: undefined } as never);
+  }, [friendInvite, router]);
   const { requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
   const paddingBottom = useTabBarContentPadding();
@@ -184,6 +196,7 @@ export default function FriendsScreen() {
             {tab === "groups" ? (
               <FriendGroupCard
                 group={entry as FriendGroup}
+                onOpen={(group) => setSheet({ type: "groupDetails", group })}
                 onEdit={(group) => setSheet({ type: "group", group })}
                 onDelete={(group) => setSheet({ type: "deleteGroup", group })}
               />
@@ -305,6 +318,23 @@ export default function FriendsScreen() {
           }}
         />
 
+        {inviteUserId ? (
+          <FriendInviteSheet
+            key={inviteUserId}
+            userId={inviteUserId}
+            onClose={() => setInviteUserId(null)}
+          />
+        ) : null}
+        {sheet?.type === "groupDetails" ? (
+          <FriendGroupDetailsSheet
+            group={sheet.group}
+            onClose={() => setSheet(null)}
+            onEdit={(group) => setSheet({ type: "group", group })}
+            onOpenMember={(userId) =>
+              router.push({ pathname: "/friends/[id]", params: { id: userId } } as never)
+            }
+          />
+        ) : null}
         {sheet?.type === "group" ? (
           <FriendGroupSheet
             open

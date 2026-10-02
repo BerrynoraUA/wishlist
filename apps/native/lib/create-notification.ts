@@ -90,6 +90,38 @@ export async function notifySecretSantaInvites(
 }
 
 /**
+ * Tells every other participant that the organizer drew names, with the event id as the
+ * notification entity so a tap opens the event. No-op on failure.
+ */
+export async function notifySecretSantaStarted(
+  eventId: string,
+  participantIds: string[],
+): Promise<void> {
+  try {
+    if (!participantIds.length) return;
+
+    const { data, error } = await supabase
+      .from("secret_santa")
+      .select("name")
+      .eq("id", eventId)
+      .single();
+    if (error) throw error;
+
+    const eventName = (data as { name?: string } | null)?.name ?? "";
+    await createLocalizedNotifications(
+      participantIds.map((receiverId) => ({
+        receiverId,
+        key: "secret_santa_started" as const,
+        vars: { event: eventName },
+        entityId: eventId,
+      })),
+    );
+  } catch (error) {
+    debugError("[notifications] failed to notify secret santa start", error);
+  }
+}
+
+/**
  * Notifies a user that a wishlist was shared with them. The granter owns the wishlist, so the
  * title is read directly. No-op on failure (and create_notification skips self / duplicates).
  */

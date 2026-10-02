@@ -13,6 +13,7 @@
 
 export type NotificationTemplateKey =
   | "secret_santa_invite"
+  | "secret_santa_started"
   | "item_reserved"
   | "item_bought"
   | "friend_request"
@@ -35,6 +36,11 @@ export const NOTIFICATION_TEMPLATES: Record<NotificationTemplateKey, Notificatio
   secret_santa_invite: {
     source: 'You have been invited to Secret Santa "{event}"',
     type: 0,
+    iconType: 0,
+  },
+  secret_santa_started: {
+    source: 'Names are drawn in Secret Santa "{event}"! See who you are gifting',
+    type: 9,
     iconType: 0,
   },
   item_reserved: { source: "{name} reserved your item", type: 1, iconType: 5 },

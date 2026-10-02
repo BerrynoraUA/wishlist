@@ -6,6 +6,8 @@ import {
   useRegisterPushNotifications,
 } from "@/hooks/use-notifications";
 import { NotificationPermissionSheet } from "@/components/notifications/notification-permission-sheet";
+import { SecretSantaLaunchWatcher } from "@/components/secret-santa/secret-santa-launch-watcher";
+import { ToastHost } from "@/components/ui/toast";
 import { AppBlurTarget } from "@/components/ui/app-blur-target";
 import { useEnsureDefaultAvatar, useSettings } from "@/hooks/use-settings";
 import {
@@ -287,8 +289,14 @@ function NotificationPushBootstrap() {
   useNotificationResponseObserver();
 
   if (SHOWCASE_ENABLED) return null;
+  if (!user?.id) return null;
 
-  return user?.id ? <NotificationPermissionSheet userId={user.id} /> : null;
+  return (
+    <>
+      <NotificationPermissionSheet userId={user.id} />
+      {appReady ? <SecretSantaLaunchWatcher userId={user.id} /> : null}
+    </>
+  );
 }
 
 function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
@@ -392,6 +400,7 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
     <>
       <MarkAppReady />
       {children}
+      <ToastHost />
       {/* Hidden WebViews used by the on-device product scraper. Mounted once
           per session, inside the authenticated tree — scraping only ever
           happens while adding or editing an item. */}

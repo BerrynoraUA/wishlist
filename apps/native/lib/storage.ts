@@ -22,6 +22,8 @@ export const PREFERENCE_KEYS = {
    * profile stays the source of truth.
    */
   userGuideCompleted: (userId: string) => `preferences.userGuideCompleted.${userId}`,
+  /** Per-user JSON list of Secret Santa event ids whose draw celebration already played. */
+  secretSantaCelebrated: (userId: string) => `preferences.secretSantaCelebrated.${userId}`,
 } as const;
 
 export async function removeOwnedStorageImage(bucket: string, imageUrl: string | null | undefined) {

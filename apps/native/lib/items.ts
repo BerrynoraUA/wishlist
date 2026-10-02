@@ -34,7 +34,10 @@ export function getItemPriorityOptions(t: TranslateFn, selectedPriorityIds?: str
       ? selectedPriorityIds
       : ALL_PRIORITIES.filter((priority) => priority.is_free).map((priority) => priority.id);
 
-  return ALL_PRIORITIES.filter((priority) => selectedIds.includes(priority.id))
+  // Starred is always available, including for older settings containing only the three levels.
+  return ALL_PRIORITIES.filter(
+    (priority) => selectedIds.includes(priority.id) || priority.id === PRIORITY_IDS.STAR,
+  )
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((priority) => ({
       value: priority.id,

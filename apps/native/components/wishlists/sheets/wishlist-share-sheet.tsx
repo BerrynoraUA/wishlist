@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { getWishlistAccentClass } from "@/lib/wishlists";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { useGT } from "gt-react-native";
-import { Copy, Gift, MoreHorizontal, X, type LucideIcon } from "lucide-react-native";
+import { Copy, Gift, MoreHorizontal, type LucideIcon } from "lucide-react-native";
 import * as React from "react";
 import { Linking, Platform, Share, useWindowDimensions, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
@@ -134,10 +134,6 @@ export function WishlistShareSheet({
   ];
   const targetRows = [targets.slice(0, 3), targets.slice(3)];
 
-  async function dismiss() {
-    await sheetRef.current?.dismiss();
-  }
-
   /**
    * Deliberately does not use `Linking.canOpenURL` as a gate. Custom schemes have to be
    * allow-listed to be *queried* (`LSApplicationQueriesSchemes` on iOS, `<queries>` on
@@ -236,21 +232,7 @@ export function WishlistShareSheet({
       ref={sheetRef}
       detents={["auto"]}
       onDidDismiss={() => onOpenChange(false)}
-      header={
-        <BottomSheetHeader
-          title={t("Share this wishlist")}
-          action={
-            <AnimatedPressable
-              accessibilityRole="button"
-              accessibilityLabel={t("Close")}
-              className="size-10 items-center justify-center rounded-full"
-              onPress={dismiss}
-            >
-              <Icon as={X} className="size-6 text-text" />
-            </AnimatedPressable>
-          }
-        />
-      }
+      header={<BottomSheetHeader title={t("Share this wishlist")} />}
     >
       <View className="gap-5 px-4">
         <View
