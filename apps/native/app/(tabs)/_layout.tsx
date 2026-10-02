@@ -15,26 +15,39 @@ export const unstable_settings = {
 
 export default function TabsLayout() {
   const { session } = useAuth();
-  const pathname = usePathname();
   const [createOpen, setCreateOpen] = React.useState(false);
 
   if (!session) {
     return <Redirect href={"/(auth)/sign-in" as never} />;
   }
 
+  return (
+    <RootPathRedirect>
+      <CreateMenuHost open={createOpen} onOpenChange={setCreateOpen}>
+        {Platform.OS === "ios" ? (
+          <IosTabBar onCreatePress={() => setCreateOpen(true)} />
+        ) : (
+          <AndroidTabs onCreatePress={() => setCreateOpen(true)} />
+        )}
+      </CreateMenuHost>
+    </RootPathRedirect>
+  );
+}
+
+/**
+ * Sends `/` to the wishlists tab before the tabs render. The pathname changes on every
+ * navigation, so it is read here rather than in `TabsLayout`: only this component
+ * re-renders, and `children` is the same element each time, so React skips the tab
+ * navigator instead of re-rendering it ahead of every pushed screen.
+ */
+function RootPathRedirect({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
   if (pathname === "/") {
     return <Redirect href={"/(tabs)/wishlists" as never} />;
   }
 
-  return (
-    <CreateMenuHost open={createOpen} onOpenChange={setCreateOpen}>
-      {Platform.OS === "ios" ? (
-        <IosTabBar onCreatePress={() => setCreateOpen(true)} />
-      ) : (
-        <AndroidTabs onCreatePress={() => setCreateOpen(true)} />
-      )}
-    </CreateMenuHost>
-  );
+  return children;
 }
 
 /**

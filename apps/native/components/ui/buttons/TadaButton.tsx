@@ -50,19 +50,21 @@ export const TadaButton = ({
   useEffect(() => {
     if (isDisabled || isLoading) {
       cancelAnimation(rotationTransition);
-      rotationTransition.value = 0;
+      rotationTransition.set(0);
       return;
     }
 
-    rotationTransition.value = withRepeat(
-      withDelay(
-        ROTATION_TRANSITION_DELAY,
-        withSequence(
-          withTiming(1, { duration: ROTATION_TRANSITION_DURATION }),
-          withTiming(0, { duration: ROTATION_TRANSITION_DURATION }),
+    rotationTransition.set(
+      withRepeat(
+        withDelay(
+          ROTATION_TRANSITION_DELAY,
+          withSequence(
+            withTiming(1, { duration: ROTATION_TRANSITION_DURATION }),
+            withTiming(0, { duration: ROTATION_TRANSITION_DURATION }),
+          ),
         ),
+        -1,
       ),
-      -1,
     );
 
     return () => {
@@ -71,11 +73,11 @@ export const TadaButton = ({
   }, [isDisabled, isLoading, rotationTransition]);
 
   const animatedContainerStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(backgroundTransition.value, [0, 1], [1, 0.9]),
+    opacity: interpolate(backgroundTransition.get(), [0, 1], [1, 0.9]),
     transform: [
       {
         rotateZ: `${interpolate(
-          rotationTransition.value,
+          rotationTransition.get(),
           [0, 0.5, 1],
           [0, -5, 5],
           Extrapolation.CLAMP,
@@ -97,26 +99,26 @@ export const TadaButton = ({
       hitSlop={16}
       onPress={onPress}
       onPressIn={() => {
-        isActive.value = true;
-        backgroundTransition.value = withTiming(
-          1,
-          { duration: BACKGROUND_TRANSITION_DURATION },
-          () => {
+        isActive.set(true);
+        backgroundTransition.set(
+          withTiming(1, { duration: BACKGROUND_TRANSITION_DURATION }, () => {
             if (!isActive.value) {
               backgroundTransition.value = withTiming(0, {
                 duration: BACKGROUND_TRANSITION_DURATION,
               });
             }
-          },
+          }),
         );
       }}
       onPressOut={() => {
-        if (backgroundTransition.value === 1) {
-          backgroundTransition.value = withTiming(0, {
-            duration: BACKGROUND_TRANSITION_DURATION,
-          });
+        if (backgroundTransition.get() === 1) {
+          backgroundTransition.set(
+            withTiming(0, {
+              duration: BACKGROUND_TRANSITION_DURATION,
+            }),
+          );
         }
-        isActive.value = false;
+        isActive.set(false);
       }}
     >
       {({ pressed }) => (

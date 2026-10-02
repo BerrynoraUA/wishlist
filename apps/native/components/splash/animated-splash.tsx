@@ -122,7 +122,7 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
     cancelAnimation(iconOpacity);
     cancelAnimation(backdropOpacity);
     cancelAnimation(contentScale);
-    contentScale.value = 1;
+    contentScale.set(1);
     setDone(true);
   }, [backdropOpacity, contentScale, iconOpacity, iconScale, pulse]);
 
@@ -137,12 +137,14 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
     // the pulse now would fight the zoom and never get cancelled again.
     if (revealStarted.current) return;
     // Idle heartbeat: a soft breathing pulse while the app boots.
-    pulse.value = withRepeat(
-      withSequence(
-        withTiming(1.06, { duration: 850, easing: Easing.inOut(Easing.quad) }),
-        withTiming(1, { duration: 850, easing: Easing.inOut(Easing.quad) }),
+    pulse.set(
+      withRepeat(
+        withSequence(
+          withTiming(1.06, { duration: 850, easing: Easing.inOut(Easing.quad) }),
+          withTiming(1, { duration: 850, easing: Easing.inOut(Easing.quad) }),
+        ),
+        -1,
       ),
-      -1,
     );
   }, [pulse]);
 
@@ -172,29 +174,31 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
     }
 
     cancelAnimation(pulse);
-    pulse.value = withTiming(1, { duration: 100 });
+    pulse.set(withTiming(1, { duration: 100 }));
 
     // Anticipation squash, then zoom straight through the viewer. Timings are tuned so
     // the backdrop — whose callback ends the whole sequence — lands at ~420ms.
-    iconScale.value = withSequence(
-      withTiming(0.86, { duration: 130, easing: Easing.bezier(0.3, 0, 0.6, 1) }),
-      withTiming(zoomScale, { duration: 300, easing: Easing.bezier(0.7, 0, 0.84, 0) }),
+    iconScale.set(
+      withSequence(
+        withTiming(0.86, { duration: 130, easing: Easing.bezier(0.3, 0, 0.6, 1) }),
+        withTiming(zoomScale, { duration: 300, easing: Easing.bezier(0.7, 0, 0.84, 0) }),
+      ),
     );
-    iconOpacity.value = withDelay(
-      300,
-      withTiming(0, { duration: 160, easing: Easing.out(Easing.quad) }),
+    iconOpacity.set(
+      withDelay(300, withTiming(0, { duration: 160, easing: Easing.out(Easing.quad) })),
     );
-    backdropOpacity.value = withDelay(
-      160,
-      withTiming(0, { duration: 260, easing: Easing.out(Easing.cubic) }, (finished) => {
-        if (finished) runOnJS(finish)();
-      }),
+    backdropOpacity.set(
+      withDelay(
+        160,
+        withTiming(0, { duration: 260, easing: Easing.out(Easing.cubic) }, (finished) => {
+          if (finished) runOnJS(finish)();
+        }),
+      ),
     );
     // The page underneath settles from a slight over-scale, like an app launch.
     if (!IS_ANDROID) {
-      contentScale.value = withDelay(
-        140,
-        withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) }),
+      contentScale.set(
+        withDelay(140, withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) })),
       );
     }
   }, [
@@ -210,16 +214,16 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
   ]);
 
   const contentStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: contentScale.value }],
+    transform: [{ scale: contentScale.get() }],
   }));
 
   const backdropStyle = useAnimatedStyle(() => ({
-    opacity: backdropOpacity.value,
+    opacity: backdropOpacity.get(),
   }));
 
   const iconStyle = useAnimatedStyle(() => ({
-    opacity: iconOpacity.value,
-    transform: [{ scale: iconScale.value * pulse.value }],
+    opacity: iconOpacity.get(),
+    transform: [{ scale: iconScale.get() * pulse.get() }],
   }));
 
   const appReady = useMemo(() => ({ markReady, ready: done }), [markReady, done]);

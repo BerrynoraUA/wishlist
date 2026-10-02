@@ -8,11 +8,12 @@ import { useSubscriptionStatus } from "@/hooks/use-subscription";
 import { useRouter } from "expo-router";
 import { CalendarDays, Crown, Sparkles } from "lucide-react-native";
 import { useGT } from "gt-react-native";
+import { getDateTimeFormat } from "@/lib/intl";
 
 function formatDate(value: string | null) {
   if (!value) return null;
 
-  return new Intl.DateTimeFormat(undefined, {
+  return getDateTimeFormat(undefined, {
     month: "short",
     day: "numeric",
     year: "numeric",

@@ -1,3 +1,4 @@
+import { detailScreenAnimation } from "@/lib/motion";
 import { Stack } from "expo-router";
 
 export default function SecretSantaStackLayout() {
@@ -9,8 +10,8 @@ export default function SecretSantaStackLayout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="[id]" options={{ animation: "fade" }} />
-      <Stack.Screen name="join" options={{ animation: "fade" }} />
+      <Stack.Screen name="[id]" options={{ animation: detailScreenAnimation }} />
+      <Stack.Screen name="join" options={{ animation: detailScreenAnimation }} />
     </Stack>
   );
 }

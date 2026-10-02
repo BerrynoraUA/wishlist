@@ -42,7 +42,7 @@ function CarouselCard({
     if (reduceMotion) return {};
 
     // Distance of this card from the left edge of the viewport, in "card" units.
-    const offset = index * snapInterval - scrollX.value;
+    const offset = index * snapInterval - scrollX.get();
     const progress = offset / snapInterval;
 
     return {
@@ -88,7 +88,7 @@ export function DiscoverSection({
   const snapInterval = cardWidth + gridGap;
   const scrollX = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler((event) => {
-    scrollX.value = event.contentOffset.x;
+    scrollX.set(event.contentOffset.x);
   });
 
   return (

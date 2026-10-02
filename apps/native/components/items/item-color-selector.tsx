@@ -46,9 +46,7 @@ export function ItemColorSelector({
         )}
         style={{ backgroundColor: color.color }}
       >
-        {value === index ? (
-          <Icon as={Check} className="size-5 text-white" strokeWidth={3} />
-        ) : null}
+        {value === index ? <Icon as={Check} className="size-5 text-white" strokeWidth={3} /> : null}
       </StyledPressable>
     )),
   ];

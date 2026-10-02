@@ -10,10 +10,7 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { FilterActions } from "@/components/ui/filter-actions";
-import {
-  ITEM_FILTER_PANEL_HEIGHT,
-  SlideOutFilterPanel,
-} from "@/components/ui/slide-out-filter-panel";
+import { SlideOutFilterPanel } from "@/components/ui/slide-out-filter-panel";
 import { Text } from "@/components/ui/text";
 import { PriorityFilterIcon, StatusFilterIcon } from "@/components/items/item-labels";
 import { useSettings } from "@/hooks/use-settings";
@@ -25,10 +22,11 @@ import {
   getItemStatusOptions,
 } from "@/lib/items";
 import { cn } from "@/lib/utils";
+import { resetFilters } from "@/lib/reset-filters";
 import { ChevronsUpDown, Search, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View } from "react-native";
+import { type TextInput, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
 export type WishlistItemFilterState = {
@@ -70,6 +68,9 @@ export function WishlistItemFilterBar({
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useGT();
+  const searchInputRef = React.useRef<TextInput>(null);
+  const priceMinInputRef = React.useRef<TextInput>(null);
+  const priceMaxInputRef = React.useRef<TextInput>(null);
   const { data: settings } = useSettings();
   const itemSortOptions = React.useMemo(() => getItemSortOptions(t), [t]);
   const itemStatusOptions = React.useMemo(() => getItemStatusOptions(t), [t]);
@@ -136,24 +137,26 @@ export function WishlistItemFilterBar({
           filterAccessibilityLabel={t("Show item filters")}
           clearAccessibilityLabel={t("Clear filters")}
           onOpenChange={onOpenChange}
-          onReset={onReset}
+          onReset={() =>
+            resetFilters(onReset, [
+              searchInputRef.current,
+              priceMinInputRef.current,
+              priceMaxInputRef.current,
+            ])
+          }
         />
       </View>
 
-      <SlideOutFilterPanel
-        open={open}
-        progress={progress}
-        className="pb-1 pt-4"
-        maxHeight={ITEM_FILTER_PANEL_HEIGHT}
-      >
-        <View className="flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 ps-3 shadow-sm">
+      <SlideOutFilterPanel open={open} progress={progress}>
+        <View className="flex-row items-center gap-1 rounded-full border border-border-subtle bg-card-bg px-2 ps-3 shadow-sm android:border-transparent android:bg-bg-muted android:shadow-none">
           <Icon as={Search} className="size-4 text-muted-foreground/50" />
           <Input
+            ref={searchInputRef}
             value={filters.search}
             onChangeText={(search) => onChange({ search })}
             placeholder={t("Search items...")}
             returnKeyType="search"
-            className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent"
+            className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent android:h-12"
           />
           {filters.search.length > 0 ? (
             <Button
@@ -215,7 +218,7 @@ export function WishlistItemFilterBar({
                   variant="outline"
                   size="pill"
                   accessibilityLabel={t("Sort items")}
-                  className="w-full justify-between border-border-subtle bg-card-bg shadow-none dark:bg-card-bg"
+                  className="w-full justify-between border-border-subtle bg-card-bg shadow-none dark:bg-card-bg android:overflow-hidden"
                 >
                   <Text className="shrink text-sm font-semibold text-text" numberOfLines={1}>
                     {selectedSort}
@@ -237,25 +240,27 @@ export function WishlistItemFilterBar({
           </View>
         </View>
 
-        <View className="w-full flex-row items-center justify-around gap-3">
+        <View className="w-full flex-row items-center gap-2">
           <Input
+            ref={priceMinInputRef}
             value={filters.priceMin}
             onChangeText={(priceMin) => onChange({ priceMin })}
             placeholder={t("From")}
             keyboardType="decimal-pad"
             className={cn(
-              "h-11 w-[42%] rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
+              "h-11 w-0 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg android:h-12 android:shadow-none",
               filters.priceMin.trim() &&
                 "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
             )}
           />
           <Input
+            ref={priceMaxInputRef}
             value={filters.priceMax}
             onChangeText={(priceMax) => onChange({ priceMax })}
             placeholder={t("To")}
             keyboardType="decimal-pad"
             className={cn(
-              "h-11 w-[42%] rounded-full border-border-subtle bg-card-bg dark:bg-card-bg",
+              "h-11 w-0 min-w-0 flex-1 rounded-full border-border-subtle bg-card-bg dark:bg-card-bg android:h-12 android:shadow-none",
               filters.priceMax.trim() &&
                 "border-brand bg-brand-lighter text-brand dark:bg-brand-lighter",
             )}
@@ -271,7 +276,7 @@ export function WishlistItemFilterBar({
               accessibilityRole="button"
               accessibilityLabel={t('Remove "{label}" filter', { label: chip.label })}
               onPress={chip.onRemove}
-              className="flex-row items-center gap-1 rounded-full bg-brand-lighter px-3 py-1.5"
+              className="flex-row items-center gap-1 rounded-full bg-brand-lighter px-3 py-1.5 android:min-h-12 android:overflow-hidden"
             >
               <Text className="text-xs font-bold text-brand">{chip.label}</Text>
               <Icon as={X} className="size-3 text-brand" />
@@ -299,7 +304,7 @@ function MultiSelectMenu({
       <DropdownMenuTrigger asChild>
         <AnimatedPressable
           className={cn(
-            "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3",
+            "h-11 w-full flex-row items-center justify-between gap-2 rounded-full border px-3 android:h-12 android:overflow-hidden",
             values.length > 0 ? "border-brand bg-brand-lighter" : "border-border-subtle bg-card-bg",
           )}
         >

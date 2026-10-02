@@ -45,11 +45,7 @@ export const AnimatedGradientBackgroundButton = ({
   const [outerContainerWidth, setOuterContainerWidth] = useState(0);
 
   useEffect(() => {
-    transition.value = withRepeat(
-      withTiming(1, { duration: 2000, easing: Easing.linear }),
-      -1,
-      true,
-    );
+    transition.set(withRepeat(withTiming(1, { duration: 2000, easing: Easing.linear }), -1, true));
 
     return () => {
       cancelAnimation(transition);
@@ -57,13 +53,13 @@ export const AnimatedGradientBackgroundButton = ({
   }, [transition]);
 
   const translateX = useDerivedValue(() =>
-    interpolate(transition.value, [0, 1], [-2 * outerContainerWidth, 0]),
+    interpolate(transition.get(), [0, 1], [-2 * outerContainerWidth, 0]),
   );
 
   const animatedGradientContainerStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        translateX: translateX.value,
+        translateX: translateX.get(),
       },
     ],
   }));

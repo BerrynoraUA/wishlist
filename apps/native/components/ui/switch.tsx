@@ -29,13 +29,15 @@ function Switch({ className, staticColors = false, onCheckedChange, ...props }: 
 
   React.useEffect(() => {
     const nextPosition = checked ? SWITCH_THUMB_TRANSLATE_X : 0;
-    thumbTranslateX.value = reduceMotion
-      ? withTiming(nextPosition, { duration: 0 })
-      : withSpring(nextPosition, motionSpring.navPill);
+    thumbTranslateX.set(
+      reduceMotion
+        ? withTiming(nextPosition, { duration: 0 })
+        : withSpring(nextPosition, motionSpring.navPill),
+    );
   }, [checked, reduceMotion, thumbTranslateX]);
 
   const thumbAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: thumbTranslateX.value }],
+    transform: [{ translateX: thumbTranslateX.get() }],
   }));
 
   return (

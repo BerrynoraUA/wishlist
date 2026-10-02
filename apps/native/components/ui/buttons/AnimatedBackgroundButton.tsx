@@ -40,7 +40,7 @@ export const AnimatedBackgroundButton = ({
   const isActive = useSharedValue(false);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(transition.value, [0, 1], [1, 0.9]),
+    opacity: interpolate(transition.get(), [0, 1], [1, 0.9]),
   }));
 
   return (
@@ -56,20 +56,22 @@ export const AnimatedBackgroundButton = ({
       hitSlop={16}
       onPress={onPress}
       onPressIn={() => {
-        isActive.value = true;
-        transition.value = withTiming(1, { duration: DURATION }, () => {
-          if (!isActive.value) {
-            transition.value = withTiming(0, {
-              duration: DURATION,
-            });
-          }
-        });
+        isActive.set(true);
+        transition.set(
+          withTiming(1, { duration: DURATION }, () => {
+            if (!isActive.value) {
+              transition.value = withTiming(0, {
+                duration: DURATION,
+              });
+            }
+          }),
+        );
       }}
       onPressOut={() => {
-        if (transition.value === 1) {
-          transition.value = withTiming(0, { duration: DURATION });
+        if (transition.get() === 1) {
+          transition.set(withTiming(0, { duration: DURATION }));
         }
-        isActive.value = false;
+        isActive.set(false);
       }}
     >
       {({ pressed }) => (

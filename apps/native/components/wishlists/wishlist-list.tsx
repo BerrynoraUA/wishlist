@@ -16,6 +16,7 @@ import { SlideOutSpacer } from "@/components/ui/slide-out-filter-panel";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
+import { ZoomLink } from "@/components/ui/zoom-link";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import {
   useUserGuideStepCompletion,
@@ -33,7 +34,6 @@ import {
 } from "@/lib/wishlists";
 import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
-import { Link } from "expo-router";
 import {
   Gift,
   Link2,
@@ -105,7 +105,7 @@ export function WishlistList({
   /** A `SlideOutFilterPanel` shown under the filter row inside the pinned header. */
   FilterPanelComponent?: React.ReactElement;
   /** Drives the list spacer that makes room for `FilterPanelComponent`. */
-  filterPanel?: { progress: SharedValue<number>; height: number };
+  filterPanel?: { progress: SharedValue<number>; height: SharedValue<number> };
   ListHeaderComponent: React.ReactElement;
   onEndReached: () => void;
   onOpenSheet: (sheet: Exclude<SheetState, null>) => void;
@@ -298,7 +298,7 @@ export function WishlistListStatsRow() {
   // fold, so shrinking it pulls the list content below up in the same frame.
   const gridStyle = useAnimatedStyle(
     () => ({
-      height: expandedGridHeight + (STATS_COMPACT_HEIGHT - expandedGridHeight) * progress.value,
+      height: expandedGridHeight + (STATS_COMPACT_HEIGHT - expandedGridHeight) * progress.get(),
     }),
     [expandedGridHeight],
   );
@@ -310,10 +310,12 @@ export function WishlistListStatsRow() {
   const toggle = React.useCallback(() => {
     const next = !compact;
     setCompact(next);
-    progress.value = withTiming(next ? 1 : 0, {
-      duration: reducedMotion ? 0 : motionDuration.normal,
-      easing: STATS_FOLD_EASING,
-    });
+    progress.set(
+      withTiming(next ? 1 : 0, {
+        duration: reducedMotion ? 0 : motionDuration.normal,
+        easing: STATS_FOLD_EASING,
+      }),
+    );
   }, [compact, progress, reducedMotion]);
 
   if (isLoading) {
@@ -394,7 +396,7 @@ function StatCard({
   const travelX = (compactX - expandedX) * (I18nManager.isRTL ? -1 : 1);
 
   const boxStyle = useAnimatedStyle(() => {
-    const value = progress.value;
+    const value = progress.get();
     return {
       width: expandedWidth + (compactWidth - expandedWidth) * value,
       height: expandedHeight + (STATS_COMPACT_HEIGHT - expandedHeight) * value,
@@ -403,11 +405,11 @@ function StatCard({
   }, [compactWidth, expandedHeight, expandedWidth, expandedY, travelX]);
 
   const expandedContentStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(progress.value, [0, 0.45], [1, 0], Extrapolation.CLAMP),
+    opacity: interpolate(progress.get(), [0, 0.45], [1, 0], Extrapolation.CLAMP),
   }));
 
   const compactContentStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(progress.value, [0.55, 1], [0, 1], Extrapolation.CLAMP),
+    opacity: interpolate(progress.get(), [0.55, 1], [0, 1], Extrapolation.CLAMP),
   }));
 
   const handleLayout = React.useCallback(
@@ -487,18 +489,24 @@ function WishlistCard({
   const sharedLabel = ownerNickname
     ? t("Shared by @{nickname}", { nickname: ownerNickname })
     : t("Shared wishlist");
-  const menuPreview = useDropdownMenuPreview();
+  const {
+    cardRef: menuCardRef,
+    triggerRef: menuTriggerRef,
+    openMenu,
+    onOpenChange: onMenuOpenChange,
+    preview: menuPreview,
+  } = useDropdownMenuPreview();
   return (
     <Animated.View entering={wishlistCardFadeIn} style={{ width }}>
-      <DropdownMenu className="relative" onOpenChange={menuPreview.onOpenChange}>
-        <View ref={menuPreview.cardRef} collapsable={false}>
-          <Link href={{ pathname: "/wishlists/[id]", params: { id: wishlist.id } }} asChild>
+      <DropdownMenu className="relative" onOpenChange={onMenuOpenChange}>
+        <View ref={menuCardRef} collapsable={false}>
+          <ZoomLink href={{ pathname: "/wishlists/[id]", params: { id: wishlist.id } }}>
             <AnimatedPressable
               accessibilityRole="button"
               accessibilityLabel={t('Open "{title}"', {
                 title: wishlist.title,
               })}
-              onLongPress={showMenu ? menuPreview.openMenu : undefined}
+              onLongPress={showMenu ? openMenu : undefined}
               onPress={onOpen}
               className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
               pressedScale={0.98}
@@ -565,18 +573,18 @@ function WishlistCard({
                 </View>
               </View>
             </AnimatedPressable>
-          </Link>
+          </ZoomLink>
         </View>
         {showMenu ? (
           <DropdownMenuTrigger asChild>
             <AnimatedPressable
-              ref={menuPreview.triggerRef}
+              ref={menuTriggerRef}
               pointerEvents="none"
               className="absolute inset-0 opacity-0"
             />
           </DropdownMenuTrigger>
         ) : null}
-        <DropdownMenuContent backdrop="blur" preview={menuPreview.preview} sideOffset={10}>
+        <DropdownMenuContent backdrop="blur" preview={menuPreview} sideOffset={10}>
           {canEdit ? (
             <DropdownMenuItem
               layout="action"

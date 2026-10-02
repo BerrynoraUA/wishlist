@@ -53,31 +53,40 @@ export function ItemPrioritySelector({
     const nextX = Math.max(selectedIndex, 0) * segmentWidth;
     const nextOpacity = selected ? 1 : 0;
     // Keep the last colour while fading out, so the thumb does not flash grey.
-    const nextColor = selected?.color ?? thumbColor.value;
-    const nextTint = selected ? `${selected.color}1f` : thumbTint.value;
+    const nextColor = selected?.color ?? thumbColor.get();
+    const nextTint = selected ? `${selected.color}1f` : thumbTint.get();
 
     // The first placement snaps, so the thumb does not fly in from the left on open.
     if (reduceMotion || !hasMeasured.current) {
-      thumbX.value = nextX;
-      thumbOpacity.value = nextOpacity;
-      thumbColor.value = nextColor;
-      thumbTint.value = nextTint;
+      thumbX.set(nextX);
+      thumbOpacity.set(nextOpacity);
+      thumbColor.set(nextColor);
+      thumbTint.set(nextTint);
       hasMeasured.current = true;
       return;
     }
 
-    thumbX.value = withSpring(nextX, motionSpring.navPill);
-    thumbOpacity.value = withTiming(nextOpacity, { duration: 150 });
-    thumbColor.value = withTiming(nextColor, { duration: 200 });
-    thumbTint.value = withTiming(nextTint, { duration: 200 });
-  }, [reduceMotion, segmentWidth, selected, selectedIndex, thumbColor, thumbOpacity, thumbTint, thumbX]);
+    thumbX.set(withSpring(nextX, motionSpring.navPill));
+    thumbOpacity.set(withTiming(nextOpacity, { duration: 150 }));
+    thumbColor.set(withTiming(nextColor, { duration: 200 }));
+    thumbTint.set(withTiming(nextTint, { duration: 200 }));
+  }, [
+    reduceMotion,
+    segmentWidth,
+    selected,
+    selectedIndex,
+    thumbColor,
+    thumbOpacity,
+    thumbTint,
+    thumbX,
+  ]);
 
   const thumbStyle = useAnimatedStyle(() => ({
     width: segmentWidth,
-    opacity: thumbOpacity.value,
-    borderColor: thumbColor.value,
-    backgroundColor: thumbTint.value,
-    transform: [{ translateX: thumbX.value }],
+    opacity: thumbOpacity.get(),
+    borderColor: thumbColor.get(),
+    backgroundColor: thumbTint.get(),
+    transform: [{ translateX: thumbX.get() }],
   }));
 
   function handleLayout(event: LayoutChangeEvent) {
@@ -111,11 +120,7 @@ export function ItemPrioritySelector({
             className="min-w-0 flex-1 flex-row items-center justify-center gap-1.5 rounded-full"
           >
             {PriorityIcon ? (
-              <Icon
-                as={PriorityIcon}
-                className="size-4"
-                color={option.color}
-              />
+              <Icon as={PriorityIcon} className="size-4" color={option.color} />
             ) : null}
             <Text
               numberOfLines={1}

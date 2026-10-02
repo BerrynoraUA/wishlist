@@ -8,6 +8,7 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { GLASS_CAPSULE_STYLE, HAS_LIQUID_GLASS } from "@/components/ui/liquid-glass";
 import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
@@ -21,6 +22,7 @@ import {
   getWishlistVisibilityOptions,
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
+import { GlassView } from "expo-glass-effect";
 import type { Wishlist, WishlistVisibility } from "@wishlist/backend/types/wishlist";
 import {
   Calendar,
@@ -36,7 +38,7 @@ import {
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 
 type HeaderInlineFormValues = {
   title: string;
@@ -231,13 +233,9 @@ export function WishlistItemHeader({
   const actionsMenu = hasActionsMenu ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={t("Wishlist actions")}
-          className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-        >
+        <HeaderActionButton accessibilityLabel={t("Wishlist actions")}>
           <Icon as={MoreHorizontal} className="size-4 text-white" />
-        </AnimatedPressable>
+        </HeaderActionButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-48">
         {isOwner && onManageAccess ? (
@@ -286,14 +284,9 @@ export function WishlistItemHeader({
             >
               {onShare ? (
                 <GuideTarget id="wishlist-share">
-                  <AnimatedPressable
-                    accessibilityRole="button"
-                    accessibilityLabel={t("Share wishlist")}
-                    onPress={onShare}
-                    className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
-                  >
+                  <HeaderActionButton accessibilityLabel={t("Share wishlist")} onPress={onShare}>
                     <Icon as={Share2} className="size-4 text-white" />
-                  </AnimatedPressable>
+                  </HeaderActionButton>
                 </GuideTarget>
               ) : null}
 
@@ -429,5 +422,46 @@ export function WishlistItemHeader({
         <WishlistDetailsSheet wishlist={wishlist} onClose={() => setDetailsOpen(false)} />
       ) : null}
     </>
+  );
+}
+
+/**
+ * A round button over the cover. iOS 26 draws it as clear, interactive liquid glass (the
+ * system look for controls over imagery), kept dark so the white glyph reads on any accent.
+ */
+function HeaderActionButton({
+  ref,
+  children,
+  ...props
+}: React.ComponentProps<typeof Pressable> & React.RefAttributes<View>) {
+  if (!HAS_LIQUID_GLASS) {
+    return (
+      <AnimatedPressable
+        ref={ref}
+        accessibilityRole="button"
+        className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+        {...props}
+      >
+        {children}
+      </AnimatedPressable>
+    );
+  }
+
+  return (
+    <GlassView
+      isInteractive
+      glassEffectStyle="clear"
+      colorScheme="dark"
+      style={GLASS_CAPSULE_STYLE}
+    >
+      <Pressable
+        ref={ref}
+        accessibilityRole="button"
+        className="size-9 items-center justify-center"
+        {...props}
+      >
+        {children}
+      </Pressable>
+    </GlassView>
   );
 }

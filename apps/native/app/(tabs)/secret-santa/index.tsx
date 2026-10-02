@@ -17,7 +17,7 @@ import { useDeleteSecretSantaEvent, useInfiniteSecretSantaEvents } from "@/hooks
 import { SECRET_SANTA_PAGE_SIZE } from "@/lib/secret-santa";
 import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
 import type { SecretSantaDetails, SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View, useWindowDimensions } from "react-native";
@@ -32,7 +32,6 @@ type SheetState =
 
 export default function SecretSantaScreen() {
   const t = useGT();
-  const router = useRouter();
   const { width } = useWindowDimensions();
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
@@ -111,9 +110,7 @@ export default function SecretSantaScreen() {
             width={cardWidth}
             onEdit={event.is_owner ? () => setSheet({ type: "edit", event }) : undefined}
             onDelete={event.is_owner ? () => setSheet({ type: "delete", event }) : undefined}
-            onPress={() =>
-              router.push({ pathname: "/secret-santa/[id]", params: { id: event.id } } as never)
-            }
+            href={{ pathname: "/secret-santa/[id]", params: { id: event.id } }}
           />
         ))}
       </View>
@@ -147,7 +144,15 @@ export default function SecretSantaScreen() {
             contentWidth={contentWidth}
             onOpen={() => setActiveTab("events")}
           >
-            <ScrollableTabs tabs={tabs} value={activeTab} onChange={setActiveTab} align="right" />
+            {(opacity) => (
+              <ScrollableTabs
+                tabs={tabs}
+                value={activeTab}
+                onChange={setActiveTab}
+                align="right"
+                opacity={opacity}
+              />
+            )}
           </ExpandingSearchHeader>
         </PinnedListHeader>
         <StyledFlashList

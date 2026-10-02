@@ -2,7 +2,7 @@ import { useCreateButtonCenter, type CreateButtonBox } from "@/lib/create-button
 import { Portal } from "@rn-primitives/portal";
 import { useFocusEffect } from "expo-router";
 import * as React from "react";
-import { useWindowDimensions, View, type View as RNView } from "react-native";
+import { StyleSheet, useWindowDimensions, View, type View as RNView } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useCSSVariable } from "uniwind";
 
@@ -44,12 +44,17 @@ type Rect = { x: number; y: number; width: number; height: number };
  * Wraps an empty-state card and draws a solid, gracefully bending line from
  * the card's bottom border down to just above the global "+" create button.
  */
-export function CreateButtonPointer({ children }: { children: React.ReactNode }) {
+export function CreateButtonPointer({
+  children,
+  screenRef,
+}: {
+  children: React.ReactNode;
+  screenRef?: React.RefObject<RNView | null>;
+}) {
   const ref = React.useRef<RNView>(null);
   const [anchor, setAnchor] = React.useState<Rect | null>(null);
-  // Tab screens stay mounted when another tab is focused, and the line is
-  // portaled to the app root — without focus gating an empty state on a
-  // background tab would keep drawing over the whole app.
+  // Only a root-portal line needs focus gating: a screen-local line must remain
+  // visible while its native screen animates in or out.
   const [focused, setFocused] = React.useState(false);
   const button = useCreateButtonCenter();
 
@@ -61,21 +66,30 @@ export function CreateButtonPointer({ children }: { children: React.ReactNode })
   );
 
   const measure = React.useCallback(() => {
+    if (screenRef) {
+      if (screenRef.current) {
+        // Measure in the page's layout coordinates, unaffected by the native push.
+        ref.current?.measureLayout(screenRef.current, (x, y, width, height) => {
+          if (width > 0 && height > 0) setAnchor({ x, y, width, height });
+        });
+      }
+      return;
+    }
     ref.current?.measureInWindow((x, y, width, height) => {
       if (width > 0 && height > 0) setAnchor({ x, y, width, height });
     });
-  }, []);
+  }, [screenRef]);
 
-  React.useEffect(() => {
-    if (!focused) return;
-    const frame = requestAnimationFrame(measure);
-    return () => cancelAnimationFrame(frame);
-  }, [measure, focused, button.x, button.y]);
+  React.useLayoutEffect(() => {
+    if (screenRef || focused) measure();
+  }, [measure, screenRef, focused, button.x, button.y]);
 
   return (
     <View ref={ref} collapsable={false} onLayout={measure}>
       {children}
-      {focused && anchor ? <PointerLine anchor={anchor} button={button} /> : null}
+      {anchor && (screenRef || focused) ? (
+        <PointerLine anchor={anchor} button={button} inScreen={Boolean(screenRef)} />
+      ) : null}
     </View>
   );
 }
@@ -152,9 +166,17 @@ function buildCurvePath(
   return { d, lastControl: { x: c4x, y: c4y } };
 }
 
-function PointerLine({ anchor, button }: { anchor: Rect; button: CreateButtonBox }) {
+function PointerLine({
+  anchor,
+  button,
+  inScreen,
+}: {
+  anchor: Rect;
+  button: CreateButtonBox;
+  inScreen: boolean;
+}) {
   const color = cssColor(useCSSVariable("--color-text-muted"), "#94a3b8");
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const startX = anchor.x + anchor.width / 2;
   const endX = button.x;
 
@@ -182,29 +204,36 @@ function PointerLine({ anchor, button }: { anchor: Rect; button: CreateButtonBox
   const rightWing = angle - (Math.PI * 3) / 4;
   const arrowD = `M${endX + Math.cos(leftWing) * wingLength},${endY + Math.sin(leftWing) * wingLength} L${endX},${endY} L${endX + Math.cos(rightWing) * wingLength},${endY + Math.sin(rightWing) * wingLength}`;
 
-  return (
-    <Portal name="create-button-pointer">
-      <View pointerEvents="none" className="absolute inset-0">
-        <Svg width="100%" height="100%">
-          <Path
-            d={d}
-            stroke={color}
-            strokeWidth={2}
-            strokeLinecap="round"
-            fill="none"
-            opacity={0.7}
-          />
-          <Path
-            d={arrowD}
-            stroke={color}
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-            opacity={0.7}
-          />
-        </Svg>
-      </View>
-    </Portal>
+  const line = (
+    <View
+      pointerEvents="none"
+      style={
+        inScreen
+          ? { position: "absolute", left: -anchor.x, top: -anchor.y, width, height }
+          : StyleSheet.absoluteFill
+      }
+    >
+      <Svg width="100%" height="100%">
+        <Path
+          d={d}
+          stroke={color}
+          strokeWidth={2}
+          strokeLinecap="round"
+          fill="none"
+          opacity={0.7}
+        />
+        <Path
+          d={arrowD}
+          stroke={color}
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          opacity={0.7}
+        />
+      </Svg>
+    </View>
   );
+  // A screen-local line shares its native transition and scroll clipping with the card.
+  return inScreen ? line : <Portal name="create-button-pointer">{line}</Portal>;
 }

@@ -8,6 +8,7 @@ import { CalendarDays, FileText } from "lucide-react-native";
 import { useGT, useLocale } from "gt-react-native";
 import * as React from "react";
 import { ScrollView, useWindowDimensions, View } from "react-native";
+import { getDateTimeFormat } from "@/lib/intl";
 
 export function WishlistDetailsSheet({
   wishlist,
@@ -117,7 +118,7 @@ function formatEventDate(value: string | null, locale: string) {
   if (!match) return null;
 
   const [, year, month, day] = match;
-  return new Intl.DateTimeFormat(locale, {
+  return getDateTimeFormat(locale, {
     day: "numeric",
     month: "long",
     year: "numeric",

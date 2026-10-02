@@ -1,6 +1,7 @@
 import { ScrollableTabs, type ScrollableTab } from "@/components/ui/scrollable-tabs";
 import { useGT } from "gt-react-native";
 import * as React from "react";
+import type { SharedValue } from "react-native-reanimated";
 
 export type FriendsTab = "friends" | "groups" | "requests" | "sent" | "blocked";
 
@@ -12,6 +13,7 @@ export function FriendsTabs({
   sentCount,
   blockedCount,
   onChange,
+  opacity,
 }: {
   value: FriendsTab;
   friendsCount: number;
@@ -20,6 +22,7 @@ export function FriendsTabs({
   sentCount: number;
   blockedCount: number;
   onChange: (value: FriendsTab) => void;
+  opacity?: SharedValue<number>;
 }) {
   const t = useGT();
   const tabs = React.useMemo<ScrollableTab<FriendsTab>[]>(
@@ -57,5 +60,5 @@ export function FriendsTabs({
     [friendsCount, groupsCount, requestsCount, sentCount, blockedCount, t],
   );
 
-  return <ScrollableTabs tabs={tabs} value={value} onChange={onChange} />;
+  return <ScrollableTabs tabs={tabs} value={value} onChange={onChange} opacity={opacity} />;
 }

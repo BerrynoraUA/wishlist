@@ -1,7 +1,8 @@
 import { useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { useFocusEffect } from "expo-router";
 import * as React from "react";
-import { View } from "react-native";
+import { BackHandler, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -11,8 +12,16 @@ import Animated, {
 } from "react-native-reanimated";
 
 const FILTER_PANEL_FALLBACK_HEIGHT = 220;
-export const WISHLIST_FILTER_PANEL_HEIGHT = 120;
-export const ITEM_FILTER_PANEL_HEIGHT = 176;
+/**
+ * Space between the row that opens a panel and the panel's first control. Whatever follows
+ * the panel keeps its own 16pt gap below it, so the panel sits evenly between the two.
+ */
+const SLIDE_OUT_PANEL_GAP = 16;
+const FILTER_ROW_HEIGHT = process.env.EXPO_OS === "android" ? 48 : 44;
+/** Initial estimate: gap + two control rows 12pt apart. Replaced by the measured height. */
+export const WISHLIST_FILTER_PANEL_HEIGHT = SLIDE_OUT_PANEL_GAP + FILTER_ROW_HEIGHT * 2 + 12;
+/** Initial estimate: gap + three control rows 12pt apart. Replaced by the measured height. */
+export const ITEM_FILTER_PANEL_HEIGHT = SLIDE_OUT_PANEL_GAP + FILTER_ROW_HEIGHT * 3 + 12 * 2;
 
 const OPEN_DURATION = 240;
 const CLOSE_DURATION = 200;
@@ -29,23 +38,40 @@ const PANEL_EASING = Easing.bezier(0.2, 0, 0, 1);
  * the `SlideOutSpacer` that pushes the content below it — reads this one value, so they
  * stay in lockstep.
  */
-export function useSlideOutPanel(initialOpen = false) {
+export function useSlideOutPanel(
+  initialOpen = false,
+  initialHeight = FILTER_PANEL_FALLBACK_HEIGHT,
+) {
   const reduceMotion = useReducedMotion();
   const [open, setOpenState] = React.useState(initialOpen);
   const progress = useSharedValue(initialOpen ? 1 : 0);
+  const height = useSharedValue(initialHeight);
 
   const setOpen = React.useCallback(
     (next: boolean) => {
-      progress.value = withTiming(next ? 1 : 0, {
-        duration: reduceMotion ? 0 : next ? OPEN_DURATION : CLOSE_DURATION,
-        easing: PANEL_EASING,
-      });
+      progress.set(
+        withTiming(next ? 1 : 0, {
+          duration: reduceMotion ? 0 : next ? OPEN_DURATION : CLOSE_DURATION,
+          easing: PANEL_EASING,
+        }),
+      );
       setOpenState(next);
     },
     [progress, reduceMotion],
   );
 
-  return { open, setOpen, progress };
+  useFocusEffect(
+    React.useCallback(() => {
+      if (process.env.EXPO_OS !== "android" || !open) return;
+      const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
+        setOpen(false);
+        return true;
+      });
+      return () => subscription.remove();
+    }, [open, setOpen]),
+  );
+
+  return { open, setOpen, progress, height };
 }
 
 /**
@@ -58,20 +84,23 @@ export function SlideOutFilterPanel({
   progress,
   children,
   className,
-  maxHeight = FILTER_PANEL_FALLBACK_HEIGHT,
+  height,
 }: {
   open: boolean;
   progress: SharedValue<number>;
   children: React.ReactNode;
   className?: string;
-  maxHeight?: number;
+  /** Share the measured height with the spacer for a panel in a pinned header. */
+  height?: SharedValue<number>;
 }) {
+  const contentHeight = useSharedValue(FILTER_PANEL_FALLBACK_HEIGHT);
+  const measuredHeight = height ?? contentHeight;
   const containerStyle = useAnimatedStyle(() => ({
-    height: maxHeight * progress.value,
+    height: measuredHeight.get() * progress.get(),
   }));
   const contentStyle = useAnimatedStyle(() => ({
-    opacity: progress.value,
-    transform: [{ translateY: -12 * (1 - progress.value) }],
+    opacity: progress.get(),
+    transform: [{ translateY: -12 * (1 - progress.get()) }],
   }));
 
   return (
@@ -83,7 +112,15 @@ export function SlideOutFilterPanel({
       importantForAccessibility={open ? "auto" : "no-hide-descendants"}
     >
       <Animated.View style={contentStyle}>
-        <View className={cn("gap-3", className)}>{children}</View>
+        <View
+          className={cn("gap-3", className)}
+          style={{ paddingTop: SLIDE_OUT_PANEL_GAP }}
+          onLayout={(event) => {
+            measuredHeight.set(event.nativeEvent.layout.height);
+          }}
+        >
+          {children}
+        </View>
       </Animated.View>
     </Animated.View>
   );
@@ -100,9 +137,9 @@ export function SlideOutSpacer({
   height,
 }: {
   progress: SharedValue<number>;
-  height: number;
+  height: SharedValue<number>;
 }) {
-  const style = useAnimatedStyle(() => ({ height: height * progress.value }));
+  const style = useAnimatedStyle(() => ({ height: height.get() * progress.get() }));
 
   return <Animated.View pointerEvents="none" style={style} />;
 }
