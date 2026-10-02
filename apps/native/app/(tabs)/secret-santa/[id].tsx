@@ -9,9 +9,7 @@ import { SecretSantaCreateEditSheet } from "@/components/secret-santa/sheets/sec
 import { SecretSantaInviteSheet } from "@/components/secret-santa/sheets/secret-santa-invite-sheet";
 import { SecretSantaLaunchSheet } from "@/components/secret-santa/sheets/secret-santa-launch-sheet";
 import { SecretSantaLaunchCelebration } from "@/components/secret-santa/secret-santa-launch-celebration";
-import {
-  type SecretSantaExclusionSelection,
-} from "@/components/secret-santa/secret-santa-exclusions";
+import { type SecretSantaExclusionSelection } from "@/components/secret-santa/secret-santa-exclusions";
 import { InlineState } from "@/components/shared/inline-state";
 import {
   ActionBottomSheetConfirm,
@@ -88,9 +86,10 @@ export default function SecretSantaDetailScreen() {
     );
   }, [exclusions, data?.participants]);
   const exclusionList = React.useMemo(
-    () => Object.entries(activeExclusions)
-      .filter(([, excluded]) => excluded.size > 0)
-      .map(([user_id, excluded]) => ({ user_id, excluded_ids: [...excluded] })),
+    () =>
+      Object.entries(activeExclusions)
+        .filter(([, excluded]) => excluded.size > 0)
+        .map(([user_id, excluded]) => ({ user_id, excluded_ids: [...excluded] })),
     [activeExclusions],
   );
   const canLaunch =

@@ -118,7 +118,10 @@ export function ItemRibbon({
         ),
       );
       labelIn.value = withDelay(260, withSpring(1, { damping: 9, stiffness: 180 }));
-      shine.value = withDelay(480, withTiming(1, { duration: 700, easing: Easing.inOut(Easing.quad) }));
+      shine.value = withDelay(
+        480,
+        withTiming(1, { duration: 700, easing: Easing.inOut(Easing.quad) }),
+      );
       return;
     }
 
@@ -130,11 +133,7 @@ export function ItemRibbon({
 
   const sashStyle = useAnimatedStyle(() => ({
     opacity: visible.value,
-    transform: [
-      { translateX: slide.value },
-      { scaleY: unfurl.value },
-      { scale: stamp.value },
-    ],
+    transform: [{ translateX: slide.value }, { scaleY: unfurl.value }, { scale: stamp.value }],
   }));
   const labelStyle = useAnimatedStyle(() => ({
     opacity: labelIn.value,
@@ -170,11 +169,11 @@ export function ItemRibbon({
           />
           {phase === "enter" ? (
             // Clipped to the sash's flat face so the glint never shows outside the ribbon.
-            <View className="absolute inset-x-0 overflow-hidden" style={{ top: "30%", bottom: "26%" }}>
-              <Animated.View
-                className="absolute inset-y-0 w-10 bg-white"
-                style={shineStyle}
-              />
+            <View
+              className="absolute inset-x-0 overflow-hidden"
+              style={{ top: "30%", bottom: "26%" }}
+            >
+              <Animated.View className="absolute inset-y-0 w-10 bg-white" style={shineStyle} />
             </View>
           ) : null}
           <Animated.View className="max-w-[72%]" style={labelStyle}>

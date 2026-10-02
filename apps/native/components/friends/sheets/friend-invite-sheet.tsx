@@ -112,7 +112,10 @@ export function FriendInviteSheet({ userId, onClose }: { userId: string; onClose
           <>
             <Avatar className="size-20" alt={name}>
               {profile?.avatar_url ? <AvatarImage source={{ uri: profile.avatar_url }} /> : null}
-              <AvatarFallback className="bg-brand-lighter" initialsClassName="text-2xl text-brand" />
+              <AvatarFallback
+                className="bg-brand-lighter"
+                initialsClassName="text-2xl text-brand"
+              />
             </Avatar>
             <View className="items-center gap-0.5">
               <Text className="text-center text-xl font-extrabold text-text" numberOfLines={2}>

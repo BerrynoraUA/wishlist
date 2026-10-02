@@ -378,15 +378,8 @@ export function AutocompleteDropdown({
         placeholder={placeholder}
         autoCorrect={false}
         returnKeyType="search"
-        className={cn(
-          INPUT_CLASS_NAME,
-          "placeholder:text-muted-foreground/50",
-          footerClassName,
-        )}
-        placeholderTextColorClassName={cn(
-          "accent-muted-foreground/50",
-          footerPlaceholderClassName,
-        )}
+        className={cn(INPUT_CLASS_NAME, "placeholder:text-muted-foreground/50", footerClassName)}
+        placeholderTextColorClassName={cn("accent-muted-foreground/50", footerPlaceholderClassName)}
         {...footerInputProps}
       />
     </View>
@@ -467,17 +460,19 @@ export function AutocompleteDropdown({
             <View>
               <BottomSheetHeader
                 title={sheetTitle ?? placeholder ?? ""}
-                action={createAction ? (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-11 rounded-full bg-brand-lighter"
-                    accessibilityLabel={createAction.label(query.trim())}
-                    onPress={() => void handleCreate()}
-                  >
-                    <Icon as={Plus} className="size-5 text-brand" />
-                  </Button>
-                ) : undefined}
+                action={
+                  createAction ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-11 rounded-full bg-brand-lighter"
+                      accessibilityLabel={createAction.label(query.trim())}
+                      onPress={() => void handleCreate()}
+                    >
+                      <Icon as={Plus} className="size-5 text-brand" />
+                    </Button>
+                  ) : undefined
+                }
               />
             </View>
           }

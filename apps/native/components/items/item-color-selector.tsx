@@ -6,11 +6,7 @@ import { Ban, Check } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { I18nManager, View } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
 const SWATCH_SIZE = 40;
 const ROW_GAP = 8;

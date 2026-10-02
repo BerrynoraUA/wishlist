@@ -80,7 +80,10 @@ export const FeatureIdeaCard = React.memo(function FeatureIdeaCard({
           <StatusBadge status={idea.status} />
         </View>
 
-        <Text className="text-sm leading-5 text-text-muted" numberOfLines={expanded ? undefined : 3}>
+        <Text
+          className="text-sm leading-5 text-text-muted"
+          numberOfLines={expanded ? undefined : 3}
+        >
           {idea.description}
         </Text>
 

@@ -89,7 +89,9 @@ function particleShape() {
   return { width: random(3.5, 5), height: random(20, 28), radius: 2 };
 }
 
-function makeParticle(overrides: Pick<Particle, "x0" | "y0" | "vx" | "vy" | "delay"> & Partial<Particle>): Particle {
+function makeParticle(
+  overrides: Pick<Particle, "x0" | "y0" | "vx" | "vy" | "delay"> & Partial<Particle>,
+): Particle {
   return {
     ...particleShape(),
     drag: random(1.4, 2.2),
@@ -176,7 +178,8 @@ function ConfettiPiece({ particle, clock }: { particle: Particle; clock: SharedV
     const k = particle.drag;
     const decay = (1 - Math.exp(-k * t)) / k;
     const terminal = particle.gravity / k;
-    const x = particle.vx * decay + particle.swayAmp * Math.sin(t * particle.swayFreq + particle.phase);
+    const x =
+      particle.vx * decay + particle.swayAmp * Math.sin(t * particle.swayFreq + particle.phase);
     const y = terminal * t + (particle.vy - terminal) * decay;
     const lifeProgress = elapsed / particle.life;
 
@@ -324,7 +327,14 @@ function Gift({
       </View>
       <Animated.View
         style={[
-          { position: "absolute", top: 0, left: 0, right: 0, height: lidHeight, overflow: "hidden" },
+          {
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: lidHeight,
+            overflow: "hidden",
+          },
           lidStyle,
         ]}
       >
@@ -394,7 +404,10 @@ export function SecretSantaLaunchCelebration({
       withSequence(...shakes, withTiming(0, { duration: 40 })),
     );
     giftScale.value = withSequence(
-      withDelay(DRUMROLL_AT, withTiming(1.12, { duration: POP_AT - DRUMROLL_AT, easing: Easing.in(Easing.quad) })),
+      withDelay(
+        DRUMROLL_AT,
+        withTiming(1.12, { duration: POP_AT - DRUMROLL_AT, easing: Easing.in(Easing.quad) }),
+      ),
       withTiming(1.3, { duration: 110 }),
       withTiming(0.2, { duration: 260, easing: Easing.in(Easing.cubic) }),
     );
@@ -404,7 +417,10 @@ export function SecretSantaLaunchCelebration({
     lidRotate.value = withDelay(POP_AT, withTiming(-48, { duration: 750, easing: ease }));
     lidOpacity.value = withDelay(POP_AT + 350, withTiming(0, { duration: 400 }));
 
-    flash.value = withDelay(POP_AT, withTiming(1, { duration: 650, easing: Easing.out(Easing.quad) }));
+    flash.value = withDelay(
+      POP_AT,
+      withTiming(1, { duration: 650, easing: Easing.out(Easing.quad) }),
+    );
     rays.value = withDelay(POP_AT, withTiming(1, { duration: 500 }));
     raysRotate.value = withDelay(
       POP_AT,
@@ -415,7 +431,9 @@ export function SecretSantaLaunchCelebration({
     card.value = withDelay(CARD_AT, withSpring(1, { damping: 13, stiffness: 110 }));
     button.value = withDelay(BUTTON_AT, withTiming(1, { duration: 400, easing: ease }));
 
-    const ticks = [0, 150, 280, 390, 480, 560, 630, 690, 740, 785, 825, 860, 890, 915, 940, 960, 980];
+    const ticks = [
+      0, 150, 280, 390, 480, 560, 630, 690, 740, 785, 825, 860, 890, 915, 940, 960, 980,
+    ];
     const timers = [
       ...ticks.map((offset) => setTimeout(hapticSelection, DRUMROLL_AT + offset)),
       setTimeout(hapticSuccess, POP_AT),
@@ -504,12 +522,27 @@ export function SecretSantaLaunchCelebration({
             ))
           : null}
 
-        <View style={{ position: "absolute", top: stageTop, left: 0, right: 0, alignItems: "center" }}>
-          <View style={{ height: STAGE_HEIGHT, width: "100%", alignItems: "center", justifyContent: "center" }}>
+        <View
+          style={{ position: "absolute", top: stageTop, left: 0, right: 0, alignItems: "center" }}
+        >
+          <View
+            style={{
+              height: STAGE_HEIGHT,
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <Animated.View
               pointerEvents="none"
               style={[
-                { position: "absolute", width: 80, height: 80, borderRadius: 40, backgroundColor: "#FFF7E0" },
+                {
+                  position: "absolute",
+                  width: 80,
+                  height: 80,
+                  borderRadius: 40,
+                  backgroundColor: "#FFF7E0",
+                },
                 flashStyle,
               ]}
             />
@@ -527,7 +560,10 @@ export function SecretSantaLaunchCelebration({
                     <View className="rounded-full border-4 border-brand-lighter">
                       <SecretSantaPersonAvatar person={receiver} sizeClassName="size-20" />
                     </View>
-                    <Text className="text-center text-xl font-extrabold text-text" numberOfLines={2}>
+                    <Text
+                      className="text-center text-xl font-extrabold text-text"
+                      numberOfLines={2}
+                    >
                       {getSecretSantaPersonName(receiver, t)}
                     </Text>
                     {receiver.nickname ? (

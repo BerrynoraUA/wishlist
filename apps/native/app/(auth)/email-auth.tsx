@@ -118,7 +118,10 @@ export default function EmailAuthScreen() {
           <View className="relative min-h-full flex-1">
             <View className="min-h-full flex-1 px-5 py-safe-offset-5">
               <View className="flex-1 justify-center pb-16">
-                <Animated.View className="w-full max-w-110 self-center" layout={formLayoutTransition}>
+                <Animated.View
+                  className="w-full max-w-110 self-center"
+                  layout={formLayoutTransition}
+                >
                   <Animated.View className="mb-7 items-center gap-3" layout={formLayoutTransition}>
                     <View className="min-h-11 w-full flex-row items-center justify-center gap-2">
                       <Pressable
@@ -131,7 +134,7 @@ export default function EmailAuthScreen() {
                             router.back();
                             return;
                           }
-  
+
                           router.replace("/(auth)/sign-in" as never);
                         }}
                       >
@@ -148,7 +151,7 @@ export default function EmailAuthScreen() {
                       </Animated.View>
                     </View>
                   </Animated.View>
-  
+
                   <Animated.View
                     className="gap-4 rounded-[28px] border border-white/15 bg-[#2a1630]/72 p-5 shadow-lg"
                     layout={formLayoutTransition}
@@ -171,7 +174,7 @@ export default function EmailAuthScreen() {
                         )}
                       />
                     </Animated.View>
-  
+
                     <Animated.View className="gap-2" layout={formLayoutTransition}>
                       <FieldLabel>{t("Password")}</FieldLabel>
                       <View className="relative">
@@ -197,7 +200,7 @@ export default function EmailAuthScreen() {
                         />
                       </View>
                     </Animated.View>
-  
+
                     {!isLogin ? (
                       <Animated.View
                         className="gap-2"
@@ -230,7 +233,7 @@ export default function EmailAuthScreen() {
                         </View>
                       </Animated.View>
                     ) : null}
-  
+
                     {error ? (
                       <Text
                         selectable
@@ -239,7 +242,7 @@ export default function EmailAuthScreen() {
                         {error}
                       </Text>
                     ) : null}
-  
+
                     <Animated.View layout={formLayoutTransition}>
                       <Button
                         className="h-13 rounded-full bg-[#c0267e] active:bg-[#a91f6e]"
@@ -262,7 +265,7 @@ export default function EmailAuthScreen() {
                       </Button>
                     </Animated.View>
                   </Animated.View>
-  
+
                   <Animated.View
                     key={`email-auth-switch-${mode}`}
                     className="mt-6 flex-row flex-wrap items-center justify-center gap-1"

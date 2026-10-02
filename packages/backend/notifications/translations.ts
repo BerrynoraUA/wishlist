@@ -19,7 +19,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
 > = {
   uk: {
     secret_santa_invite: 'Вас запросили до Secret Santa "{event}"',
-    secret_santa_started: 'Жеребкування в Secret Santa "{event}" відбулося! Дізнайтеся, кому ви даруєте подарунок',
+    secret_santa_started:
+      'Жеребкування в Secret Santa "{event}" відбулося! Дізнайтеся, кому ви даруєте подарунок',
     item_reserved: "{name} зарезервував вашу річ",
     item_bought: "{name} купив вашу річ",
     friend_request: "{name} надіслав вам запит у друзі",
@@ -31,7 +32,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   de: {
     secret_santa_invite: 'Du wurdest zu Secret Santa "{event}" eingeladen',
-    secret_santa_started: 'Die Namen für Secret Santa "{event}" wurden gezogen! Sieh nach, wen du beschenkst',
+    secret_santa_started:
+      'Die Namen für Secret Santa "{event}" wurden gezogen! Sieh nach, wen du beschenkst',
     item_reserved: "{name} hat deinen Artikel reserviert",
     item_bought: "{name} hat deinen Artikel gekauft",
     friend_request: "{name} hat dir eine Freundschaftsanfrage gesendet",
@@ -43,7 +45,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   es: {
     secret_santa_invite: 'Te han invitado a Secret Santa "{event}"',
-    secret_santa_started: '¡Se sortearon los nombres de Secret Santa "{event}"! Descubre a quién le regalas',
+    secret_santa_started:
+      '¡Se sortearon los nombres de Secret Santa "{event}"! Descubre a quién le regalas',
     item_reserved: "{name} reservó tu artículo",
     item_bought: "{name} compró tu artículo",
     friend_request: "{name} te envió una solicitud de amistad",
@@ -55,7 +58,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   fr: {
     secret_santa_invite: 'Vous avez été invité à Secret Santa "{event}"',
-    secret_santa_started: 'Le tirage de Secret Santa "{event}" a eu lieu ! Découvrez à qui vous offrez un cadeau',
+    secret_santa_started:
+      'Le tirage de Secret Santa "{event}" a eu lieu ! Découvrez à qui vous offrez un cadeau',
     item_reserved: "{name} a réservé votre article",
     item_bought: "{name} a acheté votre article",
     friend_request: "{name} vous a envoyé une demande d'ami",
@@ -67,7 +71,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   ja: {
     secret_santa_invite: "シークレットサンタ「{event}」に招待されました",
-    secret_santa_started: "シークレットサンタ「{event}」の抽選が完了しました！プレゼントを贈る相手を確認しましょう",
+    secret_santa_started:
+      "シークレットサンタ「{event}」の抽選が完了しました！プレゼントを贈る相手を確認しましょう",
     item_reserved: "{name}さんがあなたのアイテムを予約しました",
     item_bought: "{name}さんがあなたのアイテムを購入しました",
     friend_request: "{name}さんから友達リクエストが届きました",
@@ -79,7 +84,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   it: {
     secret_santa_invite: 'Sei stato invitato a Secret Santa "{event}"',
-    secret_santa_started: 'Sono stati estratti i nomi di Secret Santa "{event}"! Scopri a chi farai il regalo',
+    secret_santa_started:
+      'Sono stati estratti i nomi di Secret Santa "{event}"! Scopri a chi farai il regalo',
     item_reserved: "{name} ha prenotato il tuo articolo",
     item_bought: "{name} ha comprato il tuo articolo",
     friend_request: "{name} ti ha inviato una richiesta di amicizia",
@@ -91,7 +97,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   pt: {
     secret_santa_invite: 'Você foi convidado para o Secret Santa "{event}"',
-    secret_santa_started: 'Os nomes do Secret Santa "{event}" foram sorteados! Veja quem você vai presentear',
+    secret_santa_started:
+      'Os nomes do Secret Santa "{event}" foram sorteados! Veja quem você vai presentear',
     item_reserved: "{name} reservou o seu item",
     item_bought: "{name} comprou o seu item",
     friend_request: "{name} enviou um pedido de amizade",
@@ -115,7 +122,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   pl: {
     secret_santa_invite: 'Zostałeś zaproszony do Secret Santa "{event}"',
-    secret_santa_started: 'Losowanie w Secret Santa "{event}" zakończone! Sprawdź, komu dajesz prezent',
+    secret_santa_started:
+      'Losowanie w Secret Santa "{event}" zakończone! Sprawdź, komu dajesz prezent',
     item_reserved: "{name} zarezerwował Twój przedmiot",
     item_bought: "{name} kupił Twój przedmiot",
     friend_request: "{name} wysłał Ci zaproszenie do znajomych",
@@ -127,7 +135,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   ko: {
     secret_santa_invite: "시크릿 산타 “{event}”에 초대되었습니다",
-    secret_santa_started: "시크릿 산타 “{event}” 추첨이 완료되었습니다! 누구에게 선물할지 확인하세요",
+    secret_santa_started:
+      "시크릿 산타 “{event}” 추첨이 완료되었습니다! 누구에게 선물할지 확인하세요",
     item_reserved: "{name}님이 회원님의 아이템을 예약했습니다",
     item_bought: "{name}님이 회원님의 아이템을 구매했습니다",
     friend_request: "{name}님이 친구 요청을 보냈습니다",
@@ -139,7 +148,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   nl: {
     secret_santa_invite: 'Je bent uitgenodigd voor Secret Santa "{event}"',
-    secret_santa_started: 'De namen voor Secret Santa "{event}" zijn getrokken! Bekijk wie jij een cadeau geeft',
+    secret_santa_started:
+      'De namen voor Secret Santa "{event}" zijn getrokken! Bekijk wie jij een cadeau geeft',
     item_reserved: "{name} heeft jouw item gereserveerd",
     item_bought: "{name} heeft jouw item gekocht",
     friend_request: "{name} heeft je een vriendschapsverzoek gestuurd",
@@ -199,7 +209,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   id: {
     secret_santa_invite: 'Kamu diundang ke Secret Santa "{event}"',
-    secret_santa_started: 'Nama untuk Secret Santa "{event}" sudah diundi! Lihat siapa yang akan kamu beri hadiah',
+    secret_santa_started:
+      'Nama untuk Secret Santa "{event}" sudah diundi! Lihat siapa yang akan kamu beri hadiah',
     item_reserved: "{name} memesan item kamu",
     item_bought: "{name} membeli item kamu",
     friend_request: "{name} mengirimi kamu permintaan pertemanan",
@@ -235,7 +246,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   hu: {
     secret_santa_invite: 'Meghívtak a Secret Santa "{event}" eseményre',
-    secret_santa_started: 'Megtörtént a sorsolás a Secret Santa "{event}" eseményen! Nézd meg, kit ajándékozol meg',
+    secret_santa_started:
+      'Megtörtént a sorsolás a Secret Santa "{event}" eseményen! Nézd meg, kit ajándékozol meg',
     item_reserved: "{name} lefoglalta a tárgyadat",
     item_bought: "{name} megvette a tárgyadat",
     friend_request: "{name} ismerősnek jelölt",
@@ -247,7 +259,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   ro: {
     secret_santa_invite: 'Ai fost invitat la Secret Santa "{event}"',
-    secret_santa_started: 'Numele pentru Secret Santa "{event}" au fost trase! Vezi cui îi faci cadou',
+    secret_santa_started:
+      'Numele pentru Secret Santa "{event}" au fost trase! Vezi cui îi faci cadou',
     item_reserved: "{name} ți-a rezervat articolul",
     item_bought: "{name} ți-a cumpărat articolul",
     friend_request: "{name} ți-a trimis o cerere de prietenie",
@@ -271,7 +284,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   el: {
     secret_santa_invite: 'Προσκληθήκατε στο Secret Santa "{event}"',
-    secret_santa_started: 'Η κλήρωση για το Secret Santa "{event}" έγινε! Δείτε σε ποιον κάνετε δώρο',
+    secret_santa_started:
+      'Η κλήρωση για το Secret Santa "{event}" έγινε! Δείτε σε ποιον κάνετε δώρο',
     item_reserved: "{name} δέσμευσε το αντικείμενό σας",
     item_bought: "{name} αγόρασε το αντικείμενό σας",
     friend_request: "{name} σας έστειλε αίτημα φιλίας",
@@ -283,7 +297,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   sv: {
     secret_santa_invite: 'Du har blivit inbjuden till Secret Santa "{event}"',
-    secret_santa_started: 'Namnen i Secret Santa "{event}" har dragits! Se vem du ska ge en present till',
+    secret_santa_started:
+      'Namnen i Secret Santa "{event}" har dragits! Se vem du ska ge en present till',
     item_reserved: "{name} reserverade ditt objekt",
     item_bought: "{name} köpte ditt objekt",
     friend_request: "{name} skickade en vänförfrågan till dig",
@@ -295,7 +310,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   da: {
     secret_santa_invite: 'Du er blevet inviteret til Secret Santa "{event}"',
-    secret_santa_started: 'Navnene i Secret Santa "{event}" er trukket! Se, hvem du skal give en gave',
+    secret_santa_started:
+      'Navnene i Secret Santa "{event}" er trukket! Se, hvem du skal give en gave',
     item_reserved: "{name} reserverede din vare",
     item_bought: "{name} købte din vare",
     friend_request: "{name} sendte dig en venneanmodning",
@@ -307,7 +323,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   nb: {
     secret_santa_invite: 'Du har blitt invitert til Secret Santa "{event}"',
-    secret_santa_started: 'Navnene i Secret Santa "{event}" er trukket! Se hvem du skal gi en gave til',
+    secret_santa_started:
+      'Navnene i Secret Santa "{event}" er trukket! Se hvem du skal gi en gave til',
     item_reserved: "{name} reserverte varen din",
     item_bought: "{name} kjøpte varen din",
     friend_request: "{name} sendte deg en venneforespørsel",
@@ -319,7 +336,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   fi: {
     secret_santa_invite: 'Sinut on kutsuttu Secret Santa -tapahtumaan "{event}"',
-    secret_santa_started: 'Secret Santa -tapahtuman "{event}" arvonta on tehty! Katso, kenelle annat lahjan',
+    secret_santa_started:
+      'Secret Santa -tapahtuman "{event}" arvonta on tehty! Katso, kenelle annat lahjan',
     item_reserved: "{name} varasi tuotteesi",
     item_bought: "{name} osti tuotteesi",
     friend_request: "{name} lähetti sinulle kaveripyynnön",
@@ -331,7 +349,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   hr: {
     secret_santa_invite: 'Pozvani ste u Secret Santa "{event}"',
-    secret_santa_started: 'Izvlačenje za Secret Santa "{event}" je obavljeno! Pogledaj kome daruješ poklon',
+    secret_santa_started:
+      'Izvlačenje za Secret Santa "{event}" je obavljeno! Pogledaj kome daruješ poklon',
     item_reserved: "{name} je rezervirao tvoj predmet",
     item_bought: "{name} je kupio tvoj predmet",
     friend_request: "{name} ti je poslao zahtjev za prijateljstvo",
@@ -343,7 +362,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   sr: {
     secret_santa_invite: 'Позвани сте у Secret Santa "{event}"',
-    secret_santa_started: 'Извлачење за Secret Santa "{event}" је обављено! Погледајте коме дарујете поклон',
+    secret_santa_started:
+      'Извлачење за Secret Santa "{event}" је обављено! Погледајте коме дарујете поклон',
     item_reserved: "{name} је резервисао твој предмет",
     item_bought: "{name} је купио твој предмет",
     friend_request: "{name} ти је послао захтев за пријатељство",
@@ -355,7 +375,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   sl: {
     secret_santa_invite: 'Povabljeni ste v Secret Santa "{event}"',
-    secret_santa_started: 'Žrebanje za Secret Santa "{event}" je končano! Poglej, komu podarjaš darilo',
+    secret_santa_started:
+      'Žrebanje za Secret Santa "{event}" je končano! Poglej, komu podarjaš darilo',
     item_reserved: "{name} je rezerviral tvoj predmet",
     item_bought: "{name} je kupil tvoj predmet",
     friend_request: "{name} ti je poslal prošnjo za prijateljstvo",
@@ -379,7 +400,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   lv: {
     secret_santa_invite: 'Jūs esat uzaicināts uz Secret Santa "{event}"',
-    secret_santa_started: 'Secret Santa "{event}" izloze ir notikusi! Uzzini, kam tu dāvināsi dāvanu',
+    secret_santa_started:
+      'Secret Santa "{event}" izloze ir notikusi! Uzzini, kam tu dāvināsi dāvanu',
     item_reserved: "{name} rezervēja jūsu preci",
     item_bought: "{name} nopirka jūsu preci",
     friend_request: "{name} nosūtīja jums draudzības pieprasījumu",
@@ -391,7 +413,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   et: {
     secret_santa_invite: 'Teid on kutsutud Secret Santa "{event}" üritusele',
-    secret_santa_started: 'Secret Santa "{event}" loosimine on tehtud! Vaata, kellele sa kingi teed',
+    secret_santa_started:
+      'Secret Santa "{event}" loosimine on tehtud! Vaata, kellele sa kingi teed',
     item_reserved: "{name} reserveeris sinu eseme",
     item_bought: "{name} ostis sinu eseme",
     friend_request: "{name} saatis sulle sõbrakutse",
@@ -415,7 +438,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   ms: {
     secret_santa_invite: 'Anda telah dijemput ke Secret Santa "{event}"',
-    secret_santa_started: 'Nama untuk Secret Santa "{event}" telah dicabut! Lihat siapa yang akan anda beri hadiah',
+    secret_santa_started:
+      'Nama untuk Secret Santa "{event}" telah dicabut! Lihat siapa yang akan anda beri hadiah',
     item_reserved: "{name} menempah item anda",
     item_bought: "{name} membeli item anda",
     friend_request: "{name} menghantar permintaan rakan kepada anda",
@@ -427,7 +451,8 @@ export const NOTIFICATION_TRANSLATIONS: Record<
   },
   fil: {
     secret_santa_invite: 'Naimbitahan ka sa Secret Santa "{event}"',
-    secret_santa_started: 'Nabunot na ang mga pangalan sa Secret Santa "{event}"! Tingnan kung sino ang reregaluhan mo',
+    secret_santa_started:
+      'Nabunot na ang mga pangalan sa Secret Santa "{event}"! Tingnan kung sino ang reregaluhan mo',
     item_reserved: "Nireserba ni {name} ang iyong item",
     item_bought: "Binili ni {name} ang iyong item",
     friend_request: "Nagpadala si {name} sa iyo ng friend request",

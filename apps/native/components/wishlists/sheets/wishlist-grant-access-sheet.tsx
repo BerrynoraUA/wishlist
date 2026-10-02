@@ -67,10 +67,7 @@ export function WishlistGrantAccessSheet({
   const accessListQuery = useWishlistAccessList(wishlistId, { enabled: open && !isGated });
   const grantAccess = useGrantWishlistAccess();
   const revokeAccess = useRevokeWishlistAccess();
-  const friendItems = React.useMemo<PeoplePickerItem[]>(
-    () => friends.map(toPickerItem),
-    [friends],
-  );
+  const friendItems = React.useMemo<PeoplePickerItem[]>(() => friends.map(toPickerItem), [friends]);
   // The picked friend stays shown even once a new search filters it out of `friends`.
   const selectedItems = values.selectedFriend ? [toPickerItem(values.selectedFriend)] : [];
 

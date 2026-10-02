@@ -45,7 +45,10 @@ export const BugReportCard = React.memo(function BugReportCard({ report }: { rep
           <StatusBadge status={report.status} />
         </View>
 
-        <Text className="text-sm leading-5 text-text-muted" numberOfLines={expanded ? undefined : 3}>
+        <Text
+          className="text-sm leading-5 text-text-muted"
+          numberOfLines={expanded ? undefined : 3}
+        >
           {report.description}
         </Text>
 
@@ -70,7 +73,9 @@ export const BugReportCard = React.memo(function BugReportCard({ report }: { rep
 
         <View className="flex-row items-center gap-2 border-t border-border-subtle pt-3">
           <Avatar alt={authorName} className="size-6">
-            {report.user_avatar_url ? <AvatarImage source={{ uri: report.user_avatar_url }} /> : null}
+            {report.user_avatar_url ? (
+              <AvatarImage source={{ uri: report.user_avatar_url }} />
+            ) : null}
             <AvatarFallback initialsClassName="text-[10px]" />
           </Avatar>
           <Text className="min-w-0 flex-1 text-xs font-semibold text-text-muted" numberOfLines={1}>

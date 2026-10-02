@@ -11,7 +11,12 @@ import { Pressable, View } from "react-native";
 
 export type SecretSantaExclusionSelection = Record<string, Set<string>>;
 
-export function SecretSantaExclusions({ giverId, participants, exclusions, onChange }: {
+export function SecretSantaExclusions({
+  giverId,
+  participants,
+  exclusions,
+  onChange,
+}: {
   giverId: string;
   participants: SecretSantaPerson[];
   exclusions: SecretSantaExclusionSelection;
@@ -53,7 +58,9 @@ export function SecretSantaExclusions({ giverId, participants, exclusions, onCha
 
   return (
     <View className="gap-2 border-t border-border-subtle p-3">
-      <Text className="text-sm text-text-muted">{t("Choose who this participant cannot draw.")}</Text>
+      <Text className="text-sm text-text-muted">
+        {t("Choose who this participant cannot draw.")}
+      </Text>
       {others.length === 0 ? (
         <Text className="text-sm text-text-muted">{t("At least 2 participants required.")}</Text>
       ) : null}
@@ -76,16 +83,12 @@ export function SecretSantaExclusions({ giverId, participants, exclusions, onCha
               <SecretSantaPersonAvatar person={other} sizeClassName="size-6" />
               <Text
                 className={
-                  isExcluded
-                    ? "text-xs font-bold text-destructive"
-                    : "text-xs font-bold text-text"
+                  isExcluded ? "text-xs font-bold text-destructive" : "text-xs font-bold text-text"
                 }
               >
                 {getSecretSantaPersonName(other, t)}
               </Text>
-              {isExcluded ? (
-                <Icon as={Ban} className="size-3 text-destructive" />
-              ) : null}
+              {isExcluded ? <Icon as={Ban} className="size-3 text-destructive" /> : null}
             </Pressable>
           );
         })}

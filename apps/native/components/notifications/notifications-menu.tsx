@@ -219,7 +219,6 @@ function NotificationsSheet({
       <GestureHandlerRootView style={{ flexGrow: 1 }}>
         <View className="px-5">
           <View className="gap-4">
-  
             {isLoading ? (
               <NotificationsSkeleton />
             ) : notifications.length === 0 ? (
@@ -369,7 +368,7 @@ function NotificationRow({
             </Text>
           </View>
         </View>
-  
+
         {isInvite ? (
           <View className="ms-5 flex-row gap-2">
             <Button
