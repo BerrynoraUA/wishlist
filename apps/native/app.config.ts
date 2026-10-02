@@ -14,14 +14,18 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     name: config.name,
     slug: config.slug,
     runtimeVersion: {
-      // Fingerprint (not appVersion) so an OTA only reaches binaries whose
-      // native project — native deps, config plugins, AND patches/ — matches the
-      // update. Under appVersion every build of a version shares one runtime
-      // version, so a JS update could land on a binary missing the native
-      // changes it needs and crash. MOBILE_VERSION_POLICY is the escape hatch
-      // for a build that wants the looser policy on purpose, e.g. a dev client
-      // that should accept every update; Expo validates the value it is given.
-      policy: (process.env.MOBILE_VERSION_POLICY as RuntimeVersionPolicy) ?? "fingerprint",
+      // Development manifests resolve on every launch, so the development
+      // profile (APP_VARIANT=development in eas.json) skips fingerprint's
+      // expensive native-project calculation and uses appVersion. Every other
+      // build stays on fingerprint (not appVersion) so an OTA only reaches
+      // binaries whose native project — native deps, config plugins, AND
+      // patches/ — matches the update. Under appVersion every build of a version
+      // shares one runtime version, so a JS update could land on a binary
+      // missing the native changes it needs and crash. MOBILE_VERSION_POLICY
+      // overrides both; Expo validates the value it is given.
+      policy:
+        (process.env.MOBILE_VERSION_POLICY as RuntimeVersionPolicy) ??
+        (process.env.APP_VARIANT === "development" ? "appVersion" : "fingerprint"),
     },
   };
 };

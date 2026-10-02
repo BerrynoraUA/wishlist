@@ -9,8 +9,7 @@ name: Mobile EAS Production
 #   1. Store builds — when the latest production build's version differs from
 #      app.json, cut a build and auto-submit it. Submission lands on the Play
 #      `production` track (`releaseStatus: completed`) and in App Store Connect,
-#      so it is publicly irreversible once Google/Apple approve. That is why the
-#      store path sits behind the `store-release` reviewer gate. To ship to
+#      so it is publicly irreversible once Google/Apple approve. To ship to
 #      testers instead, use mobile-eas-production-testflight.yml (`beta`
 #      profile, Play `beta` track).
 #   2. OTA — publish a production-channel update for each platform that already
@@ -19,10 +18,10 @@ name: Mobile EAS Production
 #      skipped and flagged in the summary rather than published into the void.
 #
 # Automatic triggers are commented out: this pipeline is manual-dispatch only.
-# Uncomment the block below to restore automatic runs. Note that the OTA job is
-# deliberately NOT behind the reviewer gate, so under a live `push` trigger every
-# merge ships JS to all production users with no store review. That is the point
-# of OTA, but confirm it is what you want before uncommenting.
+# Uncomment the block below to restore automatic runs. Under a live `push`
+# trigger every merge ships JS to all production users with no store review, and
+# every version bump goes straight to the Play `production` track. That is the
+# point, but confirm it is what you want before uncommenting.
 on:
   workflow_dispatch:
     inputs:
@@ -75,34 +74,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Mirrors the require-approval gate in .eas/workflows/release-build.yml. The
-  # gate cannot live inside the build job: `eas build --auto-submit --no-wait`
-  # hands the build and its submission to EAS and returns immediately, so once
-  # that step runs there is no later point at which submission can be held back.
-  #
-  # Requires a `store-release` environment with required reviewers under
-  # Settings → Environments. GitHub auto-creates a referenced environment with no
-  # protection rules, so an unconfigured one waves every run straight through.
-  approve_store_submission:
-    name: Approve store submission
-    if: github.event_name == 'push' || inputs.mode == 'build'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    permissions:
-      contents: read
-    environment: store-release
-    steps:
-      - name: Record approval
-        run: |
-          {
-            echo "## Store submission approved"
-            echo
-            echo "- iOS: App Store Connect (manual submit-for-review still required)"
-            echo "- Android: Play \`production\` track, rolls out once Google approves"
-          } >> "$GITHUB_STEP_SUMMARY"
-
   store_builds:
     name: Reconcile store builds
-    needs: approve_store_submission
     if: github.event_name == 'push' || inputs.mode == 'build'
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
