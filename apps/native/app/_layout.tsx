@@ -9,7 +9,7 @@ import { NotificationPermissionSheet } from "@/components/notifications/notifica
 import { SecretSantaLaunchWatcher } from "@/components/secret-santa/secret-santa-launch-watcher";
 import { ToastHost } from "@/components/ui/toast";
 import { AppBlurTarget } from "@/components/ui/app-blur-target";
-import { useEnsureDefaultAvatar, useSettings } from "@/hooks/use-settings";
+import { useEnsureDefaultAvatar, useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import {
   applyNativeThemeSettings,
   type CachedNativeThemeSettings,
@@ -41,7 +41,9 @@ import { PostHogEventProperties } from "@posthog/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useGlobalSearchParams, usePathname, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { GTProvider, useLocale, useSetLocale } from "gt-react-native";
+import { GTProvider, useLocale, useLocales, useSetLocale } from "gt-react-native";
+import { determineLocale } from "generaltranslation";
+import { getLocales } from "expo-localization";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { ActivityIndicator, DevSettings, useColorScheme, View } from "react-native";
@@ -311,6 +313,8 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
   const ready = Boolean(settings || cachedSettings || settingsError);
   const locale = useLocale();
   const setLocale = useSetLocale();
+  const supportedLocales = useLocales();
+  const updateSettings = useUpdateSettings();
   const localeSyncedRef = useRef(false);
 
   useEffect(() => {
@@ -360,14 +364,27 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
   // Sync the UI language to the account's preferred_locale once per mount. This component
   // remounts (key={session.user.id} in AuthGate) on every account switch, so the ref
   // naturally resets — matching the once-per-load guard used on web.
+  // An account with no language yet (e.g. just created) takes the device language and
+  // saves it, so the first sign-in decides it once.
   useEffect(() => {
     if (localeSyncedRef.current) return;
     if (!settings) return;
     localeSyncedRef.current = true;
-    if (!settings.preferred_locale) return;
+
+    if (!settings.preferred_locale) {
+      const deviceLocale =
+        determineLocale(
+          getLocales().map((entry) => entry.languageTag),
+          [...supportedLocales],
+        ) ?? locale;
+      if (deviceLocale !== locale) setLocale(deviceLocale);
+      updateSettings.mutate({ preferred_locale: deviceLocale });
+      return;
+    }
+
     if (settings.preferred_locale === locale) return;
     setLocale(settings.preferred_locale);
-  }, [settings?.preferred_locale, locale, setLocale]);
+  }, [settings, locale, setLocale, supportedLocales, updateSettings]);
 
   useLayoutEffect(() => {
     if (!ready) return;

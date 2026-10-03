@@ -24,6 +24,7 @@ import {
   unblockUser,
   updateFriendGroup,
 } from "@/api/friends";
+import { animateCardRemoval } from "@/lib/card-motion";
 import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
 import {
   friendKeys,
@@ -200,7 +201,8 @@ export function useAcceptFriendRequest() {
 
   return useMutation({
     mutationFn: (requestId: string) => acceptFriendRequest(requestId),
-    onSuccess: async () => {
+    onSuccess: async (_, requestId) => {
+      await animateCardRemoval("request", requestId, true);
       await queryClient.invalidateQueries({ queryKey: friendKeys.requests() });
       await queryClient.invalidateQueries({ queryKey: friendKeys.lists() });
     },
@@ -212,7 +214,8 @@ export function useRejectFriendRequest() {
 
   return useMutation({
     mutationFn: (requestId: string) => rejectFriendRequest(requestId),
-    onSuccess: async () => {
+    onSuccess: async (_, requestId) => {
+      await animateCardRemoval("request", requestId);
       await queryClient.invalidateQueries({ queryKey: friendKeys.requests() });
     },
   });
@@ -273,7 +276,8 @@ export function useUnblockUser() {
 
   return useMutation({
     mutationFn: (userId: string) => unblockUser(userId),
-    onSuccess: async () => {
+    onSuccess: async (_, userId) => {
+      await animateCardRemoval("blocked", userId);
       await queryClient.invalidateQueries({ queryKey: friendKeys.all });
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
     },

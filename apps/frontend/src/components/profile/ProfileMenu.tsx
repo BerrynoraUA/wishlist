@@ -50,7 +50,8 @@ function getAddAccountHref() {
 }
 
 const LOCALE_LABELS: Record<string, string> = {
-  en: "English",
+  en: "English (UK)",
+  "en-US": "English (US)",
   uk: "Українська",
   de: "Deutsch",
   es: "Español",

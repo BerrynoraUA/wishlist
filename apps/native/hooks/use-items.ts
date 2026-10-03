@@ -10,6 +10,7 @@ import {
   updateItem,
 } from "@/api/items";
 import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
+import { animateCardRemoval, markNewCard } from "@/lib/card-motion";
 import { itemKeys } from "@/lib/item-query-keys";
 import { normalizeItemSearch } from "@/lib/items";
 import { statisticsKeys, wishlistKeys } from "@/lib/wishlist-query-keys";
@@ -68,7 +69,10 @@ export function useCreateItem() {
 
   return useMutation({
     mutationFn: (params: CreateItemParams) => createItem(params),
-    onSuccess: (item) => invalidateWishlistItems(queryClient, item.wishlist_id),
+    onSuccess: (item) => {
+      markNewCard("item", item.id);
+      invalidateWishlistItems(queryClient, item.wishlist_id);
+    },
   });
 }
 
@@ -82,12 +86,16 @@ export function useUpdateItem() {
   });
 }
 
-export function useDeleteItem() {
+export function useDeleteItem(onBeforeRemoval?: () => void) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: string) => deleteItem(id),
-    onSuccess: () => invalidateWishlistItems(queryClient),
+    onSuccess: async (_, id) => {
+      onBeforeRemoval?.();
+      await animateCardRemoval("item", id);
+      invalidateWishlistItems(queryClient);
+    },
   });
 }
 

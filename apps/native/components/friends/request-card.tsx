@@ -3,18 +3,22 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import type { FriendRequestWithDetails } from "@wishlist/backend/types/friends";
 import { useGT } from "gt-react-native";
+import { Check } from "lucide-react-native";
+import { Icon } from "@/components/ui/icon";
 import { ActivityIndicator, View } from "react-native";
 
 export function RequestCard({
   request,
   accepting,
   rejecting,
+  accepted = false,
   onAccept,
   onReject,
 }: {
   request: FriendRequestWithDetails;
   accepting?: boolean;
   rejecting?: boolean;
+  accepted?: boolean;
   onAccept: () => void;
   onReject: () => void;
 }) {
@@ -48,15 +52,21 @@ export function RequestCard({
         </View>
       </View>
 
-      <View className="flex-row gap-2">
-        <Button className="flex-1" disabled={disabled} onPress={onAccept}>
-          {accepting ? <ActivityIndicator colorClassName="accent-white" size="small" /> : null}
-          <Text>{accepting ? t("Accepting...") : t("Accept")}</Text>
-        </Button>
-        <Button className="flex-1" variant="outline" disabled={disabled} onPress={onReject}>
-          <Text>{rejecting ? t("Declining...") : t("Decline")}</Text>
-        </Button>
-      </View>
+      {accepted ? (
+        <View className="h-10 items-center justify-center rounded-lg bg-brand-lighter">
+          <Icon as={Check} className="size-5 text-brand" />
+        </View>
+      ) : (
+        <View className="flex-row gap-2">
+          <Button className="flex-1" disabled={disabled} onPress={onAccept}>
+            {accepting ? <ActivityIndicator colorClassName="accent-white" size="small" /> : null}
+            <Text>{accepting ? t("Accepting...") : t("Accept")}</Text>
+          </Button>
+          <Button className="flex-1" variant="outline" disabled={disabled} onPress={onReject}>
+            <Text>{rejecting ? t("Declining...") : t("Decline")}</Text>
+          </Button>
+        </View>
+      )}
     </View>
   );
 }

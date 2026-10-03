@@ -1,5 +1,11 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { ItemImage } from "@/components/items/item-image";
+import {
+  PurchaseActionIcon,
+  PurchaseActionLabel,
+  PurchaseActionTint,
+  ReservationActionIcon,
+} from "@/components/items/status-action-icon";
 import { useReportItem } from "@/hooks/use-items";
 import { ItemPriorityMedallion, useItemCardBorderStyle } from "@/components/items/item-labels";
 import { ActionBottomSheetConfirm } from "@/components/ui/action-bottom-sheet";
@@ -33,9 +39,7 @@ import {
   EyeOff,
   Flag,
   Heart,
-  LockKeyhole,
   Pencil,
-  ShoppingCart,
   Trash2,
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
@@ -275,8 +279,8 @@ export function WishlistItemCard({
                           : "border-brand/25 bg-brand-lighter",
                       )}
                     >
-                      <Icon
-                        as={LockKeyhole}
+                      <ReservationActionIcon
+                        reserved={reservation.isReserved}
                         className={cn(
                           "size-4",
                           reservation.isReserved ? "text-primary-foreground" : "text-brand",
@@ -307,29 +311,16 @@ export function WishlistItemCard({
                         event.stopPropagation();
                         confirmBought();
                       }}
-                      className={cn(
-                        "min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border px-3 py-3",
-                        reservation.isPurchased
-                          ? "border-destructive/35 bg-danger-bg"
-                          : "border-buy/35 bg-buy-bg",
-                      )}
+                      className="min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border border-buy/35 bg-buy-bg px-3 py-3"
                     >
-                      <Icon
-                        as={ShoppingCart}
-                        className={cn(
-                          "size-4",
-                          reservation.isPurchased ? "text-destructive" : "text-buy",
-                        )}
-                      />
-                      <Text
-                        numberOfLines={1}
-                        className={cn(
-                          "text-sm font-extrabold",
-                          reservation.isPurchased ? "text-destructive" : "text-buy",
-                        )}
+                      <PurchaseActionTint purchased={reservation.isPurchased} />
+                      <PurchaseActionIcon purchased={reservation.isPurchased} />
+                      <PurchaseActionLabel
+                        purchased={reservation.isPurchased}
+                        className="text-sm font-extrabold"
                       >
                         {reservation.isPurchased ? t("Undo") : t("Buy")}
-                      </Text>
+                      </PurchaseActionLabel>
                     </AnimatedPressable>
                   ) : null}
                 </View>

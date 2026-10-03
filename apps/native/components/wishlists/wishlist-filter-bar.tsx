@@ -33,7 +33,7 @@ import {
 import { cn } from "@/lib/utils";
 import { GlassContainer, GlassView } from "expo-glass-effect";
 import { useRouter } from "expo-router";
-import { Bell, ChevronsUpDown, Search, Sparkles } from "lucide-react-native";
+import { ChevronsUpDown, Search, Sparkles } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Pressable, StyleSheet, type TextInput, View } from "react-native";
@@ -94,7 +94,7 @@ export function WishlistFilterBar({
           </GlassView>
         </GuideTarget>
         <NotificationsMenu
-          trigger={({ onOpen: onOpenNotifications, open: notificationsOpen }) => (
+          trigger={({ onOpen: onOpenNotifications, open: notificationsOpen, renderBell }) => (
             <GlassContainer spacing={GLASS_MERGE_SPACING} style={styles.glassGroup}>
               <FilterActions
                 active={canResetFilters}
@@ -110,7 +110,7 @@ export function WishlistFilterBar({
                   accessibilityState={{ expanded: notificationsOpen }}
                   onPress={onOpenNotifications}
                 >
-                  <Icon as={Bell} className="size-5 text-text" />
+                  {renderBell()}
                 </GlassCapsuleSlot>
               </FilterActions>
               <MorphingGlassButton
@@ -120,7 +120,7 @@ export function WishlistFilterBar({
                 accessibilityState={{ expanded: notificationsOpen }}
                 onPress={onOpenNotifications}
               >
-                <Icon as={Bell} className="size-5 text-text" />
+                {renderBell()}
               </MorphingGlassButton>
             </GlassContainer>
           )}

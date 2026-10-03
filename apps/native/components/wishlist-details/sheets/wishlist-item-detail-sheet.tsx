@@ -6,6 +6,12 @@ import {
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
 import { ItemImage } from "@/components/items/item-image";
+import {
+  PurchaseActionIcon,
+  PurchaseActionLabel,
+  PurchaseActionTint,
+  ReservationActionIcon,
+} from "@/components/items/status-action-icon";
 import { Button } from "@/components/ui/button";
 import {
   ActionBottomSheetConfirm,
@@ -34,10 +40,8 @@ import {
   Eye,
   EyeOff,
   Flag,
-  LockKeyhole,
   MoreVertical,
   Pencil,
-  ShoppingCart,
   Trash2,
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
@@ -267,7 +271,7 @@ export function WishlistItemDetailSheet({
               (!canReserve || reservePending) && "opacity-50",
             )}
           >
-            <Icon as={LockKeyhole} className="size-4 text-brand" />
+            <ReservationActionIcon reserved={reservation.isReserved} className="size-4 text-brand" />
             <Text className="text-sm text-brand">
               {reservedByMe
                 ? t("Release reservation")
@@ -290,13 +294,10 @@ export function WishlistItemDetailSheet({
               (!canBuy || boughtPending) && "opacity-50",
             )}
           >
-            <Icon
-              as={ShoppingCart}
-              className={canUndoPurchase ? "size-4 text-destructive" : "size-4 text-buy"}
-            />
-            <Text className={cn("text-sm", canUndoPurchase ? "text-destructive" : "text-buy")}>
+            <PurchaseActionIcon purchased={reservation.isPurchased} />
+            <PurchaseActionLabel purchased={reservation.isPurchased} className="text-sm">
               {canUndoPurchase ? t("Undo") : reservation.isPurchased ? t("Purchased") : t("Buy")}
-            </Text>
+            </PurchaseActionLabel>
           </Pressable>
         ) : null}
       </View>
@@ -375,8 +376,8 @@ export function WishlistItemDetailSheet({
               {reservePending ? (
                 <ActivityIndicator colorClassName="accent-primary-foreground" />
               ) : null}
-              <Icon
-                as={LockKeyhole}
+              <ReservationActionIcon
+                reserved={reservation.isReserved}
                 className={reservedByMe ? "size-4 text-primary-foreground" : "size-4 text-brand"}
               />
               <Text
@@ -393,22 +394,16 @@ export function WishlistItemDetailSheet({
               size="lg"
               disabled={!canBuy || boughtPending}
               onPress={confirmBought}
-              className={
-                canUndoPurchase
-                  ? "min-w-0 flex-1 rounded-lg border border-destructive/35 bg-danger-bg"
-                  : "min-w-0 flex-1 rounded-lg border border-buy/70 bg-buy-bg"
-              }
+              className="min-w-0 flex-1 rounded-lg border border-buy/70 bg-buy-bg"
             >
+              <PurchaseActionTint purchased={reservation.isPurchased} />
               {boughtPending ? (
                 <ActivityIndicator colorClassName="accent-primary-foreground" />
               ) : null}
-              <Icon
-                as={ShoppingCart}
-                className={canUndoPurchase ? "size-4 text-destructive" : "size-4 text-buy"}
-              />
-              <Text numberOfLines={1} className={canUndoPurchase ? "text-destructive" : "text-buy"}>
+              <PurchaseActionIcon purchased={reservation.isPurchased} />
+              <PurchaseActionLabel purchased={reservation.isPurchased} className="text-sm font-medium">
                 {canUndoPurchase ? t("Undo") : reservation.isPurchased ? t("Purchased") : t("Buy")}
-              </Text>
+              </PurchaseActionLabel>
             </Button>
           ) : null}
         </View>

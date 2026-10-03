@@ -32,12 +32,14 @@ import {
 } from "@/hooks/use-friends";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
+import { AnimatedListCard, useListCardRemoval } from "@/lib/card-motion";
 import type {
   BlockedUser,
   FriendGroup,
   FriendRequestWithDetails,
   FriendWithDetails,
 } from "@wishlist/backend/types/friends";
+import type { FlashListRef } from "@shopify/flash-list";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
@@ -134,9 +136,30 @@ export default function FriendsScreen() {
     return friends;
   }, [blocked, friends, groups, outgoing, requests, tab]);
 
+  const listRef = React.useRef<FlashListRef<FriendsRow>>(null);
+  const visibleIds = React.useMemo(() => activeItems.map((entry) => entry.id), [activeItems]);
+  const requestRemoval = useListCardRemoval(
+    "request",
+    () => listRef.current?.prepareForLayoutAnimationRender(),
+    tab === "requests" ? visibleIds : [],
+  );
+  const blockedRemoval = useListCardRemoval(
+    "blocked",
+    () => listRef.current?.prepareForLayoutAnimationRender(),
+    tab === "blocked" ? visibleIds : [],
+  );
+  const displayedItems = React.useMemo(
+    () =>
+      activeItems.filter(
+        (entry) =>
+          !requestRemoval.removedIds.has(entry.id) && !blockedRemoval.removedIds.has(entry.id),
+      ),
+    [activeItems, blockedRemoval.removedIds, requestRemoval.removedIds],
+  );
+
   const rows = React.useMemo<FriendsRow[]>(
-    () => chunkRows(activeItems, columns),
-    [activeItems, columns],
+    () => chunkRows(displayedItems, columns),
+    [displayedItems, columns],
   );
   const isLoading =
     tab === "groups"
@@ -191,53 +214,69 @@ export default function FriendsScreen() {
           width: contentWidth,
         }}
       >
-        {item.map((entry) => (
-          <View key={entry.id} style={{ width: cardWidth }}>
-            {tab === "groups" ? (
-              <FriendGroupCard
-                group={entry as FriendGroup}
-                onOpen={(group) => setSheet({ type: "groupDetails", group })}
-                onEdit={(group) => setSheet({ type: "group", group })}
-                onDelete={(group) => setSheet({ type: "deleteGroup", group })}
-              />
-            ) : tab === "requests" ? (
-              <RequestCard
-                request={entry as FriendRequestWithDetails}
-                accepting={acceptRequest.isPending}
-                rejecting={rejectRequest.isPending}
-                onAccept={() => acceptRequest.mutate(entry.id)}
-                onReject={() =>
-                  setSheet({
-                    type: "declineRequest",
-                    requestId: entry.id,
-                    senderId: (entry as FriendRequestWithDetails).sender_id,
-                  })
-                }
-              />
-            ) : tab === "blocked" ? (
-              <BlockedUserCard
-                user={entry as BlockedUser}
-                isPending={unblockUser.isPending}
-                onUnblock={(userId) => unblockUser.mutate(userId)}
-              />
-            ) : tab === "sent" ? (
-              <OutgoingRequestCard
-                request={entry as FriendRequestWithDetails}
-                cancelling={cancelRequest.isPending}
-                onCancel={() => cancelRequest.mutate(entry.id)}
-              />
-            ) : (
-              <FriendCard
-                friend={entry as FriendWithDetails}
-                href={{
-                  pathname: "/friends/[id]",
-                  params: { id: (entry as FriendWithDetails).friend_id },
-                }}
-                onRemove={(friendId) => setSheet({ type: "removeFriend", friendId })}
-              />
-            )}
-          </View>
-        ))}
+        {item.map((entry) => {
+          const card = tab === "groups" ? (
+            <FriendGroupCard
+              group={entry as FriendGroup}
+              onOpen={(group) => setSheet({ type: "groupDetails", group })}
+              onEdit={(group) => setSheet({ type: "group", group })}
+              onDelete={(group) => setSheet({ type: "deleteGroup", group })}
+            />
+          ) : tab === "requests" ? (
+            <RequestCard
+              request={entry as FriendRequestWithDetails}
+              accepting={acceptRequest.isPending}
+              rejecting={rejectRequest.isPending}
+              accepted={requestRemoval.acceptedIds.has(entry.id)}
+              onAccept={() => acceptRequest.mutate(entry.id)}
+              onReject={() =>
+                setSheet({
+                  type: "declineRequest",
+                  requestId: entry.id,
+                  senderId: (entry as FriendRequestWithDetails).sender_id,
+                })
+              }
+            />
+          ) : tab === "blocked" ? (
+            <BlockedUserCard
+              user={entry as BlockedUser}
+              isPending={unblockUser.isPending}
+              onUnblock={(userId) => unblockUser.mutate(userId)}
+            />
+          ) : tab === "sent" ? (
+            <OutgoingRequestCard
+              request={entry as FriendRequestWithDetails}
+              cancelling={cancelRequest.isPending}
+              onCancel={() => cancelRequest.mutate(entry.id)}
+            />
+          ) : (
+            <FriendCard
+              friend={entry as FriendWithDetails}
+              href={{
+                pathname: "/friends/[id]",
+                params: { id: (entry as FriendWithDetails).friend_id },
+              }}
+              onRemove={(friendId) => setSheet({ type: "removeFriend", friendId })}
+            />
+          );
+          return tab === "requests" || tab === "blocked" ? (
+            <AnimatedListCard
+              kind={tab === "blocked" ? "blocked" : "request"}
+              id={entry.id}
+              key={entry.id}
+              exiting={
+                requestRemoval.exitingIds.has(entry.id) || blockedRemoval.exitingIds.has(entry.id)
+              }
+              style={{ width: cardWidth }}
+            >
+              {card}
+            </AnimatedListCard>
+          ) : (
+            <View key={entry.id} style={{ width: cardWidth }}>
+              {card}
+            </View>
+          );
+        })}
       </View>
     );
   }
@@ -271,6 +310,7 @@ export default function FriendsScreen() {
           </ExpandingSearchHeader>
         </PinnedListHeader>
         <StyledFlashList
+          listRef={listRef}
           data={isLoading || isError ? [] : rows}
           renderItem={renderRow}
           keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
@@ -304,6 +344,9 @@ export default function FriendsScreen() {
           }
           extraData={{
             tab,
+            exitingIds: requestRemoval.exitingIds,
+            blockedExitingIds: blockedRemoval.exitingIds,
+            acceptedIds: requestRemoval.acceptedIds,
             cardWidth,
             contentWidth,
             gridGap,

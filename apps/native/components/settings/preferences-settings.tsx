@@ -18,7 +18,8 @@ import * as React from "react";
 import { View } from "react-native";
 
 const LOCALIZED_LOCALE_LABELS: Record<string, string> = {
-  en: "English",
+  en: "English (UK)",
+  "en-US": "English (US)",
   uk: "Українська",
   de: "Deutsch",
   es: "Español",

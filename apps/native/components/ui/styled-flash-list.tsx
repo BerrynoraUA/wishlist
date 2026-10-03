@@ -1,4 +1,4 @@
-import { FlashList } from "@shopify/flash-list";
+import { FlashList, type FlashListRef } from "@shopify/flash-list";
 import * as React from "react";
 import { ActivityIndicator, View } from "react-native";
 import { withUniwind } from "uniwind";
@@ -7,6 +7,7 @@ const UniwindFlashList = withUniwind(FlashList);
 const DEFAULT_DRAW_DISTANCE = 1600;
 
 type StyledFlashListProps<T> = React.ComponentProps<typeof FlashList<T>> & {
+  listRef?: React.Ref<FlashListRef<T>>;
   className?: string;
   columnWrapperClassName?: string;
   contentContainerClassName?: string;
@@ -17,6 +18,7 @@ type StyledFlashListProps<T> = React.ComponentProps<typeof FlashList<T>> & {
 };
 
 function StyledFlashList<T>({
+  listRef,
   drawDistance = DEFAULT_DRAW_DISTANCE,
   isLoadingMore = false,
   ListFooterComponent,
@@ -39,6 +41,7 @@ function StyledFlashList<T>({
 
   return (
     <UniwindFlashList
+      ref={listRef as React.ComponentProps<typeof UniwindFlashList>["ref"]}
       drawDistance={drawDistance}
       ListFooterComponent={FooterComponent}
       onEndReachedThreshold={onEndReachedThreshold ?? (props.onEndReached ? 1.2 : undefined)}

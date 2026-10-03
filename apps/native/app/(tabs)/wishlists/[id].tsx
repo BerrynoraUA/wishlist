@@ -20,7 +20,6 @@ import {
   WishlistItemFilterBar,
   type WishlistItemFilterState,
 } from "@/components/wishlist-details/wishlist-item-filter-bar";
-import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
 import { WishlistDeleteSheet } from "@/components/wishlists/sheets/wishlist-delete-sheet";
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import {
@@ -54,14 +53,15 @@ import {
   updateItemIfSelected,
 } from "@/lib/items";
 import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
+import { AnimatedListCard, useListCardRemoval } from "@/lib/card-motion";
 import type { Item } from "@wishlist/backend/types/item";
+import type { FlashListRef } from "@shopify/flash-list";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import { Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View, useWindowDimensions } from "react-native";
 import { CardGridSkeleton, DetailSkeleton } from "@/components/ui/list-skeletons";
-import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const EMPTY_FILTERS: WishlistItemFilterState = {
@@ -196,7 +196,17 @@ export default function WishlistDetailScreen() {
   const canSeeOwnReservations = useShowOwnReservations();
   // Owner only, not editors: the preference is about your own wishlists.
   const showOwnerReservation = Boolean(wishlist?.is_owner) && canSeeOwnReservations;
-  const itemRows = React.useMemo(() => chunkRows(items, columns), [columns, items]);
+  const listRef = React.useRef<FlashListRef<WishlistItemListRow>>(null);
+  const visibleItemIds = React.useMemo(() => items.map((item) => item.id), [items]);
+  const { exitingIds, removedIds } = useListCardRemoval(
+    "item",
+    () => listRef.current?.prepareForLayoutAnimationRender(),
+    visibleItemIds,
+  );
+  const itemRows = React.useMemo(
+    () => chunkRows(items.filter((item) => !removedIds.has(item.id)), columns),
+    [columns, items, removedIds],
+  );
   const itemListData = React.useMemo<WishlistItemListRow[]>(
     () => (itemsQuery.isLoading ? [] : itemRows),
     [itemRows, itemsQuery.isLoading],
@@ -339,7 +349,13 @@ export default function WishlistDetailScreen() {
         }}
       >
         {item.map((entry) => (
-          <Animated.View key={entry.id} entering={wishlistCardFadeIn} style={{ width: cardWidth }}>
+          <AnimatedListCard
+            kind="item"
+            id={entry.id}
+            key={entry.id}
+            exiting={exitingIds.has(entry.id)}
+            style={{ width: cardWidth }}
+          >
             <WishlistItemCard
               item={entry}
               width={cardWidth}
@@ -364,7 +380,7 @@ export default function WishlistDetailScreen() {
               reservePending={reservationPending}
               boughtPending={boughtPending}
             />
-          </Animated.View>
+          </AnimatedListCard>
         ))}
       </View>
     ),
@@ -373,6 +389,7 @@ export default function WishlistDetailScreen() {
       cardWidth,
       contentWidth,
       currentUser.data,
+      exitingIds,
       gridGap,
       profileNamesById,
       showDiscountBadge,
@@ -411,7 +428,9 @@ export default function WishlistDetailScreen() {
           </View>
         ) : (
           <StyledFlashList
+            listRef={listRef}
             data={itemsQuery.isError ? [] : itemListData}
+            extraData={exitingIds}
             renderItem={renderItemRow}
             keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
             className="flex-1"

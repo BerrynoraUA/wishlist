@@ -20,7 +20,7 @@ export function WishlistDeleteSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
-  const mutation = useDeleteWishlist();
+  const mutation = useDeleteWishlist(() => void sheetRef.current?.dismiss());
   const open = Boolean(wishlist);
 
   if (!open) return null;
@@ -39,7 +39,6 @@ export function WishlistDeleteSheet({
 
     mutation.mutate(wishlist.id, {
       onSuccess: () => {
-        handleClose();
         onDeleted?.();
       },
     });

@@ -15,6 +15,7 @@ import {
   revokeWishlistAccess,
   updateWishlist,
 } from "@/api/wishlists";
+import { animateCardRemoval, markNewCard } from "@/lib/card-motion";
 import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
 import { normalizeSearchQuery } from "@/lib/wishlists";
 import { friendKeys } from "@/lib/friend-query-keys";
@@ -222,7 +223,8 @@ export function useCreateWishlist() {
 
   return useMutation({
     mutationFn: (values: WishlistFormValues) => createWishlist(values),
-    onSuccess: async () => {
+    onSuccess: async (wishlist) => {
+      markNewCard("wishlist", wishlist.id);
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({ queryKey: statisticsKeys.all });
     },
@@ -287,12 +289,14 @@ export function useWishlistById(
   });
 }
 
-export function useDeleteWishlist() {
+export function useDeleteWishlist(onBeforeRemoval?: () => void) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: string) => deleteWishlist(id),
-    onSuccess: async () => {
+    onSuccess: async (_, id) => {
+      onBeforeRemoval?.();
+      await animateCardRemoval("wishlist", id);
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({ queryKey: statisticsKeys.all });
     },

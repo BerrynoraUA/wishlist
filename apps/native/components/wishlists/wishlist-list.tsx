@@ -24,6 +24,7 @@ import {
 } from "@/components/user-guide/user-guide-provider";
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { useMyStatistics } from "@/hooks/use-wishlists";
+import { AnimatedListCard, useListCardRemoval } from "@/lib/card-motion";
 import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ import {
 } from "@/lib/wishlists";
 import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
+import type { FlashListRef } from "@shopify/flash-list";
 import {
   Gift,
   Link2,
@@ -117,7 +119,17 @@ export function WishlistList({
   const { requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
   const paddingBottom = useTabBarContentPadding();
-  const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
+  const listRef = React.useRef<FlashListRef<WishlistListRow>>(null);
+  const visibleIds = React.useMemo(() => wishlists.map((wishlist) => wishlist.id), [wishlists]);
+  const { exitingIds, removedIds } = useListCardRemoval(
+    "wishlist",
+    () => listRef.current?.prepareForLayoutAnimationRender(),
+    visibleIds,
+  );
+  const rows = React.useMemo(
+    () => chunkRows(wishlists.filter((wishlist) => !removedIds.has(wishlist.id)), columns),
+    [columns, removedIds, wishlists],
+  );
   const data = React.useMemo<WishlistListRow[]>(
     () => (query.isLoading ? [] : rows),
     [query.isLoading, rows],
@@ -135,13 +147,20 @@ export function WishlistList({
         {item.map((entry, entryIndex) => {
           const isFirstWishlistCard = index === 0 && entryIndex === 0;
           const card = (
-            <WishlistCard
+            <AnimatedListCard
+              kind="wishlist"
+              id={entry.id}
               key={entry.id}
-              wishlist={entry}
-              width={cardWidth}
-              onOpen={isFirstWishlistCard ? completeOpenDetailStep : undefined}
-              onOpenSheet={onOpenSheet}
-            />
+              exiting={exitingIds.has(entry.id)}
+              style={{ width: cardWidth }}
+            >
+              <WishlistCard
+                wishlist={entry}
+                width={cardWidth}
+                onOpen={isFirstWishlistCard ? completeOpenDetailStep : undefined}
+                onOpenSheet={onOpenSheet}
+              />
+            </AnimatedListCard>
           );
 
           return isFirstWishlistCard ? (
@@ -161,7 +180,7 @@ export function WishlistList({
         })}
       </View>
     ),
-    [cardWidth, contentWidth, gridGap, onOpenSheet, completeOpenDetailStep],
+    [cardWidth, contentWidth, exitingIds, gridGap, onOpenSheet, completeOpenDetailStep],
   );
 
   return (
@@ -181,7 +200,9 @@ export function WishlistList({
         </View>
       </PinnedListHeader>
       <StyledFlashList
+        listRef={listRef}
         data={data}
+        extraData={exitingIds}
         renderItem={renderRow}
         keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
         className="flex-1"

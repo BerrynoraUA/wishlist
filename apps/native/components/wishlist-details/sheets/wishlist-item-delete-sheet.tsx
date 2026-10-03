@@ -18,7 +18,7 @@ export function WishlistItemDeleteSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
-  const mutation = useDeleteItem();
+  const mutation = useDeleteItem(() => void sheetRef.current?.dismiss());
 
   if (!item) return null;
   const selectedItem = item;
@@ -28,9 +28,7 @@ export function WishlistItemDeleteSheet({
   }
 
   function handleDelete() {
-    mutation.mutate(selectedItem.id, {
-      onSuccess: handleClose,
-    });
+    mutation.mutate(selectedItem.id);
   }
 
   return (

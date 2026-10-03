@@ -16,6 +16,7 @@ import {
 } from "@/hooks/use-notifications";
 import { useAcceptSecretSantaInvite, useDeclineSecretSantaInvite } from "@/hooks/use-secret-santa";
 import { getSafeNotificationRoute } from "@/lib/notification-route";
+import { useReducedMotion } from "@/lib/motion";
 import type { Notification } from "@wishlist/backend/types";
 import { router } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -24,6 +25,7 @@ import { Bell, Check, Trash2, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Image, View } from "react-native";
 import { getDateTimeFormat } from "@/lib/intl";
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from "react-native-reanimated";
 
 type InviteAction = "accept" | "decline";
 const DOUBLE_TAP_DELAY_MS = 320;
@@ -72,11 +74,25 @@ export function NotificationsMenu({
   trigger,
 }: {
   /** Replaces the default bell button, e.g. to place it inside a shared glass capsule. */
-  trigger?: (state: { onOpen: () => void; open: boolean }) => React.ReactNode;
+  trigger?: (state: {
+    onOpen: () => void;
+    open: boolean;
+    renderBell: () => React.ReactNode;
+  }) => React.ReactNode;
 }) {
   const t = useGT();
+  const reduceMotion = useReducedMotion();
   const [open, setOpen] = React.useState(false);
   const previousUnreadCountRef = React.useRef<number | null>(null);
+  const bellRotation = useSharedValue(0);
+  const badgeScale = useSharedValue(1);
+  const bellStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${bellRotation.value}deg` }] }));
+  const badgeStyle = useAnimatedStyle(() => ({ transform: [{ scale: badgeScale.value }] }));
+  const renderBell = () => (
+    <Animated.View style={bellStyle}>
+      <Icon as={Bell} className="size-5 text-text" />
+    </Animated.View>
+  );
 
   const { data: unreadCount = 0, isFetched: isUnreadCountFetched } = useUnreadNotificationsCount();
   const notificationsQuery = useNotifications({ limit: 20 });
@@ -95,10 +111,23 @@ export function NotificationsMenu({
     }
 
     if (previousUnreadCountRef.current !== unreadCount) {
+      if (unreadCount > previousUnreadCountRef.current && !reduceMotion) {
+        badgeScale.value = withSequence(
+          withTiming(1.28, { duration: 110 }),
+          withTiming(0.94, { duration: 110 }),
+          withTiming(1, { duration: 130 }),
+        );
+        bellRotation.value = withSequence(
+          withTiming(14, { duration: 90 }),
+          withTiming(-12, { duration: 110 }),
+          withTiming(7, { duration: 95 }),
+          withTiming(0, { duration: 110 }),
+        );
+      }
       previousUnreadCountRef.current = unreadCount;
       void notificationsQuery.refetch();
     }
-  }, [isUnreadCountFetched, notificationsQuery, unreadCount]);
+  }, [badgeScale, bellRotation, isUnreadCountFetched, notificationsQuery, reduceMotion, unreadCount]);
 
   async function handleReadAll() {
     await markAllRead.mutateAsync();
@@ -119,7 +148,7 @@ export function NotificationsMenu({
     <>
       <View>
         {trigger ? (
-          trigger({ onOpen: () => setOpen(true), open })
+          trigger({ onOpen: () => setOpen(true), open, renderBell })
         ) : (
           <AnimatedPressable
             accessibilityRole="button"
@@ -129,18 +158,19 @@ export function NotificationsMenu({
             onPress={() => setOpen(true)}
             className="size-11 shrink-0 items-center justify-center rounded-full border border-border-subtle bg-card-bg shadow-[0px_8px_18px_rgba(15,23,42,0.18)] android:size-12 android:overflow-hidden android:border-transparent android:bg-bg-muted android:shadow-none"
           >
-            <Icon as={Bell} className="size-5 text-text" />
+            {renderBell()}
           </AnimatedPressable>
         )}
         {unreadCount > 0 ? (
-          <View
+          <Animated.View
             pointerEvents="none"
             className="absolute -end-1 -top-1 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5"
+            style={badgeStyle}
           >
             <Text className="text-[10px] font-extrabold leading-3 text-white">
               {unreadCount > 99 ? "99+" : unreadCount}
             </Text>
-          </View>
+          </Animated.View>
         ) : null}
       </View>
 
