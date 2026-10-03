@@ -32,6 +32,15 @@ export default function WishlistsScreen() {
   const searchInputRef = React.useRef<TextInput>(null);
   const completeOpenDiscoverStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.openDiscover);
   const [sheet, setSheet] = React.useState<SheetState>(null);
+  const handleOpenSheet = React.useCallback<React.ComponentProps<typeof WishlistList>["onOpenSheet"]>(
+    (nextSheet) =>
+      setSheet(
+        nextSheet.type === "addItem"
+          ? { type: "selectAddItem", wishlist: nextSheet.wishlist }
+          : nextSheet,
+      ),
+    [],
+  );
   const {
     open: filtersOpen,
     setOpen: setFiltersOpen,
@@ -83,13 +92,7 @@ export default function WishlistsScreen() {
             </View>
           }
           onEndReached={feed.loadMore}
-          onOpenSheet={(nextSheet) =>
-            setSheet(
-              nextSheet.type === "addItem"
-                ? { type: "selectAddItem", wishlist: nextSheet.wishlist }
-                : nextSheet,
-            )
-          }
+          onOpenSheet={handleOpenSheet}
         />
 
         <WishlistCreateEditSheet

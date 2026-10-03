@@ -90,6 +90,10 @@ type SheetState =
 
 type WishlistItemListRow = Item[];
 
+function getItemRowKey(row: WishlistItemListRow) {
+  return row.map((entry) => entry.id).join(":");
+}
+
 export default function WishlistDetailScreen() {
   const t = useGT();
   const router = useRouter();
@@ -169,7 +173,7 @@ export default function WishlistDetailScreen() {
   const completeManageAccessStep = useUserGuideStepCompletion(
     USER_GUIDE_STEP_IDS.manageWishlistAccess,
   );
-  const { requestMeasure } = useUserGuideTargetRegistration();
+  const { activeTargetId, requestMeasure } = useUserGuideTargetRegistration();
   const reservedByIds = React.useMemo(
     () => [
       ...new Set(items.map((item) => item.reserved_by).filter((value): value is string => !!value)),
@@ -211,6 +215,11 @@ export default function WishlistDetailScreen() {
     () => (itemsQuery.isLoading ? [] : itemRows),
     [itemRows, itemsQuery.isLoading],
   );
+  const listExtraData = React.useMemo(
+    () => ({ cardWidth, contentWidth, exitingIds, gridGap }),
+    [cardWidth, contentWidth, exitingIds, gridGap],
+  );
+  const contentContainerStyle = React.useMemo(() => ({ paddingBottom }), [paddingBottom]);
 
   function updateFilters(patch: Partial<WishlistItemFilterState>) {
     setFilters((current) => ({ ...current, ...patch }));
@@ -430,14 +439,13 @@ export default function WishlistDetailScreen() {
           <StyledFlashList
             listRef={listRef}
             data={itemsQuery.isError ? [] : itemListData}
-            extraData={exitingIds}
             renderItem={renderItemRow}
-            keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
+            keyExtractor={getItemRowKey}
             className="flex-1"
             contentContainerClassName="bg-bg"
-            contentContainerStyle={{ paddingBottom }}
-            onScroll={requestMeasure}
-            scrollEventThrottle={16}
+            contentContainerStyle={contentContainerStyle}
+            onScroll={activeTargetId ? requestMeasure : undefined}
+            scrollEventThrottle={activeTargetId ? 16 : undefined}
             ItemSeparatorComponent={ItemRowSeparator}
             onEndReached={loadMoreItems}
             isLoadingMore={itemsQuery.isFetchingNextPage}
@@ -465,11 +473,7 @@ export default function WishlistDetailScreen() {
                 ) : null}
               </View>
             }
-            extraData={{
-              cardWidth,
-              contentWidth,
-              gridGap,
-            }}
+            extraData={listExtraData}
           />
         )}
         <FloatingBackButton />

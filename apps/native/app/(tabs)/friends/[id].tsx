@@ -15,13 +15,21 @@ import {
 } from "@/lib/wishlists";
 import { cn } from "@/lib/utils";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
-import { type Href, Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { Gift } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { Pressable, View, useWindowDimensions } from "react-native";
 import { CardGridSkeleton } from "@/components/ui/list-skeletons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+function RowSeparator() {
+  return <View className="h-4" />;
+}
+
+function getWishlistRowKey(row: Wishlist[]) {
+  return row.map((wishlist) => wishlist.id).join(":");
+}
 
 export default function FriendWishlistsScreen() {
   const t = useGT();
@@ -37,6 +45,26 @@ export default function FriendWishlistsScreen() {
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
   const rows = React.useMemo(() => chunkRows(wishlists, columns), [columns, wishlists]);
+  const listExtraData = React.useMemo(
+    () => ({ cardWidth, contentWidth, gridGap }),
+    [cardWidth, contentWidth, gridGap],
+  );
+  const contentContainerStyle = React.useMemo(
+    () => ({ paddingTop: insets.top + 24, paddingBottom }),
+    [insets.top, paddingBottom],
+  );
+  const renderRow = React.useCallback(
+    ({ item }: { item: Wishlist[] }) => (
+      <View className="flex-row" style={{ alignSelf: "center", gap: gridGap, width: contentWidth }}>
+        {item.map((wishlist) => (
+          <View key={wishlist.id} style={{ width: cardWidth }}>
+            <FriendWishlistCard wishlist={wishlist} />
+          </View>
+        ))}
+      </View>
+    ),
+    [cardWidth, contentWidth, gridGap],
+  );
 
   return (
     <>
@@ -44,30 +72,11 @@ export default function FriendWishlistsScreen() {
       <View className="flex-1 bg-bg">
         <StyledFlashList
           data={wishlistsQuery.isLoading || wishlistsQuery.isError ? [] : rows}
-          renderItem={({ item }: { item: Wishlist[] }) => (
-            <View
-              className="flex-row"
-              style={{
-                alignSelf: "center",
-                gap: gridGap,
-                width: contentWidth,
-              }}
-            >
-              {item.map((wishlist) => (
-                <View key={wishlist.id} style={{ width: cardWidth }}>
-                  <FriendWishlistCard
-                    wishlist={wishlist}
-                    width={cardWidth}
-                    href={{ pathname: "/friends/wishlist/[id]", params: { id: wishlist.id } }}
-                  />
-                </View>
-              ))}
-            </View>
-          )}
-          keyExtractor={(row: Wishlist[]) => row.map((wishlist) => wishlist.id).join(":")}
+          renderItem={renderRow}
+          keyExtractor={getWishlistRowKey}
           className="flex-1"
-          contentContainerStyle={{ paddingTop: insets.top + 24, paddingBottom }}
-          ItemSeparatorComponent={() => <View className="h-4" />}
+          contentContainerStyle={contentContainerStyle}
+          ItemSeparatorComponent={RowSeparator}
           onEndReached={loadMoreWishlists}
           isLoadingMore={wishlistsQuery.isFetchingNextPage}
           ListHeaderComponent={
@@ -103,7 +112,7 @@ export default function FriendWishlistsScreen() {
               ) : null}
             </View>
           }
-          extraData={{ cardWidth, contentWidth, gridGap }}
+          extraData={listExtraData}
         />
 
         <FloatingBackButton />
@@ -112,13 +121,17 @@ export default function FriendWishlistsScreen() {
   );
 }
 
-function FriendWishlistCard({ wishlist, href }: { wishlist: Wishlist; width: number; href: Href }) {
+const FriendWishlistCard = React.memo(function FriendWishlistCard({
+  wishlist,
+}: {
+  wishlist: Wishlist;
+}) {
   const t = useGT();
   const visibilityLabels = React.useMemo(() => getWishlistVisibilityLabels(t), [t]);
   const VisibilityIcon = WISHLIST_VISIBILITY_ICONS[wishlist.visibility_type];
 
   return (
-    <ZoomLink href={href}>
+    <ZoomLink href={{ pathname: "/friends/wishlist/[id]", params: { id: wishlist.id } }}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t('Open "{title}"', { title: wishlist.title })}
@@ -159,4 +172,4 @@ function FriendWishlistCard({ wishlist, href }: { wishlist: Wishlist; width: num
       </Pressable>
     </ZoomLink>
   );
-}
+});

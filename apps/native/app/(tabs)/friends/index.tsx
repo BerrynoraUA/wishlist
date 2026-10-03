@@ -59,6 +59,14 @@ type FriendEntry = FriendWithDetails | FriendGroup | FriendRequestWithDetails | 
 type FriendsRow = FriendEntry[];
 const FRIENDS_PAGE_SIZE = 20;
 
+function getFriendsRowKey(row: FriendsRow) {
+  return row.map((entry) => entry.id).join(":");
+}
+
+function RowSeparator() {
+  return <View className="h-4" />;
+}
+
 export default function FriendsScreen() {
   const t = useGT();
   const router = useRouter();
@@ -76,7 +84,7 @@ export default function FriendsScreen() {
     setInviteUserId(friendInvite);
     router.setParams({ friendInvite: undefined } as never);
   }, [friendInvite, router]);
-  const { requestMeasure } = useUserGuideTargetRegistration();
+  const { activeTargetId, requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
   const paddingBottom = useTabBarContentPadding();
 
@@ -161,6 +169,38 @@ export default function FriendsScreen() {
     () => chunkRows(displayedItems, columns),
     [displayedItems, columns],
   );
+  const contentContainerStyle = React.useMemo(
+    () => ({ paddingTop, paddingBottom }),
+    [paddingTop, paddingBottom],
+  );
+  const listExtraData = React.useMemo(
+    () => ({
+      tab,
+      cardWidth,
+      contentWidth,
+      gridGap,
+      acceptPending: acceptRequest.isPending,
+      rejectPending: rejectRequest.isPending,
+      cancelPending: cancelRequest.isPending,
+      unblockPending: unblockUser.isPending,
+      acceptedIds: requestRemoval.acceptedIds,
+      requestExitingIds: requestRemoval.exitingIds,
+      blockedExitingIds: blockedRemoval.exitingIds,
+    }),
+    [
+      tab,
+      cardWidth,
+      contentWidth,
+      gridGap,
+      acceptRequest.isPending,
+      rejectRequest.isPending,
+      cancelRequest.isPending,
+      unblockUser.isPending,
+      requestRemoval.acceptedIds,
+      requestRemoval.exitingIds,
+      blockedRemoval.exitingIds,
+    ],
+  );
   const isLoading =
     tab === "groups"
       ? groupsQuery.isLoading
@@ -204,8 +244,8 @@ export default function FriendsScreen() {
     return updateGroup.mutateAsync({ groupId: sheet.group.id, payload });
   }
 
-  function renderRow({ item }: { item: FriendsRow }) {
-    return (
+  const renderRow = React.useCallback(
+    ({ item }: { item: FriendsRow }) => (
       <View
         className="flex-row"
         style={{
@@ -278,8 +318,24 @@ export default function FriendsScreen() {
           );
         })}
       </View>
-    );
-  }
+    ),
+    [
+      tab,
+      cardWidth,
+      contentWidth,
+      gridGap,
+      acceptRequest.isPending,
+      acceptRequest.mutate,
+      rejectRequest.isPending,
+      unblockUser.isPending,
+      unblockUser.mutate,
+      cancelRequest.isPending,
+      cancelRequest.mutate,
+      requestRemoval.acceptedIds,
+      requestRemoval.exitingIds,
+      blockedRemoval.exitingIds,
+    ],
+  );
 
   return (
     <>
@@ -313,12 +369,12 @@ export default function FriendsScreen() {
           listRef={listRef}
           data={isLoading || isError ? [] : rows}
           renderItem={renderRow}
-          keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
+          keyExtractor={getFriendsRowKey}
           className="flex-1"
-          contentContainerStyle={{ paddingTop, paddingBottom }}
-          onScroll={requestMeasure}
-          scrollEventThrottle={16}
-          ItemSeparatorComponent={() => <View className="h-4" />}
+          contentContainerStyle={contentContainerStyle}
+          onScroll={activeTargetId ? requestMeasure : undefined}
+          scrollEventThrottle={activeTargetId ? 16 : undefined}
+          ItemSeparatorComponent={RowSeparator}
           onEndReached={loadMore}
           isLoadingMore={activeQuery.isFetchingNextPage}
           ListFooterComponent={
@@ -342,18 +398,7 @@ export default function FriendsScreen() {
               ) : null}
             </View>
           }
-          extraData={{
-            tab,
-            exitingIds: requestRemoval.exitingIds,
-            blockedExitingIds: blockedRemoval.exitingIds,
-            acceptedIds: requestRemoval.acceptedIds,
-            cardWidth,
-            contentWidth,
-            gridGap,
-            acceptPending: acceptRequest.isPending,
-            rejectPending: rejectRequest.isPending,
-            cancelPending: cancelRequest.isPending,
-          }}
+          extraData={listExtraData}
         />
 
         {inviteUserId ? (

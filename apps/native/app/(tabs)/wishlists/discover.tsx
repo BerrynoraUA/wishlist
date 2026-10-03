@@ -27,7 +27,10 @@ import {
   updateItemIfSelected,
 } from "@/lib/items";
 import { useAuth } from "@/providers/auth-provider";
-import type { DiscoverSection as DiscoverSectionType } from "@wishlist/backend/types/discover";
+import type {
+  DiscoverSection as DiscoverSectionType,
+  ReservedItem,
+} from "@wishlist/backend/types/discover";
 import type { Item } from "@wishlist/backend/types/item";
 import { Stack } from "expo-router";
 import { useGT } from "gt-react-native";
@@ -39,7 +42,17 @@ import { CardGridSkeleton } from "@/components/ui/list-skeletons";
 type DiscoverRow =
   | DiscoverSectionType
   | { id: "discover-intro"; type: "discover-intro" }
-  | { id: "reserved-grid"; type: "reserved-grid" };
+  | { id: string; type: "reserved-item"; source: ReservedItem };
+
+const DISCOVER_INTRO_ROW = { id: "discover-intro", type: "discover-intro" } as const;
+
+function getRowType(row: DiscoverRow) {
+  return "type" in row ? row.type : "discover-section";
+}
+
+function getRowKey(row: DiscoverRow) {
+  return row.id;
+}
 
 type SelectedDiscoverItem = {
   item: Item;
@@ -63,7 +76,7 @@ export default function DiscoverScreen() {
     height: filtersHeight,
   } = useSlideOutPanel(false, ITEM_FILTER_PANEL_HEIGHT);
   const [selection, setSelection] = React.useState<SelectedDiscoverItem | null>(null);
-  const { requestMeasure } = useUserGuideTargetRegistration();
+  const { activeTargetId, requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
   const paddingBottom = useTabBarContentPadding();
 
@@ -130,41 +143,79 @@ export default function DiscoverScreen() {
     });
   }
 
-  function openItem(item: Item, reservedByName?: string | null) {
+  const openItem = React.useCallback((item: Item, reservedByName?: string | null) => {
     setSelection({ item, reservedByName });
-  }
+  }, []);
 
   const rows = React.useMemo<DiscoverRow[]>(() => {
     const contentRows: DiscoverRow[] = feed.sectionTab
       ? feed.activeSections
-      : [{ id: "reserved-grid", type: "reserved-grid" }];
+      : feed.activeItems.map((source) => ({
+          id: source.item_id,
+          type: "reserved-item",
+          source,
+        }));
 
-    return [{ id: "discover-intro", type: "discover-intro" }, ...contentRows];
-  }, [feed.activeSections, feed.sectionTab]);
+    return [DISCOVER_INTRO_ROW, ...contentRows];
+  }, [feed.activeItems, feed.activeSections, feed.sectionTab]);
 
-  function renderRow({ item }: { item: DiscoverRow }) {
+  const upcomingEvents = feed.upcomingQuery.data;
+  const upcomingLoading = feed.upcomingQuery.isLoading;
+  const upcomingError = feed.upcomingQuery.isError;
+  const purchased = feed.tab === "purchased";
+  const currentUserId = user?.id;
+  const listExtraData = React.useMemo(
+    () => ({
+      contentWidth,
+      gridGap,
+      sectionCardWidth,
+      reservedCardWidth,
+      upcomingEvents,
+      upcomingLoading,
+      upcomingError,
+      purchased,
+      currentUserId,
+    }),
+    [
+      contentWidth,
+      gridGap,
+      sectionCardWidth,
+      reservedCardWidth,
+      upcomingEvents,
+      upcomingLoading,
+      upcomingError,
+      purchased,
+      currentUserId,
+    ],
+  );
+  const contentContainerStyle = React.useMemo(
+    () => ({ paddingTop, paddingBottom }),
+    [paddingTop, paddingBottom],
+  );
+
+  const renderRow = React.useCallback(({ item }: { item: DiscoverRow }) => {
     if ("type" in item && item.type === "discover-intro") {
       return (
         <View className="pb-4" style={{ alignSelf: "center", width: contentWidth }}>
           <UpcomingEventsCard
-            events={feed.upcomingQuery.data ?? []}
-            isLoading={feed.upcomingQuery.isLoading}
-            isError={feed.upcomingQuery.isError}
+            events={upcomingEvents ?? []}
+            isLoading={upcomingLoading}
+            isError={upcomingError}
           />
         </View>
       );
     }
 
-    if ("type" in item && item.type === "reserved-grid") {
+    if ("type" in item && item.type === "reserved-item") {
       return (
         <View style={{ alignSelf: "center", width: contentWidth }}>
           <ReservedItemsGrid
-            items={feed.activeItems}
+            items={[item.source]}
             columns={1}
             cardWidth={reservedCardWidth}
             gridGap={gridGap}
-            currentUserId={user?.id}
-            purchased={feed.tab === "purchased"}
+            currentUserId={currentUserId}
+            purchased={purchased}
             headerAccessory={null}
             onOpenItem={openItem}
           />
@@ -178,14 +229,25 @@ export default function DiscoverScreen() {
           section={item}
           cardWidth={sectionCardWidth}
           gridGap={gridGap}
-          currentUserId={user?.id}
+          currentUserId={currentUserId}
           avatarUrl={item.avatar_url}
           headerAccessory={null}
           onOpenItem={openItem}
         />
       </View>
     );
-  }
+  }, [
+    contentWidth,
+    currentUserId,
+    gridGap,
+    openItem,
+    purchased,
+    reservedCardWidth,
+    sectionCardWidth,
+    upcomingError,
+    upcomingEvents,
+    upcomingLoading,
+  ]);
 
   return (
     <View className="flex-1 bg-bg">
@@ -243,15 +305,15 @@ export default function DiscoverScreen() {
       <StyledFlashList
         data={rows}
         renderItem={renderRow}
-        keyExtractor={(row) => ("type" in row ? row.id : row.id)}
+        keyExtractor={getRowKey}
         className="flex-1"
-        contentContainerStyle={{ paddingTop, paddingBottom }}
-        onScroll={requestMeasure}
-        scrollEventThrottle={16}
+        contentContainerStyle={contentContainerStyle}
+        onScroll={activeTargetId ? requestMeasure : undefined}
+        scrollEventThrottle={activeTargetId ? 16 : undefined}
         ItemSeparatorComponent={RowSeparator}
         onEndReached={feed.loadMore}
         isLoadingMore={feed.activeQuery.isFetchingNextPage}
-        getItemType={(row) => ("type" in row ? row.type : "discover-section")}
+        getItemType={getRowType}
         ListHeaderComponent={<SlideOutSpacer progress={filtersProgress} height={filtersHeight} />}
         ListFooterComponent={
           <View className="gap-4 self-center" style={{ width: contentWidth }}>
@@ -276,15 +338,7 @@ export default function DiscoverScreen() {
             ) : null}
           </View>
         }
-        extraData={{
-          tab: feed.tab,
-          sectionCardWidth,
-          reservedCardWidth,
-          contentWidth,
-          gridGap,
-          activeItems: feed.activeItems,
-          loading: feed.activeQuery.isLoading,
-        }}
+        extraData={listExtraData}
       />
       <FloatingBackButton />
 
@@ -305,9 +359,9 @@ export default function DiscoverScreen() {
 }
 
 function RowSeparator({ leadingItem }: { leadingItem?: DiscoverRow }) {
-  if (leadingItem && "type" in leadingItem) {
+  if (leadingItem && "type" in leadingItem && leadingItem.type === "discover-intro") {
     return null;
   }
 
-  return <View className="h-6" />;
+  return <View className={leadingItem && "type" in leadingItem ? "h-4" : "h-6"} />;
 }

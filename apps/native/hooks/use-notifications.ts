@@ -186,13 +186,13 @@ export function useNotificationResponseObserver() {
   }, [queryClient]);
 }
 
-export function useNotifications(params?: GetNotificationsParams) {
+export function useNotifications(params?: GetNotificationsParams, enabled = true) {
   const { user } = useAuth();
 
   return useQuery({
     queryKey: notificationKeys.list(user?.id, params),
     queryFn: () => getUserNotifications(params),
-    enabled: Boolean(user?.id),
+    enabled: Boolean(user?.id) && enabled,
   });
 }
 

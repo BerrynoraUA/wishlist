@@ -95,7 +95,8 @@ export function NotificationsMenu({
   );
 
   const { data: unreadCount = 0, isFetched: isUnreadCountFetched } = useUnreadNotificationsCount();
-  const notificationsQuery = useNotifications({ limit: 20 });
+  const notificationsQuery = useNotifications({ limit: 20 }, open);
+  const refetchNotifications = notificationsQuery.refetch;
   const notifications = notificationsQuery.data ?? [];
   const markAllRead = useMarkAllNotificationsAsRead();
   const deleteAll = useDeleteAllNotifications();
@@ -125,9 +126,17 @@ export function NotificationsMenu({
         );
       }
       previousUnreadCountRef.current = unreadCount;
-      void notificationsQuery.refetch();
+      if (open) void refetchNotifications();
     }
-  }, [badgeScale, bellRotation, isUnreadCountFetched, notificationsQuery, reduceMotion, unreadCount]);
+  }, [
+    badgeScale,
+    bellRotation,
+    isUnreadCountFetched,
+    open,
+    reduceMotion,
+    refetchNotifications,
+    unreadCount,
+  ]);
 
   async function handleReadAll() {
     await markAllRead.mutateAsync();

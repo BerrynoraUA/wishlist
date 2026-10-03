@@ -30,6 +30,16 @@ type SheetState =
   | { type: "delete"; event: SecretSantaListItem }
   | null;
 
+function getEventRowKey(row: SecretSantaRow) {
+  return row.map((event) => event.id).join(":");
+}
+
+const EMPTY_ROWS: SecretSantaRow[] = [];
+
+function RowSeparator() {
+  return <View className="h-4" />;
+}
+
 export default function SecretSantaScreen() {
   const t = useGT();
   const { width } = useWindowDimensions();
@@ -72,6 +82,14 @@ export default function SecretSantaScreen() {
   const columns = width >= 820 ? 2 : 1;
   const cardWidth = columns === 2 ? (contentWidth - gridGap) / 2 : contentWidth;
   const rows = React.useMemo<SecretSantaRow[]>(() => chunkRows(events, columns), [columns, events]);
+  const listExtraData = React.useMemo(
+    () => ({ activeTab, cardWidth, contentWidth, gridGap }),
+    [activeTab, cardWidth, contentWidth, gridGap],
+  );
+  const contentContainerStyle = React.useMemo(
+    () => ({ paddingTop, paddingBottom }),
+    [paddingTop, paddingBottom],
+  );
   const editEvent = React.useMemo<SecretSantaDetails | undefined>(() => {
     if (sheet?.type !== "edit") return undefined;
 
@@ -100,8 +118,8 @@ export default function SecretSantaScreen() {
     ],
     [inviteNotifications.length, t],
   );
-  function renderRow({ item }: { item: SecretSantaRow }) {
-    return (
+  const renderRow = React.useCallback(
+    ({ item }: { item: SecretSantaRow }) => (
       <View className="flex-row" style={{ alignSelf: "center", gap: gridGap, width: contentWidth }}>
         {item.map((event) => (
           <SecretSantaEventCard
@@ -114,12 +132,13 @@ export default function SecretSantaScreen() {
           />
         ))}
       </View>
-    );
-  }
+    ),
+    [cardWidth, contentWidth, gridGap],
+  );
 
-  function loadMoreEvents() {
+  const loadMoreEvents = React.useCallback(() => {
     if (activeTab === "events") loadMore();
-  }
+  }, [activeTab, loadMore]);
 
   function handleDelete() {
     if (sheet?.type !== "delete") return;
@@ -156,12 +175,12 @@ export default function SecretSantaScreen() {
           </ExpandingSearchHeader>
         </PinnedListHeader>
         <StyledFlashList
-          data={activeTab === "events" && !query.isLoading && !query.isError ? rows : []}
+          data={activeTab === "events" && !query.isLoading && !query.isError ? rows : EMPTY_ROWS}
           renderItem={renderRow}
-          keyExtractor={(row) => row.map((event) => event.id).join(":")}
+          keyExtractor={getEventRowKey}
           className="flex-1"
-          contentContainerStyle={{ paddingTop, paddingBottom }}
-          ItemSeparatorComponent={() => <View className="h-4" />}
+          contentContainerStyle={contentContainerStyle}
+          ItemSeparatorComponent={RowSeparator}
           onEndReached={loadMoreEvents}
           isLoadingMore={activeTab === "events" && query.isFetchingNextPage}
           ListFooterComponent={
@@ -207,14 +226,7 @@ export default function SecretSantaScreen() {
               ) : null}
             </View>
           }
-          extraData={{
-            activeTab,
-            cardWidth,
-            contentWidth,
-            gridGap,
-            inviteCount: inviteNotifications.length,
-            search: debouncedSearch,
-          }}
+          extraData={listExtraData}
         />
       </View>
       {editEvent ? (

@@ -77,6 +77,10 @@ type SheetState =
 type WishlistListRow = Wishlist[];
 const AnimatedPressableContainer = Animated.createAnimatedComponent(Pressable);
 
+function getWishlistRowKey(row: WishlistListRow) {
+  return row.map((entry) => entry.id).join(":");
+}
+
 export function WishlistList({
   query,
   wishlists,
@@ -116,7 +120,7 @@ export function WishlistList({
   const completeOpenDetailStep = useUserGuideStepCompletion(
     USER_GUIDE_STEP_IDS.openWishlistDetails,
   );
-  const { requestMeasure } = useUserGuideTargetRegistration();
+  const { activeTargetId, requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
   const paddingBottom = useTabBarContentPadding();
   const listRef = React.useRef<FlashListRef<WishlistListRow>>(null);
@@ -133,6 +137,14 @@ export function WishlistList({
   const data = React.useMemo<WishlistListRow[]>(
     () => (query.isLoading ? [] : rows),
     [query.isLoading, rows],
+  );
+  const listExtraData = React.useMemo(
+    () => ({ cardWidth, contentWidth, exitingIds, gridGap }),
+    [cardWidth, contentWidth, exitingIds, gridGap],
+  );
+  const contentContainerStyle = React.useMemo(
+    () => ({ paddingTop, paddingBottom }),
+    [paddingTop, paddingBottom],
   );
   const renderRow = React.useCallback(
     ({ item, index }: { item: WishlistListRow; index: number }) => (
@@ -202,16 +214,15 @@ export function WishlistList({
       <StyledFlashList
         listRef={listRef}
         data={data}
-        extraData={exitingIds}
         renderItem={renderRow}
-        keyExtractor={(row) => row.map((entry) => entry.id).join(":")}
+        keyExtractor={getWishlistRowKey}
         className="flex-1"
-        contentContainerStyle={{ paddingTop, paddingBottom }}
+        contentContainerStyle={contentContainerStyle}
         ItemSeparatorComponent={RowSeparator}
         onEndReached={onEndReached}
         isLoadingMore={query.isFetchingNextPage}
-        onScroll={requestMeasure}
-        scrollEventThrottle={16}
+        onScroll={activeTargetId ? requestMeasure : undefined}
+        scrollEventThrottle={activeTargetId ? 16 : undefined}
         ListHeaderComponent={
           <>
             {filterPanel ? (
@@ -245,12 +256,7 @@ export function WishlistList({
             ) : null}
           </View>
         }
-        extraData={{
-          cardWidth,
-          contentWidth,
-          gridGap,
-          paddingTop,
-        }}
+        extraData={listExtraData}
       />
     </View>
   );

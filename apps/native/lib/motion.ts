@@ -48,27 +48,46 @@ export function liquidStretchTransform(stretch: number) {
 }
 
 export function useReducedMotion() {
-  const [reducedMotionEnabled, setReducedMotionEnabled] = React.useState(false);
+  return React.useSyncExternalStore(subscribeReducedMotion, getReducedMotion, () => false);
+}
 
-  React.useEffect(() => {
-    let mounted = true;
+let reducedMotionEnabled = false;
+const reducedMotionListeners = new Set<() => void>();
+let reducedMotionSubscription: ReturnType<typeof AccessibilityInfo.addEventListener> | null = null;
+let reducedMotionQueryCleanup: (() => void) | null = null;
 
-    AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
-      if (mounted) {
-        setReducedMotionEnabled(enabled);
-      }
-    });
-
-    const subscription = AccessibilityInfo.addEventListener(
-      "reduceMotionChanged",
-      setReducedMotionEnabled,
-    );
-
-    return () => {
-      mounted = false;
-      subscription.remove();
-    };
-  }, []);
-
+function getReducedMotion() {
   return reducedMotionEnabled;
+}
+
+function updateReducedMotion(enabled: boolean) {
+  if (reducedMotionEnabled === enabled) return;
+  reducedMotionEnabled = enabled;
+  reducedMotionListeners.forEach((listener) => listener());
+}
+
+function subscribeReducedMotion(listener: () => void) {
+  reducedMotionListeners.add(listener);
+  if (!reducedMotionSubscription) {
+    let active = true;
+    reducedMotionSubscription = AccessibilityInfo.addEventListener(
+      "reduceMotionChanged",
+      updateReducedMotion,
+    );
+    void AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
+      if (active) updateReducedMotion(enabled);
+    });
+    reducedMotionQueryCleanup = () => {
+      active = false;
+    };
+  }
+
+  return () => {
+    reducedMotionListeners.delete(listener);
+    if (reducedMotionListeners.size === 0) {
+      reducedMotionQueryCleanup?.();
+      reducedMotionSubscription?.remove();
+      reducedMotionSubscription = null;
+    }
+  };
 }
