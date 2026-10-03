@@ -255,50 +255,51 @@ export default function FriendsScreen() {
         }}
       >
         {item.map((entry) => {
-          const card = tab === "groups" ? (
-            <FriendGroupCard
-              group={entry as FriendGroup}
-              onOpen={(group) => setSheet({ type: "groupDetails", group })}
-              onEdit={(group) => setSheet({ type: "group", group })}
-              onDelete={(group) => setSheet({ type: "deleteGroup", group })}
-            />
-          ) : tab === "requests" ? (
-            <RequestCard
-              request={entry as FriendRequestWithDetails}
-              accepting={acceptRequest.isPending}
-              rejecting={rejectRequest.isPending}
-              accepted={requestRemoval.acceptedIds.has(entry.id)}
-              onAccept={() => acceptRequest.mutate(entry.id)}
-              onReject={() =>
-                setSheet({
-                  type: "declineRequest",
-                  requestId: entry.id,
-                  senderId: (entry as FriendRequestWithDetails).sender_id,
-                })
-              }
-            />
-          ) : tab === "blocked" ? (
-            <BlockedUserCard
-              user={entry as BlockedUser}
-              isPending={unblockUser.isPending}
-              onUnblock={(userId) => unblockUser.mutate(userId)}
-            />
-          ) : tab === "sent" ? (
-            <OutgoingRequestCard
-              request={entry as FriendRequestWithDetails}
-              cancelling={cancelRequest.isPending}
-              onCancel={() => cancelRequest.mutate(entry.id)}
-            />
-          ) : (
-            <FriendCard
-              friend={entry as FriendWithDetails}
-              href={{
-                pathname: "/friends/[id]",
-                params: { id: (entry as FriendWithDetails).friend_id },
-              }}
-              onRemove={(friendId) => setSheet({ type: "removeFriend", friendId })}
-            />
-          );
+          const card =
+            tab === "groups" ? (
+              <FriendGroupCard
+                group={entry as FriendGroup}
+                onOpen={(group) => setSheet({ type: "groupDetails", group })}
+                onEdit={(group) => setSheet({ type: "group", group })}
+                onDelete={(group) => setSheet({ type: "deleteGroup", group })}
+              />
+            ) : tab === "requests" ? (
+              <RequestCard
+                request={entry as FriendRequestWithDetails}
+                accepting={acceptRequest.isPending}
+                rejecting={rejectRequest.isPending}
+                accepted={requestRemoval.acceptedIds.has(entry.id)}
+                onAccept={() => acceptRequest.mutate(entry.id)}
+                onReject={() =>
+                  setSheet({
+                    type: "declineRequest",
+                    requestId: entry.id,
+                    senderId: (entry as FriendRequestWithDetails).sender_id,
+                  })
+                }
+              />
+            ) : tab === "blocked" ? (
+              <BlockedUserCard
+                user={entry as BlockedUser}
+                isPending={unblockUser.isPending}
+                onUnblock={(userId) => unblockUser.mutate(userId)}
+              />
+            ) : tab === "sent" ? (
+              <OutgoingRequestCard
+                request={entry as FriendRequestWithDetails}
+                cancelling={cancelRequest.isPending}
+                onCancel={() => cancelRequest.mutate(entry.id)}
+              />
+            ) : (
+              <FriendCard
+                friend={entry as FriendWithDetails}
+                href={{
+                  pathname: "/friends/[id]",
+                  params: { id: (entry as FriendWithDetails).friend_id },
+                }}
+                onRemove={(friendId) => setSheet({ type: "removeFriend", friendId })}
+              />
+            );
           return tab === "requests" || tab === "blocked" ? (
             <AnimatedListCard
               kind={tab === "blocked" ? "blocked" : "request"}
@@ -372,8 +373,12 @@ export default function FriendsScreen() {
           keyExtractor={getFriendsRowKey}
           className="flex-1"
           contentContainerStyle={contentContainerStyle}
-          onScroll={activeTargetId ? requestMeasure : undefined}
-          scrollEventThrottle={activeTargetId ? 16 : undefined}
+          onScroll={
+            activeTargetId && !activeTargetId.startsWith("nav-") ? requestMeasure : undefined
+          }
+          scrollEventThrottle={
+            activeTargetId && !activeTargetId.startsWith("nav-") ? 16 : undefined
+          }
           ItemSeparatorComponent={RowSeparator}
           onEndReached={loadMore}
           isLoadingMore={activeQuery.isFetchingNextPage}

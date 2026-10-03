@@ -170,9 +170,6 @@ export default function WishlistDetailScreen() {
   const { mutate: mutateReservation, isPending: reservationPending } = toggleReservation;
   const { mutate: mutateBought, isPending: boughtPending } = toggleBought;
   const completeShareStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.shareWishlist);
-  const completeManageAccessStep = useUserGuideStepCompletion(
-    USER_GUIDE_STEP_IDS.manageWishlistAccess,
-  );
   const { activeTargetId, requestMeasure } = useUserGuideTargetRegistration();
   const reservedByIds = React.useMemo(
     () => [
@@ -208,7 +205,11 @@ export default function WishlistDetailScreen() {
     visibleItemIds,
   );
   const itemRows = React.useMemo(
-    () => chunkRows(items.filter((item) => !removedIds.has(item.id)), columns),
+    () =>
+      chunkRows(
+        items.filter((item) => !removedIds.has(item.id)),
+        columns,
+      ),
     [columns, items, removedIds],
   );
   const itemListData = React.useMemo<WishlistItemListRow[]>(
@@ -323,7 +324,6 @@ export default function WishlistDetailScreen() {
                   openPaywall();
                   return;
                 }
-                completeManageAccessStep();
                 setSheet({ type: "grantAccess", wishlist });
               }
             : undefined
@@ -444,8 +444,12 @@ export default function WishlistDetailScreen() {
             className="flex-1"
             contentContainerClassName="bg-bg"
             contentContainerStyle={contentContainerStyle}
-            onScroll={activeTargetId ? requestMeasure : undefined}
-            scrollEventThrottle={activeTargetId ? 16 : undefined}
+            onScroll={
+              activeTargetId && !activeTargetId.startsWith("nav-") ? requestMeasure : undefined
+            }
+            scrollEventThrottle={
+              activeTargetId && !activeTargetId.startsWith("nav-") ? 16 : undefined
+            }
             ItemSeparatorComponent={ItemRowSeparator}
             onEndReached={loadMoreItems}
             isLoadingMore={itemsQuery.isFetchingNextPage}

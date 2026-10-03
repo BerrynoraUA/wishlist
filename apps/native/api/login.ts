@@ -137,10 +137,6 @@ export async function loginWithGoogle(): Promise<void> {
   });
 }
 
-export async function loginWithFacebook(): Promise<void> {
-  await loginWithOAuth("facebook");
-}
-
 export async function loginWithApple(): Promise<void> {
   if (process.env.EXPO_OS !== "ios") {
     throw new Error("Apple sign-in is only available on iOS.");

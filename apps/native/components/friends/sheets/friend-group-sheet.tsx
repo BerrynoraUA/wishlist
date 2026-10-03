@@ -10,6 +10,7 @@ import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { PeoplePickerField, type PeoplePickerItem } from "@/components/ui/people-picker";
 import { Text } from "@/components/ui/text";
+import { GuideTarget } from "@/components/user-guide/guide-target";
 import { Textarea } from "@/components/ui/textarea";
 import {
   SlidingOptionSelector,
@@ -156,14 +157,21 @@ export function FriendGroupSheet({
           >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <Button
-            className="min-w-0 flex-1"
-            disabled={!name.trim() || isSaving}
-            onPress={handleSubmit}
+          <GuideTarget
+            id="create-group-submit"
+            borderRadius={6}
+            portalTooltipAnchor="footer"
+            style={{ flex: 1 }}
           >
-            {isSaving ? <ActivityIndicator colorClassName="accent-white" /> : null}
-            <Text>{isSaving ? t("Saving...") : t("Save")}</Text>
-          </Button>
+            <Button
+              className="min-w-0 flex-1"
+              disabled={!name.trim() || isSaving}
+              onPress={handleSubmit}
+            >
+              {isSaving ? <ActivityIndicator colorClassName="accent-white" /> : null}
+              <Text>{isSaving ? t("Saving...") : t("Save")}</Text>
+            </Button>
+          </GuideTarget>
         </View>
       }
     >

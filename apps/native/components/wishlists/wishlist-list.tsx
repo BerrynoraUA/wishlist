@@ -131,7 +131,11 @@ export function WishlistList({
     visibleIds,
   );
   const rows = React.useMemo(
-    () => chunkRows(wishlists.filter((wishlist) => !removedIds.has(wishlist.id)), columns),
+    () =>
+      chunkRows(
+        wishlists.filter((wishlist) => !removedIds.has(wishlist.id)),
+        columns,
+      ),
     [columns, removedIds, wishlists],
   );
   const data = React.useMemo<WishlistListRow[]>(
@@ -221,8 +225,8 @@ export function WishlistList({
         ItemSeparatorComponent={RowSeparator}
         onEndReached={onEndReached}
         isLoadingMore={query.isFetchingNextPage}
-        onScroll={activeTargetId ? requestMeasure : undefined}
-        scrollEventThrottle={activeTargetId ? 16 : undefined}
+        onScroll={activeTargetId && !activeTargetId.startsWith("nav-") ? requestMeasure : undefined}
+        scrollEventThrottle={activeTargetId && !activeTargetId.startsWith("nav-") ? 16 : undefined}
         ListHeaderComponent={
           <>
             {filterPanel ? (

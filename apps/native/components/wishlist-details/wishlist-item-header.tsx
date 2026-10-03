@@ -283,18 +283,14 @@ export function WishlistItemHeader({
               style={{ top: topInset + 8 }}
             >
               {onShare ? (
-                <GuideTarget id="wishlist-share">
+                <GuideTarget id="wishlist-share" borderRadius={999}>
                   <HeaderActionButton accessibilityLabel={t("Share wishlist")} onPress={onShare}>
                     <Icon as={Share2} className="size-4 text-white" />
                   </HeaderActionButton>
                 </GuideTarget>
               ) : null}
 
-              {isOwner && onManageAccess ? (
-                <GuideTarget id="wishlist-manage-access">{actionsMenu}</GuideTarget>
-              ) : (
-                actionsMenu
-              )}
+              {actionsMenu}
             </View>
           ) : null}
 

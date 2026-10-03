@@ -7,6 +7,7 @@ export type UserGuideStepTarget = {
   targetId: string;
   tooltip: string;
   activateOnNext?: boolean;
+  actionRequired?: boolean;
 };
 
 export type UserGuideStep = {
@@ -39,7 +40,7 @@ export const USER_GUIDE_STEP_IDS = {
   addItem: 5,
   createItem: 6,
   shareWishlist: 7,
-  manageWishlistAccess: 8,
+  // ID 8 belonged to the retired premium-only access step; progress is persisted by ID.
   openFriends: 9,
   inviteFriend: 10,
   openFriendGroups: 11,
@@ -94,7 +95,7 @@ export function getUserGuideSteps(t: TranslateFn): readonly UserGuideStep[] {
       title: t("Create the wishlist"),
       listTitle: t("Create wishlist"),
       tooltip: t("Fill the name, then tap Create wishlist."),
-      targetId: "create-wishlist-submit",
+      targetId: "nav-create",
       description: t("Create the wishlist to continue to the wishlist detail page."),
       actionRequired: true,
     },
@@ -124,7 +125,7 @@ export function getUserGuideSteps(t: TranslateFn): readonly UserGuideStep[] {
       title: t("Create the item"),
       listTitle: t("Create item"),
       tooltip: t("Fill the item name, then tap Create item."),
-      targetId: "create-item-submit",
+      targetId: "nav-create",
       description: t("Create the item and return to the wishlist item grid."),
       actionRequired: true,
     },
@@ -136,16 +137,6 @@ export function getUserGuideSteps(t: TranslateFn): readonly UserGuideStep[] {
       tooltip: t("Tap Share to copy a share link."),
       targetId: "wishlist-share",
       description: t("Create a link friends can open to view and reserve items."),
-      actionRequired: true,
-    },
-    {
-      id: USER_GUIDE_STEP_IDS.manageWishlistAccess,
-      route: "/wishlists/[id]",
-      title: t("Manage sharing access"),
-      listTitle: t("Manage access"),
-      tooltip: t("Open access settings for this wishlist."),
-      targetId: "wishlist-manage-access",
-      description: t("Grant or revoke access for specific friends and groups."),
       actionRequired: true,
     },
     {
@@ -214,8 +205,13 @@ export function getUserGuideSteps(t: TranslateFn): readonly UserGuideStep[] {
         },
         {
           targetId: "friends-tab-sent",
-          tooltip: t("Sent shows invitations you already sent. Next, head to Wishlists."),
+          tooltip: t("Sent shows invitations you already sent."),
           activateOnNext: true,
+        },
+        {
+          targetId: "nav-wishlists",
+          tooltip: t("Tap Wishlists to continue to Discover."),
+          actionRequired: true,
         },
       ],
       description: t("Learn where incoming and outgoing friend requests live."),
@@ -286,7 +282,6 @@ export function getUserGuideSegments(t: TranslateFn): readonly UserGuideSegment[
         USER_GUIDE_STEP_IDS.addItem,
         USER_GUIDE_STEP_IDS.createItem,
         USER_GUIDE_STEP_IDS.shareWishlist,
-        USER_GUIDE_STEP_IDS.manageWishlistAccess,
         USER_GUIDE_STEP_IDS.openFriends,
       ],
       fallbackPath: "/wishlists",
@@ -320,11 +315,11 @@ export function getUserGuideSegments(t: TranslateFn): readonly UserGuideSegment[
   ] as const;
 }
 
-export function getUserGuideStep(
+export function getNextUserGuideStep(
   steps: readonly UserGuideStep[],
-  stepId: number,
+  completedStep: number,
 ): UserGuideStep | undefined {
-  return steps.find((step) => step.id === stepId);
+  return steps.find((step) => step.id > completedStep);
 }
 
 export function getUserGuideSegmentForStep(

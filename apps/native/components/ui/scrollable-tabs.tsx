@@ -2,6 +2,7 @@ import { hapticSelection } from "@/lib/haptics";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Text } from "@/components/ui/text";
 import { GuideTarget } from "@/components/user-guide/guide-target";
+import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
 import { AnimatedGlassView, HAS_LIQUID_GLASS } from "@/components/ui/liquid-glass";
 import {
   liquidStretch,
@@ -65,6 +66,8 @@ export function ScrollableTabs<T>({
   const viewportWidthRef = React.useRef(0);
   const viewportScrollTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const reduceMotion = useReducedMotion();
+  const { activeTargetId, requestMeasure } = useUserGuideTargetRegistration();
+  const trackingTab = tabs.some((tab) => tab.guideTargetId === activeTargetId);
 
   // Shared geometry for the iOS capsule and the Android underline.
   const indicatorX = useSharedValue(0);
@@ -175,6 +178,8 @@ export function ScrollableTabs<T>({
         contentContainerClassName={IS_IOS ? "px-2" : "px-1"}
         contentContainerStyle={align === "right" ? styles.rightAlignedContent : undefined}
         keyboardShouldPersistTaps="handled"
+        onScroll={trackingTab ? requestMeasure : undefined}
+        scrollEventThrottle={trackingTab ? 16 : undefined}
         showsHorizontalScrollIndicator={false}
       >
         {IS_IOS ? (
@@ -260,8 +265,10 @@ export function ScrollableTabs<T>({
               {tab.guideTargetId ? (
                 <GuideTarget
                   attachedTooltip={false}
+                  borderRadius={999}
                   id={tab.guideTargetId}
                   onGuideActivate={() => onChange(tab.value)}
+                  portalHighlight
                   tooltipPlacementOverride="bottom"
                 >
                   {trigger}

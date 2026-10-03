@@ -193,61 +193,64 @@ export default function DiscoverScreen() {
     [paddingTop, paddingBottom],
   );
 
-  const renderRow = React.useCallback(({ item }: { item: DiscoverRow }) => {
-    if ("type" in item && item.type === "discover-intro") {
-      return (
-        <View className="pb-4" style={{ alignSelf: "center", width: contentWidth }}>
-          <UpcomingEventsCard
-            events={upcomingEvents ?? []}
-            isLoading={upcomingLoading}
-            isError={upcomingError}
-          />
-        </View>
-      );
-    }
+  const renderRow = React.useCallback(
+    ({ item }: { item: DiscoverRow }) => {
+      if ("type" in item && item.type === "discover-intro") {
+        return (
+          <View className="pb-4" style={{ alignSelf: "center", width: contentWidth }}>
+            <UpcomingEventsCard
+              events={upcomingEvents ?? []}
+              isLoading={upcomingLoading}
+              isError={upcomingError}
+            />
+          </View>
+        );
+      }
 
-    if ("type" in item && item.type === "reserved-item") {
+      if ("type" in item && item.type === "reserved-item") {
+        return (
+          <View style={{ alignSelf: "center", width: contentWidth }}>
+            <ReservedItemsGrid
+              items={[item.source]}
+              columns={1}
+              cardWidth={reservedCardWidth}
+              gridGap={gridGap}
+              currentUserId={currentUserId}
+              purchased={purchased}
+              headerAccessory={null}
+              onOpenItem={openItem}
+            />
+          </View>
+        );
+      }
+
       return (
         <View style={{ alignSelf: "center", width: contentWidth }}>
-          <ReservedItemsGrid
-            items={[item.source]}
-            columns={1}
-            cardWidth={reservedCardWidth}
+          <DiscoverSection
+            section={item}
+            cardWidth={sectionCardWidth}
             gridGap={gridGap}
             currentUserId={currentUserId}
-            purchased={purchased}
+            avatarUrl={item.avatar_url}
             headerAccessory={null}
             onOpenItem={openItem}
           />
         </View>
       );
-    }
-
-    return (
-      <View style={{ alignSelf: "center", width: contentWidth }}>
-        <DiscoverSection
-          section={item}
-          cardWidth={sectionCardWidth}
-          gridGap={gridGap}
-          currentUserId={currentUserId}
-          avatarUrl={item.avatar_url}
-          headerAccessory={null}
-          onOpenItem={openItem}
-        />
-      </View>
-    );
-  }, [
-    contentWidth,
-    currentUserId,
-    gridGap,
-    openItem,
-    purchased,
-    reservedCardWidth,
-    sectionCardWidth,
-    upcomingError,
-    upcomingEvents,
-    upcomingLoading,
-  ]);
+    },
+    [
+      contentWidth,
+      currentUserId,
+      gridGap,
+      openItem,
+      purchased,
+      reservedCardWidth,
+      sectionCardWidth,
+      upcomingError,
+      upcomingEvents,
+      upcomingLoading,
+    ],
+  );
 
   return (
     <View className="flex-1 bg-bg">
@@ -308,8 +311,8 @@ export default function DiscoverScreen() {
         keyExtractor={getRowKey}
         className="flex-1"
         contentContainerStyle={contentContainerStyle}
-        onScroll={activeTargetId ? requestMeasure : undefined}
-        scrollEventThrottle={activeTargetId ? 16 : undefined}
+        onScroll={activeTargetId && !activeTargetId.startsWith("nav-") ? requestMeasure : undefined}
+        scrollEventThrottle={activeTargetId && !activeTargetId.startsWith("nav-") ? 16 : undefined}
         ItemSeparatorComponent={RowSeparator}
         onEndReached={feed.loadMore}
         isLoadingMore={feed.activeQuery.isFetchingNextPage}

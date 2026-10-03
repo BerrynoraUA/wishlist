@@ -1,4 +1,5 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { GuideTarget } from "@/components/user-guide/guide-target";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import {
@@ -230,18 +231,24 @@ export function AndroidTabBar({
           if (slot.kind === "create") {
             return (
               <View key="create" className="flex-1 items-center justify-center">
-                <AnimatedPressable
-                  accessibilityRole="button"
-                  accessibilityLabel={slot.label}
-                  onPress={onCreatePress}
-                  className={cn(
-                    "items-center justify-center overflow-hidden rounded-full shadow-[0px_6px_14px_rgba(15,23,42,0.28)]",
-                    fabGradientClassName,
-                  )}
+                <GuideTarget
+                  attachedTooltip={false}
+                  borderRadius={999}
+                  id="nav-create"
                   style={{ width: FAB_SIZE, height: FAB_SIZE, top: -FAB_OVERHANG }}
                 >
-                  <Icon as={Plus} className="size-7 text-white" strokeWidth={2.5} />
-                </AnimatedPressable>
+                  <AnimatedPressable
+                    accessibilityRole="button"
+                    accessibilityLabel={slot.label}
+                    onPress={onCreatePress}
+                    className={cn(
+                      "size-full items-center justify-center overflow-hidden rounded-full shadow-[0px_6px_14px_rgba(15,23,42,0.28)]",
+                      fabGradientClassName,
+                    )}
+                  >
+                    <Icon as={Plus} className="size-7 text-white" strokeWidth={2.5} />
+                  </AnimatedPressable>
+                </GuideTarget>
               </View>
             );
           }
@@ -253,36 +260,43 @@ export function AndroidTabBar({
           const color = isFocused ? activeColor : inactiveColor;
 
           return (
-            <AnimatedPressable
+            <GuideTarget
+              attachedTooltip={false}
+              borderRadius={999}
+              id={`nav-${slot.name}`}
               key={slot.name}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: isFocused }}
-              accessibilityLabel={slot.label}
-              onPress={() => handleTabPress(route, isFocused)}
-              className="flex-1 items-center justify-center gap-0.5 overflow-hidden rounded-full"
+              style={{ flex: 1 }}
             >
-              {"image" in slot ? (
-                <Image
-                  source={slot.image}
-                  style={{ width: 24, height: 24, tintColor: color }}
-                  resizeMode="contain"
-                />
-              ) : (
-                <MaterialGlyph name={slot.glyph} color={color} />
-              )}
-              <Text
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-                style={{ includeFontPadding: false, textAlignVertical: "center" }}
-                className={cn(
-                  "max-w-full px-0.5 text-center text-xs leading-4 font-semibold",
-                  isFocused ? "text-brand" : "text-text-muted",
-                )}
+              <AnimatedPressable
+                accessibilityRole="tab"
+                accessibilityState={{ selected: isFocused }}
+                accessibilityLabel={slot.label}
+                onPress={() => handleTabPress(route, isFocused)}
+                className="flex-1 items-center justify-center gap-0.5 overflow-hidden rounded-full"
               >
-                {slot.label}
-              </Text>
-            </AnimatedPressable>
+                {"image" in slot ? (
+                  <Image
+                    source={slot.image}
+                    style={{ width: 24, height: 24, tintColor: color }}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <MaterialGlyph name={slot.glyph} color={color} />
+                )}
+                <Text
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.8}
+                  style={{ includeFontPadding: false, textAlignVertical: "center" }}
+                  className={cn(
+                    "max-w-full px-0.5 text-center text-xs leading-4 font-semibold",
+                    isFocused ? "text-brand" : "text-text-muted",
+                  )}
+                >
+                  {slot.label}
+                </Text>
+              </AnimatedPressable>
+            </GuideTarget>
           );
         })}
       </View>

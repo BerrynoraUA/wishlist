@@ -11,10 +11,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { GuidePulseBorder } from "@/components/user-guide/guide-pulse-border";
 import { useProfile, useUpdateUserGuideStep } from "@/hooks/use-settings";
 import { PREFERENCE_KEYS, preferencesStorage } from "@/lib/storage";
-import { NAV_TAB_BAR_FAB_OVERHANG, NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
-import { motionDuration, useReducedMotion } from "@/lib/motion";
+import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
+import { useCreateButtonCenter } from "@/lib/create-button-box";
 import { useAuth } from "@/providers/auth-provider";
 import { Portal } from "@rn-primitives/portal";
 import { usePathname } from "expo-router";
@@ -29,13 +30,13 @@ import {
   type View as RNView,
   useWindowDimensions,
 } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   USER_GUIDE_COMPLETE_STEP,
+  USER_GUIDE_STEP_IDS,
   getUserGuideSegmentForStep,
   getUserGuideSegments,
-  getUserGuideStep,
+  getNextUserGuideStep,
   getUserGuideSteps,
   matchesUserGuideRoute,
   type UserGuideSegment,
@@ -44,6 +45,7 @@ import {
 
 type RegisteredTarget = {
   attachedTooltip?: boolean;
+  portalHighlight?: boolean;
   portalTooltipAnchor?: "target" | "footer";
   ref: React.RefObject<RNView | null>;
   tooltipHorizontalOffset?: number;
@@ -54,6 +56,7 @@ type RegisteredTarget = {
 
 type GuideHighlightBox = LayoutRectangle & {
   source: "nav" | "target";
+  targetId: string;
   tooltipTop: number;
   tooltipLeft: number;
   tooltipPlacement: "top" | "bottom";
@@ -67,24 +70,32 @@ type UserGuideContextValue = {
   completeStep: (step: number) => void;
   completeCurrentStep: () => void;
   handleTabPress: (name: string) => void;
+  setGuideSurface: (surface: GuideSurface | null) => void;
+};
+
+type GuideSurface = {
+  stepId: number;
+  targetId: string | null;
+  mode: "menu" | "sheet" | "hidden";
+};
+
+type ActiveGuideTooltip = {
+  arrowLeft: number;
+  hasSequence: boolean;
+  isLastSequence: boolean;
+  left: number;
+  onNext: () => void;
+  pending: boolean;
+  placement: "top" | "bottom";
+  text: string;
 };
 
 type UserGuideTargetRegistrationValue = {
   activeTargetId: string | null;
-  activeTooltip: {
-    arrowLeft: number;
-    hasSequence: boolean;
-    isLastSequence: boolean;
-    left: number;
-    onNext: () => void;
-    pending: boolean;
-    placement: "top" | "bottom";
-    text: string;
-  } | null;
   registerTarget: (id: string, target: RegisteredTarget) => () => void;
   /** Frame-coalesced. Safe to call from high-frequency events such as `onScroll`. */
   requestMeasure: () => void;
-  /** Measures synchronously and suppresses the move animation. For layout changes. */
+  /** Measures immediately after the active target changes layout. */
   requestInstantMeasure: () => void;
 };
 
@@ -96,15 +107,16 @@ const UserGuideContext = React.createContext<UserGuideContextValue>({
   completeStep: () => {},
   completeCurrentStep: () => {},
   handleTabPress: () => {},
+  setGuideSurface: () => {},
 });
 
 const UserGuideTargetRegistrationContext = React.createContext<UserGuideTargetRegistrationValue>({
   activeTargetId: null,
-  activeTooltip: null,
   registerTarget: () => () => {},
   requestMeasure: () => {},
   requestInstantMeasure: () => {},
 });
+const UserGuideActiveTooltipContext = React.createContext<ActiveGuideTooltip | null>(null);
 
 // Order must match the tab bar: wishlists, secret santa, create, friends, profile.
 const NAV_TARGETS = [
@@ -134,6 +146,7 @@ function boxesEqual(a: GuideHighlightBox | null, b: GuideHighlightBox | null): b
     Math.round(a.tooltipTop) === Math.round(b.tooltipTop) &&
     Math.round(a.tooltipLeft) === Math.round(b.tooltipLeft) &&
     a.source === b.source &&
+    a.targetId === b.targetId &&
     a.tooltipPlacement === b.tooltipPlacement
   );
 }
@@ -174,19 +187,30 @@ function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
   const updateGuideStep = useUpdateUserGuideStep();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
-  const reduceMotion = useReducedMotion();
+  const createButton = useCreateButtonCenter();
   const targetsRef = React.useRef(new Map<string, RegisteredTarget>());
   const measureFrameRef = React.useRef<number | null>(null);
+  const measureGenerationRef = React.useRef(0);
+  const lastScrollMeasureRef = React.useRef(0);
   const [highlightBox, setHighlightBox] = React.useState<GuideHighlightBox | null>(null);
   const [confirmCloseOpen, setConfirmCloseOpen] = React.useState(false);
   const [sequenceIndex, setSequenceIndex] = React.useState(0);
-  const [instantHighlight, setInstantHighlight] = React.useState(false);
+  const [guideSurface, setGuideSurfaceState] = React.useState<GuideSurface | null>(null);
+  const setGuideSurface = React.useCallback((surface: GuideSurface | null) => {
+    setGuideSurfaceState((current) =>
+      current?.stepId === surface?.stepId &&
+      current?.targetId === surface?.targetId &&
+      current?.mode === surface?.mode
+        ? current
+        : surface,
+    );
+  }, []);
   const guideSteps = React.useMemo(() => getUserGuideSteps(t), [t]);
   const guideSegments = React.useMemo(() => getUserGuideSegments(t), [t]);
 
   const completedStep = normalizeCompletedStep(profileQuery.data?.userGuideStep);
   const active = Boolean(user?.id && profileQuery.data) && completedStep < USER_GUIDE_COMPLETE_STEP;
-  const currentStep = active ? (getUserGuideStep(guideSteps, completedStep + 1) ?? null) : null;
+  const currentStep = active ? (getNextUserGuideStep(guideSteps, completedStep) ?? null) : null;
   const currentSegment = currentStep
     ? (getUserGuideSegmentForStep(guideSegments, currentStep.id) ?? null)
     : null;
@@ -194,12 +218,25 @@ function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
     currentSegment && matchesUserGuideRoute(pathname, currentSegment.route),
   );
   const activeSequenceTarget = currentStep?.sequenceTargets?.[sequenceIndex] ?? null;
-  const activeTargetId = activeSequenceTarget?.targetId ?? currentStep?.targetId ?? null;
+  const currentSurface = guideSurface?.stepId === currentStep?.id ? guideSurface : null;
+  const activeTargetId =
+    currentSurface?.mode === "hidden"
+      ? null
+      : (currentSurface?.targetId ??
+        activeSequenceTarget?.targetId ??
+        currentStep?.targetId ??
+        null);
+  const hasSequence =
+    Boolean(currentStep?.sequenceTargets) && !activeSequenceTarget?.actionRequired;
   // There is nothing to follow once the guide is done, which is the state almost every
   // session is in. Measuring is driven by onScroll/onLayout across the app, so without
   // this the whole tree keeps paying for a guide that will never show.
   const trackingHighlight = Boolean(
-    active && currentStep && routeMatchesCurrentSegment && activeTargetId,
+    active &&
+    currentStep &&
+    routeMatchesCurrentSegment &&
+    activeTargetId &&
+    currentSurface?.mode !== "menu",
   );
 
   // Mirror completion on-device so the next launch can skip this provider entirely.
@@ -236,41 +273,50 @@ function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
 
   const getNavBox = React.useCallback(
     (targetId: string): LayoutRectangle | null => {
+      if (process.env.EXPO_OS === "android") return null;
       const index = NAV_TARGETS.indexOf(targetId as (typeof NAV_TARGETS)[number]);
       if (index < 0) return null;
+
+      if (targetId === "nav-create") {
+        return {
+          x: createButton.x - createButton.radius,
+          y: createButton.y - createButton.radius,
+          width: createButton.radius * 2,
+          height: createButton.radius * 2,
+        };
+      }
 
       const tabWidth = width / NAV_TARGETS.length;
       const tabHeight = NAV_TAB_BAR_HEIGHT;
       const pillWidth = Math.min(72, tabWidth - 16);
       const bottom = Math.max(insets.bottom, 8);
-      const createOverhang =
-        process.env.EXPO_OS === "android" && targetId === "nav-create"
-          ? Math.max(0, NAV_TAB_BAR_FAB_OVERHANG + 26 - tabHeight / 2)
-          : 0;
       return {
         x: Math.round(tabWidth * index + (tabWidth - pillWidth) / 2),
-        y: Math.round(height - bottom - tabHeight - 2 - createOverhang),
+        y: Math.round(height - bottom - tabHeight - 2),
         width: Math.round(pillWidth),
-        height: Math.round(tabHeight + createOverhang),
+        height: Math.round(tabHeight),
       };
     },
-    [height, insets.bottom, width],
+    [createButton.x, createButton.y, createButton.radius, height, insets.bottom, width],
   );
 
   const getBoxWithTooltip = React.useCallback(
-    (rect: LayoutRectangle, source: GuideHighlightBox["source"]): GuideHighlightBox | null => {
+    (
+      rect: LayoutRectangle,
+      source: GuideHighlightBox["source"],
+      targetId: string,
+    ): GuideHighlightBox | null => {
       if (rect.width <= 0 || rect.height <= 0) return null;
 
-      const padding = 6;
-      const gap = 2;
+      const gap = 8;
       const tooltipWidth = Math.min(GUIDE_TOOLTIP_WIDTH, width - 32);
-      const tooltipHeight = GUIDE_TOOLTIP_HEIGHT;
+      const tooltipHeight = hasSequence ? GUIDE_TOOLTIP_HEIGHT : GUIDE_TOOLTIP_COMPACT_HEIGHT;
       const safeTop = Math.max(insets.top + 8, 8);
       const safeBottom = height - Math.max(insets.bottom + 8, 8);
-      const x = clamp(rect.x - padding, 8, width - 16);
-      const y = clamp(rect.y - padding, safeTop, height - insets.bottom - 24);
-      const boxWidth = Math.min(rect.width + padding * 2, width - x - 8);
-      const boxHeight = Math.min(rect.height + padding * 2, height - y - insets.bottom - 8);
+      const x = rect.x;
+      const y = rect.y;
+      const boxWidth = rect.width;
+      const boxHeight = rect.height;
       const canPlaceTop = y >= safeTop + tooltipHeight + gap;
       const tooltipPlacement = canPlaceTop ? "top" : "bottom";
       const rawTooltipTop = canPlaceTop ? y - tooltipHeight - gap : y + boxHeight + gap;
@@ -287,57 +333,62 @@ function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
         width: boxWidth,
         height: boxHeight,
         source,
+        targetId,
         tooltipTop,
         tooltipLeft,
         tooltipPlacement,
       };
     },
-    [height, insets.bottom, insets.top, width],
+    [hasSequence, height, insets.bottom, insets.top, width],
   );
 
   const updateHighlightNow = React.useCallback(() => {
-    if (!active || !currentStep || !routeMatchesCurrentSegment || !activeTargetId) {
+    const generation = ++measureGenerationRef.current;
+    if (!trackingHighlight || !activeTargetId) {
       setHighlightBox((current) => (current === null ? current : null));
-      return;
-    }
-
-    const navBox = getNavBox(activeTargetId);
-    if (navBox) {
-      const nextBox = getBoxWithTooltip(navBox, "nav");
-      setHighlightBox((current) => (boxesEqual(current, nextBox) ? current : nextBox));
       return;
     }
 
     const target = targetsRef.current.get(activeTargetId);
-    if (!target?.ref.current) {
+    if (target?.ref.current) {
+      target.ref.current.measureInWindow((x, y, targetWidth, targetHeight) => {
+        if (generation !== measureGenerationRef.current) return;
+        const isVisible =
+          targetWidth > 0 &&
+          targetHeight > 0 &&
+          y + targetHeight > insets.top &&
+          y < height - insets.bottom;
+        const nextBox = isVisible
+          ? getBoxWithTooltip(
+              { x, y, width: targetWidth, height: targetHeight },
+              "target",
+              activeTargetId,
+            )
+          : null;
+        setHighlightBox((current) => (boxesEqual(current, nextBox) ? current : nextBox));
+      });
+      return;
+    }
+
+    const navBox = getNavBox(activeTargetId);
+    if (!navBox) {
       setHighlightBox((current) => (current === null ? current : null));
       return;
     }
 
-    target.ref.current.measureInWindow((x, y, targetWidth, targetHeight) => {
-      const isVisible =
-        targetWidth > 0 &&
-        targetHeight > 0 &&
-        y + targetHeight > insets.top &&
-        y < height - insets.bottom;
-      const nextBox = isVisible
-        ? getBoxWithTooltip({ x, y, width: targetWidth, height: targetHeight }, "target")
-        : null;
-      setHighlightBox((current) => (boxesEqual(current, nextBox) ? current : nextBox));
-    });
+    const nextBox = getBoxWithTooltip(navBox, "nav", activeTargetId);
+    setHighlightBox((current) => (boxesEqual(current, nextBox) ? current : nextBox));
   }, [
-    active,
     activeTargetId,
-    currentStep,
     getBoxWithTooltip,
     getNavBox,
     height,
     insets.bottom,
     insets.top,
-    routeMatchesCurrentSegment,
+    trackingHighlight,
   ]);
 
-  const requestMeasure = React.useCallback(() => {
+  const scheduleMeasure = React.useCallback(() => {
     if (!trackingHighlight) return;
     if (measureFrameRef.current !== null) return;
     measureFrameRef.current = requestAnimationFrame(() => {
@@ -346,47 +397,52 @@ function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
     });
   }, [trackingHighlight, updateHighlightNow]);
 
+  const requestMeasure = React.useCallback(() => {
+    if (!trackingHighlight) return;
+    const now = Date.now();
+    if (now - lastScrollMeasureRef.current < 50) return;
+    lastScrollMeasureRef.current = now;
+    scheduleMeasure();
+  }, [scheduleMeasure, trackingHighlight]);
+
   const requestInstantMeasure = React.useCallback(() => {
     if (!trackingHighlight) return;
     if (measureFrameRef.current !== null) {
       cancelAnimationFrame(measureFrameRef.current);
       measureFrameRef.current = null;
     }
-    setInstantHighlight(true);
     updateHighlightNow();
-    setTimeout(() => setInstantHighlight(false), 120);
   }, [trackingHighlight, updateHighlightNow]);
 
-  // `requestMeasure` clears the box as part of measuring, but it now bails out before
-  // that when tracking stops, so drop any box left over from the previous step here.
+  // Drop the previous step's box as soon as tracking stops.
   React.useEffect(() => {
     if (trackingHighlight) return;
     setHighlightBox((current) => (current === null ? current : null));
   }, [trackingHighlight]);
 
   React.useEffect(() => {
-    requestMeasure();
+    scheduleMeasure();
     return () => {
       if (measureFrameRef.current !== null) {
         cancelAnimationFrame(measureFrameRef.current);
         measureFrameRef.current = null;
       }
     };
-  }, [requestMeasure, width, height, pathname, activeTargetId, sequenceIndex]);
+  }, [scheduleMeasure, width, height, pathname, activeTargetId, sequenceIndex]);
 
   const registerTarget = React.useCallback(
     (id: string, target: RegisteredTarget) => {
       targetsRef.current.set(id, target);
-      requestMeasure();
+      if (id === activeTargetId) scheduleMeasure();
       return () => {
         const current = targetsRef.current.get(id);
         if (current === target) {
           targetsRef.current.delete(id);
-          requestMeasure();
+          if (id === activeTargetId) scheduleMeasure();
         }
       };
     },
-    [requestMeasure],
+    [activeTargetId, scheduleMeasure],
   );
 
   const completeStep = React.useCallback(
@@ -420,6 +476,7 @@ function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
     if (!currentStep?.sequenceTargets?.length) return;
 
     if (sequenceIndex >= currentStep.sequenceTargets.length - 1) {
+      if (currentStep.sequenceTargets[sequenceIndex]?.actionRequired) return;
       completeStep(currentStep.id);
       return;
     }
@@ -429,20 +486,25 @@ function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
 
     if (nextSequenceTarget?.activateOnNext) {
       targetsRef.current.get(nextSequenceTarget.targetId)?.activate?.();
-      requestInstantMeasure();
     }
 
     setSequenceIndex(nextIndex);
-  }, [completeStep, currentStep, requestInstantMeasure, sequenceIndex]);
+  }, [completeStep, currentStep, sequenceIndex]);
 
   const handleTabPress = React.useCallback(
     (name: string) => {
       if (!currentStep) return;
       if (name === "friends" && currentStep.targetId === "nav-friends") {
         completeStep(currentStep.id);
+      } else if (
+        name === "wishlists" &&
+        currentStep.id === USER_GUIDE_STEP_IDS.reviewFriendRequests &&
+        activeSequenceTarget?.targetId === "nav-wishlists"
+      ) {
+        completeStep(currentStep.id);
       }
     },
-    [completeStep, currentStep],
+    [activeSequenceTarget?.targetId, completeStep, currentStep],
   );
 
   const handleFinishGuide = React.useCallback(() => {
@@ -466,6 +528,7 @@ function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
       completeStep,
       completeCurrentStep,
       handleTabPress,
+      setGuideSurface,
     }),
     [
       active,
@@ -475,39 +538,47 @@ function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
       currentSegment,
       currentStep,
       handleTabPress,
+      setGuideSurface,
     ],
   );
 
   const shouldRenderGuide = active && currentStep && currentSegment && routeMatchesCurrentSegment;
-  const tooltipText = activeSequenceTarget?.tooltip ?? currentStep?.tooltip ?? "";
+  const visibleBox = highlightBox?.targetId === activeTargetId ? highlightBox : null;
+  const tooltipText =
+    !currentSurface && currentStep?.id === USER_GUIDE_STEP_IDS.createWishlist
+      ? t("Tap + and choose New Wishlist.")
+      : !currentSurface && currentStep?.id === USER_GUIDE_STEP_IDS.createItem
+        ? t("Tap + and choose New Wish.")
+        : (activeSequenceTarget?.tooltip ?? currentStep?.tooltip ?? "");
   const activeTargetTooltip = React.useMemo(() => {
-    if (!shouldRenderGuide || !highlightBox || highlightBox.source !== "target") return null;
+    if (!shouldRenderGuide || !visibleBox || visibleBox.source !== "target") return null;
     const target = activeTargetId ? targetsRef.current.get(activeTargetId) : null;
     if (target?.attachedTooltip === false) return null;
 
     return {
       arrowLeft: clamp(
-        highlightBox.x + highlightBox.width / 2 - highlightBox.tooltipLeft - 6,
+        visibleBox.x + visibleBox.width / 2 - visibleBox.tooltipLeft - 6,
         18,
         GUIDE_TOOLTIP_WIDTH - 30,
       ),
-      hasSequence: Boolean(currentStep.sequenceTargets),
+      hasSequence,
       isLastSequence:
         Boolean(currentStep.sequenceTargets) &&
         sequenceIndex >= (currentStep.sequenceTargets?.length ?? 1) - 1,
-      left: highlightBox.tooltipLeft - highlightBox.x - 6,
+      left: visibleBox.tooltipLeft - visibleBox.x,
       onNext: advanceSequence,
       pending: updateGuideStep.isPending,
       placement:
         target?.tooltipPlacementOverride ??
-        (target?.portalTooltipAnchor === "footer" ? "top" : highlightBox.tooltipPlacement),
+        (target?.portalTooltipAnchor === "footer" ? "top" : visibleBox.tooltipPlacement),
       text: tooltipText,
     };
   }, [
     advanceSequence,
     activeTargetId,
     currentStep,
-    highlightBox,
+    hasSequence,
+    visibleBox,
     sequenceIndex,
     shouldRenderGuide,
     tooltipText,
@@ -516,78 +587,82 @@ function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
   const registrationValue = React.useMemo<UserGuideTargetRegistrationValue>(
     () => ({
       activeTargetId: shouldRenderGuide ? activeTargetId : null,
-      activeTooltip: activeTargetTooltip,
       registerTarget,
       requestMeasure,
       requestInstantMeasure,
     }),
-    [
-      activeTargetId,
-      activeTargetTooltip,
-      registerTarget,
-      requestInstantMeasure,
-      requestMeasure,
-      shouldRenderGuide,
-    ],
+    [activeTargetId, registerTarget, requestInstantMeasure, requestMeasure, shouldRenderGuide],
   );
 
   return (
     <UserGuideContext.Provider value={contextValue}>
       <UserGuideTargetRegistrationContext.Provider value={registrationValue}>
-        {children}
+        <UserGuideActiveTooltipContext.Provider value={activeTargetTooltip}>
+          {children}
+        </UserGuideActiveTooltipContext.Provider>
         {shouldRenderGuide ? (
           <Portal name="user-guide-overlay">
-            <Pressable
-              className="absolute inset-0"
-              pointerEvents="box-none"
-              style={{ zIndex: 9999 }}
-            >
-              {highlightBox ? (
-                <>
-                  {highlightBox.source === "nav" ? (
-                    <GuideHighlight box={highlightBox} instant={instantHighlight || reduceMotion} />
-                  ) : null}
-                  {highlightBox.source === "nav" ||
-                  targetsRef.current.get(activeTargetId ?? "")?.attachedTooltip === false ? (
-                    <GuideTooltip
-                      box={highlightBox}
-                      text={tooltipText}
-                      hasSequence={Boolean(currentStep.sequenceTargets)}
-                      footerAnchor={
-                        targetsRef.current.get(activeTargetId ?? "")?.portalTooltipAnchor ===
-                        "footer"
-                      }
-                      placementOverride={
-                        targetsRef.current.get(activeTargetId ?? "")?.tooltipPlacementOverride
-                      }
-                      horizontalOffset={
-                        targetsRef.current.get(activeTargetId ?? "")?.tooltipHorizontalOffset
-                      }
-                      verticalOffset={
-                        targetsRef.current.get(activeTargetId ?? "")?.tooltipVerticalOffset
-                      }
-                      isLastSequence={
-                        Boolean(currentStep.sequenceTargets) &&
-                        sequenceIndex >= (currentStep.sequenceTargets?.length ?? 1) - 1
-                      }
-                      pending={updateGuideStep.isPending}
-                      onNext={advanceSequence}
-                    />
-                  ) : null}
-                </>
-              ) : null}
-              <GuideCard
-                bottomRight={pathname === "/friends" || pathname.startsWith("/wishlists/")}
-                lowerCenter={pathname === "/wishlists"}
-                segmentTitle={currentSegment.title}
-                stepTitle={currentStep.title}
-                progressLabel={progress.label}
-                progressPercent={progress.percent}
-                pending={updateGuideStep.isPending}
-                onClose={() => setConfirmCloseOpen(true)}
-                onSkip={skipCurrentStep}
-              />
-            </Pressable>
+            {currentSurface?.mode !== "menu" && currentSurface?.mode !== "hidden" ? (
+              <Pressable
+                className="absolute inset-0"
+                pointerEvents="box-none"
+                style={{ zIndex: 9999 }}
+              >
+                {visibleBox ? (
+                  <>
+                    {visibleBox.source === "nav" ||
+                    targetsRef.current.get(activeTargetId ?? "")?.portalHighlight ? (
+                      <GuideHighlight box={visibleBox} />
+                    ) : null}
+                    {visibleBox.source === "nav" ||
+                    targetsRef.current.get(activeTargetId ?? "")?.attachedTooltip === false ? (
+                      <GuideTooltip
+                        box={visibleBox}
+                        text={tooltipText}
+                        hasSequence={hasSequence}
+                        footerAnchor={
+                          targetsRef.current.get(activeTargetId ?? "")?.portalTooltipAnchor ===
+                          "footer"
+                        }
+                        placementOverride={
+                          targetsRef.current.get(activeTargetId ?? "")?.tooltipPlacementOverride
+                        }
+                        horizontalOffset={
+                          targetsRef.current.get(activeTargetId ?? "")?.tooltipHorizontalOffset
+                        }
+                        verticalOffset={
+                          targetsRef.current.get(activeTargetId ?? "")?.tooltipVerticalOffset
+                        }
+                        isLastSequence={
+                          Boolean(currentStep.sequenceTargets) &&
+                          sequenceIndex >= (currentStep.sequenceTargets?.length ?? 1) - 1
+                        }
+                        pending={updateGuideStep.isPending}
+                        onNext={advanceSequence}
+                      />
+                    ) : null}
+                  </>
+                ) : null}
+                {currentSurface?.mode !== "sheet" ? (
+                  <GuideCard
+                    bottomRight={
+                      !activeTargetId?.startsWith("nav-") &&
+                      (pathname === "/friends" || pathname.startsWith("/wishlists/"))
+                    }
+                    lowerCenter={
+                      pathname === "/wishlists" || Boolean(activeTargetId?.startsWith("nav-"))
+                    }
+                    segmentTitle={currentSegment.title}
+                    stepTitle={currentStep.title}
+                    progressLabel={progress.label}
+                    progressPercent={progress.percent}
+                    pending={updateGuideStep.isPending}
+                    onClose={() => setConfirmCloseOpen(true)}
+                    onSkip={skipCurrentStep}
+                  />
+                ) : null}
+              </Pressable>
+            ) : null}
           </Portal>
         ) : null}
         <AlertDialog open={confirmCloseOpen} onOpenChange={setConfirmCloseOpen}>
@@ -613,41 +688,20 @@ function ActiveUserGuideProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-function GuideHighlight({ box, instant }: { box: GuideHighlightBox; instant: boolean }) {
+function GuideHighlight({ box }: { box: GuideHighlightBox }) {
   return (
-    <Animated.View
+    <View
       pointerEvents="none"
-      className="absolute rounded-[10px] border-2 border-brand shadow-[0px_0px_24px_rgba(192,38,126,0.32)]"
+      className="absolute"
       style={{
         height: box.height,
         left: box.x,
-        opacity: 1,
         top: box.y,
         width: box.width,
       }}
     >
-      {!instant ? <PulseOverlay /> : null}
-    </Animated.View>
-  );
-}
-
-function PulseOverlay() {
-  const opacity = useSharedValue(0.3);
-
-  React.useEffect(() => {
-    opacity.set(withTiming(0.12, { duration: motionDuration.slow }));
-  }, [opacity]);
-
-  const style = useAnimatedStyle(() => ({
-    opacity: opacity.get(),
-  }));
-
-  return (
-    <Animated.View
-      pointerEvents="none"
-      className="absolute -inset-1 rounded-xl bg-brand"
-      style={style}
-    />
+      <GuidePulseBorder borderRadius={999} />
+    </View>
   );
 }
 
@@ -758,7 +812,7 @@ function GuideCard({
       }
     : lowerCenter
       ? {
-          bottom: Math.max(insets.bottom + 150, 160),
+          bottom: Math.max(insets.bottom + 180, 190),
           right: 12,
         }
       : {
@@ -819,4 +873,8 @@ export function useUserGuideStepCompletion(step: number) {
 
 export function useUserGuideTargetRegistration() {
   return React.useContext(UserGuideTargetRegistrationContext);
+}
+
+export function useUserGuideActiveTooltip() {
+  return React.useContext(UserGuideActiveTooltipContext);
 }

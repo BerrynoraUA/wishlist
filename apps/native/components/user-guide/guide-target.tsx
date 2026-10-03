@@ -1,4 +1,8 @@
-import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
+import {
+  useUserGuideActiveTooltip,
+  useUserGuideTargetRegistration,
+} from "@/components/user-guide/user-guide-provider";
+import { GuidePulseBorder } from "@/components/user-guide/guide-pulse-border";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useGT } from "gt-react-native";
@@ -8,8 +12,11 @@ import { View, type StyleProp, type ViewStyle } from "react-native";
 export function GuideTarget({
   attachedTooltip = true,
   children,
+  borderRadius = 12,
+  forceActive = false,
   id,
   onGuideActivate,
+  portalHighlight = false,
   portalTooltipAnchor = "target",
   style,
   tooltipHorizontalOffset,
@@ -18,8 +25,11 @@ export function GuideTarget({
 }: {
   attachedTooltip?: boolean;
   children: React.ReactNode;
+  borderRadius?: number;
+  forceActive?: boolean;
   id: string;
   onGuideActivate?: () => void;
+  portalHighlight?: boolean;
   portalTooltipAnchor?: "target" | "footer";
   style?: StyleProp<ViewStyle>;
   tooltipHorizontalOffset?: number;
@@ -27,15 +37,16 @@ export function GuideTarget({
   tooltipVerticalOffset?: number;
 }) {
   const ref = React.useRef<View>(null);
-  const { activeTargetId, activeTooltip, registerTarget, requestInstantMeasure } =
+  const { activeTargetId, registerTarget, requestInstantMeasure } =
     useUserGuideTargetRegistration();
-  const active = activeTargetId === id;
-  const tooltip = active ? activeTooltip : null;
+  const active = forceActive || activeTargetId === id;
+  const footerHighlight = active && portalTooltipAnchor === "footer";
 
   React.useEffect(() => {
     return registerTarget(id, {
       activate: onGuideActivate,
       attachedTooltip,
+      portalHighlight,
       portalTooltipAnchor,
       ref,
       tooltipHorizontalOffset,
@@ -46,6 +57,7 @@ export function GuideTarget({
     attachedTooltip,
     id,
     onGuideActivate,
+    portalHighlight,
     portalTooltipAnchor,
     registerTarget,
     tooltipHorizontalOffset,
@@ -58,36 +70,30 @@ export function GuideTarget({
       ref={ref}
       collapsable={false}
       className="relative"
-      onLayout={requestInstantMeasure}
+      onLayout={active ? requestInstantMeasure : undefined}
       pointerEvents="box-none"
-      style={style}
+      style={[style, footerHighlight ? { margin: -5, padding: 5 } : null]}
     >
       {children}
       {active ? (
         <>
-          <View
-            pointerEvents="none"
-            className="absolute rounded-xl bg-brand opacity-15"
-            style={{ bottom: -10, left: -10, right: -10, top: -10 }}
-          />
-          <View
-            pointerEvents="none"
-            className="absolute rounded-[10px] border-2 border-brand"
-            style={{ bottom: -6, left: -6, right: -6, top: -6 }}
-          />
-          {tooltip ? <AttachedTooltip tooltip={tooltip} /> : null}
+          {!portalHighlight ? (
+            <GuidePulseBorder
+              borderRadius={borderRadius + (footerHighlight ? 5 : 0)}
+              outset={footerHighlight ? 0 : 5}
+            />
+          ) : null}
+          {attachedTooltip ? <ActiveTargetTooltip /> : null}
         </>
       ) : null}
     </View>
   );
 }
 
-function AttachedTooltip({
-  tooltip,
-}: {
-  tooltip: NonNullable<ReturnType<typeof useUserGuideTargetRegistration>["activeTooltip"]>;
-}) {
+function ActiveTargetTooltip() {
+  const tooltip = useUserGuideActiveTooltip();
   const t = useGT();
+  if (!tooltip) return null;
   const tooltipPosition =
     tooltip.placement === "top"
       ? { bottom: "100%" as const, marginBottom: 2 }

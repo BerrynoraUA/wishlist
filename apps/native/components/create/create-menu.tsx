@@ -5,6 +5,7 @@ import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useUserGuide } from "@/components/user-guide/user-guide-provider";
+import { GuideTarget } from "@/components/user-guide/guide-target";
 import { WishlistItemCreateEditSheet } from "@/components/wishlist-details/sheets/wishlist-item-create-edit-sheet";
 import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-create-edit-sheet";
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
@@ -70,6 +71,14 @@ const MENU_ROW_GAP = 10;
 
 /** Row height (40 icon + 2×10 padding) plus the 10px stack gap. */
 const MENU_ROW_STRIDE = MENU_ROW_HEIGHT + MENU_ROW_GAP;
+const MAIN_MENU_GUIDE_TARGETS: Record<number, string> = {
+  [USER_GUIDE_STEP_IDS.startWishlist]: "create-menu-wishlist",
+  [USER_GUIDE_STEP_IDS.createWishlist]: "create-menu-wishlist",
+  [USER_GUIDE_STEP_IDS.addItem]: "create-menu-item",
+  [USER_GUIDE_STEP_IDS.createItem]: "create-menu-item",
+  [USER_GUIDE_STEP_IDS.inviteFriend]: "create-menu-friend",
+  [USER_GUIDE_STEP_IDS.createGroup]: "create-menu-friend-group",
+};
 /** Approximate center of the trailing "+" action button, from the right edge. */
 const IOS_PLUS_BUTTON_RIGHT_OFFSET = 40;
 
@@ -110,6 +119,7 @@ type CreateMenuEntry = {
   label: string;
   /** Completes the matching user-guide step when the action is chosen. */
   guideStep?: number;
+  guideTargetId?: string;
 };
 
 /**
@@ -167,10 +177,56 @@ export function CreateMenuHost({
   children: React.ReactNode;
 }) {
   const t = useGT();
-  const { completeStep } = useUserGuide();
+  const { completeStep, currentStep, setGuideSurface } = useUserGuide();
   const [action, setAction] = React.useState<CreateAction | null>(null);
   const [itemMenuOpen, setItemMenuOpen] = React.useState(false);
   const [friendMenuOpen, setFriendMenuOpen] = React.useState(false);
+  const guideStepId = currentStep?.id;
+  const highlightedMenuTargetId =
+    open && guideStepId
+      ? (MAIN_MENU_GUIDE_TARGETS[guideStepId] ?? null)
+      : itemMenuOpen &&
+          (guideStepId === USER_GUIDE_STEP_IDS.addItem ||
+            guideStepId === USER_GUIDE_STEP_IDS.createItem)
+        ? "create-item-source-scratch"
+        : friendMenuOpen && guideStepId === USER_GUIDE_STEP_IDS.inviteFriend
+          ? "create-friend-search"
+          : null;
+
+  React.useLayoutEffect(() => {
+    let targetId: string | null = null;
+    let mode: "menu" | "sheet" | "hidden" | null = null;
+
+    if (highlightedMenuTargetId) {
+      targetId = highlightedMenuTargetId;
+      mode = "menu";
+    } else if (action === "wishlist" && guideStepId === USER_GUIDE_STEP_IDS.createWishlist) {
+      targetId = "create-wishlist-submit";
+      mode = "sheet";
+    } else if (
+      (action === "item-scratch" || action === "item-link") &&
+      guideStepId === USER_GUIDE_STEP_IDS.createItem
+    ) {
+      targetId = "create-item-submit";
+      mode = "sheet";
+    } else if (action === "friend-group" && guideStepId === USER_GUIDE_STEP_IDS.createGroup) {
+      targetId = "create-group-submit";
+      mode = "sheet";
+    } else if (action === "friend" && guideStepId === USER_GUIDE_STEP_IDS.inviteFriend) {
+      mode = "hidden";
+    } else if (
+      (action === "wishlist" && guideStepId === USER_GUIDE_STEP_IDS.startWishlist) ||
+      ((action === "item-scratch" || action === "item-link") &&
+        guideStepId === USER_GUIDE_STEP_IDS.addItem)
+    ) {
+      mode = "hidden";
+    }
+
+    const surface = mode && guideStepId ? { stepId: guideStepId, targetId, mode } : null;
+    setGuideSurface(surface);
+  }, [action, guideStepId, highlightedMenuTargetId, setGuideSurface]);
+
+  React.useEffect(() => () => setGuideSurface(null), [setGuideSurface]);
   const { data: userId } = useCurrentUserId();
   const [sharedUrl, setSharedUrl] = React.useState<string | null>(null);
   const contextualWishlistId = useContextualWishlistId();
@@ -228,7 +284,9 @@ export function CreateMenuHost({
       return;
     }
 
-    if (entry.guideStep !== undefined) completeStep(entry.guideStep);
+    if (entry.guideStep !== undefined && entry.action !== "item" && entry.action !== "friend") {
+      completeStep(entry.guideStep);
+    }
     if (entry.action === "item") {
       setItemMenuOpen(true);
       return;
@@ -270,6 +328,7 @@ export function CreateMenuHost({
   function handleItemSelect(source: ItemCreateSource) {
     setItemMenuOpen(false);
     setAction(source === "link" ? "item-link" : "item-scratch");
+    completeStep(USER_GUIDE_STEP_IDS.addItem);
   }
 
   async function handleFriendSelect(entry: CreateMenuEntry) {
@@ -284,6 +343,7 @@ export function CreateMenuHost({
     await Clipboard.setStringAsync(getFriendInviteLink(userId));
     hapticSuccess();
     showToast(t("Invite link copied"));
+    completeStep(USER_GUIDE_STEP_IDS.inviteFriend);
   }
 
   function closeAction(openState: boolean) {
@@ -296,16 +356,23 @@ export function CreateMenuHost({
   return (
     <>
       {children}
-      <CreateActionMenu open={open} onClose={() => onOpenChange(false)} onSelect={handleSelect} />
+      <CreateActionMenu
+        open={open}
+        onClose={() => onOpenChange(false)}
+        onSelect={handleSelect}
+        highlightTargetId={highlightedMenuTargetId}
+      />
       <CreateItemSourceMenu
         open={itemMenuOpen}
         onClose={() => setItemMenuOpen(false)}
         onSelect={handleItemSelect}
+        highlightTargetId={highlightedMenuTargetId}
       />
       <CreateFriendInviteMenu
         open={friendMenuOpen}
         onClose={() => setFriendMenuOpen(false)}
         onSelect={(entry) => void handleFriendSelect(entry)}
+        highlightTargetId={highlightedMenuTargetId}
       />
       <WishlistCreateEditSheet
         mode="create"
@@ -325,7 +392,14 @@ export function CreateMenuHost({
         open={action === "secret-santa"}
         onOpenChange={closeAction}
       />
-      {action === "friend" ? <AddFriendSheet onClose={() => closeAction(false)} /> : null}
+      {action === "friend" ? (
+        <AddFriendSheet
+          onClose={() => {
+            completeStep(USER_GUIDE_STEP_IDS.inviteFriend);
+            closeAction(false);
+          }}
+        />
+      ) : null}
       {action === "friend-group" ? <CreateFriendGroupSheet onOpenChange={closeAction} /> : null}
     </>
   );
@@ -335,10 +409,12 @@ export function CreateItemSourceMenu({
   open,
   onClose,
   onSelect,
+  highlightTargetId,
 }: {
   open: boolean;
   onClose: () => void;
   onSelect: (source: ItemCreateSource) => void;
+  highlightTargetId?: string | null;
 }) {
   const t = useGT();
   const entries: CreateMenuEntry[] = [
@@ -346,6 +422,7 @@ export function CreateItemSourceMenu({
       action: "item-scratch",
       icon: PencilLine,
       label: t("Create from scratch"),
+      guideTargetId: "create-item-source-scratch",
     },
     { action: "item-link", icon: Link, label: t("Create from link") },
   ];
@@ -356,6 +433,7 @@ export function CreateItemSourceMenu({
       onClose={onClose}
       entries={entries}
       onSelect={(entry) => onSelect(entry.action === "item-link" ? "link" : "scratch")}
+      highlightTargetId={highlightTargetId}
     />
   );
 }
@@ -365,28 +443,45 @@ function CreateFriendInviteMenu({
   open,
   onClose,
   onSelect,
+  highlightTargetId,
 }: {
   open: boolean;
   onClose: () => void;
   onSelect: (entry: CreateMenuEntry) => void;
+  highlightTargetId?: string | null;
 }) {
   const t = useGT();
   const entries: CreateMenuEntry[] = [
     { action: "friend-link", icon: Copy, label: t("Copy link") },
-    { action: "friend", icon: Search, label: t("Search by handle") },
+    {
+      action: "friend",
+      icon: Search,
+      label: t("Search by handle"),
+      guideTargetId: "create-friend-search",
+    },
   ];
 
-  return <CreateFloatingMenu open={open} onClose={onClose} entries={entries} onSelect={onSelect} />;
+  return (
+    <CreateFloatingMenu
+      open={open}
+      onClose={onClose}
+      entries={entries}
+      onSelect={onSelect}
+      highlightTargetId={highlightTargetId}
+    />
+  );
 }
 
 function CreateActionMenu({
   open,
   onClose,
   onSelect,
+  highlightTargetId,
 }: {
   open: boolean;
   onClose: () => void;
   onSelect: (entry: CreateMenuEntry) => void;
+  highlightTargetId?: string | null;
 }) {
   const t = useGT();
 
@@ -395,12 +490,18 @@ function CreateActionMenu({
   // Rendered top-to-bottom; the last entry sits closest to the + button and
   // animates in first, so the menu appears to unfold upwards.
   const entries: CreateMenuEntry[] = [
-    { action: "friend-group", icon: Users, label: t("Friend Group") },
+    {
+      action: "friend-group",
+      icon: Users,
+      label: t("Friend Group"),
+      guideTargetId: "create-menu-friend-group",
+    },
     {
       action: "friend",
       icon: UserPlus,
       label: t("Invite Friend"),
       guideStep: USER_GUIDE_STEP_IDS.inviteFriend,
+      guideTargetId: "create-menu-friend",
     },
     { action: "secret-santa", icon: PartyPopper, label: t("Secret Santa Event") },
     {
@@ -408,11 +509,26 @@ function CreateActionMenu({
       icon: Gift,
       label: t("New Wishlist"),
       guideStep: USER_GUIDE_STEP_IDS.startWishlist,
+      guideTargetId: "create-menu-wishlist",
     },
-    { action: "item", icon: Star, label: t("New Wish"), guideStep: USER_GUIDE_STEP_IDS.addItem },
+    {
+      action: "item",
+      icon: Star,
+      label: t("New Wish"),
+      guideStep: USER_GUIDE_STEP_IDS.addItem,
+      guideTargetId: "create-menu-item",
+    },
   ];
 
-  return <CreateFloatingMenu open={open} onClose={onClose} entries={entries} onSelect={onSelect} />;
+  return (
+    <CreateFloatingMenu
+      open={open}
+      onClose={onClose}
+      entries={entries}
+      onSelect={onSelect}
+      highlightTargetId={highlightTargetId}
+    />
+  );
 }
 
 function CreateFloatingMenu({
@@ -420,17 +536,24 @@ function CreateFloatingMenu({
   onClose,
   entries,
   onSelect,
+  highlightTargetId,
 }: {
   open: boolean;
   onClose: () => void;
   entries: CreateMenuEntry[];
   onSelect: (entry: CreateMenuEntry) => void;
+  highlightTargetId?: string | null;
 }) {
   if (!open) return null;
 
   return (
     <Portal name="create-action-menu">
-      <CreateFloatingMenuContent onClose={onClose} entries={entries} onSelect={onSelect} />
+      <CreateFloatingMenuContent
+        onClose={onClose}
+        entries={entries}
+        onSelect={onSelect}
+        highlightTargetId={highlightTargetId}
+      />
     </Portal>
   );
 }
@@ -439,10 +562,12 @@ function CreateFloatingMenuContent({
   onClose,
   entries,
   onSelect,
+  highlightTargetId,
 }: {
   onClose: () => void;
   entries: CreateMenuEntry[];
   onSelect: (entry: CreateMenuEntry) => void;
+  highlightTargetId?: string | null;
 }) {
   const t = useGT();
   // Mounted under the root PortalHost, so these are the window insets. Reading
@@ -454,7 +579,7 @@ function CreateFloatingMenuContent({
   const menuBottom = Math.max(insets.bottom, 8) + NAV_TAB_BAR_HEIGHT + 12;
 
   return (
-    <View className="absolute inset-0" style={{ zIndex: 9000 }}>
+    <View className="absolute inset-0" style={{ zIndex: 10000 }}>
       <Animated.View
         className="absolute inset-0 bg-black/40"
         entering={FadeIn.duration(180)}
@@ -487,23 +612,40 @@ function CreateFloatingMenuContent({
             }
             exiting={FadeOutDown.duration(140).delay(index * 20)}
           >
-            <AnimatedPressable
-              accessibilityRole="button"
-              accessibilityLabel={entry.label}
-              onPress={() => onSelect(entry)}
-              className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg py-2.5 ps-2.5 pe-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
-            >
-              <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
-                <Icon as={entry.icon} className="size-5 text-brand" />
-              </View>
-              <Text className="min-w-0 flex-1 text-base font-bold text-text" numberOfLines={1}>
-                {entry.label}
-              </Text>
-            </AnimatedPressable>
+            {entry.guideTargetId ? (
+              <GuideTarget
+                attachedTooltip={false}
+                borderRadius={999}
+                id={entry.guideTargetId}
+                forceActive={entry.guideTargetId === highlightTargetId}
+              >
+                <CreateMenuButton entry={entry} onPress={() => onSelect(entry)} />
+              </GuideTarget>
+            ) : (
+              <CreateMenuButton entry={entry} onPress={() => onSelect(entry)} />
+            )}
           </Animated.View>
         ))}
       </View>
     </View>
+  );
+}
+
+function CreateMenuButton({ entry, onPress }: { entry: CreateMenuEntry; onPress: () => void }) {
+  return (
+    <AnimatedPressable
+      accessibilityRole="button"
+      accessibilityLabel={entry.label}
+      onPress={onPress}
+      className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg py-2.5 ps-2.5 pe-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
+    >
+      <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
+        <Icon as={entry.icon} className="size-5 text-brand" />
+      </View>
+      <Text className="min-w-0 flex-1 text-base font-bold text-text" numberOfLines={1}>
+        {entry.label}
+      </Text>
+    </AnimatedPressable>
   );
 }
 

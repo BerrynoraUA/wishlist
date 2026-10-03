@@ -78,7 +78,7 @@ export function WishlistFilterBar({
   if (HAS_LIQUID_GLASS) {
     return (
       <View className="flex-row items-center justify-between gap-3">
-        <GuideTarget id="wishlists-discover">
+        <GuideTarget id="wishlists-discover" borderRadius={999}>
           <GlassView isInteractive style={GLASS_CAPSULE_STYLE}>
             <ZoomLink href="/wishlists/discover">
               <Pressable
@@ -131,7 +131,7 @@ export function WishlistFilterBar({
 
   return (
     <View className="flex-row items-center justify-between gap-3">
-      <GuideTarget id="wishlists-discover">
+      <GuideTarget id="wishlists-discover" borderRadius={999}>
         {process.env.EXPO_OS === "android" ? (
           <Button
             variant="secondary"

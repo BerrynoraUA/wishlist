@@ -521,7 +521,12 @@ export function WishlistItemCreateEditSheet({
           >
             <Text>{t("Cancel")}</Text>
           </Button>
-          <GuideTarget id="create-item-submit" portalTooltipAnchor="footer" style={{ flex: 1 }}>
+          <GuideTarget
+            id="create-item-submit"
+            borderRadius={6}
+            portalTooltipAnchor="footer"
+            style={{ flex: 1 }}
+          >
             <Button
               className="min-w-0 flex-1"
               disabled={!canSubmit}

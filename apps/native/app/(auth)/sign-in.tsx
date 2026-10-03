@@ -1,4 +1,4 @@
-import { loginWithApple, loginWithFacebook, loginWithGoogle } from "@/api/login";
+import { loginWithApple, loginWithGoogle } from "@/api/login";
 import { AnimatedMascot } from "@/components/shared/animated-mascot";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -7,11 +7,12 @@ import { useAuth } from "@/providers/auth-provider";
 import { Redirect, useRouter } from "expo-router";
 import { MailIcon } from "lucide-react-native";
 import * as React from "react";
-import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
+import { ActivityIndicator, Pressable, View, useWindowDimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { useGT } from "gt-react-native";
 
-type SocialProvider = "apple" | "facebook" | "google";
+type SocialProvider = "apple" | "google";
 
 export default function SignInScreen() {
   const t = useGT();
@@ -20,6 +21,14 @@ export default function SignInScreen() {
   const [loadingProvider, setLoadingProvider] = React.useState<SocialProvider | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const showAppleSignIn = process.env.EXPO_OS === "ios";
+  const { height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const availableHeight = height - insets.top - insets.bottom;
+  const compact = availableHeight < 650;
+  const mascotSize = Math.min(
+    232,
+    Math.max(80, availableHeight - (compact ? 350 : 390) - (error ? 64 : 0)),
+  );
 
   if (session) {
     return <Redirect href={"/(tabs)/wishlists" as never} />;
@@ -32,8 +41,6 @@ export default function SignInScreen() {
     try {
       if (provider === "apple") {
         await loginWithApple();
-      } else if (provider === "facebook") {
-        await loginWithFacebook();
       } else {
         await loginWithGoogle();
       }
@@ -45,91 +52,90 @@ export default function SignInScreen() {
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-[#16111f]"
-      contentContainerClassName="min-h-full flex-grow"
-      contentInsetAdjustmentBehavior="automatic"
-    >
-      <View className="relative min-h-full flex-1 overflow-hidden bg-[#16111f]">
-        <View className="absolute inset-0 bg-linear-[160deg,#16111f_0%,#321633_56%,#641c50_100%]" />
-        <View className="min-h-full flex-1 justify-center px-7 py-safe-offset-8">
-          <View className="w-full max-w-105 self-center">
-            <View className="mb-9 items-center">
-              <View className="mb-4 items-center justify-center">
-                <AnimatedMascot
-                  accessibilityLabel={t("Happy Wishlane mascot pointing to sign-in options")}
-                  size={232}
-                  variant="happy-pointing-down"
-                />
-              </View>
-              <View className="items-center gap-1.5">
-                <Text className="text-center text-[36px] font-extrabold leading-10 tracking-tight text-white">
-                  {t("Wishlane")}
-                </Text>
-                <Text className="max-w-80 text-center text-lg font-semibold leading-6 text-white/88">
-                  {t("Gifts your people actually want")}
-                </Text>
-              </View>
-            </View>
-
-            <View className="gap-3">
-              <AuthChoiceButton
-                disabled={loadingProvider !== null}
-                icon={<GoogleMark />}
-                isLoading={loadingProvider === "google"}
-                label={t("Continue with Google")}
-                onPress={() => handleSocialSignIn("google")}
-                className="bg-[#ea4335]"
-              />
-
-              {showAppleSignIn ? (
-                <AuthChoiceButton
-                  disabled={loadingProvider !== null}
-                  icon={<AppleLogo color="#111827" />}
-                  indicatorClassName="accent-[#111827]"
-                  isLoading={loadingProvider === "apple"}
-                  label={t("Continue with Apple")}
-                  labelClassName="text-[#111827]"
-                  onPress={() => handleSocialSignIn("apple")}
-                  className="bg-white"
-                />
-              ) : null}
-
-              <AuthChoiceButton
-                disabled={loadingProvider !== null}
-                icon={<FacebookLogo />}
-                isLoading={loadingProvider === "facebook"}
-                label={t("Continue with Facebook")}
-                onPress={() => handleSocialSignIn("facebook")}
-                className="bg-[#4267b2]"
-              />
-
-              <AuthChoiceButton
-                disabled={loadingProvider !== null}
-                icon={<Icon as={MailIcon} className="size-5 text-white" />}
-                label={t("Sign up with email")}
-                onPress={() => router.push("/email-auth" as never)}
-                className="bg-white/30"
+    <View className="relative flex-1 bg-[#16111f]">
+      <View className="absolute inset-0 bg-linear-[160deg,#16111f_0%,#321633_56%,#641c50_100%]" />
+      <View
+        className="flex-1 justify-center px-7"
+        style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }}
+      >
+        <View className="w-full max-w-105 self-center">
+          <View className={cn("items-center", compact ? "mb-5" : "mb-9")}>
+            <View className={cn("items-center justify-center", compact ? "mb-2" : "mb-4")}>
+              <AnimatedMascot
+                accessibilityLabel={t("Happy Wishlane mascot pointing to sign-in options")}
+                size={mascotSize}
+                variant="happy-pointing-down"
               />
             </View>
-
-            {error ? (
+            <View className="items-center gap-1.5">
               <Text
-                selectable
-                className="mt-5 rounded-2xl bg-white/90 px-4 py-3 text-sm text-danger"
+                className={cn(
+                  "text-center font-extrabold tracking-tight text-white",
+                  compact ? "text-[30px] leading-9" : "text-[36px] leading-10",
+                )}
               >
-                {error}
+                {t("Wishlane")}
               </Text>
-            ) : null}
+              <Text
+                className={cn(
+                  "max-w-80 text-center font-semibold text-white/88",
+                  compact ? "text-base leading-5" : "text-lg leading-6",
+                )}
+              >
+                {t("Gifts your people actually want")}
+              </Text>
+            </View>
           </View>
+
+          <View className={compact ? "gap-2" : "gap-3"}>
+            <AuthChoiceButton
+              compact={compact}
+              disabled={loadingProvider !== null}
+              icon={<GoogleMark />}
+              isLoading={loadingProvider === "google"}
+              label={t("Continue with Google")}
+              onPress={() => handleSocialSignIn("google")}
+              className="bg-[#ea4335]"
+            />
+
+            {showAppleSignIn ? (
+              <AuthChoiceButton
+                compact={compact}
+                disabled={loadingProvider !== null}
+                icon={<AppleLogo color="#111827" />}
+                indicatorClassName="accent-[#111827]"
+                isLoading={loadingProvider === "apple"}
+                label={t("Continue with Apple")}
+                labelClassName="text-[#111827]"
+                onPress={() => handleSocialSignIn("apple")}
+                className="bg-white"
+              />
+            ) : null}
+
+            <AuthChoiceButton
+              compact={compact}
+              disabled={loadingProvider !== null}
+              icon={<Icon as={MailIcon} className="size-5 text-white" />}
+              label={t("Sign up with email")}
+              onPress={() => router.push("/email-auth" as never)}
+              className="bg-white/30"
+            />
+          </View>
+
+          {error ? (
+            <Text selectable className="mt-5 rounded-2xl bg-white/90 px-4 py-3 text-sm text-danger">
+              {error}
+            </Text>
+          ) : null}
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
 function AuthChoiceButton({
   className,
+  compact,
   disabled,
   icon,
   indicatorClassName = "accent-white",
@@ -139,6 +145,7 @@ function AuthChoiceButton({
   onPress,
 }: {
   className?: string;
+  compact: boolean;
   disabled: boolean;
   icon: React.ReactNode;
   indicatorClassName?: string;
@@ -153,7 +160,8 @@ function AuthChoiceButton({
       accessibilityRole="button"
       accessibilityState={{ busy: isLoading, disabled }}
       className={cn(
-        "h-14 flex-row items-center justify-center gap-3 rounded-full px-5 shadow-lg active:scale-[0.98]",
+        "flex-row items-center justify-center gap-3 rounded-full px-5 shadow-lg active:scale-[0.98]",
+        compact ? "h-12" : "h-14",
         disabled && "opacity-60",
         className,
       )}
@@ -170,10 +178,6 @@ function AuthChoiceButton({
 
 function GoogleMark() {
   return <Text className="text-[24px] font-bold leading-6 text-white">G</Text>;
-}
-
-function FacebookLogo() {
-  return <Text className="text-[24px] font-bold leading-6 text-white">f</Text>;
 }
 
 function AppleLogo({ color }: { color: string }) {
