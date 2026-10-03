@@ -99,6 +99,113 @@ const ACCENT_MAP: Record<
   },
 };
 
+type AccentGradientStops = {
+  priority: [string, string];
+  visibility: [string, string];
+  pro: [string, string, string];
+  proBg: [string, string, string];
+  proCard: [string, string, string];
+};
+
+/** Badge and Pro gradients per accent — the same stops as the native `global.css` themes. */
+const ACCENT_GRADIENTS: Record<number, Record<ResolvedTheme, AccentGradientStops>> = {
+  0: {
+    light: {
+      priority: ["#fce7f3", "#fbcfe8"],
+      visibility: ["#fdf2f8", "#fce7f3"],
+      pro: ["#c0267e", "#e052a0", "#f472b6"],
+      proBg: ["#fdf2f8", "#fce7f3", "#fbcfe8"],
+      proCard: ["#fffafa", "#fdf2f8", "#fce7f3"],
+    },
+    dark: {
+      priority: ["#3d1a2e", "#2a1220"],
+      visibility: ["#2a1220", "#3d1a2e"],
+      pro: ["#e052a0", "#f472b6", "#f9a8d4"],
+      proBg: ["#2a1220", "#3d1a2e", "#4a1834"],
+      proCard: ["#1a1220", "#221828", "#2a1530"],
+    },
+  },
+  1: {
+    light: {
+      priority: ["#dbeafe", "#bfdbfe"],
+      visibility: ["#eff6ff", "#dbeafe"],
+      pro: ["#2563eb", "#60a5fa", "#93c5fd"],
+      proBg: ["#eff6ff", "#dbeafe", "#bfdbfe"],
+      proCard: ["#fffafa", "#eff6ff", "#dbeafe"],
+    },
+    dark: {
+      priority: ["#1e293b", "#172033"],
+      visibility: ["#172033", "#1e293b"],
+      pro: ["#60a5fa", "#93c5fd", "#bfdbfe"],
+      proBg: ["#172033", "#1e293b", "#24364d"],
+      proCard: ["#172033", "#1b2638", "#1e293b"],
+    },
+  },
+  2: {
+    light: {
+      priority: ["#fef3c7", "#fde68a"],
+      visibility: ["#fffbeb", "#fef3c7"],
+      pro: ["#d97706", "#f59e0b", "#fbbf24"],
+      proBg: ["#fffbeb", "#fef3c7", "#fde68a"],
+      proCard: ["#fffafa", "#fffbeb", "#fef3c7"],
+    },
+    dark: {
+      priority: ["#2a2010", "#1f1a0e"],
+      visibility: ["#1f1a0e", "#2a2010"],
+      pro: ["#fbbf24", "#fcd34d", "#fde68a"],
+      proBg: ["#1f1a0e", "#2a2010", "#3a3015"],
+      proCard: ["#1f1a0e", "#241f12", "#2a2010"],
+    },
+  },
+  3: {
+    light: {
+      priority: ["#d1fae5", "#a7f3d0"],
+      visibility: ["#ecfdf5", "#d1fae5"],
+      pro: ["#059669", "#10b981", "#34d399"],
+      proBg: ["#ecfdf5", "#d1fae5", "#a7f3d0"],
+      proCard: ["#fffafa", "#ecfdf5", "#d1fae5"],
+    },
+    dark: {
+      priority: ["#132a20", "#0f1f18"],
+      visibility: ["#0f1f18", "#132a20"],
+      pro: ["#34d399", "#6ee7b7", "#a7f3d0"],
+      proBg: ["#0f1f18", "#132a20", "#143520"],
+      proCard: ["#0f1f18", "#11251c", "#132a20"],
+    },
+  },
+  4: {
+    light: {
+      priority: ["#ede9fe", "#ddd6fe"],
+      visibility: ["#f5f3ff", "#ede9fe"],
+      pro: ["#7c3aed", "#8b5cf6", "#a78bfa"],
+      proBg: ["#f5f3ff", "#ede9fe", "#ddd6fe"],
+      proCard: ["#fffafa", "#f5f3ff", "#ede9fe"],
+    },
+    dark: {
+      priority: ["#241d3a", "#1c162e"],
+      visibility: ["#1c162e", "#241d3a"],
+      pro: ["#a78bfa", "#c4b5fd", "#ddd6fe"],
+      proBg: ["#1c162e", "#241d3a", "#2e2850"],
+      proCard: ["#1c162e", "#211a34", "#241d3a"],
+    },
+  },
+};
+
+export function getAccentGradientStyles(
+  accent: number,
+  resolvedTheme: ResolvedTheme,
+): Record<string, string> {
+  const g = (ACCENT_GRADIENTS[accent] ?? ACCENT_GRADIENTS[0])[resolvedTheme];
+
+  return {
+    "--badge-priority-bg": `linear-gradient(135deg, ${g.priority[0]}, ${g.priority[1]})`,
+    "--badge-visibility-bg": `linear-gradient(135deg, ${g.visibility[0]}, ${g.visibility[1]})`,
+    "--color-pro-gradient": `linear-gradient(135deg, ${g.pro[0]}, ${g.pro[1]}, ${g.pro[2]})`,
+    "--color-pro-bg": `linear-gradient(135deg, ${g.proBg[0]} 0%, ${g.proBg[1]} 50%, ${g.proBg[2]} 100%)`,
+    "--color-pro-card-bg": `linear-gradient(160deg, ${g.proCard[0]}, ${g.proCard[1]} 40%, ${g.proCard[2]} 100%)`,
+  };
+}
+
 export function getAccentInlineStyles(
   accent: number,
   resolvedTheme: ResolvedTheme,
@@ -108,6 +215,7 @@ export function getAccentInlineStyles(
   const bg = resolvedTheme === "dark" ? "#111114" : "#fffafa";
 
   return {
+    ...getAccentGradientStyles(accent, resolvedTheme),
     "--color-brand": t.b,
     "--color-brand-dark": t.d,
     "--color-brand-light": t.l,
@@ -209,5 +317,20 @@ export function buildThemeInitScript(): string {
   var bg = resolvedTheme === "dark" ? "#111114" : "#fffafa";
   root.style.setProperty("--gradient-header", "linear-gradient(135deg, " + bg + " 0%, " + t.r + " 50%, " + t.l + " 100%)");
   root.style.setProperty("--gradient-hero", "linear-gradient(135deg, " + bg + ", " + t.r + ", " + t.l + ")");
+  var G = ${JSON.stringify(
+    Object.fromEntries(
+      (["light", "dark"] as const).map((mode) => [
+        mode,
+        Object.fromEntries(
+          Object.keys(ACCENT_GRADIENTS).map((key) => [
+            key,
+            getAccentGradientStyles(Number(key), mode),
+          ]),
+        ),
+      ]),
+    ),
+  )}[resolvedTheme];
+  var g = G[a] || G[0];
+  for (var k in g) root.style.setProperty(k, g[k]);
 })();`;
 }

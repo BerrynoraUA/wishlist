@@ -9,6 +9,7 @@ import {
   buildAccentCookie,
   buildResolvedThemeCookie,
   buildThemeCookie,
+  getAccentGradientStyles,
   resolveThemePreference,
   type ResolvedTheme,
 } from "@/lib/theme";
@@ -153,6 +154,10 @@ function applyAccentTokens(accent: WishlistAccent, resolvedTheme: ResolvedTheme)
     `color-mix(in srgb, ${tokens.brand} 15%, transparent)`,
   );
   root.style.setProperty("--radial-brand", `color-mix(in srgb, ${tokens.brand} 6%, transparent)`);
+
+  for (const [name, value] of Object.entries(getAccentGradientStyles(accent, resolvedTheme))) {
+    root.style.setProperty(name, value);
+  }
 
   if (resolvedTheme === "dark") {
     root.style.setProperty(

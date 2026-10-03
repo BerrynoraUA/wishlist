@@ -143,7 +143,8 @@
   height: 72px;
   flex-shrink: 0;
   border-radius: 22px;
-  background: var(--accent-pink);
+  // The wishlist's cover colour, set by the accent class on .banner.
+  background: var(--cover, #{$cover-pink});
   box-shadow:
     0 12px 28px rgba(0, 0, 0, 0.16),
     0 0 24px rgba(147, 197, 253, 0.22);
@@ -500,19 +501,24 @@
 /* Accent banner colors */
 
 .pink {
-  background: linear-gradient(135deg, #fbcfe8, #f9a8d4);
+  --cover: #{$cover-pink};
+  background: var(--cover);
 }
 .peach {
-  background: linear-gradient(135deg, #fed7aa, #fdba74);
+  --cover: #{$cover-peach};
+  background: var(--cover);
 }
 .blue {
-  background: linear-gradient(135deg, #bfdbfe, #93c5fd);
+  --cover: #{$cover-blue};
+  background: var(--cover);
 }
 .lavender {
-  background: linear-gradient(135deg, #ddd6fe, #c4b5fd);
+  --cover: #{$cover-lavender};
+  background: var(--cover);
 }
 .mint {
-  background: linear-gradient(135deg, #bbf7d0, #86efac);
+  --cover: #{$cover-mint};
+  background: var(--cover);
 }
 
 :global([data-theme="dark"]) .banner {
@@ -523,26 +529,6 @@
   background:
     linear-gradient(90deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.08) 42%, rgba(0, 0, 0, 0.26)),
     radial-gradient(circle at 50% 42%, var(--brand-alpha-08), transparent 24%);
-}
-
-:global([data-theme="dark"]) .pink {
-  background: linear-gradient(135deg, #17131b 0%, #221726 48%, #2a1a2e 100%);
-}
-
-:global([data-theme="dark"]) .peach {
-  background: linear-gradient(135deg, #171410 0%, #221b16 48%, #2a2018 100%);
-}
-
-:global([data-theme="dark"]) .blue {
-  background: linear-gradient(135deg, #12161e 0%, #18202c 48%, #1b2636 100%);
-}
-
-:global([data-theme="dark"]) .lavender {
-  background: linear-gradient(135deg, #15131c 0%, #1d1826 48%, #241d2f 100%);
-}
-
-:global([data-theme="dark"]) .mint {
-  background: linear-gradient(135deg, #111915 0%, #15221c 48%, #182922 100%);
 }
 
 :global([data-theme="dark"]) .menuButton,
@@ -559,11 +545,6 @@
 }
 
 :global([data-theme="dark"]) .bannerIcon {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--color-brand-dark) 56%, #13131a 44%),
-    color-mix(in srgb, var(--color-brand) 44%, #1a1a24 56%)
-  );
   border-color: var(--brand-alpha-35);
   box-shadow:
     0 14px 28px rgba(0, 0, 0, 0.28),

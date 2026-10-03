@@ -10,7 +10,11 @@ import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { ZoomLink } from "@/components/ui/zoom-link";
 import { TEXT_END_CLASS } from "@/lib/rtl";
-import { formatSecretSantaBudget, formatSecretSantaDate } from "@/lib/secret-santa";
+import {
+  formatSecretSantaBudget,
+  formatSecretSantaDate,
+  getSecretSantaAccent,
+} from "@/lib/secret-santa";
 import { cn } from "@/lib/utils";
 import { getWishlistAccentClass } from "@/lib/wishlists";
 import type { SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
@@ -58,7 +62,7 @@ export function SecretSantaEventCard({
               <View
                 className={cn(
                   "relative h-32 items-center justify-center overflow-hidden",
-                  getWishlistAccentClass(null),
+                  getWishlistAccentClass(getSecretSantaAccent(event.id)),
                 )}
               >
                 {event.image_url ? (

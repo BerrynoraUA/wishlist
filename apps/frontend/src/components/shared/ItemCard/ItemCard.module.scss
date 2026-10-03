@@ -71,34 +71,38 @@
   border-radius: $radius-lg $radius-lg 0 0;
   pointer-events: none;
 
+  // The same ribbon artwork as the native app (apps/native/assets/images/ribbons).
   span {
-    width: 170%;
-    padding: 6px 0;
-    text-align: center;
-    transform: rotate(-20deg);
-    background: rgba(17, 24, 39, 0.72);
-    color: var(--color-brand);
-    font-size: clamp(15px, 13cqw, 30px);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 135%;
+    aspect-ratio: 3 / 1;
+    // Keeps the label on the ribbon's flat face, which sits a little above centre.
+    padding: 0 14% 2.7%;
+    overflow: hidden;
+    transform: rotate(-38deg);
+    background: url("/images/ribbons/reserved.webp") center / 100% 100% no-repeat;
+    color: #654098;
+    font-size: clamp(11px, 7cqw, 18px);
     font-weight: var(--fw-bold);
-    letter-spacing: 0.14em;
+    letter-spacing: 0.025em;
     text-transform: uppercase;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
   }
 
-  // Purchased reads green; reserved keeps the brand colour.
   &.purchasedStamp span {
-    color: #86efac;
+    padding-bottom: 0.7%;
+    background-image: url("/images/ribbons/purchased.webp");
+    color: #245b45;
   }
 
   // A revealed name is far longer than "Reserved", so the stamp shrinks to fit.
   .reservedStampName {
-    font-size: clamp(11px, 8cqw, 18px);
-    letter-spacing: 0.04em;
+    font-size: clamp(10px, 5.5cqw, 14px);
+    letter-spacing: 0;
     text-transform: none;
-    padding-inline: 12px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 }
 
@@ -613,11 +617,18 @@
   }
 }
 
+// Matches the native "Undo" state: the action now reverts the purchase.
 .purchased {
-  border-color: #15803d;
-  color: #15803d;
-  background: rgba(22, 163, 74, 0.12);
-  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.15);
+  border-color: color-mix(in srgb, var(--color-danger) 35%, transparent);
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+    background: var(--color-danger-bg);
+  }
 }
 
 .reserved {

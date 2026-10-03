@@ -78,31 +78,34 @@
     pointer-events: none;
 
     span {
-      width: 170%;
-      padding: 6px 0;
-      text-align: center;
-      transform: rotate(-20deg);
-      background: rgba(17, 24, 39, 0.72);
-      color: var(--color-brand);
-      font-size: clamp(15px, 9cqw, 30px);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 135%;
+      aspect-ratio: 3 / 1;
+      padding: 0 14% 2.7%;
+      overflow: hidden;
+      transform: rotate(-38deg);
+      background: url("/images/ribbons/reserved.webp") center / 100% 100% no-repeat;
+      color: #654098;
+      font-size: clamp(13px, 4.5cqw, 20px);
       font-weight: var(--fw-bold);
-      letter-spacing: 0.14em;
+      letter-spacing: 0.025em;
       text-transform: uppercase;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      white-space: nowrap;
     }
 
     &.purchasedStamp span {
-      color: #86efac;
+      padding-bottom: 0.7%;
+      background-image: url("/images/ribbons/purchased.webp");
+      color: #245b45;
     }
 
     .reservedStampName {
-      font-size: clamp(11px, 5cqw, 18px);
-      letter-spacing: 0.04em;
+      font-size: clamp(11px, 3.5cqw, 16px);
+      letter-spacing: 0;
       text-transform: none;
-      padding-inline: 12px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
   }
 

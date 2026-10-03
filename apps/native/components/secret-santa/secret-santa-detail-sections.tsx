@@ -22,6 +22,7 @@ import {
   formatSecretSantaDate,
   getSecretSantaPersonName,
   MIN_PARTICIPANTS_TO_LAUNCH,
+  getSecretSantaAccent,
 } from "@/lib/secret-santa";
 import * as React from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
@@ -99,7 +100,9 @@ export function SecretSantaDetailHero({
   return (
     <View className="w-full self-stretch border-b border-border-subtle">
       <ScreenTopBackdrop>
-        <View className={cn("absolute inset-0", getWishlistAccentClass(null))} />
+        <View
+          className={cn("absolute inset-0", getWishlistAccentClass(getSecretSantaAccent(event.id)))}
+        />
         {event.image_url ? (
           <StyledImage
             source={{ uri: event.image_url }}
