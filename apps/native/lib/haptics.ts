@@ -61,6 +61,14 @@ export function hapticLongPress() {
   });
 }
 
+/** A playful poke at something decorative, like a mascot. */
+export function hapticPoke() {
+  fire(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), {
+    preferred: Haptics.AndroidHaptics.Context_Click,
+    fallback: Haptics.AndroidHaptics.Virtual_Key,
+  });
+}
+
 /** An action landed: reserved, bought, created, saved. */
 export function hapticSuccess() {
   fire(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success), {

@@ -1,9 +1,9 @@
 import { loginWithApple, loginWithFacebook, loginWithGoogle } from "@/api/login";
+import { AnimatedMascot } from "@/components/shared/animated-mascot";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
-import { Image } from "expo-image";
 import { Redirect, useRouter } from "expo-router";
 import { MailIcon } from "lucide-react-native";
 import * as React from "react";
@@ -56,11 +56,10 @@ export default function SignInScreen() {
           <View className="w-full max-w-105 self-center">
             <View className="mb-9 items-center">
               <View className="mb-4 items-center justify-center">
-                <Image
+                <AnimatedMascot
                   accessibilityLabel={t("Happy Wishlane mascot pointing to sign-in options")}
-                  contentFit="contain"
-                  source={require("@/assets/images/mascot/happy-pointing-down.webp")}
-                  style={{ height: 232, width: 232 }}
+                  size={232}
+                  variant="happy-pointing-down"
                 />
               </View>
               <View className="items-center gap-1.5">

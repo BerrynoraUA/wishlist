@@ -1,3 +1,5 @@
+@use "./mascot-motion";
+
 .state {
   display: flex;
   flex-direction: column;
@@ -15,22 +17,214 @@
   padding: 14px;
 }
 
-.image {
-  width: var(--mascot-size, 176px);
-  height: var(--mascot-size, 176px);
-  object-fit: contain;
+// Squash, stretch and rocking all pivot on the feet, at ~86% of every canvas.
+.figure,
+.poke,
+.body,
+.breath {
+  transform-origin: 50% 86%;
 }
 
-.compact .image {
+.figure {
+  --mascot-size: 176px;
+  --k: 1;
+  position: relative;
+  width: var(--mascot-size);
+  height: var(--mascot-size);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  animation: mascot-pop 650ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.compact .figure {
   --mascot-size: 88px;
+  --k: 0.6;
+}
+
+.poke,
+.body,
+.breath {
+  position: absolute;
+  inset: 0;
+}
+
+.breath {
+  animation: mascot-breath var(--breath-duration) ease-in-out infinite alternate;
+}
+
+.image,
+.blink {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+// Closed-eye patch laid over the artwork. A single blink, then a double one.
+.blink {
+  opacity: 0;
+  animation: mascot-blink 6490ms step-end infinite;
+}
+
+.glow {
+  position: absolute;
+  left: 56%;
+  top: -6%;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(255 213 74 / 85%) 0%,
+    rgb(255 213 74 / 35%) 45%,
+    rgb(255 213 74 / 0%) 70%
+  );
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.sparkleA,
+.sparkleB {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sparkleA {
+  left: 24.5%;
+  top: 50.5%;
+  width: 13%;
+  height: 13%;
+}
+
+.sparkleB {
+  left: 64%;
+  top: 55%;
+  width: 10%;
+  height: 10%;
+}
+
+// Each z rises from the sleeping head, offset by a third of the loop.
+.zzzGroup {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.zzz {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: mascot-zzz var(--zzz-duration) linear infinite;
+
+  &:nth-child(2) {
+    animation-delay: calc(var(--zzz-duration) / -3);
+  }
+
+  &:nth-child(3) {
+    animation-delay: calc(var(--zzz-duration) / -1.5);
+  }
+
+  span {
+    position: absolute;
+    left: 70%;
+    top: 8%;
+    font-size: calc(var(--mascot-size) * 0.12);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--color-text-muted);
+  }
 }
 
 .message {
   margin: 0;
   font-size: var(--fs-body);
   line-height: 1.45;
+  animation: mascot-fade 280ms 120ms both;
 }
 
 .compact .message {
   font-size: var(--fs-caption);
+}
+
+@keyframes mascot-pop {
+  from {
+    opacity: 0;
+    translate: 0 8%;
+    scale: 0.6;
+  }
+}
+
+@keyframes mascot-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes mascot-breath {
+  to {
+    scale: calc(1 - var(--breath) / 2) calc(1 + var(--breath));
+  }
+}
+
+// Closed at 2600–2720ms, then 6120–6230ms and 6380–6490ms of a 6490ms loop.
+@keyframes mascot-blink {
+  0% {
+    opacity: 0;
+  }
+  40.06% {
+    opacity: 1;
+  }
+  41.91% {
+    opacity: 0;
+  }
+  94.3% {
+    opacity: 1;
+  }
+  95.99% {
+    opacity: 0;
+  }
+  98.31% {
+    opacity: 1;
+  }
+}
+
+@keyframes mascot-zzz {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+    scale: 0.6;
+  }
+  20%,
+  65% {
+    opacity: 1;
+  }
+  // Gone before it rises past the figure's padding, so scrolling parents never clip it.
+  90% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+    translate: 14% -26%;
+    scale: 1.2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .figure,
+  .breath,
+  .body,
+  .blink,
+  .glow,
+  .sparkleA,
+  .sparkleB,
+  .message {
+    animation: none !important;
+  }
+
+  .zzzGroup {
+    display: none;
+  }
 }
