@@ -1,0 +1,582 @@
+// Each mascot's signature move. Mirrors MOTIONS in
+// apps/native/components/shared/animated-mascot.tsx: offsets are % of the mascot,
+// and --k scales every move down for compact placements.
+
+@keyframes sad-alone-translate {
+  0% {
+    translate: 0 0;
+  }
+  10.7692% {
+    translate: 0 calc(var(--k) * -2%);
+  }
+  24.6154% {
+    translate: 0 calc(var(--k) * 2.5%);
+  }
+  58.4615% {
+    translate: 0 calc(var(--k) * 2.5%);
+  }
+  76.9231% {
+    translate: 0 0;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+@keyframes sad-alone-rotate {
+  0% {
+    rotate: 0;
+  }
+  24.6154% {
+    rotate: calc(var(--k) * -3deg);
+  }
+  58.4615% {
+    rotate: calc(var(--k) * -3deg);
+  }
+  76.9231% {
+    rotate: 0;
+  }
+  100% {
+    rotate: 0;
+  }
+}
+@keyframes sad-alone-scale {
+  0% {
+    scale: 1 1;
+  }
+  10.7692% {
+    scale: calc(1 + var(--k) * -0.01) calc(1 + var(--k) * 0.03);
+  }
+  24.6154% {
+    scale: calc(1 + var(--k) * 0.02) calc(1 + var(--k) * -0.04);
+  }
+  58.4615% {
+    scale: calc(1 + var(--k) * 0.02) calc(1 + var(--k) * -0.04);
+  }
+  76.9231% {
+    scale: 1 1;
+  }
+  100% {
+    scale: 1 1;
+  }
+}
+
+@keyframes gift-in-hands-translate {
+  0% {
+    translate: 0 0;
+  }
+  3.5556% {
+    translate: 0 0;
+  }
+  7.5556% {
+    translate: 0 calc(var(--k) * -7%);
+  }
+  11.5556% {
+    translate: 0 0;
+  }
+  15.1111% {
+    translate: 0 calc(var(--k) * -4.5%);
+  }
+  18.6667% {
+    translate: 0 0;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+@keyframes gift-in-hands-scale {
+  0% {
+    scale: 1 1;
+  }
+  3.5556% {
+    scale: calc(1 + var(--k) * 0.05) calc(1 + var(--k) * -0.07);
+  }
+  7.5556% {
+    scale: calc(1 + var(--k) * -0.03) calc(1 + var(--k) * 0.05);
+  }
+  11.5556% {
+    scale: calc(1 + var(--k) * 0.045) calc(1 + var(--k) * -0.06);
+  }
+  15.1111% {
+    scale: calc(1 + var(--k) * -0.02) calc(1 + var(--k) * 0.03);
+  }
+  18.6667% {
+    scale: calc(1 + var(--k) * 0.02) calc(1 + var(--k) * -0.03);
+  }
+  22.2222% {
+    scale: 1 1;
+  }
+  100% {
+    scale: 1 1;
+  }
+}
+
+@keyframes empty-hands-shrug-translate {
+  0% {
+    translate: 0 0;
+  }
+  4.5% {
+    translate: 0 calc(var(--k) * -3.5%);
+  }
+  13% {
+    translate: 0 calc(var(--k) * -3.5%);
+  }
+  17.5% {
+    translate: 0 0;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+@keyframes empty-hands-shrug-rotate {
+  0% {
+    rotate: 0;
+  }
+  4.5% {
+    rotate: 0;
+  }
+  8.75% {
+    rotate: calc(var(--k) * -3deg);
+  }
+  13% {
+    rotate: 0;
+  }
+  100% {
+    rotate: 0;
+  }
+}
+@keyframes empty-hands-shrug-scale {
+  0% {
+    scale: 1 1;
+  }
+  4.5% {
+    scale: calc(1 + var(--k) * -0.03) calc(1 + var(--k) * 0.05);
+  }
+  13% {
+    scale: calc(1 + var(--k) * -0.03) calc(1 + var(--k) * 0.05);
+  }
+  17.5% {
+    scale: calc(1 + var(--k) * 0.04) calc(1 + var(--k) * -0.05);
+  }
+  21.25% {
+    scale: calc(1 + var(--k) * -0.01) calc(1 + var(--k) * 0.015);
+  }
+  25% {
+    scale: 1 1;
+  }
+  100% {
+    scale: 1 1;
+  }
+}
+
+@keyframes magnifying-glass-translate {
+  0% {
+    translate: 0 0;
+  }
+  10.4167% {
+    translate: calc(var(--k) * -5%) 0;
+  }
+  18.75% {
+    translate: calc(var(--k) * -5%) 0;
+  }
+  31.25% {
+    translate: calc(var(--k) * 5%) 0;
+  }
+  39.5833% {
+    translate: calc(var(--k) * 5%) 0;
+  }
+  50% {
+    translate: 0 0;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+@keyframes magnifying-glass-rotate {
+  0% {
+    rotate: 0;
+  }
+  10.4167% {
+    rotate: calc(var(--k) * -4deg);
+  }
+  18.75% {
+    rotate: calc(var(--k) * -4deg);
+  }
+  31.25% {
+    rotate: calc(var(--k) * 4deg);
+  }
+  39.5833% {
+    rotate: calc(var(--k) * 4deg);
+  }
+  50% {
+    rotate: 0;
+  }
+  100% {
+    rotate: 0;
+  }
+}
+
+@keyframes explorer-map-translate {
+  0% {
+    translate: 0 0;
+  }
+  11.5385% {
+    translate: calc(var(--k) * -1.5%) 0;
+  }
+  26.9231% {
+    translate: calc(var(--k) * -1.5%) 0;
+  }
+  38.4615% {
+    translate: calc(var(--k) * 1.5%) 0;
+  }
+  53.8462% {
+    translate: calc(var(--k) * 1.5%) 0;
+  }
+  65.3846% {
+    translate: 0 0;
+  }
+  68.2692% {
+    translate: 0 calc(var(--k) * -3.5%);
+  }
+  71.1538% {
+    translate: 0 0;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+@keyframes explorer-map-rotate {
+  0% {
+    rotate: 0;
+  }
+  11.5385% {
+    rotate: calc(var(--k) * -5deg);
+  }
+  26.9231% {
+    rotate: calc(var(--k) * -5deg);
+  }
+  38.4615% {
+    rotate: calc(var(--k) * 5deg);
+  }
+  53.8462% {
+    rotate: calc(var(--k) * 5deg);
+  }
+  65.3846% {
+    rotate: 0;
+  }
+  100% {
+    rotate: 0;
+  }
+}
+@keyframes explorer-map-scale {
+  0% {
+    scale: 1 1;
+  }
+  63.4615% {
+    scale: 1 1;
+  }
+  65.3846% {
+    scale: 1 calc(1 + var(--k) * -0.04);
+  }
+  68.2692% {
+    scale: 1 calc(1 + var(--k) * 0.03);
+  }
+  71.1538% {
+    scale: 1 calc(1 + var(--k) * -0.02);
+  }
+  74.0385% {
+    scale: 1 1;
+  }
+  100% {
+    scale: 1 1;
+  }
+}
+
+@keyframes lightbulb-idea-translate {
+  0% {
+    translate: 0 0;
+  }
+  3.3333% {
+    translate: 0 0;
+  }
+  7.3333% {
+    translate: 0 calc(var(--k) * -8%);
+  }
+  11.5556% {
+    translate: 0 0;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+@keyframes lightbulb-idea-rotate {
+  0% {
+    rotate: 0;
+  }
+  3.3333% {
+    rotate: 0;
+  }
+  7.3333% {
+    rotate: calc(var(--k) * 3deg);
+  }
+  11.5556% {
+    rotate: 0;
+  }
+  100% {
+    rotate: 0;
+  }
+}
+@keyframes lightbulb-idea-scale {
+  0% {
+    scale: 1 1;
+  }
+  3.3333% {
+    scale: calc(1 + var(--k) * 0.05) calc(1 + var(--k) * -0.07);
+  }
+  7.3333% {
+    scale: calc(1 + var(--k) * -0.04) calc(1 + var(--k) * 0.06);
+  }
+  11.5556% {
+    scale: calc(1 + var(--k) * 0.04) calc(1 + var(--k) * -0.05);
+  }
+  15.1111% {
+    scale: calc(1 + var(--k) * -0.01) calc(1 + var(--k) * 0.02);
+  }
+  18.2222% {
+    scale: 1 1;
+  }
+  100% {
+    scale: 1 1;
+  }
+}
+@keyframes lightbulb-idea-glow {
+  0% {
+    opacity: 0.3;
+  }
+  5.5556% {
+    opacity: 0.3;
+  }
+  8.8889% {
+    opacity: 1;
+  }
+  31.1111% {
+    opacity: 0.7;
+  }
+  57.7778% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes santa-sack-translate {
+  0% {
+    translate: 0 calc(var(--k) * -1%);
+  }
+  25% {
+    translate: 0 calc(var(--k) * 0.5%);
+  }
+  50% {
+    translate: 0 calc(var(--k) * -1%);
+  }
+  75% {
+    translate: 0 calc(var(--k) * 0.5%);
+  }
+  100% {
+    translate: 0 calc(var(--k) * -1%);
+  }
+}
+@keyframes santa-sack-rotate {
+  0% {
+    rotate: calc(var(--k) * -4deg);
+  }
+  50% {
+    rotate: calc(var(--k) * 4deg);
+  }
+  100% {
+    rotate: calc(var(--k) * -4deg);
+  }
+}
+
+@keyframes holding-key-rotate {
+  0% {
+    rotate: 0;
+  }
+  3.5714% {
+    rotate: calc(var(--k) * -4deg);
+  }
+  7.1429% {
+    rotate: calc(var(--k) * 4deg);
+  }
+  10.7143% {
+    rotate: calc(var(--k) * -3deg);
+  }
+  14.2857% {
+    rotate: calc(var(--k) * 2deg);
+  }
+  17.8571% {
+    rotate: 0;
+  }
+  100% {
+    rotate: 0;
+  }
+}
+@keyframes holding-key-scale {
+  0% {
+    scale: 1 1;
+  }
+  3.5714% {
+    scale: 1 calc(1 + var(--k) * 0.03);
+  }
+  17.8571% {
+    scale: 1 1;
+  }
+  100% {
+    scale: 1 1;
+  }
+}
+@keyframes holding-key-sparkleA {
+  0% {
+    opacity: 0;
+    scale: 0;
+    rotate: 0deg;
+  }
+  5.9524% {
+    opacity: 0;
+    scale: 0;
+    rotate: 0deg;
+  }
+  11.9048% {
+    opacity: 1;
+    scale: 1;
+    rotate: 90deg;
+  }
+  19.0476% {
+    opacity: 0;
+    scale: 0;
+    rotate: 0deg;
+  }
+  100% {
+    opacity: 0;
+    scale: 0;
+    rotate: 0deg;
+  }
+}
+@keyframes holding-key-sparkleB {
+  0% {
+    opacity: 0;
+    scale: 0;
+    rotate: 0deg;
+  }
+  50% {
+    opacity: 0;
+    scale: 0;
+    rotate: 0deg;
+  }
+  55.9524% {
+    opacity: 1;
+    scale: 1;
+    rotate: 90deg;
+  }
+  63.0952% {
+    opacity: 0;
+    scale: 0;
+    rotate: 0deg;
+  }
+  100% {
+    opacity: 0;
+    scale: 0;
+    rotate: 0deg;
+  }
+}
+
+.figure[data-variant="sad-alone"] {
+  --breath: 0.016;
+  --breath-duration: 2200ms;
+  .body {
+    animation:
+      sad-alone-translate 6500ms ease-in-out infinite,
+      sad-alone-rotate 6500ms ease-in-out infinite,
+      sad-alone-scale 6500ms ease-in-out infinite;
+  }
+}
+.figure[data-variant="gift-in-hands"] {
+  --breath: 0.022;
+  --breath-duration: 1700ms;
+  .body {
+    animation:
+      gift-in-hands-translate 4500ms ease-in-out infinite,
+      gift-in-hands-scale 4500ms ease-in-out infinite;
+  }
+}
+.figure[data-variant="empty-hands-shrug"] {
+  --breath: 0.022;
+  --breath-duration: 1700ms;
+  .body {
+    animation:
+      empty-hands-shrug-translate 4000ms ease-in-out infinite,
+      empty-hands-shrug-rotate 4000ms ease-in-out infinite,
+      empty-hands-shrug-scale 4000ms ease-in-out infinite;
+  }
+}
+.figure[data-variant="magnifying-glass"] {
+  --breath: 0.022;
+  --breath-duration: 1700ms;
+  .body {
+    animation:
+      magnifying-glass-translate 4800ms ease-in-out infinite,
+      magnifying-glass-rotate 4800ms ease-in-out infinite;
+  }
+}
+.figure[data-variant="explorer-map"] {
+  --breath: 0.022;
+  --breath-duration: 1700ms;
+  .body {
+    animation:
+      explorer-map-translate 5200ms ease-in-out infinite,
+      explorer-map-rotate 5200ms ease-in-out infinite,
+      explorer-map-scale 5200ms ease-in-out infinite;
+  }
+}
+.figure[data-variant="sleeping-bell"] {
+  --breath: 0.045;
+  --breath-duration: 2600ms;
+  --zzz-duration: 3600ms;
+}
+.figure[data-variant="lightbulb-idea"] {
+  --breath: 0.022;
+  --breath-duration: 1700ms;
+  .body {
+    animation:
+      lightbulb-idea-translate 4500ms ease-in-out infinite,
+      lightbulb-idea-rotate 4500ms ease-in-out infinite,
+      lightbulb-idea-scale 4500ms ease-in-out infinite;
+  }
+  .glow {
+    animation: lightbulb-idea-glow 4500ms ease-in-out infinite;
+  }
+}
+.figure[data-variant="santa-sack"] {
+  --breath: 0.022;
+  --breath-duration: 1700ms;
+  .body {
+    animation:
+      santa-sack-translate 3600ms ease-in-out infinite,
+      santa-sack-rotate 3600ms ease-in-out infinite;
+  }
+}
+.figure[data-variant="holding-key"] {
+  --breath: 0.022;
+  --breath-duration: 1700ms;
+  .body {
+    animation:
+      holding-key-rotate 4200ms ease-in-out infinite,
+      holding-key-scale 4200ms ease-in-out infinite;
+  }
+  .sparkleA {
+    animation: holding-key-sparkleA 4200ms ease-in-out infinite;
+  }
+  .sparkleB {
+    animation: holding-key-sparkleB 4200ms ease-in-out infinite;
+  }
+}
