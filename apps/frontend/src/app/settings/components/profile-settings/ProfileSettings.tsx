@@ -6,6 +6,7 @@ import { Camera, Check, AlertCircle } from "lucide-react";
 import { FileSizeBadge } from "@/components/ui/FileSizeBadge/FileSizeBadge";
 import { UploadErrorText } from "@/components/ui/UploadErrorText/UploadErrorText";
 import { validateImageUploadFile } from "@/lib/image-upload";
+import { isNicknameBlocked } from "@wishlist/backend/lib/nickname";
 import styles from "./ProfileSettings.module.scss";
 import { SettingsSection } from "../settings-section/SettingsSection";
 import { AvatarPickerModal } from "../avatar-picker-modal/AvatarPickerModal";
@@ -118,11 +119,15 @@ export function ProfileSettings() {
         ? t("Nickname must be at least 3 characters", {
             $id: "settings.profile.nicknameMinLength",
           })
-        : nicknameStatus === "taken"
-          ? t("This nickname is already taken", {
-              $id: "settings.profile.nicknameTaken",
+        : isNicknameBlocked(trimmedNickname)
+          ? t("This nickname is not allowed", {
+              $id: "settings.profile.nicknameNotAllowed",
             })
-          : null;
+          : nicknameStatus === "taken"
+            ? t("This nickname is already taken", {
+                $id: "settings.profile.nicknameTaken",
+              })
+            : null;
   const isNicknameTaken = nicknameStatus === "taken" && trimmedNickname.length >= 3;
   const hasProfileValidationError = Boolean(displayNameError || nicknameError);
   const hasProfileChanges =

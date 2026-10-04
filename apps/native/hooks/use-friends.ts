@@ -238,8 +238,10 @@ export function useRemoveFriend() {
   return useMutation({
     mutationFn: (friendId: string) => removeFriend(friendId),
     onSuccess: async () => {
+      // Not awaited: refetching every wishlist feed would keep the mutation (and the
+      // confirm sheet's loader) pending long after the friend is gone.
+      void queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({ queryKey: friendKeys.lists() });
-      await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
     },
   });
 }
@@ -265,8 +267,8 @@ export function useBlockUser() {
     onSuccess: async () => {
       // The block drops the friendship and any pending request, so every
       // friends list can be stale afterwards.
+      void queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({ queryKey: friendKeys.all });
-      await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
     },
   });
 }
