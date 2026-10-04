@@ -99,6 +99,11 @@
           "backgroundColor": "#ffffff",
           "image": "./assets/images/splash-mascot.png",
           "imageWidth": 240,
+          "android": {
+            "drawable": {
+              "icon": "./assets/images/splash-android.xml"
+            }
+          },
           "dark": {
             "backgroundColor": "#000000",
             "image": "./assets/images/splash-mascot.png",

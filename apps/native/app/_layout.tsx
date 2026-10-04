@@ -298,12 +298,9 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
   // Read synchronously, during the first render: the MMKV cache is what keeps the network
   // `useSettings()` query off the first-paint path. The in-memory snapshot wins when
   // present (it is the most recent), but it is always null on a cold start.
-  const initialSnapshot = userId
-    ? (getActiveNativeThemeSettingsSnapshot(userId) ?? readBootThemeSettings(userId))
-    : null;
   const { data: settings, error: settingsError } = useSettings();
-  const [cachedSettings, setCachedSettings] = useState<CachedNativeThemeSettings | null>(
-    () => initialSnapshot,
+  const [cachedSettings, setCachedSettings] = useState<CachedNativeThemeSettings | null>(() =>
+    userId ? (getActiveNativeThemeSettingsSnapshot(userId) ?? readBootThemeSettings(userId)) : null,
   );
   const [themeApplied, setThemeApplied] = useState(false);
   const themeSettings = settings ?? cachedSettings ?? DEFAULT_SETTINGS;
@@ -318,13 +315,9 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
   const localeSyncedRef = useRef(false);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || cachedSettings) return;
 
     let active = true;
-
-    setCachedSettings(
-      getActiveNativeThemeSettingsSnapshot(userId) ?? readBootThemeSettings(userId),
-    );
 
     // Migration path for users upgrading from the SecureStore-only cache, who have no
     // MMKV copy yet. Never downgrades a value we already have. Remove this — along with
@@ -339,7 +332,7 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
     return () => {
       active = false;
     };
-  }, [userId]);
+  }, [userId, cachedSettings]);
 
   useEffect(() => {
     if (!userId || !settings) return;
