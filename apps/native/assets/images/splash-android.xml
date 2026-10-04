@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android masks native splash icons into a circle. Keep this transparent;
+     AnimatedSplash renders the full mascot at the same size as iOS. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+  <solid android:color="@android:color/transparent" />
+</shape>

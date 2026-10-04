@@ -26,9 +26,10 @@ import Animated, {
 
 const IS_ANDROID = process.env.EXPO_OS === "android";
 
-// Keep the OS splash on screen until our identical overlay is rendered,
-// so the native -> JS handoff is invisible. iOS only: on Android the native
-// splash already stays up until the first frame is drawn (which is this
+// Keep the iOS splash on screen until our identical overlay is rendered,
+// so the native -> JS handoff is invisible. Android's native splash uses only
+// the matching background to avoid its circular icon mask; it already stays
+// up until the first frame is drawn (which is this
 // overlay), while preventAutoHideAsync suppresses window drawing entirely
 // and is prone to leaving the app stuck on a gray frozen window
 // (expo/expo#30643, #33762).
@@ -37,10 +38,10 @@ if (!IS_ANDROID) {
 }
 
 // Must match the expo-splash-screen config in app.json exactly (light/dark
-// backgrounds), so the native -> JS handoff is pixel-identical.
+// backgrounds), so the native -> JS handoff keeps the same background.
 const SPLASH_BACKGROUND_LIGHT = "#ffffff";
 const SPLASH_BACKGROUND_DARK = "#000000";
-// splash-mascot.png source canvas. The native splash renders it at imageWidth
+// splash-mascot.png source canvas. The iOS native splash renders it at imageWidth
 // (app.json) and derives height from this aspect ratio, so the overlay must
 // derive its height the same way or the mascot visibly resizes at handoff.
 const MASCOT_SOURCE_WIDTH = 486;
@@ -113,19 +114,6 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
   const zoomScale =
     (Math.hypot(width, height) / (ICON_WIDTH * (MASCOT_VISIBLE_WIDTH / MASCOT_SOURCE_WIDTH))) * 1.4;
 
-  // Single teardown path: stop every running animation (the pulse loop repeats
-  // forever otherwise), make sure the app content is at rest, then drop the
-  // overlay. Safe to call from any exit — normal reveal or failsafe.
-  const finish = useCallback(() => {
-    cancelAnimation(pulse);
-    cancelAnimation(iconScale);
-    cancelAnimation(iconOpacity);
-    cancelAnimation(backdropOpacity);
-    cancelAnimation(contentScale);
-    contentScale.set(1);
-    setDone(true);
-  }, [backdropOpacity, contentScale, iconOpacity, iconScale, pulse]);
-
   const nativeSplashHidden = useRef(false);
   const hideNativeSplash = useCallback(() => {
     if (nativeSplashHidden.current) return;
@@ -148,17 +136,33 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
     );
   }, [pulse]);
 
+  // Every exit also hides the native splash: fast boots (especially with reduced
+  // motion) can unmount the image before onDisplay fires.
+  const finish = useCallback(() => {
+    revealStarted.current = true;
+    hideNativeSplash();
+    cancelAnimation(pulse);
+    cancelAnimation(iconScale);
+    cancelAnimation(iconOpacity);
+    cancelAnimation(backdropOpacity);
+    cancelAnimation(contentScale);
+    contentScale.set(1);
+    setDone(true);
+  }, [backdropOpacity, contentScale, hideNativeSplash, iconOpacity, iconScale, pulse]);
+
   const markReady = useCallback(() => setRevealRequested(true), []);
 
   useEffect(() => {
+    if (done) return;
     const timeout = setTimeout(hideNativeSplash, NATIVE_SPLASH_FALLBACK_MS);
     return () => clearTimeout(timeout);
-  }, [hideNativeSplash]);
+  }, [done, hideNativeSplash]);
 
   useEffect(() => {
+    if (done) return;
     const timeout = setTimeout(finish, OVERLAY_FAILSAFE_MS);
     return () => clearTimeout(timeout);
-  }, [finish]);
+  }, [done, finish]);
 
   useEffect(() => {
     if (!revealRequested || revealStarted.current) return;

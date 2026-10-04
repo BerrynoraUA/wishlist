@@ -354,6 +354,7 @@ export function WishlistItemCreateEditSheet({
                   <Button
                     variant="ghost"
                     onPress={() => void pasteProductLink()}
+                    hitSlop={8}
                     className="-me-1.5 h-8 shrink-0 gap-1.5 rounded-full px-2.5"
                   >
                     <Icon as={ClipboardPaste} className="size-4 text-brand" />

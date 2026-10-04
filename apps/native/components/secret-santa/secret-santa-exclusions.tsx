@@ -1,5 +1,6 @@
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { TouchTarget } from "@/components/ui/touch-target";
 import { useProGate } from "@/hooks/use-pro-gate";
 import { SecretSantaPersonAvatar } from "@/components/secret-santa/secret-santa-person-avatar";
 import { getSecretSantaPersonName } from "@/lib/secret-santa";
@@ -69,16 +70,21 @@ export function SecretSantaExclusions({
           const isExcluded = excluded.has(other.id);
 
           return (
-            <Pressable
+            <TouchTarget
               key={other.id}
               accessibilityRole="button"
               accessibilityState={{ selected: isExcluded }}
               onPress={() => toggleExclusion(other.id)}
-              className={
+              slop={4}
+              pressedOpacity={1}
+              pressedScale={1}
+              stateLayer={false}
+              contentClassName={
                 isExcluded
                   ? "flex-row items-center gap-2 rounded-full bg-danger-bg px-2 py-1.5"
-                  : "flex-row items-center gap-2 rounded-full bg-bg-subtle px-2 py-1.5 active:bg-brand-lighter"
+                  : "flex-row items-center gap-2 rounded-full bg-bg-subtle px-2 py-1.5"
               }
+              pressedClassName={isExcluded ? undefined : "bg-brand-lighter"}
             >
               <SecretSantaPersonAvatar person={other} sizeClassName="size-6" />
               <Text
@@ -89,7 +95,7 @@ export function SecretSantaExclusions({
                 {getSecretSantaPersonName(other, t)}
               </Text>
               {isExcluded ? <Icon as={Ban} className="size-3 text-destructive" /> : null}
-            </Pressable>
+            </TouchTarget>
           );
         })}
       </View>

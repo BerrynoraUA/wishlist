@@ -9,7 +9,7 @@ type InputProps = React.ComponentProps<typeof TextInput> & {
 };
 
 export const INPUT_CLASS_NAME =
-  "dark:bg-input/30 border-input bg-background flex h-10 w-full min-w-0 flex-row items-center rounded-md border px-3 py-1 text-base leading-5 text-text shadow-sm shadow-black/5 sm:h-9";
+  "dark:bg-input/30 border-input bg-background flex min-h-10 w-full min-w-0 flex-row items-center rounded-md border px-3 py-1 text-base leading-5 text-text shadow-sm shadow-black/5 sm:min-h-9";
 
 function Input({ className, placeholderClassName, ...props }: InputProps) {
   return (

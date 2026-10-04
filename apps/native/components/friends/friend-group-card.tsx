@@ -82,6 +82,7 @@ export function FriendGroupCard({
                 event.stopPropagation();
                 void openMenu();
               }}
+              hitSlop={4}
               className="size-10 items-center justify-center rounded-full active:bg-bg-muted"
             >
               <Icon as={MoreHorizontal} className="size-5 text-text-muted" />

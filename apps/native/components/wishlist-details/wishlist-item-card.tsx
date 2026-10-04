@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { TouchTarget } from "@/components/ui/touch-target";
 import {
   buildReservationLabel,
   getItemPriority,
@@ -33,15 +34,7 @@ import { getValidHttpUrl } from "@/lib/urls";
 import { isStarPriorityId } from "@wishlist/backend/lib";
 import type { Item } from "@wishlist/backend/types/item";
 import * as Clipboard from "expo-clipboard";
-import {
-  Copy,
-  Eye,
-  EyeOff,
-  Flag,
-  Heart,
-  Pencil,
-  Trash2,
-} from "lucide-react-native";
+import { Copy, Eye, EyeOff, Flag, Heart, Pencil, Trash2 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
@@ -212,7 +205,7 @@ export function WishlistItemCard({
                     {item.name}
                   </Text>
                   {!isOwner && onToggleVote ? (
-                    <AnimatedPressable
+                    <TouchTarget
                       accessibilityRole="button"
                       accessibilityLabel={hasVoted ? t("Remove vote") : t("Vote for item")}
                       onPress={(event) => {
@@ -220,7 +213,8 @@ export function WishlistItemCard({
                         hapticToggle(!hasVoted);
                         onToggleVote();
                       }}
-                      className={cn(
+                      slop={{ x: 4, y: 10 }}
+                      contentClassName={cn(
                         "flex-row items-center gap-1 rounded-full px-2 py-1",
                         hasVoted ? "bg-brand-lighter" : "bg-bg-subtle",
                       )}
@@ -237,7 +231,7 @@ export function WishlistItemCard({
                       >
                         {voteCount}
                       </Text>
-                    </AnimatedPressable>
+                    </TouchTarget>
                   ) : null}
                 </View>
                 {hasWebsiteLink ? (

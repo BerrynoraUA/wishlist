@@ -121,6 +121,7 @@ function ActiveTargetTooltip() {
           size="sm"
           disabled={tooltip.pending}
           onPress={tooltip.onNext}
+          hitSlop={8}
           className="h-8 self-end rounded-md px-3"
         >
           <Text>{tooltip.isLastSequence ? t("Done") : t("Next")}</Text>

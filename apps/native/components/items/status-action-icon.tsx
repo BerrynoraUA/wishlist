@@ -54,11 +54,7 @@ export function ReservationActionIcon({
   );
 }
 
-export function PurchaseActionIcon({
-  purchased,
-}: {
-  purchased: boolean;
-}) {
+export function PurchaseActionIcon({ purchased }: { purchased: boolean }) {
   const previous = React.useRef(purchased);
   const travel = useSharedValue(0);
   const tint = useSharedValue(purchased ? 1 : 0);

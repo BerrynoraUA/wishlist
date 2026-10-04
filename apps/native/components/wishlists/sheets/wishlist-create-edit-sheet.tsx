@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
+import { TouchTarget } from "@/components/ui/touch-target";
 import { useCreateWishlist, useMyStatistics, useUpdateWishlist } from "@/hooks/use-wishlists";
 import { useProGate } from "@/hooks/use-pro-gate";
 import {
@@ -658,14 +659,16 @@ function EventDatePicker({
             </View>
           </AnimatedPressable>
           {value ? (
-            <AnimatedPressable
+            <TouchTarget
               accessibilityRole="button"
               accessibilityLabel={t("Clear event date")}
               onPress={() => onChange("")}
-              className="absolute end-1.5 size-7 items-center justify-center rounded-full bg-bg-muted"
+              slop={8}
+              className="absolute end-1.5"
+              contentClassName="size-7 items-center justify-center rounded-full bg-bg-muted"
             >
               <Icon as={X} className="size-3.5 text-text-muted" />
-            </AnimatedPressable>
+            </TouchTarget>
           ) : null}
         </View>
       )}
@@ -784,6 +787,7 @@ function WishlistAccessPicker({
                       <Button
                         variant="ghost"
                         size="icon"
+                        hitSlop={8}
                         className="size-8 rounded-full"
                         disabled={revoking}
                         accessibilityLabel={t("Remove access for {name}", {

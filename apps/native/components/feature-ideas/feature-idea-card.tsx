@@ -50,6 +50,7 @@ export const FeatureIdeaCard = React.memo(function FeatureIdeaCard({
               event.stopPropagation();
               onVote(idea.id);
             }}
+            hitSlop={6}
             className={
               idea.has_voted
                 ? "h-9 shrink-0 flex-row items-center justify-center gap-1 rounded-full border border-brand/30 bg-brand-lighter px-3"
