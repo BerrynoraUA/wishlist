@@ -25,7 +25,12 @@ import { Bell, Check, Trash2, X } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Image, View } from "react-native";
 import { getDateTimeFormat } from "@/lib/intl";
-import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from "react-native-reanimated";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 
 type InviteAction = "accept" | "decline";
 const DOUBLE_TAP_DELAY_MS = 320;
@@ -86,7 +91,9 @@ export function NotificationsMenu({
   const previousUnreadCountRef = React.useRef<number | null>(null);
   const bellRotation = useSharedValue(0);
   const badgeScale = useSharedValue(1);
-  const bellStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${bellRotation.value}deg` }] }));
+  const bellStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${bellRotation.value}deg` }],
+  }));
   const badgeStyle = useAnimatedStyle(() => ({ transform: [{ scale: badgeScale.value }] }));
   const renderBell = () => (
     <Animated.View style={bellStyle}>

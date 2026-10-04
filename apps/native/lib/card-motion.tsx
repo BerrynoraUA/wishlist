@@ -32,7 +32,9 @@ function consumeNewCard(kind: CardKind, id: string) {
 }
 
 export async function animateCardRemoval(kind: CardKind, id: string, accepted = false) {
-  await Promise.all(Array.from(removalListeners.get(kind) ?? [], (listener) => listener(id, accepted)));
+  await Promise.all(
+    Array.from(removalListeners.get(kind) ?? [], (listener) => listener(id, accepted)),
+  );
 }
 
 export function useListCardRemoval(

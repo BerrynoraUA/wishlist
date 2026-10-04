@@ -271,7 +271,10 @@ export function WishlistItemDetailSheet({
               (!canReserve || reservePending) && "opacity-50",
             )}
           >
-            <ReservationActionIcon reserved={reservation.isReserved} className="size-4 text-brand" />
+            <ReservationActionIcon
+              reserved={reservation.isReserved}
+              className="size-4 text-brand"
+            />
             <Text className="text-sm text-brand">
               {reservedByMe
                 ? t("Release reservation")
@@ -401,7 +404,10 @@ export function WishlistItemDetailSheet({
                 <ActivityIndicator colorClassName="accent-primary-foreground" />
               ) : null}
               <PurchaseActionIcon purchased={reservation.isPurchased} />
-              <PurchaseActionLabel purchased={reservation.isPurchased} className="text-sm font-medium">
+              <PurchaseActionLabel
+                purchased={reservation.isPurchased}
+                className="text-sm font-medium"
+              >
                 {canUndoPurchase ? t("Undo") : reservation.isPurchased ? t("Purchased") : t("Buy")}
               </PurchaseActionLabel>
             </Button>
