@@ -1,6 +1,7 @@
-// Keep in sync with public.is_nickname_blocked() in supabase/migrations.
+// Racist terms rejected in nicknames and display names.
+// Keep in sync with public.is_name_blocked() in supabase/migrations.
 
-// Matched anywhere in the nickname, so they are only terms that never show up inside
+// Matched anywhere in the name, so they are only terms that never show up inside
 // innocent words.
 const BLOCKED_PATTERNS = [
   /n+i+g{2,}(e+r|a+|u+h|r)/,
@@ -24,7 +25,7 @@ const BLOCKED_PATTERNS = [
 ];
 
 // Short terms that hide inside normal words ("raccoon", "spicy", "japan"), so they only
-// count as a whole part of the nickname.
+// count as a whole part of the name.
 const BLOCKED_PARTS = new Set([
   "abo",
   "boong",
@@ -63,8 +64,8 @@ function normalize(value: string) {
     .replace(/[^a-z]/g, "");
 }
 
-export function isNicknameBlocked(nickname: string) {
-  const lower = nickname.toLowerCase();
+export function isNameBlocked(name: string) {
+  const lower = name.toLowerCase();
   if (lower.includes("1488")) return true;
 
   const normalized = normalize(lower);

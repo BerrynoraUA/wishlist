@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { isNicknameBlocked } from "./nickname";
+import { isNameBlocked } from "./blocked-names";
 
-describe("isNicknameBlocked", () => {
+describe("isNameBlocked", () => {
   it.each([
     "nigger",
     "n1gg3r",
@@ -17,8 +17,10 @@ describe("isNicknameBlocked", () => {
     "the.spic",
     "jap-77",
     "kike99",
-  ])("blocks %s", (nickname) => {
-    expect(isNicknameBlocked(nickname)).toBe(true);
+    "Nigga",
+    "The Spic",
+  ])("blocks %s", (name) => {
+    expect(isNameBlocked(name)).toBe(true);
   });
 
   it.each([
@@ -32,7 +34,8 @@ describe("isNicknameBlocked", () => {
     "pakistan",
     "kikeriki",
     "user123",
-  ])("allows %s", (nickname) => {
-    expect(isNicknameBlocked(nickname)).toBe(false);
+    "Valerii Inshyn",
+  ])("allows %s", (name) => {
+    expect(isNameBlocked(name)).toBe(false);
   });
 });
