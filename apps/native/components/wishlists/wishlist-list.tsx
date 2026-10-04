@@ -584,6 +584,7 @@ function WishlistCard({
                       accessibilityRole="button"
                       accessibilityLabel={t("Add item")}
                       onPress={() => onOpenSheet({ type: "addItem", wishlist })}
+                      hitSlop={4}
                       className="size-10 items-center justify-center rounded-full bg-brand-lighter active:bg-brand-alpha-12"
                     >
                       <Icon as={Plus} className="size-4 text-brand" />

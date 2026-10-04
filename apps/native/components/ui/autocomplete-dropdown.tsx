@@ -9,6 +9,7 @@ import { Flag } from "@/components/ui/flag";
 import { Icon } from "@/components/ui/icon";
 import { INPUT_CLASS_NAME, Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { TouchTarget } from "@/components/ui/touch-target";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Check, ChevronRight, Plus, X } from "lucide-react-native";
@@ -316,15 +317,17 @@ export function AutocompleteDropdown({
         {...inputProps}
       />
       {visibleValue.length > 0 ? (
-        <Button
-          variant="ghost"
-          size="icon"
+        <TouchTarget
+          accessibilityRole="button"
           accessibilityLabel={clearAccessibilityLabel}
           onPress={() => handleQueryChange("")}
-          className="absolute end-1 size-8 rounded-full"
+          slop={6}
+          className="absolute end-1"
+          contentClassName="size-8 items-center justify-center rounded-full"
+          pressedClassName="bg-accent dark:bg-accent/50"
         >
           <Icon as={X} className="size-4 text-destructive" />
-        </Button>
+        </TouchTarget>
       ) : null}
     </View>
   );

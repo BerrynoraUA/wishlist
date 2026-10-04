@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { TouchTarget } from "@/components/ui/touch-target";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react-native";
 import { View } from "react-native";
@@ -56,15 +56,17 @@ export function ClearableInput({
         {...props}
       />
       {canClear ? (
-        <Button
-          variant="ghost"
-          size="icon"
+        <TouchTarget
+          accessibilityRole="button"
           accessibilityLabel={clearLabel}
           onPress={onClear}
-          className="-me-1.5 size-8 shrink-0 rounded-full"
+          slop={6}
+          className="-me-1.5 shrink-0"
+          contentClassName="size-8 items-center justify-center rounded-full"
+          pressedClassName="bg-accent dark:bg-accent/50"
         >
           <Icon as={X} className="size-4 text-destructive" />
-        </Button>
+        </TouchTarget>
       ) : (
         trailing
       )}

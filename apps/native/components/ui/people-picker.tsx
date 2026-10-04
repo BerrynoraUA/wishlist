@@ -316,6 +316,7 @@ export function PeoplePickerSheet({
                 size="sm"
                 accessibilityLabel={t("Clear selection")}
                 onPress={() => setDraft([])}
+                hitSlop={8}
                 className="h-8 rounded-full px-2"
               >
                 <Text className="text-xs font-bold text-brand">
@@ -365,6 +366,7 @@ export function PeoplePickerSheet({
                 size="icon"
                 accessibilityLabel={t("Clear search")}
                 onPress={() => onQueryChange("")}
+                hitSlop={6}
                 className="size-9 shrink-0 rounded-full"
               >
                 <Icon as={X} className="size-4 text-destructive" />

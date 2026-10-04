@@ -159,6 +159,7 @@ export function AccountSettings({
           <Button
             variant="destructive"
             size="sm"
+            hitSlop={8}
             className="h-8 px-3"
             onPress={(event) => {
               event.stopPropagation();

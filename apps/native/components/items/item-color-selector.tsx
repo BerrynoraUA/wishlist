@@ -65,6 +65,7 @@ export function ItemColorSelector({
       accessibilityState={{ selected: value === null }}
       accessibilityLabel={t("No border")}
       onPress={() => onChange(null)}
+      hitSlop={4}
       className="size-10 items-center justify-center rounded-full border-2 border-transparent bg-bg-muted active:opacity-80"
     >
       <Icon as={Ban} className="size-5 text-text-muted" />
@@ -76,6 +77,7 @@ export function ItemColorSelector({
         accessibilityState={{ selected: value === index }}
         accessibilityLabel={color.label}
         onPress={() => onChange(index)}
+        hitSlop={4}
         className="size-10 items-center justify-center rounded-full border-2 border-transparent active:opacity-80"
         style={{ backgroundColor: color.color }}
       />
