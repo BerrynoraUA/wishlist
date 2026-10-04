@@ -164,6 +164,7 @@ export function PreferencesSettings({ selectedCurrency }: { selectedCurrency: st
             </View>
           </View>
           <Switch
+            accessibilityLabel={t("Show back button")}
             checked={showBackButton}
             onCheckedChange={(visible) => setHideBackButton(!visible)}
           />
@@ -205,6 +206,7 @@ export function PreferencesSettings({ selectedCurrency }: { selectedCurrency: st
             </View>
           </View>
           <Switch
+            accessibilityLabel={t("Show reserved and purchased items")}
             checked={showsOwnReservations}
             onCheckedChange={(value) => {
               if (!isPro) {

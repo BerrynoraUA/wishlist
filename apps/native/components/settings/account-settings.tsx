@@ -315,6 +315,7 @@ export function AccountSettings({
             {t("Type {email} to confirm", { email })}
           </Text>
           <Input
+            accessibilityLabel={t("Type {email} to confirm", { email })}
             value={deleteEmail}
             onChangeText={setDeleteEmail}
             autoCapitalize="none"

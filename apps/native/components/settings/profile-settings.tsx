@@ -336,6 +336,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
             name="bio"
             render={({ field: { onChange, value } }) => (
               <Textarea
+                accessibilityLabel={t("Bio")}
                 value={value}
                 onChangeText={onChange}
                 maxLength={160}
