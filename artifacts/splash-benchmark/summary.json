@@ -1,0 +1,18 @@
+[
+  {
+    "variant": "before",
+    "count": 6,
+    "medianMs": 5647.49225,
+    "minMs": 5061.3943,
+    "maxMs": 7043.0794,
+    "readyMedianMs": 3702.42175
+  },
+  {
+    "variant": "after",
+    "count": 6,
+    "medianMs": 5519.1422,
+    "minMs": 4656.3288,
+    "maxMs": 6371.964,
+    "readyMedianMs": 3409.1059
+  }
+]
