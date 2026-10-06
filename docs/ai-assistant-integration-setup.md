@@ -68,37 +68,18 @@ Dashboard → **Authentication → OAuth Server**:
 3. Leave **dynamic client registration off**. Only the pre-registered clients below are
    accepted.
 
-## 3. Start the app in ChatGPT to get its callback URL
-
-ChatGPT shows the callback URL to allowlist only while you create the app, so start there.
-
-Custom MCP servers need developer mode on a paid plan (Plus, Pro, Business, Enterprise or Edu),
-on the web:
-
-1. **Settings → Security and login → Developer mode**: turn it on. Many accounts no longer show
-   this toggle because it's already on.
-2. Open the Plugins page ([chatgpt.com/plugins](https://chatgpt.com/plugins), not the
-   **Settings → Plugins** list of installed plugins), click **Add**, then **Create MCP App**
-   (also labelled **Create custom MCP server**).
-3. Fill in:
-   - Name: `Wishlane`
-   - Connection → server URL: `<origin>/api/mcp`
-   - Authentication: **OAuth**. In its advanced options, choose the user-defined (manual) OAuth
-     client and copy the **callback URL** shown there. It is either
-     `https://chatgpt.com/connector_platform_oauth_redirect` or an app-specific
-     `https://chatgpt.com/connector/oauth/<id>`; use exactly what ChatGPT shows.
-
-Leave this screen open; you fill in the client ID and secret in step 7.
-
-## 4. Register the OAuth clients in Supabase
+## 3. Register the OAuth clients in Supabase
 
 Dashboard → **Authentication → OAuth Apps → Add a new client**, once per assistant. Use
 **confidential** clients and keep each **client ID** and **client secret**.
 
-| Name (shown on consent) | Redirect URIs                             |
-| ----------------------- | ----------------------------------------- |
-| `ChatGPT`               | The callback URL copied in step 3         |
-| `Claude`                | `https://claude.ai/api/mcp/auth_callback` |
+| Name (shown on consent) | Redirect URIs                                           |
+| ----------------------- | ------------------------------------------------------- |
+| `ChatGPT`               | `https://chatgpt.com/connector_platform_oauth_redirect` |
+| `Claude`                | `https://claude.ai/api/mcp/auth_callback`               |
+
+ChatGPT may show a different, app-specific callback (`https://chatgpt.com/connector/oauth/<id>`)
+once you connect in step 6; if so, add it to the ChatGPT client's redirect URIs then.
 
 Then map both clients to the MCP resource (SQL editor). `resource` must be exactly
 `<origin>/api/mcp`:
@@ -111,7 +92,7 @@ insert into private.mcp_oauth_clients (client_id, resource) values
 
 You can set up only one assistant; skip the other's client, row and env var.
 
-## 5. Enable the access token hook
+## 4. Enable the access token hook
 
 Dashboard → **Authentication → Hooks → Customize Access Token (JWT) Claims**:
 
@@ -121,30 +102,42 @@ Dashboard → **Authentication → Hooks → Customize Access Token (JWT) Claims
 It only changes tokens for clients listed in `private.mcp_oauth_clients`; app logins are
 unchanged.
 
-## 6. Environment variables (frontend deployment)
+## 5. Environment variables (frontend deployment)
 
 | Variable                           | Value                                                 |
 | ---------------------------------- | ----------------------------------------------------- |
 | `WISHLANE_MCP_ORIGIN`              | `<origin>`: HTTPS, no trailing slash                  |
-| `WISHLANE_MCP_CHATGPT_CLIENT_ID`   | ChatGPT client ID from step 4                         |
-| `WISHLANE_MCP_CLAUDE_CLIENT_ID`    | Claude client ID from step 4                          |
+| `WISHLANE_MCP_CHATGPT_CLIENT_ID`   | ChatGPT client ID from step 3                         |
+| `WISHLANE_MCP_CLAUDE_CLIENT_ID`    | Claude client ID from step 3                          |
 | `WISHLANE_MCP_CONFIRMATION_SECRET` | Random string, ≥ 32 chars (`openssl rand -base64 48`) |
 
 At least one client ID is required. `NEXT_PUBLIC_SUPABASE_URL` must point at the project from
 step 2. Redeploy after setting them. If anything is missing, `/api/mcp` and the metadata route
 answer `503`.
 
-Check the deployment before connecting:
+Check the deployment before connecting. The assistants discover the sign-in setup from these
+same URLs, so ChatGPT's OAuth settings stay greyed out until they work:
 
 ```sh
 curl -s <origin>/.well-known/oauth-protected-resource/api/mcp   # JSON with "resource": "<origin>/api/mcp"
 curl -si -X POST <origin>/api/mcp | head -1                      # HTTP/... 401
 ```
 
-## 7. Connect the assistants
+## 6. Connect the assistants
 
-**ChatGPT**: back on the screen from step 3, enter the ChatGPT client ID and secret, tick the risk acknowledgement and create
-the app. Then start a chat, enable Wishlane from the **+** menu, and connect when asked.
+**ChatGPT** needs developer mode on a paid plan (Plus, Pro, Business, Enterprise or Edu), on the
+web. If **Settings → Security and login** shows a **Developer mode** toggle, turn it on; if it
+doesn't, it's already on. Turning on **Enforce CSP for custom apps** there makes testing match
+production.
+
+1. Open [chatgpt.com/plugins](https://chatgpt.com/plugins) (not the **Settings → Plugins** list),
+   click **Add**, then **Create custom MCP server**.
+2. Name `Wishlane`, **Connection → Server URL** `<origin>/api/mcp`, **Authentication** OAuth.
+3. Open **Advanced OAuth settings** (enabled once ChatGPT has read the URL). Choose the manual /
+   user-defined client setup, enter the ChatGPT client ID and secret, keep the scope `openid`,
+   and check the callback URL shown against the ChatGPT client's redirect URIs in Supabase.
+4. Tick **I understand and want to continue**, then **Create as a plugin**. In a chat, enable
+   Wishlane from the **+** menu and connect when asked.
 
 **Claude** (claude.ai web, desktop or mobile): **Customize → Connectors → Add custom connector**
 (Team/Enterprise: an Owner adds it in **Organization settings → Connectors**):
@@ -160,7 +153,7 @@ this integration doesn't accept. Use a connector added in claude.ai instead.
 Both flows go to Supabase, then to `<origin>/oauth/consent`. Signed-out users log in or sign up
 first and return to consent afterwards.
 
-## 8. Verify
+## 7. Verify
 
 ```sh
 pnpm --filter frontend test:mcp
