@@ -115,12 +115,13 @@ $$;
 revoke all on function public.mcp_set_gift_status(uuid, integer) from public, anon;
 grant execute on function public.mcp_set_gift_status(uuid, integer) to authenticated;
 
--- The apps already cap starred wishes at three. Enforce the same rule atomically
--- for OAuth writes, including simultaneous requests on separate server instances.
-create or replace function private.mcp_check_star_limit()
+-- Cap starred wishes at three per wishlist for every writer (apps and assistants), atomically,
+-- so simultaneous requests cannot exceed it. The UUID is STAR_PRIORITY_ID in
+-- packages/backend/lib/priorities.ts.
+create or replace function private.check_star_limit()
 returns trigger language plpgsql security definer set search_path = '' as $$
 begin
-  if auth.jwt() ->> 'client_id' is null or new.priority_id is distinct from '11111111-0000-0000-0000-000000000011'::uuid then return new; end if;
+  if new.priority_id is distinct from '11111111-0000-0000-0000-000000000011'::uuid then return new; end if;
   if tg_op = 'UPDATE' and old.priority_id = new.priority_id and old.wishlist_id = new.wishlist_id then return new; end if;
   perform 1 from public.wishlist where id = new.wishlist_id for update;
   if (select count(*) from public.item where wishlist_id = new.wishlist_id and priority_id = new.priority_id and id <> new.id) >= 3 then
@@ -129,8 +130,8 @@ begin
   return new;
 end;
 $$;
-revoke all on function private.mcp_check_star_limit() from public, anon, authenticated;
-create trigger mcp_check_star_limit before insert or update of priority_id, wishlist_id on public.item
-  for each row execute function private.mcp_check_star_limit();
+revoke all on function private.check_star_limit() from public, anon, authenticated;
+create trigger check_star_limit before insert or update of priority_id, wishlist_id on public.item
+  for each row execute function private.check_star_limit();
 
 notify pgrst, 'reload schema';

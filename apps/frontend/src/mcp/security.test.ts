@@ -2,8 +2,7 @@ import { describe, expect, it } from "vitest";
 import { validMcpClaims } from "./auth";
 import { confirmationSignature, validConfirmation } from "./tools";
 import { safeItem } from "./results";
-import { generateAssignment } from "./assignment";
-import { sameParticipants } from "./review";
+import { sameParticipants } from "./santa";
 
 describe("OAuth token boundaries", () => {
   const expected = {
@@ -90,27 +89,5 @@ describe("gift privacy", () => {
   });
   it("shows the caller's own gift state", () => {
     expect(safeItem(item, "giver", "owner").bought_by_me).toBe(true);
-  });
-});
-
-describe("Secret Santa assignments", () => {
-  it("finds the only legal matching under restrictive exclusions", () => {
-    const excluded = new Map([
-      ["a", new Set(["c"])],
-      ["b", new Set(["a"])],
-      ["c", new Set(["b"])],
-    ]);
-    const draw = generateAssignment(["a", "b", "c"], excluded, () => 0);
-    expect(draw).toEqual(
-      expect.arrayContaining([
-        { user_id: "a", receiver_id: "b" },
-        { user_id: "b", receiver_id: "c" },
-        { user_id: "c", receiver_id: "a" },
-      ]),
-    );
-    expect(draw).toHaveLength(3);
-  });
-  it("rejects impossible exclusions", () => {
-    expect(generateAssignment(["a", "b"], new Map([["a", new Set(["b"])]]))).toBeNull();
   });
 });

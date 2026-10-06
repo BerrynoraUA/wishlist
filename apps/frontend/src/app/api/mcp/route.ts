@@ -7,17 +7,15 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 
 export async function POST(request: Request) {
-  let origin: string;
+  let allowedOrigins: string[];
   try {
-    origin = getMcpConfig().origin;
+    const { origin, clients } = getMcpConfig();
+    allowedOrigins = [origin, ...clients.map((client) => client.origin)];
   } catch {
     return Response.json({ error: "Wishlane AI integration is not configured." }, { status: 503 });
   }
   const requestOrigin = request.headers.get("origin");
-  if (
-    requestOrigin &&
-    ![origin, "https://chatgpt.com", "https://claude.ai"].includes(requestOrigin)
-  )
+  if (requestOrigin && !allowedOrigins.includes(requestOrigin))
     return new Response(null, { status: 403 });
   const ctx = await authenticateMcp(request).catch(() => null);
   if (!ctx)

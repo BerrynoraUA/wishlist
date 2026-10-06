@@ -3,7 +3,7 @@ import type { McpContext } from "./auth";
 import type { Tools } from "./tools";
 import { checked, ToolError } from "./results";
 import { id, search, page, text, description } from "./schemas";
-import { notify } from "./notifications";
+import { friendRequestReview, groupReview, peopleReview } from "./review";
 
 export function friendTools(tools: Tools, ctx: McpContext) {
   const { db } = ctx;
@@ -60,7 +60,7 @@ export function friendTools(tools: Tools, ctx: McpContext) {
     title: "Send friend request",
     description: "Send a friend invitation to the selected Wishlane user and notify them.",
     schema: { receiver_id: id },
-    confirm: true,
+    confirm: { review: (input) => peopleReview(ctx, [input.receiver_id]) },
     run: async ({ receiver_id }) => {
       if (receiver_id === ctx.userId) throw new ToolError("You cannot invite yourself.");
       const request = await checked(
@@ -71,7 +71,11 @@ export function friendTools(tools: Tools, ctx: McpContext) {
           .single(),
       );
       if (!request) throw new ToolError("Unable to send this request.");
-      await notify(ctx, [{ receiverId: receiver_id, key: "friend_request", entityId: ctx.userId }]);
+      await ctx.notifier.createLocalizedNotification({
+        receiverId: receiver_id,
+        key: "friend_request",
+        entityId: ctx.userId,
+      });
       return { message: "Friend request sent.", request_id: request.id };
     },
   });
@@ -80,7 +84,7 @@ export function friendTools(tools: Tools, ctx: McpContext) {
     description:
       "Accept or decline an incoming request, or cancel your outgoing request. Accepting may grant access to friends-only wishlists.",
     schema: { request_id: id, response: z.enum(["accept", "decline", "cancel"]) },
-    confirm: true,
+    confirm: { review: (input) => friendRequestReview(ctx, input.request_id) },
     run: async ({ request_id, response }) => {
       if (response === "cancel") {
         await checked(
@@ -93,12 +97,10 @@ export function friendTools(tools: Tools, ctx: McpContext) {
           }),
         );
         if (sender)
-          await notify(ctx, [
-            {
-              receiverId: sender,
-              key: response === "accept" ? "friend_accepted" : "friend_declined",
-            },
-          ]);
+          await ctx.notifier.createLocalizedNotification({
+            receiverId: sender,
+            key: response === "accept" ? "friend_accepted" : "friend_declined",
+          });
       }
       return { message: "Friend request updated.", request_id };
     },
@@ -107,7 +109,7 @@ export function friendTools(tools: Tools, ctx: McpContext) {
     title: "Remove friend",
     description: "Remove a friendship. This changes access to friends-only wishlists.",
     schema: { user_id: id },
-    confirm: true,
+    confirm: { review: (input) => peopleReview(ctx, [input.user_id]) },
     run: async ({ user_id }) => {
       await checked(
         db
@@ -125,7 +127,7 @@ export function friendTools(tools: Tools, ctx: McpContext) {
     description:
       "Blocking also removes friendship and pending requests. Unblocking does not restore them.",
     schema: { user_id: id, blocked: z.boolean() },
-    confirm: true,
+    confirm: { review: (input) => peopleReview(ctx, [input.user_id]) },
     run: async ({ user_id, blocked }) => {
       await checked(db.rpc(blocked ? "block_user" : "unblock_user", { p_user_id: user_id }));
       return { user_id, blocked };
@@ -182,7 +184,12 @@ export function friendTools(tools: Tools, ctx: McpContext) {
     description:
       "Create a friend group or replace its details and membership. Supply the complete intended member list. Membership can change access to shared wishlists and notifies added members.",
     schema: { group_id: id.optional(), ...groupFields },
-    confirm: true,
+    confirm: {
+      review: async (input) => ({
+        ...(input.group_id ? await groupReview(ctx, input.group_id) : {}),
+        ...(await peopleReview(ctx, input.member_ids)),
+      }),
+    },
     run: async (input) => {
       const group = await checked(
         db.rpc(input.group_id ? "update_friend_group" : "create_friend_group", {
@@ -196,8 +203,7 @@ export function friendTools(tools: Tools, ctx: McpContext) {
       );
       const groupId = input.group_id ?? group?.id;
       if (groupId)
-        await notify(
-          ctx,
+        await ctx.notifier.createLocalizedNotifications(
           input.member_ids.map((receiverId) => ({
             receiverId,
             key: "group_added" as const,
@@ -212,44 +218,10 @@ export function friendTools(tools: Tools, ctx: McpContext) {
     title: "Delete friend group",
     description: "Delete a friend group and its shared wishlist access.",
     schema: { group_id: id },
-    confirm: true,
+    confirm: { review: (input) => groupReview(ctx, input.group_id) },
     run: async ({ group_id }) => {
       await checked(db.rpc("delete_friend_group", { p_group_id: group_id }));
       return { message: "Friend group deleted.", group_id };
-    },
-  });
-  tools.add("list_gifting_notifications", {
-    title: "View gifting notifications",
-    description: "Read notifications about wishes, friends, sharing and Secret Santa.",
-    schema: { ...page, unread_only: z.boolean().default(false) },
-    readOnly: true,
-    run: async (input) => ({
-      notifications: await checked(
-        db.rpc("get_user_notifications", {
-          p_user_id: ctx.userId,
-          p_limit: input.limit,
-          p_offset: input.offset,
-          p_unread_only: input.unread_only,
-        }),
-      ),
-    }),
-  });
-  tools.add("mark_notifications_read", {
-    title: "Mark notifications read",
-    description:
-      "Mark selected notifications as read, or explicitly select all unread notifications.",
-    schema: {
-      notification_ids: z.array(id).min(1).max(100).optional(),
-      all: z.boolean().default(false),
-    },
-    idempotent: true,
-    run: async ({ notification_ids, all }) => {
-      if (!all && !notification_ids?.length)
-        throw new ToolError("Choose notifications to mark as read.");
-      let query = db.from("notifications").update({ is_read: true }).eq("receiver_id", ctx.userId);
-      if (!all) query = query.in("id", notification_ids!);
-      await checked(query);
-      return { message: "Notifications marked as read." };
     },
   });
 }

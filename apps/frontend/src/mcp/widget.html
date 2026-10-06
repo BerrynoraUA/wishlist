@@ -1,0 +1,538 @@
+<!doctype html>
+<!-- Self-contained MCP Apps UI: no external scripts, credentials, or direct database access. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        font:
+          14px/1.5 system-ui,
+          sans-serif;
+        --surface: #fff;
+        --ink: #28212b;
+        --muted: #746b78;
+        --line: #ebe4ec;
+        --brand: #a33875;
+        --tint: #fcf3f8;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --surface: #211d25;
+          --ink: #f3edf6;
+          --muted: #b9afc1;
+          --line: #423647;
+          --brand: #ed9eca;
+          --tint: #342434;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--surface);
+        color: var(--ink);
+      }
+      main {
+        padding: 20px;
+        max-width: 960px;
+        margin: auto;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+      .brand {
+        font:
+          600 23px Georgia,
+          serif;
+        color: var(--brand);
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0 0 14px;
+      }
+      h2 {
+        font-size: 16px;
+        margin: 0;
+      }
+      h3 {
+        font-size: 13px;
+        margin: 14px 0 0;
+        color: var(--muted);
+      }
+      p {
+        margin: 6px 0;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 16px;
+        overflow: hidden;
+      }
+      .card img {
+        width: 100%;
+        height: 150px;
+        object-fit: contain;
+        border-radius: 10px;
+        margin-bottom: 12px;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      button,
+      .upload {
+        font: inherit;
+        color: var(--ink);
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 9px;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+      button.primary {
+        background: var(--brand);
+        color: var(--surface);
+        border-color: var(--brand);
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: wait;
+      }
+      button:focus-visible,
+      .upload:focus-within {
+        outline: 2px solid var(--brand);
+        outline-offset: 3px;
+      }
+      .review {
+        background: var(--tint);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 18px;
+      }
+      .upload input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+      }
+      dl {
+        margin: 8px 0;
+      }
+      dt {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 8px;
+      }
+      dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+      }
+      #status {
+        margin-bottom: 12px;
+      }
+      a {
+        color: var(--brand);
+      }
+      .empty {
+        padding: 28px;
+        text-align: center;
+        border: 1px dashed var(--line);
+        border-radius: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="brand">Wishlane</span>
+        <button id="browse">My wishlists</button>
+      </header>
+      <div id="status" role="status" aria-live="polite"></div>
+      <section id="content"><p class="muted">Loading your Wishlane card…</p></section>
+    </main>
+    <script>
+      const config = __WISHLANE_CONFIG__;
+      const content = document.getElementById("content");
+      const status = document.getElementById("status");
+
+      // --- MCP Apps host bridge (JSON-RPC over postMessage) ---
+
+      const pending = new Map();
+      let sequence = 0;
+      let input = {};
+      let ready = false;
+
+      function send(method, params) {
+        return new Promise((resolve, reject) => {
+          const id = ++sequence;
+          const timer = setTimeout(() => {
+            pending.delete(id);
+            reject(new Error("The connection timed out. Refresh before retrying a change."));
+          }, 30000);
+          pending.set(id, { resolve, reject, timer });
+          parent.postMessage({ jsonrpc: "2.0", id, method, params }, "*");
+        });
+      }
+
+      function tell(method, params) {
+        parent.postMessage({ jsonrpc: "2.0", method, params }, "*");
+      }
+
+      function errorText(output, fallback) {
+        return output.content?.find((value) => value.type === "text")?.text || fallback;
+      }
+
+      async function call(name, args) {
+        const output = await send("tools/call", { name, arguments: args });
+        if (output.isError) throw new Error(errorText(output, "Unable to complete this action."));
+        render(output);
+        await send("ui/update-model-context", {
+          structuredContent: output.structuredContent,
+        }).catch(() => {});
+        return output;
+      }
+
+      // --- DOM helpers ---
+
+      function el(tag, text, className) {
+        const node = document.createElement(tag);
+        if (text !== undefined) node.textContent = String(text);
+        if (className) node.className = className;
+        return node;
+      }
+
+      function label(key) {
+        return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+
+      function describe(value) {
+        if (value === null) return "None";
+        if (Array.isArray(value)) return value.map(describe).join(", ") || "None";
+        if (typeof value === "object")
+          return Object.entries(value)
+            .map(([key, inner]) => label(key) + ": " + describe(inner))
+            .join("\n");
+        return String(value);
+      }
+
+      function details(data, parentNode) {
+        const list = el("dl");
+        Object.entries(data).forEach(([key, value]) => {
+          if (value === undefined) return;
+          list.append(el("dt", label(key)), el("dd", describe(value)));
+        });
+        parentNode.append(list);
+      }
+
+      function button(text, action, primary = false) {
+        const node = el("button", text, primary ? "primary" : "");
+        node.onclick = async () => {
+          if (!ready) {
+            status.textContent = "Connecting…";
+            return;
+          }
+          node.disabled = true;
+          status.textContent = "Working…";
+          try {
+            await action();
+            status.textContent = "";
+          } catch (error) {
+            status.textContent = error.message;
+          } finally {
+            node.disabled = false;
+          }
+        };
+        return node;
+      }
+
+      function addImage(card, url) {
+        try {
+          const parsed = new URL(url);
+          if (![config.origin, config.storageOrigin].includes(parsed.origin)) return;
+          const img = el("img");
+          img.src = parsed.href;
+          img.alt = "";
+          img.loading = "lazy";
+          img.referrerPolicy = "no-referrer";
+          img.onerror = () => img.remove();
+          card.append(img);
+        } catch {}
+      }
+
+      function title(text) {
+        content.append(el("h1", text));
+      }
+
+      function cards(rows, make) {
+        if (!rows.length) {
+          content.append(
+            el("div", "Nothing here yet. Ask the assistant to help you add something.", "empty"),
+          );
+          return;
+        }
+        const grid = el("div", undefined, "grid");
+        rows.forEach((row) => {
+          const card = el("article", undefined, "card");
+          make(card, row);
+          grid.append(card);
+        });
+        content.append(grid);
+      }
+
+      function readBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result).split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function uploadButton(parentNode, item) {
+        const wrap = el("label", "Add image", "upload");
+        const picker = el("input");
+        picker.type = "file";
+        picker.accept = "image/png,image/jpeg,image/webp";
+        picker.setAttribute("aria-label", "Upload image for " + item.name);
+        picker.onchange = async () => {
+          const file = picker.files[0];
+          if (!file) return;
+          if (file.size > 5 * 1024 * 1024) {
+            status.textContent = "Choose an image under 5 MB.";
+            return;
+          }
+          status.textContent = "Uploading image…";
+          try {
+            await call("upload_wish_image", { item_id: item.id, base64: await readBase64(file) });
+            status.textContent = "Image saved.";
+          } catch (error) {
+            status.textContent = error.message;
+          }
+        };
+        wrap.append(picker);
+        parentNode.append(wrap);
+      }
+
+      // --- Views, one per result kind ---
+
+      function renderConfirmation(data, output) {
+        title("Review your change");
+        const box = el("div", undefined, "review");
+        box.append(
+          el("h2", data.title),
+          el("p", "Nothing has changed yet. Check the exact selection and changes below.", "muted"),
+        );
+        if (data.selection && Object.keys(data.selection).length) {
+          box.append(el("h3", "Selected"));
+          details(data.selection, box);
+        }
+        box.append(el("h3", "Changes"));
+        details(data.changes, box);
+        const actions = el("div", undefined, "actions");
+        const capability = output._meta?.confirmation;
+        if (capability) {
+          actions.append(
+            button("Confirm", () => call("confirm_action", capability), true),
+            button("Cancel", async () => {
+              content.replaceChildren(el("p", "Cancelled. No changes were made."));
+            }),
+          );
+        } else {
+          box.append(el("p", "This review is unavailable. Ask for a new review card."));
+        }
+        box.append(actions);
+        content.append(box);
+      }
+
+      function renderWishlists(data) {
+        title("Your wishlists");
+        cards(data.wishlists || [], (card, list) => {
+          addImage(card, list.image_url);
+          card.append(el("h2", list.title));
+          if (list.description) card.append(el("p", list.description, "muted"));
+          if (list.event_date) card.append(el("p", list.event_date));
+          const actions = el("div", undefined, "actions");
+          actions.append(
+            button("View wishes", () => call("get_wishlist", { wishlist_id: list.id }), true),
+          );
+          card.append(actions);
+        });
+      }
+
+      function renderItems(data) {
+        title(data.wishlist?.title || "Wishes");
+        cards(data.items || [], (card, item) => {
+          const setStatus = (giftStatus) => () =>
+            call("set_gift_status", { item_id: item.id, status: giftStatus });
+          addImage(card, item.image_url);
+          card.append(el("h2", item.name));
+          if (item.price) card.append(el("p", (item.currency || "") + " " + item.price));
+          if (item.description) card.append(el("p", item.description, "muted"));
+          const actions = el("div", undefined, "actions");
+          actions.append(button("Details", () => call("get_wish", { item_id: item.id })));
+          if (item.status === 0) actions.append(button("Reserve", setStatus("reserved"), true));
+          if (item.reserved_by_me)
+            actions.append(
+              button("Mark bought", setStatus("bought")),
+              button("Release", setStatus("available")),
+            );
+          if (item.status === 1 && !item.reserved_by_me) card.append(el("p", "Reserved", "muted"));
+          if (item.status === 2)
+            card.append(el("p", item.bought_by_me ? "Bought by you" : "Bought", "muted"));
+          if (data.wishlist?.can_edit) uploadButton(actions, item);
+          card.append(actions);
+        });
+      }
+
+      function renderEvents(data) {
+        title("Secret Santa");
+        cards(data.items || [], (card, event) => {
+          card.append(
+            el("h2", event.name),
+            el("p", event.event_date),
+            button("View event", () => call("get_secret_santa_event", { event_id: event.id })),
+          );
+        });
+      }
+
+      function renderEvent(data) {
+        const { event } = data;
+        const personName = (person) => person?.display_name || person?.nickname;
+        title(event.name);
+        details(
+          {
+            date: event.event_date,
+            budget: event.budget,
+            currency: event.currency,
+            participants: event.participants?.map(personName),
+            your_recipient: personName(event.my_receiver),
+          },
+          content,
+        );
+        if (event.my_receiver)
+          content.append(
+            button(
+              "View recipient wishes",
+              () => call("get_secret_santa_recipient_wishes", { event_id: event.id }),
+              true,
+            ),
+          );
+      }
+
+      function openLinkButton(text, url) {
+        return button(text, () => send("ui/open-link", { url }));
+      }
+
+      function renderNextPage(data) {
+        const rows = data.wishlists || data.items || [];
+        if (!data.limit || rows.length !== data.limit) return;
+        const next = { ...input, offset: (data.offset || 0) + data.limit, limit: data.limit };
+        let tool;
+        if (data.kind === "wishlists") tool = "list_wishlists";
+        else if (data.kind === "events") tool = "list_secret_santa_events";
+        else if (data.kind === "items" && data.wishlist) {
+          tool = "get_wishlist";
+          next.wishlist_id = data.wishlist.id;
+        }
+        if (tool) content.append(button("Next page", () => call(tool, next)));
+      }
+
+      function render(output) {
+        const data = output.structuredContent || {};
+        content.replaceChildren();
+        if (output.isError) {
+          status.textContent = errorText(output, "Unable to load Wishlane.");
+          return;
+        }
+        if (data.kind === "confirmation") return renderConfirmation(data, output);
+        if (data.kind === "wishlists") renderWishlists(data);
+        else if (data.kind === "items") renderItems(data);
+        else if (data.kind === "events") renderEvents(data);
+        else if (data.kind === "event") renderEvent(data);
+        else if (data.message) {
+          title(data.message);
+          if (data.share_url) content.append(openLinkButton("Open share link", data.share_url));
+        } else if (data.share_url) {
+          title("Share link ready");
+          content.append(el("p", data.share_url), openLinkButton("Open wishlist", data.share_url));
+        } else {
+          title("Wishlane");
+          details(data, content);
+        }
+        renderNextPage(data);
+      }
+
+      // --- Host messages and startup ---
+
+      window.addEventListener("message", (event) => {
+        if (event.source !== parent || event.data?.jsonrpc !== "2.0") return;
+        const message = event.data;
+        if (message.id && pending.has(message.id)) {
+          const request = pending.get(message.id);
+          pending.delete(message.id);
+          clearTimeout(request.timer);
+          if (message.error) request.reject(new Error(message.error.message));
+          else request.resolve(message.result);
+          return;
+        }
+        switch (message.method) {
+          case "ui/notifications/tool-result":
+            render(message.params);
+            break;
+          case "ui/notifications/tool-input":
+            input = message.params.arguments || {};
+            break;
+          case "ui/notifications/tool-cancelled":
+            content.replaceChildren(el("p", "Action cancelled."));
+            break;
+          case "ui/resource-teardown":
+            parent.postMessage({ jsonrpc: "2.0", id: message.id, result: {} }, "*");
+            break;
+        }
+      });
+
+      document.getElementById("browse").onclick = async () => {
+        try {
+          await call("list_wishlists", {});
+        } catch (error) {
+          status.textContent = error.message;
+        }
+      };
+
+      send("ui/initialize", {
+        appInfo: { name: "Wishlane", version: "1.0.0" },
+        appCapabilities: {},
+        protocolVersion: "2026-01-26",
+      })
+        .then(() => {
+          ready = true;
+          tell("ui/notifications/initialized", {});
+        })
+        .catch((error) => {
+          status.textContent = error.message;
+        });
+
+      new ResizeObserver(() =>
+        tell("ui/notifications/size-changed", { height: document.documentElement.scrollHeight }),
+      ).observe(document.body);
+    </script>
+  </body>
+</html>

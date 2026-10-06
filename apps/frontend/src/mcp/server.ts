@@ -7,7 +7,8 @@ import { wishlistTools } from "./wishlists";
 import { itemTools } from "./items";
 import { friendTools } from "./friends";
 import { santaTools } from "./santa";
-import { registerImageUpload } from "./images";
+import { notificationTools } from "./notifications";
+import { imageTools } from "./images";
 import { getMcpConfig, WIDGET_URI } from "./config";
 import { widgetHtml } from "./widget";
 import { checked } from "./results";
@@ -38,7 +39,8 @@ export function createWishlaneServer(ctx: McpContext) {
   itemTools(tools, ctx);
   friendTools(tools, ctx);
   santaTools(tools, ctx);
-  registerImageUpload(server, ctx);
+  notificationTools(tools, ctx);
+  imageTools(tools, ctx);
   const { origin } = getMcpConfig();
   const storageOrigin = new URL(getSupabasePublicEnv().url).origin;
   registerAppResource(server, "wishlane-cards", WIDGET_URI, {}, async () => ({
@@ -53,9 +55,7 @@ export function createWishlaneServer(ctx: McpContext) {
         _meta: {
           ui: {
             csp: { connectDomains: [], resourceDomains: [origin, storageOrigin] },
-            // Claude only accepts its own {hash}.claudemcpcontent.com sandbox origin here, and
-            // the widget needs no stable origin, so leave Claude on its default sandbox.
-            ...(ctx.clientName === "ChatGPT" && { domain: origin }),
+            domain: ctx.client.widgetDomain?.(origin),
           },
           "openai/widgetDescription":
             "Wishlane cards for browsing wishes and Secret Santa, uploading wish images, and explicitly confirming important changes.",

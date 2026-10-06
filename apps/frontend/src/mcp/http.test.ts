@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const client = vi.hoisted(() => ({ auth: { getClaims: vi.fn(), getUser: vi.fn() }, rpc: vi.fn() }));
+const client = vi.hoisted(() => ({ auth: { getClaims: vi.fn() }, rpc: vi.fn() }));
 vi.mock("@supabase/supabase-js", () => ({ createClient: () => client }));
 import { POST, GET } from "@/app/api/mcp/route";
 import { GET as metadata } from "@/app/.well-known/oauth-protected-resource/route";
@@ -32,12 +32,9 @@ function authenticate(active = true, clientId = process.env.WISHLANE_MCP_CHATGPT
         role: "authenticated",
         client_id: clientId,
         exp: Date.now() / 1000 + 3600,
+        user_metadata: { full_name: "Alice" },
       },
     },
-    error: null,
-  });
-  client.auth.getUser.mockResolvedValue({
-    data: { user: { id: "alice", user_metadata: {} } },
     error: null,
   });
   client.rpc.mockResolvedValue({ data: active, error: null });

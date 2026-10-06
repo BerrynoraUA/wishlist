@@ -1,12 +1,31 @@
-export type McpClient = { id: string; name: "ChatGPT" | "Claude" };
+/** An AI assistant allowed to connect, identified by its pre-registered Supabase OAuth client. */
+export type McpClient = {
+  id: string;
+  name: "ChatGPT" | "Claude";
+  /** Browser origin the assistant may send requests from. */
+  origin: string;
+  /** Sandbox origin for the widget. Omitted where the host only accepts its own default. */
+  widgetDomain?: (origin: string) => string;
+};
+
+const ASSISTANTS = [
+  {
+    env: "WISHLANE_MCP_CHATGPT_CLIENT_ID",
+    name: "ChatGPT",
+    origin: "https://chatgpt.com",
+    widgetDomain: (origin: string) => origin,
+  },
+  // Claude rejects any ui.domain except its own {hash}.claudemcpcontent.com sandbox.
+  { env: "WISHLANE_MCP_CLAUDE_CLIENT_ID", name: "Claude", origin: "https://claude.ai" },
+] as const;
 
 export function getMcpConfig() {
   const origin = process.env.WISHLANE_MCP_ORIGIN;
   const confirmationSecret = process.env.WISHLANE_MCP_CONFIRMATION_SECRET;
-  const clients: McpClient[] = [
-    { id: process.env.WISHLANE_MCP_CHATGPT_CLIENT_ID ?? "", name: "ChatGPT" as const },
-    { id: process.env.WISHLANE_MCP_CLAUDE_CLIENT_ID ?? "", name: "Claude" as const },
-  ].filter((client) => client.id);
+  const clients: McpClient[] = ASSISTANTS.flatMap(({ env, ...client }) => {
+    const id = process.env[env];
+    return id ? [{ id, ...client }] : [];
+  });
   if (!origin || !clients.length || !confirmationSecret || confirmationSecret.length < 32) {
     throw new Error("Wishlane AI integration is not configured");
   }

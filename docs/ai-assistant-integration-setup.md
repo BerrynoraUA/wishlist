@@ -32,8 +32,9 @@ This creates:
   already-issued tokens immediately.
 - `public.mcp_actions` — short-lived (10 min) ledger of pending important changes awaiting
   confirmation.
-- `mcp_set_gift_status` / star-limit trigger — atomic gift reservation and the existing
-  "three starred wishes" rule.
+- `mcp_set_gift_status` — atomic gift reservation for assistants.
+- `check_star_limit` trigger — enforces the "three starred wishes per wishlist" rule in the
+  database for every writer (web, native and assistants), so concurrent writes cannot exceed it.
 
 ## 2. Enable the Supabase OAuth server
 

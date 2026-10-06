@@ -16,7 +16,8 @@ export function result(data: Record<string, unknown>): CallToolResult {
 }
 
 // Only fields needed by the gifting tools leave the server; never return raw rows.
-export function safeItem(row: Record<string, unknown>, userId: string, ownerId?: string) {
+// `ownerId` is null when the list owner is unknown, which is never the caller.
+export function safeItem(row: Record<string, unknown>, userId: string, ownerId: string | null) {
   const fields = [
     "id",
     "wishlist_id",

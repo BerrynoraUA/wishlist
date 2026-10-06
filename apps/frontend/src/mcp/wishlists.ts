@@ -3,20 +3,9 @@ import type { McpContext } from "./auth";
 import type { Tools } from "./tools";
 import { checked, safeItem, ToolError } from "./results";
 import { id, page, search, wishlistFields } from "./schemas";
-import { notify } from "./notifications";
 import { getMcpConfig } from "./config";
-
-export async function getWishlist(
-  ctx: McpContext,
-  wishlistId: string,
-  edit = false,
-  owner = false,
-) {
-  const list = await checked(ctx.db.rpc("get_wishlist_by_id", { p_wishlist_id: wishlistId }));
-  if (!list || (edit && !list.can_edit) || (owner && list.user_id !== ctx.userId))
-    throw new ToolError("You do not have permission to change this wishlist.");
-  return list;
-}
+import { requireWishlist } from "./access";
+import { groupReview, peopleReview, wishlistReview } from "./review";
 
 export function wishlistTools(tools: Tools, ctx: McpContext) {
   const { db } = ctx;
@@ -93,7 +82,7 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
     },
     readOnly: true,
     run: async (input) => {
-      const wishlist = await getWishlist(ctx, input.wishlist_id);
+      const wishlist = await requireWishlist(ctx, input.wishlist_id);
       const rows = await checked(
         db.rpc("get_wishlist_items", {
           p_wishlist_id: input.wishlist_id,
@@ -122,7 +111,7 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
     description:
       "Create a wishlist. Visibility: 0 public, 1 friends, 2 private, 3 selected friends. Creating a visible list requires review and may notify friends.",
     schema: { ...wishlistFields, visibility_type: z.number().int().min(0).max(3).default(1) },
-    confirm: (input) => input.visibility_type !== 2,
+    confirm: { when: (input) => input.visibility_type !== 2 },
     run: async (input) => {
       const wishlist = await checked(
         db
@@ -131,20 +120,8 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
           .select()
           .single(),
       );
-      if (input.visibility_type <= 1) {
-        const recipients = await checked(
-          db.rpc("get_wishlist_friends_to_notify", { p_wishlist_id: wishlist.id }),
-        );
-        await notify(
-          ctx,
-          (recipients ?? []).map((receiverId: string) => ({
-            receiverId,
-            key: "wishlist_created" as const,
-            vars: { title: wishlist.title },
-            entityId: wishlist.id,
-          })),
-        );
-      }
+      if (input.visibility_type <= 1)
+        await ctx.notifier.notifyNewWishlist(wishlist.id, wishlist.title);
       return { kind: "wishlists", wishlists: [wishlist] };
     },
   });
@@ -163,9 +140,17 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
         .strict()
         .refine((value) => Object.keys(value).length > 0),
     },
-    confirm: (input) => input.changes.visibility_type !== undefined,
+    confirm: {
+      when: (input) => input.changes.visibility_type !== undefined,
+      review: (input) => wishlistReview(ctx, input.wishlist_id),
+    },
     run: async ({ wishlist_id, changes }) => {
-      await getWishlist(ctx, wishlist_id, true, changes.visibility_type !== undefined);
+      // Only the owner may change who can see a list; editors may change its details.
+      await requireWishlist(
+        ctx,
+        wishlist_id,
+        changes.visibility_type === undefined ? "edit" : "own",
+      );
       const wishlist = await checked(
         db.from("wishlist").update(changes).eq("id", wishlist_id).select().single(),
       );
@@ -176,9 +161,9 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
     title: "Delete wishlist and its wishes",
     description: "Permanently delete a wishlist and its wishes. Only its owner may delete it.",
     schema: { wishlist_id: id },
-    confirm: true,
+    confirm: { review: (input) => wishlistReview(ctx, input.wishlist_id) },
     run: async ({ wishlist_id }) => {
-      await getWishlist(ctx, wishlist_id, false, true);
+      await requireWishlist(ctx, wishlist_id, "own");
       await checked(db.from("wishlist").delete().eq("id", wishlist_id).eq("user_id", ctx.userId));
       return { message: "Wishlist deleted.", wishlist_id };
     },
@@ -189,7 +174,7 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
     schema: { wishlist_id: id, pinned: z.boolean() },
     idempotent: true,
     run: async ({ wishlist_id, pinned }) => {
-      await getWishlist(ctx, wishlist_id, false, true);
+      await requireWishlist(ctx, wishlist_id, "own");
       await checked(db.from("wishlist").update({ is_pinned: pinned }).eq("id", wishlist_id));
       return { wishlist_id, pinned };
     },
@@ -200,7 +185,7 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
     schema: { wishlist_id: id },
     readOnly: true,
     run: async ({ wishlist_id }) => {
-      await getWishlist(ctx, wishlist_id, false, true);
+      await requireWishlist(ctx, wishlist_id, "own");
       return {
         access: await checked(db.rpc("get_wishlist_access_list", { p_wishlist_id: wishlist_id })),
       };
@@ -216,9 +201,16 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
       target_id: id,
       role: z.enum(["viewer", "editor", "none"]),
     },
-    confirm: true,
+    confirm: {
+      review: async ({ wishlist_id, target, target_id }) => ({
+        ...(await wishlistReview(ctx, wishlist_id)),
+        ...(target === "group"
+          ? await groupReview(ctx, target_id)
+          : await peopleReview(ctx, [target_id])),
+      }),
+    },
     run: async ({ wishlist_id, target, target_id, role }) => {
-      const wishlist = await getWishlist(ctx, wishlist_id, false, true);
+      const wishlist = await requireWishlist(ctx, wishlist_id, "own");
       if (target === "group") {
         if (role === "editor") throw new ToolError("Groups can only have viewer access.");
         await checked(
@@ -242,14 +234,12 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
             p_access_type: role === "editor" ? 1 : 0,
           }),
         );
-        await notify(ctx, [
-          {
-            receiverId: target_id,
-            key: "wishlist_access",
-            vars: { title: wishlist.title },
-            entityId: wishlist_id,
-          },
-        ]);
+        await ctx.notifier.createLocalizedNotification({
+          receiverId: target_id,
+          key: "wishlist_access",
+          vars: { title: wishlist.title },
+          entityId: wishlist_id,
+        });
       }
       return { message: "Wishlist access updated.", wishlist_id };
     },
@@ -259,10 +249,10 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
     description:
       "Create a bearer link that lets anyone possessing it view this wishlist, including private wishes. Review before creating or sharing it.",
     schema: { wishlist_id: id },
-    confirm: true,
+    confirm: { review: (input) => wishlistReview(ctx, input.wishlist_id) },
     openWorld: true,
     run: async ({ wishlist_id }) => {
-      await getWishlist(ctx, wishlist_id, false, true);
+      await requireWishlist(ctx, wishlist_id, "own");
       const token = await checked(
         db.rpc("create_wishlist_share_token", { p_wishlist_id: wishlist_id }),
       );

@@ -1,14 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
 import { getSupabasePublicEnv } from "@wishlist/backend/supabase/shared";
 import type { WishlistSupabaseClient } from "@wishlist/backend/supabase";
+import { createNotifier, type Notifier } from "@wishlist/backend/notifications/notifier";
 import { getMcpConfig, type McpClient } from "./config";
 
 export type McpContext = {
   db: WishlistSupabaseClient;
   userId: string;
-  clientId: string;
-  clientName: McpClient["name"];
-  actorName: string;
+  client: McpClient;
+  notifier: Notifier;
 };
 
 export function validMcpClaims(
@@ -42,30 +42,32 @@ export async function authenticateMcp(request: Request): Promise<McpContext | nu
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
   const { data, error } = await db.auth.getClaims(token);
+  if (error || !data) return null;
+  const { claims } = data;
   if (
-    error ||
-    !data ||
-    !validMcpClaims(data.claims, {
+    !validMcpClaims(claims, {
       issuer: `${url}/auth/v1`,
       resource,
-      clientIds: clients.map((client) => client.id),
+      clientIds: clients.map((c) => c.id),
     })
   )
     return null;
-  const userResult = await db.auth.getUser(token);
-  if (userResult.error || userResult.data.user?.id !== data.claims.sub) return null;
+  // The signature is verified above; this checks the OAuth grant is still live, so a
+  // disconnected (or deleted) account is rejected before its token expires.
   const active = await db.rpc("mcp_session_active");
   if (active.error || active.data !== true) return null;
-  const client = clients.find((value) => value.id === data.claims.client_id);
+  const client = clients.find((value) => value.id === claims.client_id);
   if (!client) return null;
-  const user = userResult.data.user;
+  const fullName = claims.user_metadata?.full_name;
+  const actorName = typeof fullName === "string" ? fullName : "Someone";
   return {
     db,
-    userId: user.id,
-    clientId: client.id,
-    clientName: client.name,
-    actorName:
-      typeof user.user_metadata.full_name === "string" ? user.user_metadata.full_name : "Someone",
+    userId: claims.sub,
+    client,
+    notifier: createNotifier(db, {
+      log: (message) => console.error(`[mcp] ${message}`),
+      actorName: async () => actorName,
+    }),
   };
 }
 

@@ -5,9 +5,11 @@ import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { z } from "zod";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import type { McpContext } from "./auth";
+import type { Notifier } from "@wishlist/backend/notifications/notifier";
 import { createTools } from "./tools";
 import { createWishlaneServer } from "./server";
-import { WIDGET_URI } from "./config";
+import { ToolError } from "./results";
+import { getMcpConfig, WIDGET_URI, type McpClient } from "./config";
 
 const close: (() => Promise<void>)[] = [];
 afterEach(async () => {
@@ -26,7 +28,7 @@ async function connect(server: McpServer) {
   return client;
 }
 
-function context(clientName: McpContext["clientName"] = "ChatGPT") {
+function context(clientName: McpClient["name"] = "ChatGPT") {
   const rows: Record<string, unknown>[] = [];
   const from = vi.fn(() => {
     let operation = "select";
@@ -83,11 +85,10 @@ function context(clientName: McpContext["clientName"] = "ChatGPT") {
   return {
     ctx: {
       userId: "alice",
-      clientId: clientName.toLowerCase(),
-      clientName,
-      actorName: "Alice",
+      client: getMcpConfig().clients.find((client) => client.name === clientName)!,
+      notifier: {} as Notifier,
       db: { from } as unknown as McpContext["db"],
-    },
+    } satisfies McpContext,
     rows,
     from,
   };
@@ -121,7 +122,7 @@ describe("MCP tools and resources", () => {
   it("leaves Claude on its default widget sandbox origin", async () => {
     const client = await connect(createWishlaneServer(context("Claude").ctx));
     const resource = await client.readResource({ uri: WIDGET_URI });
-    expect(resource.contents[0]._meta?.ui).not.toHaveProperty("domain");
+    expect(resource.contents[0]._meta?.ui).not.toMatchObject({ domain: expect.anything() });
   });
 
   it("validates tool input before database access", async () => {
@@ -143,7 +144,7 @@ describe("MCP tools and resources", () => {
       title: "Change",
       description: "Test",
       schema: { name: z.string() },
-      confirm: true,
+      confirm: { review: async ({ name }) => ({ target: `Resolved ${name}` }) },
       run,
     });
     const client = await connect(server);
@@ -151,7 +152,10 @@ describe("MCP tools and resources", () => {
       name: "important_change",
       arguments: { name: "Exact original change" },
     })) as CallToolResult;
-    expect(pending.structuredContent?.status).toBe("pending");
+    expect(pending.structuredContent).toMatchObject({
+      status: "pending",
+      selection: { target: "Resolved Exact original change" },
+    });
     expect(JSON.stringify(pending.content)).not.toContain("signature");
     expect(run).not.toHaveBeenCalled();
     const confirmation = pending._meta!.confirmation as Record<string, unknown>;
@@ -170,7 +174,7 @@ describe("MCP tools and resources", () => {
       title: "Change",
       description: "Test",
       schema: {},
-      confirm: true,
+      confirm: {},
       run,
     });
     const client = await connect(server);
@@ -196,6 +200,37 @@ describe("MCP tools and resources", () => {
     expect((await client.callTool({ name: "confirm_action", arguments: capability })).isError).toBe(
       true,
     );
+    expect(run).not.toHaveBeenCalled();
+  });
+
+  it("re-validates the reviewed selection before applying a confirmed change", async () => {
+    const { ctx } = context();
+    const server = new McpServer({ name: "test", version: "1" });
+    const run = vi.fn(async () => ({ message: "Changed" }));
+    let changed = false;
+    createTools(server, ctx).add("important_change", {
+      title: "Change",
+      description: "Test",
+      schema: {},
+      confirm: {
+        recheck: async () => {
+          if (changed) throw new ToolError("The selection changed.");
+        },
+      },
+      run,
+    });
+    const client = await connect(server);
+    const output = (await client.callTool({
+      name: "important_change",
+      arguments: {},
+    })) as CallToolResult;
+    changed = true;
+    const applied = (await client.callTool({
+      name: "confirm_action",
+      arguments: output._meta!.confirmation as Record<string, unknown>,
+    })) as CallToolResult;
+    expect(applied.isError).toBe(true);
+    expect(JSON.stringify(applied.content)).toContain("The selection changed.");
     expect(run).not.toHaveBeenCalled();
   });
 });

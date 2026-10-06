@@ -7,7 +7,7 @@ import type { McpContext } from "./auth";
 import { getMcpConfig, WIDGET_URI } from "./config";
 import { checked, result, ToolError } from "./results";
 import { id } from "./schemas";
-import { reviewContext, sameParticipants } from "./review";
+import type { Review } from "./review";
 
 export function confirmationSignature(
   id: string,
@@ -25,115 +25,132 @@ export function validConfirmation(signature: string, expected: string) {
   );
 }
 
-type ToolOptions<S extends z.ZodRawShape> = {
+/** An important change the user must approve in a review card before it runs. */
+type Confirmation<I> = {
+  /** Ask for confirmation only when this holds. Defaults to always. */
+  when?: (input: I) => boolean;
+  /**
+   * Server-resolved names of the records the change targets. Omit only when the input itself
+   * names everything (e.g. creating a record).
+   */
+  review?: (input: I) => Promise<Review>;
+  /** Runs again at confirm time; throw a ToolError if the reviewed selection changed. */
+  recheck?: (reviewed: Review, input: I) => Promise<void>;
+};
+
+type ToolOptions<S extends z.ZodRawShape, I = z.output<z.ZodObject<S>>> = {
   title: string;
   description: string;
   schema: S;
   readOnly?: boolean;
-  confirm?: boolean | ((input: z.output<z.ZodObject<S>>) => boolean);
   openWorld?: boolean;
   idempotent?: boolean;
-  run: (input: z.output<z.ZodObject<S>>) => Promise<Record<string, unknown>>;
+  /** Callable only from the Wishlane card, never offered to the model. */
+  appOnly?: boolean;
+  confirm?: Confirmation<I>;
+  run: (input: I) => Promise<Record<string, unknown>>;
 };
 
-export function createTools(server: McpServer, ctx: McpContext) {
-  const actions = new Map<string, (args: unknown) => Promise<Record<string, unknown>>>();
-  const { confirmationSecret } = getMcpConfig();
+type ConfirmableAction = {
+  run: (args: unknown) => Promise<Record<string, unknown>>;
+  recheck?: (reviewed: Review, args: unknown) => Promise<void>;
+};
 
-  async function safely(run: () => Promise<CallToolResult>): Promise<CallToolResult> {
-    try {
-      return await run();
-    } catch (error) {
-      return {
-        isError: true,
-        content: [
-          {
-            type: "text",
-            text:
-              error instanceof ToolError
-                ? error.message
-                : "Wishlane could not complete the request. Refresh the relevant data before retrying.",
-          },
-        ],
-      };
-    }
+function toolMeta(appOnly: boolean) {
+  return {
+    securitySchemes: [{ type: "oauth2", scopes: ["openid"] }],
+    ui: { resourceUri: WIDGET_URI, ...(appOnly && { visibility: ["app"] }) },
+    ...(appOnly ? { "openai/visibility": "private" } : { "openai/outputTemplate": WIDGET_URI }),
+    "openai/widgetAccessible": true,
+  };
+}
+
+async function safely(run: () => Promise<CallToolResult>): Promise<CallToolResult> {
+  try {
+    return await run();
+  } catch (error) {
+    return {
+      isError: true,
+      content: [
+        {
+          type: "text",
+          text:
+            error instanceof ToolError
+              ? error.message
+              : "Wishlane could not complete the request. Refresh the relevant data before retrying.",
+        },
+      ],
+    };
+  }
+}
+
+export function createTools(server: McpServer, ctx: McpContext) {
+  const actions = new Map<string, ConfirmableAction>();
+  const { confirmationSecret } = getMcpConfig();
+  const sign = (actionId: string) =>
+    confirmationSignature(actionId, ctx.userId, ctx.client.id, confirmationSecret);
+
+  async function requestConfirmation(tool: string, title: string, input: unknown, review: Review) {
+    await checked(
+      ctx.db
+        .from("mcp_actions")
+        .delete()
+        .eq("user_id", ctx.userId)
+        .lt("expires_at", new Date().toISOString()),
+    );
+    const pending = await checked(
+      ctx.db
+        .from("mcp_actions")
+        .insert({ user_id: ctx.userId, client_id: ctx.client.id, tool, arguments: input, review })
+        .select("id,expires_at")
+        .single(),
+    );
+    if (!pending) throw new ToolError("Unable to prepare the review card.");
+    return {
+      ...result({
+        kind: "confirmation",
+        title,
+        status: "pending",
+        selection: review,
+        changes: input,
+        expires_at: pending.expires_at,
+        message:
+          "Review these changes and click Confirm in the Wishlane card. Nothing has changed yet.",
+      }),
+      // The model never sees a usable confirmation capability.
+      _meta: { confirmation: { id: pending.id, signature: sign(pending.id) } },
+    };
   }
 
   function add<S extends z.ZodRawShape>(name: string, options: ToolOptions<S>) {
     const schema = z.object(options.schema).strict();
-    actions.set(name, async (args) => options.run(schema.parse(args)));
+    const { confirm } = options;
+    const recheck = confirm?.recheck;
+    actions.set(name, {
+      run: (args) => options.run(schema.parse(args)),
+      recheck: recheck && ((reviewed, args) => recheck(reviewed, schema.parse(args))),
+    });
     registerAppTool(
       server,
       name,
       {
         title: options.title,
-        description: `${options.description}${options.confirm ? " Important changes return a review card; the user must click Confirm to apply them. Never claim a pending change succeeded." : ""}`,
+        description: `${options.description}${confirm ? " Important changes return a review card; the user must click Confirm to apply them. Never claim a pending change succeeded." : ""}`,
         inputSchema: schema,
         annotations: {
           readOnlyHint: options.readOnly ?? false,
-          destructiveHint: Boolean(options.confirm),
+          destructiveHint: Boolean(confirm),
           idempotentHint: options.readOnly || options.idempotent || false,
           openWorldHint: options.openWorld ?? false,
         },
-        _meta: {
-          securitySchemes: [{ type: "oauth2", scopes: ["openid"] }],
-          ui: { resourceUri: WIDGET_URI },
-          "openai/outputTemplate": WIDGET_URI,
-          "openai/widgetAccessible": true,
-        },
+        _meta: toolMeta(options.appOnly ?? false),
       },
       async (args: unknown) =>
         safely(async () => {
           const input = schema.parse(args);
-          const confirm =
-            typeof options.confirm === "function" ? options.confirm(input) : options.confirm;
-          if (!confirm) return result(await options.run(input));
-          const review = await reviewContext(ctx, input);
-          await checked(
-            ctx.db
-              .from("mcp_actions")
-              .delete()
-              .eq("user_id", ctx.userId)
-              .lt("expires_at", new Date().toISOString()),
-          );
-          const pending = await checked(
-            ctx.db
-              .from("mcp_actions")
-              .insert({
-                user_id: ctx.userId,
-                client_id: ctx.clientId,
-                tool: name,
-                arguments: input,
-                review,
-              })
-              .select("id,expires_at")
-              .single(),
-          );
-          if (!pending) throw new ToolError("Unable to prepare the review card.");
-          return {
-            ...result({
-              kind: "confirmation",
-              title: options.title,
-              status: "pending",
-              selection: review,
-              changes: input,
-              expires_at: pending.expires_at,
-              message:
-                "Review these changes and click Confirm in the Wishlane card. Nothing has changed yet.",
-            }),
-            // The model never sees a usable confirmation capability.
-            _meta: {
-              confirmation: {
-                id: pending.id,
-                signature: confirmationSignature(
-                  pending.id,
-                  ctx.userId,
-                  ctx.clientId,
-                  confirmationSecret,
-                ),
-              },
-            },
-          };
+          if (!confirm || !(confirm.when?.(input) ?? true)) return result(await options.run(input));
+          const review = (await confirm.review?.(input)) ?? {};
+          return requestConfirmation(name, options.title, input, review);
         }),
     );
   }
@@ -152,22 +169,11 @@ export function createTools(server: McpServer, ctx: McpContext) {
         idempotentHint: true,
         openWorldHint: true,
       },
-      _meta: {
-        securitySchemes: [{ type: "oauth2", scopes: ["openid"] }],
-        ui: { resourceUri: WIDGET_URI, visibility: ["app"] },
-        "openai/visibility": "private",
-        "openai/widgetAccessible": true,
-      },
+      _meta: toolMeta(true),
     },
     async (input: { id: string; signature: string }) =>
       safely(async () => {
-        const expected = confirmationSignature(
-          input.id,
-          ctx.userId,
-          ctx.clientId,
-          confirmationSecret,
-        );
-        if (!validConfirmation(input.signature, expected))
+        if (!validConfirmation(input.signature, sign(input.id)))
           throw new ToolError("Invalid confirmation. Request a new review card.");
         const row = await checked(
           ctx.db
@@ -175,7 +181,7 @@ export function createTools(server: McpServer, ctx: McpContext) {
             .select("tool,arguments,review,status,result,expires_at")
             .eq("id", input.id)
             .eq("user_id", ctx.userId)
-            .eq("client_id", ctx.clientId)
+            .eq("client_id", ctx.client.id)
             .single(),
         );
         if (!row) throw new ToolError("This review is no longer available.");
@@ -186,15 +192,10 @@ export function createTools(server: McpServer, ctx: McpContext) {
           throw new ToolError(
             "This review was already attempted. Refresh the data before requesting a new change.",
           );
-        const run = actions.get(row.tool);
-        if (!run) throw new ToolError("This action is no longer supported. Request a new review.");
-        if (
-          row.tool === "launch_secret_santa" &&
-          !sameParticipants(row.review, await reviewContext(ctx, row.arguments))
-        )
-          throw new ToolError(
-            "The participant list changed. Request a new review before drawing names.",
-          );
+        const action = actions.get(row.tool);
+        if (!action)
+          throw new ToolError("This action is no longer supported. Request a new review.");
+        await action.recheck?.(row.review, row.arguments);
         // Atomic claim prevents double clicks, parallel requests and retries from applying twice.
         const claimed = await checked(
           ctx.db
@@ -211,7 +212,7 @@ export function createTools(server: McpServer, ctx: McpContext) {
             "This change is already being processed. Refresh to check its result.",
           );
         try {
-          const output = await run(row.arguments);
+          const output = await action.run(row.arguments);
           await checked(
             ctx.db
               .from("mcp_actions")
