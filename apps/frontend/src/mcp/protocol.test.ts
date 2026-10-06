@@ -119,6 +119,24 @@ describe("MCP tools and resources", () => {
     });
   });
 
+  it("opens the card only for results it can present", async () => {
+    const client = await connect(createWishlaneServer(context().ctx));
+    const { tools } = await client.listTools();
+    const template = (name: string) =>
+      tools.find((tool) => tool.name === name)?._meta?.["openai/outputTemplate"];
+    const resourceUri = (name: string) =>
+      (tools.find((tool) => tool.name === name)?._meta?.ui as { resourceUri?: string })
+        ?.resourceUri;
+    for (const name of ["get_wishlist", "delete_wishlist"]) {
+      expect(template(name)).toBe(WIDGET_URI);
+      expect(resourceUri(name)).toBe(WIDGET_URI);
+    }
+    for (const name of ["list_friends", "set_gift_status"]) {
+      expect(template(name)).toBeUndefined();
+      expect(resourceUri(name)).toBeUndefined();
+    }
+  });
+
   it("leaves Claude on its default widget sandbox origin", async () => {
     const client = await connect(createWishlaneServer(context("Claude").ctx));
     const resource = await client.readResource({ uri: WIDGET_URI });

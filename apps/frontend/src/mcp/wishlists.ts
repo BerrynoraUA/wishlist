@@ -19,6 +19,7 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
       friend_id: id.optional(),
     },
     readOnly: true,
+    view: true,
     run: async (input) => {
       let lists;
       if (input.view === "public") {
@@ -81,6 +82,7 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
       price_max: z.number().nonnegative().optional(),
     },
     readOnly: true,
+    view: true,
     run: async (input) => {
       const wishlist = await requireWishlist(ctx, input.wishlist_id);
       const rows = await checked(
@@ -158,7 +160,7 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
     },
   });
   tools.add("delete_wishlist", {
-    title: "Delete wishlist and its wishes",
+    title: "Delete wishlist and its items",
     description: "Permanently delete a wishlist and its wishes. Only its owner may delete it.",
     schema: { wishlist_id: id },
     confirm: { review: (input) => wishlistReview(ctx, input.wishlist_id) },
@@ -265,6 +267,7 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
       "View a wishlist using a share token supplied by the user. Still requires a connected Wishlane account. Does not send friend requests or grant reservation access.",
     schema: { token: z.string().min(1).max(2000), ...page },
     readOnly: true,
+    view: true,
     run: async (input) => {
       const wishlist = await checked(
         db.rpc("get_wishlist_by_share_token", { p_token: input.token }),

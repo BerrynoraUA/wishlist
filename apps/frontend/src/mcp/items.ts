@@ -10,11 +10,12 @@ import { ALL_PRIORITIES } from "@/lib/priorities";
 export function itemTools(tools: Tools, ctx: McpContext) {
   const { db } = ctx;
   tools.add("get_wish", {
-    title: "View wish",
+    title: "View item",
     description:
       "View an accessible wish, its availability, and vote count. Never reveals another giver's identity.",
     schema: { item_id: id },
     readOnly: true,
+    view: true,
     run: async ({ item_id }) => {
       const { item, wishlist } = await requireItem(ctx, item_id);
       const votes = await checked(db.from("item_vote").select("user_id").eq("item_id", item_id));
@@ -33,17 +34,18 @@ export function itemTools(tools: Tools, ctx: McpContext) {
     },
   });
   tools.add("list_wish_priorities", {
-    title: "List wish priorities",
+    title: "List item priorities",
     description: "Get valid priority IDs. At most three wishes per wishlist may be starred.",
     schema: {},
     readOnly: true,
     run: async () => ({ priorities: ALL_PRIORITIES.map(({ id, name }) => ({ id, name })) }),
   });
   tools.add("create_wish", {
-    title: "Add wish",
+    title: "Add item",
     description:
       "Add a wish to a wishlist you can edit. Set an image URL or use the image upload button in the card. Does not purchase anything.",
     schema: { wishlist_id: id, ...itemFields },
+    view: true,
     run: async (input) => {
       const wishlist = await requireWishlist(ctx, input.wishlist_id, "edit");
       const item = await checked(db.from("item").insert(input).select().single());
@@ -51,7 +53,7 @@ export function itemTools(tools: Tools, ctx: McpContext) {
     },
   });
   tools.add("update_wish", {
-    title: "Edit wish",
+    title: "Edit item",
     description:
       "Change details of a wish you can edit. Null clears a field; omitted fields stay unchanged. Use set_gift_status to reserve or mark bought.",
     schema: {
@@ -62,6 +64,7 @@ export function itemTools(tools: Tools, ctx: McpContext) {
         .refine((value) => Object.keys(value).length > 0),
     },
     idempotent: true,
+    view: true,
     run: async ({ item_id, changes }) => {
       const { wishlist } = await requireItem(ctx, item_id, "edit");
       const item = await checked(
@@ -71,18 +74,18 @@ export function itemTools(tools: Tools, ctx: McpContext) {
     },
   });
   tools.add("delete_wish", {
-    title: "Delete wish",
+    title: "Delete item",
     description: "Permanently delete a wish from a wishlist you can edit.",
     schema: { item_id: id },
     confirm: { review: (input) => wishReview(ctx, input.item_id) },
     run: async ({ item_id }) => {
       await requireItem(ctx, item_id, "edit");
       await checked(db.from("item").delete().eq("id", item_id));
-      return { message: "Wish deleted.", item_id };
+      return { message: "Item deleted.", item_id };
     },
   });
   tools.add("set_gift_status", {
-    title: "Reserve or mark a gift bought",
+    title: "Reserve or mark a gift purchased",
     description:
       "Set an explicit state: available releases your reservation/purchase; reserved reserves it for you; bought marks it purchased by you. Does not buy or pay for a product. Never overwrites another person's reservation. Silent suppresses the owner's notification, as in Wishlane's secret action.",
     schema: {
@@ -107,10 +110,11 @@ export function itemTools(tools: Tools, ctx: McpContext) {
     },
   });
   tools.add("list_my_gifts", {
-    title: "View your reserved or bought gifts",
+    title: "View your reserved or purchased gifts",
     description: "List wishes you reserved or marked bought, with pagination and search.",
     schema: { ...search, status: z.enum(["reserved", "bought"]) },
     readOnly: true,
+    view: true,
     run: async (input) => {
       const rows = await checked(
         db.rpc(input.status === "reserved" ? "get_reserved_items_by_me" : "get_my_bought_items", {
@@ -129,7 +133,7 @@ export function itemTools(tools: Tools, ctx: McpContext) {
     },
   });
   tools.add("set_wish_vote", {
-    title: "Vote for a wish",
+    title: "Vote for an item",
     description: "Add or remove your vote for an accessible wish.",
     schema: { item_id: id, voted: z.boolean() },
     idempotent: true,
@@ -152,7 +156,7 @@ export function itemTools(tools: Tools, ctx: McpContext) {
     },
   });
   tools.add("report_wish", {
-    title: "Report wish",
+    title: "Report item",
     description:
       "Report an inappropriate wish for moderation, only when the user explicitly requests this.",
     schema: { item_id: id },

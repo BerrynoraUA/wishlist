@@ -1607,6 +1607,84 @@
   "notifications.title": {
     "en": "Notifications"
   },
+  "oauth.connections.back": {
+    "en": "Back to My Wishlists"
+  },
+  "oauth.connections.disconnect": {
+    "en": "Disconnect"
+  },
+  "oauth.connections.empty": {
+    "en": "No AI assistants are connected."
+  },
+  "oauth.connections.loadError": {
+    "en": "Unable to load connections. Please try again."
+  },
+  "oauth.connections.subtitle": {
+    "en": "AI assistants that can use your Wishlane account."
+  },
+  "oauth.connections.title": {
+    "en": "Connected apps"
+  },
+  "oauth.consent.connect": {
+    "en": "Connect Wishlane"
+  },
+  "oauth.consent.disconnectPrefix": {
+    "en": "You can disconnect at any time from"
+  },
+  "oauth.consent.error.expired": {
+    "en": "This request expired. Reconnect from your AI assistant."
+  },
+  "oauth.consent.error.failed": {
+    "en": "Unable to connect. Please try again."
+  },
+  "oauth.consent.error.invalid": {
+    "en": "This request is invalid. Reconnect from your AI assistant."
+  },
+  "oauth.consent.expiredBody": {
+    "en": "Return to your AI assistant and connect Wishlane again."
+  },
+  "oauth.consent.expiredTitle": {
+    "en": "Connection request expired"
+  },
+  "oauth.consent.eyebrow": {
+    "en": "Connect {assistant}"
+  },
+  "oauth.consent.notice": {
+    "en": "You confirm important changes, such as deleting, sharing, inviting or launching Secret Santa, in {assistant} before they happen. {assistant} can't manage your subscription, password or account."
+  },
+  "oauth.consent.permissionGifting": {
+    "en": "Reserve gifts, mark them as purchased and manage who can see your wishlists."
+  },
+  "oauth.consent.permissionSocial": {
+    "en": "Manage friends, groups, Secret Santa events and notifications."
+  },
+  "oauth.consent.permissionWishlists": {
+    "en": "View, create and edit your wishlists and items, including images and links."
+  },
+  "oauth.consent.privacy": {
+    "en": "Privacy policy"
+  },
+  "oauth.consent.startBody": {
+    "en": "Start the Wishlane connection in ChatGPT or Claude to receive an authorization request."
+  },
+  "oauth.consent.startTitle": {
+    "en": "Connect from your AI assistant"
+  },
+  "oauth.consent.subtitle": {
+    "en": "{assistant} will act as {email}, with the same access you have in Wishlane."
+  },
+  "oauth.consent.terms": {
+    "en": "Terms"
+  },
+  "oauth.consent.title": {
+    "en": "Use Wishlane in {assistant}"
+  },
+  "oauth.consent.unknownBody": {
+    "en": "This request is not for a Wishlane AI integration."
+  },
+  "oauth.consent.unknownTitle": {
+    "en": "Unknown connection"
+  },
   "pagination.goToPage": {
     "en": "Go to page {n}"
   },

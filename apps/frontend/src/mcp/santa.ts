@@ -25,6 +25,7 @@ export function santaTools(tools: Tools, ctx: McpContext) {
     description: "List Secret Santa events you can access.",
     schema: search,
     readOnly: true,
+    view: true,
     run: async (input) => ({
       kind: "events",
       ...(await checked(
@@ -42,6 +43,7 @@ export function santaTools(tools: Tools, ctx: McpContext) {
       "View participants, invitations and your own assigned recipient. Never reveals another participant's assignment.",
     schema: { event_id: id },
     readOnly: true,
+    view: true,
     run: async ({ event_id }) => ({ kind: "event", event: await requireEvent(ctx, event_id) }),
   });
   const eventFields = {
@@ -87,6 +89,7 @@ export function santaTools(tools: Tools, ctx: McpContext) {
         .refine((value) => Object.keys(value).length > 0),
     },
     idempotent: true,
+    view: true,
     run: async ({ event_id, changes }) => {
       await requireEvent(ctx, event_id, "own");
       const event = await checked(
@@ -183,7 +186,7 @@ export function santaTools(tools: Tools, ctx: McpContext) {
     },
   });
   tools.add("launch_secret_santa", {
-    title: "Draw Secret Santa names",
+    title: "Launch Secret Santa",
     description:
       "Launch an event you own. Generates assignments privately on the server, respects exclusions, and notifies participants. Cannot be undone by this tool. Never provide or request the full assignment map.",
     schema: {
@@ -237,17 +240,18 @@ export function santaTools(tools: Tools, ctx: McpContext) {
       );
       await ctx.notifier.notifySecretSantaStarted(event_id, participants);
       return {
-        message: "Secret Santa launched. Use get_secret_santa_event to see your own recipient.",
+        message: "Secret Santa launched. Each participant can now see their receiver.",
         event_id,
       };
     },
   });
   tools.add("get_secret_santa_recipient_wishes", {
-    title: "View your recipient's wishes",
+    title: "View your receiver's items",
     description:
       "Get accessible wishes for your own assigned recipient within the event budget. Does not reveal anyone else's assignment.",
     schema: { event_id: id, ...page },
     readOnly: true,
+    view: true,
     run: async ({ event_id, limit, offset }) => {
       const { my_receiver: recipient, budget } = await requireEvent(ctx, event_id);
       if (!recipient) throw new ToolError("You do not have an assigned recipient yet.");

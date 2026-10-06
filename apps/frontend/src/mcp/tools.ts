@@ -47,6 +47,8 @@ type ToolOptions<S extends z.ZodRawShape, I = z.output<z.ZodObject<S>>> = {
   idempotent?: boolean;
   /** Callable only from the Wishlane card, never offered to the model. */
   appOnly?: boolean;
+  /** The result renders in the Wishlane card. Review cards always do. */
+  view?: boolean;
   confirm?: Confirmation<I>;
   run: (input: I) => Promise<Record<string, unknown>>;
 };
@@ -56,11 +58,12 @@ type ConfirmableAction = {
   recheck?: (reviewed: Review, args: unknown) => Promise<void>;
 };
 
-function toolMeta(appOnly: boolean) {
+// Tools without a view answer in plain text; the card is only for results it can present.
+function toolMeta({ appOnly = false, view = false }) {
   return {
     securitySchemes: [{ type: "oauth2", scopes: ["openid"] }],
-    ui: { resourceUri: WIDGET_URI, ...(appOnly && { visibility: ["app"] }) },
-    ...(appOnly ? { "openai/visibility": "private" } : { "openai/outputTemplate": WIDGET_URI }),
+    ...(appOnly && { ui: { visibility: ["app"] }, "openai/visibility": "private" }),
+    ...(view && { ui: { resourceUri: WIDGET_URI }, "openai/outputTemplate": WIDGET_URI }),
     "openai/widgetAccessible": true,
   };
 }
@@ -109,6 +112,7 @@ export function createTools(server: McpServer, ctx: McpContext) {
     return {
       ...result({
         kind: "confirmation",
+        tool,
         title,
         status: "pending",
         selection: review,
@@ -143,7 +147,7 @@ export function createTools(server: McpServer, ctx: McpContext) {
           idempotentHint: options.readOnly || options.idempotent || false,
           openWorldHint: options.openWorld ?? false,
         },
-        _meta: toolMeta(options.appOnly ?? false),
+        _meta: toolMeta({ appOnly: options.appOnly, view: options.view || Boolean(confirm) }),
       },
       async (args: unknown) =>
         safely(async () => {
@@ -169,7 +173,7 @@ export function createTools(server: McpServer, ctx: McpContext) {
         idempotentHint: true,
         openWorldHint: true,
       },
-      _meta: toolMeta(true),
+      _meta: toolMeta({ appOnly: true }),
     },
     async (input: { id: string; signature: string }) =>
       safely(async () => {

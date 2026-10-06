@@ -12,7 +12,7 @@ const UPLOAD_FAILED =
 
 export function imageTools(tools: Tools, ctx: McpContext) {
   tools.add("upload_wish_image", {
-    title: "Upload wish image",
+    title: "Upload item image",
     description:
       "Upload an image explicitly selected by the user in the Wishlane card, replacing the selected wish's image.",
     schema: {

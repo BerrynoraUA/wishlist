@@ -1,177 +1,780 @@
 <!doctype html>
-<!-- Self-contained MCP Apps UI: no external scripts, credentials, or direct database access. -->
+<!-- Self-contained MCP Apps UI: no external scripts, credentials, or direct database access.
+     Colours, radii, type and wording mirror the web app (src/app/globals.scss, ItemCard,
+     WishlistCard, Button); keep them in step when those change. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <style>
       :root {
-        color-scheme: light dark;
-        font:
-          14px/1.5 system-ui,
-          sans-serif;
-        --surface: #fff;
-        --ink: #28212b;
-        --muted: #746b78;
-        --line: #ebe4ec;
-        --brand: #a33875;
-        --tint: #fcf3f8;
+        color-scheme: light;
+        --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        --color-text: #111827;
+        --color-text-muted: #6b7280;
+        --color-text-light: #9ca3af;
+        --color-border: #f3e8ee;
+        --color-border-light: #e5e7eb;
+        --color-border-subtle: rgba(243, 232, 238, 0.6);
+        --color-brand: #c0267e;
+        --color-brand-dark: #9b1f66;
+        --color-brand-light: #fde7f3;
+        --card-bg: #ffffff;
+        --card-border: rgba(241, 230, 234, 0.6);
+        --card-hover-shadow: 0 12px 28px rgba(0, 0, 0, 0.07);
+        --gradient-brand-subtle: linear-gradient(135deg, #fde7f3, #f6dce8);
+        --gradient-placeholder: linear-gradient(135deg, #f9fafb, #f3f4f6);
+        --brand-alpha-10: rgba(192, 38, 126, 0.1);
+        --brand-alpha-12: rgba(192, 38, 126, 0.12);
+        --brand-alpha-25: rgba(192, 38, 126, 0.25);
+        --input-focus-ring: rgba(192, 38, 126, 0.08);
+        --shadow-brand: 0 4px 14px rgba(192, 38, 126, 0.35);
+        --color-danger: #b91c1c;
+        --color-danger-bg: #fef2f2;
+        --color-success: #16a34a;
+        --color-success-bg: #f0fdf4;
+        --cover-pink: linear-gradient(
+          135deg,
+          oklch(82.3% 0.12 346.018),
+          oklch(71.8% 0.202 349.761),
+          oklch(59.2% 0.249 0.584)
+        );
+        --cover-blue: linear-gradient(
+          135deg,
+          oklch(82.8% 0.111 230.318),
+          oklch(70.7% 0.165 254.624),
+          oklch(54.6% 0.245 262.881)
+        );
+        --cover-peach: linear-gradient(
+          135deg,
+          oklch(92.4% 0.12 95.746),
+          oklch(83.7% 0.128 66.29),
+          oklch(76.9% 0.188 70.08)
+        );
+        --cover-mint: linear-gradient(
+          135deg,
+          oklch(90.5% 0.093 164.15),
+          oklch(85.5% 0.138 181.071),
+          oklch(69.6% 0.17 162.48)
+        );
+        --cover-lavender: linear-gradient(
+          135deg,
+          oklch(89.4% 0.057 293.283),
+          oklch(82.7% 0.119 306.383),
+          oklch(60.6% 0.25 292.717)
+        );
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
       }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --surface: #211d25;
-          --ink: #f3edf6;
-          --muted: #b9afc1;
-          --line: #423647;
-          --brand: #ed9eca;
-          --tint: #342434;
-        }
+      [data-theme="dark"] {
+        color-scheme: dark;
+        --color-text: #f0f0f2;
+        --color-text-muted: #9ca3af;
+        --color-text-light: #6b7280;
+        --color-border: #27272d;
+        --color-border-light: #303038;
+        --color-border-subtle: rgba(50, 50, 58, 0.6);
+        --color-brand: #e052a0;
+        --color-brand-dark: #c0267e;
+        --color-brand-light: #3d1a2e;
+        --card-bg: #161619;
+        --card-border: rgba(50, 50, 58, 0.6);
+        --card-hover-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+        --gradient-brand-subtle: linear-gradient(135deg, #3d1a2e, #2a1220);
+        --gradient-placeholder: linear-gradient(135deg, #1a1a1e, #222226);
+        --brand-alpha-10: rgba(224, 82, 160, 0.12);
+        --brand-alpha-12: rgba(224, 82, 160, 0.15);
+        --brand-alpha-25: rgba(224, 82, 160, 0.3);
+        --input-focus-ring: rgba(224, 82, 160, 0.12);
+        --shadow-brand: 0 4px 14px rgba(224, 82, 160, 0.3);
+        --color-danger: #ef4444;
+        --color-danger-bg: #2d1515;
+        --color-success: #22c55e;
+        --color-success-bg: #132b1a;
       }
-      * {
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
       body {
-        margin: 0;
-        background: var(--surface);
-        color: var(--ink);
+        background: transparent;
+        color: var(--color-text);
+        font: 400 14px/1.6 var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+      }
+      img {
+        display: block;
+        max-width: 100%;
+      }
+      svg {
+        flex-shrink: 0;
+      }
+      main,
+      #content {
+        display: grid;
+        gap: 14px;
       }
       main {
-        padding: 20px;
-        max-width: 960px;
-        margin: auto;
+        padding: 4px;
       }
-      header {
+
+      /* ===== Toolbar ===== */
+      .toolbar {
         display: flex;
+        align-items: center;
         justify-content: space-between;
         gap: 12px;
+        min-height: 34px;
+      }
+      .toolbar h1 {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+        overflow-wrap: anywhere;
+      }
+      .caption {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--color-text-muted);
+      }
+
+      /* ===== Buttons (Button.module.scss) ===== */
+      .btn {
+        display: inline-flex;
         align-items: center;
-        margin-bottom: 18px;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 999px;
+        font: 600 14px/1.2 var(--font-sans);
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.3s var(--ease-out);
       }
-      .brand {
-        font:
-          600 23px Georgia,
-          serif;
-        color: var(--brand);
-      }
-      h1 {
-        font-size: 18px;
-        margin: 0 0 14px;
-      }
-      h2 {
-        font-size: 16px;
-        margin: 0;
-      }
-      h3 {
+      .btn.sm {
+        padding: 7px 16px;
         font-size: 13px;
-        margin: 14px 0 0;
-        color: var(--muted);
       }
-      p {
-        margin: 6px 0;
+      .btn:focus-visible,
+      .card-link:focus-visible,
+      .icon-btn:focus-visible,
+      .reserve-btn:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px var(--input-focus-ring);
       }
-      .muted {
-        color: var(--muted);
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
       }
+      .btn.primary {
+        background: var(--color-brand);
+        color: #fff;
+        box-shadow: var(--shadow-brand);
+      }
+      .btn.primary:hover:not(:disabled) {
+        background: var(--color-brand-dark);
+      }
+      .btn.secondary {
+        background: var(--card-bg);
+        border: 1.5px solid var(--color-border-light);
+        color: var(--color-text);
+      }
+      .btn.secondary:hover:not(:disabled) {
+        border-color: var(--color-brand);
+        color: var(--color-brand);
+      }
+      .btn.ghost {
+        background: transparent;
+        color: var(--color-brand);
+      }
+      .btn.ghost:hover:not(:disabled) {
+        background: var(--brand-alpha-10);
+      }
+      .btn.danger {
+        background: #475569;
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(71, 85, 105, 0.24);
+      }
+      .btn.danger:hover:not(:disabled) {
+        background: #334155;
+      }
+
+      /* ===== Grids and cards ===== */
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 14px;
       }
       .card {
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 16px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
         overflow: hidden;
+        transition: box-shadow 0.3s var(--ease-out);
       }
-      .card img {
+      .card-link {
+        all: unset;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+        border-radius: inherit;
+      }
+      .card:hover {
+        box-shadow: var(--card-hover-shadow);
+      }
+      .cover {
+        position: relative;
+        display: grid;
+        place-items: center;
+        height: 110px;
+        overflow: hidden;
+        color: #111827;
+        background: var(--cover-pink);
+      }
+      .cover img {
+        position: absolute;
+        inset: 0;
         width: 100%;
-        height: 150px;
-        object-fit: contain;
-        border-radius: 10px;
-        margin-bottom: 12px;
+        height: 100%;
+        object-fit: cover;
+      }
+      .cover > svg {
+        opacity: 0.72;
+      }
+      .cover.blue {
+        background: var(--cover-blue);
+      }
+      .cover.peach {
+        background: var(--cover-peach);
+      }
+      .cover.mint {
+        background: var(--cover-mint);
+      }
+      .cover.lavender {
+        background: var(--cover-lavender);
+      }
+      .cover.santa {
+        background: var(--gradient-brand-subtle);
+        color: var(--color-brand);
+      }
+      .pill {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(8px);
+        color: #111827;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      [data-theme="dark"] .pill {
+        background: rgba(22, 22, 25, 0.75);
+        color: rgba(240, 240, 242, 0.9);
+      }
+      .card-body {
+        display: grid;
+        gap: 6px;
+        padding: 12px 16px 14px;
+        min-width: 0;
+      }
+      .card-title {
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+      }
+      .meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--color-text-muted);
+        min-width: 0;
+      }
+      .meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* ===== Item card (ItemCard.module.scss) ===== */
+      .item {
+        border-radius: 16px;
+      }
+      .item-image {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        background: var(--gradient-placeholder);
+        container-type: inline-size;
+      }
+      .item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .placeholder {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: 100%;
+        color: var(--color-text-light);
+      }
+      .item.taken .item-image img,
+      .item.taken .placeholder {
+        filter: grayscale(1);
+        opacity: 0.55;
+      }
+      .item.taken .item-info > :not(.actions) {
+        opacity: 0.5;
+      }
+      .stamp {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .stamp span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 135%;
+        aspect-ratio: 3 / 1;
+        padding: 0 14% 2.7%;
+        transform: rotate(-38deg);
+        background: var(--ribbon-reserved) center / 100% 100% no-repeat;
+        color: #654098;
+        font-size: clamp(11px, 7cqw, 18px);
+        font-weight: 700;
+        letter-spacing: 0.025em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .stamp.purchased span {
+        padding-bottom: 0.7%;
+        background-image: var(--ribbon-purchased);
+        color: #245b45;
+      }
+      .sale {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--color-danger);
+        background: var(--color-danger-bg);
+        color: var(--color-danger);
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .quick {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        z-index: 2;
+        display: flex;
+        gap: 8px;
+      }
+      .quick .icon-btn {
+        width: 34px;
+        height: 34px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+      [data-theme="dark"] .quick .icon-btn {
+        background: rgba(22, 22, 25, 0.9);
+      }
+      .item-info {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        padding: 14px 14px 16px;
+        min-width: 0;
+      }
+      .item-name {
+        margin-bottom: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+      }
+      .item-description {
+        font-size: 13px;
+        color: var(--color-text-muted);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+      }
+      .price-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        min-height: 18px;
+        margin: 6px 0 10px;
+      }
+      .price {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--color-brand);
+      }
+      .store {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 12px;
+        color: var(--color-text-light);
       }
       .actions {
         display: flex;
+        align-items: center;
         gap: 8px;
-        flex-wrap: wrap;
-        margin-top: 12px;
+        margin-top: auto;
+        padding-top: 8px;
       }
-      button,
-      .upload {
-        font: inherit;
-        color: var(--ink);
-        border: 1px solid var(--line);
-        background: var(--surface);
-        border-radius: 9px;
-        padding: 8px 12px;
+      .reserve-btn {
+        flex: 1;
+        min-width: 0;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 10px;
+        border-radius: 12px;
+        border: 1px solid var(--brand-alpha-25);
+        background: var(--gradient-brand-subtle);
+        color: var(--color-brand);
+        box-shadow:
+          inset 0 0 0 1px var(--brand-alpha-10),
+          0 4px 12px var(--brand-alpha-10);
+        font: 600 13px/1.2 var(--font-sans);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .reserve-btn span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .reserve-btn:hover:not(:disabled) {
+        border-color: var(--color-brand);
+        color: var(--color-brand-dark);
+      }
+      .reserve-btn.reserved {
+        background: var(--color-brand);
+        border-color: var(--color-brand);
+        color: #fff;
+        box-shadow: 0 2px 8px var(--brand-alpha-25);
+      }
+      .reserve-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+      .icon-btn {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        border: 1px solid var(--color-border-subtle);
+        background: var(--card-bg);
+        color: var(--color-text);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .icon-btn:hover:not(:disabled) {
+        border-color: var(--color-brand);
+        color: var(--color-brand);
+      }
+      .icon-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+      .icon-btn.buy {
+        border-color: rgba(22, 163, 74, 0.35);
+        background: rgba(22, 163, 74, 0.08);
+        color: #15803d;
+      }
+      .icon-btn.buy:hover:not(:disabled) {
+        border-color: #15803d;
+        background: rgba(22, 163, 74, 0.16);
+      }
+      .icon-btn.buy.undo {
+        border-color: color-mix(in srgb, var(--color-danger) 35%, transparent);
+        background: var(--color-danger-bg);
+        color: var(--color-danger);
+      }
+      .icon-btn:focus-within {
+        box-shadow: 0 0 0 4px var(--input-focus-ring);
+      }
+      .icon-btn input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
         cursor: pointer;
       }
-      button.primary {
-        background: var(--brand);
-        color: var(--surface);
-        border-color: var(--brand);
+
+      /* ===== Panels: review card, event, results ===== */
+      .panel {
+        display: grid;
+        gap: 14px;
+        padding: 20px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
       }
-      button:disabled {
-        opacity: 0.5;
-        cursor: wait;
+      .panel-head {
+        display: grid;
+        gap: 4px;
       }
-      button:focus-visible,
-      .upload:focus-within {
-        outline: 2px solid var(--brand);
-        outline-offset: 3px;
-      }
-      .review {
-        background: var(--tint);
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 18px;
-      }
-      .upload input {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        opacity: 0;
-      }
-      dl {
-        margin: 8px 0;
-      }
-      dt {
-        color: var(--muted);
-        font-size: 12px;
-        margin-top: 8px;
-      }
-      dd {
-        margin: 0;
+      .panel-head h2 {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
         overflow-wrap: anywhere;
-        white-space: pre-wrap;
       }
-      #status {
-        margin-bottom: 12px;
+      .section-title {
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
       }
-      a {
-        color: var(--brand);
+      .subtitle {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--color-text-muted);
+      }
+      .eyebrow {
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--color-brand);
+      }
+      .rows {
+        display: grid;
+        gap: 10px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: var(--gradient-placeholder);
+      }
+      .rows div {
+        display: grid;
+        gap: 2px;
+      }
+      .rows dt {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--color-text-muted);
+      }
+      .rows dd {
+        font-size: 14px;
+        overflow-wrap: anywhere;
+        white-space: pre-line;
+      }
+      .footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+      }
+      .stat {
+        display: grid;
+        gap: 2px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: var(--gradient-placeholder);
+      }
+      .stat strong {
+        font-size: 16px;
+      }
+      .people {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .person {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 12px 4px 4px;
+        border-radius: 999px;
+        border: 1px solid var(--color-border-light);
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .person.pending {
+        color: var(--color-text-muted);
+        border-style: dashed;
+      }
+      .avatar {
+        display: grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--gradient-brand-subtle);
+        color: var(--color-brand);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+      .receiver {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px;
+        border-radius: 16px;
+        background: var(--gradient-brand-subtle);
+        border: 1px solid var(--brand-alpha-25);
+      }
+      .receiver strong {
+        display: block;
+        font-size: 16px;
+      }
+      .result-icon {
+        display: grid;
+        place-items: center;
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: var(--brand-alpha-12);
+        color: var(--color-brand);
+      }
+      .result {
+        justify-items: center;
+        text-align: center;
+      }
+
+      /* ===== Feedback ===== */
+      .banner {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .banner:empty {
+        display: none;
+      }
+      .banner.error {
+        background: var(--color-danger-bg);
+        color: var(--color-danger);
+      }
+      .banner.success {
+        background: var(--color-success-bg);
+        color: var(--color-success);
+      }
+      .banner.info {
+        background: var(--brand-alpha-10);
+        color: var(--color-brand);
       }
       .empty {
-        padding: 28px;
+        display: grid;
+        justify-items: center;
+        gap: 10px;
+        padding: 24px 16px;
         text-align: center;
-        border: 1px dashed var(--line);
-        border-radius: 16px;
+        color: var(--color-text-muted);
+      }
+      .empty img {
+        width: 112px;
+        height: 112px;
+      }
+      .pager {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+      .loading {
+        padding: 24px;
+        text-align: center;
+        color: var(--color-text-muted);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
       }
     </style>
   </head>
   <body>
     <main>
-      <header>
-        <span class="brand">Wishlane</span>
-        <button id="browse">My wishlists</button>
-      </header>
-      <div id="status" role="status" aria-live="polite"></div>
-      <section id="content"><p class="muted">Loading your Wishlane card…</p></section>
+      <div id="banner" class="banner" role="status" aria-live="polite"></div>
+      <section id="content"><p class="loading">Loading…</p></section>
     </main>
     <script>
       const config = __WISHLANE_CONFIG__;
       const content = document.getElementById("content");
-      const status = document.getElementById("status");
+      const banner = document.getElementById("banner");
+      const root = document.documentElement;
+      root.style.setProperty(
+        "--ribbon-reserved",
+        `url("${config.origin}/images/ribbons/reserved.webp")`,
+      );
+      root.style.setProperty(
+        "--ribbon-purchased",
+        `url("${config.origin}/images/ribbons/purchased.webp")`,
+      );
+
+      // --- Host context: theme and locale come from ChatGPT or Claude ---
+
+      let locale = navigator.language;
+      function applyHostContext(context) {
+        if (!context) return;
+        if (context.theme === "light" || context.theme === "dark")
+          root.dataset.theme = context.theme;
+        if (context.locale) locale = context.locale;
+      }
+      root.dataset.theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
       // --- MCP Apps host bridge (JSON-RPC over postMessage) ---
 
@@ -179,6 +782,7 @@
       let sequence = 0;
       let input = {};
       let ready = false;
+      let busy = false;
 
       function send(method, params) {
         return new Promise((resolve, reject) => {
@@ -200,284 +804,765 @@
         return output.content?.find((value) => value.type === "text")?.text || fallback;
       }
 
-      async function call(name, args) {
+      async function callTool(name, args) {
         const output = await send("tools/call", { name, arguments: args });
-        if (output.isError) throw new Error(errorText(output, "Unable to complete this action."));
-        render(output);
-        await send("ui/update-model-context", {
-          structuredContent: output.structuredContent,
-        }).catch(() => {});
+        if (output.isError)
+          throw new Error(errorText(output, "Something went wrong. Please try again."));
+        send("ui/update-model-context", { structuredContent: output.structuredContent }).catch(
+          () => {},
+        );
         return output;
+      }
+
+      async function navigate(name, args) {
+        const output = await callTool(name, args);
+        input = args;
+        render(output);
+      }
+
+      /** Runs one action at a time, disabling every control until it settles. */
+      async function act(action) {
+        if (!ready) return showBanner("info", "Connecting to Wishlane…");
+        if (busy) return;
+        busy = true;
+        content.setAttribute("aria-busy", "true");
+        content.querySelectorAll("button, input").forEach((node) => (node.disabled = true));
+        showBanner();
+        try {
+          await action();
+        } catch (error) {
+          showBanner("error", error.message);
+        } finally {
+          busy = false;
+          content.removeAttribute("aria-busy");
+          content.querySelectorAll("button, input").forEach((node) => {
+            node.disabled = node.dataset.disabled === "true";
+          });
+        }
+      }
+
+      // --- Formatting ---
+
+      function formatDate(value) {
+        if (!value) return "";
+        const date = new Date(/^\d{4}-\d{2}-\d{2}$/.test(value) ? value + "T00:00:00" : value);
+        if (Number.isNaN(date.getTime())) return String(value);
+        return date.toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
+      }
+
+      function formatPrice(amount, currency) {
+        if (amount === null || amount === undefined || amount === "") return "";
+        const number = Number(amount);
+        if (!Number.isFinite(number)) return "";
+        try {
+          if (currency)
+            return new Intl.NumberFormat(locale, { style: "currency", currency }).format(number);
+        } catch {}
+        return new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(number);
+      }
+
+      function plural(count, one, other) {
+        return (count === 1 ? one : other).replace("{n}", count);
+      }
+
+      function storeName(url) {
+        try {
+          return new URL(url).hostname.replace(/^www\./, "");
+        } catch {
+          return "";
+        }
       }
 
       // --- DOM helpers ---
 
-      function el(tag, text, className) {
+      const ICONS = {
+        gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>',
+        globe:
+          '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+        users:
+          '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+        userCheck:
+          '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/>',
+        lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+        lockOpen:
+          '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
+        cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+        bag: '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+        imagePlus:
+          '<path d="M16 5h6"/><path d="M19 2v6"/><path d="M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><circle cx="9" cy="9" r="2"/>',
+        store:
+          '<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>',
+        link: '<path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" x2="16" y1="12" y2="12"/>',
+        check: '<path d="M20 6 9 17l-5-5"/>',
+        x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+        alert:
+          '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+      };
+
+      function icon(name, size = 16) {
+        const span = document.createElement("span");
+        span.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
+        return span.firstChild;
+      }
+
+      function el(tag, className, ...children) {
         const node = document.createElement(tag);
-        if (text !== undefined) node.textContent = String(text);
         if (className) node.className = className;
+        for (const child of children) {
+          if (child === null || child === undefined || child === false || child === "") continue;
+          node.append(child instanceof Node ? child : String(child));
+        }
         return node;
       }
 
-      function label(key) {
-        return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-      }
-
-      function describe(value) {
-        if (value === null) return "None";
-        if (Array.isArray(value)) return value.map(describe).join(", ") || "None";
-        if (typeof value === "object")
-          return Object.entries(value)
-            .map(([key, inner]) => label(key) + ": " + describe(inner))
-            .join("\n");
-        return String(value);
-      }
-
-      function details(data, parentNode) {
-        const list = el("dl");
-        Object.entries(data).forEach(([key, value]) => {
-          if (value === undefined) return;
-          list.append(el("dt", label(key)), el("dd", describe(value)));
-        });
-        parentNode.append(list);
-      }
-
-      function button(text, action, primary = false) {
-        const node = el("button", text, primary ? "primary" : "");
-        node.onclick = async () => {
-          if (!ready) {
-            status.textContent = "Connecting…";
-            return;
-          }
-          node.disabled = true;
-          status.textContent = "Working…";
-          try {
-            await action();
-            status.textContent = "";
-          } catch (error) {
-            status.textContent = error.message;
-          } finally {
-            node.disabled = false;
-          }
-        };
+      function button(label, variant, onClick, options = {}) {
+        const node = el("button", `btn ${variant}${options.small ? " sm" : ""}`, label);
+        node.type = "button";
+        node.onclick = () => act(onClick);
         return node;
       }
 
-      function addImage(card, url) {
+      function iconButton(name, label, className, onClick, disabled = false) {
+        const node = el("button", `icon-btn ${className}`, icon(name));
+        node.type = "button";
+        node.title = label;
+        node.setAttribute("aria-label", label);
+        node.dataset.disabled = String(disabled);
+        node.disabled = disabled;
+        if (onClick) node.onclick = () => act(onClick);
+        return node;
+      }
+
+      function showBanner(tone, text) {
+        banner.className = `banner ${tone || ""}`;
+        banner.replaceChildren();
+        if (text)
+          banner.append(
+            icon(tone === "error" ? "alert" : tone === "success" ? "check" : "gift"),
+            el("span", "", text),
+          );
+      }
+
+      function safeImage(url, alt) {
         try {
           const parsed = new URL(url);
-          if (![config.origin, config.storageOrigin].includes(parsed.origin)) return;
+          if (![config.origin, config.storageOrigin].includes(parsed.origin)) return null;
           const img = el("img");
           img.src = parsed.href;
-          img.alt = "";
+          img.alt = alt || "";
           img.loading = "lazy";
           img.referrerPolicy = "no-referrer";
           img.onerror = () => img.remove();
-          card.append(img);
-        } catch {}
-      }
-
-      function title(text) {
-        content.append(el("h1", text));
-      }
-
-      function cards(rows, make) {
-        if (!rows.length) {
-          content.append(
-            el("div", "Nothing here yet. Ask the assistant to help you add something.", "empty"),
-          );
-          return;
+          return img;
+        } catch {
+          return null;
         }
-        const grid = el("div", undefined, "grid");
-        rows.forEach((row) => {
-          const card = el("article", undefined, "card");
-          make(card, row);
-          grid.append(card);
-        });
-        content.append(grid);
+      }
+
+      function toolbar(title, caption, showHome = true) {
+        const heading = el("div", "", el("h1", "", title), caption && el("p", "caption", caption));
+        const bar = el("div", "toolbar", heading);
+        if (showHome)
+          bar.append(
+            button("My Wishlists", "ghost", () => navigate("list_wishlists", {}), { small: true }),
+          );
+        content.append(bar);
+      }
+
+      function emptyState(mascot, message) {
+        const img = safeImage(`${config.origin}/mascot/${mascot}.webp`);
+        if (img) img.alt = "";
+        content.append(el("div", "empty", img, el("p", "", message)));
+      }
+
+      function grid(rows, make) {
+        const node = el("div", "grid");
+        rows.forEach((row) => node.append(make(row)));
+        content.append(node);
+      }
+
+      function pager(data, rows) {
+        const limit = data.limit;
+        const offset = data.offset || 0;
+        if (!limit) return;
+        let tool;
+        const args = { ...input, limit };
+        if (data.kind === "wishlists") tool = "list_wishlists";
+        else if (data.kind === "events") tool = "list_secret_santa_events";
+        else if (data.kind === "items" && input.token) tool = "view_shared_wishlist";
+        else if (data.kind === "items" && data.wishlist) {
+          tool = "get_wishlist";
+          args.wishlist_id = data.wishlist.id;
+        } else if (data.kind === "items" && data.recipient)
+          tool = "get_secret_santa_recipient_wishes";
+        else if (data.kind === "items" && input.status) tool = "list_my_gifts";
+        const hasNext =
+          data.total !== undefined ? offset + rows.length < data.total : rows.length === limit;
+        if (!tool || (offset === 0 && !hasNext)) return;
+        const nav = el("nav", "pager");
+        nav.setAttribute("aria-label", "Pagination");
+        const previous = button(
+          "Previous",
+          "secondary",
+          () => navigate(tool, { ...args, offset: Math.max(0, offset - limit) }),
+          { small: true },
+        );
+        const next = button(
+          "Next",
+          "secondary",
+          () => navigate(tool, { ...args, offset: offset + limit }),
+          { small: true },
+        );
+        for (const [node, disabled] of [
+          [previous, offset === 0],
+          [next, !hasNext],
+        ]) {
+          node.disabled = disabled;
+          node.dataset.disabled = String(disabled);
+        }
+        nav.append(previous, next);
+        content.append(nav);
+      }
+
+      // --- Wishlists ---
+
+      const ACCENTS = ["pink", "blue", "peach", "mint", "lavender"];
+      const VISIBILITY = [
+        ["globe", "Public"],
+        ["users", "Friends only"],
+        ["lock", "Private"],
+        ["userCheck", "Selected friends"],
+      ];
+
+      function wishlistCard(list) {
+        const cover = el("div", `cover ${ACCENTS[list.accent_type] || "pink"}`);
+        const image = list.image_url && safeImage(list.image_url, list.title);
+        cover.append(image || icon("gift", 52));
+        if (list.is_owner === false) {
+          const shared = el("span", "pill", icon("link", 12), "Shared");
+          shared.title = list.owner_nickname
+            ? `Shared by @${list.owner_nickname}`
+            : "Shared wishlist";
+          cover.append(shared);
+        }
+        const meta = el("div", "meta");
+        if (typeof list.items_count === "number")
+          meta.append(el("span", "", plural(Number(list.items_count), "{n} item", "{n} items")));
+        const visibility = VISIBILITY[list.visibility_type];
+        if (visibility) meta.append(el("span", "", icon(visibility[0], 14), visibility[1]));
+        const link = el(
+          "button",
+          "card-link",
+          cover,
+          el("div", "card-body", el("h3", "card-title", list.title), meta),
+        );
+        link.type = "button";
+        link.onclick = () => act(() => navigate("get_wishlist", { wishlist_id: list.id }));
+        return el("article", "card", link);
+      }
+
+      function renderWishlists(data) {
+        const rows = data.wishlists || [];
+        const title =
+          input.view === "public"
+            ? "Discover"
+            : input.view === "friend"
+              ? "Friend's wishlists"
+              : "My Wishlists";
+        toolbar(title, "", false);
+        if (!rows.length) return emptyState("sad-alone", "No wishlists yet.");
+        grid(rows, wishlistCard);
+        pager(data, rows);
+      }
+
+      // --- Items ---
+
+      function isOnSale(item) {
+        if (!item.has_discount || !item.discount_price || !item.price) return null;
+        if (item.discount_end_date && new Date(item.discount_end_date + "T23:59:59") < new Date())
+          return null;
+        const percent = Math.round((1 - Number(item.discount_price) / Number(item.price)) * 100);
+        return percent > 0 ? percent : null;
+      }
+
+      function setStatus(data, item, status) {
+        return async () => {
+          await callTool("set_gift_status", { item_id: item.id, status });
+          item.status = { available: 0, reserved: 1, bought: 2 }[status];
+          item.reserved_by_me = status === "reserved";
+          item.bought_by_me = status === "bought";
+          render({ structuredContent: data });
+        };
+      }
+
+      function uploadButton(data, item) {
+        const label = item.image_url ? "Change image" : "Add image";
+        const node = el("label", "icon-btn", icon("imagePlus"));
+        node.title = label;
+        const picker = el("input");
+        picker.type = "file";
+        picker.accept = "image/png,image/jpeg,image/webp";
+        picker.setAttribute("aria-label", `${label}: ${item.name}`);
+        picker.onchange = () => {
+          const file = picker.files[0];
+          picker.value = "";
+          if (!file) return;
+          if (file.size > 5 * 1024 * 1024)
+            return showBanner("error", "Choose an image under 5 MB.");
+          act(async () => {
+            const output = await callTool("upload_wish_image", {
+              item_id: item.id,
+              base64: await readBase64(file),
+            });
+            item.image_url = output.structuredContent?.items?.[0]?.image_url ?? item.image_url;
+            render({ structuredContent: data });
+            showBanner("success", "Image saved.");
+          });
+        };
+        node.append(picker);
+        return node;
       }
 
       function readBase64(file) {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => resolve(String(reader.result).split(",")[1]);
-          reader.onerror = reject;
+          reader.onerror = () => reject(new Error("Unable to read this image."));
           reader.readAsDataURL(file);
         });
       }
 
-      function uploadButton(parentNode, item) {
-        const wrap = el("label", "Add image", "upload");
-        const picker = el("input");
-        picker.type = "file";
-        picker.accept = "image/png,image/jpeg,image/webp";
-        picker.setAttribute("aria-label", "Upload image for " + item.name);
-        picker.onchange = async () => {
-          const file = picker.files[0];
-          if (!file) return;
-          if (file.size > 5 * 1024 * 1024) {
-            status.textContent = "Choose an image under 5 MB.";
-            return;
-          }
-          status.textContent = "Uploading image…";
-          try {
-            await call("upload_wish_image", { item_id: item.id, base64: await readBase64(file) });
-            status.textContent = "Image saved.";
-          } catch (error) {
-            status.textContent = error.message;
-          }
-        };
-        wrap.append(picker);
-        parentNode.append(wrap);
-      }
-
-      // --- Views, one per result kind ---
-
-      function renderConfirmation(data, output) {
-        title("Review your change");
-        const box = el("div", undefined, "review");
-        box.append(
-          el("h2", data.title),
-          el("p", "Nothing has changed yet. Check the exact selection and changes below.", "muted"),
+      function itemCard(data, item) {
+        // Owners do not see other people's reservations; `status` is then absent.
+        const known = item.status !== undefined && item.status !== null;
+        const purchased = item.status === 2;
+        const taken = known && item.status !== 0;
+        const media = el("div", "item-image");
+        media.append(
+          (item.image_url && safeImage(item.image_url, item.name)) ||
+            el("div", "placeholder", icon("bag", 32)),
         );
-        if (data.selection && Object.keys(data.selection).length) {
-          box.append(el("h3", "Selected"));
-          details(data.selection, box);
-        }
-        box.append(el("h3", "Changes"));
-        details(data.changes, box);
-        const actions = el("div", undefined, "actions");
-        const capability = output._meta?.confirmation;
-        if (capability) {
-          actions.append(
-            button("Confirm", () => call("confirm_action", capability), true),
-            button("Cancel", async () => {
-              content.replaceChildren(el("p", "Cancelled. No changes were made."));
-            }),
+        if (taken)
+          media.append(
+            el(
+              "div",
+              `stamp${purchased ? " purchased" : ""}`,
+              el("span", "", purchased ? "Purchased" : "Reserved"),
+            ),
           );
-        } else {
-          box.append(el("p", "This review is unavailable. Ask for a new review card."));
-        }
-        box.append(actions);
-        content.append(box);
-      }
+        const sale = isOnSale(item);
+        if (sale) media.append(el("span", "sale", `Sale -${sale}%`));
 
-      function renderWishlists(data) {
-        title("Your wishlists");
-        cards(data.wishlists || [], (card, list) => {
-          addImage(card, list.image_url);
-          card.append(el("h2", list.title));
-          if (list.description) card.append(el("p", list.description, "muted"));
-          if (list.event_date) card.append(el("p", list.event_date));
-          const actions = el("div", undefined, "actions");
-          actions.append(
-            button("View wishes", () => call("get_wishlist", { wishlist_id: list.id }), true),
+        const actions = el("div", "actions");
+        if (known) {
+          const mine = item.reserved_by_me || item.bought_by_me;
+          const label = item.bought_by_me
+            ? "Purchased by you"
+            : item.reserved_by_me
+              ? "Reserved by you"
+              : purchased
+                ? "Purchased"
+                : taken
+                  ? "Reserved"
+                  : "Reserve this gift";
+          const reserve = el(
+            "button",
+            `reserve-btn${taken ? " reserved" : ""}`,
+            icon(taken ? "lock" : "lockOpen"),
+            el("span", "", label),
           );
-          card.append(actions);
-        });
+          reserve.type = "button";
+          const locked = (taken && !mine) || item.bought_by_me;
+          reserve.dataset.disabled = String(locked);
+          reserve.disabled = locked;
+          if (item.reserved_by_me) reserve.title = "Release reservation";
+          reserve.onclick = () =>
+            act(setStatus(data, item, item.reserved_by_me ? "available" : "reserved"));
+          actions.append(reserve);
+          if (mine)
+            actions.append(
+              item.bought_by_me
+                ? iconButton(
+                    "cart",
+                    "Mark as not purchased",
+                    "buy undo",
+                    setStatus(data, item, "reserved"),
+                  )
+                : iconButton("cart", "Mark as purchased", "buy", setStatus(data, item, "bought")),
+            );
+        }
+        const quick = el("div", "quick");
+        if (item.url)
+          quick.append(
+            iconButton("store", "Open product link", "", () =>
+              send("ui/open-link", { url: item.url }),
+            ),
+          );
+        if (data.wishlist?.can_edit) quick.append(uploadButton(data, item));
+        if (quick.childNodes.length) media.append(quick);
+
+        const price = formatPrice(item.price, item.currency);
+        const info = el(
+          "div",
+          "item-info",
+          el("h3", "item-name", item.name),
+          item.description && el("p", "item-description", item.description),
+          !data.wishlist && item.wishlist_title && el("p", "caption", item.wishlist_title),
+          el(
+            "div",
+            "price-row",
+            price && el("span", "price", price),
+            item.url && el("span", "store", storeName(item.url)),
+          ),
+          actions.childNodes.length ? actions : null,
+        );
+        return el("article", `card item${taken ? " taken" : ""}`, media, info);
       }
 
       function renderItems(data) {
-        title(data.wishlist?.title || "Wishes");
-        cards(data.items || [], (card, item) => {
-          const setStatus = (giftStatus) => () =>
-            call("set_gift_status", { item_id: item.id, status: giftStatus });
-          addImage(card, item.image_url);
-          card.append(el("h2", item.name));
-          if (item.price) card.append(el("p", (item.currency || "") + " " + item.price));
-          if (item.description) card.append(el("p", item.description, "muted"));
-          const actions = el("div", undefined, "actions");
-          actions.append(button("Details", () => call("get_wish", { item_id: item.id })));
-          if (item.status === 0) actions.append(button("Reserve", setStatus("reserved"), true));
-          if (item.reserved_by_me)
-            actions.append(
-              button("Mark bought", setStatus("bought")),
-              button("Release", setStatus("available")),
-            );
-          if (item.status === 1 && !item.reserved_by_me) card.append(el("p", "Reserved", "muted"));
-          if (item.status === 2)
-            card.append(el("p", item.bought_by_me ? "Bought by you" : "Bought", "muted"));
-          if (data.wishlist?.can_edit) uploadButton(actions, item);
-          card.append(actions);
-        });
+        const rows = data.items || [];
+        let title = data.wishlist?.title;
+        if (data.recipient) title = `${personName(data.recipient)}'s items`;
+        else if (!title) title = input.status === "bought" ? "Purchased gifts" : "Reserved gifts";
+        const count = data.total ?? data.wishlist?.items_count;
+        toolbar(title, typeof count === "number" ? plural(count, "{n} item", "{n} items") : "");
+        if (!rows.length) return emptyState("gift-in-hands", "No items yet.");
+        grid(rows, (item) => itemCard(data, item));
+        pager(data, rows);
+      }
+
+      // --- Secret Santa ---
+
+      function personName(person) {
+        return (
+          person?.display_name || (person?.nickname ? `@${person.nickname}` : "Wishlane member")
+        );
+      }
+
+      function personChip(person, pendingInvite) {
+        const name = personName(person);
+        const initial = (person?.display_name || person?.nickname || "?").trim().charAt(0);
+        return el(
+          "span",
+          `person${pendingInvite ? " pending" : ""}`,
+          el("span", "avatar", initial),
+          name,
+        );
       }
 
       function renderEvents(data) {
-        title("Secret Santa");
-        cards(data.items || [], (card, event) => {
-          card.append(
-            el("h2", event.name),
-            el("p", event.event_date),
-            button("View event", () => call("get_secret_santa_event", { event_id: event.id })),
+        const rows = data.items || [];
+        toolbar("Secret Santa", "");
+        if (!rows.length)
+          return emptyState("santa-sack", "No Secret Santa events yet. Create one to get started!");
+        grid(rows, (event) => {
+          const cover = el("div", "cover santa");
+          cover.append(
+            (event.image_url && safeImage(event.image_url, event.name)) || icon("gift", 44),
           );
+          if (event.is_owner) cover.append(el("span", "pill", "Organizer"));
+          const meta = el(
+            "div",
+            "meta",
+            el("span", "", formatDate(event.event_date)),
+            el(
+              "span",
+              "",
+              plural(Number(event.participants_count || 0), "{n} participant", "{n} participants"),
+            ),
+          );
+          const link = el(
+            "button",
+            "card-link",
+            cover,
+            el("div", "card-body", el("h3", "card-title", event.name), meta),
+          );
+          link.type = "button";
+          link.onclick = () =>
+            act(() => navigate("get_secret_santa_event", { event_id: event.id }));
+          return el("article", "card", link);
         });
+        pager(data, rows);
       }
 
       function renderEvent(data) {
-        const { event } = data;
-        const personName = (person) => person?.display_name || person?.nickname;
-        title(event.name);
-        details(
-          {
-            date: event.event_date,
-            budget: event.budget,
-            currency: event.currency,
-            participants: event.participants?.map(personName),
-            your_recipient: personName(event.my_receiver),
-          },
-          content,
+        const event = data.event;
+        toolbar(event.name, formatDate(event.event_date));
+        const budget = el(
+          "div",
+          "stat",
+          el("span", "caption", "Budget per person"),
+          el("strong", "", formatPrice(event.budget, event.currency) || "—"),
         );
-        if (event.my_receiver)
-          content.append(
-            button(
-              "View recipient wishes",
-              () => call("get_secret_santa_recipient_wishes", { event_id: event.id }),
-              true,
+        const panel = el("div", "panel");
+        // Creating or editing an event returns only its own fields, not who takes part.
+        if (!Array.isArray(event.participants)) {
+          panel.append(
+            el("div", "stats", budget),
+            el(
+              "div",
+              "footer",
+              button(
+                "View event",
+                "secondary",
+                () => navigate("get_secret_santa_event", { event_id: event.id }),
+                { small: true },
+              ),
             ),
           );
-      }
-
-      function openLinkButton(text, url) {
-        return button(text, () => send("ui/open-link", { url }));
-      }
-
-      function renderNextPage(data) {
-        const rows = data.wishlists || data.items || [];
-        if (!data.limit || rows.length !== data.limit) return;
-        const next = { ...input, offset: (data.offset || 0) + data.limit, limit: data.limit };
-        let tool;
-        if (data.kind === "wishlists") tool = "list_wishlists";
-        else if (data.kind === "events") tool = "list_secret_santa_events";
-        else if (data.kind === "items" && data.wishlist) {
-          tool = "get_wishlist";
-          next.wishlist_id = data.wishlist.id;
+          return content.append(panel);
         }
-        if (tool) content.append(button("Next page", () => call(tool, next)));
+        const participants = event.participants;
+        const invites = event.pending_invites || [];
+        panel.append(
+          el(
+            "div",
+            "stats",
+            budget,
+            el(
+              "div",
+              "stat",
+              el("span", "caption", "Accepted participants"),
+              el("strong", "", participants.length),
+            ),
+            el(
+              "div",
+              "stat",
+              el("span", "caption", "Pending invites"),
+              el("strong", "", invites.length),
+            ),
+          ),
+        );
+        if (event.my_receiver) {
+          panel.append(
+            el(
+              "div",
+              "receiver",
+              el(
+                "div",
+                "",
+                el("span", "eyebrow", "Your receiver"),
+                el("strong", "", personName(event.my_receiver)),
+              ),
+              button(
+                "View their items",
+                "primary",
+                () => navigate("get_secret_santa_recipient_wishes", { event_id: event.id }),
+                { small: true },
+              ),
+            ),
+          );
+        } else if (!event.is_started) {
+          panel.append(
+            el(
+              "p",
+              "subtitle",
+              "Names haven't been drawn yet. Your receiver appears here after the organizer launches the event.",
+            ),
+          );
+        }
+        panel.append(
+          el("h3", "section-title", "Participants"),
+          participants.length
+            ? el("div", "people", ...participants.map((person) => personChip(person)))
+            : el("p", "subtitle", "No participants have accepted yet."),
+        );
+        if (invites.length)
+          panel.append(
+            el("h3", "section-title", "Pending invites"),
+            el("div", "people", ...invites.map((person) => personChip(person, true))),
+          );
+        content.append(panel);
       }
 
-      function render(output) {
+      // --- Review card for important changes ---
+
+      const DANGER = /^(delete_|remove_|cancel_)/;
+      const LABELS = {
+        wishlist: "Wishlist",
+        wish: "Item",
+        event: "Event",
+        participants: "Participants",
+        people: "People",
+        group: "Group",
+        title: "Title",
+        name: "Name",
+        description: "Description",
+        event_date: "Date",
+        budget: "Budget per person",
+        currency: "Currency",
+        image_url: "Image",
+        visibility_type: "Visibility",
+        accent_type: "Colour",
+        response: "Response",
+        role: "Access",
+        blocked: "Action",
+        exclusions: "Exclusions",
+      };
+      const VALUES = {
+        response: { accept: "Accept", decline: "Decline", cancel: "Cancel request" },
+        role: { viewer: "Viewer", editor: "Editor", none: "Remove access" },
+        blocked: { true: "Block", false: "Unblock" },
+        visibility_type: Object.fromEntries(VISIBILITY.map((entry, index) => [index, entry[1]])),
+        accent_type: { 0: "Pink", 1: "Blue", 2: "Peach", 3: "Mint", 4: "Lavender" },
+      };
+      const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+      function humanize(key) {
+        return LABELS[key] || key.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
+      }
+
+      function reviewRows(entries, names, currency) {
+        const list = el("dl", "rows");
+        const describe = (key, value) => {
+          if (value === null || value === undefined || value === "") return "None";
+          if (VALUES[key]?.[String(value)]) return VALUES[key][String(value)];
+          if (key.endsWith("_date")) return formatDate(value);
+          if (key === "image_url") return "New image";
+          if (typeof value === "boolean") return value ? "Yes" : "No";
+          if (typeof value === "string" && UUID.test(value))
+            return names.get(value) || "Wishlane member";
+          if (Array.isArray(value))
+            return value.map((entry) => describe(key, entry)).join(", ") || "None";
+          if (typeof value === "object")
+            return (
+              value.name ||
+              value.nickname ||
+              Object.values(value)
+                .map((entry) => describe(key, entry))
+                .join(" · ")
+            );
+          return String(value);
+        };
+        for (const [key, value] of entries) {
+          let text;
+          if (key === "exclusions") {
+            if (!value?.length) continue;
+            text = value
+              .map(
+                (rule) =>
+                  `${names.get(rule.user_id) || "Wishlane member"} won't draw ${rule.excluded_ids.map((id) => names.get(id) || "Wishlane member").join(", ")}`,
+              )
+              .join("\n");
+          } else if (key === "budget") {
+            text = formatPrice(value, currency);
+          } else if (key === "people" || key === "participants") {
+            text = value
+              .map(
+                (person) =>
+                  person.name || (person.nickname ? `@${person.nickname}` : "Wishlane member"),
+              )
+              .join(", ");
+          } else {
+            text = describe(key, value);
+          }
+          list.append(el("div", "", el("dt", "", humanize(key)), el("dd", "", text)));
+        }
+        return list.childNodes.length ? list : null;
+      }
+
+      function renderConfirmation(data, output) {
+        const selection = data.selection || {};
+        const names = new Map();
+        for (const person of selection.participants || []) names.set(person.id, person.name);
+        for (const person of selection.people || []) names.set(person.id, `@${person.nickname}`);
+        // Records named in "Selected" are already resolved, so raw IDs are left out of "Changes".
+        const flat = Object.entries(data.changes || {}).flatMap(([key, value]) =>
+          key === "changes" && value && typeof value === "object"
+            ? Object.entries(value)
+            : [[key, value]],
+        );
+        const changes = flat.filter(
+          ([key, value]) =>
+            key === "exclusions" ||
+            (!(/(^|_)ids?$/.test(key) || key === "target" || key === "silent") &&
+              value !== undefined),
+        );
+        const capability = output._meta?.confirmation;
+        const danger = DANGER.test(data.tool || "");
+        const expires = data.expires_at && new Date(data.expires_at);
+        const panel = el(
+          "div",
+          "panel",
+          el(
+            "div",
+            "panel-head",
+            el("span", "eyebrow", "Review before confirming"),
+            el("h2", "", data.title),
+            el("p", "subtitle", "Nothing has changed yet."),
+          ),
+          reviewRows(
+            [...Object.entries(selection), ...changes],
+            names,
+            flat.find(([key]) => key === "currency")?.[1],
+          ),
+        );
+        if (!capability) {
+          panel.append(
+            el("p", "banner error", "This review is no longer available. Ask for a new one."),
+          );
+          return content.append(panel);
+        }
+        panel.append(
+          el(
+            "div",
+            "footer",
+            button("Cancel", "secondary", async () => {
+              content.replaceChildren(resultPanel("x", "Cancelled", "Nothing was changed."));
+              send("ui/update-model-context", {
+                structuredContent: { kind: "confirmation", status: "cancelled", title: data.title },
+              }).catch(() => {});
+            }),
+            button("Confirm", danger ? "danger" : "primary", async () => {
+              render(await callTool("confirm_action", capability), true);
+            }),
+          ),
+        );
+        if (expires && !Number.isNaN(expires.getTime()))
+          panel.append(
+            el(
+              "p",
+              "caption",
+              `This review expires at ${expires.toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })}.`,
+            ),
+          );
+        content.append(panel);
+      }
+
+      function resultPanel(iconName, title, message, extra) {
+        return el(
+          "div",
+          "panel result",
+          el("span", "result-icon", icon(iconName, 24)),
+          el("div", "panel-head", el("h2", "", title), message && el("p", "subtitle", message)),
+          extra,
+        );
+      }
+
+      // --- Router ---
+
+      function render(output, confirmed = false) {
         const data = output.structuredContent || {};
         content.replaceChildren();
-        if (output.isError) {
-          status.textContent = errorText(output, "Unable to load Wishlane.");
-          return;
-        }
+        if (output.isError)
+          return showBanner("error", errorText(output, "Something went wrong. Please try again."));
+        if (confirmed && data.kind) showBanner("success", "Change confirmed.");
         if (data.kind === "confirmation") return renderConfirmation(data, output);
-        if (data.kind === "wishlists") renderWishlists(data);
-        else if (data.kind === "items") renderItems(data);
-        else if (data.kind === "events") renderEvents(data);
-        else if (data.kind === "event") renderEvent(data);
-        else if (data.message) {
-          title(data.message);
-          if (data.share_url) content.append(openLinkButton("Open share link", data.share_url));
-        } else if (data.share_url) {
-          title("Share link ready");
-          content.append(el("p", data.share_url), openLinkButton("Open wishlist", data.share_url));
-        } else {
-          title("Wishlane");
-          details(data, content);
-        }
-        renderNextPage(data);
+        if (data.kind === "wishlists") return renderWishlists(data);
+        if (data.kind === "items") return renderItems(data);
+        if (data.kind === "events") return renderEvents(data);
+        if (data.kind === "event") return renderEvent(data);
+        const open =
+          data.share_url &&
+          button(
+            "Open share link",
+            "primary",
+            () => send("ui/open-link", { url: data.share_url }),
+            { small: true },
+          );
+        content.append(
+          resultPanel("check", data.share_url ? "Share link ready" : "Done", data.message, open),
+        );
       }
 
       // --- Host messages and startup ---
@@ -501,7 +1586,10 @@
             input = message.params.arguments || {};
             break;
           case "ui/notifications/tool-cancelled":
-            content.replaceChildren(el("p", "Action cancelled."));
+            content.replaceChildren(resultPanel("x", "Cancelled", "Nothing was changed."));
+            break;
+          case "ui/notifications/host-context-changed":
+            applyHostContext(message.params);
             break;
           case "ui/resource-teardown":
             parent.postMessage({ jsonrpc: "2.0", id: message.id, result: {} }, "*");
@@ -509,26 +1597,17 @@
         }
       });
 
-      document.getElementById("browse").onclick = async () => {
-        try {
-          await call("list_wishlists", {});
-        } catch (error) {
-          status.textContent = error.message;
-        }
-      };
-
       send("ui/initialize", {
         appInfo: { name: "Wishlane", version: "1.0.0" },
         appCapabilities: {},
         protocolVersion: "2026-01-26",
       })
-        .then(() => {
+        .then((result) => {
+          applyHostContext(result?.hostContext);
           ready = true;
           tell("ui/notifications/initialized", {});
         })
-        .catch((error) => {
-          status.textContent = error.message;
-        });
+        .catch((error) => showBanner("error", error.message));
 
       new ResizeObserver(() =>
         tell("ui/notifications/size-changed", { height: document.documentElement.scrollHeight }),
