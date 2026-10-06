@@ -9,7 +9,7 @@ describe("OAuth token boundaries", () => {
   const expected = {
     issuer: "https://example.supabase.co/auth/v1",
     resource: "https://wishlane.example/api/mcp",
-    clientId: "chatgpt",
+    clientIds: ["chatgpt", "claude"],
   };
   const claims = {
     iss: expected.issuer,
@@ -19,8 +19,9 @@ describe("OAuth token boundaries", () => {
     role: "authenticated",
     exp: 2000,
   };
-  it("accepts the intended OAuth resource and client", () => {
+  it("accepts the intended OAuth resource and each configured client", () => {
     expect(validMcpClaims(claims, expected, 1000)).toBe(true);
+    expect(validMcpClaims({ ...claims, client_id: "claude" }, expected, 1000)).toBe(true);
   });
   it.each([
     { aud: "authenticated" },

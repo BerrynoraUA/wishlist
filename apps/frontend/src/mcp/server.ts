@@ -53,7 +53,9 @@ export function createWishlaneServer(ctx: McpContext) {
         _meta: {
           ui: {
             csp: { connectDomains: [], resourceDomains: [origin, storageOrigin] },
-            domain: origin,
+            // Claude only accepts its own {hash}.claudemcpcontent.com sandbox origin here, and
+            // the widget needs no stable origin, so leave Claude on its default sandbox.
+            ...(ctx.clientName === "ChatGPT" && { domain: origin }),
           },
           "openai/widgetDescription":
             "Wishlane cards for browsing wishes and Secret Santa, uploading wish images, and explicitly confirming important changes.",

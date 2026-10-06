@@ -12,7 +12,7 @@ grant select on private.mcp_oauth_clients to supabase_auth_admin;
 create policy mcp_oauth_hook_read on private.mcp_oauth_clients
   for select to supabase_auth_admin using (true);
 
--- Configure this hook in Supabase Auth after registering the ChatGPT OAuth client.
+-- Configure this hook in Supabase Auth after registering the ChatGPT and Claude OAuth clients.
 -- The map is managed by the operator, never from user-editable metadata.
 create or replace function private.mcp_access_token_hook(event jsonb)
 returns jsonb language plpgsql stable security invoker set search_path = '' as $$

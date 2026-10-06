@@ -1,25 +1,27 @@
 import { createClient } from "@supabase/supabase-js";
 import { getSupabasePublicEnv } from "@wishlist/backend/supabase/shared";
 import type { WishlistSupabaseClient } from "@wishlist/backend/supabase";
-import { getMcpConfig } from "./config";
+import { getMcpConfig, type McpClient } from "./config";
 
 export type McpContext = {
   db: WishlistSupabaseClient;
   userId: string;
   clientId: string;
+  clientName: McpClient["name"];
   actorName: string;
 };
 
 export function validMcpClaims(
   claims: Record<string, unknown>,
-  expected: { issuer: string; resource: string; clientId: string },
+  expected: { issuer: string; resource: string; clientIds: string[] },
   now = Math.floor(Date.now() / 1000),
 ) {
   const audiences = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
   return (
     claims.iss === expected.issuer &&
     audiences.includes(expected.resource) &&
-    claims.client_id === expected.clientId &&
+    typeof claims.client_id === "string" &&
+    expected.clientIds.includes(claims.client_id) &&
     claims.role === "authenticated" &&
     typeof claims.sub === "string" &&
     typeof claims.exp === "number" &&
@@ -33,7 +35,7 @@ export async function authenticateMcp(request: Request): Promise<McpContext | nu
   if (!match) return null;
   const token = match[1];
   const { url, key } = getSupabasePublicEnv();
-  const { resource, clientId } = getMcpConfig();
+  const { resource, clients } = getMcpConfig();
   // A new, user-scoped client per request. Never use service_role or a browser session.
   const db = createClient(url, key, {
     global: { headers: { Authorization: `Bearer ${token}` } },
@@ -46,7 +48,7 @@ export async function authenticateMcp(request: Request): Promise<McpContext | nu
     !validMcpClaims(data.claims, {
       issuer: `${url}/auth/v1`,
       resource,
-      clientId,
+      clientIds: clients.map((client) => client.id),
     })
   )
     return null;
@@ -54,11 +56,14 @@ export async function authenticateMcp(request: Request): Promise<McpContext | nu
   if (userResult.error || userResult.data.user?.id !== data.claims.sub) return null;
   const active = await db.rpc("mcp_session_active");
   if (active.error || active.data !== true) return null;
+  const client = clients.find((value) => value.id === data.claims.client_id);
+  if (!client) return null;
   const user = userResult.data.user;
   return {
     db,
     userId: user.id,
-    clientId,
+    clientId: client.id,
+    clientName: client.name,
     actorName:
       typeof user.user_metadata.full_name === "string" ? user.user_metadata.full_name : "Someone",
   };

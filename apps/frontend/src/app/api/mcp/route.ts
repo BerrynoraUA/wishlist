@@ -11,13 +11,13 @@ export async function POST(request: Request) {
   try {
     origin = getMcpConfig().origin;
   } catch {
-    return Response.json(
-      { error: "Wishlane ChatGPT integration is not configured." },
-      { status: 503 },
-    );
+    return Response.json({ error: "Wishlane AI integration is not configured." }, { status: 503 });
   }
   const requestOrigin = request.headers.get("origin");
-  if (requestOrigin && ![origin, "https://chatgpt.com"].includes(requestOrigin))
+  if (
+    requestOrigin &&
+    ![origin, "https://chatgpt.com", "https://claude.ai"].includes(requestOrigin)
+  )
     return new Response(null, { status: 403 });
   const ctx = await authenticateMcp(request).catch(() => null);
   if (!ctx)

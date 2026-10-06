@@ -26,7 +26,7 @@ async function connect(server: McpServer) {
   return client;
 }
 
-function context() {
+function context(clientName: McpContext["clientName"] = "ChatGPT") {
   const rows: Record<string, unknown>[] = [];
   const from = vi.fn(() => {
     let operation = "select";
@@ -83,7 +83,8 @@ function context() {
   return {
     ctx: {
       userId: "alice",
-      clientId: "chatgpt",
+      clientId: clientName.toLowerCase(),
+      clientName,
       actorName: "Alice",
       db: { from } as unknown as McpContext["db"],
     },
@@ -111,7 +112,16 @@ describe("MCP tools and resources", () => {
     const html = "text" in resource.contents[0] ? resource.contents[0].text : "";
     expect(html).toContain("ui/initialize");
     expect(html).not.toContain("__WISHLANE_CONFIG__");
-    expect(resource.contents[0]._meta?.ui).toMatchObject({ csp: { connectDomains: [] } });
+    expect(resource.contents[0]._meta?.ui).toMatchObject({
+      csp: { connectDomains: [] },
+      domain: "https://wishlane.example",
+    });
+  });
+
+  it("leaves Claude on its default widget sandbox origin", async () => {
+    const client = await connect(createWishlaneServer(context("Claude").ctx));
+    const resource = await client.readResource({ uri: WIDGET_URI });
+    expect(resource.contents[0]._meta?.ui).not.toHaveProperty("domain");
   });
 
   it("validates tool input before database access", async () => {

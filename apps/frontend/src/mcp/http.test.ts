@@ -22,7 +22,7 @@ function request(body: unknown, authorization?: string, origin?: string) {
     body: JSON.stringify(body),
   });
 }
-function authenticate(active = true) {
+function authenticate(active = true, clientId = process.env.WISHLANE_MCP_CHATGPT_CLIENT_ID) {
   client.auth.getClaims.mockResolvedValue({
     data: {
       claims: {
@@ -30,7 +30,7 @@ function authenticate(active = true) {
         iss: "https://example.supabase.co/auth/v1",
         aud: resource,
         role: "authenticated",
-        client_id: process.env.WISHLANE_MCP_CLIENT_ID,
+        client_id: clientId,
         exp: Date.now() / 1000 + 3600,
       },
     },
@@ -65,7 +65,8 @@ describe("Streamable HTTP endpoint", () => {
     });
   });
   it("fails closed when unconfigured", async () => {
-    vi.stubEnv("WISHLANE_MCP_CLIENT_ID", "");
+    vi.stubEnv("WISHLANE_MCP_CHATGPT_CLIENT_ID", "");
+    vi.stubEnv("WISHLANE_MCP_CLAUDE_CLIENT_ID", "");
     expect((await POST(request({}))).status).toBe(503);
   });
   it("rejects unrelated browser origins", async () => {
@@ -102,5 +103,12 @@ describe("Streamable HTTP endpoint", () => {
     expect(response.status).toBe(200);
     expect((await response.json()).result.tools.length).toBeGreaterThan(40);
     expect(response.headers.get("cache-control")).toBe("no-store");
+  });
+  it("serves Claude's OAuth client and rejects unknown clients", async () => {
+    const list = { jsonrpc: "2.0", id: 1, method: "tools/list", params: {} };
+    authenticate(true, process.env.WISHLANE_MCP_CLAUDE_CLIENT_ID);
+    expect((await POST(request(list, "Bearer token", "https://claude.ai"))).status).toBe(200);
+    authenticate(true, "10000000-0000-4000-8000-00000000ffff");
+    expect((await POST(request(list, "Bearer token"))).status).toBe(401);
   });
 });

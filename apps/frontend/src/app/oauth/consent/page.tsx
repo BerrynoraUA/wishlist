@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getMcpConfig } from "@/mcp/config";
+import { findMcpClient } from "@/mcp/config";
 import { oauthSession } from "../session";
 import { ConsentForm } from "./consent-form";
 import styles from "../oauth.module.scss";
 
-export const metadata = { title: "Connect ChatGPT", robots: { index: false, follow: false } };
+export const metadata = {
+  title: "Connect your AI assistant",
+  robots: { index: false, follow: false },
+};
 
 export default async function ConsentPage({
   searchParams,
@@ -16,8 +19,10 @@ export default async function ConsentPage({
   if (!authorizationId)
     return (
       <main className={styles.page}>
-        <h1>Connect from ChatGPT</h1>
-        <p>Start the Wishlane connection in ChatGPT to receive an authorization request.</p>
+        <h1>Connect from your AI assistant</h1>
+        <p>
+          Start the Wishlane connection in ChatGPT or Claude to receive an authorization request.
+        </p>
       </main>
     );
   const { db, user } = await oauthSession(
@@ -28,25 +33,26 @@ export default async function ConsentPage({
     return (
       <main className={styles.page}>
         <h1>Connection request expired</h1>
-        <p>Return to ChatGPT and connect Wishlane again.</p>
+        <p>Return to your AI assistant and connect Wishlane again.</p>
       </main>
     );
   if ("redirect_url" in data) redirect(data.redirect_url);
-  if (data.client.id !== getMcpConfig().clientId)
+  const client = findMcpClient(data.client.id);
+  if (!client)
     return (
       <main className={styles.page}>
         <h1>Unknown connection</h1>
-        <p>This request is not for Wishlane’s ChatGPT integration.</p>
+        <p>This request is not for a Wishlane AI integration.</p>
       </main>
     );
   return (
     <main className={styles.page}>
       <span className={styles.brand}>Wishlane</span>
-      <h1>Bring your wishes to ChatGPT</h1>
+      <h1>Bring your wishes to {client.name}</h1>
       <p>
         Connect <strong>{user.email}</strong> to <strong>{data.client.name}</strong>.
       </p>
-      <p>ChatGPT will be able to act with your Wishlane permissions:</p>
+      <p>{client.name} will be able to act with your Wishlane permissions:</p>
       <ul>
         <li>Read, create and edit wishlists and wishes, including images and product links.</li>
         <li>Reserve gifts, mark them bought, and manage sharing, friends and groups.</li>
