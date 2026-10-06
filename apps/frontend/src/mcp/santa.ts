@@ -1,0 +1,277 @@
+import { z } from "zod";
+import type { SecretSantaDetails } from "@wishlist/backend/types/secret-santa";
+import type { McpContext } from "./auth";
+import type { Tools } from "./tools";
+import { checked, safeItem, ToolError } from "./results";
+import { id, search, text, date, currency, imageUrl, page } from "./schemas";
+import { notify } from "./notifications";
+import { generateAssignment } from "./assignment";
+
+export async function santaDetails(
+  ctx: McpContext,
+  eventId: string,
+  owner = false,
+): Promise<SecretSantaDetails> {
+  const event = (await checked(
+    ctx.db.rpc("get_secret_santa_details", { p_event_id: eventId }),
+  )) as SecretSantaDetails;
+  if (!event || (owner && event.owner_id !== ctx.userId))
+    throw new ToolError("You do not have permission to change this Secret Santa event.");
+  return event;
+}
+
+export function santaTools(tools: Tools, ctx: McpContext) {
+  const { db } = ctx;
+  tools.add("list_secret_santa_events", {
+    title: "Browse Secret Santa events",
+    description: "List Secret Santa events you can access.",
+    schema: search,
+    readOnly: true,
+    run: async (input) => ({
+      kind: "events",
+      ...(await checked(
+        db.rpc("list_secret_santa_events", {
+          p_search: input.search ?? null,
+          p_limit: input.limit,
+          p_offset: input.offset,
+        }),
+      )),
+    }),
+  });
+  tools.add("get_secret_santa_event", {
+    title: "View Secret Santa event",
+    description:
+      "View participants, invitations and your own assigned recipient. Never reveals another participant's assignment.",
+    schema: { event_id: id },
+    readOnly: true,
+    run: async ({ event_id }) => ({ kind: "event", event: await santaDetails(ctx, event_id) }),
+  });
+  const eventFields = {
+    name: text,
+    event_date: date,
+    budget: z.number().nonnegative().max(1000000),
+    currency,
+    image_url: imageUrl,
+  };
+  tools.add("create_secret_santa_event", {
+    title: "Create Secret Santa event",
+    description:
+      "Create an event and optionally invite friends. Invitations are sent only after user confirmation.",
+    schema: { ...eventFields, invited_user_ids: z.array(id).max(100).default([]) },
+    confirm: (input) => input.invited_user_ids.length > 0,
+    run: async (input) => {
+      const event = await checked(
+        db.rpc("create_secret_santa_event", {
+          p_name: input.name,
+          p_event_date: input.event_date,
+          p_budget: input.budget,
+          p_currency: input.currency,
+          p_image_url: input.image_url ?? null,
+          p_invited_user_ids: input.invited_user_ids,
+        }),
+      );
+      if (input.invited_user_ids.length) {
+        const invites = await checked(
+          db
+            .from("secret_santa_invites")
+            .select("id,receiver_id")
+            .eq("event_id", event.id)
+            .in("receiver_id", input.invited_user_ids),
+        );
+        await notify(
+          ctx,
+          (invites ?? []).map((invite: { id: string; receiver_id: string }) => ({
+            receiverId: invite.receiver_id,
+            key: "secret_santa_invite" as const,
+            vars: { event: input.name },
+            entityId: invite.id,
+          })),
+        );
+      }
+      return { kind: "event", event };
+    },
+  });
+  tools.add("update_secret_santa_event", {
+    title: "Edit Secret Santa event",
+    description: "Update the name, date, budget, currency or image of an event you own.",
+    schema: {
+      event_id: id,
+      changes: z
+        .object(eventFields)
+        .partial()
+        .strict()
+        .refine((value) => Object.keys(value).length > 0),
+    },
+    idempotent: true,
+    run: async ({ event_id, changes }) => {
+      await santaDetails(ctx, event_id, true);
+      const event = await checked(
+        db
+          .from("secret_santa")
+          .update(changes)
+          .eq("id", event_id)
+          .eq("owner_id", ctx.userId)
+          .select("id,name,event_date,budget,currency,image_url")
+          .single(),
+      );
+      return { kind: "event", event };
+    },
+  });
+  tools.add("delete_secret_santa_event", {
+    title: "Delete Secret Santa event",
+    description: "Delete an event you own, including its invitations and assignments.",
+    schema: { event_id: id },
+    confirm: true,
+    run: async ({ event_id }) => {
+      await santaDetails(ctx, event_id, true);
+      await checked(db.rpc("delete_secret_santa_event", { p_event_id: event_id }));
+      return { message: "Secret Santa event deleted.", event_id };
+    },
+  });
+  tools.add("respond_to_secret_santa_invite", {
+    title: "Respond to Secret Santa invitation",
+    description:
+      "Accept or decline your Secret Santa invitation. Use the invitation ID from notifications or event details.",
+    schema: { invite_id: id, response: z.enum(["accept", "decline"]) },
+    confirm: true,
+    run: async ({ invite_id, response }) => {
+      await checked(
+        db.rpc(
+          response === "accept" ? "accept_secret_santa_invite" : "decline_secret_santa_invite",
+          { p_invite_id: invite_id },
+        ),
+      );
+      return { message: "Invitation updated.", invite_id };
+    },
+  });
+  tools.add("join_secret_santa_event", {
+    title: "Join your Secret Santa event",
+    description: "Join an event you organize. Other users must accept their invitation.",
+    schema: { event_id: id },
+    confirm: true,
+    run: async ({ event_id }) => {
+      const event = await santaDetails(ctx, event_id, true);
+      if (event.is_started) throw new ToolError("The event has already started.");
+      await checked(
+        db
+          .from("secret_santa_participants")
+          .upsert({ event_id, user_id: ctx.userId }, { onConflict: "event_id,user_id" }),
+      );
+      return { message: "Joined Secret Santa.", event_id };
+    },
+  });
+  tools.add("remove_secret_santa_participant", {
+    title: "Remove Secret Santa participant",
+    description:
+      "Remove a participant before the draw. Only the organizer can remove others; participants may remove themselves.",
+    schema: { event_id: id, user_id: id },
+    confirm: true,
+    run: async ({ event_id, user_id }) => {
+      const event = await santaDetails(ctx, event_id, user_id !== ctx.userId);
+      if (event.is_started) throw new ToolError("Participants cannot be removed after the draw.");
+      await checked(
+        db
+          .from("secret_santa_participants")
+          .delete()
+          .eq("event_id", event_id)
+          .eq("user_id", user_id),
+      );
+      return { message: "Participant removed.", event_id };
+    },
+  });
+  tools.add("cancel_secret_santa_invite", {
+    title: "Cancel Secret Santa invitation",
+    description: "Cancel a pending invitation for an event you organize.",
+    schema: { event_id: id, invite_id: id },
+    confirm: true,
+    run: async ({ event_id, invite_id }) => {
+      const event = await santaDetails(ctx, event_id, true);
+      if (!event.pending_invites.some((invite) => invite.invite_id === invite_id))
+        throw new ToolError("This invitation is no longer pending in the selected event.");
+      await checked(db.rpc("remove_secret_santa_invite", { p_invite_id: invite_id }));
+      return { message: "Invitation cancelled.", invite_id };
+    },
+  });
+  tools.add("launch_secret_santa", {
+    title: "Draw Secret Santa names",
+    description:
+      "Launch an event you own. Generates assignments privately on the server, respects exclusions, and notifies participants. Cannot be undone by this tool. Never provide or request the full assignment map.",
+    schema: {
+      event_id: id,
+      exclusions: z
+        .array(z.object({ user_id: id, excluded_ids: z.array(id).max(100) }).strict())
+        .max(100)
+        .default([]),
+    },
+    confirm: true,
+    run: async ({ event_id, exclusions }) => {
+      const event = await santaDetails(ctx, event_id, true);
+      if (event.is_started) throw new ToolError("This Secret Santa event has already started.");
+      const participants = event.participants.map((person) => person.id);
+      if (participants.length < 2 || participants.length > 100)
+        throw new ToolError("The draw requires between 2 and 100 participants.");
+      const excluded = new Map<string, Set<string>>();
+      for (const row of exclusions) {
+        if (
+          !participants.includes(row.user_id) ||
+          row.excluded_ids.some((value) => !participants.includes(value))
+        )
+          throw new ToolError("Exclusions must refer to current participants.");
+        excluded.set(
+          row.user_id,
+          new Set([...(excluded.get(row.user_id) ?? []), ...row.excluded_ids]),
+        );
+      }
+      const assignments = generateAssignment(participants, excluded);
+      if (!assignments)
+        throw new ToolError(
+          "These exclusions make a valid draw impossible. Relax them and request a new review.",
+        );
+      await checked(
+        db.rpc("launch_secret_santa", { p_event_id: event_id, p_assignments: assignments }),
+      );
+      await notify(
+        ctx,
+        participants.map((receiverId) => ({
+          receiverId,
+          key: "secret_santa_started" as const,
+          vars: { event: event.name },
+          entityId: event_id,
+        })),
+      );
+      return {
+        message: "Secret Santa launched. Use get_secret_santa_event to see your own recipient.",
+        event_id,
+      };
+    },
+  });
+  tools.add("get_secret_santa_recipient_wishes", {
+    title: "View your recipient's wishes",
+    description:
+      "Get accessible wishes for your own assigned recipient within the event budget. Does not reveal anyone else's assignment.",
+    schema: { event_id: id, ...page },
+    readOnly: true,
+    run: async ({ event_id, limit, offset }) => {
+      const event = await santaDetails(ctx, event_id);
+      if (!event.my_receiver) throw new ToolError("You do not have an assigned recipient yet.");
+      const data = await checked(
+        db.rpc("get_user_visible_items_by_max_price", {
+          p_user_id: event.my_receiver.id,
+          p_max_price: event.budget,
+          p_limit: limit,
+          p_offset: offset,
+        }),
+      );
+      return {
+        kind: "items",
+        recipient: event.my_receiver,
+        items: (data.items ?? []).map((row: Record<string, unknown>) =>
+          safeItem(row, ctx.userId, event.my_receiver!.id),
+        ),
+        total: data.total,
+        limit,
+        offset,
+      };
+    },
+  });
+}

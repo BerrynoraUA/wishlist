@@ -31,7 +31,11 @@ function mergeCookiesIntoResponse(from: NextResponse, to: NextResponse) {
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  if (pathname.startsWith("/api") || pathname === "/auth/callback") {
+  if (
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/.well-known/oauth-protected-resource") ||
+    pathname === "/auth/callback"
+  ) {
     return NextResponse.next();
   }
 
