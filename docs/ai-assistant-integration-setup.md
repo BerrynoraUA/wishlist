@@ -72,16 +72,23 @@ Dashboard → **Authentication → OAuth Server**:
 
 ChatGPT shows the callback URL to allowlist only while you create the app, so start there.
 
-ChatGPT → **Settings → Apps → Advanced settings → Developer mode** (on), then **Create app**:
+Custom MCP servers need developer mode on a paid plan (Plus, Pro, Business, Enterprise or Edu),
+on the web:
 
-- Name: `Wishlane`
-- MCP server URL: `<origin>/api/mcp`
-- Authentication: OAuth. Open **Advanced settings**, set **Registration method** to
-  **User-defined OAuth client**, and copy the **callback URL** shown there. It is either
-  `https://chatgpt.com/connector_platform_oauth_redirect` or an app-specific
-  `https://chatgpt.com/connector/oauth/<id>`; use exactly what ChatGPT shows.
+1. **Settings → Security and login → Developer mode**: turn it on. Many accounts no longer show
+   this toggle because it's already on.
+2. Open the Plugins page ([chatgpt.com/plugins](https://chatgpt.com/plugins), not the
+   **Settings → Plugins** list of installed plugins), click **Add**, then **Create MCP App**
+   (also labelled **Create custom MCP server**).
+3. Fill in:
+   - Name: `Wishlane`
+   - Connection → server URL: `<origin>/api/mcp`
+   - Authentication: **OAuth**. In its advanced options, choose the user-defined (manual) OAuth
+     client and copy the **callback URL** shown there. It is either
+     `https://chatgpt.com/connector_platform_oauth_redirect` or an app-specific
+     `https://chatgpt.com/connector/oauth/<id>`; use exactly what ChatGPT shows.
 
-Leave this screen open; you fill in the client ID and secret in step 6.
+Leave this screen open; you fill in the client ID and secret in step 7.
 
 ## 4. Register the OAuth clients in Supabase
 
@@ -136,7 +143,7 @@ curl -si -X POST <origin>/api/mcp | head -1                      # HTTP/... 401
 
 ## 7. Connect the assistants
 
-**ChatGPT**: back on the screen from step 3, enter the ChatGPT client ID and secret and create
+**ChatGPT**: back on the screen from step 3, enter the ChatGPT client ID and secret, tick the risk acknowledgement and create
 the app. Then start a chat, enable Wishlane from the **+** menu, and connect when asked.
 
 **Claude** (claude.ai web, desktop or mobile): **Customize → Connectors → Add custom connector**
