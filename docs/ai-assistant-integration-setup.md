@@ -174,6 +174,26 @@ Then in each assistant:
 In Claude, also check that `confirm_action` isn't offered to the model (ask it to list its
 Wishlane tools).
 
+### Product wish prompting
+
+The server instructions and tool descriptions guide the assistant to offer shop search
+before creating a wish without a product link. Search uses the assistant host's web search
+when available; Wishlane's `inspect_product_link` reads a selected URL. The assistant imports
+verified title, description, image, price, currency and discount details, while preserving
+the user's notes. Unknown fields stay empty. Users can explicitly choose manual entry.
+This is model guidance, not a server-enforced prerequisite for `create_wish`.
+
+After deploying, check the following in a fresh conversation with the updated tool metadata:
+
+- "Add a coffee grinder to my wishlist": the assistant first offers to find a shop listing.
+  Agree to search, choose a listing if needed, and check that it calls `inspect_product_link`
+  before `create_wish`, including available product details in the saved wish.
+- "Add this to my wishlist: <product link>": it imports that link directly, without asking
+  to search again, and resolves the target wishlist if unclear.
+- "Add a manual wish called weekend away, no shop search": it respects manual entry.
+- Try a blocked product link or a listing without a price: it offers another link or manual
+  entry when blocked, and leaves missing fields empty rather than making up product data.
+
 ---
 
 ## Scope of the integration
