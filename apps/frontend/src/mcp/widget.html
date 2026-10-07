@@ -1091,7 +1091,8 @@
 
       function setStatus(data, item, status) {
         return async () => {
-          await callTool("set_gift_status", { item_id: item.id, status });
+          const output = await callTool("set_gift_status", { item_id: item.id, status });
+          if (output.structuredContent?.kind === "confirmation") return render(output);
           item.status = { available: 0, reserved: 1, bought: 2 }[status];
           item.reserved_by_me = status === "reserved";
           item.bought_by_me = status === "bought";
