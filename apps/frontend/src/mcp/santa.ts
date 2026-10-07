@@ -3,10 +3,10 @@ import { z } from "zod";
 import { generateSecretSantaAssignment } from "@wishlist/backend/lib/secret-santa-assignment";
 import type { McpContext } from "./auth";
 import type { Tools } from "./tools";
-import { checked, safeItem, ToolError } from "./results";
-import { id, search, text, date, currency, imageUrl, page } from "./schemas";
+import { applyEach, checked, count, paged, safeItem, ToolError } from "./results";
+import { id, ids, search, text, date, currency, imageUrl, page } from "./schemas";
 import { requireEvent } from "./access";
-import { eventReview, inviteReview, peopleReview, type Review } from "./review";
+import { eventReview, eventsReview, named, peopleReview, type Review } from "./review";
 
 // Crypto-strength randomness for draws made on the server.
 const secureRandom = () => randomInt(2 ** 32) / 2 ** 32;
@@ -26,16 +26,67 @@ export function santaTools(tools: Tools, ctx: McpContext) {
     schema: search,
     readOnly: true,
     view: true,
-    run: async (input) => ({
-      kind: "events",
-      ...(await checked(
+    run: async (input) => {
+      const data = await checked(
         db.rpc("list_secret_santa_events", {
           p_search: input.search ?? null,
           p_limit: input.limit,
           p_offset: input.offset,
         }),
-      )),
-    }),
+      );
+      const items = data?.items ?? [];
+      return {
+        kind: "events",
+        ...data,
+        items,
+        has_more: input.offset + items.length < (data?.total ?? 0),
+      };
+    },
+  });
+  tools.add("list_secret_santa_invites", {
+    title: "View Secret Santa invitations",
+    description:
+      "List Secret Santa invitations you received and have not answered yet, with who sent them. Use the invite_id with respond_to_secret_santa_invite.",
+    schema: page,
+    readOnly: true,
+    run: async (input) => {
+      const { rows, page: pageInfo } = paged(
+        await checked(
+          db
+            .from("secret_santa_invites")
+            .select("id,sender_id,created_at")
+            .eq("receiver_id", ctx.userId)
+            .eq("status", 0)
+            .order("created_at", { ascending: false })
+            .range(input.offset, input.offset + input.limit),
+        ),
+        input,
+      );
+      const inviteIds = rows.map((invite) => invite.id);
+      const senderIds = [...new Set(rows.map((invite) => invite.sender_id))];
+      // Invitees cannot read the event yet; its name reaches them in the invitation notice.
+      const [senders, notices] = inviteIds.length
+        ? await Promise.all([
+            checked(db.from("profiles").select("id,nickname").in("id", senderIds)),
+            checked(
+              db
+                .from("notifications")
+                .select("entity_id,text")
+                .eq("receiver_id", ctx.userId)
+                .in("entity_id", inviteIds),
+            ),
+          ])
+        : [[], []];
+      return {
+        invites: rows.map((invite) => ({
+          invite_id: invite.id,
+          from: senders?.find((sender) => sender.id === invite.sender_id) ?? null,
+          notice: notices?.find((notice) => notice.entity_id === invite.id)?.text ?? null,
+          created_at: invite.created_at,
+        })),
+        ...pageInfo,
+      };
+    },
   });
   tools.add("get_secret_santa_event", {
     title: "View Secret Santa event",
@@ -104,23 +155,25 @@ export function santaTools(tools: Tools, ctx: McpContext) {
       return { kind: "event", event };
     },
   });
-  tools.add("delete_secret_santa_event", {
-    title: "Delete Secret Santa event",
-    description: "Delete an event you own, including its invitations and assignments.",
-    schema: { event_id: id },
-    confirm: { review: (input) => eventReview(ctx, input.event_id) },
-    run: async ({ event_id }) => {
-      await requireEvent(ctx, event_id, "own");
-      await checked(db.rpc("delete_secret_santa_event", { p_event_id: event_id }));
-      return { message: "Secret Santa event deleted.", event_id };
+  tools.add("delete_secret_santa_events", {
+    title: "Delete Secret Santa events",
+    description:
+      "Delete one or more events you own, including their invitations and assignments. Pass every event the user wants removed in one call so they confirm once.",
+    schema: { event_ids: ids },
+    confirm: { review: (input) => eventsReview(ctx, input.event_ids) },
+    run: async ({ event_ids }) => {
+      await Promise.all(event_ids.map((eventId) => requireEvent(ctx, eventId, "own")));
+      await applyEach(event_ids, (eventId) =>
+        checked(db.rpc("delete_secret_santa_event", { p_event_id: eventId })),
+      );
+      return { message: `Deleted ${count(event_ids.length, "Secret Santa event")}.`, event_ids };
     },
   });
   tools.add("respond_to_secret_santa_invite", {
     title: "Respond to Secret Santa invitation",
     description:
-      "Accept or decline your Secret Santa invitation. Use the invitation ID from notifications or event details.",
+      "Accept or decline your Secret Santa invitation when the user asks. Find invite IDs with list_secret_santa_invites.",
     schema: { invite_id: id, response: z.enum(["accept", "decline"]) },
-    confirm: { review: (input) => inviteReview(ctx, input.invite_id) },
     run: async ({ invite_id, response }) => {
       await checked(
         db.rpc(
@@ -135,7 +188,7 @@ export function santaTools(tools: Tools, ctx: McpContext) {
     title: "Join your Secret Santa event",
     description: "Join an event you organize. Other users must accept their invitation.",
     schema: { event_id: id },
-    confirm: { review: (input) => eventReview(ctx, input.event_id) },
+    idempotent: true,
     run: async ({ event_id }) => {
       const event = await requireEvent(ctx, event_id, "own");
       if (event.is_started) throw new ToolError("The event has already started.");
@@ -147,42 +200,63 @@ export function santaTools(tools: Tools, ctx: McpContext) {
       return { message: "Joined Secret Santa.", event_id };
     },
   });
-  tools.add("remove_secret_santa_participant", {
-    title: "Remove Secret Santa participant",
+  tools.add("remove_secret_santa_participants", {
+    title: "Remove Secret Santa participants",
     description:
-      "Remove a participant before the draw. Only the organizer can remove others; participants may remove themselves.",
-    schema: { event_id: id, user_id: id },
+      "Remove one or more participants from an event before the draw. Only the organizer can remove others; participants may remove themselves. Pass every participant the user wants removed in one call so they confirm once.",
+    schema: { event_id: id, user_ids: ids },
     confirm: {
       review: async (input) => ({
-        ...(await eventReview(ctx, input.event_id)),
-        ...(await peopleReview(ctx, [input.user_id])),
+        event: (await requireEvent(ctx, input.event_id)).name,
+        ...(await peopleReview(ctx, input.user_ids)),
       }),
     },
-    run: async ({ event_id, user_id }) => {
+    run: async ({ event_id, user_ids }) => {
       // Participants may remove themselves; removing anyone else needs the organizer.
-      const event = await requireEvent(ctx, event_id, user_id === ctx.userId ? "view" : "own");
+      const onlySelf = user_ids.every((userId) => userId === ctx.userId);
+      const event = await requireEvent(ctx, event_id, onlySelf ? "view" : "own");
       if (event.is_started) throw new ToolError("Participants cannot be removed after the draw.");
       await checked(
         db
           .from("secret_santa_participants")
           .delete()
           .eq("event_id", event_id)
-          .eq("user_id", user_id),
+          .in("user_id", user_ids),
       );
-      return { message: "Participant removed.", event_id };
+      return { message: `Removed ${count(user_ids.length, "participant")}.`, event_id };
     },
   });
-  tools.add("cancel_secret_santa_invite", {
-    title: "Cancel Secret Santa invitation",
-    description: "Cancel a pending invitation for an event you organize.",
-    schema: { event_id: id, invite_id: id },
-    confirm: { review: (input) => eventReview(ctx, input.event_id) },
-    run: async ({ event_id, invite_id }) => {
+  tools.add("cancel_secret_santa_invites", {
+    title: "Cancel Secret Santa invitations",
+    description:
+      "Cancel one or more pending invitations for an event you organize. Pass every invitation the user wants cancelled in one call so they confirm once.",
+    schema: { event_id: id, invite_ids: ids },
+    confirm: {
+      review: async (input) => {
+        const event = await requireEvent(ctx, input.event_id);
+        return {
+          event: event.name,
+          ...named(
+            "invitation",
+            "invitations",
+            event.pending_invites
+              .filter((invite) => input.invite_ids.includes(invite.invite_id))
+              .map((invite) => invite.display_name || invite.nickname || "Wishlane member"),
+          ),
+        };
+      },
+    },
+    run: async ({ event_id, invite_ids }) => {
       const event = await requireEvent(ctx, event_id, "own");
-      if (!event.pending_invites.some((invite) => invite.invite_id === invite_id))
-        throw new ToolError("This invitation is no longer pending in the selected event.");
-      await checked(db.rpc("remove_secret_santa_invite", { p_invite_id: invite_id }));
-      return { message: "Invitation cancelled.", invite_id };
+      const pending = new Set(event.pending_invites.map((invite) => invite.invite_id));
+      if (!invite_ids.every((inviteId) => pending.has(inviteId)))
+        throw new ToolError(
+          "Some of these invitations are no longer pending in the selected event.",
+        );
+      await applyEach(invite_ids, (inviteId) =>
+        checked(db.rpc("remove_secret_santa_invite", { p_invite_id: inviteId })),
+      );
+      return { message: `Cancelled ${count(invite_ids.length, "invitation")}.`, invite_ids };
     },
   });
   tools.add("launch_secret_santa", {
@@ -272,6 +346,7 @@ export function santaTools(tools: Tools, ctx: McpContext) {
         total: data.total,
         limit,
         offset,
+        has_more: offset + (data.items?.length ?? 0) < data.total,
       };
     },
   });

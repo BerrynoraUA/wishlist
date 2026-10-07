@@ -3,6 +3,7 @@ import { validMcpClaims } from "./auth";
 import { confirmationSignature, validConfirmation } from "./tools";
 import { safeItem } from "./results";
 import { sameParticipants } from "./santa";
+import { publicLookup } from "./images";
 
 describe("OAuth token boundaries", () => {
   const expected = {
@@ -89,5 +90,24 @@ describe("gift privacy", () => {
   });
   it("shows the caller's own gift state", () => {
     expect(safeItem(item, "giver", "owner").bought_by_me).toBe(true);
+  });
+});
+
+describe("chat attachment downloads", () => {
+  const resolve = (hostname: string, all: boolean) =>
+    new Promise<unknown>((done) =>
+      publicLookup(hostname, { all }, (error, address) => done(error ?? address)),
+    );
+
+  it.each(["127.0.0.1", "localhost", "169.254.169.254", "10.1.2.3", "::1", "::ffff:127.0.0.1"])(
+    "refuses %s before connecting",
+    async (hostname) => {
+      for (const all of [false, true])
+        expect(await resolve(hostname, all)).toMatchObject({ message: "Blocked address" });
+    },
+  );
+
+  it("allows public addresses", async () => {
+    expect(await resolve("93.184.215.14", false)).toBe("93.184.215.14");
   });
 });

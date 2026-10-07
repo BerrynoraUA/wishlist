@@ -996,8 +996,10 @@
         } else if (data.kind === "items" && data.recipient)
           tool = "get_secret_santa_recipient_wishes";
         else if (data.kind === "items" && input.status) tool = "list_my_gifts";
+        else if (data.kind === "items" && input.query) tool = "search_my_wishes";
         const hasNext =
-          data.total !== undefined ? offset + rows.length < data.total : rows.length === limit;
+          data.has_more ??
+          (data.total !== undefined ? offset + rows.length < data.total : rows.length === limit);
         if (!tool || (offset === 0 && !hasNext)) return;
         const nav = el("nav", "pager");
         nav.setAttribute("aria-label", "Pagination");
@@ -1380,11 +1382,17 @@
       const DANGER = /^(delete_|remove_|cancel_)/;
       const LABELS = {
         wishlist: "Wishlist",
+        wishlists: "Wishlists",
         wish: "Item",
+        wishes: "Items",
         event: "Event",
+        events: "Events",
         participants: "Participants",
         people: "People",
         group: "Group",
+        groups: "Groups",
+        invitation: "Invitation",
+        invitations: "Invitations",
         title: "Title",
         name: "Name",
         description: "Description",
@@ -1392,8 +1400,10 @@
         budget: "Budget per person",
         currency: "Currency",
         image_url: "Image",
-        visibility_type: "Visibility",
+        visibility: "Visibility",
         accent_type: "Colour",
+        access: "Access",
+        items: "Items",
         response: "Response",
         role: "Access",
         blocked: "Action",
@@ -1403,7 +1413,12 @@
         response: { accept: "Accept", decline: "Decline", cancel: "Cancel request" },
         role: { viewer: "Viewer", editor: "Editor", none: "Remove access" },
         blocked: { true: "Block", false: "Unblock" },
-        visibility_type: Object.fromEntries(VISIBILITY.map((entry, index) => [index, entry[1]])),
+        visibility: Object.fromEntries(
+          ["public", "friends", "private", "selected_friends"].map((key, index) => [
+            key,
+            VISIBILITY[index][1],
+          ]),
+        ),
         accent_type: { 0: "Pink", 1: "Blue", 2: "Peach", 3: "Mint", 4: "Lavender" },
       };
       const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -1475,7 +1490,7 @@
         const changes = flat.filter(
           ([key, value]) =>
             key === "exclusions" ||
-            (!(/(^|_)ids?$/.test(key) || key === "target" || key === "silent") &&
+            (!(/(^|_)ids?$/.test(key) || ["target", "silent", "grants"].includes(key)) &&
               value !== undefined),
         );
         const capability = output._meta?.confirmation;
@@ -1508,6 +1523,9 @@
             "div",
             "footer",
             button("Cancel", "secondary", async () => {
+              // Discard it on the server too, so this review can never be confirmed later. An
+              // expired or already handled review needs nothing more, so the card still closes.
+              await callTool("cancel_action", capability).catch(() => {});
               content.replaceChildren(resultPanel("x", "Cancelled", "Nothing was changed."));
               send("ui/update-model-context", {
                 structuredContent: { kind: "confirmation", status: "cancelled", title: data.title },
