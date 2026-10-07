@@ -11,6 +11,28 @@ export async function checked<T>(query: PromiseLike<{ data: T; error: unknown }>
   return data;
 }
 
+/**
+ * Applies a per-record change in order. Validate every record first; if one still fails, the
+ * error says how many were already changed so nobody assumes nothing happened.
+ */
+export async function applyEach(ids: string[], apply: (id: string) => Promise<unknown>) {
+  for (const [done, id] of ids.entries()) {
+    try {
+      await apply(id);
+    } catch (error) {
+      if (!done) throw error;
+      throw new ToolError(
+        `Stopped after ${done} of ${ids.length} changes. Refresh the data before retrying the rest.`,
+      );
+    }
+  }
+}
+
+/** "1 item", "3 items". */
+export function count(n: number, singular: string, plural = `${singular}s`) {
+  return `${n} ${n === 1 ? singular : plural}`;
+}
+
 export function result(data: Record<string, unknown>): CallToolResult {
   return { content: [{ type: "text", text: JSON.stringify(data) }], structuredContent: data };
 }

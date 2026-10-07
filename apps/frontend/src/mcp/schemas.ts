@@ -1,6 +1,12 @@
 import { z } from "zod";
 
 export const id = z.string().uuid();
+/** Every record a bulk change targets, so the user reviews and confirms them together. */
+export const ids = z
+  .array(id)
+  .min(1)
+  .max(50)
+  .refine((values) => new Set(values).size === values.length, "List each record once");
 export const text = z.string().trim().min(1).max(200);
 export const description = z.string().max(5000).nullable().optional();
 export const httpsUrl = z

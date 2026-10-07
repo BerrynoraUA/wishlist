@@ -1,5 +1,5 @@
 import type { McpContext } from "./auth";
-import { requireEvent, requireItem, requireWishlist } from "./access";
+import { requireEvent, requireItem, requireItems, requireWishlist } from "./access";
 import { checked, ToolError } from "./results";
 
 // Names shown on confirmation cards are resolved on the server, so the card identifies the
@@ -8,6 +8,11 @@ import { checked, ToolError } from "./results";
 
 export type Review = Record<string, unknown>;
 
+/** A single selection reads naturally on the card: "Item: Mug", not "Items: Mug". */
+export function named(singular: string, plural: string, names: unknown[]): Review {
+  return names.length === 1 ? { [singular]: names[0] } : { [plural]: names };
+}
+
 export async function wishlistReview(ctx: McpContext, wishlistId: string): Promise<Review> {
   return { wishlist: (await requireWishlist(ctx, wishlistId)).title };
 }
@@ -15,6 +20,29 @@ export async function wishlistReview(ctx: McpContext, wishlistId: string): Promi
 export async function wishReview(ctx: McpContext, itemId: string): Promise<Review> {
   const { item, wishlist } = await requireItem(ctx, itemId);
   return { wish: item.name, wishlist: wishlist.title };
+}
+
+export async function wishlistsReview(ctx: McpContext, wishlistIds: string[]): Promise<Review> {
+  const lists = await Promise.all(
+    wishlistIds.map((wishlistId) => requireWishlist(ctx, wishlistId)),
+  );
+  return named(
+    "wishlist",
+    "wishlists",
+    lists.map((list) => list.title),
+  );
+}
+
+export async function wishesReview(ctx: McpContext, itemIds: string[]): Promise<Review> {
+  const found = await requireItems(ctx, itemIds);
+  return {
+    ...named(
+      "wish",
+      "wishes",
+      found.map(({ item }) => item.name),
+    ),
+    ...named("wishlist", "wishlists", [...new Set(found.map(({ wishlist }) => wishlist.title))]),
+  };
 }
 
 export async function eventReview(ctx: McpContext, eventId: string): Promise<Review> {
@@ -26,6 +54,15 @@ export async function eventReview(ctx: McpContext, eventId: string): Promise<Rev
       name: person.display_name || person.nickname,
     })),
   };
+}
+
+export async function eventsReview(ctx: McpContext, eventIds: string[]): Promise<Review> {
+  const events = await Promise.all(eventIds.map((eventId) => requireEvent(ctx, eventId)));
+  return named(
+    "event",
+    "events",
+    events.map((event) => event.name),
+  );
 }
 
 export async function peopleReview(ctx: McpContext, ids: string[]): Promise<Review> {
@@ -45,6 +82,21 @@ export async function groupReview(ctx: McpContext, groupId: string): Promise<Rev
   );
   if (!group) throw new ToolError("This friend group is no longer available.");
   return { group: group.name };
+}
+
+/** Throws unless every group still exists and belongs to the caller. */
+export async function groupsReview(ctx: McpContext, groupIds: string[]): Promise<Review> {
+  const groups =
+    (await checked(
+      ctx.db.from("friend_groups").select("id,name").in("id", groupIds).eq("user_id", ctx.userId),
+    )) ?? [];
+  if (groups.length !== groupIds.length)
+    throw new ToolError("Some of these friend groups are no longer available.");
+  return named(
+    "group",
+    "groups",
+    groupIds.map((groupId) => groups.find((group) => group.id === groupId)!.name),
+  );
 }
 
 /** The other person in a friend request the caller sent or received. */

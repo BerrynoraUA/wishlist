@@ -1,9 +1,9 @@
 import { z } from "zod";
 import type { McpContext } from "./auth";
 import type { Tools } from "./tools";
-import { checked, ToolError } from "./results";
-import { id, search, page, text, description } from "./schemas";
-import { friendRequestReview, groupReview, peopleReview } from "./review";
+import { applyEach, checked, count, ToolError } from "./results";
+import { id, ids, search, page, text, description } from "./schemas";
+import { friendRequestReview, groupReview, groupsReview, peopleReview } from "./review";
 
 export function friendTools(tools: Tools, ctx: McpContext) {
   const { db } = ctx;
@@ -105,21 +105,27 @@ export function friendTools(tools: Tools, ctx: McpContext) {
       return { message: "Friend request updated.", request_id };
     },
   });
-  tools.add("remove_friend", {
-    title: "Remove friend",
-    description: "Remove a friendship. This changes access to friends-only wishlists.",
-    schema: { user_id: id },
-    confirm: { review: (input) => peopleReview(ctx, [input.user_id]) },
-    run: async ({ user_id }) => {
+  tools.add("remove_friends", {
+    title: "Remove friends",
+    description:
+      "Remove one or more friendships. This changes access to friends-only wishlists. Pass every friend the user wants removed in one call so they confirm once.",
+    schema: { user_ids: ids },
+    confirm: { review: (input) => peopleReview(ctx, input.user_ids) },
+    run: async ({ user_ids }) => {
       await checked(
         db
           .from("friends")
           .delete()
           .or(
-            `and(user_f.eq.${ctx.userId},user_s.eq.${user_id}),and(user_f.eq.${user_id},user_s.eq.${ctx.userId})`,
+            user_ids
+              .flatMap((userId) => [
+                `and(user_f.eq.${ctx.userId},user_s.eq.${userId})`,
+                `and(user_f.eq.${userId},user_s.eq.${ctx.userId})`,
+              ])
+              .join(","),
           ),
       );
-      return { message: "Friend removed.", user_id };
+      return { message: `Removed ${count(user_ids.length, "friend")}.`, user_ids };
     },
   });
   tools.add("set_user_blocked", {
@@ -214,14 +220,19 @@ export function friendTools(tools: Tools, ctx: McpContext) {
       return { group };
     },
   });
-  tools.add("delete_friend_group", {
-    title: "Delete friend group",
-    description: "Delete a friend group and its shared wishlist access.",
-    schema: { group_id: id },
-    confirm: { review: (input) => groupReview(ctx, input.group_id) },
-    run: async ({ group_id }) => {
-      await checked(db.rpc("delete_friend_group", { p_group_id: group_id }));
-      return { message: "Friend group deleted.", group_id };
+  tools.add("delete_friend_groups", {
+    title: "Delete friend groups",
+    description:
+      "Delete one or more friend groups and their shared wishlist access. Pass every group the user wants removed in one call so they confirm once.",
+    schema: { group_ids: ids },
+    confirm: { review: (input) => groupsReview(ctx, input.group_ids) },
+    run: async ({ group_ids }) => {
+      // Fails before deleting anything if a group vanished or is not the caller's.
+      await groupsReview(ctx, group_ids);
+      await applyEach(group_ids, (groupId) =>
+        checked(db.rpc("delete_friend_group", { p_group_id: groupId })),
+      );
+      return { message: `Deleted ${count(group_ids.length, "friend group")}.`, group_ids };
     },
   });
 }

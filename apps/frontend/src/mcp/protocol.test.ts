@@ -30,8 +30,11 @@ async function connect(server: McpServer) {
 
 function context(clientName: McpClient["name"] = "ChatGPT") {
   const rows: Record<string, unknown>[] = [];
-  const from = vi.fn(() => {
+  const items: Record<string, unknown>[] = [];
+  const from = vi.fn((table: string) => {
+    const store = table === "item" ? items : rows;
     let operation = "select";
+    let many = true;
     let values: Record<string, unknown> = {};
     const filters: ((row: Record<string, unknown>) => boolean)[] = [];
     const query = {
@@ -62,34 +65,51 @@ function context(clientName: McpClient["name"] = "ChatGPT") {
         filters.push((row) => String(row[key]) > value);
         return query;
       },
-      single: () => query,
-      maybeSingle: () => query,
-      then: (
-        resolve: (value: { data: Record<string, unknown> | null; error: null }) => unknown,
-      ) => {
+      in: (key: string, values: unknown[]) => {
+        filters.push((row) => values.includes(row[key]));
+        return query;
+      },
+      single: () => {
+        many = false;
+        return query;
+      },
+      maybeSingle: () => {
+        many = false;
+        return query;
+      },
+      then: (resolve: (value: { data: unknown; error: null }) => unknown) => {
         if (operation === "insert")
-          rows.push({
+          store.push({
             id: "10000000-0000-4000-8000-000000000002",
             status: "pending",
             expires_at: new Date(Date.now() + 600000).toISOString(),
             ...values,
           });
-        const row = rows.find((row) => filters.every((fn) => fn(row)));
-        if (row && operation === "update") Object.assign(row, values);
-        if (row && operation === "delete") rows.splice(rows.indexOf(row), 1);
-        return Promise.resolve(resolve({ data: row ?? null, error: null }));
+        const matches = store.filter((row) => filters.every((fn) => fn(row)));
+        for (const row of matches) {
+          if (operation === "update") Object.assign(row, values);
+          if (operation === "delete") store.splice(store.indexOf(row), 1);
+        }
+        const data = many && operation === "select" ? matches : (matches[0] ?? null);
+        return Promise.resolve(resolve({ data, error: null }));
       },
     };
     return query;
   });
+  // Every wishlist the tests touch is Alice's.
+  const rpc = vi.fn(async () => ({
+    data: { id: "list", title: "Birthday", user_id: "alice", can_edit: true },
+    error: null,
+  }));
   return {
     ctx: {
       userId: "alice",
       client: getMcpConfig().clients.find((client) => client.name === clientName)!,
       notifier: {} as Notifier,
-      db: { from } as unknown as McpContext["db"],
+      db: { from, rpc } as unknown as McpContext["db"],
     } satisfies McpContext,
     rows,
+    items,
     from,
   };
 }
@@ -149,7 +169,7 @@ describe("MCP tools and resources", () => {
     const resourceUri = (name: string) =>
       (tools.find((tool) => tool.name === name)?._meta?.ui as { resourceUri?: string })
         ?.resourceUri;
-    for (const name of ["get_wishlist", "delete_wishlist"]) {
+    for (const name of ["get_wishlist", "delete_wishlists"]) {
       expect(template(name)).toBe(WIDGET_URI);
       expect(resourceUri(name)).toBe(WIDGET_URI);
     }
@@ -169,8 +189,65 @@ describe("MCP tools and resources", () => {
     const { ctx, from } = context();
     const client = await connect(createWishlaneServer(ctx));
     const output = await client.callTool({
-      name: "delete_wish",
-      arguments: { item_id: "not-a-uuid" },
+      name: "delete_wishes",
+      arguments: { item_ids: ["not-a-uuid"] },
+    });
+    expect(output.isError).toBe(true);
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it("reviews and deletes several wishes with one confirmation", async () => {
+    const { ctx, items } = context();
+    const itemIds = [1, 2, 3].map((n) => `20000000-0000-4000-8000-00000000000${n}`);
+    items.push(
+      ...itemIds.map((id, index) => ({ id, wishlist_id: "list", name: `Gift ${index + 1}` })),
+      { id: "20000000-0000-4000-8000-000000000009", wishlist_id: "list", name: "Keep" },
+    );
+    const client = await connect(createWishlaneServer(ctx));
+    const pending = (await client.callTool({
+      name: "delete_wishes",
+      arguments: { item_ids: itemIds },
+    })) as CallToolResult;
+    expect(pending.structuredContent).toMatchObject({
+      status: "pending",
+      selection: { wishes: ["Gift 1", "Gift 2", "Gift 3"], wishlist: "Birthday" },
+    });
+    expect(items).toHaveLength(4);
+    const applied = await client.callTool({
+      name: "confirm_action",
+      arguments: pending._meta!.confirmation as Record<string, unknown>,
+    });
+    expect(applied.isError).not.toBe(true);
+    expect(items.map((item) => item.name)).toEqual(["Keep"]);
+  });
+
+  it("reviews a single wish without bulk wording", async () => {
+    const { ctx, items } = context();
+    const itemId = "20000000-0000-4000-8000-000000000001";
+    items.push({ id: itemId, wishlist_id: "list", name: "Mug" });
+    const client = await connect(createWishlaneServer(ctx));
+    const pending = (await client.callTool({
+      name: "delete_wishes",
+      arguments: { item_ids: [itemId] },
+    })) as CallToolResult;
+    expect(pending.structuredContent).toMatchObject({
+      selection: { wish: "Mug", wishlist: "Birthday" },
+    });
+    const applied = (await client.callTool({
+      name: "confirm_action",
+      arguments: pending._meta!.confirmation as Record<string, unknown>,
+    })) as CallToolResult;
+    expect(applied.structuredContent).toMatchObject({ message: "Deleted 1 item." });
+    expect(items).toHaveLength(0);
+  });
+
+  it("rejects a bulk change that lists a record twice", async () => {
+    const { ctx, from } = context();
+    const client = await connect(createWishlaneServer(ctx));
+    const itemId = "20000000-0000-4000-8000-000000000001";
+    const output = await client.callTool({
+      name: "delete_wishes",
+      arguments: { item_ids: [itemId, itemId] },
     });
     expect(output.isError).toBe(true);
     expect(from).not.toHaveBeenCalled();

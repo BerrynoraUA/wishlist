@@ -29,6 +29,30 @@ export async function requireItem(
   return { item, wishlist };
 }
 
+/** Loads several wishes at once, checking each wishlist only once. */
+export async function requireItems(
+  ctx: McpContext,
+  itemIds: string[],
+  access: "view" | "edit" = "view",
+) {
+  const items = (await checked(ctx.db.from("item").select("*").in("id", itemIds))) ?? [];
+  if (items.length !== itemIds.length)
+    throw new ToolError("Some of these wishes are no longer available. Refresh and try again.");
+  const wishlistIds = [...new Set(items.map((item) => item.wishlist_id))];
+  const wishlists = new Map(
+    await Promise.all(
+      wishlistIds.map(
+        async (wishlistId) => [wishlistId, await requireWishlist(ctx, wishlistId, access)] as const,
+      ),
+    ),
+  );
+  // Keep the caller's order so the review lists wishes as the user asked for them.
+  return itemIds.map((itemId) => {
+    const item = items.find((row) => row.id === itemId)!;
+    return { item, wishlist: wishlists.get(item.wishlist_id)! };
+  });
+}
+
 export async function requireEvent(
   ctx: McpContext,
   eventId: string,

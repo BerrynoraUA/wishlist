@@ -1,11 +1,11 @@
 import { z } from "zod";
 import type { McpContext } from "./auth";
 import type { Tools } from "./tools";
-import { checked, safeItem, ToolError } from "./results";
-import { id, page, search, wishlistFields } from "./schemas";
+import { checked, count, safeItem, ToolError } from "./results";
+import { id, ids, page, search, wishlistFields } from "./schemas";
 import { getMcpConfig } from "./config";
 import { requireWishlist } from "./access";
-import { groupReview, peopleReview, wishlistReview } from "./review";
+import { groupReview, peopleReview, wishlistReview, wishlistsReview } from "./review";
 
 export function wishlistTools(tools: Tools, ctx: McpContext) {
   const { db } = ctx;
@@ -159,15 +159,16 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
       return { kind: "wishlists", wishlists: [wishlist] };
     },
   });
-  tools.add("delete_wishlist", {
-    title: "Delete wishlist and its items",
-    description: "Permanently delete a wishlist and its wishes. Only its owner may delete it.",
-    schema: { wishlist_id: id },
-    confirm: { review: (input) => wishlistReview(ctx, input.wishlist_id) },
-    run: async ({ wishlist_id }) => {
-      await requireWishlist(ctx, wishlist_id, "own");
-      await checked(db.from("wishlist").delete().eq("id", wishlist_id).eq("user_id", ctx.userId));
-      return { message: "Wishlist deleted.", wishlist_id };
+  tools.add("delete_wishlists", {
+    title: "Delete wishlists and their items",
+    description:
+      "Permanently delete one or more wishlists and their wishes. Only their owner may delete them. Pass every wishlist the user wants removed in one call so they confirm once.",
+    schema: { wishlist_ids: ids },
+    confirm: { review: (input) => wishlistsReview(ctx, input.wishlist_ids) },
+    run: async ({ wishlist_ids }) => {
+      await Promise.all(wishlist_ids.map((wishlistId) => requireWishlist(ctx, wishlistId, "own")));
+      await checked(db.from("wishlist").delete().in("id", wishlist_ids).eq("user_id", ctx.userId));
+      return { message: `Deleted ${count(wishlist_ids.length, "wishlist")}.`, wishlist_ids };
     },
   });
   tools.add("set_wishlist_pinned", {

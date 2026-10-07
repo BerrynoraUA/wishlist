@@ -1,10 +1,10 @@
 import { z } from "zod";
 import type { McpContext } from "./auth";
 import type { Tools } from "./tools";
-import { checked, safeItem, ToolError } from "./results";
-import { id, httpsUrl, itemFields, search } from "./schemas";
-import { requireItem, requireWishlist } from "./access";
-import { wishReview } from "./review";
+import { checked, count, safeItem, ToolError } from "./results";
+import { id, ids, httpsUrl, itemFields, search } from "./schemas";
+import { requireItem, requireItems, requireWishlist } from "./access";
+import { wishesReview, wishReview } from "./review";
 import { ALL_PRIORITIES } from "@/lib/priorities";
 
 export function itemTools(tools: Tools, ctx: McpContext) {
@@ -73,15 +73,16 @@ export function itemTools(tools: Tools, ctx: McpContext) {
       return { kind: "items", wishlist, items: [safeItem(item, ctx.userId, wishlist.user_id)] };
     },
   });
-  tools.add("delete_wish", {
-    title: "Delete item",
-    description: "Permanently delete a wish from a wishlist you can edit.",
-    schema: { item_id: id },
-    confirm: { review: (input) => wishReview(ctx, input.item_id) },
-    run: async ({ item_id }) => {
-      await requireItem(ctx, item_id, "edit");
-      await checked(db.from("item").delete().eq("id", item_id));
-      return { message: "Item deleted.", item_id };
+  tools.add("delete_wishes", {
+    title: "Delete items",
+    description:
+      "Permanently delete one or more wishes from wishlists you can edit. Pass every wish the user wants removed in one call so they confirm once.",
+    schema: { item_ids: ids },
+    confirm: { review: (input) => wishesReview(ctx, input.item_ids) },
+    run: async ({ item_ids }) => {
+      await requireItems(ctx, item_ids, "edit");
+      await checked(db.from("item").delete().in("id", item_ids));
+      return { message: `Deleted ${count(item_ids.length, "item")}.`, item_ids };
     },
   });
   tools.add("set_gift_status", {
