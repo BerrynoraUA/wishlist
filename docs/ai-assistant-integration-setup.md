@@ -176,22 +176,24 @@ Wishlane tools).
 
 ### Product wish prompting
 
-The server instructions and tool descriptions guide the assistant to offer shop search
-before creating a wish without a product link. The assistant uses its host's web search and
-browsing tools, when available, to read the shop listing itself and pass verified title,
-description, direct image URL, price, currency and discount details to `create_wish`. It
+The `create_wishes` description guides the assistant: when the user names a recognizable
+product without a link, it searches with its host's web search, shows the listing it found
+and saves once the user agrees. It asks first only when the product, variant, country or
+shop is unclear. It reads the shop listing with host browsing and passes verified title,
+description, direct image URL, price, currency and discount details to `create_wishes`. It
 preserves the user's notes and leaves unknown fields empty, without guessing image URLs.
 Wishlane's `inspect_product_link` is a fallback for unavailable or unsuccessful browsing,
 or an explicit request to use Wishlane import. Successful browsing should not trigger a
 duplicate importer call. If optional fields are missing, offer import or manual entry.
 Users can explicitly choose manual entry.
-This is model guidance, not a server-enforced prerequisite for `create_wish`.
+This is model guidance, not a server-enforced prerequisite for `create_wishes`.
 
 After deploying, check the following in a fresh conversation with the updated tool metadata:
 
-- "Add a coffee grinder to my wishlist": the assistant first offers to find a shop listing.
-  Agree to search, choose a listing if needed, and check that it reads the shop listing with
-  host browsing and calls `create_wish` with available details, without `inspect_product_link`.
+- "Add the Lego Millennium Falcon to my wishlist": the assistant searches, shows a listing
+  and asks you to agree. Check that it reads the shop listing with host browsing and calls
+  `create_wishes` with available details, without `inspect_product_link`.
+- "Add a coffee grinder to my wishlist": the product is vague, so it asks which one first.
 - "Add this to my wishlist: <product link>": it reads that link with host browsing, without
   asking to search again, and resolves the target wishlist if unclear.
 - "Add a manual wish called weekend away, no shop search": it respects manual entry.
@@ -206,8 +208,16 @@ After deploying, check the following in a fresh conversation with the updated to
 - **Included**: wishlists, items (images, product links, priorities, votes), gift
   reservation/purchased status, sharing and access, friends, friend groups, blocking,
   notifications, Secret Santa events, invitations and launches.
-- **Requires confirmation** in a review card: deletions, sharing/access changes and share
-  links, friend requests and responses, removing friends, blocking, saving friend groups,
-  reporting items, joining/responding to/cancelling Secret Santa invites, removing
-  participants, and launching Secret Santa.
+- **Requires confirmation** in a review card: deletions, creating a public wishlist,
+  visibility, sharing/access changes and share links, sending friend requests, removing
+  friends, blocking, saving friend groups, creating events with invitations, cancelling
+  Secret Santa invites, removing participants, and launching Secret Santa. Requests the user
+  answers directly (accepting/declining friend requests and Secret Santa invites, joining
+  your own event, reporting an item) and private, friends or selected-friends wishlists apply
+  immediately.
+- **Cancelling** a review card discards it on the server (`cancel_action`), so it can't be
+  confirmed later.
+- **Chat attachments**: in ChatGPT, `attach_wish_image` accepts a photo attached to the chat
+  (`openai/fileParams`). Claude has no equivalent, so there you use an image URL or the card's
+  upload button.
 - **Excluded**: billing, passwords, account deletion, raw SQL.

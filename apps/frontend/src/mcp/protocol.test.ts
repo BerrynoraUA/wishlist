@@ -8,7 +8,7 @@ import type { McpContext } from "./auth";
 import type { Notifier } from "@wishlist/backend/notifications/notifier";
 import { createTools } from "./tools";
 import { createWishlaneServer } from "./server";
-import { ToolError } from "./results";
+import { errorMessage, ToolError } from "./results";
 import { getMcpConfig, WIDGET_URI, type McpClient } from "./config";
 
 const close: (() => Promise<void>)[] = [];
@@ -29,17 +29,19 @@ async function connect(server: McpServer) {
 }
 
 function context(clientName: McpClient["name"] = "ChatGPT") {
-  const rows: Record<string, unknown>[] = [];
-  const items: Record<string, unknown>[] = [];
+  const tables: Record<string, Record<string, unknown>[]> = { mcp_actions: [], item: [] };
+  const rows = tables.mcp_actions;
+  const items = tables.item;
+  let inserted = 0;
   const from = vi.fn((table: string) => {
-    const store = table === "item" ? items : rows;
+    const store = (tables[table] ??= []);
     let operation = "select";
     let many = true;
-    let values: Record<string, unknown> = {};
+    let values: Record<string, unknown> | Record<string, unknown>[] = {};
     const filters: ((row: Record<string, unknown>) => boolean)[] = [];
     const query = {
       select: () => query,
-      insert: (value: Record<string, unknown>) => {
+      insert: (value: Record<string, unknown> | Record<string, unknown>[]) => {
         operation = "insert";
         values = value;
         return query;
@@ -78,13 +80,16 @@ function context(clientName: McpClient["name"] = "ChatGPT") {
         return query;
       },
       then: (resolve: (value: { data: unknown; error: null }) => unknown) => {
-        if (operation === "insert")
-          store.push({
-            id: "10000000-0000-4000-8000-000000000002",
+        if (operation === "insert") {
+          const added = (Array.isArray(values) ? values : [values]).map((value) => ({
+            id: `10000000-0000-4000-8000-${String(2 + inserted++).padStart(12, "0")}`,
             status: "pending",
             expires_at: new Date(Date.now() + 600000).toISOString(),
-            ...values,
-          });
+            ...value,
+          }));
+          store.push(...added);
+          return Promise.resolve(resolve({ data: many ? added : added[0], error: null }));
+        }
         const matches = store.filter((row) => filters.every((fn) => fn(row)));
         for (const row of matches) {
           if (operation === "update") Object.assign(row, values);
@@ -101,16 +106,29 @@ function context(clientName: McpClient["name"] = "ChatGPT") {
     data: { id: "list", title: "Birthday", user_id: "alice", can_edit: true },
     error: null,
   }));
+  const notifier = {
+    createLocalizedNotification: vi.fn(async () => {}),
+    notifyNewWishlist: vi.fn(async () => {}),
+  };
+  const bucket = {
+    upload: vi.fn(async () => ({ data: {}, error: null })),
+    remove: vi.fn(async () => ({ data: {}, error: null })),
+    getPublicUrl: () => ({ data: { publicUrl: "https://storage.example/image.webp" } }),
+  };
   return {
     ctx: {
       userId: "alice",
       client: getMcpConfig().clients.find((client) => client.name === clientName)!,
-      notifier: {} as Notifier,
-      db: { from, rpc } as unknown as McpContext["db"],
+      notifier: notifier as unknown as Notifier,
+      db: { from, rpc, storage: { from: () => bucket } } as unknown as McpContext["db"],
     } satisfies McpContext,
+    tables,
     rows,
     items,
     from,
+    rpc,
+    notifier,
+    bucket,
   };
 }
 
@@ -127,10 +145,11 @@ describe("MCP tools and resources", () => {
       const client = await connect(createWishlaneServer(ctx));
       const output = await client.callTool({ name, arguments: { limit: 100, offset: 50 } });
       expect(output.isError).not.toBe(true);
+      // List RPCs fetch one row past the page to report has_more.
       expect(rpc).toHaveBeenCalledWith(
         rpcName,
         expect.objectContaining({
-          [limitKey]: 50,
+          [limitKey]: name === "list_wishlists" ? 51 : 50,
           ...(name === "list_wishlists" ? { p_skip: 50 } : { p_offset: 50 }),
         }),
       );
@@ -349,5 +368,158 @@ describe("MCP tools and resources", () => {
     expect(applied.isError).toBe(true);
     expect(JSON.stringify(applied.content)).toContain("The selection changed.");
     expect(run).not.toHaveBeenCalled();
+  });
+
+  it("creates a friends wishlist with its wishes at once, reviewing only public lists", async () => {
+    const { ctx, tables, items, notifier } = context();
+    const client = await connect(createWishlaneServer(ctx));
+    const created = (await client.callTool({
+      name: "create_wishlist",
+      arguments: {
+        title: "Birthday",
+        items: [{ name: "Mug", priority: "starred" }, { name: "Book" }],
+      },
+    })) as CallToolResult;
+    expect(created.structuredContent).toMatchObject({
+      kind: "wishlists",
+      message: "Added 2 wishes.",
+    });
+    expect(tables.wishlist).toMatchObject([
+      { title: "Birthday", visibility_type: 1, user_id: "alice" },
+    ]);
+    expect(items).toMatchObject([
+      { name: "Mug", priority_id: "11111111-0000-0000-0000-000000000011" },
+      { name: "Book" },
+    ]);
+    expect(items[1]).not.toHaveProperty("priority_id");
+    expect(notifier.notifyNewWishlist).toHaveBeenCalledOnce();
+    const pending = (await client.callTool({
+      name: "create_wishlist",
+      arguments: { title: "Everyone", visibility: "public" },
+    })) as CallToolResult;
+    expect(pending.structuredContent).toMatchObject({ kind: "confirmation", status: "pending" });
+    expect(tables.wishlist).toHaveLength(1);
+  });
+
+  it("reports has_more instead of leaving a full page ambiguous", async () => {
+    const { ctx } = context();
+    const rpc = vi.fn(async () => ({ data: [{ id: "a" }, { id: "b" }, { id: "c" }], error: null }));
+    ctx.db = { ...ctx.db, rpc } as unknown as McpContext["db"];
+    const client = await connect(createWishlaneServer(ctx));
+    const output = (await client.callTool({
+      name: "list_wishlists",
+      arguments: { limit: 2 },
+    })) as CallToolResult;
+    expect(output.structuredContent).toMatchObject({
+      wishlists: [{ id: "a" }, { id: "b" }],
+      has_more: true,
+    });
+  });
+
+  it("changes access for several people and groups with one review", async () => {
+    const { ctx, tables, rpc, notifier } = context();
+    const anna = "30000000-0000-4000-8000-000000000001";
+    const family = "30000000-0000-4000-8000-000000000002";
+    tables.profiles = [{ id: anna, nickname: "anna" }];
+    tables.friend_groups = [{ id: family, name: "Family", user_id: "alice" }];
+    const client = await connect(createWishlaneServer(ctx));
+    const pending = (await client.callTool({
+      name: "set_wishlist_access",
+      arguments: {
+        wishlist_id: "40000000-0000-4000-8000-000000000001",
+        grants: [
+          { target: "user", target_id: anna, role: "editor" },
+          { target: "group", target_id: family, role: "viewer" },
+        ],
+      },
+    })) as CallToolResult;
+    expect(pending.structuredContent).toMatchObject({
+      selection: { wishlist: "Birthday", access: ["@anna: Editor", "Family (group): Viewer"] },
+    });
+    expect(rpc).not.toHaveBeenCalledWith("grant_wishlist_access", expect.anything());
+    await client.callTool({
+      name: "confirm_action",
+      arguments: pending._meta!.confirmation as Record<string, unknown>,
+    });
+    expect(rpc).toHaveBeenCalledWith("grant_wishlist_access", {
+      p_wishlist_id: "40000000-0000-4000-8000-000000000001",
+      p_granted_to_user_id: anna,
+      p_access_type: 1,
+    });
+    expect(rpc).toHaveBeenCalledWith("grant_wishlist_group_access", {
+      p_wishlist_id: "40000000-0000-4000-8000-000000000001",
+      p_group_id: family,
+    });
+    expect(notifier.createLocalizedNotification).toHaveBeenCalledOnce();
+  });
+
+  it("answers friend requests the user asked about without a review card", async () => {
+    const { ctx, rpc } = context();
+    const requestIds = [1, 2].map((n) => `50000000-0000-4000-8000-00000000000${n}`);
+    const client = await connect(createWishlaneServer(ctx));
+    const output = (await client.callTool({
+      name: "respond_to_friend_requests",
+      arguments: { request_ids: requestIds, response: "accept" },
+    })) as CallToolResult;
+    expect(output.structuredContent).toMatchObject({ message: "Accepted 2 friend requests." });
+    for (const id of requestIds)
+      expect(rpc).toHaveBeenCalledWith("accept_friend_request", { p_request_id: id });
+  });
+
+  it("never applies a review the user cancelled", async () => {
+    const { ctx, rows } = context();
+    const server = new McpServer({ name: "test", version: "1" });
+    const run = vi.fn(async () => ({ message: "Changed" }));
+    createTools(server, ctx).add("important_change", {
+      title: "Change",
+      description: "Test",
+      schema: {},
+      confirm: {},
+      run,
+    });
+    const client = await connect(server);
+    const output = (await client.callTool({
+      name: "important_change",
+      arguments: {},
+    })) as CallToolResult;
+    const capability = output._meta!.confirmation as Record<string, unknown>;
+    expect(
+      (await client.callTool({ name: "cancel_action", arguments: capability })).isError,
+    ).not.toBe(true);
+    expect(rows[0].status).toBe("cancelled");
+    const applied = (await client.callTool({
+      name: "confirm_action",
+      arguments: capability,
+    })) as CallToolResult;
+    expect(applied.isError).toBe(true);
+    expect(JSON.stringify(applied.content)).toContain("cancelled");
+    expect(run).not.toHaveBeenCalled();
+  });
+
+  it("refuses chat attachments that point at a private network", async () => {
+    const { ctx, items, bucket } = context();
+    const itemId = "20000000-0000-4000-8000-000000000001";
+    items.push({ id: itemId, wishlist_id: "list", name: "Mug" });
+    const client = await connect(createWishlaneServer(ctx));
+    const output = await client.callTool({
+      name: "attach_wish_image",
+      arguments: {
+        item_id: itemId,
+        image: { download_url: "https://127.0.0.1/secret.png", file_id: "file_1" },
+      },
+    });
+    expect(output.isError).toBe(true);
+    expect(bucket.upload).not.toHaveBeenCalled();
+  });
+
+  it("explains known database failures instead of a generic error", () => {
+    expect(
+      errorMessage({
+        code: "P0001",
+        message: "You can have up to 3 starred items in one wishlist",
+      }),
+    ).toBe("You can have up to 3 starred items in one wishlist");
+    expect(errorMessage({ code: "23505", message: "duplicate key" })).toContain("already exists");
+    expect(errorMessage({ code: "XX000", message: "internal detail" })).not.toContain("internal");
   });
 });

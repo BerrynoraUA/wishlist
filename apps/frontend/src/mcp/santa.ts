@@ -3,17 +3,10 @@ import { z } from "zod";
 import { generateSecretSantaAssignment } from "@wishlist/backend/lib/secret-santa-assignment";
 import type { McpContext } from "./auth";
 import type { Tools } from "./tools";
-import { applyEach, checked, count, safeItem, ToolError } from "./results";
+import { applyEach, checked, count, paged, safeItem, ToolError } from "./results";
 import { id, ids, search, text, date, currency, imageUrl, page } from "./schemas";
 import { requireEvent } from "./access";
-import {
-  eventReview,
-  eventsReview,
-  inviteReview,
-  named,
-  peopleReview,
-  type Review,
-} from "./review";
+import { eventReview, eventsReview, named, peopleReview, type Review } from "./review";
 
 // Crypto-strength randomness for draws made on the server.
 const secureRandom = () => randomInt(2 ** 32) / 2 ** 32;
@@ -33,16 +26,67 @@ export function santaTools(tools: Tools, ctx: McpContext) {
     schema: search,
     readOnly: true,
     view: true,
-    run: async (input) => ({
-      kind: "events",
-      ...(await checked(
+    run: async (input) => {
+      const data = await checked(
         db.rpc("list_secret_santa_events", {
           p_search: input.search ?? null,
           p_limit: input.limit,
           p_offset: input.offset,
         }),
-      )),
-    }),
+      );
+      const items = data?.items ?? [];
+      return {
+        kind: "events",
+        ...data,
+        items,
+        has_more: input.offset + items.length < (data?.total ?? 0),
+      };
+    },
+  });
+  tools.add("list_secret_santa_invites", {
+    title: "View Secret Santa invitations",
+    description:
+      "List Secret Santa invitations you received and have not answered yet, with who sent them. Use the invite_id with respond_to_secret_santa_invite.",
+    schema: page,
+    readOnly: true,
+    run: async (input) => {
+      const { rows, page: pageInfo } = paged(
+        await checked(
+          db
+            .from("secret_santa_invites")
+            .select("id,sender_id,created_at")
+            .eq("receiver_id", ctx.userId)
+            .eq("status", 0)
+            .order("created_at", { ascending: false })
+            .range(input.offset, input.offset + input.limit),
+        ),
+        input,
+      );
+      const inviteIds = rows.map((invite) => invite.id);
+      const senderIds = [...new Set(rows.map((invite) => invite.sender_id))];
+      // Invitees cannot read the event yet; its name reaches them in the invitation notice.
+      const [senders, notices] = inviteIds.length
+        ? await Promise.all([
+            checked(db.from("profiles").select("id,nickname").in("id", senderIds)),
+            checked(
+              db
+                .from("notifications")
+                .select("entity_id,text")
+                .eq("receiver_id", ctx.userId)
+                .in("entity_id", inviteIds),
+            ),
+          ])
+        : [[], []];
+      return {
+        invites: rows.map((invite) => ({
+          invite_id: invite.id,
+          from: senders?.find((sender) => sender.id === invite.sender_id) ?? null,
+          notice: notices?.find((notice) => notice.entity_id === invite.id)?.text ?? null,
+          created_at: invite.created_at,
+        })),
+        ...pageInfo,
+      };
+    },
   });
   tools.add("get_secret_santa_event", {
     title: "View Secret Santa event",
@@ -128,9 +172,8 @@ export function santaTools(tools: Tools, ctx: McpContext) {
   tools.add("respond_to_secret_santa_invite", {
     title: "Respond to Secret Santa invitation",
     description:
-      "Accept or decline your Secret Santa invitation. Use the invitation ID from notifications or event details.",
+      "Accept or decline your Secret Santa invitation when the user asks. Find invite IDs with list_secret_santa_invites.",
     schema: { invite_id: id, response: z.enum(["accept", "decline"]) },
-    confirm: { review: (input) => inviteReview(ctx, input.invite_id) },
     run: async ({ invite_id, response }) => {
       await checked(
         db.rpc(
@@ -145,7 +188,7 @@ export function santaTools(tools: Tools, ctx: McpContext) {
     title: "Join your Secret Santa event",
     description: "Join an event you organize. Other users must accept their invitation.",
     schema: { event_id: id },
-    confirm: { review: (input) => eventReview(ctx, input.event_id) },
+    idempotent: true,
     run: async ({ event_id }) => {
       const event = await requireEvent(ctx, event_id, "own");
       if (event.is_started) throw new ToolError("The event has already started.");
@@ -303,6 +346,7 @@ export function santaTools(tools: Tools, ctx: McpContext) {
         total: data.total,
         limit,
         offset,
+        has_more: offset + (data.items?.length ?? 0) < data.total,
       };
     },
   });

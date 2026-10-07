@@ -49,6 +49,8 @@ type ToolOptions<S extends z.ZodRawShape, I = z.output<z.ZodObject<S>>> = {
   appOnly?: boolean;
   /** The result renders in the Wishlane card. Review cards always do. */
   view?: boolean;
+  /** Top-level inputs ChatGPT fills with files the user attached to the chat. */
+  fileParams?: string[];
   confirm?: Confirmation<I>;
   run: (input: I) => Promise<Record<string, unknown>>;
 };
@@ -59,9 +61,10 @@ type ConfirmableAction = {
 };
 
 // Tools without a view answer in plain text; the card is only for results it can present.
-function toolMeta({ appOnly = false, view = false }) {
+function toolMeta({ appOnly = false, view = false, fileParams = [] as string[] }) {
   return {
     securitySchemes: [{ type: "oauth2", scopes: ["openid"] }],
+    ...(fileParams.length && { "openai/fileParams": fileParams }),
     ...(appOnly && { ui: { visibility: ["app"] }, "openai/visibility": "private" }),
     ...(view && { ui: { resourceUri: WIDGET_URI }, "openai/outputTemplate": WIDGET_URI }),
     "openai/widgetAccessible": true,
@@ -147,7 +150,11 @@ export function createTools(server: McpServer, ctx: McpContext) {
           idempotentHint: options.readOnly || options.idempotent || false,
           openWorldHint: options.openWorld ?? false,
         },
-        _meta: toolMeta({ appOnly: options.appOnly, view: options.view || Boolean(confirm) }),
+        _meta: toolMeta({
+          appOnly: options.appOnly,
+          view: options.view || Boolean(confirm),
+          fileParams: options.fileParams,
+        }),
       },
       async (args: unknown) =>
         safely(async () => {
@@ -192,6 +199,8 @@ export function createTools(server: McpServer, ctx: McpContext) {
         if (Date.parse(row.expires_at) <= Date.now())
           throw new ToolError("This review expired. Request a new review card.");
         if (row.status === "completed") return result(row.result);
+        if (row.status === "cancelled")
+          throw new ToolError("This review was cancelled. Nothing was changed.");
         if (row.status !== "pending")
           throw new ToolError(
             "This review was already attempted. Refresh the data before requesting a new change.",
@@ -231,6 +240,47 @@ export function createTools(server: McpServer, ctx: McpContext) {
             .eq("id", input.id);
           throw error;
         }
+      }),
+  );
+
+  registerAppTool(
+    server,
+    "cancel_action",
+    {
+      title: "Cancel Wishlane change",
+      description: "Discard a pending change the user cancelled in the Wishlane card.",
+      inputSchema: { id, signature: z.string().regex(/^[a-f0-9]{64}$/) },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+      _meta: toolMeta({ appOnly: true }),
+    },
+    async (input: { id: string; signature: string }) =>
+      safely(async () => {
+        if (!validConfirmation(input.signature, sign(input.id)))
+          throw new ToolError("Invalid confirmation. Request a new review card.");
+        // Only a pending review can be cancelled; a change already applied stays applied.
+        const cancelled = await checked(
+          ctx.db
+            .from("mcp_actions")
+            .update({ status: "cancelled", arguments: {} })
+            .eq("id", input.id)
+            .eq("user_id", ctx.userId)
+            .eq("client_id", ctx.client.id)
+            .eq("status", "pending")
+            .select("id")
+            .maybeSingle(),
+        );
+        if (!cancelled)
+          throw new ToolError("This review was already handled. Refresh to check its result.");
+        return result({
+          kind: "confirmation",
+          status: "cancelled",
+          message: "Nothing was changed.",
+        });
       }),
   );
 

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { McpContext } from "./auth";
 import type { Tools } from "./tools";
-import { checked, ToolError } from "./results";
+import { checked, paged, ToolError } from "./results";
 import { id, page } from "./schemas";
 
 export function notificationTools(tools: Tools, ctx: McpContext) {
@@ -11,16 +11,32 @@ export function notificationTools(tools: Tools, ctx: McpContext) {
     description: "Read notifications about wishes, friends, sharing and Secret Santa.",
     schema: { ...page, unread_only: z.boolean().default(false) },
     readOnly: true,
-    run: async (input) => ({
-      notifications: await checked(
-        db.rpc("get_user_notifications", {
-          p_user_id: ctx.userId,
-          p_limit: input.limit,
-          p_offset: input.offset,
-          p_unread_only: input.unread_only,
-        }),
-      ),
-    }),
+    run: async (input) => {
+      const { rows, page } = paged(
+        await checked(
+          db.rpc("get_user_notifications", {
+            p_user_id: ctx.userId,
+            p_limit: input.limit + 1,
+            p_offset: input.offset,
+            p_unread_only: input.unread_only,
+          }),
+        ),
+        input,
+      );
+      return {
+        notifications: rows.map((row: Record<string, unknown>) => ({
+          id: row.id,
+          text: row.text,
+          from: row.sender_id
+            ? { id: row.sender_id, nickname: row.sender_nickname, name: row.sender_name }
+            : null,
+          entity_id: row.entity_id,
+          is_read: row.is_read,
+          created_at: row.created_at,
+        })),
+        ...page,
+      };
+    },
   });
   tools.add("mark_notifications_read", {
     title: "Mark notifications read",

@@ -1,18 +1,33 @@
 import { z } from "zod";
 import type { McpContext } from "./auth";
 import type { Tools } from "./tools";
-import { checked, count, safeItem, ToolError } from "./results";
-import { id, ids, page, search, wishlistFields } from "./schemas";
+import { applyEach, checked, count, paged, safeItem, ToolError } from "./results";
+import {
+  id,
+  ids,
+  itemFields,
+  page,
+  priceRange,
+  priority,
+  search,
+  visibility,
+  VISIBILITIES,
+  wishlistFields,
+} from "./schemas";
 import { getMcpConfig } from "./config";
 import { requireWishlist } from "./access";
-import { groupReview, peopleReview, wishlistReview, wishlistsReview } from "./review";
+import { accessReview, wishlistReview, wishlistsReview } from "./review";
+import { priorityId, wishRow } from "./items";
+
+const VISIBILITY_HELP =
+  "Visibility: public is anyone; friends is all friends; private is only you; selected_friends is only people and groups granted with set_wishlist_access.";
 
 export function wishlistTools(tools: Tools, ctx: McpContext) {
   const { db } = ctx;
   tools.add("list_wishlists", {
     title: "Browse wishlists",
     description:
-      "List your wishlists, discover public wishlists, or browse a friend's accessible wishlists. Use IDs from results in subsequent tools.",
+      "List your wishlists, discover public wishlists, or browse a friend's accessible wishlists. Use IDs from results in subsequent tools. visibility_type in results: 0 public, 1 friends, 2 private, 3 selected friends.",
     schema: {
       ...search,
       view: z.enum(["mine", "public", "friend"]).default("mine"),
@@ -34,7 +49,7 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
         lists = await checked(
           query
             .order("created_at", { ascending: false })
-            .range(input.offset, input.offset + input.limit - 1),
+            .range(input.offset, input.offset + input.limit),
         );
       } else {
         if (input.view === "friend" && !input.friend_id)
@@ -42,19 +57,15 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
         lists = await checked(
           db.rpc(input.view === "mine" ? "get_my_wishlists_feed" : "get_friend_wishlists", {
             p_skip: input.offset,
-            p_take: input.limit,
+            p_take: input.limit + 1,
             p_search: input.search ?? null,
             p_sort: "newest",
             ...(input.view === "friend" ? { p_friend_user_id: input.friend_id } : {}),
           }),
         );
       }
-      return {
-        kind: "wishlists",
-        wishlists: lists ?? [],
-        offset: input.offset,
-        limit: input.limit,
-      };
+      const { rows, page } = paged(lists, input);
+      return { kind: "wishlists", wishlists: rows, ...page };
     },
   });
   tools.add("get_wishlist", {
@@ -77,9 +88,8 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
           "default",
         ])
         .default("default"),
-      priority_ids: z.array(id).max(4).optional(),
-      price_min: z.number().nonnegative().optional(),
-      price_max: z.number().nonnegative().optional(),
+      priorities: z.array(priority).max(4).optional(),
+      ...priceRange,
     },
     readOnly: true,
     view: true,
@@ -89,72 +99,93 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
         db.rpc("get_wishlist_items", {
           p_wishlist_id: input.wishlist_id,
           p_skip: input.offset,
-          p_take: input.limit,
+          p_take: input.limit + 1,
           p_search: input.search ?? null,
           p_sort: input.sort,
-          p_priorities: input.priority_ids ?? null,
-          p_price_min: input.price_min ?? null,
-          p_price_max: input.price_max ?? null,
+          p_priorities: input.priorities?.map(priorityId) ?? null,
+          p_price_min: input.price_min === undefined ? null : Number(input.price_min),
+          p_price_max: input.price_max === undefined ? null : Number(input.price_max),
         }),
       );
+      const { rows: items, page } = paged(rows, input);
       return {
         kind: "items",
         wishlist,
-        items: (rows ?? []).map((row: Record<string, unknown>) =>
+        items: items.map((row: Record<string, unknown>) =>
           safeItem(row, ctx.userId, wishlist.user_id),
         ),
-        offset: input.offset,
-        limit: input.limit,
+        ...page,
       };
     },
   });
   tools.add("create_wishlist", {
     title: "Create wishlist",
-    description:
-      "Create a wishlist. Visibility: 0 public, 1 friends, 2 private, 3 selected friends. Creating a visible list requires review and may notify friends.",
-    schema: { ...wishlistFields, visibility_type: z.number().int().min(0).max(3).default(1) },
-    confirm: { when: (input) => input.visibility_type !== 2 },
-    run: async (input) => {
+    description: `Create a wishlist, optionally with its first wishes in the same call. Defaults to friends. ${VISIBILITY_HELP} Public and friends lists notify friends. Only a public list needs review in the card.`,
+    schema: {
+      ...wishlistFields,
+      visibility: visibility.default("friends"),
+      items: z
+        .array(z.object(itemFields).strict())
+        .max(50)
+        .optional()
+        .describe("Wishes to add to the new list, with the same fields as create_wishes."),
+    },
+    confirm: { when: (input) => input.visibility === "public" },
+    view: true,
+    run: async ({ visibility, items = [], ...fields }) => {
+      const visibility_type = VISIBILITIES.indexOf(visibility);
       const wishlist = await checked(
         db
           .from("wishlist")
-          .insert({ ...input, user_id: ctx.userId })
+          .insert({ ...fields, visibility_type, user_id: ctx.userId })
           .select()
           .single(),
       );
-      if (input.visibility_type <= 1)
-        await ctx.notifier.notifyNewWishlist(wishlist.id, wishlist.title);
-      return { kind: "wishlists", wishlists: [wishlist] };
+      if (items.length)
+        await checked(
+          db
+            .from("item")
+            .insert(items.map((item) => ({ ...wishRow(item), wishlist_id: wishlist.id }))),
+        );
+      if (visibility_type <= 1) await ctx.notifier.notifyNewWishlist(wishlist.id, wishlist.title);
+      return {
+        kind: "wishlists",
+        wishlists: [wishlist],
+        ...(items.length > 0 && { message: `Added ${count(items.length, "wish", "wishes")}.` }),
+      };
     },
   });
   tools.add("update_wishlist", {
     title: "Edit wishlist",
-    description:
-      "Change wishlist details. Visibility changes require explicit user review. Omitted fields are unchanged.",
+    description: `Change wishlist details. Visibility changes require explicit user review. Omitted fields are unchanged. ${VISIBILITY_HELP}`,
     schema: {
       wishlist_id: id,
       changes: z
         .object({
           ...wishlistFields,
           title: wishlistFields.title.optional(),
-          visibility_type: z.number().int().min(0).max(3).optional(),
+          visibility: visibility.optional(),
         })
         .strict()
         .refine((value) => Object.keys(value).length > 0),
     },
     confirm: {
-      when: (input) => input.changes.visibility_type !== undefined,
+      when: (input) => input.changes.visibility !== undefined,
       review: (input) => wishlistReview(ctx, input.wishlist_id),
     },
-    run: async ({ wishlist_id, changes }) => {
+    run: async ({ wishlist_id, changes: { visibility, ...changes } }) => {
       // Only the owner may change who can see a list; editors may change its details.
-      await requireWishlist(
-        ctx,
-        wishlist_id,
-        changes.visibility_type === undefined ? "edit" : "own",
-      );
+      await requireWishlist(ctx, wishlist_id, visibility === undefined ? "edit" : "own");
       const wishlist = await checked(
-        db.from("wishlist").update(changes).eq("id", wishlist_id).select().single(),
+        db
+          .from("wishlist")
+          .update({
+            ...changes,
+            ...(visibility && { visibility_type: VISIBILITIES.indexOf(visibility) }),
+          })
+          .eq("id", wishlist_id)
+          .select()
+          .single(),
       );
       return { kind: "wishlists", wishlists: [wishlist] };
     },
@@ -189,62 +220,87 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
     readOnly: true,
     run: async ({ wishlist_id }) => {
       await requireWishlist(ctx, wishlist_id, "own");
+      const rows = await checked(
+        db.rpc("get_wishlist_access_list", { p_wishlist_id: wishlist_id }),
+      );
       return {
-        access: await checked(db.rpc("get_wishlist_access_list", { p_wishlist_id: wishlist_id })),
+        access: (rows ?? []).map((row: Record<string, unknown>) => ({
+          target: row.target_type === "group" ? "group" : "user",
+          target_id: row.target_id,
+          name: row.target_type === "group" ? row.name : row.nickname,
+          role: row.access_type === 1 ? "editor" : "viewer",
+        })),
       };
     },
   });
   tools.add("set_wishlist_access", {
     title: "Change wishlist access",
     description:
-      "Grant viewer/editor access to a user, viewer access to a group, or revoke access. Group access supports viewer only.",
+      "Grant viewer/editor access to people, viewer access to groups, or revoke access. Pass every person and group in one call so the user confirms once. Groups support viewer only. Granted people are notified.",
     schema: {
       wishlist_id: id,
-      target: z.enum(["user", "group"]),
-      target_id: id,
-      role: z.enum(["viewer", "editor", "none"]),
+      grants: z
+        .array(
+          z
+            .object({
+              target: z.enum(["user", "group"]),
+              target_id: id,
+              role: z.enum(["viewer", "editor", "none"]),
+            })
+            .strict(),
+        )
+        .min(1)
+        .max(50)
+        .refine(
+          (grants) => new Set(grants.map((grant) => grant.target_id)).size === grants.length,
+          "List each person or group once",
+        ),
     },
     confirm: {
-      review: async ({ wishlist_id, target, target_id }) => ({
+      review: async ({ wishlist_id, grants }) => ({
         ...(await wishlistReview(ctx, wishlist_id)),
-        ...(target === "group"
-          ? await groupReview(ctx, target_id)
-          : await peopleReview(ctx, [target_id])),
+        ...(await accessReview(ctx, grants)),
       }),
     },
-    run: async ({ wishlist_id, target, target_id, role }) => {
+    run: async ({ wishlist_id, grants }) => {
+      if (grants.some((grant) => grant.target === "group" && grant.role === "editor"))
+        throw new ToolError("Groups can only have viewer access.");
       const wishlist = await requireWishlist(ctx, wishlist_id, "own");
-      if (target === "group") {
-        if (role === "editor") throw new ToolError("Groups can only have viewer access.");
-        await checked(
-          db.rpc(role === "none" ? "revoke_wishlist_group_access" : "grant_wishlist_group_access", {
-            p_wishlist_id: wishlist_id,
-            p_group_id: target_id,
-          }),
-        );
-      } else if (role === "none") {
-        await checked(
-          db.rpc("revoke_wishlist_access", {
-            p_wishlist_id: wishlist_id,
-            p_target_user_id: target_id,
-          }),
-        );
-      } else {
+      const byTarget = new Map(grants.map((grant) => [grant.target_id, grant]));
+      await applyEach([...byTarget.keys()], async (targetId) => {
+        const { target, role } = byTarget.get(targetId)!;
+        if (target === "group")
+          return checked(
+            db.rpc(
+              role === "none" ? "revoke_wishlist_group_access" : "grant_wishlist_group_access",
+              { p_wishlist_id: wishlist_id, p_group_id: targetId },
+            ),
+          );
+        if (role === "none")
+          return checked(
+            db.rpc("revoke_wishlist_access", {
+              p_wishlist_id: wishlist_id,
+              p_target_user_id: targetId,
+            }),
+          );
         await checked(
           db.rpc("grant_wishlist_access", {
             p_wishlist_id: wishlist_id,
-            p_granted_to_user_id: target_id,
+            p_granted_to_user_id: targetId,
             p_access_type: role === "editor" ? 1 : 0,
           }),
         );
         await ctx.notifier.createLocalizedNotification({
-          receiverId: target_id,
+          receiverId: targetId,
           key: "wishlist_access",
           vars: { title: wishlist.title },
           entityId: wishlist_id,
         });
-      }
-      return { message: "Wishlist access updated.", wishlist_id };
+      });
+      return {
+        message: `Updated access for ${count(grants.length, "person or group", "people and groups")}.`,
+        wishlist_id,
+      };
     },
   });
   tools.add("create_share_link", {
@@ -277,17 +333,17 @@ export function wishlistTools(tools: Tools, ctx: McpContext) {
         db.rpc("get_wishlist_items_by_share_token", {
           p_token: input.token,
           p_skip: input.offset,
-          p_take: input.limit,
+          p_take: input.limit + 1,
         }),
       );
+      const { rows: items, page } = paged(rows, input);
       return {
         kind: "items",
         wishlist,
-        items: (rows ?? []).map((row: Record<string, unknown>) =>
+        items: items.map((row: Record<string, unknown>) =>
           safeItem(row, ctx.userId, wishlist.user_id),
         ),
-        offset: input.offset,
-        limit: input.limit,
+        ...page,
       };
     },
   });

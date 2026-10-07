@@ -1,5 +1,5 @@
 import type { McpContext } from "./auth";
-import { requireEvent, requireItem, requireItems, requireWishlist } from "./access";
+import { requireEvent, requireItems, requireWishlist } from "./access";
 import { checked, ToolError } from "./results";
 
 // Names shown on confirmation cards are resolved on the server, so the card identifies the
@@ -15,11 +15,6 @@ export function named(singular: string, plural: string, names: unknown[]): Revie
 
 export async function wishlistReview(ctx: McpContext, wishlistId: string): Promise<Review> {
   return { wishlist: (await requireWishlist(ctx, wishlistId)).title };
-}
-
-export async function wishReview(ctx: McpContext, itemId: string): Promise<Review> {
-  const { item, wishlist } = await requireItem(ctx, itemId);
-  return { wish: item.name, wishlist: wishlist.title };
 }
 
 export async function wishlistsReview(ctx: McpContext, wishlistIds: string[]): Promise<Review> {
@@ -99,26 +94,36 @@ export async function groupsReview(ctx: McpContext, groupIds: string[]): Promise
   );
 }
 
-/** The other person in a friend request the caller sent or received. */
-export async function friendRequestReview(ctx: McpContext, requestId: string): Promise<Review> {
-  const request = await checked(
-    ctx.db
-      .from("friend_requests")
-      .select("sender_id,receiver_id")
-      .eq("id", requestId)
-      .maybeSingle(),
-  );
-  if (!request) throw new ToolError("This friend request is no longer available.");
-  return peopleReview(ctx, [
-    request.sender_id === ctx.userId ? request.receiver_id : request.sender_id,
-  ]);
-}
+type Grant = { target: "user" | "group"; target_id: string; role: "viewer" | "editor" | "none" };
+const ROLE = { viewer: "Viewer", editor: "Editor", none: "Remove access" };
 
-/** Who sent a Secret Santa invitation; invitees cannot read the event before accepting. */
-export async function inviteReview(ctx: McpContext, inviteId: string): Promise<Review> {
-  const invite = await checked(
-    ctx.db.from("secret_santa_invites").select("sender_id").eq("id", inviteId).maybeSingle(),
-  );
-  if (!invite) throw new ToolError("This invitation is no longer available.");
-  return peopleReview(ctx, [invite.sender_id]);
+/** One readable line per access change, e.g. "@anna: Editor" or "Family (group): Viewer". */
+export async function accessReview(ctx: McpContext, grants: Grant[]): Promise<Review> {
+  const userIds = grants.filter((grant) => grant.target === "user").map((g) => g.target_id);
+  const groupIds = grants.filter((grant) => grant.target === "group").map((g) => g.target_id);
+  const [people, groups] = await Promise.all([
+    userIds.length
+      ? checked(ctx.db.from("profiles").select("id,nickname").in("id", userIds))
+      : Promise.resolve([]),
+    groupIds.length
+      ? checked(
+          ctx.db
+            .from("friend_groups")
+            .select("id,name")
+            .in("id", groupIds)
+            .eq("user_id", ctx.userId),
+        )
+      : Promise.resolve([]),
+  ]);
+  const names = new Map<string, string>([
+    ...(people ?? []).map(
+      (person: { id: string; nickname: string }) => [person.id, `@${person.nickname}`] as const,
+    ),
+    ...(groups ?? []).map(
+      (group: { id: string; name: string }) => [group.id, `${group.name} (group)`] as const,
+    ),
+  ]);
+  if (grants.some((grant) => !names.has(grant.target_id)))
+    throw new ToolError("Some of these people or groups are no longer available.");
+  return { access: grants.map((grant) => `${names.get(grant.target_id)}: ${ROLE[grant.role]}`) };
 }
