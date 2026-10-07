@@ -177,22 +177,27 @@ Wishlane tools).
 ### Product wish prompting
 
 The server instructions and tool descriptions guide the assistant to offer shop search
-before creating a wish without a product link. Search uses the assistant host's web search
-when available; Wishlane's `inspect_product_link` reads a selected URL. The assistant imports
-verified title, description, image, price, currency and discount details, while preserving
-the user's notes. Unknown fields stay empty. Users can explicitly choose manual entry.
+before creating a wish without a product link. The assistant uses its host's web search and
+browsing tools, when available, to read the shop listing itself and pass verified title,
+description, direct image URL, price, currency and discount details to `create_wish`. It
+preserves the user's notes and leaves unknown fields empty, without guessing image URLs.
+Wishlane's `inspect_product_link` is a fallback for unavailable or unsuccessful browsing,
+or an explicit request to use Wishlane import. Successful browsing should not trigger a
+duplicate importer call. If optional fields are missing, offer import or manual entry.
+Users can explicitly choose manual entry.
 This is model guidance, not a server-enforced prerequisite for `create_wish`.
 
 After deploying, check the following in a fresh conversation with the updated tool metadata:
 
 - "Add a coffee grinder to my wishlist": the assistant first offers to find a shop listing.
-  Agree to search, choose a listing if needed, and check that it calls `inspect_product_link`
-  before `create_wish`, including available product details in the saved wish.
-- "Add this to my wishlist: <product link>": it imports that link directly, without asking
-  to search again, and resolves the target wishlist if unclear.
+  Agree to search, choose a listing if needed, and check that it reads the shop listing with
+  host browsing and calls `create_wish` with available details, without `inspect_product_link`.
+- "Add this to my wishlist: <product link>": it reads that link with host browsing, without
+  asking to search again, and resolves the target wishlist if unclear.
 - "Add a manual wish called weekend away, no shop search": it respects manual entry.
-- Try a blocked product link or a listing without a price: it offers another link or manual
-  entry when blocked, and leaves missing fields empty rather than making up product data.
+- With browsing unavailable or blocked, it can use `inspect_product_link` as a fallback.
+  If that also fails, it offers another link or manual entry. For a listing without a price
+  or direct image URL, it leaves those fields empty and offers help filling the gaps.
 
 ---
 
