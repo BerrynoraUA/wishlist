@@ -9,7 +9,8 @@ import type { Notifier } from "@wishlist/backend/notifications/notifier";
 import { createTools } from "./tools";
 import { createWishlaneServer } from "./server";
 import { errorMessage, ToolError } from "./results";
-import { getMcpConfig, WIDGET_URI, type McpClient } from "./config";
+import { getMcpConfig, type McpClient } from "./config";
+import { WIDGET_URI } from "./widget";
 
 const close: (() => Promise<void>)[] = [];
 afterEach(async () => {
@@ -196,6 +197,18 @@ describe("MCP tools and resources", () => {
       expect(template(name)).toBeUndefined();
       expect(resourceUri(name)).toBeUndefined();
     }
+  });
+
+  it("versions the card URI and still serves the card at earlier URIs", async () => {
+    expect(WIDGET_URI).toMatch(/^ui:\/\/wishlane\/cards-[0-9a-f]{12}\.html$/);
+    const client = await connect(createWishlaneServer(context().ctx));
+    const current = await client.readResource({ uri: WIDGET_URI });
+    const earlier = await client.readResource({ uri: "ui://wishlane/cards-v1.html" });
+    expect(earlier.contents[0]).toMatchObject({
+      uri: "ui://wishlane/cards-v1.html",
+      mimeType: current.contents[0].mimeType,
+      text: (current.contents[0] as { text: string }).text,
+    });
   });
 
   it("leaves Claude on its default widget sandbox origin", async () => {

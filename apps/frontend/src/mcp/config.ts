@@ -39,5 +39,3 @@ export function getMcpConfig() {
 export function findMcpClient(clientId: unknown) {
   return getMcpConfig().clients.find((client) => client.id === clientId);
 }
-
-export const WIDGET_URI = "ui://wishlane/cards-v1.html";

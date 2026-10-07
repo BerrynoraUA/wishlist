@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerAppResource, RESOURCE_MIME_TYPE } from "@modelcontextprotocol/ext-apps/server";
 import { getSupabasePublicEnv } from "@wishlist/backend/supabase/shared";
 import type { McpContext } from "./auth";
@@ -9,8 +9,8 @@ import { friendTools } from "./friends";
 import { santaTools } from "./santa";
 import { notificationTools } from "./notifications";
 import { imageTools } from "./images";
-import { getMcpConfig, WIDGET_URI } from "./config";
-import { widgetHtml } from "./widget";
+import { getMcpConfig } from "./config";
+import { WIDGET_URI, widgetHtml } from "./widget";
 import { checked } from "./results";
 
 export function createWishlaneServer(ctx: McpContext) {
@@ -52,10 +52,10 @@ export function createWishlaneServer(ctx: McpContext) {
   imageTools(tools, ctx);
   const { origin } = getMcpConfig();
   const storageOrigin = new URL(getSupabasePublicEnv().url).origin;
-  registerAppResource(server, "wishlane-cards", WIDGET_URI, {}, async () => ({
+  const cards = (uri: string) => ({
     contents: [
       {
-        uri: WIDGET_URI,
+        uri,
         mimeType: RESOURCE_MIME_TYPE,
         text: widgetHtml.replace(
           "__WISHLANE_CONFIG__",
@@ -78,6 +78,14 @@ export function createWishlaneServer(ctx: McpContext) {
         },
       },
     ],
-  }));
+  });
+  registerAppResource(server, "wishlane-cards", WIDGET_URI, {}, async () => cards(WIDGET_URI));
+  // A host still holding an older tool list asks for an earlier card URI; serve the current card.
+  server.registerResource(
+    "wishlane-cards-earlier",
+    new ResourceTemplate("ui://wishlane/cards-{version}.html", { list: undefined }),
+    { mimeType: RESOURCE_MIME_TYPE },
+    async (uri) => cards(uri.href),
+  );
   return server;
 }
