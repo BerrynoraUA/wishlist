@@ -1627,8 +1627,12 @@
         })
         .catch((error) => showBanner("error", error.message));
 
+      // Measure the content, not the document: scrollHeight never drops below the frame's current
+      // height, so the frame could grow (review card) but never shrink back (done card).
       new ResizeObserver(() =>
-        tell("ui/notifications/size-changed", { height: document.documentElement.scrollHeight }),
+        tell("ui/notifications/size-changed", {
+          height: Math.ceil(document.body.getBoundingClientRect().height),
+        }),
       ).observe(document.body);
     </script>
   </body>
