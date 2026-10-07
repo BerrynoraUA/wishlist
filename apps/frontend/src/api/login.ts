@@ -50,20 +50,31 @@ export async function loginWithEmail(email: string, password: string): Promise<v
   await primeThemeAndAccentFromSettings();
 }
 
-export async function registerWithEmail(email: string, password: string): Promise<void> {
+export async function registerWithEmail(
+  email: string,
+  password: string,
+  redirectTo = "/home",
+): Promise<boolean> {
+  const callback = new URL("/auth/callback", window.location.origin);
+  const target = new URL(redirectTo, window.location.origin);
+  callback.searchParams.set(
+    "redirect_to",
+    target.origin === window.location.origin ? `${target.pathname}${target.search}` : "/home",
+  );
   const { data, error } = await supabaseBrowser.auth.signUp({
     email,
     password,
+    options: { emailRedirectTo: callback.href },
   });
 
   if (error) throw error;
 
   if (!data.session) {
-    await loginWithEmail(email, password);
-    return;
+    return false;
   }
 
   await primeThemeAndAccentFromSettings();
+  return true;
 }
 
 export async function logout(): Promise<void> {

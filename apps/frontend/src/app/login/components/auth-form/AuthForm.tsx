@@ -30,10 +30,12 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmationSent, setConfirmationSent] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setConfirmationSent(false);
 
     if (!email || !password) {
       setError(
@@ -80,7 +82,11 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
       if (isLogin) {
         await loginWithEmail(email, password);
       } else {
-        await registerWithEmail(email, password);
+        const signedIn = await registerWithEmail(email, password, redirectTo);
+        if (!signedIn) {
+          setConfirmationSent(true);
+          return;
+        }
       }
 
       onLoginSuccess(redirectTo);
@@ -187,6 +193,13 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
         )}
 
         {error && <p className={styles.error}>{error}</p>}
+        {confirmationSent && (
+          <p role="status">
+            {t("Check your email to confirm your account and continue.", {
+              $id: "register.form.confirmEmail",
+            })}
+          </p>
+        )}
 
         <button type="submit" className={styles.submit} disabled={loading || !!socialLoading}>
           {loading

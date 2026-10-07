@@ -1,4 +1,4 @@
-import { generateSecretSantaAssignment } from "@/lib/secret-santa-assignment";
+import { generateSecretSantaAssignment } from "@wishlist/backend/lib/secret-santa-assignment";
 import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
