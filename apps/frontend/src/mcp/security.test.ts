@@ -4,6 +4,7 @@ import { confirmationSignature, validConfirmation } from "./tools";
 import { safeItem } from "./results";
 import { sameParticipants } from "./santa";
 import { publicLookup } from "./images";
+import { imageSources, proxiedImage } from "./image-proxy";
 
 describe("OAuth token boundaries", () => {
   const expected = {
@@ -109,5 +110,33 @@ describe("chat attachment downloads", () => {
 
   it("allows public addresses", async () => {
     expect(await resolve("93.184.215.14", false)).toBe("93.184.215.14");
+  });
+});
+
+describe("card image proxy", () => {
+  const shopImage = "https://store.example/watch.png";
+
+  it("serves shop images from Wishlane with a signed address", () => {
+    const sources = imageSources({ items: [{ image_url: shopImage }] })!;
+    const source = new URL(sources[shopImage]);
+    expect(source.origin + source.pathname).toBe("https://wishlane.example/api/mcp/image");
+    expect(source.searchParams.get("url")).toBe(shopImage);
+  });
+
+  it("leaves images the card can already load alone", () => {
+    expect(
+      imageSources({
+        image_url: "https://example.supabase.co/storage/v1/object/public/items/a.webp",
+        items: [{ image_url: "https://wishlane.example/mascot/happy.webp" }, { image_url: null }],
+      }),
+    ).toBeUndefined();
+  });
+
+  it("refuses unsigned or altered requests before downloading anything", async () => {
+    const sig = new URL(imageSources({ image_url: shopImage })![shopImage]).searchParams.get(
+      "sig",
+    )!;
+    expect(await proxiedImage(shopImage, "forged")).toBeNull();
+    expect(await proxiedImage("https://other.example/x.png", sig)).toBeNull();
   });
 });

@@ -783,6 +783,8 @@
       let input = {};
       let ready = false;
       let busy = false;
+      // Shop image URL → the copy Wishlane serves, collected from every tool result's _meta.
+      const imageSources = new Map();
 
       function send(method, params) {
         return new Promise((resolve, reject) => {
@@ -945,7 +947,7 @@
 
       function safeImage(url, alt) {
         try {
-          const parsed = new URL(url);
+          const parsed = new URL(imageSources.get(url) ?? url);
           if (![config.origin, config.storageOrigin].includes(parsed.origin)) return null;
           const img = el("img");
           img.src = parsed.href;
@@ -1561,6 +1563,8 @@
 
       function render(output, confirmed = false) {
         const data = output.structuredContent || {};
+        for (const [url, source] of Object.entries(output._meta?.imageSources || {}))
+          imageSources.set(url, source);
         content.replaceChildren();
         if (output.isError)
           return showBanner("error", errorText(output, "Something went wrong. Please try again."));
@@ -1627,8 +1631,12 @@
         })
         .catch((error) => showBanner("error", error.message));
 
+      // Measure the content, not the document: scrollHeight never drops below the frame's current
+      // height, so the frame could grow (review card) but never shrink back (done card).
       new ResizeObserver(() =>
-        tell("ui/notifications/size-changed", { height: document.documentElement.scrollHeight }),
+        tell("ui/notifications/size-changed", {
+          height: Math.ceil(document.body.getBoundingClientRect().height),
+        }),
       ).observe(document.body);
     </script>
   </body>

@@ -5,6 +5,7 @@ import { registerAppTool } from "@modelcontextprotocol/ext-apps/server";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import type { McpContext } from "./auth";
 import { getMcpConfig, WIDGET_URI } from "./config";
+import { imageSources } from "./image-proxy";
 import { checked, result, ToolError } from "./results";
 import { id } from "./schemas";
 import type { Review } from "./review";
@@ -73,7 +74,10 @@ function toolMeta({ appOnly = false, view = false, fileParams = [] as string[] }
 
 async function safely(run: () => Promise<CallToolResult>): Promise<CallToolResult> {
   try {
-    return await run();
+    const output = await run();
+    // Only the card needs these addresses, so they travel in _meta, hidden from the model.
+    const sources = imageSources(output.structuredContent);
+    return sources ? { ...output, _meta: { ...output._meta, imageSources: sources } } : output;
   } catch (error) {
     return {
       isError: true,
