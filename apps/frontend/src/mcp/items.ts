@@ -153,6 +153,13 @@ export function itemTools(tools: Tools, ctx: McpContext) {
       silent: z.boolean().default(false),
     },
     idempotent: true,
+    confirm: {
+      when: ({ status }) => status !== "available",
+      review: async ({ item_id, silent }) => ({
+        ...(await wishesReview(ctx, [item_id])),
+        owner_notification: silent ? "Off (secret action)" : "On when the gift status changes",
+      }),
+    },
     run: async ({ item_id, status, silent }) => {
       const state = { available: 0, reserved: 1, bought: 2 }[status];
       const row = await checked(

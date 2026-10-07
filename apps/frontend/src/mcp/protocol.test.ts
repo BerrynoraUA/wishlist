@@ -104,7 +104,10 @@ function context(clientName: McpClient["name"] = "ChatGPT") {
   });
   // Every wishlist the tests touch is Alice's.
   const rpc = vi.fn(async () => ({
-    data: { id: "list", title: "Birthday", user_id: "alice", can_edit: true },
+    data: { id: "list", title: "Birthday", user_id: "alice", can_edit: true } as Record<
+      string,
+      unknown
+    >,
     error: null,
   }));
   const notifier = {
@@ -189,11 +192,11 @@ describe("MCP tools and resources", () => {
     const resourceUri = (name: string) =>
       (tools.find((tool) => tool.name === name)?._meta?.ui as { resourceUri?: string })
         ?.resourceUri;
-    for (const name of ["get_wishlist", "delete_wishlists"]) {
+    for (const name of ["get_wishlist", "delete_wishlists", "set_gift_status"]) {
       expect(template(name)).toBe(WIDGET_URI);
       expect(resourceUri(name)).toBe(WIDGET_URI);
     }
-    for (const name of ["list_friends", "set_gift_status"]) {
+    for (const name of ["list_friends"]) {
       expect(template(name)).toBeUndefined();
       expect(resourceUri(name)).toBeUndefined();
     }
@@ -251,6 +254,92 @@ describe("MCP tools and resources", () => {
     });
     expect(applied.isError).not.toBe(true);
     expect(items.map((item) => item.name)).toEqual(["Keep"]);
+  });
+
+  it.each(["reserved", "bought"])(
+    "confirms %s before changing gift status or notifying",
+    async (status) => {
+      const { ctx, items, rpc, notifier } = context();
+      const itemId = "20000000-0000-4000-8000-000000000001";
+      items.push({ id: itemId, wishlist_id: "list", name: "Mug" });
+      const client = await connect(createWishlaneServer(ctx));
+      const pending = (await client.callTool({
+        name: "set_gift_status",
+        arguments: { item_id: itemId, status },
+      })) as CallToolResult;
+      expect(pending.structuredContent).toMatchObject({
+        kind: "confirmation",
+        status: "pending",
+        selection: {
+          wish: "Mug",
+          wishlist: "Birthday",
+          owner_notification: "On when the gift status changes",
+        },
+        changes: { status, silent: false },
+      });
+      expect(rpc).not.toHaveBeenCalledWith("mcp_set_gift_status", expect.anything());
+      expect(notifier.createLocalizedNotification).not.toHaveBeenCalled();
+      rpc.mockResolvedValueOnce({
+        data: { changed: true, owner_id: "bob", wishlist_id: "list" },
+        error: null,
+      });
+      const applied = await client.callTool({
+        name: "confirm_action",
+        arguments: pending._meta!.confirmation as Record<string, unknown>,
+      });
+      expect(applied.isError).not.toBe(true);
+      expect(rpc).toHaveBeenCalledWith("mcp_set_gift_status", {
+        p_item_id: itemId,
+        p_status: status === "reserved" ? 1 : 2,
+      });
+      expect(notifier.createLocalizedNotification).toHaveBeenCalledExactlyOnceWith({
+        receiverId: "bob",
+        key: status === "reserved" ? "item_reserved" : "item_bought",
+        entityId: "list",
+      });
+    },
+  );
+
+  it("confirms secret gift actions without sending an owner notification", async () => {
+    const { ctx, items, rpc, notifier } = context();
+    const itemId = "20000000-0000-4000-8000-000000000001";
+    items.push({ id: itemId, wishlist_id: "list", name: "Mug" });
+    const client = await connect(createWishlaneServer(ctx));
+    const pending = (await client.callTool({
+      name: "set_gift_status",
+      arguments: { item_id: itemId, status: "reserved", silent: true },
+    })) as CallToolResult;
+    expect(pending.structuredContent).toMatchObject({
+      status: "pending",
+      selection: { owner_notification: "Off (secret action)" },
+    });
+    rpc.mockResolvedValueOnce({
+      data: { changed: true, owner_id: "bob", wishlist_id: "list" },
+      error: null,
+    });
+    const applied = await client.callTool({
+      name: "confirm_action",
+      arguments: pending._meta!.confirmation as Record<string, unknown>,
+    });
+    expect(applied.isError).not.toBe(true);
+    expect(rpc).toHaveBeenCalledWith("mcp_set_gift_status", { p_item_id: itemId, p_status: 1 });
+    expect(notifier.createLocalizedNotification).not.toHaveBeenCalled();
+  });
+
+  it("releases a gift without requesting confirmation", async () => {
+    const { ctx, rpc, rows, notifier } = context();
+    const itemId = "20000000-0000-4000-8000-000000000001";
+    rpc.mockResolvedValueOnce({ data: { changed: true }, error: null });
+    const client = await connect(createWishlaneServer(ctx));
+    const output = await client.callTool({
+      name: "set_gift_status",
+      arguments: { item_id: itemId, status: "available" },
+    });
+    expect(output.isError).not.toBe(true);
+    expect(output.structuredContent).toMatchObject({ status: "available" });
+    expect(rows).toHaveLength(0);
+    expect(rpc).toHaveBeenCalledWith("mcp_set_gift_status", { p_item_id: itemId, p_status: 0 });
+    expect(notifier.createLocalizedNotification).not.toHaveBeenCalled();
   });
 
   it("reviews a single wish without bulk wording", async () => {
