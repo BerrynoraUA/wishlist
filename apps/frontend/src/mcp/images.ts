@@ -48,10 +48,12 @@ export const publicLookup: LookupFunction = (hostname, options, callback) =>
     callback(null, addresses[0].address, addresses[0].family);
   });
 
-function download(url: string, redirects = 3): Promise<Buffer> {
+export function download(url: string, redirects = 3): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     if (new URL(url).protocol !== "https:") return reject(new Error("HTTPS only"));
-    const request = get(url, { lookup: publicLookup, timeout: 15_000 }, (response) => {
+    // Some image hosts (e.g. Wikimedia) refuse requests that do not identify themselves.
+    const headers = { "User-Agent": "Wishlane/1.0 (+https://wishlane.net)", Accept: "image/*" };
+    const request = get(url, { lookup: publicLookup, timeout: 15_000, headers }, (response) => {
       const { statusCode = 0, headers } = response;
       if (statusCode >= 300 && statusCode < 400 && headers.location && redirects > 0) {
         response.resume();
