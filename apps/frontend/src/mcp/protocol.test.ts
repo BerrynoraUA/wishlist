@@ -95,6 +95,28 @@ function context(clientName: McpClient["name"] = "ChatGPT") {
 }
 
 describe("MCP tools and resources", () => {
+  it.each([
+    ["list_wishlists", "get_my_wishlists_feed", "p_take"],
+    ["list_secret_santa_events", "list_secret_santa_events", "p_limit"],
+  ])(
+    "caps oversized pages for %s before querying the database",
+    async (name, rpcName, limitKey) => {
+      const { ctx } = context();
+      const rpc = vi.fn(async () => ({ data: [], error: null }));
+      ctx.db = { ...ctx.db, rpc } as unknown as McpContext["db"];
+      const client = await connect(createWishlaneServer(ctx));
+      const output = await client.callTool({ name, arguments: { limit: 100, offset: 50 } });
+      expect(output.isError).not.toBe(true);
+      expect(rpc).toHaveBeenCalledWith(
+        rpcName,
+        expect.objectContaining({
+          [limitKey]: 50,
+          ...(name === "list_wishlists" ? { p_skip: 50 } : { p_offset: 50 }),
+        }),
+      );
+    },
+  );
+
   it("publishes authenticated domain tools and a restrictive self-contained UI", async () => {
     const { ctx } = context();
     const client = await connect(createWishlaneServer(ctx));

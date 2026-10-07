@@ -21,7 +21,15 @@ export const money = z
   .optional();
 export const page = {
   offset: z.number().int().min(0).max(10000).default(0),
-  limit: z.number().int().min(1).max(50).default(20),
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .default(20)
+    .transform((value) => Math.min(value, 50))
+    .describe(
+      "Page size, default 20. Requests above 50 are capped at 50; use offset for more results.",
+    ),
 };
 export const search = { ...page, search: z.string().max(100).optional() };
 export const itemFields = {
