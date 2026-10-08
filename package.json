@@ -34,6 +34,8 @@
     "screenshots:ios": "node scripts/showcase/showcase.ts --platform ios",
     "screenshots:validate": "node scripts/showcase/showcase.ts --validate-only",
     "screenshots:frames": "node scripts/showcase/showcase.ts --frames-only",
+    "record:ios": "node scripts/record.ts --platform ios",
+    "record:android": "node scripts/record.ts --platform android",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions --fix-dangerously",
     "format": "oxfmt --check",
