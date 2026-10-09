@@ -125,15 +125,17 @@ export function AnimatedListCard({
   const highlightStyle = useAnimatedStyle(() => ({ opacity: borderOpacity.value }));
 
   return (
-    <Animated.View entering={kind === "item" ? itemFadeIn : undefined} style={[style, cardStyle]}>
-      {children}
-      {highlight ? (
-        <Animated.View
-          pointerEvents="none"
-          className="absolute inset-0 rounded-xl border-2 border-brand"
-          style={highlightStyle}
-        />
-      ) : null}
+    <Animated.View entering={kind === "item" ? itemFadeIn : undefined} style={style}>
+      <Animated.View style={cardStyle}>
+        {children}
+        {highlight ? (
+          <Animated.View
+            pointerEvents="none"
+            className="absolute inset-0 rounded-xl border-2 border-brand"
+            style={highlightStyle}
+          />
+        ) : null}
+      </Animated.View>
     </Animated.View>
   );
 }
