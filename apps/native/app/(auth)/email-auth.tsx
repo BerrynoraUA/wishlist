@@ -1,4 +1,3 @@
-import { loginWithEmail, registerWithEmail } from "@/api/login";
 import { AuthMascot } from "@/components/auth/auth-mascot";
 import type { MascotVariant } from "@/components/shared/animated-mascot";
 import { AuthGiftWrapBackground } from "@/components/auth/auth-gift-wrap-background";
@@ -11,7 +10,8 @@ import {
 } from "@/components/ui/liquid-glass";
 import { MORPH_EASING, MorphText, morphLayoutTransition } from "@/components/ui/morph-text";
 import { Text } from "@/components/ui/text";
-import { hapticError, hapticSelection, hapticSuccess } from "@/lib/haptics";
+import { hapticSelection } from "@/lib/haptics";
+import { MIN_PASSWORD_LENGTH, useEmailAuthForm } from "@/hooks/use-email-auth-form";
 import { motionDuration } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
@@ -19,7 +19,7 @@ import { GlassView } from "expo-glass-effect";
 import { Redirect, useRouter } from "expo-router";
 import { CheckIcon, ChevronLeftIcon, EyeIcon, EyeOffIcon } from "lucide-react-native";
 import * as React from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 import {
   ActivityIndicator,
   AccessibilityInfo,
@@ -41,8 +41,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { useGT } from "gt-react-native";
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MIN_PASSWORD_LENGTH = 6;
 const formLayoutTransition = morphLayoutTransition;
 const CARD_RADIUS = 28;
 
@@ -62,11 +60,6 @@ const confirmFieldEntering: EntryExitAnimationFunction = () => {
 type AuthMode = "login" | "register";
 type FieldName = "email" | "password" | "confirmPassword";
 
-type EmailAuthFormValues = Record<FieldName, string>;
-
-/** `field` is the input the message belongs under; `null` for errors from the server. */
-type FormError = { field: FieldName | null; message: string };
-
 export default function EmailAuthScreen() {
   const t = useGT();
   const { width, height } = useWindowDimensions();
@@ -75,12 +68,7 @@ export default function EmailAuthScreen() {
   const [mode, setMode] = React.useState<AuthMode>("login");
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<FormError | null>(null);
   const [focusedField, setFocusedField] = React.useState<FieldName | null>(null);
-  const emailRef = React.useRef<TextInput>(null);
-  const passwordRef = React.useRef<TextInput>(null);
-  const confirmPasswordRef = React.useRef<TextInput>(null);
   const scrollRef = React.useRef<ScrollView>(null);
   const scrollContentRef = React.useRef<View>(null);
   const scrollViewHeight = React.useRef(0);
@@ -92,18 +80,19 @@ export default function EmailAuthScreen() {
   const keyboardShowSubscription = React.useRef<ReturnType<typeof Keyboard.addListener> | null>(
     null,
   );
-  const { control, handleSubmit } = useForm<EmailAuthFormValues>({
-    defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
+  const isLogin = mode === "login";
+  const {
+    control,
+    clearErrors,
+    setFocus,
+    submit,
+    formState: { errors, isSubmitting: loading },
+  } = useEmailAuthForm(isLogin);
+  const error = errors.email ?? errors.password ?? errors.confirmPassword ?? errors.root?.server;
   const [password, confirmPassword] = useWatch({
     control,
     name: ["password", "confirmPassword"],
   });
-  const isLogin = mode === "login";
   const mascotSize = height < 700 ? 96 : 120;
 
   React.useEffect(
@@ -115,7 +104,7 @@ export default function EmailAuthScreen() {
   );
 
   React.useEffect(() => {
-    if (error && process.env.EXPO_OS === "ios") {
+    if (error?.message && process.env.EXPO_OS === "ios") {
       AccessibilityInfo.announceForAccessibility(error.message);
     }
   }, [error]);
@@ -126,7 +115,7 @@ export default function EmailAuthScreen() {
 
   function switchMode() {
     hapticSelection();
-    setError(null);
+    clearErrors();
     setMode(isLogin ? "register" : "login");
   }
 
@@ -179,52 +168,6 @@ export default function EmailAuthScreen() {
     blurTimeout.current = setTimeout(() => setFocusedField(null), 100);
   }
 
-  function fieldError(field: FieldName) {
-    return error?.field === field ? error.message : null;
-  }
-
-  /** Typing into the field an error points at means the user is fixing it: clear it. */
-  function clearErrorFor(field: FieldName) {
-    if (error && (error.field === field || error.field === null)) setError(null);
-  }
-
-  function fail(field: FieldName | null, message: string) {
-    hapticError();
-    setError({ field, message });
-    const refs = { email: emailRef, password: passwordRef, confirmPassword: confirmPasswordRef };
-    if (field) refs[field].current?.focus();
-  }
-
-  async function submitForm(values: EmailAuthFormValues) {
-    setError(null);
-
-    const email = values.email.trim();
-    if (!email) return fail("email", t("Enter your email."));
-    if (!emailRegex.test(email)) return fail("email", t("Please enter a valid email address."));
-    if (!values.password) return fail("password", t("Enter your password."));
-    if (values.password.length < MIN_PASSWORD_LENGTH) {
-      return fail("password", t("Password must be at least 6 characters."));
-    }
-    if (!isLogin && values.password !== values.confirmPassword) {
-      return fail("confirmPassword", t("Passwords do not match."));
-    }
-
-    setLoading(true);
-    try {
-      if (isLogin) {
-        await loginWithEmail(email, values.password);
-      } else {
-        await registerWithEmail(email, values.password);
-      }
-      hapticSuccess();
-    } catch (err) {
-      fail(null, err instanceof Error ? err.message : t("Something went wrong"));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const submit = handleSubmit(submitForm);
   // The password field being typed in, once it has at least one character.
   const typedPassword =
     focusedField === "password" && password.length > 0
@@ -250,21 +193,25 @@ export default function EmailAuthScreen() {
         <Controller
           control={control}
           name="email"
-          render={({ field: { onChange, value } }) => (
+          render={({ field: { onChange, onBlur, value, ref } }) => (
             <AuthInput
-              ref={emailRef}
+              ref={ref}
               accessibilityLabel={t("Email")}
               autoCapitalize="none"
               autoComplete="email"
-              invalid={fieldError("email") != null}
+              invalid={errors.email != null}
               keyboardType="email-address"
-              onBlur={blurField}
+              onBlur={() => {
+                onBlur();
+                blurField();
+              }}
               onChangeText={(text) => {
-                clearErrorFor("email");
+                clearErrors("email");
+                clearErrors("root.server");
                 onChange(text);
               }}
               onFocus={() => focusField("email")}
-              onSubmitEditing={() => passwordRef.current?.focus()}
+              onSubmitEditing={() => setFocus("password")}
               placeholder={t("you@email.com")}
               returnKeyType="next"
               submitBehavior="submit"
@@ -273,7 +220,7 @@ export default function EmailAuthScreen() {
             />
           )}
         />
-        <FieldMessage error={fieldError("email")} />
+        <FieldMessage error={errors.email?.message ?? null} />
       </Animated.View>
 
       <Animated.View layout={formLayoutTransition}>
@@ -283,22 +230,26 @@ export default function EmailAuthScreen() {
             <Controller
               control={control}
               name="password"
-              render={({ field: { onChange, value } }) => (
+              render={({ field: { onChange, onBlur, value, ref } }) => (
                 <AuthInput
-                  ref={passwordRef}
+                  ref={ref}
                   accessibilityLabel={t("Password")}
                   autoComplete={isLogin ? "current-password" : "new-password"}
                   className="pe-12"
-                  invalid={fieldError("password") != null}
-                  onBlur={blurField}
+                  invalid={errors.password != null}
+                  onBlur={() => {
+                    onBlur();
+                    blurField();
+                  }}
                   onChangeText={(text) => {
-                    clearErrorFor("password");
+                    clearErrors("password");
+                    clearErrors("root.server");
                     onChange(text);
                   }}
                   onFocus={() => focusField("password")}
                   onSubmitEditing={() => {
                     if (isLogin) void submit();
-                    else confirmPasswordRef.current?.focus();
+                    else setFocus("confirmPassword");
                   }}
                   placeholder={t("Password")}
                   returnKeyType={isLogin ? "go" : "next"}
@@ -316,7 +267,7 @@ export default function EmailAuthScreen() {
             />
           </View>
           <FieldMessage
-            error={fieldError("password")}
+            error={errors.password?.message ?? null}
             hint={isLogin ? null : t("At least 6 characters")}
             hintMet={password.length >= MIN_PASSWORD_LENGTH}
           />
@@ -335,16 +286,20 @@ export default function EmailAuthScreen() {
               <Controller
                 control={control}
                 name="confirmPassword"
-                render={({ field: { onChange, value } }) => (
+                render={({ field: { onChange, onBlur, value, ref } }) => (
                   <AuthInput
-                    ref={confirmPasswordRef}
+                    ref={ref}
                     accessibilityLabel={t("Confirm password")}
                     autoComplete="new-password"
                     className="pe-12"
-                    invalid={fieldError("confirmPassword") != null}
-                    onBlur={blurField}
+                    invalid={errors.confirmPassword != null}
+                    onBlur={() => {
+                      onBlur();
+                      blurField();
+                    }}
                     onChangeText={(text) => {
-                      clearErrorFor("confirmPassword");
+                      clearErrors("confirmPassword");
+                      clearErrors("root.server");
                       onChange(text);
                     }}
                     onFocus={() => focusField("confirmPassword")}
@@ -364,7 +319,7 @@ export default function EmailAuthScreen() {
               />
             </View>
             <FieldMessage
-              error={fieldError("confirmPassword")}
+              error={errors.confirmPassword?.message ?? null}
               hint={t("Passwords match")}
               hintMet={confirmPassword.length > 0 && confirmPassword === password}
             />
@@ -372,7 +327,7 @@ export default function EmailAuthScreen() {
         </Animated.View>
       ) : null}
 
-      {error && error.field === null ? (
+      {errors.root?.server ? (
         <Animated.View
           entering={FadeIn.duration(motionDuration.normal)}
           exiting={FadeOut.duration(motionDuration.fast)}
@@ -384,7 +339,7 @@ export default function EmailAuthScreen() {
             accessibilityLiveRegion="polite"
             className="rounded-2xl bg-danger-bg px-3 py-2 text-sm text-danger"
           >
-            {error.message}
+            {errors.root.server.message}
           </Text>
         </Animated.View>
       ) : null}
