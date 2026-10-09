@@ -175,6 +175,8 @@ export default function SecretSantaScreen() {
           </ExpandingSearchHeader>
         </PinnedListHeader>
         <StyledFlashList
+          onRefresh={() => Promise.all([query.refetch(), notificationsQuery.refetch()])}
+          progressViewOffset={paddingTop}
           data={activeTab === "events" && !query.isLoading && !query.isError ? rows : EMPTY_ROWS}
           renderItem={renderRow}
           keyExtractor={getEventRowKey}

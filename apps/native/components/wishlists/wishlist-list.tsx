@@ -97,6 +97,7 @@ export function WishlistList({
   onOpenSheet,
 }: {
   query: {
+    refetch: () => Promise<unknown>;
     isLoading: boolean;
     isFetchingNextPage?: boolean;
     isError: boolean;
@@ -117,6 +118,7 @@ export function WishlistList({
   onOpenSheet: (sheet: Exclude<SheetState, null>) => void;
 }) {
   const t = useGT();
+  const statisticsQuery = useMyStatistics();
   const completeOpenDetailStep = useUserGuideStepCompletion(
     USER_GUIDE_STEP_IDS.openWishlistDetails,
   );
@@ -216,6 +218,8 @@ export function WishlistList({
         </View>
       </PinnedListHeader>
       <StyledFlashList
+        onRefresh={() => Promise.all([query.refetch(), statisticsQuery.refetch()])}
+        progressViewOffset={paddingTop}
         listRef={listRef}
         data={data}
         renderItem={renderRow}

@@ -1,4 +1,3 @@
-import { hapticImpact } from "@/lib/haptics";
 import { FeatureIdeaCard } from "@/components/feature-ideas/feature-idea-card";
 import { FeatureIdeasTabs } from "@/components/feature-ideas/feature-ideas-tabs";
 import { SubmitFeatureIdeaSheet } from "@/components/feature-ideas/submit-feature-idea-sheet";
@@ -23,7 +22,7 @@ import { Stack } from "expo-router";
 import { useGT } from "gt-react-native";
 import { Clock3, Info, Plus, RefreshCw, X } from "lucide-react-native";
 import * as React from "react";
-import { RefreshControl, View, useWindowDimensions } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 import { ListRowsSkeleton } from "@/components/ui/list-skeletons";
 import { useMMKVBoolean } from "react-native-mmkv";
 
@@ -165,17 +164,8 @@ export default function IdeasScreen() {
               </Text>
             )
           }
-          refreshControl={
-            <RefreshControl
-              refreshing={ideasQuery.isRefetching && !ideasQuery.isLoading}
-              onRefresh={() => {
-                hapticImpact();
-                void ideasQuery.refetch();
-              }}
-              tintColor="currentColor"
-              progressViewOffset={paddingTop}
-            />
-          }
+          onRefresh={() => ideasQuery.refetch()}
+          progressViewOffset={paddingTop}
         />
         <FloatingBackButton />
       </View>
