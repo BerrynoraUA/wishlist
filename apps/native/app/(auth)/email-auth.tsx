@@ -329,7 +329,10 @@ function AuthInput({
   return (
     <TextInput
       className={cn(
-        "min-h-13 rounded-full border border-white/16 bg-white/12 px-4 py-3 text-base leading-5 text-white",
+        // No line height (so `text-[16px]`, not `text-base`, which sets one too): on a
+        // single-line iOS field a line height wraps overflowing text, like a long password,
+        // onto a second line instead of scrolling it.
+        "min-h-13 rounded-full border border-white/16 bg-white/12 px-4 text-[16px] text-white",
         className,
       )}
       cursorColorClassName="accent-[#f472b6]"
