@@ -11,6 +11,12 @@
 .banner {
   position: relative;
   overflow: visible;
+
+  // The global brand-tinted selection vanishes on the saturated cover; use a dark one.
+  ::selection {
+    background: rgba(17, 24, 39, 0.6);
+    color: #fff;
+  }
 }
 
 .banner::after {

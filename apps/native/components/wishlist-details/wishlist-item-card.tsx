@@ -33,15 +33,7 @@ import { getValidHttpUrl } from "@/lib/urls";
 import { isStarPriorityId } from "@wishlist/backend/lib";
 import type { Item } from "@wishlist/backend/types/item";
 import * as Clipboard from "expo-clipboard";
-import {
-  Copy,
-  Eye,
-  EyeOff,
-  Flag,
-  Heart,
-  Pencil,
-  Trash2,
-} from "lucide-react-native";
+import { Copy, Eye, EyeOff, Flag, Heart, Pencil, Trash2 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
 import { View } from "react-native";
@@ -311,7 +303,7 @@ export function WishlistItemCard({
                         event.stopPropagation();
                         confirmBought();
                       }}
-                      className="min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border border-buy/35 bg-buy-bg px-3 py-3"
+                      className="min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border border-transparent px-3 py-3"
                     >
                       <PurchaseActionTint purchased={reservation.isPurchased} />
                       <PurchaseActionIcon purchased={reservation.isPurchased} />

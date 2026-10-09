@@ -22,6 +22,7 @@ export function DiscoverItemCard({
   currentUserId,
   reservedByName,
   purchasedMode = false,
+  stampLabel,
   onPress,
 }: {
   item: Item;
@@ -29,6 +30,8 @@ export function DiscoverItemCard({
   currentUserId?: string | null;
   reservedByName?: string | null;
   purchasedMode?: boolean;
+  /** Replaces the ribbon text, e.g. who the gift is for. */
+  stampLabel?: string | null;
   onPress: () => void;
 }) {
   const t = useGT();
@@ -62,6 +65,7 @@ export function DiscoverItemCard({
         <ItemImage
           item={item}
           reservationLabel={reservationLabel}
+          stampLabel={stampLabel}
           purchased={reservation.isPurchased}
           priority={priority}
           priorityLabel={priorityLabel}

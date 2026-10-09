@@ -75,11 +75,29 @@ export function ActionBottomSheetConfirm({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  // Callers close by flipping `open` (often right in `onConfirm`). Unmounting a presented
+  // TrueSheet leaves its snapshot on screen on iOS, so stay mounted and dismiss it first.
+  const [mounted, setMounted] = React.useState(open);
+  if (open && !mounted) setMounted(true);
 
-  if (!open) return null;
+  React.useEffect(() => {
+    if (open || !mounted) return;
+    const sheet = sheetRef.current;
+    if (!sheet) {
+      setMounted(false);
+      return;
+    }
+    void sheet.dismiss().finally(() => setMounted(false));
+  }, [open, mounted]);
+
+  if (!mounted) return null;
 
   function handleClose() {
     void sheetRef.current?.dismiss();
+  }
+  function handleDidDismiss() {
+    setMounted(false);
+    if (open) onClose();
   }
   function handleConfirm() {
     // Destructive steps get the sharper pattern so they feel different from a
@@ -97,7 +115,7 @@ export function ActionBottomSheetConfirm({
     <BottomSheet
       ref={sheetRef}
       detents={["auto"]}
-      onDidDismiss={onClose}
+      onDidDismiss={handleDidDismiss}
       header={<BottomSheetHeader title={title} />}
     >
       <View className="gap-4 px-5">

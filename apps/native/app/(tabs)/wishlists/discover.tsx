@@ -217,7 +217,6 @@ export default function DiscoverScreen() {
               gridGap={gridGap}
               currentUserId={currentUserId}
               purchased={purchased}
-              headerAccessory={null}
               onOpenItem={openItem}
             />
           </View>

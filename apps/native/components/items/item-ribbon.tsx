@@ -182,9 +182,9 @@ export function ItemRibbon({
               adjustsFontSizeToFit
               minimumFontScale={0.7}
               className={cn(
-                "text-center font-bold",
+                "text-center font-bold uppercase",
                 purchased ? "text-[#245B45]" : "text-[#654098]",
-                isStamp ? "text-sm" : "uppercase tracking-wide",
+                isStamp ? "text-sm" : "tracking-wide",
                 !isStamp && (isDetail ? "text-lg" : "text-sm"),
               )}
             >

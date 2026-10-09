@@ -465,13 +465,20 @@ export default function WishlistDetailScreen() {
                 {itemsQuery.isError ? <InlineState message={t("Failed to load items.")} /> : null}
                 {!itemsQuery.isLoading && !itemsQuery.isError && items.length === 0 ? (
                   <InlineState
-                    mascot={filtersActive && hasAnyItems ? "magnifying-glass" : "gift-in-hands"}
+                    mascot={
+                      filtersActive && hasAnyItems
+                        ? "magnifying-glass"
+                        : canEditWishlist
+                          ? "gift-in-hands"
+                          : undefined
+                    }
                     message={
                       filtersActive && hasAnyItems
                         ? t("No items match your filters.")
                         : t("No items yet.")
                     }
-                    pointToCreateButton={!(filtersActive && hasAnyItems)}
+                    // Only someone who can add items is pointed at the "+" button.
+                    pointToCreateButton={canEditWishlist && !(filtersActive && hasAnyItems)}
                     pointerScreenRef={screenRef}
                   />
                 ) : null}

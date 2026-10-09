@@ -1,5 +1,4 @@
 import { DiscoverItemCard } from "@/components/discover/discover-item-card";
-import { Text } from "@/components/ui/text";
 import { normalizeReservedItem } from "@/lib/discover";
 import { chunkRows } from "@/lib/layout";
 import type { ReservedItem } from "@wishlist/backend/types/discover";
@@ -15,7 +14,6 @@ export function ReservedItemsGrid({
   gridGap,
   currentUserId,
   purchased,
-  headerAccessory,
   onOpenItem,
 }: {
   items: ReservedItem[];
@@ -24,7 +22,6 @@ export function ReservedItemsGrid({
   gridGap: number;
   currentUserId?: string | null;
   purchased?: boolean;
-  headerAccessory?: React.ReactNode;
   onOpenItem: (item: Item, reservedByName?: string | null) => void;
 }) {
   const t = useGT();
@@ -43,23 +40,18 @@ export function ReservedItemsGrid({
           style={{ gap: gridGap }}
         >
           {row.map(({ source, item }) => (
-            <View key={item.id} className="gap-2" style={{ width: cardWidth }}>
-              <View className="flex-row items-center justify-between gap-2">
-                <Text
-                  className="min-w-0 flex-1 text-xs font-bold text-text-muted"
-                  numberOfLines={1}
-                >
-                  {purchased
-                    ? t("Purchased for {name}", { name: source.owner_name })
-                    : t("For {name}", { name: source.owner_name })}
-                </Text>
-                {row[0]?.item.id === item.id ? headerAccessory : null}
-              </View>
+            <View key={item.id} style={{ width: cardWidth }}>
               <DiscoverItemCard
                 item={item}
                 width={cardWidth}
                 currentUserId={currentUserId}
                 purchasedMode={purchased}
+                // Who the gift is for rides on the ribbon instead of a caption above the card.
+                stampLabel={
+                  purchased
+                    ? t("Purchased for {name}", { name: source.owner_name })
+                    : t("Reserved for {name}", { name: source.owner_name })
+                }
                 onPress={() => onOpenItem(item)}
               />
             </View>
