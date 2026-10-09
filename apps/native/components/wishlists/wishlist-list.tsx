@@ -9,6 +9,7 @@ import {
   useDropdownMenuPreview,
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/components/ui/icon";
+import { GLASS_CAPSULE_STYLE, HAS_LIQUID_GLASS } from "@/components/ui/liquid-glass";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
 import { CardGridSkeleton } from "@/components/ui/list-skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,6 +37,7 @@ import {
 import { wishlistCardFadeIn } from "@/components/wishlists/wishlist-grid-animations";
 import type { Wishlist } from "@wishlist/backend/types/wishlist";
 import type { FlashListRef } from "@shopify/flash-list";
+import { GlassView } from "expo-glass-effect";
 import {
   Gift,
   Link2,
@@ -583,7 +585,19 @@ function WishlistCard({
                     {wishlist.title}
                   </Text>
 
-                  {canEdit ? (
+                  {canEdit && HAS_LIQUID_GLASS ? (
+                    <GlassView isInteractive glassEffectStyle="regular" style={GLASS_CAPSULE_STYLE}>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={t("Add item")}
+                        onPress={() => onOpenSheet({ type: "addItem", wishlist })}
+                        hitSlop={4}
+                        className="size-10 items-center justify-center"
+                      >
+                        <Icon as={Plus} className="size-5 text-brand" />
+                      </Pressable>
+                    </GlassView>
+                  ) : canEdit ? (
                     <AnimatedPressable
                       accessibilityRole="button"
                       accessibilityLabel={t("Add item")}
@@ -591,7 +605,7 @@ function WishlistCard({
                       hitSlop={4}
                       className="size-10 items-center justify-center rounded-full bg-brand-lighter active:bg-brand-alpha-12"
                     >
-                      <Icon as={Plus} className="size-4 text-brand" />
+                      <Icon as={Plus} className="size-5 text-brand" />
                     </AnimatedPressable>
                   ) : null}
                 </View>
