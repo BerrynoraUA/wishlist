@@ -9,9 +9,11 @@ jobs:
   ping:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
+      # The REST root (/rest/v1/) rejects the anon key. This query reaches Postgres and returns
+      # an empty list under RLS, which counts as database activity.
       - name: Ping staging Supabase to prevent auto-pause
         run: |
-          curl -sf "${STAGING_SUPABASE_URL}/rest/v1/" \
+          curl -sf "${STAGING_SUPABASE_URL}/rest/v1/wishlist?select=id&limit=1" \
             -H "apikey: ${STAGING_SUPABASE_ANON_KEY}" \
             -H "Authorization: Bearer ${STAGING_SUPABASE_ANON_KEY}"
         env:

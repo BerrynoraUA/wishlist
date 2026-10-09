@@ -339,7 +339,12 @@ export function Subscription({
               </Button>
 
               {hasMobileSubscription || (isPro && hasManageableSubscription) ? (
-                <Pressable className="py-2" disabled={isBusy} onPress={() => void openManagement()}>
+                <Pressable
+                  hitSlop={8}
+                  className="py-2"
+                  disabled={isBusy}
+                  onPress={() => void openManagement()}
+                >
                   <Text className="text-center text-sm font-medium text-red-300">
                     {t("Manage subscription")}
                   </Text>

@@ -37,3 +37,7 @@ apps/native/artifacts/
 
 # macOS Finder metadata, picked up whenever a capture runs on a Mac
 .DS_Store
+
+# Stray native project generated when Expo/CocoaPods runs from the repo root;
+# the real one lives in apps/native/ios.
+/ios/

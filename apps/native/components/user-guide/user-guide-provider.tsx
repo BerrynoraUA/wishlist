@@ -771,6 +771,7 @@ function GuideTooltip({
           size="sm"
           disabled={pending}
           onPress={onNext}
+          hitSlop={8}
           className="h-8 self-end rounded-md px-3"
         >
           <Text>{isLastSequence ? t("Done") : t("Next")}</Text>
@@ -842,6 +843,7 @@ function GuideCard({
           size="icon"
           accessibilityLabel={t("Close user guide")}
           onPress={onClose}
+          hitSlop={8}
           className="size-8 rounded-md"
         >
           <Icon as={X} className="size-4 text-text" />

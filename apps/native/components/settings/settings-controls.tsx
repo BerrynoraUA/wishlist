@@ -25,8 +25,22 @@ export function SettingsControlsLabeledInput({
         <Text className="text-sm font-semibold text-text">{label}</Text>
         {hint ? <Text className="text-xs text-text-muted">{hint}</Text> : null}
       </View>
-      <Input {...props} className={cn(error && "border-destructive")} />
-      {error ? <Text className="text-xs text-destructive">{error}</Text> : null}
+      <Input
+        accessibilityLabel={label}
+        accessibilityHint={error ?? hint}
+        aria-invalid={!!error}
+        {...props}
+        className={cn(error && "border-destructive")}
+      />
+      {error ? (
+        <Text
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+          className="text-xs text-destructive"
+        >
+          {error}
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -82,6 +96,8 @@ export function SettingsControlsToggleRow({
         </View>
       </View>
       <Switch
+        accessibilityLabel={title}
+        accessibilityHint={subtitle}
         checked={checked}
         onCheckedChange={onCheckedChange}
         staticColors={switchStaticColors}

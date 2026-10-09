@@ -1,3 +1,4 @@
+import { useAppReady } from "@/components/splash/animated-splash";
 import {
   type BridgeMessage,
   buildAutoScrapeScript,
@@ -38,6 +39,7 @@ type PendingRequest = {
 };
 
 export function ScraperSandbox() {
+  const appReady = useAppReady();
   const parserRef = useRef<WebView>(null);
   const pendingRef = useRef(new Map<string, PendingRequest>());
   const parserReadyRef = useRef(false);
@@ -46,11 +48,12 @@ export function ScraperSandbox() {
   const [browserTask, setBrowserTask] = useState<BrowserTask | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Instantiating a WebView is native work; keep it off the first frames.
+  // Wait for the splash reveal before scheduling native WebView work.
   useEffect(() => {
+    if (!appReady) return;
     const handle = requestIdleCallback(() => setMounted(true));
     return () => cancelIdleCallback(handle);
-  }, []);
+  }, [appReady]);
 
   // --- Request tracking ----------------------------------------------------
 

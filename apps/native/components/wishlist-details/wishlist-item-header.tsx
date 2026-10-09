@@ -12,6 +12,7 @@ import { GLASS_CAPSULE_STYLE, HAS_LIQUID_GLASS } from "@/components/ui/liquid-gl
 import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
+import { TouchTarget } from "@/components/ui/touch-target";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import { WishlistDetailsSheet } from "@/components/wishlist-details/sheets/wishlist-details-sheet";
 import { usePatchWishlist } from "@/hooks/use-wishlists";
@@ -341,7 +342,10 @@ export function WishlistItemHeader({
                     <View className="flex-1">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <AnimatedPressable className="h-9 w-full flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
+                          <AnimatedPressable
+                            hitSlop={4}
+                            className="h-9 w-full flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3"
+                          >
                             <Icon as={VisibilityIcon} className="size-3.5 text-white" />
                             <Text className="text-xs font-bold text-white" numberOfLines={1}>
                               {visibilityLabels[visibility]}
@@ -374,31 +378,35 @@ export function WishlistItemHeader({
                   {eventDate || canInlineEdit ? (
                     eventDate && canInlineEdit ? (
                       <View className="h-9 flex-1 flex-row items-center rounded-full border border-white/35 bg-white/25 ps-3 pe-1">
-                        <AnimatedPressable
+                        <TouchTarget
                           accessibilityRole="button"
                           accessibilityLabel={t("Wishlist event date")}
                           onPress={openPicker}
-                          className="h-9 flex-1 flex-row items-center justify-center gap-1.5 pe-2"
+                          slop={{ x: 0, y: 4 }}
+                          className="flex-1"
+                          contentClassName="h-9 flex-row items-center justify-center gap-1.5 pe-2"
                         >
                           <Icon as={Calendar} className="size-3.5 text-white" />
                           <Text className="text-xs font-bold text-white" numberOfLines={1}>
                             {displayValue}
                           </Text>
-                        </AnimatedPressable>
-                        <AnimatedPressable
+                        </TouchTarget>
+                        <TouchTarget
                           accessibilityRole="button"
                           accessibilityLabel={t("Clear date")}
                           onPress={() => updateEventDate(null)}
-                          className="size-8 items-center justify-center rounded-full"
+                          slop={6}
+                          contentClassName="size-8 items-center justify-center rounded-full"
                         >
                           <Icon as={X} className="size-3.5 text-white/75" />
-                        </AnimatedPressable>
+                        </TouchTarget>
                       </View>
                     ) : (
                       <AnimatedPressable
                         accessibilityRole={canInlineEdit ? "button" : "text"}
                         accessibilityLabel={eventDate ? t("Wishlist event date") : t("Add date")}
                         onPress={canInlineEdit ? openPicker : undefined}
+                        hitSlop={4}
                         className="h-9 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3"
                       >
                         <Icon as={Calendar} className="size-3.5 text-white" />
@@ -435,6 +443,7 @@ function HeaderActionButton({
       <AnimatedPressable
         ref={ref}
         accessibilityRole="button"
+        hitSlop={6}
         className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
         {...props}
       >
@@ -453,6 +462,7 @@ function HeaderActionButton({
       <Pressable
         ref={ref}
         accessibilityRole="button"
+        hitSlop={6}
         className="size-9 items-center justify-center"
         {...props}
       >

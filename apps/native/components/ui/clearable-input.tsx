@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { TouchTarget } from "@/components/ui/touch-target";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react-native";
 import { View } from "react-native";
@@ -41,7 +41,7 @@ export function ClearableInput({
   return (
     <View
       className={cn(
-        "border-input bg-background dark:bg-input/30 h-10 flex-row items-center gap-1 rounded-md border px-3 shadow-sm shadow-black/5 sm:h-9",
+        "border-input bg-background dark:bg-input/30 min-h-10 flex-row items-center gap-1 rounded-md border px-3 shadow-sm shadow-black/5 sm:min-h-9",
         invalid && "border-destructive",
         containerClassName,
       )}
@@ -50,21 +50,23 @@ export function ClearableInput({
       <Input
         value={value}
         className={cn(
-          "h-full min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent",
+          "min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none dark:bg-transparent",
           className,
         )}
         {...props}
       />
       {canClear ? (
-        <Button
-          variant="ghost"
-          size="icon"
+        <TouchTarget
+          accessibilityRole="button"
           accessibilityLabel={clearLabel}
           onPress={onClear}
-          className="-me-1.5 size-8 shrink-0 rounded-full"
+          slop={6}
+          className="-me-1.5 shrink-0"
+          contentClassName="size-8 items-center justify-center rounded-full"
+          pressedClassName="bg-accent dark:bg-accent/50"
         >
           <Icon as={X} className="size-4 text-destructive" />
-        </Button>
+        </TouchTarget>
       ) : (
         trailing
       )}

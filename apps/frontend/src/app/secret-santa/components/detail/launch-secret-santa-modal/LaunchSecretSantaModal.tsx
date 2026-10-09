@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/Button/Button";
 import type { SecretSantaExclusion, SecretSantaPerson } from "@wishlist/backend/types/secret-santa";
-import { generateSecretSantaAssignment } from "@/api/secret-santa";
+import { generateSecretSantaAssignment } from "@wishlist/backend/lib/secret-santa-assignment";
 import { useLaunchSecretSanta } from "@/hooks/use-secret-santa";
 import { useSubscription } from "@/hooks/use-subscription";
 import { SecretSantaPersonAvatar } from "../secret-santa-person-avatar/SecretSantaPersonAvatar";
@@ -69,7 +69,7 @@ export function LaunchSecretSantaModal({ open, onClose, eventId, participants }:
       exMap.set(ex.user_id, new Set(ex.excluded_ids));
     }
 
-    const result = generateSecretSantaAssignment(ids, exMap, 200);
+    const result = generateSecretSantaAssignment(ids, exMap);
     return result
       ? null
       : t("These exclusions make a valid assignment impossible.", {

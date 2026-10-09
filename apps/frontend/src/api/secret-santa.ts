@@ -1,4 +1,5 @@
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { generateSecretSantaAssignment } from "@wishlist/backend/lib/secret-santa-assignment";
 import { getCurrentUser } from "./user";
 import { notifySecretSantaInvites, notifySecretSantaStarted } from "@/lib/create-notification";
 import {
@@ -261,42 +262,6 @@ export async function removeSecretSantaInvite(inviteId: string): Promise<void> {
   });
 
   if (error) throw error;
-}
-
-export function generateSecretSantaAssignment(
-  participantIds: string[],
-  exclusions: Map<string, Set<string>>,
-  maxAttempts = 500,
-): Map<string, string> | null {
-  const n = participantIds.length;
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const available = new Set(participantIds);
-    const assignment = new Map<string, string>();
-    let valid = true;
-
-    // Process in random order so different attempts explore differently
-    const order = [...participantIds].sort(() => Math.random() - 0.5);
-
-    for (const giver of order) {
-      const candidates = [...available].filter(
-        (r) => r !== giver && !(exclusions.get(giver)?.has(r) ?? false),
-      );
-
-      if (candidates.length === 0) {
-        valid = false;
-        break;
-      }
-
-      const receiver = candidates[Math.floor(Math.random() * candidates.length)];
-      assignment.set(giver, receiver);
-      available.delete(receiver);
-    }
-
-    if (valid && assignment.size === n) return assignment;
-  }
-
-  return null;
 }
 
 export async function launchSecretSanta(input: LaunchSecretSantaInput): Promise<void> {

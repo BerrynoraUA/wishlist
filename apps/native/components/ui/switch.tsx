@@ -49,6 +49,8 @@ function Switch({ className, staticColors = false, onCheckedChange, ...props }: 
         className,
       )}
       onCheckedChange={handleCheckedChange}
+      // The 28pt-tall track gets a 48pt-tall touch target.
+      hitSlop={{ top: 10, bottom: 10 }}
       {...props}
     >
       <AnimatedSwitchThumb

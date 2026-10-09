@@ -125,6 +125,7 @@ export function SecretSantaDetailHero({
                   <AnimatedPressable
                     accessibilityRole="button"
                     accessibilityLabel={t("Secret Santa actions")}
+                    hitSlop={6}
                     className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
                   >
                     <Icon as={MoreHorizontal} className="size-4 text-white" />

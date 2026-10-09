@@ -14,6 +14,7 @@ import { useCheckNickname, useProfile, useUpdateProfile } from "@/hooks/use-sett
 import { useImageUploadField } from "@/lib/image-upload";
 import { removeOwnedStorageImage } from "@/lib/storage";
 import { isDefaultAvatarUrl } from "@wishlist/backend/lib/default-avatars";
+import { isNameBlocked } from "@wishlist/backend/lib/blocked-names";
 import * as ImagePicker from "expo-image-picker";
 import * as React from "react";
 import { UserRound } from "lucide-react-native";
@@ -109,6 +110,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
     if (!hasInitializedForm) return null;
     if (trimmedDisplayName.length === 0) return t("Display name is required");
     if (trimmedDisplayName.length < 3) return t("Display name must be at least 3 characters");
+    if (isNameBlocked(trimmedDisplayName)) return t("This name is not allowed");
     return null;
   }, [hasInitializedForm, trimmedDisplayName, t]);
 
@@ -116,6 +118,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
     if (!hasInitializedForm) return null;
     if (trimmedNickname.length === 0) return t("Nickname is required");
     if (trimmedNickname.length < 3) return t("Nickname must be at least 3 characters");
+    if (isNameBlocked(trimmedNickname)) return t("This nickname is not allowed");
     if (nicknameStatus === "taken") return t("This nickname is already taken");
     return null;
   }, [hasInitializedForm, trimmedNickname, nicknameStatus, t]);
@@ -336,6 +339,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
             name="bio"
             render={({ field: { onChange, value } }) => (
               <Textarea
+                accessibilityLabel={t("Bio")}
                 value={value}
                 onChangeText={onChange}
                 maxLength={160}

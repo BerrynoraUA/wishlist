@@ -1,3 +1,4 @@
+export * from "./blocked-names";
 export * from "./currencies";
 export * from "./filter-helpers";
 export * from "./item-colors";

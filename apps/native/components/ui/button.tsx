@@ -79,12 +79,23 @@ const buttonTextVariants = cva("text-text text-sm font-medium", {
 type ButtonProps = React.ComponentProps<typeof AnimatedPressable> &
   VariantProps<typeof buttonVariants>;
 
+// Sizes drawn under 48pt keep their look but get a touch target of at least 48pt (Material's
+// 48dp, above Apple's 44pt). Callers that shrink a button further pass their own hitSlop.
+const BUTTON_HIT_SLOP: Partial<Record<NonNullable<ButtonProps["size"]>, number>> = {
+  default: 4,
+  sm: 6,
+  icon: 4,
+  "icon-sm": 6,
+  "pill-sm": 6,
+};
+
 function Button({ className, variant, size, ...props }: ButtonProps) {
   return (
     <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
       <AnimatedPressable
         className={cn(props.disabled && "opacity-50", buttonVariants({ variant, size }), className)}
         role="button"
+        hitSlop={BUTTON_HIT_SLOP[size ?? "default"]}
         {...props}
       />
     </TextClassContext.Provider>

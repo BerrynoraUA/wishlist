@@ -1,6 +1,6 @@
 import { normalizeSearchQuery } from "@/lib/wishlists";
 import { notifySecretSantaInvites, notifySecretSantaStarted } from "@/lib/create-notification";
-import { generateSecretSantaAssignment } from "@/lib/secret-santa-assignment";
+import { generateSecretSantaAssignment } from "@wishlist/backend/lib/secret-santa-assignment";
 import { removeOwnedStorageImage } from "@/lib/storage";
 import { supabase } from "@wishlist/backend/supabase/native";
 import type {

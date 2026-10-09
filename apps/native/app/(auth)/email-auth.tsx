@@ -12,6 +12,7 @@ import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
+  AccessibilityInfo,
   KeyboardAvoidingView,
   Pressable,
   ScrollView,
@@ -57,6 +58,12 @@ export default function EmailAuthScreen() {
     },
   });
   const isLogin = mode === "login";
+
+  React.useEffect(() => {
+    if (error && process.env.EXPO_OS === "ios") {
+      AccessibilityInfo.announceForAccessibility(error);
+    }
+  }, [error]);
 
   if (session) {
     return <Redirect href={"/(tabs)/wishlists" as never} />;
@@ -163,6 +170,7 @@ export default function EmailAuthScreen() {
                         name="email"
                         render={({ field: { onChange, value } }) => (
                           <AuthInput
+                            accessibilityLabel={t("Email")}
                             autoCapitalize="none"
                             autoComplete="email"
                             keyboardType="email-address"
@@ -183,6 +191,7 @@ export default function EmailAuthScreen() {
                           name="password"
                           render={({ field: { onChange, value } }) => (
                             <AuthInput
+                              accessibilityLabel={t("Password")}
                               autoComplete={isLogin ? "current-password" : "new-password"}
                               className="pe-12"
                               onChangeText={onChange}
@@ -215,6 +224,7 @@ export default function EmailAuthScreen() {
                             name="confirmPassword"
                             render={({ field: { onChange, value } }) => (
                               <AuthInput
+                                accessibilityLabel={t("Confirm password")}
                                 autoComplete="new-password"
                                 className="pe-12"
                                 onChangeText={onChange}
@@ -237,6 +247,8 @@ export default function EmailAuthScreen() {
                     {error ? (
                       <Text
                         selectable
+                        accessibilityRole="alert"
+                        accessibilityLiveRegion="polite"
                         className="rounded-2xl bg-danger-bg px-3 py-2 text-sm text-danger"
                       >
                         {error}
@@ -245,7 +257,9 @@ export default function EmailAuthScreen() {
 
                     <Animated.View layout={formLayoutTransition}>
                       <Button
-                        className="h-13 rounded-full bg-[#c0267e] active:bg-[#a91f6e]"
+                        accessibilityLabel={isLogin ? t("Log in") : t("Create account")}
+                        accessibilityState={{ busy: loading, disabled: loading }}
+                        className="h-auto min-h-13 rounded-full bg-[#c0267e] active:bg-[#a91f6e]"
                         disabled={loading}
                         onPress={handleSubmit(submitForm)}
                       >
@@ -315,7 +329,7 @@ function AuthInput({
   return (
     <TextInput
       className={cn(
-        "h-13 rounded-full border border-white/16 bg-white/12 px-4 text-base leading-5 text-white",
+        "min-h-13 rounded-full border border-white/16 bg-white/12 px-4 py-3 text-base leading-5 text-white",
         className,
       )}
       cursorColorClassName="accent-[#f472b6]"
@@ -339,7 +353,7 @@ function PasswordToggle({
     <Pressable
       accessibilityLabel={label}
       accessibilityRole="button"
-      className="absolute end-3 top-0 h-13 items-center justify-center px-2"
+      className="absolute end-1 inset-y-0 min-h-13 min-w-11 items-center justify-center px-2"
       onPress={onPress}
     >
       <Icon as={visible ? EyeOffIcon : EyeIcon} className="size-4.5 text-white/58" />

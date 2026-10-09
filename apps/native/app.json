@@ -2,7 +2,7 @@
   "expo": {
     "name": "Wishlane",
     "slug": "wishlane",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "wishlane",
@@ -99,6 +99,11 @@
           "backgroundColor": "#ffffff",
           "image": "./assets/images/splash-mascot.png",
           "imageWidth": 240,
+          "android": {
+            "drawable": {
+              "icon": "./assets/images/splash-android.xml"
+            }
+          },
           "dark": {
             "backgroundColor": "#000000",
             "image": "./assets/images/splash-mascot.png",
