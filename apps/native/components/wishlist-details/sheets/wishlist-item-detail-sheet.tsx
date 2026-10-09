@@ -399,9 +399,12 @@ export function WishlistItemDetailSheet({
               size="lg"
               disabled={!canBuy || boughtPending}
               onPress={confirmBought}
-              className="min-w-0 flex-1 rounded-lg border border-buy/70 bg-buy-bg"
+              className="min-w-0 flex-1 rounded-lg border border-transparent"
             >
-              <PurchaseActionTint purchased={reservation.isPurchased} />
+              <PurchaseActionTint
+                purchased={reservation.isPurchased}
+                buyBorderClassName="border-buy/70"
+              />
               {boughtPending ? (
                 <ActivityIndicator colorClassName="accent-primary-foreground" />
               ) : null}

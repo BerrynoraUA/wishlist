@@ -1,3 +1,4 @@
+import { SettingsControlsToggleRow } from "@/components/settings/settings-controls";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { CurrencySettings } from "@/components/settings/currency-settings";
 import {
@@ -5,16 +6,22 @@ import {
   type AutocompleteDropdownOption,
 } from "@/components/ui/autocomplete-dropdown";
 import { Icon } from "@/components/ui/icon";
-import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { useHideBackButton } from "@/hooks/use-hide-back-button";
 import { useHapticsEnabled } from "@/hooks/use-haptics-enabled";
 import { useProGate } from "@/hooks/use-pro-gate";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { countryForLocale } from "@/lib/locale-flags";
-import { cn } from "@/lib/utils";
 import { useGT, useLocale, useLocales, useSetLocale } from "gt-react-native";
-import { ChevronLeft, Eye, EyeOff, Lock, Languages, SlidersHorizontal } from "lucide-react-native";
+import {
+  ChevronLeft,
+  Eye,
+  EyeOff,
+  Lock,
+  Languages,
+  SlidersHorizontal,
+  Vibrate,
+} from "lucide-react-native";
 import * as React from "react";
 import { View } from "react-native";
 
@@ -133,107 +140,35 @@ export function PreferencesSettings({ selectedCurrency }: { selectedCurrency: st
 
       <CurrencySettings selectedCurrency={selectedCurrency} />
 
-      <View className="flex-row items-center justify-between gap-4 rounded-xl border border-border-subtle bg-card-bg p-4">
-        <View className="min-w-0 flex-1">
-          <Text className="font-semibold text-text">{t("Haptic feedback")}</Text>
-          <Text className="text-sm text-text-muted">
-            {t("Feel feedback for actions and selections.")}
-          </Text>
-        </View>
-        <Switch
-          accessibilityLabel={t("Haptic feedback")}
-          checked={hapticsEnabled}
-          onCheckedChange={setHapticsEnabled}
-        />
-      </View>
+      <SettingsControlsToggleRow
+        icon={Vibrate}
+        title={t("Haptic feedback")}
+        subtitle={t("Feel feedback for actions and selections.")}
+        checked={hapticsEnabled}
+        onCheckedChange={setHapticsEnabled}
+      />
 
-      <View
-        className={cn(
-          "gap-4 overflow-hidden rounded-xl border p-4 shadow-sm",
-          showBackButton
-            ? "border-brand/30 bg-brand-lighter shadow-brand/10"
-            : "border-border-subtle bg-card-bg shadow-black/5",
-        )}
-      >
-        <View className="flex-row items-center justify-between gap-4">
-          <View className="min-w-0 flex-1">
-            <View className="flex-row items-center gap-3">
-              <View
-                className={cn(
-                  "size-11 items-center justify-center rounded-full",
-                  showBackButton
-                    ? "bg-linear-135 from-brand via-accent to-secondary"
-                    : "bg-bg-muted",
-                )}
-              >
-                <Icon
-                  as={showBackButton ? ChevronLeft : EyeOff}
-                  className={cn("size-5", showBackButton ? "text-white" : "text-text-muted")}
-                />
-              </View>
-              <View className="min-w-0 flex-1">
-                <Text className="font-semibold text-text">{t("Show back button")}</Text>
-                <Text className="text-xs font-semibold uppercase text-text-muted">
-                  {showBackButton ? t("Button visible") : t("Gesture navigation")}
-                </Text>
-              </View>
-            </View>
-          </View>
-          <Switch
-            accessibilityLabel={t("Show back button")}
-            checked={showBackButton}
-            onCheckedChange={(visible) => setHideBackButton(!visible)}
-          />
-        </View>
-      </View>
+      <SettingsControlsToggleRow
+        icon={showBackButton ? ChevronLeft : EyeOff}
+        title={t("Show back button")}
+        subtitle={showBackButton ? t("Button visible") : t("Gesture navigation")}
+        checked={showBackButton}
+        onCheckedChange={(visible) => setHideBackButton(!visible)}
+      />
 
-      <View
-        className={cn(
-          "gap-4 overflow-hidden rounded-xl border p-4 shadow-sm",
-          showsOwnReservations
-            ? "border-brand/30 bg-brand-lighter shadow-brand/10"
-            : "border-border-subtle bg-card-bg shadow-black/5",
-        )}
-      >
-        <View className="flex-row items-center justify-between gap-4">
-          <View className="min-w-0 flex-1">
-            <View className="flex-row items-center gap-3">
-              <View
-                className={cn(
-                  "size-11 items-center justify-center rounded-full",
-                  showsOwnReservations
-                    ? "bg-linear-135 from-brand via-accent to-secondary"
-                    : "bg-bg-muted",
-                )}
-              >
-                <Icon
-                  as={ownReservationsIcon}
-                  className={cn("size-5", showsOwnReservations ? "text-white" : "text-text-muted")}
-                />
-              </View>
-              <View className="min-w-0 flex-1">
-                <Text className="font-semibold text-text">
-                  {t("Show reserved and purchased items")}
-                </Text>
-                <Text className="text-xs font-semibold uppercase text-text-muted">
-                  {showsOwnReservations ? t("Spoilers on") : t("Surprise kept")}
-                </Text>
-              </View>
-            </View>
-          </View>
-          <Switch
-            accessibilityLabel={t("Show reserved and purchased items")}
-            checked={showsOwnReservations}
-            onCheckedChange={(value) => {
-              if (!isPro) {
-                openPaywall();
-                return;
-              }
-              updateSettings.mutate({ show_own_reservations: value });
-            }}
-          />
-        </View>
-      </View>
+      <SettingsControlsToggleRow
+        icon={ownReservationsIcon}
+        title={t("Show reserved and purchased items")}
+        subtitle={showsOwnReservations ? t("Spoilers on") : t("Surprise kept")}
+        checked={showsOwnReservations}
+        onCheckedChange={(value) => {
+          if (!isPro) {
+            openPaywall();
+            return;
+          }
+          updateSettings.mutate({ show_own_reservations: value });
+        }}
+      />
     </SettingsSection>
   );
 }

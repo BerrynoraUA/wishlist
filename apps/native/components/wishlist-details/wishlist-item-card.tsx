@@ -306,7 +306,7 @@ export function WishlistItemCard({
                         event.stopPropagation();
                         confirmBought();
                       }}
-                      className="min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border border-buy/35 bg-buy-bg px-3 py-3"
+                      className="min-w-0 flex-1 flex-row items-center justify-center gap-2 rounded-lg border border-transparent px-3 py-3"
                     >
                       <PurchaseActionTint purchased={reservation.isPurchased} />
                       <PurchaseActionIcon purchased={reservation.isPurchased} />

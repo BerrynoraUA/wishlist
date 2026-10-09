@@ -91,7 +91,21 @@ export function PurchaseActionIcon({ purchased }: { purchased: boolean }) {
   );
 }
 
-export function PurchaseActionTint({ purchased }: { purchased: boolean }) {
+// Drawn over the button's own (transparent) 1px border, so the frame crossfades with the fill
+// instead of a green border showing around the red Undo state.
+const TINT_OVER_BORDER = { top: -1, right: -1, bottom: -1, left: -1 } as const;
+
+/**
+ * The Buy / Undo button's background and border. Give the button `border border-transparent`
+ * and no background of its own.
+ */
+export function PurchaseActionTint({
+  purchased,
+  buyBorderClassName = "border-buy/35",
+}: {
+  purchased: boolean;
+  buyBorderClassName?: string;
+}) {
   const opacity = useSharedValue(purchased ? 1 : 0);
   React.useEffect(() => {
     opacity.value = withTiming(purchased ? 1 : 0, {
@@ -99,13 +113,21 @@ export function PurchaseActionTint({ purchased }: { purchased: boolean }) {
       reduceMotion: ReduceMotion.System,
     });
   }, [opacity, purchased]);
-  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  const buyStyle = useAnimatedStyle(() => ({ opacity: 1 - opacity.value }));
+  const undoStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
   return (
-    <Animated.View
-      pointerEvents="none"
-      className="absolute inset-0 rounded-lg border border-destructive/35 bg-danger-bg"
-      style={style}
-    />
+    <>
+      <Animated.View
+        pointerEvents="none"
+        className={`absolute rounded-lg border bg-buy-bg ${buyBorderClassName}`}
+        style={[TINT_OVER_BORDER, buyStyle]}
+      />
+      <Animated.View
+        pointerEvents="none"
+        className="absolute rounded-lg border border-destructive/35 bg-danger-bg"
+        style={[TINT_OVER_BORDER, undoStyle]}
+      />
+    </>
   );
 }
 
