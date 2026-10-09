@@ -1,3 +1,4 @@
+import { hapticError, hapticSuccess } from "@/lib/haptics";
 import {
   SecretSantaDetailHero,
   SecretSantaGiftSuggestions,
@@ -100,8 +101,10 @@ export default function SecretSantaDetailScreen() {
 
     try {
       await Clipboard.setStringAsync(buildSecretSantaJoinUrl(eventId));
+      hapticSuccess();
       setMessage({ title: t("Link copied"), message: t("Invite link copied to clipboard.") });
     } catch {
+      hapticError();
       setMessage({ title: t("Copy failed"), message: t("Failed to copy invite link.") });
     }
   }

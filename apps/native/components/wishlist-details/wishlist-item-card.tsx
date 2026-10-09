@@ -28,7 +28,7 @@ import {
   getTranslatedItemPriorityLabel,
   isDiscountActive,
 } from "@/lib/items";
-import { hapticToggle } from "@/lib/haptics";
+import { hapticSuccess, hapticToggle } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { getValidHttpUrl } from "@/lib/urls";
 import { isStarPriorityId } from "@wishlist/backend/lib";
@@ -135,6 +135,7 @@ export function WishlistItemCard({
   async function handleCopyLink() {
     if (!itemUrl) return;
     await Clipboard.setStringAsync(itemUrl);
+    hapticSuccess();
   }
 
   function confirmBought() {

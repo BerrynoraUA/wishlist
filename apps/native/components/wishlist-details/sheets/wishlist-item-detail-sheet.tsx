@@ -1,3 +1,4 @@
+import { hapticSuccess } from "@/lib/haptics";
 import {
   BottomSheet,
   BottomSheetHeader,
@@ -184,6 +185,7 @@ export function WishlistItemDetailSheet({
     const link = url?.trim();
     if (!link) return;
     await Clipboard.setStringAsync(link);
+    hapticSuccess();
   }
 
   // Actions stay visible but are locked when the viewer can't perform them. "Undo" only

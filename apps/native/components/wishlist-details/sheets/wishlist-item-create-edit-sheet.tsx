@@ -40,7 +40,7 @@ import {
   toItemFormValues,
 } from "@/lib/items";
 import { useImageUploadField } from "@/lib/image-upload";
-import { hapticSuccess } from "@/lib/haptics";
+import { hapticError, hapticSuccess } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { hasInvalidOptionalUrl, isValidHttpUrl } from "@/lib/urls";
 import { WISHLIST_PAGE_SIZE } from "@/lib/wishlists";
@@ -434,6 +434,7 @@ export function WishlistItemCreateEditSheet({
       hapticSuccess();
     } catch (error) {
       if (requestId === scrapeRequestIdRef.current && currentUrlRef.current === url) {
+        hapticError();
         setScrapeError(error instanceof Error ? error.message : t("Could not fetch product data"));
       }
     } finally {
@@ -479,10 +480,14 @@ export function WishlistItemCreateEditSheet({
         { id: item.id, updates: payload },
         {
           onSuccess: () => {
+            hapticSuccess();
             void imageUpload.commitPendingUpload(item.image_url);
             handleClose();
           },
-          onError: () => void imageUpload.discardPendingUpload(),
+          onError: () => {
+            hapticError();
+            void imageUpload.discardPendingUpload();
+          },
         },
       );
       return;
@@ -495,11 +500,15 @@ export function WishlistItemCreateEditSheet({
       },
       {
         onSuccess: () => {
+          hapticSuccess();
           void imageUpload.commitPendingUpload();
           completeCreateItemStep();
           handleClose();
         },
-        onError: () => void imageUpload.discardPendingUpload(),
+        onError: () => {
+          hapticError();
+          void imageUpload.discardPendingUpload();
+        },
       },
     );
   }

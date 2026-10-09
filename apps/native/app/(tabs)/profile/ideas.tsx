@@ -1,4 +1,4 @@
-import { hapticSelection } from "@/lib/haptics";
+import { hapticImpact } from "@/lib/haptics";
 import { FeatureIdeaCard } from "@/components/feature-ideas/feature-idea-card";
 import { FeatureIdeasTabs } from "@/components/feature-ideas/feature-ideas-tabs";
 import { SubmitFeatureIdeaSheet } from "@/components/feature-ideas/submit-feature-idea-sheet";
@@ -169,7 +169,7 @@ export default function IdeasScreen() {
             <RefreshControl
               refreshing={ideasQuery.isRefetching && !ideasQuery.isLoading}
               onRefresh={() => {
-                hapticSelection();
+                hapticImpact();
                 void ideasQuery.refetch();
               }}
               tintColor="currentColor"

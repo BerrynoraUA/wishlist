@@ -1,3 +1,4 @@
+import { hapticError, hapticSuccess } from "@/lib/haptics";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import {
   BottomSheet,
@@ -217,7 +218,7 @@ export function WishlistCreateEditSheet({
         });
         await imageUpload.commitPendingUpload(wishlist.image_url);
         await selectedAccess.syncAfterSave(wishlist.id, formValues.visibility);
-
+        hapticSuccess();
         handleClose();
         return;
       }
@@ -225,10 +226,12 @@ export function WishlistCreateEditSheet({
       const createdWishlist = await createMutation.mutateAsync(valuesToSave);
       await imageUpload.commitPendingUpload();
       await selectedAccess.grantSelectedAccess(createdWishlist.id);
+      hapticSuccess();
       completeCreateWishlistStep();
       onCreated?.(createdWishlist);
       handleClose();
     } catch (submitError) {
+      hapticError();
       await imageUpload.discardPendingUpload();
       selectedAccess.setError(
         submitError instanceof Error ? submitError.message : t("Could not save selected access."),

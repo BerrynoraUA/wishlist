@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/icon";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { useHideBackButton } from "@/hooks/use-hide-back-button";
+import { useHapticsEnabled } from "@/hooks/use-haptics-enabled";
 import { useProGate } from "@/hooks/use-pro-gate";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { countryForLocale } from "@/lib/locale-flags";
@@ -70,6 +71,7 @@ export function PreferencesSettings({ selectedCurrency }: { selectedCurrency: st
   const updateSettings = useUpdateSettings();
   const { isPro, openPaywall } = useProGate();
   const [hideBackButton, setHideBackButton] = useHideBackButton();
+  const [hapticsEnabled, setHapticsEnabled] = useHapticsEnabled();
   const showBackButton = !hideBackButton;
   const { data: settings } = useSettings();
   const showsOwnReservations = isPro && Boolean(settings?.show_own_reservations);
@@ -130,6 +132,20 @@ export function PreferencesSettings({ selectedCurrency }: { selectedCurrency: st
       </View>
 
       <CurrencySettings selectedCurrency={selectedCurrency} />
+
+      <View className="flex-row items-center justify-between gap-4 rounded-xl border border-border-subtle bg-card-bg p-4">
+        <View className="min-w-0 flex-1">
+          <Text className="font-semibold text-text">{t("Haptic feedback")}</Text>
+          <Text className="text-sm text-text-muted">
+            {t("Feel feedback for actions and selections.")}
+          </Text>
+        </View>
+        <Switch
+          accessibilityLabel={t("Haptic feedback")}
+          checked={hapticsEnabled}
+          onCheckedChange={setHapticsEnabled}
+        />
+      </View>
 
       <View
         className={cn(

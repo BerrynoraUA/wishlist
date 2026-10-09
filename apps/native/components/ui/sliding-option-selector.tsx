@@ -177,7 +177,7 @@ export function SlidingOptionSelector<T>({
                 accessibilityState={{ selected }}
                 accessibilityLabel={option.accessibilityLabel}
                 onPress={() => {
-                  hapticSelection();
+                  if (!selected) hapticSelection();
                   onChange(option.value);
                 }}
                 className={cn(

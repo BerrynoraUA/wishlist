@@ -1,5 +1,6 @@
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
+import { PREFERENCE_KEYS, preferencesStorage } from "@/lib/storage";
 
 /**
  * Semantic haptics for the app. Call these instead of `expo-haptics` directly —
@@ -25,6 +26,7 @@ type AndroidEffect = {
 };
 
 function fire(ios: () => Promise<void>, android: AndroidEffect) {
+  if (preferencesStorage.getBoolean(PREFERENCE_KEYS.hapticsEnabled) === false) return;
   if (Platform.OS === "ios") {
     void ios().catch(() => {});
     return;
@@ -33,7 +35,16 @@ function fire(ios: () => Promise<void>, android: AndroidEffect) {
   if (Platform.OS !== "android") return;
 
   void Haptics.performAndroidHapticsAsync(android.preferred).catch(() => {
+    if (preferencesStorage.getBoolean(PREFERENCE_KEYS.hapticsEnabled) === false) return;
     void Haptics.performAndroidHapticsAsync(android.fallback).catch(() => {});
+  });
+}
+
+/** A neutral press or an animated object landing; conveys no action outcome. */
+export function hapticImpact() {
+  fire(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), {
+    preferred: Haptics.AndroidHaptics.Context_Click,
+    fallback: Haptics.AndroidHaptics.Virtual_Key,
   });
 }
 
@@ -77,7 +88,7 @@ export function hapticSuccess() {
   });
 }
 
-/** A destructive step the user confirmed, or something that needs attention. */
+/** An action produced a warning that needs attention. */
 export function hapticWarning() {
   fire(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning), {
     preferred: Haptics.AndroidHaptics.Reject,

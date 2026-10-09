@@ -1,4 +1,5 @@
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
+import { hapticSelection } from "@/lib/haptics";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { PRIORITY_ICONS } from "@/components/items/item-labels";
@@ -126,7 +127,10 @@ export function ItemPrioritySelector({
             accessibilityState={{ checked: isSelected }}
             accessibilityLabel={option.label}
             pressedScale={0.96}
-            onPress={() => onChange(option.priority_id)}
+            onPress={() => {
+              if (!isSelected) hapticSelection();
+              onChange(option.priority_id);
+            }}
             className="min-w-0 flex-1 flex-row items-center justify-center gap-1 rounded-full px-1"
           >
             {PriorityIcon ? (

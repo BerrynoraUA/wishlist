@@ -1,4 +1,5 @@
 import { Icon } from "@/components/ui/icon";
+import { hapticSelection } from "@/lib/haptics";
 import { StyledPressable } from "@/components/ui/styled-pressable";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { ITEM_COLORS } from "@wishlist/backend/lib/item-colors";
@@ -64,7 +65,10 @@ export function ItemColorSelector({
       accessibilityRole="button"
       accessibilityState={{ selected: value === null }}
       accessibilityLabel={t("No border")}
-      onPress={() => onChange(null)}
+      onPress={() => {
+        if (value !== null) hapticSelection();
+        onChange(null);
+      }}
       hitSlop={4}
       className="size-10 items-center justify-center rounded-full border-2 border-transparent bg-bg-muted active:opacity-80"
     >
@@ -76,7 +80,10 @@ export function ItemColorSelector({
         accessibilityRole="button"
         accessibilityState={{ selected: value === index }}
         accessibilityLabel={color.label}
-        onPress={() => onChange(index)}
+        onPress={() => {
+          if (value !== index) hapticSelection();
+          onChange(index);
+        }}
         hitSlop={4}
         className="size-10 items-center justify-center rounded-full border-2 border-transparent active:opacity-80"
         style={{ backgroundColor: color.color }}

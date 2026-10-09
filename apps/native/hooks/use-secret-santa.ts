@@ -1,3 +1,4 @@
+import { hapticError, hapticSuccess } from "@/lib/haptics";
 import {
   acceptSecretSantaInvite,
   createSecretSantaEvent,
@@ -82,8 +83,10 @@ export function useCreateSecretSantaEvent() {
   return useMutation({
     mutationFn: (input: CreateSecretSantaEventInput) => createSecretSantaEvent(input),
     onSuccess: async () => {
+      hapticSuccess();
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
     },
+    onError: hapticError,
   });
 }
 
@@ -94,8 +97,10 @@ export function useUpdateSecretSantaEvent() {
     mutationFn: ({ eventId, updates }: { eventId: string; updates: UpdateSecretSantaEventInput }) =>
       updateSecretSantaEvent(eventId, updates),
     onSuccess: async () => {
+      hapticSuccess();
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
     },
+    onError: hapticError,
   });
 }
 
@@ -105,9 +110,11 @@ export function useDeleteSecretSantaEvent() {
   return useMutation({
     mutationFn: (eventId: string) => deleteSecretSantaEvent(eventId),
     onSuccess: async () => {
+      hapticSuccess();
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
       queryClient.removeQueries({ queryKey: ["secret-santa", "detail"], exact: false });
     },
+    onError: hapticError,
   });
 }
 
@@ -136,9 +143,11 @@ export function useAcceptSecretSantaInvite() {
   return useMutation({
     mutationFn: (inviteId: string) => acceptSecretSantaInvite(inviteId),
     onSuccess: async () => {
+      hapticSuccess();
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
       await queryClient.invalidateQueries({ queryKey: notificationKeys.all });
     },
+    onError: hapticError,
   });
 }
 
@@ -148,9 +157,11 @@ export function useDeclineSecretSantaInvite() {
   return useMutation({
     mutationFn: (inviteId: string) => declineSecretSantaInvite(inviteId),
     onSuccess: async () => {
+      hapticSuccess();
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
       await queryClient.invalidateQueries({ queryKey: notificationKeys.all });
     },
+    onError: hapticError,
   });
 }
 
@@ -160,8 +171,10 @@ export function useJoinSecretSantaEvent() {
   return useMutation({
     mutationFn: (eventId: string) => joinSecretSantaEvent(eventId),
     onSuccess: async () => {
+      hapticSuccess();
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
     },
+    onError: hapticError,
   });
 }
 
@@ -172,8 +185,10 @@ export function useRemoveSecretSantaParticipant() {
     mutationFn: ({ eventId, userId }: { eventId: string; userId: string }) =>
       removeSecretSantaParticipant(eventId, userId),
     onSuccess: async () => {
+      hapticSuccess();
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
     },
+    onError: hapticError,
   });
 }
 
@@ -184,8 +199,10 @@ export function useRemoveSecretSantaInvite() {
     mutationFn: (payload: { eventId: string; inviteId: string }) =>
       removeSecretSantaInvite(payload.inviteId),
     onSuccess: async () => {
+      hapticSuccess();
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
     },
+    onError: hapticError,
   });
 }
 
@@ -197,6 +214,7 @@ export function useLaunchSecretSanta() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
     },
+    onError: hapticError,
   });
 }
 

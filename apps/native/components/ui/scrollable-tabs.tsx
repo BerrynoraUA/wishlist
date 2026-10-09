@@ -213,7 +213,7 @@ export function ScrollableTabs<T>({
             accessibilityLabel={tab.accessibilityLabel ?? tab.label}
             accessibilityState={{ selected }}
             onPress={() => {
-              hapticSelection();
+              if (!selected) hapticSelection();
               onChange(tab.value);
             }}
             className={cn(
