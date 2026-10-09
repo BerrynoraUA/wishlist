@@ -6,7 +6,11 @@ import { StyledFlashList } from "./styled-flash-list";
 
 const fixture = vi.hoisted(() => ({
   listProps: {} as {
-    refreshControl?: ReactElement<{ refreshing: boolean; onRefresh: () => void }>;
+    refreshControl?: ReactElement<{
+      refreshing: boolean;
+      onRefresh: () => void;
+      tintColor?: string;
+    }>;
     onScroll?: (event: unknown) => void;
     onEndReached?: () => void;
   },
@@ -20,7 +24,6 @@ vi.mock("@shopify/flash-list", () => ({
   },
 }));
 vi.mock("react-native", () => ({
-  Platform: { OS: "ios" },
   View: ({ children }: { children: ReactNode }) => children,
   RefreshControl: () => null,
   ActivityIndicator: () => null,
@@ -31,10 +34,6 @@ vi.mock("uniwind", () => ({
 }));
 vi.mock("gt-react-native", () => ({ useGT: () => (text: string) => text }));
 vi.mock("@/lib/haptics", () => ({ hapticImpact: fixture.haptic }));
-vi.mock("./pull-refresh-indicator", () => ({ PullRefreshIndicator: () => null }));
-vi.mock("react-native-reanimated", () => ({
-  useSharedValue: () => ({ value: 0 }),
-}));
 
 let root: Root;
 let container: HTMLDivElement;
