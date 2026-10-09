@@ -1,3 +1,4 @@
+import { hapticError, hapticSelection } from "@/lib/haptics";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
@@ -256,6 +257,7 @@ export function PeoplePickerSheet({
       await onConfirm(draft);
       void sheetRef.current?.dismiss();
     } catch (error) {
+      hapticError();
       setConfirmError(error instanceof Error ? error.message : t("Something went wrong."));
     } finally {
       setConfirmPending(false);
@@ -263,6 +265,7 @@ export function PeoplePickerSheet({
   }
 
   function toggle(item: PeoplePickerItem) {
+    if (!single || !draftIds.has(item.id)) hapticSelection();
     // A single-select picker has nothing left to confirm once a row is tapped.
     if (single) {
       commit([item]);

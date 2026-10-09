@@ -1,3 +1,4 @@
+import { hapticError, hapticSuccess } from "@/lib/haptics";
 import { syncSubscription } from "@/api/subscription";
 import { subscriptionKeys, useSubscriptionStatus } from "@/hooks/use-subscription";
 import { configureRevenueCat } from "@/lib/revenuecat";
@@ -235,10 +236,14 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       );
       updateCustomerInfo(result.customerInfo);
       await syncServerStatus();
+      hapticSuccess();
       return true;
     } catch (err) {
       const message = formatError(err);
-      if (message) setError(message);
+      if (message) {
+        hapticError();
+        setError(message);
+      }
       return false;
     } finally {
       setState("idle");
@@ -253,10 +258,14 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       const info = await Purchases.restorePurchases();
       updateCustomerInfo(info);
       await syncServerStatus();
+      hapticSuccess();
       return true;
     } catch (err) {
       const message = formatError(err);
-      if (message) setError(message);
+      if (message) {
+        hapticError();
+        setError(message);
+      }
       return false;
     } finally {
       setState("idle");

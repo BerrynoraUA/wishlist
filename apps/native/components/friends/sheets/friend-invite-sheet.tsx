@@ -5,7 +5,7 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useCheckFriendship, useProfilesByIds, useSendFriendRequest } from "@/hooks/use-friends";
 import { useCurrentUserId } from "@/hooks/use-user";
-import { hapticSuccess } from "@/lib/haptics";
+import { hapticError, hapticSuccess } from "@/lib/haptics";
 import { UserPlus } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
@@ -61,6 +61,7 @@ export function FriendInviteSheet({ userId, onClose }: { userId: string; onClose
         hapticSuccess();
         setSent(true);
       },
+      onError: hapticError,
     });
   }
 

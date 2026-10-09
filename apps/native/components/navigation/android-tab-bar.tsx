@@ -1,3 +1,4 @@
+import { hapticSelection } from "@/lib/haptics";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import { Icon } from "@/components/ui/icon";
@@ -179,6 +180,7 @@ export function AndroidTabBar({
     if (event.defaultPrevented) return;
 
     if (!isFocused) {
+      hapticSelection();
       navigation.navigate(route.name);
       return;
     }

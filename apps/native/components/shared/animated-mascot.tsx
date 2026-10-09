@@ -30,7 +30,11 @@ export type MascotVariant =
   | "lightbulb-idea"
   | "santa-sack"
   | "holding-key"
-  | "happy-pointing-down";
+  | "happy-pointing-down"
+  | "welcome-wave"
+  | "excited-cheer"
+  | "hands-over-eyes"
+  | "peeking";
 
 const MASCOT_IMAGES: Record<MascotVariant, ImageSource> = {
   "sad-alone": require("@/assets/images/mascot/sad-alone.webp"),
@@ -43,6 +47,10 @@ const MASCOT_IMAGES: Record<MascotVariant, ImageSource> = {
   "santa-sack": require("@/assets/images/mascot/santa-sack.webp"),
   "holding-key": require("@/assets/images/mascot/holding-key.webp"),
   "happy-pointing-down": require("@/assets/images/mascot/happy-pointing-down.webp"),
+  "welcome-wave": require("@/assets/images/mascot/welcome-wave.webp"),
+  "excited-cheer": require("@/assets/images/mascot/excited-cheer.webp"),
+  "hands-over-eyes": require("@/assets/images/mascot/hands-over-eyes.webp"),
+  peeking: require("@/assets/images/mascot/peeking.webp"),
 };
 
 /** Closed-eye patches, transparent outside the eyes, laid over the artwork to blink. */
@@ -379,6 +387,68 @@ const MOTIONS: Record<MascotVariant, MascotMotion> = {
       ],
     },
   },
+  // A friendly sway, as if waving hello.
+  "welcome-wave": {
+    entrance: "pop",
+    breath: BREATH,
+    move: {
+      duration: 3200,
+      rotate: [
+        [0, 0],
+        [400, -3],
+        [800, 2],
+        [1200, -2],
+        [1600, 0],
+      ],
+    },
+  },
+  // A small, happy hop.
+  "excited-cheer": {
+    entrance: "pop",
+    breath: BREATH,
+    move: {
+      duration: 3000,
+      y: [
+        [0, 0],
+        [260, -0.03],
+        [520, 0],
+      ],
+      scaleY: [
+        [0, 0],
+        [260, 0.02],
+        [520, 0],
+      ],
+    },
+  },
+  // Giggles behind its hands.
+  "hands-over-eyes": {
+    entrance: "pop",
+    breath: BREATH,
+    move: {
+      duration: 2400,
+      rotate: [
+        [0, 0],
+        [150, -2],
+        [300, 2],
+        [450, -1],
+        [600, 0],
+      ],
+    },
+  },
+  // Leans in for a sneaky look, holds it, leans back.
+  peeking: {
+    entrance: "pop",
+    breath: BREATH,
+    move: {
+      duration: 3600,
+      rotate: [
+        [0, 0],
+        [600, -3],
+        [1800, -3],
+        [2400, 0],
+      ],
+    },
+  },
 };
 
 // The feet sit at ~86% of every canvas: squash, stretch and rocking pivot there.
@@ -416,12 +486,15 @@ export function AnimatedMascot({
   variant,
   size,
   subtle = false,
+  skipEntrance = false,
   accessibilityLabel,
 }: {
   variant: MascotVariant;
   size: number;
   /** Smaller moves, for compact placements. */
   subtle?: boolean;
+  /** Start in place, for a mascot swapped in for another one already on screen. */
+  skipEntrance?: boolean;
   accessibilityLabel?: string;
 }) {
   const motion = MOTIONS[variant];
@@ -433,7 +506,7 @@ export function AnimatedMascot({
   const focused = useIsFocused();
   const intensity = subtle ? 0.6 : 1;
 
-  const enter = useSharedValue(0);
+  const enter = useSharedValue(skipEntrance ? 1 : 0);
   const breath = useSharedValue(0);
   const clock = useSharedValue(0);
   const blink = useSharedValue(0);
@@ -441,13 +514,14 @@ export function AnimatedMascot({
 
   // Entrance plays once, when the mascot first becomes visible.
   useEffect(() => {
+    if (skipEntrance) return;
     if (reduceMotion) {
       cancelAnimation(enter);
       enter.set(1);
       return;
     }
     if (appReady) enter.set(withSpring(1, { damping: 11, stiffness: 170 }));
-  }, [appReady, enter, reduceMotion]);
+  }, [appReady, enter, reduceMotion, skipEntrance]);
 
   // Idle loops run only while their screen is showing: tabs and stacked screens stay
   // mounted, and every animated frame costs a UI-thread commit.

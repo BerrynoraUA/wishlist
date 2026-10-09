@@ -1,4 +1,4 @@
-import { hapticLongPress, hapticSelection } from "@/lib/haptics";
+import { hapticLongPress, hapticSelection, hapticToggle } from "@/lib/haptics";
 import { useAppBlurTarget } from "@/components/ui/app-blur-target";
 import { Icon } from "@/components/ui/icon";
 import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view";
@@ -366,6 +366,7 @@ function DropdownMenuCheckboxItem({
   children,
   leading,
   leadingClassName,
+  onCheckedChange,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem> & {
   children?: React.ReactNode;
@@ -375,6 +376,10 @@ function DropdownMenuCheckboxItem({
   return (
     <TextClassContext.Provider value="text-sm text-popover-foreground select-none group-active:text-accent-foreground">
       <DropdownMenuPrimitive.CheckboxItem
+        onCheckedChange={(checked) => {
+          if (checked !== props.checked) hapticToggle(checked);
+          onCheckedChange?.(checked);
+        }}
         className={cn(
           "active:bg-accent group relative flex flex-row items-center gap-2 rounded-sm py-2 ps-8 pe-2 sm:py-1.5",
           props.disabled && "opacity-50",

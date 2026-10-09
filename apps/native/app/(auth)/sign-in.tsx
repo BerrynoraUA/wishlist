@@ -1,4 +1,5 @@
 import { loginWithApple, loginWithGoogle } from "@/api/login";
+import { AuthGiftWrapBackground } from "@/components/auth/auth-gift-wrap-background";
 import { AnimatedMascot } from "@/components/shared/animated-mascot";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -53,7 +54,7 @@ export default function SignInScreen() {
 
   return (
     <View className="relative flex-1 bg-[#16111f]">
-      <View className="absolute inset-0 bg-linear-[160deg,#16111f_0%,#321633_56%,#641c50_100%]" />
+      <AuthGiftWrapBackground variant="sign-in" />
       <View
         className="flex-1 justify-center px-7"
         style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }}
@@ -116,7 +117,7 @@ export default function SignInScreen() {
               compact={compact}
               disabled={loadingProvider !== null}
               icon={<Icon as={MailIcon} className="size-5 text-white" />}
-              label={t("Sign up with email")}
+              label={t("Continue with email")}
               onPress={() => router.push("/email-auth" as never)}
               className="bg-white/30"
             />

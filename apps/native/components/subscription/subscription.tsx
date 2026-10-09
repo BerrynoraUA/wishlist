@@ -4,6 +4,7 @@ import { Text } from "@/components/ui/text";
 import { openLegalPage } from "@/lib/legal-links";
 import { cn } from "@/lib/utils";
 import { useSubscriptionManager } from "@/providers/subscription-provider";
+import { hapticSelection } from "@/lib/haptics";
 import { useGT } from "gt-react-native";
 import { Check, X } from "lucide-react-native";
 import React from "react";
@@ -291,7 +292,10 @@ export function Subscription({
                     isSelected={isSelected}
                     isCurrent={isCurrent}
                     savingsBadge={getSavingsBadge(plan, packages, t)}
-                    onPress={() => selectPackage(plan.identifier)}
+                    onPress={() => {
+                      if (!isSelected) hapticSelection();
+                      selectPackage(plan.identifier);
+                    }}
                   />
                 );
               })}

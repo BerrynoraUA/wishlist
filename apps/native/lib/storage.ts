@@ -12,6 +12,8 @@ import { supabase } from "@wishlist/backend/supabase/native";
 export const preferencesStorage = createMMKV({ id: "wishlist.preferences" });
 
 export const PREFERENCE_KEYS = {
+  /** When `false`, all app haptic feedback is muted. Defaults to enabled. */
+  hapticsEnabled: "preferences.hapticsEnabled",
   /** When `true`, the floating back button on detail screens is hidden. */
   hideBackButton: "preferences.hideBackButton",
   /** When `true`, the Feature Ideas intro card is hidden. */

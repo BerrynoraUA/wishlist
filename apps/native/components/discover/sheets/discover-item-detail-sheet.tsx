@@ -1,3 +1,4 @@
+import { hapticSuccess } from "@/lib/haptics";
 import {
   BottomSheet,
   BottomSheetHeader,
@@ -93,6 +94,7 @@ export function DiscoverItemDetailSheet({
     const link = url?.trim();
     if (!link) return;
     await Clipboard.setStringAsync(link);
+    hapticSuccess();
   }
 
   function confirmReservation() {

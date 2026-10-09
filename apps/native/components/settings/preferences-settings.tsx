@@ -8,11 +8,20 @@ import {
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useHideBackButton } from "@/hooks/use-hide-back-button";
+import { useHapticsEnabled } from "@/hooks/use-haptics-enabled";
 import { useProGate } from "@/hooks/use-pro-gate";
 import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { countryForLocale } from "@/lib/locale-flags";
 import { useGT, useLocale, useLocales, useSetLocale } from "gt-react-native";
-import { ChevronLeft, Eye, EyeOff, Lock, Languages, SlidersHorizontal } from "lucide-react-native";
+import {
+  ChevronLeft,
+  Eye,
+  EyeOff,
+  Lock,
+  Languages,
+  SlidersHorizontal,
+  Vibrate,
+} from "lucide-react-native";
 import * as React from "react";
 import { View } from "react-native";
 
@@ -69,6 +78,7 @@ export function PreferencesSettings({ selectedCurrency }: { selectedCurrency: st
   const updateSettings = useUpdateSettings();
   const { isPro, openPaywall } = useProGate();
   const [hideBackButton, setHideBackButton] = useHideBackButton();
+  const [hapticsEnabled, setHapticsEnabled] = useHapticsEnabled();
   const showBackButton = !hideBackButton;
   const { data: settings } = useSettings();
   const showsOwnReservations = isPro && Boolean(settings?.show_own_reservations);
@@ -129,6 +139,14 @@ export function PreferencesSettings({ selectedCurrency }: { selectedCurrency: st
       </View>
 
       <CurrencySettings selectedCurrency={selectedCurrency} />
+
+      <SettingsControlsToggleRow
+        icon={Vibrate}
+        title={t("Haptic feedback")}
+        subtitle={t("Feel feedback for actions and selections.")}
+        checked={hapticsEnabled}
+        onCheckedChange={setHapticsEnabled}
+      />
 
       <SettingsControlsToggleRow
         icon={showBackButton ? ChevronLeft : EyeOff}

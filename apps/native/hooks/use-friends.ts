@@ -1,3 +1,4 @@
+import { hapticError, hapticSuccess } from "@/lib/haptics";
 import {
   acceptFriendRequest,
   blockUser,
@@ -202,10 +203,12 @@ export function useAcceptFriendRequest() {
   return useMutation({
     mutationFn: (requestId: string) => acceptFriendRequest(requestId),
     onSuccess: async (_, requestId) => {
+      hapticSuccess();
       await animateCardRemoval("request", requestId, true);
       await queryClient.invalidateQueries({ queryKey: friendKeys.requests() });
       await queryClient.invalidateQueries({ queryKey: friendKeys.lists() });
     },
+    onError: hapticError,
   });
 }
 
@@ -215,9 +218,11 @@ export function useRejectFriendRequest() {
   return useMutation({
     mutationFn: (requestId: string) => rejectFriendRequest(requestId),
     onSuccess: async (_, requestId) => {
+      hapticSuccess();
       await animateCardRemoval("request", requestId);
       await queryClient.invalidateQueries({ queryKey: friendKeys.requests() });
     },
+    onError: hapticError,
   });
 }
 
@@ -227,8 +232,10 @@ export function useCancelFriendRequest() {
   return useMutation({
     mutationFn: (requestId: string) => cancelFriendRequest(requestId),
     onSuccess: async () => {
+      hapticSuccess();
       await queryClient.invalidateQueries({ queryKey: friendKeys.requests() });
     },
+    onError: hapticError,
   });
 }
 
@@ -238,11 +245,13 @@ export function useRemoveFriend() {
   return useMutation({
     mutationFn: (friendId: string) => removeFriend(friendId),
     onSuccess: async () => {
+      hapticSuccess();
       // Not awaited: refetching every wishlist feed would keep the mutation (and the
       // confirm sheet's loader) pending long after the friend is gone.
       void queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({ queryKey: friendKeys.lists() });
     },
+    onError: hapticError,
   });
 }
 
@@ -265,11 +274,13 @@ export function useBlockUser() {
   return useMutation({
     mutationFn: (userId: string) => blockUser(userId),
     onSuccess: async () => {
+      hapticSuccess();
       // The block drops the friendship and any pending request, so every
       // friends list can be stale afterwards.
       void queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({ queryKey: friendKeys.all });
     },
+    onError: hapticError,
   });
 }
 
@@ -279,10 +290,12 @@ export function useUnblockUser() {
   return useMutation({
     mutationFn: (userId: string) => unblockUser(userId),
     onSuccess: async (_, userId) => {
+      hapticSuccess();
       await animateCardRemoval("blocked", userId);
       await queryClient.invalidateQueries({ queryKey: friendKeys.all });
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
     },
+    onError: hapticError,
   });
 }
 
@@ -292,8 +305,10 @@ export function useCreateFriendGroup() {
   return useMutation({
     mutationFn: (payload: FriendGroupPayload) => createFriendGroup(payload),
     onSuccess: async () => {
+      hapticSuccess();
       await queryClient.invalidateQueries({ queryKey: friendKeys.groups() });
     },
+    onError: hapticError,
   });
 }
 
@@ -304,9 +319,11 @@ export function useUpdateFriendGroup() {
     mutationFn: ({ groupId, payload }: { groupId: string; payload: FriendGroupPayload }) =>
       updateFriendGroup(groupId, payload),
     onSuccess: async () => {
+      hapticSuccess();
       await queryClient.invalidateQueries({ queryKey: friendKeys.groups() });
       await queryClient.invalidateQueries({ queryKey: friendKeys.groupMembersRoot() });
     },
+    onError: hapticError,
   });
 }
 
@@ -316,9 +333,11 @@ export function useDeleteFriendGroup() {
   return useMutation({
     mutationFn: (groupId: string) => deleteFriendGroup(groupId),
     onSuccess: async () => {
+      hapticSuccess();
       await queryClient.invalidateQueries({ queryKey: friendKeys.groups() });
       await queryClient.invalidateQueries({ queryKey: ["wishlist-access-list"] });
     },
+    onError: hapticError,
   });
 }
 

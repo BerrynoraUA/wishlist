@@ -1,3 +1,4 @@
+import { hapticSelection } from "@/lib/haptics";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   BottomSheet,
@@ -143,6 +144,7 @@ export function AutocompleteDropdown({
   }
 
   function handleSelect(option: AutocompleteDropdownOption) {
+    if (props.multiple || !selectedValues.has(option.value)) hapticSelection();
     if (props.multiple) {
       const nextValue = selectedValues.has(option.value)
         ? props.value.filter((item) => item.value !== option.value)

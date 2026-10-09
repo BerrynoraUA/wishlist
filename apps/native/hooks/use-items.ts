@@ -13,6 +13,7 @@ import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
 import { animateCardRemoval, markNewCard } from "@/lib/card-motion";
 import { itemKeys } from "@/lib/item-query-keys";
 import { normalizeItemSearch } from "@/lib/items";
+import { hapticError, hapticSuccess } from "@/lib/haptics";
 import { statisticsKeys, wishlistKeys } from "@/lib/wishlist-query-keys";
 import { useAuth } from "@/providers/auth-provider";
 import type {
@@ -92,10 +93,12 @@ export function useDeleteItem(onBeforeRemoval?: () => void) {
   return useMutation({
     mutationFn: (id: string) => deleteItem(id),
     onSuccess: async (_, id) => {
+      hapticSuccess();
       onBeforeRemoval?.();
       await animateCardRemoval("item", id);
       invalidateWishlistItems(queryClient);
     },
+    onError: hapticError,
   });
 }
 
@@ -104,7 +107,11 @@ export function useToggleItemReservation() {
 
   return useMutation({
     mutationFn: (id: string) => toggleItemReservation(id),
-    onSuccess: (item) => invalidateWishlistItems(queryClient, item.wishlist_id),
+    onSuccess: (item) => {
+      hapticSuccess();
+      invalidateWishlistItems(queryClient, item.wishlist_id);
+    },
+    onError: hapticError,
   });
 }
 
@@ -113,13 +120,19 @@ export function useToggleItemBought() {
 
   return useMutation({
     mutationFn: (id: string) => toggleItemBought(id),
-    onSuccess: (item) => invalidateWishlistItems(queryClient, item.wishlist_id),
+    onSuccess: (item) => {
+      hapticSuccess();
+      invalidateWishlistItems(queryClient, item.wishlist_id);
+    },
+    onError: hapticError,
   });
 }
 
 export function useReportItem() {
   return useMutation({
     mutationFn: (itemId: string) => reportItem(itemId),
+    onSuccess: hapticSuccess,
+    onError: hapticError,
   });
 }
 
@@ -164,6 +177,7 @@ export function useToggleItemVote(itemIds: string[]) {
       return { previous };
     },
     onError: (_error, _itemId, context) => {
+      hapticError();
       if (context?.previous) {
         queryClient.setQueryData(votesKey, context.previous);
       }

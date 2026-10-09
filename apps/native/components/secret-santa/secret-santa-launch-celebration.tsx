@@ -2,7 +2,7 @@ import { SecretSantaPersonAvatar } from "@/components/secret-santa/secret-santa-
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { WindowOverlay } from "@/components/ui/window-overlay";
-import { hapticLongPress, hapticSelection, hapticSuccess } from "@/lib/haptics";
+import { hapticImpact, hapticSuccess } from "@/lib/haptics";
 import { getSecretSantaPersonName } from "@/lib/secret-santa";
 import { useReducedMotion } from "@/lib/motion";
 import type { SecretSantaPerson } from "@wishlist/backend/types/secret-santa";
@@ -431,15 +431,10 @@ export function SecretSantaLaunchCelebration({
     card.value = withDelay(CARD_AT, withSpring(1, { damping: 13, stiffness: 110 }));
     button.value = withDelay(BUTTON_AT, withTiming(1, { duration: 400, easing: ease }));
 
-    const ticks = [
-      0, 150, 280, 390, 480, 560, 630, 690, 740, 785, 825, 860, 890, 915, 940, 960, 980,
-    ];
+    const ticks = [0, 480, 860];
     const timers = [
-      ...ticks.map((offset) => setTimeout(hapticSelection, DRUMROLL_AT + offset)),
+      ...ticks.map((offset) => setTimeout(hapticImpact, DRUMROLL_AT + offset)),
       setTimeout(hapticSuccess, POP_AT),
-      setTimeout(hapticLongPress, POP_AT + 140),
-      setTimeout(hapticLongPress, POP_AT + 300),
-      setTimeout(hapticSelection, CARD_AT + 120),
       setTimeout(() => setInteractive(true), BUTTON_AT),
     ];
 

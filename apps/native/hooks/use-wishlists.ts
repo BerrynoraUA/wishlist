@@ -1,3 +1,4 @@
+import { hapticError, hapticSuccess } from "@/lib/haptics";
 import {
   createWishlist,
   deleteWishlist,
@@ -295,11 +296,13 @@ export function useDeleteWishlist(onBeforeRemoval?: () => void) {
   return useMutation({
     mutationFn: (id: string) => deleteWishlist(id),
     onSuccess: async (_, id) => {
+      hapticSuccess();
       onBeforeRemoval?.();
       await animateCardRemoval("wishlist", id);
       await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
       await queryClient.invalidateQueries({ queryKey: statisticsKeys.all });
     },
+    onError: hapticError,
   });
 }
 

@@ -1,3 +1,4 @@
+import { hapticError, hapticSuccess } from "@/lib/haptics";
 import {
   AutocompleteDropdown,
   type AutocompleteDropdownOption,
@@ -91,8 +92,10 @@ export function SaveItemToWishlistsSheet({
           }),
         ),
       );
+      hapticSuccess();
       void sheetRef.current?.dismiss();
     } catch (error) {
+      hapticError();
       setSaveError(error instanceof Error ? error : new Error(t("Failed to save item")));
     } finally {
       setIsSaving(false);
