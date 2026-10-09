@@ -117,7 +117,7 @@ export default function SignInScreen() {
               compact={compact}
               disabled={loadingProvider !== null}
               icon={<Icon as={MailIcon} className="size-5 text-white" />}
-              label={t("Sign up with email")}
+              label={t("Continue with email")}
               onPress={() => router.push("/email-auth" as never)}
               className="bg-white/30"
             />
