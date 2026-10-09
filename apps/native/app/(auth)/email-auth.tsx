@@ -315,10 +315,7 @@ export default function EmailAuthScreen() {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <Text className="text-sm font-semibold text-white/82">
-      {children}
-      <Text className="text-[#f43f5e]"> *</Text>
-    </Text>
+    <Text className="text-sm font-semibold text-white/82">{children}</Text>
   );
 }
 
@@ -326,20 +323,31 @@ function AuthInput({
   className,
   ...props
 }: React.ComponentProps<typeof TextInput> & { className?: string }) {
+  const inputRef = React.useRef<TextInput>(null);
+
+  // The pill centers a field only as tall as its text: a taller iOS field draws its text
+  // below center. Tapping anywhere on the pill still focuses it.
   return (
-    <TextInput
-      className={cn(
-        // No line height (so `text-[16px]`, not `text-base`, which sets one too): on a
-        // single-line iOS field a line height wraps overflowing text, like a long password,
-        // onto a second line instead of scrolling it.
-        "min-h-13 rounded-full border border-white/16 bg-white/12 px-4 text-[16px] text-white",
-        className,
-      )}
-      cursorColorClassName="accent-[#f472b6]"
-      placeholderTextColorClassName="accent-white/52"
-      selectionColorClassName="accent-[#c0267e]/25"
-      {...props}
-    />
+    <Pressable
+      accessible={false}
+      className="min-h-13 justify-center rounded-full border border-white/16 bg-white/12"
+      onPress={() => inputRef.current?.focus()}
+    >
+      <TextInput
+        ref={inputRef}
+        className={cn(
+          // No line height (so `text-[16px]`, not `text-base`, which sets one too): on a
+          // single-line iOS field a line height wraps overflowing text, like a long password,
+          // onto a second line instead of scrolling it.
+          "px-4 py-0 text-[16px] text-white",
+          className,
+        )}
+        cursorColorClassName="accent-[#f472b6]"
+        placeholderTextColorClassName="accent-white/52"
+        selectionColorClassName="accent-[#c0267e]/25"
+        {...props}
+      />
+    </Pressable>
   );
 }
 
