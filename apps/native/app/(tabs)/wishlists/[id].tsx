@@ -437,6 +437,15 @@ export default function WishlistDetailScreen() {
           </View>
         ) : (
           <StyledFlashList
+            progressViewOffset={insets.top}
+            onRefresh={() =>
+              Promise.all([
+                wishlistQuery.refetch(),
+                itemsQuery.refetch(),
+                votesQuery.refetch(),
+                profilesQuery.refetch(),
+              ])
+            }
             listRef={listRef}
             data={itemsQuery.isError ? [] : itemListData}
             renderItem={renderItemRow}

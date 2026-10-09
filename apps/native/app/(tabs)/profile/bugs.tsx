@@ -1,4 +1,3 @@
-import { hapticImpact } from "@/lib/haptics";
 import { BugReportCard } from "@/components/bug-reports/bug-report-card";
 import { BugReportsTabs } from "@/components/bug-reports/bug-reports-tabs";
 import { SubmitBugReportSheet } from "@/components/bug-reports/submit-bug-report-sheet";
@@ -21,7 +20,7 @@ import { Stack } from "expo-router";
 import { useGT } from "gt-react-native";
 import { Clock3, Info, Plus, RefreshCw, X } from "lucide-react-native";
 import * as React from "react";
-import { RefreshControl, View, useWindowDimensions } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 import { ListRowsSkeleton } from "@/components/ui/list-skeletons";
 
 export default function BugsScreen() {
@@ -150,17 +149,8 @@ export default function BugsScreen() {
               </Text>
             )
           }
-          refreshControl={
-            <RefreshControl
-              refreshing={reportsQuery.isRefetching && !reportsQuery.isLoading}
-              onRefresh={() => {
-                hapticImpact();
-                void reportsQuery.refetch();
-              }}
-              tintColor="currentColor"
-              progressViewOffset={paddingTop}
-            />
-          }
+          onRefresh={() => reportsQuery.refetch()}
+          progressViewOffset={paddingTop}
         />
         <FloatingBackButton />
       </View>

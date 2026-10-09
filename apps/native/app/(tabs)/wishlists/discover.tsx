@@ -305,6 +305,8 @@ export default function DiscoverScreen() {
         </View>
       </PinnedListHeader>
       <StyledFlashList
+        onRefresh={() => Promise.all([feed.activeQuery.refetch(), feed.upcomingQuery.refetch()])}
+        progressViewOffset={paddingTop}
         data={rows}
         renderItem={renderRow}
         keyExtractor={getRowKey}

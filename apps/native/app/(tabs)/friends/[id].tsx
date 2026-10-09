@@ -71,6 +71,8 @@ export default function FriendWishlistsScreen() {
       <Stack.Screen options={{ title: t("Friend's Wishlists") }} />
       <View className="flex-1 bg-bg">
         <StyledFlashList
+          onRefresh={() => wishlistsQuery.refetch()}
+          progressViewOffset={insets.top + 24}
           data={wishlistsQuery.isLoading || wishlistsQuery.isError ? [] : rows}
           renderItem={renderRow}
           keyExtractor={getWishlistRowKey}

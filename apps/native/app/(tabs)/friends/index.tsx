@@ -367,6 +367,8 @@ export default function FriendsScreen() {
           </ExpandingSearchHeader>
         </PinnedListHeader>
         <StyledFlashList
+          onRefresh={() => (tab === "blocked" ? blockedQuery : activeQuery).refetch()}
+          progressViewOffset={paddingTop}
           listRef={listRef}
           data={isLoading || isError ? [] : rows}
           renderItem={renderRow}

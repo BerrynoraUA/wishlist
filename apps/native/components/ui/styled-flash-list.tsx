@@ -1,12 +1,15 @@
 import { FlashList, type FlashListRef } from "@shopify/flash-list";
+import { hapticImpact } from "@/lib/haptics";
+import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View } from "react-native";
-import { withUniwind } from "uniwind";
+import { ActivityIndicator, RefreshControl, View } from "react-native";
+import { useCSSVariable, withUniwind } from "uniwind";
 
 const UniwindFlashList = withUniwind(FlashList);
 const DEFAULT_DRAW_DISTANCE = 1600;
 
-type StyledFlashListProps<T> = React.ComponentProps<typeof FlashList<T>> & {
+type StyledFlashListProps<T> = Omit<React.ComponentProps<typeof FlashList<T>>, "onRefresh"> & {
+  onRefresh?: () => Promise<unknown>;
   listRef?: React.Ref<FlashListRef<T>>;
   className?: string;
   columnWrapperClassName?: string;
@@ -24,8 +27,28 @@ function StyledFlashList<T>({
   ListFooterComponent,
   loadingMoreComponent,
   onEndReachedThreshold,
+  onRefresh,
+  onScroll,
+  progressViewOffset = 0,
   ...props
 }: StyledFlashListProps<T>) {
+  const t = useGT();
+  const brand = useCSSVariable("--color-brand");
+  const surface = useCSSVariable("--color-bg-elevated");
+  const [refreshing, setRefreshing] = React.useState(false);
+  const refreshPending = React.useRef(false);
+  const handleRefresh = React.useCallback(async () => {
+    if (!onRefresh || refreshPending.current) return;
+    refreshPending.current = true;
+    setRefreshing(true);
+    hapticImpact();
+    try {
+      await onRefresh();
+    } finally {
+      refreshPending.current = false;
+      setRefreshing(false);
+    }
+  }, [onRefresh]);
   const FooterComponent = React.useMemo(
     () =>
       isLoadingMore
@@ -46,6 +69,24 @@ function StyledFlashList<T>({
       ListFooterComponent={FooterComponent}
       onEndReachedThreshold={onEndReachedThreshold ?? (props.onEndReached ? 1.2 : undefined)}
       {...(props as React.ComponentProps<typeof UniwindFlashList>)}
+      alwaysBounceVertical={onRefresh ? true : props.alwaysBounceVertical}
+      progressViewOffset={progressViewOffset}
+      onScroll={onScroll}
+      refreshControl={
+        onRefresh ? (
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => void handleRefresh().catch(() => {})}
+            progressViewOffset={progressViewOffset}
+            tintColor={typeof brand === "string" ? brand : undefined}
+            colors={typeof brand === "string" ? [brand] : undefined}
+            progressBackgroundColor={typeof surface === "string" ? surface : undefined}
+            accessibilityLabel={t("Pull to refresh")}
+          />
+        ) : (
+          props.refreshControl
+        )
+      }
     />
   );
 }
