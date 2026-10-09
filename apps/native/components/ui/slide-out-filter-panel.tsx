@@ -111,7 +111,9 @@ export function SlideOutFilterPanel({
       accessibilityElementsHidden={!open}
       importantForAccessibility={open ? "auto" : "no-hide-descendants"}
     >
-      <Animated.View style={contentStyle}>
+      {/* Absolute, so the rows always lay out at full size and report their real height,
+          instead of being squeezed by the animating container they're clipped by. */}
+      <Animated.View className="absolute inset-x-0 top-0" style={contentStyle}>
         <View
           className={cn("gap-3", className)}
           style={{ paddingTop: SLIDE_OUT_PANEL_GAP }}
