@@ -5,7 +5,7 @@ import { hapticImpact } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, ScrollView, useWindowDimensions, View } from "react-native";
 
 export type ActionBottomSheetMessagePayload = {
   title: string;
@@ -64,7 +64,7 @@ export function ActionBottomSheetConfirm({
 }: {
   open: boolean;
   title: string;
-  message: string;
+  message?: string;
   confirmLabel: string;
   isPending?: boolean;
   tone?: ActionBottomSheetConfirmTone;
@@ -75,6 +75,7 @@ export function ActionBottomSheetConfirm({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const { height: windowHeight } = useWindowDimensions();
   // Callers close by flipping `open` (often right in `onConfirm`). Unmounting a presented
   // TrueSheet leaves its snapshot on screen on iOS, so stay mounted and dismiss it first.
   const [mounted, setMounted] = React.useState(open);
@@ -105,15 +106,17 @@ export function ActionBottomSheetConfirm({
   }
 
   return (
-    <BottomSheet
-      ref={sheetRef}
-      detents={["auto"]}
-      onDidDismiss={handleDidDismiss}
-      header={<BottomSheetHeader title={title} />}
-    >
-      <View className="gap-4 px-5">
-        <Text className="text-sm leading-5 text-text-muted">{message}</Text>
-        {children}
+    <BottomSheet ref={sheetRef} detents={["auto"]} onDidDismiss={handleDidDismiss}>
+      <View className="gap-3 px-5 pt-5">
+        <ScrollView style={{ maxHeight: windowHeight * 0.6, flexGrow: 0 }}>
+          <View className="gap-4">
+            <Text role="heading" className="text-center text-lg font-extrabold leading-6 text-text">
+              {title}
+            </Text>
+            {message ? <Text className="text-sm leading-5 text-text-muted">{message}</Text> : null}
+            {children}
+          </View>
+        </ScrollView>
         <View className="flex-row gap-2">
           <Button className="flex-1" variant="outline" disabled={isPending} onPress={handleClose}>
             <Text>{t("Cancel")}</Text>

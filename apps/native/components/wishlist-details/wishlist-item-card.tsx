@@ -370,8 +370,12 @@ export function WishlistItemCard({
       </DropdownMenu>
       <ActionBottomSheetConfirm
         open={reservationConfirmationOpen}
-        title={reservation.isReserved ? t("Release reservation?") : t("Reserve this gift?")}
-        message={item.name}
+        title={
+          reservation.isReserved
+            ? t("Release reservation?")
+            : t("Reserve {name}?", { name: item.name })
+        }
+        message={reservation.isReserved ? item.name : undefined}
         confirmLabel={reservation.isReserved ? t("Release") : t("Reserve")}
         isPending={reservePending}
         tone={reservation.isReserved ? "default" : "brand"}
@@ -395,8 +399,12 @@ export function WishlistItemCard({
       />
       <ActionBottomSheetConfirm
         open={purchaseConfirmationOpen}
-        title={reservation.isPurchased ? t("Mark as not purchased?") : t("Mark as purchased?")}
-        message={item.name}
+        title={
+          reservation.isPurchased
+            ? t("Mark as not purchased?")
+            : t("Mark {name} as purchased?", { name: item.name })
+        }
+        message={reservation.isPurchased ? item.name : undefined}
         confirmLabel={reservation.isPurchased ? t("Undo") : t("Buy")}
         isPending={boughtPending}
         tone={reservation.isPurchased ? "destructive" : "buy"}
