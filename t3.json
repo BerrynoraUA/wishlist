@@ -1,0 +1,17 @@
+{
+  "$schema": "https://t3.codes/schema/t3.json",
+  "scripts": [
+    {
+      "name": "Native",
+      "command": "pnpm native",
+      "icon": "play"
+    },
+    {
+      "name": "Worktree env setup",
+      "command": "node scripts/worktree-env.mjs",
+      "icon": "configure",
+      "runOnWorktreeCreate": true,
+      "async": false
+    }
+  ]
+}
