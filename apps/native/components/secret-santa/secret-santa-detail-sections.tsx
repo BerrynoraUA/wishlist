@@ -17,8 +17,8 @@ import {
 } from "@/components/secret-santa/secret-santa-exclusions";
 import { MascotEmptyState, type MascotVariant } from "@/components/shared/mascot-empty-state";
 import { useGiftSuggestions } from "@/hooks/use-secret-santa";
+import { useCurrencyFormatter } from "@/hooks/use-currency";
 import {
-  formatSecretSantaBudget,
   formatSecretSantaDate,
   getSecretSantaPersonName,
   MIN_PARTICIPANTS_TO_LAUNCH,
@@ -90,11 +90,12 @@ export function SecretSantaDetailHero({
 }) {
   const t = useGT();
   const locale = useLocale();
+  const { formatPrice } = useCurrencyFormatter();
   const hasActionsMenu = isOwner;
   const headerActionsCount = Number(hasActionsMenu);
   const headerActionsRightPadding = headerActionsCount === 1 ? "pe-12" : "";
   const eventDateLabel = formatSecretSantaDate(event.event_date, locale ?? "en");
-  const budgetLabel = formatSecretSantaBudget(event.budget, event.currency);
+  const budgetLabel = formatPrice(event.budget, event.currency);
   const peopleCountLabel = formatSecretSantaPeopleCount(totalPeople, t);
 
   return (
@@ -456,6 +457,7 @@ export function SecretSantaGiftSuggestions({
   currency: string | null;
 }) {
   const t = useGT();
+  const { formatPrice } = useCurrencyFormatter();
   const query = useGiftSuggestions(receiverId, budget);
   const items = query.data?.items ?? [];
 
@@ -465,7 +467,7 @@ export function SecretSantaGiftSuggestions({
         <Text className="text-lg font-extrabold text-text">{t("Gift suggestions")}</Text>
         <Text className="text-sm leading-5 text-text-muted">
           {t("Visible wishlist items within {budget}.", {
-            budget: formatSecretSantaBudget(budget, currency),
+            budget: formatPrice(budget, currency),
           })}
         </Text>
       </View>
@@ -487,15 +489,20 @@ export function SecretSantaGiftSuggestions({
       ) : null}
 
       {items.map((item) => (
-        <GiftSuggestionRow key={item.id} item={item} />
+        <GiftSuggestionRow
+          key={item.id}
+          item={item}
+          priceLabel={formatPrice(
+            item.has_discount && item.discount_price ? item.discount_price : item.price,
+            item.currency,
+          )}
+        />
       ))}
     </View>
   );
 }
 
-function GiftSuggestionRow({ item }: { item: VisibleItem }) {
-  const price =
-    item.has_discount && item.discount_price ? item.discount_price : (item.price ?? null);
+function GiftSuggestionRow({ item, priceLabel }: { item: VisibleItem; priceLabel: string }) {
   const url = item.url;
 
   return (
@@ -524,10 +531,9 @@ function GiftSuggestionRow({ item }: { item: VisibleItem }) {
         </Text>
       </View>
       <View className="items-end gap-1">
-        {price ? (
+        {priceLabel ? (
           <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
-            {item.currency ? `${item.currency} ` : ""}
-            {price}
+            {priceLabel}
           </Text>
         ) : null}
         {url ? <Icon as={ArrowUpRight} className="size-3.5 text-text-muted" /> : null}

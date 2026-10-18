@@ -1,3 +1,4 @@
+import { useDisplayCurrency } from "@/hooks/use-currency";
 import {
   useFriendsUpcomingWishlists,
   useInfiniteFriendsWishlistsDiscover,
@@ -20,6 +21,8 @@ export function useDiscoverFeed() {
   const [priceMin, setPriceMin] = React.useState("");
   const [priceMax, setPriceMax] = React.useState("");
   const [sort, setSort] = React.useState("default");
+  // Price filters and price sorting are evaluated server-side in this currency.
+  const displayCurrency = useDisplayCurrency();
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
@@ -33,9 +36,9 @@ export function useDiscoverFeed() {
       priorities: priorityIds,
       priceMin: parseOptionalNumber(priceMin),
       priceMax: parseOptionalNumber(priceMax),
-      displayCurrency: "USD",
+      displayCurrency,
     }),
-    [debouncedSearch, priceMax, priceMin, priorityIds, sort],
+    [debouncedSearch, displayCurrency, priceMax, priceMin, priorityIds, sort],
   );
 
   const allQuery = useInfiniteFriendsWishlistsDiscoverAll(

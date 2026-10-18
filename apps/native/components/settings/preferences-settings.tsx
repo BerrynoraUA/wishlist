@@ -70,7 +70,7 @@ const LOCALIZED_LOCALE_LABELS: Record<string, string> = {
   ur: "اردو",
 };
 
-export function PreferencesSettings({ selectedCurrency }: { selectedCurrency: string }) {
+export function PreferencesSettings() {
   const t = useGT();
   const activeLocale = useLocale();
   const locales = useLocales();
@@ -138,7 +138,7 @@ export function PreferencesSettings({ selectedCurrency }: { selectedCurrency: st
         ) : null}
       </View>
 
-      <CurrencySettings selectedCurrency={selectedCurrency} />
+      <CurrencySettings />
 
       <SettingsControlsToggleRow
         icon={Vibrate}

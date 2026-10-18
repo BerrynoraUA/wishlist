@@ -33,6 +33,8 @@ export interface UserSettings {
   default_accent: WishlistAccent;
   default_wishlist_color: WishlistColorIndex;
   display_currency: string;
+  /** Show prices as whole amounts, without cents. */
+  round_prices: boolean;
   selected_priorities: string[];
   /**
    * Pro-only opt-in. When true, the owner of a wishlist sees whether their own
@@ -80,6 +82,7 @@ export const DEFAULT_SETTINGS: Omit<UserSettings, "user_id"> = {
   default_accent: WishlistAccent.Pink,
   default_wishlist_color: 0,
   display_currency: "USD",
+  round_prices: false,
   selected_priorities: [PRIORITY_IDS.LOW, PRIORITY_IDS.MEDIUM, PRIORITY_IDS.HIGH],
   show_own_reservations: false,
   preferred_locale: null,

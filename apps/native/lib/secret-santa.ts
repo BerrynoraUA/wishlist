@@ -1,5 +1,4 @@
 import type { TranslateFn } from "@/lib/translate-fn";
-import { normalizeCurrencyCode } from "@wishlist/backend/lib/currencies";
 import { getDateTimeFormat } from "@/lib/intl";
 import { WishlistAccent } from "@wishlist/backend/types/wishlist";
 
@@ -29,10 +28,6 @@ export function formatSecretSantaDate(dateStr: string, locale = "en") {
   return getDateTimeFormat(locale, { month: "long", day: "numeric", year: "numeric" }).format(
     new Date(`${dateStr}T00:00:00`),
   );
-}
-
-export function formatSecretSantaBudget(budget: number, currency: string | null | undefined) {
-  return `${normalizeCurrencyCode(currency)} ${budget}`;
 }
 
 export function buildSecretSantaJoinUrl(eventId: string) {
