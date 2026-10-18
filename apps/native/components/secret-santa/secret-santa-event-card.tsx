@@ -35,7 +35,7 @@ export function SecretSantaEventCard({
   href: Href;
 }) {
   const t = useGT();
-  const { formatAmount } = useCurrencyFormatter();
+  const { formatPrice } = useCurrencyFormatter();
   const locale = useLocale();
   const {
     cardRef: menuCardRef,
@@ -90,7 +90,7 @@ export function SecretSantaEventCard({
                       {event.name}
                     </Text>
                     <Text className="text-sm font-semibold text-brand" numberOfLines={1}>
-                      {formatAmount(event.budget, event.currency)}
+                      {formatPrice(event.budget, event.currency)}
                     </Text>
                   </View>
                   <View className="max-w-[48%] shrink-0 items-end gap-1.5">

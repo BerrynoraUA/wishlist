@@ -90,12 +90,12 @@ export function SecretSantaDetailHero({
 }) {
   const t = useGT();
   const locale = useLocale();
-  const { formatAmount } = useCurrencyFormatter();
+  const { formatPrice } = useCurrencyFormatter();
   const hasActionsMenu = isOwner;
   const headerActionsCount = Number(hasActionsMenu);
   const headerActionsRightPadding = headerActionsCount === 1 ? "pe-12" : "";
   const eventDateLabel = formatSecretSantaDate(event.event_date, locale ?? "en");
-  const budgetLabel = formatAmount(event.budget, event.currency);
+  const budgetLabel = formatPrice(event.budget, event.currency);
   const peopleCountLabel = formatSecretSantaPeopleCount(totalPeople, t);
 
   return (
@@ -457,7 +457,7 @@ export function SecretSantaGiftSuggestions({
   currency: string | null;
 }) {
   const t = useGT();
-  const { formatAmount, formatPrice } = useCurrencyFormatter();
+  const { formatPrice } = useCurrencyFormatter();
   const query = useGiftSuggestions(receiverId, budget);
   const items = query.data?.items ?? [];
 
@@ -467,7 +467,7 @@ export function SecretSantaGiftSuggestions({
         <Text className="text-lg font-extrabold text-text">{t("Gift suggestions")}</Text>
         <Text className="text-sm leading-5 text-text-muted">
           {t("Visible wishlist items within {budget}.", {
-            budget: formatAmount(budget, currency),
+            budget: formatPrice(budget, currency),
           })}
         </Text>
       </View>
