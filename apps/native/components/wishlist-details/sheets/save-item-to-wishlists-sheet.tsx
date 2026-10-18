@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
+import { useCurrencyFormatter } from "@/hooks/use-currency";
 import { useCreateItem } from "@/hooks/use-items";
 import { useInfiniteMyWishlists } from "@/hooks/use-wishlists";
 import { WISHLIST_PAGE_SIZE } from "@/lib/wishlists";
@@ -26,6 +27,7 @@ export function SaveItemToWishlistsSheet({
   onClose: () => void;
 }) {
   const t = useGT();
+  const { formatPrice } = useCurrencyFormatter();
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const createItem = useCreateItem();
   const [wishlistSearch, setWishlistSearch] = React.useState("");
@@ -152,7 +154,7 @@ export function SaveItemToWishlistsSheet({
             </Text>
             {item.price ? (
               <Text className="text-sm text-text-muted">
-                {item.price} {item.currency}
+                {formatPrice(item.price, item.currency)}
               </Text>
             ) : null}
           </View>

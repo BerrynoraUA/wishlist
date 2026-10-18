@@ -3,6 +3,7 @@ import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { CARD_BADGE_HEIGHT, ItemPriorityBadge } from "@/components/items/item-labels";
 import { ItemRibbon, type ItemRibbonPhase } from "@/components/items/item-ribbon";
+import { useCurrencyFormatter } from "@/hooks/use-currency";
 import { useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { isStarPriorityId } from "@wishlist/backend/lib";
@@ -41,6 +42,7 @@ export function ItemImage({
   size: "card" | "detail";
 }) {
   const t = useGT();
+  const { formatPrice } = useCurrencyFormatter();
   const reduceMotion = useReducedMotion();
   const isDetail = size === "detail";
   const isTaken = Boolean(reservationLabel);
@@ -181,18 +183,15 @@ export function ItemImage({
           {showDiscountPrice && item.discount_price ? (
             <>
               <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
-                {item.currency ? `${item.currency} ` : ""}
-                {item.discount_price}
+                {formatPrice(item.discount_price, item.currency)}
               </Text>
               <Text className="text-xs font-bold text-text-muted line-through" numberOfLines={1}>
-                {item.currency ? `${item.currency} ` : ""}
-                {item.price}
+                {formatPrice(item.price, item.currency)}
               </Text>
             </>
           ) : (
             <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
-              {item.currency ? `${item.currency} ` : ""}
-              {item.price}
+              {formatPrice(item.price, item.currency)}
             </Text>
           )}
         </View>
