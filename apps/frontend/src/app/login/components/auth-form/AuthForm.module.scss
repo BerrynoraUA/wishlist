@@ -1,115 +1,65 @@
-@use "@/styles/variables" as *;
+@use "@/styles/marketing" as *;
 
-/* ─── Scoped brand palette (accent-independent) ─── */
-
-$brand: #c0267e;
-$brand-light: #fde7f3;
-$brand-dark: #9b1f66;
+/* Rendered inside the auth shell, which provides the --wl-* tokens. */
 
 .card {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(243, 232, 238, 0.6);
-  border-radius: $radius-xl;
-  padding: 28px;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    0 0 0 1px rgba(0, 0, 0, 0.02);
   display: grid;
   gap: 0;
-
-  [data-theme="dark"] & {
-    background: rgba(22, 22, 25, 0.75);
-    border-color: rgba(39, 39, 45, 0.6);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.3),
-      0 0 0 1px rgba(255, 255, 255, 0.02);
-  }
 }
 
 .divider {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 0;
-  color: #9ca3af;
-  font-size: var(--fs-caption);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-
-  [data-theme="dark"] & {
-    color: #6b7280;
-  }
+  color: var(--wl-muted);
+  font-size: 13px;
 
   &::before,
   &::after {
     content: "";
     height: 1px;
     flex: 1;
-    background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
-
-    [data-theme="dark"] & {
-      background: linear-gradient(90deg, transparent, #374151, transparent);
-    }
+    background: var(--wl-line);
   }
 }
 
 .form {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .label {
-  font-size: var(--fs-caption);
-  font-weight: var(--fw-medium);
-  color: #6b7280;
-  margin-top: 4px;
-
-  [data-theme="dark"] & {
-    color: #9ca3af;
-  }
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wl-ink);
 }
 
 .required {
-  color: #dc2626;
+  color: var(--wl-danger);
   margin-left: 2px;
 }
 
 .input {
-  border: 1.5px solid #e5e7eb;
-  border-radius: $radius-md;
-  padding: 12px 14px;
-  font-size: var(--fs-body);
-  color: #111827;
-  background: #ffffff;
-  outline: none;
-  transition:
-    border-color 0.3s $ease-out,
-    box-shadow 0.3s $ease-out;
-
-  [data-theme="dark"] & {
-    border-color: #374151;
-    color: #f0f0f2;
-    background: #1c1c20;
-  }
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1.5px solid var(--wl-edge);
+  border-radius: 12px;
+  background: var(--wl-surface);
+  color: var(--wl-ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  transition: border-color $wl-fast $wl-ease;
 
   &::placeholder {
-    color: #9ca3af;
-
-    [data-theme="dark"] & {
-      color: #6b7280;
-    }
+    color: var(--wl-muted);
   }
 
-  &:focus {
-    border-color: $brand;
-    box-shadow: 0 0 0 4px rgba(192, 38, 126, 0.12);
-
-    [data-theme="dark"] & {
-      border-color: #e052a0;
-      box-shadow: 0 0 0 4px rgba(224, 82, 160, 0.15);
-    }
+  &:focus-visible {
+    border-color: var(--wl-brand);
+    outline: 2px solid var(--wl-brand);
+    outline-offset: 1px;
   }
 }
 
@@ -122,137 +72,85 @@ $brand-dark: #9b1f66;
 }
 
 .passwordWrapper .input {
-  width: 100%;
-  padding-right: 44px;
+  padding-right: 48px;
 }
 
 .passwordToggle {
   position: absolute;
-  right: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  right: 6px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
   background: none;
-  border: none;
+  color: var(--wl-muted);
   cursor: pointer;
-  padding: 4px;
-  color: #9ca3af;
-  transition: color 0.2s $ease-out;
-
-  [data-theme="dark"] & {
-    color: #6b7280;
-  }
+  transition: color $wl-fast $wl-ease;
 
   &:hover {
-    color: $brand;
-
-    [data-theme="dark"] & {
-      color: #e052a0;
-    }
+    color: var(--wl-ink);
   }
 }
 
 .submit {
-  margin-top: 10px;
-  padding: 12px 14px;
+  @include wl-button;
+  @include wl-button-primary;
   width: 100%;
-  border: none;
-  border-radius: $radius-pill;
-  font-family: var(--font-sans);
-  font-weight: var(--fw-semibold);
-  font-size: var(--fs-body);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  white-space: nowrap;
-  letter-spacing: -0.01em;
-  background: $brand;
-  color: white;
-  box-shadow: 0 4px 14px rgba(192, 38, 126, 0.25);
-  transition: all 0.3s $ease-out;
-
-  [data-theme="dark"] & {
-    background: #e052a0;
-    box-shadow: 0 4px 14px rgba(224, 82, 160, 0.25);
-  }
-
-  &:hover:not(:disabled) {
-    background: $brand-dark;
-    box-shadow: 0 6px 20px rgba(192, 38, 126, 0.35);
-    transform: translateY(-2px);
-
-    [data-theme="dark"] & {
-      background: #c0267e;
-      box-shadow: 0 6px 20px rgba(224, 82, 160, 0.35);
-    }
-  }
+  min-height: 48px;
+  margin-top: 16px;
+  font-size: 16px;
+  transition:
+    background-color $wl-fast $wl-ease,
+    transform $wl-fast $wl-ease;
 
   &:active:not(:disabled) {
-    transform: translateY(0) scale(0.97);
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(192, 38, 126, 0.2);
+    transform: scale(0.97);
   }
 }
 
 .submit:disabled {
-  background: #e5e7eb;
-  color: #9ca3af;
-  box-shadow: none;
-  opacity: 0.55;
+  background: var(--wl-line);
+  color: var(--wl-muted);
   cursor: not-allowed;
-
-  [data-theme="dark"] & {
-    background: #27272d;
-    color: #6b7280;
-  }
 }
 
-/* ─── Social login icons ─── */
+/* ─── Social login ─── */
 
 .socialSection {
-  margin-top: 28px;
+  margin-top: 24px;
   display: grid;
-  gap: 18px;
+  gap: 20px;
 }
 
 .socialIcons {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .socialIcon {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  border: 1.5px solid #e5e7eb;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 1.5px solid var(--wl-line);
+  background: var(--wl-surface);
+  display: grid;
+  place-items: center;
   cursor: pointer;
-  transition: all 0.25s $ease-out;
-
-  [data-theme="dark"] & {
-    border-color: #374151;
-    background: #1c1c20;
-  }
+  transition:
+    border-color $wl-fast $wl-ease,
+    transform $wl-fast $wl-ease;
+  @include wl-focus;
 
   &:hover:not(:disabled) {
-    border-color: #d1d5db;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
+    border-color: var(--wl-edge);
+  }
 
-    [data-theme="dark"] & {
-      border-color: #4b5563;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-    }
+  &:active:not(:disabled) {
+    transform: scale(0.95);
   }
 
   &:disabled {
@@ -284,29 +182,26 @@ $brand-dark: #9b1f66;
 }
 
 .error {
-  margin: 6px 0 0;
-  color: #dc2626;
-  font-size: var(--fs-label);
+  margin: 4px 0 0;
+  color: var(--wl-danger);
+  font-size: 14px;
 }
 
 .notice {
-  margin: 6px 0 0;
-  color: #16a34a;
-  font-size: var(--fs-label);
+  margin: 4px 0 0;
+  color: var(--wl-success);
+  font-size: 14px;
 }
 
 .helper {
   margin-top: 14px;
-  color: #6b7280;
-  font-size: var(--fs-caption);
-
-  [data-theme="dark"] & {
-    color: #9ca3af;
-  }
+  color: var(--wl-muted);
+  font-size: 13px;
 }
 
-@media (max-width: 640px) {
-  .card {
-    padding: 20px 16px;
+@media (prefers-reduced-motion: reduce) {
+  .submit:active:not(:disabled),
+  .socialIcon:active:not(:disabled) {
+    transform: none;
   }
 }
