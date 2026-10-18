@@ -54,7 +54,7 @@ const DESCRIPTION_COLLAPSED_LINES = 4;
 
 type Confirmation = {
   title: string;
-  message: string;
+  message?: string;
   confirmLabel: string;
   isPending?: boolean;
   tone?: ActionBottomSheetConfirmTone;
@@ -148,8 +148,10 @@ export function WishlistItemDetailSheet({
     if (!reservation.canToggleReservation || !onToggleReserve) return;
 
     setConfirmation({
-      title: reservation.isReserved ? t("Release reservation?") : t("Reserve this gift?"),
-      message: selectedItem.name,
+      title: reservation.isReserved
+        ? t("Release reservation?")
+        : t("Reserve {name}?", { name: selectedItem.name }),
+      message: reservation.isReserved ? selectedItem.name : undefined,
       confirmLabel: reservation.isReserved ? t("Release") : t("Reserve"),
       isPending: reservePending,
       tone: reservation.isReserved ? "default" : "brand",
@@ -164,8 +166,10 @@ export function WishlistItemDetailSheet({
     if (!reservation.canToggleBought || !onToggleBought) return;
 
     setConfirmation({
-      title: reservation.isPurchased ? t("Mark as not purchased?") : t("Mark as purchased?"),
-      message: selectedItem.name,
+      title: reservation.isPurchased
+        ? t("Mark as not purchased?")
+        : t("Mark {name} as purchased?", { name: selectedItem.name }),
+      message: reservation.isPurchased ? selectedItem.name : undefined,
       confirmLabel: reservation.isPurchased ? t("Undo") : t("Buy"),
       isPending: boughtPending,
       tone: reservation.isPurchased ? "destructive" : "buy",
