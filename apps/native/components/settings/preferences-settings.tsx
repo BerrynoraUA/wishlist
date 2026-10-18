@@ -14,7 +14,6 @@ import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
 import { countryForLocale } from "@/lib/locale-flags";
 import { useGT, useLocale, useLocales, useSetLocale } from "gt-react-native";
 import {
-  Banknote,
   ChevronLeft,
   Eye,
   EyeOff,
@@ -71,7 +70,7 @@ const LOCALIZED_LOCALE_LABELS: Record<string, string> = {
   ur: "اردو",
 };
 
-export function PreferencesSettings({ selectedCurrency }: { selectedCurrency: string }) {
+export function PreferencesSettings() {
   const t = useGT();
   const activeLocale = useLocale();
   const locales = useLocales();
@@ -82,7 +81,6 @@ export function PreferencesSettings({ selectedCurrency }: { selectedCurrency: st
   const [hapticsEnabled, setHapticsEnabled] = useHapticsEnabled();
   const showBackButton = !hideBackButton;
   const { data: settings } = useSettings();
-  const roundPrices = Boolean(settings?.round_prices);
   const showsOwnReservations = isPro && Boolean(settings?.show_own_reservations);
   const ownReservationsIcon = !isPro ? Lock : showsOwnReservations ? Eye : EyeOff;
   const [localeError, setLocaleError] = React.useState<string | null>(null);
@@ -140,15 +138,7 @@ export function PreferencesSettings({ selectedCurrency }: { selectedCurrency: st
         ) : null}
       </View>
 
-      <CurrencySettings selectedCurrency={selectedCurrency} />
-
-      <SettingsControlsToggleRow
-        icon={Banknote}
-        title={t("Round prices")}
-        subtitle={roundPrices ? t("Whole amounts, no cents") : t("Exact prices with cents")}
-        checked={roundPrices}
-        onCheckedChange={(value) => updateSettings.mutate({ round_prices: value })}
-      />
+      <CurrencySettings />
 
       <SettingsControlsToggleRow
         icon={Vibrate}

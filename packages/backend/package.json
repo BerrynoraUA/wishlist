@@ -15,6 +15,7 @@
     "./lib/item-colors": "./lib/item-colors.ts",
     "./lib/filter-helpers": "./lib/filter-helpers.ts",
     "./lib/posthog-person-from-supabase": "./lib/posthog-person-from-supabase.ts",
+    "./lib/prices": "./lib/prices.ts",
     "./lib/secret-santa-assignment": "./lib/secret-santa-assignment.ts",
     "./notifications/templates": "./notifications/templates.ts",
     "./notifications/notifier": "./notifications/notifier.ts",

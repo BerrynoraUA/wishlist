@@ -28,6 +28,7 @@ export function SaveItemToWishlistsSheet({
 }) {
   const t = useGT();
   const { formatPrice } = useCurrencyFormatter();
+  const priceLabel = item ? formatPrice(item.price, item.currency) : "";
   const sheetRef = React.useRef<BottomSheetRef>(null);
   const createItem = useCreateItem();
   const [wishlistSearch, setWishlistSearch] = React.useState("");
@@ -152,11 +153,7 @@ export function SaveItemToWishlistsSheet({
             <Text numberOfLines={1} className="font-bold text-text">
               {item.name}
             </Text>
-            {item.price ? (
-              <Text className="text-sm text-text-muted">
-                {formatPrice(item.price, item.currency)}
-              </Text>
-            ) : null}
+            {priceLabel ? <Text className="text-sm text-text-muted">{priceLabel}</Text> : null}
           </View>
         </View>
 

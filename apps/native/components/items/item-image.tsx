@@ -93,6 +93,8 @@ export function ItemImage({
     // Re-run per status change only; `ribbonKey` bumps exactly then.
   }, [ribbonKey]);
   const dimStyle = useAnimatedStyle(() => ({ opacity: dim.value }));
+  const priceLabel = formatPrice(item.price, item.currency);
+  const discountLabel = showDiscountPrice ? formatPrice(item.discount_price, item.currency) : "";
 
   return (
     <View
@@ -173,25 +175,25 @@ export function ItemImage({
         ) : null}
       </View>
 
-      {item.price ? (
+      {priceLabel ? (
         <View
           className={cn(
             "absolute bottom-2 end-2 z-10 flex-row items-center gap-1 rounded-full border border-brand/30 bg-card-bg/95 px-2.5 py-1",
             isDetail && "bottom-3 end-3 gap-2 px-3 py-1.5",
           )}
         >
-          {showDiscountPrice && item.discount_price ? (
+          {discountLabel ? (
             <>
               <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
-                {formatPrice(item.discount_price, item.currency)}
+                {discountLabel}
               </Text>
               <Text className="text-xs font-bold text-text-muted line-through" numberOfLines={1}>
-                {formatPrice(item.price, item.currency)}
+                {priceLabel}
               </Text>
             </>
           ) : (
             <Text className="text-sm font-extrabold text-brand" numberOfLines={1}>
-              {formatPrice(item.price, item.currency)}
+              {priceLabel}
             </Text>
           )}
         </View>

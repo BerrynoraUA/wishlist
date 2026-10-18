@@ -127,7 +127,7 @@ export default function ProfileScreen() {
       case "notifications":
         return <NotificationSettings settings={settings} />;
       case "preferences":
-        return <PreferencesSettings selectedCurrency={settings?.display_currency ?? "USD"} />;
+        return <PreferencesSettings />;
       case "appearance":
         return (
           <AppearanceSettings

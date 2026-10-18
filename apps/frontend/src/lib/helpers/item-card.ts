@@ -1,6 +1,7 @@
 import type { ItemActionConfirmType } from "@/components/ui/ActionConfirmModal/ActionConfirmModal";
 import type { ItemLink } from "@/types/item";
 import { ALL_PRIORITIES } from "@/lib/priorities";
+import { parsePrice } from "@/lib/prices";
 
 export type ItemCardPriorityKey = "low" | "medium" | "high";
 export type ItemCardPriority = string | null;
@@ -100,24 +101,6 @@ export function getItemReservationState({
   };
 }
 
-export function parseItemPriceToNumber(value: string | number | null | undefined): number | null {
-  if (value == null) return null;
-  if (typeof value === "number") return Number.isFinite(value) ? value : null;
-
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-
-  const safe = trimmed.replace(/[^0-9,.-]/g, "");
-  if (!safe) return null;
-
-  const hasComma = safe.includes(",");
-  const hasDot = safe.includes(".");
-  const normalized = hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
-  const parsed = Number.parseFloat(normalized);
-
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
 export function getSalePercentOff(
   basePrice: string | number | null | undefined,
   discountPrice: string | number | null | undefined,
@@ -125,8 +108,8 @@ export function getSalePercentOff(
 ): number | null {
   if (!enabled || discountPrice == null) return null;
 
-  const base = parseItemPriceToNumber(basePrice);
-  const discounted = parseItemPriceToNumber(discountPrice);
+  const base = parsePrice(basePrice);
+  const discounted = parsePrice(discountPrice);
   if (!base || !discounted) return null;
   if (base <= 0 || discounted >= base) return null;
 

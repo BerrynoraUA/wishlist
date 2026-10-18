@@ -2,6 +2,7 @@ import type { TranslateFn } from "@/lib/translate-fn";
 import { getValidHttpUrl } from "@/lib/urls";
 import type { Item, ItemFormValues, ItemLink } from "@wishlist/backend/types/item";
 import { ALL_PRIORITIES, PRIORITY_IDS } from "@wishlist/backend/lib";
+import { parsePrice } from "@wishlist/backend/lib/prices";
 
 export const WISHLIST_ITEMS_PAGE_SIZE = 12;
 export const DEFAULT_ITEM_SORT = "newest";
@@ -150,24 +151,6 @@ export function getItemStoreFromUrl(url: string | null | undefined) {
   }
 }
 
-export function parseItemPriceToNumber(value: string | number | null | undefined) {
-  if (value == null) return null;
-  if (typeof value === "number") return Number.isFinite(value) ? value : null;
-
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-
-  const safe = trimmed.replace(/[^0-9,.-]/g, "");
-  if (!safe) return null;
-
-  const hasComma = safe.includes(",");
-  const hasDot = safe.includes(".");
-  const normalized = hasComma && hasDot ? safe.replace(/,/g, "") : safe.replace(/,/g, ".");
-  const parsed = Number.parseFloat(normalized);
-
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
 export function getSalePercentOff(
   basePrice: string | number | null | undefined,
   discountPrice: string | number | null | undefined,
@@ -175,8 +158,8 @@ export function getSalePercentOff(
 ) {
   if (!enabled || discountPrice == null) return null;
 
-  const base = parseItemPriceToNumber(basePrice);
-  const discounted = parseItemPriceToNumber(discountPrice);
+  const base = parsePrice(basePrice);
+  const discounted = parsePrice(discountPrice);
   if (!base || !discounted) return null;
   if (base <= 0 || discounted >= base) return null;
 

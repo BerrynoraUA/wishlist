@@ -1,4 +1,4 @@
-import { useCurrencyFormatter } from "@/hooks/use-currency";
+import { useDisplayCurrency } from "@/hooks/use-currency";
 import {
   useFriendsUpcomingWishlists,
   useInfiniteFriendsWishlistsDiscover,
@@ -22,7 +22,7 @@ export function useDiscoverFeed() {
   const [priceMax, setPriceMax] = React.useState("");
   const [sort, setSort] = React.useState("default");
   // Price filters and price sorting are evaluated server-side in this currency.
-  const { displayCurrency } = useCurrencyFormatter();
+  const displayCurrency = useDisplayCurrency();
 
   React.useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 250);
