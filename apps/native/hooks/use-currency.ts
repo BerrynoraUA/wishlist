@@ -10,11 +10,12 @@ export function useCurrencyFormatter() {
 
   const displayCurrency = normalizeCurrencyCode(settings?.display_currency);
   const rates = ratesData?.rates;
+  const round = Boolean(settings?.round_prices);
 
   const formatPrice = React.useCallback(
     (price: string | number | null | undefined, itemCurrency: string | null | undefined) =>
-      formatConvertedPrice(price, itemCurrency, displayCurrency, rates),
-    [displayCurrency, rates],
+      formatConvertedPrice(price, itemCurrency, displayCurrency, rates, { round }),
+    [displayCurrency, rates, round],
   );
 
   return { formatPrice, displayCurrency };

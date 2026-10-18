@@ -2,15 +2,25 @@ import { parseItemPriceToNumber } from "@/lib/items";
 import { CURRENCY_SYMBOLS, normalizeCurrencyCode } from "@wishlist/backend/lib/currencies";
 
 /** Mirrors the web app's `price-helper.ts`, so both clients convert prices the same way. */
+export interface PriceFormatOptions {
+  /** Drop the cents: show the nearest whole amount. */
+  round?: boolean;
+}
+
 export function formatItemPrice(
   price: string | number | null | undefined,
   currency: string | null | undefined,
+  { round = false }: PriceFormatOptions = {},
 ): string {
   if (price == null || price === "") return "";
   const code = normalizeCurrencyCode(currency);
   const mark = CURRENCY_SYMBOLS[code] ?? code;
   // Several "symbols" are codes or abbreviations ("EUR", "kr"); those read badly glued on.
   const symbol = /\p{L}$/u.test(mark) ? `${mark} ` : mark;
+  if (round) {
+    const numeric = parseItemPriceToNumber(price);
+    if (numeric != null) return `${symbol}${Math.round(numeric)}`;
+  }
   if (typeof price === "number") {
     if (!Number.isFinite(price)) return "";
     return `${symbol}${price.toFixed(2)}`;
@@ -44,15 +54,16 @@ export function formatConvertedPrice(
   itemCurrency: string | null | undefined,
   displayCurrency: string,
   rates: Record<string, number> | undefined,
+  options: PriceFormatOptions = {},
 ): string {
   const numericPrice = parseItemPriceToNumber(price);
-  if (numericPrice == null || !rates) return formatItemPrice(price, itemCurrency);
+  if (numericPrice == null || !rates) return formatItemPrice(price, itemCurrency, options);
 
   const to = normalizeCurrencyCode(displayCurrency);
   const converted = convertPrice(numericPrice, normalizeCurrencyCode(itemCurrency), to, rates);
   if (converted == null || normalizeCurrencyCode(itemCurrency) === to) {
-    return formatItemPrice(price, itemCurrency);
+    return formatItemPrice(price, itemCurrency, options);
   }
 
-  return formatItemPrice(converted, to);
+  return formatItemPrice(converted, to, options);
 }

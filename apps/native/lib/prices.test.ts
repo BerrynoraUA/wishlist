@@ -29,4 +29,12 @@ describe("price helpers", () => {
     expect(formatConvertedPrice("100", "USD", "EUR", undefined)).toBe("$100");
     expect(formatConvertedPrice("ask me", "USD", "EUR", RATES)).toBe("");
   });
+
+  it("rounds to the nearest whole amount when asked", () => {
+    expect(formatItemPrice("48.99", "USD", { round: true })).toBe("$49");
+    expect(formatItemPrice(12.4, "EUR", { round: true })).toBe("EUR 12");
+    expect(formatConvertedPrice("100", "USD", "EUR", RATES, { round: true })).toBe("EUR 90");
+    expect(formatConvertedPrice("1,234.50", "GBP", "GBP", RATES, { round: true })).toBe("£1235");
+    expect(formatItemPrice("ask me", "USD", { round: true })).toBe("");
+  });
 });
