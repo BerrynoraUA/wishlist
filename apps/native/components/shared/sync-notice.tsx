@@ -32,11 +32,11 @@ export function SyncNotice() {
     const mutation = failedWrites(client)[0];
     if (!mutation) return;
     const write = mutation.state.variables as QueuedWrite;
-    const error = mutation.state.error;
     const message =
-      error && typeof error.message === "string"
-        ? error.message
-        : t("The server could not save this change.");
+      describeSyncError(mutation.state.error) ??
+      t(
+        "The server could not save this change. It may have been deleted, or you may no longer have access.",
+      );
     Alert.alert(t("Change couldn't be saved"), message, [
       { text: t("Cancel"), style: "cancel" },
       {
@@ -78,11 +78,26 @@ export function SyncNotice() {
               : "text-sm font-semibold text-text-muted"
           }
         >
-          {failures.length
-            ? t("{count} changes couldn't be saved. Tap to review.", { count: failures.length })
-            : t("Waiting to sync")}
+          {failures.length === 1
+            ? t("1 change couldn't be saved. Tap to review.")
+            : failures.length
+              ? t("{count} changes couldn't be saved. Tap to review.", { count: failures.length })
+              : t("Waiting to sync")}
         </Text>
       </Pressable>
     </View>
   );
+}
+
+/**
+ * The reason to show for a rejected write, or `null` for a generic one. Messages the app or a
+ * database function raised for people (`P0001`) are shown; other database errors, such as an
+ * access policy refusing a row whose wishlist was deleted elsewhere, mean nothing to them.
+ */
+function describeSyncError(error: unknown) {
+  if (!(error instanceof Object) || !("message" in error) || typeof error.message !== "string") {
+    return null;
+  }
+  if ("code" in error && error.code && error.code !== "P0001") return null;
+  return error.message || null;
 }
