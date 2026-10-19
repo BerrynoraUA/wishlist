@@ -1,13 +1,13 @@
+import { useQueuedWrite } from "@/hooks/use-queued-write";
+import { findLocalRecord } from "@/lib/local-write-cache";
+import { newRecordId } from "@/lib/record-id";
 import {
-  createItem,
-  deleteItem,
   getItemVotes,
   getWishlistItems,
   reportItem,
   toggleItemBought,
   toggleItemReservation,
   toggleItemVote,
-  updateItem,
 } from "@/api/items";
 import { skipTakeInfiniteQueryOptions } from "@/hooks/use-infinite-page";
 import { animateCardRemoval, markNewCard } from "@/lib/card-motion";
@@ -18,8 +18,12 @@ import {
   optimisticallyToggleItemBought,
   optimisticallyToggleItemReservation,
 } from "@/lib/items";
-import { OFFLINE_QUEUE_KEY } from "@/lib/offline-mutations";
-import { statisticsKeys, wishlistKeys } from "@/lib/wishlist-query-keys";
+import {
+  OFFLINE_QUEUE_KEY,
+  isLastQueuedWrite,
+  QUEUED_WRITE_OPTIONS,
+} from "@/lib/offline-mutations";
+
 import { useAuth } from "@/providers/auth-provider";
 import type {
   CreateItemParams,
@@ -33,7 +37,6 @@ import {
   useInfiniteQuery,
   useMutation,
   useQuery,
-  useQueryClient,
   type InfiniteData,
   type MutateOptions,
   type Query,
@@ -82,49 +85,62 @@ export function useInfiniteWishlistItems(
   });
 }
 
-function invalidateWishlistItems(queryClient: QueryClient, wishlistId?: string) {
-  void queryClient.invalidateQueries({ queryKey: itemKeys.all });
-  void queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
-  if (wishlistId) {
-    void queryClient.invalidateQueries({ queryKey: wishlistKeys.detailRoot(wishlistId) });
-  }
-  void queryClient.invalidateQueries({ queryKey: statisticsKeys.all });
+function invalidateWishlistItems(queryClient: QueryClient) {
+  if (isLastQueuedWrite(queryClient)) void queryClient.invalidateQueries();
 }
 
-export function useCreateItem() {
-  const queryClient = useQueryClient();
+export type QueuedCreateItemParams = CreateItemParams & { fillFromLink?: boolean };
 
-  return useMutation({
-    mutationFn: (params: CreateItemParams) => createItem(params),
-    onSuccess: (item) => {
-      markNewCard("item", item.id);
-      invalidateWishlistItems(queryClient, item.wishlist_id);
-    },
+export function useCreateItem() {
+  return useQueuedWrite((params: QueuedCreateItemParams, userId) => {
+    const id = newRecordId();
+    const local: Item = {
+      id,
+      wishlist_id: params.wishlist_id,
+      name: params.name,
+      description: params.description ?? null,
+      price: params.price ?? null,
+      priority_id: params.priority_id ?? null,
+      priority_name: null,
+      image_url: params.image_url ?? null,
+      url: params.url ?? null,
+      created_at: new Date().toISOString(),
+      status: params.status ?? 0,
+      reserved_by: null,
+      discount_price: params.discount_price ?? null,
+      has_discount: params.has_discount ?? false,
+      discount_end_date: params.discount_end_date ?? null,
+      currency: params.currency ?? null,
+      additional_links: params.additional_links ?? [],
+      color_index: params.color_index ?? null,
+    };
+    markNewCard("item", id);
+    return { entity: "item", action: "create", id, userId, payload: params, local };
   });
 }
 
 export function useUpdateItem() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: UpdateItemParams }) =>
-      updateItem(id, updates),
-    onSuccess: (item) => invalidateWishlistItems(queryClient, item.wishlist_id),
-  });
+  return useQueuedWrite(
+    ({ id, updates }: { id: string; updates: UpdateItemParams }, userId, client) => {
+      const previous = findLocalRecord<Item>(client, "item", id);
+      if (!previous) throw new Error("Open this wish while connected before editing it offline.");
+      return {
+        entity: "item",
+        action: "update",
+        id,
+        userId,
+        payload: updates,
+        local: { ...previous, ...updates },
+      };
+    },
+  );
 }
 
 export function useDeleteItem(onBeforeRemoval?: () => void) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: string) => deleteItem(id),
-    onSuccess: async (_, id) => {
-      hapticSuccess();
-      onBeforeRemoval?.();
-      await animateCardRemoval("item", id);
-      invalidateWishlistItems(queryClient);
-    },
-    onError: hapticError,
+  return useQueuedWrite(async (id: string, userId) => {
+    onBeforeRemoval?.();
+    await animateCardRemoval("item", id);
+    return { entity: "item", action: "delete", id, userId, payload: {}, local: undefined };
   });
 }
 
@@ -186,8 +202,7 @@ export function registerQueuedItemMutations(queryClient: QueryClient) {
   // One scope runs the queue serially, so toggles of the same item replay in order.
   // Success is felt once the server accepts the write, which offline is after reconnecting.
   const queued = {
-    scope: { id: OFFLINE_QUEUE_KEY },
-    retry: 2,
+    ...QUEUED_WRITE_OPTIONS,
     onSuccess: () => hapticSuccess(),
     onError: () => hapticError(),
   };
@@ -199,7 +214,7 @@ export function registerQueuedItemMutations(queryClient: QueryClient) {
       patchCachedItem(queryClient, itemId, (item) =>
         optimisticallyToggleItemReservation(item, userId),
       ),
-    onSettled: (item?: Item) => invalidateWishlistItems(queryClient, item?.wishlist_id),
+    onSettled: () => invalidateWishlistItems(queryClient),
   });
 
   queryClient.setMutationDefaults(queuedItemMutationKeys.toggleBought, {
@@ -207,7 +222,7 @@ export function registerQueuedItemMutations(queryClient: QueryClient) {
     mutationFn: ({ itemId }: ToggleItemVariables) => toggleItemBought(itemId),
     onMutate: ({ itemId, userId }: ToggleItemVariables) =>
       patchCachedItem(queryClient, itemId, (item) => optimisticallyToggleItemBought(item, userId)),
-    onSettled: (item?: Item) => invalidateWishlistItems(queryClient, item?.wishlist_id),
+    onSettled: () => invalidateWishlistItems(queryClient),
   });
 
   queryClient.setMutationDefaults(queuedItemMutationKeys.toggleVote, {
@@ -224,12 +239,7 @@ export function registerQueuedItemMutations(queryClient: QueryClient) {
         votes ? toggleVoteInResult(votes, itemId) : votes,
       );
     },
-    onSettled: () => {
-      void queryClient.invalidateQueries({
-        queryKey: itemKeys.all,
-        predicate: (query) => query.queryKey[1] === "votes",
-      });
-    },
+    onSettled: () => invalidateWishlistItems(queryClient),
   });
 }
 

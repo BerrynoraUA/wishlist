@@ -1,3 +1,4 @@
+import { onlineManager } from "@tanstack/react-query";
 import { AddFriendSheet, getFriendInviteLink } from "@/components/friends/sheets/add-friend-sheet";
 import { FriendGroupSheet } from "@/components/friends/sheets/friend-group-sheet";
 import { SecretSantaCreateEditSheet } from "@/components/secret-santa/sheets/secret-santa-create-edit-sheet";
@@ -11,7 +12,7 @@ import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { useCreateFriendGroup } from "@/hooks/use-friends";
 import { useCurrentUserId } from "@/hooks/use-user";
-import { useIsOnline } from "@/hooks/use-is-online";
+
 import { hapticSuccess } from "@/lib/haptics";
 import { showToast } from "@/components/ui/toast";
 import { useProGate } from "@/hooks/use-pro-gate";
@@ -146,7 +147,7 @@ async function settledData<TData>(query: {
   data: TData | undefined;
   refetch: () => Promise<{ data: TData | undefined }>;
 }): Promise<TData | undefined> {
-  if (query.data !== undefined) return query.data;
+  if (query.data !== undefined || !onlineManager.isOnline()) return query.data;
 
   return query
     .refetch()
@@ -578,8 +579,6 @@ function CreateFloatingMenuContent({
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   // Everything here is created on the server, and the forms upload images and fetch product
-  // pages before saving, so offline the entries are shown but cannot be opened.
-  const isOnline = useIsOnline();
 
   const menuBottom = Math.max(insets.bottom, 8) + NAV_TAB_BAR_HEIGHT + 12;
 
@@ -602,13 +601,6 @@ function CreateFloatingMenuContent({
         pointerEvents="box-none"
         style={{ bottom: menuBottom }}
       >
-        {isOnline ? null : (
-          <Animated.View entering={FadeIn.duration(180)} exiting={FadeOut.duration(150)}>
-            <Text className="rounded-full bg-card-bg px-3 py-1.5 text-xs font-semibold text-text-muted">
-              {t("You're offline. Creating needs a connection.")}
-            </Text>
-          </Animated.View>
-        )}
         {entries.map((entry, index) => (
           <Animated.View
             key={entry.action}
@@ -631,18 +623,10 @@ function CreateFloatingMenuContent({
                 id={entry.guideTargetId}
                 forceActive={entry.guideTargetId === highlightTargetId}
               >
-                <CreateMenuButton
-                  entry={entry}
-                  disabled={!isOnline}
-                  onPress={() => onSelect(entry)}
-                />
+                <CreateMenuButton entry={entry} disabled={false} onPress={() => onSelect(entry)} />
               </GuideTarget>
             ) : (
-              <CreateMenuButton
-                entry={entry}
-                disabled={!isOnline}
-                onPress={() => onSelect(entry)}
-              />
+              <CreateMenuButton entry={entry} disabled={false} onPress={() => onSelect(entry)} />
             )}
           </Animated.View>
         ))}

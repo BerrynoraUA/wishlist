@@ -17,9 +17,22 @@ function isTaggedSet(value: unknown): value is TaggedSet {
 }
 
 export function serializeQueryCache(value: unknown): string {
-  return JSON.stringify(value, (_key, entry: unknown) =>
-    entry instanceof Set ? { [SET_TAG]: [...entry] } : entry,
-  );
+  return JSON.stringify(value, (_key, entry: unknown) => {
+    if (entry instanceof Set) return { [SET_TAG]: [...entry] };
+    if (entry instanceof Error) return { name: entry.name, message: entry.message };
+    // A process can die after sending but before receiving the reply. Hydration only
+    // resumes paused mutations, so saved in-flight writes must also resume as paused.
+    if (
+      entry &&
+      typeof entry === "object" &&
+      "isPaused" in entry &&
+      "status" in entry &&
+      entry.status === "pending"
+    ) {
+      return { ...entry, isPaused: true };
+    }
+    return entry;
+  });
 }
 
 export function deserializeQueryCache<T>(raw: string): T {

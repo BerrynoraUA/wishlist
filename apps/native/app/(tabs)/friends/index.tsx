@@ -241,7 +241,7 @@ export default function FriendsScreen() {
   function handleSubmitGroup(payload: Parameters<typeof updateGroup.mutateAsync>[0]["payload"]) {
     if (sheet?.type !== "group") return Promise.resolve();
 
-    return updateGroup.mutateAsync({ groupId: sheet.group.id, payload });
+    return updateGroup.mutateAsync({ groupId: sheet.group.id, payload }).then(() => undefined);
   }
 
   const renderRow = React.useCallback(

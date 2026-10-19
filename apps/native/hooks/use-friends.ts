@@ -1,3 +1,7 @@
+import { useQueuedWrite } from "@/hooks/use-queued-write";
+import { findLocalRecord } from "@/lib/local-write-cache";
+import { newRecordId } from "@/lib/record-id";
+import type { FriendGroup, FriendWithDetails } from "@wishlist/backend/types/friends";
 import { hapticError, hapticSuccess } from "@/lib/haptics";
 import {
   acceptFriendRequest,
@@ -5,8 +9,6 @@ import {
   cancelFriendRequest,
   getBlockedUsers,
   checkFriendship,
-  createFriendGroup,
-  deleteFriendGroup,
   getFriendGroups,
   getFriendGroupMembers,
   getFriendGroupsWithoutWishlistAccess,
@@ -16,14 +18,11 @@ import {
   getOutgoingFriendRequests,
   getProfilesByIds,
   getWishlistAccessList,
-  grantWishlistGroupAccess,
   rejectFriendRequest,
   removeFriend,
-  revokeWishlistGroupAccess,
   searchProfilesByNickname,
   sendFriendRequest,
   unblockUser,
-  updateFriendGroup,
 } from "@/api/friends";
 import { animateCardRemoval } from "@/lib/card-motion";
 import { skipTakeInfiniteQueryOptions, useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
@@ -38,7 +37,13 @@ import type {
   FriendGroupPayload,
   GetFriendsWithoutWishlistAccessParams,
 } from "@wishlist/backend/types/friends";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type InfiniteData,
+} from "@tanstack/react-query";
 import * as React from "react";
 
 /** Lets a caller keep a query idle while the UI that needs it is not on screen. */
@@ -148,10 +153,29 @@ export function useInfiniteFriends(
   { enabled = true }: QueryGate = {},
 ) {
   const { user } = useAuth();
+  const client = useQueryClient();
 
   return useInfiniteQuery({
     ...friendsQueryOptions(user?.id, params, pageSize),
     enabled: enabled && Boolean(user?.id),
+    placeholderData: () => {
+      const rows = client
+        .getQueriesData<InfiniteData<FriendWithDetails[]>>({
+          queryKey: friendKeys.list(user?.id).slice(0, 3),
+        })
+        .flatMap(([, data]) => data?.pages.flat() ?? []);
+      if (!rows.length) return undefined;
+      const unique = [...new Map(rows.map((row) => [row.friend_id, row])).values()];
+      const search = normalizeSearchQuery(params.search).toLowerCase();
+      return {
+        pages: [
+          unique.filter((row) =>
+            `${row.display_name} ${row.nickname ?? ""}`.toLowerCase().includes(search),
+          ),
+        ],
+        pageParams: [0],
+      };
+    },
   });
 }
 
@@ -161,26 +185,22 @@ export function useInfiniteFriendGroups(
   { enabled = true }: QueryGate = {},
 ) {
   const { user } = useAuth();
-  const normalizedParams = React.useMemo(
-    () => ({
-      search: normalizeSearchQuery(params.search) || undefined,
-    }),
-    [params.search],
-  );
-
-  return useSkipTakeInfiniteQuery({
-    queryKey: friendKeys.groupList(user?.id, {
-      ...normalizedParams,
-      take: pageSize,
-    }),
-    fetchPage: ({ skip, take }) =>
-      getFriendGroups({
-        ...normalizedParams,
-        skip,
-        take,
-      }),
-    pageSize,
+  return useInfiniteQuery({
+    ...friendGroupsQueryOptions(user?.id, params, pageSize),
     enabled: enabled && Boolean(user?.id),
+  });
+}
+
+export function friendGroupsQueryOptions(
+  userId: string | undefined,
+  params: PaginationParams,
+  pageSize: number,
+) {
+  const search = normalizeSearchQuery(params.search) || undefined;
+  return skipTakeInfiniteQueryOptions({
+    queryKey: friendKeys.groupList(userId, { search, take: pageSize }),
+    fetchPage: ({ skip, take }) => getFriendGroups({ search, skip, take }),
+    pageSize,
   });
 }
 
@@ -308,45 +328,48 @@ export function useUnblockUser() {
 }
 
 export function useCreateFriendGroup() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload: FriendGroupPayload) => createFriendGroup(payload),
-    onSuccess: async () => {
-      hapticSuccess();
-      await queryClient.invalidateQueries({ queryKey: friendKeys.groups() });
-    },
-    onError: hapticError,
+  return useQueuedWrite((payload: FriendGroupPayload, userId) => {
+    const id = newRecordId();
+    const local: FriendGroup = {
+      id,
+      ...payload,
+      description: payload.description ?? null,
+      member_count: payload.memberIds.length,
+      created_at: new Date().toISOString(),
+    };
+    return { entity: "group", action: "create", id, userId, payload, local };
   });
 }
 
 export function useUpdateFriendGroup() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ groupId, payload }: { groupId: string; payload: FriendGroupPayload }) =>
-      updateFriendGroup(groupId, payload),
-    onSuccess: async () => {
-      hapticSuccess();
-      await queryClient.invalidateQueries({ queryKey: friendKeys.groups() });
-      await queryClient.invalidateQueries({ queryKey: friendKeys.groupMembersRoot() });
+  return useQueuedWrite(
+    (
+      { groupId: id, payload }: { groupId: string; payload: FriendGroupPayload },
+      userId,
+      client,
+    ) => {
+      const previous = findLocalRecord<FriendGroup>(client, "group", id);
+      const local: FriendGroup = {
+        ...previous,
+        id,
+        ...payload,
+        description: payload.description ?? null,
+        member_count: payload.memberIds.length,
+      };
+      return { entity: "group", action: "update", id, userId, payload, local };
     },
-    onError: hapticError,
-  });
+  );
 }
 
 export function useDeleteFriendGroup() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (groupId: string) => deleteFriendGroup(groupId),
-    onSuccess: async () => {
-      hapticSuccess();
-      await queryClient.invalidateQueries({ queryKey: friendKeys.groups() });
-      await queryClient.invalidateQueries({ queryKey: ["wishlist-access-list"] });
-    },
-    onError: hapticError,
-  });
+  return useQueuedWrite((id: string, userId) => ({
+    entity: "group",
+    action: "delete",
+    id,
+    userId,
+    payload: {},
+    local: undefined,
+  }));
 }
 
 export function useInfiniteFriendsWithoutWishlistAccess(
@@ -412,39 +435,27 @@ export function useWishlistAccessList(wishlistId?: string, { enabled = true }: Q
 }
 
 export function useGrantWishlistGroupAccess() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ wishlistId, groupId }: { wishlistId: string; groupId: string }) =>
-      grantWishlistGroupAccess(wishlistId, groupId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
-      await queryClient.invalidateQueries({
-        queryKey: ["wishlist-access-list"],
-        exact: false,
-      });
-      await queryClient.invalidateQueries({
-        queryKey: friendKeys.withoutWishlistAccess(),
-      });
-    },
-  });
+  return useQueuedWrite(
+    ({ wishlistId: id, groupId: targetId }: { wishlistId: string; groupId: string }, userId) => ({
+      entity: "access",
+      action: "update",
+      id,
+      userId,
+      payload: { targetId, group: true },
+      local: undefined,
+    }),
+  );
 }
 
 export function useRevokeWishlistGroupAccess() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ wishlistId, groupId }: { wishlistId: string; groupId: string }) =>
-      revokeWishlistGroupAccess(wishlistId, groupId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
-      await queryClient.invalidateQueries({
-        queryKey: ["wishlist-access-list"],
-        exact: false,
-      });
-      await queryClient.invalidateQueries({
-        queryKey: friendKeys.withoutWishlistAccess(),
-      });
-    },
-  });
+  return useQueuedWrite(
+    ({ wishlistId: id, groupId: targetId }: { wishlistId: string; groupId: string }, userId) => ({
+      entity: "access",
+      action: "delete",
+      id,
+      userId,
+      payload: { targetId, group: true },
+      local: undefined,
+    }),
+  );
 }

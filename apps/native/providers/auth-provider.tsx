@@ -1,3 +1,7 @@
+import { Alert } from "react-native";
+import { useGT } from "gt-react-native";
+import { countQueuedWrites } from "@/lib/offline-mutations";
+import { failedWrites } from "@/lib/write-queue";
 import type { SupabaseSession, SupabaseUser } from "@wishlist/backend/supabase";
 import { deactivateCurrentPushToken } from "@/api/notifications";
 import { readStoredNativeSession, supabase } from "@wishlist/backend/supabase/native";
@@ -13,14 +17,14 @@ interface AuthContextType {
   session: SupabaseSession | null;
   user: SupabaseUser | null;
   isLoading: boolean;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   isLoading: true,
-  signOut: async () => {},
+  signOut: async () => false,
 });
 
 const KNOWN_ACCOUNT_PROVIDERS = new Set<KnownAccountProvider>([
@@ -71,6 +75,7 @@ async function rememberSessionAccount(session: SupabaseSession | null) {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const t = useGT();
   const [session, setSession] = useState<SupabaseSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const queryClient = useQueryClient();
@@ -137,8 +142,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [queryClient]);
 
   const signOut = async () => {
+    if (countQueuedWrites(queryClient) > 0 || failedWrites(queryClient).length > 0) {
+      const discard = await new Promise<boolean>((resolve) =>
+        Alert.alert(
+          t("Discard unsynced changes?"),
+          t("Signing out removes changes that have not reached the server."),
+          [
+            { text: t("Cancel"), style: "cancel", onPress: () => resolve(false) },
+            { text: t("Discard and sign out"), style: "destructive", onPress: () => resolve(true) },
+          ],
+          { cancelable: true, onDismiss: () => resolve(false) },
+        ),
+      );
+      if (!discard) return false;
+    }
     await deactivateCurrentPushToken().catch(() => undefined);
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    return true;
   };
 
   return (

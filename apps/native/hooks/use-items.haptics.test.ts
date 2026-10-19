@@ -64,3 +64,6 @@ describe.each([
     expect(hapticSuccess).not.toHaveBeenCalled();
   });
 });
+
+vi.mock("@/hooks/use-queued-write", () => ({}));
+vi.mock("@/lib/record-id", () => ({}));

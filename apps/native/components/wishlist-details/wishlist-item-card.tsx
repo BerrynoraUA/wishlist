@@ -1,3 +1,4 @@
+import { PendingSync } from "@/components/shared/pending-sync";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { ItemImage } from "@/components/items/item-image";
 import {
@@ -196,15 +197,16 @@ export function WishlistItemCard({
             <View className="gap-2 p-3">
               <View className="gap-0.5">
                 <View className="flex-row items-center gap-2">
-                  <Text
-                    className={cn(
-                      "min-w-0 flex-1 text-sm font-extrabold text-text",
-                      isTaken && "opacity-50",
-                    )}
-                    numberOfLines={1}
-                  >
-                    {item.name}
-                  </Text>
+                  <View className="min-w-0 flex-1 gap-1">
+                    {" "}
+                    <Text
+                      className={cn("text-sm font-extrabold text-text", isTaken && "opacity-50")}
+                      numberOfLines={1}
+                    >
+                      {item.name}
+                    </Text>
+                    <PendingSync id={item.id} />
+                  </View>
                   {!isOwner && onToggleVote ? (
                     <TouchTarget
                       accessibilityRole="button"

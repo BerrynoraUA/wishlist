@@ -1,7 +1,8 @@
-import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import { persistQueryClientSave } from "@tanstack/react-query-persist-client";
+import type { QueryClient } from "@tanstack/react-query";
+import { shouldPersistMutation } from "./offline-mutations";
+import type { Persister } from "@tanstack/react-query-persist-client";
 import { defaultShouldDehydrateQuery, type Query } from "@tanstack/react-query";
-import * as Application from "expo-application";
-import * as Updates from "expo-updates";
 import { createMMKV } from "react-native-mmkv";
 import { deserializeQueryCache, serializeQueryCache } from "@/lib/query-cache-serialization";
 
@@ -11,38 +12,49 @@ import { deserializeQueryCache, serializeQueryCache } from "@/lib/query-cache-se
  * (see `lib/offline-mutations.ts`).
  *
  * Kept in its own MMKV instance, apart from `preferencesStorage`: it is large, rewritten
- * often, and safe to drop at any time. Every query key carries the auth user id, and
+ * often, and includes unsynced writes that must be kept until sent or discarded. Every query key carries the auth user id, and
  * `AuthProvider` clears the cache when the account changes, which also empties this copy.
  */
 const queryCacheStorage = createMMKV({ id: "wishlist.query-cache" });
 
-export const queryCachePersister = createAsyncStoragePersister({
-  storage: {
-    getItem: (key) => queryCacheStorage.getString(key) ?? null,
-    setItem: (key, value) => {
-      queryCacheStorage.set(key, value);
-    },
-    removeItem: (key) => {
-      queryCacheStorage.remove(key);
-    },
-  },
-  serialize: serializeQueryCache,
-  deserialize: deserializeQueryCache,
-});
+const CACHE_KEY = "REACT_QUERY_OFFLINE_CACHE";
 
-/** How long saved data stays usable offline. Queries must be kept in memory at least as long. */
+// MMKV is synchronous. In particular, a save must finish before reporting an offline
+// write as saved; a throttled async persister can resolve before the queued disk write.
+export const queryCachePersister: Persister = {
+  persistClient: (client) => {
+    queryCacheStorage.set(CACHE_KEY, serializeQueryCache(client));
+  },
+  restoreClient: () => {
+    const raw = queryCacheStorage.getString(CACHE_KEY);
+    return raw ? deserializeQueryCache(raw) : undefined;
+  },
+  removeClient: () => {
+    queryCacheStorage.remove(CACHE_KEY);
+  },
+};
+
+/** Retain inactive queries for a week; unsynced writes and their saved cache do not expire. */
 export const QUERY_CACHE_MAX_AGE = 1000 * 60 * 60 * 24 * 7;
 
-/**
- * Drops the saved cache whenever the JS bundle changes, so a new build or OTA update never
- * renders data shaped for the previous one.
- */
-export const QUERY_CACHE_BUSTER = `${Application.nativeApplicationVersion ?? "dev"}:${
-  Updates.updateId ?? "embedded"
-}`;
+/** Version the persisted data shape; ordinary app updates must preserve unsent writes. */
+export const QUERY_CACHE_BUSTER = "offline-writes-v1";
 
 export function shouldPersistQuery(query: Query) {
   // Search results are throwaway and keyed by whatever the user typed.
   const isSearch = query.queryKey[0] === "friends" && query.queryKey[1] === "search";
   return !isSearch && defaultShouldDehydrateQuery(query);
+}
+
+/** Explicitly finish the local save before an offline form reports success. */
+export function saveQueryCache(client: QueryClient) {
+  return persistQueryClientSave({
+    queryClient: client,
+    persister: queryCachePersister,
+    buster: QUERY_CACHE_BUSTER,
+    dehydrateOptions: {
+      shouldDehydrateQuery: shouldPersistQuery,
+      shouldDehydrateMutation: shouldPersistMutation,
+    },
+  });
 }

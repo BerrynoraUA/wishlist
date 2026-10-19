@@ -1,3 +1,7 @@
+import { SyncNotice } from "@/components/shared/sync-notice";
+import { registerWriteQueue } from "@/lib/write-queue";
+import { sendQueuedWrite } from "@/lib/send-queued-write";
+import { reapplyPendingWrites } from "@/lib/local-write-cache";
 import { ensureIntlLocale } from "@/polyfills/gtIntlPolyfills";
 import "@/global.css";
 
@@ -47,7 +51,7 @@ import { ThemeProvider } from "expo-router/react-navigation";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
 import { ShareIntentProvider } from "expo-share-intent";
 import { PostHogEventProperties } from "@posthog/core";
-import { MutationCache, QueryClient } from "@tanstack/react-query";
+import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { Stack, useGlobalSearchParams, usePathname, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -85,6 +89,7 @@ if (bootThemeSettings) applyNativeThemeSettings(bootThemeSettings);
 export default function RootLayout() {
   const [queryClient] = useState(() => {
     const client = new QueryClient({
+      queryCache: new QueryCache({ onSuccess: () => reapplyPendingWrites(client) }),
       mutationCache: new MutationCache({ onMutate: rejectMutationWhileOffline }),
       defaultOptions: {
         queries: {
@@ -98,6 +103,7 @@ export default function RootLayout() {
       },
     });
     registerQueuedItemMutations(client);
+    registerWriteQueue(client, sendQueuedWrite);
     return client;
   });
   const { theme } = useUniwind();
@@ -129,7 +135,7 @@ export default function RootLayout() {
               client={queryClient}
               persistOptions={{
                 persister: queryCachePersister,
-                maxAge: QUERY_CACHE_MAX_AGE,
+                maxAge: Infinity,
                 buster: QUERY_CACHE_BUSTER,
                 dehydrateOptions: {
                   shouldDehydrateQuery: shouldPersistQuery,
@@ -439,6 +445,7 @@ function AuthenticatedThemeGate({ children }: { children: ReactNode }) {
       <MarkAppReady />
       {children}
       <ToastHost />
+      <SyncNotice />
       {/* Hidden WebViews used by the on-device product scraper. Mounted once
           per session, inside the authenticated tree — scraping only ever
           happens while adding or editing an item. */}

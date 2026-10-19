@@ -106,7 +106,7 @@ export default function ProfileScreen() {
   ]);
 
   async function handleSignOut() {
-    await signOut();
+    if (!(await signOut())) return;
     router.replace("/(auth)/sign-in" as never);
   }
 

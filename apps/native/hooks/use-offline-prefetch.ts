@@ -1,4 +1,5 @@
-import { friendsQueryOptions } from "@/hooks/use-friends";
+import { friendsQueryOptions, friendGroupsQueryOptions } from "@/hooks/use-friends";
+import { getFriendGroupMembers, getWishlistAccessList } from "@/api/friends";
 import { settingsQueryOptions } from "@/hooks/use-settings";
 import { itemVotesQueryOptions, wishlistItemsQueryOptions } from "@/hooks/use-items";
 import {
@@ -17,7 +18,7 @@ import {
   wishlistByIdQueryOptions,
 } from "@/hooks/use-wishlists";
 import { DISCOVER_PAGE_SIZE, EMPTY_DISCOVER_FILTERS, toDiscoverQueryParams } from "@/lib/discover";
-import { FRIENDS_PAGE_SIZE } from "@/lib/friend-query-keys";
+import { FRIENDS_PAGE_SIZE, friendKeys } from "@/lib/friend-query-keys";
 import { EMPTY_ITEM_FILTERS, toItemQueryParams, WISHLIST_ITEMS_PAGE_SIZE } from "@/lib/items";
 import { SECRET_SANTA_PAGE_SIZE } from "@/lib/secret-santa";
 import { DEFAULT_WISHLIST_SORT, WISHLIST_PAGE_SIZE } from "@/lib/wishlists";
@@ -98,6 +99,20 @@ async function prefetchOfflineData(queryClient: QueryClient, userId: string) {
     prefetchDiscover(queryClient, userId, displayCurrency),
     queryClient.prefetchQuery({ ...myStatisticsQueryOptions(userId), ...fresh }),
     prefetchSecretSanta(queryClient, userId),
+    queryClient
+      .fetchInfiniteQuery({ ...friendGroupsQueryOptions(userId, {}, FRIENDS_PAGE_SIZE), ...fresh })
+      .then((data) =>
+        Promise.all(
+          data.pages.flat().map((group) =>
+            queryClient.prefetchQuery({
+              queryKey: friendKeys.groupMembers(userId, group.id),
+              queryFn: () => getFriendGroupMembers(group.id),
+              ...fresh,
+            }),
+          ),
+        ),
+      )
+      .catch(() => undefined),
   ]);
 
   const friendWishlists = await Promise.all(
@@ -118,7 +133,13 @@ async function prefetchOfflineData(queryClient: QueryClient, userId: string) {
   for (let index = 0; index < wishlists.length; index += WISHLIST_BATCH_SIZE) {
     const batch = wishlists.slice(index, index + WISHLIST_BATCH_SIZE);
     await Promise.all(
-      batch.map(async ({ id }) => {
+      batch.map(async ({ id, is_owner }) => {
+        if (is_owner)
+          void queryClient.prefetchQuery({
+            queryKey: ["wishlist-access-list", userId, id],
+            queryFn: () => getWishlistAccessList(id),
+            ...fresh,
+          });
         const [, items] = await Promise.all([
           queryClient.prefetchQuery({ ...wishlistByIdQueryOptions(userId, id), ...fresh }),
           queryClient

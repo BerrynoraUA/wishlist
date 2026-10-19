@@ -1,9 +1,12 @@
+import { useQueuedWrite } from "@/hooks/use-queued-write";
+import { findLocalRecord } from "@/lib/local-write-cache";
+import { newRecordId } from "@/lib/record-id";
+import { keepImageForSync } from "@/lib/offline-images";
+import type { SecretSantaDetails, SecretSantaEvent } from "@wishlist/backend/types/secret-santa";
 import { hapticError, hapticSuccess } from "@/lib/haptics";
 import {
   acceptSecretSantaInvite,
-  createSecretSantaEvent,
   declineSecretSantaInvite,
-  deleteSecretSantaEvent,
   getSecretSantaDetails,
   getUserVisibleItemsByMaxPrice,
   inviteSecretSantaUsers,
@@ -12,7 +15,6 @@ import {
   listSecretSantaEvents,
   removeSecretSantaInvite,
   removeSecretSantaParticipant,
-  updateSecretSantaEvent,
 } from "@/api/secret-santa";
 import { notificationKeys } from "@/hooks/use-notifications";
 import { normalizeSearchQuery } from "@/lib/wishlists";
@@ -101,45 +103,70 @@ export function useSecretSantaDetails(eventId?: string) {
   });
 }
 
-export function useCreateSecretSantaEvent() {
-  const queryClient = useQueryClient();
+async function eventPayload<T extends CreateSecretSantaEventInput | UpdateSecretSantaEventInput>(
+  input: T,
+) {
+  const { image, ...payload } = input;
+  if (image && "uri" in image) {
+    const saved = await keepImageForSync(image);
+    return { ...payload, imageUrl: saved.uri };
+  }
+  return payload;
+}
 
-  return useMutation({
-    mutationFn: (input: CreateSecretSantaEventInput) => createSecretSantaEvent(input),
-    onSuccess: async () => {
-      hapticSuccess();
-      await queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
-    },
-    onError: hapticError,
+export function useCreateSecretSantaEvent() {
+  return useQueuedWrite(async (input: CreateSecretSantaEventInput, userId) => {
+    const id = newRecordId();
+    const payload = await eventPayload(input);
+    const local: SecretSantaDetails & { is_owner: boolean; participants_count: number } = {
+      id,
+      name: input.name,
+      event_date: input.event_date,
+      budget: input.budget,
+      currency: input.currency,
+      image_url: payload.imageUrl ?? null,
+      owner_id: userId,
+      is_owner: true,
+      participants_count: 1,
+      is_started: false,
+      participants: [],
+      pending_invites: [],
+      my_receiver: null,
+    };
+    return { entity: "event", action: "create", id, userId, payload, local };
   });
 }
 
 export function useUpdateSecretSantaEvent() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ eventId, updates }: { eventId: string; updates: UpdateSecretSantaEventInput }) =>
-      updateSecretSantaEvent(eventId, updates),
-    onSuccess: async () => {
-      hapticSuccess();
-      await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
+  return useQueuedWrite(
+    async (
+      { eventId: id, updates }: { eventId: string; updates: UpdateSecretSantaEventInput },
+      userId,
+      client,
+    ) => {
+      const payload = await eventPayload(updates);
+      const previous = findLocalRecord<SecretSantaEvent>(client, "event", id);
+      if (!previous) throw new Error("Open this event while connected before editing it offline.");
+      const local = {
+        ...previous,
+        ...payload,
+        ...(payload.imageUrl !== undefined && { image_url: payload.imageUrl }),
+        ...(updates.removeImage && { image_url: null }),
+      };
+      return { entity: "event", action: "update", id, userId, payload, local };
     },
-    onError: hapticError,
-  });
+  );
 }
 
 export function useDeleteSecretSantaEvent() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (eventId: string) => deleteSecretSantaEvent(eventId),
-    onSuccess: async () => {
-      hapticSuccess();
-      await queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
-      queryClient.removeQueries({ queryKey: ["secret-santa", "detail"], exact: false });
-    },
-    onError: hapticError,
-  });
+  return useQueuedWrite((id: string, userId) => ({
+    entity: "event",
+    action: "delete",
+    id,
+    userId,
+    payload: {},
+    local: undefined,
+  }));
 }
 
 export function useInviteSecretSantaUsers() {

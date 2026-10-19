@@ -1,4 +1,4 @@
-import { onlineManager, type Mutation } from "@tanstack/react-query";
+import { onlineManager, type Mutation, type QueryClient } from "@tanstack/react-query";
 
 /**
  * How mutations behave without a connection. There are three kinds:
@@ -13,10 +13,16 @@ import { onlineManager, type Mutation } from "@tanstack/react-query";
  */
 export const OFFLINE_QUEUE_KEY = "offline-queue";
 
+/**
+ * Shared by every queued write. One scope runs them serially, in the order they were made, so a
+ * wish created inside a wishlist made offline is sent after that wishlist.
+ */
+export const QUEUED_WRITE_OPTIONS = { scope: { id: OFFLINE_QUEUE_KEY }, retry: 2 } as const;
+
 // Just the fields read here, so any `Mutation` instantiation fits.
 type AnyMutation = {
   options: Pick<Mutation["options"], "mutationKey" | "meta">;
-  state: Pick<Mutation["state"], "isPaused">;
+  state: Pick<Mutation["state"], "isPaused"> & { status?: string };
 };
 
 export function isQueuedOfflineMutation(mutation: AnyMutation) {
@@ -43,12 +49,31 @@ export function setOfflineErrorMessage(message: string) {
 /** `MutationCache` `onMutate`: throwing here fails the mutation before it pauses. */
 export function rejectMutationWhileOffline(_variables: unknown, mutation: AnyMutation) {
   if (onlineManager.isOnline() || isQueuedOfflineMutation(mutation)) return;
-  if (mutation.options.meta?.offline === "wait") return;
+  if (mutation.options.meta?.offline === "wait" || mutation.options.meta?.offline === "local")
+    return;
 
   throw new OfflineError(offlineErrorMessage);
 }
 
-/** Only queued writes are saved: no other paused mutation could run after a restart. */
+/** Keep pending and rejected queued writes until they sync or are discarded. */
 export function shouldPersistMutation(mutation: AnyMutation) {
-  return mutation.state.isPaused && isQueuedOfflineMutation(mutation);
+  return (
+    isQueuedOfflineMutation(mutation) &&
+    (mutation.state.isPaused ||
+      mutation.state.status === "pending" ||
+      mutation.state.status === "error")
+  );
+}
+
+/** Queued writes not yet settled, including ones waiting for the connection. */
+export function countQueuedWrites(queryClient: QueryClient) {
+  return queryClient.isMutating({ predicate: isQueuedOfflineMutation });
+}
+
+/**
+ * Whether the write settling now is the last one queued. A mutation still counts as pending
+ * while its own `onSettled` runs, hence `<= 1`.
+ */
+export function isLastQueuedWrite(queryClient: QueryClient) {
+  return countQueuedWrites(queryClient) <= 1;
 }

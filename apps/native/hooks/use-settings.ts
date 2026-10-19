@@ -1,3 +1,5 @@
+import { useQueuedWrite } from "@/hooks/use-queued-write";
+
 import {
   changePassword,
   checkNicknameAvailable,
@@ -8,13 +10,8 @@ import {
   getProfilesByIds,
   getSettings,
   updateProfile,
-  updateSettings,
 } from "@/api/settings";
-import {
-  applyNativeThemeSettings,
-  writeCachedNativeThemeSettings,
-  type CachedNativeThemeSettings,
-} from "@/lib/theme";
+import { applyNativeThemeSettings, writeCachedNativeThemeSettings } from "@/lib/theme";
 import { useAuth } from "@/providers/auth-provider";
 import { getRandomDefaultAvatarUrl } from "@wishlist/backend/lib/default-avatars";
 import * as React from "react";
@@ -73,14 +70,17 @@ export function useEnsureDefaultAvatar() {
 }
 
 export function useUpdateProfile() {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-
-  return useMutation({
-    mutationFn: (payload: UpdateProfilePayload) => updateProfile(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: settingsKeys.profile(user?.id) });
-    },
+  return useQueuedWrite((payload: UpdateProfilePayload, userId, client) => {
+    const previous = client.getQueryData<UserProfile>(settingsKeys.profile(userId));
+    if (!previous) throw new Error("Load your profile while connected before editing it offline.");
+    return {
+      entity: "profile",
+      action: "update",
+      id: userId,
+      userId,
+      payload,
+      local: { ...previous, ...payload },
+    };
   });
 }
 
@@ -171,69 +171,15 @@ export function useSettings() {
 }
 
 export function useUpdateSettings() {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-  const preferencesKey = settingsKeys.preferences(user?.id);
-
-  function persistNativeThemeSettings(settings: UserSettings) {
-    if (!user?.id) return;
-
-    const themeSettings: CachedNativeThemeSettings = {
-      theme: settings.theme,
-      default_accent: settings.default_accent,
-    };
-
-    applyNativeThemeSettings(themeSettings);
-    void writeCachedNativeThemeSettings(user.id, themeSettings).catch(() => {});
-  }
-
-  return useMutation({
-    mutationFn: (payload: UpdateSettingsPayload) => updateSettings(payload),
-    onMutate: async (payload) => {
-      await queryClient.cancelQueries({ queryKey: preferencesKey });
-
-      const previousSettings = queryClient.getQueryData<UserSettings>(preferencesKey);
-
-      if (user?.id) {
-        const baseSettings =
-          previousSettings ??
-          ({
-            user_id: user.id,
-            ...DEFAULT_SETTINGS,
-          } satisfies UserSettings);
-        const optimisticSettings = {
-          ...baseSettings,
-          ...payload,
-        };
-
-        queryClient.setQueryData<UserSettings>(preferencesKey, optimisticSettings);
-
-        if ("theme" in payload || "default_accent" in payload) {
-          persistNativeThemeSettings(optimisticSettings);
-        }
-      }
-
-      return { previousSettings };
-    },
-    onError: (_error, payload, context) => {
-      if (context?.previousSettings) {
-        queryClient.setQueryData(preferencesKey, context.previousSettings);
-
-        if ("theme" in payload || "default_accent" in payload) {
-          persistNativeThemeSettings(context.previousSettings);
-        }
-      }
-    },
-    onSuccess: (settings) => {
-      queryClient.setQueryData(preferencesKey, settings);
-      persistNativeThemeSettings(settings);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: preferencesKey,
-        refetchType: "active",
-      });
-    },
+  return useQueuedWrite((payload: UpdateSettingsPayload, userId, client) => {
+    const previous = client.getQueryData<UserSettings>(settingsKeys.preferences(userId));
+    const local: UserSettings = { user_id: userId, ...DEFAULT_SETTINGS, ...previous, ...payload };
+    if ("theme" in payload || "default_accent" in payload) {
+      const theme = { theme: local.theme, default_accent: local.default_accent };
+      applyNativeThemeSettings(theme);
+      void writeCachedNativeThemeSettings(userId, theme).catch(() => {});
+    }
+    return { entity: "settings", action: "update", id: userId, userId, payload, local };
   });
 }
 

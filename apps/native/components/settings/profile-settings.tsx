@@ -1,3 +1,4 @@
+import { useIsOnline } from "@/hooks/use-is-online";
 import { Button } from "@/components/ui/button";
 import {
   ActionBottomSheetMessage,
@@ -36,6 +37,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
   const t = useGT();
   const updateProfile = useUpdateProfile();
   const avatarUpload = useImageUploadField("avatar");
+  const isOnline = useIsOnline();
   const checkNickname = useCheckNickname();
   const { control, handleSubmit, reset, setValue } = useForm<ProfileFormValues>({
     defaultValues: {
@@ -78,7 +80,12 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
     const trimmedNickname = values.nickname.trim();
     latestNicknameRef.current = trimmedNickname;
 
-    if (!trimmedNickname || trimmedNickname.length < 3 || trimmedNickname === profile?.nickname) {
+    if (
+      !isOnline ||
+      !trimmedNickname ||
+      trimmedNickname.length < 3 ||
+      trimmedNickname === profile?.nickname
+    ) {
       setNicknameStatus("idle");
       return;
     }
@@ -98,7 +105,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [values.nickname, profile?.nickname]);
+  }, [isOnline, values.nickname, profile?.nickname]);
 
   // Whatever was chosen this session wins over the stored one, so a fresh choice is
   // visible before it is saved.
