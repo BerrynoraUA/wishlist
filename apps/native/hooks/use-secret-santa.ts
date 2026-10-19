@@ -3,6 +3,7 @@ import { findLocalRecord } from "@/lib/local-write-cache";
 import { newRecordId } from "@/lib/record-id";
 import { keepImageForSync } from "@/lib/offline-images";
 import type { SecretSantaDetails, SecretSantaEvent } from "@wishlist/backend/types/secret-santa";
+import type { UserProfile } from "@wishlist/backend/types/settings";
 import { hapticError, hapticSuccess } from "@/lib/haptics";
 import {
   acceptSecretSantaInvite,
@@ -17,6 +18,7 @@ import {
   removeSecretSantaParticipant,
 } from "@/api/secret-santa";
 import { notificationKeys } from "@/hooks/use-notifications";
+import { settingsKeys } from "@/hooks/use-settings";
 import { normalizeSearchQuery } from "@/lib/wishlists";
 import { useAuth } from "@/providers/auth-provider";
 import type {
@@ -115,9 +117,11 @@ async function eventPayload<T extends CreateSecretSantaEventInput | UpdateSecret
 }
 
 export function useCreateSecretSantaEvent() {
-  return useQueuedWrite(async (input: CreateSecretSantaEventInput, userId) => {
+  return useQueuedWrite(async (input: CreateSecretSantaEventInput, userId, client) => {
     const id = newRecordId();
     const payload = await eventPayload(input);
+    // The server makes the creator the first participant; show them the same way until then.
+    const profile = client.getQueryData<UserProfile>(settingsKeys.profile(userId));
     const local: SecretSantaDetails & { is_owner: boolean; participants_count: number } = {
       id,
       name: input.name,
@@ -129,7 +133,14 @@ export function useCreateSecretSantaEvent() {
       is_owner: true,
       participants_count: 1,
       is_started: false,
-      participants: [],
+      participants: [
+        {
+          id: userId,
+          nickname: profile?.nickname ?? null,
+          display_name: profile?.display_name ?? null,
+          avatar_url: profile?.avatar_url ?? null,
+        },
+      ],
       pending_invites: [],
       my_receiver: null,
     };
