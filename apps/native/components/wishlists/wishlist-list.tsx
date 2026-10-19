@@ -580,7 +580,6 @@ function WishlistCard({
               <View className="gap-3 px-4 pb-4 pt-3">
                 <View className="min-h-11 flex-row items-start justify-between gap-3">
                   <View className="min-w-0 flex-1 gap-1">
-                    {" "}
                     <Text className="text-[15px] font-bold leading-5 text-text" numberOfLines={2}>
                       {wishlist.title}
                     </Text>

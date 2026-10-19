@@ -184,7 +184,11 @@ export function applyLocalWrite(client: QueryClient, write: QueuedWrite) {
       write.local,
     );
   }
-  if (write.entity === "group" && write.action !== "delete") {
+  if (
+    write.entity === "group" &&
+    write.action !== "delete" &&
+    Array.isArray((write.payload as FriendGroupPayload).memberIds)
+  ) {
     const friends = client
       .getQueriesData<InfiniteData<FriendWithDetails[]>>({
         queryKey: ["friends", "list", write.userId],
@@ -265,7 +269,10 @@ export function findLocalRecord<T>(
     if (row.id === id || (row.user_id === id && entity === "settings")) return row as T;
     return find(row.pages) ?? find(row.items);
   }
-  for (const [, data] of client.getQueriesData({ queryKey: [roots[entity]] })) {
+  const cached = client.getQueriesData({ queryKey: [roots[entity]] });
+  // Details can contain participants and other fields absent from a list card.
+  cached.sort(([left], [right]) => Number(right[1] === "detail") - Number(left[1] === "detail"));
+  for (const [, data] of cached) {
     const found = find(data);
     if (found) return found;
   }
@@ -284,6 +291,10 @@ export function discardLocalWrite(client: QueryClient, write: QueuedWrite) {
   if (write.action === "create")
     applyLocalWrite(client, { ...write, action: "delete", local: undefined });
   else if (write.previous)
-    applyLocalWrite(client, { ...write, action: "update", local: write.previous });
+    applyLocalWrite(client, {
+      ...write,
+      action: write.action === "delete" ? "create" : "update",
+      local: write.previous,
+    });
   reapplyPendingWrites(client);
 }

@@ -25,6 +25,13 @@ vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ t
 vi.mock("gt-react-native", () => ({ useGT: () => (text: string) => text }));
 vi.mock("@/lib/layout", () => ({ useTabBarContentPadding: () => 0, chunkRows: () => [] }));
 vi.mock("@/api/share", () => ({}));
+vi.mock("@/lib/card-motion", () => ({
+  useListCardRemoval: () => ({
+    exitingIds: new Set(),
+    acceptedIds: new Set(),
+    removedIds: new Set(),
+  }),
+}));
 vi.mock("@/hooks/use-user", () => ({ useCurrentUserId: () => ({ data: "viewer" }) }));
 vi.mock("@/hooks/use-own-reservations", () => ({ useShowOwnReservations: () => false }));
 vi.mock("@/hooks/use-pro-gate", () => ({ useProGate: () => ({}) }));

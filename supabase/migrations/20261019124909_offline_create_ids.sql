@@ -116,6 +116,7 @@ create or replace function public.create_secret_santa_event(
 )
 returns public.secret_santa
 language plpgsql
+set search_path to 'public'
 as $$
 declare
   v_event public.secret_santa;

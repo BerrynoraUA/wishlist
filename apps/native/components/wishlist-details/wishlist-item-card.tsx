@@ -198,7 +198,6 @@ export function WishlistItemCard({
               <View className="gap-0.5">
                 <View className="flex-row items-center gap-2">
                   <View className="min-w-0 flex-1 gap-1">
-                    {" "}
                     <Text
                       className={cn("text-sm font-extrabold text-text", isTaken && "opacity-50")}
                       numberOfLines={1}

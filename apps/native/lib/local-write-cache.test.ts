@@ -1,6 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 import { afterEach, describe, expect, it } from "vitest";
-import { applyLocalWrite, discardLocalWrite } from "./local-write-cache";
+import { applyLocalWrite, discardLocalWrite, findLocalRecord } from "./local-write-cache";
 import type { QueuedWrite } from "./write-queue";
 
 const client = new QueryClient();
@@ -121,5 +121,36 @@ describe("local queued records", () => {
     expect(client.getQueryData(["wishlists", "detail", "new", "me"])).toMatchObject({
       title: "Original",
     });
+  });
+
+  it("restores a discarded deletion to its saved list while still offline", () => {
+    const entry = write();
+    applyLocalWrite(client, entry);
+    const deletion = {
+      ...entry,
+      action: "delete" as const,
+      local: undefined,
+      previous: entry.local,
+    };
+    applyLocalWrite(client, deletion);
+    discardLocalWrite(client, deletion);
+    expect(client.getQueriesData({ queryKey: ["wishlists", "my", "me"] })[0][1]).toMatchObject({
+      pages: [[{ id: "new", title: "Offline" }]],
+    });
+  });
+
+  it("keeps event participants when preparing a deletion rollback", () => {
+    client.setQueryData(["secret-santa", "list", "me"], {
+      pages: [{ items: [{ id: "event", name: "Party" }], total: 1 }],
+      pageParams: [0],
+    });
+    const details = {
+      id: "event",
+      name: "Party",
+      participants: [{ id: "friend" }],
+      pending_invites: [],
+    };
+    client.setQueryData(["secret-santa", "detail", "me", "event"], details);
+    expect(findLocalRecord(client, "event", "event")).toEqual(details);
   });
 });
