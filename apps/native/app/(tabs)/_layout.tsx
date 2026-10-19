@@ -30,7 +30,7 @@ export default function TabsLayout() {
         ) : (
           <AndroidTabs onCreatePress={() => setCreateOpen(true)} />
         )}
-        <OfflineBanner />
+        {Platform.OS === "ios" ? <OfflineBanner /> : null}
       </CreateMenuHost>
     </RootPathRedirect>
   );
