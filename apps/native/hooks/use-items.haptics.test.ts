@@ -1,15 +1,9 @@
-import {
-  MutationObserver,
-  QueryClient,
-  useMutation,
-  useQueryClient,
-  type UseMutationOptions,
-} from "@tanstack/react-query";
+import { MutationObserver, QueryClient } from "@tanstack/react-query";
 import type { Item } from "@wishlist/backend/types/item";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { toggleItemBought, toggleItemReservation } from "@/api/items";
 import { hapticError, hapticSuccess } from "@/lib/haptics";
-import { useToggleItemBought, useToggleItemReservation } from "./use-items";
+import { queuedItemMutationKeys, registerQueuedItemMutations } from "./use-items";
 
 vi.mock("@/api/items", () => ({
   toggleItemBought: vi.fn(),
@@ -17,35 +11,31 @@ vi.mock("@/api/items", () => ({
 }));
 vi.mock("@/hooks/use-infinite-page", () => ({}));
 vi.mock("@/lib/card-motion", () => ({}));
-vi.mock("@/lib/items", () => ({}));
+vi.mock("@/lib/items", () => ({
+  optimisticallyToggleItemBought: (item: Item) => item,
+  optimisticallyToggleItemReservation: (item: Item) => item,
+}));
 vi.mock("@/providers/auth-provider", () => ({}));
 vi.mock("@/lib/haptics", () => ({ hapticError: vi.fn(), hapticSuccess: vi.fn() }));
-vi.mock("@tanstack/react-query", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@tanstack/react-query")>()),
-  useMutation: vi.fn(),
-  useQueryClient: vi.fn(),
-}));
 
 describe.each([
-  ["reservation", useToggleItemReservation, toggleItemReservation],
-  ["purchase", useToggleItemBought, toggleItemBought],
-] as const)("%s outcome feedback", (_name, useAction, api) => {
+  ["reservation", queuedItemMutationKeys.toggleReservation, toggleItemReservation],
+  ["purchase", queuedItemMutationKeys.toggleBought, toggleItemBought],
+] as const)("%s outcome feedback", (_name, mutationKey, api) => {
   let client: QueryClient;
   beforeEach(() => {
     vi.clearAllMocks();
-    client = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
-    vi.mocked(useQueryClient).mockReturnValue(client);
+    client = new QueryClient();
+    registerQueuedItemMutations(client);
   });
   afterEach(() => client.clear());
 
   function action() {
-    useAction();
-    const options = vi.mocked(useMutation).mock.calls.at(-1)![0] as UseMutationOptions<
-      Item,
-      Error,
-      string
-    >;
-    return new MutationObserver(client, options);
+    // Retries would only delay the rejection under test.
+    return new MutationObserver<Item, Error, { itemId: string; userId: string }>(client, {
+      mutationKey,
+      retry: false,
+    });
   }
 
   it("waits for the server before playing success", async () => {
@@ -55,7 +45,7 @@ describe.each([
         resolve = done;
       }),
     );
-    const result = action().mutate("item");
+    const result = action().mutate({ itemId: "item", userId: "user" });
     await vi.waitFor(() => expect(api).toHaveBeenCalledWith("item"));
     expect(hapticSuccess).not.toHaveBeenCalled();
     expect(hapticError).not.toHaveBeenCalled();
@@ -67,7 +57,9 @@ describe.each([
 
   it("plays error without success when the server rejects", async () => {
     vi.mocked(api).mockRejectedValue(new Error("Request failed"));
-    await expect(action().mutate("item")).rejects.toThrow("Request failed");
+    await expect(action().mutate({ itemId: "item", userId: "user" })).rejects.toThrow(
+      "Request failed",
+    );
     expect(hapticError).toHaveBeenCalledTimes(1);
     expect(hapticSuccess).not.toHaveBeenCalled();
   });

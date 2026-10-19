@@ -26,7 +26,7 @@ import {
   updateFriendGroup,
 } from "@/api/friends";
 import { animateCardRemoval } from "@/lib/card-motion";
-import { useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
+import { skipTakeInfiniteQueryOptions, useSkipTakeInfiniteQuery } from "@/hooks/use-infinite-page";
 import {
   friendKeys,
   type FriendPaginationParams as PaginationParams,
@@ -38,7 +38,7 @@ import type {
   FriendGroupPayload,
   GetFriendsWithoutWishlistAccessParams,
 } from "@wishlist/backend/types/friends";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 
 /** Lets a caller keep a query idle while the UI that needs it is not on screen. */
@@ -121,21 +121,17 @@ export function useSearchProfilesByNickname(query: string, params?: PaginationPa
   });
 }
 
-export function useInfiniteFriends(
+export function friendsQueryOptions(
+  authUserId: string | undefined,
   params: PaginationParams,
   pageSize: number,
-  { enabled = true }: QueryGate = {},
 ) {
-  const { user } = useAuth();
-  const normalizedParams = React.useMemo(
-    () => ({
-      search: normalizeSearchQuery(params.search) || undefined,
-    }),
-    [params.search],
-  );
+  const normalizedParams = {
+    search: normalizeSearchQuery(params.search) || undefined,
+  };
 
-  return useSkipTakeInfiniteQuery({
-    queryKey: friendKeys.list(user?.id, { ...normalizedParams, take: pageSize }),
+  return skipTakeInfiniteQueryOptions({
+    queryKey: friendKeys.list(authUserId, { ...normalizedParams, take: pageSize }),
     fetchPage: ({ skip, take }) =>
       getFriends({
         ...normalizedParams,
@@ -143,6 +139,18 @@ export function useInfiniteFriends(
         take,
       }),
     pageSize,
+  });
+}
+
+export function useInfiniteFriends(
+  params: PaginationParams,
+  pageSize: number,
+  { enabled = true }: QueryGate = {},
+) {
+  const { user } = useAuth();
+
+  return useInfiniteQuery({
+    ...friendsQueryOptions(user?.id, params, pageSize),
     enabled: enabled && Boolean(user?.id),
   });
 }

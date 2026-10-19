@@ -10,6 +10,9 @@ import { SecretSantaLaunchWatcher } from "@/components/secret-santa/secret-santa
 import { ToastHost } from "@/components/ui/toast";
 import { AppBlurTarget } from "@/components/ui/app-blur-target";
 import { useEnsureDefaultAvatar, useSettings, useUpdateSettings } from "@/hooks/use-settings";
+import { useOfflinePrefetch } from "@/hooks/use-offline-prefetch";
+import { registerQueuedItemMutations } from "@/hooks/use-items";
+import { rejectMutationWhileOffline, shouldPersistMutation } from "@/lib/offline-mutations";
 import {
   applyNativeThemeSettings,
   type CachedNativeThemeSettings,
@@ -33,12 +36,19 @@ import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { SubscriptionProvider } from "@/providers/subscription-provider";
 import { UserGuideProvider } from "@/components/user-guide/user-guide-provider";
 import { AppStateLifecycle } from "@/components/providers/native-query-lifecycle";
+import {
+  QUERY_CACHE_BUSTER,
+  QUERY_CACHE_MAX_AGE,
+  queryCachePersister,
+  shouldPersistQuery,
+} from "@/lib/query-persister";
 import { ScraperSandbox } from "@/components/scraper/scraper-sandbox";
 import { ThemeProvider } from "expo-router/react-navigation";
 import { ReanimatedTrueSheetProvider } from "@lodev09/react-native-true-sheet/reanimated";
 import { ShareIntentProvider } from "expo-share-intent";
 import { PostHogEventProperties } from "@posthog/core";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MutationCache, QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { Stack, useGlobalSearchParams, usePathname, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GTProvider, useLocale, useLocales, useSetLocale } from "gt-react-native";
@@ -73,19 +83,23 @@ const bootThemeSettings = readBootThemeSettings(readBootLastUserId());
 if (bootThemeSettings) applyNativeThemeSettings(bootThemeSettings);
 
 export default function RootLayout() {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 1000 * 60,
-            retry: 2,
-            refetchOnReconnect: true,
-            refetchOnWindowFocus: false,
-          },
+  const [queryClient] = useState(() => {
+    const client = new QueryClient({
+      mutationCache: new MutationCache({ onMutate: rejectMutationWhileOffline }),
+      defaultOptions: {
+        queries: {
+          staleTime: 1000 * 60,
+          // Kept in memory as long as the on-device copy is valid, or it is never saved.
+          gcTime: QUERY_CACHE_MAX_AGE,
+          retry: 2,
+          refetchOnReconnect: true,
+          refetchOnWindowFocus: false,
         },
-      }),
-  );
+      },
+    });
+    registerQueuedItemMutations(client);
+    return client;
+  });
   const { theme } = useUniwind();
   const themeMode = getThemeMode(theme);
   const navigationTheme = useNavigationTheme(theme);
@@ -111,7 +125,21 @@ export default function RootLayout() {
           <GTProvider>
             <IntlLocaleGate />
             <RtlDirectionGate />
-            <QueryClientProvider client={queryClient}>
+            <PersistQueryClientProvider
+              client={queryClient}
+              persistOptions={{
+                persister: queryCachePersister,
+                maxAge: QUERY_CACHE_MAX_AGE,
+                buster: QUERY_CACHE_BUSTER,
+                dehydrateOptions: {
+                  shouldDehydrateQuery: shouldPersistQuery,
+                  shouldDehydrateMutation: shouldPersistMutation,
+                },
+              }}
+              // Replays writes queued offline in an earlier session; a no-op while offline,
+              // in which case they run on reconnect.
+              onSuccess={() => queryClient.resumePausedMutations()}
+            >
               <AppStateLifecycle />
               <AuthProvider>
                 <SubscriptionProvider>
@@ -129,7 +157,7 @@ export default function RootLayout() {
                   </ThemeProvider>
                 </SubscriptionProvider>
               </AuthProvider>
-            </QueryClientProvider>
+            </PersistQueryClientProvider>
           </GTProvider>
         </PostHogProvider>
       </AnimatedSplash>
@@ -203,6 +231,7 @@ function AuthGate() {
         <AuthRedirector />
         <ProfileBootstrap />
         <NotificationPushBootstrap />
+        <OfflinePrefetchBootstrap />
         {/* Inside the per-account subtree so the guide reads the right account's state,
             and never mounts at all on the auth screens. */}
         <UserGuideProvider>
@@ -264,6 +293,15 @@ function AuthRedirector() {
  */
 function ProfileBootstrap() {
   useEnsureDefaultAvatar();
+
+  return null;
+}
+
+function OfflinePrefetchBootstrap() {
+  const appReady = useAppReady();
+
+  // Dozens of requests the first screen does not need, so they wait for the splash to go.
+  useOfflinePrefetch({ enabled: appReady && !SHOWCASE_ENABLED });
 
   return null;
 }

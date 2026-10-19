@@ -23,7 +23,14 @@ import type {
   ListSecretSantaEventsParams,
   UpdateSecretSantaEventInput,
 } from "@wishlist/backend/types/secret-santa";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  infiniteQueryOptions,
+  queryOptions,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 export const secretSantaKeys = {
   all: ["secret-santa"] as const,
@@ -42,18 +49,17 @@ export const secretSantaKeys = {
   ],
 };
 
-export function useInfiniteSecretSantaEvents(
+export function secretSantaEventsQueryOptions(
+  authUserId: string | undefined,
   params: ListSecretSantaEventsParams,
   pageSize: number,
-  { enabled = true }: { enabled?: boolean } = {},
 ) {
-  const { user } = useAuth();
   const normalizedParams = {
     search: normalizeSearchQuery(params.search) || undefined,
   };
 
-  return useInfiniteQuery({
-    queryKey: secretSantaKeys.list(user?.id, { ...normalizedParams, limit: pageSize }),
+  return infiniteQueryOptions({
+    queryKey: secretSantaKeys.list(authUserId, { ...normalizedParams, limit: pageSize }),
     queryFn: ({ pageParam }) =>
       listSecretSantaEvents({
         ...normalizedParams,
@@ -63,7 +69,26 @@ export function useInfiniteSecretSantaEvents(
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) =>
       lastPage.offset + lastPage.items.length < lastPage.total ? lastPageParam + 1 : undefined,
+  });
+}
+
+export function useInfiniteSecretSantaEvents(
+  params: ListSecretSantaEventsParams,
+  pageSize: number,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
+  const { user } = useAuth();
+
+  return useInfiniteQuery({
+    ...secretSantaEventsQueryOptions(user?.id, params, pageSize),
     enabled: enabled && Boolean(user?.id),
+  });
+}
+
+export function secretSantaDetailsQueryOptions(authUserId: string | undefined, eventId: string) {
+  return queryOptions({
+    queryKey: secretSantaKeys.detail(authUserId, eventId),
+    queryFn: () => getSecretSantaDetails(eventId),
   });
 }
 
@@ -71,8 +96,7 @@ export function useSecretSantaDetails(eventId?: string) {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: secretSantaKeys.detail(user?.id, eventId ?? ""),
-    queryFn: () => getSecretSantaDetails(eventId!),
+    ...secretSantaDetailsQueryOptions(user?.id, eventId ?? ""),
     enabled: Boolean(user?.id && eventId),
   });
 }

@@ -18,7 +18,7 @@ import {
 import { useAuth } from "@/providers/auth-provider";
 import { getRandomDefaultAvatarUrl } from "@wishlist/backend/lib/default-avatars";
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   DEFAULT_SETTINGS,
   type UpdateProfilePayload,
@@ -91,6 +91,9 @@ export function useUpdateUserGuideStep() {
 
   return useMutation({
     mutationFn: (step: number) => updateProfile({ userGuideStep: step }),
+    // Progress is shown optimistically, so offline it waits for the connection instead of
+    // failing (see `lib/offline-mutations.ts`).
+    meta: { offline: "wait" },
     onMutate: async (step) => {
       await queryClient.cancelQueries({ queryKey: profileKey });
 
@@ -150,14 +153,20 @@ export function useProfilesByIds(userIds: string[]) {
   });
 }
 
+export function settingsQueryOptions(authUserId: string | undefined) {
+  return queryOptions({
+    queryKey: settingsKeys.preferences(authUserId),
+    queryFn: getSettings,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 export function useSettings() {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: settingsKeys.preferences(user?.id),
-    queryFn: getSettings,
+    ...settingsQueryOptions(user?.id),
     enabled: Boolean(user?.id),
-    staleTime: 5 * 60 * 1000,
   });
 }
 

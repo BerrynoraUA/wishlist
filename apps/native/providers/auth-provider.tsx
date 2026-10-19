@@ -1,9 +1,11 @@
 import type { SupabaseSession, SupabaseUser } from "@wishlist/backend/supabase";
 import { deactivateCurrentPushToken } from "@/api/notifications";
-import { supabase } from "@wishlist/backend/supabase/native";
+import { readStoredNativeSession, supabase } from "@wishlist/backend/supabase/native";
 import type { KnownAccountProvider } from "@wishlist/backend/types/known-accounts";
 import { upsertKnownAccount } from "@/lib/known-accounts";
-import { writeBootLastUserId } from "@/lib/boot-cache";
+import { readBootLastUserId, writeBootLastUserId } from "@/lib/boot-cache";
+import { isNetInfoOnline } from "@/components/providers/native-query-lifecycle";
+import NetInfo from "@react-native-community/netinfo";
 import { useQueryClient } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
@@ -72,7 +74,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<SupabaseSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const queryClient = useQueryClient();
-  const activeUserIdRef = React.useRef<string | null>(null);
+  // Seeded with the last session's user, whose data the restored on-device query cache
+  // holds, so a launch that resolves to another account or none still clears it.
+  const activeUserIdRef = React.useRef<string | null>(readBootLastUserId());
 
   useEffect(() => {
     function applySession(nextSession: SupabaseSession | null) {
@@ -92,13 +96,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       void rememberSessionAccount(nextSession).catch(() => undefined);
     }
 
+    // Bumped on every auth event, so a stored-session read that resolves late never
+    // overrides what supabase-js reported after it.
+    let authEventCount = 0;
+    let disposed = false;
+
+    async function restoreStoredSession(eventCount: number, applyIfMissing: boolean) {
+      const stored = await readStoredNativeSession().catch(() => null);
+      if (disposed || eventCount !== authEventCount) return;
+      if (stored || applyIfMissing) applySession(stored);
+    }
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      authEventCount += 1;
+      // Offline with an expired access token, the refresh fails for network reasons:
+      // supabase-js keeps the stored session but reports none. Keep using it so the app
+      // works offline; it refreshes once back online, and a real sign-out still arrives
+      // as SIGNED_OUT.
+      if (event === "INITIAL_SESSION" && !nextSession) {
+        void restoreStoredSession(authEventCount, true);
+        return;
+      }
       applySession(nextSession);
     });
 
-    return () => subscription.unsubscribe();
+    // Offline, supabase-js retries that refresh for ~30s before reporting the initial
+    // session. Start from the stored one instead of showing a spinner for that long.
+    void NetInfo.fetch().then((state) => {
+      if (!disposed && authEventCount === 0 && !isNetInfoOnline(state)) {
+        void restoreStoredSession(0, false);
+      }
+    });
+
+    return () => {
+      disposed = true;
+      subscription.unsubscribe();
+    };
   }, [queryClient]);
 
   const signOut = async () => {

@@ -1,4 +1,5 @@
 import {
+  infiniteQueryOptions,
   useInfiniteQuery,
   type InfiniteData,
   type QueryKey,
@@ -18,15 +19,15 @@ type InfiniteListQuery<TPage> = {
   fetchNextPage: () => Promise<unknown>;
 };
 
-export function useSkipTakeInfiniteQuery<T>(opts: {
+/** Shared by `useSkipTakeInfiniteQuery` and prefetching, so both land on the same cache entry. */
+export function skipTakeInfiniteQueryOptions<T>(opts: {
   queryKey: QueryKey;
   fetchPage: (page: SkipTakePage) => Promise<T[]>;
   pageSize: number;
-  enabled: boolean;
-}): UseInfiniteQueryResult<InfiniteData<T[], number>, Error> {
-  const { queryKey, fetchPage, pageSize, enabled } = opts;
+}) {
+  const { queryKey, fetchPage, pageSize } = opts;
 
-  return useInfiniteQuery<T[], Error, InfiniteData<T[], number>, QueryKey, number>({
+  return infiniteQueryOptions<T[], Error, InfiniteData<T[], number>, QueryKey, number>({
     queryKey,
     queryFn: ({ pageParam }) =>
       fetchPage({
@@ -36,8 +37,16 @@ export function useSkipTakeInfiniteQuery<T>(opts: {
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) =>
       lastPage.length === pageSize ? lastPageParam + 1 : undefined,
-    enabled,
   });
+}
+
+export function useSkipTakeInfiniteQuery<T>(opts: {
+  queryKey: QueryKey;
+  fetchPage: (page: SkipTakePage) => Promise<T[]>;
+  pageSize: number;
+  enabled: boolean;
+}): UseInfiniteQueryResult<InfiniteData<T[], number>, Error> {
+  return useInfiniteQuery({ ...skipTakeInfiniteQueryOptions(opts), enabled: opts.enabled });
 }
 
 export function useInfiniteListData<T>(query: InfiniteListQuery<T[]>): {
