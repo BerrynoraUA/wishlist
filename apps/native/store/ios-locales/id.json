@@ -1,6 +1,6 @@
 {
   "ios": {
-    "CFBundleDisplayName": "Wishlane",
+    "CFBundleDisplayName": "wishlane tester",
     "NSPhotoLibraryUsageDescription": "Izinkan Wishlane memilih foto profil dari galerimu.",
     "NSFaceIDUsageDescription": "Izinkan Wishlane berpindah antar akun tersimpan dengan aman."
   },

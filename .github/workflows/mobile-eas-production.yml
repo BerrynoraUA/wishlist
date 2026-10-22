@@ -228,7 +228,8 @@ jobs:
           esac
 
           failed=0
-          version="$(npx expo config --json --type public | jq -er '.version')"
+          config="$(npx expo config --json --type public)"
+          version="$(printf '%s' "$config" | jq -er '.version')"
           {
             echo "## Production release train"
             echo
@@ -236,7 +237,8 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
           for platform in $platforms; do
-            latest="$(eas build:list --platform "$platform" --build-profile production --limit 1 --json --non-interactive | jq -r '.[0].appVersion // "none"')"
+            identifier="$(printf '%s' "$config" | jq -er --arg platform "$platform" 'if $platform == "ios" then .ios.bundleIdentifier else .android.package end')"
+            latest="$(eas build:list --platform "$platform" --build-profile production --app-identifier "$identifier" --limit 1 --json --non-interactive | jq -r '.[0].appVersion // "none"')"
             if [ "$latest" = "$version" ]; then
               echo "- $platform: production build for \`$version\` already exists (or is in progress)" >> "$GITHUB_STEP_SUMMARY"
               continue

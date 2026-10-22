@@ -11,7 +11,7 @@ const {
 // whatever CFBundleShortVersionString the build carried up. `autoIncrement` only bumps
 // the build number, so the marketing version still comes from app.json - read it from
 // there rather than repeating it here, where it silently rots one release later.
-const { version } = require("./app.json").expo;
+const { version, ios } = require("./app.json").expo;
 
 // App Review credentials are secrets and must never be committed. They are read from
 // .env.store.local, which is covered by the `.env*.local` rule in .gitignore.
@@ -37,7 +37,7 @@ function appleInfo() {
     problems.push(...checkLimits(appLocale, listing));
 
     info[appleLocale] = {
-      title: listing.appleName,
+      title: ios.infoPlist.CFBundleDisplayName ?? listing.appleName,
       subtitle: listing.subtitle,
       promoText: listing.promoText,
       description: renderAppleDescription(listing),
