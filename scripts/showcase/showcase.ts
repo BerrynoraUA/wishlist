@@ -40,7 +40,8 @@ const REPO_ROOT = NodePath.resolve(
   "../..",
 );
 const NATIVE_ROOT = NodePath.join(REPO_ROOT, "apps/native");
-const APP_ID = "com.berrynora.wishlane";
+const IOS_APP_ID = "com.berrynora.wishlanetester";
+const ANDROID_APP_ID = "com.berrynora.wishlane";
 const APP_SCHEME = "wishlane";
 const IOS_SCHEME = "Wishlane";
 const IOS_DERIVED_DATA = NodePath.join(NATIVE_ROOT, "artifacts/ios-derived-data");
@@ -704,7 +705,7 @@ async function captureIos(
   await runCommand("xcrun", ["simctl", "bootstatus", simulator.udid, "-b"]);
   await normalizeIosSimulator(capture.appearance, simulator.udid);
   if (appPath) {
-    await runCommand("xcrun", ["simctl", "uninstall", simulator.udid, APP_ID]).catch(
+    await runCommand("xcrun", ["simctl", "uninstall", simulator.udid, IOS_APP_ID]).catch(
       () => undefined,
     );
     await runCommand("xcrun", ["simctl", "install", simulator.udid, appPath]);
@@ -1074,7 +1075,7 @@ async function prepareAndroidShowcaseApp(serial: string): Promise<void> {
   const encoded = Buffer.from(preferences).toString("base64");
   await runAdb(serial, [
     "shell",
-    `run-as ${APP_ID} sh -c 'mkdir -p shared_prefs && printf %s ${encoded} | base64 -d > shared_prefs/expo.modules.devmenu.sharedpreferences.xml'`,
+    `run-as ${ANDROID_APP_ID} sh -c 'mkdir -p shared_prefs && printf %s ${encoded} | base64 -d > shared_prefs/expo.modules.devmenu.sharedpreferences.xml'`,
   ]).catch(() => undefined);
 }
 
@@ -1128,7 +1129,7 @@ async function captureAndroid(
   registerCleanup({ device: capture.device, serial, startedByRunner });
   await normalizeAndroidEmulator(capture.device, capture.appearance, serial);
   if (apkPath) await runAdb(serial, ["install", "-r", apkPath]);
-  await runAdb(serial, ["shell", "pm", "clear", APP_ID]).catch(() => undefined);
+  await runAdb(serial, ["shell", "pm", "clear", ANDROID_APP_ID]).catch(() => undefined);
   await prepareAndroidShowcaseApp(serial);
   // The control channel also serves the fixture imagery, so both scene switching and
   // every image in a capture ride the same reverse tunnel.
@@ -1172,7 +1173,7 @@ async function captureAndroidAppScenes(
     "android.intent.action.VIEW",
     "-d",
     `${APP_SCHEME}://expo-development-client/?url=${metroUrl}`,
-    APP_ID,
+    ANDROID_APP_ID,
   ]);
 
   for (const [sceneIndex, scene] of scenes.entries()) {

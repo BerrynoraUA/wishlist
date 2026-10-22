@@ -1,6 +1,6 @@
 {
   "ios": {
-    "CFBundleDisplayName": "Wishlane",
+    "CFBundleDisplayName": "wishlane tester",
     "NSPhotoLibraryUsageDescription": "Allow Wishlane to choose a profile image from your library.",
     "NSFaceIDUsageDescription": "Allow Wishlane to securely switch between saved accounts."
   },
