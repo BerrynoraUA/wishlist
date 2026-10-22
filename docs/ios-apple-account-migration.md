@@ -26,6 +26,10 @@ Apple app. Production build deduplication filters by the application identifier
 as well as the version, so builds of the previous app cannot suppress a build
 of the replacement app.
 
+Use the GitHub workflow for the first build. The local Windows dependency tree
+produced a different native fingerprint from EAS; the clean Linux workflow
+passed the fingerprint comparison without changing the runtime-version policy.
+
 ## Authentication and billing
 
 The staging Supabase project (`usqolbxpvnhiwdispocs`) accepts
