@@ -33,7 +33,7 @@
   height: var(--mascot-size);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-  animation: mascot-pop 650ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: mascot-pop 650ms ease-in-out both;
 }
 
 .compact .figure {
@@ -65,7 +65,7 @@
 // Closed-eye patch laid over the artwork. A single blink, then a double one.
 .blink {
   opacity: 0;
-  animation: mascot-blink 6490ms step-end infinite;
+  animation: mascot-blink 6490ms ease-in-out infinite;
 }
 
 .glow {
@@ -117,7 +117,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  animation: mascot-zzz var(--zzz-duration) linear infinite;
+  animation: mascot-zzz var(--zzz-duration) ease-in-out infinite;
 
   &:nth-child(2) {
     animation-delay: calc(var(--zzz-duration) / -3);
@@ -142,7 +142,7 @@
   margin: 0;
   font-size: var(--fs-body);
   line-height: 1.45;
-  animation: mascot-fade 280ms 120ms both;
+  animation: mascot-fade 280ms ease-in-out 120ms both;
 }
 
 .compact .message {
@@ -154,6 +154,16 @@
     opacity: 0;
     translate: 0 8%;
     scale: 0.6;
+  }
+  70% {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1.04;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
   }
 }
 
@@ -169,25 +179,34 @@
   }
 }
 
-// Closed at 2600–2720ms, then 6120–6230ms and 6380–6490ms of a 6490ms loop.
+// Blink endpoints at 2600/2720ms, 6120/6230ms and 6380/6490ms, with 35ms eased edges.
 @keyframes mascot-blink {
-  0% {
+  0%,
+  39.5223% {
     opacity: 0;
   }
-  40.06% {
+  40.0616%,
+  41.3713% {
     opacity: 1;
   }
-  41.91% {
+  41.9106%,
+  93.7596% {
     opacity: 0;
   }
-  94.3% {
+  94.2989%,
+  95.4545% {
     opacity: 1;
   }
-  95.99% {
+  95.9938%,
+  97.7658% {
     opacity: 0;
   }
-  98.31% {
+  98.3051%,
+  99.4607% {
     opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 
