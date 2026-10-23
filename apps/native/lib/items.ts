@@ -1,6 +1,6 @@
 import type { TranslateFn } from "@/lib/translate-fn";
 import { getValidHttpUrl } from "@/lib/urls";
-import type { Item, ItemFormValues, ItemLink } from "@wishlist/backend/types/item";
+import type { Item, ItemFormValues, ItemLink, ItemQueryParams } from "@wishlist/backend/types/item";
 import { ALL_PRIORITIES, PRIORITY_IDS } from "@wishlist/backend/lib";
 import { parsePrice } from "@wishlist/backend/lib/prices";
 
@@ -103,6 +103,52 @@ export const EMPTY_ITEM_FORM: ItemFormValues = {
 
 export function normalizeItemSearch(value?: string) {
   return value?.trim().replace(/\s+/g, " ") ?? "";
+}
+
+/** Item filters as the wishlist screen holds them, before they become query params. */
+export type ItemFilterValues = {
+  search: string;
+  statuses: string[];
+  priorities: string[];
+  priceMin: string;
+  priceMax: string;
+  sort: string;
+};
+
+export const EMPTY_ITEM_FILTERS: ItemFilterValues = {
+  search: "",
+  statuses: [],
+  priorities: [],
+  priceMin: "",
+  priceMax: "",
+  sort: DEFAULT_ITEM_SORT,
+};
+
+/**
+ * Maps screen filters to item query params. Offline prefetching goes through here too, so
+ * the unfiltered list it caches is the exact entry the wishlist screen reads.
+ */
+export function toItemQueryParams(filters: ItemFilterValues, search: string): ItemQueryParams {
+  const statuses: number[] = [];
+  for (const value of filters.statuses) {
+    const status = ITEM_STATUS_LOOKUP.find((option) => option.value === value)?.status;
+    if (status !== undefined) statuses.push(status);
+  }
+
+  const priorities: string[] = [];
+  for (const value of filters.priorities) {
+    const priorityId = ITEM_PRIORITY_LOOKUP.find((option) => option.value === value)?.priority_id;
+    if (priorityId !== undefined) priorities.push(priorityId);
+  }
+
+  return {
+    search,
+    sort: filters.sort,
+    statuses,
+    priorities,
+    priceMin: parseOptionalNumber(filters.priceMin),
+    priceMax: parseOptionalNumber(filters.priceMax),
+  };
 }
 
 export function parseOptionalNumber(value: string) {

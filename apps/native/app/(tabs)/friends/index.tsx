@@ -31,6 +31,7 @@ import {
   useUpdateFriendGroup,
 } from "@/hooks/use-friends";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
+import { FRIENDS_PAGE_SIZE } from "@/lib/friend-query-keys";
 import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
 import { AnimatedListCard, useListCardRemoval } from "@/lib/card-motion";
 import type {
@@ -57,7 +58,6 @@ type SheetState =
 
 type FriendEntry = FriendWithDetails | FriendGroup | FriendRequestWithDetails | BlockedUser;
 type FriendsRow = FriendEntry[];
-const FRIENDS_PAGE_SIZE = 20;
 
 function getFriendsRowKey(row: FriendsRow) {
   return row.map((entry) => entry.id).join(":");
@@ -241,7 +241,7 @@ export default function FriendsScreen() {
   function handleSubmitGroup(payload: Parameters<typeof updateGroup.mutateAsync>[0]["payload"]) {
     if (sheet?.type !== "group") return Promise.resolve();
 
-    return updateGroup.mutateAsync({ groupId: sheet.group.id, payload });
+    return updateGroup.mutateAsync({ groupId: sheet.group.id, payload }).then(() => undefined);
   }
 
   const renderRow = React.useCallback(

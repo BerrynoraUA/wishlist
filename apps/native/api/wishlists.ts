@@ -177,15 +177,22 @@ export async function getMyStatistics(): Promise<UserStatistics> {
   );
 }
 
-export async function createWishlist(values: WishlistFormValues): Promise<Wishlist> {
+export async function createWishlist(values: WishlistFormValues, id?: string): Promise<Wishlist> {
   const { data: userData, error: userError } = await supabase.auth.getUser();
 
   if (userError) throw userError;
   if (!userData.user) throw new Error("Not authenticated");
 
+  if (id) {
+    const { data, error } = await supabase.from("wishlist").select().eq("id", id).maybeSingle();
+    if (error) throw error;
+    if (data) return normalizeWishlist(data as WishlistFeedRow);
+  }
+
   const { data, error } = await supabase
     .from("wishlist")
     .insert({
+      ...(id ? { id } : {}),
       user_id: userData.user.id,
       title: values.title.trim(),
       description: values.description.trim() || null,
