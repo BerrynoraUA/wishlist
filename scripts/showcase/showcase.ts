@@ -713,7 +713,7 @@ async function captureIos(
 
   // Nothing is needed here to silence the dev menu, which a freshly installed dev
   // client would otherwise open over the app as its first screen renders: that is done
-  // through the showcase build's Info.plist, in apps/native/app.config.js. The app
+  // through the showcase build's Info.plist, in apps/native/app.config.ts. The app
   // reads its preferences from inside its own sandboxed container, which
   // `simctl spawn … defaults write` does not reach.
 

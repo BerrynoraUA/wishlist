@@ -4,9 +4,9 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "dev": "expo start -c",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
+    "dev": "cross-env APP_VARIANT=development expo start -c",
+    "android": "cross-env APP_VARIANT=development expo run:android",
+    "ios": "cross-env APP_VARIANT=development expo run:ios",
     "gt:translate": "gt translate",
     "translate": "gt translate",
     "store:metadata": "node store/build-store-metadata.js",
@@ -128,6 +128,7 @@
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@types/react": "~19.2.18",
+    "cross-env": "^10.1.0",
     "generaltranslation": "^9.5.1",
     "gt": "^2.22.4",
     "typescript": "~6.0.3",

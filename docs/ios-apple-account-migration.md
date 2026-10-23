@@ -14,6 +14,25 @@ app on the previous account.
 | Expo project          | `@berrynora/wishlane` (unchanged)              |
 | Android package       | `com.berrynora.wishlane` (unchanged)           |
 
+## App variants
+
+`APP_VARIANT` (set per profile in `eas.json`) gives each build its own name and
+URL scheme. Missing means production.
+
+| Variant     | EAS profiles        | Name             | Scheme             | iOS bundle ID                      |
+| ----------- | ------------------- | ---------------- | ------------------ | ---------------------------------- |
+| development | `development`       | Wishlane Dev     | `wishlane-dev`     | `com.berrynora.wishlanetester.dev` |
+| staging     | `staging`           | Wishlane Staging | `wishlane-staging` | `com.berrynora.wishlanetester`     |
+| production  | `beta`,`production` | wishlane tester  | `wishlane`         | `com.berrynora.wishlanetester`     |
+
+Staging and production share one bundle ID and therefore one App Store Connect
+app, so installing either replaces the other. The development client installs
+alongside them; its share extension and App Group follow its bundle ID
+(`.dev.share-extension`, `group.com.berrynora.wishlanetester.dev`). Android uses
+`com.berrynora.wishlane` for every variant because the Firebase project only
+registers that package. Local `pnpm dev`, `ios`, and `android` run the
+development variant, so OAuth returns to `wishlane-dev://`.
+
 Signing profiles, the Apple push key, and the submission API key are stored on
 EAS. GitHub continues to use the existing `EXPO_TOKEN`; Apple private keys are
 not needed in the repository or GitHub workflows. Development signing includes
@@ -33,8 +52,11 @@ passed the fingerprint comparison without changing the runtime-version policy.
 ## Authentication and billing
 
 The staging Supabase project (`usqolbxpvnhiwdispocs`) accepts
-`com.berrynora.wishlanetester` alongside its existing Apple client IDs. Existing client
-IDs and the web Apple login configuration are preserved.
+`com.berrynora.wishlanetester` and `com.berrynora.wishlanetester.dev` alongside its
+existing Apple client IDs, and allows the `wishlane-dev://google-auth` and
+`wishlane-staging://google-auth` redirects. Development and staging builds both
+use this project. Existing client IDs and the web Apple login configuration are
+preserved.
 
 The production EAS environment uses a different Supabase project,
 `iwdgsvydfgtuqdoowbhj`. The available Supabase management credentials cannot
