@@ -478,8 +478,12 @@ function sample(frames: Keyframes | undefined, ms: number) {
   return prev[1];
 }
 
-function instant(value: number, delay: number) {
-  return withDelay(delay, withTiming(value, { duration: 0 }));
+function blinkTo(value: number, delay: number) {
+  // Wipe the opaque patch over the eyes without changing the blink's cadence.
+  return withDelay(
+    delay - 35,
+    withTiming(value, { duration: 35, easing: Easing.inOut(Easing.quad) }),
+  );
 }
 
 export function AnimatedMascot({
@@ -554,12 +558,12 @@ export function AnimatedMascot({
       blink.set(
         withRepeat(
           withSequence(
-            instant(1, 2600),
-            instant(0, 120),
-            instant(1, 3400),
-            instant(0, 110),
-            instant(1, 150),
-            instant(0, 110),
+            blinkTo(1, 2600),
+            blinkTo(0, 120),
+            blinkTo(1, 3400),
+            blinkTo(0, 110),
+            blinkTo(1, 150),
+            blinkTo(0, 110),
           ),
           -1,
         ),
@@ -576,7 +580,7 @@ export function AnimatedMascot({
     if (reduceMotion) return;
     poke.set(
       withSequence(
-        withTiming(1, { duration: 90 }),
+        withTiming(1, { duration: 90, easing: Easing.inOut(Easing.quad) }),
         withSpring(0, { stiffness: 280, damping: 5, mass: 0.6 }),
       ),
     );
@@ -610,7 +614,14 @@ export function AnimatedMascot({
     };
   });
 
-  const blinkStyle = useAnimatedStyle(() => ({ opacity: blink.get() }));
+  // The eye patch sits between 35% and 64% of the canvas. Move the clipping
+  // window and counter-move its image so the artwork stays aligned while it wipes.
+  const blinkStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: -(1 - blink.get()) * size * 0.29 }],
+  }));
+  const blinkImageStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: (1 - blink.get()) * size * 0.29 }],
+  }));
 
   return (
     <Pressable accessible={false} onPress={handlePress}>
@@ -636,8 +647,16 @@ export function AnimatedMascot({
             style={StyleSheet.absoluteFill}
           />
           {blinkSource ? (
-            <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, blinkStyle]}>
-              <Image source={blinkSource} contentFit="contain" style={StyleSheet.absoluteFill} />
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                { position: "absolute", width: size, height: size * 0.64, overflow: "hidden" },
+                blinkStyle,
+              ]}
+            >
+              <Animated.View style={[{ width: size, height: size }, blinkImageStyle]}>
+                <Image source={blinkSource} contentFit="contain" style={StyleSheet.absoluteFill} />
+              </Animated.View>
             </Animated.View>
           ) : null}
           {motion.move.sparkleA ? (
@@ -765,12 +784,18 @@ function Snore({
   const style = useAnimatedStyle(() => {
     // Each z runs the same rise, offset by a third of the loop.
     const t = ((clock.get() + (index * loop) / ZZZ.count) % loop) / loop;
+    const progress = Easing.inOut(Easing.sin)(t);
     return {
-      opacity: t < 0.2 ? t / 0.2 : t > 0.7 ? Math.max(0, (1 - t) / 0.3) : 1,
+      opacity:
+        t < 0.2
+          ? Easing.inOut(Easing.quad)(t / 0.2)
+          : t > 0.7
+            ? Easing.inOut(Easing.quad)(Math.max(0, (1 - t) / 0.3))
+            : 1,
       transform: [
-        { translateX: (t * 0.14 + Math.sin(t * Math.PI * 2) * 0.02) * size },
-        { translateY: -t * 0.26 * size },
-        { scale: 0.6 + t * 0.6 },
+        { translateX: (progress * 0.14 + Math.sin(progress * Math.PI * 2) * 0.02) * size },
+        { translateY: -progress * 0.26 * size },
+        { scale: 0.6 + progress * 0.6 },
       ],
     };
   });
