@@ -1,7 +1,7 @@
 "use client";
 
 import { useGT } from "gt-next";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import {
   loginWithEmail,
@@ -31,6 +31,7 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmationSent, setConfirmationSent] = useState(false);
+  const fieldId = useId();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -122,12 +123,14 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
   return (
     <div className={styles.card}>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <label className={styles.label}>
+        <label className={styles.label} htmlFor={`${fieldId}-email`}>
           {t("Email", { $id: "login.form.label.email" })}
           <span className={styles.required}>*</span>
         </label>
         <input
+          id={`${fieldId}-email`}
           type="email"
+          autoComplete="email"
           placeholder={t("you@email.com", {
             $id: "login.form.placeholder.email",
           })}
@@ -136,13 +139,15 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
           className={styles.input}
         />
 
-        <label className={styles.label}>
+        <label className={styles.label} htmlFor={`${fieldId}-password`}>
           {t("Password", { $id: "login.form.label.password" })}
           <span className={styles.required}>*</span>
         </label>
         <div className={styles.passwordWrapper}>
           <input
+            id={`${fieldId}-password`}
             type={showPassword ? "text" : "password"}
+            autoComplete={isLogin ? "current-password" : "new-password"}
             placeholder={t("••••••••", {
               $id: "login.form.placeholder.password",
             })}
@@ -163,7 +168,7 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
 
         {!isLogin && (
           <>
-            <label className={styles.label}>
+            <label className={styles.label} htmlFor={`${fieldId}-confirm`}>
               {t("Confirm password", {
                 $id: "register.form.label.confirmPassword",
               })}
@@ -171,7 +176,9 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
             </label>
             <div className={styles.passwordWrapper}>
               <input
+                id={`${fieldId}-confirm`}
                 type={showConfirmPassword ? "text" : "password"}
+                autoComplete="new-password"
                 placeholder={t("••••••••", {
                   $id: "register.form.placeholder.confirmPassword",
                 })}
@@ -192,9 +199,13 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
           </>
         )}
 
-        {error && <p className={styles.error}>{error}</p>}
+        {error && (
+          <p className={styles.error} role="alert">
+            {error}
+          </p>
+        )}
         {confirmationSent && (
-          <p role="status">
+          <p className={styles.notice} role="status">
             {t("Check your email to confirm your account and continue.", {
               $id: "register.form.confirmEmail",
             })}

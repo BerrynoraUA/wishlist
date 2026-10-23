@@ -1,0 +1,108 @@
+// Tokens for the marketing surfaces (landing, login, register).
+// See apps/frontend/design-system/MASTER.md for sources and contrast ratios.
+
+$wl-ease: cubic-bezier(0.16, 1, 0.3, 1);
+$wl-fast: 150ms;
+$wl-normal: 250ms;
+$wl-slow: 350ms;
+
+@mixin marketing-tokens {
+  --wl-ground: #f6f5fa;
+  --wl-surface: #ffffff;
+  --wl-ink: #1b1420;
+  --wl-muted: #5e5566;
+  --wl-line: #e4e0e8;
+  --wl-edge: #8c8394;
+  --wl-brand: #c0267e;
+  --wl-brand-strong: #9b1f66;
+  --wl-brand-fill: #c0267e;
+  --wl-brand-fill-hover: #9b1f66;
+  --wl-on-brand: #ffffff;
+  --wl-reserved-bg: #fde7f3;
+  --wl-reserved-line: #f9a8d4;
+  --wl-reserved-ink: #be185d;
+  --wl-danger: #b91c1c;
+  --wl-success: #15803d;
+  --wl-priority-high: #b91c1c;
+  --wl-font-display: var(--font-display), var(--font-sans), system-ui, sans-serif;
+
+  background: var(--wl-ground);
+  color: var(--wl-ink);
+
+  [data-theme="dark"] & {
+    --wl-ground: #141016;
+    --wl-surface: #1e1822;
+    --wl-ink: #f3eef5;
+    --wl-muted: #a79dae;
+    --wl-line: #2e2633;
+    --wl-edge: #857c8d;
+    --wl-brand: #e052a0;
+    --wl-brand-strong: #f07bbe;
+    --wl-brand-fill: #cc2f88;
+    --wl-brand-fill-hover: #c0267e;
+    --wl-reserved-bg: #3d1327;
+    --wl-reserved-line: #7a284f;
+    --wl-reserved-ink: #f9a8d4;
+    --wl-danger: #fca5a5;
+    --wl-success: #86efac;
+    --wl-priority-high: #fca5a5;
+  }
+}
+
+@mixin wl-focus {
+  &:focus-visible {
+    outline: 2px solid var(--wl-brand);
+    outline-offset: 3px;
+  }
+}
+
+@mixin wl-display($size, $weight: 750) {
+  font-family: var(--wl-font-display);
+  font-size: $size;
+  font-weight: $weight;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+// Pill button shared by the landing and auth pages.
+@mixin wl-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color $wl-fast $wl-ease,
+    border-color $wl-fast $wl-ease,
+    color $wl-fast $wl-ease;
+  @include wl-focus;
+}
+
+@mixin wl-button-primary {
+  background: var(--wl-brand-fill);
+  color: var(--wl-on-brand);
+
+  &:hover {
+    background: var(--wl-brand-fill-hover);
+  }
+}
+
+@mixin wl-button-outline {
+  background: transparent;
+  color: var(--wl-ink);
+  border-color: var(--wl-edge);
+
+  &:hover {
+    border-color: var(--wl-ink);
+  }
+}

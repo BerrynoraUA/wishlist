@@ -14,9 +14,8 @@ export function FooterCta({ onSmoothScroll }: { onSmoothScroll: SmoothScroll }) 
     <footer className={styles.footer}>
       <div className={`${styles.container} ${styles.footerInner}`}>
         <div className={styles.footerBrand}>
-          <span className={styles.footerLogo}>
-            <span className={styles.navLogoIcon}>♡</span>{" "}
-            {t("Wishlane", { $id: "landing.footer.brand" })}
+          <span className={styles.logo}>
+            <span aria-hidden="true">♡</span> {t("Wishlane", { $id: "landing.footer.brand" })}
           </span>
           <p className={styles.footerTagline}>
             {t("Wishlists, shared beautifully.", { $id: "landing.footer.tagline" })}
@@ -24,9 +23,9 @@ export function FooterCta({ onSmoothScroll }: { onSmoothScroll: SmoothScroll }) 
         </div>
         <div className={styles.footerLinks}>
           <div className={styles.footerCol}>
-            <h4 className={styles.footerColTitle}>
+            <h2 className={styles.footerColTitle}>
               {t("Product", { $id: "landing.footer.col.product" })}
-            </h4>
+            </h2>
             <a
               href="#features"
               className={styles.footerLink}
@@ -50,9 +49,9 @@ export function FooterCta({ onSmoothScroll }: { onSmoothScroll: SmoothScroll }) 
             </a>
           </div>
           <div className={styles.footerCol}>
-            <h4 className={styles.footerColTitle}>
+            <h2 className={styles.footerColTitle}>
               {t("Legal", { $id: "landing.footer.col.legal" })}
-            </h4>
+            </h2>
             <Link href="/pricing" className={styles.footerLink}>
               {t("Pricing", { $id: "landing.footer.link.pricing" })}
             </Link>
@@ -67,14 +66,14 @@ export function FooterCta({ onSmoothScroll }: { onSmoothScroll: SmoothScroll }) 
             </Link>
           </div>
         </div>
-        <div className={styles.footerBottom}>
-          <p className={styles.footerCopy}>
-            {t("Copyright {year} Wishlane. All rights reserved.", {
-              year: 2026,
-              $id: "landing.footer.copyright",
-            })}
-          </p>
-        </div>
+      </div>
+      <div className={styles.container}>
+        <p className={styles.footerCopy}>
+          {t("Copyright {year} Wishlane. All rights reserved.", {
+            year: 2026,
+            $id: "landing.footer.copyright",
+          })}
+        </p>
       </div>
     </footer>
   );
