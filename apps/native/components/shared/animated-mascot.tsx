@@ -479,7 +479,7 @@ function sample(frames: Keyframes | undefined, ms: number) {
 }
 
 function blinkTo(value: number, delay: number) {
-  // Ease into the patch without changing the blink's existing cadence.
+  // Wipe the opaque patch over the eyes without changing the blink's cadence.
   return withDelay(
     delay - 35,
     withTiming(value, { duration: 35, easing: Easing.inOut(Easing.quad) }),
@@ -614,7 +614,14 @@ export function AnimatedMascot({
     };
   });
 
-  const blinkStyle = useAnimatedStyle(() => ({ opacity: blink.get() }));
+  // The eye patch sits between 35% and 64% of the canvas. Move the clipping
+  // window and counter-move its image so the artwork stays aligned while it wipes.
+  const blinkStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: -(1 - blink.get()) * size * 0.29 }],
+  }));
+  const blinkImageStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: (1 - blink.get()) * size * 0.29 }],
+  }));
 
   return (
     <Pressable accessible={false} onPress={handlePress}>
@@ -640,8 +647,16 @@ export function AnimatedMascot({
             style={StyleSheet.absoluteFill}
           />
           {blinkSource ? (
-            <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, blinkStyle]}>
-              <Image source={blinkSource} contentFit="contain" style={StyleSheet.absoluteFill} />
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                { position: "absolute", width: size, height: size * 0.64, overflow: "hidden" },
+                blinkStyle,
+              ]}
+            >
+              <Animated.View style={[{ width: size, height: size }, blinkImageStyle]}>
+                <Image source={blinkSource} contentFit="contain" style={StyleSheet.absoluteFill} />
+              </Animated.View>
             </Animated.View>
           ) : null}
           {motion.move.sparkleA ? (

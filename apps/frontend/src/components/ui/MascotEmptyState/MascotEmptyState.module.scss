@@ -62,9 +62,9 @@
   pointer-events: none;
 }
 
-// Closed-eye patch laid over the artwork. A single blink, then a double one.
+// Wipe the opaque eye patch (35–64% down the canvas) over the open eyes.
 .blink {
-  opacity: 0;
+  clip-path: inset(0 0 65%);
   animation: mascot-blink 6490ms ease-in-out infinite;
 }
 
@@ -183,30 +183,30 @@
 @keyframes mascot-blink {
   0%,
   39.5223% {
-    opacity: 0;
+    clip-path: inset(0 0 65%);
   }
   40.0616%,
   41.3713% {
-    opacity: 1;
+    clip-path: inset(0 0 36%);
   }
   41.9106%,
   93.7596% {
-    opacity: 0;
+    clip-path: inset(0 0 65%);
   }
   94.2989%,
   95.4545% {
-    opacity: 1;
+    clip-path: inset(0 0 36%);
   }
   95.9938%,
   97.7658% {
-    opacity: 0;
+    clip-path: inset(0 0 65%);
   }
   98.3051%,
   99.4607% {
-    opacity: 1;
+    clip-path: inset(0 0 36%);
   }
   100% {
-    opacity: 0;
+    clip-path: inset(0 0 65%);
   }
 }
 
