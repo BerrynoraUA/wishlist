@@ -54,13 +54,6 @@ export function Hero({
             >
               {t("Discover", { $id: "landing.nav.discover" })}
             </a>
-            <a
-              href="#testimonials"
-              className={styles.navLink}
-              onClick={(event) => onSmoothScroll(event, "#testimonials")}
-            >
-              {t("Testimonials", { $id: "landing.nav.testimonials" })}
-            </a>
           </div>
           <div className={styles.navActions}>
             <Link href="/login" className={`${styles.btn} ${styles.btnGhost}`}>
@@ -105,13 +98,6 @@ export function Hero({
           onClick={(event) => onSmoothScroll(event, "#discover")}
         >
           {t("Discover", { $id: "landing.mobile.discover" })}
-        </a>
-        <a
-          href="#testimonials"
-          className={styles.mobileMenuLink}
-          onClick={(event) => onSmoothScroll(event, "#testimonials")}
-        >
-          {t("Testimonials", { $id: "landing.mobile.testimonials" })}
         </a>
         <div className={styles.mobileMenuActions}>
           <Link href="/login" className={`${styles.btn} ${styles.btnGhost} ${styles.btnFull}`}>

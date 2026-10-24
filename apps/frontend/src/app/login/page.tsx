@@ -12,7 +12,7 @@ import { useLoginPage } from "./hooks/use-login-page";
 function LoginPageContent() {
   const t = useGT();
   const router = useRouter();
-  const { redirectTo, prefillEmail, registerHref, currentTestimonial, fadeIn } = useLoginPage();
+  const { redirectTo, prefillEmail, registerHref } = useLoginPage();
 
   return (
     <main className={styles.page}>
@@ -107,26 +107,6 @@ function LoginPageContent() {
               <span>{t("Link shared", { $id: "login.mockup.float2" })}</span>
             </div>
           </div>
-
-          <div className={styles.visualTestimonial}>
-            <div className={styles.testimonialStars}>★★★★★</div>
-            <div className={`${styles.testimonialFade} ${fadeIn ? styles.testimonialVisible : ""}`}>
-              <p className={styles.testimonialQuote}>{currentTestimonial.quote}</p>
-              <div className={styles.testimonialAuthor}>
-                <div
-                  className={styles.testimonialAvatar}
-                  style={{
-                    background: currentTestimonial.bg,
-                    color: currentTestimonial.color,
-                  }}
-                >
-                  {currentTestimonial.initial}
-                </div>
-                <span className={styles.testimonialName}>{currentTestimonial.name}</span>
-                <span className={styles.testimonialRole}>{currentTestimonial.role}</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -134,9 +114,6 @@ function LoginPageContent() {
       <div className={styles.formSide}>
         <div className={styles.formContent}>
           <div className={styles.formHeader}>
-            <span className={styles.formBadge}>
-              {t("✨ Welcome back", { $id: "login.form.badge" })}
-            </span>
             <h1 className={styles.formTitle}>
               {t("Sign in to your account", { $id: "login.form.title" })}
             </h1>

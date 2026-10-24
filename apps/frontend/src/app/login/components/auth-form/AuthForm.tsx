@@ -1,7 +1,7 @@
 "use client";
 
 import { useGT } from "gt-next";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import {
   loginWithEmail,
@@ -9,8 +9,11 @@ import {
   loginWithApple,
   loginWithFacebook,
   registerWithEmail,
+  sendPasswordReset,
 } from "@/api/login";
 import styles from "./AuthForm.module.scss";
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type Props = {
   mode: "login" | "register";
@@ -31,6 +34,13 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmationSent, setConfirmationSent] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const fieldId = useId();
+  const emailId = `${fieldId}-email`;
+  const passwordId = `${fieldId}-password`;
+  const confirmPasswordId = `${fieldId}-confirm-password`;
+  const errorId = `${fieldId}-error`;
+  const errorProps = error ? { "aria-invalid": true, "aria-describedby": errorId } : {};
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,8 +56,7 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!EMAIL_PATTERN.test(email)) {
       setError(
         t("Please enter a valid email address.", {
           $id: "login.form.error.invalidEmail",
@@ -101,6 +110,29 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
     }
   }
 
+  async function handleForgotPassword() {
+    setError(null);
+    setResetSent(false);
+    if (!EMAIL_PATTERN.test(email)) {
+      setError(
+        t("Enter your email above and we'll send you a reset link.", {
+          $id: "login.form.error.resetNeedsEmail",
+        }),
+      );
+      return;
+    }
+    try {
+      await sendPasswordReset(email);
+      setResetSent(true);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : t("Something went wrong", { $id: "login.form.error.generic" }),
+      );
+    }
+  }
+
   const handleSocial = async (provider: "google" | "apple" | "facebook") => {
     setError(null);
     setSocialLoading(provider);
@@ -122,12 +154,15 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
   return (
     <div className={styles.card}>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <label className={styles.label}>
+        <label htmlFor={emailId} className={styles.label}>
           {t("Email", { $id: "login.form.label.email" })}
           <span className={styles.required}>*</span>
         </label>
         <input
+          id={emailId}
           type="email"
+          autoComplete="email"
+          {...errorProps}
           placeholder={t("you@email.com", {
             $id: "login.form.placeholder.email",
           })}
@@ -136,13 +171,23 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
           className={styles.input}
         />
 
-        <label className={styles.label}>
-          {t("Password", { $id: "login.form.label.password" })}
-          <span className={styles.required}>*</span>
-        </label>
+        <div className={styles.labelRow}>
+          <label htmlFor={passwordId} className={styles.label}>
+            {t("Password", { $id: "login.form.label.password" })}
+            <span className={styles.required}>*</span>
+          </label>
+          {isLogin && (
+            <button type="button" className={styles.forgotLink} onClick={handleForgotPassword}>
+              {t("Forgot password?", { $id: "login.form.forgotPassword" })}
+            </button>
+          )}
+        </div>
         <div className={styles.passwordWrapper}>
           <input
+            id={passwordId}
             type={showPassword ? "text" : "password"}
+            autoComplete={isLogin ? "current-password" : "new-password"}
+            {...errorProps}
             placeholder={t("••••••••", {
               $id: "login.form.placeholder.password",
             })}
@@ -163,7 +208,7 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
 
         {!isLogin && (
           <>
-            <label className={styles.label}>
+            <label htmlFor={confirmPasswordId} className={styles.label}>
               {t("Confirm password", {
                 $id: "register.form.label.confirmPassword",
               })}
@@ -171,7 +216,10 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
             </label>
             <div className={styles.passwordWrapper}>
               <input
+                id={confirmPasswordId}
                 type={showConfirmPassword ? "text" : "password"}
+                autoComplete="new-password"
+                {...errorProps}
                 placeholder={t("••••••••", {
                   $id: "register.form.placeholder.confirmPassword",
                 })}
@@ -192,7 +240,18 @@ export function AuthForm({ mode, redirectTo, initialEmail, onLoginSuccess }: Pro
           </>
         )}
 
-        {error && <p className={styles.error}>{error}</p>}
+        {error && (
+          <p id={errorId} className={styles.error} role="alert">
+            {error}
+          </p>
+        )}
+        {resetSent && (
+          <p className={styles.notice} role="status">
+            {t("Check your inbox for a link to reset your password.", {
+              $id: "login.form.resetSent",
+            })}
+          </p>
+        )}
         {confirmationSent && (
           <p role="status">
             {t("Check your email to confirm your account and continue.", {
