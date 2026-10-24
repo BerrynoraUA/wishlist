@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getGT } from "gt-next/server";
 import { Button } from "@/components/ui/Button/Button";
 import { Heading, Text } from "@/components/ui/Typography";
-import { getMcpConfig } from "@/mcp/config";
+import { getMcpConfig, type McpClient } from "@/mcp/config";
 import { oauthSession } from "../session";
 import { disconnectClient } from "./actions";
 import styles from "../oauth.module.scss";
@@ -13,7 +13,13 @@ export default async function ConnectionsPage() {
   const t = await getGT();
   const { db } = await oauthSession("/oauth/connections");
   const { data, error } = await db.auth.oauth.listGrants();
-  const connected = getMcpConfig().clients.filter((client) =>
+  let clients: McpClient[] | null;
+  try {
+    clients = getMcpConfig().clients;
+  } catch {
+    clients = null;
+  }
+  const connected = (clients ?? []).filter((client) =>
     data?.some((grant) => grant.client.id === client.id),
   );
   return (
@@ -26,7 +32,13 @@ export default async function ConnectionsPage() {
           })}
         </Text>
       </header>
-      {error ? (
+      {!clients ? (
+        <Text tone="muted">
+          {t("AI assistant connections aren't available right now.", {
+            $id: "oauth.connections.unavailable",
+          })}
+        </Text>
+      ) : error ? (
         <p className={styles.error} role="alert">
           {t("Unable to load connections. Please try again.", {
             $id: "oauth.connections.loadError",

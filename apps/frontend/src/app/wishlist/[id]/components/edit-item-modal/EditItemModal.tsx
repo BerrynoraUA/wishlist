@@ -541,9 +541,12 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
         <div
           className={`${styles.field} ${isDraftRestored && (restoredFields.link || restoredFields.additionalLinks) ? styles.draftField : ""}`.trim()}
         >
-          <label>{t("Product link", { $id: "item.modal.productLink" })}</label>
+          <label htmlFor="edit-item-modal-product-link">
+            {t("Product link", { $id: "item.modal.productLink" })}
+          </label>
           <div className={styles.urlRow}>
             <input
+              id="edit-item-modal-product-link"
               type="url"
               placeholder={t("Paste a product URL", {
                 $id: "item.modal.productUrlPlaceholder",
@@ -665,8 +668,9 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
         <div
           className={`${styles.field} ${isDraftRestored && restoredFields.name ? styles.draftField : ""}`.trim()}
         >
-          <label>{t("Name", { $id: "item.modal.nameLabel" })}</label>
+          <label htmlFor="edit-item-modal-name">{t("Name", { $id: "item.modal.nameLabel" })}</label>
           <input
+            id="edit-item-modal-name"
             placeholder={t("e.g. Noise-cancelling headphones", {
               $id: "item.modal.namePlaceholder",
             })}
@@ -678,12 +682,13 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
         <div
           className={`${styles.field} ${isDraftRestored && restoredFields.description ? styles.draftField : ""}`.trim()}
         >
-          <label>
+          <label htmlFor="edit-item-modal-description">
             {t("Description (optional)", {
               $id: "wishlist.modal.descriptionLabel",
             })}
           </label>
           <textarea
+            id="edit-item-modal-description"
             placeholder={t("Add details, size, color...", {
               $id: "item.modal.descriptionPlaceholder",
             })}
@@ -695,17 +700,20 @@ function EditItemForm({ open, item, onClose }: { open: boolean; item: Item; onCl
         <div
           className={`${styles.field} ${isDraftRestored && (restoredFields.price || restoredFields.currency) ? styles.draftField : ""}`.trim()}
         >
-          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
+          <label htmlFor="edit-item-price">
+            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
+          </label>
           <div className={styles.priceRow}>
             <Select
               value={currency}
               onChange={setCurrency}
               options={currencyOptions}
-              aria-label={t("Currency", { $id: "item.modal.currencyAria" })}
+              ariaLabel={t("Currency", { $id: "item.modal.currencyAria" })}
               className={styles.selectWrap}
               triggerClassName={`${styles.selectField} ${isDraftRestored && restoredFields.currency ? styles.draftSelectField : ""}`.trim()}
             />
             <input
+              id="edit-item-price"
               type="text"
               placeholder={t("199", { $id: "item.modal.pricePlaceholder" })}
               value={price}

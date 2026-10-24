@@ -492,9 +492,12 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>{t("Product link", { $id: "item.modal.productLink" })}</label>
+          <label htmlFor="create-item-modal-product-link">
+            {t("Product link", { $id: "item.modal.productLink" })}
+          </label>
           <div className={styles.urlRow}>
             <input
+              id="create-item-modal-product-link"
               type="url"
               placeholder={t("Paste a product URL", {
                 $id: "item.modal.productUrlPlaceholder",
@@ -615,8 +618,11 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>{t("Name", { $id: "item.modal.nameLabel" })}</label>
+          <label htmlFor="create-item-modal-name">
+            {t("Name", { $id: "item.modal.nameLabel" })}
+          </label>
           <input
+            id="create-item-modal-name"
             placeholder={t("e.g. Noise-cancelling headphones", {
               $id: "item.modal.namePlaceholder",
             })}
@@ -626,12 +632,13 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>
+          <label htmlFor="create-item-modal-description">
             {t("Description (optional)", {
               $id: "wishlist.modal.descriptionLabel",
             })}
           </label>
           <textarea
+            id="create-item-modal-description"
             placeholder={t("Add details, size, color...", {
               $id: "item.modal.descriptionPlaceholder",
             })}
@@ -641,7 +648,9 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
         </div>
 
         <div className={styles.field}>
-          <label>{t("Price (optional)", { $id: "item.modal.priceLabel" })}</label>
+          <label htmlFor="create-item-price">
+            {t("Price (optional)", { $id: "item.modal.priceLabel" })}
+          </label>
           <div className={styles.priceRow}>
             <Select
               value={currency}
@@ -652,6 +661,7 @@ export function CreateItemModal({ open, onClose, wishlistId }: Props) {
               triggerClassName={styles.selectField}
             />
             <input
+              id="create-item-price"
               type="text"
               placeholder={t("199", { $id: "item.modal.pricePlaceholder" })}
               value={price}

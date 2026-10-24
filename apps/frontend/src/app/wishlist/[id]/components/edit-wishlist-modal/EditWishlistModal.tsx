@@ -547,8 +547,11 @@ function EditWishlistForm({
         <div
           className={`${styles.field} ${isDraftRestored && restoredFields.name ? styles.draftField : ""}`.trim()}
         >
-          <label>{t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}</label>
+          <label htmlFor="edit-wishlist-modal-name">
+            {t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}
+          </label>
           <input
+            id="edit-wishlist-modal-name"
             placeholder={t("e.g. Birthday Wishes, Home Office Setup", {
               $id: "wishlist.modal.namePlaceholder",
             })}
@@ -560,12 +563,13 @@ function EditWishlistForm({
         <div
           className={`${styles.field} ${isDraftRestored && restoredFields.description ? styles.draftField : ""}`.trim()}
         >
-          <label>
+          <label htmlFor="edit-wishlist-modal-description">
             {t("Description (optional)", {
               $id: "wishlist.modal.descriptionLabel",
             })}
           </label>
           <textarea
+            id="edit-wishlist-modal-description"
             placeholder={t("Add a note for your friends...", {
               $id: "wishlist.modal.descriptionPlaceholder",
             })}

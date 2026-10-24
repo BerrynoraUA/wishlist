@@ -46,7 +46,6 @@ export function TopNav() {
         label: t("Secret Santa", { $id: "nav.secretSanta" }),
         href: "/secret-santa",
         icon: <TreePine size={16} />,
-        isNew: true,
         guideTarget: "nav-secret-santa",
       },
     ],
@@ -63,6 +62,7 @@ export function TopNav() {
             if (!canNavigateTo("/home")) event.preventDefault();
           }}
           aria-disabled={!canNavigateTo("/home")}
+          aria-label={t("Wishlane home", { $id: "nav.logoLabel" })}
         >
           <div className={styles.logoIconWrap}>
             <div className={styles.logoIcon}>
@@ -102,6 +102,17 @@ export function TopNav() {
                   }
                 }}
                 aria-disabled={!canNavigate}
+                // The visible label is hidden on narrow screens, where only the icon remains.
+                aria-label={
+                  item.badgeCount
+                    ? t("{label}, {count} new", {
+                        label: item.label,
+                        count: item.badgeCount,
+                        $id: "nav.itemWithCount",
+                      })
+                    : item.label
+                }
+                aria-current={isActive ? "page" : undefined}
                 data-guide-target={item.guideTarget}
               >
                 {isActive && (
@@ -121,10 +132,6 @@ export function TopNav() {
                 {item.badgeCount ? (
                   <span className={styles.navBadgeWrap}>
                     <span className={styles.navCountBadge}>{item.badgeCount}</span>
-                  </span>
-                ) : item.isNew ? (
-                  <span className={styles.navBadgeWrap}>
-                    <ProBadge size="sm" label={t("NEW", { $id: "nav.secretSanta.newBadge" })} />
                   </span>
                 ) : null}
               </Link>

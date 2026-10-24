@@ -100,8 +100,11 @@ export function FriendGroupModal({ open, group, friends, isSaving, onClose, onSu
         </div>
 
         <div className={styles.field}>
-          <label>{t("Group name", { $id: "friends.groups.modal.name" })}</label>
+          <label htmlFor="friend-group-modal-name">
+            {t("Group name", { $id: "friends.groups.modal.name" })}
+          </label>
           <input
+            id="friend-group-modal-name"
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder={t("Family, coworkers, close friends", {
@@ -111,12 +114,13 @@ export function FriendGroupModal({ open, group, friends, isSaving, onClose, onSu
         </div>
 
         <div className={styles.field}>
-          <label>
+          <label htmlFor="friend-group-modal-description">
             {t("Description (optional)", {
               $id: "friends.groups.modal.description",
             })}
           </label>
           <textarea
+            id="friend-group-modal-description"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             placeholder={t("Add details, size, color...", {
