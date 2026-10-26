@@ -120,8 +120,11 @@ function EditSecretSantaForm({
         </div>
 
         <div className={styles.field}>
-          <label>{t("Event Name", { $id: "secretSanta.edit.eventNameLabel" })}</label>
+          <label htmlFor="edit-secret-santa-modal-event-name">
+            {t("Event Name", { $id: "secretSanta.edit.eventNameLabel" })}
+          </label>
           <input
+            id="edit-secret-santa-modal-event-name"
             placeholder={t("e.g. Office Christmas Party, Family Gift Exchange", {
               $id: "secretSanta.edit.eventNamePlaceholder",
             })}
@@ -131,9 +134,12 @@ function EditSecretSantaForm({
         </div>
 
         <div className={styles.field}>
-          <label>{t("Budget", { $id: "secretSanta.edit.budgetLabel" })}</label>
+          <label htmlFor="edit-secret-santa-modal-budget">
+            {t("Budget", { $id: "secretSanta.edit.budgetLabel" })}
+          </label>
           <div className={styles.budgetRow}>
             <input
+              id="edit-secret-santa-modal-budget"
               type="number"
               placeholder={t("e.g. 25", {
                 $id: "secretSanta.edit.budgetPlaceholder",

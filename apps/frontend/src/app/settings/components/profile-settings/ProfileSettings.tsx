@@ -254,10 +254,11 @@ export function ProfileSettings() {
 
         {/* Display Name */}
         <div className={styles.field}>
-          <label className={styles.label}>
+          <label htmlFor="profile-settings-display-name" className={styles.label}>
             {t("Display Name", { $id: "settings.profile.displayNameLabel" })}
           </label>
           <input
+            id="profile-settings-display-name"
             type="text"
             className={`${styles.input} ${displayNameError ? styles.inputInvalid : ""}`.trim()}
             placeholder={t("Your name", {
@@ -272,7 +273,7 @@ export function ProfileSettings() {
 
         {/* Nickname */}
         <div className={styles.field}>
-          <label className={styles.label}>
+          <label htmlFor="profile-settings-nickname" className={styles.label}>
             {t("Nickname", { $id: "settings.profile.nicknameLabel" })}
             <span className={styles.labelHint}>
               {t("Friends can find you by this", {
@@ -283,6 +284,7 @@ export function ProfileSettings() {
           <div className={styles.inputWrapper}>
             <span className={styles.inputPrefix}>@</span>
             <input
+              id="profile-settings-nickname"
               type="text"
               className={`${styles.input} ${styles.withPrefix} ${nicknameError ? styles.inputInvalid : ""}`.trim()}
               placeholder={t("your-nickname", {
@@ -304,16 +306,17 @@ export function ProfileSettings() {
 
         <div className={styles.measurementsGrid}>
           <div className={styles.field}>
-            <label className={styles.label}>
+            <label htmlFor="profile-settings-height" className={styles.label}>
               {t("Height", { $id: "settings.profile.heightLabel" })}
               <span className={styles.labelHint}>cm</span>
             </label>
             <input
+              id="profile-settings-height"
               type="number"
               inputMode="decimal"
               className={styles.input}
-              placeholder={t("175", {
-                $id: "settings.profile.heightPlaceholder",
+              placeholder={t("e.g. 175", {
+                $id: "settings.profile.heightExample",
               })}
               value={height}
               onChange={(e) => setHeight(e.target.value)}
@@ -323,16 +326,17 @@ export function ProfileSettings() {
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>
+            <label htmlFor="profile-settings-shoe-size" className={styles.label}>
               {t("Shoe size", { $id: "settings.profile.shoeSizeLabel" })}
               <span className={styles.labelHint}>EU</span>
             </label>
             <input
+              id="profile-settings-shoe-size"
               type="number"
               inputMode="decimal"
               className={styles.input}
-              placeholder={t("42", {
-                $id: "settings.profile.shoeSizePlaceholder",
+              placeholder={t("e.g. 42", {
+                $id: "settings.profile.shoeSizeExample",
               })}
               value={shoeSize}
               onChange={(e) => setShoeSize(e.target.value)}
@@ -344,8 +348,11 @@ export function ProfileSettings() {
 
         {/* Bio */}
         <div className={styles.field}>
-          <label className={styles.label}>{t("Bio", { $id: "settings.profile.bioLabel" })}</label>
+          <label htmlFor="profile-settings-bio" className={styles.label}>
+            {t("Bio", { $id: "settings.profile.bioLabel" })}
+          </label>
           <textarea
+            id="profile-settings-bio"
             className={styles.textarea}
             placeholder={t("Tell your friends a little about yourself…", {
               $id: "settings.profile.bioPlaceholder",

@@ -121,12 +121,13 @@ export function AccountSettings() {
         ) : (
           <>
             <div className={styles.field}>
-              <label className={styles.label}>
+              <label htmlFor="account-settings-new-password" className={styles.label}>
                 {t("New Password", {
                   $id: "settings.account.newPasswordLabel",
                 })}
               </label>
               <input
+                id="account-settings-new-password"
                 type="password"
                 className={styles.input}
                 placeholder={t("Enter new password", {
@@ -138,12 +139,13 @@ export function AccountSettings() {
             </div>
 
             <div className={styles.field}>
-              <label className={styles.label}>
+              <label htmlFor="account-settings-confirm-password" className={styles.label}>
                 {t("Confirm Password", {
                   $id: "settings.account.confirmPasswordLabel",
                 })}
               </label>
               <input
+                id="account-settings-confirm-password"
                 type="password"
                 className={styles.input}
                 placeholder={t("Confirm new password", {

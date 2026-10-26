@@ -40,28 +40,6 @@ export function MockupItem({
   );
 }
 
-export function StatItem({
-  count,
-  suffix,
-  label,
-  delay,
-}: {
-  count: number;
-  suffix?: string;
-  label: string;
-  delay?: number;
-}) {
-  return (
-    <div className={`${styles.statItem} ${styles.animateIn}`} data-delay={delay}>
-      <span className={styles.statNumber}>
-        <span data-count={count}>0</span>
-        {suffix}
-      </span>
-      <span className={styles.statLabel}>{label}</span>
-    </div>
-  );
-}
-
 export function SectionHeader({
   badge,
   title,
@@ -295,40 +273,6 @@ export function DiscoverCard({
           >
             <PriorityIcon size={13} strokeWidth={2.5} />
           </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function Testimonial({
-  text,
-  name,
-  role,
-  initial,
-  bg,
-  color,
-  delay,
-}: {
-  text: string;
-  name: string;
-  role: string;
-  initial: string;
-  bg: string;
-  color: string;
-  delay?: number;
-}) {
-  return (
-    <div className={`${styles.testimonial} ${styles.animateIn}`} data-delay={delay}>
-      <div className={styles.testimonialStars}>*****</div>
-      <p className={styles.testimonialText}>{text}</p>
-      <div className={styles.testimonialAuthor}>
-        <div className={styles.testimonialAvatar} style={{ background: bg, color }}>
-          {initial}
-        </div>
-        <div>
-          <span className={styles.testimonialName}>{name}</span>
-          <span className={styles.testimonialRole}>{role}</span>
         </div>
       </div>
     </div>

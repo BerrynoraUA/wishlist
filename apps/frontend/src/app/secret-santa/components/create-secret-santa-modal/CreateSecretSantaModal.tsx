@@ -271,8 +271,11 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
 
         {/* Name */}
         <div className={styles.field}>
-          <label>{t("Event Name", { $id: "secretSanta.create.eventNameLabel" })}</label>
+          <label htmlFor="create-secret-santa-modal-event-name">
+            {t("Event Name", { $id: "secretSanta.create.eventNameLabel" })}
+          </label>
           <input
+            id="create-secret-santa-modal-event-name"
             placeholder={t("e.g. Office Christmas Party, Family Gift Exchange", {
               $id: "secretSanta.create.eventNamePlaceholder",
             })}
@@ -289,9 +292,12 @@ function CreateSecretSantaForm({ onClose }: { onClose: () => void }) {
 
         {/* Budget */}
         <div className={styles.field}>
-          <label>{t("Budget", { $id: "secretSanta.create.budgetLabel" })}</label>
+          <label htmlFor="create-secret-santa-modal-budget">
+            {t("Budget", { $id: "secretSanta.create.budgetLabel" })}
+          </label>
           <div className={styles.budgetRow}>
             <input
+              id="create-secret-santa-modal-budget"
               type="number"
               placeholder={t("e.g. 25", {
                 $id: "secretSanta.create.budgetPlaceholder",

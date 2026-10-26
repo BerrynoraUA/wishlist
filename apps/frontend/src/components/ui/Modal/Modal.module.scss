@@ -25,6 +25,11 @@
     0 0 0 1px rgba(0, 0, 0, 0.02);
   max-height: calc(87vh);
   overflow: hidden;
+
+  // Focus lands on the dialog itself when it opens; the ring belongs on its controls.
+  &:focus {
+    outline: none;
+  }
 }
 
 .content {

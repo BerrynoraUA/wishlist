@@ -73,7 +73,7 @@ function DiscoverPageContent() {
   };
 
   return (
-    <main style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}>
+    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
       <DiscoverHeader />
       <UpcomingEvents />
       <DiscoverFilters active={filter} onChange={handleFilterChange} />
