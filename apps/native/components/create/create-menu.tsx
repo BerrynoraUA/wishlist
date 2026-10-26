@@ -1,3 +1,4 @@
+import { onlineManager } from "@tanstack/react-query";
 import { AddFriendSheet, getFriendInviteLink } from "@/components/friends/sheets/add-friend-sheet";
 import { FriendGroupSheet } from "@/components/friends/sheets/friend-group-sheet";
 import { SecretSantaCreateEditSheet } from "@/components/secret-santa/sheets/secret-santa-create-edit-sheet";
@@ -11,12 +12,14 @@ import { WishlistCreateEditSheet } from "@/components/wishlists/sheets/wishlist-
 import { USER_GUIDE_STEP_IDS } from "@/components/user-guide/user-guide-config";
 import { useCreateFriendGroup } from "@/hooks/use-friends";
 import { useCurrentUserId } from "@/hooks/use-user";
+
 import { hapticSuccess } from "@/lib/haptics";
 import { showToast } from "@/components/ui/toast";
 import { useProGate } from "@/hooks/use-pro-gate";
 import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { useMyStatistics, useWishlistById } from "@/hooks/use-wishlists";
 import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 import { isWishlistDetailPath } from "@/lib/routes";
 import { extractSharedProductUrl } from "@/lib/share-intent";
 import {
@@ -144,7 +147,7 @@ async function settledData<TData>(query: {
   data: TData | undefined;
   refetch: () => Promise<{ data: TData | undefined }>;
 }): Promise<TData | undefined> {
-  if (query.data !== undefined) return query.data;
+  if (query.data !== undefined || !onlineManager.isOnline()) return query.data;
 
   return query
     .refetch()
@@ -575,6 +578,7 @@ function CreateFloatingMenuContent({
   // on iOS when triggered from inside a tab screen, pushing the menu up.
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
+  // Everything here is created on the server, and the forms upload images and fetch product
 
   const menuBottom = Math.max(insets.bottom, 8) + NAV_TAB_BAR_HEIGHT + 12;
 
@@ -619,10 +623,10 @@ function CreateFloatingMenuContent({
                 id={entry.guideTargetId}
                 forceActive={entry.guideTargetId === highlightTargetId}
               >
-                <CreateMenuButton entry={entry} onPress={() => onSelect(entry)} />
+                <CreateMenuButton entry={entry} disabled={false} onPress={() => onSelect(entry)} />
               </GuideTarget>
             ) : (
-              <CreateMenuButton entry={entry} onPress={() => onSelect(entry)} />
+              <CreateMenuButton entry={entry} disabled={false} onPress={() => onSelect(entry)} />
             )}
           </Animated.View>
         ))}
@@ -631,18 +635,37 @@ function CreateFloatingMenuContent({
   );
 }
 
-function CreateMenuButton({ entry, onPress }: { entry: CreateMenuEntry; onPress: () => void }) {
+function CreateMenuButton({
+  entry,
+  disabled,
+  onPress,
+}: {
+  entry: CreateMenuEntry;
+  disabled: boolean;
+  onPress: () => void;
+}) {
   return (
     <AnimatedPressable
       accessibilityRole="button"
       accessibilityLabel={entry.label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg py-2.5 ps-2.5 pe-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
     >
-      <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
+      {/* Dimmed on the contents: the pressable's own press-feedback opacity overrides a class. */}
+      <View
+        className={cn(
+          "size-10 items-center justify-center rounded-full bg-brand-lighter",
+          disabled && "opacity-50",
+        )}
+      >
         <Icon as={entry.icon} className="size-5 text-brand" />
       </View>
-      <Text className="min-w-0 flex-1 text-base font-bold text-text" numberOfLines={1}>
+      <Text
+        className={cn("min-w-0 flex-1 text-base font-bold text-text", disabled && "opacity-50")}
+        numberOfLines={1}
+      >
         {entry.label}
       </Text>
     </AnimatedPressable>
