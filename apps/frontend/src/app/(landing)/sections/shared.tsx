@@ -1,10 +1,44 @@
 "use client";
 
 import { useGT } from "gt-next";
+import Image from "next/image";
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { ArrowDown, ArrowUp, Equal, Headphones, BookOpen } from "lucide-react";
+import { ArrowDown, ArrowUp, Equal, Headphones, BookOpen, Star } from "lucide-react";
 import styles from "../landing.module.scss";
+
+type Priority = "high" | "med" | "low";
+
+/** Matches the app: priority is an icon medallion, never a pill; the label names it. */
+function PriorityBadge({ priority }: { priority: Priority }) {
+  const t = useGT();
+  const { Icon, className, label } = {
+    high: {
+      Icon: ArrowUp,
+      className: styles.priorityHigh,
+      label: t("High", { $id: "landing.discover.priority.high" }),
+    },
+    med: {
+      Icon: Equal,
+      className: styles.priorityMed,
+      label: t("Medium", { $id: "landing.discover.priority.medium" }),
+    },
+    low: {
+      Icon: ArrowDown,
+      className: styles.priorityLow,
+      label: t("Low", { $id: "landing.discover.priority.low" }),
+    },
+  }[priority];
+
+  return (
+    <span className={`${styles.priority} ${className}`}>
+      <span className={styles.priorityIcon}>
+        <Icon size={12} strokeWidth={2.75} />
+      </span>
+      {label}
+    </span>
+  );
+}
 
 export function MockupItem({
   icon,
@@ -17,15 +51,8 @@ export function MockupItem({
   bg: string;
   name: string;
   price: string;
-  priority: "high" | "med" | "low";
+  priority: Priority;
 }) {
-  const priorityClass =
-    priority === "high"
-      ? styles.mockupPriorityHigh
-      : priority === "med"
-        ? styles.mockupPriorityMed
-        : styles.mockupPriorityLow;
-
   return (
     <div className={styles.mockupItem}>
       <div className={styles.mockupItemImg} style={{ background: bg }}>
@@ -35,7 +62,7 @@ export function MockupItem({
         <span className={styles.mockupItemName}>{name}</span>
         <span className={styles.mockupItemPrice}>{price}</span>
       </div>
-      <span className={`${styles.mockupPriority} ${priorityClass}`} />
+      <PriorityBadge priority={priority} />
     </div>
   );
 }
@@ -52,7 +79,7 @@ export function StatItem({
   delay?: number;
 }) {
   return (
-    <div className={`${styles.statItem} ${styles.animateIn}`} data-delay={delay}>
+    <div className={`${styles.stat} ${styles.animateIn}`} data-delay={delay}>
       <span className={styles.statNumber}>
         <span data-count={count}>0</span>
         {suffix}
@@ -73,9 +100,9 @@ export function SectionHeader({
 }) {
   return (
     <div className={styles.sectionHeader}>
-      <span className={styles.sectionBadge}>{badge}</span>
-      <h2 className={styles.sectionTitle}>{title}</h2>
-      {subtitle ? <p className={styles.sectionSubtitle}>{subtitle}</p> : null}
+      <span className={styles.sectionHeaderBadge}>{badge}</span>
+      <h2 className={styles.sectionHeaderTitle}>{title}</h2>
+      {subtitle ? <p className={styles.sectionHeaderSubtitle}>{subtitle}</p> : null}
     </div>
   );
 }
@@ -149,9 +176,7 @@ export function StepDemoCreate() {
             key={label}
             className={`${styles.demoPrivacyOption} ${index === activePrivacy ? styles.demoPrivacyOptionActive : ""}`}
             style={
-              index === activePrivacy
-                ? { background: `${color}18`, borderColor: color, color }
-                : undefined
+              index === activePrivacy ? { background: `${color}18`, borderColor: color } : undefined
             }
             onClick={() => setActivePrivacy(index)}
           >
@@ -194,10 +219,17 @@ export function DemoReserve() {
 
   return (
     <div className={`${styles.stepDemo} ${styles.stepDemoReserve}`}>
+      <Image
+        src="/mascot/hands-over-eyes.webp"
+        alt=""
+        width={84}
+        height={84}
+        className={styles.demoReserveMascot}
+      />
       <DemoReserveItem
         icon={<Headphones size={20} color="#c0267e" />}
         bg="#fde7f3"
-        name={t("Sony WH-1000XM5", {
+        name={t("Headphones", {
           $id: "landing.demo.reserve.item1.name",
         })}
         price="$349.99"
@@ -260,24 +292,9 @@ export function DiscoverCard({
   store: string;
   title: string;
   price: string;
-  priority: "high" | "med" | "low";
+  priority: Priority;
   delay?: number;
 }) {
-  const t = useGT();
-  const priorityClass =
-    priority === "high"
-      ? styles.discoverCardPriorityHigh
-      : priority === "med"
-        ? styles.discoverCardPriorityMed
-        : styles.discoverCardPriorityLow;
-  const PriorityIcon = priority === "high" ? ArrowUp : priority === "med" ? Equal : ArrowDown;
-  const priorityLabel =
-    priority === "high"
-      ? t("High", { $id: "landing.discover.priority.high" })
-      : priority === "med"
-        ? t("Medium", { $id: "landing.discover.priority.medium" })
-        : t("Low", { $id: "landing.discover.priority.low" });
-
   return (
     <div className={`${styles.discoverCard} ${styles.animateIn}`} data-delay={delay}>
       <div className={styles.discoverCardImg} style={{ background: gradient }}>
@@ -288,13 +305,7 @@ export function DiscoverCard({
         <h4 className={styles.discoverCardTitle}>{title}</h4>
         <div className={styles.discoverCardFooter}>
           <span className={styles.discoverCardPrice}>{price}</span>
-          <span
-            className={`${styles.discoverCardPriority} ${priorityClass}`}
-            aria-label={priorityLabel}
-            title={priorityLabel}
-          >
-            <PriorityIcon size={13} strokeWidth={2.5} />
-          </span>
+          <PriorityBadge priority={priority} />
         </div>
       </div>
     </div>
@@ -320,7 +331,11 @@ export function Testimonial({
 }) {
   return (
     <div className={`${styles.testimonial} ${styles.animateIn}`} data-delay={delay}>
-      <div className={styles.testimonialStars}>*****</div>
+      <div className={styles.testimonialStars} aria-label="5 out of 5 stars">
+        {Array.from({ length: 5 }, (_, index) => (
+          <Star key={index} size={16} fill="currentColor" strokeWidth={0} />
+        ))}
+      </div>
       <p className={styles.testimonialText}>{text}</p>
       <div className={styles.testimonialAuthor}>
         <div className={styles.testimonialAvatar} style={{ background: bg, color }}>

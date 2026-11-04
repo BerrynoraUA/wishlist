@@ -36,7 +36,7 @@ test.describe("Landing page", () => {
 
   test("features section renders all feature cards", async ({ page }) => {
     await expect(page.getByText("Beautiful Wishlists")).toBeVisible();
-    await expect(page.getByText("Smart Link Scraping")).toBeVisible();
+    await expect(page.getByText("Add From Any Store")).toBeVisible();
     await expect(page.getByText("Friends & Sharing")).toBeVisible();
     await expect(page.getByText("Gift Reservations")).toBeVisible();
   });

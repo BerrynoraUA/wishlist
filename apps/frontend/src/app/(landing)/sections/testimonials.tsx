@@ -46,7 +46,7 @@ export function Testimonials() {
           />
           <Testimonial
             text={t(
-              "I love the reservation system. I can claim a gift and nobody else sees it, so surprises stay intact.",
+              "I claim a gift, everyone else knows it's taken, and the surprise stays intact.",
               { $id: "landing.testimonials.quote3" },
             )}
             name={t("Emma Nakamura", { $id: "landing.testimonials.author3.name" })}

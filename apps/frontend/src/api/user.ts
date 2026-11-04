@@ -1,3 +1,4 @@
+import { isAuthSessionMissingError } from "@supabase/supabase-js";
 import type { SupabaseSession, SupabaseUser } from "@wishlist/backend/supabase";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import type { UserStatistics } from "./types/user";
@@ -5,6 +6,8 @@ import type { UserStatistics } from "./types/user";
 export async function getCurrentUser(): Promise<SupabaseUser | null> {
   const { data, error } = await supabaseBrowser.auth.getUser();
 
+  // Logged-out visitors have no session; that means "no user", not a failure.
+  if (isAuthSessionMissingError(error)) return null;
   if (error) throw error;
 
   return data.user ?? null;
