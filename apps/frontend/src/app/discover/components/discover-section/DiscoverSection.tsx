@@ -267,8 +267,8 @@ export function DiscoverSection({
           <div className={styles.identity}>
             <span
               className={`${styles.avatar} ${friend_id ? styles.avatarClickable : ""}`}
-              role={friend_id ? "link" : undefined}
-              aria-label={friend_id ? owner : undefined}
+              // Mouse shortcut only; the owner name beside it is the accessible link.
+              aria-hidden="true"
               onClick={() => {
                 if (friend_id) {
                   router.push(`/friends/${friend_id}`);

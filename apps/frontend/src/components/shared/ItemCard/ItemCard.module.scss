@@ -22,6 +22,22 @@
   }
 }
 
+.openDetailButton {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.card:has(.openDetailButton:focus-visible) {
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+}
+
 .cardPurchased {
   border-color: rgba(22, 163, 74, 0.18);
 

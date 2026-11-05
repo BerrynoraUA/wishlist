@@ -624,46 +624,6 @@ $font-serif: "Playfair Display", Georgia, serif;
   }
 }
 
-/* ---------- Stats Bar ---------- */
-.statsBar {
-  padding: 40px 0;
-  background: $bg-white;
-  border-top: 1px solid $border;
-  border-bottom: 1px solid $border;
-}
-
-.statsBarInner {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  text-align: center;
-}
-
-.stat {
-  text-align: center;
-}
-
-.statNumber {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: $brand;
-  line-height: 1;
-}
-
-.statSuffix {
-  font-size: 2rem;
-  font-weight: 800;
-  color: $brand;
-}
-
-.statLabel {
-  display: block;
-  margin-top: 6px;
-  font-size: 0.875rem;
-  color: $text-muted;
-  font-weight: 500;
-}
-
 /* ---------- Section Header ---------- */
 .sectionHeader {
   text-align: center;
@@ -1167,78 +1127,6 @@ $font-serif: "Playfair Display", Georgia, serif;
   color: $text;
 }
 
-/* ---------- Testimonials ---------- */
-.testimonials {
-  padding: 100px 0;
-  background: $bg-white;
-}
-
-.testimonialsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-.testimonial {
-  display: flex;
-  flex-direction: column;
-  padding: 32px;
-  background: $bg-white;
-  border: 1px solid #f3d9e6;
-  box-shadow: $shadow-sm;
-  border-radius: $radius-xl;
-  transition: all 0.3s $ease-out;
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: $shadow-md;
-    border-color: transparent;
-  }
-}
-
-.testimonialStars {
-  display: flex;
-  gap: 2px;
-  color: #f59e0b;
-  margin-bottom: 16px;
-}
-
-.testimonialText {
-  font-size: 1.0625rem;
-  line-height: 1.7;
-  color: $text;
-  margin-bottom: 24px;
-}
-
-.testimonialAuthor {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: auto;
-}
-
-.testimonialAvatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.testimonialName {
-  display: block;
-  font-weight: 700;
-  font-size: 0.9375rem;
-}
-
-.testimonialRole {
-  font-size: 0.8125rem;
-  color: $text-muted;
-}
-
 /* ---------- CTA ---------- */
 .cta {
   padding: 100px 0;
@@ -1424,8 +1312,7 @@ $font-serif: "Playfair Display", Georgia, serif;
   }
 
   .featuresGrid,
-  .discoverGrid,
-  .testimonialsGrid {
+  .discoverGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -1482,7 +1369,6 @@ $font-serif: "Playfair Display", Georgia, serif;
   .features,
   .howItWorks,
   .discover,
-  .testimonials,
   .cta {
     padding: 64px 0;
   }
@@ -1492,13 +1378,11 @@ $font-serif: "Playfair Display", Georgia, serif;
   }
 
   .featuresGrid,
-  .discoverGrid,
-  .testimonialsGrid {
+  .discoverGrid {
     gap: 16px;
   }
 
-  .featureCard,
-  .testimonial {
+  .featureCard {
     padding: 22px;
   }
 
@@ -1538,11 +1422,6 @@ $font-serif: "Playfair Display", Georgia, serif;
 
   .mockupCardFloat2 {
     left: 8px;
-  }
-
-  .statsBarInner {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 32px;
   }
 
   .sectionHeaderTitle {
@@ -1613,8 +1492,7 @@ $font-serif: "Playfair Display", Georgia, serif;
   }
 
   .featuresGrid,
-  .discoverGrid,
-  .testimonialsGrid {
+  .discoverGrid {
     grid-template-columns: 1fr;
   }
 
@@ -1667,13 +1545,5 @@ $font-serif: "Playfair Display", Georgia, serif;
     flex-direction: column;
     align-items: center;
     gap: 4px;
-  }
-
-  .statNumber {
-    font-size: 2rem;
-  }
-
-  .statSuffix {
-    font-size: 1.5rem;
   }
 }

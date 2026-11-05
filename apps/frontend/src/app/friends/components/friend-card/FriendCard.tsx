@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useGT } from "gt-next";
 import styles from "./FriendCard.module.scss";
 import type { FriendWithDetails } from "@/api/types/friends";
-import { UserMinus } from "lucide-react";
+import { UserMinus, UserRound } from "lucide-react";
 
 type Props = {
   friend: FriendWithDetails;
@@ -13,21 +13,38 @@ type Props = {
 
 export function FriendCard({ friend, onRemove }: Props) {
   const t = useGT();
-  const router = useRouter();
 
   return (
-    <div className={styles.card} onClick={() => router.push(`/friends/${friend.friend_id}`)}>
-      <div className={styles.avatar}>👤</div>
+    <div className={styles.card}>
+      <div className={styles.avatar}>
+        {friend.avatar_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={friend.avatar_url} alt="" className={styles.avatarImg} />
+        ) : (
+          <UserRound size={18} />
+        )}
+      </div>
 
       <div className={styles.info}>
-        <strong>{friend.display_name}</strong>
+        <strong>
+          {/* Stretched over the whole card, so the card opens like a link and is reachable by Tab. */}
+          <Link href={`/friends/${friend.friend_id}`} className={styles.cardLink}>
+            {friend.display_name}
+          </Link>
+        </strong>
         {friend.nickname && <span>@{friend.nickname}</span>}
         <div className={styles.meta}>
-          {t("{wishlistsCount} wishlists · {mutualCount} mutual", {
-            wishlistsCount: friend.wishlists_count,
-            mutualCount: friend.mutual_friends_count,
-            $id: "friends.card.meta",
-          })}
+          {friend.wishlists_count === 1
+            ? t("{wishlistsCount} wishlist · {mutualCount} mutual", {
+                wishlistsCount: friend.wishlists_count,
+                mutualCount: friend.mutual_friends_count,
+                $id: "friends.card.meta.one",
+              })
+            : t("{wishlistsCount} wishlists · {mutualCount} mutual", {
+                wishlistsCount: friend.wishlists_count,
+                mutualCount: friend.mutual_friends_count,
+                $id: "friends.card.meta",
+              })}
         </div>
       </div>
 

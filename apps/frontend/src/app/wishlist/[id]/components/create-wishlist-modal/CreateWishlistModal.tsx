@@ -416,8 +416,11 @@ function CreateWishlistForm({
 
         {/* Name */}
         <div className={styles.field}>
-          <label>{t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}</label>
+          <label htmlFor="create-wishlist-modal-name">
+            {t("Wishlist Name", { $id: "wishlist.modal.nameLabel" })}
+          </label>
           <input
+            id="create-wishlist-modal-name"
             placeholder={t("e.g. Birthday Wishes, Home Office Setup", {
               $id: "wishlist.modal.namePlaceholder",
             })}
@@ -428,12 +431,13 @@ function CreateWishlistForm({
 
         {/* Description */}
         <div className={styles.field}>
-          <label>
+          <label htmlFor="create-wishlist-modal-description">
             {t("Description (optional)", {
               $id: "wishlist.modal.descriptionLabel",
             })}
           </label>
           <textarea
+            id="create-wishlist-modal-description"
             placeholder={t("Add a note for your friends...", {
               $id: "wishlist.modal.descriptionPlaceholder",
             })}

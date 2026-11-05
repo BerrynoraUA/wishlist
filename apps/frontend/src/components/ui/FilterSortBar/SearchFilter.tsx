@@ -24,6 +24,7 @@ export function SearchFilter({ value, onChange, placeholder = "Search...", class
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        aria-label={placeholder}
       />
       {value && (
         <button

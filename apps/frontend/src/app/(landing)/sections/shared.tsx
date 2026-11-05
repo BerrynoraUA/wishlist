@@ -4,7 +4,7 @@ import { useGT } from "gt-next";
 import Image from "next/image";
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { ArrowDown, ArrowUp, Equal, Headphones, BookOpen, Star } from "lucide-react";
+import { ArrowDown, ArrowUp, Equal, Headphones, BookOpen } from "lucide-react";
 import styles from "../landing.module.scss";
 
 type Priority = "high" | "med" | "low";
@@ -63,28 +63,6 @@ export function MockupItem({
         <span className={styles.mockupItemPrice}>{price}</span>
       </div>
       <PriorityBadge priority={priority} />
-    </div>
-  );
-}
-
-export function StatItem({
-  count,
-  suffix,
-  label,
-  delay,
-}: {
-  count: number;
-  suffix?: string;
-  label: string;
-  delay?: number;
-}) {
-  return (
-    <div className={`${styles.stat} ${styles.animateIn}`} data-delay={delay}>
-      <span className={styles.statNumber}>
-        <span data-count={count}>0</span>
-        {suffix}
-      </span>
-      <span className={styles.statLabel}>{label}</span>
     </div>
   );
 }
@@ -306,44 +284,6 @@ export function DiscoverCard({
         <div className={styles.discoverCardFooter}>
           <span className={styles.discoverCardPrice}>{price}</span>
           <PriorityBadge priority={priority} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function Testimonial({
-  text,
-  name,
-  role,
-  initial,
-  bg,
-  color,
-  delay,
-}: {
-  text: string;
-  name: string;
-  role: string;
-  initial: string;
-  bg: string;
-  color: string;
-  delay?: number;
-}) {
-  return (
-    <div className={`${styles.testimonial} ${styles.animateIn}`} data-delay={delay}>
-      <div className={styles.testimonialStars} aria-label="5 out of 5 stars">
-        {Array.from({ length: 5 }, (_, index) => (
-          <Star key={index} size={16} fill="currentColor" strokeWidth={0} />
-        ))}
-      </div>
-      <p className={styles.testimonialText}>{text}</p>
-      <div className={styles.testimonialAuthor}>
-        <div className={styles.testimonialAvatar} style={{ background: bg, color }}>
-          {initial}
-        </div>
-        <div>
-          <span className={styles.testimonialName}>{name}</span>
-          <span className={styles.testimonialRole}>{role}</span>
         </div>
       </div>
     </div>

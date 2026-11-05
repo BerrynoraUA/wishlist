@@ -399,6 +399,14 @@ export function SecretSantaDetailHero({
               $id: "secretSanta.hero.peopleBadge",
             })}
           </span>
+          {event.pending_invites.length > 0 && (
+            <span className={styles.badge}>
+              {t("{count} pending", {
+                count: event.pending_invites.length,
+                $id: "secretSanta.hero.pendingBadge",
+              })}
+            </span>
+          )}
         </div>
 
         <div className={styles.heroCopy}>
@@ -461,33 +469,6 @@ export function SecretSantaDetailHero({
               </span>
             )}
           </div>
-        </div>
-
-        <div className={styles.summaryGrid}>
-          <article className={styles.summaryCard}>
-            <span>
-              {t("Accepted participants", {
-                $id: "secretSanta.hero.summary.accepted",
-              })}
-            </span>
-            <strong>{event.participants.length}</strong>
-          </article>
-          <article className={styles.summaryCard}>
-            <span>
-              {t("Pending invites", {
-                $id: "secretSanta.hero.summary.pending",
-              })}
-            </span>
-            <strong>{event.pending_invites.length}</strong>
-          </article>
-          <article className={styles.summaryCard}>
-            <span>
-              {t("Budget per person", {
-                $id: "secretSanta.hero.summary.budget",
-              })}
-            </span>
-            <strong>{formatPrice(event.budget, event.currency)}</strong>
-          </article>
         </div>
       </div>
     </section>

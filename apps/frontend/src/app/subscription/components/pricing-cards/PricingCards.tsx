@@ -215,28 +215,44 @@ export function PricingCards() {
 
   return (
     <div className={styles.wrapper}>
-      {/* Billing toggle */}
-      <div className={styles.toggle}>
-        <button
-          type="button"
-          className={`${styles.toggleOption} ${isMonthly ? styles.active : ""}`}
-          onClick={() => setInterval(BillingInterval.Monthly)}
-        >
-          {t("Monthly", { $id: "subscription.pricing.billingMonthly" })}
-        </button>
-        <button
-          type="button"
-          className={`${styles.toggleOption} ${!isMonthly ? styles.active : ""}`}
-          onClick={() => setInterval(BillingInterval.Yearly)}
-        >
-          {t("Yearly", { $id: "subscription.pricing.billingYearly" })}
-          <span className={styles.saveBadge}>
-            {t("Save {percent}%", {
-              percent: PRICING.yearlySavingsPercent,
-              $id: "subscription.pricing.savePercent",
-            })}
-          </span>
-        </button>
+      <div className={styles.comparisonHeader}>
+        <h2 id="billing-comparison-title">
+          {t("Compare billing options", { $id: "subscription.pricing.compareBilling" })}
+        </h2>
+        {isPro && (
+          <p>
+            {t(
+              "These are comparison prices. Selecting Monthly or Yearly doesn't change your subscription. Use Manage subscription above to review your billing options.",
+              {
+                $id: "subscription.pricing.comparisonDescription",
+              },
+            )}
+          </p>
+        )}
+        <div className={styles.toggle} role="group" aria-labelledby="billing-comparison-title">
+          <button
+            type="button"
+            className={`${styles.toggleOption} ${isMonthly ? styles.active : ""}`}
+            onClick={() => setInterval(BillingInterval.Monthly)}
+            aria-pressed={isMonthly}
+          >
+            {t("Monthly", { $id: "subscription.pricing.billingMonthly" })}
+          </button>
+          <button
+            type="button"
+            className={`${styles.toggleOption} ${!isMonthly ? styles.active : ""}`}
+            onClick={() => setInterval(BillingInterval.Yearly)}
+            aria-pressed={!isMonthly}
+          >
+            {t("Yearly", { $id: "subscription.pricing.billingYearly" })}
+            <span className={styles.saveBadge}>
+              {t("Save {percent}%", {
+                percent: PRICING.yearlySavingsPercent,
+                $id: "subscription.pricing.savePercent",
+              })}
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Cards */}
@@ -282,9 +298,15 @@ export function PricingCards() {
               {t("Current Plan", { $id: "subscription.pricing.currentPlan" })}
             </div>
           ) : (
-            <Button variant="secondary" onClick={() => {}}>
+            // Downgrading means cancelling Pro, which happens in subscription management.
+            <button
+              type="button"
+              className={styles.restoreLink}
+              onClick={handleManageSubscription}
+              disabled={manageSubscription.isPending}
+            >
               {t("Downgrade", { $id: "subscription.pricing.downgrade" })}
-            </Button>
+            </button>
           )}
         </div>
 
@@ -308,6 +330,9 @@ export function PricingCards() {
           </div>
 
           <div className={styles.priceBlock}>
+            <span className={styles.priceLabel}>
+              {t("Comparison price", { $id: "subscription.pricing.comparisonPrice" })}
+            </span>
             <span className={styles.priceAmount}>{selectedPricePerMonth}</span>
             <span className={styles.pricePeriod}>
               {t("/month", { $id: "subscription.pricing.perMonth" })}
@@ -348,18 +373,9 @@ export function PricingCards() {
           </ul>
 
           {isPro ? (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleManageSubscription}
-              disabled={manageSubscription.isPending}
-            >
-              {manageSubscription.isPending
-                ? t("Opening...", { $id: "subscription.pricing.openingManagement" })
-                : t("Manage subscription", {
-                    $id: "subscription.pricing.manageSubscription",
-                  })}
-            </Button>
+            <div className={styles.currentBadge}>
+              {t("Your current tier", { $id: "subscription.pricing.currentTier" })}
+            </div>
           ) : (
             <>
               <Button

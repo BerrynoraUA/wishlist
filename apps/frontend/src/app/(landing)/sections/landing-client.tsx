@@ -9,60 +9,6 @@ import { Features } from "./features";
 import { FooterCta } from "./footer-cta";
 import { Hero } from "./hero";
 import { HowItWorks } from "./how-it-works";
-import { SocialProof } from "./social-proof";
-import { Testimonials } from "./testimonials";
-
-function useCounters(containerRef: RefObject<HTMLElement | null>) {
-  useEffect(() => {
-    const element = containerRef.current;
-    if (!element) return;
-
-    let animated = false;
-    const counters = element.querySelectorAll<HTMLElement>("[data-count]");
-    if (!counters.length) return;
-
-    function animateCounters() {
-      counters.forEach((counter) => {
-        const target = Number.parseInt(counter.dataset.count || "0", 10);
-        const duration = 2000;
-        const start = performance.now();
-
-        function update(now: number) {
-          const elapsed = now - start;
-          const progress = Math.min(elapsed / duration, 1);
-          const eased = 1 - (1 - progress) ** 3;
-          const current = Math.floor(eased * target);
-          counter.textContent = current.toLocaleString();
-          if (progress < 1) {
-            requestAnimationFrame(update);
-            return;
-          }
-          counter.textContent = target.toLocaleString();
-        }
-
-        requestAnimationFrame(update);
-      });
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !animated) {
-            animated = true;
-            animateCounters();
-            observer.disconnect();
-          }
-        });
-      },
-      { threshold: 0.3 },
-    );
-
-    const statsBar = element.querySelector(`.${styles.statsBar}`);
-    if (statsBar) observer.observe(statsBar);
-
-    return () => observer.disconnect();
-  }, [containerRef]);
-}
 
 function useFadeAnimations(containerRef: RefObject<HTMLElement | null>) {
   useEffect(() => {
@@ -110,7 +56,6 @@ export default function LandingClient() {
   const burgerRef = useRef<HTMLButtonElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-  useCounters(pageRef);
   useFadeAnimations(pageRef);
   useNavScroll(navRef);
 
@@ -149,11 +94,9 @@ export default function LandingClient() {
         onToggleMenu={toggleMenu}
         onSmoothScroll={smoothScroll}
       />
-      <SocialProof />
       <Features />
       <HowItWorks />
       <Discover />
-      <Testimonials />
       <Cta />
       <FooterCta onSmoothScroll={smoothScroll} />
     </div>

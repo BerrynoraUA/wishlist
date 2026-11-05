@@ -1,0 +1,25 @@
+@use "@/styles/variables" as *;
+
+.unavailable {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  max-width: 420px;
+  margin: 48px auto;
+  padding: 0 24px;
+  text-align: center;
+}
+
+.unavailableLink {
+  padding: 10px 18px;
+  border-radius: $radius-pill;
+  background: $brand;
+  color: #fff;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+
+  &:hover {
+    background: $brand-dark;
+  }
+}
