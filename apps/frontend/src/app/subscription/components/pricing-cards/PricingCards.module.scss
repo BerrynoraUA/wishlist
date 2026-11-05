@@ -24,6 +24,7 @@
   align-items: center;
   gap: 6px;
   padding: 8px 20px;
+  min-height: 44px;
   border: none;
   border-radius: $radius-pill;
   background: transparent;
@@ -38,6 +39,32 @@
     color: $text;
     box-shadow: $shadow-sm;
   }
+}
+
+.comparisonHeader {
+  width: 100%;
+  max-width: 620px;
+  text-align: center;
+
+  h2 {
+    margin-bottom: 12px;
+    font-size: 1.4rem;
+    color: $text;
+  }
+
+  p {
+    margin-bottom: 20px;
+    color: $text-muted;
+    font-size: var(--fs-body);
+    line-height: 1.6;
+  }
+}
+
+.priceLabel {
+  width: 100%;
+  margin-bottom: 8px;
+  color: $text-muted;
+  font-size: var(--fs-label);
 }
 
 .saveBadge {
@@ -247,6 +274,10 @@
 }
 
 /* ── Restore link ── */
+.proCard .currentBadge {
+  margin-bottom: 8px;
+}
+
 .restoreLink {
   display: block;
   width: 100%;

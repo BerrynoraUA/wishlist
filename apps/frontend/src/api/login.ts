@@ -77,6 +77,17 @@ export async function registerWithEmail(
   return true;
 }
 
+/** Emails a reset link that signs the user in and lands on the change-password form. */
+export async function sendPasswordReset(email: string): Promise<void> {
+  const callback = new URL("/auth/callback", window.location.origin);
+  callback.searchParams.set("redirect_to", "/settings?tab=account");
+  const { error } = await supabaseBrowser.auth.resetPasswordForEmail(email, {
+    redirectTo: callback.href,
+  });
+
+  if (error) throw error;
+}
+
 export async function logout(): Promise<void> {
   const { error } = await supabaseBrowser.auth.signOut();
 

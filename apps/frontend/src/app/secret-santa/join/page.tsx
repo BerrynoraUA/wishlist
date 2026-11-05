@@ -13,9 +13,13 @@ export default function SecretSantaJoinPage() {
     return (
       <SecretSantaPageShell narrow>
         <SecretSantaJoinStatus
-          message={t("Invalid invite link.", {
-            $id: "secretSanta.join.invalidLink",
+          message={t("This invite link is incomplete. Ask the organizer to send it again.", {
+            $id: "secretSanta.join.invalidLinkHelp",
           })}
+          action={{
+            href: "/secret-santa",
+            label: t("Go to Secret Santa", { $id: "secretSanta.join.backToEvents" }),
+          }}
         />
       </SecretSantaPageShell>
     );

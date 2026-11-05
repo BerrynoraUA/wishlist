@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useGT } from "gt-next";
 import styles from "./WishlistCard.module.scss";
 
@@ -36,7 +36,6 @@ export function WishlistCard({
   onPin,
 }: Props) {
   const t = useGT();
-  const router = useRouter();
   const [menuKey, setMenuKey] = useState(0);
   const visibilityLabels = getWishlistVisibilityLabels(t);
 
@@ -69,20 +68,11 @@ export function WishlistCard({
     <div
       className={styles.card}
       data-guide-target="home-wishlist-card"
-      onClick={() => {
-        onOpen?.(wishlist);
-        router.push(`/wishlist/${wishlist.id}`);
-      }}
       onMouseLeave={() => setMenuKey((k) => k + 1)}
-      style={{ cursor: "pointer" }}
     >
       <div className={`${styles.top} ${styles[accent]}`}>
         {hasImage && (
-          <img
-            src={wishlist.image_url as string}
-            alt={wishlist.title}
-            className={styles.coverImage}
-          />
+          <img src={wishlist.image_url as string} alt="" className={styles.coverImage} />
         )}
         {isShared && (
           <div className={styles.sharedBadge} aria-label={sharedTooltip} title={sharedTooltip}>
@@ -103,7 +93,16 @@ export function WishlistCard({
 
       <div className={styles.content}>
         <div className={styles.titleRow}>
-          <h3 className={styles.title}>{wishlist.title}</h3>
+          <h3 className={styles.title}>
+            {/* Stretched over the whole card, so the card opens like a link and is reachable by Tab. */}
+            <Link
+              href={`/wishlist/${wishlist.id}`}
+              className={styles.cardLink}
+              onClick={() => onOpen?.(wishlist)}
+            >
+              {wishlist.title}
+            </Link>
+          </h3>
           {showMenu && (
             <div className={styles.menuWrap} onClick={(e) => e.stopPropagation()}>
               <DropdownMenu
