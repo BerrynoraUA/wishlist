@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGT, useLocale } from "gt-next";
 import { useRouter } from "next/navigation";
 import styles from "./SecretSantaEventCard.module.scss";
-import { TreePine, CalendarDays, Users } from "lucide-react";
+import { Crown, TreePine, CalendarDays, Users } from "lucide-react";
 import type { SecretSantaListItem } from "@wishlist/backend/types/secret-santa";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
 
@@ -81,7 +81,7 @@ export function SecretSantaEventCard({ event }: Props) {
         )}
         {event.is_owner && (
           <div className={styles.ownerBadge}>
-            <TreePine size={12} />
+            <Crown size={12} />
             <span>{t("Organizer", { $id: "secretSanta.card.organizer" })}</span>
           </div>
         )}

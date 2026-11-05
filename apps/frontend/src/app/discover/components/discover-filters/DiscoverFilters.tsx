@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useGT } from "gt-next";
 import styles from "./DiscoverFilters.module.scss";
 import { Tabs, type TabItem } from "@/components/ui/Tabs/Tabs";
-import { Sparkles, Heart, ShoppingCart } from "lucide-react";
+import { Gift, Lock, Package, ShoppingBag } from "lucide-react";
 
 type Props = {
   active: "wishlists" | "available" | "reserved" | "purchased";
@@ -21,7 +21,7 @@ export function DiscoverFilters({ active, onChange }: Props) {
         guideTarget: "discover-tab-wishlists",
         label: (
           <>
-            <Sparkles size={16} className={styles.icon} />
+            <Gift size={16} className={styles.icon} />
             <span className={`${styles.label} ${styles.fullLabel}`}>
               {t("All Wishlists", { $id: "discover.filters.allWishlists" })}
             </span>
@@ -36,7 +36,7 @@ export function DiscoverFilters({ active, onChange }: Props) {
         guideTarget: "discover-tab-available",
         label: (
           <>
-            <Sparkles size={16} className={styles.icon} />
+            <Package size={16} className={styles.icon} />
             <span className={styles.label}>Available</span>
           </>
         ),
@@ -46,7 +46,7 @@ export function DiscoverFilters({ active, onChange }: Props) {
         guideTarget: "discover-tab-reserved",
         label: (
           <>
-            <Heart size={16} className={styles.icon} />
+            <Lock size={16} className={styles.icon} />
             <span className={styles.label}>
               {t("Reserved", { $id: "discover.filters.reserved" })}
             </span>
@@ -58,7 +58,7 @@ export function DiscoverFilters({ active, onChange }: Props) {
         guideTarget: "discover-tab-purchased",
         label: (
           <>
-            <ShoppingCart size={16} className={styles.icon} />
+            <ShoppingBag size={16} className={styles.icon} />
             <span className={styles.label}>
               {t("Purchased", { $id: "discover.filters.purchased" })}
             </span>

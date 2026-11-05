@@ -74,6 +74,7 @@ export function TopNav() {
             <span className={styles.logoBetaBadge}>
               <ProBadge
                 size="sm"
+                tone="soft"
                 label={
                   typeof window !== "undefined" &&
                   window.location.hostname === "staging.wishlane.net"

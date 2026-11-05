@@ -61,6 +61,11 @@
   }
 
   .imageFrame img,
+  /* White product shots glare on dark cards; dim them slightly. */
+:global([data-theme="dark"]) .imageFrame img {
+    filter: brightness(0.86);
+  }
+
   .placeholder {
     filter: grayscale(1);
     opacity: 0.55;
@@ -122,19 +127,17 @@
   }
 }
 
+/* Neutral frame at rest so a grid stays calm; the item's colour shows on hover. */
 .cardColored {
-  border-color: color-mix(in srgb, var(--card-accent-color) 70%, transparent) !important;
-  box-shadow: 0 16px 36px color-mix(in srgb, var(--card-accent-color) 30%, transparent);
-
   &:hover {
-    box-shadow: 0 16px 36px color-mix(in srgb, var(--card-accent-color) 30%, transparent) !important;
+    border-color: color-mix(in srgb, var(--card-accent-color) 40%, var(--card-border)) !important;
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--card-accent-color) 18%, transparent) !important;
   }
 }
 
 /* Starred keeps the heavier brand-coloured frame it always had. */
 .cardStarAccent {
   border: 2px solid var(--color-brand) !important;
-  box-shadow: 0 16px 36px var(--brand-alpha-18);
 
   &:hover {
     border-color: var(--color-brand) !important;
@@ -273,9 +276,9 @@
   font-weight: var(--fw-semibold);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  background: var(--card-bg);
-  color: var(--color-text-muted);
-  border: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--badge-color, var(--color-text-muted)) 14%, var(--card-bg));
+  color: var(--badge-color, var(--color-text-muted));
+  border: none;
   max-width: 100%;
 }
 
@@ -388,6 +391,9 @@
     font-size: var(--fs-body);
     font-weight: var(--fw-semibold);
     letter-spacing: -0.01em;
+    line-height: 1.3;
+    /* Reserve two lines so prices and actions line up across a row. */
+    min-height: 2.6em;
     margin-bottom: 4px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -612,19 +618,18 @@
   flex-shrink: 0;
   cursor: pointer;
   border-radius: 12px;
-  /* Green from the start, the way the reserve button next to it is always brand-coloured:
-     buying is what the button does, whether or not the pointer is on it. */
-  border: 1px solid rgba(22, 163, 74, 0.35);
-  background: rgba(22, 163, 74, 0.08);
-  color: #15803d;
+  /* Neutral at rest so the reserve button leads; green on hover says what it does. */
+  border: 1px solid var(--color-border-subtle);
+  background: var(--card-bg);
+  color: var(--color-text-muted);
   display: grid;
   place-items: center;
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
     border-color: #15803d;
-    color: #166534;
-    background: rgba(22, 163, 74, 0.16);
+    color: #15803d;
+    background: rgba(22, 163, 74, 0.08);
   }
 
   &:disabled {
@@ -700,14 +705,15 @@
     strong {
       font-size: 15px;
       line-height: 1.25;
-      min-height: 1.25em;
-      -webkit-line-clamp: 1;
-      line-clamp: 1;
+      /* Two lines keep product names distinct; reserved height keeps rows aligned. */
+      min-height: 2.5em;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
     }
   }
 
   .titleBlock {
-    min-height: 1.25em;
+    min-height: 2.5em;
   }
 
   .description {

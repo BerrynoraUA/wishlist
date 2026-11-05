@@ -2,20 +2,21 @@
 
 import { useGT } from "gt-next";
 import styles from "./StatCard.module.scss";
-import { Gift } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 type Props = {
   label: string;
   value: number;
+  icon: LucideIcon;
   onClick?: () => void;
 };
 
-export function StatCard({ label, value, onClick }: Props) {
+export function StatCard({ label, value, icon: Icon, onClick }: Props) {
   const t = useGT();
   const content = (
     <>
       <div className={styles.iconWrapper}>
-        <Gift size={18} />
+        <Icon size={18} />
       </div>
 
       <div className={styles.text}>
