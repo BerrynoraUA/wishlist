@@ -12,11 +12,11 @@ $mint: #6ee7b7;
 $peach: #fdba74;
 $lavender: #c4b5fd;
 
-$bg: #faf7f8;
+$bg: #fcf6f4;
 $bg-white: #ffffff;
 $text: #111827;
-$text-muted: #6b7280;
-$text-light: #9ca3af;
+$text-muted: #5f6675;
+$text-light: #6b7280;
 $border: #f3e8ee;
 $border-light: #e5e7eb;
 
@@ -43,6 +43,7 @@ $font-serif: "Playfair Display", Georgia, serif;
 
 /* ---------- Root ---------- */
 .landing {
+  color-scheme: light;
   font-family: $font-sans;
   color: $text;
   background: $bg;
@@ -77,6 +78,8 @@ $font-serif: "Playfair Display", Georgia, serif;
     font-family: $font-serif;
     font-style: italic;
     color: $brand;
+    padding-right: 0.1em;
+    white-space: nowrap;
   }
 
   img {
@@ -372,8 +375,10 @@ $font-serif: "Playfair Display", Georgia, serif;
   padding: 6px 16px;
   background: $brand-light;
   color: $brand;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   border-radius: $radius-pill;
   margin-bottom: 24px;
 }
@@ -406,8 +411,8 @@ $font-serif: "Playfair Display", Georgia, serif;
 
 .heroNote {
   margin-top: 16px;
-  font-size: 0.8125rem;
-  color: $text-light;
+  font-size: 0.875rem;
+  color: $text-muted;
 }
 
 /* Hero Mockup */
@@ -418,6 +423,18 @@ $font-serif: "Playfair Display", Georgia, serif;
 .heroMockup {
   position: relative;
   perspective: 1000px;
+}
+
+.heroMascot {
+  position: absolute;
+  z-index: 2;
+  bottom: -80px;
+  right: -60px;
+  width: 132px;
+  height: auto;
+  transform: rotate(8deg);
+  filter: drop-shadow(0 10px 18px rgba(155, 31, 102, 0.18));
+  pointer-events: none;
 }
 
 .heroContent {
@@ -521,28 +538,36 @@ $font-serif: "Playfair Display", Georgia, serif;
   color: $text-muted;
 }
 
-.mockupItemPriority {
-  font-size: 0.6875rem;
+/* Priority: icon medallion + label (shared by hero mockup and discover cards) */
+.priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-size: 0.75rem;
   font-weight: 700;
-  padding: 3px 10px;
-  border-radius: $radius-pill;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
-.mockupItemPriorityHigh {
-  background: #fef2f2;
-  color: #dc2626;
+.priorityIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: $bg-white;
+  border: 1.5px solid currentcolor;
 }
 
-.mockupItemPriorityMed {
-  background: #fef3c7;
-  color: #d97706;
+.priorityHigh {
+  color: #a5266b;
 }
 
-.mockupItemPriorityLow {
-  background: #f0fdf4;
-  color: #16a34a;
+.priorityMed {
+  color: #946000;
+}
+
+.priorityLow {
+  color: #18734b;
 }
 
 /* Floating badges */
@@ -556,14 +581,14 @@ $font-serif: "Playfair Display", Georgia, serif;
 }
 
 .mockupCardFloat1 {
-  top: -16px;
+  top: -32px;
   right: -20px;
   animation: floatBadge 3s ease-in-out infinite;
 }
 
 .mockupCardFloat2 {
-  bottom: 20px;
-  left: -30px;
+  bottom: -24px;
+  left: -28px;
   animation: floatBadge 3s ease-in-out infinite 1.5s;
 }
 
@@ -574,7 +599,13 @@ $font-serif: "Playfair Display", Georgia, serif;
 }
 
 .mockupFloatIcon {
-  font-size: 1.125rem;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: $brand-light;
+  color: $brand;
 }
 
 .mockupFloatText {
@@ -596,7 +627,7 @@ $font-serif: "Playfair Display", Georgia, serif;
 /* ---------- Section Header ---------- */
 .sectionHeader {
   text-align: center;
-  max-width: 640px;
+  max-width: 760px;
   margin: 0 auto 56px;
 }
 
@@ -616,15 +647,19 @@ $font-serif: "Playfair Display", Georgia, serif;
 .sectionHeaderTitle {
   font-size: 2.75rem;
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.1;
+  text-wrap: balance;
   letter-spacing: -0.02em;
   margin-bottom: 16px;
 }
 
 .sectionHeaderSubtitle {
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
   color: $text-muted;
   line-height: 1.7;
+  max-width: 580px;
+  margin: 0 auto;
+  text-wrap: balance;
 }
 
 /* ---------- Features ---------- */
@@ -682,32 +717,31 @@ $font-serif: "Playfair Display", Georgia, serif;
 .steps {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 24px;
 }
 
 .step {
   display: grid;
-  grid-template-columns: auto 1fr 1fr;
-  gap: 32px;
-  align-items: center;
-  padding: 40px;
+  grid-template-columns: 1fr 380px;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "number visual"
+    "content visual";
+  gap: 20px 56px;
+  align-items: start;
+  padding: 36px 48px;
   border-radius: $radius-xl;
-  background: $bg;
-  border: 1px solid $border;
-  transition: all 0.3s $ease-out;
-  &:hover {
-    box-shadow: $shadow-md;
-    border-color: transparent;
-  }
+  background: #fdf4f8;
 }
 
 .stepNumber {
-  width: 56px;
-  height: 56px;
+  grid-area: number;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: $brand;
   color: #fff;
-  font-size: 1.375rem;
+  font-size: 1.125rem;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -716,23 +750,27 @@ $font-serif: "Playfair Display", Georgia, serif;
 }
 
 .stepContent {
+  grid-area: content;
   min-width: 0;
+  max-width: 460px;
 }
 
 .stepTitle {
-  font-size: 1.25rem;
+  font-size: 1.625rem;
+  letter-spacing: -0.01em;
   font-weight: 700;
   margin-bottom: 8px;
 }
 
 .stepDesc {
-  font-size: 0.9375rem;
+  font-size: 1rem;
   color: $text-muted;
   line-height: 1.65;
 }
 
 .stepVisual {
-  justify-self: end;
+  grid-area: visual;
+  justify-self: stretch;
 }
 
 .stepDemo {
@@ -741,7 +779,7 @@ $font-serif: "Playfair Display", Georgia, serif;
   border-radius: $radius-lg;
   padding: 20px;
   min-width: 280px;
-  box-shadow: $shadow-sm;
+  box-shadow: $shadow-md;
 }
 
 /* Demo: Create */
@@ -813,7 +851,8 @@ $font-serif: "Playfair Display", Georgia, serif;
 .demoPrivacyOptionActive {
   background: $brand-light;
   border-color: $brand;
-  color: $brand;
+  color: $text;
+  font-weight: 700;
 }
 
 /* Demo: Share */
@@ -840,6 +879,14 @@ $font-serif: "Playfair Display", Georgia, serif;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+
+  > span:first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   padding: 10px 14px;
   background: $bg;
   border-radius: $radius-sm;
@@ -848,6 +895,7 @@ $font-serif: "Playfair Display", Georgia, serif;
 }
 
 .demoInviteCopy {
+  flex-shrink: 0;
   color: $brand;
   font-weight: 600;
   font-size: 0.75rem;
@@ -893,9 +941,20 @@ $font-serif: "Playfair Display", Georgia, serif;
 
 /* Demo: Reserve */
 .stepDemoReserve {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 40px;
+}
+
+.demoReserveMascot {
+  position: absolute;
+  top: -62px;
+  right: 16px;
+  width: 84px;
+  height: auto;
+  pointer-events: none;
 }
 
 .demoReserveItem {
@@ -927,6 +986,9 @@ $font-serif: "Playfair Display", Georgia, serif;
   display: block;
   font-size: 0.8125rem;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .demoReserveItemPrice {
@@ -935,25 +997,27 @@ $font-serif: "Playfair Display", Georgia, serif;
 }
 
 .demoReserveItemBtn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: $radius-pill;
+  border: 1px solid $border;
   background: $bg-white;
+  color: $text;
   cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-family: $font-sans;
+  font-size: 0.75rem;
+  font-weight: 700;
   transition: transform 0.2s $ease-spring;
-  box-shadow: $shadow-sm;
   &:hover {
-    transform: scale(1.15);
+    transform: scale(1.05);
   }
 }
 
 .demoReserveItemBtnActive {
-  background: #fef2f2;
+  background: $brand;
+  border-color: $brand;
+  color: #fff;
 }
 
 /* ---------- Discover ---------- */
@@ -1016,7 +1080,19 @@ $font-serif: "Playfair Display", Georgia, serif;
 }
 
 .discoverCardEmoji {
-  font-size: 3.5rem;
+  display: grid;
+  place-items: center;
+  width: 104px;
+  height: 104px;
+  border-radius: 28px;
+  background: $bg-white;
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.08);
+  transform: rotate(-4deg);
+  transition: transform 0.3s $ease-spring;
+
+  .discoverCard:hover & {
+    transform: rotate(0deg) scale(1.05);
+  }
 }
 
 .discoverCardBody {
@@ -1025,8 +1101,8 @@ $font-serif: "Playfair Display", Georgia, serif;
 
 .discoverCardStore {
   display: block;
-  font-size: 0.75rem;
-  color: $text-light;
+  font-size: 0.8125rem;
+  color: $text-muted;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1051,29 +1127,6 @@ $font-serif: "Playfair Display", Georgia, serif;
   color: $text;
 }
 
-/* Matches the app: priority is an icon medallion, never a pill. */
-.discoverCardPriority {
-  display: inline-grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--card-bg);
-  border: 2px solid currentcolor;
-}
-
-.discoverCardPriorityHigh {
-  color: #dc2626;
-}
-
-.discoverCardPriorityMed {
-  color: #d97706;
-}
-
-.discoverCardPriorityLow {
-  color: #16a34a;
-}
-
 /* ---------- CTA ---------- */
 .cta {
   padding: 100px 0;
@@ -1082,7 +1135,7 @@ $font-serif: "Playfair Display", Georgia, serif;
 .ctaCard {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, $brand, #e91e90, $pink);
+  background: linear-gradient(135deg, $brand-dark, $brand 55%, #db2777);
   border-radius: $radius-xl;
   padding: 80px 60px;
   text-align: center;
@@ -1120,6 +1173,15 @@ $font-serif: "Playfair Display", Georgia, serif;
   filter: blur(60px);
 }
 
+.ctaMascot {
+  position: relative;
+  display: block;
+  width: 120px;
+  height: auto;
+  margin: -24px auto 12px;
+  filter: drop-shadow(0 12px 20px rgba(80, 10, 50, 0.3));
+}
+
 .ctaTitle {
   position: relative;
   font-size: 2.75rem;
@@ -1148,15 +1210,15 @@ $font-serif: "Playfair Display", Georgia, serif;
 .ctaNote {
   position: relative;
   margin-top: 16px;
-  font-size: 0.8125rem;
-  opacity: 0.7;
+  font-size: 0.875rem;
+  opacity: 0.85;
 }
 
 /* ---------- Footer ---------- */
 .footer {
   padding: 60px 0 0;
-  background: #111827;
-  color: #d1d5db;
+  background: #2a1023;
+  color: #f3d9e6;
 }
 
 .footerInner {
@@ -1182,7 +1244,7 @@ $font-serif: "Playfair Display", Georgia, serif;
 
 .footerTagline {
   font-size: 0.9375rem;
-  color: #9ca3af;
+  color: rgba(243, 217, 230, 0.75);
 }
 
 .footerLinks {
@@ -1206,7 +1268,7 @@ $font-serif: "Playfair Display", Georgia, serif;
 .footerLink {
   display: block;
   font-size: 0.9375rem;
-  color: #9ca3af;
+  color: rgba(243, 217, 230, 0.75);
   margin-bottom: 10px;
   transition: color 0.2s;
   &:hover {
@@ -1216,14 +1278,14 @@ $font-serif: "Playfair Display", Georgia, serif;
 
 .footerBottom {
   width: 100%;
-  border-top: 1px solid #1f2937;
+  border-top: 1px solid rgba(243, 217, 230, 0.14);
   margin-top: 40px;
   padding: 24px 0;
 }
 
 .footerCopy {
-  font-size: 0.8125rem;
-  color: #6b7280;
+  font-size: 0.875rem;
+  color: rgba(243, 217, 230, 0.6);
 }
 
 /* ---------- Animations ---------- */
@@ -1255,12 +1317,12 @@ $font-serif: "Playfair Display", Georgia, serif;
   }
 
   .step {
-    grid-template-columns: auto 1fr;
-  }
-
-  .stepVisual {
-    grid-column: 1 / -1;
-    justify-self: stretch;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "number"
+      "content"
+      "visual";
   }
 
   .stepDemo {
@@ -1279,7 +1341,7 @@ $font-serif: "Playfair Display", Georgia, serif;
   }
 
   .hero {
-    padding: 120px 0 60px;
+    padding: 104px 0 64px;
   }
 
   .heroInner {
@@ -1300,6 +1362,56 @@ $font-serif: "Playfair Display", Georgia, serif;
     margin-right: auto;
   }
 
+  .heroVisual {
+    text-align: left;
+  }
+
+  .features,
+  .howItWorks,
+  .discover,
+  .cta {
+    padding: 64px 0;
+  }
+
+  .sectionHeader {
+    margin-bottom: 36px;
+  }
+
+  .featuresGrid,
+  .discoverGrid {
+    gap: 16px;
+  }
+
+  .featureCard {
+    padding: 22px;
+  }
+
+  .featureCard {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    column-gap: 16px;
+    align-items: start;
+  }
+
+  .featureCardIcon {
+    grid-row: span 2;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 0;
+  }
+
+  .featureCardTitle {
+    margin-bottom: 4px;
+  }
+
+  .steps {
+    gap: 20px;
+  }
+
+  .stepVisual {
+    text-align: left;
+  }
+
   .heroCta {
     justify-content: center;
   }
@@ -1309,26 +1421,79 @@ $font-serif: "Playfair Display", Georgia, serif;
   }
 
   .mockupCardFloat2 {
-    left: 0;
+    left: 8px;
   }
 
   .sectionHeaderTitle {
-    font-size: 2rem;
+    font-size: 1.875rem;
+  }
+
+  .heroTitle {
+    margin-bottom: 16px;
+  }
+
+  .heroSubtitle {
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .heroSecondaryCta {
+    border-color: transparent;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .heroMascot {
+    width: 92px;
+    bottom: -46px;
+    right: -4px;
+  }
+
+  .step {
+    grid-template-areas: none;
+    grid-template-rows: none;
+    grid-template-columns: 40px 1fr;
+    gap: 16px 16px;
+    text-align: left;
+    padding: 22px;
+  }
+
+  .stepNumber {
+    width: 40px;
+    height: 40px;
+    font-size: 1.0625rem;
+    margin: 0;
+    align-self: start;
+  }
+
+  .stepNumber,
+  .stepVisual {
+    grid-area: auto;
+  }
+
+  .stepVisual {
+    grid-column: 1 / -1;
+  }
+
+  /* Number sits beside the title; the description uses the full card width. */
+  .stepContent {
+    display: contents;
+  }
+
+  .stepTitle {
+    align-self: center;
+    font-size: 1.25rem;
+    margin-bottom: 0;
+  }
+
+  .stepDesc {
+    grid-column: 1 / -1;
   }
 
   .featuresGrid,
   .discoverGrid {
     grid-template-columns: 1fr;
-  }
-
-  .step {
-    grid-template-columns: 1fr;
-    text-align: center;
-    padding: 28px;
-  }
-
-  .stepNumber {
-    margin: 0 auto;
   }
 
   .discoverEventBanner {
@@ -1337,7 +1502,16 @@ $font-serif: "Playfair Display", Georgia, serif;
   }
 
   .ctaCard {
-    padding: 48px 28px;
+    padding: 36px 24px;
+  }
+
+  .ctaMascot {
+    width: 88px;
+    margin-top: -8px;
+  }
+
+  .ctaSubtitle {
+    margin-bottom: 24px;
   }
 
   .ctaTitle {
@@ -1356,14 +1530,20 @@ $font-serif: "Playfair Display", Georgia, serif;
 
 @media (max-width: 480px) {
   .heroTitle {
-    font-size: 2rem;
+    font-size: 2.375rem;
+    line-height: 1.05;
     em {
-      font-size: 2.2rem;
+      font-size: 2.5rem;
     }
+  }
+
+  .heroSubtitle {
+    max-width: 330px;
   }
 
   .heroCta {
     flex-direction: column;
     align-items: center;
+    gap: 4px;
   }
 }

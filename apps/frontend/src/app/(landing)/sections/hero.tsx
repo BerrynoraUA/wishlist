@@ -1,6 +1,7 @@
 "use client";
 
 import { useGT } from "gt-next";
+import Image from "next/image";
 import Link from "next/link";
 import { Gift, Headphones, BookOpen, Coffee, Check, Link2 } from "lucide-react";
 import type { MouseEvent, RefObject } from "react";
@@ -128,7 +129,7 @@ export function Hero({
             </h1>
             <p className={styles.heroSubtitle}>
               {t(
-                "Create stunning wishlists, share them with friends and family, and never miss the perfect gift again. Wishlane makes every occasion unforgettable.",
+                "Save wishes from any store, share your list with the people you love, and keep every gift a surprise.",
                 { $id: "landing.hero.subtitle" },
               )}
             </p>
@@ -154,7 +155,7 @@ export function Hero({
               </Link>
               <a
                 href="#how-it-works"
-                className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg}`}
+                className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg} ${styles.heroSecondaryCta}`}
                 onClick={(event) => onSmoothScroll(event, "#how-it-works")}
               >
                 {t("See How It Works", { $id: "landing.hero.ctaSecondary" })}
@@ -168,6 +169,14 @@ export function Hero({
           </div>
           <div className={`${styles.heroVisual} ${styles.animateIn}`} data-delay="200">
             <div className={styles.heroMockup}>
+              <Image
+                src="/mascot/excited-cheer.webp"
+                alt=""
+                width={132}
+                height={132}
+                priority
+                className={styles.heroMascot}
+              />
               <div className={styles.mockupCardMain}>
                 <div className={styles.mockupCardHeader}>
                   <div

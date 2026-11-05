@@ -48,14 +48,14 @@ export function FooterCta({ onSmoothScroll }: { onSmoothScroll: SmoothScroll }) 
             >
               {t("Discover", { $id: "landing.footer.link.discover" })}
             </a>
+            <Link href="/pricing" className={styles.footerLink}>
+              {t("Pricing", { $id: "landing.footer.link.pricing" })}
+            </Link>
           </div>
           <div className={styles.footerCol}>
             <h4 className={styles.footerColTitle}>
               {t("Legal", { $id: "landing.footer.col.legal" })}
             </h4>
-            <Link href="/pricing" className={styles.footerLink}>
-              {t("Pricing", { $id: "landing.footer.link.pricing" })}
-            </Link>
             <Link href="/terms-of-service" className={styles.footerLink}>
               {t("Terms of Service", { $id: "landing.footer.link.terms" })}
             </Link>
