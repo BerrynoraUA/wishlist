@@ -259,7 +259,7 @@ export function WishlistList({
             {!query.isLoading && !query.isError && wishlists.length === 0 && !filtersActive ? (
               <InlineState
                 width={contentWidth}
-                mascot="sad-alone"
+                mascot="gift-in-hands"
                 message={t("No wishlists yet.")}
                 pointToCreateButton
               />

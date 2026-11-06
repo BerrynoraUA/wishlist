@@ -1,7 +1,7 @@
 "use client";
 
 import { useGT } from "gt-next";
-import Image from "next/image";
+import { Mascot } from "@/components/ui/Mascot/Mascot";
 import Link from "next/link";
 import styles from "../landing.module.scss";
 
@@ -16,13 +16,7 @@ export function Cta() {
             <div className={`${styles.ctaBlob} ${styles.ctaBlob1}`} />
             <div className={`${styles.ctaBlob} ${styles.ctaBlob2}`} />
           </div>
-          <Image
-            src="/mascot/happy-pointing-down.webp"
-            alt=""
-            width={120}
-            height={120}
-            className={styles.ctaMascot}
-          />
+          <Mascot variant="happy-pointing-down" className={styles.ctaMascot} />
           <h2 className={styles.ctaTitle}>
             {t("Ready to make gifting", { $id: "landing.cta.titlePart1" })}{" "}
             <em>{t("magical", { $id: "landing.cta.titleEmphasis" })}</em>?

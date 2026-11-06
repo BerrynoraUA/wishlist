@@ -66,6 +66,7 @@
     "@shopify/flash-list": "2.0.2",
     "@tanstack/react-query": "^5.104.0",
     "@wishlist/backend": "workspace:*",
+    "@wishlist/mascot": "workspace:*",
     "@wishlist/scraper-core": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

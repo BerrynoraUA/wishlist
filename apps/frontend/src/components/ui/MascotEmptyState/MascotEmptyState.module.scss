@@ -1,5 +1,3 @@
-@use "./mascot-motion";
-
 .state {
   display: flex;
   flex-direction: column;
@@ -17,125 +15,24 @@
   padding: 14px;
 }
 
-// Squash, stretch and rocking all pivot on the feet, at ~86% of every canvas.
+// The entrance and the wobble both pivot on the feet, at ~86% of every canvas.
 .figure,
-.poke,
-.body,
-.breath {
+.poke {
   transform-origin: 50% 86%;
 }
 
 .figure {
-  --mascot-size: 176px;
-  --k: 1;
+  --mascot-size: 176;
   position: relative;
-  width: var(--mascot-size);
-  height: var(--mascot-size);
+  // The canvas is empty below the feet: without this the message floats away from the mascot.
+  margin-bottom: calc(var(--mascot-size) * -0.1px);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   animation: mascot-pop 650ms ease-in-out both;
 }
 
 .compact .figure {
-  --mascot-size: 88px;
-  --k: 0.6;
-}
-
-.poke,
-.body,
-.breath {
-  position: absolute;
-  inset: 0;
-}
-
-.breath {
-  animation: mascot-breath var(--breath-duration) ease-in-out infinite alternate;
-}
-
-.image,
-.blink {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  pointer-events: none;
-}
-
-// Wipe the opaque eye patch (35–64% down the canvas) over the open eyes.
-.blink {
-  clip-path: inset(0 0 65%);
-  animation: mascot-blink 6490ms ease-in-out infinite;
-}
-
-.glow {
-  position: absolute;
-  left: 56%;
-  top: -6%;
-  width: 50%;
-  height: 50%;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgb(255 213 74 / 85%) 0%,
-    rgb(255 213 74 / 35%) 45%,
-    rgb(255 213 74 / 0%) 70%
-  );
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-.sparkleA,
-.sparkleB {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.sparkleA {
-  left: 24.5%;
-  top: 50.5%;
-  width: 13%;
-  height: 13%;
-}
-
-.sparkleB {
-  left: 64%;
-  top: 55%;
-  width: 10%;
-  height: 10%;
-}
-
-// Each z rises from the sleeping head, offset by a third of the loop.
-.zzzGroup {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.zzz {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  animation: mascot-zzz var(--zzz-duration) ease-in-out infinite;
-
-  &:nth-child(2) {
-    animation-delay: calc(var(--zzz-duration) / -3);
-  }
-
-  &:nth-child(3) {
-    animation-delay: calc(var(--zzz-duration) / -1.5);
-  }
-
-  span {
-    position: absolute;
-    left: 70%;
-    top: 8%;
-    font-size: calc(var(--mascot-size) * 0.12);
-    font-weight: 800;
-    line-height: 1;
-    color: var(--color-text-muted);
-  }
+  --mascot-size: 88;
 }
 
 .message {
@@ -173,77 +70,9 @@
   }
 }
 
-@keyframes mascot-breath {
-  to {
-    scale: calc(1 - var(--breath) / 2) calc(1 + var(--breath));
-  }
-}
-
-// Blink endpoints at 2600/2720ms, 6120/6230ms and 6380/6490ms, with 35ms eased edges.
-@keyframes mascot-blink {
-  0%,
-  39.5223% {
-    clip-path: inset(0 0 65%);
-  }
-  40.0616%,
-  41.3713% {
-    clip-path: inset(0 0 36%);
-  }
-  41.9106%,
-  93.7596% {
-    clip-path: inset(0 0 65%);
-  }
-  94.2989%,
-  95.4545% {
-    clip-path: inset(0 0 36%);
-  }
-  95.9938%,
-  97.7658% {
-    clip-path: inset(0 0 65%);
-  }
-  98.3051%,
-  99.4607% {
-    clip-path: inset(0 0 36%);
-  }
-  100% {
-    clip-path: inset(0 0 65%);
-  }
-}
-
-@keyframes mascot-zzz {
-  0% {
-    opacity: 0;
-    translate: 0 0;
-    scale: 0.6;
-  }
-  20%,
-  65% {
-    opacity: 1;
-  }
-  // Gone before it rises past the figure's padding, so scrolling parents never clip it.
-  90% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 0;
-    translate: 14% -26%;
-    scale: 1.2;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .figure,
-  .breath,
-  .body,
-  .blink,
-  .glow,
-  .sparkleA,
-  .sparkleB,
   .message {
     animation: none !important;
-  }
-
-  .zzzGroup {
-    display: none;
   }
 }
