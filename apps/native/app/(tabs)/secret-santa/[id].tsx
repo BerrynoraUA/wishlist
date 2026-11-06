@@ -18,7 +18,9 @@ import {
   type ActionBottomSheetMessagePayload,
 } from "@/components/ui/action-bottom-sheet";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
-import { useTabBarContentPadding } from "@/lib/layout";
+import { StatusBarScrim } from "@/components/ui/status-bar-scrim";
+import { useScrollChrome } from "@/hooks/use-scroll-chrome";
+import { useFloatingBackButtonContentPadding } from "@/lib/layout";
 import {
   useDeleteSecretSantaEvent,
   useRemoveSecretSantaInvite,
@@ -58,7 +60,10 @@ export default function SecretSantaDetailScreen() {
   const eventId = String(params.id ?? "");
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const paddingBottom = useTabBarContentPadding(32);
+  const paddingBottom = useFloatingBackButtonContentPadding();
+  // Until the hero is measured the scrim stays away, so it can't cut across it.
+  const [heroHeight, setHeroHeight] = React.useState(Number.POSITIVE_INFINITY);
+  const { backButtonHidden, onScroll, scrimVisible } = useScrollChrome(heroHeight - insets.top);
   const { data: currentUserId = "" } = useCurrentUserId();
   const detailsQuery = useSecretSantaDetails(eventId);
   const removeParticipant = useRemoveSecretSantaParticipant();
@@ -153,7 +158,12 @@ export default function SecretSantaDetailScreen() {
     <>
       <Stack.Screen options={{ title: data?.name ?? t("Secret Santa") }} />
       <View className="flex-1 bg-bg">
-        <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom }}>
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingBottom }}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+        >
           <View className="gap-5 bg-bg">
             {detailsQuery.isLoading ? (
               <View style={{ marginTop: 20 }}>
@@ -169,15 +179,17 @@ export default function SecretSantaDetailScreen() {
 
             {data ? (
               <>
-                <SecretSantaDetailHero
-                  event={data}
-                  totalPeople={totalPeople}
-                  isOwner={isOwner}
-                  onCopyLink={copyInviteLink}
-                  onEdit={() => setSheet("edit")}
-                  onDelete={() => setSheet("delete")}
-                  topInset={insets.top}
-                />
+                <View onLayout={(event) => setHeroHeight(event.nativeEvent.layout.height)}>
+                  <SecretSantaDetailHero
+                    event={data}
+                    totalPeople={totalPeople}
+                    isOwner={isOwner}
+                    onCopyLink={copyInviteLink}
+                    onEdit={() => setSheet("edit")}
+                    onDelete={() => setSheet("delete")}
+                    topInset={insets.top}
+                  />
+                </View>
 
                 <View className="gap-5 self-center" style={{ width: contentWidth }}>
                   {isStarted ? (
@@ -233,7 +245,8 @@ export default function SecretSantaDetailScreen() {
           </View>
         </ScrollView>
 
-        <FloatingBackButton />
+        <StatusBarScrim visible={scrimVisible} />
+        <FloatingBackButton scrolledAway={backButtonHidden} />
       </View>
 
       {data ? (

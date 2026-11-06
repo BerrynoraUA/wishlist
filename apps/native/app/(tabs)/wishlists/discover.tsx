@@ -9,6 +9,7 @@ import { DiscoverItemDetailSheet } from "@/components/discover/sheets/discover-i
 import { UpcomingEventsCard } from "@/components/discover/upcoming-events-card";
 import { InlineState } from "@/components/shared/inline-state";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
+import { useScrollChrome } from "@/hooks/use-scroll-chrome";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
 import {
   ITEM_FILTER_PANEL_HEIGHT,
@@ -18,7 +19,7 @@ import {
 } from "@/components/ui/slide-out-filter-panel";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { useUserGuideTargetRegistration } from "@/components/user-guide/user-guide-provider";
-import { useTabBarContentPadding } from "@/lib/layout";
+import { useFloatingBackButtonContentPadding } from "@/lib/layout";
 import { useDiscoverFeed } from "@/hooks/use-discover-feed";
 import { useToggleItemBought, useToggleItemReservation } from "@/hooks/use-items";
 import {
@@ -78,7 +79,8 @@ export default function DiscoverScreen() {
   const [selection, setSelection] = React.useState<SelectedDiscoverItem | null>(null);
   const { activeTargetId, requestMeasure } = useUserGuideTargetRegistration();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding();
-  const paddingBottom = useTabBarContentPadding();
+  const paddingBottom = useFloatingBackButtonContentPadding();
+  const { backButtonHidden, onScroll: onChromeScroll } = useScrollChrome();
 
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
@@ -312,8 +314,11 @@ export default function DiscoverScreen() {
         keyExtractor={getRowKey}
         className="flex-1"
         contentContainerStyle={contentContainerStyle}
-        onScroll={activeTargetId && !activeTargetId.startsWith("nav-") ? requestMeasure : undefined}
-        scrollEventThrottle={activeTargetId && !activeTargetId.startsWith("nav-") ? 16 : undefined}
+        onScroll={(event) => {
+          onChromeScroll(event);
+          if (activeTargetId && !activeTargetId.startsWith("nav-")) requestMeasure();
+        }}
+        scrollEventThrottle={16}
         ItemSeparatorComponent={RowSeparator}
         onEndReached={feed.loadMore}
         isLoadingMore={feed.activeQuery.isFetchingNextPage}
@@ -344,7 +349,7 @@ export default function DiscoverScreen() {
         }
         extraData={listExtraData}
       />
-      <FloatingBackButton />
+      <FloatingBackButton scrolledAway={backButtonHidden} />
 
       {selection ? (
         <DiscoverItemDetailSheet

@@ -2,6 +2,7 @@ import { InlineState } from "@/components/shared/inline-state";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { useSlideOutPanel } from "@/components/ui/slide-out-filter-panel";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
+import { StatusBarScrim } from "@/components/ui/status-bar-scrim";
 import { Text } from "@/components/ui/text";
 import { WishlistItemDeleteSheet } from "@/components/wishlist-details/sheets/wishlist-item-delete-sheet";
 import { WishlistItemDetailSheet } from "@/components/wishlist-details/sheets/wishlist-item-detail-sheet";
@@ -10,6 +11,7 @@ import { SaveItemToWishlistsSheet } from "@/components/wishlist-details/sheets/s
 import { WishlistItemHeader } from "@/components/wishlist-details/wishlist-item-header";
 import { WishlistItemCard } from "@/components/wishlist-details/wishlist-item-card";
 import { useShowOwnReservations } from "@/hooks/use-own-reservations";
+import { useScrollChrome } from "@/hooks/use-scroll-chrome";
 import {
   useUserGuideStepCompletion,
   useUserGuideTargetRegistration,
@@ -52,7 +54,7 @@ import {
   optimisticallyToggleItemReservation,
   updateItemIfSelected,
 } from "@/lib/items";
-import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
+import { chunkRows, useFloatingBackButtonContentPadding } from "@/lib/layout";
 import { AnimatedListCard, useListCardRemoval } from "@/lib/card-motion";
 import type { Item } from "@wishlist/backend/types/item";
 import type { FlashListRef } from "@shopify/flash-list";
@@ -100,7 +102,7 @@ export default function WishlistDetailScreen() {
   const screenRef = React.useRef<View>(null);
   const { isGated, openPaywall } = useProGate();
   const insets = useSafeAreaInsets();
-  const paddingBottom = useTabBarContentPadding();
+  const paddingBottom = useFloatingBackButtonContentPadding();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const rawId = Array.isArray(id) ? (id[0] ?? "") : (id ?? "");
@@ -187,6 +189,13 @@ export default function WishlistDetailScreen() {
 
     return new Map(entries);
   }, [profilesQuery.data, t]);
+  // Until the hero is measured the scrim stays away, so it can't cut across it.
+  const [heroHeight, setHeroHeight] = React.useState(Number.POSITIVE_INFINITY);
+  const {
+    backButtonHidden,
+    onScroll: onChromeScroll,
+    scrimVisible,
+  } = useScrollChrome(heroHeight - insets.top);
   const filtersActive = wishlistItemFilterBarHasActiveFilters(filters);
   const hasAnyItems = (wishlist?.items_count ?? 0) > 0;
   const contentWidth = Math.min(width - 32, 1200);
@@ -309,28 +318,30 @@ export default function WishlistDetailScreen() {
   // re-measuring — a beat behind the panel, and in jumps.
   const listHeader = wishlist ? (
     <View>
-      <WishlistItemHeader
-        wishlist={wishlist}
-        isOwner={wishlist.is_owner}
-        onEdit={canEditWishlist ? () => setSheet({ type: "editWishlist", wishlist }) : undefined}
-        onDelete={
-          wishlist.is_owner ? () => setSheet({ type: "deleteWishlist", wishlist }) : undefined
-        }
-        onShare={handleShareWishlist}
-        onManageAccess={
-          wishlist.is_owner
-            ? () => {
-                if (isGated) {
-                  openPaywall();
-                  return;
+      <View onLayout={(event) => setHeroHeight(event.nativeEvent.layout.height)}>
+        <WishlistItemHeader
+          wishlist={wishlist}
+          isOwner={wishlist.is_owner}
+          onEdit={canEditWishlist ? () => setSheet({ type: "editWishlist", wishlist }) : undefined}
+          onDelete={
+            wishlist.is_owner ? () => setSheet({ type: "deleteWishlist", wishlist }) : undefined
+          }
+          onShare={handleShareWishlist}
+          onManageAccess={
+            wishlist.is_owner
+              ? () => {
+                  if (isGated) {
+                    openPaywall();
+                    return;
+                  }
+                  setSheet({ type: "grantAccess", wishlist });
                 }
-                setSheet({ type: "grantAccess", wishlist });
-              }
-            : undefined
-        }
-        manageAccessLocked={isGated}
-        topInset={insets.top}
-      />
+              : undefined
+          }
+          manageAccessLocked={isGated}
+          topInset={insets.top}
+        />
+      </View>
       <View className="z-2 bg-bg pb-4 pt-4">
         <View className="max-w-300 self-center" style={{ width: contentWidth }}>
           <WishlistItemFilterBar
@@ -453,12 +464,11 @@ export default function WishlistDetailScreen() {
             className="flex-1"
             contentContainerClassName="bg-bg"
             contentContainerStyle={contentContainerStyle}
-            onScroll={
-              activeTargetId && !activeTargetId.startsWith("nav-") ? requestMeasure : undefined
-            }
-            scrollEventThrottle={
-              activeTargetId && !activeTargetId.startsWith("nav-") ? 16 : undefined
-            }
+            onScroll={(event) => {
+              onChromeScroll(event);
+              if (activeTargetId && !activeTargetId.startsWith("nav-")) requestMeasure();
+            }}
+            scrollEventThrottle={16}
             ItemSeparatorComponent={ItemRowSeparator}
             onEndReached={loadMoreItems}
             isLoadingMore={itemsQuery.isFetchingNextPage}
@@ -496,7 +506,8 @@ export default function WishlistDetailScreen() {
             extraData={listExtraData}
           />
         )}
-        <FloatingBackButton />
+        <StatusBarScrim visible={scrimVisible} />
+        <FloatingBackButton scrolledAway={backButtonHidden} />
         {sheet?.type === "edit" ? (
           <WishlistItemCreateEditSheet
             mode="edit"

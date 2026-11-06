@@ -4,10 +4,11 @@ import { SubmitBugReportSheet } from "@/components/bug-reports/submit-bug-report
 import { MascotEmptyState } from "@/components/shared/mascot-empty-state";
 import { Button } from "@/components/ui/button";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
+import { useScrollChrome } from "@/hooks/use-scroll-chrome";
 import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Icon } from "@/components/ui/icon";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
-import { useTabBarContentPadding } from "@/lib/layout";
+import { useFloatingBackButtonContentPadding } from "@/lib/layout";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { useBugReports } from "@/hooks/use-bug-reports";
@@ -28,7 +29,8 @@ export default function BugsScreen() {
   const [actionWidth, setActionWidth] = React.useState(0);
   const { width } = useWindowDimensions();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding(2);
-  const paddingBottom = useTabBarContentPadding();
+  const paddingBottom = useFloatingBackButtonContentPadding();
+  const { backButtonHidden, onScroll } = useScrollChrome();
   const reportsQuery = useBugReports();
   const [reportOpen, setReportOpen] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
@@ -123,6 +125,8 @@ export default function BugsScreen() {
           className="flex-1"
           contentContainerClassName="px-4"
           contentContainerStyle={{ paddingTop, paddingBottom }}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View className="h-3" />}
           ListHeaderComponent={listHeader}
           ListEmptyComponent={
@@ -152,7 +156,7 @@ export default function BugsScreen() {
           onRefresh={() => reportsQuery.refetch()}
           progressViewOffset={paddingTop}
         />
-        <FloatingBackButton />
+        <FloatingBackButton scrolledAway={backButtonHidden} />
       </View>
       <SubmitBugReportSheet
         open={reportOpen}
