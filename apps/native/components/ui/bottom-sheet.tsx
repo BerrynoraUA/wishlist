@@ -62,6 +62,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
       backgroundColor,
       grabberOptions,
       footerOptions,
+      footerStyle,
       style,
       ...props
     },
@@ -83,6 +84,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         style={[!detents.includes("auto") && { flex: 1 }, style]}
         backgroundColor={backgroundColor ?? sheetBackground}
         grabberOptions={{ color: grabberColor, ...grabberOptions }}
+        footerStyle={[{ backgroundColor: backgroundColor ?? sheetBackground }, footerStyle]}
         footerOptions={{
           position: props.scrollableRef ? "absolute" : "relative",
           ...footerOptions,
