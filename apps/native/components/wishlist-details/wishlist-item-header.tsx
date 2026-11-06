@@ -9,6 +9,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { GLASS_CAPSULE_STYLE, HAS_LIQUID_GLASS } from "@/components/ui/liquid-glass";
+import { HeroStatusBar } from "@/components/ui/hero-status-bar";
 import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
@@ -225,7 +226,7 @@ export function WishlistItemHeader({
       onPress={openDetails}
       onLongPress={canInlineEdit ? startDescriptionEditing : undefined}
     >
-      <Text className="mt-2 text-sm leading-5 text-white/80" numberOfLines={3}>
+      <Text className="mt-2 text-sm leading-5 text-white/90" numberOfLines={3}>
         {wishlist.description || t("Add a short description")}
       </Text>
     </AnimatedPressable>
@@ -272,6 +273,7 @@ export function WishlistItemHeader({
 
   return (
     <>
+      <HeroStatusBar />
       <View className="w-full self-stretch border-b border-border-subtle">
         <ScreenTopBackdrop>
           <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />

@@ -77,7 +77,7 @@ export function SecretSantaEventCard({
                   />
                 )}
                 {event.is_owner ? (
-                  <View className="absolute end-3 top-3 rounded-full border border-white/35 bg-white/25 px-2 py-1">
+                  <View className="absolute end-3 top-3 rounded-full border border-white/25 bg-black/50 px-2 py-1">
                     <Text className="text-[11px] font-extrabold text-white">{t("Owner")}</Text>
                   </View>
                 ) : null}

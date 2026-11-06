@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { HeroStatusBar } from "@/components/ui/hero-status-bar";
 import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
@@ -19,7 +20,7 @@ import { MascotEmptyState, type MascotVariant } from "@/components/shared/mascot
 import { useGiftSuggestions } from "@/hooks/use-secret-santa";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
 import {
-  formatSecretSantaDate,
+  formatSecretSantaDateCompact,
   getSecretSantaPersonName,
   MIN_PARTICIPANTS_TO_LAUNCH,
   getSecretSantaAccent,
@@ -58,7 +59,7 @@ import type { LucideIcon } from "lucide-react-native";
 
 function HeroChip({ icon, label }: { icon: LucideIcon; label: string }) {
   return (
-    <View className="h-9 min-w-0 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
+    <View className="h-9 min-w-0 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/25 bg-black/40 px-3">
       <Icon as={icon} className="size-3.5 text-white" />
       <Text className="text-xs font-bold text-white" numberOfLines={1}>
         {label}
@@ -94,12 +95,13 @@ export function SecretSantaDetailHero({
   const hasActionsMenu = isOwner;
   const headerActionsCount = Number(hasActionsMenu);
   const headerActionsRightPadding = headerActionsCount === 1 ? "pe-12" : "";
-  const eventDateLabel = formatSecretSantaDate(event.event_date, locale ?? "en");
+  const eventDateLabel = formatSecretSantaDateCompact(event.event_date, locale ?? "en");
   const budgetLabel = formatPrice(event.budget, event.currency);
   const peopleCountLabel = formatSecretSantaPeopleCount(totalPeople, t);
 
   return (
     <View className="w-full self-stretch border-b border-border-subtle">
+      <HeroStatusBar />
       <ScreenTopBackdrop>
         <View
           className={cn("absolute inset-0", getWishlistAccentClass(getSecretSantaAccent(event.id)))}
@@ -111,7 +113,7 @@ export function SecretSantaDetailHero({
             className="absolute inset-0 size-full"
           />
         ) : null}
-        <View className="absolute inset-0 bg-black/25" />
+        <View className="absolute inset-0 bg-black/50" />
       </ScreenTopBackdrop>
 
       <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
@@ -127,7 +129,7 @@ export function SecretSantaDetailHero({
                     accessibilityRole="button"
                     accessibilityLabel={t("Secret Santa actions")}
                     hitSlop={6}
-                    className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+                    className="size-9 items-center justify-center rounded-full border border-white/25 bg-black/40"
                   >
                     <Icon as={MoreHorizontal} className="size-4 text-white" />
                   </AnimatedPressable>
