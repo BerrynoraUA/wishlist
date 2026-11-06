@@ -25,7 +25,9 @@ const FAB_OVERHANG = NAV_TAB_BAR_FAB_OVERHANG;
 const FAB_SIZE = 52;
 const TAB_BAR_TOP_PADDING = NAV_TAB_BAR_TOP_PADDING;
 const BACKDROP_TOP = TAB_BAR_TOP_PADDING + NAV_TAB_BAR_HEIGHT / 2 + NAV_TAB_BAR_BACKDROP_OFFSET;
-const INDICATOR_VERTICAL_INSET = 7;
+const INDICATOR_TOP = 5;
+const INDICATOR_HEIGHT = 30;
+const INDICATOR_WIDTH = 56;
 const INDICATOR_SPRING = { damping: 18, stiffness: 220, mass: 0.7 };
 
 /**
@@ -73,11 +75,20 @@ function SantaHatIcon({ color, strokeWidth }: { color: string; strokeWidth: numb
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <Path d="M5 16.5C5.4 10.5 8.6 6 13 6c2.7 0 4.7 1.5 5.7 3.8" />
-      <Path d="M18 16.5c0-1.7-.2-3.2-.7-4.5" />
-      <Path d="M5.5 16.5h13a2 2 0 0 1 0 4h-13a2 2 0 0 1 0-4Z" />
-      <Circle cx={19.5} cy={10.5} r={1.75} />
+      <Path d="M5 16C5 9.5 8.2 4.5 13 4.5c3.4 0 5.6 2.2 6.4 5.6" />
+      <Path d="M18 16c0-2.8-1-5-3-6.5" />
+      <Path d="M5 16h13.5a2 2 0 0 1 0 4H5a2 2 0 0 1 0-4Z" />
+      <Circle cx={19.5} cy={12} r={1.75} />
     </Svg>
+  );
+}
+
+/** The raised Create button's gradient, following the user's accent. */
+export function getFabGradientClassName(theme: string) {
+  const accent = getThemeAccent(theme);
+  return (
+    NATIVE_ACCENTS.find((entry) => entry.name === accent)?.swatchClassName ??
+    NATIVE_ACCENTS[0].swatchClassName
   );
 }
 
@@ -101,10 +112,7 @@ export function AndroidTabBar({
   const bottomSafeAreaPadding = useBottomSafeAreaPadding();
   const reduceMotion = useReducedMotion();
   const { theme } = useUniwind();
-  const accent = getThemeAccent(theme);
-  const fabGradientClassName =
-    NATIVE_ACCENTS.find((entry) => entry.name === accent)?.swatchClassName ??
-    NATIVE_ACCENTS[0].swatchClassName;
+  const fabGradientClassName = getFabGradientClassName(theme);
 
   const activeColor = cssColor(useCSSVariable("--color-brand"), "#208aef");
   const inactiveColor = cssColor(useCSSVariable("--color-text-muted"), "#6b7280");
@@ -132,7 +140,7 @@ export function AndroidTabBar({
   const focusedName = state.routes[state.index]?.name;
   const selectedSlot = slots.findIndex((slot) => slot.kind === "tab" && slot.name === focusedName);
 
-  const indicatorWidth = Math.max(0, Math.min(slotWidth - 10, 76));
+  const indicatorWidth = Math.min(slotWidth, INDICATOR_WIDTH);
   const indicatorTarget =
     selectedSlot >= 0
       ? slotWidth * (I18nManager.isRTL ? slots.length - 1 - selectedSlot : selectedSlot) +
@@ -207,9 +215,9 @@ export function AndroidTabBar({
             className="absolute rounded-full bg-brand-lighter"
             style={[
               {
-                top: INDICATOR_VERTICAL_INSET,
+                top: INDICATOR_TOP,
                 left: 0,
-                height: NAV_TAB_BAR_HEIGHT - INDICATOR_VERTICAL_INSET * 2 - 2,
+                height: INDICATOR_HEIGHT,
                 width: indicatorWidth,
               },
               indicatorStyle,
