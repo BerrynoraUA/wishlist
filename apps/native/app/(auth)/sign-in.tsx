@@ -10,6 +10,7 @@ import { MailIcon } from "lucide-react-native";
 import * as React from "react";
 import { ActivityIndicator, Pressable, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { HeroStatusBar } from "@/components/ui/hero-status-bar";
 import Svg, { Path } from "react-native-svg";
 import { useGT } from "gt-react-native";
 
@@ -54,6 +55,7 @@ export default function SignInScreen() {
 
   return (
     <View className="relative flex-1 bg-[#16111f]">
+      <HeroStatusBar />
       <AuthGiftWrapBackground variant="sign-in" />
       <View
         className="flex-1 justify-center px-7"
@@ -95,8 +97,10 @@ export default function SignInScreen() {
               icon={<GoogleMark />}
               isLoading={loadingProvider === "google"}
               label={t("Continue with Google")}
+              indicatorClassName="accent-[#111827]"
+              labelClassName="text-[#111827]"
               onPress={() => handleSocialSignIn("google")}
-              className="bg-[#ea4335]"
+              className="bg-white"
             />
 
             {showAppleSignIn ? (
@@ -119,7 +123,7 @@ export default function SignInScreen() {
               icon={<Icon as={MailIcon} className="size-5 text-white" />}
               label={t("Continue with email")}
               onPress={() => router.push("/email-auth" as never)}
-              className="bg-white/30"
+              className="border border-white/40 bg-white/15"
             />
           </View>
 
@@ -178,7 +182,26 @@ function AuthChoiceButton({
 }
 
 function GoogleMark() {
-  return <Text className="text-[24px] font-bold leading-6 text-white">G</Text>;
+  return (
+    <Svg width={21} height={21} viewBox="0 0 24 24">
+      <Path
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.07 5.07 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"
+        fill="#4285F4"
+      />
+      <Path
+        d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"
+        fill="#34A853"
+      />
+      <Path
+        d="M5.84 14.11a6.6 6.6 0 0 1 0-4.22V7.07H2.18a11 11 0 0 0 0 9.86l3.66-2.82z"
+        fill="#FBBC05"
+      />
+      <Path
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"
+        fill="#EA4335"
+      />
+    </Svg>
+  );
 }
 
 function AppleLogo({ color }: { color: string }) {
