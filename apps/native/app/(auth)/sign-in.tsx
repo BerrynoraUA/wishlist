@@ -73,7 +73,7 @@ export default function SignInScreen() {
             <View className="items-center gap-1.5">
               <Text
                 className={cn(
-                  "text-center font-extrabold tracking-tight text-white",
+                  "text-center font-extrabold text-white",
                   compact ? "text-[30px] leading-9" : "text-[36px] leading-10",
                 )}
               >

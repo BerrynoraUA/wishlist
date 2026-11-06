@@ -193,7 +193,7 @@ export function WishlistItemCard({
               showDiscountPrice={hasActiveDiscount}
               size="card"
             />
-            <View className="gap-2 p-3">
+            <View className={cn("gap-2 p-3", medallionPriority && "pb-5")}>
               <View className="gap-0.5">
                 <View className="flex-row items-center gap-2">
                   <Text

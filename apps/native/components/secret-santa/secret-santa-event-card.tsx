@@ -86,7 +86,7 @@ export function SecretSantaEventCard({
               <View className="gap-3 p-4">
                 <View className="flex-row items-start justify-between gap-3">
                   <View className="min-w-0 flex-1 gap-1">
-                    <Text className="text-lg font-extrabold text-text" numberOfLines={2}>
+                    <Text className="text-base font-bold leading-5 text-text" numberOfLines={2}>
                       {event.name}
                     </Text>
                     <Text className="text-sm font-semibold text-brand" numberOfLines={1}>
