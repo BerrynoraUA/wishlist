@@ -576,12 +576,12 @@ function CreateFloatingMenuContent({
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
 
-  const menuBottom = Math.max(insets.bottom, 8) + NAV_TAB_BAR_HEIGHT + 12;
+  const menuBottom = Math.max(insets.bottom, 8) + NAV_TAB_BAR_HEIGHT + 24;
 
   return (
     <View className="absolute inset-0" style={{ zIndex: 10000 }}>
       <Animated.View
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-black/60"
         entering={FadeIn.duration(180)}
         exiting={FadeOut.duration(150)}
       >
@@ -637,7 +637,7 @@ function CreateMenuButton({ entry, onPress }: { entry: CreateMenuEntry; onPress:
       accessibilityRole="button"
       accessibilityLabel={entry.label}
       onPress={onPress}
-      className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg py-2.5 ps-2.5 pe-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
+      className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg dark:bg-bg-muted py-2.5 ps-2.5 pe-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
     >
       <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
         <Icon as={entry.icon} className="size-5 text-brand" />

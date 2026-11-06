@@ -14,11 +14,11 @@ import { useReducedMotion } from "@/lib/motion";
 import { NATIVE_ACCENTS, getThemeAccent } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { useGT } from "gt-react-native";
-import { Plus } from "lucide-react-native";
+import { CircleUserRound, Gift, Plus, Users, type LucideIcon } from "lucide-react-native";
 import * as React from "react";
-import { I18nManager, Image, View } from "react-native";
+import { I18nManager, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
-import Svg, { Path } from "react-native-svg";
+import Svg, { Circle, Path } from "react-native-svg";
 import { useCSSVariable, useUniwind } from "uniwind";
 
 const FAB_OVERHANG = NAV_TAB_BAR_FAB_OVERHANG;
@@ -27,23 +27,6 @@ const TAB_BAR_TOP_PADDING = NAV_TAB_BAR_TOP_PADDING;
 const BACKDROP_TOP = TAB_BAR_TOP_PADDING + NAV_TAB_BAR_HEIGHT / 2 + NAV_TAB_BAR_BACKDROP_OFFSET;
 const INDICATOR_VERTICAL_INSET = 7;
 const INDICATOR_SPRING = { damping: 18, stiffness: 220, mass: 0.7 };
-
-/**
- * Material Symbols (rounded) path data, viewBox "0 -960 960 960". These are
- * the same glyphs the native tab bar rendered via the `md` prop — kept so the
- * custom Android bar stays visually familiar. Source:
- * github.com/google/material-design-icons.
- */
-const MATERIAL_GLYPHS = {
-  featured_seasonal_and_gifts:
-    "M160-160v-360q-33 0-56.5-23.5T80-600v-80q0-33 23.5-56.5T160-760h128q-5-9-6.5-19t-1.5-21q0-50 35-85t85-35q23 0 43 8.5t37 23.5q17-16 37-24t43-8q50 0 85 35t35 85q0 11-2 20.5t-6 19.5h128q33 0 56.5 23.5T880-680v80q0 33-23.5 56.5T800-520v360q0 33-23.5 56.5T720-80H240q-33 0-56.5-23.5T160-160Zm400-680q-17 0-28.5 11.5T520-800q0 17 11.5 28.5T560-760q17 0 28.5-11.5T600-800q0-17-11.5-28.5T560-840Zm-200 40q0 17 11.5 28.5T400-760q17 0 28.5-11.5T440-800q0-17-11.5-28.5T400-840q-17 0-28.5 11.5T360-800ZM160-680v80h280v-80H160Zm280 520v-360H240v360h200Zm80 0h200v-360H520v360Zm280-440v-80H520v80h280Z",
-  group:
-    "M40-272q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v32q0 33-23.5 56.5T600-160H120q-33 0-56.5-23.5T40-240v-32Zm698 112q11-18 16.5-38.5T760-240v-40q0-44-24.5-84.5T666-434q51 6 96 20.5t84 35.5q36 20 55 44.5t19 53.5v40q0 33-23.5 56.5T840-160H738ZM360-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm400-160q0 66-47 113t-113 47q-11 0-28-2.5t-28-5.5q27-32 41.5-71t14.5-81q0-42-14.5-81T544-792q14-5 28-6.5t28-1.5q66 0 113 47t47 113Z",
-  account_circle:
-    "M234-276q51-39 114-61.5T480-360q69 0 132 22.5T726-276q35-41 54.5-93T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 59 19.5 111t54.5 93Zm246-164q-59 0-99.5-40.5T340-580q0-59 40.5-99.5T480-720q59 0 99.5 40.5T620-580q0 59-40.5 99.5T480-440Zm0 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q53 0 100-15.5t86-44.5q-39-29-86-44.5T480-280q-53 0-100 15.5T294-220q39 29 86 44.5T480-160Zm0-360q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm0-60Zm0 360Z",
-} as const;
-
-type MaterialGlyphName = keyof typeof MATERIAL_GLYPHS;
 
 /**
  * Structural types for the pieces of React Navigation's BottomTabBarProps we
@@ -74,22 +57,26 @@ export type AndroidTabBarProps = {
 };
 
 type TabSlot =
-  | { kind: "tab"; name: string; label: string; glyph: MaterialGlyphName }
-  | { kind: "tab"; name: string; label: string; image: number }
+  | { kind: "tab"; name: string; label: string; icon: LucideIcon | "santa" }
   | { kind: "create"; label: string };
 
-function MaterialGlyph({
-  name,
-  color,
-  size = 24,
-}: {
-  name: MaterialGlyphName;
-  color: string;
-  size?: number;
-}) {
+/** Outline Santa hat drawn on Lucide's grid, so it matches the other tab icons. */
+function SantaHatIcon({ color, strokeWidth }: { color: string; strokeWidth: number }) {
   return (
-    <Svg width={size} height={size} viewBox="0 -960 960 960">
-      <Path d={MATERIAL_GLYPHS[name]} fill={color} />
+    <Svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <Path d="M5 16.5C5.4 10.5 8.6 6 13 6c2.7 0 4.7 1.5 5.7 3.8" />
+      <Path d="M18 16.5c0-1.7-.2-3.2-.7-4.5" />
+      <Path d="M5.5 16.5h13a2 2 0 0 1 0 4h-13a2 2 0 0 1 0-4Z" />
+      <Circle cx={19.5} cy={10.5} r={1.75} />
     </Svg>
   );
 }
@@ -127,17 +114,17 @@ export function AndroidTabBar({
       kind: "tab",
       name: "wishlists",
       label: t("Wishlists"),
-      glyph: "featured_seasonal_and_gifts",
+      icon: Gift,
     },
     {
       kind: "tab",
       name: "secret-santa",
       label: t("Secret Santa"),
-      image: require("@/assets/images/secret-santa-tab.png"),
+      icon: "santa",
     },
     { kind: "create", label: t("Create") },
-    { kind: "tab", name: "friends", label: t("Friends"), glyph: "group" },
-    { kind: "tab", name: "profile", label: t("Profile"), glyph: "account_circle" },
+    { kind: "tab", name: "friends", label: t("Friends"), icon: Users },
+    { kind: "tab", name: "profile", label: t("Profile"), icon: CircleUserRound },
   ];
 
   const [barWidth, setBarWidth] = React.useState(0);
@@ -206,8 +193,8 @@ export function AndroidTabBar({
     >
       <View
         pointerEvents="none"
-        className="absolute inset-x-0 bottom-0 bg-bg/95"
-        style={{ top: BACKDROP_TOP }}
+        className="absolute inset-x-0 bottom-0 bg-linear-to-t from-bg from-65% to-bg/0"
+        style={{ top: BACKDROP_TOP - NAV_TAB_BAR_HEIGHT / 2 }}
       />
       <View
         className="flex-row rounded-full border border-border-subtle bg-card shadow-[0px_6px_18px_rgba(15,23,42,0.16)]"
@@ -276,14 +263,10 @@ export function AndroidTabBar({
                 onPress={() => handleTabPress(route, isFocused)}
                 className="flex-1 items-center justify-center gap-0.5 overflow-hidden rounded-full"
               >
-                {"image" in slot ? (
-                  <Image
-                    source={slot.image}
-                    style={{ width: 24, height: 24, tintColor: color }}
-                    resizeMode="contain"
-                  />
+                {slot.icon === "santa" ? (
+                  <SantaHatIcon color={color} strokeWidth={isFocused ? 2.4 : 1.9} />
                 ) : (
-                  <MaterialGlyph name={slot.glyph} color={color} />
+                  <slot.icon color={color} size={24} strokeWidth={isFocused ? 2.4 : 1.9} />
                 )}
                 <Text
                   numberOfLines={1}

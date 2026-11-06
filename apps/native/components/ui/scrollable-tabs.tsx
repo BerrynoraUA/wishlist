@@ -84,6 +84,12 @@ export function ScrollableTabs<T>({
   const indicatorTargetRef = React.useRef<number | null>(null);
   // The iOS track hugs the tabs (up to the full row), so it waits for their total width.
   const [tabsWidth, setTabsWidth] = React.useState<number | null>(null);
+  const [overflowsEnd, setOverflowsEnd] = React.useState(false);
+  const contentWidthRef = React.useRef(0);
+
+  function updateOverflow(offsetX: number) {
+    setOverflowsEnd(contentWidthRef.current - offsetX - viewportWidthRef.current > 1);
+  }
 
   const moveIndicator = React.useCallback(
     (animated: boolean) => {
@@ -157,6 +163,7 @@ export function ScrollableTabs<T>({
   function handleViewportLayout(event: LayoutChangeEvent) {
     const width = event.nativeEvent.layout.width;
     if (width === viewportWidthRef.current) return;
+    setOverflowsEnd(contentWidthRef.current - width > 1);
     const initialLayout = viewportWidthRef.current === 0;
     viewportWidthRef.current = width;
     if (viewportScrollTimeout.current !== null) clearTimeout(viewportScrollTimeout.current);
@@ -186,9 +193,16 @@ export function ScrollableTabs<T>({
       contentContainerClassName="px-1"
       contentContainerStyle={align === "right" ? styles.rightAlignedContent : undefined}
       keyboardShouldPersistTaps="handled"
-      onContentSizeChange={IS_IOS ? (width) => setTabsWidth(width) : undefined}
-      onScroll={trackingTab ? requestMeasure : undefined}
-      scrollEventThrottle={trackingTab ? 16 : undefined}
+      onContentSizeChange={(width) => {
+        contentWidthRef.current = width;
+        if (IS_IOS) setTabsWidth(width);
+        else updateOverflow(0);
+      }}
+      onScroll={(event) => {
+        if (trackingTab) requestMeasure();
+        if (IS_ANDROID) updateOverflow(event.nativeEvent.contentOffset.x);
+      }}
+      scrollEventThrottle={16}
       showsHorizontalScrollIndicator={false}
     >
       {IS_IOS ? (
@@ -223,7 +237,7 @@ export function ScrollableTabs<T>({
             )}
           >
             <Text
-              className={cn("text-sm font-bold", selected ? "text-brand" : "text-text-muted")}
+              className={cn("text-sm", selected ? "font-bold text-brand" : "font-medium text-text-muted")}
               numberOfLines={1}
             >
               {tab.label}
@@ -231,7 +245,7 @@ export function ScrollableTabs<T>({
             {tab.count !== undefined ? (
               <Text
                 className={cn(
-                  "text-xs font-extrabold",
+                  "text-xs font-bold",
                   selected ? "text-brand" : "text-text-light",
                 )}
               >
@@ -305,6 +319,12 @@ export function ScrollableTabs<T>({
       ) : (
         scrollView
       )}
+      {IS_ANDROID && overflowsEnd ? (
+        <View
+          pointerEvents="none"
+          className="absolute inset-y-0 end-0 w-10 bg-linear-to-l from-bg to-bg/0"
+        />
+      ) : null}
     </View>
   );
 }
