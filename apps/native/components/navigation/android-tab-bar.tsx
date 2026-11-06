@@ -205,7 +205,7 @@ export function AndroidTabBar({
         style={{ top: BACKDROP_TOP - NAV_TAB_BAR_HEIGHT / 2 }}
       />
       <View
-        className="flex-row rounded-full border border-border-subtle bg-card shadow-[0px_6px_18px_rgba(15,23,42,0.16)]"
+        className="flex-row rounded-full border border-border-subtle bg-card shadow-[0px_6px_18px_rgba(15,23,42,0.16)] dark:bg-bg-muted"
         style={{ height: NAV_TAB_BAR_HEIGHT }}
         onLayout={(event) => setBarWidth(event.nativeEvent.layout.width)}
       >
