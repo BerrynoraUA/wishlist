@@ -1,3 +1,5 @@
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   BottomSheet,
@@ -100,6 +102,7 @@ export function AutocompleteDropdown({
   const [query, setQuery] = React.useState("");
   const triggerRef = React.useRef<View>(null);
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
   // The inline (`inlineOptions`) and always-shown (`alwaysShowOptions`) variants render the
   // option list right next to the trigger. Every other case ("overlay") used to float the list
   // below the input, where the keyboard covered it — those now open as a bottom sheet instead:
@@ -391,9 +394,8 @@ export function AutocompleteDropdown({
       {isOpen && usesSheet ? (
         <BottomSheet
           ref={sheetRef}
-          scrollable
+          scrollableRef={sheetScrollRef}
           detents={[0.9]}
-          footerInsetMode="scroll-content"
           onDidDismiss={handleSheetDismiss}
           header={<BottomSheetHeader title={sheetTitle ?? placeholder ?? ""} />}
           footer={
@@ -420,6 +422,7 @@ export function AutocompleteDropdown({
           }
         >
           <BottomSheetScrollView
+            ref={sheetScrollRef}
             keyboardShouldPersistTaps="handled"
             onScroll={handleDropdownScroll}
             scrollEventThrottle={16}

@@ -1,3 +1,6 @@
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
+import { ScrollView as SheetScrollView } from "react-native";
 import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -39,6 +42,7 @@ export function WishlistGrantAccessSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
   const { isGated, openPaywall } = useProGate();
   const { control, handleSubmit, reset, setValue } = useForm<GrantAccessFormValues>({
     defaultValues: {
@@ -125,7 +129,7 @@ export function WishlistGrantAccessSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
+      scrollableRef={sheetScrollRef}
       onDidDismiss={() => onOpenChange(false)}
       header={<BottomSheetHeader title={t("Grant access")} />}
       footer={
@@ -146,7 +150,7 @@ export function WishlistGrantAccessSheet({
         </View>
       }
     >
-      <View className="gap-5 px-5">
+      <SheetScrollView ref={sheetScrollRef} contentContainerClassName="gap-5 px-5">
         <View className="gap-2 rounded-xl border border-border-subtle bg-bg-subtle p-3">
           <Text className="text-xs font-bold uppercase text-text-muted">{t("Wishlist")}</Text>
           <Text className="text-base font-extrabold text-text">{wishlistTitle}</Text>
@@ -303,7 +307,7 @@ export function WishlistGrantAccessSheet({
             {(grantAccess.error ?? revokeAccess.error)?.message}
           </Text>
         ) : null}
-      </View>
+      </SheetScrollView>
     </BottomSheet>
   );
 }

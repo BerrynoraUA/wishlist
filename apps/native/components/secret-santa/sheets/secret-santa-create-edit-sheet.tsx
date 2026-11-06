@@ -1,3 +1,5 @@
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
 import {
   BottomSheet,
   BottomSheetHeader,
@@ -31,7 +33,7 @@ import { FREE_LIMITS } from "@wishlist/backend/types/subscription";
 import { CalendarDays, X } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { ActivityIndicator, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
 type SheetMode = "create" | "edit";
 
@@ -40,11 +42,6 @@ type SelectedImage = SecretSantaImageInput & {
 };
 
 const PARTICIPANT_PAGE_SIZE = 10;
-/** Used for the very first frame, before the form has reported its height. */
-const INITIAL_SHEET_DETENT = 0.75;
-const MIN_SHEET_DETENT = 0.4;
-const MAX_SHEET_DETENT = 0.94;
-
 export function SecretSantaCreateEditSheet({
   mode,
   open,
@@ -61,20 +58,7 @@ export function SecretSantaCreateEditSheet({
   const t = useGT();
   const { isGated, openPaywall } = useProGate();
   const sheetRef = React.useRef<BottomSheetRef>(null);
-  const { height: windowHeight } = useWindowDimensions();
-  const [contentHeight, setContentHeight] = React.useState(0);
-  // Edit mode remains scrollable and uses a single detent sized to the form, so the sheet
-  // can neither open with dead space nor be dragged past its content. Creation uses the
-  // native `auto` detent instead.
-  // Rounded to whole percents so typing in the description does not retrigger a resize
-  // on every keystroke.
-  const contentDetent =
-    contentHeight > 0
-      ? Math.round(
-          Math.min(MAX_SHEET_DETENT, Math.max(MIN_SHEET_DETENT, contentHeight / windowHeight)) *
-            100,
-        ) / 100
-      : INITIAL_SHEET_DETENT;
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
   const { data: settings } = useSettings();
   const [participantSearch, setParticipantSearch] = React.useState("");
   const deferredParticipantSearch = React.useDeferredValue(participantSearch);
@@ -217,9 +201,8 @@ export function SecretSantaCreateEditSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable={mode === "edit"}
-      detents={mode === "create" ? ["auto"] : [contentDetent]}
-      footerInsetMode="scroll-content"
+      scrollableRef={sheetScrollRef}
+      detents={["auto"]}
       onDidDismiss={() => onOpenChange(false)}
       header={
         <BottomSheetHeader title={mode === "edit" ? t("Edit event") : t("Create an event")} />
@@ -250,11 +233,11 @@ export function SecretSantaCreateEditSheet({
       }
     >
       <BottomSheetScrollView
+        ref={sheetScrollRef}
         className="max-h-full"
         contentContainerClassName="gap-5 px-5"
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled
-        onContentSizeChange={(_width, height) => setContentHeight(height)}
         showsVerticalScrollIndicator={false}
       >
         <View className="gap-2">
