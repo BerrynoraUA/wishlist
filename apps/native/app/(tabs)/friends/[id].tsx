@@ -5,6 +5,7 @@ import { StatusBarScrim } from "@/components/ui/status-bar-scrim";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { ZoomLink } from "@/components/ui/zoom-link";
+import { useProfilesByIds } from "@/hooks/use-friends";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
 import { useScrollChrome } from "@/hooks/use-scroll-chrome";
 import { useInfiniteFriendWishlists } from "@/hooks/use-wishlists";
@@ -42,6 +43,9 @@ export default function FriendWishlistsScreen() {
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const friendId = Array.isArray(id) ? (id[0] ?? "") : (id ?? "");
   const wishlistsQuery = useInfiniteFriendWishlists(friendId, {}, WISHLIST_PAGE_SIZE);
+  const profileQuery = useProfilesByIds(friendId ? [friendId] : []);
+  const profile = profileQuery.data?.[0];
+  const friendName = profile?.display_name || profile?.nickname;
   const { items: wishlists, loadMore: loadMoreWishlists } = useInfiniteListData(wishlistsQuery);
   const contentWidth = Math.min(width - 32, 900);
   const gridGap = width >= 768 ? 18 : 14;
@@ -71,7 +75,7 @@ export default function FriendWishlistsScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: t("Friend's Wishlists") }} />
+      <Stack.Screen options={{ title: friendName || t("Friend's Wishlists") }} />
       <View className="flex-1 bg-bg">
         <StyledFlashList
           onRefresh={() => wishlistsQuery.refetch()}
@@ -90,8 +94,9 @@ export default function FriendWishlistsScreen() {
             <View className="gap-5 self-center pb-5" style={{ width: contentWidth }}>
               <View className="flex-row items-center justify-between gap-3">
                 <View className="min-w-0 flex-1">
-                  <Text className="text-2xl font-extrabold text-text">
-                    {t("Friend's Wishlists")}
+                  <Text className="text-2xl font-extrabold text-text" numberOfLines={1}>
+                    {/* A blank line while loading holds the row's height without flashing the fallback. */}
+                    {friendName || (profileQuery.isLoading ? " " : t("Friend's Wishlists"))}
                   </Text>
                 </View>
                 <Text className="shrink-0 text-sm font-semibold text-text-muted">
