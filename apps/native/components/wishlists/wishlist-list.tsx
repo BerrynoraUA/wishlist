@@ -616,9 +616,7 @@ function WishlistCard({
                   </Text>
                   <View className="flex-row items-center gap-1.5">
                     <Icon as={VisibilityIcon} className="size-3.5 text-text-muted" />
-                    <Text className="text-sm text-text-muted">
-                      {visibilityLabels[visibility]}
-                    </Text>
+                    <Text className="text-sm text-text-muted">{visibilityLabels[visibility]}</Text>
                   </View>
                 </View>
               </View>

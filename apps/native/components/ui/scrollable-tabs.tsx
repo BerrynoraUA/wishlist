@@ -93,7 +93,9 @@ export function ScrollableTabs<T>({
   const contentWidthRef = React.useRef(0);
 
   function updateOverflow(offsetX: number) {
-    setOverflowsEnd(contentWidthRef.current - offsetX - viewportWidthRef.current > TAB_FADE_THRESHOLD);
+    setOverflowsEnd(
+      contentWidthRef.current - offsetX - viewportWidthRef.current > TAB_FADE_THRESHOLD,
+    );
   }
 
   const moveIndicator = React.useCallback(
@@ -245,17 +247,17 @@ export function ScrollableTabs<T>({
             )}
           >
             <Text
-              className={cn("text-sm", selected ? "font-bold text-brand" : "font-medium text-text-muted")}
+              className={cn(
+                "text-sm",
+                selected ? "font-bold text-brand" : "font-medium text-text-muted",
+              )}
               numberOfLines={1}
             >
               {tab.label}
             </Text>
             {tab.count !== undefined ? (
               <Text
-                className={cn(
-                  "text-xs font-bold",
-                  selected ? "text-brand" : "text-text-light",
-                )}
+                className={cn("text-xs font-bold", selected ? "text-brand" : "text-text-light")}
               >
                 {tab.count}
               </Text>

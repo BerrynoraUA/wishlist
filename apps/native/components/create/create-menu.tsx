@@ -17,7 +17,11 @@ import { useProGate } from "@/hooks/use-pro-gate";
 import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { useMyStatistics, useWishlistById } from "@/hooks/use-wishlists";
 import { getFabGradientClassName } from "@/components/navigation/android-tab-bar";
-import { NAV_TAB_BAR_FAB_OVERHANG, NAV_TAB_BAR_HEIGHT, useBottomSafeAreaPadding } from "@/lib/layout";
+import {
+  NAV_TAB_BAR_FAB_OVERHANG,
+  NAV_TAB_BAR_HEIGHT,
+  useBottomSafeAreaPadding,
+} from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import { isWishlistDetailPath } from "@/lib/routes";
 import { extractSharedProductUrl } from "@/lib/share-intent";

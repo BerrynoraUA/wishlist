@@ -178,10 +178,7 @@ export function SecretSantaDetailHero({
                 )}
                 style={{ minHeight: 96 }}
               >
-                <Text
-                  className="text-[21px] font-extrabold leading-6 text-white"
-                  numberOfLines={3}
-                >
+                <Text className="text-[21px] font-extrabold leading-6 text-white" numberOfLines={3}>
                   {event.name}
                 </Text>
               </View>
