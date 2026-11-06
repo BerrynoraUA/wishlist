@@ -110,11 +110,11 @@ export function SecretSantaDetailHero({
           <StyledImage
             source={{ uri: event.image_url }}
             contentFit="cover"
-            blurRadius={14}
-            className="absolute inset-0 size-full"
+            blurRadius={6}
+            className="absolute inset-0 size-full opacity-60"
           />
         ) : null}
-        <View className="absolute inset-0 bg-black/45" />
+        <View className="absolute inset-0 bg-linear-to-b from-black/50 via-black/20 to-black/50" />
       </ScreenTopBackdrop>
 
       <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
@@ -171,21 +171,19 @@ export function SecretSantaDetailHero({
                   className="size-full"
                 />
               </View>
-              <View className="min-w-0 flex-1" style={{ minHeight: 104 }}>
-                <View
-                  className={cn(
-                    headerActionsCount > 0 && "min-h-9 justify-center",
-                    headerActionsCount > 0 && headerActionsRightPadding,
-                  )}
-                  style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
+              <View
+                className={cn(
+                  "min-w-0 flex-1 justify-center",
+                  headerActionsCount > 0 && headerActionsRightPadding,
+                )}
+                style={{ minHeight: 96 }}
+              >
+                <Text
+                  className="text-[21px] font-extrabold leading-6 text-white"
+                  numberOfLines={3}
                 >
-                  <Text
-                    className="text-[21px] font-extrabold leading-6 text-white"
-                    numberOfLines={3}
-                  >
-                    {event.name}
-                  </Text>
-                </View>
+                  {event.name}
+                </Text>
               </View>
             </View>
           ) : (
@@ -279,7 +277,7 @@ export function SecretSantaPeopleSection({
             const excludedCount = isPendingInvite ? 0 : (exclusions?.[person.id]?.size ?? 0);
 
             return (
-              <View key={key} className="overflow-hidden rounded-xl bg-bg-subtle">
+              <View key={key} className="overflow-hidden rounded-lg bg-bg-subtle">
                 <Pressable
                   accessibilityRole={canEditExclusions ? "button" : undefined}
                   accessibilityState={canEditExclusions ? { expanded: isExpanded } : undefined}
@@ -292,7 +290,7 @@ export function SecretSantaPeopleSection({
                 >
                   <SecretSantaPersonAvatar person={person} />
                   <View className="min-w-0 flex-1">
-                    <Text className="font-extrabold text-text" numberOfLines={1}>
+                    <Text className="font-bold text-text" numberOfLines={1}>
                       {getSecretSantaPersonName(person, t)}
                     </Text>
                     <Text className="text-sm text-text-muted" numberOfLines={1}>
