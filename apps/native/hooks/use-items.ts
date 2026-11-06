@@ -18,11 +18,12 @@ import { statisticsKeys, wishlistKeys } from "@/lib/wishlist-query-keys";
 import { useAuth } from "@/providers/auth-provider";
 import type {
   CreateItemParams,
+  Item,
   ItemQueryParams,
   ItemVotesResult,
   UpdateItemParams,
 } from "@wishlist/backend/types/item";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 
 export function useInfiniteWishlistItems(
   wishlistId: string,
@@ -62,6 +63,32 @@ function invalidateWishlistItems(
   if (wishlistId) {
     void queryClient.invalidateQueries({ queryKey: wishlistKeys.detailRoot(wishlistId) });
   }
+  void queryClient.invalidateQueries({ queryKey: statisticsKeys.all });
+}
+
+/**
+ * Reserving or buying sinks an item in the server's default order. Refetching straight away
+ * would pull the card out from under the person who just tapped it and play its ribbon off
+ * screen, so the visible list changes the item in place and re-sorts the next time it loads.
+ */
+function settleToggledItem(queryClient: ReturnType<typeof useQueryClient>, toggled: Item) {
+  queryClient.setQueriesData<InfiniteData<Item[], number>>(
+    { queryKey: [...itemKeys.all, "wishlist"] },
+    (data) =>
+      data && {
+        ...data,
+        pages: data.pages.map((page) =>
+          page.map((item) =>
+            item.id === toggled.id
+              ? { ...item, status: toggled.status, reserved_by: toggled.reserved_by }
+              : item,
+          ),
+        ),
+      },
+  );
+  void queryClient.invalidateQueries({ queryKey: itemKeys.all, refetchType: "none" });
+  void queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+  void queryClient.invalidateQueries({ queryKey: wishlistKeys.detailRoot(toggled.wishlist_id) });
   void queryClient.invalidateQueries({ queryKey: statisticsKeys.all });
 }
 
@@ -109,7 +136,7 @@ export function useToggleItemReservation() {
     mutationFn: (id: string) => toggleItemReservation(id),
     onSuccess: (item) => {
       hapticSuccess();
-      invalidateWishlistItems(queryClient, item.wishlist_id);
+      settleToggledItem(queryClient, item);
     },
     onError: hapticError,
   });
@@ -122,7 +149,7 @@ export function useToggleItemBought() {
     mutationFn: (id: string) => toggleItemBought(id),
     onSuccess: (item) => {
       hapticSuccess();
-      invalidateWishlistItems(queryClient, item.wishlist_id);
+      settleToggledItem(queryClient, item);
     },
     onError: hapticError,
   });
