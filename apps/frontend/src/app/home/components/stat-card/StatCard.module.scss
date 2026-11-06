@@ -3,7 +3,7 @@
 .card {
   background: var(--card-bg);
   border: 1px solid var(--glass-border);
-  border-radius: $radius-xl;
+  border-radius: $radius-lg;
   padding: 18px 22px;
   width: 100%;
 
@@ -90,14 +90,15 @@
 
 @media (max-width: 480px) {
   .card {
-    padding: 14px 16px;
-    gap: 12px;
+    padding: 12px;
+    gap: 10px;
+    min-height: 0;
   }
 
   .iconWrapper {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
   }
 
   .text strong {

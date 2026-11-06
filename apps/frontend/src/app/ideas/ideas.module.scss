@@ -246,8 +246,8 @@
 }
 
 .statusApproved {
-  background: rgba(168, 85, 247, 0.12);
-  color: #a855f7;
+  background: var(--brand-alpha-10);
+  color: var(--color-brand);
 }
 
 .statusInDev {

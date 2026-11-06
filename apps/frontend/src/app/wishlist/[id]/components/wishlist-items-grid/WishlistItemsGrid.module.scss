@@ -2,7 +2,8 @@
 
 .wrapper {
   max-width: 1200px;
-  margin: 30px auto;
+  /* The filter row already spaces itself; keep products close beneath it. */
+  margin: 12px auto 30px;
   padding: 0 24px;
 }
 
