@@ -1,3 +1,6 @@
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
+import { ScrollView as SheetScrollView } from "react-native";
 import { MascotEmptyState } from "@/components/shared/mascot-empty-state";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
@@ -160,13 +163,14 @@ function NotificationsSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
 
   if (!open) return null;
 
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
+      scrollableRef={sheetScrollRef}
       detents={[0.82, 1]}
       initialDetentIndex={0}
       onDidDismiss={onClose}
@@ -186,7 +190,7 @@ function NotificationsSheet({
         />
       }
     >
-      <View className="px-5">
+      <SheetScrollView ref={sheetScrollRef} contentContainerClassName="px-5">
         <View className="gap-4">
           <View className="gap-3">
             {notifications.length > 0 ? (
@@ -237,7 +241,7 @@ function NotificationsSheet({
             </View>
           )}
         </View>
-      </View>
+      </SheetScrollView>
     </BottomSheet>
   );
 }

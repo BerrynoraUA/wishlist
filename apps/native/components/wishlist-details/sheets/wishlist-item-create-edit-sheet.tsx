@@ -1,3 +1,5 @@
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
 import { scrapeProductLink } from "@/api/scrape-product";
 import {
   AutocompleteDropdown,
@@ -129,6 +131,7 @@ export function WishlistItemCreateEditSheet({
     [settings?.selected_priorities, t],
   );
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
   const createMutation = useCreateItem();
   const updateMutation = useUpdateItem();
   const isPending = createMutation.isPending || updateMutation.isPending;
@@ -482,9 +485,8 @@ export function WishlistItemCreateEditSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
+      scrollableRef={sheetScrollRef}
       detents={[0.75, 0.94]}
-      footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
       header={<BottomSheetHeader title={mode === "edit" ? t("Edit item") : t("Add an item")} />}
       footer={
@@ -513,6 +515,7 @@ export function WishlistItemCreateEditSheet({
       }
     >
       <BottomSheetScrollView
+        ref={sheetScrollRef}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-5 px-5"

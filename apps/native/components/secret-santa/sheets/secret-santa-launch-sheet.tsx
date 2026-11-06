@@ -1,3 +1,6 @@
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
+import { ScrollView as SheetScrollView } from "react-native";
 import { generateSecretSantaAssignment } from "@/lib/secret-santa-assignment";
 import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
@@ -36,6 +39,7 @@ export function SecretSantaLaunchSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
   const launch = useLaunchSecretSanta();
   const { isGated, openPaywall } = useProGate();
   const [exclusions, setExclusions] = React.useState<Record<string, Set<string>>>({});
@@ -111,11 +115,11 @@ export function SecretSantaLaunchSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
+      scrollableRef={sheetScrollRef}
       onDidDismiss={() => onOpenChange(false)}
       header={<BottomSheetHeader title={t("Launch Secret Santa")} />}
     >
-      <View className="gap-5 px-5">
+      <SheetScrollView ref={sheetScrollRef} contentContainerClassName="gap-5 px-5">
         <View className="flex-row flex-wrap gap-2">
           <View className="flex-row items-center gap-1 rounded-full bg-brand-lighter px-2 py-1">
             <Icon as={Users} className="size-3.5 text-brand" />
@@ -267,7 +271,7 @@ export function SecretSantaLaunchSheet({
             <Text>{launch.isPending ? t("Launching...") : t("Start")}</Text>
           </Button>
         </View>
-      </View>
+      </SheetScrollView>
     </BottomSheet>
   );
 }

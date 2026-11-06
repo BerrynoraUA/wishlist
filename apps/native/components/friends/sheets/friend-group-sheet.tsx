@@ -1,3 +1,5 @@
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
 import {
   BottomSheet,
   BottomSheetHeader,
@@ -53,6 +55,7 @@ export function FriendGroupSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
   const membersQuery = useFriendGroupMembers(group?.id);
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
@@ -130,9 +133,8 @@ export function FriendGroupSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable={Boolean(group)}
+      scrollableRef={sheetScrollRef}
       detents={group ? undefined : ["auto"]}
-      footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
       header={<BottomSheetHeader title={group ? t("Edit group") : t("Create a group")} />}
       footer={
@@ -157,6 +159,7 @@ export function FriendGroupSheet({
       }
     >
       <BottomSheetScrollView
+        ref={sheetScrollRef}
         className="max-h-full"
         contentContainerClassName="gap-3 px-5"
         keyboardShouldPersistTaps="handled"
