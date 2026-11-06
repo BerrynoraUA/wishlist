@@ -17,10 +17,10 @@ function Input({ className, placeholderClassName, ...props }: InputProps) {
       className={cn(
         INPUT_CLASS_NAME,
         props.editable === false && "opacity-50",
-        "placeholder:text-muted-foreground/50",
+        "placeholder:text-muted-foreground/70",
         className,
       )}
-      placeholderTextColorClassName={cn("accent-muted-foreground/50", placeholderClassName)}
+      placeholderTextColorClassName={cn("accent-muted-foreground/70", placeholderClassName)}
       {...props}
     />
   );
