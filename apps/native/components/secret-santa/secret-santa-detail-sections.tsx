@@ -114,7 +114,7 @@ export function SecretSantaDetailHero({
             className="absolute inset-0 size-full opacity-60"
           />
         ) : null}
-        <View className="absolute inset-0 bg-linear-to-b from-black/50 via-black/20 to-black/50" />
+        <View className="absolute inset-0 bg-linear-to-b from-black/55 via-black/40 to-black/55" />
       </ScreenTopBackdrop>
 
       <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>

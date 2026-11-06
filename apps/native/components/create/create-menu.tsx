@@ -590,7 +590,7 @@ function CreateFloatingMenuContent({
   return (
     <View className="absolute inset-0" style={{ zIndex: 10000 }}>
       <Animated.View
-        className="absolute inset-0 bg-black/60"
+        className="absolute inset-0 bg-black/70"
         entering={FadeIn.duration(180)}
         exiting={FadeOut.duration(150)}
       >

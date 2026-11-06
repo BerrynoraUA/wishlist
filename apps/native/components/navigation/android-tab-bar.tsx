@@ -153,9 +153,11 @@ export function AndroidTabBar({
   React.useEffect(() => {
     if (slotWidth <= 0 || selectedSlot < 0) return;
     if (!hasMeasured.current || reduceMotion) {
-      indicatorX.set(indicatorTarget);
       hasMeasured.current = true;
-      return;
+      // Wait a frame: the pill mounts with this measure, and a value set before it
+      // attaches can be dropped, leaving the pill at the bar's start.
+      const frame = requestAnimationFrame(() => indicatorX.set(indicatorTarget));
+      return () => cancelAnimationFrame(frame);
     }
     indicatorX.set(withSpring(indicatorTarget, INDICATOR_SPRING));
   }, [indicatorTarget, indicatorX, reduceMotion, selectedSlot, slotWidth]);
