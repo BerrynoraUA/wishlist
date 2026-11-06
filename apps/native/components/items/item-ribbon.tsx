@@ -18,7 +18,7 @@ const PURCHASED_RIBBON = require("@/assets/images/ribbons/purchased.png");
 
 const RIBBON_ANGLE = "-38deg";
 const SPARKLE_COUNT = 12;
-const RESERVED_SPARKLES = ["#8B5CF6", "#C4B5FD", "#FFD166", "#FFFFFF"];
+const RESERVED_SPARKLES = ["#E052A0", "#F6B8D8", "#FFD166", "#FFFFFF"];
 const PURCHASED_SPARKLES = ["#34D399", "#A7F3D0", "#FFD166", "#FFFFFF"];
 
 export type ItemRibbonPhase = "static" | "enter" | "exit";
@@ -183,7 +183,7 @@ export function ItemRibbon({
               minimumFontScale={0.7}
               className={cn(
                 "text-center font-bold uppercase",
-                purchased ? "text-[#245B45]" : "text-[#654098]",
+                purchased ? "text-[#245B45]" : "text-[#8F1F63]",
                 isStamp ? "text-sm" : "tracking-wide",
                 !isStamp && (isDetail ? "text-lg" : "text-sm"),
               )}
