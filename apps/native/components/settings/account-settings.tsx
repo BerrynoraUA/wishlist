@@ -167,7 +167,7 @@ export function AccountSettings({
             }}
             onPressIn={(event) => event.stopPropagation()}
           >
-            <Icon as={LogOut} className="size-4 text-destructive" />
+            <Icon as={LogOut} className="size-4 text-destructive dark:text-red-300" />
             <Text>{t("Log out")}</Text>
           </Button>
         }

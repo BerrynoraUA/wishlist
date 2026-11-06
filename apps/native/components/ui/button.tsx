@@ -28,7 +28,7 @@ const buttonVariants = cva(
         tinted: "",
       },
       size: {
-        default: "h-10 px-4 py-2 sm:h-9",
+        default: "h-11 px-4 py-2 android:h-12",
         sm: "h-9 gap-1.5 rounded-md px-3 sm:h-8",
         lg: "h-11 rounded-md px-6 sm:h-10",
         icon: "h-10 w-10 sm:h-9 sm:w-9",
@@ -53,7 +53,7 @@ const buttonTextVariants = cva("text-text text-sm font-medium", {
     variant: {
       default: "text-primary-foreground",
       destructive: "text-white",
-      destructiveSoft: "text-destructive font-semibold",
+      destructiveSoft: "text-destructive font-semibold dark:text-red-300",
       success: "text-white",
       outline: "group-active:text-accent-foreground",
       secondary: "text-secondary-foreground",
