@@ -430,8 +430,7 @@ $font-serif: "Playfair Display", Georgia, serif;
   z-index: 2;
   bottom: -80px;
   right: -60px;
-  width: 132px;
-  height: auto;
+  --mascot-size: 132;
   transform: rotate(8deg);
   filter: drop-shadow(0 10px 18px rgba(155, 31, 102, 0.18));
   pointer-events: none;
@@ -952,8 +951,7 @@ $font-serif: "Playfair Display", Georgia, serif;
   position: absolute;
   top: -62px;
   right: 16px;
-  width: 84px;
-  height: auto;
+  --mascot-size: 84;
   pointer-events: none;
 }
 
@@ -1176,8 +1174,7 @@ $font-serif: "Playfair Display", Georgia, serif;
 .ctaMascot {
   position: relative;
   display: block;
-  width: 120px;
-  height: auto;
+  --mascot-size: 120;
   margin: -24px auto 12px;
   filter: drop-shadow(0 12px 20px rgba(80, 10, 50, 0.3));
 }
@@ -1445,7 +1442,7 @@ $font-serif: "Playfair Display", Georgia, serif;
   }
 
   .heroMascot {
-    width: 92px;
+    --mascot-size: 92;
     bottom: -46px;
     right: -4px;
   }
@@ -1506,7 +1503,7 @@ $font-serif: "Playfair Display", Georgia, serif;
   }
 
   .ctaMascot {
-    width: 88px;
+    --mascot-size: 88;
     margin-top: -8px;
   }
 

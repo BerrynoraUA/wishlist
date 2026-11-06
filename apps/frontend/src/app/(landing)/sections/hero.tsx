@@ -1,7 +1,7 @@
 "use client";
 
 import { useGT } from "gt-next";
-import Image from "next/image";
+import { Mascot } from "@/components/ui/Mascot/Mascot";
 import Link from "next/link";
 import { Gift, Headphones, BookOpen, Coffee, Check, Link2 } from "lucide-react";
 import type { MouseEvent, RefObject } from "react";
@@ -169,14 +169,7 @@ export function Hero({
           </div>
           <div className={`${styles.heroVisual} ${styles.animateIn}`} data-delay="200">
             <div className={styles.heroMockup}>
-              <Image
-                src="/mascot/excited-cheer.webp"
-                alt=""
-                width={132}
-                height={132}
-                priority
-                className={styles.heroMascot}
-              />
+              <Mascot variant="excited-cheer" className={styles.heroMascot} />
               <div className={styles.mockupCardMain}>
                 <div className={styles.mockupCardHeader}>
                   <div

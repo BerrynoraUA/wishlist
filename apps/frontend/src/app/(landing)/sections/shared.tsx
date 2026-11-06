@@ -1,7 +1,7 @@
 "use client";
 
 import { useGT } from "gt-next";
-import Image from "next/image";
+import { Mascot } from "@/components/ui/Mascot/Mascot";
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { ArrowDown, ArrowUp, Equal, Headphones, BookOpen } from "lucide-react";
@@ -197,13 +197,7 @@ export function DemoReserve() {
 
   return (
     <div className={`${styles.stepDemo} ${styles.stepDemoReserve}`}>
-      <Image
-        src="/mascot/hands-over-eyes.webp"
-        alt=""
-        width={84}
-        height={84}
-        className={styles.demoReserveMascot}
-      />
+      <Mascot variant="hands-over-eyes" className={styles.demoReserveMascot} />
       <DemoReserveItem
         icon={<Headphones size={20} color="#c0267e" />}
         bg="#fde7f3"

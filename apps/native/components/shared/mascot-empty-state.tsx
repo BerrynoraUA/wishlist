@@ -18,7 +18,10 @@ export function MascotEmptyState({
 
   return (
     <View className="items-center justify-center gap-3 p-4">
-      <AnimatedMascot variant={variant} size={size} subtle={compact} />
+      {/* The canvas is empty below the feet: without this the message floats away. */}
+      <View style={{ marginBottom: -size * 0.1 }}>
+        <AnimatedMascot variant={variant} size={size} />
+      </View>
       <Animated.View entering={FadeIn.delay(120).duration(280).easing(Easing.inOut(Easing.quad))}>
         <Text className="text-center text-sm font-semibold text-text-muted">{message}</Text>
       </Animated.View>
