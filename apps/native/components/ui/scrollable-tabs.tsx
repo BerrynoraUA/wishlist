@@ -37,6 +37,8 @@ const TRACK_GLASS_STYLE = [StyleSheet.absoluteFill, { borderRadius: 999 }];
 const TRACK_INSET = 4;
 /** The fallback track's `border`; liquid glass draws its own edge. */
 const TRACK_BORDER_WIDTH = HAS_LIQUID_GLASS ? 0 : 1;
+/** Hidden width below which the last tab still reads as fully visible. */
+const TAB_FADE_THRESHOLD = 16;
 
 /**
  * Vertical gap between the safe-area top inset and the top tabs. Shared by screens
@@ -85,10 +87,13 @@ export function ScrollableTabs<T>({
   // The iOS track hugs the tabs (up to the full row), so it waits for their total width.
   const [tabsWidth, setTabsWidth] = React.useState<number | null>(null);
   const [overflowsEnd, setOverflowsEnd] = React.useState(false);
+  // On pushed screens the sliding underline can miss its first placement, so the
+  // selected tab draws a static one in the same spot until the first change.
+  const [hasChangedTab, setHasChangedTab] = React.useState(false);
   const contentWidthRef = React.useRef(0);
 
   function updateOverflow(offsetX: number) {
-    setOverflowsEnd(contentWidthRef.current - offsetX - viewportWidthRef.current > 1);
+    setOverflowsEnd(contentWidthRef.current - offsetX - viewportWidthRef.current > TAB_FADE_THRESHOLD);
   }
 
   const moveIndicator = React.useCallback(
@@ -163,7 +168,7 @@ export function ScrollableTabs<T>({
   function handleViewportLayout(event: LayoutChangeEvent) {
     const width = event.nativeEvent.layout.width;
     if (width === viewportWidthRef.current) return;
-    setOverflowsEnd(contentWidthRef.current - width > 1);
+    setOverflowsEnd(contentWidthRef.current - width > TAB_FADE_THRESHOLD);
     const initialLayout = viewportWidthRef.current === 0;
     viewportWidthRef.current = width;
     if (viewportScrollTimeout.current !== null) clearTimeout(viewportScrollTimeout.current);
@@ -227,7 +232,10 @@ export function ScrollableTabs<T>({
             accessibilityLabel={tab.accessibilityLabel ?? tab.label}
             accessibilityState={{ selected }}
             onPress={() => {
-              if (!selected) hapticSelection();
+              if (!selected) {
+                hapticSelection();
+                setHasChangedTab(true);
+              }
               onChange(tab.value);
             }}
             className={cn(
@@ -284,6 +292,12 @@ export function ScrollableTabs<T>({
             ) : (
               trigger
             )}
+            {IS_ANDROID && selected && !hasChangedTab ? (
+              <View
+                pointerEvents="none"
+                className="absolute inset-x-3 bottom-0 h-[3px] rounded-t-full bg-brand"
+              />
+            ) : null}
           </View>
         );
       })}
@@ -322,7 +336,7 @@ export function ScrollableTabs<T>({
       {IS_ANDROID && overflowsEnd ? (
         <View
           pointerEvents="none"
-          className="absolute inset-y-0 end-0 w-10 bg-linear-to-l from-bg to-bg/0"
+          className="absolute inset-y-0 end-0 w-6 bg-linear-to-l from-bg to-bg/0"
         />
       ) : null}
     </View>
