@@ -148,19 +148,24 @@ export function AndroidTabBar({
       : 0;
 
   const indicatorX = useSharedValue(indicatorTarget);
-  const hasMeasured = React.useRef(false);
+  // A value set while the sliding pill attaches can be dropped, leaving it at the bar's
+  // start, so a static pill holds the spot until the first move between tabs.
+  const [hasSlid, setHasSlid] = React.useState(false);
+  const previousTarget = React.useRef<number | null>(null);
 
   React.useEffect(() => {
     if (slotWidth <= 0 || selectedSlot < 0) return;
-    if (!hasMeasured.current || reduceMotion) {
-      hasMeasured.current = true;
-      // Wait a frame: the pill mounts with this measure, and a value set before it
-      // attaches can be dropped, leaving the pill at the bar's start.
-      const frame = requestAnimationFrame(() => indicatorX.set(indicatorTarget));
-      return () => cancelAnimationFrame(frame);
+    const previous = previousTarget.current;
+    previousTarget.current = indicatorTarget;
+    if (previous === null || previous === indicatorTarget) return;
+    if (reduceMotion) {
+      indicatorX.set(indicatorTarget);
+    } else {
+      if (!hasSlid) indicatorX.set(previous);
+      indicatorX.set(withSpring(indicatorTarget, INDICATOR_SPRING));
     }
-    indicatorX.set(withSpring(indicatorTarget, INDICATOR_SPRING));
-  }, [indicatorTarget, indicatorX, reduceMotion, selectedSlot, slotWidth]);
+    setHasSlid(true);
+  }, [hasSlid, indicatorTarget, indicatorX, reduceMotion, selectedSlot, slotWidth]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: indicatorX.get() }],
@@ -212,19 +217,33 @@ export function AndroidTabBar({
         onLayout={(event) => setBarWidth(event.nativeEvent.layout.width)}
       >
         {slotWidth > 0 && selectedSlot >= 0 ? (
-          <Animated.View
-            pointerEvents="none"
-            className="absolute rounded-full bg-brand-lighter"
-            style={[
-              {
+          <>
+            <View
+              pointerEvents="none"
+              className="absolute rounded-full bg-brand-lighter"
+              style={{
                 top: INDICATOR_TOP,
-                left: 0,
+                left: indicatorTarget,
                 height: INDICATOR_HEIGHT,
                 width: indicatorWidth,
-              },
-              indicatorStyle,
-            ]}
-          />
+                opacity: hasSlid ? 0 : 1,
+              }}
+            />
+            <Animated.View
+              pointerEvents="none"
+              className="absolute rounded-full bg-brand-lighter"
+              style={[
+                {
+                  top: INDICATOR_TOP,
+                  left: 0,
+                  height: INDICATOR_HEIGHT,
+                  width: indicatorWidth,
+                  opacity: hasSlid ? 1 : 0,
+                },
+                indicatorStyle,
+              ]}
+            />
+          </>
         ) : null}
         {slots.map((slot) => {
           if (slot.kind === "create") {
@@ -280,8 +299,7 @@ export function AndroidTabBar({
                 )}
                 <Text
                   numberOfLines={1}
-                  adjustsFontSizeToFit
-                  minimumFontScale={0.8}
+                  maxFontSizeMultiplier={1.1}
                   style={{ includeFontPadding: false, textAlignVertical: "center" }}
                   className={cn(
                     "max-w-full px-0.5 text-center text-xs leading-4 font-semibold",
