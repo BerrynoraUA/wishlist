@@ -61,6 +61,9 @@ vi.mock("@/components/ui/liquid-glass", () => ({ HAS_LIQUID_GLASS: false }));
 vi.mock("@/components/ui/animated-pressable", () => ({ AnimatedPressable: MockView }));
 vi.mock("@/components/ui/text", () => ({ Text: MockView }));
 vi.mock("@/components/user-guide/guide-target", () => ({ GuideTarget: MockView }));
+vi.mock("@/components/user-guide/user-guide-provider", () => ({
+  useUserGuideTargetRegistration: () => ({}),
+}));
 
 describe("tab viewport resizing", () => {
   let root: Root;
