@@ -240,7 +240,7 @@ export function WishlistItemCard({
                     {store ? (
                       <Text
                         className={cn(
-                          "min-w-0 flex-1 text-label text-text-muted",
+                          "min-w-0 flex-1 text-[13px] text-text-muted",
                           isTaken && "opacity-50",
                         )}
                         numberOfLines={1}
