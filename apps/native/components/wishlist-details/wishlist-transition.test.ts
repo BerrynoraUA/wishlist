@@ -28,6 +28,10 @@ vi.mock("@/lib/layout", () => ({
   chunkRows: () => [],
 }));
 vi.mock("@/api/share", () => ({}));
+vi.mock("@/lib/card-motion", () => ({
+  AnimatedListCard: "div",
+  useListCardRemoval: () => ({ exitingIds: new Set(), removedIds: new Set() }),
+}));
 vi.mock("@/hooks/use-user", () => ({ useCurrentUserId: () => ({ data: "viewer" }) }));
 vi.mock("@/hooks/use-own-reservations", () => ({ useShowOwnReservations: () => false }));
 vi.mock("@/hooks/use-pro-gate", () => ({ useProGate: () => ({}) }));
@@ -76,6 +80,7 @@ vi.mock("@/components/shared/inline-state", () => ({
 vi.mock("@/components/ui/text", () => ({ Text: "span" }));
 vi.mock("@/components/ui/floating-back-button", () => ({ FloatingBackButton: () => null }));
 vi.mock("@/components/ui/status-bar-scrim", () => ({ StatusBarScrim: () => null }));
+vi.mock("@/components/ui/hero-status-bar", () => ({ HeroStatusBar: () => null }));
 vi.mock("@/components/ui/list-skeletons", () => ({
   CardGridSkeleton: () => null,
   DetailSkeleton: () => null,
