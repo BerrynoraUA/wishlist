@@ -1,3 +1,4 @@
+import { useIsOnline } from "@/hooks/use-is-online";
 import { scrapeProductLink } from "@/api/scrape-product";
 import {
   AutocompleteDropdown,
@@ -138,11 +139,13 @@ export function WishlistItemCreateEditSheet({
     [settings?.selected_priorities, t],
   );
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const isOnline = useIsOnline();
+  const deferredLink = mode === "create" && createSource === "link" && !isOnline;
   const createMutation = useCreateItem();
   const updateMutation = useUpdateItem();
   const isPending = createMutation.isPending || updateMutation.isPending;
   const error = createMutation.error ?? updateMutation.error;
-  const { control, handleSubmit, reset, setValue } = useForm<ItemFormValues>({
+  const { control, handleSubmit, reset, setValue, getFieldState } = useForm<ItemFormValues>({
     defaultValues: EMPTY_ITEM_FORM,
   });
   const values = useWatch({ control }) as ItemFormValues;
@@ -180,7 +183,8 @@ export function WishlistItemCreateEditSheet({
   const lastScrapedUrlRef = React.useRef("");
   const scrapeRequestIdRef = React.useRef(0);
   const productLinkInvalid = form.showsProductLink && hasInvalidOptionalUrl(values.url);
-  const imageUrlInvalid = hasInvalidOptionalUrl(values.imageUrl);
+  const imageUrlInvalid =
+    !values.imageUrl.startsWith("file:") && hasInvalidOptionalUrl(values.imageUrl);
   const invalidAdditionalLinkIndexes = React.useMemo(
     () =>
       new Set(
@@ -194,7 +198,7 @@ export function WishlistItemCreateEditSheet({
   const canSubmit =
     !isPending &&
     !imageUpload.isUploading &&
-    values.name.trim() !== "" &&
+    (values.name.trim() !== "" || (deferredLink && isValidHttpUrl(values.url.trim()))) &&
     (!form.showsWishlistPicker || targetWishlistId !== "") &&
     !productLinkInvalid &&
     !imageUrlInvalid &&
@@ -256,6 +260,7 @@ export function WishlistItemCreateEditSheet({
   React.useEffect(() => {
     const url = values.url.trim();
     if (
+      !isOnline ||
       !open ||
       !form.showsProductLink ||
       url === "" ||
@@ -270,7 +275,7 @@ export function WishlistItemCreateEditSheet({
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [form.showsProductLink, open, values.url]);
+  }, [form.showsProductLink, isOnline, open, values.url]);
 
   if (!open) return null;
 
@@ -445,7 +450,7 @@ export function WishlistItemCreateEditSheet({
   }
 
   async function submitForm(formValues: ItemFormValues) {
-    const name = formValues.name.trim();
+    const name = formValues.name.trim() || (deferredLink ? formValues.url.trim() : "");
     if (!canSubmit) return;
     if (
       mode === "create" &&
@@ -466,7 +471,10 @@ export function WishlistItemCreateEditSheet({
       priority_id: mode === "create" && isGated ? null : formValues.priority_id,
       image_url: imageUrl,
       url: formValues.url.trim() || null,
-      currency: formValues.currency.trim() || null,
+      currency:
+        deferredLink && !getFieldState("currency").isDirty
+          ? null
+          : formValues.currency.trim() || null,
       discount_price: formValues.discountPrice.trim() || null,
       has_discount: formValues.hasDiscount,
       discount_end_date: formValues.discountEndDate.trim() || null,
@@ -497,6 +505,7 @@ export function WishlistItemCreateEditSheet({
       {
         wishlist_id: targetWishlistId,
         ...payload,
+        fillFromLink: deferredLink,
       },
       {
         onSuccess: () => {

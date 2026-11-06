@@ -7,10 +7,13 @@ import {
   useInfiniteFriendsWishlistsReservedByMe,
 } from "@/hooks/use-wishlists";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
-import { DISCOVER_PAGE_SIZE, type DiscoverTab, isDiscoverSectionTab } from "@/lib/discover";
-import { parseOptionalNumber } from "@/lib/items";
-import { normalizeSearchQuery } from "@/lib/wishlists";
-import type { DiscoverQueryParams } from "@wishlist/backend/types/discover";
+import {
+  DEFAULT_DISCOVER_SORT,
+  DISCOVER_PAGE_SIZE,
+  type DiscoverTab,
+  isDiscoverSectionTab,
+  toDiscoverQueryParams,
+} from "@/lib/discover";
 import * as React from "react";
 
 export function useDiscoverFeed() {
@@ -20,7 +23,7 @@ export function useDiscoverFeed() {
   const [priorityIds, setPriorityIds] = React.useState<string[]>([]);
   const [priceMin, setPriceMin] = React.useState("");
   const [priceMax, setPriceMax] = React.useState("");
-  const [sort, setSort] = React.useState("default");
+  const [sort, setSort] = React.useState(DEFAULT_DISCOVER_SORT);
   // Price filters and price sorting are evaluated server-side in this currency.
   const displayCurrency = useDisplayCurrency();
 
@@ -29,15 +32,12 @@ export function useDiscoverFeed() {
     return () => clearTimeout(timeout);
   }, [search]);
 
-  const params = React.useMemo<DiscoverQueryParams>(
-    () => ({
-      search: normalizeSearchQuery(debouncedSearch) || undefined,
-      sort,
-      priorities: priorityIds,
-      priceMin: parseOptionalNumber(priceMin),
-      priceMax: parseOptionalNumber(priceMax),
-      displayCurrency,
-    }),
+  const params = React.useMemo(
+    () =>
+      toDiscoverQueryParams(
+        { search: debouncedSearch, sort, priorityIds, priceMin, priceMax },
+        displayCurrency,
+      ),
     [debouncedSearch, displayCurrency, priceMax, priceMin, priorityIds, sort],
   );
 
@@ -93,7 +93,7 @@ export function useDiscoverFeed() {
     priorityIds.length > 0 ||
     Boolean(priceMin.trim()) ||
     Boolean(priceMax.trim()) ||
-    sort !== "default";
+    sort !== DEFAULT_DISCOVER_SORT;
 
   function togglePriority(priorityId: string) {
     setPriorityIds((current) =>
@@ -109,7 +109,7 @@ export function useDiscoverFeed() {
     setPriorityIds([]);
     setPriceMin("");
     setPriceMax("");
-    setSort("default");
+    setSort(DEFAULT_DISCOVER_SORT);
   }
 
   return {

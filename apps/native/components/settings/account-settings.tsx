@@ -23,6 +23,9 @@ import * as React from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { ActivityIndicator, View } from "react-native";
 import { useGT } from "gt-react-native";
+import { useQueryClient } from "@tanstack/react-query";
+import { countQueuedWrites } from "@/lib/offline-mutations";
+import { failedWrites } from "@/lib/write-queue";
 
 type PasswordFormValues = {
   newPassword: string;
@@ -39,6 +42,7 @@ export function AccountSettings({
   signOut: () => Promise<void>;
 }) {
   const t = useGT();
+  const queryClient = useQueryClient();
   const router = useRouter();
   const { data: provider } = useAuthProvider();
   const { accounts, removeAccount, refresh } = useKnownAccounts();
@@ -110,6 +114,7 @@ export function AccountSettings({
 
   async function handleSwitchAccount(account: KnownAccount) {
     if (switchingUserId || addingAccount) return;
+    if (hasUnsyncedChanges()) return;
     setSwitchingUserId(account.userId);
     try {
       await switchAccount(account);
@@ -126,6 +131,7 @@ export function AccountSettings({
 
   async function handleAddAccount() {
     if (switchingUserId || addingAccount) return;
+    if (hasUnsyncedChanges()) return;
     setAddingAccount(true);
     try {
       await loginWithGoogle();
@@ -139,6 +145,15 @@ export function AccountSettings({
       });
       setAddingAccount(false);
     }
+  }
+
+  function hasUnsyncedChanges() {
+    if (!countQueuedWrites(queryClient) && !failedWrites(queryClient).length) return false;
+    setMessage({
+      title: t("Changes waiting to sync"),
+      message: t("Sync or discard your saved changes before switching accounts."),
+    });
+    return true;
   }
 
   async function confirmRemoveAccount() {

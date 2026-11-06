@@ -1,6 +1,8 @@
 import { supabase } from "@wishlist/backend/supabase/native";
+import { onlineManager } from "@tanstack/react-query";
 import { File } from "expo-file-system";
 import * as React from "react";
+import { keepImageForSync, type QueuedImage } from "@/lib/offline-images";
 import { removeOwnedStorageImage } from "@/lib/storage";
 
 export type NativePickedImage = {
@@ -17,11 +19,16 @@ const UPLOAD_TARGETS = {
   wishlist: { bucket: IMAGE_BUCKET, pathPrefix: "wishlist" },
   avatar: { bucket: "avatars", pathPrefix: "avatar" },
   bug: { bucket: "bug-screenshots", pathPrefix: "bug" },
+  secretSanta: { bucket: IMAGE_BUCKET, pathPrefix: "secret-santa" },
 } as const;
 
 export type ImageUploadTarget = keyof typeof UPLOAD_TARGETS;
 
-function getImageExtension(fileName: string | null | undefined, mimeType: string) {
+export function getImageUploadBucket(target: ImageUploadTarget) {
+  return UPLOAD_TARGETS[target].bucket;
+}
+
+export function getImageExtension(fileName: string | null | undefined, mimeType: string) {
   const fileExtension = fileName?.split(".").pop()?.toLowerCase();
 
   if (fileExtension && /^[a-z0-9]+$/.test(fileExtension)) {
@@ -36,9 +43,15 @@ export async function uploadPickedImageToBucket(
   {
     bucket,
     pathPrefix,
+    objectKey,
   }: {
     bucket: string;
     pathPrefix: string;
+    /**
+     * Names the file after this key instead of a random one. A second upload under the same
+     * key keeps the first file, so a retried offline write never stores the image twice.
+     */
+    objectKey?: string;
   },
 ): Promise<string> {
   const {
@@ -62,19 +75,29 @@ export async function uploadPickedImageToBucket(
 
   const extension = getImageExtension(image.fileName, contentType);
   const randomString = Math.random().toString(36).slice(2, 15);
-  const path = `${user.id}/${pathPrefix}-${Date.now()}-${randomString}.${extension}`;
+  const name = objectKey ?? `${Date.now()}-${randomString}`;
+  const path = `${user.id}/${pathPrefix}-${name}.${extension}`;
   const bytes = await file.arrayBuffer();
 
-  const { data: uploadData, error } = await supabase.storage.from(bucket).upload(path, bytes, {
+  const { error } = await supabase.storage.from(bucket).upload(path, bytes, {
     contentType,
     cacheControl: "3600",
     upsert: false,
   });
 
-  if (error) throw error;
+  if (error && !(objectKey && isAlreadyStoredError(error))) throw error;
 
-  const { data } = supabase.storage.from(bucket).getPublicUrl(uploadData.path);
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
+}
+
+function isAlreadyStoredError(error: { message?: string; statusCode?: string }) {
+  return error.statusCode === "409" || /already exists/i.test(error.message ?? "");
+}
+
+/** Uploads an image saved for an offline write. Safe to repeat: see `objectKey`. */
+export function uploadQueuedImage(image: QueuedImage, target: ImageUploadTarget) {
+  return uploadPickedImageToBucket(image, { ...UPLOAD_TARGETS[target], objectKey: image.key });
 }
 
 type InFlightUpload = { image: NativePickedImage; promise: Promise<string> };
@@ -131,7 +154,8 @@ export function useImageUploadField(target: ImageUploadTarget) {
 
   const onPick = React.useCallback(
     (image: NativePickedImage) => {
-      startUpload(image);
+      if (onlineManager.isOnline()) startUpload(image);
+      else uploadRef.current = null;
       setPickedImage(image);
       setError(null);
     },
@@ -155,6 +179,14 @@ export function useImageUploadField(target: ImageUploadTarget) {
       const existingImageUrl = formUrl.trim() || null;
       const upload = uploadRef.current;
 
+      if (pickedImage && (!onlineManager.isOnline() || !upload)) {
+        try {
+          return (await keepImageForSync(pickedImage)).uri;
+        } catch (keepError) {
+          setError(keepError instanceof Error ? keepError.message : "Could not save image.");
+          return undefined;
+        }
+      }
       if (!upload) return existingImageUrl;
 
       setIsUploading(true);
@@ -176,7 +208,7 @@ export function useImageUploadField(target: ImageUploadTarget) {
         setIsUploading(false);
       }
     },
-    [bucket, pathPrefix],
+    [bucket, pathPrefix, pickedImage],
   );
 
   const discardPendingUpload = React.useCallback(async () => {

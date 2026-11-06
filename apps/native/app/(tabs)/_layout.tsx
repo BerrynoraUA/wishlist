@@ -1,6 +1,7 @@
 import { CreateMenuHost } from "@/components/create/create-menu";
 import { AndroidTabBar, type AndroidTabBarProps } from "@/components/navigation/android-tab-bar";
 import { IosTabBar } from "@/components/navigation/ios-tab-bar";
+import { OfflineBanner } from "@/components/shared/offline-banner";
 import { useNavigationTheme } from "@/lib/theme";
 import { useAuth } from "@/providers/auth-provider";
 import { useUserGuide } from "@/components/user-guide/user-guide-provider";
@@ -29,6 +30,7 @@ export default function TabsLayout() {
         ) : (
           <AndroidTabs onCreatePress={() => setCreateOpen(true)} />
         )}
+        {Platform.OS === "ios" ? <OfflineBanner /> : null}
       </CreateMenuHost>
     </RootPathRedirect>
   );

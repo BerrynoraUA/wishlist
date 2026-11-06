@@ -1,9 +1,13 @@
+import { useQueuedWrite } from "@/hooks/use-queued-write";
+import { findLocalRecord } from "@/lib/local-write-cache";
+import { newRecordId } from "@/lib/record-id";
+import { keepImageForSync } from "@/lib/offline-images";
+import type { SecretSantaDetails, SecretSantaEvent } from "@wishlist/backend/types/secret-santa";
+import type { UserProfile } from "@wishlist/backend/types/settings";
 import { hapticError, hapticSuccess } from "@/lib/haptics";
 import {
   acceptSecretSantaInvite,
-  createSecretSantaEvent,
   declineSecretSantaInvite,
-  deleteSecretSantaEvent,
   getSecretSantaDetails,
   getUserVisibleItemsByMaxPrice,
   inviteSecretSantaUsers,
@@ -12,9 +16,9 @@ import {
   listSecretSantaEvents,
   removeSecretSantaInvite,
   removeSecretSantaParticipant,
-  updateSecretSantaEvent,
 } from "@/api/secret-santa";
 import { notificationKeys } from "@/hooks/use-notifications";
+import { settingsKeys } from "@/hooks/use-settings";
 import { normalizeSearchQuery } from "@/lib/wishlists";
 import { useAuth } from "@/providers/auth-provider";
 import type {
@@ -23,7 +27,14 @@ import type {
   ListSecretSantaEventsParams,
   UpdateSecretSantaEventInput,
 } from "@wishlist/backend/types/secret-santa";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  infiniteQueryOptions,
+  queryOptions,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 export const secretSantaKeys = {
   all: ["secret-santa"] as const,
@@ -42,18 +53,17 @@ export const secretSantaKeys = {
   ],
 };
 
-export function useInfiniteSecretSantaEvents(
+export function secretSantaEventsQueryOptions(
+  authUserId: string | undefined,
   params: ListSecretSantaEventsParams,
   pageSize: number,
-  { enabled = true }: { enabled?: boolean } = {},
 ) {
-  const { user } = useAuth();
   const normalizedParams = {
     search: normalizeSearchQuery(params.search) || undefined,
   };
 
-  return useInfiniteQuery({
-    queryKey: secretSantaKeys.list(user?.id, { ...normalizedParams, limit: pageSize }),
+  return infiniteQueryOptions({
+    queryKey: secretSantaKeys.list(authUserId, { ...normalizedParams, limit: pageSize }),
     queryFn: ({ pageParam }) =>
       listSecretSantaEvents({
         ...normalizedParams,
@@ -63,7 +73,26 @@ export function useInfiniteSecretSantaEvents(
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) =>
       lastPage.offset + lastPage.items.length < lastPage.total ? lastPageParam + 1 : undefined,
+  });
+}
+
+export function useInfiniteSecretSantaEvents(
+  params: ListSecretSantaEventsParams,
+  pageSize: number,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
+  const { user } = useAuth();
+
+  return useInfiniteQuery({
+    ...secretSantaEventsQueryOptions(user?.id, params, pageSize),
     enabled: enabled && Boolean(user?.id),
+  });
+}
+
+export function secretSantaDetailsQueryOptions(authUserId: string | undefined, eventId: string) {
+  return queryOptions({
+    queryKey: secretSantaKeys.detail(authUserId, eventId),
+    queryFn: () => getSecretSantaDetails(eventId),
   });
 }
 
@@ -71,51 +100,84 @@ export function useSecretSantaDetails(eventId?: string) {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: secretSantaKeys.detail(user?.id, eventId ?? ""),
-    queryFn: () => getSecretSantaDetails(eventId!),
+    ...secretSantaDetailsQueryOptions(user?.id, eventId ?? ""),
     enabled: Boolean(user?.id && eventId),
   });
 }
 
-export function useCreateSecretSantaEvent() {
-  const queryClient = useQueryClient();
+async function eventPayload<T extends CreateSecretSantaEventInput | UpdateSecretSantaEventInput>(
+  input: T,
+) {
+  const { image, ...payload } = input;
+  if (image && "uri" in image) {
+    const saved = await keepImageForSync(image);
+    return { ...payload, imageUrl: saved.uri };
+  }
+  return payload;
+}
 
-  return useMutation({
-    mutationFn: (input: CreateSecretSantaEventInput) => createSecretSantaEvent(input),
-    onSuccess: async () => {
-      hapticSuccess();
-      await queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
-    },
-    onError: hapticError,
+export function useCreateSecretSantaEvent() {
+  return useQueuedWrite(async (input: CreateSecretSantaEventInput, userId, client) => {
+    const id = newRecordId();
+    const payload = await eventPayload(input);
+    // The server makes the creator the first participant; show them the same way until then.
+    const profile = client.getQueryData<UserProfile>(settingsKeys.profile(userId));
+    const local: SecretSantaDetails & { is_owner: boolean; participants_count: number } = {
+      id,
+      name: input.name,
+      event_date: input.event_date,
+      budget: input.budget,
+      currency: input.currency,
+      image_url: payload.imageUrl ?? null,
+      owner_id: userId,
+      is_owner: true,
+      participants_count: 1,
+      is_started: false,
+      participants: [
+        {
+          id: userId,
+          nickname: profile?.nickname ?? null,
+          display_name: profile?.display_name ?? null,
+          avatar_url: profile?.avatar_url ?? null,
+        },
+      ],
+      pending_invites: [],
+      my_receiver: null,
+    };
+    return { entity: "event", action: "create", id, userId, payload, local };
   });
 }
 
 export function useUpdateSecretSantaEvent() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ eventId, updates }: { eventId: string; updates: UpdateSecretSantaEventInput }) =>
-      updateSecretSantaEvent(eventId, updates),
-    onSuccess: async () => {
-      hapticSuccess();
-      await queryClient.invalidateQueries({ queryKey: secretSantaKeys.all });
+  return useQueuedWrite(
+    async (
+      { eventId: id, updates }: { eventId: string; updates: UpdateSecretSantaEventInput },
+      userId,
+      client,
+    ) => {
+      const payload = await eventPayload(updates);
+      const previous = findLocalRecord<SecretSantaEvent>(client, "event", id);
+      if (!previous) throw new Error("Open this event while connected before editing it offline.");
+      const local = {
+        ...previous,
+        ...payload,
+        ...(payload.imageUrl !== undefined && { image_url: payload.imageUrl }),
+        ...(updates.removeImage && { image_url: null }),
+      };
+      return { entity: "event", action: "update", id, userId, payload, local };
     },
-    onError: hapticError,
-  });
+  );
 }
 
 export function useDeleteSecretSantaEvent() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (eventId: string) => deleteSecretSantaEvent(eventId),
-    onSuccess: async () => {
-      hapticSuccess();
-      await queryClient.invalidateQueries({ queryKey: secretSantaKeys.lists() });
-      queryClient.removeQueries({ queryKey: ["secret-santa", "detail"], exact: false });
-    },
-    onError: hapticError,
-  });
+  return useQueuedWrite((id: string, userId) => ({
+    entity: "event",
+    action: "delete",
+    id,
+    userId,
+    payload: {},
+    local: undefined,
+  }));
 }
 
 export function useInviteSecretSantaUsers() {

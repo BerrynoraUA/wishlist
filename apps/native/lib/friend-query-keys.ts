@@ -1,3 +1,6 @@
+/** Page size of the Friends screen lists. */
+export const FRIENDS_PAGE_SIZE = 20;
+
 export type FriendPaginationParams = {
   skip?: number;
   take?: number;

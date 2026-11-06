@@ -43,13 +43,11 @@ import { useCurrentUserId } from "@/hooks/use-user";
 import { useWishlistById } from "@/hooks/use-wishlists";
 import { errorMessage } from "@/lib/errors";
 import {
-  DEFAULT_ITEM_SORT,
-  ITEM_PRIORITY_LOOKUP,
-  ITEM_STATUS_LOOKUP,
+  EMPTY_ITEM_FILTERS,
   WISHLIST_ITEMS_PAGE_SIZE,
-  parseOptionalNumber,
   optimisticallyToggleItemBought,
   optimisticallyToggleItemReservation,
+  toItemQueryParams,
   updateItemIfSelected,
 } from "@/lib/items";
 import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
@@ -63,15 +61,6 @@ import * as React from "react";
 import { View, useWindowDimensions } from "react-native";
 import { CardGridSkeleton, DetailSkeleton } from "@/components/ui/list-skeletons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-const EMPTY_FILTERS: WishlistItemFilterState = {
-  search: "",
-  statuses: [],
-  priorities: [],
-  priceMin: "",
-  priceMax: "",
-  sort: DEFAULT_ITEM_SORT,
-};
 
 const SHARE_BASE_URL = (process.env.EXPO_PUBLIC_WEB_URL ?? "https://wishlane.net").replace(
   /\/$/,
@@ -108,7 +97,7 @@ export default function WishlistDetailScreen() {
   const wishlistQuery = useWishlistById(wishlistId);
   const wishlist = wishlistQuery.data;
   const currentUser = useCurrentUserId();
-  const [filters, setFilters] = React.useState<WishlistItemFilterState>(EMPTY_FILTERS);
+  const [filters, setFilters] = React.useState<WishlistItemFilterState>(EMPTY_ITEM_FILTERS);
   const {
     open: filtersOpen,
     setOpen: setFiltersOpen,
@@ -130,28 +119,10 @@ export default function WishlistDetailScreen() {
     return () => clearTimeout(timeout);
   }, [filters.search]);
 
-  const itemQueryParams = React.useMemo(() => {
-    const statuses: number[] = [];
-    for (const value of filters.statuses) {
-      const status = ITEM_STATUS_LOOKUP.find((option) => option.value === value)?.status;
-      if (status !== undefined) statuses.push(status);
-    }
-
-    const priorities: string[] = [];
-    for (const value of filters.priorities) {
-      const priorityId = ITEM_PRIORITY_LOOKUP.find((option) => option.value === value)?.priority_id;
-      if (priorityId !== undefined) priorities.push(priorityId);
-    }
-
-    return {
-      search: debouncedSearch,
-      sort: filters.sort,
-      statuses,
-      priorities,
-      priceMin: parseOptionalNumber(filters.priceMin),
-      priceMax: parseOptionalNumber(filters.priceMax),
-    };
-  }, [debouncedSearch, filters]);
+  const itemQueryParams = React.useMemo(
+    () => toItemQueryParams(filters, debouncedSearch),
+    [debouncedSearch, filters],
+  );
 
   const itemsQuery = useInfiniteWishlistItems(
     wishlistId,
@@ -161,7 +132,7 @@ export default function WishlistDetailScreen() {
   const { items, loadMore: loadMoreItems } = useInfiniteListData(itemsQuery);
   const itemIds = React.useMemo(() => items.map((item) => item.id), [items]);
   const votesQuery = useItemVotes(itemIds);
-  const toggleVote = useToggleItemVote(itemIds);
+  const toggleVote = useToggleItemVote();
   const toggleReservation = useToggleItemReservation();
   const toggleBought = useToggleItemBought();
   // The mutation results get a new identity once their observers subscribe after mount;
@@ -227,7 +198,7 @@ export default function WishlistDetailScreen() {
   }
 
   function resetFilters() {
-    setFilters(EMPTY_FILTERS);
+    setFilters(EMPTY_ITEM_FILTERS);
     setDebouncedSearch("");
   }
 

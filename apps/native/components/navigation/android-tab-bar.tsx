@@ -3,6 +3,7 @@ import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { GuideTarget } from "@/components/user-guide/guide-target";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { useIsOnline } from "@/hooks/use-is-online";
 import {
   NAV_TAB_BAR_BACKDROP_OFFSET,
   NAV_TAB_BAR_FAB_OVERHANG,
@@ -14,7 +15,7 @@ import { useReducedMotion } from "@/lib/motion";
 import { NATIVE_ACCENTS, getThemeAccent } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { useGT } from "gt-react-native";
-import { Plus } from "lucide-react-native";
+import { CloudOff, Plus } from "lucide-react-native";
 import * as React from "react";
 import { I18nManager, Image, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
@@ -111,6 +112,7 @@ export function AndroidTabBar({
   onTabPress,
 }: AndroidTabBarProps) {
   const t = useGT();
+  const isOnline = useIsOnline();
   const bottomSafeAreaPadding = useBottomSafeAreaPadding();
   const reduceMotion = useReducedMotion();
   const { theme } = useUniwind();
@@ -251,6 +253,24 @@ export function AndroidTabBar({
                     <Icon as={Plus} className="size-7 text-white" strokeWidth={2.5} />
                   </AnimatedPressable>
                 </GuideTarget>
+                {!isOnline ? (
+                  <View
+                    pointerEvents="none"
+                    accessibilityRole="alert"
+                    className="absolute inset-x-0 bottom-2 flex-row items-center justify-center gap-0.5"
+                  >
+                    <Icon as={CloudOff} className="size-3 text-text-muted" />
+                    <Text
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.8}
+                      className="shrink text-xs leading-4 font-semibold text-text-muted"
+                      style={{ includeFontPadding: false }}
+                    >
+                      {t("Offline")}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
             );
           }

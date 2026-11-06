@@ -88,15 +88,14 @@ async function getSecretSantaImageField(eventId: string) {
     .eq("id", eventId)
     .maybeSingle();
 
-  if (error) {
-    return null;
-  }
+  if (error) throw error;
 
   return data as { image_url?: string | null } | null;
 }
 
 export async function createSecretSantaEvent(
   input: CreateSecretSantaEventInput,
+  id?: string,
 ): Promise<SecretSantaEvent> {
   const { image, imageUrl, ...restInput } = input;
   let finalImageUrl: string | null = null;
@@ -110,6 +109,7 @@ export async function createSecretSantaEvent(
   }
 
   const { data, error } = await supabase.rpc("create_secret_santa_event", {
+    ...(id ? { p_id: id } : {}),
     p_name: restInput.name,
     p_event_date: restInput.event_date,
     p_budget: restInput.budget,
@@ -215,6 +215,8 @@ export async function updateSecretSantaEvent(
 
 export async function deleteSecretSantaEvent(eventId: string): Promise<void> {
   const currentFields = await getSecretSantaImageField(eventId);
+  // A previous attempt may have deleted it before its response was lost.
+  if (!currentFields) return;
 
   const { error } = await supabase.rpc("delete_secret_santa_event", {
     p_event_id: eventId,
