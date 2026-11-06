@@ -1,9 +1,10 @@
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
 import {
   BottomSheet,
   BottomSheetHeader,
   BottomSheetScrollView,
   type BottomSheetRef,
-  useSheetContentDetent,
 } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -56,9 +57,7 @@ export function FriendGroupSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
-  // Scrollable and sized to its content, so the form never gets cut off when the keyboard
-  // pushes the sheet up — the rest of it scrolls instead.
-  const { detent, onContentSizeChange, onHeaderLayout } = useSheetContentDetent();
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
   const membersQuery = useFriendGroupMembers(group?.id);
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
@@ -138,15 +137,10 @@ export function FriendGroupSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
-      detents={[detent]}
-      footerInsetMode="scroll-content"
+      scrollableRef={sheetScrollRef}
+      detents={["auto"]}
       onDidDismiss={() => onOpenChange(false)}
-      header={
-        <View onLayout={onHeaderLayout}>
-          <BottomSheetHeader title={group ? t("Edit group") : t("Create a group")} />
-        </View>
-      }
+      header={<BottomSheetHeader title={group ? t("Edit group") : t("Create a group")} />}
       footer={
         <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button
@@ -176,11 +170,11 @@ export function FriendGroupSheet({
       }
     >
       <BottomSheetScrollView
+        ref={sheetScrollRef}
         className="max-h-full"
         contentContainerClassName="gap-3 px-5"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        onContentSizeChange={onContentSizeChange}
       >
         <View className="gap-1.5">
           <Text className="text-sm font-bold text-text">{t("Group name")}</Text>

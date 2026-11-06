@@ -1,4 +1,5 @@
 import { hapticError, hapticSelection } from "@/lib/haptics";
+import type { FlashListRef } from "@shopify/flash-list";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
@@ -193,6 +194,7 @@ export function PeoplePickerSheet({
   const [confirmPending, setConfirmPending] = React.useState(false);
   const [confirmError, setConfirmError] = React.useState<string | null>(null);
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const sheetScrollRef = React.useRef<FlashListRef<PeoplePickerItem>>(null);
   const searchInputRef = React.useRef<TextInput>(null);
   // Edited as a draft so Cancel — and a swipe-down, which is the same gesture — leaves
   // the host form exactly as it was.
@@ -299,14 +301,9 @@ export function PeoplePickerSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
-      // Single detent: this sheet exists to be full screen, and `auto` cannot be combined
-      // with `scrollable` anyway.
+      scrollableRef={sheetScrollRef}
       detents={[0.94]}
       scrollableOptions={{ keyboardScrollOffset: 16 }}
-      dismissKeyboardOnTouch={false}
-      // Focusing on present rather than with `autoFocus`, which TrueSheet does not
-      // support inside a sheet.
       onDidPresent={autoFocusSearch ? () => searchInputRef.current?.focus() : undefined}
       onDidDismiss={onClose}
       header={
@@ -403,6 +400,7 @@ export function PeoplePickerSheet({
       }
     >
       <StyledFlashList
+        ref={sheetScrollRef}
         data={showsResults ? visibleItems : []}
         renderItem={({ item }) => (
           <PersonRow item={item} selected={draftIds.has(item.id)} onPress={() => toggle(item)} />
