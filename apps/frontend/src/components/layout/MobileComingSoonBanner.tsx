@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useGT } from "gt-next";
-import { Smartphone, X, Sparkles } from "lucide-react";
+import { Smartphone, X } from "lucide-react";
 import styles from "./MobileComingSoonBanner.module.scss";
 
 const COOKIE_NAME = "mobile_banner_dismissed";
@@ -19,17 +19,13 @@ export function MobileComingSoonBanner({ initiallyDismissed = false }: Props) {
 
   return (
     <div className={styles.banner}>
-      <div className={styles.shimmer} />
       <div className={styles.content}>
-        <span className={styles.iconWrap}>
-          <Smartphone size={15} />
-        </span>
+        <Smartphone size={15} className={styles.icon} />
         <span className={styles.text}>
           {t("Mobile App Coming Soon", {
             $id: "banner.mobileComingSoon",
           })}
         </span>
-        <Sparkles size={13} className={styles.sparkle} />
       </div>
       <button
         type="button"

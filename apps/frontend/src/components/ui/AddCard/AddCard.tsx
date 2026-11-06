@@ -23,8 +23,9 @@ export function AddCard({ onClick, label, hasDraft = false, guideTarget }: Props
     >
       {hasDraft && <DraftBadge variant="dot" className={styles.draftDot} />}
       <span className={styles.plus} aria-hidden="true">
-        <Plus strokeWidth={1.25} />
+        <Plus strokeWidth={2} />
       </span>
+      <span>{label}</span>
     </button>
   );
 }
