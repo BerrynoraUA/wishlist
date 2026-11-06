@@ -157,17 +157,17 @@ export function AccountSettings({
         icon={UserCog}
         headerAction={
           <Button
-            variant="destructive"
+            variant="destructiveSoft"
             size="sm"
             hitSlop={8}
-            className="h-8 px-3"
+            className="h-8 rounded-full px-3"
             onPress={(event) => {
               event.stopPropagation();
               void signOut();
             }}
             onPressIn={(event) => event.stopPropagation()}
           >
-            <Icon as={LogOut} className="size-4 text-white" />
+            <Icon as={LogOut} className="size-4 text-destructive dark:text-red-300" />
             <Text>{t("Log out")}</Text>
           </Button>
         }

@@ -1,6 +1,7 @@
 import { InlineState } from "@/components/shared/inline-state";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { useSlideOutPanel } from "@/components/ui/slide-out-filter-panel";
+import { HeroStatusBar } from "@/components/ui/hero-status-bar";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { StatusBarScrim } from "@/components/ui/status-bar-scrim";
 import { Text } from "@/components/ui/text";
@@ -506,6 +507,7 @@ export default function WishlistDetailScreen() {
             extraData={listExtraData}
           />
         )}
+        {wishlist ? <HeroStatusBar active={!scrimVisible} /> : null}
         <StatusBarScrim visible={scrimVisible} />
         <FloatingBackButton scrolledAway={backButtonHidden} />
         {sheet?.type === "edit" ? (

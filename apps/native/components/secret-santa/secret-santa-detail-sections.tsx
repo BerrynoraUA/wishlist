@@ -19,7 +19,7 @@ import { MascotEmptyState, type MascotVariant } from "@/components/shared/mascot
 import { useGiftSuggestions } from "@/hooks/use-secret-santa";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
 import {
-  formatSecretSantaDate,
+  formatSecretSantaDateCompact,
   getSecretSantaPersonName,
   MIN_PARTICIPANTS_TO_LAUNCH,
   getSecretSantaAccent,
@@ -58,7 +58,7 @@ import type { LucideIcon } from "lucide-react-native";
 
 function HeroChip({ icon, label }: { icon: LucideIcon; label: string }) {
   return (
-    <View className="h-9 min-w-0 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/35 bg-white/25 px-3">
+    <View className="h-9 min-w-0 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-white/25 bg-black/40 px-3">
       <Icon as={icon} className="size-3.5 text-white" />
       <Text className="text-xs font-bold text-white" numberOfLines={1}>
         {label}
@@ -94,7 +94,7 @@ export function SecretSantaDetailHero({
   const hasActionsMenu = isOwner;
   const headerActionsCount = Number(hasActionsMenu);
   const headerActionsRightPadding = headerActionsCount === 1 ? "pe-12" : "";
-  const eventDateLabel = formatSecretSantaDate(event.event_date, locale ?? "en");
+  const eventDateLabel = formatSecretSantaDateCompact(event.event_date, locale ?? "en");
   const budgetLabel = formatPrice(event.budget, event.currency);
   const peopleCountLabel = formatSecretSantaPeopleCount(totalPeople, t);
 
@@ -108,10 +108,11 @@ export function SecretSantaDetailHero({
           <StyledImage
             source={{ uri: event.image_url }}
             contentFit="cover"
-            className="absolute inset-0 size-full"
+            blurRadius={6}
+            className="absolute inset-0 size-full opacity-60"
           />
         ) : null}
-        <View className="absolute inset-0 bg-black/25" />
+        <View className="absolute inset-0 bg-linear-to-b from-black/55 via-black/40 to-black/55" />
       </ScreenTopBackdrop>
 
       <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
@@ -127,7 +128,7 @@ export function SecretSantaDetailHero({
                     accessibilityRole="button"
                     accessibilityLabel={t("Secret Santa actions")}
                     hitSlop={6}
-                    className="size-9 items-center justify-center rounded-full border border-white/35 bg-white/25"
+                    className="size-9 items-center justify-center rounded-full border border-white/25 bg-black/40"
                   >
                     <Icon as={MoreHorizontal} className="size-4 text-white" />
                   </AnimatedPressable>
@@ -159,7 +160,7 @@ export function SecretSantaDetailHero({
         <View className="gap-4">
           {event.image_url ? (
             <View className="flex-row items-start gap-3">
-              <View className="mt-2 size-24 shrink-0 overflow-hidden rounded-2xl border border-white/35 bg-white/15">
+              <View className="size-24 shrink-0 overflow-hidden rounded-2xl border border-white/35 bg-white/15">
                 <StyledImage
                   source={{ uri: event.image_url }}
                   contentFit="cover"
@@ -168,21 +169,16 @@ export function SecretSantaDetailHero({
                   className="size-full"
                 />
               </View>
-              <View className="min-w-0 flex-1" style={{ minHeight: 104 }}>
-                <View
-                  className={cn(
-                    headerActionsCount > 0 && "min-h-9 justify-center",
-                    headerActionsCount > 0 && headerActionsRightPadding,
-                  )}
-                  style={{ minHeight: headerActionsCount > 0 ? 36 : undefined }}
-                >
-                  <Text
-                    className="text-[21px] font-extrabold leading-6 text-white"
-                    numberOfLines={3}
-                  >
-                    {event.name}
-                  </Text>
-                </View>
+              <View
+                className={cn(
+                  "min-w-0 flex-1 justify-center",
+                  headerActionsCount > 0 && headerActionsRightPadding,
+                )}
+                style={{ minHeight: 96 }}
+              >
+                <Text className="text-[21px] font-extrabold leading-6 text-white" numberOfLines={3}>
+                  {event.name}
+                </Text>
               </View>
             </View>
           ) : (
@@ -276,7 +272,7 @@ export function SecretSantaPeopleSection({
             const excludedCount = isPendingInvite ? 0 : (exclusions?.[person.id]?.size ?? 0);
 
             return (
-              <View key={key} className="overflow-hidden rounded-xl bg-bg-subtle">
+              <View key={key} className="overflow-hidden rounded-lg bg-bg-subtle">
                 <Pressable
                   accessibilityRole={canEditExclusions ? "button" : undefined}
                   accessibilityState={canEditExclusions ? { expanded: isExpanded } : undefined}
@@ -289,7 +285,7 @@ export function SecretSantaPeopleSection({
                 >
                   <SecretSantaPersonAvatar person={person} />
                   <View className="min-w-0 flex-1">
-                    <Text className="font-extrabold text-text" numberOfLines={1}>
+                    <Text className="font-bold text-text" numberOfLines={1}>
                       {getSecretSantaPersonName(person, t)}
                     </Text>
                     <Text className="text-sm text-text-muted" numberOfLines={1}>

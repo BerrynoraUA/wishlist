@@ -129,7 +129,7 @@ export function WishlistItemFilterBar({
           className="min-w-0 flex-1 text-xl font-extrabold tracking-tight text-text"
           numberOfLines={1}
         >
-          {itemsCount === 1 ? t("1 Item") : t("{count} Items", { count: itemsCount })}
+          {itemsCount === 1 ? t("1 item") : t("{count} items", { count: itemsCount })}
         </Text>
         <FilterActions
           active={active}

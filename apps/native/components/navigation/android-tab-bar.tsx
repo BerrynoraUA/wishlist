@@ -14,36 +14,21 @@ import { useReducedMotion } from "@/lib/motion";
 import { NATIVE_ACCENTS, getThemeAccent } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { useGT } from "gt-react-native";
-import { Plus } from "lucide-react-native";
+import { CircleUserRound, Gift, Plus, Users, type LucideIcon } from "lucide-react-native";
 import * as React from "react";
-import { I18nManager, Image, View } from "react-native";
+import { I18nManager, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
-import Svg, { Path } from "react-native-svg";
+import Svg, { Circle, Path } from "react-native-svg";
 import { useCSSVariable, useUniwind } from "uniwind";
 
 const FAB_OVERHANG = NAV_TAB_BAR_FAB_OVERHANG;
 const FAB_SIZE = 52;
 const TAB_BAR_TOP_PADDING = NAV_TAB_BAR_TOP_PADDING;
 const BACKDROP_TOP = TAB_BAR_TOP_PADDING + NAV_TAB_BAR_HEIGHT / 2 + NAV_TAB_BAR_BACKDROP_OFFSET;
-const INDICATOR_VERTICAL_INSET = 7;
+const INDICATOR_TOP = 5;
+const INDICATOR_HEIGHT = 30;
+const INDICATOR_WIDTH = 56;
 const INDICATOR_SPRING = { damping: 18, stiffness: 220, mass: 0.7 };
-
-/**
- * Material Symbols (rounded) path data, viewBox "0 -960 960 960". These are
- * the same glyphs the native tab bar rendered via the `md` prop — kept so the
- * custom Android bar stays visually familiar. Source:
- * github.com/google/material-design-icons.
- */
-const MATERIAL_GLYPHS = {
-  featured_seasonal_and_gifts:
-    "M160-160v-360q-33 0-56.5-23.5T80-600v-80q0-33 23.5-56.5T160-760h128q-5-9-6.5-19t-1.5-21q0-50 35-85t85-35q23 0 43 8.5t37 23.5q17-16 37-24t43-8q50 0 85 35t35 85q0 11-2 20.5t-6 19.5h128q33 0 56.5 23.5T880-680v80q0 33-23.5 56.5T800-520v360q0 33-23.5 56.5T720-80H240q-33 0-56.5-23.5T160-160Zm400-680q-17 0-28.5 11.5T520-800q0 17 11.5 28.5T560-760q17 0 28.5-11.5T600-800q0-17-11.5-28.5T560-840Zm-200 40q0 17 11.5 28.5T400-760q17 0 28.5-11.5T440-800q0-17-11.5-28.5T400-840q-17 0-28.5 11.5T360-800ZM160-680v80h280v-80H160Zm280 520v-360H240v360h200Zm80 0h200v-360H520v360Zm280-440v-80H520v80h280Z",
-  group:
-    "M40-272q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v32q0 33-23.5 56.5T600-160H120q-33 0-56.5-23.5T40-240v-32Zm698 112q11-18 16.5-38.5T760-240v-40q0-44-24.5-84.5T666-434q51 6 96 20.5t84 35.5q36 20 55 44.5t19 53.5v40q0 33-23.5 56.5T840-160H738ZM360-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm400-160q0 66-47 113t-113 47q-11 0-28-2.5t-28-5.5q27-32 41.5-71t14.5-81q0-42-14.5-81T544-792q14-5 28-6.5t28-1.5q66 0 113 47t47 113Z",
-  account_circle:
-    "M234-276q51-39 114-61.5T480-360q69 0 132 22.5T726-276q35-41 54.5-93T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 59 19.5 111t54.5 93Zm246-164q-59 0-99.5-40.5T340-580q0-59 40.5-99.5T480-720q59 0 99.5 40.5T620-580q0 59-40.5 99.5T480-440Zm0 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q53 0 100-15.5t86-44.5q-39-29-86-44.5T480-280q-53 0-100 15.5T294-220q39 29 86 44.5T480-160Zm0-360q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm0-60Zm0 360Z",
-} as const;
-
-type MaterialGlyphName = keyof typeof MATERIAL_GLYPHS;
 
 /**
  * Structural types for the pieces of React Navigation's BottomTabBarProps we
@@ -74,23 +59,36 @@ export type AndroidTabBarProps = {
 };
 
 type TabSlot =
-  | { kind: "tab"; name: string; label: string; glyph: MaterialGlyphName }
-  | { kind: "tab"; name: string; label: string; image: number }
+  | { kind: "tab"; name: string; label: string; icon: LucideIcon | "santa" }
   | { kind: "create"; label: string };
 
-function MaterialGlyph({
-  name,
-  color,
-  size = 24,
-}: {
-  name: MaterialGlyphName;
-  color: string;
-  size?: number;
-}) {
+/** Outline Santa hat drawn on Lucide's grid, so it matches the other tab icons. */
+function SantaHatIcon({ color, strokeWidth }: { color: string; strokeWidth: number }) {
   return (
-    <Svg width={size} height={size} viewBox="0 -960 960 960">
-      <Path d={MATERIAL_GLYPHS[name]} fill={color} />
+    <Svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <Path d="M5 16C5 9.5 8.2 4.5 13 4.5c3.4 0 5.6 2.2 6.4 5.6" />
+      <Path d="M18 16c0-2.8-1-5-3-6.5" />
+      <Path d="M5 16h13.5a2 2 0 0 1 0 4H5a2 2 0 0 1 0-4Z" />
+      <Circle cx={19.5} cy={12} r={1.75} />
     </Svg>
+  );
+}
+
+/** The raised Create button's gradient, following the user's accent. */
+export function getFabGradientClassName(theme: string) {
+  const accent = getThemeAccent(theme);
+  return (
+    NATIVE_ACCENTS.find((entry) => entry.name === accent)?.swatchClassName ??
+    NATIVE_ACCENTS[0].swatchClassName
   );
 }
 
@@ -114,10 +112,7 @@ export function AndroidTabBar({
   const bottomSafeAreaPadding = useBottomSafeAreaPadding();
   const reduceMotion = useReducedMotion();
   const { theme } = useUniwind();
-  const accent = getThemeAccent(theme);
-  const fabGradientClassName =
-    NATIVE_ACCENTS.find((entry) => entry.name === accent)?.swatchClassName ??
-    NATIVE_ACCENTS[0].swatchClassName;
+  const fabGradientClassName = getFabGradientClassName(theme);
 
   const activeColor = cssColor(useCSSVariable("--color-brand"), "#208aef");
   const inactiveColor = cssColor(useCSSVariable("--color-text-muted"), "#6b7280");
@@ -127,17 +122,17 @@ export function AndroidTabBar({
       kind: "tab",
       name: "wishlists",
       label: t("Wishlists"),
-      glyph: "featured_seasonal_and_gifts",
+      icon: Gift,
     },
     {
       kind: "tab",
       name: "secret-santa",
       label: t("Secret Santa"),
-      image: require("@/assets/images/secret-santa-tab.png"),
+      icon: "santa",
     },
     { kind: "create", label: t("Create") },
-    { kind: "tab", name: "friends", label: t("Friends"), glyph: "group" },
-    { kind: "tab", name: "profile", label: t("Profile"), glyph: "account_circle" },
+    { kind: "tab", name: "friends", label: t("Friends"), icon: Users },
+    { kind: "tab", name: "profile", label: t("Profile"), icon: CircleUserRound },
   ];
 
   const [barWidth, setBarWidth] = React.useState(0);
@@ -145,7 +140,7 @@ export function AndroidTabBar({
   const focusedName = state.routes[state.index]?.name;
   const selectedSlot = slots.findIndex((slot) => slot.kind === "tab" && slot.name === focusedName);
 
-  const indicatorWidth = Math.max(0, Math.min(slotWidth - 10, 76));
+  const indicatorWidth = Math.min(slotWidth, INDICATOR_WIDTH);
   const indicatorTarget =
     selectedSlot >= 0
       ? slotWidth * (I18nManager.isRTL ? slots.length - 1 - selectedSlot : selectedSlot) +
@@ -153,17 +148,24 @@ export function AndroidTabBar({
       : 0;
 
   const indicatorX = useSharedValue(indicatorTarget);
-  const hasMeasured = React.useRef(false);
+  // A value set while the sliding pill attaches can be dropped, leaving it at the bar's
+  // start, so a static pill holds the spot until the first move between tabs.
+  const [hasSlid, setHasSlid] = React.useState(false);
+  const previousTarget = React.useRef<number | null>(null);
 
   React.useEffect(() => {
     if (slotWidth <= 0 || selectedSlot < 0) return;
-    if (!hasMeasured.current || reduceMotion) {
+    const previous = previousTarget.current;
+    previousTarget.current = indicatorTarget;
+    if (previous === null || previous === indicatorTarget) return;
+    if (reduceMotion) {
       indicatorX.set(indicatorTarget);
-      hasMeasured.current = true;
-      return;
+    } else {
+      if (!hasSlid) indicatorX.set(previous);
+      indicatorX.set(withSpring(indicatorTarget, INDICATOR_SPRING));
     }
-    indicatorX.set(withSpring(indicatorTarget, INDICATOR_SPRING));
-  }, [indicatorTarget, indicatorX, reduceMotion, selectedSlot, slotWidth]);
+    setHasSlid(true);
+  }, [hasSlid, indicatorTarget, indicatorX, reduceMotion, selectedSlot, slotWidth]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: indicatorX.get() }],
@@ -206,28 +208,42 @@ export function AndroidTabBar({
     >
       <View
         pointerEvents="none"
-        className="absolute inset-x-0 bottom-0 bg-bg/95"
-        style={{ top: BACKDROP_TOP }}
+        className="absolute inset-x-0 bottom-0 bg-linear-to-t from-bg from-65% to-bg/0"
+        style={{ top: BACKDROP_TOP - NAV_TAB_BAR_HEIGHT / 2 }}
       />
       <View
-        className="flex-row rounded-full border border-border-subtle bg-card shadow-[0px_6px_18px_rgba(15,23,42,0.16)]"
+        className="flex-row rounded-full border border-border-subtle bg-card shadow-[0px_6px_18px_rgba(15,23,42,0.16)] dark:bg-bg-muted"
         style={{ height: NAV_TAB_BAR_HEIGHT }}
         onLayout={(event) => setBarWidth(event.nativeEvent.layout.width)}
       >
         {slotWidth > 0 && selectedSlot >= 0 ? (
-          <Animated.View
-            pointerEvents="none"
-            className="absolute rounded-full bg-brand-lighter"
-            style={[
-              {
-                top: INDICATOR_VERTICAL_INSET,
-                left: 0,
-                height: NAV_TAB_BAR_HEIGHT - INDICATOR_VERTICAL_INSET * 2 - 2,
+          <>
+            <View
+              pointerEvents="none"
+              className="absolute rounded-full bg-brand-lighter"
+              style={{
+                top: INDICATOR_TOP,
+                left: indicatorTarget,
+                height: INDICATOR_HEIGHT,
                 width: indicatorWidth,
-              },
-              indicatorStyle,
-            ]}
-          />
+                opacity: hasSlid ? 0 : 1,
+              }}
+            />
+            <Animated.View
+              pointerEvents="none"
+              className="absolute rounded-full bg-brand-lighter"
+              style={[
+                {
+                  top: INDICATOR_TOP,
+                  left: 0,
+                  height: INDICATOR_HEIGHT,
+                  width: indicatorWidth,
+                  opacity: hasSlid ? 1 : 0,
+                },
+                indicatorStyle,
+              ]}
+            />
+          </>
         ) : null}
         {slots.map((slot) => {
           if (slot.kind === "create") {
@@ -276,19 +292,14 @@ export function AndroidTabBar({
                 onPress={() => handleTabPress(route, isFocused)}
                 className="flex-1 items-center justify-center gap-0.5 overflow-hidden rounded-full"
               >
-                {"image" in slot ? (
-                  <Image
-                    source={slot.image}
-                    style={{ width: 24, height: 24, tintColor: color }}
-                    resizeMode="contain"
-                  />
+                {slot.icon === "santa" ? (
+                  <SantaHatIcon color={color} strokeWidth={isFocused ? 2.4 : 1.9} />
                 ) : (
-                  <MaterialGlyph name={slot.glyph} color={color} />
+                  <slot.icon color={color} size={24} strokeWidth={isFocused ? 2.4 : 1.9} />
                 )}
                 <Text
                   numberOfLines={1}
-                  adjustsFontSizeToFit
-                  minimumFontScale={0.8}
+                  maxFontSizeMultiplier={1.1}
                   style={{ includeFontPadding: false, textAlignVertical: "center" }}
                   className={cn(
                     "max-w-full px-0.5 text-center text-xs leading-4 font-semibold",

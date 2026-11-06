@@ -240,9 +240,7 @@ export function Subscription({
 
           <View className="gap-5 px-6">
             <View className="gap-2">
-              <Text className="text-3xl font-bold tracking-tight text-white">
-                {t("Wishlane Pro")}
-              </Text>
+              <Text className="text-3xl font-bold text-white">{t("Wishlane Pro")}</Text>
               <Text className="text-base text-white/75">
                 {t("More room, smarter lists, and better sharing.")}
               </Text>

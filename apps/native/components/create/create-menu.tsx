@@ -16,7 +16,13 @@ import { showToast } from "@/components/ui/toast";
 import { useProGate } from "@/hooks/use-pro-gate";
 import { useInfiniteSecretSantaEvents } from "@/hooks/use-secret-santa";
 import { useMyStatistics, useWishlistById } from "@/hooks/use-wishlists";
-import { NAV_TAB_BAR_HEIGHT } from "@/lib/layout";
+import { getFabGradientClassName } from "@/components/navigation/android-tab-bar";
+import {
+  NAV_TAB_BAR_FAB_OVERHANG,
+  NAV_TAB_BAR_HEIGHT,
+  useBottomSafeAreaPadding,
+} from "@/lib/layout";
+import { cn } from "@/lib/utils";
 import { isWishlistDetailPath } from "@/lib/routes";
 import { extractSharedProductUrl } from "@/lib/share-intent";
 import {
@@ -39,9 +45,11 @@ import {
   Star,
   UserPlus,
   Users,
+  X,
   type LucideIcon,
 } from "lucide-react-native";
 import { useGT } from "gt-react-native";
+import { useUniwind } from "uniwind";
 import * as React from "react";
 import { Platform, Pressable, View, useWindowDimensions } from "react-native";
 import Animated, {
@@ -576,12 +584,17 @@ function CreateFloatingMenuContent({
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
 
-  const menuBottom = Math.max(insets.bottom, 8) + NAV_TAB_BAR_HEIGHT + 12;
+  const menuBottom = Math.max(insets.bottom, 8) + NAV_TAB_BAR_HEIGHT + 24;
+  const { theme } = useUniwind();
+  const bottomSafeAreaPadding = useBottomSafeAreaPadding();
+  const fabSize = 52;
+  const closeFabBottom =
+    bottomSafeAreaPadding + (NAV_TAB_BAR_HEIGHT - fabSize) / 2 + NAV_TAB_BAR_FAB_OVERHANG;
 
   return (
     <View className="absolute inset-0" style={{ zIndex: 10000 }}>
       <Animated.View
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-black/70"
         entering={FadeIn.duration(180)}
         exiting={FadeOut.duration(150)}
       >
@@ -592,6 +605,28 @@ function CreateFloatingMenuContent({
           onPress={onClose}
         />
       </Animated.View>
+      {Platform.OS === "android" ? (
+        <Animated.View
+          className="absolute start-0 end-0 items-center"
+          pointerEvents="box-none"
+          style={{ bottom: closeFabBottom }}
+          entering={FadeIn.duration(120)}
+          exiting={FadeOut.duration(120)}
+        >
+          <AnimatedPressable
+            accessibilityRole="button"
+            accessibilityLabel={t("Close create menu")}
+            onPress={onClose}
+            className={cn(
+              "items-center justify-center overflow-hidden rounded-full",
+              getFabGradientClassName(theme),
+            )}
+            style={{ width: fabSize, height: fabSize }}
+          >
+            <Icon as={X} className="size-7 text-white" strokeWidth={2.5} />
+          </AnimatedPressable>
+        </Animated.View>
+      ) : null}
       <View
         className="absolute start-0 end-0 items-center gap-2.5"
         pointerEvents="box-none"
@@ -637,7 +672,7 @@ function CreateMenuButton({ entry, onPress }: { entry: CreateMenuEntry; onPress:
       accessibilityRole="button"
       accessibilityLabel={entry.label}
       onPress={onPress}
-      className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg py-2.5 ps-2.5 pe-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
+      className="w-60 flex-row items-center gap-3 rounded-full border border-border-subtle bg-card-bg dark:bg-bg-muted py-2.5 ps-2.5 pe-5 shadow-[0px_10px_22px_rgba(15,23,42,0.22)]"
     >
       <View className="size-10 items-center justify-center rounded-full bg-brand-lighter">
         <Icon as={entry.icon} className="size-5 text-brand" />

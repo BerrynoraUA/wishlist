@@ -46,8 +46,8 @@ export default function BugsScreen() {
   const listHeader = (
     <View className="gap-4 pb-4">
       {!introDismissed ? (
-        <View className="flex-row items-start gap-3 rounded-xl border border-info/20 bg-info-bg p-4">
-          <Icon as={Info} className="mt-0.5 size-5 shrink-0 text-info" />
+        <View className="flex-row items-start gap-3 rounded-xl border border-brand/20 bg-brand-lighter p-4">
+          <Icon as={Info} className="mt-0.5 size-5 shrink-0 text-brand" />
           <Text className="min-w-0 flex-1 text-sm leading-5 text-text">
             {t(
               "Found something broken? Report it here. Once we confirm a bug it shows up on this board, so you can follow along as we work through it.",
@@ -60,7 +60,7 @@ export default function BugsScreen() {
             onPress={() => setIntroDismissed(true)}
             className="-me-2 -mt-2 rounded-full"
           >
-            <Icon as={X} className="size-4 text-info" />
+            <Icon as={X} className="size-4 text-brand" />
           </Button>
         </View>
       ) : null}

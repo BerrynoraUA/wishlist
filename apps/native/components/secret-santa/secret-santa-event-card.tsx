@@ -77,7 +77,7 @@ export function SecretSantaEventCard({
                   />
                 )}
                 {event.is_owner ? (
-                  <View className="absolute end-3 top-3 rounded-full border border-white/35 bg-white/25 px-2 py-1">
+                  <View className="absolute end-3 top-3 rounded-full border border-white/25 bg-black/50 px-2 py-1">
                     <Text className="text-[11px] font-extrabold text-white">{t("Owner")}</Text>
                   </View>
                 ) : null}
@@ -86,7 +86,7 @@ export function SecretSantaEventCard({
               <View className="gap-3 p-4">
                 <View className="flex-row items-start justify-between gap-3">
                   <View className="min-w-0 flex-1 gap-1">
-                    <Text className="text-lg font-extrabold text-text" numberOfLines={2}>
+                    <Text className="text-base font-bold leading-5 text-text" numberOfLines={2}>
                       {event.name}
                     </Text>
                     <Text className="text-sm font-semibold text-brand" numberOfLines={1}>

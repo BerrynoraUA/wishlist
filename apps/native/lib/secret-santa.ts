@@ -30,6 +30,13 @@ export function formatSecretSantaDate(dateStr: string, locale = "en") {
   );
 }
 
+/** For tight spots like hero chips, where the long form truncates. */
+export function formatSecretSantaDateCompact(dateStr: string, locale = "en") {
+  return getDateTimeFormat(locale, { month: "short", day: "numeric", year: "numeric" }).format(
+    new Date(`${dateStr}T00:00:00`),
+  );
+}
+
 export function buildSecretSantaJoinUrl(eventId: string) {
   const baseUrl = (process.env.EXPO_PUBLIC_WEB_URL ?? "https://wishlane.net").replace(/\/$/, "");
   return `${baseUrl}/secret-santa/join?event=${eventId}`;

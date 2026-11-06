@@ -18,6 +18,7 @@ import {
   type ActionBottomSheetMessagePayload,
 } from "@/components/ui/action-bottom-sheet";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
+import { HeroStatusBar } from "@/components/ui/hero-status-bar";
 import { StatusBarScrim } from "@/components/ui/status-bar-scrim";
 import { useScrollChrome } from "@/hooks/use-scroll-chrome";
 import { useFloatingBackButtonContentPadding } from "@/lib/layout";
@@ -245,6 +246,7 @@ export default function SecretSantaDetailScreen() {
           </View>
         </ScrollView>
 
+        {data ? <HeroStatusBar active={!scrimVisible} /> : null}
         <StatusBarScrim visible={scrimVisible} />
         <FloatingBackButton scrolledAway={backButtonHidden} />
       </View>

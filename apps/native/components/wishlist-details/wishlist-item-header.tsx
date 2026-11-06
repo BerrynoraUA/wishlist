@@ -225,7 +225,7 @@ export function WishlistItemHeader({
       onPress={openDetails}
       onLongPress={canInlineEdit ? startDescriptionEditing : undefined}
     >
-      <Text className="mt-2 text-sm leading-5 text-white/80" numberOfLines={3}>
+      <Text className="mt-2 text-sm leading-5 text-white/90" numberOfLines={3}>
         {wishlist.description || t("Add a short description")}
       </Text>
     </AnimatedPressable>
@@ -276,6 +276,7 @@ export function WishlistItemHeader({
         <ScreenTopBackdrop>
           <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
           <View className="absolute inset-0 bg-black/20" />
+          <View className="absolute inset-x-0 top-0 h-20 bg-linear-to-b from-black/35 to-black/0" />
         </ScreenTopBackdrop>
         <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
           {hasButtonsRow || hasActionsMenu ? (
@@ -298,7 +299,7 @@ export function WishlistItemHeader({
           <View className="gap-4">
             {wishlist.image_url ? (
               <View className="flex-row items-start gap-3">
-                <View className="mt-2 size-24 shrink-0 overflow-hidden rounded-2xl border border-white/35 bg-white/15">
+                <View className="size-24 shrink-0 overflow-hidden rounded-2xl border border-white/35 bg-white/15">
                   <StyledImage
                     source={{ uri: wishlist.image_url }}
                     contentFit="cover"

@@ -120,7 +120,7 @@ export function FloatingBackButton({
         className={cn(
           "size-14 items-center justify-center rounded-full border border-glass-border bg-glass-bg shadow-lg",
           process.env.EXPO_OS === "android" &&
-            "overflow-hidden border-brand-alpha-20 bg-brand-lighter shadow-md",
+            "size-12 overflow-hidden border-border bg-card-bg shadow-md",
         )}
       >
         <Icon
