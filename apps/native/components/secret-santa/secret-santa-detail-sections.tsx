@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { HeroStatusBar } from "@/components/ui/hero-status-bar";
 import { ScreenTopBackdrop } from "@/components/ui/screen-top-backdrop";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
@@ -101,7 +100,6 @@ export function SecretSantaDetailHero({
 
   return (
     <View className="w-full self-stretch border-b border-border-subtle">
-      <HeroStatusBar />
       <ScreenTopBackdrop>
         <View
           className={cn("absolute inset-0", getWishlistAccentClass(getSecretSantaAccent(event.id)))}
