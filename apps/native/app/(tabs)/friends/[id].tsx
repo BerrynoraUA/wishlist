@@ -1,12 +1,14 @@
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { Icon } from "@/components/ui/icon";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
+import { StatusBarScrim } from "@/components/ui/status-bar-scrim";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
 import { ZoomLink } from "@/components/ui/zoom-link";
 import { useInfiniteListData } from "@/hooks/use-infinite-page";
+import { useScrollChrome } from "@/hooks/use-scroll-chrome";
 import { useInfiniteFriendWishlists } from "@/hooks/use-wishlists";
-import { chunkRows, useTabBarContentPadding } from "@/lib/layout";
+import { chunkRows, useFloatingBackButtonContentPadding } from "@/lib/layout";
 import {
   WISHLIST_PAGE_SIZE,
   WISHLIST_VISIBILITY_ICONS,
@@ -34,7 +36,8 @@ function getWishlistRowKey(row: Wishlist[]) {
 export default function FriendWishlistsScreen() {
   const t = useGT();
   const insets = useSafeAreaInsets();
-  const paddingBottom = useTabBarContentPadding();
+  const paddingBottom = useFloatingBackButtonContentPadding();
+  const { backButtonHidden, onScroll } = useScrollChrome();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const friendId = Array.isArray(id) ? (id[0] ?? "") : (id ?? "");
@@ -78,6 +81,8 @@ export default function FriendWishlistsScreen() {
           keyExtractor={getWishlistRowKey}
           className="flex-1"
           contentContainerStyle={contentContainerStyle}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           ItemSeparatorComponent={RowSeparator}
           onEndReached={loadMoreWishlists}
           isLoadingMore={wishlistsQuery.isFetchingNextPage}
@@ -117,7 +122,8 @@ export default function FriendWishlistsScreen() {
           extraData={listExtraData}
         />
 
-        <FloatingBackButton />
+        <StatusBarScrim />
+        <FloatingBackButton scrolledAway={backButtonHidden} />
       </View>
     </>
   );
