@@ -42,7 +42,7 @@ export function FriendCard({
               @{friend.nickname}
             </Text>
           ) : null}
-          <Text className="text-xs text-text-muted" numberOfLines={1}>
+          <Text className="text-label text-text-muted" numberOfLines={1}>
             {friend.wishlists_count === 1
               ? t("1 wishlist · {mutualCount} mutual", {
                   mutualCount: friend.mutual_friends_count,

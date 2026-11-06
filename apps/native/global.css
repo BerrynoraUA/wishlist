@@ -60,7 +60,7 @@
     --theme-light-color-accent: oklch(0.949 0.0285 343.569);
     --theme-light-color-accent-foreground: oklch(0.4693 0.171 351.08);
     --theme-light-color-destructive: oklch(0.5054 0.1905 27.518);
-    --theme-light-color-input: oklch(0.9413 0.0143 343.212 / 0.8);
+    --theme-light-color-input: oklch(0.87 0.0143 343.212);
     --theme-light-color-input-focus-border: oklch(0.5473 0.2022 351.459 / 0.4);
     --theme-light-color-brand-alpha-12: oklch(0.5473 0.2022 351.459 / 0.12);
     --theme-light-color-brand-alpha-20: oklch(0.5473 0.2022 351.459 / 0.2);
@@ -206,7 +206,7 @@
     --theme-dark-color-card-bg: oklch(0.2015 0.0059 285.856);
     --theme-dark-color-popover: oklch(0.2015 0.0059 285.856);
     --theme-dark-color-popover-foreground: oklch(0.9557 0.0027 286.349);
-    --theme-dark-color-primary: oklch(0.6504 0.1928 349.803);
+    --theme-dark-color-primary: oklch(0.585 0.2 351);
     --theme-dark-color-primary-foreground: oklch(1 0 0);
     --theme-dark-color-secondary: oklch(0.2536 0.0075 285.856);
     --theme-dark-color-secondary-foreground: oklch(0.9557 0.0027 286.349);

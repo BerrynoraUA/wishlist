@@ -110,10 +110,11 @@ export function SecretSantaDetailHero({
           <StyledImage
             source={{ uri: event.image_url }}
             contentFit="cover"
+            blurRadius={14}
             className="absolute inset-0 size-full"
           />
         ) : null}
-        <View className="absolute inset-0 bg-black/50" />
+        <View className="absolute inset-0 bg-black/45" />
       </ScreenTopBackdrop>
 
       <View className="overflow-visible px-4 pb-4" style={{ paddingTop: topInset + 8 }}>
@@ -161,7 +162,7 @@ export function SecretSantaDetailHero({
         <View className="gap-4">
           {event.image_url ? (
             <View className="flex-row items-start gap-3">
-              <View className="mt-2 size-24 shrink-0 overflow-hidden rounded-2xl border border-white/35 bg-white/15">
+              <View className="size-24 shrink-0 overflow-hidden rounded-2xl border border-white/35 bg-white/15">
                 <StyledImage
                   source={{ uri: event.image_url }}
                   contentFit="cover"
