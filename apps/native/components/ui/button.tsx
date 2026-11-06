@@ -13,6 +13,8 @@ const buttonVariants = cva(
         default: "bg-primary active:bg-primary/90 shadow-sm shadow-black/5",
         destructive:
           "bg-destructive active:bg-destructive/90 dark:bg-destructive/60 shadow-sm shadow-black/5",
+        // For actions that are destructive but routine, like logging out; red stays quiet.
+        destructiveSoft: "border-destructive/30 bg-danger-bg active:bg-danger-bg/70 border",
         success: "bg-success active:bg-success/90 shadow-sm shadow-black/5",
         outline:
           "border-border bg-background active:bg-accent dark:bg-input/30 dark:border-input dark:active:bg-input/50 border shadow-sm shadow-black/5",
@@ -51,6 +53,7 @@ const buttonTextVariants = cva("text-text text-sm font-medium", {
     variant: {
       default: "text-primary-foreground",
       destructive: "text-white",
+      destructiveSoft: "text-destructive font-semibold",
       success: "text-white",
       outline: "group-active:text-accent-foreground",
       secondary: "text-secondary-foreground",
