@@ -81,7 +81,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         cornerRadius={process.env.EXPO_OS === "ios" ? undefined : 30}
         {...props}
         detents={detents}
-        style={[!detents.includes("auto") && { flex: 1 }, style]}
+        style={[detents.includes("auto") ? { flexShrink: 1 } : { flex: 1 }, style]}
         backgroundColor={backgroundColor ?? sheetBackground}
         grabberOptions={{ color: grabberColor, ...grabberOptions }}
         // The keyboard covers the footer's safe-area inset, so this padding is what keeps its

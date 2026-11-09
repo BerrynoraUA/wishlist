@@ -142,30 +142,33 @@ export function FriendGroupSheet({
       onDidDismiss={() => onOpenChange(false)}
       header={<BottomSheetHeader title={group ? t("Edit group") : t("Create a group")} />}
       footer={
-        <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
-          <Button
-            className="min-w-0 flex-1"
-            variant="outline"
-            disabled={isSaving}
-            onPress={handleClose}
-          >
-            <Text>{t("Cancel")}</Text>
-          </Button>
-          <GuideTarget
-            id="create-group-submit"
-            borderRadius={6}
-            portalTooltipAnchor="footer"
-            style={{ flex: 1 }}
-          >
+        <View className="w-full gap-3 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
+          {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
+          <View className="flex-row items-stretch gap-2">
             <Button
               className="min-w-0 flex-1"
-              disabled={!name.trim() || isSaving}
-              onPress={handleSubmit}
+              variant="outline"
+              disabled={isSaving}
+              onPress={handleClose}
             >
-              {isSaving ? <ActivityIndicator colorClassName="accent-white" /> : null}
-              <Text>{isSaving ? t("Saving...") : t("Save")}</Text>
+              <Text>{t("Cancel")}</Text>
             </Button>
-          </GuideTarget>
+            <GuideTarget
+              id="create-group-submit"
+              borderRadius={6}
+              portalTooltipAnchor="footer"
+              style={{ flex: 1 }}
+            >
+              <Button
+                className="min-w-0 flex-1"
+                disabled={!name.trim() || isSaving}
+                onPress={handleSubmit}
+              >
+                {isSaving ? <ActivityIndicator colorClassName="accent-white" /> : null}
+                <Text>{isSaving ? t("Saving...") : t("Save")}</Text>
+              </Button>
+            </GuideTarget>
+          </View>
         </View>
       }
     >
@@ -223,8 +226,6 @@ export function FriendGroupSheet({
           isFetchingMore={friendsQuery.isFetchingNextPage}
           onEndReached={loadMoreFriends}
         />
-
-        {error ? <Text className="text-sm font-semibold text-destructive">{error}</Text> : null}
       </BottomSheetScrollView>
     </BottomSheet>
   );

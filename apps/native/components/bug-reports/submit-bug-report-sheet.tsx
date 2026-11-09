@@ -92,25 +92,34 @@ export function SubmitBugReportSheet({
       onDidDismiss={onClose}
       header={<BottomSheetHeader title={t("Report a Bug")} />}
       footer={
-        <View className="w-full flex-row items-stretch gap-2 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
-          <Button
-            className="min-w-0 flex-1"
-            variant="outline"
-            disabled={createReport.isPending}
-            onPress={handleClose}
-          >
-            <Text>{t("Cancel")}</Text>
-          </Button>
-          <Button
-            className="min-w-0 flex-1"
-            disabled={createReport.isPending}
-            onPress={handleSubmit}
-          >
-            {createReport.isPending ? (
-              <ActivityIndicator colorClassName="accent-primary-foreground" />
-            ) : null}
-            <Text>{createReport.isPending ? t("Submitting...") : t("Submit")}</Text>
-          </Button>
+        <View className="w-full gap-3 border-t border-border-subtle bg-bg-elevated px-5 pt-3">
+          {error ? (
+            <View className="rounded-lg border border-destructive/25 bg-danger-bg p-3">
+              <Text selectable className="text-sm font-semibold text-destructive">
+                {error}
+              </Text>
+            </View>
+          ) : null}
+          <View className="flex-row items-stretch gap-2">
+            <Button
+              className="min-w-0 flex-1"
+              variant="outline"
+              disabled={createReport.isPending}
+              onPress={handleClose}
+            >
+              <Text>{t("Cancel")}</Text>
+            </Button>
+            <Button
+              className="min-w-0 flex-1"
+              disabled={createReport.isPending}
+              onPress={handleSubmit}
+            >
+              {createReport.isPending ? (
+                <ActivityIndicator colorClassName="accent-primary-foreground" />
+              ) : null}
+              <Text>{createReport.isPending ? t("Submitting...") : t("Submit")}</Text>
+            </Button>
+          </View>
         </View>
       }
     >
@@ -196,14 +205,6 @@ export function SubmitBugReportSheet({
             </View>
           )}
         </View>
-
-        {error ? (
-          <View className="rounded-lg border border-destructive/25 bg-danger-bg p-3">
-            <Text selectable className="text-sm font-semibold text-destructive">
-              {error}
-            </Text>
-          </View>
-        ) : null}
       </BottomSheetScrollView>
     </BottomSheet>
   );

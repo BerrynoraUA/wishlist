@@ -131,7 +131,7 @@
     "@types/react": "~19.2.18",
     "cross-env": "^10.1.0",
     "generaltranslation": "^9.5.1",
-    "gt": "^2.22.4",
+    "gt": "^2.27.3",
     "typescript": "~6.0.3",
     "vitest": "^5.0.2"
   }

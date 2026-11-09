@@ -400,7 +400,7 @@ export function PeoplePickerSheet({
       }
     >
       <StyledFlashList
-        ref={sheetScrollRef}
+        listRef={sheetScrollRef}
         data={showsResults ? visibleItems : []}
         renderItem={({ item }) => (
           <PersonRow item={item} selected={draftIds.has(item.id)} onPress={() => toggle(item)} />
