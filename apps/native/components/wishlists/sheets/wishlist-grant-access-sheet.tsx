@@ -162,7 +162,7 @@ export function WishlistGrantAccessSheet({
         </View>
       }
     >
-      <SheetScrollView ref={sheetScrollRef} contentContainerClassName="gap-5 px-5">
+      <SheetScrollView ref={sheetScrollRef} contentContainerClassName="gap-5 px-5 pb-3">
         <View className="gap-2 rounded-xl border border-border-subtle bg-bg-subtle p-3">
           <Text className="text-xs font-bold uppercase text-text-muted">{t("Wishlist")}</Text>
           <Text className="text-base font-extrabold text-text">{wishlistTitle}</Text>

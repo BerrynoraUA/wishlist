@@ -238,7 +238,7 @@ export function SecretSantaCreateEditSheet({
       <BottomSheetScrollView
         ref={sheetScrollRef}
         className="max-h-full"
-        contentContainerClassName="gap-5 px-5"
+        contentContainerClassName="gap-5 px-5 pb-3"
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled
         showsVerticalScrollIndicator={false}

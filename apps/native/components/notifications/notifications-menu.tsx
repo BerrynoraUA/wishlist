@@ -264,10 +264,10 @@ function NotificationsSheet({
         ) : undefined
       }
     >
-      <SheetScrollView ref={sheetScrollRef} contentContainerClassName="px-5">
-        {/* Android renders the sheet in its own layout, so the swipe-to-delete rows need a
-            gesture root of their own. */}
-        <GestureHandlerRootView>
+      {/* Android renders the sheet in its own layout, so the swipe-to-delete rows need a
+          gesture root of their own. */}
+      <GestureHandlerRootView>
+        <SheetScrollView ref={sheetScrollRef} contentContainerClassName="px-5 pb-3">
           <View className="gap-4">
             {isLoading ? (
               <NotificationsSkeleton />
@@ -291,8 +291,8 @@ function NotificationsSheet({
               </View>
             )}
           </View>
-        </GestureHandlerRootView>
-      </SheetScrollView>
+        </SheetScrollView>
+      </GestureHandlerRootView>
     </BottomSheet>
   );
 }

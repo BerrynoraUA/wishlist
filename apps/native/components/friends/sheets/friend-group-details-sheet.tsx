@@ -66,7 +66,7 @@ export function FriendGroupDetailsSheet({
       <BottomSheetScrollView
         ref={sheetScrollRef}
         className="max-h-full"
-        contentContainerClassName="gap-4 px-5"
+        contentContainerClassName="gap-4 px-5 pb-3"
         showsVerticalScrollIndicator={false}
       >
         {group.description ? (

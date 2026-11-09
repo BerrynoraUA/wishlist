@@ -378,7 +378,7 @@ export function AutocompleteDropdown({
   } = inputProps ?? {};
 
   const sheetSearch = (
-    <View className="w-full px-5 pb-3 pt-3">
+    <View className="w-full px-5 pt-3">
       <TextInput
         value={query}
         onChangeText={handleQueryChange}

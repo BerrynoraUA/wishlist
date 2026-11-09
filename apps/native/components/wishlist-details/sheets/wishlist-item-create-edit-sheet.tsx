@@ -557,7 +557,7 @@ export function WishlistItemCreateEditSheet({
         ref={sheetScrollRef}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="gap-5 px-5"
+        contentContainerClassName="gap-5 px-5 pb-3"
       >
         {form.productLinkPosition === "top" ? productLinkField : null}
 

@@ -84,7 +84,12 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         style={[!detents.includes("auto") && { flex: 1 }, style]}
         backgroundColor={backgroundColor ?? sheetBackground}
         grabberOptions={{ color: grabberColor, ...grabberOptions }}
-        footerStyle={[{ backgroundColor: backgroundColor ?? sheetBackground }, footerStyle]}
+        // The keyboard covers the footer's safe-area inset, so this padding is what keeps its
+        // actions off the keyboard, and off the screen edge on devices with no inset.
+        footerStyle={[
+          { backgroundColor: backgroundColor ?? sheetBackground, paddingBottom: 12 },
+          footerStyle,
+        ]}
         footerOptions={{
           position: props.scrollableRef ? "absolute" : "relative",
           ...footerOptions,

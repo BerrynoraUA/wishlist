@@ -196,17 +196,13 @@ export function DiscoverItemDetailSheet({
         scrollableRef={sheetScrollRef}
         detents={["auto"]}
         onDidDismiss={onClose}
-        header={
-          <View>
-            <BottomSheetHeader title={t("Item details")} />
-          </View>
-        }
+        header={<BottomSheetHeader title={t("Item details")} />}
         footer={actions}
       >
         <BottomSheetScrollView
           ref={sheetScrollRef}
           showsVerticalScrollIndicator={false}
-          contentContainerClassName="gap-5 px-5"
+          contentContainerClassName="gap-5 px-5 pb-3"
         >
           <ItemImage
             item={item}

@@ -172,7 +172,7 @@ export function FriendGroupSheet({
       <BottomSheetScrollView
         ref={sheetScrollRef}
         className="max-h-full"
-        contentContainerClassName="gap-3 px-5"
+        contentContainerClassName="gap-3 px-5 pb-3"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >

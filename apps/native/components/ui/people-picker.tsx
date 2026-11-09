@@ -333,7 +333,7 @@ export function PeoplePickerSheet({
         // the search field and the actions all stay reachable while typing.
         // Its measured height stays fixed while only the surface moves; this avoids the
         // native footer resize that otherwise makes the pinned controls jitter.
-        <View className="relative w-full gap-3 overflow-hidden px-5 pb-3 pt-3">
+        <View className="relative w-full gap-3 overflow-hidden px-5 pt-3">
           <Animated.View
             pointerEvents="none"
             className="absolute inset-0 border-t border-border-subtle bg-bg-elevated"

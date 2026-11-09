@@ -434,17 +434,13 @@ export function WishlistItemDetailSheet({
         scrollableRef={sheetScrollRef}
         detents={["auto"]}
         onDidDismiss={onClose}
-        header={
-          <View>
-            <BottomSheetHeader title={t("Item details")} />
-          </View>
-        }
+        header={<BottomSheetHeader title={t("Item details")} />}
         footer={actions ?? undefined}
       >
         <BottomSheetScrollView
           ref={sheetScrollRef}
           showsVerticalScrollIndicator={false}
-          contentContainerClassName="px-5"
+          contentContainerClassName="px-5 pb-3"
         >
           <View className="relative gap-5">
             <ItemImage

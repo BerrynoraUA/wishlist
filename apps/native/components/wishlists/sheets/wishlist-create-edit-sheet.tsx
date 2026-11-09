@@ -287,7 +287,7 @@ export function WishlistCreateEditSheet({
         ref={sheetScrollRef}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="gap-5 px-5"
+        contentContainerClassName="gap-5 px-5 pb-3"
       >
         <Field label={t("Name")}>
           <Controller

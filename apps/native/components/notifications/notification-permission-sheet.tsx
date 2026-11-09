@@ -144,7 +144,7 @@ export function NotificationPermissionSheet({ userId }: { userId: string }) {
       <BottomSheetScrollView
         ref={sheetScrollRef}
         className="max-h-full"
-        contentContainerClassName="gap-4 px-5"
+        contentContainerClassName="gap-4 px-5 pb-3"
         showsVerticalScrollIndicator={false}
       >
         <View className="flex-row items-start gap-2 rounded-xl border border-border-subtle bg-bg-muted p-3">
