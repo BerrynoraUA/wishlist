@@ -1,4 +1,6 @@
 import { hapticError, hapticSuccess } from "@/lib/haptics";
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import {
   BottomSheet,
@@ -112,6 +114,7 @@ export function WishlistCreateEditSheet({
   onCreated?: (wishlist: Wishlist) => void;
 }) {
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
   const t = useGT();
   const { isGated, openPaywall } = useProGate();
   const completeCreateWishlistStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.createWishlist);
@@ -244,9 +247,8 @@ export function WishlistCreateEditSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
+      scrollableRef={sheetScrollRef}
       detents={[0.75, 0.94]}
-      footerInsetMode="scroll-content"
       onDidDismiss={() => onOpenChange(false)}
       header={
         <BottomSheetHeader title={mode === "edit" ? t("Edit wishlist") : t("Create a wishlist")} />
@@ -282,9 +284,10 @@ export function WishlistCreateEditSheet({
       }
     >
       <BottomSheetScrollView
+        ref={sheetScrollRef}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="gap-5 px-5"
+        contentContainerClassName="gap-5 px-5 pb-3"
       >
         <Field label={t("Name")}>
           <Controller

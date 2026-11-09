@@ -1,10 +1,11 @@
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   BottomSheet,
   BottomSheetHeader,
   BottomSheetScrollView,
   type BottomSheetRef,
-  useSheetContentDetent,
 } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -31,7 +32,7 @@ export function FriendGroupDetailsSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
-  const { detent, onContentSizeChange, onHeaderLayout } = useSheetContentDetent();
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
   const membersQuery = useFriendGroupMembers(group.id);
   const members = membersQuery.data ?? [];
   // Runs once the sheet is gone, so a follow-up screen or sheet never fights the dismissal.
@@ -45,19 +46,14 @@ export function FriendGroupDetailsSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
-      detents={[detent]}
-      footerInsetMode="scroll-content"
+      scrollableRef={sheetScrollRef}
+      detents={["auto"]}
       onDidDismiss={() => {
         onClose();
         afterDismissRef.current?.();
         afterDismissRef.current = null;
       }}
-      header={
-        <View onLayout={onHeaderLayout}>
-          <BottomSheetHeader title={group.name} />
-        </View>
-      }
+      header={<BottomSheetHeader title={group.name} />}
       footer={
         <View className="w-full border-t border-border-subtle bg-bg-elevated px-5 pt-3">
           <Button variant="outline" onPress={() => dismissThen(() => onEdit(group))}>
@@ -68,10 +64,10 @@ export function FriendGroupDetailsSheet({
       }
     >
       <BottomSheetScrollView
+        ref={sheetScrollRef}
         className="max-h-full"
-        contentContainerClassName="gap-4 px-5"
+        contentContainerClassName="gap-4 px-5 pb-3"
         showsVerticalScrollIndicator={false}
-        onContentSizeChange={onContentSizeChange}
       >
         {group.description ? (
           <Text className="px-1 text-sm leading-5 text-text-muted">{group.description}</Text>
