@@ -619,8 +619,8 @@
 }
 
 .dateBadge {
-  background: var(--badge-date-bg);
-  color: var(--color-info);
+  background: var(--badge-count-bg);
+  color: var(--color-text-tertiary);
 }
 
 /* ===== RESPONSIVE ===== */
@@ -858,14 +858,10 @@
   border-color: rgba(148, 163, 184, 0.18);
 }
 
-:global([data-theme="dark"]) .countBadge {
+:global([data-theme="dark"]) .countBadge,
+:global([data-theme="dark"]) .dateBadge {
   background: rgba(255, 255, 255, 0.05);
   color: rgba(240, 240, 242, 0.72);
-}
-
-:global([data-theme="dark"]) .dateBadge {
-  background: rgba(59, 130, 246, 0.12);
-  color: #9ec5ff;
 }
 
 :global([data-theme="dark"]) .visibilityPopover {

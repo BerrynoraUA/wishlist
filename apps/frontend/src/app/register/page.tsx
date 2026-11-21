@@ -12,7 +12,7 @@ import { useRegisterPage } from "./hooks/use-register-page";
 function RegisterPageContent() {
   const t = useGT();
   const router = useRouter();
-  const { redirectTo, loginHref, currentTestimonial, fadeIn } = useRegisterPage();
+  const { redirectTo, loginHref } = useRegisterPage();
 
   return (
     <main className={styles.page}>
@@ -105,26 +105,6 @@ function RegisterPageContent() {
             <div className={`${styles.mockupFloat} ${styles.mockupFloat2}`}>
               <span>👥</span>
               <span>{t("3 friends joined", { $id: "register.mockup.float2" })}</span>
-            </div>
-          </div>
-
-          <div className={styles.visualTestimonial}>
-            <div className={styles.testimonialStars}>★★★★★</div>
-            <div className={`${styles.testimonialFade} ${fadeIn ? styles.testimonialVisible : ""}`}>
-              <p className={styles.testimonialQuote}>{currentTestimonial.quote}</p>
-              <div className={styles.testimonialAuthor}>
-                <div
-                  className={styles.testimonialAvatar}
-                  style={{
-                    background: currentTestimonial.bg,
-                    color: currentTestimonial.color,
-                  }}
-                >
-                  {currentTestimonial.initial}
-                </div>
-                <span className={styles.testimonialName}>{currentTestimonial.name}</span>
-                <span className={styles.testimonialRole}>{currentTestimonial.role}</span>
-              </div>
             </div>
           </div>
         </div>

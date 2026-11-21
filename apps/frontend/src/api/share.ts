@@ -44,7 +44,9 @@ export async function getWishlistByToken(token: string): Promise<Wishlist> {
     throw new Error(error.message || "Failed to fetch wishlist");
   }
 
-  return data as Wishlist;
+  // The RPC names the count `itemsCount`; everything else reads `items_count`.
+  const { itemsCount, ...wishlist } = data as Wishlist & { itemsCount?: number };
+  return { ...wishlist, items_count: itemsCount ?? 0 };
 }
 
 export async function getWishlistItemsByToken<Item = any>(

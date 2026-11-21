@@ -112,5 +112,6 @@ export function useSharePage() {
     friendStatus,
     setFriendStatus,
     handleReserveAttempt,
+    signedIn: Boolean(currentUserId),
   };
 }

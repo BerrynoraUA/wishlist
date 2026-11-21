@@ -1,6 +1,7 @@
 "use client";
 
 import { useGT } from "gt-next";
+import { Mascot } from "@/components/ui/Mascot/Mascot";
 import Link from "next/link";
 import { Gift, Headphones, BookOpen, Coffee, Check, Link2 } from "lucide-react";
 import type { MouseEvent, RefObject } from "react";
@@ -54,13 +55,6 @@ export function Hero({
             >
               {t("Discover", { $id: "landing.nav.discover" })}
             </a>
-            <a
-              href="#testimonials"
-              className={styles.navLink}
-              onClick={(event) => onSmoothScroll(event, "#testimonials")}
-            >
-              {t("Testimonials", { $id: "landing.nav.testimonials" })}
-            </a>
           </div>
           <div className={styles.navActions}>
             <Link href="/login" className={`${styles.btn} ${styles.btnGhost}`}>
@@ -106,13 +100,6 @@ export function Hero({
         >
           {t("Discover", { $id: "landing.mobile.discover" })}
         </a>
-        <a
-          href="#testimonials"
-          className={styles.mobileMenuLink}
-          onClick={(event) => onSmoothScroll(event, "#testimonials")}
-        >
-          {t("Testimonials", { $id: "landing.mobile.testimonials" })}
-        </a>
         <div className={styles.mobileMenuActions}>
           <Link href="/login" className={`${styles.btn} ${styles.btnGhost} ${styles.btnFull}`}>
             {t("Log In", { $id: "landing.mobile.logIn" })}
@@ -142,7 +129,7 @@ export function Hero({
             </h1>
             <p className={styles.heroSubtitle}>
               {t(
-                "Create stunning wishlists, share them with friends and family, and never miss the perfect gift again. Wishlane makes every occasion unforgettable.",
+                "Save wishes from any store, share your list with the people you love, and keep every gift a surprise.",
                 { $id: "landing.hero.subtitle" },
               )}
             </p>
@@ -168,7 +155,7 @@ export function Hero({
               </Link>
               <a
                 href="#how-it-works"
-                className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg}`}
+                className={`${styles.btn} ${styles.btnOutline} ${styles.btnLg} ${styles.heroSecondaryCta}`}
                 onClick={(event) => onSmoothScroll(event, "#how-it-works")}
               >
                 {t("See How It Works", { $id: "landing.hero.ctaSecondary" })}
@@ -182,6 +169,7 @@ export function Hero({
           </div>
           <div className={`${styles.heroVisual} ${styles.animateIn}`} data-delay="200">
             <div className={styles.heroMockup}>
+              <Mascot variant="excited-cheer" className={styles.heroMascot} />
               <div className={styles.mockupCardMain}>
                 <div className={styles.mockupCardHeader}>
                   <div

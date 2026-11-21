@@ -1,9 +1,10 @@
 import { hapticSuccess } from "@/lib/haptics";
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
 import {
   BottomSheet,
   BottomSheetHeader,
   BottomSheetScrollView,
-  useSheetContentDetent,
   type BottomSheetRef,
 } from "@/components/ui/bottom-sheet";
 import { ItemImage } from "@/components/items/item-image";
@@ -92,7 +93,7 @@ export function WishlistItemDetailSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
-  const { detent, onContentSizeChange, onHeaderLayout } = useSheetContentDetent();
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
   const [confirmation, setConfirmation] = React.useState<Confirmation | null>(null);
   const [reserverRevealed, setReserverRevealed] = React.useState(false);
   const [reportOpen, setReportOpen] = React.useState(false);
@@ -430,23 +431,16 @@ export function WishlistItemDetailSheet({
     <>
       <BottomSheet
         ref={sheetRef}
-        scrollable
-        // A single detent measured from the content keeps the sheet as tall as the item —
-        // no empty gap under a short one — and caps at nearly full screen, where it scrolls.
-        detents={[detent]}
-        footerInsetMode="scroll-content"
+        scrollableRef={sheetScrollRef}
+        detents={["auto"]}
         onDidDismiss={onClose}
-        header={
-          <View onLayout={onHeaderLayout}>
-            <BottomSheetHeader title={t("Item details")} />
-          </View>
-        }
+        header={<BottomSheetHeader title={t("Item details")} />}
         footer={actions ?? undefined}
       >
         <BottomSheetScrollView
+          ref={sheetScrollRef}
           showsVerticalScrollIndicator={false}
-          contentContainerClassName="px-5"
-          onContentSizeChange={onContentSizeChange}
+          contentContainerClassName="px-5 pb-3"
         >
           <View className="relative gap-5">
             <ItemImage

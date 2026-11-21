@@ -4,6 +4,16 @@ name: Mobile EAS TestFlight - Production Database
 # Uncomment the blocks below to restore automatic runs.
 on:
   workflow_dispatch:
+    inputs:
+      platform:
+        description: Target platform
+        required: true
+        type: choice
+        default: all
+        options:
+          - ios
+          - android
+          - all
 #   push:
 #     branches:
 #       - main
@@ -30,6 +40,7 @@ jobs:
       contents: read
     uses: ./.github/workflows/mobile-eas-build-submit.yml
     with:
+      platform: ${{ inputs.platform || 'all' }}
       profile: beta
       environment: production
       android_track: beta

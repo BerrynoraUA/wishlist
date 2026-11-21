@@ -1,6 +1,10 @@
 # Wishlane — Store Release Checklist
 
-App: **Wishlane** · `com.berrynora.wishlane` · version from `expo.version` in `app.json`
+App: **wishlane tester** (iOS: `com.berrynora.wishlanetester`) / **Wishlane** (Android:
+`com.berrynora.wishlane`) · version from `expo.version` in `app.json`
+
+See [the Apple account setup](../../../docs/ios-apple-account-migration.md) for the
+replacement TestFlight app, authentication status, and deferred iOS billing setup.
 Generated 2026-07-25, updated 2026-08-02. Source of truth for the listing copy is
 `store/listings/<locale>.json` — one file per locale the app ships, covering both stores. See §11.
 Store credentials and the API access they depend on are in §12; the EAS Workflows that tie it all
@@ -414,8 +418,8 @@ The App Store Connect API key is the analogue of the Google service account key:
 **once** (it cannot be re-downloaded), and keep the Issuer ID and Key ID with it. Only the Account
 Holder can create Team Keys.
 
-`ascAppId` is in `eas.json` as `"6792105704"` — a digits-only App Store Connect app ID, not the
-Team ID (`7BBN562VZY`, 10 alphanumeric) and not the bundle ID. Find it under
+`ascAppId` is in `eas.json` as `"6825701808"` — a digits-only App Store Connect app ID, not the
+Team ID (`N2R2872DTQ`, 10 alphanumeric) and not the bundle ID. Find it under
 **App Store Connect → your app → General → App Information → Apple ID**.
 
 Unlike Android, iOS has no manual-first-upload restriction: the API can upload a version's first

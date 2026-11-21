@@ -3,6 +3,11 @@ name: Mobile EAS Build and Submit
 on:
   workflow_call:
     inputs:
+      platform:
+        description: Target platform
+        required: false
+        default: all
+        type: string
       profile:
         description: Matching EAS build and submit profile
         required: true
@@ -107,14 +112,15 @@ jobs:
             exit 1
           }
 
-      - name: Build and submit to both stores
+      - name: Build and submit to selected stores
         working-directory: apps/native
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           TARGET_PROFILE: ${{ inputs.profile }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
         run: >-
           eas build
-          --platform all
+          --platform "$TARGET_PLATFORM"
           --profile "$TARGET_PROFILE"
           --auto-submit-with-profile "$TARGET_PROFILE"
           --non-interactive
@@ -124,12 +130,17 @@ jobs:
           TARGET_PROFILE: ${{ inputs.profile }}
           TARGET_ENVIRONMENT: ${{ inputs.environment }}
           TARGET_ANDROID_TRACK: ${{ inputs.android_track }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
         run: |
           {
             echo "## $TARGET_PROFILE store deployment"
             echo
             echo "- EAS environment: \`$TARGET_ENVIRONMENT\`"
-            echo "- iOS destination: App Store Connect / TestFlight"
-            echo "- Android destination: Google Play \`$TARGET_ANDROID_TRACK\` track"
+            if [ "$TARGET_PLATFORM" != "android" ]; then
+              echo "- iOS destination: App Store Connect / TestFlight"
+            fi
+            if [ "$TARGET_PLATFORM" != "ios" ]; then
+              echo "- Android destination: Google Play \`$TARGET_ANDROID_TRACK\` track"
+            fi
             echo "- Store build numbers: remotely auto-incremented by EAS"
           } >> "$GITHUB_STEP_SUMMARY"

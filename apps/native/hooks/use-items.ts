@@ -13,6 +13,7 @@ import { skipTakeInfiniteQueryOptions } from "@/hooks/use-infinite-page";
 import { animateCardRemoval, markNewCard } from "@/lib/card-motion";
 import { hapticError, hapticSuccess } from "@/lib/haptics";
 import { itemKeys } from "@/lib/item-query-keys";
+import { statisticsKeys, wishlistKeys } from "@/lib/wishlist-query-keys";
 import {
   normalizeItemSearch,
   optimisticallyToggleItemBought,
@@ -175,6 +176,30 @@ async function patchCachedItem(
   );
 }
 
+// Keep the visible card in place so its ribbon animation can finish. The next
+// list load picks up server ordering; later queued toggles keep their optimistic state.
+async function settleItemToggle(queryClient: QueryClient, item: Item | undefined) {
+  if (!isLastQueuedWrite(queryClient)) return;
+  const hasRejectedItemToggle = [
+    queuedItemMutationKeys.toggleReservation,
+    queuedItemMutationKeys.toggleBought,
+  ].some((mutationKey) => queryClient.getMutationCache().find({ mutationKey, status: "error" }));
+  if (!item || hasRejectedItemToggle) {
+    void queryClient.invalidateQueries();
+    return;
+  }
+
+  await patchCachedItem(queryClient, item.id, (cached) => ({
+    ...cached,
+    status: item.status,
+    reserved_by: item.reserved_by,
+  }));
+  void queryClient.invalidateQueries({ queryKey: itemKeys.all, refetchType: "none" });
+  void queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+  void queryClient.invalidateQueries({ queryKey: wishlistKeys.detailRoot(item.wishlist_id) });
+  void queryClient.invalidateQueries({ queryKey: statisticsKeys.all });
+}
+
 function toggleVoteInResult(votes: ItemVotesResult, itemId: string): ItemVotesResult {
   const hadVote = votes.userVotes.has(itemId);
   const nextCounts = { ...votes.counts };
@@ -195,8 +220,7 @@ function toggleVoteInResult(votes: ItemVotesResult, itemId: string): ItemVotesRe
  * Reserving, marking bought and voting work offline: they update the cached lists right
  * away, wait in a queue saved with the query cache, and replay in order on reconnect (see
  * `lib/offline-mutations.ts`). They are registered as defaults, not in the hooks, because a
- * write restored after a restart has only its key. Every outcome refetches, so the lists
- * settle on what the server accepted.
+ * write restored after a restart has only its key. Lists settle on what the server accepted.
  */
 export function registerQueuedItemMutations(queryClient: QueryClient) {
   // One scope runs the queue serially, so toggles of the same item replay in order.
@@ -214,7 +238,7 @@ export function registerQueuedItemMutations(queryClient: QueryClient) {
       patchCachedItem(queryClient, itemId, (item) =>
         optimisticallyToggleItemReservation(item, userId),
       ),
-    onSettled: () => invalidateWishlistItems(queryClient),
+    onSettled: (item) => settleItemToggle(queryClient, item),
   });
 
   queryClient.setMutationDefaults(queuedItemMutationKeys.toggleBought, {
@@ -222,7 +246,7 @@ export function registerQueuedItemMutations(queryClient: QueryClient) {
     mutationFn: ({ itemId }: ToggleItemVariables) => toggleItemBought(itemId),
     onMutate: ({ itemId, userId }: ToggleItemVariables) =>
       patchCachedItem(queryClient, itemId, (item) => optimisticallyToggleItemBought(item, userId)),
-    onSettled: () => invalidateWishlistItems(queryClient),
+    onSettled: (item) => settleItemToggle(queryClient, item),
   });
 
   queryClient.setMutationDefaults(queuedItemMutationKeys.toggleVote, {

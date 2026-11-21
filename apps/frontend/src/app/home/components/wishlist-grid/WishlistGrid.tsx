@@ -98,7 +98,7 @@ export function WishlistGrid({
         {!isError && visibleWishlists.length === 0 && !isFiltersActive && (
           <MascotEmptyState
             className={styles.noResults}
-            variant="sad-alone"
+            variant="gift-in-hands"
             message={t("No wishlists yet.", {
               $id: "home.wishlistGrid.empty",
             })}

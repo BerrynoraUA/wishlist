@@ -178,7 +178,7 @@ export function AnimatedSplash({ children }: { children: ReactNode }) {
     }
 
     cancelAnimation(pulse);
-    pulse.set(withTiming(1, { duration: 100 }));
+    pulse.set(withTiming(1, { duration: 100, easing: Easing.inOut(Easing.quad) }));
 
     // Anticipation squash, then zoom straight through the viewer. Timings are tuned so
     // the backdrop — whose callback ends the whole sequence — lands at ~420ms.

@@ -13,6 +13,8 @@ import { useWishlistById } from "./use-wishlists";
 
 vi.mock("@/api/wishlists", () => ({ getWishlistById: vi.fn() }));
 vi.mock("@/hooks/use-infinite-page", () => ({}));
+vi.mock("@/lib/card-motion", () => ({ animateCardRemoval: vi.fn(), markNewCard: vi.fn() }));
+vi.mock("@/lib/haptics", () => ({ hapticError: vi.fn(), hapticSuccess: vi.fn() }));
 vi.mock("@/lib/wishlists", () => ({}));
 vi.mock("@/providers/auth-provider", () => ({
   useAuth: () => ({ user: { id: "viewer" } }),

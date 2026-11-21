@@ -8,6 +8,18 @@
   flex-wrap: nowrap;
 }
 
+.tabs[data-fade-end] {
+  mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+}
+
+.tabs[data-fade-start] {
+  mask-image: linear-gradient(90deg, transparent, #000 32px);
+}
+
+.tabs[data-fade-start][data-fade-end] {
+  mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+}
+
 /* ── Size: sm (default) ── */
 .sm {
   padding: 5px;

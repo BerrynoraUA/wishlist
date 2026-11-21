@@ -6,6 +6,7 @@ import { useGT } from "gt-next";
 import Link from "next/link";
 import { useFriendWishlists } from "@/hooks/use-wishlists";
 import { useRemoveFriend } from "@/hooks/use-friends";
+import { useProfilesByIds } from "@/hooks/use-settings";
 import { WishlistCard } from "@/app/home/components/wishlist-card/WishlistCard";
 import { Button } from "@/components/ui/Button/Button";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
@@ -43,6 +44,9 @@ function FriendWishlistsPageContent() {
     FRIEND_WISHLISTS_PAGE_SIZE,
   );
 
+  const { data: profiles } = useProfilesByIds([friendId]);
+  const friend = profiles?.[0];
+
   const removeFriend = useRemoveFriend();
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
 
@@ -57,8 +61,19 @@ function FriendWishlistsPageContent() {
           <Link href="/friends" className={styles.back}>
             <ArrowLeft size={18} />
           </Link>
+          {friend && (
+            <div className={styles.avatar}>
+              {friend.avatar_url ? (
+                <img src={friend.avatar_url} alt="" />
+              ) : (
+                (friend.display_name ?? "?").charAt(0).toUpperCase()
+              )}
+            </div>
+          )}
           <div>
-            <h1>{t("Friend's Wishlists", { $id: "friends.detail.title" })}</h1>
+            <h1>
+              {friend?.display_name ?? t("Friend's Wishlists", { $id: "friends.detail.title" })}
+            </h1>
             <p>
               {visibleWishlists.length === 1
                 ? t("{count} wishlist", {
@@ -73,7 +88,7 @@ function FriendWishlistsPageContent() {
           </div>
         </div>
 
-        <Button variant="danger" size="sm" onClick={handleRemoveFriend}>
+        <Button variant="secondary" size="sm" onClick={handleRemoveFriend}>
           <UserMinus size={14} style={{ marginRight: 6 }} />
           {t("Remove Friend", { $id: "friends.detail.removeFriend" })}
         </Button>

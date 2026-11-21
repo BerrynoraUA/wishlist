@@ -23,14 +23,14 @@ vi.mock("react-native", () => ({ View: "div", useWindowDimensions: () => ({ widt
 vi.mock("react-native-reanimated", () => ({ default: { View: "div" } }));
 vi.mock("react-native-safe-area-context", () => ({ useSafeAreaInsets: () => ({ top: 0 }) }));
 vi.mock("gt-react-native", () => ({ useGT: () => (text: string) => text }));
-vi.mock("@/lib/layout", () => ({ useTabBarContentPadding: () => 0, chunkRows: () => [] }));
+vi.mock("@/lib/layout", () => ({
+  useFloatingBackButtonContentPadding: () => 0,
+  chunkRows: () => [],
+}));
 vi.mock("@/api/share", () => ({}));
 vi.mock("@/lib/card-motion", () => ({
-  useListCardRemoval: () => ({
-    exitingIds: new Set(),
-    acceptedIds: new Set(),
-    removedIds: new Set(),
-  }),
+  AnimatedListCard: "div",
+  useListCardRemoval: () => ({ exitingIds: new Set(), removedIds: new Set() }),
 }));
 vi.mock("@/hooks/use-user", () => ({ useCurrentUserId: () => ({ data: "viewer" }) }));
 vi.mock("@/hooks/use-own-reservations", () => ({ useShowOwnReservations: () => false }));
@@ -79,6 +79,8 @@ vi.mock("@/components/shared/inline-state", () => ({
 }));
 vi.mock("@/components/ui/text", () => ({ Text: "span" }));
 vi.mock("@/components/ui/floating-back-button", () => ({ FloatingBackButton: () => null }));
+vi.mock("@/components/ui/status-bar-scrim", () => ({ StatusBarScrim: () => null }));
+vi.mock("@/components/ui/hero-status-bar", () => ({ HeroStatusBar: () => null }));
 vi.mock("@/components/ui/list-skeletons", () => ({
   CardGridSkeleton: () => null,
   DetailSkeleton: () => null,

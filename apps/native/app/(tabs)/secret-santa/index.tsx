@@ -168,7 +168,7 @@ export default function SecretSantaScreen() {
                 tabs={tabs}
                 value={activeTab}
                 onChange={setActiveTab}
-                align="right"
+                align={process.env.EXPO_OS === "ios" ? "right" : "left"}
                 opacity={opacity}
               />
             )}

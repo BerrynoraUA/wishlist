@@ -1,3 +1,5 @@
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
 import {
   NotificationPreferenceToggles,
   type NotificationPreferences,
@@ -26,6 +28,7 @@ import { ActivityIndicator, View } from "react-native";
 export function NotificationPermissionSheet({ userId }: { userId: string }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
   const promptDecisionRef = React.useRef<"allowed" | "skipped" | null>(null);
   const settingsQuery = useSettings();
   const updateSettings = useUpdateSettings();
@@ -114,8 +117,7 @@ export function NotificationPermissionSheet({ userId }: { userId: string }) {
       ref={sheetRef}
       initialDetentIndex={0}
       initialDetentAnimated
-      scrollable
-      footerInsetMode="scroll-content"
+      scrollableRef={sheetScrollRef}
       scrollableOptions={{ scrollingExpandsSheet: false }}
       onDidDismiss={handleDismissed}
       header={<BottomSheetHeader title={t("Stay in the loop")} />}
@@ -140,8 +142,9 @@ export function NotificationPermissionSheet({ userId }: { userId: string }) {
       }
     >
       <BottomSheetScrollView
+        ref={sheetScrollRef}
         className="max-h-full"
-        contentContainerClassName="gap-4 px-5"
+        contentContainerClassName="gap-4 px-5 pb-3"
         showsVerticalScrollIndicator={false}
       >
         <View className="flex-row items-start gap-2 rounded-xl border border-border-subtle bg-bg-muted p-3">

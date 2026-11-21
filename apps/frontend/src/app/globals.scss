@@ -18,7 +18,7 @@
   --color-text: #111827;
   --color-text-secondary: #374151;
   --color-text-muted: #6b7280;
-  --color-text-light: #9ca3af;
+  --color-text-light: #7c8390;
   --color-text-tertiary: #475569;
   --color-text-tertiary-hover: #334155;
 
@@ -156,8 +156,8 @@
   // Text
   --color-text: #f0f0f2;
   --color-text-secondary: #d1d5db;
-  --color-text-muted: #9ca3af;
-  --color-text-light: #6b7280;
+  --color-text-muted: #a8adb7;
+  --color-text-light: #868b96;
   --color-text-tertiary: #dbe4ef;
   --color-text-tertiary-hover: #f8fafc;
 
@@ -311,6 +311,14 @@ body {
     sans-serif;
   line-height: 1.6;
   overflow-x: hidden;
+}
+
+/* Form controls don't inherit the page font by default. */
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
   transition:
     background 0.3s ease,
     color 0.3s ease;

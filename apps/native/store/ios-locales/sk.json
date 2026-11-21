@@ -1,6 +1,6 @@
 {
   "ios": {
-    "CFBundleDisplayName": "Wishlane",
+    "CFBundleDisplayName": "wishlane tester",
     "NSPhotoLibraryUsageDescription": "Povoľte Wishlane vybrať profilový obrázok z vašej knižnice.",
     "NSFaceIDUsageDescription": "Povoľte Wishlane bezpečne prepínať medzi uloženými účtami."
   },

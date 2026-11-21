@@ -40,6 +40,24 @@ export function useTabBarContentPadding(spacing = CONTENT_BOTTOM_SPACING) {
   );
 }
 
+const FLOATING_BACK_BUTTON_SIZE = 56;
+const FLOATING_BACK_BUTTON_TAB_BAR_GAP = 12;
+/** On Android the raised Create button overhangs the tab bar's pill. */
+const FLOATING_BACK_BUTTON_ANDROID_CLEARANCE = 18;
+
+/** Distance from the window's bottom edge to the floating back button. */
+export function useFloatingBackButtonBottom() {
+  const windowEdge = useBottomSafeAreaPadding();
+  const clearance = process.env.EXPO_OS === "android" ? FLOATING_BACK_BUTTON_ANDROID_CLEARANCE : 0;
+
+  return windowEdge + NAV_TAB_BAR_HEIGHT + clearance + FLOATING_BACK_BUTTON_TAB_BAR_GAP;
+}
+
+/** Bottom padding that leaves a list's last row clear of the floating back button as well. */
+export function useFloatingBackButtonContentPadding() {
+  return useFloatingBackButtonBottom() + FLOATING_BACK_BUTTON_SIZE + CONTENT_BOTTOM_SPACING;
+}
+
 export function chunkRows<T>(items: readonly T[], columns: number): T[][] {
   const rows: T[][] = [];
   for (let index = 0; index < items.length; index += columns) {

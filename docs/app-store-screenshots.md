@@ -215,7 +215,7 @@ marks never appear; `NotificationPushBootstrap` skips permission registration an
 the permission sheet entirely while `EXPO_PUBLIC_SHOWCASE=1`, so no OS dialog lands on
 a screenshot; and the dev menu is silenced on both platforms — on Android through the
 shared-preferences file the runner writes with `run-as`, on iOS through the three
-`EXDevMenu*` keys [app.config.js](../apps/native/app.config.js) adds to the showcase
+`EXDevMenu*` keys [app.config.ts](../apps/native/app.config.ts) adds to the showcase
 build's Info.plist. Without those a newly installed dev client opens its menu over the
 app as soon as the first screen appears, which is exactly when a capture begins. Themes are driven purely by the device appearance — the fixture settings
 use `theme = 'system'`.

@@ -23,6 +23,9 @@
     },
     "staging": {
       "extends": "base",
+      "env": {
+        "APP_VARIANT": "staging"
+      },
       "distribution": "store",
       "channel": "staging",
       "environment": "preview",
@@ -55,7 +58,8 @@
         "releaseStatus": "completed"
       },
       "ios": {
-        "ascAppId": "6792105704",
+        "ascAppId": "6825701808",
+        "appleTeamId": "N2R2872DTQ",
         "metadataPath": "store.config.js"
       }
     },
@@ -65,7 +69,8 @@
         "releaseStatus": "completed"
       },
       "ios": {
-        "ascAppId": "6792105704"
+        "ascAppId": "6825701808",
+        "appleTeamId": "N2R2872DTQ"
       }
     },
     "beta": {
@@ -74,7 +79,8 @@
         "releaseStatus": "completed"
       },
       "ios": {
-        "ascAppId": "6792105704"
+        "ascAppId": "6825701808",
+        "appleTeamId": "N2R2872DTQ"
       }
     }
   }

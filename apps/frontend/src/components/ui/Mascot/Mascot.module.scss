@@ -1,0 +1,47 @@
+// :where, so a caller's stylesheet can place it absolutely whatever order the CSS loads in.
+:where(.mascot) {
+  position: relative;
+}
+
+.mascot {
+  width: calc(var(--mascot-size, 176) * 1px);
+  height: calc(var(--mascot-size, 176) * 1px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+
+  &[data-loaded] {
+    opacity: 1;
+  }
+}
+
+// Everything inside works in the art's own 640-unit canvas, so all layers scale as one and
+// their edges can't drift apart by rounding.
+.stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 640px;
+  height: 640px;
+  transform: scale(calc(var(--mascot-size, 176) / 640));
+  transform-origin: 0 0;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+.sprite {
+  position: absolute;
+  background-repeat: no-repeat;
+}
+
+// A soft pale edge, because the art's dark outline disappears on a dark screen.
+.halo {
+  display: none;
+
+  :global([data-theme="dark"]) & {
+    display: block;
+  }
+}

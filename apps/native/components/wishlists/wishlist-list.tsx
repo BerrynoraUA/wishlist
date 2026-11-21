@@ -260,7 +260,7 @@ export function WishlistList({
             {!query.isLoading && !query.isError && wishlists.length === 0 && !filtersActive ? (
               <InlineState
                 width={contentWidth}
-                mascot="sad-alone"
+                mascot="gift-in-hands"
                 message={t("No wishlists yet.")}
                 pointToCreateButton
               />
@@ -580,7 +580,7 @@ function WishlistCard({
               <View className="gap-3 px-4 pb-4 pt-3">
                 <View className="min-h-11 flex-row items-start justify-between gap-3">
                   <View className="min-w-0 flex-1 gap-1">
-                    <Text className="text-[15px] font-bold leading-5 text-text" numberOfLines={2}>
+                    <Text className="text-base font-bold leading-5 text-text" numberOfLines={2}>
                       {wishlist.title}
                     </Text>
                     <PendingSync id={wishlist.id} />
@@ -612,14 +612,12 @@ function WishlistCard({
                 </View>
 
                 <View className="flex-row items-center justify-between gap-3">
-                  <Text className="text-sm font-semibold text-text-muted">
+                  <Text className="text-sm text-text-muted">
                     {itemsCount === 1 ? t("1 item") : t("{count} items", { count: itemsCount })}
                   </Text>
                   <View className="flex-row items-center gap-1.5">
                     <Icon as={VisibilityIcon} className="size-3.5 text-text-muted" />
-                    <Text className="text-sm font-semibold text-text-muted">
-                      {visibilityLabels[visibility]}
-                    </Text>
+                    <Text className="text-sm text-text-muted">{visibilityLabels[visibility]}</Text>
                   </View>
                 </View>
               </View>

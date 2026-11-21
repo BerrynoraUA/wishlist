@@ -545,6 +545,9 @@
   "friends.card.meta": {
     "en": "{wishlistsCount} wishlists · {mutualCount} mutual"
   },
+  "friends.card.meta.one": {
+    "en": "{wishlistsCount} wishlist · {mutualCount} mutual"
+  },
   "friends.card.removeAria": {
     "en": "Remove friend"
   },
@@ -1070,6 +1073,9 @@
   "itemCard.unpurchase": {
     "en": "Mark as not purchased"
   },
+  "itemCard.viewDetails": {
+    "en": "View {name}"
+  },
   "items.tabs.addLink": {
     "en": "Add Link"
   },
@@ -1445,8 +1451,14 @@
   "login.form.error.required": {
     "en": "Email and password are required."
   },
+  "login.form.error.resetNeedsEmail": {
+    "en": "Enter your email above and we'll send you a reset link."
+  },
   "login.form.error.social": {
     "en": "Social login failed"
+  },
+  "login.form.forgotPassword": {
+    "en": "Forgot password?"
   },
   "login.form.label.email": {
     "en": "Email"
@@ -1459,6 +1471,9 @@
   },
   "login.form.placeholder.password": {
     "en": "••••••••"
+  },
+  "login.form.resetSent": {
+    "en": "Check your inbox for a link to reset your password."
   },
   "login.form.submit.createAccount": {
     "en": "Create account"
@@ -1559,6 +1574,12 @@
   "nav.friends": {
     "en": "Friends"
   },
+  "nav.itemWithCount": {
+    "en": "{label}, {count} new"
+  },
+  "nav.logoLabel": {
+    "en": "Wishlane home"
+  },
   "nav.myWishlists": {
     "en": "My Wishlists"
   },
@@ -1624,6 +1645,9 @@
   },
   "oauth.connections.title": {
     "en": "Connected apps"
+  },
+  "oauth.connections.unavailable": {
+    "en": "AI assistant connections aren't available right now."
   },
   "oauth.consent.connect": {
     "en": "Connect Wishlane"
@@ -2216,6 +2240,9 @@
   "secretSanta.hero.ownerPill": {
     "en": "You are the owner"
   },
+  "secretSanta.hero.pendingBadge": {
+    "en": "{count} pending"
+  },
   "secretSanta.hero.peopleBadge": {
     "en": "{count} people"
   },
@@ -2243,8 +2270,14 @@
   "secretSanta.hero.title.moreOptions": {
     "en": "More options"
   },
+  "secretSanta.join.backToEvents": {
+    "en": "Go to Secret Santa"
+  },
   "secretSanta.join.invalidLink": {
     "en": "Invalid invite link."
+  },
+  "secretSanta.join.invalidLinkHelp": {
+    "en": "This invite link is incomplete. Ask the organizer to send it again."
   },
   "secretSanta.join.joining": {
     "en": "Joining event..."
@@ -2669,6 +2702,9 @@
   "settings.profile.displayNameRequired": {
     "en": "Display name is required"
   },
+  "settings.profile.heightExample": {
+    "en": "e.g. 175"
+  },
   "settings.profile.heightLabel": {
     "en": "Height"
   },
@@ -2708,6 +2744,9 @@
   "settings.profile.sectionTitle": {
     "en": "Profile Information"
   },
+  "settings.profile.shoeSizeExample": {
+    "en": "e.g. 42"
+  },
   "settings.profile.shoeSizeLabel": {
     "en": "Shoe size"
   },
@@ -2740,6 +2779,9 @@
   },
   "share.authPrompt.title": {
     "en": "Want to reserve this gift?"
+  },
+  "share.brandBar.cta": {
+    "en": "Create your own wishlist"
   },
   "share.copiedLink": {
     "en": "Copied link"
@@ -2782,6 +2824,15 @@
   },
   "share.page.notFound": {
     "en": "Wishlist not found."
+  },
+  "share.page.unavailable": {
+    "en": "This wishlist isn't available. The link may have expired, or the owner made it private."
+  },
+  "share.page.unavailable.home": {
+    "en": "Back to My Wishlists"
+  },
+  "share.page.unavailable.landing": {
+    "en": "Go to Wishlane"
   },
   "subscription.compare.colFeature": {
     "en": "Feature"
@@ -3461,6 +3512,33 @@
   },
   "wishlistCard.sharedWishlist": {
     "en": "Shared wishlist"
+  },
+  "subscription.header.yourSubscription": {
+    "en": "Your subscription"
+  },
+  "subscription.header.manageDescription": {
+    "en": "Manage your Pro access and compare billing options below."
+  },
+  "subscription.header.currentSubscription": {
+    "en": "Current subscription"
+  },
+  "subscription.header.accessThrough": {
+    "en": "· Access through"
+  },
+  "subscription.header.billingDetailsUnavailable": {
+    "en": "Your billing interval and billed amount aren't available here. Check your billing provider for those details."
+  },
+  "subscription.pricing.compareBilling": {
+    "en": "Compare billing options"
+  },
+  "subscription.pricing.comparisonDescription": {
+    "en": "These are comparison prices. Selecting Monthly or Yearly doesn't change your subscription. Use Manage subscription above to review your billing options."
+  },
+  "subscription.pricing.comparisonPrice": {
+    "en": "Comparison price"
+  },
+  "subscription.pricing.currentTier": {
+    "en": "Your current tier"
   },
   "wishlistCard.unpin": {
     "en": "Unpin"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useGT } from "gt-next";
+import { Mascot } from "@/components/ui/Mascot/Mascot";
 import Link from "next/link";
 import styles from "../landing.module.scss";
 
@@ -15,13 +16,14 @@ export function Cta() {
             <div className={`${styles.ctaBlob} ${styles.ctaBlob1}`} />
             <div className={`${styles.ctaBlob} ${styles.ctaBlob2}`} />
           </div>
+          <Mascot variant="happy-pointing-down" className={styles.ctaMascot} />
           <h2 className={styles.ctaTitle}>
             {t("Ready to make gifting", { $id: "landing.cta.titlePart1" })}{" "}
             <em>{t("magical", { $id: "landing.cta.titleEmphasis" })}</em>?
           </h2>
           <p className={styles.ctaSubtitle}>
             {t(
-              "Join thousands of people who've already simplified their gifting with Wishlane. It's free, it's beautiful, and it just works.",
+              "Make your first list in under a minute. Your friends will know exactly what to get.",
               { $id: "landing.cta.subtitle" },
             )}
           </p>
@@ -44,7 +46,7 @@ export function Cta() {
             </Link>
           </div>
           <p className={styles.ctaNote}>
-            {t("Free forever - No credit card needed - Set up in 30 seconds", {
+            {t("Free forever · Ready in 30 seconds", {
               $id: "landing.cta.note",
             })}
           </p>

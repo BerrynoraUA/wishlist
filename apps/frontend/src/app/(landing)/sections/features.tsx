@@ -44,10 +44,9 @@ export function Features() {
             iconBg="#fde7f3"
             iconColor="#c0267e"
             title={t("Beautiful Wishlists", { $id: "landing.features.card1.title" })}
-            desc={t(
-              "Create stunning wishlists with custom colors, descriptions, and event dates. Choose from five accent colors to make each list unique.",
-              { $id: "landing.features.card1.desc" },
-            )}
+            desc={t("Give every list its own color, event date, and story.", {
+              $id: "landing.features.card1.desc",
+            })}
           />
           <FeatureCard
             icon={
@@ -67,11 +66,10 @@ export function Features() {
             }
             iconBg="#e0f2fe"
             iconColor="#2563eb"
-            title={t("Smart Link Scraping", { $id: "landing.features.card2.title" })}
-            desc={t(
-              "Paste any product URL and Wishlane auto-fills the title, description, image, and price.",
-              { $id: "landing.features.card2.desc" },
-            )}
+            title={t("Add From Any Store", { $id: "landing.features.card2.title" })}
+            desc={t("Paste a link and Wishlane fills in the photo and price.", {
+              $id: "landing.features.card2.desc",
+            })}
             delay={100}
           />
           <FeatureCard
@@ -95,10 +93,9 @@ export function Features() {
             iconBg="#f0fdf4"
             iconColor="#16a34a"
             title={t("Friends & Sharing", { $id: "landing.features.card3.title" })}
-            desc={t(
-              "Connect with friends via invite links or username search. Share wishlists publicly, with friends only, or keep them private.",
-              { $id: "landing.features.card3.desc" },
-            )}
+            desc={t("Invite friends, then choose who sees each list.", {
+              $id: "landing.features.card3.desc",
+            })}
             delay={200}
           />
           <FeatureCard
@@ -119,10 +116,9 @@ export function Features() {
             iconBg="#fef3c7"
             iconColor="#d97706"
             title={t("Gift Reservations", { $id: "landing.features.card4.title" })}
-            desc={t(
-              "Reserve items on friends' wishlists so nobody buys the same gift. Only you can see your reservations.",
-              { $id: "landing.features.card4.desc" },
-            )}
+            desc={t("Friends see a gift is taken, so nobody doubles up.", {
+              $id: "landing.features.card4.desc",
+            })}
           />
           <FeatureCard
             icon={
@@ -143,7 +139,7 @@ export function Features() {
             iconBg="#ede9fe"
             iconColor="#7c3aed"
             title={t("Real-Time Notifications", { $id: "landing.features.card5.title" })}
-            desc={t("Get notified when friends add wishlists, send requests, or reserve an item.", {
+            desc={t("Know when friends add lists or claim a gift.", {
               $id: "landing.features.card5.desc",
             })}
             delay={100}
@@ -167,10 +163,9 @@ export function Features() {
             iconBg="#fce7f3"
             iconColor="#db2777"
             title={t("Discover & Explore", { $id: "landing.features.card6.title" })}
-            desc={t(
-              "Browse friends' public wishlists, see upcoming events with countdowns, and find the right gift.",
-              { $id: "landing.features.card6.desc" },
-            )}
+            desc={t("See upcoming birthdays and what friends are wishing for.", {
+              $id: "landing.features.card6.desc",
+            })}
             delay={200}
           />
         </div>

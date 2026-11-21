@@ -1,3 +1,4 @@
+import { HeroStatusBar } from "@/components/ui/hero-status-bar";
 import { AuthMascot } from "@/components/auth/auth-mascot";
 import type { MascotVariant } from "@/components/shared/animated-mascot";
 import { AuthGiftWrapBackground } from "@/components/auth/auth-gift-wrap-background";
@@ -369,6 +370,7 @@ export default function EmailAuthScreen() {
 
   return (
     <View className="flex-1 bg-[#16111f]">
+      <HeroStatusBar />
       {/* Pinned to the full screen, outside the keyboard-avoiding tree: when the keyboard opens
           the form shrinks and scrolls, but the backdrop keeps its size and never re-lays out —
           no flash, and no bare strip where the keyboard is. */}

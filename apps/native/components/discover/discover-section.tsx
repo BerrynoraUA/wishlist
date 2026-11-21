@@ -9,7 +9,7 @@ import { useReducedMotion } from "@/lib/motion";
 import { CalendarDays, Gift } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { View } from "react-native";
+import { useWindowDimensions, View } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -75,6 +75,9 @@ export function DiscoverSection({
   onOpenItem: (item: Item, reservedByName?: string | null) => void;
 }) {
   const t = useGT();
+  const { width: windowWidth } = useWindowDimensions();
+  // Matches the screen's centered content column, capped at 900.
+  const edgeBleed = (windowWidth - Math.min(windowWidth - 32, 900)) / 2;
   const items = React.useMemo(
     () =>
       section.items.map((source) => ({
@@ -122,7 +125,8 @@ export function DiscoverSection({
         <Animated.ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: gridGap, paddingEnd: gridGap }}
+          style={{ marginEnd: -edgeBleed }}
+          contentContainerStyle={{ gap: gridGap, paddingEnd: gridGap + edgeBleed }}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           snapToInterval={snapInterval}

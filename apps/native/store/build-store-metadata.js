@@ -14,6 +14,7 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
+const { ios } = require("../app.json").expo;
 
 const {
   APP_LOCALES,
@@ -58,7 +59,7 @@ for (const appLocale of APP_LOCALES) {
 
   const nativeStrings = {
     ios: {
-      CFBundleDisplayName: listing.appleName,
+      CFBundleDisplayName: ios.infoPlist.CFBundleDisplayName ?? listing.appleName,
       NSPhotoLibraryUsageDescription: listing.permissions.photos,
       NSFaceIDUsageDescription: listing.permissions.faceId,
     },

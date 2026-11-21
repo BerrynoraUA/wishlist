@@ -34,15 +34,15 @@ export function FriendCard({
         </Avatar>
 
         <View className="min-w-0 flex-1 gap-1">
-          <Text className="text-base font-extrabold text-text" numberOfLines={1}>
+          <Text className="text-base font-bold text-text" numberOfLines={1}>
             {friend.display_name || t("Friend")}
           </Text>
           {friend.nickname ? (
-            <Text className="text-sm font-semibold text-text-muted" numberOfLines={1}>
+            <Text className="text-sm text-text-muted" numberOfLines={1}>
               @{friend.nickname}
             </Text>
           ) : null}
-          <Text className="text-xs font-semibold text-text-muted" numberOfLines={1}>
+          <Text className="text-[13px] text-text-light" numberOfLines={1}>
             {friend.wishlists_count === 1
               ? t("1 wishlist · {mutualCount} mutual", {
                   mutualCount: friend.mutual_friends_count,
@@ -65,7 +65,7 @@ export function FriendCard({
             }}
             className="rounded-full"
           >
-            <Icon as={UserMinus} className="size-4 text-destructive" />
+            <Icon as={UserMinus} className="size-4 text-text-muted" />
           </Button>
         </View>
       </Pressable>

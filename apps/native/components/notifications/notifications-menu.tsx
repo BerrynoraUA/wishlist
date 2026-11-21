@@ -1,3 +1,6 @@
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
+import { ScrollView as SheetScrollView } from "react-native";
 import { MascotEmptyState } from "@/components/shared/mascot-empty-state";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
@@ -222,13 +225,14 @@ function NotificationsSheet({
 }) {
   const t = useGT();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
 
   if (!open) return null;
 
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
+      scrollableRef={sheetScrollRef}
       detents={[0.82, 1]}
       initialDetentIndex={0}
       onDidDismiss={onClose}
@@ -262,8 +266,8 @@ function NotificationsSheet({
     >
       {/* Android renders the sheet in its own layout, so the swipe-to-delete rows need a
           gesture root of their own. */}
-      <GestureHandlerRootView style={{ flexGrow: 1 }}>
-        <View className="px-5">
+      <GestureHandlerRootView>
+        <SheetScrollView ref={sheetScrollRef} contentContainerClassName="px-5 pb-3">
           <View className="gap-4">
             {isLoading ? (
               <NotificationsSkeleton />
@@ -287,7 +291,7 @@ function NotificationsSheet({
               </View>
             )}
           </View>
-        </View>
+        </SheetScrollView>
       </GestureHandlerRootView>
     </BottomSheet>
   );

@@ -2,10 +2,10 @@ import { AnimatedMascot, type MascotVariant } from "@/components/shared/animated
 import { motionDuration } from "@/lib/motion";
 import * as React from "react";
 import { View } from "react-native";
-import Animated, { FadeIn, FadeOut, LayoutAnimationConfig } from "react-native-reanimated";
+import Animated, { Easing, FadeIn, FadeOut, LayoutAnimationConfig } from "react-native-reanimated";
 
-/** The feet sit at ~86% of every mascot canvas; everything below them is empty. */
-const FEET = 0.86;
+/** The feet sit at ~86% of every mascot canvas, plus room for the sad pose's sigh to sink into. */
+const FEET = 0.88;
 
 /**
  * The mascot above the screen title. Changing `variant` crossfades to the new pose.
@@ -30,13 +30,12 @@ export function AuthMascot({ variant, size }: { variant: MascotVariant; size: nu
           <Animated.View
             key={variant}
             className="absolute inset-0"
-            entering={FadeIn.duration(motionDuration.normal)}
-            exiting={FadeOut.duration(motionDuration.normal)}
+            entering={FadeIn.duration(motionDuration.normal).easing(Easing.inOut(Easing.quad))}
+            exiting={FadeOut.duration(motionDuration.normal).easing(Easing.inOut(Easing.quad))}
           >
             <AnimatedMascot
               size={size}
               skipEntrance={swapped || variant !== firstVariant}
-              subtle
               variant={variant}
             />
           </Animated.View>

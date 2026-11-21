@@ -392,13 +392,17 @@ export default function FriendsScreen() {
                 <InlineState
                   mascot={debouncedSearch ? "magnifying-glass" : "sad-alone"}
                   message={
-                    tab === "groups"
-                      ? t("No groups yet.")
-                      : tab === "requests"
-                        ? t("No incoming requests.")
-                        : tab === "sent"
-                          ? t("No sent requests.")
-                          : t("No friends yet.")
+                    debouncedSearch
+                      ? tab === "groups"
+                        ? t("No groups match your search.")
+                        : t("No friends match your search.")
+                      : tab === "groups"
+                        ? t("No groups yet.")
+                        : tab === "requests"
+                          ? t("No incoming requests.")
+                          : tab === "sent"
+                            ? t("No sent requests.")
+                            : t("No friends yet.")
                   }
                   pointToCreateButton={!debouncedSearch && (tab === "friends" || tab === "groups")}
                 />

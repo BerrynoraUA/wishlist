@@ -4,9 +4,8 @@ import { useGT } from "gt-next";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button/Button";
 import { DraftBadge } from "@/components/ui/DraftBadge/DraftBadge";
-import { ProBadge } from "@/components/ui/ProBadge/ProBadge";
 import styles from "./SecretSantaHeader.module.scss";
-import { Plus, TreePine, Sparkles } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import { useCurrentUser } from "@/hooks/use-user";
 import { useSubscription } from "@/hooks/use-subscription";
 import { useSecretSantaEvents } from "@/hooks/use-secret-santa";
@@ -66,9 +65,7 @@ export function SecretSantaHeader({ onNewEvent, hasDraft = false }: Props) {
     <div className={styles.header}>
       <div className={styles.text}>
         <div className={styles.titleRow}>
-          <TreePine size={28} className={styles.headerIcon} />
           <h1>{t("Secret Santa", { $id: "secretSanta.header.title" })}</h1>
-          <ProBadge size="sm" label={t("NEW", { $id: "secretSanta.newBadge" })} />
         </div>
         <p>
           {t(

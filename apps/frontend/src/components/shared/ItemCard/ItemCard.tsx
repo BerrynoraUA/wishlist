@@ -175,6 +175,18 @@ export function ItemCard({
             }
             onClick={openDetail}
           >
+            {/* The whole card opens on click; this gives keyboard and screen-reader users
+                the same way in without nesting the card's other buttons inside a button. */}
+            <button
+              type="button"
+              className={styles.openDetailButton}
+              onClick={(event) => {
+                event.stopPropagation();
+                openDetail();
+              }}
+            >
+              {t("View {name}", { name, $id: "itemCard.viewDetails" })}
+            </button>
             <div className={styles.imageWrapper}>
               <CardImage image={image} name={name} isWishlist={isWishlist} />
 

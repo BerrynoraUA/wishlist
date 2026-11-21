@@ -153,7 +153,7 @@ function IosDatePickerSheet({
       onDidDismiss={onClose}
       header={<BottomSheetHeader title={t("Select a date")} />}
       footer={
-        <View className="w-full flex-row items-stretch gap-2 px-5 pb-3 pt-3">
+        <View className="w-full flex-row items-stretch gap-2 px-5 pt-3">
           <Button
             className="min-w-0 flex-1"
             variant="outline"

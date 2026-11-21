@@ -4,10 +4,11 @@ import { SubmitFeatureIdeaSheet } from "@/components/feature-ideas/submit-featur
 import { MascotEmptyState } from "@/components/shared/mascot-empty-state";
 import { Button } from "@/components/ui/button";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
+import { useScrollChrome } from "@/hooks/use-scroll-chrome";
 import { AnimatedGradientBackgroundButton } from "@/components/ui/buttons/AnimatedGradientBackgroundButton";
 import { Icon } from "@/components/ui/icon";
 import { PinnedListHeader, usePinnedListHeaderPadding } from "@/components/ui/pinned-list-header";
-import { useTabBarContentPadding } from "@/lib/layout";
+import { useFloatingBackButtonContentPadding } from "@/lib/layout";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
 import { Text } from "@/components/ui/text";
 import { useFeatureIdeas, useToggleFeatureIdeaVote } from "@/hooks/use-feature-ideas";
@@ -31,7 +32,8 @@ export default function IdeasScreen() {
   const [actionWidth, setActionWidth] = React.useState(0);
   const { width } = useWindowDimensions();
   const { paddingTop, onHeaderLayout } = usePinnedListHeaderPadding(2);
-  const paddingBottom = useTabBarContentPadding();
+  const paddingBottom = useFloatingBackButtonContentPadding();
+  const { backButtonHidden, onScroll } = useScrollChrome();
   const ideasQuery = useFeatureIdeas();
   const toggleVote = useToggleFeatureIdeaVote();
   const [submitOpen, setSubmitOpen] = React.useState(false);
@@ -53,8 +55,8 @@ export default function IdeasScreen() {
   const listHeader = (
     <View className="gap-4 pb-4">
       {!introDismissed ? (
-        <View className="flex-row items-start gap-3 rounded-xl border border-info/20 bg-info-bg p-4">
-          <Icon as={Info} className="mt-0.5 size-5 shrink-0 text-info" />
+        <View className="flex-row items-start gap-3 rounded-xl border border-brand/20 bg-brand-lighter p-4">
+          <Icon as={Info} className="mt-0.5 size-5 shrink-0 text-brand" />
           <Text className="min-w-0 flex-1 text-sm leading-5 text-text">
             {t(
               "Share feature ideas for this app and vote for the ones you like. The most popular ideas help us decide what to build next.",
@@ -67,7 +69,7 @@ export default function IdeasScreen() {
             onPress={() => setIntroDismissed(true)}
             className="-me-2 -mt-2 rounded-full"
           >
-            <Icon as={X} className="size-4 text-info" />
+            <Icon as={X} className="size-4 text-brand" />
           </Button>
         </View>
       ) : null}
@@ -138,6 +140,8 @@ export default function IdeasScreen() {
           className="flex-1"
           contentContainerClassName="px-4"
           contentContainerStyle={{ paddingTop, paddingBottom }}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View className="h-3" />}
           ListHeaderComponent={listHeader}
           ListEmptyComponent={
@@ -167,7 +171,7 @@ export default function IdeasScreen() {
           onRefresh={() => ideasQuery.refetch()}
           progressViewOffset={paddingTop}
         />
-        <FloatingBackButton />
+        <FloatingBackButton scrolledAway={backButtonHidden} />
       </View>
       <SubmitFeatureIdeaSheet
         open={submitOpen}

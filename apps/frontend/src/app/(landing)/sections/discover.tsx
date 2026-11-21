@@ -2,7 +2,7 @@
 
 import { useGT } from "gt-next";
 import Link from "next/link";
-import { Calendar, Footprints, Gamepad2, Flame } from "lucide-react";
+import { Calendar, Camera, Gamepad2, Watch } from "lucide-react";
 import styles from "../landing.module.scss";
 import { DiscoverCard, SectionHeader } from "./shared";
 
@@ -45,15 +45,15 @@ export function Discover() {
           <div className={styles.discoverGrid}>
             <DiscoverCard
               gradient="linear-gradient(135deg, #fde7f3, #fce7f3)"
-              icon={<Footprints size={56} color="#c0267e" />}
-              store="Nike.com"
-              title={t("Air Jordan 1 Retro", { $id: "landing.discover.card1.title" })}
-              price="$180.00"
+              icon={<Camera size={56} strokeWidth={1.5} color="#c0267e" />}
+              store="Fujifilm.com"
+              title={t("Instax Mini 12 Camera", { $id: "landing.discover.card1.title" })}
+              price="$79.95"
               priority="high"
             />
             <DiscoverCard
               gradient="linear-gradient(135deg, #e0f2fe, #bfdbfe)"
-              icon={<Gamepad2 size={56} color="#0284c7" />}
+              icon={<Gamepad2 size={56} strokeWidth={1.5} color="#0284c7" />}
               store="Amazon.com"
               title={t("PS5 DualSense Controller", { $id: "landing.discover.card2.title" })}
               price="$69.99"
@@ -62,10 +62,10 @@ export function Discover() {
             />
             <DiscoverCard
               gradient="linear-gradient(135deg, #fef3c7, #fde68a)"
-              icon={<Flame size={56} color="#b45309" />}
-              store="Diptyque.com"
-              title={t("Baies Scented Candle", { $id: "landing.discover.card3.title" })}
-              price="$76.00"
+              icon={<Watch size={56} strokeWidth={1.5} color="#b45309" />}
+              store="Apple.com"
+              title={t("Apple Watch SE", { $id: "landing.discover.card3.title" })}
+              price="$249.00"
               priority="low"
               delay={200}
             />

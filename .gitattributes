@@ -1,0 +1,5 @@
+# Check out with LF everywhere so files match oxfmt's output (no CRLF churn on Windows).
+* text=auto eol=lf
+
+# Applied migrations must stay byte-for-byte as committed.
+supabase/migrations/** -text

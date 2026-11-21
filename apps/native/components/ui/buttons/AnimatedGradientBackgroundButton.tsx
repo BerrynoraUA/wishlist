@@ -98,7 +98,7 @@ export const AnimatedGradientBackgroundButton = ({
               "absolute bg-linear-135",
               variant === "brand"
                 ? "from-brand-lighter via-brand/25 to-brand-lighter"
-                : "from-primary via-accent-foreground to-brand",
+                : "from-primary via-accent-foreground to-brand dark:via-brand",
             )}
             style={[
               animatedGradientContainerStyle,

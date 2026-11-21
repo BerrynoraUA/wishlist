@@ -352,7 +352,7 @@ export function ProfileSettings({ profile }: { profile: ReturnType<typeof usePro
                 maxLength={160}
                 numberOfLines={4}
                 placeholder={t("Tell your friends a little about yourself...")}
-                className="text-text"
+                className="h-28 text-text"
               />
             )}
           />

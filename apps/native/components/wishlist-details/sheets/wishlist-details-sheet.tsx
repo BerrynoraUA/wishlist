@@ -34,10 +34,6 @@ export function WishlistDetailsSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      // `auto` must not be combined with `scrollable` — auto-sizing measures the content,
-      // a scrollable sheet clips it, and the sheet ends up padded out to a fixed height
-      // with empty space under short content. The description scrolls inside its own box
-      // instead, which keeps the sheet hugging whatever is actually there.
       detents={["auto"]}
       initialDetentIndex={0}
       initialDetentAnimated

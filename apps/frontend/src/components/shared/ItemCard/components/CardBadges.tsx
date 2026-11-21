@@ -36,7 +36,9 @@ export function CardBadges({
       {priorityDisplay && (
         <div
           className={styles.badgeRight}
-          style={priorityColor ? { borderColor: priorityColor, color: priorityColor } : undefined}
+          style={
+            priorityColor ? ({ "--badge-color": priorityColor } as React.CSSProperties) : undefined
+          }
         >
           {PriorityIcon && <PriorityIcon size={10} strokeWidth={2.5} />}
           {priorityDisplay}

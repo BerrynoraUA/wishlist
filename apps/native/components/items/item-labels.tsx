@@ -91,12 +91,12 @@ export function useItemCardBorderStyle(
   const priorityColor = usePriorityColor(priority);
 
   if (priority && priorityColor && isStarPriorityId(priority.id)) {
-    return { borderColor: priorityColor, borderWidth: 2 };
+    return { borderColor: priorityColor, borderWidth: 1.5 };
   }
 
   const itemColor = getItemColor(colorIndex);
 
-  return itemColor ? { borderColor: itemColor, borderWidth: 2 } : undefined;
+  return itemColor ? { borderColor: itemColor, borderWidth: 1.5 } : undefined;
 }
 
 export function ItemPriorityBadge({

@@ -1,6 +1,6 @@
 {
   "ios": {
-    "CFBundleDisplayName": "Wishlane",
+    "CFBundleDisplayName": "wishlane tester",
     "NSPhotoLibraryUsageDescription": "Engedélyezd a Wishlane-nek, hogy profilképet válasszon a könyvtáradból.",
     "NSFaceIDUsageDescription": "Engedélyezd a Wishlane-nek, hogy biztonságosan váltson a mentett fiókok között."
   },

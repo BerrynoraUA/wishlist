@@ -1,3 +1,5 @@
+import { useRef as useSheetScrollRef } from "react";
+import type { ScrollView as SheetScrollViewType } from "react-native";
 import { BottomSheet, BottomSheetHeader, type BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -34,6 +36,7 @@ export function EventsCalendarSheet({
   const router = useRouter();
   const { isGated, openPaywall } = useProGate();
   const sheetRef = React.useRef<BottomSheetRef>(null);
+  const sheetScrollRef = useSheetScrollRef<SheetScrollViewType>(null);
   const sortedEvents = React.useMemo(
     () =>
       [...events].sort(
@@ -125,7 +128,7 @@ export function EventsCalendarSheet({
   return (
     <BottomSheet
       ref={sheetRef}
-      scrollable
+      scrollableRef={sheetScrollRef}
       detents={[0.9, 1]}
       onDidDismiss={onClose}
       scrollableOptions={{ scrollingExpandsSheet: false }}
@@ -151,7 +154,11 @@ export function EventsCalendarSheet({
         />
       }
     >
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="gap-4 px-4">
+      <ScrollView
+        ref={sheetScrollRef}
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="gap-4 px-4"
+      >
         <View className="rounded-2xl border border-border-subtle bg-card-bg p-3 shadow-sm">
           <View className="mb-3 flex-row items-center justify-between">
             <Button
