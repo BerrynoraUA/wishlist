@@ -8,14 +8,14 @@ import { initRevenueCat, resetRevenueCat } from "@/lib/revenuecat";
 export function SdkProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     getCurrentUser().then((user) => {
-      if (user?.id) initRevenueCat(user.id);
+      if (user?.id) void initRevenueCat(user.id);
     });
 
     const {
       data: { subscription },
     } = supabaseBrowser.auth.onAuthStateChange((_event, session) => {
       const nextUserId = session?.user?.id ?? null;
-      if (nextUserId) initRevenueCat(nextUserId);
+      if (nextUserId) void initRevenueCat(nextUserId);
       else resetRevenueCat();
     });
 
