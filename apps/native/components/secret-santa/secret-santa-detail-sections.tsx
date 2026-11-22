@@ -26,6 +26,7 @@ import {
 } from "@/lib/secret-santa";
 import * as React from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
+import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { getWishlistAccentClass } from "@/lib/wishlists";
 import type {
@@ -91,6 +92,7 @@ export function SecretSantaDetailHero({
   const t = useGT();
   const locale = useLocale();
   const { formatPrice } = useCurrencyFormatter();
+  const reduceMotion = useReducedMotion();
   const hasActionsMenu = isOwner;
   const headerActionsCount = Number(hasActionsMenu);
   const headerActionsRightPadding = headerActionsCount === 1 ? "pe-12" : "";
@@ -109,6 +111,7 @@ export function SecretSantaDetailHero({
             source={{ uri: event.image_url }}
             contentFit="cover"
             blurRadius={6}
+            transition={reduceMotion ? 0 : motionDuration.fast}
             className="absolute inset-0 size-full opacity-60"
           />
         ) : null}
@@ -166,6 +169,7 @@ export function SecretSantaDetailHero({
                   contentFit="cover"
                   cachePolicy="memory-disk"
                   recyclingKey={event.id}
+                  transition={reduceMotion ? 0 : motionDuration.fast}
                   className="size-full"
                 />
               </View>
@@ -499,6 +503,7 @@ export function SecretSantaGiftSuggestions({
 }
 
 function GiftSuggestionRow({ item, priceLabel }: { item: VisibleItem; priceLabel: string }) {
+  const reduceMotion = useReducedMotion();
   const url = item.url;
 
   return (
@@ -513,7 +518,12 @@ function GiftSuggestionRow({ item, priceLabel }: { item: VisibleItem; priceLabel
     >
       <View className="size-14 items-center justify-center overflow-hidden rounded-xl bg-bg-muted">
         {item.image_url ? (
-          <StyledImage source={{ uri: item.image_url }} contentFit="cover" className="size-full" />
+          <StyledImage
+            source={{ uri: item.image_url }}
+            contentFit="cover"
+            transition={reduceMotion ? 0 : motionDuration.fast}
+            className="size-full"
+          />
         ) : (
           <Icon as={ImageIcon} className="size-5 text-text-light" />
         )}

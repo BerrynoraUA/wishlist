@@ -1,6 +1,6 @@
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
-import { useReducedMotion } from "@/lib/motion";
+import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as AvatarPrimitive from "@rn-primitives/avatar";
 import * as React from "react";
@@ -45,7 +45,7 @@ function AvatarImage({
         contentFit="cover"
         cachePolicy="memory-disk"
         recyclingKey={source.uri}
-        transition={reduceMotion ? 0 : 150}
+        transition={reduceMotion ? 0 : motionDuration.fast}
       />
     </AvatarPrimitive.Image>
   );
