@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/Button/Button";
 import buttonStyles from "@/components/ui/Button/Button.module.scss";
 import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
 
-export default function AppError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function AppError({
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   const t = useGT();
   const queryClient = useQueryClient();
 
