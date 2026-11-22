@@ -1,12 +1,11 @@
 "use client";
 
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { useGT } from "gt-next";
 import { DashboardHeader } from "./components/dashboard-header/DashboardHeader";
 import { StatsRow } from "./components/stats-row/StatsRow";
 import { WishlistGrid } from "./components/wishlist-grid/WishlistGrid";
-import { CreateWishlistModal } from "@/app/wishlist/[id]/components/create-wishlist-modal/CreateWishlistModal";
-import { EditWishlistModal } from "@/app/wishlist/[id]/components/edit-wishlist-modal/EditWishlistModal";
 import { FriendInviteModal } from "@/app/friends/components/friend-invite-modal/FriendInviteModal";
 import { FriendRequestSentModal } from "@/app/share/components/friend-request-sent-modal/FriendRequestSentModal";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
@@ -15,6 +14,21 @@ import { useCurrentUserId } from "@/hooks/use-user";
 import { useDeleteWishlist } from "@/hooks/use-wishlists";
 import { useHomeModals } from "./hooks/use-home-modals";
 import { useHomeQueryParamCleanup } from "./hooks/use-home-query-param-cleanup";
+
+const CreateWishlistModal = dynamic(
+  () =>
+    import("@/app/wishlist/[id]/components/create-wishlist-modal/CreateWishlistModal").then(
+      (m) => m.CreateWishlistModal,
+    ),
+  { ssr: false },
+);
+const EditWishlistModal = dynamic(
+  () =>
+    import("@/app/wishlist/[id]/components/edit-wishlist-modal/EditWishlistModal").then(
+      (m) => m.EditWishlistModal,
+    ),
+  { ssr: false },
+);
 
 function HomePageContent() {
   const t = useGT();

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useGT } from "gt-next";
 import { WishlistHeader } from "./components/wishlist-header/WishlistHeader";
@@ -12,10 +13,6 @@ import {
   useDeleteItem,
 } from "@/hooks/use-items";
 import { useWishlistById, useDeleteWishlist } from "@/hooks/use-wishlists";
-import { CreateItemModal } from "./components/create-item-modal/CreateItemModal";
-import { EditItemModal } from "./components/edit-item-modal/EditItemModal";
-import { EditWishlistModal } from "./components/edit-wishlist-modal/EditWishlistModal";
-import { GrantWishlistAccessModal } from "./components/grant-wishlist-access-modal/GrantWishlistAccessModal";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
 import { Pagination } from "@/components/ui/Pagination/Pagination";
 import { ShareFeedbackModal } from "@/components/ui/ShareFeedbackModal/ShareFeedbackModal";
@@ -35,6 +32,27 @@ import {
   WishlistItemsGridSkeleton,
 } from "./components/wishlist-skeleton/WishlistSkeleton";
 import { getItemsView } from "./helpers";
+
+const CreateItemModal = dynamic(
+  () => import("./components/create-item-modal/CreateItemModal").then((m) => m.CreateItemModal),
+  { ssr: false },
+);
+const EditItemModal = dynamic(
+  () => import("./components/edit-item-modal/EditItemModal").then((m) => m.EditItemModal),
+  { ssr: false },
+);
+const EditWishlistModal = dynamic(
+  () =>
+    import("./components/edit-wishlist-modal/EditWishlistModal").then((m) => m.EditWishlistModal),
+  { ssr: false },
+);
+const GrantWishlistAccessModal = dynamic(
+  () =>
+    import("./components/grant-wishlist-access-modal/GrantWishlistAccessModal").then(
+      (m) => m.GrantWishlistAccessModal,
+    ),
+  { ssr: false },
+);
 
 export default function WishlistItemsPage() {
   const t = useGT();
