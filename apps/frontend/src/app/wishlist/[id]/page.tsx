@@ -30,6 +30,11 @@ import { useWishlistShare } from "./hooks/use-wishlist-share";
 import { paginationFlags } from "@/lib/filter-helpers";
 import { WISHLIST_ITEMS_PAGE_SIZE } from "./constants";
 import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
+import {
+  WishlistHeaderSkeleton,
+  WishlistItemsGridSkeleton,
+} from "./components/wishlist-skeleton/WishlistSkeleton";
+import { getItemsView } from "./helpers";
 
 export default function WishlistItemsPage() {
   const t = useGT();
@@ -74,6 +79,13 @@ export default function WishlistItemsPage() {
   const items = itemsData ?? [];
   const visibleItems = items.slice(0, WISHLIST_ITEMS_PAGE_SIZE);
   const hasAnyItems = (allItemsData?.length ?? 0) > 0;
+  const itemsView = getItemsView({
+    isError: itemsError,
+    isLoading: itemsLoading,
+    visibleCount: visibleItems.length,
+    hasAnyItems,
+    isFiltersActive,
+  });
   const isOwner = Boolean(wishlist?.is_owner);
   const canEditWishlist = Boolean(wishlist?.can_edit || wishlist?.is_owner);
 
@@ -110,6 +122,7 @@ export default function WishlistItemsPage() {
           })}
         </p>
       )}
+      {!wishlist && !wishlistError && <WishlistHeaderSkeleton />}
       {wishlist && (
         <WishlistHeader
           wishlist={wishlist}
@@ -143,12 +156,14 @@ export default function WishlistItemsPage() {
         />
       )}
 
-      {itemsError && <p>{t("Failed to load items.", { $id: "wishlist.page.itemsError" })}</p>}
-      {!itemsError && (
+      {itemsView === "error" && (
+        <p>{t("Failed to load items.", { $id: "wishlist.page.itemsError" })}</p>
+      )}
+      {itemsView !== "error" && (
         <section
           className={styles.itemsSection}
           style={{
-            opacity: itemsFetching && !itemsLoading ? 0.6 : 1,
+            opacity: itemsFetching && itemsView !== "loading" ? 0.6 : 1,
             transition: "opacity 0.2s ease",
           }}
         >
@@ -160,14 +175,16 @@ export default function WishlistItemsPage() {
             <WishlistItemFilters wishlistId={id} />
           </div>
 
-          {!itemsLoading && !hasAnyItems && !isFiltersActive && (
+          {itemsView === "loading" && <WishlistItemsGridSkeleton />}
+
+          {itemsView === "empty" && (
             <MascotEmptyState
               variant="gift-in-hands"
               message={t("No items yet.", { $id: "wishlist.page.noItems" })}
             />
           )}
 
-          {!itemsLoading && visibleItems.length === 0 && isFiltersActive && (
+          {itemsView === "no-matches" && (
             <MascotEmptyState
               variant="magnifying-glass"
               message={t("No items match your filters.", {
@@ -176,7 +193,7 @@ export default function WishlistItemsPage() {
             />
           )}
 
-          {!itemsLoading && visibleItems.length > 0 && (
+          {itemsView === "items" && (
             <>
               <WishlistItemsGrid
                 items={visibleItems}
