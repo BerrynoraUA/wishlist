@@ -1,3 +1,4 @@
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { FloatingBackButton } from "@/components/ui/floating-back-button";
 import { Icon } from "@/components/ui/icon";
 import { StyledFlashList } from "@/components/ui/styled-flash-list";
@@ -22,7 +23,7 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import { Gift } from "lucide-react-native";
 import { useGT } from "gt-react-native";
 import * as React from "react";
-import { Pressable, View, useWindowDimensions } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 import { CardGridSkeleton } from "@/components/ui/list-skeletons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -145,10 +146,11 @@ const FriendWishlistCard = React.memo(function FriendWishlistCard({
 
   return (
     <ZoomLink href={{ pathname: "/friends/wishlist/[id]", params: { id: wishlist.id } }}>
-      <Pressable
+      <AnimatedPressable
         accessibilityRole="button"
         accessibilityLabel={t('Open "{title}"', { title: wishlist.title })}
-        className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm active:scale-[0.99]"
+        className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
+        pressedScale={0.99}
       >
         <View className="h-30 items-center justify-center overflow-hidden">
           <View className={cn("absolute inset-0", getWishlistAccentClass(wishlist.accent_type))} />
@@ -182,7 +184,7 @@ const FriendWishlistCard = React.memo(function FriendWishlistCard({
             </View>
           </View>
         </View>
-      </Pressable>
+      </AnimatedPressable>
     </ZoomLink>
   );
 });

@@ -1,3 +1,4 @@
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -7,7 +8,7 @@ import type { FriendWithDetails } from "@wishlist/backend/types/friends";
 import type { Href } from "expo-router";
 import { UserMinus } from "lucide-react-native";
 import { useGT } from "gt-react-native";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 
 export function FriendCard({
   friend,
@@ -23,10 +24,11 @@ export function FriendCard({
 
   return (
     <ZoomLink href={href}>
-      <Pressable
+      <AnimatedPressable
         accessibilityRole="button"
         accessibilityLabel={t("Open friend")}
-        className="flex-row items-center gap-3 rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm active:scale-[0.99]"
+        className="flex-row items-center gap-3 overflow-hidden rounded-xl border border-border-subtle bg-card-bg p-4 shadow-sm"
+        pressedScale={0.99}
       >
         <Avatar className="size-12" alt={friend.display_name || friend.nickname || t("Friend")}>
           {friend.avatar_url ? <AvatarImage source={{ uri: friend.avatar_url }} /> : null}
@@ -68,7 +70,7 @@ export function FriendCard({
             <Icon as={UserMinus} className="size-4 text-text-muted" />
           </Button>
         </View>
-      </Pressable>
+      </AnimatedPressable>
     </ZoomLink>
   );
 }
