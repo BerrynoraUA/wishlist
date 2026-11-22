@@ -167,7 +167,7 @@ export default function SecretSantaDetailScreen() {
         >
           <View className="gap-5 bg-bg">
             {detailsQuery.isLoading ? (
-              <View style={{ marginTop: 20 }}>
+              <View style={{ marginTop: insets.top + 20 }}>
                 <DetailSkeleton width={contentWidth} />
               </View>
             ) : null}

@@ -441,7 +441,7 @@ export default function WishlistDetailScreen() {
       <Stack.Screen options={{ title: wishlist?.title ?? t("Wishlist") }} />
       <View ref={screenRef} collapsable={false} className="flex-1 bg-bg">
         {wishlistQuery.isLoading ? (
-          <View className="flex-1 px-4 pt-6">
+          <View className="flex-1 px-4" style={{ paddingTop: insets.top + 24 }}>
             <DetailSkeleton width={contentWidth} />
           </View>
         ) : wishlistQuery.isError || !wishlist ? (
