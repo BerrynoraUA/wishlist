@@ -40,7 +40,7 @@ const REPO_ROOT = NodePath.resolve(
   "../..",
 );
 const NATIVE_ROOT = NodePath.join(REPO_ROOT, "apps/native");
-const IOS_APP_ID = "com.berrynora.wishlanetester";
+const IOS_APP_ID = "com.berrynora.wishlane";
 const ANDROID_APP_ID = "com.berrynora.wishlane";
 const APP_SCHEME = "wishlane";
 const IOS_SCHEME = "Wishlane";

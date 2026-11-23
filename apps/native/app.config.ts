@@ -59,7 +59,7 @@ export function resolveAppConfig(
       bundleIdentifier: `${config.ios?.bundleIdentifier}${variant?.iosSuffix ?? ""}`,
       infoPlist: {
         ...config.ios?.infoPlist,
-        // app.json's display name is the production TestFlight name.
+        // Production takes its display name from the localized store listing.
         ...(variant && { CFBundleDisplayName: variant.name }),
         // Only a showcase build gets these; every other build keeps the defaults.
         ...(env.EXPO_PUBLIC_SHOWCASE === "1" && SHOWCASE_DEV_MENU_INFO_PLIST),
