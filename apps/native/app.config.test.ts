@@ -11,7 +11,7 @@ describe("app config", () => {
   it.each([
     ["development", "Wishlane Dev", "wishlane-dev", `${bundleId}.dev`, "Wishlane Dev"],
     ["staging", "Wishlane Staging", "wishlane-staging", bundleId, "Wishlane Staging"],
-    ["production", baseConfig.name, baseConfig.scheme, bundleId, "wishlane tester"],
+    ["production", baseConfig.name, baseConfig.scheme, bundleId, undefined],
   ])("resolves the %s identity", (variant, name, scheme, iosId, displayName) => {
     const config = resolveAppConfig(baseConfig, { APP_VARIANT: variant });
 

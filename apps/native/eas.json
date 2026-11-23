@@ -58,8 +58,8 @@
         "releaseStatus": "completed"
       },
       "ios": {
-        "ascAppId": "6825701808",
-        "appleTeamId": "N2R2872DTQ",
+        "ascAppId": "6792105704",
+        "appleTeamId": "7BBN562VZY",
         "metadataPath": "store.config.js"
       }
     },
@@ -69,8 +69,8 @@
         "releaseStatus": "completed"
       },
       "ios": {
-        "ascAppId": "6825701808",
-        "appleTeamId": "N2R2872DTQ"
+        "ascAppId": "6792105704",
+        "appleTeamId": "7BBN562VZY"
       }
     },
     "beta": {
@@ -79,8 +79,8 @@
         "releaseStatus": "completed"
       },
       "ios": {
-        "ascAppId": "6825701808",
-        "appleTeamId": "N2R2872DTQ"
+        "ascAppId": "6792105704",
+        "appleTeamId": "7BBN562VZY"
       }
     }
   }

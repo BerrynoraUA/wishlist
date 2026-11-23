@@ -57,11 +57,10 @@
     "ios": {
       "icon": "./assets/app-icon.icon",
       "supportsTablet": false,
-      "bundleIdentifier": "com.berrynora.wishlanetester",
-      "appleTeamId": "N2R2872DTQ",
+      "bundleIdentifier": "com.berrynora.wishlane",
+      "appleTeamId": "7BBN562VZY",
       "usesAppleSignIn": true,
       "infoPlist": {
-        "CFBundleDisplayName": "wishlane tester",
         "CFBundleAllowMixedLocalizations": true,
         "ITSAppUsesNonExemptEncryption": false
       }
