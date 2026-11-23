@@ -1,7 +1,10 @@
+import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
+import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import * as AvatarPrimitive from "@rn-primitives/avatar";
 import * as React from "react";
+import type { ImageURISource } from "react-native";
 
 const AvatarNameContext = React.createContext<string | undefined>(undefined);
 
@@ -24,8 +27,28 @@ function Avatar({
   );
 }
 
-function AvatarImage({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
-  return <AvatarPrimitive.Image className={cn("aspect-square size-full", className)} {...props} />;
+// The primitive still owns loading/error status so the fallback works; expo-image does the
+// drawing so avatars come from the disk cache and survive list recycling without blanking.
+function AvatarImage({
+  className,
+  source,
+  ...props
+}: Omit<React.ComponentProps<typeof AvatarPrimitive.Image>, "source"> & {
+  source: ImageURISource;
+}) {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <AvatarPrimitive.Image asChild source={source} {...props}>
+      <StyledImage
+        className={cn("aspect-square size-full", className)}
+        contentFit="cover"
+        cachePolicy="memory-disk"
+        recyclingKey={source.uri}
+        transition={reduceMotion ? 0 : motionDuration.fast}
+      />
+    </AvatarPrimitive.Image>
+  );
 }
 
 function AvatarFallback({

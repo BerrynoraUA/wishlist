@@ -1,9 +1,7 @@
-import {
-  ErrorCode,
+import type {
+  CustomerInfo,
   PackageType,
-  PurchasesError,
-  type CustomerInfo,
-  type Package as RevenueCatPackage,
+  Package as RevenueCatPackage,
 } from "@revenuecat/purchases-js";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { getRevenueCat, initRevenueCat, RC_PRO_ENTITLEMENT_ID } from "@/lib/revenuecat";
@@ -66,13 +64,16 @@ export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
   };
 }
 
-function getPurchasesForUser(userId: string) {
-  return getRevenueCat() ?? initRevenueCat(userId);
+async function getPurchasesForUser(userId: string) {
+  return getRevenueCat() ?? (await initRevenueCat(userId));
 }
 
-function getPackageInterval(rcPackage: RevenueCatPackage): BillingInterval | null {
-  if (rcPackage.packageType === PackageType.Monthly) return BillingInterval.Monthly;
-  if (rcPackage.packageType === PackageType.Annual) return BillingInterval.Yearly;
+function getPackageInterval(
+  rcPackage: RevenueCatPackage,
+  packageTypes: typeof PackageType,
+): BillingInterval | null {
+  if (rcPackage.packageType === packageTypes.Monthly) return BillingInterval.Monthly;
+  if (rcPackage.packageType === packageTypes.Annual) return BillingInterval.Yearly;
 
   const period = rcPackage.webBillingProduct.period;
   if (period?.unit === "month" && period.number === 1) return BillingInterval.Monthly;
@@ -81,10 +82,7 @@ function getPackageInterval(rcPackage: RevenueCatPackage): BillingInterval | nul
   return null;
 }
 
-function summarizePackage(rcPackage: RevenueCatPackage): RevenueCatPackageSummary | null {
-  const interval = getPackageInterval(rcPackage);
-  if (!interval) return null;
-
+function summarizePackage({ rcPackage, interval }: IntervalPackage): RevenueCatPackageSummary {
   const product = rcPackage.webBillingProduct;
 
   return {
@@ -97,35 +95,41 @@ function summarizePackage(rcPackage: RevenueCatPackage): RevenueCatPackageSummar
   };
 }
 
-async function getRevenueCatPackages() {
+type IntervalPackage = { rcPackage: RevenueCatPackage; interval: BillingInterval };
+
+/** Current offering's monthly and yearly packages; others are dropped. */
+async function getRevenueCatPackages(): Promise<IntervalPackage[]> {
   const user = await getCurrentUser();
 
   if (!user) throw new Error("Not authenticated");
 
-  const purchases = getPurchasesForUser(user.id);
+  const purchases = await getPurchasesForUser(user.id);
   if (!purchases) throw new Error("RevenueCat is not configured");
 
-  const offerings = await purchases.getOfferings();
-  return offerings.current?.availablePackages ?? [];
+  const [{ PackageType }, offerings] = await Promise.all([
+    import("@revenuecat/purchases-js"),
+    purchases.getOfferings(),
+  ]);
+  return (offerings.current?.availablePackages ?? []).flatMap((rcPackage) => {
+    const interval = getPackageInterval(rcPackage, PackageType);
+    return interval ? [{ rcPackage, interval }] : [];
+  });
 }
 
 export async function getSubscriptionPackages(): Promise<RevenueCatPackageSummary[]> {
   const packages = await getRevenueCatPackages();
-  return packages.flatMap((rcPackage) => {
-    const summary = summarizePackage(rcPackage);
-    return summary ? [summary] : [];
-  });
+  return packages.map(summarizePackage);
 }
 
 async function getPackageForInterval(interval: BillingInterval) {
   const packages = await getRevenueCatPackages();
-  const selectedPackage = packages.find((rcPackage) => getPackageInterval(rcPackage) === interval);
+  const selected = packages.find((intervalPackage) => intervalPackage.interval === interval);
 
-  if (!selectedPackage) {
+  if (!selected) {
     throw new Error(`RevenueCat ${interval} package is not configured`);
   }
 
-  return selectedPackage;
+  return selected.rcPackage;
 }
 
 function hasProEntitlement(customerInfo: CustomerInfo) {
@@ -136,7 +140,7 @@ export async function purchaseSubscription(interval: BillingInterval): Promise<S
   const user = await getCurrentUser();
   if (!user) throw new Error("Not authenticated");
 
-  const purchases = getPurchasesForUser(user.id);
+  const purchases = await getPurchasesForUser(user.id);
   if (!purchases) throw new Error("RevenueCat is not configured");
 
   try {
@@ -152,6 +156,7 @@ export async function purchaseSubscription(interval: BillingInterval): Promise<S
 
     return syncSubscription();
   } catch (error) {
+    const { ErrorCode, PurchasesError } = await import("@revenuecat/purchases-js");
     if (error instanceof PurchasesError && error.errorCode === ErrorCode.UserCancelledError) {
       throw new PurchaseCancelledError();
     }
@@ -164,7 +169,7 @@ export async function openSubscriptionManagement(): Promise<void> {
   const user = await getCurrentUser();
   if (!user) throw new Error("Not authenticated");
 
-  const purchases = getPurchasesForUser(user.id);
+  const purchases = await getPurchasesForUser(user.id);
   if (!purchases) throw new Error("RevenueCat is not configured");
 
   const customerInfo = await purchases.getCustomerInfo();

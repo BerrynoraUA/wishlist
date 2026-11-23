@@ -5,6 +5,7 @@ import {
   DropdownMenuTrigger,
   useDropdownMenuPreview,
 } from "@/components/ui/dropdown-menu";
+import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import { Icon } from "@/components/ui/icon";
 import { StyledImage } from "@/components/ui/styled-image";
 import { Text } from "@/components/ui/text";
@@ -51,11 +52,12 @@ export function SecretSantaEventCard({
       <DropdownMenu className="relative" onOpenChange={onMenuOpenChange}>
         <View ref={menuCardRef} collapsable={false}>
           <ZoomLink href={href}>
-            <Pressable
+            <AnimatedPressable
               accessibilityRole="button"
               accessibilityLabel={t('Open "{name}"', { name: event.name })}
               onLongPress={showMenu ? openMenu : undefined}
-              className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm active:scale-[0.99]"
+              className="overflow-hidden rounded-xl border border-border-subtle bg-card-bg shadow-sm"
+              pressedScale={0.99}
             >
               <View
                 className={cn(
@@ -117,7 +119,7 @@ export function SecretSantaEventCard({
                   </View>
                 </View>
               </View>
-            </Pressable>
+            </AnimatedPressable>
           </ZoomLink>
         </View>
         {showMenu ? (

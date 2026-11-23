@@ -1299,6 +1299,29 @@ $font-serif: "Playfair Display", Georgia, serif;
   transform: translateY(0);
 }
 
+// The hero is the LCP, so it enters with CSS alone and is visible in server
+// HTML. The observer-driven .animateIn would keep it hidden until hydration.
+.heroEnter {
+  animation: heroEnter 0.7s $ease-out both;
+}
+
+.heroEnterDelayed {
+  animation-delay: 0.2s;
+}
+
+@keyframes heroEnter {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroEnter {
+    animation: none;
+  }
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1024px) {
   .heroTitle {

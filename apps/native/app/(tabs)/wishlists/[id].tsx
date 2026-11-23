@@ -170,8 +170,11 @@ export default function WishlistDetailScreen() {
   // The mutation results get a new identity once their observers subscribe after mount;
   // depending on them re-rendered every item row right as the screen was opening.
   const { mutate: mutateVote } = toggleVote;
-  const { mutate: mutateReservation, isPending: reservationPending } = toggleReservation;
-  const { mutate: mutateBought, isPending: boughtPending } = toggleBought;
+  const { mutate: mutateReservation } = toggleReservation;
+  const { mutate: mutateBought } = toggleBought;
+  // The item each toggle is in flight for, so only that card shows it pending.
+  const reservingItemId = toggleReservation.isPending ? toggleReservation.variables : undefined;
+  const buyingItemId = toggleBought.isPending ? toggleBought.variables : undefined;
   const completeShareStep = useUserGuideStepCompletion(USER_GUIDE_STEP_IDS.shareWishlist);
   const { activeTargetId, requestMeasure } = useUserGuideTargetRegistration();
   const reservedByIds = React.useMemo(
@@ -398,8 +401,8 @@ export default function WishlistDetailScreen() {
               // Owners included: you can mark your own gift reserved or bought.
               onToggleReserve={() => mutateReservation(entry.id)}
               onToggleBought={() => mutateBought(entry.id)}
-              reservePending={reservationPending}
-              boughtPending={boughtPending}
+              reservePending={entry.id === reservingItemId}
+              boughtPending={entry.id === buyingItemId}
             />
           </AnimatedListCard>
         ))}
@@ -418,8 +421,8 @@ export default function WishlistDetailScreen() {
       mutateVote,
       mutateReservation,
       mutateBought,
-      reservationPending,
-      boughtPending,
+      reservingItemId,
+      buyingItemId,
       votesQuery.data,
     ],
   );
@@ -438,7 +441,7 @@ export default function WishlistDetailScreen() {
       <Stack.Screen options={{ title: wishlist?.title ?? t("Wishlist") }} />
       <View ref={screenRef} collapsable={false} className="flex-1 bg-bg">
         {wishlistQuery.isLoading ? (
-          <View className="flex-1 px-4 pt-6">
+          <View className="flex-1 px-4" style={{ paddingTop: insets.top + 24 }}>
             <DetailSkeleton width={contentWidth} />
           </View>
         ) : wishlistQuery.isError || !wishlist ? (
@@ -592,8 +595,8 @@ export default function WishlistDetailScreen() {
                 ? profileNamesById.get(sheet.item.reserved_by)
                 : undefined
             }
-            reservePending={toggleReservation.isPending}
-            boughtPending={toggleBought.isPending}
+            reservePending={sheet?.type === "detail" && sheet.item.id === reservingItemId}
+            boughtPending={sheet?.type === "detail" && sheet.item.id === buyingItemId}
             onClose={() => setSheet(null)}
             onEdit={canEditWishlist ? (item) => setSheet({ type: "edit", item }) : undefined}
             onDelete={canEditWishlist ? (item) => setSheet({ type: "delete", item }) : undefined}

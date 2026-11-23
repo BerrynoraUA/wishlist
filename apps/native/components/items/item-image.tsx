@@ -4,7 +4,7 @@ import { Text } from "@/components/ui/text";
 import { CARD_BADGE_HEIGHT, ItemPriorityBadge } from "@/components/items/item-labels";
 import { ItemRibbon, type ItemRibbonPhase } from "@/components/items/item-ribbon";
 import { useCurrencyFormatter } from "@/hooks/use-currency";
-import { useReducedMotion } from "@/lib/motion";
+import { motionDuration, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { isStarPriorityId } from "@wishlist/backend/lib";
 import type { Item } from "@wishlist/backend/types/item";
@@ -113,6 +113,7 @@ export function ItemImage({
             contentPosition="center"
             cachePolicy="memory-disk"
             recyclingKey={item.id}
+            transition={reduceMotion ? 0 : motionDuration.fast}
             className="size-full"
           />
         </Animated.View>

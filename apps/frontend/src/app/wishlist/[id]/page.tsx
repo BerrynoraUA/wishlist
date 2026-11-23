@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useGT } from "gt-next";
 import { WishlistHeader } from "./components/wishlist-header/WishlistHeader";
@@ -12,10 +13,6 @@ import {
   useDeleteItem,
 } from "@/hooks/use-items";
 import { useWishlistById, useDeleteWishlist } from "@/hooks/use-wishlists";
-import { CreateItemModal } from "./components/create-item-modal/CreateItemModal";
-import { EditItemModal } from "./components/edit-item-modal/EditItemModal";
-import { EditWishlistModal } from "./components/edit-wishlist-modal/EditWishlistModal";
-import { GrantWishlistAccessModal } from "./components/grant-wishlist-access-modal/GrantWishlistAccessModal";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal/DeleteConfirmModal";
 import { Pagination } from "@/components/ui/Pagination/Pagination";
 import { ShareFeedbackModal } from "@/components/ui/ShareFeedbackModal/ShareFeedbackModal";
@@ -30,6 +27,32 @@ import { useWishlistShare } from "./hooks/use-wishlist-share";
 import { paginationFlags } from "@/lib/filter-helpers";
 import { WISHLIST_ITEMS_PAGE_SIZE } from "./constants";
 import { MascotEmptyState } from "@/components/ui/MascotEmptyState/MascotEmptyState";
+import {
+  WishlistHeaderSkeleton,
+  WishlistItemsGridSkeleton,
+} from "./components/wishlist-skeleton/WishlistSkeleton";
+import { getItemsView } from "./helpers";
+
+const CreateItemModal = dynamic(
+  () => import("./components/create-item-modal/CreateItemModal").then((m) => m.CreateItemModal),
+  { ssr: false },
+);
+const EditItemModal = dynamic(
+  () => import("./components/edit-item-modal/EditItemModal").then((m) => m.EditItemModal),
+  { ssr: false },
+);
+const EditWishlistModal = dynamic(
+  () =>
+    import("./components/edit-wishlist-modal/EditWishlistModal").then((m) => m.EditWishlistModal),
+  { ssr: false },
+);
+const GrantWishlistAccessModal = dynamic(
+  () =>
+    import("./components/grant-wishlist-access-modal/GrantWishlistAccessModal").then(
+      (m) => m.GrantWishlistAccessModal,
+    ),
+  { ssr: false },
+);
 
 export default function WishlistItemsPage() {
   const t = useGT();
@@ -74,6 +97,13 @@ export default function WishlistItemsPage() {
   const items = itemsData ?? [];
   const visibleItems = items.slice(0, WISHLIST_ITEMS_PAGE_SIZE);
   const hasAnyItems = (allItemsData?.length ?? 0) > 0;
+  const itemsView = getItemsView({
+    isError: itemsError,
+    isLoading: itemsLoading,
+    visibleCount: visibleItems.length,
+    hasAnyItems,
+    isFiltersActive,
+  });
   const isOwner = Boolean(wishlist?.is_owner);
   const canEditWishlist = Boolean(wishlist?.can_edit || wishlist?.is_owner);
 
@@ -110,6 +140,7 @@ export default function WishlistItemsPage() {
           })}
         </p>
       )}
+      {!wishlist && !wishlistError && <WishlistHeaderSkeleton />}
       {wishlist && (
         <WishlistHeader
           wishlist={wishlist}
@@ -143,12 +174,14 @@ export default function WishlistItemsPage() {
         />
       )}
 
-      {itemsError && <p>{t("Failed to load items.", { $id: "wishlist.page.itemsError" })}</p>}
-      {!itemsError && (
+      {itemsView === "error" && (
+        <p>{t("Failed to load items.", { $id: "wishlist.page.itemsError" })}</p>
+      )}
+      {itemsView !== "error" && (
         <section
           className={styles.itemsSection}
           style={{
-            opacity: itemsFetching && !itemsLoading ? 0.6 : 1,
+            opacity: itemsFetching && itemsView !== "loading" ? 0.6 : 1,
             transition: "opacity 0.2s ease",
           }}
         >
@@ -160,14 +193,16 @@ export default function WishlistItemsPage() {
             <WishlistItemFilters wishlistId={id} />
           </div>
 
-          {!itemsLoading && !hasAnyItems && !isFiltersActive && (
+          {itemsView === "loading" && <WishlistItemsGridSkeleton />}
+
+          {itemsView === "empty" && (
             <MascotEmptyState
               variant="gift-in-hands"
               message={t("No items yet.", { $id: "wishlist.page.noItems" })}
             />
           )}
 
-          {!itemsLoading && visibleItems.length === 0 && isFiltersActive && (
+          {itemsView === "no-matches" && (
             <MascotEmptyState
               variant="magnifying-glass"
               message={t("No items match your filters.", {
@@ -176,7 +211,7 @@ export default function WishlistItemsPage() {
             />
           )}
 
-          {!itemsLoading && visibleItems.length > 0 && (
+          {itemsView === "items" && (
             <>
               <WishlistItemsGrid
                 items={visibleItems}

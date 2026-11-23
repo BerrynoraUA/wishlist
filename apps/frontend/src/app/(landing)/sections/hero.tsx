@@ -117,7 +117,7 @@ export function Hero({
           <div className={`${styles.heroBlob} ${styles.heroBlob3}`} />
         </div>
         <div className={`${styles.container} ${styles.heroInner}`}>
-          <div className={`${styles.heroContent} ${styles.animateIn}`}>
+          <div className={`${styles.heroContent} ${styles.heroEnter}`}>
             <span className={styles.heroBadge}>
               {t("Gifting, reimagined", { $id: "landing.hero.badge" })}
             </span>
@@ -167,7 +167,7 @@ export function Hero({
               })}
             </p>
           </div>
-          <div className={`${styles.heroVisual} ${styles.animateIn}`} data-delay="200">
+          <div className={`${styles.heroVisual} ${styles.heroEnter} ${styles.heroEnterDelayed}`}>
             <div className={styles.heroMockup}>
               <Mascot variant="excited-cheer" className={styles.heroMascot} />
               <div className={styles.mockupCardMain}>
