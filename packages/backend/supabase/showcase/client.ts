@@ -4,8 +4,9 @@
  * screen, not a database — this removes Docker, the local stack and the seeding step
  * from the screenshot harness while the app keeps calling its production queries.
  *
- * Reads are answered; writes succeed without recording anything, because nothing in a
- * capture mutates and a stray mutation must not throw.
+ * Reads are answered. Writes succeed without recording anything, so a stray mutation
+ * never throws, except new items: those are kept in memory until the app relaunches, so
+ * a screen recording can show an item added from a link land in its wishlist.
  */
 
 import type { WishlistSupabaseClient } from "../types";
@@ -28,6 +29,7 @@ import {
   SHOWCASE_UPCOMING_WISHLISTS,
   SHOWCASE_USER,
   SHOWCASE_WISHLISTS,
+  PRIORITY_NAMES,
 } from "./data";
 
 /** Fixture rows are ordinary interfaces, so columns are read through a cast. */
@@ -65,20 +67,49 @@ function page<T>(rows: readonly T[], params: Params, skipKey = "p_skip", takeKey
   return rows.slice(skip, skip + take);
 }
 
+const createdItems: Row[] = [];
+
+/** Newest first, as the default `newest` sort returns them. */
+function itemsOfWishlist(wishlistId: unknown): Row[] {
+  return [...createdItems, ...SHOWCASE_ITEMS].filter(
+    (item) => column(item, "wishlist_id") === wishlistId,
+  );
+}
+
+function withLiveItemCount(wishlist: Row): Row {
+  return { ...wishlist, items_count: itemsOfWishlist(column(wishlist, "id")).length };
+}
+
+function recordCreatedItem(payload: Row): Row {
+  const priorityId = column(payload, "priority_id");
+  const item = {
+    ...payload,
+    id: `5b0f9c40-0000-4000-9000-${String(createdItems.length + 1).padStart(12, "0")}`,
+    priority_name: typeof priorityId === "string" ? (PRIORITY_NAMES[priorityId] ?? null) : null,
+    created_at: new Date().toISOString(),
+    reserved_by: null,
+  };
+  createdItems.unshift(item);
+  return item;
+}
+
 /**
  * Only the RPCs the four capture scenes reach are answered by name. Anything else
  * resolves empty, which keeps an unrelated screen from erroring mid-run.
  */
 const RPC_HANDLERS: Record<string, (params: Params) => unknown> = {
-  get_my_wishlists_feed: (params) => page(SHOWCASE_WISHLISTS, params),
-  get_wishlist_by_id: (params) =>
-    SHOWCASE_WISHLISTS.find((wishlist) => wishlist.id === params.p_wishlist_id) ?? null,
-  get_wishlist_items: (params) =>
-    page(
-      SHOWCASE_ITEMS.filter((item) => item.wishlist_id === params.p_wishlist_id),
-      params,
-    ),
-  get_user_stats: () => [SHOWCASE_STATISTICS],
+  get_my_wishlists_feed: (params) => page(SHOWCASE_WISHLISTS.map(withLiveItemCount), params),
+  get_wishlist_by_id: (params) => {
+    const wishlist = SHOWCASE_WISHLISTS.find((entry) => entry.id === params.p_wishlist_id);
+    return wishlist ? withLiveItemCount(wishlist) : null;
+  },
+  get_wishlist_items: (params) => page(itemsOfWishlist(params.p_wishlist_id), params),
+  get_user_stats: () => [
+    {
+      ...SHOWCASE_STATISTICS,
+      total_items_count: SHOWCASE_STATISTICS.total_items_count + createdItems.length,
+    },
+  ],
   get_friends_wishlists_discover_all: (params) => page(SHOWCASE_DISCOVER_SECTIONS, params),
   get_friends_wishlists_discover: (params) => page(SHOWCASE_DISCOVER_SECTIONS, params),
   get_friends_upcoming_wishlists: () => SHOWCASE_UPCOMING_WISHLISTS,
@@ -141,7 +172,7 @@ function createQueryBuilder(table: string) {
       return builder;
     },
     insert(payload: Row | Row[]) {
-      written = payload;
+      written = table === "item" && !Array.isArray(payload) ? recordCreatedItem(payload) : payload;
       return builder;
     },
     update(payload: Row) {
