@@ -5,8 +5,9 @@
  * from the screenshot harness while the app keeps calling its production queries.
  *
  * Reads are answered. Writes succeed without recording anything, so a stray mutation
- * never throws, except new items: those are kept in memory until the app relaunches, so
- * a screen recording can show an item added from a link land in its wishlist.
+ * never throws, except new items and read notifications: those are kept in memory until
+ * the app relaunches, so a screen recording can show an item added from a link land in
+ * its wishlist, or start with the notifications already read.
  */
 
 import type { WishlistSupabaseClient } from "../types";
@@ -68,6 +69,13 @@ function page<T>(rows: readonly T[], params: Params, skipKey = "p_skip", takeKey
 }
 
 const createdItems: Row[] = [];
+const readNotificationIds = new Set<unknown>();
+
+function liveNotifications(): Row[] {
+  return SHOWCASE_NOTIFICATIONS.map((notification) =>
+    readNotificationIds.has(notification.id) ? { ...notification, is_read: true } : notification,
+  );
+}
 
 /** Newest first, as the default `newest` sort returns them. */
 function itemsOfWishlist(wishlistId: unknown): Row[] {
@@ -125,9 +133,9 @@ const RPC_HANDLERS: Record<string, (params: Params) => unknown> = {
   list_secret_santa_events: () => SHOWCASE_SECRET_SANTA_LIST,
   get_secret_santa_details: () => SHOWCASE_SECRET_SANTA_DETAILS,
   get_user_visible_items_by_max_price: () => SHOWCASE_GIFT_SUGGESTIONS,
-  get_user_notifications: (params) => page(SHOWCASE_NOTIFICATIONS, params, "p_offset", "p_limit"),
+  get_user_notifications: (params) => page(liveNotifications(), params, "p_offset", "p_limit"),
   get_unread_notifications_count: () =>
-    SHOWCASE_NOTIFICATIONS.filter((notification) => !notification.is_read).length,
+    liveNotifications().filter((notification) => !column(notification, "is_read")).length,
 };
 
 const PROFILE_ROWS: readonly Row[] = SHOWCASE_PUBLIC_PROFILES.map((profile) =>
@@ -141,7 +149,6 @@ const TABLES: Record<string, readonly Row[]> = {
   user_settings: [SHOWCASE_SETTINGS],
   user_subscriptions: [SHOWCASE_SUBSCRIPTION],
   exchange_rates: SHOWCASE_EXCHANGE_RATES,
-  notifications: SHOWCASE_NOTIFICATIONS,
 };
 
 /**
@@ -149,8 +156,17 @@ const TABLES: Record<string, readonly Row[]> = {
  * with its own payload so `.select().single()` after an insert still returns a row.
  */
 function createQueryBuilder(table: string) {
-  let rows: readonly Row[] = TABLES[table] ?? [];
+  let rows: readonly Row[] =
+    table === "notifications" ? liveNotifications() : (TABLES[table] ?? []);
   let written: Row | Row[] | null = null;
+
+  // Runs when the query resolves, after its filters have narrowed `rows`.
+  function commit() {
+    if (table === "notifications" && written && column(written, "is_read") === true) {
+      for (const row of rows) readNotificationIds.add(column(row, "id"));
+    }
+    return written;
+  }
 
   const builder = {
     select: () => builder,
@@ -187,14 +203,14 @@ function createQueryBuilder(table: string) {
       written = [];
       return builder;
     },
-    single: () => ok(written ?? rows[0] ?? null),
-    maybeSingle: () => ok(written ?? rows[0] ?? null),
+    single: () => ok(commit() ?? rows[0] ?? null),
+    maybeSingle: () => ok(commit() ?? rows[0] ?? null),
     // Deliberately thenable: PostgREST builders are awaited without a terminal call.
     // oxlint-disable-next-line no-thenable
     then<TResult>(
       onFulfilled: (value: { data: unknown; error: null }) => TResult,
     ): Promise<TResult> {
-      return ok(written ?? rows).then(onFulfilled);
+      return ok(commit() ?? rows).then(onFulfilled);
     },
   };
 
