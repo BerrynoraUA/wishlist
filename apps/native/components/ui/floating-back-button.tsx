@@ -4,7 +4,6 @@ import { GLASS_CAPSULE_STYLE, HAS_LIQUID_GLASS } from "@/components/ui/liquid-gl
 import { useHideBackButton } from "@/hooks/use-hide-back-button";
 import { useFloatingBackButtonBottom } from "@/lib/layout";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
-import { SHOWCASE_ENABLED } from "@/lib/showcase/showcase-control";
 import { cn } from "@/lib/utils";
 import { GlassView } from "expo-glass-effect";
 import { useRouter } from "expo-router";
@@ -75,9 +74,7 @@ export function FloatingBackButton({
     return () => clearTimeout(timeout);
   }, [iconOpacity, reduceMotion]);
 
-  // Store screenshots have no navigation to demonstrate, and the button would sit on
-  // top of the content they are selling.
-  if (SHOWCASE_ENABLED || hidden) return null;
+  if (hidden) return null;
 
   const label = accessibilityLabel ?? t("Back");
   const handlePress = onPress ?? (() => router.back());

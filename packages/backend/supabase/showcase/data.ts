@@ -117,7 +117,7 @@ interface ShowcaseWishlistSeed {
   readonly items: readonly ShowcaseItemSeed[];
 }
 
-const PRIORITY_NAMES: Readonly<Record<string, string>> = {
+export const PRIORITY_NAMES: Readonly<Record<string, string>> = {
   [PRIORITY_IDS.LOW]: "Low",
   [PRIORITY_IDS.MEDIUM]: "Medium",
   [PRIORITY_IDS.HIGH]: "High",

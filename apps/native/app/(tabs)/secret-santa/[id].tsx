@@ -83,7 +83,10 @@ export default function SecretSantaDetailScreen() {
   const isStarted = Boolean(data?.is_started);
   const participants = data?.participants ?? [];
   const pendingInvites = data?.pending_invites ?? [];
-  const totalPeople = participants.length + pendingInvites.length;
+  // Pending invites are listed only to the owner before the draw, so the hero
+  // counts exactly the people the list below shows.
+  const listsPendingInvites = isOwner && !isStarted;
+  const totalPeople = participants.length + (listsPendingInvites ? pendingInvites.length : 0);
   const activeExclusions = React.useMemo<SecretSantaExclusionSelection>(() => {
     const ids = new Set(data?.participants.map((person) => person.id) ?? []);
     return Object.fromEntries(
