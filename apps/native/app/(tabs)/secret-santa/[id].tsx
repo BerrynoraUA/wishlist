@@ -199,7 +199,7 @@ export default function SecretSantaDetailScreen() {
                   {isStarted ? (
                     <>
                       {data.my_receiver ? (
-                        <SecretSantaReceiverCard receiver={data.my_receiver} />
+                        <SecretSantaReceiverCard eventId={data.id} receiver={data.my_receiver} />
                       ) : null}
                       <SecretSantaGiftSuggestions
                         receiverId={data.my_receiver?.id}
