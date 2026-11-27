@@ -25,8 +25,10 @@ import {
   getSecretSantaAccent,
 } from "@/lib/secret-santa";
 import * as React from "react";
+import { ScopedTheme, useUniwind } from "uniwind";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { motionDuration, useReducedMotion } from "@/lib/motion";
+import { getNativeAccentForWishlistAccent, getNativeThemeName, getThemeMode } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { getWishlistAccentClass } from "@/lib/wishlists";
 import type {
@@ -353,27 +355,41 @@ export function SecretSantaPeopleSection({
   );
 }
 
-export function SecretSantaReceiverCard({ receiver }: { receiver: SecretSantaPerson }) {
+export function SecretSantaReceiverCard({
+  eventId,
+  receiver,
+}: {
+  eventId: string;
+  receiver: SecretSantaPerson;
+}) {
   const t = useGT();
+  const { theme } = useUniwind();
+  // Wears the event's own accent, like the hero above it, in the current light or dark mode.
+  const eventTheme = getNativeThemeName(
+    getThemeMode(theme),
+    getNativeAccentForWishlistAccent(getSecretSantaAccent(eventId)),
+  );
 
   return (
-    <View className="gap-3 rounded-xl border border-brand/25 bg-brand-lighter p-4">
-      <View className="flex-row items-center gap-3">
-        <SecretSantaPersonAvatar person={receiver} sizeClassName="size-12" />
-        <View className="min-w-0 flex-1">
-          <Text className="text-sm font-bold text-brand">{t("Your Secret Santa match")}</Text>
-          <Text className="text-xl font-extrabold text-text" numberOfLines={1}>
-            {getSecretSantaPersonName(receiver, t)}
-          </Text>
-          {receiver.nickname ? (
-            <Text className="text-sm text-text-muted" numberOfLines={1}>
-              @{receiver.nickname}
+    <ScopedTheme theme={eventTheme}>
+      <View className="gap-3 rounded-xl border border-brand/25 bg-brand-lighter p-4">
+        <View className="flex-row items-center gap-3">
+          <SecretSantaPersonAvatar person={receiver} sizeClassName="size-12" />
+          <View className="min-w-0 flex-1">
+            <Text className="text-sm font-bold text-brand">{t("Your Secret Santa match")}</Text>
+            <Text className="text-xl font-extrabold text-text" numberOfLines={1}>
+              {getSecretSantaPersonName(receiver, t)}
             </Text>
-          ) : null}
+            {receiver.nickname ? (
+              <Text className="text-sm text-text-muted" numberOfLines={1}>
+                @{receiver.nickname}
+              </Text>
+            ) : null}
+          </View>
+          <Icon as={Sparkles} className="size-6 text-brand" />
         </View>
-        <Icon as={Sparkles} className="size-6 text-brand" />
       </View>
-    </View>
+    </ScopedTheme>
   );
 }
 
