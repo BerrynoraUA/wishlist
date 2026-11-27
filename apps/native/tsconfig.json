@@ -2,6 +2,9 @@
   "extends": ["expo/tsconfig.base", "../../packages/backend/tsconfig/react-native.json"],
   "compilerOptions": {
     "jsx": "react-jsx",
+    // Expo loads app.config.ts and its local config plugins with Node's type
+    // stripping, which only resolves imports that spell out the .ts extension.
+    "allowImportingTsExtensions": true,
     "paths": {
       "@/*": ["./*"]
     },
