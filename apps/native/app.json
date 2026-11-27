@@ -189,7 +189,14 @@
       "expo-font",
       "expo-sharing",
       "expo-status-bar",
-      "expo-build-properties",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "enableSceneSupport": true
+          }
+        }
+      ],
       [
         "expo-share-intent",
         {
