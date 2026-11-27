@@ -1,5 +1,7 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
 
+import { withIosSceneLifecycle } from "./plugins/with-ios-scene-lifecycle.ts";
+
 type RuntimeVersionPolicy = Extract<ExpoConfig["runtimeVersion"], { policy: unknown }>["policy"];
 
 export type AppVariant = "development" | "staging" | "production";
@@ -82,4 +84,5 @@ export function resolveAppConfig(
   };
 }
 
-export default ({ config }: ConfigContext): ExpoConfig => resolveAppConfig(config);
+export default ({ config }: ConfigContext): ExpoConfig =>
+  withIosSceneLifecycle(resolveAppConfig(config));
