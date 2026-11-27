@@ -1,3 +1,4 @@
+import { onlineManager } from "@tanstack/react-query";
 import { AddFriendSheet, getFriendInviteLink } from "@/components/friends/sheets/add-friend-sheet";
 import { FriendGroupSheet } from "@/components/friends/sheets/friend-group-sheet";
 import { SecretSantaCreateEditSheet } from "@/components/secret-santa/sheets/secret-santa-create-edit-sheet";
@@ -152,7 +153,7 @@ async function settledData<TData>(query: {
   data: TData | undefined;
   refetch: () => Promise<{ data: TData | undefined }>;
 }): Promise<TData | undefined> {
-  if (query.data !== undefined) return query.data;
+  if (query.data !== undefined || !onlineManager.isOnline()) return query.data;
 
   return query
     .refetch()

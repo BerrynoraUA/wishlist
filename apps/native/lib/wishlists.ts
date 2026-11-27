@@ -6,8 +6,7 @@ import {
   type WishlistFormValues,
 } from "@wishlist/backend/types/wishlist";
 
-export const WISHLIST_PAGE_SIZE = 8;
-export const DEFAULT_WISHLIST_SORT = "newest";
+export { WISHLIST_PAGE_SIZE, DEFAULT_WISHLIST_SORT } from "./wishlist-query-keys";
 export const SELECTED_GROUPS_ACCESS_TYPE = 2;
 export const SELECTED_FRIENDS_ACCESS_TYPE = 3;
 

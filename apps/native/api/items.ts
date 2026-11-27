@@ -68,22 +68,30 @@ export async function getWishlistItems(
   return (data as Item[]) ?? [];
 }
 
-export async function createItem({
-  wishlist_id,
-  name,
-  description,
-  price,
-  priority_id,
-  image_url,
-  url,
-  status = 0,
-  discount_price,
-  has_discount,
-  discount_end_date,
-  currency,
-  additional_links,
-  color_index,
-}: CreateItemParams): Promise<Item> {
+export async function createItem(
+  {
+    wishlist_id,
+    name,
+    description,
+    price,
+    priority_id,
+    image_url,
+    url,
+    status = 0,
+    discount_price,
+    has_discount,
+    discount_end_date,
+    currency,
+    additional_links,
+    color_index,
+  }: CreateItemParams,
+  id?: string,
+): Promise<Item> {
+  if (id) {
+    const { data, error } = await supabase.from("item").select().eq("id", id).maybeSingle();
+    if (error) throw error;
+    if (data) return data as Item;
+  }
   if (isStarPriorityId(priority_id)) {
     await ensureStarPriorityLimit(wishlist_id);
   }
@@ -91,6 +99,7 @@ export async function createItem({
   const { data, error } = await supabase
     .from("item")
     .insert({
+      ...(id ? { id } : {}),
       wishlist_id,
       name,
       description: description ?? null,

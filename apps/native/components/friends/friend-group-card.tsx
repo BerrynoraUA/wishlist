@@ -1,3 +1,4 @@
+import { PendingSync } from "@/components/shared/pending-sync";
 import { AnimatedPressable } from "@/components/ui/animated-pressable";
 import {
   DropdownMenu,
@@ -63,6 +64,7 @@ export function FriendGroupCard({
               <Text className="text-base font-extrabold text-text" numberOfLines={1}>
                 {group.name}
               </Text>
+              <PendingSync id={group.id} />
               {group.description ? (
                 <Text className="text-sm text-text-muted" numberOfLines={2}>
                   {group.description}

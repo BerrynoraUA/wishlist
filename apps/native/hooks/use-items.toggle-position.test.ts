@@ -1,15 +1,13 @@
 import {
   MutationObserver,
   QueryClient,
-  useMutation,
-  useQueryClient,
+  QueryObserver,
   type InfiniteData,
-  type UseMutationOptions,
 } from "@tanstack/react-query";
 import type { Item } from "@wishlist/backend/types/item";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { toggleItemBought, toggleItemReservation } from "@/api/items";
-import { useToggleItemBought, useToggleItemReservation } from "./use-items";
+import { queuedItemMutationKeys, registerQueuedItemMutations } from "./use-items";
 
 vi.mock("@/api/items", () => ({
   toggleItemBought: vi.fn(),
@@ -17,15 +15,14 @@ vi.mock("@/api/items", () => ({
 }));
 vi.mock("@/hooks/use-infinite-page", () => ({}));
 vi.mock("@/lib/card-motion", () => ({}));
-vi.mock("@/lib/items", () => ({}));
+vi.mock("@/hooks/use-queued-write", () => ({}));
+vi.mock("@/lib/record-id", () => ({}));
+vi.mock("@/lib/items", () => ({
+  optimisticallyToggleItemBought: (item: Item) => item,
+  optimisticallyToggleItemReservation: (item: Item) => item,
+}));
 vi.mock("@/providers/auth-provider", () => ({}));
 vi.mock("@/lib/haptics", () => ({ hapticError: vi.fn(), hapticSuccess: vi.fn() }));
-vi.mock("@tanstack/react-query", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@tanstack/react-query")>()),
-  useMutation: vi.fn(),
-  useQueryClient: vi.fn(),
-}));
-
 const LIST_KEY = ["items", "wishlist", "user", "wishlist-1", {}];
 
 function item(id: string, status = 0) {
@@ -33,15 +30,15 @@ function item(id: string, status = 0) {
 }
 
 describe.each([
-  ["reservation", useToggleItemReservation, toggleItemReservation, 1],
-  ["purchase", useToggleItemBought, toggleItemBought, 2],
-] as const)("%s keeps the card in place", (_name, useAction, api, status) => {
+  ["reservation", queuedItemMutationKeys.toggleReservation, toggleItemReservation, 1],
+  ["purchase", queuedItemMutationKeys.toggleBought, toggleItemBought, 2],
+] as const)("%s keeps the card in place", (_name, mutationKey, api, status) => {
   let client: QueryClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
     client = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
-    vi.mocked(useQueryClient).mockReturnValue(client);
+    registerQueuedItemMutations(client);
     client.setQueryData<InfiniteData<Item[], number>>(LIST_KEY, {
       pageParams: [0],
       pages: [[item("first"), item("second"), item("third")]],
@@ -56,13 +53,10 @@ describe.each([
       reserved_by: "me",
       price: "raw",
     } as unknown as Item);
-    useAction();
-    const options = vi.mocked(useMutation).mock.calls.at(-1)![0] as UseMutationOptions<
-      Item,
-      Error,
-      string
-    >;
-    await new MutationObserver(client, options).mutate("second");
+    await new MutationObserver<Item, Error, { itemId: string; userId: string }>(client, {
+      mutationKey,
+      retry: false,
+    }).mutate({ itemId: "second", userId: "me" });
   }
 
   it("updates the item without moving it", async () => {
@@ -74,9 +68,27 @@ describe.each([
   });
 
   it("marks the list stale so it re-sorts the next time it loads", async () => {
-    await toggleSecond();
+    const serverOrder = {
+      pageParams: [0],
+      pages: [[item("first"), item("third"), item("second", status)]],
+    };
+    const list = new QueryObserver(client, {
+      queryKey: LIST_KEY,
+      queryFn: async () => serverOrder,
+      staleTime: Infinity,
+    });
+    const unsubscribe = list.subscribe(() => {});
+    try {
+      await toggleSecond();
 
-    expect(client.getQueryState(LIST_KEY)!.isInvalidated).toBe(true);
-    expect(client.getQueryState(LIST_KEY)!.fetchStatus).toBe("idle");
+      expect(client.getQueryState(LIST_KEY)?.isInvalidated).toBe(true);
+      expect(list.getCurrentResult().data?.pages[0]?.map((entry) => entry.id)).toEqual([
+        "first",
+        "second",
+        "third",
+      ]);
+    } finally {
+      unsubscribe();
+    }
   });
 });

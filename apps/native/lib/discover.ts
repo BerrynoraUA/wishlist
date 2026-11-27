@@ -1,8 +1,50 @@
-import type { DiscoverItem, ReservedItem } from "@wishlist/backend/types/discover";
+import { parseOptionalNumber } from "@/lib/items";
+import { normalizeSearchQuery } from "@/lib/wishlists";
+import type {
+  DiscoverItem,
+  DiscoverQueryParams,
+  ReservedItem,
+} from "@wishlist/backend/types/discover";
 import type { Item } from "@wishlist/backend/types/item";
 import { getDateTimeFormat } from "@/lib/intl";
 
 export const DISCOVER_PAGE_SIZE = 10;
+export const DEFAULT_DISCOVER_SORT = "default";
+
+/** Discover filters as the feed holds them, before they become query params. */
+export type DiscoverFilterValues = {
+  search: string;
+  sort: string;
+  priorityIds: string[];
+  priceMin: string;
+  priceMax: string;
+};
+
+export const EMPTY_DISCOVER_FILTERS: DiscoverFilterValues = {
+  search: "",
+  sort: DEFAULT_DISCOVER_SORT,
+  priorityIds: [],
+  priceMin: "",
+  priceMax: "",
+};
+
+/**
+ * Maps feed filters to discover query params. Offline prefetching goes through here too, so
+ * the unfiltered feed it caches is the exact entry the Discover screen reads.
+ */
+export function toDiscoverQueryParams(
+  filters: DiscoverFilterValues,
+  displayCurrency: string,
+): DiscoverQueryParams {
+  return {
+    search: normalizeSearchQuery(filters.search) || undefined,
+    sort: filters.sort,
+    priorities: filters.priorityIds,
+    priceMin: parseOptionalNumber(filters.priceMin),
+    priceMax: parseOptionalNumber(filters.priceMax),
+    displayCurrency,
+  };
+}
 
 export const DISCOVER_SECTION_TABS = ["wishlists", "available"] as const;
 

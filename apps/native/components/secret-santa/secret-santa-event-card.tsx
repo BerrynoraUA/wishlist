@@ -1,3 +1,4 @@
+import { PendingSync } from "@/components/shared/pending-sync";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -91,6 +92,7 @@ export function SecretSantaEventCard({
                     <Text className="text-base font-bold leading-5 text-text" numberOfLines={2}>
                       {event.name}
                     </Text>
+                    <PendingSync id={event.id} />
                     <Text className="text-sm font-semibold text-brand" numberOfLines={1}>
                       {formatPrice(event.budget, event.currency)}
                     </Text>

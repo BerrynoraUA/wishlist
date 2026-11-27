@@ -1,6 +1,9 @@
 import type { DiscoverQueryParams } from "@wishlist/backend/types/discover";
 import type { WishlistQueryParams } from "@wishlist/backend/types/wishlist";
 
+export const WISHLIST_PAGE_SIZE = 8;
+export const DEFAULT_WISHLIST_SORT = "newest";
+
 export const wishlistKeys = {
   all: ["wishlists"] as const,
   my: (authUserId: string | null | undefined, params?: WishlistQueryParams) =>

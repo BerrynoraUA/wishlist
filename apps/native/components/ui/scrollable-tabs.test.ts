@@ -56,6 +56,10 @@ vi.mock("@/lib/motion", () => ({
   useReducedMotion: () => false,
   motionSpring: { navPill: {} },
   liquidStretch: () => 0,
+  liquidStretchTransform: () => [],
+}));
+vi.mock("@/components/user-guide/user-guide-provider", () => ({
+  useUserGuideTargetRegistration: () => ({}),
 }));
 vi.mock("@/components/ui/liquid-glass", () => ({ HAS_LIQUID_GLASS: false }));
 vi.mock("@/components/ui/animated-pressable", () => ({ AnimatedPressable: MockView }));

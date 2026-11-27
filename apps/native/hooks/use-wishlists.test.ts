@@ -115,3 +115,7 @@ describe("useWishlistById cached header", () => {
     });
   });
 });
+
+vi.mock("@/hooks/use-queued-write", () => ({}));
+vi.mock("@/lib/record-id", () => ({}));
+vi.mock("@/lib/card-motion", () => ({}));

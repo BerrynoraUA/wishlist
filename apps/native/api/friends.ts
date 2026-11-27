@@ -374,8 +374,9 @@ export async function getFriendGroupMembers(groupId: string): Promise<FriendGrou
   }));
 }
 
-export async function createFriendGroup(payload: FriendGroupPayload) {
+export async function createFriendGroup(payload: FriendGroupPayload, id?: string) {
   const { data, error } = await supabase.rpc("create_friend_group", {
+    ...(id ? { p_id: id } : {}),
     p_name: payload.name,
     p_description: payload.description ?? null,
     p_color: payload.color,
